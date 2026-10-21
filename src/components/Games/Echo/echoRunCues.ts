@@ -122,6 +122,14 @@ export interface EchoRunOptions {
   groove?: RunGroove | null;
 }
 
+/**
+ * A call's answer as cues, silent and dark: what a teacher's call adds to
+ * the run under way once it's been played (literacyRun.ts
+ * addLiteracyRunCues), so the hub lights each degree as it comes round.
+ */
+export const answerCues = (placed: RunCall): RunCue[] =>
+  noteCues(placed.notes.response, 'response', false);
+
 /** Every cue of a run of these calls, in the order they happen. */
 export function echoRunCues(
   calls: readonly RunCall[],

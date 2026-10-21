@@ -1,4 +1,12 @@
-import { Check, ChevronRight, RotateCcw, Sparkles, Swords } from 'lucide-react';
+import {
+  Check,
+  ChevronRight,
+  RotateCcw,
+  Sparkles,
+  Swords,
+  ThumbsDown,
+  ThumbsUp,
+} from 'lucide-react';
 import {
   useCallback,
   useEffect,
@@ -16,6 +24,7 @@ import GenrePianoRoll, {
 import {
   BOSS_CALLS,
   BOSS_GOOD_TO_WIN,
+  awaitsTeacher,
   chordPads,
   echoBossTempo,
   echoTempoRange,
@@ -44,6 +53,7 @@ import {
   runCallsOf,
   type EchoFlow,
   type EchoOutcome,
+  type EchoVerdict,
 } from './echoFlow';
 import { callIndexAt, wholeTimeline, type RunCall } from './echoRunCues';
 import type { EchoInputMode } from './echoSettings';
@@ -101,6 +111,8 @@ export interface EchoStageProps {
   keyColor: string;
   /** Paused (EchoGame's Pause): the input is off, and the entrance waits. */
   paused: boolean;
+  /** Presenting, the teacher says how the class did (echoFlow.ts `judge`). */
+  onJudge: (verdict: EchoVerdict) => void;
   /** The entrance is over (or skipped): the fight. */
   onFight: () => void;
   onBossRetry: () => void;
@@ -121,6 +133,7 @@ export function EchoStage({
   run,
   keyColor,
   paused,
+  onJudge,
   onFight,
   onBossRetry,
   onBossWon,
@@ -219,8 +232,16 @@ export function EchoStage({
       ? SECTION_TITLE[round.section]
       : '';
   const headline = placed
-    ? echoHeadline(placed.timeline, tick, running, sectionTitle)
+    ? echoHeadline(
+        placed.timeline,
+        tick,
+        running,
+        sectionTitle,
+        awaitsTeacher(placed.call),
+      )
     : { kind: 'idle' as const, text: sectionTitle };
+  // Presenting: the answer wasn't played here, so the teacher says.
+  const judging = (round?.judging || boss?.judging) ?? false;
   const chordNow = useMemo(() => {
     if (!placed || placed.call.kind !== 'chords') return null;
     const inAnswer = tick >= placed.timeline.response.start;
@@ -230,7 +251,8 @@ export function EchoStage({
     return {
       hub: {
         kind: 'chord' as const,
-        label: (now?.attack.chord ?? placed.call.chords[0]).label,
+        // A teacher's call has no chords until it's played.
+        label: (now?.attack.chord ?? placed.call.chords[0])?.label ?? '?',
         lit:
           !!now?.sounding &&
           now.attack.chord.midis.some((m) => run.view.lit.includes(m)),
@@ -372,7 +394,11 @@ export function EchoStage({
                 />
               ) : (
                 <p className="text-center text-[15px] leading-6 text-white/55">
-                  Listen to Atlas, then play it back.
+                  {placed?.call.taught
+                    ? 'Play your call, and the class plays it back.'
+                    : flow.audience === 'class'
+                      ? 'Listen to Atlas, then play it back together.'
+                      : 'Listen to Atlas, then play it back.'}
                 </p>
               )}
             </div>
@@ -402,12 +428,26 @@ export function EchoStage({
             targets={placed ? placed.notes.call.map((n) => n.midi) : undefined}
             isRight={isRight}
             keyboardMaxHeight={130}
-            enabled={!paused}
+            enabled={!paused && !judging}
             className={input === 'pads' ? 'min-h-[180px] pt-6' : undefined}
           />
           {round?.outcome && (
             <EchoResultCard outcome={round.outcome} keyColor={keyColor} />
           )}
+          {judging && placed && (
+            <JudgeCard
+              caller={placed.call.taught ? 'Your Call' : 'Atlas'}
+              asked={
+                placed.call.kind === 'melody'
+                  ? placed.call.notes.map((n) => n.label)
+                  : placed.call.labels
+              }
+              keyColor={keyColor}
+              paused={paused}
+              onJudge={onJudge}
+            />
+          )}
+          {round?.noCall && <NoCallCard />}
           {entrance && (
             <BossCard
               title="The Echo Boss Appears!"
@@ -649,6 +689,118 @@ function EchoResultCard({
         </span>
         {line('Atlas', outcome.asked, false)}
         {line('You', outcome.played, true)}
+      </div>
+    </div>
+  );
+}
+
+// ── Presenting: the teacher says how the class did ─────────────────────────
+
+/** The keys for the verdicts: Y, N and R, clear of the pads' home row. */
+const VERDICT_KEYS: Readonly<Record<string, EchoVerdict>> = {
+  KeyY: 'good',
+  KeyN: 'miss',
+  KeyR: 'again',
+};
+
+function JudgeCard({
+  caller,
+  asked,
+  keyColor,
+  paused,
+  onJudge,
+}: {
+  /** Whose call it was: Atlas, or the teacher's own. */
+  caller: string;
+  asked: readonly string[];
+  keyColor: string;
+  paused: boolean;
+  onJudge: (verdict: EchoVerdict) => void;
+}) {
+  const latest = useRef(onJudge);
+  latest.current = onJudge;
+  useEffect(() => {
+    if (paused) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.repeat || event.metaKey || event.ctrlKey) return;
+      const verdict = VERDICT_KEYS[event.code];
+      if (!verdict) return;
+      event.preventDefault();
+      latest.current(verdict);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [paused]);
+  const choices: {
+    verdict: EchoVerdict;
+    label: string;
+    hint: string;
+    Icon: typeof Check;
+  }[] = [
+    { verdict: 'good', label: 'Got It!', hint: 'Y', Icon: ThumbsUp },
+    { verdict: 'miss', label: 'Missed It', hint: 'N', Icon: ThumbsDown },
+    { verdict: 'again', label: 'Again', hint: 'R', Icon: RotateCcw },
+  ];
+  return (
+    <div className="absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-[#101012]/60 p-4">
+      <div
+        role="dialog"
+        aria-label="How did the class do?"
+        data-echo-judge
+        className="echo-pop flex max-w-full flex-col items-center gap-3 rounded-2xl border border-white/10 bg-[#151518] px-6 py-5 text-center shadow-2xl"
+      >
+        <span className="text-2xl text-[#e8e8f0]">How did the class do?</span>
+        <span className="flex items-baseline gap-2 text-white/60">
+          <span className="text-xs uppercase tracking-[0.12em] text-white/45">
+            {caller}
+          </span>
+          <span className="text-lg font-semibold tabular-nums text-[#e8e8f0]">
+            {asked.join(' · ')}
+          </span>
+        </span>
+        <div className="flex flex-wrap justify-center gap-2">
+          {choices.map(({ verdict, label, hint, Icon }) => (
+            <button
+              key={verdict}
+              type="button"
+              data-echo-verdict={verdict}
+              onClick={() => onJudge(verdict)}
+              className={cn(
+                'inline-flex h-11 items-center gap-2 rounded-full px-5 text-sm font-semibold transition-transform hover:scale-105',
+                verdict === 'good'
+                  ? 'text-[#101012]'
+                  : 'border border-white/15 bg-white/[0.06] text-[#e8e8f0]',
+              )}
+              style={
+                verdict === 'good' ? { backgroundColor: keyColor } : undefined
+              }
+            >
+              <Icon aria-hidden className="size-4" />
+              {label}
+              <kbd className="rounded border border-current px-1 font-sans text-[10px] leading-4 opacity-60">
+                {hint}
+              </kbd>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** The teacher led, and nothing was heard: the round runs again. */
+function NoCallCard() {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-[#101012]/60 p-4">
+      <div
+        role="status"
+        data-echo-no-call
+        className="echo-pop flex max-w-full flex-col items-center gap-1 rounded-2xl border border-white/10 bg-[#151518] px-6 py-5 text-center shadow-2xl"
+      >
+        <span className="text-2xl text-[#e8e8f0]">No call heard</span>
+        <span className="text-sm text-white/55">
+          Play your call over the Your Call bar. Here it comes again!
+        </span>
       </div>
     </div>
   );

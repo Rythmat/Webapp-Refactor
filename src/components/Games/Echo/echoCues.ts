@@ -15,6 +15,7 @@ import {
 //
 //   Get Ready  the count-in (the boss's later calls: the bar between)
 //   Listen     Atlas's call, its scale degrees lighting as they sound
+//              (Your Call when the teacher plays it: Presenter mode)
 //   1, 2       the count-off's first two beats
 //   Ready      its third
 //   Go!        its last, held into the answer's first beat
@@ -43,12 +44,14 @@ export function echoHeadline(
   tick: number,
   running: boolean,
   idle: string,
+  /** The teacher plays the call: Your Call over its bars. */
+  teaching = false,
 ): HubHeadline {
   if (!running || tick < 0) return { kind: 'idle', text: idle };
   const off = echoCountOff(timeline);
   const turn = timeline.response.start;
   if (tick < timeline.call.start) return cue('getReady');
-  if (tick < off.start) return cue('listen');
+  if (tick < off.start) return cue(teaching ? 'yourCall' : 'listen');
   if (tick < turn) {
     const beat = Math.floor((tick - off.start) / BEAT);
     // The last beat says Go!, however long the count-off.

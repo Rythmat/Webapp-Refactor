@@ -1,4 +1,12 @@
-import { Music, Pause, Play, Settings, Sparkles } from 'lucide-react';
+import {
+  Music,
+  Pause,
+  Play,
+  Settings,
+  Sparkles,
+  UserRound,
+  Users,
+} from 'lucide-react';
 import {
   lazy,
   Suspense,
@@ -11,7 +19,14 @@ import {
 } from 'react';
 import { startPianoSampler } from '@/audio/pianoSampler';
 import { cn } from '@/components/utilities';
-import { melodyPads, type EchoLevelNumber } from '@/curriculum/engine/echo';
+import { useUserRole } from '@/contexts/AuthContext/hooks/useUserRole';
+import {
+  gradeQuantizedEcho,
+  melodyPads,
+  taughtCall,
+  type EchoLevelNumber,
+  type PlayedNote,
+} from '@/curriculum/engine/echo';
 import { circleOfFifths } from '@/curriculum/engine/musicLiteracy/choices';
 import { keyName } from '@/curriculum/musicLiteracy/ChooseKeyPanel';
 import { ECHO_STOP_ID } from '@/curriculum/musicLiteracy/literacyPath';
@@ -30,7 +45,11 @@ import {
   newEchoFlow,
   runCallsOf,
   wantsRun,
+  type EchoAudience,
+  type EchoLeader,
+  type EchoOutcome,
 } from './echoFlow';
+import { gradeRunCall } from './echoOutcome';
 import {
   highScoreOf,
   nextLevelOf,
@@ -40,6 +59,7 @@ import {
   rememberSetup,
   type EchoKeyChoice,
 } from './echoProgress';
+import type { RunCall } from './echoRunCues';
 import { inputFor, useEchoSettings } from './echoSettings';
 import { EchoInputSurface } from './input';
 import { useEchoRun } from './useEchoRun';
@@ -65,6 +85,13 @@ import './echoGame.css';
 // call the music stops, and Play plays the call again from its count-in.
 // Game Settings, opened over the music, pauses it the same way.
 //
+// PRESENTER MODE (docs/echo-classroom.md): a teacher may present Echo to
+// their class instead (setup's Who's Playing?). The class plays along with
+// the big screen, so an answer played here is graded the class's way
+// (quantized), and one that isn't is the teacher's to judge. The header's
+// leader switch has the teacher make the calls. Nobody's XP, High Score or
+// progress moves: the players aren't signed in here.
+//
 // When the student finishes their song, the level is done: the next one
 // opens, Start Here's Echo stop is done, and the song's XP is counted.
 
@@ -84,6 +111,25 @@ const SECTION_LINE: Readonly<Record<EchoSectionName, string>> = {
   chordEcho: `Now chords. Atlas plays two; play them back! ${CHORD_ECHO_ROUNDS} rounds.`,
 };
 
+/** Who may present Echo to a class. */
+const PRESENTERS = new Set(['teacher', 'admin', 'editor']);
+
+/** An echo graded the class's way; null: nothing was played here. */
+function gradeForClass(
+  placed: RunCall,
+  played: readonly PlayedNote[],
+): EchoOutcome | null {
+  const quantized = gradeQuantizedEcho(placed.call, played, {
+    timeline: placed.timeline,
+  });
+  if (!quantized.playedAny) return null;
+  return {
+    ...gradeRunCall(placed, played),
+    passed: quantized.passed,
+    percent: quantized.percent,
+  };
+}
+
 const newSeed = () =>
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -101,6 +147,8 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
   });
   const [paused, setPaused] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const role = useUserRole();
+  const canPresent = !!role && PRESENTERS.has(role);
   /** The level's High Score when this game began: beaten, it's new. */
   const highScoreBefore = useRef(0);
   /** Games begun: what the gate's XP and the song's finish happen once for. */
@@ -109,6 +157,7 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
   flowRef.current = flow;
 
   const { screen, level, key } = flow;
+  const solo = flow.audience === 'solo';
   const input = inputFor(settings, level);
   const keyColor = useMemo(() => melodyPads(key).keyColor, [key]);
   const palette = useMemo(
@@ -118,7 +167,14 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
 
   // ── A game begins ──
   const begin = useCallback(
-    (nextLevel: EchoLevelNumber, nextKey: EchoKeyChoice) => {
+    (
+      nextLevel: EchoLevelNumber,
+      nextKey: EchoKeyChoice,
+      who: { audience: EchoAudience; leader: EchoLeader } = {
+        audience: flowRef.current.audience,
+        leader: flowRef.current.leader,
+      },
+    ) => {
       // On the press itself, so the audio may start.
       void startPianoSampler().catch(() => {});
       setProgress(rememberSetup(nextLevel, nextKey));
@@ -130,6 +186,7 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
         level: nextLevel,
         key: nextKey,
         seed: makeSeed(),
+        ...who,
         // In development, `?boss` goes straight to the Echo Boss.
         ...(import.meta.env.DEV &&
         new URLSearchParams(window.location.search).has('boss')
@@ -144,6 +201,28 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
   /** The boss call a run starts on (a resumed fight starts mid-way). */
   const runFrom = useRef(0);
   const run = useEchoRun({
+    grade: solo ? undefined : gradeForClass,
+    onUnanswered: () => dispatch({ type: 'unanswered' }),
+    teach: (placed, played) =>
+      taughtCall(
+        placed.call.kind,
+        played,
+        { level, key, tempo: placed.timeline.tempo },
+        {
+          start: placed.timeline.call.start,
+          tempo: placed.timeline.tempo,
+          snap: settings.classSnap,
+        },
+      ),
+    onTaught: (_index, call) => {
+      if (call) {
+        dispatch({ type: 'taught', run: flowRef.current.run, call });
+      } else {
+        // Nothing heard: stop here, and say so.
+        run.stop();
+        dispatch({ type: 'noCall' });
+      }
+    },
     onGraded: (index, outcome) => {
       const now = flowRef.current;
       if (now.screen.kind === 'round') {
@@ -185,6 +264,10 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
     } else if (screen.kind === 'round' && screen.outcome) {
       wait = RESULT_MS;
       event = { type: 'next' };
+    } else if (screen.kind === 'round' && screen.noCall) {
+      // "No call heard": the teacher plays it again.
+      wait = RESULT_MS;
+      event = { type: 'judge', verdict: 'again' };
     }
     // The boss's entrance and its end move on with its art (EchoStage).
     if (wait === null || !event) return;
@@ -196,9 +279,10 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
   // ── The High Score, kept as it's beaten ──
   const best = flow.stats.bestStreak;
   useEffect(() => {
+    if (!solo) return;
     if (best > 0 && recordStreak(level, best)) setProgress(readEchoProgress());
-  }, [best, level]);
-  const highScore = Math.max(highScoreOf(progress, level), best);
+  }, [best, level, solo]);
+  const highScore = solo ? Math.max(highScoreOf(progress, level), best) : best;
 
   // ── The gate: the game's XP, awarded once ──
   const awardXP = useAwardArcadeExperience();
@@ -206,8 +290,8 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
   useEffect(() => {
     if (screen.kind !== 'gate' || awarded.current === game.current) return;
     awarded.current = game.current;
-    awardXP.mutateAsync().catch(() => {});
-  }, [screen.kind, awardXP]);
+    if (solo) awardXP.mutateAsync().catch(() => {});
+  }, [screen.kind, awardXP, solo]);
 
   // ── Make Your Song's way back ──
   const finished = useRef(0);
@@ -215,8 +299,11 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
     const now = flowRef.current;
     if (finished.current === game.current) return;
     finished.current = game.current;
-    setProgress(recordSongFinished(now.level));
-    markStopDone(ECHO_STOP_ID);
+    // A class's song is the class's: the teacher's own progress stays put.
+    if (now.audience === 'solo') {
+      setProgress(recordSongFinished(now.level));
+      markStopDone(ECHO_STOP_ID);
+    }
     dispatch({ type: 'songFinished' });
   }, []);
   const nextLevel = nextLevelOf(level);
@@ -260,6 +347,12 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
                 {paused ? 'Play' : 'Pause'}
               </button>
             )}
+            {!solo && screen.kind !== 'setup' && (
+              <LeaderSwitch
+                leader={flow.leader}
+                onChange={(leader) => dispatch({ type: 'leader', leader })}
+              />
+            )}
             {screen.kind !== 'setup' && (
               <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70">
                 <span
@@ -268,6 +361,7 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
                   style={{ backgroundColor: keyColor }}
                 />
                 Level {level} · {keyName(key.tonic, key.mode)}
+                {!solo && ' · Presenting'}
               </span>
             )}
             <button
@@ -283,10 +377,14 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
             </button>
           </>
         }
-        stats={[
-          { label: 'XP', value: `+${flow.stats.xp}` },
-          { label: 'High Score', value: highScore },
-        ]}
+        stats={
+          solo
+            ? [
+                { label: 'XP', value: `+${flow.stats.xp}` },
+                { label: 'High Score', value: highScore },
+              ]
+            : [{ label: 'Best Streak', value: highScore }]
+        }
       />
 
       <div className="relative flex min-h-0 flex-1 flex-col">
@@ -296,6 +394,9 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
             progress={progress}
             initialLevel={flow.level}
             initialKey={flow.key}
+            initialAudience={flow.audience}
+            initialLeader={flow.leader}
+            canPresent={canPresent}
             inputFor={(n) => inputFor(settings, n)}
             onStart={begin}
           />
@@ -316,6 +417,7 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
             run={run}
             keyColor={keyColor}
             paused={paused}
+            onJudge={(verdict) => dispatch({ type: 'judge', verdict })}
             onFight={() => dispatch({ type: 'fight' })}
             onBossRetry={() => dispatch({ type: 'bossRetry' })}
             onBossWon={() => dispatch({ type: 'toGate' })}
@@ -367,6 +469,7 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
         open={settingsOpen}
         onOpenChange={openSettings}
         level={level}
+        audience={flow.audience}
       />
     </div>
   );
@@ -414,6 +517,48 @@ function SectionIntro({
         Let’s Go!
       </button>
     </section>
+  );
+}
+
+/** Who makes the class's calls: Atlas, or the teacher. From the next call. */
+function LeaderSwitch({
+  leader,
+  onChange,
+}: {
+  leader: EchoLeader;
+  onChange: (leader: EchoLeader) => void;
+}) {
+  const options: { value: EchoLeader; label: string; Icon: typeof Users }[] = [
+    { value: 'atlas', label: 'Atlas Leads', Icon: Users },
+    { value: 'teacher', label: 'I Lead', Icon: UserRound },
+  ];
+  return (
+    <span
+      role="radiogroup"
+      aria-label="Who leads the calls"
+      data-echo-leader={leader}
+      className="flex items-center rounded-full border border-white/10 bg-black/20 p-0.5 text-xs"
+    >
+      {options.map(({ value, label, Icon }) => (
+        <button
+          key={value}
+          type="button"
+          role="radio"
+          aria-checked={leader === value}
+          data-echo-leader-option={value}
+          onClick={() => onChange(value)}
+          className={cn(
+            'flex items-center gap-1.5 rounded-full px-2.5 py-0.5 transition-colors',
+            leader === value
+              ? 'bg-white text-[#101012]'
+              : 'text-white/70 hover:text-white',
+          )}
+        >
+          <Icon aria-hidden className="size-3.5" />
+          {label}
+        </button>
+      ))}
+    </span>
   );
 }
 

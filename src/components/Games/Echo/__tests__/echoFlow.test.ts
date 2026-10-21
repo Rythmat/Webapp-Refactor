@@ -393,3 +393,166 @@ describe('the Echo Boss', () => {
     expect(flow.key).toEqual(KEY);
   });
 });
+
+describe('presenting to a class', () => {
+  const classGame = (leader: 'atlas' | 'teacher' = 'atlas') =>
+    step(
+      newEchoFlow(),
+      {
+        type: 'begin',
+        level: 1,
+        key: KEY,
+        seed: 'class',
+        audience: 'class',
+        leader,
+      },
+      { type: 'go' },
+    );
+  const teacherCall = (flow: EchoFlow): MelodyCall => {
+    const screen = flow.screen as Extract<
+      EchoFlow['screen'],
+      { kind: 'round' }
+    >;
+    return {
+      ...(screen.call as MelodyCall),
+      notes: [
+        {
+          midi: 60,
+          onset: 0,
+          duration: 480,
+          degree: '1',
+          label: '1',
+          position: 0,
+          index: 0,
+        },
+      ],
+    };
+  };
+
+  it('asks the teacher how it went when the answer wasn’t played here', () => {
+    let flow = classGame();
+    expect(flow.audience).toBe('class');
+    expect(wantsRun(flow)).toBe(true);
+    flow = step(flow, { type: 'unanswered' });
+    expect(flow.screen).toMatchObject({ kind: 'round', judging: true });
+    expect(wantsRun(flow)).toBe(false);
+    // Got It!: a good echo, and on to the next round.
+    flow = step(flow, { type: 'judge', verdict: 'good' });
+    expect(flow.screen).toMatchObject({
+      kind: 'round',
+      round: 1,
+      judging: false,
+    });
+    expect(flow.stats.streak).toBe(1);
+    expect(flow.pips.melodyEcho).toEqual([true]);
+    // Missed It: a miss, and the next call is easier.
+    flow = step(
+      flow,
+      { type: 'unanswered' },
+      { type: 'judge', verdict: 'miss' },
+    );
+    expect(flow.pips.melodyEcho).toEqual([true, false]);
+    expect(flow.easier).toBe(true);
+    expect(flow.stats.streak).toBe(0);
+  });
+
+  it('plays the same call again on Again, counting nothing', () => {
+    let flow = step(classGame(), { type: 'unanswered' });
+    const before = flow.screen as Extract<
+      EchoFlow['screen'],
+      { kind: 'round' }
+    >;
+    const run = flow.run;
+    flow = step(flow, { type: 'judge', verdict: 'again' });
+    expect(flow.screen).toMatchObject({
+      round: 0,
+      judging: false,
+      outcome: null,
+    });
+    expect((flow.screen as typeof before).call).toBe(before.call);
+    expect(flow.run).toBe(run + 1);
+    expect(flow.pips.melodyEcho).toEqual([]);
+  });
+
+  it('ignores the teacher’s verdicts in a game of one', () => {
+    const solo = step(
+      newEchoFlow(),
+      { type: 'begin', level: 1, key: KEY, seed: 'solo' },
+      { type: 'go' },
+    );
+    expect(step(solo, { type: 'unanswered' }).screen).toMatchObject({
+      judging: false,
+    });
+  });
+
+  it('waits for the teacher’s call, takes it, and runs again when none came', () => {
+    let flow = classGame('teacher');
+    const screen = flow.screen as Extract<
+      EchoFlow['screen'],
+      { kind: 'round' }
+    >;
+    expect(screen.call.taught).toBe(true);
+    expect(screen.call.notes).toEqual([]);
+    expect(screen.easier).toBe(false);
+    // Played: the round's call is the teacher's.
+    const taught = teacherCall(flow);
+    flow = step(flow, { type: 'taught', run: flow.run, call: taught });
+    expect((flow.screen as typeof screen).call).toBe(taught);
+    // Nothing played on the next: "No call heard", then again.
+    let next = step(
+      flow,
+      { type: 'unanswered' },
+      { type: 'judge', verdict: 'good' },
+    );
+    next = step(next, { type: 'noCall' });
+    expect(next.screen).toMatchObject({ noCall: true });
+    expect(wantsRun(next)).toBe(false);
+    const run = next.run;
+    next = step(next, { type: 'judge', verdict: 'again' });
+    expect(next.screen).toMatchObject({ noCall: false, round: 1 });
+    expect(next.run).toBe(run + 1);
+    expect((next.screen as typeof screen).call.notes).toEqual([]);
+  });
+
+  it('switches who leads from the next call', () => {
+    let flow = classGame('atlas');
+    flow = step(flow, { type: 'leader', leader: 'teacher' });
+    expect((flow.screen as { call: MelodyCall }).call.taught).toBeFalsy();
+    flow = step(
+      flow,
+      { type: 'unanswered' },
+      { type: 'judge', verdict: 'good' },
+    );
+    expect((flow.screen as { call: MelodyCall }).call.taught).toBe(true);
+  });
+
+  it('fights the boss a call at a time, each judged', () => {
+    let flow = step(
+      newEchoFlow(),
+      {
+        type: 'begin',
+        level: 1,
+        key: KEY,
+        seed: 'class-boss',
+        audience: 'class',
+        leader: 'teacher',
+        skipTo: 'boss',
+      },
+      { type: 'fight' },
+    );
+    // Always Atlas's calls, one a run.
+    const screen = flow.screen as Extract<EchoFlow['screen'], { kind: 'boss' }>;
+    expect(screen.calls.every((c) => !c.taught)).toBe(true);
+    expect(runCallsOf(flow)).toHaveLength(1);
+    for (let i = 0; i < 3; i++) {
+      const run = flow.run;
+      flow = step(flow, { type: 'unanswered' });
+      expect(flow.screen).toMatchObject({ judging: true });
+      expect(wantsRun(flow)).toBe(false);
+      flow = step(flow, { type: 'judge', verdict: 'good' });
+      expect((flow.screen as typeof screen).at).toBe(i + 1);
+      if (i < 2) expect(flow.run).toBe(run + 1);
+    }
+    expect(flow.stats.boss.outcome).toBe('won');
+  });
+});

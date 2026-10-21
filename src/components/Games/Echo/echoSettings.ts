@@ -11,6 +11,8 @@ import type { EchoLevelNumber } from '@/curriculum/engine/echo';
 //   groove       the drum groove under the music, on unless turned off
 //   scaffolding  Make Your Song's training wheels (Auto-Tune Melody, Roots
 //                Only Chords, Auto Fill Bars), all off unless turned on
+//   classSnap    presenting to a class, the teacher's own calls snap to the
+//                key (docs/echo-classroom.md), on unless turned off
 //
 // The view (roll, staff or falling notes) is the app's own Learn view
 // (lib/notation useRollView), so it follows the student between Echo and
@@ -30,6 +32,8 @@ export interface EchoSettings {
   /** The drum groove plays under the calls and answers. */
   groove: boolean;
   scaffolding: EchoScaffoldingSettings;
+  /** Presenting, the teacher's calls snap to the key, so the pads can answer. */
+  classSnap: boolean;
 }
 
 export const ECHO_SETTINGS_KEY = 'echo_game_settings';
@@ -38,6 +42,7 @@ export const DEFAULT_ECHO_SETTINGS: EchoSettings = {
   input: null,
   groove: true,
   scaffolding: { autoTune: false, rootsOnly: false, autoFill: false },
+  classSnap: true,
 };
 
 /** Pads at Level 1, where the beginner starts; the keyboard after. */
@@ -68,6 +73,7 @@ export function parseEchoSettings(raw: unknown): EchoSettings {
       rootsOnly: bool(scaffolding.rootsOnly, fallback.rootsOnly),
       autoFill: bool(scaffolding.autoFill, fallback.autoFill),
     },
+    classSnap: bool(value.classSnap, DEFAULT_ECHO_SETTINGS.classSnap),
   };
 }
 

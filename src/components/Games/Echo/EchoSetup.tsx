@@ -1,4 +1,13 @@
-import { Lock, Play, Trophy } from 'lucide-react';
+import {
+  Lock,
+  Play,
+  Presentation,
+  Trophy,
+  User,
+  UserRound,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 import { useRef, useState } from 'react';
 import { cn } from '@/components/utilities';
 import type {
@@ -17,6 +26,7 @@ import {
   type RingSlice,
 } from '@/curriculum/musicLiteracy/KeyRing';
 import { useElementSize } from '@/hooks/useElementSize';
+import type { EchoAudience, EchoLeader } from './echoFlow';
 import {
   highScoreOf,
   levelOpen,
@@ -31,6 +41,11 @@ import type { EchoInputMode } from './echoSettings';
 // wears (a minor key takes its relative major's); then the three levels,
 // in order, a lock on each not yet reached, each with its High Score (the
 // best streak there). Start plays Melody Echo.
+//
+// A teacher sees one more choice, Who's Playing?: Just Me, or My Class, to
+// present Echo on the big screen (docs/echo-classroom.md, Presenter mode).
+// Presenting opens every level, and asks who leads the calls: Atlas, or
+// the teacher.
 
 const MODES: readonly LiteracyMode[] = ['major', 'minor'];
 
@@ -47,7 +62,72 @@ export interface EchoSetupProps {
   initialKey: EchoKeyChoice;
   /** Pads or Keyboard, as the level would play (Game Settings). */
   inputFor: (level: EchoLevelNumber) => EchoInputMode;
-  onStart: (level: EchoLevelNumber, key: EchoKeyChoice) => void;
+  /** A teacher may present to their class. */
+  canPresent?: boolean;
+  initialAudience?: EchoAudience;
+  initialLeader?: EchoLeader;
+  onStart: (
+    level: EchoLevelNumber,
+    key: EchoKeyChoice,
+    who: { audience: EchoAudience; leader: EchoLeader },
+  ) => void;
+}
+
+/** A row of two big choices, one picked. */
+function ChoicePair<T extends string>({
+  label,
+  value,
+  options,
+  color,
+  onChange,
+  data,
+}: {
+  label: string;
+  value: T;
+  options: { value: T; title: string; line: string; Icon: LucideIcon }[];
+  color: string;
+  onChange: (value: T) => void;
+  data: string;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <h3 className="text-xs uppercase tracking-[0.14em] text-white/45">
+        {label}
+      </h3>
+      <div
+        role="radiogroup"
+        aria-label={label}
+        className="grid grid-cols-2 gap-3"
+      >
+        {options.map(({ value: v, title, line, Icon }) => {
+          const on = value === v;
+          return (
+            <button
+              key={v}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              {...{ [`data-echo-${data}`]: v }}
+              onClick={() => onChange(v)}
+              className={cn(
+                'flex min-h-14 items-center gap-3 rounded-xl border bg-[#151518] px-4 py-2 text-left transition-colors',
+                on
+                  ? 'border-transparent'
+                  : 'border-white/[0.08] hover:bg-white/[0.06]',
+              )}
+              style={on ? { boxShadow: `0 0 0 2px ${color}` } : undefined}
+            >
+              <Icon aria-hidden className="size-5 shrink-0 text-white/70" />
+              <span className="flex min-w-0 flex-col">
+                <span className="text-base text-[#e8e8f0]">{title}</span>
+                <span className="text-xs leading-4 text-white/50">{line}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export function EchoSetup({
@@ -55,13 +135,28 @@ export function EchoSetup({
   initialLevel,
   initialKey,
   inputFor,
+  canPresent = false,
+  initialAudience = 'solo',
+  initialLeader = 'atlas',
   onStart,
 }: EchoSetupProps) {
+  const [audience, setAudience] = useState<EchoAudience>(
+    canPresent ? initialAudience : 'solo',
+  );
+  const [leader, setLeader] = useState<EchoLeader>(initialLeader);
+  const presenting = audience === 'class';
   const [tonic, setTonic] = useState<LiteracyTonic>(initialKey.tonic);
   const [mode, setMode] = useState<LiteracyMode>(initialKey.mode);
   const [level, setLevel] = useState<EchoLevelNumber>(
     levelOpen(progress, initialLevel) ? initialLevel : 1,
   );
+  // Back to Just Me on a level not yet open: the highest that is.
+  const pickAudience = (next: EchoAudience) => {
+    setAudience(next);
+    if (next === 'solo' && !levelOpen(progress, level)) {
+      setLevel(progress.unlocked);
+    }
+  };
   const ringBox = useRef<HTMLDivElement>(null);
   const box = useElementSize(ringBox);
   const size = Math.max(
@@ -126,6 +221,53 @@ export function EchoSetup({
           </p>
         </div>
 
+        {canPresent && (
+          <ChoicePair<EchoAudience>
+            label="Who’s Playing?"
+            data="audience"
+            value={audience}
+            color={chosen.color}
+            onChange={pickAudience}
+            options={[
+              {
+                value: 'solo',
+                title: 'Just Me',
+                line: 'Play on this device.',
+                Icon: User,
+              },
+              {
+                value: 'class',
+                title: 'My Class',
+                line: 'Present on the big screen.',
+                Icon: Presentation,
+              },
+            ]}
+          />
+        )}
+        {presenting && (
+          <ChoicePair<EchoLeader>
+            label="Who Leads?"
+            data="leader-pick"
+            value={leader}
+            color={chosen.color}
+            onChange={setLeader}
+            options={[
+              {
+                value: 'atlas',
+                title: 'Atlas Leads',
+                line: 'Atlas plays each call.',
+                Icon: Users,
+              },
+              {
+                value: 'teacher',
+                title: 'I Lead',
+                line: 'You play each call. Switch any time.',
+                Icon: UserRound,
+              },
+            ]}
+          />
+        )}
+
         <div
           role="radiogroup"
           aria-label="Major or minor"
@@ -182,7 +324,8 @@ export function EchoSetup({
             className="grid grid-cols-3 gap-3 max-[639px]:grid-cols-1"
           >
             {ECHO_LEVEL_NUMBERS.map((n) => {
-              const open = levelOpen(progress, n);
+              // Presenting, every level is the teacher's to pick.
+              const open = presenting || levelOpen(progress, n);
               const on = level === n;
               const best = highScoreOf(progress, n);
               return (
@@ -238,11 +381,13 @@ export function EchoSetup({
           <button
             type="button"
             data-echo-start
-            onClick={() => onStart(level, { tonic, mode })}
+            onClick={() =>
+              onStart(level, { tonic, mode }, { audience, leader })
+            }
             className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-7 text-base font-semibold text-[#101012] transition-transform hover:scale-105"
           >
             <Play aria-hidden className="size-4" fill="currentColor" />
-            Play Echo
+            {presenting ? 'Present Echo' : 'Play Echo'}
           </button>
           <span className="text-sm text-white/45">
             Playing with {input === 'pads' ? 'pads' : 'the keyboard'}. Change it

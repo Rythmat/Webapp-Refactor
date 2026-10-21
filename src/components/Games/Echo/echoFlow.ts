@@ -1,6 +1,8 @@
 import {
+  awaitsTeacher,
   bossCalls,
   echoBossTempo,
+  emptyTaughtCall,
   echoGameReducer,
   echoTimeline,
   echoRandom,
@@ -31,6 +33,15 @@ import { placeCall, type RunCall } from './echoRunCues';
 //   gate       "You beat the Echo Boss!": the game's numbers
 //   song       Make Your Song (makeYourSong/MakeYourSong.tsx)
 //
+// PRESENTER MODE (docs/echo-classroom.md): the class plays along with the
+// teacher's screen, not on it (`audience: 'class'`). An answer played on it
+// is graded (the class's way, quantized); one that isn't asks the teacher
+// how the class did (`judging`): Got It!, Missed It, or Again. The teacher
+// may lead (`leader`): a round's call is then theirs, played over its call
+// bars (engine/echo/taught.ts), and a round with nothing played runs again
+// ("No call heard"). The boss plays one call a run, so each can be judged,
+// and is always Atlas's.
+//
 // The numbers (sections, streak, the boss's health, XP) are the engine's
 // (engine/echo/stats.ts echoGameReducer). Each call is made from the game's
 // seed and its number, so a seed replays the same game. After a miss the
@@ -59,6 +70,15 @@ export const ECHO_SECTION_ORDER: readonly EchoSectionName[] = [
 /** How many recent melody contours a new call avoids. */
 const RECENT_CONTOURS = 3;
 
+/** Who's playing: one student, or a class at the teacher's screen. */
+export type EchoAudience = 'solo' | 'class';
+
+/** Who makes a class's calls: Atlas, or the teacher. */
+export type EchoLeader = 'atlas' | 'teacher';
+
+/** How the teacher says the class did. */
+export type EchoVerdict = 'good' | 'miss' | 'again';
+
 /** What an echo came to, as the result shows it. */
 export interface EchoOutcome {
   passed: boolean;
@@ -83,6 +103,10 @@ export type EchoScreen =
       /** An easier call, after a miss. */
       easier: boolean;
       outcome: EchoOutcome | null;
+      /** In class, the answer wasn't played here: the teacher says how it went. */
+      judging: boolean;
+      /** The teacher led and played nothing: the round runs again. */
+      noCall: boolean;
     }
   | { kind: 'bossIntro' }
   | {
@@ -93,6 +117,8 @@ export type EchoScreen =
       /** The call being played (or the next to play). */
       at: number;
       outcomes: (EchoOutcome | null)[];
+      /** In class, the call at `at` was answered off this screen: the teacher says. */
+      judging: boolean;
     }
   | { kind: 'gate' }
   | { kind: 'song' };
@@ -114,6 +140,10 @@ export interface EchoFlow {
   recent: string[];
   /** Runs asked for. */
   run: number;
+  /** One student, or a class at the teacher's screen (Presenter mode). */
+  audience: EchoAudience;
+  /** Who makes a class's calls; a change plays from the next call. */
+  leader: EchoLeader;
 }
 
 export type EchoFlowEvent =
@@ -125,6 +155,9 @@ export type EchoFlowEvent =
       seed: string;
       /** Straight to the Echo Boss (a development shortcut: `?boss`). */
       skipTo?: 'boss';
+      /** A class at the teacher's screen; one student when left out. */
+      audience?: EchoAudience;
+      leader?: EchoLeader;
     }
   /** A section's title card is done: its first round. */
   | { type: 'go' }
@@ -145,7 +178,17 @@ export type EchoFlowEvent =
   /** The song is finished: the victory shows. */
   | { type: 'songFinished' }
   /** Back to setup. */
-  | { type: 'exit' };
+  | { type: 'exit' }
+  /** Who leads the class's calls, from the next one. */
+  | { type: 'leader'; leader: EchoLeader }
+  /** The teacher's call, played over its call bars, in run `run`. */
+  | { type: 'taught'; run: number; call: EchoCall }
+  /** The teacher led and played nothing. */
+  | { type: 'noCall' }
+  /** In class, the answer came unplayed here: the teacher is to say. */
+  | { type: 'unanswered' }
+  /** The teacher says how the class did. */
+  | { type: 'judge'; verdict: EchoVerdict };
 
 const random = (flow: Pick<EchoFlow, 'seed' | 'made'>) =>
   echoRandom(`${flow.seed}:${flow.made}`);
@@ -167,8 +210,14 @@ export function newEchoFlow(
     made: 0,
     recent: [],
     run: 0,
+    audience: 'solo',
+    leader: 'atlas',
   };
 }
+
+/** A class's section is led by its teacher. */
+const teacherLeads = (flow: EchoFlow) =>
+  flow.audience === 'class' && flow.leader === 'teacher';
 
 /** The flow with a round of `section` under way: a fresh call. */
 function playRound(
@@ -176,11 +225,18 @@ function playRound(
   section: EchoSectionName,
   round: number,
 ): EchoFlow {
-  const call = roundCall(section, flow.level, flow.key, random(flow), {
-    easier: flow.easier,
-    exclude: flow.recent,
-    tempo: flow.tempo.bpm,
-  });
+  const taught = teacherLeads(flow);
+  const call = taught
+    ? emptyTaughtCall(section === 'melodyEcho' ? 'melody' : 'chords', {
+        level: flow.level,
+        key: flow.key,
+        tempo: flow.tempo.bpm,
+      })
+    : roundCall(section, flow.level, flow.key, random(flow), {
+        easier: flow.easier,
+        exclude: flow.recent,
+        tempo: flow.tempo.bpm,
+      });
   return {
     ...flow,
     screen: {
@@ -189,17 +245,46 @@ function playRound(
       round,
       call,
       tempo: call.tempo,
-      easier: flow.easier,
+      easier: !taught && flow.easier,
       outcome: null,
+      judging: false,
+      noCall: false,
     },
     made: flow.made + 1,
     recent:
-      call.kind === 'melody'
+      call.kind === 'melody' && !taught
         ? [call.contour.id, ...flow.recent].slice(0, RECENT_CONTOURS)
         : flow.recent,
     run: flow.run + 1,
   };
 }
+
+/** The same round once more: the same call, or the teacher's to play again. */
+function againRound(
+  flow: EchoFlow,
+  screen: Extract<EchoScreen, { kind: 'round' }>,
+): EchoFlow {
+  const call = screen.call.taught
+    ? emptyTaughtCall(screen.call.kind, {
+        level: flow.level,
+        key: flow.key,
+        tempo: screen.tempo,
+      })
+    : screen.call;
+  return {
+    ...flow,
+    screen: { ...screen, call, outcome: null, judging: false, noCall: false },
+    run: flow.run + 1,
+  };
+}
+
+/** What the teacher's verdict counts as: what was asked, nothing played. */
+const judged = (call: EchoCall, passed: boolean): EchoOutcome => ({
+  passed,
+  percent: passed ? 100 : 0,
+  asked: call.kind === 'melody' ? call.notes.map((n) => n.label) : call.labels,
+  played: [],
+});
 
 /** The boss's screen with four fresh calls. */
 function fightBoss(flow: EchoFlow): EchoFlow {
@@ -213,6 +298,7 @@ function fightBoss(flow: EchoFlow): EchoFlow {
       tempo,
       at: 0,
       outcomes: calls.map(() => null),
+      judging: false,
     },
     made: flow.made + 1,
     run: flow.run + 1,
@@ -243,6 +329,8 @@ export function echoFlowReducer(
             ? { kind: 'bossIntro' }
             : { kind: 'intro', section: 'melodyEcho' },
         run: flow.run,
+        audience: event.audience ?? 'solo',
+        leader: event.leader ?? 'atlas',
       };
 
     case 'go':
@@ -291,15 +379,21 @@ export function echoFlowReducer(
       }
       const outcomes = [...screen.outcomes];
       outcomes[event.index] = event.outcome;
+      const stats = echoGameReducer(flow.stats, {
+        type: 'echo',
+        section: 'boss',
+        passed: event.outcome.passed,
+      });
       return {
         ...flow,
-        screen: { ...screen, at: screen.at + 1, outcomes },
-        stats: echoGameReducer(flow.stats, {
-          type: 'echo',
-          section: 'boss',
-          passed: event.outcome.passed,
-        }),
+        screen: { ...screen, at: screen.at + 1, outcomes, judging: false },
+        stats,
         easier: false,
+        // In class each call is a run of its own: the next one starts.
+        run:
+          flow.audience === 'class' && stats.boss.outcome === 'fighting'
+            ? flow.run + 1
+            : flow.run,
       };
     }
 
@@ -332,6 +426,64 @@ export function echoFlowReducer(
 
     case 'exit':
       return { ...newEchoFlow(flow.level, flow.key), run: flow.run };
+
+    case 'leader':
+      return flow.audience === 'class'
+        ? { ...flow, leader: event.leader }
+        : flow;
+
+    case 'taught':
+      return screen.kind === 'round' &&
+        event.run === flow.run &&
+        awaitsTeacher(screen.call)
+        ? { ...flow, screen: { ...screen, call: event.call } }
+        : flow;
+
+    case 'noCall':
+      return screen.kind === 'round' && awaitsTeacher(screen.call)
+        ? { ...flow, screen: { ...screen, noCall: true } }
+        : flow;
+
+    case 'unanswered':
+      if (flow.audience !== 'class') return flow;
+      if (screen.kind === 'round' && !screen.outcome) {
+        return { ...flow, screen: { ...screen, judging: true } };
+      }
+      if (screen.kind === 'boss' && flow.stats.boss.outcome === 'fighting') {
+        return { ...flow, screen: { ...screen, judging: true } };
+      }
+      return flow;
+
+    case 'judge': {
+      if (screen.kind === 'round' && (screen.judging || screen.noCall)) {
+        if (event.verdict === 'again' || screen.noCall) {
+          return againRound(flow, screen);
+        }
+        const graded = echoFlowReducer(
+          { ...flow, screen: { ...screen, judging: false } },
+          {
+            type: 'graded',
+            outcome: judged(screen.call, event.verdict === 'good'),
+          },
+        );
+        return echoFlowReducer(graded, { type: 'next' });
+      }
+      if (screen.kind === 'boss' && screen.judging) {
+        if (event.verdict === 'again') {
+          return {
+            ...flow,
+            screen: { ...screen, judging: false },
+            run: flow.run + 1,
+          };
+        }
+        return echoFlowReducer(flow, {
+          type: 'bossGraded',
+          index: screen.at,
+          outcome: judged(screen.calls[screen.at], event.verdict === 'good'),
+        });
+      }
+      return flow;
+    }
   }
 }
 
@@ -366,8 +518,13 @@ export function bossRunTimelines(
 
 /** A run belongs on screen now: a round not yet graded, or a boss fight on. */
 export const wantsRun = (flow: EchoFlow): boolean =>
-  (flow.screen.kind === 'round' && !flow.screen.outcome) ||
-  (flow.screen.kind === 'boss' && flow.stats.boss.outcome === 'fighting');
+  (flow.screen.kind === 'round' &&
+    !flow.screen.outcome &&
+    !flow.screen.judging &&
+    !flow.screen.noCall) ||
+  (flow.screen.kind === 'boss' &&
+    flow.stats.boss.outcome === 'fighting' &&
+    !flow.screen.judging);
 
 /**
  * The calls the screen's run plays, laid out at its tempo: a round's one,
@@ -385,7 +542,11 @@ export function runCallsOf(flow: EchoFlow): RunCall[] {
     ];
   }
   if (screen.kind === 'boss') {
-    const calls = screen.calls.slice(screen.at);
+    // In class, one call a run, so the teacher can judge each.
+    const calls = screen.calls.slice(
+      screen.at,
+      flow.audience === 'class' ? screen.at + 1 : undefined,
+    );
     if (calls.length === 0) return [];
     const timelines = bossRunTimelines(calls, screen.tempo);
     return calls.map((call, i) => placeCall(call, timelines[i]));

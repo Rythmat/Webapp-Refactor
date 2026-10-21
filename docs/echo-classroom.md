@@ -21,7 +21,7 @@ For any class, with no student devices. Once Echo has loaded, it needs no intern
   - **Got It!** counts as a good echo: the streak, the round pips, the tempo ramp, and a hit on the Boss.
   - **Missed It** counts as a miss, and the next call is easier, as in solo Echo.
   - **Again** plays the same call again and counts nothing.
-  - Keyboard shortcuts, for a teacher at the keyboard: **G** (Got It!), **M** (Missed It), **A** (Again).
+  - Keyboard shortcuts, for a teacher at the keyboard: **Y** (Got It!), **N** (Missed It), **R** (Again). They're clear of the home row, which plays the pads.
 - If someone plays the answer on the teacher's device (a student called up to the keyboard), Echo grades it itself and shows the result, as solo Echo does.
 - **The Boss** plays one call at a time in Presenter mode, so the teacher can judge each one. The Boss reacts to each judgment. Three Got Its win the fight, and two Missed Its lose it.
 - **Make Your Song** works as in solo Echo. The teacher records the class's ideas as takes.

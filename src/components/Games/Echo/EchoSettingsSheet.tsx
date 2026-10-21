@@ -8,6 +8,7 @@ import {
   SettingsSection,
   SettingsSwitchRow,
 } from '@/curriculum/guitar/layout/settingsControls';
+import type { EchoAudience } from './echoFlow';
 import { inputFor, useEchoSettings, type EchoInputMode } from './echoSettings';
 
 // ── Game Settings ──────────────────────────────────────────────────────────
@@ -19,6 +20,8 @@ import { inputFor, useEchoSettings, type EchoInputMode } from './echoSettings';
 //   Scaffolding   Make Your Song's training wheels, all off unless turned
 //                 on, under a short warning: they make creating easy but
 //                 can encourage random pressing
+//   Class         presenting to a class (docs/echo-classroom.md): snap the
+//                 teacher's own calls to the key, on unless turned off
 //
 // Everything is remembered on this device (echoSettings.ts).
 
@@ -32,12 +35,15 @@ export interface EchoSettingsSheetProps {
   onOpenChange: (open: boolean) => void;
   /** The level being set up or played: its default input. */
   level: EchoLevelNumber;
+  /** Presenting to a class: its settings show. One student when left out. */
+  audience?: EchoAudience;
 }
 
 export function EchoSettingsSheet({
   open,
   onOpenChange,
   level,
+  audience = 'solo',
 }: EchoSettingsSheetProps) {
   const [settings, update] = useEchoSettings();
   const input = inputFor(settings, level);
@@ -80,6 +86,17 @@ export function EchoSettingsSheet({
             <SavedRollViewSwitch />
           </SettingsRow>
         </SettingsSection>
+
+        {audience === 'class' && (
+          <SettingsSection label="Class">
+            <SettingsSwitchRow
+              label="Snap my calls to the key"
+              helper="When you lead, a note outside the key moves to the nearest key note, so the pads can always answer."
+              checked={settings.classSnap}
+              onCheckedChange={(classSnap) => update({ classSnap })}
+            />
+          </SettingsSection>
+        )}
 
         <SettingsSection label="Sound">
           <SettingsSwitchRow

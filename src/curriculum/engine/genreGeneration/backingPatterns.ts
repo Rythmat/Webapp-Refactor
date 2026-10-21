@@ -54,6 +54,7 @@ import {
   buildMeterDrums,
 } from './meterBacking';
 import type { GenreNoteEvent } from './resolveStepContent';
+import { SCALES } from './scaleRegistry';
 import { applySwing } from './swing';
 
 const BACKING_BARS = 16;
@@ -1459,12 +1460,21 @@ export function buildBackingNotes(
   // own) carries its own voice.
   const withPairing = (notes: BackingNote[]): BackingNote[] => {
     if (!band) return notes;
+    // The step's own scale, when it names one: approaches set diatonic to
+    // the key step through it (else the key its chords suggest).
+    const stepScale =
+      step.scaleIntervals ?? (step.scaleId ? SCALES[step.scaleId] : undefined);
     const ctx: RealizeContext = {
       chordAt,
       bars: BACKING_BARS,
       timeSignature: ts,
       genre,
       ...(options.followChords ? { followChords: options.followChords } : {}),
+      ...(stepScale?.length
+        ? {
+            approachKey: stepScale.map((i) => (((keyRoot + i) % 12) + 12) % 12),
+          }
+        : {}),
     };
     const realized = realizeBand(band, LIVE_ITEMS, ctx, {
       tonic: ((keyRoot % 12) + 12) % 12,

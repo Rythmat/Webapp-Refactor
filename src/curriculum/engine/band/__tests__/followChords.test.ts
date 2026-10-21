@@ -87,7 +87,9 @@ describe('a part layer over a chart', () => {
         .filter((n) => n.onset === tick)
         .map((n) => n.note)
         .sort((a, b) => a - b);
-    expect(at(0)).toEqual([72, 76, 81]); // C5 E5 A5 over Dm
+    // The take starts an octave lower since 20 Oct 2026; the next chord
+    // leads up from it.
+    expect(at(0)).toEqual([60, 64, 69]); // C4 E4 A4 over Dm
     expect(at(1920)).toEqual([65, 69, 74]); // F4 A4 D5 over Gm
     expect(followed.every((n) => n.part === 'chords')).toBe(true);
   });
@@ -147,6 +149,22 @@ describe('a part layer over a chart', () => {
     expect(
       realizeLayer(layerOf(bare), items(bare), dMinor(4))?.length,
     ).toBeGreaterThan(0);
+  });
+
+  it('keeps a part without chords playing in the console, as written in the key', () => {
+    // The editors' preview: a silent layer would hide the part.
+    const bare = part('funk-l2-d93-d1-lh-bass-rh-chords-headhunters-copy');
+    const ctx = { ...dMinor(4), followChords: following };
+    const notes = realizeLayer(layerOf(bare), items(bare), ctx, {
+      keepUnfollowable: true,
+    })!;
+    // A dorian to the chart's D: up a fourth, the shape unchanged.
+    expect(notes.slice(0, 3).map((n) => n.note)).toEqual(
+      realizeLayer(layerOf(bare), items(bare), dMinor(4), { tonic: 2 })!
+        .slice(0, 3)
+        .map((n) => n.note),
+    );
+    expect(notes[0].note - bare.notes[0].midi).toBe(5);
   });
 
   it('leaves a melody and a drum part as they were', () => {

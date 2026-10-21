@@ -12,6 +12,7 @@ import { uniquePartId } from '@/curriculum/engine/parts/part';
 import { createBassLine } from '../bassLines/AdminBassLinesPage';
 import { BassLineEditor } from '../bassLines/BassLineEditor';
 import { useBassLineList } from '../bassLines/bassLineSession';
+import type { ChartChoice } from '../chart/chartChoice';
 import { createComping } from '../chordComping/AdminChordCompingsPage';
 import { ChordCompingEditor } from '../chordComping/ChordCompingEditor';
 import { useCompingList } from '../chordComping/compingSession';
@@ -28,9 +29,11 @@ interface Props {
   onReplace: (source: BandSource) => void;
   /** A part edited here plays with the band (PartEditor's `band`). */
   band?: ComponentProps<typeof PartEditor>['band'];
+  /** The band's chart: a line or comping opens on it. */
+  chart?: ChartChoice;
 }
 
-export const LayerItemEditor = ({ source, onReplace, band }: Props) => {
+export const LayerItemEditor = ({ source, onReplace, band, chart }: Props) => {
   const store = useInstrumentStore();
   const grooves = useGrooveList();
   const lines = useBassLineList();
@@ -73,6 +76,7 @@ export const LayerItemEditor = ({ source, onReplace, band }: Props) => {
         <BassLineEditor
           key={line.id}
           line={line}
+          chart={chart}
           onDuplicate={async (from) => {
             const copy = await createBassLine(`${from.name} copy`, lines, from);
             if (copy) onReplace({ kind: 'bassLine', id: copy.id });
@@ -87,6 +91,7 @@ export const LayerItemEditor = ({ source, onReplace, band }: Props) => {
         <ChordCompingEditor
           key={pattern.id}
           pattern={pattern}
+          chart={chart}
           onDuplicate={async (from) => {
             const copy = await createComping(
               `${from.name} copy`,
@@ -105,7 +110,22 @@ export const LayerItemEditor = ({ source, onReplace, band }: Props) => {
         <PartEditor
           key={part.id}
           part={part}
-          band={band}
+          band={
+            band && {
+              ...band,
+              chart,
+              // "Make it this band's": the part as the band plays it, filed
+              // as a new part this layer plays (and its player keeps).
+              adopt: async (made) => {
+                const copy = {
+                  ...made,
+                  id: uniquePartId(made.name, takenParts),
+                };
+                await store.save('instrument_part', copy);
+                onReplace({ kind: 'part', id: copy.id });
+              },
+            }
+          }
           onDuplicate={async (from) => {
             const name = `${from.name} copy`;
             const copy = {

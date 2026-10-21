@@ -13,6 +13,7 @@
 
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import type { TimeSignature } from '@/curriculum/engine/meter';
+import { approachHint, approachLabel } from '../approach/approachEdit';
 import { CONSOLE_LABEL } from '../ui/styles';
 import {
   hitQ,
@@ -358,7 +359,7 @@ export const CompingRoll = ({
               return (
                 <div
                   key={h._id}
-                  title={`${TONE_ROWS[row].label} · ${h.time} · ${h.dur} beats · velocity ${Math.round(h.velocity * 100)}`}
+                  title={`${h.approach ? approachHint(h) : TONE_ROWS[row].label} · ${h.time} · ${h.dur} beats · velocity ${Math.round(h.velocity * 100)}`}
                   style={{
                     position: 'absolute',
                     top: row * ROW_H + 4,
@@ -373,6 +374,24 @@ export const CompingRoll = ({
                     overflow: 'hidden',
                   }}
                 >
+                  {h.approach && cellW >= 12 && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        left: 4,
+                        top: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        color: '#0b0d12',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        zIndex: 1,
+                      }}
+                    >
+                      {approachLabel(h)}
+                    </span>
+                  )}
                   {/* loudness, as a fill from the bottom */}
                   <span
                     style={{

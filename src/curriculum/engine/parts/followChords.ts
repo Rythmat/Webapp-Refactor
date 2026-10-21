@@ -34,8 +34,17 @@
  * No audio and no React here.
  */
 
+import {
+  approachPitch,
+  chordScale,
+  type ApproachMotion,
+  type ApproachScale,
+} from '../approach/approach';
 import { keyNotesUnder } from '../bassLines/bassLine';
-import type { ChordSymbolTones } from '../genreGeneration/chordSymbolTones';
+import {
+  chordSymbolTones,
+  type ChordSymbolTones,
+} from '../genreGeneration/chordSymbolTones';
 import {
   buildChordTimeline,
   chordAtTick,
@@ -43,6 +52,7 @@ import {
 } from '../genreGeneration/chordTimeline';
 import { SCALES } from '../genreGeneration/scaleRegistry';
 import {
+  barChords,
   barTicks,
   partTicks,
   playedTick,
@@ -179,7 +189,16 @@ interface Hit {
    * An approach: the hit it leads into (in the next pass when it `wraps`),
    * the voice there each of its voices leads to, and from how far.
    */
-  approach?: { to: Hit; wraps: boolean; voices: number[]; offsets: number[] };
+  approach?: {
+    to: Hit;
+    wraps: boolean;
+    voices: number[];
+    /** Each voice's steps from its target voice: half steps, else scale steps. */
+    offsets: number[];
+    /** Set by hand (PartNote.approach): diatonic steps a scale's. */
+    motion?: ApproachMotion;
+    scale?: ApproachScale;
+  };
 }
 
 interface Analysis {
@@ -493,6 +512,32 @@ function settleOnBars(
   });
 }
 
+/**
+ * A part's own chart as a band take writes it: an entry a bar, looping, each
+ * chord from the slot of the bar it's struck in (`barChords`: 'Dm7 G7' is
+ * Dm7 for half the bar, then G7).
+ */
+function barTimeline(
+  symbols: readonly string[],
+  bars: number,
+  barLength: number,
+): TimedChord[] {
+  const timeline: TimedChord[] = [];
+  for (let b = 0; b < bars; b++) {
+    const slots = barChords(symbols[b % symbols.length]);
+    slots.forEach((symbol, i) => {
+      const tones = symbol ? chordSymbolTones(symbol) : null;
+      if (symbol && tones)
+        timeline.push({
+          ...tones,
+          symbol,
+          tick: b * barLength + Math.round((i * barLength) / slots.length),
+        });
+    });
+  }
+  return timeline;
+}
+
 /** Each hit's neighbours among `hits` (one hand's, or one line's), looping. */
 function neighbours(hits: readonly Hit[]) {
   return hits.map((hit, k) => ({
@@ -509,18 +554,18 @@ function analyse(part: InstrumentPart): Analysis | null {
   if (loop <= 0) return null;
   // When its chords sound. A part taken from a lesson keeps the timing its
   // lesson gives them (chordTimeline.ts): at the strikes that sound them,
-  // Am9 on beat 1 and D13 on beat 3. Any other part has one a bar, looping,
-  // as a band take writes them.
+  // Am9 on beat 1 and D13 on beat 3. Any other part has an entry a bar,
+  // looping, as a band take writes them.
   const bar = barTicks(part.timeSignature);
   const timeline = settleOnBars(
-    buildChordTimeline(
-      part.chordSymbols,
-      part.source.kind === 'lesson'
-        ? part.notes.map((n) => ({ onset: n.tick, midi: n.midi }))
-        : [],
-      part.bars,
-      bar,
-    ),
+    part.source.kind === 'lesson'
+      ? buildChordTimeline(
+          part.chordSymbols,
+          part.notes.map((n) => ({ onset: n.tick, midi: n.midi })),
+          part.bars,
+          bar,
+        )
+      : barTimeline(part.chordSymbols, part.bars, bar),
     part.notes,
     bar,
   );
@@ -596,7 +641,47 @@ function analyse(part: InstrumentPart): Analysis | null {
     };
   };
 
+  // Approaches marked by hand (PartNote.approach): into the hand's next
+  // chord that isn't one, or is one marked a goal (a chain), each voice its
+  // marked steps from the goal's voice it moves with.
+  const markOf = (h: Hit) =>
+    h.notes.map(({ index }) => part.notes[index]).find((n) => n.approach);
+  const isGoal = (h: Hit) =>
+    !markOf(h) || h.notes.some(({ index }) => part.notes[index].goal);
   for (const h of hits) {
+    const mark = markOf(h)?.approach;
+    if (!mark) continue;
+    const line = byGroup.get(h.group)!;
+    const at = line.indexOf(h);
+    let k = 1;
+    while (k < line.length && !isGoal(line[(at + k) % line.length])) k++;
+    if (k >= line.length) continue;
+    const to = line[(at + k) % line.length];
+    const voiceTo = (midi: number, j: number) =>
+      to.voices.length === h.voices.length
+        ? j
+        : to.voices.reduce(
+            (best, v, t) =>
+              Math.abs(v - midi) < Math.abs(to.voices[best] - midi) ? t : best,
+            0,
+          );
+    h.role = 'approach';
+    h.approach = {
+      to,
+      wraps: at + k >= line.length,
+      voices: h.voices.map(voiceTo),
+      offsets: h.voices.map((v) => {
+        const note = h.notes.find(({ index }) => part.notes[index].midi === v);
+        return note
+          ? (part.notes[note.index].approach?.step ?? 0)
+          : v - to.voices[voiceTo(v, h.voices.indexOf(v))];
+      }),
+      motion: mark.motion,
+      ...(mark.scale ? { scale: mark.scale } : {}),
+    };
+  }
+  for (const h of hits) {
+    if (h.approach) continue;
     const approach = approachOf(h);
     if (approach) {
       h.role = 'approach';
@@ -665,6 +750,68 @@ function analysisOf(part: InstrumentPart): Analysis | null {
   return analyses.get(part) ?? null;
 }
 
+// ── Stay in Key ──────────────────────────────────────────────────────────
+
+/** Whether a hand of the part Stays in Key (InstrumentPart.stayInKey). */
+const staysInKey = (part: InstrumentPart, group: HandGroup) =>
+  part.stayInKey === 'both' || part.stayInKey === group;
+
+/**
+ * A note of a hand that Stays in Key, in another key: the same degree of
+ * that key's scale (C–G in C major is 1–5: D–A in D, A–E in A minor; a held
+ * 3rd takes the new key's 3rd), a note outside the scale raised from the
+ * degree below it, as written. Placed nearest where the player had it,
+ * moved to the new key.
+ */
+function inKey(midi: number, from: PartKey, to: PartKey): number {
+  const fromScale = SCALES[from.mode] ?? SCALES.ionian;
+  const toScale = SCALES[to.mode] ?? SCALES.ionian;
+  const step = mod12(midi - from.tonic);
+  let degree = fromScale.length - 1;
+  while (degree > 0 && fromScale[degree] > step) degree--;
+  const pc = mod12(to.tonic + toScale[degree] + step - fromScale[degree]);
+  const home = midi + keyShift(from.tonic, to.tonic);
+  return home + mod12(pc - home + 6) - 6;
+}
+
+/**
+ * The hands that keep the same notes through the chord changes of their own
+ * chart, which Stay in Key would keep doing over any other: the right hand
+ * holding C–G over C, G, Am and F; a left hand's ostinato. Each chord's
+ * stretch of a hand is the pitch classes it plays there; a hand holds when
+ * every stretch plays the same ones, over at least two different chords.
+ * What to suggest for `stayInKey`, or null when no hand holds.
+ */
+export function suggestStayInKey(
+  part: InstrumentPart,
+): InstrumentPart['stayInKey'] | null {
+  if (!followsChords(part)) return null;
+  const analysis = analysisOf(part);
+  if (!analysis) return null;
+  const stretches = new Map<HandGroup, Map<string, Set<number>>>();
+  const chords = new Map<HandGroup, Set<string>>();
+  for (const h of analysis.hits) {
+    const byChord = stretches.get(h.group) ?? new Map<string, Set<number>>();
+    stretches.set(h.group, byChord);
+    const at = `${h.chord.tick}:${h.chord.symbol}`;
+    const pcs = byChord.get(at) ?? new Set<number>();
+    byChord.set(at, pcs);
+    h.voices.forEach((v) => pcs.add(mod12(v)));
+    chords.set(h.group, (chords.get(h.group) ?? new Set()).add(h.chord.symbol));
+  }
+  const holds = [...stretches].filter(([group, byChord]) => {
+    const sets = [...byChord.values()].map((pcs) => [...pcs].sort().join());
+    return (
+      (chords.get(group)?.size ?? 0) > 1 && sets.every((set) => set === sets[0])
+    );
+  });
+  const held = new Set(holds.map(([group]) => group));
+  if (held.has('-') || (held.has('lh') && held.has('rh'))) return 'both';
+  if (held.has('lh')) return 'lh';
+  if (held.has('rh')) return 'rh';
+  return null;
+}
+
 /**
  * Whether a part follows a chart's chords when asked to: a pitched part that
  * isn't a melody. A melody keeps its tune and moves to the key; drums don't
@@ -673,6 +820,13 @@ function analysisOf(part: InstrumentPart): Analysis | null {
 export const followsChords = (
   part: Pick<InstrumentPart, 'instrument' | 'role'>,
 ) => part.instrument !== 'drums' && part.role !== 'melody';
+
+/**
+ * Whether a part can follow a chart's chords: one that does (`followsChords`)
+ * and names the chords it was played over, with notes to read against them.
+ */
+export const canFollowChords = (part: InstrumentPart) =>
+  followsChords(part) && analysisOf(part) !== null;
 
 /**
  * The part's own chart, looping with it: the chord sounding at a tick, as
@@ -911,11 +1065,21 @@ export function followChords(
     const leads = waiting.get(keyOf(pass, h)) ?? [];
     waiting.delete(keyOf(pass, h));
     for (const lead of leads) {
-      const { voices, offsets } = lead.hit.approach!;
+      const { voices, offsets, motion, scale } = lead.hit.approach!;
+      // A diatonic approach steps through the chart's key, or its goal
+      // chord's own scale.
+      const steps =
+        motion === 'diatonic'
+          ? scale === 'goal'
+            ? chordScale(chord)
+            : chartKey
+          : undefined;
       emit(
         lead.pass,
         lead.hit,
-        voices.map((v, j) => pitches[v] + offsets[j]),
+        voices.map((v, j) =>
+          approachPitch(pitches[v], offsets[j], motion ?? 'chromatic', steps),
+        ),
         struck(lead.pass, lead.hit),
       );
     }
@@ -925,6 +1089,13 @@ export function followChords(
   for (let pass = 0; pass < passes; pass++) {
     for (const h of hits) {
       const home = h.voices.map((v) => v + shift);
+      // A hand that Stays in Key plays the key's degrees, whatever the chord.
+      if (staysInKey(part, h.group)) {
+        const pitches = h.voices.map((v) => inKey(v, part.key, key));
+        lines.set(h.stream, { at: pitches, home });
+        emit(pass, h, pitches, struck(pass, h));
+        continue;
+      }
       if (h.role === 'approach') {
         const { to, wraps } = h.approach!;
         const target = keyOf(pass + (wraps ? 1 : 0), to);

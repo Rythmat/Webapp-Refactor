@@ -180,8 +180,10 @@ All of these ride the session's existing envelope (`sessionsStore.ts` `SessionMe
 3. **A student's result: a `response` with `payload.kind: 'echo'`, teacher only.** One payload per student per Echo interaction, upserted (the existing rule), holding every round so far:
 
    ```ts
-   { kind: 'echo'; slideId: string; rounds: { run: number; passed: boolean; score: number; asked: string[]; played: string[] }[]; bestStreak: number; tunedInMs?: number }
+   { kind: 'echo'; slideId: string; rounds: { run: number; passed: boolean; score: number; asked: string[]; played: string[]; timing?: (number | null)[] }[]; bestStreak: number; tunedInMs?: number }
    ```
+
+   - `timing` (added in step 2) is each asked note's ms early (−) or late (+), null where it was missed.
 
    - It's written once a round, about every 10 seconds, well inside the 100-a-minute limit.
    - It's never sent to the projector or to other students (Rule 2: `shareable: false`).
@@ -191,7 +193,7 @@ All of these ride the session's existing envelope (`sessionsStore.ts` `SessionMe
 ## What we need from the server (Ryan)
 
 1. **Live sessions on, cross-device.** Turn on session discovery, session join and session state v2 (`SERVER_LIVE_SESSIONS_ENABLED`, `SERVER_SESSION_JOIN_ENABLED`, `SERVER_SESSION_STATE_V2_ENABLED` in `src/constants/serverEndpoints.ts`). Deploy the `classroom_session` party (`VITE_PARTYKIT_HOST`) with the API → party webhook. Echo rides on all of this.
-2. **`SessionState.echo`** in the state contract, persisted and relayed like `timer` and `media`.
+2. **`SessionState.echo`** in the state contract, persisted and relayed like `timer` and `media`. The party's side is written: its `route()` relays `{ type: 'echo', echo }` to every role. The client sends `echo` in the merged state PATCH once a session has one.
 3. **`payload.kind: 'echo'`** accepted by `POST …/responses`, upserted per student and interaction. Also kept per account for the student's record.
 4. **`echoCall`** accepted from the teacher's socket and fanned out to all roles: a party change, written here, deployed with the party.
 5. **Nothing new for the clock.** The party's `pong` already returns the server's time.
@@ -199,8 +201,8 @@ All of these ride the session's existing envelope (`sessionsStore.ts` `SessionMe
 
 ## Build order
 
-1. **Presenter mode.** Client only, so it works now. It covers the leader toggle and the teacher's judging, and it's the setup for classes without devices or internet.
-2. **Connected, Atlas leading, with headphones.** This adds:
+1. **Presenter mode.** Client only, so it works now. It covers the leader toggle and the teacher's judging, and it's the setup for classes without devices or internet. **Built.**
+2. **Connected, Atlas leading, with headphones.** **Built on the client** (2026-10-21; see Step 2, As Built). This adds:
    - the `echo` interaction;
    - the teacher's strip and grid;
    - the student's screen and the projector;
@@ -209,6 +211,62 @@ All of these ride the session's existing envelope (`sessionsStore.ts` `SessionMe
    - the clock check.
      It's built and tested against the session's local mock, plus a dev page that simulates a class of students on one computer. It goes live across devices when the server pieces above land.
 3. **The teacher leads when connected, and the room speaker.** The `echoCall` fast path, and Tune In.
+
+## Step 2, As Built
+
+Connected, Atlas leading, with headphones, built against the session's local mock and a dev page that runs a class on one computer. It goes live across devices when the server pieces above land; nothing in `serverEndpoints.ts` was turned on.
+
+### Where It Lives
+
+| Piece                         | Where                                                                                                                                                                |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The call as wire data         | `src/curriculum/engine/echo/wire.ts` (`toEchoCallWire`, `fromEchoCallWire`)                                                                                          |
+| The shapes                    | `src/features/classroom/echo/types.ts` (`SessionEcho`, `EchoClassSettings`, `EchoResponsePayload`, `EchoInteractionConfig`)                                          |
+| The rules of a class's rounds | `src/features/classroom/echo/classRound.ts`                                                                                                                          |
+| The teacher's computer        | `useEchoClassTeacher.ts`, `EchoTeacherPanel.tsx`, `EchoTeacherSettingsSheet.tsx`, `classSettings.ts`                                                                 |
+| A student's device            | `useEchoClassStudent.ts`, `EchoClassStudent.tsx`                                                                                                                     |
+| The projector                 | `EchoProjectorView.tsx`; the round drawn off the clock by `src/components/Games/Echo/useClockRun.ts`                                                                 |
+| The clock check               | `src/features/classroom/live/serverClock.ts`, `useServerClock.ts`, run by `useSessionSync.ts`                                                                        |
+| The protocol                  | `sessionsStore.ts` (`SessionState.echo`, the `echo` body and socket message), `sessionSocketController.ts` (`sendEcho`, `sendPing`, `onPong`), the party's `route()` |
+| The dev page                  | `/dev/echo/classroom`: `src/features/classroom/echo/dev/` (the in-memory bus, the pretend class, the page)                                                           |
+
+The Echo files above without a path are in `src/features/classroom/echo/`. The teacher's panel, the student's screen and the projector's view load in their own chunks, only when an Echo slide is shown.
+
+### How It Runs
+
+- **The slide.** An Echo slide is an `interaction` slide holding one `echo` interaction; no new slide kind was needed. The deck editor's Responses picker and the interaction editor offer **Echo (class)**, set up with its level and key. Publishing copies its setup field by field, and it's never shareable.
+- **The lobby.** When the teacher opens the slide, their computer publishes the setup (run 0, no call), so every device shows the right pads and settings before the first round.
+- **A round.** One call: count-in, Atlas's call, the count-off, the answer, the final downbeat. The Boss plays one call a round too, so the class's result hits it after each. Atlas makes the calls with the engine (`roundCall`, `bossCalls`) from a seed per session and slide, each round from its own run number, so a reloaded teacher's page makes the same calls.
+- **The start.** Two seconds ahead on the server's clock. Each device turns it into its own time with the clock check and schedules its run for then (`useEchoRun`'s `at`, `startLiteracyRun`'s `startsAtMs`, Tone's look-ahead taken off). A device more than half a second late sits the round out: "Join in on the next round."
+- **The student's tap.** The first tap, **Join In**, turns the sound on. iPad Safari plays nothing without one.
+- **The grade.** Each device grades its own echo, quantized (`gradeQuantizedEcho`), and posts its cumulative `echo` response once its run ends. Grading Off counts every echo with notes in it.
+- **The class's result.** The teacher's computer counts it 1.5 seconds after the round's end (time for answers to arrive), publishes the counts, and counts again if late answers change them. A Boss verdict stands as it was called.
+- **What comes next.** After the result has shown 3.5 seconds, the next round, unless paused. A section stops after its rounds (Melody Echo 8, Chord Echo 6, as solo Echo) for the teacher to pick what's next or keep going. The Boss stops when it's decided.
+- **Pause and Play.** Pause stops every device. Play plays the same call again from its count-in, as a new round; a round already counted goes on to the next.
+- **The projector and the teacher's circle** are drawn off the clock, silent: the same cues as a student's run, with no sound and no tap needed.
+
+### Decisions Where the Spec Was Open
+
+- **"21 of 24 echoed it!" is good echoes of the students who played anything.** That's also the Boss's rule: 70% of those who answered, or more, is a hit. Three hits win and two misses lose, so the four calls always decide it.
+- **Who's joined** is the session's presence (teacher-only). A practice session has none, so there a student who has played counts as joined.
+- **No easier call after a miss in class.** Solo Echo's forgiving rule stays solo; the teacher sets the level.
+- **First names on the projector** ride `SessionEcho.names`, first names only and no ids, and only when the teacher picks the leaderboard or the live grid. Like a featured showcase, it's a deliberate share: it fans out to every role, students included, as the projector shows it to the room.
+- **The response's note-by-note timing.** A round carries an optional `timing`: each asked note's ms early or late, null where missed (a chord call by bar, its first strike answered). The teacher's grid opens a student's last answer with it, and the class result names the notes the class missed most.
+- **The state PATCH carries `echo` only once a session has one.** A session that never plays Echo sends the PATCH it always has, so a server without `echo` in its contract yet takes every other send.
+- **The Teacher Settings are saved on the teacher's computer, per classroom,** in localStorage (`echo_class_settings:v1:<classroomId>`), until the account has a place for them. A classroom's saved settings win over an Echo slide's own.
+- **Waiting for step 3:** the Room Speaker sound (it needs Tune In) and I Lead show in the strip and the sheet but can't be chosen yet. Snap My Calls is saved for when the teacher leads.
+- **The wire format** sends the call whole: a melody's notes, contour and rhythm; a chord call's strikes, its chords by bar and each voicing once. It carries `wire: 1`, and a device reads anything malformed as no call.
+
+### The Dev Page
+
+`/dev/echo/classroom` (development only) puts the teacher's panel, the projector, a student (you, in this browser's audio) and a pretend class side by side on an in-memory bus, in the session's own message shapes through the store's own gate and reducer. The pretend students answer every call with their own timing spread and slips, sit a round out now and then, and run the clock check against their own skewed clocks. `?students=8&level=1&tonic=C&mode=major&projector=class&you=1` sets the class.
+
+### Still to Come
+
+- **Present mode** shows the slide, not the Echo circle. The teacher's panel keeps running behind it, so the rounds go on.
+- **Locking devices** unmounts the student's screen, so after Unlock each student taps Join In again.
+- **XP** for class rounds isn't sent (see What we need from the server, 6).
+- **The teacher's settings** live on the teacher's computer until the account can keep them.
 
 ## Open questions
 

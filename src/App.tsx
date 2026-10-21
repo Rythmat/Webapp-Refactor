@@ -52,6 +52,17 @@ const MakeYourSongHarness = import.meta.env.DEV
     )
   : null;
 
+// DEV only: Echo in the classroom on one page: the teacher's panel, the
+// projector, a student and a pretend class on an in-memory bus. Lazy behind
+// a literal import.meta.env.DEV, as the gallery above.
+const EchoClassroomHarness = import.meta.env.DEV
+  ? lazy(() =>
+      import('./features/classroom/echo/dev/EchoClassroomHarness').then(
+        ({ EchoClassroomHarness }) => ({ default: EchoClassroomHarness }),
+      ),
+    )
+  : null;
+
 // musicatlas.io only serves public pages; everything else hands off to the
 // app host, where sign-in state lives (see constants/hosts.ts).
 // The Modal Sphere loads with its own page, not with the app.
@@ -109,6 +120,18 @@ const appRoutes = () => [
                 element: (
                   <Suspense fallback={null}>
                     <MakeYourSongHarness />
+                  </Suspense>
+                ),
+              },
+            ]
+          : []),
+        ...(EchoClassroomHarness
+          ? [
+              {
+                path: '/dev/echo/classroom',
+                element: (
+                  <Suspense fallback={null}>
+                    <EchoClassroomHarness />
                   </Suspense>
                 ),
               },

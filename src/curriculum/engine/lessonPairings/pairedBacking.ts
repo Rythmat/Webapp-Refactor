@@ -77,6 +77,11 @@ export function pairedBassNotes(
    * student's chart): the line plays in it (`realizeLine`'s `keyScale`).
    */
   keyScale?: readonly number[],
+  /**
+   * The key's notes, when it's known, that approaches set diatonic to the
+   * key step through (`realizeLine`'s `approachKey`).
+   */
+  approachKey?: readonly number[],
 ): BackingNote[] {
   const barTicks = Math.round((timeSignature[0] * PPQ * 4) / timeSignature[1]);
   const slot = barTicks / SLOTS_PER_BAR;
@@ -89,6 +94,7 @@ export function pairedBassNotes(
     timeSignature,
     genre,
     keyScale,
+    approachKey,
   });
   return realized.notes.map((n) => ({
     note: n.midi,

@@ -61,18 +61,15 @@ import {
 } from '@/curriculum/engine/band/realize';
 import { ALL_ITEMS } from '@/curriculum/engine/band/registry';
 import { lineBars } from '@/curriculum/engine/bassLines/bassLine';
-import {
-  chordSymbol,
-  KEYS,
-  PROGRESSIONS,
-  parseChart,
-  progressionById,
-  quartersPerBar,
-  realizePreset,
-} from '@/curriculum/engine/bassLines/harmony';
+import { quartersPerBar } from '@/curriculum/engine/bassLines/harmony';
 import { compingBars } from '@/curriculum/engine/chordComping/chordComping';
 import { preloadStudioGroove } from '@/curriculum/engine/drumGrooves/registry';
 import { barTicks } from '@/curriculum/engine/meter';
+import {
+  canFollowChords,
+  followsChords,
+  keyNotes,
+} from '@/curriculum/engine/parts/followChords';
 import {
   blankPart,
   type InstrumentPart,
@@ -83,6 +80,8 @@ import {
 import { getSampleInstrument } from '@/daw/instruments/sampleInstruments';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { useBassLineList } from '../bassLines/bassLineSession';
+import { ChartPicker } from '../chart/ChartPicker';
+import { chosenChart, takeChordSymbols } from '../chart/chartChoice';
 import { previewHarmony } from '../chordComping/compingGrid';
 import { useCompingList } from '../chordComping/compingSession';
 import { useUnsavedChanges } from '../content/mirror/UnsavedChangesGuard';
@@ -350,18 +349,17 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   const tempo = playable.tempo;
 
   // ── the chart it plays over ──
+  // Every layer follows it: bass lines and comping by their chord tones, as
+  // in lessons, and captured parts by the numbers they were played as over
+  // their own chords (parts/followChords.ts), in the chart's key.
   const ts = playable.timeSignature;
   const preview = draft.preview ?? {};
-  const progression = progressionById(
-    preview.progression ?? (ts[0] === 3 ? 'turnaround' : PROGRESSIONS[0].id),
-  );
-  const keyPc = preview.key ?? 0;
-  const typed = preview.chart?.trim() ? parseChart(preview.chart) : null;
-  const chartBars = useMemo(
-    () => (typed?.bars.length ? typed.bars : realizePreset(progression, keyPc)),
+  const chart = useMemo(
+    () => chosenChart(preview, ts),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [preview.chart, progression, keyPc],
+    [preview.progression, preview.key, preview.chart, ts[0], ts[1]],
   );
+  const chartBars = chart.bars;
 
   // The longest layer, so a long groove or line is heard in full.
   const longestBars = Math.max(
@@ -449,14 +447,44 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               bars,
               timeSignature: ts,
               genre: draft.genre,
+              followChords: chart.key,
+              approachKey: keyNotes(chart.key),
             },
-            { includeMuted: true },
+            // A part that can't follow plays as written; bass lines walk as
+            // lessons walk them.
+            {
+              includeMuted: true,
+              keepUnfollowable: true,
+              bassLinesInKey: false,
+            },
           )
         : [],
+    // The open variation too: switching it changes what every layer plays
+    // without changing the band.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [draft, harmony, bars, ts, grooves, items, studioLoaded],
+    [
+      draft,
+      variation?.id,
+      harmony,
+      bars,
+      ts,
+      grooves,
+      items,
+      studioLoaded,
+      chart.key,
+    ],
   );
   const notesOf = new Map(realized.map((r) => [r.layer.id, r.notes]));
+  /** Part layers that name no chords to follow: they play as written. */
+  const asWritten = new Set(
+    playable.layers
+      .filter((l) => {
+        if (l.source.kind !== 'part') return false;
+        const part = items.part(l.source.id);
+        return part && followsChords(part) && !canFollowChords(part);
+      })
+      .map((l) => l.id),
+  );
   const playerLayers: PlayerLayer[] = playable.layers.map((l) => ({
     id: l.id,
     sound: layerSound(l, items),
@@ -524,12 +552,6 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     const count =
       (who?.items.filter((i) => i.kind === 'part').length ?? parts.length) + 1;
     const name = `${who?.name ?? l.name} · ${variation?.name ?? draft.name} take ${count}`;
-    // A typed chart is in its first chord's key; a preset, in the key picked.
-    const first = typed?.bars[0]?.[0];
-    const tonic = first && !first.nc ? first.root : keyPc;
-    const minor = first
-      ? /^m(?!aj)/.test(first.quality)
-      : Boolean(progression.minor);
     const part: InstrumentPart = {
       ...blankPart(
         uniquePartId(name, new Set(parts.map((x) => x.id))),
@@ -537,15 +559,14 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
         PART_INSTRUMENT_OF[l.instrument],
       ),
       ...(draft.genre ? { genre: draft.genre } : {}),
-      key: { tonic, mode: minor ? 'aeolian' : 'ionian' },
+      // The chart's key and every chord of each bar, so the take follows
+      // any other chart the way it was played over this one.
+      key: chart.key,
       timeSignature: ts,
       bars,
       tempo,
       sound: monitorSoundOf(l),
-      chordSymbols: Array.from({ length: bars }, (_, b) => {
-        const chord = chartBars[b % chartBars.length]?.[0];
-        return chord ? chordSymbol(chord) : '';
-      }),
+      chordSymbols: takeChordSymbols(chartBars, ts, bars, chart.flats),
       notes,
     };
     try {
@@ -835,68 +856,11 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
           />
         </label>
         <div className="mx-1 h-10 w-px bg-white/10" />
-        <label className="flex flex-col gap-1">
-          <span className={CONSOLE_LABEL}>Plays over</span>
-          <select
-            value={progression.id}
-            onChange={(e) =>
-              set({
-                preview: {
-                  ...preview,
-                  progression: e.target.value,
-                  chart: undefined,
-                },
-              })
-            }
-            className={input}
-            disabled={Boolean(typed?.bars.length)}
-          >
-            {[...new Set(PROGRESSIONS.map((p) => p.group))].map((group) => (
-              <optgroup key={group} label={group}>
-                {PROGRESSIONS.filter((p) => p.group === group).map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className={CONSOLE_LABEL}>Key</span>
-          <select
-            value={keyPc}
-            onChange={(e) =>
-              set({ preview: { ...preview, key: Number(e.target.value) } })
-            }
-            className={input}
-            disabled={Boolean(typed?.bars.length)}
-          >
-            {KEYS.map((k) => (
-              <option key={k.pc} value={k.pc}>
-                {k.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex min-w-64 flex-1 flex-col gap-1">
-          <span className={CONSOLE_LABEL}>Or type a chart</span>
-          <input
-            value={preview.chart ?? ''}
-            onChange={(e) =>
-              set({
-                preview: { ...preview, chart: e.target.value || undefined },
-              })
-            }
-            className={input}
-            placeholder="| Am | Dm | E7 | Am |"
-          />
-          {typed && typed.bad.length > 0 && (
-            <span className="text-xs text-amber-300">
-              Not chords: {typed.bad.join(', ')}
-            </span>
-          )}
-        </label>
+        <ChartPicker
+          value={preview}
+          onChange={(next) => set({ preview: next })}
+          timeSignature={ts}
+        />
       </div>
 
       {/* ── its variations ── */}
@@ -1131,14 +1095,26 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                     colour="#fb7185"
                   />
                 ) : src ? (
-                  <LaneStrip
-                    notes={notesOf.get(l.id) ?? []}
-                    totalTicks={totalTicks}
-                    barTicks={barTicks(ts)}
-                    drums={src.kind === 'groove'}
-                    muted={Boolean(l.muted) || (player.solo !== null && !solo)}
-                    colour={COLOUR[l.instrument]}
-                  />
+                  <>
+                    <LaneStrip
+                      notes={notesOf.get(l.id) ?? []}
+                      totalTicks={totalTicks}
+                      barTicks={barTicks(ts)}
+                      drums={src.kind === 'groove'}
+                      muted={
+                        Boolean(l.muted) || (player.solo !== null && !solo)
+                      }
+                      colour={COLOUR[l.instrument]}
+                    />
+                    {asWritten.has(l.id) && (
+                      <span
+                        className="pointer-events-none absolute right-1.5 top-1 rounded bg-amber-400/90 px-1.5 text-[11px] font-semibold text-black"
+                        title="This part doesn't say what chords it was played over, so it can't follow the chart: it plays as written, in the chart's key. Add its chords in its editor."
+                      >
+                        As written: no chords
+                      </span>
+                    )}
+                  </>
                 ) : (
                   <span className="flex h-full items-center px-3 text-xs italic text-muted-foreground">
                     As in the lesson: its own backing plays this part (silent
@@ -1389,6 +1365,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               <LayerItemEditor
                 source={layerSource}
                 band={{ playing: player.playing, toggle, onDraft: onPartDraft }}
+                chart={preview}
                 onReplace={(source) => {
                   setSource(layer.id, source);
                   // The copy belongs to whoever plays the layer.

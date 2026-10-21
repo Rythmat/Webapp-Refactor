@@ -1,0 +1,70 @@
+{
+  "id": "octave-disco-copy",
+  "name": "Driving Dance Pop 1 ",
+  "description": "Everyone loves that Rapper's Delight groove!",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "order": 240,
+  "timeSignature": [4, 4],
+  "length": "2m",
+  "gridResolution": "16n",
+  "instrument": "electric",
+  "grooves": ["dance-pop"],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:1:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:2:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:3:3",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.7
+    },
+    {
+      "time": "1:0:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:0:2",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:1:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:1:2",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.95
+    },
+    {
+      "time": "1:1:3",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    }
+  ]
+}

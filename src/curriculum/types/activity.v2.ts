@@ -3,6 +3,7 @@ import type {
   GuitarScaleSlot,
 } from '@/curriculum/data/guitar/types';
 import type { FretPosition } from '@/lib/guitar/types';
+import type { PianoFinger } from '@/lib/learn/pianoFingering/types';
 import type {
   ActivityStep,
   ActivityFlow,
@@ -113,6 +114,12 @@ export interface TargetNote {
   onset: number; // ticks from start (480 = quarter note)
   duration: number; // ticks
   hand?: 'lh' | 'rh'; // explicit stave assignment for grand staff rendering (D section only)
+  /**
+   * Piano only: the finger that plays it (1 = thumb). Read against `hand`, or
+   * the hand inferred when `hand` is absent — a finger never needs a hand,
+   * and setting one turns the staff grand.
+   */
+  finger?: PianoFinger;
   /** Guitar only: where the note is played. `midi` is its sounding pitch. */
   fretPosition?: FretPosition;
 }

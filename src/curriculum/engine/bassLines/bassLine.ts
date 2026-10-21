@@ -11,7 +11,10 @@
  * Degrees (the piano roll's rows):
  *   8 7 6 5 4 3 2 R   the chord's own intervals, R = root
  *   7- 5-             seventh / fifth below the root
- *   A                 approach: a note either side of the next target
+ *   A                 approach: notes that lead into the next goal — set
+ *                     steps from it (2A 1B: +2 +1 −1), chromatic or diatonic
+ *                     (approach/approach.ts); or, set to nothing, a note
+ *                     either side of it by the genre's rules
  *   W                 walk: a passing tone that connects the line
  *   X                 dead note: a muted ghost on the last pitch
  *
@@ -24,6 +27,11 @@
  * Elsewhere they keep the free rules ported from ICP Studio.
  */
 
+import {
+  approachPitch,
+  goalsOf,
+  type ApproachStep,
+} from '../approach/approach';
 import {
   chordSpans,
   quartersPerBar,
@@ -57,6 +65,15 @@ export interface BassLineNote {
   dur: number;
   /** 0–1. */
   velocity: number;
+  /**
+   * An approach ('A') set by hand: where it stands from the goal it leads
+   * into — the next note that isn't an approach, or one marked `goal` — so
+   * three chromatic from below into F is always D E♭ E. Left out, an 'A'
+   * picks its side and step by the genre's rules, as it always has.
+   */
+  approach?: ApproachStep;
+  /** An approach that is also a goal: the approach before it leads into it. */
+  goal?: boolean;
 }
 
 export type BassInstrument = 'upright' | 'electric';
@@ -388,6 +405,10 @@ interface WorkNote {
   anticipates?: boolean;
   /** A 2, 4 or 6 the line steps to or from: a passing note, not a color. */
   passes?: boolean;
+  approach?: ApproachStep;
+  goal?: boolean;
+  /** Its pitch is set already: the goal of the approach before it. */
+  resolved?: boolean;
 }
 
 // ── Genre rules for Walk and Approach ─────────────────────────────────────
@@ -522,6 +543,7 @@ export function realizeLine(
     seed = 1,
     genre,
     keyScale,
+    approachKey,
   }: {
     timeSignature?: TimeSignature;
     instrument?: BassInstrument;
@@ -537,6 +559,12 @@ export function realizeLine(
      * it always has.
      */
     keyScale?: readonly number[];
+    /**
+     * The key's notes, when it's known, that approaches set diatonic to the
+     * key step through: a lesson's, a band chart's. Left out, `keyScale`'s,
+     * else the key the chart's chords suggest.
+     */
+    approachKey?: readonly number[];
   } = {},
 ): RealizedLine {
   const inst = INSTRUMENTS[instrument] ?? INSTRUMENTS.upright;
@@ -601,6 +629,9 @@ export function realizeLine(
           velocity: x.velocity ?? 0.8,
           span: 0,
           midi: 0,
+          ...(x.degree === 'A' && x.approach
+            ? { approach: x.approach, ...(x.goal ? { goal: true } : {}) }
+            : {}),
         });
     });
   }
@@ -653,10 +684,67 @@ export function realizeLine(
     });
   }
 
-  // Resolve pitches left to right; walking runs look ahead to their target.
+  // The scale approaches set diatonic to the key step through.
+  const approachScale =
+    (approachKey ?? key)?.map(pcOf) ?? chartKeyScale(chartSpans);
+  /** A goal's own chord's scale, for approaches set diatonic to the goal. */
+  const goalScale = (goal: WorkNote) => {
+    const { chord } = spans[goal.span];
+    const q = QUALITIES[chord.quality] ?? QUALITIES.maj;
+    return q.scale.map((i) => pcOf(chord.root + i));
+  };
+
+  // Resolve pitches left to right; walking runs look ahead to their target,
+  // approaches set by hand work back from theirs.
   let prev = spans[0].anchor;
   for (let i = 0; i < raw.length; i += 1) {
     const note = raw[i];
+    if (note.resolved) {
+      prev = note.midi;
+      continue;
+    }
+    if (note.approach) {
+      let j = i;
+      while (j < raw.length && raw[j].approach) j += 1;
+      const run = raw.slice(i, j);
+      // The goal after the run, placed now so the run can lead into it; at
+      // the line's end, its first note (the next time round).
+      const last = raw[j];
+      if (last) {
+        last.midi = FREE_DEGREES.has(last.degree)
+          ? spans[last.span].anchor
+          : resolveFixed(
+              last,
+              raw[j + 1] ?? raw[0],
+              spans,
+              prev,
+              inst,
+              rand,
+              ruled,
+              key,
+            );
+        last.resolved = true;
+      }
+      const end = last ?? (raw[0].approach ? undefined : raw[0]);
+      const items = [...run, { approach: undefined }];
+      const goals = goalsOf(items);
+      for (let k = run.length - 1; k >= 0; k -= 1) {
+        const g = goals[k];
+        const goal = g === run.length ? end : run[g];
+        const step = run[k].approach!;
+        run[k].midi = goal
+          ? approachPitch(
+              goal.midi || spans[goal.span].anchor,
+              step.step,
+              step.motion,
+              step.scale === 'goal' ? goalScale(goal) : approachScale,
+            )
+          : spans[run[k].span].anchor;
+      }
+      prev = run[run.length - 1].midi;
+      i = j - 1;
+      continue;
+    }
     if (note.degree === 'W') {
       let j = i;
       while (j < raw.length && raw[j].degree === 'W') j += 1;

@@ -156,10 +156,10 @@ describe('a style’s tempo', () => {
       'funk-l1-pocket': 92,
       'funk-l2-syncopation': 102,
       'funk-l3-deep-groove': 98,
-      // Pop Band 1's Singable & Simple sets its own.
+      // Pop Band 1's styles each set their own.
       'pop-l1-singable': 96,
-      'pop-l2-craft': 105,
-      'pop-l3-artistry': 100,
+      'pop-l2-craft': 112,
+      'pop-l3-artistry': 108,
       // Hip Hop L1's Practice Track names its bpm.
       'hip-hop-l1-trap': 72,
       'hip-hop-l2-boom-bap': 90,
@@ -500,17 +500,20 @@ describe('the Practice view’s switches on a band’s track', () => {
     expect(state.bpm).toBe(102);
     expect(state.rootNote).toBe(2);
     expect(state.mode).toBe('aeolian');
-    // Deep Groove leaves the comping to the lesson: the band's keyboard
-    // goes, the lesson's chords come in on a track of their own.
+    // Deep Groove has its own keyboard too (a rootless-voicings part, since
+    // 2026-10-19): the band's keys play on a track of their own and the
+    // lesson's chords sit out.
     await switchGenrePracticeTrack(
       next,
       { styleId: 'funk-l3-deep-groove' },
       102,
     );
     const tracks = useStore.getState().tracks;
-    expect(tracks.some((t) => t.name.endsWith('(band)'))).toBe(false);
+    expect(
+      tracks.find((t) => t.name === 'Keys comping (band)')?.midiClips.length,
+    ).toBe(1);
     const chords = tracks.find((t) => t.name === 'Chords');
-    expect(chords?.midiClips.length).toBe(1);
+    expect(chords?.midiClips.length).toBe(0);
     expect(chords?.recordArmed).toBe(false);
     // The student's track is still the one armed.
     expect(tracks.filter((t) => t.recordArmed).map((t) => t.id)).toEqual([

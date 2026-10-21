@@ -1,0 +1,17 @@
+{
+  "id": "latin_percussion_kit",
+  "label": "Latin percussion kit",
+  "base": "natural",
+  "samples": {
+    "36": "/daw-assets/samples/drums/uploads/MA_kick_bop_snares_on_2.mp3",
+    "38": "/daw-assets/samples/drums/uploads/MA_timbale_hit.mp3",
+    "40": "/daw-assets/samples/drums/uploads/MA_timbale_roll.mp3",
+    "41": "/daw-assets/samples/drums/uploads/MA_bongo_hit_2.mp3",
+    "42": "/daw-assets/samples/drums/uploads/MA_hihat_closed_2.mp3",
+    "44": "/daw-assets/samples/drums/uploads/MA_hihat_pedal_closed_3.mp3",
+    "45": "/daw-assets/samples/drums/uploads/MA_bongo_low.mp3",
+    "46": "/daw-assets/samples/drums/uploads/MA_hihat_open_3_4.mp3",
+    "48": "/daw-assets/samples/drums/uploads/MA_bongo_high.mp3",
+    "51": "/daw-assets/samples/drums/uploads/MA_ride_bell_1.mp3"
+  }
+}

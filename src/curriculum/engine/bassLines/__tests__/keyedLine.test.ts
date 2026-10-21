@@ -113,6 +113,16 @@ describe.each(CHARTS)('over $name, in its key', ({ chords, key }) => {
       expect(asWritten).toEqual(
         pairedBassNotes(line, ctx.chordAt, 8, [4, 4], 'funk'),
       );
+      // ...and so it does in the console's editors, the parts beside it
+      // following the chart all the same.
+      expect(
+        realizeLayer(
+          bass,
+          LIVE_ITEMS,
+          { ...ctx, followChords: { tonic: 0, mode: 'ionian' } },
+          { bassLinesInKey: false },
+        ),
+      ).toEqual(asWritten);
       // With it, the same rhythm in the key (approaches aside).
       expect(keyed.map((n) => n.onset)).toEqual(asWritten.map((n) => n.onset));
       // Each note's degree, from the chart pairedBassNotes builds.
@@ -164,6 +174,10 @@ const BEFORE: Record<string, string> = {
   mariachi: '1s29pmj',
   'mariachi-copy': '1gl3ib7',
   'cumbia-1-copy-2': 'ems3gj',
+  'funk-copy': '12x07t7',
+  'octave-disco-copy': '4nsdcj',
+  'driving-dance-pop-1-copy': 'alyshz',
+  'hip-hop-conscious': 'ymxn9f',
 };
 
 const fnv = (s: string) => {

@@ -15,6 +15,10 @@
       "id": "mariachi-vals"
     },
     {
+      "kind": "comping",
+      "id": "reggaeton-tresillo"
+    },
+    {
       "kind": "part",
       "id": "latin-l1-d1-2-reggaeton-full-groove-play-along"
     },
@@ -45,6 +49,18 @@
     {
       "kind": "part",
       "id": "latin-pianist-1-l2-merengue-bachata-take-9"
+    },
+    {
+      "kind": "part",
+      "id": "latin-pianist-1-merengue-montuno-copy"
+    },
+    {
+      "kind": "part",
+      "id": "latin-pianist-1-l3-bossa-samba-take-6-copy"
+    },
+    {
+      "kind": "part",
+      "id": "latin-pianist-1-l3-bossa-simpler-voicings-in-e-aeolian"
     }
   ]
 }

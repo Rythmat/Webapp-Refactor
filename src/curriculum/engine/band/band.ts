@@ -122,9 +122,15 @@ export interface Band {
   variations?: BandVariation[];
   /**
    * What the editor plays it over: a preset progression and key, or a typed
-   * chart ('| Am | Dm | E7 | Am |'). Editor only; lessons play their own.
+   * chart ('| Am | Dm | E7 | Am |') and the key set for it, if any (the
+   * console's ChartChoice). Editor only; lessons play their own.
    */
-  preview?: { progression?: string; key?: number; chart?: string };
+  preview?: {
+    progression?: string;
+    key?: number;
+    chart?: string;
+    chartKey?: { tonic: number; minor: boolean };
+  };
 }
 
 /** A band as one variation plays it: every member with what it plays. */
@@ -215,6 +221,12 @@ export interface RealizeContext {
    * come from its scale. Left out, parts play as written.
    */
   followChords?: { tonic: number; mode: string };
+  /**
+   * The chart's key as pitch classes, when it's known (a lesson's, a band
+   * chart's): approaches set diatonic to the key step through it. Left out,
+   * the followed key's, else the key the chart's chords suggest.
+   */
+  approachKey?: readonly number[];
 }
 
 /** One layer's notes, with the layer they came from. */

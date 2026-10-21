@@ -19,55 +19,55 @@
     {
       "tick": 0,
       "duration": 120,
-      "midi": 67,
+      "midi": 55,
       "velocity": 99
     },
     {
       "tick": 0,
       "duration": 120,
-      "midi": 71,
+      "midi": 59,
       "velocity": 108
     },
     {
       "tick": 0,
       "duration": 120,
-      "midi": 76,
+      "midi": 64,
       "velocity": 97
     },
     {
       "tick": 480,
       "duration": 240,
-      "midi": 66,
+      "midi": 54,
       "velocity": 101
     },
     {
       "tick": 480,
       "duration": 240,
-      "midi": 70,
+      "midi": 58,
       "velocity": 127
     },
     {
       "tick": 480,
       "duration": 240,
-      "midi": 75,
+      "midi": 63,
       "velocity": 125
     },
     {
       "tick": 840,
       "duration": 120,
-      "midi": 67,
+      "midi": 55,
       "velocity": 88
     },
     {
       "tick": 840,
       "duration": 120,
-      "midi": 71,
+      "midi": 59,
       "velocity": 112
     },
     {
       "tick": 840,
       "duration": 120,
-      "midi": 76,
+      "midi": 64,
       "velocity": 100
     },
     {
@@ -127,55 +127,55 @@
     {
       "tick": 3840,
       "duration": 120,
-      "midi": 67,
+      "midi": 55,
       "velocity": 105
     },
     {
       "tick": 3840,
       "duration": 120,
-      "midi": 71,
+      "midi": 59,
       "velocity": 112
     },
     {
       "tick": 3840,
       "duration": 120,
-      "midi": 76,
+      "midi": 64,
       "velocity": 96
     },
     {
       "tick": 4320,
       "duration": 240,
-      "midi": 66,
+      "midi": 54,
       "velocity": 98
     },
     {
       "tick": 4320,
       "duration": 240,
-      "midi": 70,
+      "midi": 58,
       "velocity": 116
     },
     {
       "tick": 4320,
       "duration": 240,
-      "midi": 75,
+      "midi": 63,
       "velocity": 120
     },
     {
       "tick": 4680,
       "duration": 120,
-      "midi": 67,
+      "midi": 55,
       "velocity": 85
     },
     {
       "tick": 4680,
       "duration": 120,
-      "midi": 71,
+      "midi": 59,
       "velocity": 110
     },
     {
       "tick": 4680,
       "duration": 120,
-      "midi": 76,
+      "midi": 64,
       "velocity": 97
     },
     {

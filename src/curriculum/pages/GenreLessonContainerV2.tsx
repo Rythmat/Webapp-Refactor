@@ -26,7 +26,10 @@ import {
 } from '@/audio/pianoSampler';
 import { ClefToggle } from '@/components/notation/ClefToggle';
 import { SavedGuitarViewToggle } from '@/components/notation/GuitarViewToggle';
-import { SavedRollViewSwitch } from '@/components/notation/RollViewToggle';
+import {
+  SavedHandsSwitch,
+  SavedRollViewSwitch,
+} from '@/components/notation/RollViewToggle';
 import type { StaffLayout } from '@/components/notation/StaffView';
 import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
 import { useUserRole } from '@/contexts/AuthContext/hooks/useUserRole';
@@ -58,6 +61,7 @@ import {
 } from '@/curriculum/notation/lessonChordSymbols';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
+import { useFingeringDisplay } from '@/features/learn/usePianoDisplaySettings';
 import { sectionHasContent } from '@/features/practiceTracks/genre/buildGenrePracticeTrack';
 import { openGenrePracticeTrack } from '@/features/practiceTracks/genre/openGenrePracticeTrack';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
@@ -84,6 +88,8 @@ import {
   LearnInputProvider,
   useLearnInputStable,
 } from '@/learn/context/LearnInputContext';
+import { genreFingeringContext } from '@/learn/fingering/fingeringContext';
+import type { FingeringCursor } from '@/learn/fingering/handFrames';
 import {
   useChordNotation,
   type ChordContext,
@@ -92,6 +98,7 @@ import {
 import { shapeNotes } from '@/lib/guitar/fretboard';
 import type { FretPosition } from '@/lib/guitar/types';
 import { describeKey, modeFromKeyName } from '@/lib/learn/keyDescription';
+import { buildFingeringTimeline } from '@/lib/learn/pianoFingering';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { useChordClef, type NotationStaves } from '@/lib/notation';
 import {
@@ -148,7 +155,7 @@ import type {
   StyleSubProfile,
 } from '../types/activity.v2';
 import { flowInstrument } from '../utils/flowInstrument';
-import { stepMode } from '../utils/flowKey';
+import { scaleColorMode, stepMode } from '../utils/flowKey';
 import { formatAccidentalsForDisplay } from '../utils/formatAccidentals';
 
 // The guitar input setup (tuner, checks) loads when first opened.
@@ -423,11 +430,19 @@ function GenreLessonContainerV2Inner({
   // flow names it (Latin L1's Mariachi steps: key 'G major').
   const ownKey = (currentStep as ActivityStepV2).key;
   const stepScaleId = (currentStep as ActivityStepV2).scaleId;
+  // A step in another scale than its level's is colored and spelled in it:
+  // Hip Hop L3 is in E Phrygian, and its E Dorian and E harmonic minor steps
+  // name their own.
+  const ownScaleId =
+    stepScaleId && stepScaleId !== flow.params.defaultScaleId
+      ? stepScaleId
+      : undefined;
   const keyName = (ownKey ?? flow.params.defaultKey).split(' ')[0];
   const keyRoot = useMemo(() => parseKeyRoot(keyName), [keyName]);
-  const keyModeSlug = ownKey
-    ? stepMode(flow, { key: ownKey, scaleId: stepScaleId })
-    : (SCALE_TO_MODE[flow.params.defaultScaleId ?? ''] ?? null);
+  const keyModeSlug =
+    ownKey || ownScaleId
+      ? stepMode(flow, { key: ownKey, scaleId: stepScaleId })
+      : (SCALE_TO_MODE[flow.params.defaultScaleId ?? ''] ?? null);
 
   // Chord symbols follow the chord notation setting; Roman numbers from the key.
   const chordNotation = useChordNotation();
@@ -445,14 +460,17 @@ function GenreLessonContainerV2Inner({
     // takes its own (ionian) colour, as on the key picker, and a mode its
     // mode's. Piano's 'major' scale id has no entry here and keeps its
     // existing fallback.
+    // A harmonic minor step takes the harmonic minor's own color.
     const modeSlug = isGuitar
       ? guitarScaleEntry(guitarCenter.mode).slug
-      : (keyModeSlug ?? 'dorian');
+      : ownScaleId
+        ? scaleColorMode(ownScaleId)
+        : (keyModeSlug ?? 'dorian');
     return colorForKeyMode(
       keyName,
       modeSlug as Parameters<typeof colorForKeyMode>[1],
     );
-  }, [keyName, keyModeSlug, isGuitar, guitarCenter]);
+  }, [keyName, keyModeSlug, ownScaleId, isGuitar, guitarCenter]);
 
   // Demo playback hook
   const { playDemo, stopDemo, demoHighlightMidis, isPlayingDemo } =
@@ -981,6 +999,40 @@ function GenreLessonContainerV2Inner({
     }
     return due;
   }, [pianoRollEvents, activeMidis, holdTick, isIT]);
+
+  // Fingering: the book's hands over the keys and finger numbers, piano
+  // only, following what the keyboard lights. Off in Play Now: no fingers
+  // on a graded take.
+  const fingeringDisplay = useFingeringDisplay();
+  const showFingering =
+    !isGuitar && (fingeringDisplay.hands || fingeringDisplay.numbers);
+  const fingeringTimeline = useMemo(
+    () =>
+      showFingering
+        ? buildFingeringTimeline(
+            lessonTargetNotes,
+            genreFingeringContext(flow, resolvedStep, notationStaves),
+          )
+        : null,
+    [showFingering, lessonTargetNotes, flow, resolvedStep, notationStaves],
+  );
+  const fingeringCursor = useMemo((): FingeringCursor => {
+    if (activityState === 'performance') return { kind: 'off' };
+    if (isPlayingDemo) return { kind: 'sounding', midis: demoHighlightMidis };
+    if (activityState === 'practice' || restartingPass)
+      return isIT
+        ? { kind: 'sounding', midis: practiceHighlightMidis }
+        : { kind: 'due', midis: ootDueMidis };
+    return { kind: 'start' };
+  }, [
+    activityState,
+    isPlayingDemo,
+    demoHighlightMidis,
+    restartingPass,
+    isIT,
+    practiceHighlightMidis,
+    ootDueMidis,
+  ]);
 
   // ── IT performance tracking ─────────────────────────────────────────────
   // performanceMeta tracks real-time note blocks for IT mode
@@ -2688,7 +2740,12 @@ function GenreLessonContainerV2Inner({
           : null,
         // Roll / Notation / Falling, big, beside Practice Track (the roll's
         // own corner icons are off).
-        extra: <SavedRollViewSwitch />,
+        extra: (
+          <>
+            <SavedRollViewSwitch />
+            <SavedHandsSwitch />
+          </>
+        ),
       }}
       run={{
         state: activityState,
@@ -2878,6 +2935,17 @@ function GenreLessonContainerV2Inner({
                     : []
             }
             playedKeys={playedKeys}
+            fingering={
+              fingeringTimeline
+                ? {
+                    timeline: fingeringTimeline,
+                    cursor: fingeringCursor,
+                    hands: fingeringDisplay.hands,
+                    numbers: fingeringDisplay.numbers,
+                    keyColor,
+                  }
+                : undefined
+            }
           />
         ),
       }}

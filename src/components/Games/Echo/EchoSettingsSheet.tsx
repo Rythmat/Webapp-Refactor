@@ -97,7 +97,10 @@ export function EchoSettingsSheet({
           >
             <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
             Training wheels for Make Your Song. They make it easy to create, but
-            they can make random pressing sound good too, so they start off.
+            they can make random button pressing sound good, and that’s not a
+            habit you want to develop long term. So put the guardrails on if you
+            have a good reason to, but don’t keep them up for long. Above all,
+            have fun!
           </p>
           <SettingsSwitchRow
             label="Auto-Tune Melody"

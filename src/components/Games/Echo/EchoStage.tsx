@@ -618,34 +618,38 @@ function EchoResultCard({
       </span>
     </span>
   );
+  // A popup over the pads (or the roll and keys), the column dimmed under
+  // it, so it reads whole whatever is behind it.
   return (
-    <div
-      role="status"
-      data-echo-result={outcome.passed ? 'pass' : 'miss'}
-      className="echo-pop absolute inset-x-0 top-0 z-10 mx-auto flex w-fit max-w-full flex-col gap-2 rounded-2xl border border-white/10 bg-[#151518]/95 px-5 py-4 shadow-2xl"
-    >
-      <span className="flex items-center gap-2 text-2xl text-[#e8e8f0]">
-        {outcome.passed ? (
-          <>
-            <span
-              className="flex size-8 items-center justify-center rounded-full text-[#101012]"
-              style={{ backgroundColor: keyColor }}
-            >
-              <Check aria-hidden className="size-5" />
-            </span>
-            Great echo!
-          </>
-        ) : (
-          <>
-            <span className="flex size-8 items-center justify-center rounded-full bg-white/10">
-              <RotateCcw aria-hidden className="size-4" />
-            </span>
-            So close! Try the next one.
-          </>
-        )}
-      </span>
-      {line('Atlas', outcome.asked, false)}
-      {line('You', outcome.played, true)}
+    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-[#101012]/60 p-4">
+      <div
+        role="status"
+        data-echo-result={outcome.passed ? 'pass' : 'miss'}
+        className="echo-pop flex max-w-full flex-col gap-2 rounded-2xl border border-white/10 bg-[#151518] px-5 py-4 shadow-2xl"
+      >
+        <span className="flex items-center gap-2 text-2xl text-[#e8e8f0]">
+          {outcome.passed ? (
+            <>
+              <span
+                className="flex size-8 items-center justify-center rounded-full text-[#101012]"
+                style={{ backgroundColor: keyColor }}
+              >
+                <Check aria-hidden className="size-5" />
+              </span>
+              Great echo!
+            </>
+          ) : (
+            <>
+              <span className="flex size-8 items-center justify-center rounded-full bg-white/10">
+                <RotateCcw aria-hidden className="size-4" />
+              </span>
+              So close! Try the next one.
+            </>
+          )}
+        </span>
+        {line('Atlas', outcome.asked, false)}
+        {line('You', outcome.played, true)}
+      </div>
     </div>
   );
 }
@@ -762,7 +766,9 @@ function EchoRoll({
       ref={box}
       data-echo-roll
       className={cn(
-        'min-h-[150px] flex-1 overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02]',
+        // Isolated: the roll's own layers (its sticky header) stay under
+        // the result and the boss's cards.
+        'isolate min-h-[150px] flex-1 overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02]',
       )}
     >
       {size.height > 0 && (

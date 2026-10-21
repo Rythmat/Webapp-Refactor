@@ -2,6 +2,7 @@ import {
   chordPads,
   gradeChordEcho,
   gradeMelodyEcho,
+  gradeQuantizedEcho,
   recognizeChord,
   type ChordStrike,
   type PlayedNote,
@@ -23,6 +24,11 @@ import type { RunCall } from './echoRunCues';
 // grade heard (engine/echo/strikes.ts: chords a 16th apart are two), named
 // as the engine recognizes them (any octave, any order, held notes
 // included); a strike that's none of the key's six reads "?".
+//
+// In class (Presenter mode, and every student's device when connected) an
+// echo is graded the class's way, quantized (engine/echo/classGrading.ts):
+// the pass and the percent are the quantized grade's, what was asked and
+// played reads as above.
 
 /** Runs of the same label as one: a chord struck on every beat is one bar. */
 const collapse = (labels: readonly string[]) =>
@@ -71,5 +77,24 @@ export function gradeRunCall(
         return (degree && names.get(degree)) ?? '?';
       }),
     ),
+  };
+}
+
+/**
+ * The echo of one call of a run, graded the class's way (quantized); null:
+ * nothing was played.
+ */
+export function gradeRunCallForClass(
+  placed: RunCall,
+  played: readonly PlayedNote[],
+): EchoOutcome | null {
+  const quantized = gradeQuantizedEcho(placed.call, played, {
+    timeline: placed.timeline,
+  });
+  if (!quantized.playedAny) return null;
+  return {
+    ...gradeRunCall(placed, played),
+    passed: quantized.passed,
+    percent: quantized.percent,
   };
 }

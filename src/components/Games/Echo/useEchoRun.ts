@@ -44,6 +44,11 @@ import type { EchoNoteOff, EchoNoteOn } from './input';
 // they're over, `teach` makes it from the notes played, and the run takes
 // it on for the count-off and the answer (`onTaught`; null: nothing heard).
 //
+// In a connected class every device plays the round itself, in its
+// student's headphones, and they start together: `at` is when the count-in
+// begins, on this device's clock (useEchoClassStudent turns the server's
+// start time into it).
+//
 // The drums are a Music Literacy groove: the one the student picked for
 // lessons (Settings → Play along), or Pop 01. With them the click stops
 // after the count-in, unless the student asked for it; without them it
@@ -76,6 +81,12 @@ export interface EchoRunStart {
   calls: RunCall[];
   /** Play the drum groove under it. */
   groove: boolean;
+  /**
+   * When its count-in should start, in Date.now() ms: a class's round, on
+   * every device at once (docs/echo-classroom.md, Timing). At once when
+   * left out.
+   */
+  at?: number;
 }
 
 interface LiveRun {
@@ -138,7 +149,7 @@ export function useEchoRun(handlers: EchoRunHandlers) {
   }, []);
 
   const start = useCallback(
-    ({ id: runId, calls: list, groove }: EchoRunStart) => {
+    ({ id: runId, calls: list, groove, at }: EchoRunStart) => {
       stop();
       const run: LiveRun = {
         calls: list,
@@ -199,6 +210,7 @@ export function useEchoRun(handlers: EchoRunHandlers) {
           tempo: whole.tempo,
           onCue,
           kit: drums?.kit,
+          startsAtMs: at,
         });
       };
       void begin().then(

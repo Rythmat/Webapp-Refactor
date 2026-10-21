@@ -59,6 +59,11 @@ export interface QuantizedEcho {
   window: number;
   /** Each target: answered, or not. */
   answered: boolean[];
+  /**
+   * Each target's answer, ticks early (−) or late (+) of it; null where
+   * nothing answered it. For showing a student's echo note by note.
+   */
+  offsets: (number | null)[];
   /** Whether anything was played in the answer at all. */
   playedAny: boolean;
 }
@@ -70,16 +75,25 @@ export interface QuantizedOptions {
 
 const pc = (midi: number) => ((midi % 12) + 12) % 12;
 
+/** A played item that could answer a target: how far off it is, and which way. */
+interface Candidate {
+  target: number;
+  item: number;
+  distance: number;
+  /** Ticks early (−) or late (+). */
+  offset: number;
+}
+
 /** Greedy pairing, closest pairs first: which played item answers each target. */
 function pair(
   targets: number,
-  candidates: { target: number; item: number; distance: number }[],
-): Map<number, number> {
-  const answers = new Map<number, number>();
+  candidates: Candidate[],
+): Map<number, Candidate> {
+  const answers = new Map<number, Candidate>();
   const used = new Set<number>();
   for (const c of [...candidates].sort((a, b) => a.distance - b.distance)) {
     if (answers.has(c.target) || used.has(c.item)) continue;
-    answers.set(c.target, c.item);
+    answers.set(c.target, c);
     used.add(c.item);
     if (answers.size === targets) break;
   }
@@ -88,7 +102,7 @@ function pair(
 
 function result(
   asked: number,
-  answers: Map<number, number>,
+  answers: Map<number, Candidate>,
   heard: number,
   window: number,
 ): QuantizedEcho {
@@ -105,6 +119,10 @@ function result(
     extras,
     window,
     answered: Array.from({ length: asked }, (_, i) => answers.has(i)),
+    offsets: Array.from(
+      { length: asked },
+      (_, i) => answers.get(i)?.offset ?? null,
+    ),
     playedAny: heard > 0,
   };
 }
@@ -131,9 +149,10 @@ function gradeMelody(
   }));
   const candidates = targets.flatMap((t, target) =>
     heard.flatMap((n, item) => {
-      const distance = Math.abs(n.onset - t.onset);
+      const offset = n.onset - t.onset;
+      const distance = Math.abs(offset);
       return n.midi === t.midi && distance < window
-        ? [{ target, item, distance }]
+        ? [{ target, item, distance, offset }]
         : [];
     }),
   );
@@ -161,10 +180,11 @@ function gradeChords(
   }));
   const candidates = targets.flatMap((t, target) =>
     strikes.flatMap((s, item) => {
-      const distance = Math.abs(s.onset - t.onset);
+      const offset = s.onset - t.onset;
+      const distance = Math.abs(offset);
       const classes = new Set([...s.notes, ...s.held].map((n) => pc(n.midi)));
       return distance < window && t.classes.every((c) => classes.has(c))
-        ? [{ target, item, distance }]
+        ? [{ target, item, distance, offset }]
         : [];
     }),
   );

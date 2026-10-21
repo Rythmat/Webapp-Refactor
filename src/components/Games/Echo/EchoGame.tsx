@@ -21,11 +21,9 @@ import { startPianoSampler } from '@/audio/pianoSampler';
 import { cn } from '@/components/utilities';
 import { useUserRole } from '@/contexts/AuthContext/hooks/useUserRole';
 import {
-  gradeQuantizedEcho,
   melodyPads,
   taughtCall,
   type EchoLevelNumber,
-  type PlayedNote,
 } from '@/curriculum/engine/echo';
 import { circleOfFifths } from '@/curriculum/engine/musicLiteracy/choices';
 import { keyName } from '@/curriculum/musicLiteracy/ChooseKeyPanel';
@@ -47,9 +45,8 @@ import {
   wantsRun,
   type EchoAudience,
   type EchoLeader,
-  type EchoOutcome,
 } from './echoFlow';
-import { gradeRunCall } from './echoOutcome';
+import { gradeRunCallForClass } from './echoOutcome';
 import {
   highScoreOf,
   nextLevelOf,
@@ -59,7 +56,6 @@ import {
   rememberSetup,
   type EchoKeyChoice,
 } from './echoProgress';
-import type { RunCall } from './echoRunCues';
 import { inputFor, useEchoSettings } from './echoSettings';
 import { EchoInputSurface } from './input';
 import { useEchoRun } from './useEchoRun';
@@ -113,22 +109,6 @@ const SECTION_LINE: Readonly<Record<EchoSectionName, string>> = {
 
 /** Who may present Echo to a class. */
 const PRESENTERS = new Set(['teacher', 'admin', 'editor']);
-
-/** An echo graded the class's way; null: nothing was played here. */
-function gradeForClass(
-  placed: RunCall,
-  played: readonly PlayedNote[],
-): EchoOutcome | null {
-  const quantized = gradeQuantizedEcho(placed.call, played, {
-    timeline: placed.timeline,
-  });
-  if (!quantized.playedAny) return null;
-  return {
-    ...gradeRunCall(placed, played),
-    passed: quantized.passed,
-    percent: quantized.percent,
-  };
-}
 
 const newSeed = () =>
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -201,7 +181,7 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
   /** The boss call a run starts on (a resumed fight starts mid-way). */
   const runFrom = useRef(0);
   const run = useEchoRun({
-    grade: solo ? undefined : gradeForClass,
+    grade: solo ? undefined : gradeRunCallForClass,
     onUnanswered: () => dispatch({ type: 'unanswered' }),
     teach: (placed, played) =>
       taughtCall(

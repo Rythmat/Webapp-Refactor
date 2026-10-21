@@ -86,6 +86,12 @@ export interface LiteracyRunOptions {
   onCue: (cue: RunCue) => void;
   /** The drum kit the cues' drums play on, loaded before the start. */
   kit?: string;
+  /**
+   * When the run's tick 0 should sound, in Date.now() ms: a class's round,
+   * started together on every device (Echo in the classroom). Left out, or
+   * already past, the run starts at once.
+   */
+  startsAtMs?: number;
 }
 
 /**
@@ -99,6 +105,7 @@ export async function startLiteracyRun({
   tempo,
   onCue,
   kit,
+  startsAtMs,
 }: LiteracyRunOptions): Promise<boolean> {
   stopLiteracyRun();
   const run = generation;
@@ -136,15 +143,22 @@ export async function startLiteracyRun({
   );
   part.start(0);
   running = { spt, run, draw };
-  literacyClock.start();
+  // Measured once the sounds are loaded, so a round set for a moment in
+  // time starts then, however long the loading took. Tone schedules a
+  // look-ahead past "now", which a start at a moment takes off.
+  const lead =
+    startsAtMs === undefined
+      ? TRANSPORT_LEAD_SEC
+      : Math.max(
+          TRANSPORT_LEAD_SEC,
+          (startsAtMs - Date.now()) / 1000 - Tone.getContext().lookAhead,
+        );
+  literacyClock.start(lead);
 
   const end = cues.find((cue) => cue.kind === 'end');
   if (end) {
     const seconds =
-      TRANSPORT_LEAD_SEC +
-      end.tick * spt +
-      heardLatencySec() +
-      WATCHDOG_SPARE_SEC;
+      lead + end.tick * spt + heardLatencySec() + WATCHDOG_SPARE_SEC;
     watchdog = setTimeout(() => draw(end), seconds * 1000);
   }
 

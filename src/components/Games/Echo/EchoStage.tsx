@@ -626,7 +626,11 @@ function BossOutcome({
 
 // ── A round's result ───────────────────────────────────────────────────────
 
-function EchoResultCard({
+/**
+ * A round's result over the input: a good echo or a miss, what Atlas asked
+ * and what was played. A class's student screen shows it too.
+ */
+export function EchoResultCard({
   outcome,
   keyColor,
 }: {
@@ -808,7 +812,8 @@ function NoCallCard() {
 
 // ── The roll, for the keyboard ─────────────────────────────────────────────
 
-function EchoRoll({
+/** The roll for the keyboard: the run's Call and Response bands, and the notes played. */
+export function EchoRoll({
   runId,
   calls,
   played,

@@ -16,6 +16,7 @@
  *   pads.ts      the melody pads and the chord pads
  *   taught.ts    a teacher's call, from what they played (in class)
  *   classGrading.ts  grading in class: quantized, notes and timing
+ *   wire.ts      a call as wire data, sent to every device in class
  *   random.ts    the seeded random source every call is made with
  *
  * A game, in order:
@@ -210,3 +211,13 @@ export {
   type QuantizedEcho,
   type QuantizedOptions,
 } from './classGrading';
+export {
+  ECHO_CALL_WIRE_VERSION,
+  fromEchoCallWire,
+  toEchoCallWire,
+  type ChordCallWire,
+  type ChordStrikeWire,
+  type EchoCallWire,
+  type EchoNoteWire,
+  type MelodyCallWire,
+} from './wire';

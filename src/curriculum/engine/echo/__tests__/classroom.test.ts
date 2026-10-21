@@ -162,6 +162,17 @@ describe('grading in class, quantized', () => {
     expect(late).toMatchObject({ hits: 2, passed: false });
   });
 
+  it('says how early or late each note was, and which were missed', () => {
+    const loose = gradeQuantizedEcho(quarters, answer([200, -230, 120]), {
+      timeline: t,
+    });
+    expect(loose.offsets).toEqual([200, -230, 120]);
+    const late = gradeQuantizedEcho(quarters, answer([0, 0, 250]), {
+      timeline: t,
+    });
+    expect(late.offsets).toEqual([0, 0, null]);
+  });
+
   it('needs the right note', () => {
     const wrong = melodyEchoNotes(quarters, t).response.map((n) =>
       note(n.midi + 2, n.onset),

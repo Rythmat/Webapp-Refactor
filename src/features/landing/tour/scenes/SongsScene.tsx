@@ -3,8 +3,8 @@ import { Gauge, Pause, Play, Search } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/components/utilities';
 import { creep } from '@/curriculum/data/songs/creep';
+import { if_i_aint_got_you } from '@/curriculum/data/songs/if_i_aint_got_you';
 import { stand_by_me } from '@/curriculum/data/songs/stand_by_me';
-import { sweet_home_alabama } from '@/curriculum/data/songs/sweet_home_alabama';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import {
@@ -36,12 +36,23 @@ const CREEP_DEMO: Song = {
 };
 
 /**
+ * If I Ain't Got You for the demo: its first verse only, the eight-bar
+ * IV–iii–ii–I walk down, four to a row. The library's song is untouched.
+ */
+const IF_I_AINT_GOT_YOU_DEMO: Song = {
+  ...if_i_aint_got_you,
+  sections: if_i_aint_got_you.sections
+    .slice(0, 1)
+    .map((s) => ({ ...s, measuresPerRow: 4 })),
+};
+
+/**
  * Three real songs from the library (bundled files, no content fetch), each
  * with a different color story: Creep borrows two chords from outside G
- * major, Stand By Me never leaves A, Sweet Home Alabama's ♭VII takes G's
- * color.
+ * major, Stand By Me never leaves A, If I Ain't Got You walks IV–iii–ii–I
+ * down G major in 6/8.
  */
-const SONGS: Song[] = [CREEP_DEMO, stand_by_me, sweet_home_alabama];
+const SONGS: Song[] = [CREEP_DEMO, stand_by_me, IF_I_AINT_GOT_YOU_DEMO];
 
 /** A chart row's natural height, and the most it grows to fill the card. */
 const ROW_H = { min: 76, max: 112, compactMax: 160 };
@@ -240,7 +251,7 @@ export const SongsScene = ({
 
   let barIndex = 0;
   // Chart rows grow into the card's spare height, each up to ROW_H's max; a
-  // shorter chart (Sweet Home's one row) then centers instead of stretching.
+  // shorter chart then centers instead of stretching.
   const rowMax = compact ? ROW_H.compactMax : ROW_H.max;
   const sectionGrid = chart.sections.map((s) => {
     const cols = Math.min(s.perRow, compact ? 4 : 5);

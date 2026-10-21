@@ -1,6 +1,7 @@
 import {
   ArrowDown,
   ArrowUp,
+  AudioLines,
   MessageSquare,
   Pencil,
   Plus,
@@ -11,6 +12,11 @@ import {
   Layout,
 } from 'lucide-react';
 import { useState } from 'react';
+import {
+  LITERACY_TONICS,
+  type LiteracyTonic,
+} from '@/content/musicLiteracy/schemas';
+import { DEFAULT_ECHO_INTERACTION } from '../echo/types';
 import {
   MODULE_CAPABILITIES,
   type AtlasExpects,
@@ -54,6 +60,12 @@ export const INTERACTION_TYPES: {
     Icon: Sparkles,
     description: 'Teacher-eyes-only wellness pulse.',
   },
+  {
+    value: 'echo',
+    label: 'Echo (class)',
+    Icon: AudioLines,
+    description: 'Atlas plays, the class echoes it on their devices.',
+  },
 ];
 
 const uid = (): string =>
@@ -64,8 +76,8 @@ export const emptyInteraction = (type: InteractionType): Interaction => {
     id: uid(),
     type,
     question: { en: '' },
-    // check-in + showcase are teacher-only (never projected).
-    shareable: type !== 'check-in' && type !== 'showcase',
+    // check-in, showcase + echo are teacher-only (never projected).
+    shareable: type !== 'check-in' && type !== 'showcase' && type !== 'echo',
   };
   switch (type) {
     case 'choice':
@@ -88,6 +100,12 @@ export const emptyInteraction = (type: InteractionType): Interaction => {
       };
     case 'showcase':
       return base;
+    case 'echo':
+      return {
+        ...base,
+        question: { en: 'Echo Atlas!', es: '¡Haz eco de Atlas!' },
+        echo: DEFAULT_ECHO_INTERACTION,
+      };
   }
 };
 
@@ -260,7 +278,7 @@ const InteractionRow = ({
       <QuestionField interaction={interaction} onUpdate={onUpdate} />
       <TypeSpecificFields interaction={interaction} onUpdate={onUpdate} />
 
-      {interaction.type !== 'check-in' && (
+      {interaction.type !== 'check-in' && interaction.type !== 'echo' && (
         <label className="mt-1 flex items-center gap-2 text-xs text-white/60">
           <input
             type="checkbox"
@@ -463,7 +481,69 @@ const TypeSpecificFields = ({
         </div>
       );
     }
+    case 'echo':
+      return <EchoFields interaction={interaction} onUpdate={onUpdate} />;
   }
+};
+
+/**
+ * An Echo (class) slide's start: its level and key. Atlas leads; the
+ * Teacher Settings open from the live session's Echo panel.
+ */
+const EchoFields = ({
+  interaction,
+  onUpdate,
+}: {
+  interaction: Interaction;
+  onUpdate: (patch: Partial<Interaction>) => void;
+}) => {
+  const echo = interaction.echo ?? DEFAULT_ECHO_INTERACTION;
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-3 gap-2">
+        <TinySelectField
+          label="Level"
+          value={String(echo.level)}
+          options={['1', '2', '3']}
+          onChange={(v) =>
+            onUpdate({
+              echo: { ...echo, level: Number(v) as 1 | 2 | 3 },
+            })
+          }
+        />
+        <TinySelectField
+          label="Key"
+          value={echo.key.tonic}
+          options={[...LITERACY_TONICS]}
+          onChange={(v) =>
+            onUpdate({
+              echo: {
+                ...echo,
+                key: { ...echo.key, tonic: v as LiteracyTonic },
+              },
+            })
+          }
+        />
+        <TinySelectField
+          label="Mode"
+          value={echo.key.mode}
+          options={['major', 'minor']}
+          onChange={(v) =>
+            onUpdate({
+              echo: {
+                ...echo,
+                key: { ...echo.key, mode: v as 'major' | 'minor' },
+              },
+            })
+          }
+        />
+      </div>
+      <p className="text-[10px] text-white/40">
+        Atlas leads. Students play on their own devices; the Teacher Settings
+        open from the live session.
+      </p>
+    </div>
+  );
 };
 
 const ChoiceFields = ({

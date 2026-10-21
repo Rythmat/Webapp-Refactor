@@ -12,6 +12,7 @@ import { Env } from '@/constants/env';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
 import { useMe } from '@/hooks/data';
+import type { SessionEcho } from '../echo/types';
 import { recordMspResponseForUser } from '../msp/mspResponseInbox';
 import type { PhaseKey } from '../phases';
 import type { InteractionResponsePayload } from '../types';
@@ -41,6 +42,7 @@ import {
   type SessionTimer,
 } from './sessionsStore';
 import { useLocalSessionStore } from './useLocalSessionStore';
+import { useServerClock, type SessionClock } from './useServerClock';
 
 export type { ConnectionStatus };
 export type { SessionTransportStatus };
@@ -86,6 +88,13 @@ export interface UseSessionSync {
   ) => void;
   /** Phase 4 — broadcast this student's local slide position (student-paced). */
   sendPosition: (slideIndex: number) => void;
+  /** Echo in the classroom — publish the round (teacher only). */
+  sendEcho: (echo: SessionEcho | null) => void;
+  /**
+   * The server's clock, by the clock check (serverClock.ts): what a round's
+   * start time means on this device. Offset 0 for a practice session.
+   */
+  clock: SessionClock;
 }
 
 const isBrowser = typeof window !== 'undefined';
@@ -143,6 +152,16 @@ export const useSessionSync = (
     socketStatus,
   );
   const controllerRef = useRef<SessionSocketController | null>(null);
+  const local = isLocalSession(sessionId);
+
+  // The clock check: five pings once the socket is up, then every 30 s.
+  const ping = useCallback(() => controllerRef.current?.sendPing(), []);
+  const serverClock = useServerClock({
+    ping: local ? null : ping,
+    connected: socketStatus === 'connected',
+  });
+  const addPongRef = useRef(serverClock.addPong);
+  addPongRef.current = serverClock.addPong;
 
   // For server sessions the backend derives the authoritative enrollment
   // from the auth token; `enrollmentId` is only consumed by the local-mock
@@ -195,6 +214,7 @@ export const useSessionSync = (
           }),
         ),
       onStatusChange: setSocketStatus,
+      onPong: (pong) => addPongRef.current(pong),
       // The teacher's local mirror is ended optimistically; if the server end
       // never lands, tell them the class may not have been notified.
       onEndFailed: () =>
@@ -240,7 +260,6 @@ export const useSessionSync = (
     },
     [userId, sessionId, role, enrollmentId],
   );
-  const local = isLocalSession(sessionId);
 
   const sendNav = useCallback(
     (phase: PhaseKey, slideIndex?: number) => {
@@ -331,6 +350,16 @@ export const useSessionSync = (
     },
     [local, dispatchLocal],
   );
+  const sendEcho = useCallback(
+    (echo: SessionEcho | null) => {
+      if (local) {
+        dispatchLocal({ kind: 'echo', echo });
+        return;
+      }
+      controllerRef.current?.sendEcho(echo);
+    },
+    [local, dispatchLocal],
+  );
   const sendEnd = useCallback((): Promise<SendEndResult> => {
     // End the WHOLE classroom's live state, not just this one session — the
     // is-live resolver returns the newest `live` record, so a stale leftover
@@ -385,6 +414,12 @@ export const useSessionSync = (
     [local, userId, sessionId, enrollmentId],
   );
 
+  const { offsetMs, synced, serverNow } = serverClock;
+  const clock = useMemo<SessionClock>(
+    () => ({ offsetMs, synced, serverNow }),
+    [offsetMs, synced, serverNow],
+  );
+
   return useMemo(
     () => ({
       state,
@@ -400,6 +435,8 @@ export const useSessionSync = (
       sendTimer,
       sendMedia,
       sendPosition,
+      sendEcho,
+      clock,
     }),
     [
       state,
@@ -415,6 +452,8 @@ export const useSessionSync = (
       sendTimer,
       sendMedia,
       sendPosition,
+      sendEcho,
+      clock,
     ],
   );
 };

@@ -226,7 +226,7 @@ describe('every setting explains itself', () => {
   it('in the Click menu: sound, volume and count-in', async () => {
     render(<ClickToggle />);
     await act(async () => {
-      fireEvent.click(screen.getByTestId('count-in-menu'));
+      fireEvent.contextMenu(screen.getByTestId('count-in-menu'));
     });
     expect(screen.getByTestId('click-menu')).toBeInTheDocument();
     expect(expectEverySettingExplained().rows).toBe(3);

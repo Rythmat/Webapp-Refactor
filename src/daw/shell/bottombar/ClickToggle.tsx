@@ -1,5 +1,5 @@
-import { ChevronDown } from 'lucide-react';
 import { memo, useEffect, useRef } from 'react';
+import { create } from 'zustand';
 import {
   CLICK_SOUNDS,
   DEFAULT_CLICK_DB,
@@ -14,16 +14,16 @@ import { useStore } from '@/daw/store';
 import { ticksPerBeat } from '@/daw/time/timeModel';
 import { Fader } from '@/daw/ui/Fader';
 import { formatDb } from '@/daw/ui/format';
-import { IconButton } from '@/daw/ui/IconButton';
-import { Popover, PopoverContent, PopoverTrigger } from '@/daw/ui/Popover';
+import { Popover, PopoverAnchor, PopoverContent } from '@/daw/ui/Popover';
 import { Segmented } from '@/daw/ui/Segmented';
 import { SettingRow } from '@/daw/ui/SettingRow';
 import { Toggle } from '@/daw/ui/Toggle';
 
 // ── Click and its menu (milestones 2.5, 2.8, 2.11) ──────────────────────────
 //
-// The metronome as a toggle, with a caret for its menu (after Soundtrap's):
-// the click's sound, its volume and the count-in (off, one bar, two). The
+// The metronome as one toggle (the floating frame's transport, 2026-10-21);
+// its settings open on a right-click or from '⋯': the click's sound, its
+// volume and the count-in (off, one bar, two). The
 // sound and the volume are the student's (per-user prefs); a new choice
 // plays one click. The icon's two dots take turns on each beat while a
 // click is sounding; the playhead clock moves them by writing the dots'
@@ -188,40 +188,54 @@ function MetronomeIcon({ on }: { on: boolean }) {
   );
 }
 
+/**
+ * Whether the metronome's settings are open. A store, so the top bar's '⋯'
+ * menu can open them too (the metronome itself is one button now).
+ */
+export const useClickSettings = create<{
+  open: boolean;
+  setOpen(open: boolean): void;
+}>((set) => ({ open: false, setOpen: (open) => set({ open }) }));
+
+/**
+ * The metronome, as the floating frame's transport has it (owner,
+ * 2026-10-21): one button. Its settings (sound, volume, count-in) open on a
+ * right-click or from the '⋯' menu, anchored under it.
+ */
 export const ClickToggle = memo(function ClickToggle() {
   const on = useStore((s) => s.metronomeEnabled);
   const toggle = useStore((s) => s.toggleMetronome);
   const countInBars = useStore((s) => s.countInBars);
+  const open = useClickSettings((s) => s.open);
+  const setOpen = useClickSettings((s) => s.setOpen);
   return (
-    <div className="flex shrink-0 items-center">
-      <Toggle
-        label="Click"
-        tooltipSide="bottom"
-        icon={<MetronomeIcon on={on} />}
-        pressed={on}
-        onPressedChange={() => toggle()}
-        shortcut={METRONOME_KEYS.label}
-        aria-keyshortcuts={METRONOME_KEYS.aria}
-        data-testid="click-toggle"
-        className="h-8 rounded-r-none rounded-l-[var(--daw-radius-md)]"
-      />
-      <Popover>
-        <PopoverTrigger asChild>
-          <IconButton
-            label="Click settings: sound, volume and count-in"
-            icon={<ChevronDown />}
-            variant="bare"
-            size="md"
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverAnchor asChild>
+        <span
+          className="inline-flex shrink-0"
+          data-testid="count-in-menu"
+          data-count-in={countInBars}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            setOpen(true);
+          }}
+        >
+          <Toggle
+            label="Metronome"
             tooltipSide="bottom"
-            data-testid="count-in-menu"
-            data-count-in={countInBars}
-            className="h-8 w-6 rounded-l-none [&_svg]:size-3.5"
+            icon={<MetronomeIcon on={on} />}
+            pressed={on}
+            onPressedChange={() => toggle()}
+            shortcut={METRONOME_KEYS.label}
+            aria-keyshortcuts={METRONOME_KEYS.aria}
+            data-testid="click-toggle"
+            className="h-8 rounded-[var(--daw-radius-md)]"
           />
-        </PopoverTrigger>
-        <PopoverContent side="bottom" align="end" sideOffset={8}>
-          <ClickSettings />
-        </PopoverContent>
-      </Popover>
-    </div>
+        </span>
+      </PopoverAnchor>
+      <PopoverContent side="bottom" align="start" sideOffset={8}>
+        <ClickSettings />
+      </PopoverContent>
+    </Popover>
   );
 });

@@ -77,7 +77,7 @@ afterEach(() => {
 describe('the top bar', () => {
   it('has the project, transport and song-and-share zones, with the lesson anchors', () => {
     renderBar();
-    for (const name of ['Project', 'Transport', 'Song, share and account']) {
+    for (const name of ['Project', 'Transport', 'Song and account']) {
       expect(screen.getByRole('group', { name })).toBeInTheDocument();
     }
     // The floating frame (S0): each zone's controls sit in pills.
@@ -87,7 +87,7 @@ describe('the top bar', () => {
       'Transport controls',
       'Position',
       'Song',
-      'Share and more',
+      'More',
     ]) {
       expect(screen.getByRole('group', { name })).toHaveClass('bg-daw-pill');
     }
@@ -115,7 +115,18 @@ describe('the top bar', () => {
     ]) {
       expect(screen.queryByTestId(id)).toBeNull();
     }
-    expect(screen.getByTestId('share-pill')).not.toHaveTextContent('Share');
+    // 2026-10-21: sessions are the side rail's People panel's alone, and the
+    // save chip shows only when work is at risk.
+    expect(screen.queryByTestId('share-pill')).toBeNull();
+    expect(screen.queryByTestId('save-chip')).toBeNull();
+    expect(screen.queryByText('Saved on this device')).toBeNull();
+    // Metronome, Back to start, Record, Play, Loop: no bar skips.
+    const transport = screen.getByRole('group', { name: 'Transport controls' });
+    expect(
+      within(transport)
+        .getAllByRole('button')
+        .map((b) => b.getAttribute('aria-label')),
+    ).toEqual(['Metronome', 'Back to start', 'Record', 'Play', 'Loop']);
     expect(screen.getByTestId('top-bar')).toHaveAttribute('data-fold', '0');
   });
 
@@ -169,9 +180,7 @@ describe('the top bar', () => {
 
   it('has the white Export pill between ⋯ and the avatar', () => {
     renderBar();
-    const share = screen.getByRole('group', {
-      name: 'Song, share and account',
-    });
+    const share = screen.getByRole('group', { name: 'Song and account' });
     const pill = within(share).getByTestId('export-pill');
     expect(pill).toHaveTextContent('Export');
     expect(pill).toHaveAttribute('data-tutorial-id', 'export-pill');

@@ -421,12 +421,6 @@ function overlays(kit) {
     { name: '⋯ menu', ...click('[data-testid="top-bar-overflow"]', menu) },
     { name: 'Account menu', ...click('[data-testid="avatar-menu"]', menu) },
     {
-      name: 'Share popover',
-      ...click('[data-testid="share-pill"]', {
-        selector: '[data-testid="collab-popover"]',
-      }),
-    },
-    {
       name: 'Key popover',
       ...click('[data-testid="key-button"]', {
         selector: '[data-testid="key-popover"]',
@@ -439,10 +433,11 @@ function overlays(kit) {
       }),
     },
     {
+      // The metronome is one button since 2026-10-21: a right-click opens
+      // its settings.
       name: 'Click menu',
-      ...click('[data-testid="count-in-menu"]', {
-        selector: '[data-testid="click-menu"]',
-      }),
+      panel: { selector: '[data-testid="click-menu"]' },
+      open: (page) => rightClick(page, '[data-testid="count-in-menu"]'),
     },
     { name: 'Grid menu', ...click('[data-testid="grid-menu"]', menu) },
     {

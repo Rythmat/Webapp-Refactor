@@ -1,4 +1,4 @@
-import { MoreHorizontal, Search, Settings2 } from 'lucide-react';
+import { MoreHorizontal, Search, Settings2, Timer } from 'lucide-react';
 import { memo, useMemo, useRef } from 'react';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
@@ -15,6 +15,7 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from '@/daw/ui/Menu';
+import { InviteHost } from '../inspector/panels/InviteHost';
 import { AvatarMenu } from './AvatarMenu';
 import { BackToStudio } from './BackToStudio';
 import { ExportPill } from './ExportPill';
@@ -23,7 +24,7 @@ import { MusicalTypingChip } from './MusicalTypingChip';
 import { ProjectMenu } from './ProjectMenu';
 import { ProjectName } from './ProjectName';
 import { SaveChipAnnouncer, SaveStatusChip } from './SaveStatusChip';
-import { SharePill } from './SharePill';
+import { useClickSettings } from '../bottombar/ClickToggle';
 import { SongControls } from '../bottombar/SongControls';
 import { TransportControls } from '../bottombar/TransportControls';
 import { UndoRedoButtons } from './UndoRedoButtons';
@@ -33,13 +34,17 @@ import { folded, useToolbarOverflow } from './useToolbarOverflow';
 //
 // 44 px, its controls in pills on the page, laid out as the floating frame
 // is (owner, 2026-10-21):
-// - project, at the left: Back, the Project menu, the name and the save
-//   chip in one pill; Undo and Redo in the next;
+// - project, at the left: Back, the Project menu and the name in one pill
+//   (the save chip shows there only when work is at risk: a failed save or
+//   audio not stored; 'Saved on this device' went, owner 2026-10-21); Undo
+//   and Redo in the next;
 // - transport, centred in the bar: Click, Go to start, Rewind, Record,
 //   Play, Fast-forward and Loop in one pill, the position in the next;
-// - song and share, at the right: Key, Tempo and Metre in one pill; Share,
-//   the computer keyboard's chip and '⋯' in the next; the white Export pill
-//   and the avatar.
+// - song and account, at the right: Key, Tempo and Metre in one pill; the
+//   computer keyboard's chip and '⋯' in the next; the white Export pill and
+//   the avatar. Sessions (Share, Invite, Join, Leave) are the side rail's
+//   People panel's alone since 2026-10-21 (owner: "this already is in the
+//   side rail"); the invite dialog's one instance mounts here (InviteHost).
 // The view tabs (Create, Mix, Score) moved to the bottom rail's centre.
 // When the zones don't fit, the bar folds (useToolbarOverflow). Each
 // control subscribes to its own state, so playback and edits re-render
@@ -97,7 +102,7 @@ export const TopBar = memo(function TopBar({
             <BackToStudio />
             <ProjectMenu />
             <ProjectName narrow={folded(fold, 'name-narrow')} />
-            <SaveStatusChip announce={false} />
+            <SaveStatusChip announce={false} warningsOnly />
           </PillGroup>
           {practiceView ? null : (
             <PillGroup label="Undo and redo">
@@ -119,15 +124,14 @@ export const TopBar = memo(function TopBar({
         <div
           ref={rightRef}
           role="group"
-          aria-label="Song, share and account"
+          aria-label="Song and account"
           data-zone="share"
           className="flex items-center gap-2"
         >
           <PillGroup label="Song" data-zone="song" className="px-1">
             <SongControls short={folded(fold, 'key-short')} />
           </PillGroup>
-          <PillGroup label="Share and more">
-            <SharePill iconOnly />
+          <PillGroup label="More">
             <MusicalTypingChip />
             <MoreMenu />
           </PillGroup>
@@ -138,6 +142,7 @@ export const TopBar = memo(function TopBar({
       {/* The chip's live region, apart from the chip (announce={false}):
           Saved, Couldn't save and Audio not saved yet. */}
       <SaveChipAnnouncer />
+      <InviteHost />
     </>
   );
 });
@@ -150,7 +155,8 @@ export const MORE_COPY = {
 
 /**
  * '⋯': the computer keyboard's switch, the hover hints' switch, the command
- * palette, Help (shortcuts, lessons) and Audio & MIDI settings.
+ * palette, the metronome's settings (also a right-click on it), Help
+ * (shortcuts, lessons) and Audio & MIDI settings.
  */
 function MoreMenu() {
   const setSettingsOpen = useStore((s) => s.setSettingsOpen);
@@ -158,6 +164,9 @@ function MoreMenu() {
   const setHoverHints = useStore((s) => s.setHoverHints);
   const typing = useMusicalTypingStore((s) => s.enabled);
   const setTyping = useMusicalTypingStore((s) => s.setEnabled);
+  // Metronome settings open as the menu closes, in place of its handing
+  // focus back to '⋯': that focus would dismiss the popover as it opened.
+  const openMetronome = useRef(false);
   return (
     <Menu>
       <MenuTrigger asChild>
@@ -170,7 +179,17 @@ function MoreMenu() {
           data-testid="top-bar-overflow"
         />
       </MenuTrigger>
-      <MenuContent align="end" sideOffset={6} data-ds="v2">
+      <MenuContent
+        align="end"
+        sideOffset={6}
+        data-ds="v2"
+        onCloseAutoFocus={(e) => {
+          if (!openMetronome.current) return;
+          openMetronome.current = false;
+          e.preventDefault();
+          useClickSettings.getState().setOpen(true);
+        }}
+      >
         <MenuCheckboxItem
           checked={typing}
           onCheckedChange={setTyping}
@@ -195,6 +214,15 @@ function MoreMenu() {
           onSelect={() => usePaletteStore.getState().open()}
         >
           Find a command
+        </MenuItem>
+        <MenuItem
+          icon={<Timer />}
+          data-testid="metronome-settings-menu-item"
+          onSelect={() => {
+            openMetronome.current = true;
+          }}
+        >
+          Metronome settings…
         </MenuItem>
         <MenuSeparator />
         <HelpItems />

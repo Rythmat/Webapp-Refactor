@@ -163,12 +163,6 @@ const POPOVERS = [
     v2: true,
   },
   {
-    name: 'Share popover',
-    trigger: '[data-testid="share-pill"]',
-    panel: '[data-testid="collab-popover"]',
-    v2: true,
-  },
-  {
     name: 'Account menu',
     trigger: '[data-testid="avatar-menu"]',
     panel: '[role=menu][data-state=open]',

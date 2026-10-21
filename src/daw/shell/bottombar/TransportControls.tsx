@@ -1,21 +1,9 @@
 import { memo, useCallback } from 'react';
-import {
-  Circle,
-  FastForward,
-  Pause,
-  Play,
-  Repeat,
-  Rewind,
-  SkipBack,
-} from 'lucide-react';
+import { Circle, Pause, Play, Repeat, SkipBack } from 'lucide-react';
 import { cn } from '@/components/utilities';
 import { requestRecord } from '@/daw/commands/requestRecord';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
-import {
-  fastForwardBar,
-  goToStart,
-  rewindBar,
-} from '@/daw/commands/transportSkip';
+import { goToStart } from '@/daw/commands/transportSkip';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore } from '@/daw/store';
@@ -24,31 +12,22 @@ import { PillGroup } from '@/daw/ui/Pill';
 import { Toggle } from '@/daw/ui/Toggle';
 import { ClickToggle } from './ClickToggle';
 import { PositionReadout } from './PositionReadout';
-import { useHoldRepeat } from './useHoldRepeat';
 
 // ── The transport, in the top bar's centre (2.5, B4a, 2.8; S0) ──────────
 //
-// Two pills (the floating frame, owner 2026-10-21): Click, Go to start,
-// Rewind, Record, Play, Fast-forward and Loop in one; the position in the
-// next. Play and Record are white icons, not filled buttons; Record turns
-// red while it records.
-//
-// Play (the white pill, a pause while playing), Record (red), Go to start,
-// Rewind and Fast-forward, the position readout, Loop and Click with its
-// menu, left to right, in one place: the old bar split them across its
-// width (shell-19). It moved from the top bar to the bottom rail (B4a), and
-// the three skip buttons came back there after Soundtrap's (2.8): Rewind
-// and Fast-forward step a bar and repeat while held. Esc stops, Home and End
-// go to the markers and the ends (commands/transportSkip), and the ruler
-// seeks anywhere. Each control reads only its own state, so playback
-// re-renders none of them: the readout and the click's dots move by ref.
+// Two pills, as the floating frame's transport (owner, 2026-10-21):
+// Metronome, Back to start, Record, Play and Loop in one; the position in
+// the next. Play and Record are white icons, not filled buttons; Record
+// turns red while it records. Rewind and Fast-forward a bar left the bar
+// with it, but keep their keys (commands/transportSkip), as Esc, Home and
+// End do; the ruler seeks anywhere. Each control reads only its own state,
+// so playback re-renders none of them: the readout and the metronome's
+// dots move by ref.
 
 const KEYS = {
   playPause: shortcutKeys('transport.playPause'),
   record: shortcutKeys('transport.record'),
   toStart: shortcutKeys('transport.toStart'),
-  rewind: shortcutKeys('transport.rewind'),
-  fastForward: shortcutKeys('transport.fastForward'),
   loop: shortcutKeys('transport.loop'),
 };
 
@@ -88,9 +67,6 @@ export const TransportControls = memo(function TransportControls({
     requestRecord(isReady ? undefined : onInit);
   }, [isReady, onInit]);
 
-  const rewind = useHoldRepeat(rewindBar);
-  const fastForward = useHoldRepeat(fastForwardBar);
-
   const recordState = isRecording
     ? 'recording'
     : isCountingIn
@@ -104,34 +80,18 @@ export const TransportControls = memo(function TransportControls({
         <IconButton
           variant="bare"
           size="lg"
-          label="Go to start"
+          label="Back to start"
           icon={<SkipBack fill="currentColor" />}
           shortcut={KEYS.toStart.label}
           aria-keyshortcuts={KEYS.toStart.aria}
           tooltipSide="bottom"
           data-hint={hintText(
-            'Go to start',
+            'Back to start',
             'Move the playhead back to the beginning',
             KEYS.toStart.label,
           )}
           data-testid="transport-to-start"
           onClick={goToStart}
-        />
-        <IconButton
-          variant="bare"
-          size="lg"
-          label="Rewind one bar"
-          icon={<Rewind fill="currentColor" />}
-          shortcut={KEYS.rewind.label}
-          aria-keyshortcuts={KEYS.rewind.aria}
-          tooltipSide="bottom"
-          data-hint={hintText(
-            'Rewind one bar',
-            'Step back a bar; hold to keep going',
-            KEYS.rewind.label,
-          )}
-          data-testid="transport-rewind"
-          {...rewind}
         />
         <IconButton
           variant="bare"
@@ -194,22 +154,6 @@ export const TransportControls = memo(function TransportControls({
           data-testid="transport-play"
           data-playing={isPlaying || undefined}
           onClick={handlePlayPause}
-        />
-        <IconButton
-          variant="bare"
-          size="lg"
-          label="Fast-forward one bar"
-          icon={<FastForward fill="currentColor" />}
-          shortcut={KEYS.fastForward.label}
-          aria-keyshortcuts={KEYS.fastForward.aria}
-          tooltipSide="bottom"
-          data-hint={hintText(
-            'Fast-forward one bar',
-            'Step on a bar; hold to keep going',
-            KEYS.fastForward.label,
-          )}
-          data-testid="transport-fast-forward"
-          {...fastForward}
         />
         <Toggle
           label="Loop"

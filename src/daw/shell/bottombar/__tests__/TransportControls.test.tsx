@@ -307,46 +307,14 @@ describe('Go to start, Rewind and Fast-forward', () => {
     renderBar();
     fireEvent.click(screen.getByTestId('transport-to-start'));
     expect(h.seekTo).toHaveBeenLastCalledWith(0);
-    fireEvent.pointerDown(screen.getByTestId('transport-rewind'), {
-      button: 0,
-    });
-    fireEvent.pointerUp(screen.getByTestId('transport-rewind'));
-    expect(h.seekTo).toHaveBeenLastCalledWith(2 * BAR);
-    fireEvent.pointerDown(screen.getByTestId('transport-fast-forward'), {
-      button: 0,
-    });
-    fireEvent.pointerUp(screen.getByTestId('transport-fast-forward'));
-    expect(h.seekTo).toHaveBeenLastCalledWith(3 * BAR);
-  });
-
-  it('repeat while held, and step once for a key', () => {
-    vi.useFakeTimers();
-    try {
-      renderBar();
-      const ff = screen.getByTestId('transport-fast-forward');
-      fireEvent.pointerDown(ff, { button: 0 });
-      expect(h.seekTo).toHaveBeenCalledTimes(1);
-      act(() => vi.advanceTimersByTime(400 + 2 * 150));
-      expect(h.seekTo).toHaveBeenCalledTimes(4);
-      fireEvent.pointerUp(ff);
-      act(() => vi.advanceTimersByTime(1000));
-      expect(h.seekTo).toHaveBeenCalledTimes(4);
-      // A click the pointer made (detail 1) has stepped already.
-      fireEvent.click(ff, { detail: 1 });
-      expect(h.seekTo).toHaveBeenCalledTimes(4);
-      // Enter or Space on the focused button: a click with detail 0.
-      fireEvent.click(ff, { detail: 0 });
-      expect(h.seekTo).toHaveBeenCalledTimes(5);
-    } finally {
-      vi.useRealTimers();
-    }
   });
 });
 
-describe('the Click menu', () => {
+describe('the metronome settings', () => {
   it('sets the sound, the volume and the count-in', () => {
     renderBar();
-    fireEvent.click(screen.getByTestId('count-in-menu'));
+    // The metronome is one button; a right-click opens its settings.
+    fireEvent.contextMenu(screen.getByTestId('count-in-menu'));
     const menu = screen.getByTestId('click-menu');
     fireEvent.click(within(menu).getByRole('radio', { name: 'Tick' }));
     expect(s().metronomeSound).toBe('tick');

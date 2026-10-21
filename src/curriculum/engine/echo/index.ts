@@ -38,6 +38,7 @@ export {
   BEAT_TICKS,
   BOSS_CALLS,
   CHORD_CALL_BARS,
+  COUNT_OFF_BARS,
   ECHO_LEVELS,
   ECHO_LEVEL_NUMBERS,
   ECHO_TEMPO,
@@ -127,6 +128,7 @@ export {
 export {
   bossTimelines,
   chordEchoNotes,
+  echoCountOff,
   echoTimeline,
   gradeChordEcho,
   gradeChordStrikes,

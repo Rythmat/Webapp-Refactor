@@ -1,5 +1,7 @@
 import {
+  BEAT_TICKS,
   chordEchoNotes,
+  echoCountOff,
   melodyEchoNotes,
   type EchoCall,
 } from '@/curriculum/engine/echo';
@@ -9,6 +11,7 @@ import type {
   TimedNote,
 } from '@/curriculum/engine/musicLiteracy/literacy';
 import {
+  FINAL_DOWNBEAT_BEATS,
   createRunCues,
   phaseAt,
   type RunCue,
@@ -17,18 +20,21 @@ import {
 } from '@/curriculum/engine/musicLiteracy/run';
 
 // ── An Echo run, as cues on the transport ──────────────────────────────────
-// A round is one run: a bar of count-in, Atlas's call (sounded and lit), then
-// the student's bars. The Final Boss is one run of four: its calls back to
-// back after one count-in (grading.ts bossTimelines). Either is played by
-// Music Literacy's runner (literacyRun.ts) from these cues, so the pulse,
-// the hub's cues and the drums behave as they do in a lesson:
+// A round is one run: a bar of count-in, Atlas's call (sounded and lit), a
+// bar's rest counted off, then the student's bars and the final downbeat.
+// The Final Boss is one run of four: its calls one after another after one
+// count-in (echoFlow.ts bossRunTimelines). Either is played by Music
+// Literacy's runner (literacyRun.ts) from these cues, so the pulse, the
+// hub's cues and the drums behave as they do in a lesson:
 //
-//   beats    every beat, the count-in clicking, the click past it the
-//            setting's; each beat says whose turn it is in its own call
+//   beats    every beat, the count-in and the count-off clicking, the click
+//            elsewhere the setting's; each beat says whose turn it is in its
+//            own call (the count-off's are the count-in's: getting ready)
 //   notes    the call's, sounded and lit; the answer's, silent and dark,
 //            so the hub lights the scale degree to play as it comes round
 //   drums    from the first call's downbeat to the end, then a kick and a
-//            crash on the final downbeat (run.ts createRunCues)
+//            crash on the final downbeat (run.ts createRunCues); with no
+//            drums, the final downbeat is a click
 //
 // Ticks are from the run's first count-in click.
 
@@ -126,12 +132,32 @@ export function echoRunCues(
     { timeSignature: [4, 4] },
     { timeline: whole },
     { metronome, groove },
-  ).map((cue) => {
-    if (cue.kind !== 'beat' || cue.tick >= whole.total) return cue;
-    // Each beat's turn, read off its own call's timeline.
+  ).flatMap((cue): RunCue[] => {
+    // With no drums the run would end on the last bar line: it lands a
+    // final downbeat there instead, a click, and rings as the drums' does.
+    if (cue.kind === 'end' && !groove) {
+      return [
+        {
+          kind: 'beat',
+          tick: whole.total,
+          beat: 0,
+          phase: 'response',
+          click: true,
+          downbeat: true,
+        },
+        { kind: 'end', tick: whole.total + FINAL_DOWNBEAT_BEATS * BEAT_TICKS },
+      ];
+    }
+    if (cue.kind !== 'beat' || cue.tick >= whole.total) return [cue];
+    // Each beat's turn, read off its own call's timeline; the count-off
+    // counts out loud, as the count-in does.
     const own = calls[callIndexAt(calls, cue.tick)].timeline;
+    const off = echoCountOff(own);
+    if (cue.tick >= off.start && cue.tick < off.start + off.length) {
+      return [{ ...cue, phase: 'countIn', click: true }];
+    }
     const phase = phaseAt(own, cue.tick, own.call.start);
-    return phase ? { ...cue, phase } : cue;
+    return [phase ? { ...cue, phase } : cue];
   });
   return [
     ...frame,

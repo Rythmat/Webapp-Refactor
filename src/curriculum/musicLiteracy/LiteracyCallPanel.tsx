@@ -233,6 +233,7 @@ const CUE_SIZE: Readonly<Record<TurnCue, number>> = {
   playAlong: 0.125,
   yourCall: 0.135,
   repeatIt: 0.135,
+  countOff: 0.2,
 };
 
 /** The headline's height, as a share of the diameter: room for Go!. */
@@ -257,6 +258,7 @@ function cueColors(cue: TurnCue, keyColor: string) {
     case 'playAlong':
     case 'yourCall':
     case 'repeatIt':
+    case 'countOff':
       return {
         base: mix(78, 'white'),
         shine: mix(20, 'white'),
@@ -287,15 +289,20 @@ function Headline({
   let content;
   if (headline.kind === 'cue') {
     const colors = cueColors(headline.cue, keyColor);
+    // A count-off's numbers are as big as the Go! they count to.
+    const size =
+      headline.cue === 'countOff' && /^\d+$/.test(headline.text)
+        ? CUE_SIZE.go
+        : CUE_SIZE[headline.cue];
     content = (
       <span
-        // A new cue remounts, so it pops in again.
-        key={headline.cue}
+        // A new cue remounts, so it pops in again: a count-off's every beat.
+        key={`${headline.cue}:${headline.text}`}
         data-literacy-cue={headline.cue}
         className="literacy-cue"
         style={
           {
-            fontSize: Math.max(12, diameter * CUE_SIZE[headline.cue]),
+            fontSize: Math.max(12, diameter * size),
             '--cue-base': colors.base,
             '--cue-shine': colors.shine,
             '--cue-glow': colors.glow,

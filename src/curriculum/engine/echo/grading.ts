@@ -4,9 +4,11 @@
  * `gradeChordResponse` for chords), on a run laid out as Music Literacy
  * lays out a step:
  *
- *   count-in → the call → the response, as long as the call
+ *   count-in → the call → a bar's count-off → the response, as long as
+ *   the call → the final downbeat
  *
- * (a melody's call is a bar, a chord call two).
+ * (a melody's call is a bar, a chord call two). The count-off is a bar's
+ * rest, counted "1, 2, Ready, Go!" (levels.ts `COUNT_OFF_BARS`).
  *
  * The run is a StepTimeline (literacy.ts) with no words, so the graders,
  * `isRightNote` and the player's cues read it as they read a lesson's.
@@ -54,11 +56,12 @@ import {
 import {
   chordNotes,
   type ChordAttack,
+  type Span,
   type StepTimeline,
   type TimedNote,
 } from '../musicLiteracy/literacy';
 import type { ChordCall, EchoCall, EchoNote, MelodyCall } from './calls';
-import { echoLevel } from './levels';
+import { COUNT_OFF_BARS, echoLevel } from './levels';
 import { chordStrikes, type ChordStrike } from './strikes';
 
 export type { PlayedNote };
@@ -75,7 +78,7 @@ export interface EchoTimelineOptions {
   start?: number;
 }
 
-/** A call's run: count-in, the call, the response its length. */
+/** A call's run: count-in, the call, the count-off, the response its length. */
 export function echoTimeline(
   call: Pick<EchoCall, 'bars' | 'barTicks' | 'level'> & { tempo?: number },
   { tempo, countInBars, start = 0 }: EchoTimelineOptions = {},
@@ -88,17 +91,24 @@ export function echoTimeline(
   };
   const callStart = countIn.start + countIn.length;
   const length = call.bars * bar;
+  const responseStart = callStart + length + COUNT_OFF_BARS * bar;
   return {
     countIn,
     pickup: { start: callStart, length: 0 },
     words: { start: callStart, length: 0 },
     call: { start: callStart, length },
-    response: { start: callStart + length, length },
+    response: { start: responseStart, length },
     // The run's end, as a tick (run.ts reads it so): past every earlier call.
-    total: callStart + 2 * length,
+    total: responseStart + length,
     barTicks: bar,
     tempo: tempo ?? call.tempo ?? level.tempo,
   };
+}
+
+/** A run's count-off: the bar between the call's end and the response. */
+export function echoCountOff(timeline: StepTimeline): Span {
+  const start = timeline.call.start + timeline.call.length;
+  return { start, length: timeline.response.start - start };
 }
 
 /**

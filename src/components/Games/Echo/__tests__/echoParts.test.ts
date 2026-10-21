@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   echoRandom,
+  echoCountOff,
   echoTimeline,
   melodyCall,
   melodyPads,
@@ -221,14 +222,23 @@ describe('a run’s cues', () => {
     const cues = echoRunCues([placeCall(call, timeline)], {
       metronome: true,
     });
-    // A bar each: the count-in, the call, the answer.
+    // A bar each: the count-in, the call, the count-off, the answer; then
+    // the final downbeat, a click with no drums.
     const beats = cues.filter((c) => c.kind === 'beat');
-    expect(beats).toHaveLength(12);
+    expect(beats).toHaveLength(17);
     expect(
       beats.slice(0, 4).every((b) => b.phase === 'countIn' && b.click),
     ).toBe(true);
     expect(beats[4].phase).toBe('call');
-    expect(beats[8].phase).toBe('response');
+    expect(
+      beats.slice(8, 12).every((b) => b.phase === 'countIn' && b.click),
+    ).toBe(true);
+    expect(beats[12].phase).toBe('response');
+    expect(beats[16]).toMatchObject({
+      tick: timeline.total,
+      downbeat: true,
+      click: true,
+    });
     const notes = cues.filter((c) => c.kind === 'note');
     const { call: callNotes, response } = melodyEchoNotes(call, timeline);
     expect(notes.filter((n) => n.segment === 'call')).toHaveLength(
@@ -247,7 +257,7 @@ describe('a run’s cues', () => {
     expect(notes.filter((n) => n.segment === 'response')).toHaveLength(
       response.length,
     );
-    expect(cues.at(-1)).toEqual({ kind: 'end', tick: timeline.total });
+    expect(cues.at(-1)).toEqual({ kind: 'end', tick: timeline.total + 960 });
     // In order.
     expect(cues.map((c) => c.tick)).toEqual(
       [...cues.map((c) => c.tick)].sort((a, b) => a - b),
@@ -265,13 +275,19 @@ describe('a run’s cues', () => {
     const end = cues.at(-1)!;
     expect(end.kind).toBe('end');
     expect(end.tick).toBe(placed.timeline.total + 960);
-    // Past the count-in, no click over the drums.
-    expect(
-      cues.some(
-        (c) =>
-          c.kind === 'beat' && c.tick >= placed.timeline.call.start && c.click,
-      ),
-    ).toBe(false);
+    // Over the drums only the count-in and the count-off click.
+    const off = echoCountOff(placed.timeline);
+    const clicks = cues.filter((c) => c.kind === 'beat' && c.click);
+    expect(clicks.map((c) => c.tick)).toEqual([
+      0,
+      480,
+      960,
+      1440,
+      off.start,
+      off.start + 480,
+      off.start + 960,
+      off.start + 1440,
+    ]);
     expect(placed.attacks.response).toEqual(
       chordEchoNotes(call, placed.timeline).response,
     );
@@ -367,9 +383,16 @@ describe('what the hub says', () => {
   const text = (tick: number, running = true) =>
     echoHeadline(t, tick, running, 'Melody Echo').text;
 
-  it('says Get Ready, Listen, Go! and Your Turn, in an echo’s order', () => {
+  it('says Get Ready, Listen, 1, 2, Ready, Go! and Your Turn, in an echo’s order', () => {
     expect(text(0)).toBe('Get Ready');
     expect(text(t.call.start)).toBe('Listen');
+    const off = echoCountOff(t).start;
+    expect([0, 1, 2, 3].map((beat) => text(off + beat * 480))).toEqual([
+      '1',
+      '2',
+      'Ready',
+      'Go!',
+    ]);
     expect(text(t.response.start - 480)).toBe('Go!');
     expect(text(t.response.start)).toBe('Go!');
     expect(text(t.response.start + 480)).toBe('Your Turn');

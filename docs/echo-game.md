@@ -12,8 +12,8 @@ Design shaped with the owner on 2026-10-20.
 ## The flow
 
 1. **Set up.** Pick a color (the key), major or minor, and a level.
-2. **Melody Echo.** Atlas plays a one-bar melody (the call) and the student echoes it in the next bar (the response).
-3. **Chord Echo.** The same with chords: two, a bar each, echoed in the two bars after.
+2. **Melody Echo.** Atlas plays a one-bar melody (the call). A bar's rest is counted off, "1, 2, Ready, Go!", and the student echoes the call in the bar after (the response). A final downbeat ends it, then the result pops up.
+3. **Chord Echo.** The same with chords: two, a bar each, the count-off bar, then two bars to echo them.
 4. **The Final Boss.** Four calls, a bar apart, alternating melody and chords, on the next tier of rhythms up (Tier 2 at Level 1, 3 at Level 2, 4 at Level 3). The circle becomes the boss (The Echo Boss's art, below).
    - It plays at the highest tempo the student reached in the game.
    - The boss has a health bar that drops with each good echo.
@@ -51,6 +51,7 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
 | The song        | 2-bar melody and progression, ×4 | 4 bars, ×2 | 8 bars, ×1 |
 
 - **A melody call is a bar and a chord call two, at every level.** The owner's phrase rhythms are a bar long, and a chord call is two chords, a bar each.
+- **Every call is followed by a bar's rest, counted off "1, 2, Ready, Go!"** (`COUNT_OFF_BARS`), so the student can take it in and get ready (the owner, 2026-10-20: a call answered at once left no time to absorb it).
 - **The melody and the chords always have a bottom 1 and a top 1**, a full octave, at every level (the owner's rule, 2026-10-20): the pads, the calls and the roll.
 - **Songs grow by putting phrases together.** That teaches repetition and structure: question and answer at Level 2, and AABA-style choices at Level 3.
 - **Levels unlock in order.** Next Level! opens the following one.
@@ -102,7 +103,7 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
 | 4    | More 16ths, or a 16th start: the funk (6)                                                |
 
 - A level draws on its tiers, its newest half the time. Every tier has rhythms for 3, 4 and 5 notes.
-- The answer comes in the next bar, straight after the call, as in Rhythm and Harmony.
+- The answer comes after the count-off bar.
 - Every boss call is on the boss's tier, the one above the level's.
 
 ### Chord calls
@@ -140,7 +141,7 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
   - A roll slower than the spread still makes one chord when its pieces only make a chord together, within three quarters of a 16th. A strike that is a chord on its own is never joined to another.
   - A chord held while it is struck again is two strikes. A key pressed twice within the spread is one note. A key let go and pressed again later strikes again.
   - Notes still held from an earlier strike can complete a chord: a root and fifth held, the third struck again, is the chord struck again. A held note outside the chord costs nothing.
-- A call's run is a bar of count-in, the call, then the response. The boss's four calls run one after another in one run, a bar apart: each later call's bar of count-in, the groove going on, so the boss can react (`bossRunTimelines`, `BOSS_GAP_BARS` in `echoFlow.ts`; the engine's `bossTimelines` still lays them back to back).
+- A call's run is a bar of count-in, the call, the count-off bar, the response, and the final downbeat: a kick and a crash with the drums, an accented click without them. The boss's four calls run one after another in one run, a bar apart: each later call's bar of count-in, the groove going on, so the boss can react (`bossRunTimelines`, `BOSS_GAP_BARS` in `echoFlow.ts`; the engine's `bossTimelines` still lays them back to back).
 
 ## Input and views
 
@@ -163,8 +164,8 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
 
 What the screens do where the design left a choice (`src/components/Games/Echo/`).
 
-- **Rounds.** Melody Echo is 8 rounds and Chord Echo 6 (`MELODY_ECHO_ROUNDS`, `CHORD_ECHO_ROUNDS` in `echoFlow.ts`). Each round is a bar of count-in, Atlas's call, then the student's bars. Its result shows for a moment (a good echo or a miss, what Atlas played and what the student played), then the next call comes.
-- **The hub's cues, in an echo's order.** GET READY over the count-in, LISTEN over Atlas's call, GO! on its last beat and the answer's first, then YOUR TURN. A lesson says LISTEN first because it sings its words first; Echo has no words, and the call is the thing to hear.
+- **Rounds.** Melody Echo is 8 rounds and Chord Echo 6 (`MELODY_ECHO_ROUNDS`, `CHORD_ECHO_ROUNDS` in `echoFlow.ts`). Each round is a bar of count-in, Atlas's call, the count-off bar, the student's bars, and the final downbeat. Then its result pops up for a moment (a good echo or a miss, what Atlas played and what the student played), and the next call comes.
+- **The hub's cues, in an echo's order.** GET READY over the count-in, LISTEN over Atlas's call, then the count-off a beat each: 1, 2, READY, GO! (held into the answer's first beat), then YOUR TURN. The count-off bar clicks as the count-in does, over the drums too. A lesson says LISTEN first because it sings its words first; Echo has no words, and the call is the thing to hear.
 - **Forgiving: after a miss, the next call is easier.**
   - A melody call takes a three-note contour from Level 1's set (its shortest shapes: 1 2 3, 3 2 1, 1 2 1, 2 1 2), on the 1, in Level 1's rhythms. Every level plays in the same register, so it lands on the pads.
   - A chord call goes home to the 1 chord and out to the 4 or the 5, in Level 1's rhythms.

@@ -55,6 +55,13 @@ export const MELODY_CALL_BARS = 1;
 /** A chord call is two bars: a chord each. */
 export const CHORD_CALL_BARS = 2;
 
+/**
+ * A bar's rest between Atlas's call and the student's answer, counted off
+ * "1, 2, Ready, Go!": time to take the call in and get ready (the owner,
+ * 2026-10-20). Melody and chord calls alike, and every call of the boss.
+ */
+export const COUNT_OFF_BARS = 1;
+
 /** The Final Boss's calls, back to back: melody and chords by turns. */
 export const BOSS_CALLS = 4;
 

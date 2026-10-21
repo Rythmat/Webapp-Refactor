@@ -26,6 +26,9 @@
 //
 // A replay (the student's chords played back) counts in with LISTEN, then
 // says which harmony is playing: TRIADS, then WITH 7THS.
+//
+// Echo rests a bar between Atlas's call and the answer and counts it off,
+// a beat each: 1, 2, READY (the count-off cue), then GO!.
 
 import type { LiteracyHarmony } from '@/content/musicLiteracy/schemas';
 import type {
@@ -40,7 +43,8 @@ export type TurnCue =
   | 'go'
   | 'playAlong'
   | 'yourCall'
-  | 'repeatIt';
+  | 'repeatIt'
+  | 'countOff';
 
 /** The words a child reads. */
 export const TURN_CUE_TEXT: Readonly<Record<TurnCue, string>> = {
@@ -50,6 +54,8 @@ export const TURN_CUE_TEXT: Readonly<Record<TurnCue, string>> = {
   playAlong: 'Play Along',
   yourCall: 'Your Call',
   repeatIt: 'Repeat It',
+  // Echo's count-off says its beat ("1", "2") until this one.
+  countOff: 'Ready',
 };
 
 /** A beat, as the run counts it: the bar over the meter's top number. */

@@ -4,6 +4,7 @@ import { bossCalls, chordCall, melodyCall } from '../calls';
 import {
   bossTimelines,
   chordEchoNotes,
+  echoCountOff,
   echoTimeline,
   gradeChordEcho,
   gradeEcho,
@@ -22,19 +23,21 @@ import { msToTicks } from '../tempo';
 const KEY = { tonic: 'D', mode: 'major' } as const;
 
 describe('the run', () => {
-  it('lays out a bar of count-in, the call, then the response', () => {
+  it('lays out a bar of count-in, the call, a bar’s count-off, then the response', () => {
     // A melody's call is a bar, and so is its answer.
     const call = melodyCall(1, KEY, echoRandom(1));
     const timeline = echoTimeline(call);
     expect(timeline.countIn).toEqual({ start: 0, length: 1920 });
     expect(timeline.call).toEqual({ start: 1920, length: 1920 });
-    expect(timeline.response).toEqual({ start: 3840, length: 1920 });
+    expect(echoCountOff(timeline)).toEqual({ start: 3840, length: 1920 });
+    expect(timeline.response).toEqual({ start: 5760, length: 1920 });
     expect(timeline.words.length).toBe(0);
-    expect(timeline.total).toBe(5760);
-    // A chord call's two bars, and two to answer.
+    expect(timeline.total).toBe(7680);
+    // A chord call's two bars, the count-off, and two to answer.
     const chords = echoTimeline(chordCall(1, KEY, echoRandom(1)));
     expect(chords.call).toEqual({ start: 1920, length: 3840 });
-    expect(chords.response).toEqual({ start: 5760, length: 3840 });
+    expect(echoCountOff(chords)).toEqual({ start: 5760, length: 1920 });
+    expect(chords.response).toEqual({ start: 7680, length: 3840 });
     expect(timeline.tempo).toBe(80);
     expect(echoTimeline(call, { tempo: 96, countInBars: 2 })).toMatchObject({
       call: { start: 3840 },
@@ -48,7 +51,8 @@ describe('the run', () => {
     const notes = melodyEchoNotes(call, timeline);
     notes.response.forEach((note, i) => {
       expect(note.midi).toBe(notes.call[i].midi);
-      expect(note.onset - notes.call[i].onset).toBe(1920);
+      // A bar's call, a bar's count-off: two bars on.
+      expect(note.onset - notes.call[i].onset).toBe(3840);
     });
     expect(notes.call[0].onset).toBe(1920);
   });
@@ -56,14 +60,15 @@ describe('the run', () => {
   it('plays the boss’s calls back to back after one count-in', () => {
     const calls = bossCalls(2, KEY, echoRandom(3));
     const timelines = bossTimelines(calls);
-    // Melody, chords, melody, chords: a bar and a bar, two and two.
+    // Melody, chords, melody, chords: a bar's call, a bar's count-off and
+    // a bar's answer, or two, one and two.
     expect(timelines.map((t) => t.call.start)).toEqual([
       1920,
-      1920 + 3840,
-      1920 + 3840 + 7680,
-      1920 + 2 * 3840 + 7680,
+      1920 + 5760,
+      1920 + 5760 + 9600,
+      1920 + 2 * 5760 + 9600,
     ]);
-    expect(timelines.at(-1)!.total).toBe(1920 + 2 * 3840 + 2 * 7680);
+    expect(timelines.at(-1)!.total).toBe(1920 + 2 * 5760 + 2 * 9600);
   });
 });
 

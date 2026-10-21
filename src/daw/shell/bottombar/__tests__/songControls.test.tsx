@@ -5,6 +5,7 @@ import {
   fireEvent,
   render,
   screen,
+  within,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -63,15 +64,42 @@ describe('the song controls', () => {
     expect(field).toHaveValue(300);
   });
 
-  it('picks a metre and closes', () => {
+  it('lists the seven time signatures, picks one and closes', () => {
     render(<SongControls />);
     fireEvent.click(screen.getByTestId('metre-button'));
-    fireEvent.click(screen.getByRole('radio', { name: '6/8' }));
+    const group = screen.getByRole('radiogroup', { name: 'Time signature' });
+    expect(
+      within(group)
+        .getAllByRole('radio')
+        .map((r) => r.textContent),
+    ).toEqual(['2/4', '3/4', '4/4', '5/4', '6/4', '7/4', '12/8']);
+    fireEvent.click(screen.getByRole('radio', { name: '12/8' }));
     expect([s().timeSignatureNumerator, s().timeSignatureDenominator]).toEqual([
-      6, 8,
+      12, 8,
     ]);
     expect(screen.queryByTestId('metre-popover')).toBeNull();
-    expect(screen.getByTestId('metre-button')).toHaveTextContent('6/8');
+    expect(screen.getByTestId('metre-button')).toHaveTextContent('12/8');
+  });
+
+  it('sets a custom time signature from its two empty boxes', () => {
+    render(<SongControls />);
+    fireEvent.click(screen.getByTestId('metre-button'));
+    const beats = screen.getByTestId('metre-custom-beats');
+    const note = screen.getByTestId('metre-custom-note');
+    expect(beats).toHaveValue('');
+    expect(note).toHaveValue('');
+    // A beat note the store can't hold is marked and not set.
+    fireEvent.change(beats, { target: { value: '11' } });
+    fireEvent.change(note, { target: { value: '3' } });
+    fireEvent.keyDown(note, { key: 'Enter' });
+    expect(note).toHaveAttribute('aria-invalid', 'true');
+    expect(s().timeSignatureNumerator).toBe(4);
+    fireEvent.change(note, { target: { value: '8' } });
+    fireEvent.keyDown(note, { key: 'Enter' });
+    expect([s().timeSignatureNumerator, s().timeSignatureDenominator]).toEqual([
+      11, 8,
+    ]);
+    expect(screen.queryByTestId('metre-popover')).toBeNull();
   });
 
   it('frees the key while open and locks a chosen one when it closes', () => {

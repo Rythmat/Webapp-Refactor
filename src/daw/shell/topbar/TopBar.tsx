@@ -1,8 +1,9 @@
-import { MoreHorizontal, Search, Settings2, Timer } from 'lucide-react';
+import { Search, Settings2, Timer } from 'lucide-react';
 import { memo, useMemo, useRef } from 'react';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
+import { MoreGlyph } from '@/daw/ui/icons/frameIcons';
 import { PillGroup } from '@/daw/ui/Pill';
 import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
@@ -172,7 +173,7 @@ function MoreMenu() {
       <MenuTrigger asChild>
         <IconButton
           label="More"
-          icon={<MoreHorizontal />}
+          icon={<MoreGlyph />}
           variant="bare"
           size="lg"
           tooltipSide="bottom"

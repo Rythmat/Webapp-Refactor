@@ -1,5 +1,4 @@
 import { memo, useCallback } from 'react';
-import { Circle, Pause, Play, Repeat, SkipBack } from 'lucide-react';
 import { cn } from '@/components/utilities';
 import { requestRecord } from '@/daw/commands/requestRecord';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
@@ -8,6 +7,13 @@ import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
+import {
+  BackToStartGlyph,
+  LoopGlyph,
+  PauseGlyph,
+  PlayGlyph,
+  RecordGlyph,
+} from '@/daw/ui/icons/frameIcons';
 import { PillGroup } from '@/daw/ui/Pill';
 import { Toggle } from '@/daw/ui/Toggle';
 import { ClickToggle } from './ClickToggle';
@@ -17,8 +23,8 @@ import { PositionReadout } from './PositionReadout';
 //
 // Two pills, as the floating frame's transport (owner, 2026-10-21):
 // Metronome, Back to start, Record, Play and Loop in one; the position in
-// the next. Play and Record are white icons, not filled buttons; Record
-// turns red while it records. Rewind and Fast-forward a bar left the bar
+// the next. Every icon is a solid glyph at white/50 until hovered
+// (ui/icons/frameIcons); Record fills red while it records. Rewind and Fast-forward a bar left the bar
 // with it, but keep their keys (commands/transportSkip), as Esc, Home and
 // End do; the ruler seeks anywhere. Each control reads only its own state,
 // so playback re-renders none of them: the readout and the metronome's
@@ -81,7 +87,7 @@ export const TransportControls = memo(function TransportControls({
           variant="bare"
           size="lg"
           label="Back to start"
-          icon={<SkipBack fill="currentColor" />}
+          icon={<BackToStartGlyph />}
           shortcut={KEYS.toStart.label}
           aria-keyshortcuts={KEYS.toStart.aria}
           tooltipSide="bottom"
@@ -99,7 +105,7 @@ export const TransportControls = memo(function TransportControls({
           label={isRecording ? 'Recording' : 'Record'}
           icon={
             <span className="relative inline-flex">
-              <Circle fill="currentColor" strokeWidth={0} />
+              <RecordGlyph className="size-3" />
               {isRecording ? (
                 <span
                   aria-hidden
@@ -125,22 +131,15 @@ export const TransportControls = memo(function TransportControls({
             '[&_svg]:size-3',
             isRecording
               ? 'bg-daw-danger text-daw-on-danger hover:bg-daw-danger-hover hover:text-daw-on-danger'
-              : 'text-daw-text hover:text-daw-text',
+              : '',
           )}
           onClick={handleRecord}
         />
         <IconButton
           label={isPlaying ? 'Pause' : 'Play'}
-          icon={
-            isPlaying ? (
-              <Pause fill="currentColor" strokeWidth={0} />
-            ) : (
-              <Play fill="currentColor" strokeWidth={0} className="ml-0.5" />
-            )
-          }
+          icon={isPlaying ? <PauseGlyph /> : <PlayGlyph />}
           variant="bare"
           size="lg"
-          className="text-daw-text hover:text-daw-text"
           shortcut={KEYS.playPause.label}
           aria-keyshortcuts={KEYS.playPause.aria}
           tooltipSide="bottom"
@@ -159,7 +158,7 @@ export const TransportControls = memo(function TransportControls({
           label="Loop"
           tooltipSide="bottom"
           className="h-8 rounded-[var(--daw-radius-md)]"
-          icon={<Repeat />}
+          icon={<LoopGlyph />}
           pressed={loopEnabled}
           onPressedChange={() => toggleLoop()}
           shortcut={KEYS.loop.label}

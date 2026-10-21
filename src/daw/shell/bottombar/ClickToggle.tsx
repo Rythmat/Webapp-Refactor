@@ -121,19 +121,22 @@ const beatTicksFor = (den: number) =>
  * count-in): one filled at a time, left first, swapping each beat. Idle and
  * on: both filled. Off: both outlined.
  */
+/** Where the four beat bars sit, after the metronome's tall bar. */
+const BEAT_BARS = [4.5, 7.5, 10.5, 13.5];
+
 function MetronomeIcon({ on }: { on: boolean }) {
-  const left = useRef<SVGCircleElement>(null);
-  const right = useRef<SVGCircleElement>(null);
+  const bars = useRef<Array<SVGRectElement | null>>([]);
   const isPlaying = useStore((s) => s.isPlaying);
   const countingIn = useStore((s) => s.isCountingIn);
   const sounding = countingIn || (isPlaying && on);
 
   useEffect(() => {
+    // At rest every bar is lit; while a click sounds, the beat's bar is.
     const fill = (beat: number | null) => {
-      const l = beat === null ? on : beat % 2 === 0;
-      const r = beat === null ? on : beat % 2 !== 0;
-      left.current?.setAttribute('fill-opacity', l ? '1' : '0');
-      right.current?.setAttribute('fill-opacity', r ? '1' : '0');
+      bars.current.forEach((bar, i) => {
+        const lit = beat === null || beat % BEAT_BARS.length === i;
+        bar?.setAttribute('fill-opacity', lit ? '1' : '0.35');
+      });
     };
     if (!sounding) {
       fill(null);
@@ -154,7 +157,7 @@ function MetronomeIcon({ on }: { on: boolean }) {
       );
     }
     // Playing: from the heard playhead, so the first beat after the start
-    // fills the left dot.
+    // lights the first beat bar.
     const beatOf = (tick: number) =>
       Math.floor(
         tick / beatTicksFor(useStore.getState().timeSignatureDenominator),
@@ -168,19 +171,28 @@ function MetronomeIcon({ on }: { on: boolean }) {
     });
   }, [sounding, countingIn, on]);
 
+  // The floating frame's metronome (2026-10-21): a tall bar, then a bar
+  // per beat, as solid glyphs; the beat's bar lights as the click sounds.
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      {[4, 10].map((cx, i) => (
-        <circle
-          key={cx}
-          ref={i === 0 ? left : right}
-          cx={cx}
-          cy="7"
-          r="2.5"
-          fill="currentColor"
-          fillOpacity={on ? 1 : 0}
-          stroke="currentColor"
-          strokeWidth="1.5"
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden
+    >
+      <rect x="1.25" y="2" width="1.75" height="12" rx="0.875" />
+      {BEAT_BARS.map((x, i) => (
+        <rect
+          key={x}
+          ref={(el) => {
+            bars.current[i] = el;
+          }}
+          x={x}
+          y="4"
+          width="1.75"
+          height="8"
+          rx="0.875"
           className="transition-[fill-opacity] duration-daw-fast"
         />
       ))}

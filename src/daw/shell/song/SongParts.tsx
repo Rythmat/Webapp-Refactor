@@ -2,8 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { cn } from '@/components/utilities';
 import { CircleOfFifths } from '@/daw/components/Prism/CircleOfFifths';
 import { useStore } from '@/daw/store';
+import { X } from 'lucide-react';
 import { Button } from '@/daw/ui/Button';
-import { Select } from '@/daw/ui/Select';
+import { IconButton } from '@/daw/ui/IconButton';
+import { PopoverClose } from '@/daw/ui/Popover';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Tooltip } from '@/daw/ui/Tooltip';
 import { createTapTempo } from './tapTempo';
@@ -13,40 +15,31 @@ import { createTapTempo } from './tapTempo';
 // The Song popover's parts, split up when the song moved to the bottom rail
 // (owner, 2026-10-16, after Soundtrap's): the circle of fifths with its mode
 // list for the Key popover (the chord lane's key chip opens it too), the
-// twelve common metres and a custom one for the Metre popover, and the
+// time signature menu (seven common ones and two boxes for a custom one,
+// laid out as the floating frame's time signature menu), and the
 // tempo as an inline field with Tap. 'transport-bpm' stays on the tempo, as
 // lessons name it. The circle is the Prism panel's own, still in its old
 // look until the harmony polish (data-ds="legacy").
 
-const METRES: ReadonlyArray<readonly [number, number]> = [
+/**
+ * The time signatures the menu lists (owner, 2026-10-21): any other is a
+ * custom one, typed into the two boxes under them.
+ */
+export const METRES: ReadonlyArray<readonly [number, number]> = [
   [2, 4],
   [3, 4],
   [4, 4],
   [5, 4],
   [6, 4],
   [7, 4],
-  [3, 8],
-  [5, 8],
-  [6, 8],
-  [7, 8],
-  [9, 8],
   [12, 8],
 ];
 
-const DENOMINATORS = ['2', '4', '8', '16'].map((value) => ({
-  value,
-  label: value,
-}));
+/** The beat notes a custom time signature may have (the store's own). */
+const BEAT_NOTES = [2, 4, 8, 16];
 
 export const MIN_BPM = 40;
 export const MAX_BPM = 300;
-
-const FIELD = cn(
-  'h-7 rounded-[var(--daw-radius-sm)] border border-daw-outline bg-transparent px-2 text-center tabular-nums text-daw-text',
-  TYPE_CLASS.body,
-  TRANSITION,
-  FOCUS_RING,
-);
 
 function SectionLabel({ children }: { children: string }) {
   return (
@@ -71,28 +64,58 @@ export function KeyCircle({ onDone }: { onDone(): void }) {
   );
 }
 
-/** The Metre popover's body: the common metres and a custom one. */
+/**
+ * The time signature menu, laid out as the floating frame's (owner,
+ * 2026-10-21): a small 'Time signature' heading with a close button, one
+ * 40 px row per common time signature (the current one lit), and two empty
+ * boxes at the bottom for a custom one. Enter in either box sets it when
+ * both hold a valid value: 1 to 32 beats, a beat note of 2, 4, 8 or 16.
+ */
 export function MetreChoices({ onPicked }: { onPicked?(): void }) {
   const numerator = useStore((s) => s.timeSignatureNumerator);
   const denominator = useStore((s) => s.timeSignatureDenominator);
   const setTimeSignature = useStore((s) => s.setTimeSignature);
-  const [customNum, setCustomNum] = useState('');
-  const [customDen, setCustomDen] = useState('4');
+  const [beats, setBeats] = useState('');
+  const [note, setNote] = useState('');
   const pick = (n: number, d: number) => {
     setTimeSignature(n, d);
     onPicked?.();
   };
+  const beatsN = Number(beats);
+  const noteN = Number(note);
+  const beatsOk = Number.isInteger(beatsN) && beatsN >= 1 && beatsN <= 32;
+  const noteOk = BEAT_NOTES.includes(noteN);
   const setCustom = () => {
-    const n = parseInt(customNum, 10);
-    if (n > 0 && n <= 32) pick(n, parseInt(customDen, 10));
+    if (beatsOk && noteOk) pick(beatsN, noteN);
   };
+  const box = (bad: boolean) =>
+    cn(
+      'h-8 w-10 rounded-[var(--daw-radius-md)] border bg-transparent px-1 text-center text-daw-text placeholder:text-daw-text-3',
+      bad ? 'border-daw-danger-text' : 'border-daw-edge',
+      TYPE_CLASS.item,
+      TRANSITION,
+      FOCUS_RING,
+    );
   return (
-    <div>
-      <SectionLabel>Metre</SectionLabel>
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between pb-1 pl-4 pr-1 pt-1">
+        <span className={cn(TYPE_CLASS.label, 'text-daw-text-2')}>
+          Time signature
+        </span>
+        <PopoverClose asChild>
+          <IconButton
+            label="Close"
+            icon={<X />}
+            variant="bare"
+            size="sm"
+            noTooltip
+          />
+        </PopoverClose>
+      </div>
       <div
-        className="grid grid-cols-6 gap-1"
         role="radiogroup"
-        aria-label="Metre"
+        aria-label="Time signature"
+        className="flex flex-col"
       >
         {METRES.map(([n, d]) => {
           const active = n === numerator && d === denominator;
@@ -104,13 +127,10 @@ export function MetreChoices({ onPicked }: { onPicked?(): void }) {
               aria-checked={active}
               onClick={() => pick(n, d)}
               className={cn(
-                'h-7 rounded-[var(--daw-radius-sm)] tabular-nums',
-                active
-                  ? 'bg-daw-selected font-bold text-daw-text'
-                  : 'text-daw-text-2 hover:bg-daw-hover hover:text-daw-text',
-                TYPE_CLASS.label,
+                'flex h-10 items-center px-4 text-left text-daw-text outline-none hover:bg-daw-menu-hover focus-visible:bg-daw-menu-hover',
+                active && 'bg-daw-chip',
+                TYPE_CLASS.item,
                 TRANSITION,
-                FOCUS_RING,
               )}
             >
               {n}/{d}
@@ -118,32 +138,40 @@ export function MetreChoices({ onPicked }: { onPicked?(): void }) {
           );
         })}
       </div>
-      <div className="mt-2 flex items-center gap-1.5">
+      <div
+        role="group"
+        aria-label="Custom time signature"
+        className="flex items-center gap-1.5 border-t border-daw-edge px-4 py-2.5"
+      >
         <input
-          type="number"
-          min={1}
-          max={32}
           inputMode="numeric"
-          aria-label="Beats in a bar"
-          value={customNum}
-          placeholder={String(numerator)}
-          onChange={(e) => setCustomNum(e.target.value)}
+          aria-label="Custom: beats in a bar"
+          aria-invalid={beats !== '' && !beatsOk ? true : undefined}
+          value={beats}
+          onChange={(e) => setBeats(e.target.value.replace(/[^0-9]/g, ''))}
           onKeyDown={(e) => {
             if (e.key === 'Enter') setCustom();
           }}
-          className={cn(FIELD, 'w-12')}
+          maxLength={2}
+          data-testid="metre-custom-beats"
+          className={box(beats !== '' && !beatsOk)}
         />
-        <span className={cn(TYPE_CLASS.body, 'text-daw-text-3')}>/</span>
-        <Select
-          label="Beat note"
-          options={DENOMINATORS}
-          value={customDen}
-          onValueChange={setCustomDen}
-          className="w-16"
+        <span aria-hidden className={cn(TYPE_CLASS.item, 'text-daw-text-3')}>
+          /
+        </span>
+        <input
+          inputMode="numeric"
+          aria-label="Custom: beat note"
+          aria-invalid={note !== '' && !noteOk ? true : undefined}
+          value={note}
+          onChange={(e) => setNote(e.target.value.replace(/[^0-9]/g, ''))}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') setCustom();
+          }}
+          maxLength={2}
+          data-testid="metre-custom-note"
+          className={box(note !== '' && !noteOk)}
         />
-        <Button size="md" onClick={setCustom} disabled={!customNum.trim()}>
-          Set
-        </Button>
       </div>
     </div>
   );

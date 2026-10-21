@@ -57,6 +57,26 @@
     {
       "kind": "part",
       "id": "hip-hop-l1-b22-b3-two-chord-jams"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-d3-d2-sus2-groove-copy"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-sus2-sus4-triads-in-c-aeolian"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-sus2-sus4-triads-in-c-aeolian-in-c-aeolian"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l3-d1-1-em9-a-b-two-hands-in-c-aeolian"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l3-7th-chords-in-c-aeolian"
     }
   ]
 }

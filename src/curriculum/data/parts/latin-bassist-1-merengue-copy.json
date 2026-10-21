@@ -1,0 +1,50 @@
+{
+  "id": "latin-bassist-1-merengue-copy",
+  "name": "Latin-Bassist-1 Bachata 1 5 1",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 1,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "bass-electric:finger",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 50
+    },
+    {
+      "tick": 720,
+      "duration": 120,
+      "midi": 40,
+      "velocity": 100
+    },
+    {
+      "tick": 960,
+      "duration": 240,
+      "midi": 47,
+      "velocity": 49
+    },
+    {
+      "tick": 1440,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 57
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "latin",
+  "chordSymbols": ["Em", "Am", "Em", "B7"],
+  "style": "Bachata"
+}

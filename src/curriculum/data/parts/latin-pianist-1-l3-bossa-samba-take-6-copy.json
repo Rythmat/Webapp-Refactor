@@ -1,0 +1,313 @@
+{
+  "id": "latin-pianist-1-l3-bossa-samba-take-6-copy",
+  "name": "Latin-Pianist-1 · L3 · Bossa simpler voicings",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 10,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 51,
+      "velocity": 38
+    },
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 55,
+      "velocity": 55
+    },
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 58,
+      "velocity": 55
+    },
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 62,
+      "velocity": 46
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 46
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 61
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 57
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 43
+    },
+    {
+      "tick": 1200,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 56
+    },
+    {
+      "tick": 1200,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 66
+    },
+    {
+      "tick": 1200,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 61
+    },
+    {
+      "tick": 1200,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 38
+    },
+    {
+      "tick": 1920,
+      "duration": 240,
+      "midi": 51,
+      "velocity": 53
+    },
+    {
+      "tick": 1920,
+      "duration": 240,
+      "midi": 55,
+      "velocity": 53
+    },
+    {
+      "tick": 1920,
+      "duration": 240,
+      "midi": 57,
+      "velocity": 53
+    },
+    {
+      "tick": 1920,
+      "duration": 240,
+      "midi": 62,
+      "velocity": 29
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 52
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 56
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 50
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 40
+    },
+    {
+      "tick": 3120,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 37
+    },
+    {
+      "tick": 3120,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 48
+    },
+    {
+      "tick": 3120,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 42
+    },
+    {
+      "tick": 3120,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 32
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 50,
+      "velocity": 58
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 53,
+      "velocity": 45
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 57,
+      "velocity": 53
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 60,
+      "velocity": 30
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 46
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 53,
+      "velocity": 41
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 50
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 27
+    },
+    {
+      "tick": 5040,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 41
+    },
+    {
+      "tick": 5040,
+      "duration": 480,
+      "midi": 53,
+      "velocity": 37
+    },
+    {
+      "tick": 5040,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 41
+    },
+    {
+      "tick": 5040,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 44
+    },
+    {
+      "tick": 5760,
+      "duration": 240,
+      "midi": 50,
+      "velocity": 54
+    },
+    {
+      "tick": 5760,
+      "duration": 240,
+      "midi": 53,
+      "velocity": 42
+    },
+    {
+      "tick": 5760,
+      "duration": 240,
+      "midi": 57,
+      "velocity": 42
+    },
+    {
+      "tick": 5760,
+      "duration": 240,
+      "midi": 60,
+      "velocity": 39
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 39
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 53,
+      "velocity": 42
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 46
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 33
+    },
+    {
+      "tick": 6960,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 42
+    },
+    {
+      "tick": 6960,
+      "duration": 480,
+      "midi": 53,
+      "velocity": 41
+    },
+    {
+      "tick": 6960,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 45
+    },
+    {
+      "tick": 6960,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 37
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "latin",
+  "chordSymbols": ["Cm7", "F7", "Bbmaj7", "Bbmaj7"]
+}

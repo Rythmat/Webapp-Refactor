@@ -31,7 +31,8 @@
       "name": "Guitar comping",
       "instrument": "guitar",
       "player": "latin-guitarist-1",
-      "sound": "sample:acoustic-guitar"
+      "sound": "sample:acoustic-guitar",
+      "volume": 0.45
     }
   ],
   "preview": {
@@ -107,7 +108,7 @@
     },
     {
       "id": "l2-merengue-bachata",
-      "name": "L2 · Merengue & Bachata",
+      "name": "L2 · Merengue",
       "style": "latin-l2-merengue-bachata",
       "plays": {
         "drums": {
@@ -144,7 +145,21 @@
       "id": "l3-bossa-samba",
       "name": "L3 · Bossa & Samba",
       "style": "latin-l3-bossa-samba",
-      "plays": {}
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "bossa-nova"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "bossa"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "latin-pianist-1-l3-bossa-simpler-voicings-in-e-aeolian"
+        }
+      },
+      "tempo": 110
     },
     {
       "id": "l3-tango",
@@ -157,6 +172,30 @@
       "name": "L3 · Afro-Cuban",
       "style": "latin-l3-afro-cuban",
       "plays": {}
+    },
+    {
+      "id": "l2-merengue-copy",
+      "name": "L2 · Bachata",
+      "style": "latin-l2-merengue-bachata",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "merengue_3_2_copy"
+        },
+        "bass": {
+          "kind": "part",
+          "id": "latin-bassist-1-merengue-copy-2"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "latin-pianist-1-merengue-montuno-copy"
+        },
+        "guitar-comping": {
+          "kind": "part",
+          "id": "latin-guitarist-1-l2-merengue-chunking-copy"
+        }
+      },
+      "tempo": 148
     }
   ]
 }

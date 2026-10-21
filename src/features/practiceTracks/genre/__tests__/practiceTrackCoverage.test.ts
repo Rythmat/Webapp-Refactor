@@ -50,8 +50,12 @@ describe('practice track coverage', () => {
             continue;
           }
           // An offered track always has a groove to play and a part to play it on.
+          // A band layer with its own sound plays on a track of its own
+          // (`layerClips`), the engine's parts on theirs (`clips`).
           expect(track).not.toBeNull();
-          expect(Object.keys(track!.clips).length).toBeGreaterThan(0);
+          expect(
+            Object.keys(track!.clips).length + track!.layerClips.length,
+          ).toBeGreaterThan(0);
           expect(track!.studentParts.length).toBeGreaterThan(0);
           expect(track!.chordCycle.length).toBeGreaterThan(0);
           expect(track!.scales.length).toBeGreaterThan(0);

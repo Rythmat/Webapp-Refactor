@@ -56,9 +56,10 @@ const GOLDEN: Record<string, string> = {
   exports: 'f7774d8035e3707578cc26cd4e6dda7825291bdc22928860d9ae08908b4dc75b',
   // 7 Oct 2026: instrument content (grooves, parts) joined the repo graph —
   // 98 edges onto genre and instrument nodes, nothing else moved. Taken
-  // again 14 and 15 Oct 2026 for the new parts, players and bands (content
-  // only).
-  graph: '2ff774c0ef82e8333417c98c28af66885cce20255a7d7ad579aa7341d5f8ab24',
+  // again 14 and 15 Oct 2026 for the new parts, players and bands, and 19
+  // Oct 2026 for the Pop and Latin bands' new parts and copies, and 20 Oct
+  // 2026 for the Hip Hop band's and the day's other copies (content only).
+  graph: '9e26c413cc2e531f4ad11469250098a02b3d2d01c344b0431b120f3f3f0201be',
   mapGenre: '8bd762b39a6fba226af4828d3bcd81f8e2b44198abf4a2c2e24c3d5b4af7921a',
   mapInstrument:
     'f694219a31ced971e2bb90549148765b874ac5f533ab3ae11a303696eafa22d0',
@@ -67,8 +68,9 @@ const GOLDEN: Record<string, string> = {
     '8f129419d4695714608aceae504ce276ae3834468ac39e06c03b4ae3394ca247',
   resolveGenreTag:
     '761075b0a6f5a5bdf91295a92f493232f88daf69d6f9d282dfdde9ca93fa66f7',
-  // 7 Oct 2026: the same 13 genre and instrument rows now list those edges.
-  tables: 'd7f40741f737616220b32f770c016be69c15bf00063fb6d8cc8e6d26f67c9bd2',
+  // 7 Oct 2026: the same 13 genre and instrument rows now list those edges
+  // (again 19 and 20 Oct 2026, with the graph).
+  tables: 'bfa855e905e1e6c59cc5927083189b45b416569f4b15f0deec064e21931e26f8',
   vocabularyPage:
     '8c3210c3ab7a49f6ed4bd98ca606443f27260841f432852e72235b8819b26b2e',
 };

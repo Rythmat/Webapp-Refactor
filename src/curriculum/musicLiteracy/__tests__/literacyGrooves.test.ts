@@ -180,7 +180,8 @@ describe('a groove as the run’s drums', () => {
   it('plays a published groove on its own kit', async () => {
     const drums = await drumsForGroove('straight-8', 4);
     expect(drums?.kit).toBe('custom_custom_natural_01');
-    expect(drums?.groove.loopTicks).toBe(1920);
+    // Four bars since 19 Oct 2026 (it was one).
+    expect(drums?.groove.loopTicks).toBe(4 * 1920);
     expect(drums?.groove.hits.length).toBeGreaterThan(0);
   });
 

@@ -4,6 +4,7 @@ import { cn } from '@/components/utilities';
 import { LearnRoutes } from '@/constants/routes';
 import { START_HERE_TAB } from '@/curriculum/musicLiteracy/literacyPath';
 import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
+import { CompassTourButton } from '@/features/learnTour/CompassTourButton';
 
 interface Tab {
   slug: string; // ?tab= value this tab activates
@@ -69,6 +70,9 @@ export const LearnTabBar = () => {
           {label}
         </Link>
       ))}
+
+      {/* The tour of the page it's on (the whole of Learn on the dashboard). */}
+      <CompassTourButton />
 
       {/* Instrument selector, pushed to the far right. Start Here and Songs
           serve both instruments, so switching there stays put; elsewhere it

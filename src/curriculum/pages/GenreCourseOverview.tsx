@@ -687,6 +687,7 @@ function TechniqueTab({
                 </div>
                 <button
                   type="button"
+                  data-course-jump={key}
                   onClick={() => onStartActivity(selectedLevel, key)}
                   className="shrink-0 rounded-lg px-3 py-1 text-xs"
                   style={{
@@ -724,6 +725,8 @@ function LevelPills({
         <button
           key={lvl}
           type="button"
+          aria-pressed={selectedLevel === lvl}
+          data-course-level={lvl}
           onClick={() => onLevelChange(lvl)}
           className="rounded-full px-4 py-1 text-xs font-semibold"
           style={levelPillStyle(selectedLevel === lvl, keyColor ?? accentColor)}
@@ -814,6 +817,8 @@ export function GenreCourseOverview({ genreSlug }: GenreCourseOverviewProps) {
           <button
             key={tab.id}
             type="button"
+            aria-pressed={activeTab === tab.id}
+            data-course-tab={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className="rounded-full px-4 py-1.5 text-xs font-semibold"
             style={tabStyle(activeTab === tab.id)}

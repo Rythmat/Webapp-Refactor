@@ -3,19 +3,19 @@
  * views): Simon-style, touch first.
  *
  * MELODY PADS (`melodyPads`)
- * The scale positions a level's calls reach, lowest to highest, with no
- * gap (contours.ts `levelSpan`): Level 1's the 5 below the 1 up to the 5
- * above, eight pads; Levels 2 and 3 the whole pad window, the 5 below up to
- * the 7, ten. Each plays its pitch as the level's calls place it (calls.ts
- * `echoTonic`), so a pad always plays what Atlas played. Each wears its
+ * The pad window, at every level: the 1 up to the 1 above it, eight pads,
+ * a full octave with a 1 at each end (the owner's rule). Each plays its
+ * pitch as the calls place it (calls.ts `echoTonic`), so a pad always
+ * plays what Atlas played. Each wears its
  * note's color on the circle in the key's mode, as Part 2's chooser colors
  * a chord by its root (chart.ts `chartColors`): the 1's pad is the key's
  * own color (a minor key wears its relative major's).
  *
  * CHORD PADS (`chordPads`)
  * The mode's six chords, no diminished one, each voiced on its own (the
- * fewest ledger lines), colored by its root the same way. A chord echo is
- * graded by pitch class, so a pad's octave never costs a point.
+ * fewest ledger lines), colored by its root the same way, and the 1 chord
+ * again an octave up: a 1 at each end, as the melody pads have. A chord
+ * echo is graded by pitch class, so a pad's octave never costs a point.
  *
  * Pure, no React.
  */
@@ -34,12 +34,11 @@ import {
   type LiteracyKey,
 } from '../musicLiteracy/pitch';
 import { echoChordDegrees, echoTonic, positionChromatic } from './calls';
-import { levelSpan, positionSemitones, type PositionSpan } from './contours';
-import type { EchoLevelNumber } from './levels';
+import { PAD_WINDOW, positionSemitones, type PositionSpan } from './contours';
 
 /** One melody pad. */
 export interface MelodyPad {
-  /** Its scale position from the 1: −3 is the 5 below. */
+  /** Its scale position from the 1: 7 is the 1 above. */
   position: number;
   midi: number;
   /** Its chromatic degree: 'b3'. */
@@ -52,7 +51,6 @@ export interface MelodyPad {
 }
 
 export interface MelodyPads {
-  level: EchoLevelNumber;
   key: LiteracyKey;
   /** The MIDI of the 1. */
   tonic: number;
@@ -71,6 +69,8 @@ export interface ChordPad {
   color: string;
   /** What one tap plays. */
   chord: VoicedChord;
+  /** 1 for the 1 chord an octave up, the last pad; else 0. */
+  octave: 0 | 1;
 }
 
 /** A pitch class's color on the circle, in a mode (chart.ts `chartColors`). */
@@ -81,13 +81,10 @@ function circleColor(pitchClass: number, mode: LiteracyMode): string {
   );
 }
 
-/** The melody pads of a level, in a key (MELODY PADS above). */
-export function melodyPads(
-  level: EchoLevelNumber,
-  key: LiteracyKey,
-): MelodyPads {
-  const span = levelSpan(level);
-  const tonic = echoTonic(level, key);
+/** The melody pads of a key, at every level (MELODY PADS above). */
+export function melodyPads(key: LiteracyKey): MelodyPads {
+  const span = PAD_WINDOW;
+  const tonic = echoTonic(key);
   const one = pitchClassOf(key.tonic);
   const pads = Array.from({ length: span.high - span.low + 1 }, (_, i) => {
     const position = span.low + i;
@@ -102,19 +99,33 @@ export function melodyPads(
       color: circleColor((one + semitones + 120) % 12, key.mode),
     };
   });
-  return { level, key, tonic, keyColor: chartKeyColor(key), span, pads };
+  return { key, tonic, keyColor: chartKeyColor(key), span, pads };
 }
 
-/** The six chord pads of a key, the 1 first (CHORD PADS above). */
+/** A key's seven chord pads: the six, the 1 first, then the 1 up an octave. */
 export function chordPads(key: LiteracyKey): ChordPad[] {
   const one = pitchClassOf(key.tonic);
-  return echoChordDegrees(key.mode).map((degree) => {
+  const six = echoChordDegrees(key.mode).map((degree): ChordPad => {
     const chord = voicedChord(key, degree)!;
     return {
       degree,
       label: chord.label,
       color: circleColor((one + chord.rootSemitones) % 12, key.mode),
       chord,
+      octave: 0,
     };
   });
+  const home = six[0];
+  return [
+    ...six,
+    {
+      ...home,
+      chord: {
+        ...home.chord,
+        root: home.chord.root + 12,
+        midis: home.chord.midis.map((midi) => midi + 12),
+      },
+      octave: 1,
+    },
+  ];
 }

@@ -6,7 +6,7 @@
  *   levels.ts    the Levels table: tiers, zero points, song lengths, base tempos
  *   tempo.ts     the tempo ramp, the boss's tempo, ticks and milliseconds
  *   contours.ts  the contour library and starter set, the zero point rule
- *   rhythm.ts    the rhythm flashcards, and calls' rhythms from them
+ *   rhythm.ts    the owner's melody and comping rhythms, by tier
  *   calls.ts     melody calls, chord calls, the Final Boss's four
  *   strikes.ts   played notes heard as chord strikes, at the tempo
  *   grading.ts   an echo graded by Music Literacy's graders
@@ -37,12 +37,12 @@ export {
   BAR_TICKS,
   BEAT_TICKS,
   BOSS_CALLS,
-  BOSS_RHYTHM_TIER,
-  CALL_BARS,
+  CHORD_CALL_BARS,
   ECHO_LEVELS,
   ECHO_LEVEL_NUMBERS,
   ECHO_TEMPO,
   ECHO_TIME_SIGNATURE,
+  MELODY_CALL_BARS,
   SIXTEENTH_TICKS,
   SONG_BARS,
   echoLevel,
@@ -75,7 +75,6 @@ export {
   contoursOfLevel,
   fitsWindow,
   levelContours,
-  levelSpan,
   libraryContour,
   positionNote,
   positionSemitones,
@@ -87,18 +86,18 @@ export {
   type PositionSpan,
 } from './contours';
 export {
-  MAX_CHORD_STRIKES_PER_BEAT,
-  QUARTER_REST,
-  RHYTHM_CARDS,
-  cardHits,
-  cardNotes,
-  cardsOfTiers,
-  chordPlayable,
-  rhythmCard,
-  rhythmHits,
-  startsOnBeat,
-  type RhythmCard,
+  CHORD_RHYTHMS,
+  MELODY_RHYTHMS,
+  NEW_RHYTHM_SHARE,
+  chordRhythm,
+  chordRhythmBars,
+  chordRhythmById,
+  melodyRhythm,
+  melodyRhythmById,
+  type ChordRhythm,
+  type MelodyRhythm,
   type RhythmHit,
+  type RhythmPool,
 } from './rhythm';
 export {
   NEW_CONTOUR_SHARE,

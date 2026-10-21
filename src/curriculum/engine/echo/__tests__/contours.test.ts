@@ -11,7 +11,6 @@ import {
   contoursOfLevel,
   fitsWindow,
   levelContours,
-  levelSpan,
   libraryContour,
   positionSemitones,
   zeroPointsFor,
@@ -205,28 +204,33 @@ describe('the starter set', () => {
     }
   });
 
-  it('keeps every contour in the pad window at its level’s zero points', () => {
+  it('keeps every contour in the pad window: Level 1’s on the 1, later ones on two zero points or more', () => {
     for (const c of ECHO_CONTOURS) {
-      for (const zp of ECHO_LEVELS[c.level].zeroPoints) {
+      const fits = zeroPointsFor(c, c.level);
+      if (c.level === 1) expect(fits, c.id).toEqual([1]);
+      else expect(fits.length, c.id).toBeGreaterThanOrEqual(2);
+      for (const zp of fits) {
         expect(fitsWindow(c.contour, zp), `${c.id} on ${zp}`).toBe(true);
       }
-      expect(zeroPointsFor(c, c.level)).toEqual(
-        ECHO_LEVELS[c.level].zeroPoints,
-      );
     }
+  });
+
+  it('reaches the top 1 and the bottom 1', () => {
+    const reached = new Set(
+      ECHO_CONTOURS.flatMap((c) =>
+        zeroPointsFor(c, c.level).flatMap((zp) =>
+          contourPositions(c.contour, zp),
+        ),
+      ),
+    );
+    expect(reached).toContain(0);
+    expect(reached).toContain(7);
   });
 });
 
 describe('the pad window', () => {
-  it('is ten positions at most: the 5 below the 1 up to the 7', () => {
-    expect(PAD_WINDOW).toEqual({ low: -3, high: 6 });
-    expect(PAD_WINDOW.high - PAD_WINDOW.low + 1).toBeLessThanOrEqual(10);
-  });
-
-  it('holds each level’s reach: an octave of pads at Level 1, ten after', () => {
-    expect(levelSpan(1)).toEqual({ low: -3, high: 4 });
-    expect(levelSpan(2)).toEqual({ low: -3, high: 6 });
-    expect(levelSpan(3)).toEqual({ low: -3, high: 6 });
+  it('is an octave, the 1 up to the 1 above: eight pads', () => {
+    expect(PAD_WINDOW).toEqual({ low: 0, high: 7 });
   });
 
   it('draws a level on its own and earlier contours, where they fit', () => {
@@ -238,14 +242,14 @@ describe('the pad window', () => {
       new Set([1, 2, 3]),
     );
     // Level 1's rising 5-note run fits on the 1 and the 3 at Level 2, not
-    // the 5, which would take it past the 7.
+    // the 5, which would take it past the 1 above.
     expect(zeroPointsFor(libraryContour('0,1,2,3,4')!, 2)).toEqual([1, 3]);
   });
 
   it('keeps every call inside it, at every level, in every key', () => {
     const rng = echoRandom('window');
     for (const level of ECHO_LEVEL_NUMBERS) {
-      const span = levelSpan(level);
+      const span = PAD_WINDOW;
       for (let i = 0; i < 300; i++) {
         const mode = i % 2 ? 'major' : 'minor';
         const c = melodyCall(level, { tonic: 'Eb', mode }, rng, {

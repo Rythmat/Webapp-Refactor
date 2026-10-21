@@ -11,7 +11,6 @@ import {
   melodyEchoNotes,
 } from '../grading';
 import { echoRandom } from '../random';
-import { rhythmCard } from '../rhythm';
 import { msToTicks } from '../tempo';
 
 /**
@@ -24,13 +23,18 @@ const KEY = { tonic: 'D', mode: 'major' } as const;
 
 describe('the run', () => {
   it('lays out a bar of count-in, the call, then the response', () => {
+    // A melody's call is a bar, and so is its answer.
     const call = melodyCall(1, KEY, echoRandom(1));
     const timeline = echoTimeline(call);
     expect(timeline.countIn).toEqual({ start: 0, length: 1920 });
-    expect(timeline.call).toEqual({ start: 1920, length: 3840 });
-    expect(timeline.response).toEqual({ start: 5760, length: 3840 });
+    expect(timeline.call).toEqual({ start: 1920, length: 1920 });
+    expect(timeline.response).toEqual({ start: 3840, length: 1920 });
     expect(timeline.words.length).toBe(0);
-    expect(timeline.total).toBe(9600);
+    expect(timeline.total).toBe(5760);
+    // A chord call's two bars, and two to answer.
+    const chords = echoTimeline(chordCall(1, KEY, echoRandom(1)));
+    expect(chords.call).toEqual({ start: 1920, length: 3840 });
+    expect(chords.response).toEqual({ start: 5760, length: 3840 });
     expect(timeline.tempo).toBe(80);
     expect(echoTimeline(call, { tempo: 96, countInBars: 2 })).toMatchObject({
       call: { start: 3840 },
@@ -44,7 +48,7 @@ describe('the run', () => {
     const notes = melodyEchoNotes(call, timeline);
     notes.response.forEach((note, i) => {
       expect(note.midi).toBe(notes.call[i].midi);
-      expect(note.onset - notes.call[i].onset).toBe(3840);
+      expect(note.onset - notes.call[i].onset).toBe(1920);
     });
     expect(notes.call[0].onset).toBe(1920);
   });
@@ -52,13 +56,14 @@ describe('the run', () => {
   it('plays the boss’s calls back to back after one count-in', () => {
     const calls = bossCalls(2, KEY, echoRandom(3));
     const timelines = bossTimelines(calls);
+    // Melody, chords, melody, chords: a bar and a bar, two and two.
     expect(timelines.map((t) => t.call.start)).toEqual([
       1920,
-      1920 + 7680,
-      1920 + 2 * 7680,
-      1920 + 3 * 7680,
+      1920 + 3840,
+      1920 + 3840 + 7680,
+      1920 + 2 * 3840 + 7680,
     ]);
-    expect(timelines.at(-1)!.total).toBe(1920 + 4 * 7680);
+    expect(timelines.at(-1)!.total).toBe(1920 + 2 * 3840 + 2 * 7680);
   });
 });
 
@@ -170,14 +175,14 @@ describe('a chord echo', () => {
 });
 
 describe('a chord echo in 16ths', () => {
-  const SIXTEENTHS = rhythmCard(7)!; // four 16ths
-  const THREE = rhythmCard(11)!; // 16th, 16th, eighth
-
-  /** A call of 16th chords at a tempo, and its response played back. */
+  /**
+   * A call of chords a 16th apart at a tempo (the Double Skank: two on
+   * each offbeat), and its response played back.
+   */
   const sixteenths = (tempo: number, rollMs = 15, early = 0) => {
-    const call = chordCall(2, KEY, echoRandom('sixteenths'), {
+    const call = chordCall(3, KEY, echoRandom('sixteenths'), {
       degrees: ['1', '4'],
-      cards: [SIXTEENTHS, THREE],
+      rhythmId: 'comp_reg_04',
       tempo,
     });
     const timeline = echoTimeline(call);
@@ -198,8 +203,8 @@ describe('a chord echo in 16ths', () => {
     for (const tempo of [80, 100, 116]) {
       const { call, timeline, played } = sixteenths(tempo);
       expect(timeline.tempo).toBe(tempo);
-      // Bar 1: four strikes a beat, four beats; bar 2: three, three beats.
-      expect(call.attacks).toHaveLength(4 * 4 + 3 * 3);
+      // Two a beat, four beats; then three, the last beat the breath.
+      expect(call.attacks).toHaveLength(2 * 4 + 2 * 3);
       const result = gradeChordEcho(call, played);
       expect(
         result.attacks.every((a) => a.status === 'hit'),
@@ -234,7 +239,7 @@ describe('a chord echo in 16ths', () => {
   it('keeps the pass rule: the right chords off the beat fail on timing', () => {
     const call = chordCall(1, KEY, echoRandom('off-beat'), {
       degrees: ['1', '5'],
-      cards: [rhythmCard(2)!, rhythmCard(2)!],
+      rhythmId: 'comp_pop_01',
       tempo: 116,
     });
     const played = chordEchoNotes(call, echoTimeline(call)).response.flatMap(
@@ -257,7 +262,7 @@ describe('a chord held, struck again', () => {
   const quarters = () =>
     chordCall(1, KEY, echoRandom('held'), {
       degrees: ['1', '4'],
-      cards: [rhythmCard(2)!, rhythmCard(2)!],
+      rhythmId: 'comp_pop_01',
     });
 
   it('passes the root and fifth held, the third struck again on each beat', () => {

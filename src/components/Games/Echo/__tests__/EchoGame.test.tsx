@@ -337,7 +337,7 @@ describe('a game of Echo', () => {
       expect(stage().getAttribute('data-echo-section')).toBe('chordEcho');
       expect(
         document.querySelectorAll('[data-echo-pads="chords"] [data-echo-pad]'),
-      ).toHaveLength(6);
+      ).toHaveLength(7);
       await playRun(() => true);
       expect(
         document
@@ -522,12 +522,49 @@ describe('a game of Echo', () => {
       key: 'Escape',
     });
     await flush();
-    // Paused until Resume: then the call again, from its count-in.
-    expect(document.querySelector('[data-echo-paused]')).toBeTruthy();
-    fireEvent.click(screen.getAllByRole('button', { name: 'Resume' })[0]);
+    // Paused until Play: then the call again, from its count-in.
+    expect(document.querySelector('[data-echo-paused]')?.textContent).toMatch(
+      /from the count-in/,
+    );
+    fireEvent.click(document.querySelector('[data-echo-paused] button')!);
     await flush();
     expect(run.starts).toBe(2);
     expect(document.querySelector('[data-echo-input="keyboard"]')).toBeTruthy();
+  });
+
+  it('holds the game between activities until Play', async () => {
+    renderGame();
+    fireEvent.click(document.querySelector('[data-echo-start]')!);
+    const pause = () =>
+      document.querySelector<HTMLButtonElement>('[data-echo-pause-button]')!;
+    // Over the title card: it waits, however long.
+    expect(pause().textContent).toBe('Pause');
+    fireEvent.click(pause());
+    expect(pause().textContent).toBe('Play');
+    await wait(INTRO_MS * 3);
+    expect(screenKind()).toBe('intro');
+    expect(document.querySelector('[data-echo-paused]')?.textContent).toMatch(
+      /waits here/,
+    );
+    fireEvent.click(document.querySelector('[data-echo-paused] button')!);
+    expect(document.querySelector('[data-echo-paused]')).toBeNull();
+    await wait(INTRO_MS);
+    expect(screenKind()).toBe('round');
+    // A round echoed, then paused over its result: the next call waits.
+    await playRun(() => true);
+    expect(document.querySelector('[data-echo-result]')).toBeTruthy();
+    const starts = run.starts;
+    fireEvent.click(pause());
+    await wait(RESULT_MS * 3);
+    await flush();
+    expect(stage().getAttribute('data-echo-round')).toBe('0');
+    expect(run.starts).toBe(starts);
+    // Play: the result's wait, then the next round.
+    fireEvent.click(pause());
+    await wait(RESULT_MS);
+    await flush();
+    expect(stage().getAttribute('data-echo-round')).toBe('1');
+    expect(run.starts).toBe(starts + 1);
   });
 });
 

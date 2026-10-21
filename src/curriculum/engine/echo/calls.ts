@@ -1,19 +1,20 @@
 /**
- * Echo's calls: what Atlas plays for the student to echo. Two bars each,
- * at every level, made fresh from a seeded random source (random.ts).
+ * Echo's calls: what Atlas plays for the student to echo, made fresh from a
+ * seeded random source (random.ts).
  *
  * A MELODY CALL (`melodyCall`)
- * A contour of the level's (contours.ts: its own tier's half the time,
- * an earlier level's the rest), on one of the level's zero points that
- * keeps it in the pad window, resolved through the key's scale, on a
- * rhythm of flashcards with as many notes (rhythm.ts: the first note on
- * beat 1, a beat's breath before the response).
+ * A bar: a contour of the level's (contours.ts: its own tier's half the
+ * time, an earlier level's the rest), on one of the level's zero points
+ * that keeps it inside the 1 to the 1 above, resolved through the key's
+ * scale, on one of the owner's phrase rhythms with as many notes
+ * (rhythm.ts). The answer comes in the next bar, as Rhythm and Harmony's
+ * do.
  *
  * THE REGISTER (`echoTonic`)
  * Music Literacy's rule (register.ts `placeMelody`): the treble staff, the
- * fewest ledger lines, in C4–A5 when it can be. Placed once for all the
- * positions a level's calls reach, not call by call, so the 1 sits in one
- * octave for the whole level: a pad always plays the pitch Atlas played,
+ * fewest ledger lines, in C4–A5 when it can be. Placed once for the whole
+ * pad window, the 1 up to the 1 above, not call by call, so the 1 sits in
+ * one octave at every level: a pad always plays the pitch Atlas played,
  * and a call never jumps an octave from the last.
  *
  * A CHORD CALL (`chordCall`)
@@ -26,12 +27,14 @@
  * from Level 2 it may start on any of the six. The two are always
  * different. They're voiced together, as Music Literacy voices a
  * progression (chords.ts `voiceChords`: the fewest ledger lines, no root
- * moving past a 4th), each struck in its bar's flashcard on every beat
- * (rhythm.ts), the call's last beat the breath.
+ * moving past a 4th), and struck in one of the owner's comping patterns
+ * (rhythm.ts): a one-bar pattern in both bars, or a two-bar one across
+ * them. The call's last beat is a breath: nothing struck or ringing in it,
+ * so the student can find the first chord again.
  *
  * THE BOSS (`bossCalls`)
  * Four calls, melody and chords by turns, from the level's contours and
- * chords, on the level's rhythms and Tier 4's, a Tier 4 card in each.
+ * chords, every one on the tier of rhythms above the level's.
  *
  * THE TEMPO
  * A call carries the tempo it plays at (`tempo`): the one asked for (the
@@ -64,10 +67,10 @@ import {
 import { placeMelody } from '../musicLiteracy/register';
 import {
   ECHO_CONTOURS,
+  PAD_WINDOW,
   contourMotion,
   contourPositions,
   levelContours,
-  levelSpan,
   libraryContour,
   positionNote,
   positionSemitones,
@@ -77,22 +80,20 @@ import {
 import {
   BAR_TICKS,
   BEAT_TICKS,
-  BOSS_RHYTHM_TIER,
-  CALL_BARS,
+  MELODY_CALL_BARS,
   echoLevel,
   type EchoLevelNumber,
   type EchoZeroPoint,
 } from './levels';
 import { pickOne, type EchoRandom } from './random';
 import {
-  cardHits,
-  cardsOfTiers,
-  chordPlayable,
   chordRhythm,
+  chordRhythmBars,
+  chordRhythmById,
   melodyRhythm,
-  rhythmHits,
-  startsOnBeat,
-  type RhythmCard,
+  melodyRhythmById,
+  type ChordRhythm,
+  type MelodyRhythm,
   type RhythmPool,
 } from './rhythm';
 
@@ -121,8 +122,8 @@ export interface MelodyCall extends CallBase {
   kind: 'melody';
   contour: EchoContour;
   zeroPoint: EchoZeroPoint;
-  /** A card a beat, eight: the last is the breath. */
-  cards: RhythmCard[];
+  /** Its rhythm: one of the owner's phrase rhythms, a bar long. */
+  rhythm: MelodyRhythm;
   notes: EchoNote[];
 }
 
@@ -134,8 +135,8 @@ export interface ChordCall extends CallBase {
   labels: string[];
   /** A bar's chord, voiced with the other. */
   chords: VoicedChord[];
-  /** A card a bar, struck on its every beat. */
-  cards: RhythmCard[];
+  /** Its rhythm: one of the owner's comping patterns. */
+  rhythm: ChordRhythm;
   /** Each strike, ticks from the call's downbeat. */
   attacks: ChordAttack[];
   /** The strikes' notes, low to high each: the roll's. */
@@ -148,11 +149,12 @@ export type EchoCall = MelodyCall | ChordCall;
 export const NEW_CONTOUR_SHARE = 0.5;
 
 /**
- * The 1 a level's melodies are read from, in a key (THE REGISTER above):
- * every position its calls reach, placed together by Music Literacy's rule.
+ * The 1 the melodies are read from, in a key (THE REGISTER above): every
+ * position of the pad window, the 1 to the 1 above, placed together by
+ * Music Literacy's rule.
  */
-export function echoTonic(level: EchoLevelNumber, key: LiteracyKey): number {
-  const { low, high } = levelSpan(level);
+export function echoTonic(key: LiteracyKey): number {
+  const { low, high } = PAD_WINDOW;
   const notes = Array.from({ length: high - low + 1 }, (_, i) =>
     positionNote(low + i, key.mode),
   );
@@ -166,15 +168,12 @@ export const positionChromatic = (
 ): LiteracyDegree =>
   DEGREE_OF_SEMITONE[((positionSemitones(position, mode) % 12) + 12) % 12];
 
-/** The cards a level's calls draw on; the boss's add Tier 4 and need one. */
+/** The rhythms a level's calls draw on; the boss's, the tier above. */
 function rhythmPool(level: EchoLevelNumber, boss: boolean): RhythmPool {
-  const tiers = echoLevel(level).rhythmTiers;
+  const { rhythmTiers, bossRhythmTier } = echoLevel(level);
   return boss
-    ? {
-        cards: cardsOfTiers([...tiers, BOSS_RHYTHM_TIER]),
-        required: cardsOfTiers([BOSS_RHYTHM_TIER]),
-      }
-    : { cards: cardsOfTiers(tiers) };
+    ? { tiers: rhythmTiers, only: bossRhythmTier }
+    : { tiers: rhythmTiers };
 }
 
 /** A contour by id: the starter set's, or (a preview) any of the library's. */
@@ -207,6 +206,11 @@ export interface MelodyCallOptions {
   contourId?: string;
   /** A zero point instead of one chosen. */
   zeroPoint?: EchoZeroPoint;
+  /**
+   * A rhythm by its id instead of one chosen (a preview, a test): one with
+   * as many notes as the contour.
+   */
+  rhythmId?: string;
   /** One of the Final Boss's calls. */
   boss?: boolean;
   /** Contour ids not to use, the last few played, while others remain. */
@@ -215,7 +219,7 @@ export interface MelodyCallOptions {
   tempo?: number;
 }
 
-/** A two-bar melody call in a key (A MELODY CALL above). */
+/** A one-bar melody call in a key (A MELODY CALL above). */
 export function melodyCall(
   level: EchoLevelNumber,
   key: LiteracyKey,
@@ -231,19 +235,21 @@ export function melodyCall(
     options.zeroPoint ??
     pickOne(rng, fitting.length ? fitting : echoLevel(level).zeroPoints);
   const positions = contourPositions(contour.contour, zeroPoint);
-  const cards = melodyRhythm(
-    contour.contour.length,
-    rhythmPool(level, boss),
-    rng,
-    { beats: CALL_BARS * 4 },
-  );
-  const tonic = echoTonic(level, key);
-  const notes: EchoNote[] = rhythmHits(cards).map((hit, index) => {
+  const rhythm = options.rhythmId
+    ? melodyRhythmById(options.rhythmId)
+    : melodyRhythm(positions.length, rhythmPool(level, boss), rng);
+  if (!rhythm || rhythm.notes !== positions.length) {
+    throw new Error(
+      `A melody call's rhythm has its contour's ${positions.length} notes: ${options.rhythmId}`,
+    );
+  }
+  const tonic = echoTonic(key);
+  const notes: EchoNote[] = rhythm.hits.map((hit, index) => {
     const position = positions[index];
     const degree = positionChromatic(position, key.mode);
     return {
       midi: tonic + positionSemitones(position, key.mode),
-      onset: hit.tick,
+      onset: hit.onset,
       duration: hit.duration,
       degree,
       label: degreeLabel(degree),
@@ -256,13 +262,13 @@ export function melodyCall(
     level,
     key,
     boss,
-    bars: CALL_BARS,
+    bars: MELODY_CALL_BARS,
     barTicks: BAR_TICKS,
     tonic,
     tempo: options.tempo ?? echoLevel(level).tempo,
     contour,
     zeroPoint,
-    cards,
+    rhythm,
     notes,
   };
 }
@@ -291,27 +297,28 @@ function chooseChordDegrees(
 }
 
 /**
- * A figure's strikes: each bar's chord in its card on every beat, the
- * last beat of all left for the breath.
+ * A figure's strikes: each bar's chord in the comping pattern's strikes for
+ * that bar. With the breath, the last beat of all is left silent: nothing
+ * struck in it, and nothing ringing into it.
  */
 export function chordAttacks(
   chords: readonly VoicedChord[],
-  cards: readonly RhythmCard[],
+  rhythm: Pick<ChordRhythm, 'bars' | 'hits'>,
   { breath = true }: { breath?: boolean } = {},
 ): ChordAttack[] {
+  const end = chords.length * BAR_TICKS - (breath ? BEAT_TICKS : 0);
   const attacks: ChordAttack[] = [];
-  chords.forEach((chord, bar) => {
-    for (let beat = 0; beat < 4; beat++) {
-      if (breath && bar === chords.length - 1 && beat === 3) continue;
-      for (const hit of cardHits(cards[bar])) {
-        attacks.push({
-          index: attacks.length,
-          bar,
-          onset: bar * BAR_TICKS + beat * BEAT_TICKS + hit.offset,
-          duration: hit.duration,
-          chord,
-        });
-      }
+  chordRhythmBars(rhythm, chords.length).forEach((hits, bar) => {
+    for (const hit of hits) {
+      const onset = bar * BAR_TICKS + hit.onset;
+      if (onset >= end) continue;
+      attacks.push({
+        index: attacks.length,
+        bar,
+        onset,
+        duration: Math.min(hit.duration, end - onset),
+        chord: chords[bar],
+      });
     }
   });
   return attacks;
@@ -320,11 +327,8 @@ export function chordAttacks(
 export interface ChordCallOptions {
   /** The two chords instead of ones chosen: degrees of the mode's six. */
   degrees?: readonly LiteracyScaleDegree[];
-  /**
-   * A card a bar instead of ones chosen (a preview, a test): cards a chord
-   * can be struck in, the first starting on its beat.
-   */
-  cards?: readonly RhythmCard[];
+  /** A comping pattern by its id instead of one chosen (a preview, a test). */
+  rhythmId?: string;
   /** One of the Final Boss's calls. */
   boss?: boolean;
   /** The tempo it plays at; the level's base when left out. */
@@ -349,18 +353,11 @@ export function chordCall(
     ? [...options.degrees]
     : chooseChordDegrees(level, key.mode, rng);
   const chords = voicedProgression(key, degrees);
-  if (
-    options.cards &&
-    (options.cards.length !== degrees.length ||
-      !options.cards.every(chordPlayable) ||
-      !startsOnBeat(options.cards[0]))
-  ) {
-    throw new Error('A chord call’s cards: one a bar, struck from beat 1');
-  }
-  const cards = options.cards
-    ? [...options.cards]
-    : chordRhythm(rhythmPool(level, boss), rng, { bars: degrees.length });
-  const attacks = chordAttacks(chords, cards);
+  const rhythm = options.rhythmId
+    ? chordRhythmById(options.rhythmId)
+    : chordRhythm(rhythmPool(level, boss), rng);
+  if (!rhythm) throw new Error(`No comping pattern "${options.rhythmId}"`);
+  const attacks = chordAttacks(chords, rhythm);
   const tonic = tonicMidi(key.tonic);
   return {
     kind: 'chords',
@@ -374,7 +371,7 @@ export function chordCall(
     degrees,
     labels: chords.map((chord) => chord.label),
     chords,
-    cards,
+    rhythm,
     attacks,
     notes: chordNotes(attacks, tonic),
   };

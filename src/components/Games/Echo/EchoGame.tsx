@@ -1,4 +1,4 @@
-import { Music, Settings, Sparkles } from 'lucide-react';
+import { Music, Pause, Play, Settings, Sparkles } from 'lucide-react';
 import {
   lazy,
   Suspense,
@@ -56,9 +56,14 @@ import './echoGame.css';
 // (useEchoRun.ts: a run for each round, one for the boss's four calls),
 // the timers that move the game on (a section's title card, a round's
 // result), the device's progress and settings, and the
-// Arcade's header with the streak and High Score. A pause (or Game
-// Settings, opened mid-game) stops the music; Resume plays the call again
-// from its count-in.
+// Arcade's header with the streak and High Score.
+//
+// PAUSE AND PLAY
+// The header's Pause holds the game wherever it is, from the first title
+// card to the boss's last call: between activities (a title card, a
+// round's result, the boss's entrance) nothing moves on until Play; over a
+// call the music stops, and Play plays the call again from its count-in.
+// Game Settings, opened over the music, pauses it the same way.
 //
 // When the student finishes their song, the level is done: the next one
 // opens, Start Here's Echo stop is done, and the song's XP is counted.
@@ -105,7 +110,7 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
 
   const { screen, level, key } = flow;
   const input = inputFor(settings, level);
-  const keyColor = useMemo(() => melodyPads(level, key).keyColor, [level, key]);
+  const keyColor = useMemo(() => melodyPads(key).keyColor, [key]);
   const palette = useMemo(
     () => circleOfFifths(key.mode).map((k) => k.color),
     [key.mode],
@@ -223,12 +228,38 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
     setSettingsOpen(open);
   };
 
+  // ── Pause and Play: the title cards, the rounds and the boss ──
+  const pausable =
+    screen.kind === 'intro' ||
+    screen.kind === 'round' ||
+    screen.kind === 'bossIntro' ||
+    screen.kind === 'boss';
+  useEffect(() => {
+    if (!pausable) setPaused(false);
+  }, [pausable]);
+
   return (
     <div className="flex min-h-0 flex-1 flex-col" data-echo-game>
       <ArcadeGameHeader
         title="Echo"
         controls={
           <>
+            {pausable && (
+              <button
+                type="button"
+                aria-pressed={paused}
+                data-echo-pause-button
+                onClick={() => setPaused((p) => !p)}
+                className="flex items-center gap-1.5 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70 transition-colors hover:text-white"
+              >
+                {paused ? (
+                  <Play aria-hidden className="size-3.5" fill="currentColor" />
+                ) : (
+                  <Pause aria-hidden className="size-3.5" fill="currentColor" />
+                )}
+                {paused ? 'Play' : 'Pause'}
+              </button>
+            )}
             {screen.kind !== 'setup' && (
               <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70">
                 <span
@@ -285,8 +316,6 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
             run={run}
             keyColor={keyColor}
             paused={paused}
-            onPause={() => setPaused(true)}
-            onResume={() => setPaused(false)}
             onFight={() => dispatch({ type: 'fight' })}
             onBossRetry={() => dispatch({ type: 'bossRetry' })}
             onBossWon={() => dispatch({ type: 'toGate' })}
@@ -314,7 +343,6 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
                 <EchoInputSurface
                   input={input}
                   kind={handlers.kind}
-                  level={level}
                   keyChoice={key}
                   onNoteOn={(note) => handlers.noteOn(note.midi, note.velocity)}
                   onNoteOff={(note) => handlers.noteOff(note.midi)}
@@ -329,6 +357,9 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
               onExit={() => dispatch({ type: 'exit' })}
             />
           </Suspense>
+        )}
+        {pausable && paused && (
+          <PausedCard midCall={wanted} onPlay={() => setPaused(false)} />
         )}
       </div>
 
@@ -383,6 +414,38 @@ function SectionIntro({
         Let’s Go!
       </button>
     </section>
+  );
+}
+
+/** Paused: Play goes on from here, or plays the call again from the top. */
+function PausedCard({
+  midCall,
+  onPlay,
+}: {
+  /** Paused over a call (its music stopped), not between activities. */
+  midCall: boolean;
+  onPlay: () => void;
+}) {
+  return (
+    <div
+      data-echo-paused
+      className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-[#101012]/85 p-6 text-center backdrop-blur-sm"
+    >
+      <p className="text-3xl text-[#e8e8f0]">Paused</p>
+      <button
+        type="button"
+        onClick={onPlay}
+        className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-7 text-base font-semibold text-[#101012] transition-transform hover:scale-105"
+      >
+        <Play aria-hidden className="size-4" fill="currentColor" />
+        Play
+      </button>
+      <p className="text-sm text-white/50">
+        {midCall
+          ? 'Atlas plays the call again from the count-in.'
+          : 'The game waits here until you press Play.'}
+      </p>
+    </div>
   );
 }
 

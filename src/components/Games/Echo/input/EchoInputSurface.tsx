@@ -2,11 +2,7 @@ import { Keyboard } from 'lucide-react';
 import { useMemo } from 'react';
 import { cn } from '@/components/utilities';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
-import {
-  chordPads,
-  melodyPads,
-  type EchoLevelNumber,
-} from '@/curriculum/engine/echo';
+import { chordPads, melodyPads } from '@/curriculum/engine/echo';
 import {
   degreeLabel,
   degreeOfMidi,
@@ -34,8 +30,9 @@ import {
 // stream (useEchoInput.ts). The play screens put it under the call; Make
 // Your Song puts it under a take (its `renderInput`).
 //
-//   Pads      melody: the level's scale degrees as a staircase of pads;
-//             chords: the key's six chords. The home row presses them.
+//   Pads      melody: the 1 up to the 1 above as a staircase of pads;
+//             chords: the key's six chords and the 1 again an octave up.
+//             The home row presses them.
 //   Keyboard  the on-screen piano at real proportions, two octaves round
 //             the notes asked for (literacyKeyRange.ts), the scale's keys
 //             named by degree; the letter keys play it (A = C, Z and X move
@@ -49,7 +46,6 @@ export interface EchoInputSurfaceProps {
   input: EchoInputMode;
   /** Melody pads or chord pads; with Keyboard, what the keys are labeled for. */
   kind: 'melody' | 'chords';
-  level: EchoLevelNumber;
   keyChoice: EchoKeyChoice;
   onNoteOn: (note: EchoNoteOn) => void;
   onNoteOff: (note: EchoNoteOff) => void;
@@ -80,7 +76,6 @@ const WRONG_KEY = '#e8e8f0';
 export function EchoInputSurface({
   input,
   kind,
-  level,
   keyChoice,
   onNoteOn,
   onNoteOff,
@@ -92,10 +87,7 @@ export function EchoInputSurface({
   sound = true,
   className,
 }: EchoInputSurfaceProps) {
-  const melody = useMemo(
-    () => melodyPads(level, keyChoice),
-    [level, keyChoice],
-  );
+  const melody = useMemo(() => melodyPads(keyChoice), [keyChoice]);
   const chords = useMemo(() => chordPads(keyChoice), [keyChoice]);
   const usePads = input === 'pads';
   const padNotes = useMemo(
@@ -145,9 +137,16 @@ export function EchoInputSurface({
       });
     } else {
       const classes = new Set([...sounding].map((m) => ((m % 12) + 12) % 12));
+      const lowest = Math.min(...sounding);
+      // The 1 chord has two pads: the one nearer the notes lights.
+      const nearest = new Map<string, number>();
       chords.forEach((pad, i) => {
-        if (pad.chord.pitchClasses.every((pc) => classes.has(pc))) on.add(i);
+        if (!pad.chord.pitchClasses.every((pc) => classes.has(pc))) return;
+        const was = nearest.get(pad.degree);
+        const off = (at: number) => Math.abs(chords[at].chord.root - lowest);
+        if (was === undefined || off(i) < off(was)) nearest.set(pad.degree, i);
       });
+      nearest.forEach((i) => on.add(i));
     }
     return on;
   }, [kind, melody, chords, sounding]);

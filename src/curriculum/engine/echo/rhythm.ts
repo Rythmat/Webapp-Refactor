@@ -1,288 +1,168 @@
 /**
- * Echo's rhythms: ICP Studio's 25 one-beat rhythm flashcards
- * (rhythmFlashcards.json), and calls' rhythms made from them a beat at a
- * time. A card is a quarter-note beat on a 16th grid: X a note starts, -
- * it's held, . a rest. A note never runs past its card's beat.
+ * Echo's rhythms: the owner's rhythm libraries, as the calls play them.
+ * scripts/echo/importRhythms.mjs reads the CSVs, keeps what a straight 4/4
+ * echo can play, and sets the tiers (its comment says what it leaves out).
  *
- *   Tier 1  quarters and eighths, with their rests
- *   Tier 2  sixteenths
- *   Tier 3  sixteenth rests
- *   Tier 4  dotted and syncopated: the Final Boss's
+ * MELODY RHYTHMS (melodyRhythms.json)
+ * The melody phrase rhythms: a bar each, of three to five notes, as many
+ * as a contour has. A melody call is one of them, the contour's notes on
+ * its hits.
  *
- * A MELODY CALL'S RHYTHM (`melodyRhythm`)
- * Eight beats, a card each, whose notes are as many as the contour's:
+ *   Tier 1  quarters and eighths from beat 1, nothing held over a beat, the
+ *           last note by beat 4
+ *   Tier 2  eighths with a syncopation, an offbeat start, or a last note on
+ *           the "and" of 4
+ *   Tier 3  one 16th, from beat 1
+ *   Tier 4  more 16ths, or a 16th start: the funk
  *
- *   1. the first note on beat 1 (the first card starts on its beat);
- *   2. a breath before the response: the last beat is a quarter rest, so
- *      nothing rings into the answer;
- *   3. the call is two bars: its last note starts in bar 2;
- *   4. it holds together: no more than two silent beats between notes.
+ * CHORD RHYTHMS (chordRhythms.json)
+ * The comping patterns, a bar long and two. A chord call strikes a one-bar
+ * pattern in each of its bars, as Melodies and Chords' progressions repeat
+ * one rhythm a bar, and a two-bar pattern across both.
  *
- * A silent beat is always the quarter rest: the three all-rest cards sound
- * the same. Any way of spreading the notes over the beats that keeps the
- * rules may come, the likelier the more it holds together, so a call is
- * a phrase to remember, not notes dotted about: each silent beat between
- * notes halves its chance, and a note on bar 2's downbeat doubles it. Then
- * every card with that many notes on its beat is as likely. The boss's
- * calls have a Tier 4 card on at least one beat.
+ *   Tier 1  on the beats, from beat 1
+ *   Tier 2  on the eighths, from beat 1
+ *   Tier 3  eighths off the beat (a skank), or a few 16ths from beat 1
+ *   Tier 4  the rest, three strikes a beat at most
  *
- * A CHORD CALL'S RHYTHM (`chordRhythm`)
- * One card a bar, struck on every beat of it, as Melodies and Chords'
- * progressions repeat one rhythm a bar. The first bar's card starts on its
- * beat (the first chord on beat 1), and the call's last beat is the
- * breath. Any card a chord can be struck in: a note at least, and no more
- * than four strikes a beat. Chords a 16th apart are heard as two (strikes.ts
- * reads strikes with a spread that follows the tempo), so the 16ths (Tier
- * 2) come in from Level 2, and the boss has all of Tier 4.
+ * WHICH ONE (`melodyRhythm`, `chordRhythm`)
+ * A level draws on its tiers (levels.ts): its newest tier half the time,
+ * the earlier ones the rest, as its contours do. The Final Boss plays the
+ * tier above the level's, every call (`bossRhythmTier`). Each distinct
+ * rhythm is as likely as the next: the importer keeps one of a rhythm that
+ * several genres share.
  *
  * Pure, no React.
  */
 
-import CARD_FILE from '@/curriculum/data/echo/rhythmFlashcards.json';
-import { BEAT_TICKS, SIXTEENTH_TICKS, type EchoTier } from './levels';
-import { pickOne, pickWeighted, type EchoRandom } from './random';
+import CHORD_FILE from '@/curriculum/data/echo/chordRhythms.json';
+import MELODY_FILE from '@/curriculum/data/echo/melodyRhythms.json';
+import { BAR_TICKS, type EchoTier } from './levels';
+import { pickOne, type EchoRandom } from './random';
 
-/** One flashcard: a beat's rhythm. */
-export interface RhythmCard {
-  /** Its number in the deck, 1–25. */
-  id: number;
-  tier: EchoTier;
-  /** Four 16ths: X a note starts, - it's held, . a rest. */
-  grid: string;
-  /** "eighth, eighth rest". */
-  name: string;
-  /** "8", "8r", "16", "8.": a note value each, r a rest. */
-  tokens: readonly string[];
-  /** "1 (&)": the syllables played, rests in parentheses. */
-  count: string;
-}
-
-/** A note of a card: where it starts in its beat, and how long it lasts. */
-export interface CardHit {
-  offset: number;
+/** A note of a rhythm: ticks from its first downbeat, and how long it lasts. */
+export interface RhythmHit {
+  onset: number;
   duration: number;
 }
 
-/** The whole deck, in its order. */
-export const RHYTHM_CARDS: readonly RhythmCard[] = CARD_FILE.cards.map(
-  (card) => ({ ...card, tier: card.tier as EchoTier }),
+interface LibraryRhythm {
+  /** The CSV's id: "mp_pop_3a", "comp2_rnb_03". */
+  id: string;
+  /** "Pop 3-note: beats 1-2-3", "Gospel Push". */
+  name: string;
+  tier: EchoTier;
+  /** As the CSV writes it: x a note, - held, . a rest, a 16th each. */
+  grid: string;
+  hits: readonly RhythmHit[];
+  /** The CSV's other ids with this rhythm exactly. */
+  sameAs: readonly string[];
+}
+
+/** One of the melody phrase rhythms: a bar, a contour's notes. */
+export interface MelodyRhythm extends LibraryRhythm {
+  notes: number;
+  /** The genres the library files it under: "pop", "hip_hop". */
+  genres: readonly string[];
+}
+
+/** One of the comping patterns: a bar or two of a chord's strikes. */
+export interface ChordRhythm extends LibraryRhythm {
+  bars: 1 | 2;
+  /** Where the library uses it: "Pop, Rock, Jam Band", "Reggae". */
+  style: string;
+}
+
+const hitsOf = (pairs: readonly (readonly number[])[]): RhythmHit[] =>
+  pairs.map(([onset, duration]) => ({ onset, duration }));
+
+/** Every melody rhythm, by tier. */
+export const MELODY_RHYTHMS: readonly MelodyRhythm[] = MELODY_FILE.rhythms.map(
+  (r) => ({ ...r, tier: r.tier as EchoTier, hits: hitsOf(r.hits) }),
 );
 
-const CARD_BY_ID = new Map(RHYTHM_CARDS.map((card) => [card.id, card]));
+/** Every comping pattern, by tier. */
+export const CHORD_RHYTHMS: readonly ChordRhythm[] = CHORD_FILE.rhythms.map(
+  (r) => ({
+    ...r,
+    tier: r.tier as EchoTier,
+    bars: r.bars as 1 | 2,
+    hits: hitsOf(r.hits),
+  }),
+);
 
-/** A card by its number. */
-export const rhythmCard = (id: number): RhythmCard | undefined =>
-  CARD_BY_ID.get(id);
+/** A melody rhythm by its id (or an id in its `sameAs`). */
+export const melodyRhythmById = (id: string): MelodyRhythm | undefined =>
+  MELODY_RHYTHMS.find((r) => r.id === id || r.sameAs.includes(id));
 
-/** The quarter rest: every silent beat, and the breath. */
-export const QUARTER_REST: RhythmCard = CARD_BY_ID.get(1)!;
+/** A comping pattern by its id (or an id in its `sameAs`). */
+export const chordRhythmById = (id: string): ChordRhythm | undefined =>
+  CHORD_RHYTHMS.find((r) => r.id === id || r.sameAs.includes(id));
 
-/** A card's notes, in ticks within its beat. */
-export function cardHits(card: Pick<RhythmCard, 'grid'>): CardHit[] {
-  const hits: CardHit[] = [];
-  [...card.grid].forEach((cell, i) => {
-    if (cell === 'X') {
-      hits.push({ offset: i * SIXTEENTH_TICKS, duration: SIXTEENTH_TICKS });
-    } else if (cell === '-' && hits.length) {
-      hits[hits.length - 1].duration += SIXTEENTH_TICKS;
-    }
-  });
-  return hits;
-}
-
-/** How many notes a card has. */
-export const cardNotes = (card: Pick<RhythmCard, 'grid'>): number =>
-  [...card.grid].filter((cell) => cell === 'X').length;
-
-/** Whether a card's first note is on its beat. */
-export const startsOnBeat = (card: Pick<RhythmCard, 'grid'>): boolean =>
-  card.grid[0] === 'X';
-
-/** The deck's cards of some tiers. */
-export const cardsOfTiers = (tiers: readonly EchoTier[]): RhythmCard[] =>
-  RHYTHM_CARDS.filter((card) => tiers.includes(card.tier));
-
-/** The most chord strikes a beat: four 16ths. */
-export const MAX_CHORD_STRIKES_PER_BEAT = 4;
-
-/**
- * Whether a chord can be struck in a card on every beat: it has a note, and
- * no more than four strikes a beat (every card with a note, the deck on a
- * 16th grid). Two strikes a 16th apart are fine: strikes.ts hears them as
- * two.
- */
-export function chordPlayable(card: Pick<RhythmCard, 'grid'>): boolean {
-  const strikes = cardNotes(card);
-  return strikes > 0 && strikes <= MAX_CHORD_STRIKES_PER_BEAT;
-}
-
-/** A note of a rhythm laid out over beats, in ticks from its first beat. */
-export interface RhythmHit {
-  tick: number;
-  duration: number;
-  /** Its beat, from 0. */
-  beat: number;
-  card: RhythmCard;
-}
-
-/** Cards a beat each, from `start`: their notes in order. */
-export function rhythmHits(
-  cards: readonly RhythmCard[],
-  start = 0,
-): RhythmHit[] {
-  return cards.flatMap((card, beat) =>
-    cardHits(card).map((hit) => ({
-      tick: start + beat * BEAT_TICKS + hit.offset,
-      duration: hit.duration,
-      beat,
-      card,
-    })),
-  );
-}
-
-/** The most silent beats a melody call has between two notes. */
-export const MAX_SILENT_BEATS = 2;
-
-/** What a call's rhythm is made of: the level's cards, and the boss's. */
+/** What a call's rhythm is drawn from. */
 export interface RhythmPool {
-  /** Every card it may use. */
-  cards: readonly RhythmCard[];
-  /** Cards it must use one of, at least (the boss's Tier 4); none: none. */
-  required?: readonly RhythmCard[];
+  /** The level's tiers: its own and every earlier one. */
+  tiers: readonly EchoTier[];
+  /** Only this tier: the boss's. */
+  only?: EchoTier;
 }
 
-/** Notes per beat: how a call spreads its notes, before its cards. */
-type Spread = number[];
+/** How often a level's calls take its newest tier, not an earlier one. */
+export const NEW_RHYTHM_SHARE = 0.5;
 
-/**
- * Every way of spreading `notes` over `beats` sounding beats that keeps
- * the rules (A MELODY CALL'S RHYTHM), with a card for each count.
- */
-function spreads(
-  notes: number,
-  beats: number,
-  firstCounts: ReadonlySet<number>,
-  counts: ReadonlySet<number>,
-  lastBarStart: number,
-): Spread[] {
-  const found: Spread[] = [];
-  const spread: number[] = [];
-  const walk = (beat: number, left: number, silent: number) => {
-    if (left === 0) {
-      const last = spread.reduce((at, n, i) => (n > 0 ? i : at), -1);
-      if (last >= lastBarStart) {
-        found.push([...spread, ...Array(beats - beat).fill(0)]);
-      }
-      return;
-    }
-    if (beat === beats) return;
-    const allowed = beat === 0 ? firstCounts : counts;
-    for (const n of [0, ...allowed]) {
-      if (n === 0 && (beat === 0 || silent === MAX_SILENT_BEATS)) continue;
-      if (n > left) continue;
-      spread.push(n);
-      walk(beat + 1, left - n, n === 0 ? silent + 1 : 0);
-      spread.pop();
-    }
-  };
-  walk(0, notes, 0);
-  return found;
-}
-
-const countsOf = (cards: readonly RhythmCard[]) =>
-  new Set(cards.map(cardNotes).filter((n) => n > 0));
-
-/**
- * How likely a spread is, against the others: halved for each silent beat
- * between its notes, doubled for a note on bar 2's downbeat.
- */
-function spreadWeight(spread: Spread, lastBarStart: number): number {
-  const last = spread.reduce((at, n, i) => (n > 0 ? i : at), 0);
-  const silent = spread.slice(0, last).filter((n) => n === 0).length;
-  return (1 / 3) ** silent * (spread[lastBarStart] > 0 ? 2 : 1);
-}
-
-/**
- * A melody call's rhythm: a card for each of `beats` beats (the last the
- * breath) holding `notes` notes, by the rules above.
- */
-export function melodyRhythm(
-  notes: number,
+function chooseRhythm<T extends LibraryRhythm>(
+  from: readonly T[],
   pool: RhythmPool,
   rng: EchoRandom,
-  { beats = 8, beatsPerBar = 4 }: { beats?: number; beatsPerBar?: number } = {},
-): RhythmCard[] {
-  const sounding = pool.cards.filter((card) => cardNotes(card) > 0);
-  const onBeat = sounding.filter(startsOnBeat);
-  const required = pool.required?.filter((card) => cardNotes(card) > 0);
-  const playable = beats - 1; // the last is the breath
-  const lastBarStart = Math.max(0, beats - beatsPerBar);
-  const all = spreads(
-    notes,
-    playable,
-    countsOf(onBeat),
-    countsOf(sounding),
-    lastBarStart,
-  );
-  // A beat that can take a required card, in a spread.
-  const takesRequired = (spread: Spread, beat: number) =>
-    !!required?.some(
-      (card) =>
-        cardNotes(card) === spread[beat] && (beat > 0 || startsOnBeat(card)),
-    );
-  const options = required?.length
-    ? all.filter((spread) => spread.some((_, b) => takesRequired(spread, b)))
-    : all;
-  if (options.length === 0) {
-    throw new Error(`No rhythm holds ${notes} notes in ${beats} beats`);
+  what: string,
+): T {
+  if (pool.only !== undefined) {
+    const boss = from.filter((r) => r.tier === pool.only);
+    if (!boss.length) throw new Error(`No Tier ${pool.only} rhythm ${what}`);
+    return pickOne(rng, boss);
   }
-  const spread = pickWeighted(rng, options, (o) =>
-    spreadWeight(o, lastBarStart),
+  const newest = Math.max(...pool.tiers);
+  const own = from.filter((r) => r.tier === newest);
+  const earlier = from.filter(
+    (r) => r.tier < newest && pool.tiers.includes(r.tier),
   );
-  const special = required?.length
-    ? pickOne(
-        rng,
-        spread.flatMap((_, b) => (takesRequired(spread, b) ? [b] : [])),
-      )
-    : -1;
-  const cards = spread.map((count, beat) => {
-    if (count === 0) return QUARTER_REST;
-    const from = beat === special ? required! : sounding;
-    return pickOne(
-      rng,
-      from.filter(
-        (card) => cardNotes(card) === count && (beat > 0 || startsOnBeat(card)),
-      ),
-    );
-  });
-  return [...cards, QUARTER_REST];
+  if (!own.length && !earlier.length) {
+    throw new Error(`No rhythm ${what} in Tiers ${pool.tiers.join(', ')}`);
+  }
+  const useOwn =
+    own.length > 0 && (!earlier.length || rng() < NEW_RHYTHM_SHARE);
+  return pickOne(rng, useOwn ? own : earlier);
 }
 
-/**
- * A chord call's rhythm: a card for each of its bars, struck on every beat
- * of the bar (A CHORD CALL'S RHYTHM). The first bar's starts on its beat;
- * the boss's have a Tier 4 card in at least one bar.
- */
-export function chordRhythm(
+/** A melody call's rhythm: one with `notes` notes, from the pool. */
+export const melodyRhythm = (
+  notes: number,
   pool: RhythmPool,
   rng: EchoRandom,
-  { bars = 2 }: { bars?: number } = {},
-): RhythmCard[] {
-  const playable = pool.cards.filter(chordPlayable);
-  const required = pool.required?.filter(chordPlayable) ?? [];
-  const fits = (card: RhythmCard, bar: number) => bar > 0 || startsOnBeat(card);
-  const special = required.length
-    ? pickOne(
-        rng,
-        Array.from({ length: bars }, (_, b) => b).filter((b) =>
-          required.some((card) => fits(card, b)),
-        ),
-      )
-    : -1;
-  return Array.from({ length: bars }, (_, bar) =>
-    pickOne(
-      rng,
-      (bar === special ? required : playable).filter((card) => fits(card, bar)),
-    ),
+): MelodyRhythm =>
+  chooseRhythm(
+    MELODY_RHYTHMS.filter((r) => r.notes === notes),
+    pool,
+    rng,
+    `of ${notes} notes`,
   );
+
+/** A chord call's rhythm, from the pool. */
+export const chordRhythm = (pool: RhythmPool, rng: EchoRandom): ChordRhythm =>
+  chooseRhythm(CHORD_RHYTHMS, pool, rng, 'for chords');
+
+/**
+ * A comping pattern's strikes in each of `bars` bars, ticks from each
+ * bar's downbeat: a one-bar pattern in every bar, a two-bar one by turns.
+ */
+export function chordRhythmBars(
+  rhythm: Pick<ChordRhythm, 'bars' | 'hits'>,
+  bars: number,
+): RhythmHit[][] {
+  return Array.from({ length: bars }, (_, bar) => {
+    const from = (bar % rhythm.bars) * BAR_TICKS;
+    return rhythm.hits
+      .filter((hit) => hit.onset >= from && hit.onset < from + BAR_TICKS)
+      .map((hit) => ({ onset: hit.onset - from, duration: hit.duration }));
+  });
 }

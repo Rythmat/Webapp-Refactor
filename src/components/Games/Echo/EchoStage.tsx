@@ -1,12 +1,4 @@
-import {
-  Check,
-  ChevronRight,
-  Pause,
-  Play,
-  RotateCcw,
-  Sparkles,
-  Swords,
-} from 'lucide-react';
+import { Check, ChevronRight, RotateCcw, Sparkles, Swords } from 'lucide-react';
 import {
   useCallback,
   useEffect,
@@ -107,9 +99,8 @@ export interface EchoStageProps {
   input: EchoInputMode;
   run: EchoStageRun;
   keyColor: string;
+  /** Paused (EchoGame's Pause): the input is off, and the entrance waits. */
   paused: boolean;
-  onPause: () => void;
-  onResume: () => void;
   /** The entrance is over (or skipped): the fight. */
   onFight: () => void;
   onBossRetry: () => void;
@@ -130,8 +121,6 @@ export function EchoStage({
   run,
   keyColor,
   paused,
-  onPause,
-  onResume,
   onFight,
   onBossRetry,
   onBossWon,
@@ -156,11 +145,24 @@ export function EchoStage({
   /** The loss has played: Try the Boss again. */
   const [lossOver, setLossOver] = useState(false);
 
-  // The entrance; the fight starts when it's over.
+  // The entrance; the fight starts when it's over, or on Play if it ended
+  // while paused.
+  const pausedNow = useRef(paused);
+  pausedNow.current = paused;
+  const [fightWaiting, setFightWaiting] = useState(false);
   useEffect(() => {
     if (!entrance) return;
-    controls.play('emerge', { onEnd: () => latest.current.onFight() });
+    setFightWaiting(false);
+    controls.play('emerge', {
+      onEnd: () =>
+        pausedNow.current ? setFightWaiting(true) : latest.current.onFight(),
+    });
   }, [entrance, controls]);
+  useEffect(() => {
+    if (!fightWaiting || paused) return;
+    setFightWaiting(false);
+    latest.current.onFight();
+  }, [fightWaiting, paused]);
 
   // A fight begins (after the entrance, or the boss fought again): the
   // boss on its face, an entrance cut short stopped there.
@@ -207,7 +209,7 @@ export function EchoStage({
   const placed = calls[at] ?? null;
 
   const tonicPc = pitchClassOf(key.tonic);
-  const pads = useMemo(() => melodyPads(level, key), [level, key]);
+  const pads = useMemo(() => melodyPads(key), [key]);
   const chords = useMemo(() => chordPads(key), [key]);
 
   // ── The hub ──
@@ -328,18 +330,6 @@ export function EchoStage({
             keyColor={keyColor}
           />
           <StreakBadge streak={flow.stats.streak} keyColor={keyColor} />
-          <button
-            type="button"
-            onClick={paused ? onResume : onPause}
-            aria-label={paused ? 'Resume' : 'Pause'}
-            className="flex size-9 items-center justify-center rounded-full border border-white/10 text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white"
-          >
-            {paused ? (
-              <Play aria-hidden className="size-4" />
-            ) : (
-              <Pause aria-hidden className="size-4" />
-            )}
-          </button>
         </div>
       </div>
 
@@ -405,7 +395,6 @@ export function EchoStage({
           <EchoInputSurface
             input={input}
             kind={kind}
-            level={level}
             keyChoice={key}
             onNoteOn={onNoteOn}
             onNoteOff={onNoteOff}
@@ -480,25 +469,6 @@ export function EchoStage({
 
       {boss && fight === 'lost' && lossOver && (
         <BossOutcome keyColor={keyColor} onRetry={onBossRetry} />
-      )}
-      {paused && (
-        <div
-          data-echo-paused
-          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-[#101012]/85 backdrop-blur-sm"
-        >
-          <p className="text-3xl text-[#e8e8f0]">Paused</p>
-          <button
-            type="button"
-            onClick={onResume}
-            className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-7 text-base font-semibold text-[#101012]"
-          >
-            <Play aria-hidden className="size-4" fill="currentColor" />
-            Resume
-          </button>
-          <p className="text-sm text-white/50">
-            The call starts again from the count-in.
-          </p>
-        </div>
       )}
     </section>
   );
@@ -758,14 +728,16 @@ function EchoRoll({
       }),
     [calls, zero, bar, keyColor],
   );
+  // A 1 at the bottom and a 1 at the top, as the pads have: the octave from
+  // the 1 at or below the lowest note, stretched by octaves to the highest.
   const rollRange = useMemo(() => {
     const midis = events.map((e) => e.midi!);
-    if (midis.length === 0) return { min: 58, max: 66 };
-    const low = Math.min(...midis);
-    const high = Math.max(...midis);
-    const pad = Math.max(2, Math.ceil((7 - (high - low)) / 2));
-    return { min: low - pad, max: high + pad };
-  }, [events]);
+    const low = midis.length ? Math.min(...midis) : tonic;
+    const high = midis.length ? Math.max(...midis) : tonic + 12;
+    const bottom = tonic + 12 * Math.floor((low - tonic) / 12);
+    const top = bottom + 12 * Math.max(1, Math.ceil((high - bottom) / 12));
+    return { min: bottom, max: top };
+  }, [events, tonic]);
   const userNotes = useMemo(
     () =>
       played.map((note) => ({

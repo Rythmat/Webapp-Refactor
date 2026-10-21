@@ -9,7 +9,6 @@
  *       <EchoInputSurface
  *         input="pads"                    // or 'keyboard' (Game Settings)
  *         kind="melody"                   // or 'chords'
- *         level={1}
  *         keyChoice={{ tonic: 'C', mode: 'major' }}
  *         onNoteOn={({ midi, velocity, perfMs }) => …}
  *         onNoteOff={({ midi, perfMs }) => …}
@@ -18,8 +17,8 @@
  *
  *   useEchoInput      the note stream alone (pointer, home-row keys, typing,
  *                     MIDI), for a screen that draws its own pads or keys
- *   EchoMelodyPads    the melody pads: the level's scale degrees, a staircase
- *   EchoChordPads     the six chord pads; one tap plays the voiced chord
+ *   EchoMelodyPads    the melody pads: the 1 up to the 1 above, a staircase
+ *   EchoChordPads     the chord pads, a 1 at each end; a tap plays its chord
  *   padKeys           the home row that presses the pads (A S D F G H J K L ;)
  *
  * Every note sounds on the lesson piano unless `sound` is off, and comes

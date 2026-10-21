@@ -60,20 +60,21 @@ describe('the easier call after a miss', () => {
       expect(call.level).toBe(level);
       expect(ids).toContain(call.contour.id);
       expect(call.zeroPoint).toBe(1);
-      // Level 1's rhythms: quarters and eighths only.
-      expect(call.cards.every((card) => card.tier === 1)).toBe(true);
+      // Level 1's rhythms: quarters and eighths from beat 1.
+      expect(call.rhythm.tier).toBe(1);
     }
   });
 
-  it('lands on the level’s own pads, where the level’s 1 sits an octave away', () => {
-    // D major's 1 sits higher at Level 1 than at Level 2.
-    const pads = melodyPads(2, D).pads.map((p) => p.midi);
-    for (let i = 0; i < 20; i++) {
-      const call = roundCall('melodyEcho', 2, D, echoRandom(`d${i}`), {
-        easier: true,
-      });
-      expect(call.tonic).toBe(melodyPads(2, D).tonic);
-      for (const note of call.notes) expect(pads).toContain(note.midi);
+  it('lands on the pads, every level’s the same octave', () => {
+    const pads = melodyPads(D).pads.map((p) => p.midi);
+    for (const level of [1, 2, 3] as const) {
+      for (let i = 0; i < 20; i++) {
+        const call = roundCall('melodyEcho', level, D, echoRandom(`d${i}`), {
+          easier: true,
+        });
+        expect(call.tonic).toBe(melodyPads(D).tonic);
+        for (const note of call.notes) expect(pads).toContain(note.midi);
+      }
     }
   });
 
@@ -220,13 +221,14 @@ describe('a run’s cues', () => {
     const cues = echoRunCues([placeCall(call, timeline)], {
       metronome: true,
     });
+    // A bar each: the count-in, the call, the answer.
     const beats = cues.filter((c) => c.kind === 'beat');
-    expect(beats).toHaveLength(20);
+    expect(beats).toHaveLength(12);
     expect(
       beats.slice(0, 4).every((b) => b.phase === 'countIn' && b.click),
     ).toBe(true);
     expect(beats[4].phase).toBe('call');
-    expect(beats[12].phase).toBe('response');
+    expect(beats[8].phase).toBe('response');
     const notes = cues.filter((c) => c.kind === 'note');
     const { call: callNotes, response } = melodyEchoNotes(call, timeline);
     expect(notes.filter((n) => n.segment === 'call')).toHaveLength(

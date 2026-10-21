@@ -12,14 +12,14 @@ import {
   echoTonic,
   melodyCall,
 } from '../calls';
-import { levelSpan, positionNote } from '../contours';
+import { PAD_WINDOW, positionNote } from '../contours';
 import { ECHO_LEVEL_NUMBERS } from '../levels';
 import { echoRandom } from '../random';
 
 /**
  * Calls: chord calls on the mode's six chords (no diminished one), voiced
- * as Music Literacy voices a progression; melody calls in one register a
- * level; the boss's four by turns.
+ * as Music Literacy voices a progression; melody calls in one register, the
+ * 1 up to the 1 above; the boss's four by turns.
  */
 
 const KEYS = LITERACY_TONICS.flatMap((tonic) =>
@@ -107,32 +107,34 @@ describe('a chord call', () => {
 });
 
 describe('a melody call’s register', () => {
-  it('reads every call of a level from one 1, placed by Music Literacy’s rule', () => {
+  it('reads every call from one 1, the octave above it placed by Music Literacy’s rule', () => {
     for (const key of KEYS) {
-      for (const level of ECHO_LEVEL_NUMBERS) {
-        const { low, high } = levelSpan(level);
-        const notes = Array.from({ length: high - low + 1 }, (_, i) =>
-          positionNote(low + i, key.mode),
-        );
-        expect(echoTonic(level, key)).toBe(placeMelody(key, notes).tonic);
-      }
+      const { low, high } = PAD_WINDOW;
+      const notes = Array.from({ length: high - low + 1 }, (_, i) =>
+        positionNote(low + i, key.mode),
+      );
+      expect(echoTonic(key)).toBe(placeMelody(key, notes).tonic);
     }
     const rng = echoRandom('register');
     const key = { tonic: 'A', mode: 'minor' } as const;
     const tonics = new Set(
-      Array.from({ length: 30 }, () => melodyCall(2, key, rng).tonic),
+      ECHO_LEVEL_NUMBERS.flatMap((level) =>
+        Array.from({ length: 30 }, () => melodyCall(level, key, rng).tonic),
+      ),
     );
-    expect(tonics).toEqual(new Set([echoTonic(2, key)]));
+    expect(tonics).toEqual(new Set([echoTonic(key)]));
   });
 
-  it('keeps C major’s calls on the staff, its 1 an octave over middle C', () => {
+  it('keeps C major’s calls from middle C up to the C above', () => {
     const key = { tonic: 'C', mode: 'major' } as const;
-    expect(echoTonic(1, key)).toBe(72);
+    expect(echoTonic(key)).toBe(60);
     const rng = echoRandom('staff');
-    for (let i = 0; i < 50; i++) {
-      for (const note of melodyCall(1, key, rng).notes) {
-        expect(note.midi).toBeGreaterThanOrEqual(67); // the 5 below: G4
-        expect(note.midi).toBeLessThanOrEqual(79); // the 5 above: G5
+    for (const level of ECHO_LEVEL_NUMBERS) {
+      for (let i = 0; i < 50; i++) {
+        for (const note of melodyCall(level, key, rng).notes) {
+          expect(note.midi).toBeGreaterThanOrEqual(60); // the 1: C4
+          expect(note.midi).toBeLessThanOrEqual(72); // the 1 above: C5
+        }
       }
     }
   });
@@ -153,7 +155,8 @@ describe('the boss', () => {
         expect(calls[0].contour.id).not.toBe(calls[2].contour.id);
         for (const call of calls) {
           expect(call.level).toBe(level);
-          expect(call.bars).toBe(2);
+          // A melody's call is a bar, a chord call's two.
+          expect(call.bars).toBe(call.kind === 'melody' ? 1 : 2);
         }
       }
     }

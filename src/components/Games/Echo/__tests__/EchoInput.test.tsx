@@ -75,7 +75,6 @@ function renderSurface(
     <EchoInputSurface
       input="pads"
       kind="melody"
-      level={1}
       keyChoice={C}
       onNoteOn={onNoteOn}
       onNoteOff={onNoteOff}
@@ -95,20 +94,20 @@ const midisOf = (fn: ReturnType<typeof vi.fn>) =>
   fn.mock.calls.map(([note]) => note.midi);
 
 describe('the melody pads', () => {
-  it('lays out the level’s scale degrees low to high, each with its key', () => {
+  it('lays out the 1 up to the 1 above, low to high, each with its key', () => {
     renderSurface();
-    const pads = melodyPads(1, C).pads;
+    const pads = melodyPads(C).pads;
     const shown = screen.getAllByRole('button');
     expect(shown).toHaveLength(8);
     expect(shown.map((b) => b.getAttribute('aria-label'))).toEqual([
-      '5, low',
-      '6, low',
-      '7, low',
       '1',
       '2',
       '3',
       '4',
       '5',
+      '6',
+      '7',
+      '1, high',
     ]);
     expect(shown.map((b) => b.getAttribute('data-pad-key'))).toEqual([
       'A',
@@ -120,27 +119,24 @@ describe('the melody pads', () => {
       'J',
       'K',
     ]);
-    // Each in its note's color; the 1's is the key's own.
+    // Each in its note's color; the 1s' are the key's own.
     expect(pad(3).style.borderColor).not.toBe('');
-    expect(pads[3].color).toBe(melodyPads(1, C).keyColor);
+    expect(pads[0].color).toBe(melodyPads(C).keyColor);
+    expect(pads[7].color).toBe(melodyPads(C).keyColor);
     // A staircase: each a step taller.
     const heights = shown.map((b) => parseFloat(b.style.height));
     expect(heights).toEqual([...heights].sort((a, b) => a - b));
-    // Level 2 shows the whole window: ten.
-    cleanup();
-    renderSurface({ level: 2 });
-    expect(screen.getAllByRole('button')).toHaveLength(10);
   });
 
   it('plays a pad by touch, lit and sounding until the finger lifts', () => {
     const { onNoteOn, onNoteOff } = renderSurface();
-    const one = melodyPads(1, C).pads[3];
+    const four = melodyPads(C).pads[3];
     act(() => {
       touch(pad(3), 7);
     });
     expect(onNoteOn).toHaveBeenCalledTimes(1);
     expect(onNoteOn.mock.calls[0][0]).toMatchObject({
-      midi: one.midi,
+      midi: four.midi,
       source: 'pads',
     });
     expect(typeof onNoteOn.mock.calls[0][0].perfMs).toBe('number');
@@ -151,7 +147,7 @@ describe('the melody pads', () => {
       lift(7);
     });
     expect(onNoteOff).toHaveBeenCalledTimes(1);
-    expect(onNoteOff.mock.calls[0][0].midi).toBe(one.midi);
+    expect(onNoteOff.mock.calls[0][0].midi).toBe(four.midi);
     expect(pad(3).getAttribute('aria-pressed')).toBe('false');
     expect(pad(3).hasAttribute('data-lit')).toBe(false);
   });
@@ -163,13 +159,13 @@ describe('the melody pads', () => {
       touch(pad(4), 2);
     });
     expect(midisOf(onNoteOn)).toEqual([
-      melodyPads(1, C).pads[0].midi,
-      melodyPads(1, C).pads[4].midi,
+      melodyPads(C).pads[0].midi,
+      melodyPads(C).pads[4].midi,
     ]);
     act(() => {
       lift(2);
     });
-    expect(midisOf(onNoteOff)).toEqual([melodyPads(1, C).pads[4].midi]);
+    expect(midisOf(onNoteOff)).toEqual([melodyPads(C).pads[4].midi]);
     expect(pad(0).getAttribute('aria-pressed')).toBe('true');
   });
 
@@ -179,7 +175,7 @@ describe('the melody pads', () => {
       fireEvent.keyDown(window, { code: 'KeyA' });
     });
     expect(onNoteOn.mock.calls[0][0]).toMatchObject({
-      midi: melodyPads(1, C).pads[0].midi,
+      midi: melodyPads(C).pads[0].midi,
       source: 'pads',
     });
     expect(pad(0).hasAttribute('data-lit')).toBe(true);
@@ -200,11 +196,12 @@ describe('the melody pads', () => {
   });
 
   it('lights as Atlas plays, without a sound or a note of its own', () => {
-    const one = melodyPads(1, C).pads[3];
+    const one = melodyPads(C).pads[0];
     const { onNoteOn } = renderSurface({ lit: [one.midi] });
-    expect(pad(3).hasAttribute('data-lit')).toBe(true);
-    expect(pad(3).getAttribute('aria-pressed')).toBe('false');
-    expect(pad(4).hasAttribute('data-lit')).toBe(false);
+    expect(pad(0).hasAttribute('data-lit')).toBe(true);
+    expect(pad(0).getAttribute('aria-pressed')).toBe('false');
+    // The 1 above is another pitch: it stays dark.
+    expect(pad(7).hasAttribute('data-lit')).toBe(false);
     expect(onNoteOn).not.toHaveBeenCalled();
     expect(piano.triggerPianoAttack).not.toHaveBeenCalled();
   });
@@ -229,7 +226,7 @@ describe('the melody pads', () => {
 });
 
 describe('the chord pads', () => {
-  it('shows the key’s six chords, the 1 first, named the hybrid way', () => {
+  it('shows the key’s six chords and the 1 again above, named the hybrid way', () => {
     renderSurface({ kind: 'chords' });
     const shown = screen.getAllByRole('button');
     expect(shown.map((b) => b.getAttribute('aria-label'))).toEqual([
@@ -239,6 +236,7 @@ describe('the chord pads', () => {
       '4 maj',
       '5 maj',
       '6 min',
+      '1 maj, high',
     ]);
     expect(shown.map((b) => b.getAttribute('data-pad-key'))).toEqual([
       'A',
@@ -247,7 +245,19 @@ describe('the chord pads', () => {
       'F',
       'G',
       'H',
+      'J',
     ]);
+  });
+
+  it('plays the 1 chord an octave up from the last pad, and lights the nearer 1', () => {
+    const { onNoteOn } = renderSurface({ kind: 'chords' });
+    const pads = chordPads(C);
+    act(() => {
+      fireEvent.keyDown(window, { code: 'KeyJ' });
+    });
+    expect(midisOf(onNoteOn)).toEqual(pads[0].chord.midis.map((m) => m + 12));
+    expect(pad(6).hasAttribute('data-lit')).toBe(true);
+    expect(pad(0).hasAttribute('data-lit')).toBe(false);
   });
 
   it('plays the whole voiced chord on one tap, or one key', () => {

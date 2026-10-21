@@ -151,7 +151,6 @@ export function MakeYourSongHarness() {
               renderInput={(handlers) => (
                 <FallbackInput
                   {...handlers}
-                  level={level}
                   keyChoice={keyChoice}
                   input={input}
                 />

@@ -17,11 +17,12 @@
  * −1 is the 7 below, 7 the 1 an octave up.
  *
  * THE PAD WINDOW
- * Every call stays inside one window of scale positions, the 5 below the 1
- * up to the 7 (−3 to 6, ten pads): the starter set is chosen so (its
- * rules are in echoContours.json). A level's calls use only the zero points
- * that keep a contour in the window, so an earlier level's contour, chosen
- * for the 1 alone, still fits at a later level's 3 or 5 or isn't put there.
+ * Every call stays inside one octave of the scale, the 1 up to the 1 above
+ * it (positions 0 to 7, eight pads), at every level (the owner's rule): the
+ * starter set is chosen so (its rules are in echoContours.json). A level's
+ * calls use only the zero points that keep a contour in the window, so an
+ * earlier level's contour, chosen for the 1 alone, still fits at a later
+ * level's 3 or 5 or isn't put there.
  *
  * Pure, no React.
  */
@@ -89,7 +90,7 @@ const BY_ID = new Map(CONTOUR_LIBRARY.map((c) => [c.id, c]));
 export const libraryContour = (id: string): LibraryContour | undefined =>
   BY_ID.get(id);
 
-/** The window every call stays in: the 5 below the 1 (−3) up to the 7 (6). */
+/** The window every call stays in: the 1 (0) up to the 1 above it (7). */
 export const PAD_WINDOW: PositionSpan = {
   low: CURATED_FILE.padWindow.low,
   high: CURATED_FILE.padWindow.high,
@@ -177,17 +178,3 @@ export const levelContours = (level: EchoLevelNumber): EchoContour[] =>
   ECHO_CONTOURS.filter(
     (c) => c.level <= level && zeroPointsFor(c, level).length > 0,
   );
-
-/**
- * The positions a level's calls reach, lowest to highest: every contour it
- * draws on at every zero point it may take there. Level 1's is the 5 below
- * the 1 up to the 5 above; Levels 2 and 3 fill the window.
- */
-export function levelSpan(level: EchoLevelNumber): PositionSpan {
-  const positions = levelContours(level).flatMap((c) =>
-    zeroPointsFor(c, level).flatMap((zp) => contourPositions(c.contour, zp)),
-  );
-  return positions.length
-    ? { low: Math.min(...positions), high: Math.max(...positions) }
-    : { low: 0, high: 0 };
-}

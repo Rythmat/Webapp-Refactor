@@ -4,7 +4,9 @@
  * `gradeChordResponse` for chords), on a run laid out as Music Literacy
  * lays out a step:
  *
- *   count-in → the call (2 bars) → the response (2 bars)
+ *   count-in → the call → the response, as long as the call
+ *
+ * (a melody's call is a bar, a chord call two).
  *
  * The run is a StepTimeline (literacy.ts) with no words, so the graders,
  * `isRightNote` and the player's cues read it as they read a lesson's.

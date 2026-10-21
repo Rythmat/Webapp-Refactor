@@ -6,14 +6,16 @@ import { padKeyLabel } from './padKeys';
 import './echoPads.css';
 
 // ── The chord pads ─────────────────────────────────────────────────────────
-// The mode's six chords, the 1 first, each a big pad in its root's color
-// (engine/echo/pads.ts). One tap plays the whole chord, voiced; it sounds
-// until let go. Named the hybrid way, the root's number big and the quality
-// under it ("4" over "maj"). A pad lights when Atlas plays its chord and
-// while the student holds it.
+// The mode's six chords, the 1 first, and the 1 again an octave up, so the
+// row runs from a 1 to a 1 as the melody pads do; each a big pad in its
+// root's color (engine/echo/pads.ts). One tap plays the whole chord,
+// voiced; it sounds until let go. Named the hybrid way, the root's number
+// big and the quality under it ("4" over "maj"), the top 1 with a dot over
+// it, as a melody pad an octave up has. A pad lights when Atlas plays its
+// chord and while the student holds it.
 
 export interface EchoChordPadsProps {
-  /** The key's six (chordPads(key)). */
+  /** The key's seven (chordPads(key)). */
   pads: readonly ChordPad[];
   /** Pads lit by the music: Atlas's chord as it sounds, a MIDI chord held. */
   lit: ReadonlySet<number>;
@@ -43,7 +45,7 @@ export function EchoChordPads({
       aria-label="Chord pads"
       data-echo-pads="chords"
       className={cn(
-        'grid h-full min-h-0 w-full grid-cols-6 items-stretch gap-[clamp(8px,1.2vw,16px)] max-[639px]:grid-cols-3',
+        'grid h-full min-h-0 w-full grid-cols-7 items-stretch gap-[clamp(8px,1.2vw,16px)] max-[639px]:grid-cols-4',
         disabled && 'pointer-events-none opacity-50',
         className,
       )}
@@ -55,9 +57,9 @@ export function EchoChordPads({
         const [number, quality] = pad.label.split(' ');
         return (
           <button
-            key={pad.degree}
+            key={`${pad.degree}-${pad.octave}`}
             type="button"
-            aria-label={pad.label}
+            aria-label={pad.octave > 0 ? `${pad.label}, high` : pad.label}
             aria-pressed={pressed}
             data-echo-pad={i}
             data-chord={pad.label}
@@ -85,6 +87,13 @@ export function EchoChordPads({
               aria-hidden
               className="flex min-h-0 flex-1 flex-col items-center justify-center gap-1"
             >
+              <span
+                className="size-[7px] rounded-full"
+                style={{
+                  backgroundColor:
+                    pad.octave > 0 ? 'currentColor' : 'transparent',
+                }}
+              />
               <span
                 aria-hidden
                 className="text-[clamp(26px,3.4vw,46px)] font-semibold leading-none tabular-nums"

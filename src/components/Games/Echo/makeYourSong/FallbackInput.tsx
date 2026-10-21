@@ -1,7 +1,7 @@
 // ── A stand-in input for Make Your Song ────────────────────────────────────
 // The game's pads and keyboard come from the play screens' input layer
 // (`renderInput`). This is the simple one the dev page and the tests use
-// meanwhile: the take's pads (the six chord pads, or the melody pads), the
+// meanwhile: the take's pads (the chord pads, or the melody pads), the
 // computer keys as Music Literacy maps them (useLiteracyInput: A = C), a
 // MIDI keyboard through the Learn input, and an on-screen piano in keyboard
 // mode. It only calls the handlers: Make Your Song makes the sound.
@@ -9,11 +9,7 @@
 import { useMemo, useRef, useState, type PointerEvent } from 'react';
 import { cn } from '@/components/utilities';
 import type { LiteracyTonic } from '@/content/musicLiteracy/schemas';
-import {
-  chordPads,
-  melodyPads,
-  type EchoLevelNumber,
-} from '@/curriculum/engine/echo';
+import { chordPads, melodyPads } from '@/curriculum/engine/echo';
 import { inkOn } from '@/curriculum/musicLiteracy/KeyRing';
 import { typingOctaveLabel } from '@/curriculum/musicLiteracy/typingKeys';
 import { useLiteracyInput } from '@/curriculum/musicLiteracy/useLiteracyInput';
@@ -21,7 +17,6 @@ import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import type { EchoInputHandlers } from './types';
 
 export interface FallbackInputProps extends EchoInputHandlers {
-  level: EchoLevelNumber;
   keyChoice: { tonic: LiteracyTonic; mode: 'major' | 'minor' };
   input: 'pads' | 'keyboard';
 }
@@ -33,7 +28,6 @@ export function FallbackInput({
   kind,
   noteOn,
   noteOff,
-  level,
   keyChoice,
   input,
 }: FallbackInputProps) {
@@ -42,20 +36,20 @@ export function FallbackInput({
     () =>
       kind === 'chords'
         ? chordPads(key).map((pad) => ({
-            id: pad.degree,
+            id: `${pad.degree}-${pad.octave}`,
             label: pad.label,
-            octave: 0,
+            octave: pad.octave,
             color: pad.color,
             midis: [...pad.chord.midis],
           }))
-        : melodyPads(level, key).pads.map((pad) => ({
+        : melodyPads(key).pads.map((pad) => ({
             id: String(pad.position),
             label: pad.label,
             octave: pad.octave,
             color: pad.color,
             midis: [pad.midi],
           })),
-    [kind, level, key],
+    [kind, key],
   );
   const lowest = Math.min(...pads.flatMap((p) => p.midis));
   const highest = Math.max(...pads.flatMap((p) => p.midis));

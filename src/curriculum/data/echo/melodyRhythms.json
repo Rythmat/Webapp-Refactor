@@ -1,0 +1,963 @@
+{
+  "about": "The owner's melody phrase rhythms (Melody_Phrase_Rhythm_Library.csv), as Echo plays them: one bar each, three to five notes, a contour's notes on them. hits: [onset, duration] in ticks, 480 a quarter. Written by scripts/echo/importRhythms.mjs; its tiers and what it leaves out are in its comment.",
+  "source": "Melody_Phrase_Rhythm_Library.csv",
+  "tiers": {
+    "1": "quarters and eighths from beat 1, nothing held over a beat, the last note by beat 4",
+    "2": "eighths with a syncopation, an offbeat start, or a last note on the \"and\" of 4",
+    "3": "one 16th, from beat 1",
+    "4": "more 16ths, or a 16th start"
+  },
+  "rhythms": [
+    {
+      "id": "mp_electronic_3a",
+      "name": "Electronic 3-note: 1, 2, 3 (quantized)",
+      "notes": 3,
+      "tier": 1,
+      "genres": ["electronic", "folk", "jam_band", "pop", "rock"],
+      "grid": "x...x...x.......",
+      "hits": [
+        [0, 480],
+        [480, 480],
+        [960, 960]
+      ],
+      "sameAs": ["mp_folk_3a", "mp_jamband_3a", "mp_pop_3a", "mp_rock_3a"]
+    },
+    {
+      "id": "mp_folk_3b",
+      "name": "Folk 3-note: 1, 3, 4",
+      "notes": 3,
+      "tier": 1,
+      "genres": ["folk", "hip_hop", "pop"],
+      "grid": "x.......x...x...",
+      "hits": [
+        [0, 960],
+        [960, 480],
+        [1440, 480]
+      ],
+      "sameAs": ["mp_hiphop_3a", "mp_pop_3b"]
+    },
+    {
+      "id": "mp_folk_3c",
+      "name": "Folk 3-note: 1, 2, 4",
+      "notes": 3,
+      "tier": 1,
+      "genres": ["folk", "pop"],
+      "grid": "x...x.......x...",
+      "hits": [
+        [0, 480],
+        [480, 960],
+        [1440, 480]
+      ],
+      "sameAs": ["mp_pop_3c"]
+    },
+    {
+      "id": "mp_neosoul_3a",
+      "name": "Neo Soul 3-note: 1, and-2, 3",
+      "notes": 3,
+      "tier": 1,
+      "genres": ["neo_soul", "pop", "rnb", "rock"],
+      "grid": "x.....x.x.......",
+      "hits": [
+        [0, 720],
+        [720, 240],
+        [960, 960]
+      ],
+      "sameAs": ["mp_pop_3d", "mp_rnb_3a", "mp_rock_3b"]
+    },
+    {
+      "id": "mp_electronic_4a",
+      "name": "Electronic 4-note: all beats (four-on-floor)",
+      "notes": 4,
+      "tier": 1,
+      "genres": ["electronic", "folk", "pop", "rock"],
+      "grid": "x...x...x...x...",
+      "hits": [
+        [0, 480],
+        [480, 480],
+        [960, 480],
+        [1440, 480]
+      ],
+      "sameAs": ["mp_folk_4a", "mp_pop_4a", "mp_rock_4a"]
+    },
+    {
+      "id": "mp_electronic_4b",
+      "name": "Electronic 4-note: 1, and-1, 2, 3",
+      "notes": 4,
+      "tier": 1,
+      "genres": ["electronic", "jam_band", "rock"],
+      "grid": "x.x.x...x.......",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [480, 480],
+        [960, 960]
+      ],
+      "sameAs": ["mp_jamband_4a", "mp_rock_4b"]
+    },
+    {
+      "id": "mp_hiphop_4b",
+      "name": "Hip-Hop 4-note: 1, 2, and-3, 4",
+      "notes": 4,
+      "tier": 1,
+      "genres": ["hip_hop", "jam_band", "pop", "rnb"],
+      "grid": "x...x.....x.x...",
+      "hits": [
+        [0, 480],
+        [480, 720],
+        [1200, 240],
+        [1440, 480]
+      ],
+      "sameAs": ["mp_jamband_4b", "mp_pop_4c", "mp_rnb_4b"]
+    },
+    {
+      "id": "mp_pop_4b",
+      "name": "Pop 4-note: 1, and-2, 3, 4",
+      "notes": 4,
+      "tier": 1,
+      "genres": ["pop", "rnb"],
+      "grid": "x.....x.x...x...",
+      "hits": [
+        [0, 720],
+        [720, 240],
+        [960, 480],
+        [1440, 480]
+      ],
+      "sameAs": ["mp_rnb_4a"]
+    },
+    {
+      "id": "mp_folk_5a",
+      "name": "Folk 5-note: 1, 2, and-2, 3, 4",
+      "notes": 5,
+      "tier": 1,
+      "genres": ["folk", "pop"],
+      "grid": "x...x.x.x...x...",
+      "hits": [
+        [0, 480],
+        [480, 240],
+        [720, 240],
+        [960, 480],
+        [1440, 480]
+      ],
+      "sameAs": ["mp_pop_5a"]
+    },
+    {
+      "id": "mp_folk_5b",
+      "name": "Folk 5-note: 1, and-1, 2, 3, 4",
+      "notes": 5,
+      "tier": 1,
+      "genres": ["folk", "pop", "rock"],
+      "grid": "x.x.x...x...x...",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [480, 480],
+        [960, 480],
+        [1440, 480]
+      ],
+      "sameAs": ["mp_pop_5b", "mp_rock_5a"]
+    },
+    {
+      "id": "mp_jamband_5a",
+      "name": "Jam Band 5-note: 1, and-1, 2, and-2, 3",
+      "notes": 5,
+      "tier": 1,
+      "genres": ["jam_band"],
+      "grid": "x.x.x.x.x.......",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [480, 240],
+        [720, 240],
+        [960, 960]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_neosoul_5a",
+      "name": "Neo Soul 5-note: 1, and-1, 2, and-3, 4",
+      "notes": 5,
+      "tier": 1,
+      "genres": ["neo_soul", "rnb"],
+      "grid": "x.x.x.....x.x...",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [480, 720],
+        [1200, 240],
+        [1440, 480]
+      ],
+      "sameAs": ["mp_rnb_5a"]
+    },
+    {
+      "id": "mp_pop_5c",
+      "name": "Pop 5-note: 1, 2, 3, and-3, 4",
+      "notes": 5,
+      "tier": 1,
+      "genres": ["pop"],
+      "grid": "x...x...x.x.x...",
+      "hits": [
+        [0, 480],
+        [480, 480],
+        [960, 240],
+        [1200, 240],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_african_3a",
+      "name": "African 3-note: 1, and-2, 4",
+      "notes": 3,
+      "tier": 2,
+      "genres": ["african", "hip_hop", "jam_band", "latin"],
+      "grid": "x.....x.....x...",
+      "hits": [
+        [0, 720],
+        [720, 720],
+        [1440, 480]
+      ],
+      "sameAs": ["mp_hiphop_3b", "mp_jamband_3b", "mp_latin_3a"]
+    },
+    {
+      "id": "mp_african_3b",
+      "name": "African 3-note: 1, 3, and-4",
+      "notes": 3,
+      "tier": 2,
+      "genres": ["african", "pop"],
+      "grid": "x.......x.....x.",
+      "hits": [
+        [0, 960],
+        [960, 720],
+        [1680, 240]
+      ],
+      "sameAs": ["mp_pop_3e"]
+    },
+    {
+      "id": "mp_electronic_3b",
+      "name": "Electronic 3-note: 1, and-2, and-3",
+      "notes": 3,
+      "tier": 2,
+      "genres": ["electronic", "latin", "reggae"],
+      "grid": "x.....x...x.....",
+      "hits": [
+        [0, 720],
+        [720, 480],
+        [1200, 720]
+      ],
+      "sameAs": ["mp_latin_3b", "mp_reggae_3c"]
+    },
+    {
+      "id": "mp_funk_3e",
+      "name": "Funk 3-note: and-1, and-2, and-3",
+      "notes": 3,
+      "tier": 2,
+      "genres": ["funk", "reggae"],
+      "grid": "..x...x...x.....",
+      "hits": [
+        [240, 480],
+        [720, 480],
+        [1200, 720]
+      ],
+      "sameAs": ["mp_reggae_3a"]
+    },
+    {
+      "id": "mp_hiphop_3c",
+      "name": "Hip-Hop 3-note: and-1, 3, and-4",
+      "notes": 3,
+      "tier": 2,
+      "genres": ["hip_hop"],
+      "grid": "..x.....x.....x.",
+      "hits": [
+        [240, 720],
+        [960, 720],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_latin_3c",
+      "name": "Latin 3-note: and-1, and-2, 4",
+      "notes": 3,
+      "tier": 2,
+      "genres": ["latin", "reggae"],
+      "grid": "..x...x.....x...",
+      "hits": [
+        [240, 480],
+        [720, 720],
+        [1440, 480]
+      ],
+      "sameAs": ["mp_reggae_3b"]
+    },
+    {
+      "id": "mp_neosoul_3b",
+      "name": "Neo Soul 3-note: and-1, 2, and-3",
+      "notes": 3,
+      "tier": 2,
+      "genres": ["neo_soul"],
+      "grid": "..x.x.....x.....",
+      "hits": [
+        [240, 240],
+        [480, 720],
+        [1200, 720]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_rnb_3b",
+      "name": "R&B 3-note: 1, 2, and-3",
+      "notes": 3,
+      "tier": 2,
+      "genres": ["rnb"],
+      "grid": "x...x.....x.....",
+      "hits": [
+        [0, 480],
+        [480, 720],
+        [1200, 720]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_rnb_3c",
+      "name": "R&B 3-note: and-1, 2, 4",
+      "notes": 3,
+      "tier": 2,
+      "genres": ["rnb"],
+      "grid": "..x.x.......x...",
+      "hits": [
+        [240, 240],
+        [480, 960],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_rock_3c",
+      "name": "Rock 3-note: and-1, 2, 3",
+      "notes": 3,
+      "tier": 2,
+      "genres": ["rock"],
+      "grid": "..x.x...x.......",
+      "hits": [
+        [240, 240],
+        [480, 480],
+        [960, 960]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_african_4a",
+      "name": "African 4-note: 1, and-1, and-2, 4",
+      "notes": 4,
+      "tier": 2,
+      "genres": ["african", "latin"],
+      "grid": "x.x...x.....x...",
+      "hits": [
+        [0, 240],
+        [240, 480],
+        [720, 720],
+        [1440, 480]
+      ],
+      "sameAs": ["mp_latin_4a"]
+    },
+    {
+      "id": "mp_african_4b",
+      "name": "African 4-note: 1, and-2, 3, and-4",
+      "notes": 4,
+      "tier": 2,
+      "genres": ["african", "hip_hop", "latin", "reggae"],
+      "grid": "x.....x.x.....x.",
+      "hits": [
+        [0, 720],
+        [720, 240],
+        [960, 720],
+        [1680, 240]
+      ],
+      "sameAs": ["mp_hiphop_4a", "mp_latin_4b", "mp_reggae_4b"]
+    },
+    {
+      "id": "mp_folk_4b",
+      "name": "Folk 4-note: 1, 2, 3, and-4",
+      "notes": 4,
+      "tier": 2,
+      "genres": ["folk", "pop"],
+      "grid": "x...x...x.....x.",
+      "hits": [
+        [0, 480],
+        [480, 480],
+        [960, 720],
+        [1680, 240]
+      ],
+      "sameAs": ["mp_pop_4d"]
+    },
+    {
+      "id": "mp_neosoul_4a",
+      "name": "Neo Soul 4-note: 1, and-1, and-2, 3",
+      "notes": 4,
+      "tier": 2,
+      "genres": ["neo_soul"],
+      "grid": "x.x...x.x.......",
+      "hits": [
+        [0, 240],
+        [240, 480],
+        [720, 240],
+        [960, 960]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_neosoul_4b",
+      "name": "Neo Soul 4-note: 1, 2, and-3, and-4",
+      "notes": 4,
+      "tier": 2,
+      "genres": ["neo_soul"],
+      "grid": "x...x.....x...x.",
+      "hits": [
+        [0, 480],
+        [480, 720],
+        [1200, 480],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_pop_4e",
+      "name": "Pop 4-note: and-1, 2, 3, 4",
+      "notes": 4,
+      "tier": 2,
+      "genres": ["pop"],
+      "grid": "..x.x...x...x...",
+      "hits": [
+        [240, 240],
+        [480, 480],
+        [960, 480],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_reggae_4a",
+      "name": "Reggae 4-note: and-1, and-2, and-3, and-4",
+      "notes": 4,
+      "tier": 2,
+      "genres": ["reggae"],
+      "grid": "..x...x...x...x.",
+      "hits": [
+        [240, 480],
+        [720, 480],
+        [1200, 480],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_african_5a",
+      "name": "African 5-note: 1, and-1, and-2, 3, 4",
+      "notes": 5,
+      "tier": 2,
+      "genres": ["african", "hip_hop"],
+      "grid": "x.x...x.x...x...",
+      "hits": [
+        [0, 240],
+        [240, 480],
+        [720, 240],
+        [960, 480],
+        [1440, 480]
+      ],
+      "sameAs": ["mp_hiphop_5a"]
+    },
+    {
+      "id": "mp_latin_5a",
+      "name": "Latin 5-note: 1, and-1, and-2, 3, and-4",
+      "notes": 5,
+      "tier": 2,
+      "genres": ["latin"],
+      "grid": "x.x...x.x.....x.",
+      "hits": [
+        [0, 240],
+        [240, 480],
+        [720, 240],
+        [960, 720],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_latin_5b",
+      "name": "Latin 5-note: 1, and-2, and-3, 4, and-4",
+      "notes": 5,
+      "tier": 2,
+      "genres": ["latin"],
+      "grid": "x.....x...x.x.x.",
+      "hits": [
+        [0, 720],
+        [720, 480],
+        [1200, 240],
+        [1440, 240],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_pop_5d",
+      "name": "Pop 5-note: 1, 2, 3, 4, and-4",
+      "notes": 5,
+      "tier": 2,
+      "genres": ["pop"],
+      "grid": "x...x...x...x.x.",
+      "hits": [
+        [0, 480],
+        [480, 480],
+        [960, 480],
+        [1440, 240],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_reggae_5a",
+      "name": "Reggae 5-note: and-1, 2, and-2, and-3, 4",
+      "notes": 5,
+      "tier": 2,
+      "genres": ["reggae"],
+      "grid": "..x.x.x...x.x...",
+      "hits": [
+        [240, 240],
+        [480, 240],
+        [720, 480],
+        [1200, 240],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_funk_3a",
+      "name": "Funk 3-note: 1, a-of-1, and-2",
+      "notes": 3,
+      "tier": 3,
+      "genres": ["funk"],
+      "grid": "x..x..x.........",
+      "hits": [
+        [0, 360],
+        [360, 360],
+        [720, 1200]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_funk_3c",
+      "name": "Funk 3-note: 1, and-2, a-of-3",
+      "notes": 3,
+      "tier": 3,
+      "genres": ["funk"],
+      "grid": "x.....x....x....",
+      "hits": [
+        [0, 720],
+        [720, 600],
+        [1320, 600]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_funk_4a",
+      "name": "Funk 4-note: 1, e-of-2, and-3, 4",
+      "notes": 4,
+      "tier": 3,
+      "genres": ["funk"],
+      "grid": "x....x....x.x...",
+      "hits": [
+        [0, 600],
+        [600, 600],
+        [1200, 240],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_funk_4b",
+      "name": "Funk 4-note: 1, a-of-1, 2, and-3",
+      "notes": 4,
+      "tier": 3,
+      "genres": ["funk"],
+      "grid": "x..xx.....x.....",
+      "hits": [
+        [0, 360],
+        [360, 120],
+        [480, 720],
+        [1200, 720]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_electronic_5a",
+      "name": "Electronic 5-note: 1, e-of-1, and-1, 2, 3",
+      "notes": 5,
+      "tier": 3,
+      "genres": ["electronic"],
+      "grid": "xxx.x...x.......",
+      "hits": [
+        [0, 120],
+        [120, 120],
+        [240, 240],
+        [480, 480],
+        [960, 960]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_funk_5b",
+      "name": "Funk 5-note: 1, a-of-1, 2, and-3, 4",
+      "notes": 5,
+      "tier": 3,
+      "genres": ["funk"],
+      "grid": "x..xx.....x.x...",
+      "hits": [
+        [0, 360],
+        [360, 120],
+        [480, 720],
+        [1200, 240],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_funk_3b",
+      "name": "Funk 3-note: e-of-1, and-2, 4",
+      "notes": 3,
+      "tier": 4,
+      "genres": ["funk"],
+      "grid": ".x....x.....x...",
+      "hits": [
+        [120, 600],
+        [720, 720],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_funk_3d",
+      "name": "Funk 3-note: a-of-1, a-of-2, 3",
+      "notes": 3,
+      "tier": 4,
+      "genres": ["funk"],
+      "grid": "...x...xx.......",
+      "hits": [
+        [360, 480],
+        [840, 120],
+        [960, 960]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_funk_4c",
+      "name": "Funk 4-note: and-1, 2, a-of-3, 4",
+      "notes": 4,
+      "tier": 4,
+      "genres": ["funk"],
+      "grid": "..x.x......xx...",
+      "hits": [
+        [240, 240],
+        [480, 840],
+        [1320, 120],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_funk_4d",
+      "name": "Funk 4-note: e-of-1, and-2, e-of-3, 4",
+      "notes": 4,
+      "tier": 4,
+      "genres": ["funk"],
+      "grid": ".x....x..x..x...",
+      "hits": [
+        [120, 600],
+        [720, 360],
+        [1080, 360],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_funk_5a",
+      "name": "Funk 5-note: 1, e-of-1, and-2, 3, a-of-3",
+      "notes": 5,
+      "tier": 4,
+      "genres": ["funk"],
+      "grid": "xx....x.x..x....",
+      "hits": [
+        [0, 120],
+        [120, 600],
+        [720, 240],
+        [960, 360],
+        [1320, 600]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "mp_funk_5c",
+      "name": "Funk 5-note: and-1, 2, e-of-2, a-of-3, 4",
+      "notes": 5,
+      "tier": 4,
+      "genres": ["funk"],
+      "grid": "..x.xx.....xx...",
+      "hits": [
+        [240, 240],
+        [480, 120],
+        [600, 720],
+        [1320, 120],
+        [1440, 480]
+      ],
+      "sameAs": []
+    }
+  ],
+  "leftOut": [
+    {
+      "id": "mp_blues_3a",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_blues_3b",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_blues_3c",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_blues_3d",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_blues_4a",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_blues_4b",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_blues_4c",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_blues_4d",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_blues_5a",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_blues_5b",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_funk_pattern_2a",
+      "why": "2 bars of 13 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_funk_pattern_3",
+      "why": "2 bars of 14 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_funk_pattern_3b",
+      "why": "2 bars of 14 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_funk_pattern_4",
+      "why": "2 bars of 14 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_funk_pattern_3c",
+      "why": "2 bars of 15 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_funk_pattern_1",
+      "why": "2 bars of 16 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_funk_pattern_2",
+      "why": "2 bars of 16 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_funk_pattern_3a",
+      "why": "2 bars of 17 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_funk_pattern_5",
+      "why": "2 bars of 17 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_sixteenth_note_chunking",
+      "why": "2 bars of 13 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jam_band_pattern_2",
+      "why": "2 bars of 11 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jam_band_pattern_1b",
+      "why": "2 bars of 14 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jam_band_pattern_1",
+      "why": "2 bars of 16 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jam_band_pattern_3_latin",
+      "why": "2 bars of 16 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jam_band_pattern_3a_latin",
+      "why": "2 bars of 16 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jam_band_pattern_1a",
+      "why": "2 bars of 17 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_3a",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_3b",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_3c",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_3d",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_3e",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_4a",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_4b",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_4c",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_4d",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_4e",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_5a",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_5b",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_5c",
+      "why": "triplets or shuffle: not the straight 16th grid"
+    },
+    {
+      "id": "mp_jazz_pattern_2b",
+      "why": "2 bars of 8 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_6",
+      "why": "2 bars of 8 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_4",
+      "why": "2 bars of 9 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_1",
+      "why": "2 bars of 10 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_3",
+      "why": "2 bars of 10 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_5",
+      "why": "2 bars of 11 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_1b",
+      "why": "2 bars of 12 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_2a",
+      "why": "2 bars of 12 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_1a",
+      "why": "2 bars of 13 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_2",
+      "why": "2 bars of 14 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_5a",
+      "why": "2 bars of 15 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_6b",
+      "why": "2 bars of 17 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_7",
+      "why": "2 bars of 22 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_7a",
+      "why": "2 bars of 22 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_jazz_pattern_6a",
+      "why": "2 bars of 23 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_bossa_pattern_1",
+      "why": "2 bars of 13 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_samba_pattern_1",
+      "why": "2 bars of 20 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_quarter_note_3_3_2_pattern",
+      "why": "2 bars of 6 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_eighth_note_3_3_2_pattern",
+      "why": "2 bars of 16 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_3_3_3_3_2_2_pattern",
+      "why": "2 bars of 18 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_quarter_note_chunking",
+      "why": "2 bars of 13 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_staccatto_eighth_note_chunking",
+      "why": "2 bars of 13 notes: a call is one contour, three to five notes"
+    },
+    {
+      "id": "mp_eighth_note_chunking",
+      "why": "2 bars of 22 notes: a call is one contour, three to five notes"
+    }
+  ]
+}

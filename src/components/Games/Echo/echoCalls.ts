@@ -3,7 +3,6 @@ import {
   chordCall,
   contoursOfLevel,
   echoLevel,
-  echoTonic,
   melodyCall,
   pickOne,
   type EchoCall,
@@ -19,11 +18,12 @@ import type { LiteracyKey } from '@/curriculum/engine/musicLiteracy/pitch';
 //
 // AFTER A MISS, THE NEXT CALL IS EASIER (a choice the play screens made)
 //   melody   a three-note contour from Level 1's starter set (the easiest
-//            set, and its shortest shapes: 1 2 3, 3 2 1, 1 2 1, 1 7 1), on
-//            the 1, in Level 1's rhythms (quarters and eighths). Placed in
-//            the level's own register, so a pad still plays what Atlas did.
+//            set, and its shortest shapes: 1 2 3, 3 2 1, 1 2 1, 2 1 2), on
+//            the 1, in Level 1's rhythms (quarters and eighths from beat
+//            1). Every level plays in one register, so a pad still plays
+//            what Atlas did.
 //   chords   home to the 1 chord and out to the 4 or the 5 (the 1 and its
-//            nearest neighbours), in Level 1's rhythms.
+//            nearest neighbors), in Level 1's rhythms (on the beats).
 // Only the one call after a miss: a good echo brings the level's own calls
 // back. The Final Boss is never made easier; its four calls are its own.
 
@@ -48,7 +48,7 @@ export interface RoundCallOptions {
   tempo?: number;
 }
 
-/** An easier melody call at `level`: Level 1's, in the level's register. */
+/** An easier melody call at `level`: Level 1's. */
 function easierMelody(
   level: EchoLevelNumber,
   key: LiteracyKey,
@@ -59,19 +59,9 @@ function easierMelody(
   const pool = easiestContours();
   const fresh = pool.filter((c) => !exclude.includes(c.id));
   const contour = pickOne(rng, fresh.length ? fresh : pool);
-  const call = melodyCall(1, key, rng, {
-    contourId: contour.id,
-    zeroPoint: 1,
-    tempo,
-  });
-  // A level's 1 can sit an octave from Level 1's (D and D♭ do): move the
-  // call there, so it lands on the level's pads and keys.
-  const shift = echoTonic(level, key) - call.tonic;
   return {
-    ...call,
+    ...melodyCall(1, key, rng, { contourId: contour.id, zeroPoint: 1, tempo }),
     level,
-    tonic: call.tonic + shift,
-    notes: call.notes.map((note) => ({ ...note, midi: note.midi + shift })),
   };
 }
 

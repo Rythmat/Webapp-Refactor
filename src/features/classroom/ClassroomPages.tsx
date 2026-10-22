@@ -359,12 +359,10 @@ export const gamesPages = () => {
         ),
       },
       {
+        // Free to play its levels (Peter, 2026-10-21); the Circle, any key
+        // at all, is what upgrading opens, inside the game.
         path: GameRoutes.majorArcanum.definition,
-        element: (
-          <RequirePremium>
-            <MajorArcanumPage />
-          </RequirePremium>
-        ),
+        element: <MajorArcanumPage />,
       },
       {
         path: GameRoutes.constellations.definition,

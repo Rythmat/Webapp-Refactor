@@ -139,6 +139,8 @@ export const FREE_GAME_ROUTES = new Set<string>([
   'boardChoice',
   'chordConnection',
   'harmonicStrings',
+  // Its levels are free; the Circle (any key) is the upgrade, in the game.
+  'majorArcanum',
 ]);
 
 export const isGameFree = (game: ArcadeGame): boolean =>

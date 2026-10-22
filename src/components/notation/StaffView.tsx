@@ -569,7 +569,9 @@ function buildMeasure(
       beams.push(
         ...vf.Beam.generateBeams(beamable, {
           groups: [beamGroup],
-          maintainStemDirections: twoVoices,
+          // A drum staff keeps its stems as drumStem set them, hands up even
+          // in a bar only the hands play; beaming must not flip them.
+          maintainStemDirections: twoVoices || staff === 'percussion',
         }),
       );
     }

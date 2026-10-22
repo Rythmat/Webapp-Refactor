@@ -44,6 +44,8 @@ export interface NavigatorWithMIDI {
 
 export interface Note {
   time: number;
+  /** The phrase it belongs to: a streak is phrases played without a miss. */
+  phrase: number;
   midi: number;
   hit: boolean;
   missed: boolean;
@@ -76,6 +78,12 @@ export interface KeyGeometry {
   isBlack: boolean;
 }
 
+/** A chord's symbol, from the moment its bar starts. */
+export interface ChordLabel {
+  time: number;
+  symbol: string;
+}
+
 export interface GameState {
   isPlaying: boolean;
   isCountingIn: boolean;
@@ -90,11 +98,16 @@ export interface GameState {
   currentKeyColor: string;
   keyRootVal: number;
   keyboardMapping: Record<string, number>;
+  /** Note → the computer key that plays it, drawn on the keys. */
+  keyLabels: Record<number, string>;
+  /** The keys drawn: from a C, so many white keys. */
+  display: { low: number; whiteKeys: number };
+  chordLabels: ChordLabel[];
   canvasWidth: number;
   canvasHeight: number;
   lastBeatScheduled: number;
   metronomeEnabled: boolean;
-  gameMode: 'Melody' | 'Harmony';
+  gameMode: 'melody' | 'chords';
   bpm: number;
   totalNotes: number;
   hits: number;
@@ -106,7 +119,6 @@ export interface GameState {
   isPaused: boolean;
   pauseStartTime: number;
   totalPausedDuration: number;
-  difficulty: number;
 }
 
 export interface OscillatorEntry {

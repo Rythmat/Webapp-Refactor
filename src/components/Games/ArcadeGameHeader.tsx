@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Fragment, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GameRoutes } from '@/constants/routes';
+import { StreakStrip } from './scoring/ArcadeStreak';
 
 /**
  * Decorative hexagon + colour-wash pattern painted behind every arcade game
@@ -72,6 +73,7 @@ interface ArcadeGameHeaderProps {
  * `h-28` hexagon-backed title bar first built for Major Arcanum. Every arcade
  * game renders one of these at the top of its window so the chrome is
  * consistent, with the game's HUD controls and status displays held on the bar.
+ * Under the bar, the streak strip, when the game's page counts a streak.
  */
 export function ArcadeGameHeader({
   title,
@@ -82,62 +84,65 @@ export function ArcadeGameHeader({
 }: ArcadeGameHeaderProps) {
   const navigate = useNavigate();
   return (
-    <div className="relative flex h-28 w-full shrink-0 items-center justify-center overflow-hidden border-b border-zinc-800 px-8">
-      <div className="absolute inset-0 bg-[#18181b]">
-        <ArcadeHeaderPattern />
-      </div>
-
-      <div className="absolute left-8 top-1/2 z-10 -translate-y-1/2">
-        {left ?? (
-          <button
-            onClick={() => navigate(GameRoutes.root())}
-            className="flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-white"
-          >
-            <ArrowLeft size={16} />
-            Back to Arcade
-          </button>
-        )}
-      </div>
-
-      <div className="relative z-10 flex flex-col items-center text-center">
-        <h1 className="text-5xl leading-[1.1] tracking-[-0.02em] text-white">
-          {title}
-        </h1>
-        {controls && (
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-            {controls}
-          </div>
-        )}
-      </div>
-
-      {right ? (
-        <div className="absolute right-8 top-1/2 z-10 -translate-y-1/2">
-          {right}
+    <>
+      <div className="relative flex h-28 w-full shrink-0 items-center justify-center overflow-hidden border-b border-zinc-800 px-8">
+        <div className="absolute inset-0 bg-[#18181b]">
+          <ArcadeHeaderPattern />
         </div>
-      ) : (
-        stats &&
-        stats.length > 0 && (
-          <div className="absolute right-8 top-1/2 z-10 flex -translate-y-1/2 items-center gap-8 rounded-xl border border-white/5 bg-black/20 px-6 py-3 backdrop-blur-sm">
-            {stats.map((s, i) => (
-              <Fragment key={s.label}>
-                {i > 0 && <div className="h-8 w-px bg-white/10" />}
-                <div className="flex flex-col items-end">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-                    {s.label}
-                  </span>
-                  <span
-                    className={`text-xl font-medium tabular-nums ${
-                      s.valueClassName ?? 'text-white'
-                    }`}
-                  >
-                    {s.value}
-                  </span>
-                </div>
-              </Fragment>
-            ))}
+
+        <div className="absolute left-8 top-1/2 z-10 -translate-y-1/2">
+          {left ?? (
+            <button
+              onClick={() => navigate(GameRoutes.root())}
+              className="flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-white"
+            >
+              <ArrowLeft size={16} />
+              Back to Arcade
+            </button>
+          )}
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center text-center">
+          <h1 className="text-5xl leading-[1.1] tracking-[-0.02em] text-white">
+            {title}
+          </h1>
+          {controls && (
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+              {controls}
+            </div>
+          )}
+        </div>
+
+        {right ? (
+          <div className="absolute right-8 top-1/2 z-10 -translate-y-1/2">
+            {right}
           </div>
-        )
-      )}
-    </div>
+        ) : (
+          stats &&
+          stats.length > 0 && (
+            <div className="absolute right-8 top-1/2 z-10 flex -translate-y-1/2 items-center gap-8 rounded-xl border border-white/5 bg-black/20 px-6 py-3 backdrop-blur-sm">
+              {stats.map((s, i) => (
+                <Fragment key={s.label}>
+                  {i > 0 && <div className="h-8 w-px bg-white/10" />}
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                      {s.label}
+                    </span>
+                    <span
+                      className={`text-xl font-medium tabular-nums ${
+                        s.valueClassName ?? 'text-white'
+                      }`}
+                    >
+                      {s.value}
+                    </span>
+                  </div>
+                </Fragment>
+              ))}
+            </div>
+          )
+        )}
+      </div>
+      <StreakStrip />
+    </>
   );
 }

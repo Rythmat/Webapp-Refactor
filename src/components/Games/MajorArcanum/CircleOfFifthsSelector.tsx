@@ -1,4 +1,6 @@
-import { FIFTHS_ORDER, ROOTS, KEY_COLORS } from './constants';
+import { formatNoteName } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
+import { FIFTHS_ORDER, ROOTS } from './constants';
+import { keyLook } from './keyMapping';
 
 interface CircleOfFifthsSelectorProps {
   onSelect: (rootVal: number) => void;
@@ -59,7 +61,7 @@ export function CircleOfFifthsSelector({
             `;
 
             const isSelected = currentRoot === rootVal;
-            const color = KEY_COLORS[rootVal];
+            const color = keyLook(rootVal).keyColor;
             const labelPos = getCoordinatesForAngle(
               sliceCenterAngle,
               (outerRadius + innerRadius) / 2,
@@ -90,7 +92,7 @@ export function CircleOfFifthsSelector({
                   dominantBaseline="middle"
                   className="pointer-events-none select-none drop-shadow-md"
                 >
-                  {root.name}
+                  {formatNoteName(root.name)}
                 </text>
               </g>
             );

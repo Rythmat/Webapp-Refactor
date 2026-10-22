@@ -1,7 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, ArrowLeft, ArrowRight, GraduationCap } from 'lucide-react';
-import type { TutorialStepStatus } from '@/daw/store/tutorialSlice';
+import {
+  X,
+  ArrowLeft,
+  ArrowRight,
+  Eye,
+  GraduationCap,
+  RotateCcw,
+} from 'lucide-react';
+import type {
+  TutorialDemoPhase,
+  TutorialStepStatus,
+} from '@/daw/store/tutorialSlice';
 import {
   type AnchorRack,
   type Rect,
@@ -10,6 +20,7 @@ import {
   idsOf,
   subscribeAnchorRect,
 } from './anchorRegistry';
+import { openOverlayRects, placeCard } from './cardPlacement';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
 // ── CoachCard ───────────────────────────────────────────────────────────────
@@ -18,6 +29,12 @@ import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 // instruction, a Waiting… status on validated steps, and Back / Next / Quit.
 // It dynamically anchors itself clear of the spotlighted region so it never
 // obstructs the highlighted control.
+//
+// A step with a demo (TutorialStep.demo) has two states: "Watch" while the
+// demo plays, with Skip and the demo's caption read out, then "Your turn",
+// with the instruction and "Show me again". A step without one shows as it
+// always has. A course lesson says where it is in its course ("Lesson 3 of
+// 9").
 
 interface CoachCardProps {
   title: string;
@@ -36,6 +53,21 @@ interface CoachCardProps {
   onBack: () => void;
   onNext: () => void;
   onQuit: () => void;
+  /** The step's demo, when it has one. */
+  demo?: {
+    phase: TutorialDemoPhase;
+    /** The caption on screen while it plays. */
+    caption: string | null;
+    onSkip: () => void;
+    onReplay: () => void;
+  };
+  /** A course lesson's place in its course: "Lesson 3 of 9". */
+  lessonPlace?: string;
+  /**
+   * Room kept clear all around the target, past its own box: while a demo
+   * plays, its callout sits beside the cursor on the target.
+   */
+  clearance?: number;
 }
 
 const CARD_WIDTH = 380;
@@ -153,8 +185,12 @@ export function CoachCard({
   onBack,
   onNext,
   onQuit,
+  demo,
+  lessonPlace,
+  clearance = 0,
 }: CoachCardProps) {
   const done = status === 'done';
+  const watching = demo?.phase === 'watch';
   const progress = total > 0 ? (stepIndex + (done ? 1 : 0)) / total : 0;
   const nextDisabled = isValidated && !done;
 
@@ -177,14 +213,50 @@ export function CoachCard({
   const targetRect = useRef<Rect | null>(null);
   const key = anchorKey(target, rack);
   useEffect(() => {
+    // An open overlay that grows or moves (a sheet sliding in, a menu's
+    // submenu) re-places the card too.
+    const overlayRo =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(() => recompute())
+        : null;
+    const watched = new Set<Element>();
+    const watchOverlays = () => {
+      if (!overlayRo) return;
+      watched.forEach((el) => {
+        if (el.isConnected) return;
+        overlayRo.unobserve(el);
+        watched.delete(el);
+      });
+      document
+        .querySelectorAll('[role="dialog"],[role="menu"],[role="listbox"]')
+        .forEach((el) => {
+          if (watched.has(el) || el.closest('[data-tutorial-layer]')) return;
+          watched.add(el);
+          overlayRo.observe(el);
+        });
+    };
     const recompute = () => {
       const box = cardRef.current?.getBoundingClientRect();
-      const next = computeCardPos(
-        targetRect.current,
-        box?.width || CARD_WIDTH,
-        box?.height || 220,
-        window.innerWidth,
-        window.innerHeight,
+      const r = targetRect.current;
+      const kept =
+        r && clearance
+          ? {
+              top: r.top - clearance,
+              left: r.left - clearance,
+              width: r.width + clearance * 2,
+              height: r.height + clearance * 2,
+            }
+          : r;
+      const card = { w: box?.width || CARD_WIDTH, h: box?.height || 220 };
+      const view = { w: window.innerWidth, h: window.innerHeight };
+      const overlays = openOverlayRects(document, view);
+      watchOverlays();
+      const next = placeCard(
+        computeCardPos(kept, card.w, card.h, view.w, view.h),
+        card,
+        view,
+        kept,
+        overlays,
       );
       setPos((prev) =>
         Math.abs(prev.top - next.top) < 4 && Math.abs(prev.left - next.left) < 4
@@ -213,14 +285,37 @@ export function CoachCard({
         : null;
     if (card) ro?.observe(card);
     window.addEventListener('resize', recompute);
+    // Menus, sheets and dialogs open in portals on <body>: re-place when one
+    // comes or goes, on the next frame and again once its opening animation
+    // has settled.
+    let frame = 0;
+    let settle = 0;
+    const soon = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        recompute();
+      });
+      window.clearTimeout(settle);
+      settle = window.setTimeout(recompute, 320);
+    };
+    const mo =
+      typeof MutationObserver !== 'undefined'
+        ? new MutationObserver(soon)
+        : null;
+    mo?.observe(document.body, { childList: true });
     return () => {
       unsubscribe();
       ro?.disconnect();
+      mo?.disconnect();
+      overlayRo?.disconnect();
+      cancelAnimationFrame(frame);
+      window.clearTimeout(settle);
       window.removeEventListener('resize', recompute);
     };
     // `key` is the value-stable form of `target` + `rack`.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, clearance]);
 
   return (
     <motion.div
@@ -271,6 +366,18 @@ export function CoachCard({
         >
           {title}
         </span>
+        {lessonPlace && (
+          <span
+            data-testid="tutorial-lesson-place"
+            style={{
+              fontSize: 12,
+              color: 'var(--daw-text-3)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {lessonPlace}
+          </span>
+        )}
         <div style={{ flex: 1 }} />
         <span style={{ fontSize: 12, color: 'var(--daw-text-3)' }}>
           {stepIndex + 1} / {total}
@@ -308,96 +415,156 @@ export function CoachCard({
       </div>
 
       {/* Body */}
-      <div style={{ padding: '12px 14px' }}>
-        <div
-          style={{
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: 1,
-            textTransform: 'uppercase',
-            color: 'var(--daw-accent)',
-            marginBottom: 7,
-          }}
-        >
-          {stage}
-        </div>
-        <p
-          style={{
-            fontSize: 15,
-            lineHeight: 1.5,
-            color: '#fff',
-            margin: 0,
-          }}
-        >
-          <Rich text={instruction} />
-        </p>
-        {hint && (
-          <p
-            style={{
-              fontSize: 13,
-              color: 'var(--daw-text)',
-              opacity: 0.85,
-              margin: '7px 0 0',
-            }}
-          >
-            {hint}
-          </p>
-        )}
-
-        {isValidated && (
+      {watching ? (
+        <div style={{ padding: '12px 14px' }} data-demo-phase="watch">
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              marginTop: 12,
-              fontSize: 13,
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: 1,
+              textTransform: 'uppercase',
+              color: 'var(--daw-accent)',
+              marginBottom: 7,
             }}
           >
-            {done ? (
-              <span style={{ color: 'var(--daw-accent)', fontWeight: 700 }}>
-                ✓ Nice!
-              </span>
-            ) : (
-              <>
-                <span
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: '50%',
-                    background: 'var(--daw-accent)',
-                    animation: reducedMotion
-                      ? 'none'
-                      : 'tutorialDot 1.1s ease-in-out infinite',
-                  }}
-                />
-                <span style={{ color: 'var(--daw-text)' }}>
-                  Waiting for your move…
-                </span>
-              </>
-            )}
+            <Eye size={14} aria-hidden />
+            Watch
           </div>
-        )}
-      </div>
+          <p
+            style={{
+              fontSize: 15,
+              lineHeight: 1.5,
+              color: 'var(--daw-text)',
+              margin: 0,
+            }}
+          >
+            Watch first, then it’s your turn.
+          </p>
+          <p
+            aria-live="polite"
+            data-testid="tutorial-demo-caption"
+            style={{
+              fontSize: 13,
+              color: 'var(--daw-text-2)',
+              margin: '7px 0 0',
+              minHeight: 20,
+            }}
+          >
+            {demo?.caption ? <Rich text={demo.caption} /> : null}
+          </p>
+        </div>
+      ) : (
+        <div
+          style={{ padding: '12px 14px' }}
+          data-demo-phase={demo ? 'turn' : undefined}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: 1,
+              textTransform: 'uppercase',
+              color: 'var(--daw-accent)',
+              marginBottom: 7,
+            }}
+          >
+            {demo ? `Your turn · ${stage}` : stage}
+          </div>
+          <p
+            style={{
+              fontSize: 15,
+              lineHeight: 1.5,
+              color: '#fff',
+              margin: 0,
+            }}
+          >
+            <Rich text={instruction} />
+          </p>
+          {hint && (
+            <p
+              style={{
+                fontSize: 13,
+                color: 'var(--daw-text)',
+                opacity: 0.85,
+                margin: '7px 0 0',
+              }}
+            >
+              <Rich text={hint} />
+            </p>
+          )}
+
+          {isValidated && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                marginTop: 12,
+                fontSize: 13,
+              }}
+            >
+              {done ? (
+                <span style={{ color: 'var(--daw-accent)', fontWeight: 700 }}>
+                  ✓ Nice!
+                </span>
+              ) : (
+                <>
+                  <span
+                    style={{
+                      width: 7,
+                      height: 7,
+                      borderRadius: '50%',
+                      background: 'var(--daw-accent)',
+                      animation: reducedMotion
+                        ? 'none'
+                        : 'tutorialDot 1.1s ease-in-out infinite',
+                    }}
+                  />
+                  <span style={{ color: 'var(--daw-text)' }}>
+                    Waiting for your move…
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Controls */}
-      <div style={{ display: 'flex', gap: 6, padding: '4px 14px 14px' }}>
-        <button
-          onClick={onBack}
-          disabled={stepIndex === 0}
-          style={ctrlBtn(stepIndex === 0)}
-        >
-          <ArrowLeft size={15} /> Back
-        </button>
-        <div style={{ flex: 1 }} />
-        <button
-          onClick={onNext}
-          disabled={nextDisabled}
-          style={primaryBtn(nextDisabled)}
-        >
-          {isLast ? 'Finish' : 'Next'} <ArrowRight size={15} />
-        </button>
-      </div>
+      {watching ? (
+        <div style={{ display: 'flex', gap: 6, padding: '4px 14px 14px' }}>
+          <div style={{ flex: 1 }} />
+          <button onClick={demo?.onSkip} style={primaryBtn(false)}>
+            Skip <ArrowRight size={15} />
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', gap: 6, padding: '4px 14px 14px' }}>
+          <button
+            onClick={onBack}
+            disabled={stepIndex === 0}
+            style={ctrlBtn(stepIndex === 0)}
+          >
+            <ArrowLeft size={15} /> Back
+          </button>
+          <div style={{ flex: 1 }} />
+          {demo && (
+            <button onClick={demo.onReplay} style={ctrlBtn(false)}>
+              <RotateCcw size={14} /> Show me again
+            </button>
+          )}
+          <button
+            onClick={onNext}
+            disabled={nextDisabled}
+            style={primaryBtn(nextDisabled)}
+          >
+            {isLast ? 'Finish' : 'Next'} <ArrowRight size={15} />
+          </button>
+        </div>
+      )}
     </motion.div>
   );
 }

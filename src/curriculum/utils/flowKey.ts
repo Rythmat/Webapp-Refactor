@@ -104,6 +104,23 @@ export function flowMode(flow: ActivityFlowV2): string {
   return modeForScaleId(flow.params.defaultScaleId);
 }
 
+/**
+ * Scales the Atlas colors as a family of their own rather than as the mode
+ * they're spelled in (`colorForKeyMode` knows them by these names).
+ */
+const SCALE_COLOR_MODE: Record<string, string> = {
+  harmonic_minor: 'harmonicMinor',
+  melodic_minor: 'melodicMinor',
+};
+
+/**
+ * What a scale id is colored as: E harmonic minor in the harmonic minor's
+ * own color, spelled in E Aeolian; anything else in its mode's.
+ */
+export function scaleColorMode(scaleId: string | undefined): string {
+  return SCALE_COLOR_MODE[scaleId ?? ''] ?? modeForScaleId(scaleId);
+}
+
 // ── A step's own key ─────────────────────────────────────────────────────────
 
 /**
@@ -125,11 +142,13 @@ export function stepKeyRoot(flow: ActivityFlowV2, step: KeyedStep): number {
 
 /**
  * The mode a step is coloured and spelled in: its scale's, else what its own
- * key says (major → Ionian, minor → Aeolian), else its flow's.
+ * key says (major → Ionian, minor → Aeolian), else its flow's. A level can
+ * teach more than one scale in its key, each step naming its own: Hip Hop L3
+ * is in E Phrygian, and its E Dorian and E harmonic minor steps say so.
  */
 export function stepMode(flow: ActivityFlowV2, step: KeyedStep): string {
+  if (step?.scaleId) return modeForScaleId(step.scaleId);
   if (!step?.key) return flowMode(flow);
-  if (step.scaleId) return modeForScaleId(step.scaleId);
   if (/major/i.test(step.key)) return 'ionian';
   if (/minor/i.test(step.key)) return 'aeolian';
   return flowMode(flow);

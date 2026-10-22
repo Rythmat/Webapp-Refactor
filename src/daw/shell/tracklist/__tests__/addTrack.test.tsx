@@ -11,8 +11,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // ── Adding tracks: the picker and an empty project's tiles (2.6, 2.14) ─────
 // The Add-track picker is a dialog in two steps. Its first step is eight
 // category tiles, each with an About line, in a grid that wraps
-// (timeline-27); a one-choice category adds its track at once, and Keys,
-// Drums and the amp open a second step with their choices and a way back.
+// (timeline-27); a one-choice category adds its track at once, Keys, Drums
+// and the amp open a second step with their choices, and Instruments opens
+// the simple instrument picker (families, then the instrument), each with a
+// way back.
 // It starts on its first tile and closes on Escape on either step, and the
 // next open starts on the categories. Its Import chip opens a file picker and
 // never makes an empty track (fx-mixer-24); its library chip shows the
@@ -87,7 +89,6 @@ describe('the Add-track picker: categories', () => {
   it.each([
     ['bass-electric', 'midi', 'bass-electric', 'Bass'],
     ['synth', 'midi', 'oracle-synth', 'Synth'],
-    ['soundfont', 'midi', 'soundfont', 'Instruments'],
     ['sampler', 'midi', 'sampler', 'Sampler'],
     ['vocal-fx', 'audio', 'vocal-fx', 'Voice'],
   ] as const)(
@@ -202,6 +203,69 @@ describe('the Add-track picker: second step', () => {
       expect(s().channelStripTab).toBe('controls');
     },
   );
+
+  it('Instruments opens the simple picker, on its first family', () => {
+    openPicker();
+    fireEvent.click(tile('soundfont'));
+    expect(s().tracks).toHaveLength(0);
+    expect(dialog().getAttribute('data-step')).toBe('instruments');
+    const picker = dialog().querySelector(
+      '[data-tutorial-id="add-track-instrument-picker"]',
+    );
+    expect(picker).not.toBeNull();
+    // Named by the step's heading; every family, the drums' kits included.
+    expect(screen.getByRole('group', { name: 'Instruments' })).toHaveAttribute(
+      'data-tutorial-id',
+      'instrument-picker',
+    );
+    const families = screen.getAllByRole('tab').map((t) => t.textContent);
+    expect(families[0]).toBe('Piano');
+    expect(families).toContain('Drums');
+    expect(dialog().textContent).not.toMatch(/oracle/i);
+    expect(document.activeElement).toBe(screen.getAllByRole('tab')[0]);
+  });
+
+  it('adds the instrument picked: named after it, selected, on Instrument', () => {
+    openPicker();
+    fireEvent.click(tile('soundfont'));
+    // Radix tabs choose on mouse down.
+    fireEvent.mouseDown(screen.getByRole('tab', { name: 'Woodwinds' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Flute' }));
+    expect(s().tracks).toHaveLength(1);
+    const track = s().tracks[0];
+    expect(track).toMatchObject({
+      type: 'midi',
+      instrument: 'soundfont',
+      gmProgram: 73,
+      name: 'Flute',
+    });
+    expect(s().selectedTrackId).toBe(track.id);
+    expect(s().channelStripTab).toBe('controls');
+    expect(useAddTrackSheet.getState().open).toBe(false);
+  });
+
+  it('leaves the dock to a running lesson, and stays open at the track limit', () => {
+    useStore.setState({ activeTutorialId: 'make-first-track' });
+    openPicker();
+    fireEvent.click(tile('soundfont'));
+    fireEvent.click(screen.getByRole('button', { name: 'Grand Piano' }));
+    expect(s().tracks.map((t) => t.instrument)).toEqual(['piano-sampler']);
+    expect(s().channelStripTab).toBeNull();
+
+    useStore.setState({ addTrack: () => '' });
+    act(openAddTrackSheet);
+    fireEvent.click(tile('soundfont'));
+    fireEvent.click(screen.getByRole('button', { name: 'Grand Piano' }));
+    expect(useAddTrackSheet.getState().open).toBe(true);
+  });
+
+  it('goes back from the picker to all tracks, focused on Instruments', () => {
+    openPicker();
+    fireEvent.click(tile('soundfont'));
+    fireEvent.click(screen.getByRole('button', { name: 'Back to all tracks' }));
+    expect(dialog().getAttribute('data-step')).toBe('categories');
+    expect(document.activeElement).toBe(tile('soundfont'));
+  });
 
   it('goes back to all tracks, focused on the category it came from', () => {
     openPicker();

@@ -55,6 +55,11 @@ function renderAt(url: string, instrument: LearnInstrument) {
 }
 
 const location = () => screen.getByTestId('location').textContent;
+/** The sub-tabs' names, in order. */
+const tabNames = () =>
+  screen
+    .getAllByRole('link', { name: /^Open / })
+    .map((link) => link.getAttribute('aria-label')!.replace(/^Open /, ''));
 const pick = (name: 'Piano' | 'Guitar') =>
   fireEvent.click(screen.getByRole('menuitem', { name: new RegExp(name) }));
 
@@ -64,31 +69,50 @@ describe('LearnTabBar', () => {
     useInstrumentStore.setState({ instrument: 'piano', leftHanded: false });
   });
 
-  it('shows all five tabs on piano', () => {
+  it('shows all six tabs on piano, Start Here first', () => {
     renderAt('/learn?tab=Theory', 'piano');
-    for (const name of [
+    expect(tabNames()).toEqual([
+      'Start Here',
       'Songs',
       'Genre',
       'Theory',
       'Technique',
       'World Harmony',
-    ]) {
-      expect(
-        screen.getByRole('link', { name: `Open ${name}` }),
-      ).toBeInTheDocument();
-    }
+    ]);
+    expect(
+      screen
+        .getByRole('link', { name: 'Open Start Here' })
+        .getAttribute('href'),
+    ).toBe('/learn?tab=StartHere');
   });
 
-  it('hides Technique on guitar', () => {
+  it('hides Technique on guitar, and keeps Start Here first', () => {
     renderAt('/learn?tab=Theory', 'guitar');
+    expect(tabNames()).toEqual([
+      'Start Here',
+      'Songs',
+      'Genre',
+      'Theory',
+      'World Harmony',
+    ]);
+  });
+
+  it('marks Start Here current on its tab', () => {
+    renderAt('/learn?tab=StartHere', 'piano');
     expect(
-      screen.queryByRole('link', { name: 'Open Technique' }),
-    ).not.toBeInTheDocument();
-    for (const name of ['Songs', 'Genre', 'Theory', 'World Harmony']) {
-      expect(
-        screen.getByRole('link', { name: `Open ${name}` }),
-      ).toBeInTheDocument();
-    }
+      screen
+        .getByRole('link', { name: 'Open Start Here' })
+        .getAttribute('aria-current'),
+    ).toBe('page');
+  });
+
+  it('stays on Start Here when switching instrument either way', () => {
+    renderAt('/learn?tab=StartHere', 'piano');
+    pick('Guitar');
+    expect(location()).toBe('/learn?tab=StartHere');
+    expect(useInstrumentStore.getState().instrument).toBe('guitar');
+    pick('Piano');
+    expect(location()).toBe('/learn?tab=StartHere');
   });
 
   it('opens Theory when switching to guitar', () => {

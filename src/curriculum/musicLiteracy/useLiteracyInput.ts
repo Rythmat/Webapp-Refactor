@@ -13,6 +13,7 @@ import {
   isPlayableKeyEvent,
   literacyTypingNote,
   shiftedTypingOctave,
+  type TypingOctaves,
 } from './typingKeys';
 
 // ── Every way to play ──────────────────────────────────────────────────────
@@ -23,7 +24,8 @@ import {
 //
 //   MIDI       LearnInputProvider, as every Learn screen
 //   the keys   a press on the on-screen keyboard sounds until let go
-//   letters    the Studio's musical typing (typingKeys.ts), A = C
+//   letters    the Studio's musical typing (typingKeys.ts), A = C, on the
+//              octaves the step's keyboard shows (`octaves`)
 //
 // A key or pointer event brings its own timestamp, so the note is placed
 // where it was played, not where the handler ran.
@@ -48,12 +50,26 @@ export interface LiteracyNoteOff {
 /** How hard a press on the screen plays: a firm one, as the Studio's. */
 const POINTER_VELOCITY = 100;
 
+const DEFAULT_OCTAVES: TypingOctaves = {
+  low: START_TYPING_OCTAVE - 1,
+  high: START_TYPING_OCTAVE,
+  start: START_TYPING_OCTAVE,
+};
+
 export function useLiteracyInput(handlers: {
   onNoteOn: (note: LiteracyNoteOn) => void;
   onNoteOff: (note: LiteracyNoteOff) => void;
+  /**
+   * The octaves the letter keys move between, and the one to start on: a
+   * new start (another step's) puts the A key back on it.
+   */
+  octaves?: TypingOctaves;
 }) {
   const latest = useRef(handlers);
   latest.current = handlers;
+  const octaves = handlers.octaves ?? DEFAULT_OCTAVES;
+  const boundsRef = useRef(octaves);
+  boundsRef.current = octaves;
 
   // ── MIDI ──
   const { subscribeNoteOn, subscribeNoteOff, start, stop } =
@@ -81,8 +97,15 @@ export function useLiteracyInput(handlers: {
   }, [subscribeNoteOn, subscribeNoteOff]);
 
   // ── The computer keyboard ──
-  const [typingOctave, setTypingOctave] = useState(START_TYPING_OCTAVE);
+  const [typingOctave, setTypingOctave] = useState(octaves.start);
   const octaveRef = useRef(typingOctave);
+  // A step that starts elsewhere (another step's notes) moves the A key.
+  const [startedOn, setStartedOn] = useState(octaves.start);
+  if (startedOn !== octaves.start) {
+    setStartedOn(octaves.start);
+    setTypingOctave(octaves.start);
+    octaveRef.current = octaves.start;
+  }
   useEffect(() => {
     /** Notes sounding, by the key that started them. */
     const held = new Map<string, number>();
@@ -98,7 +121,11 @@ export function useLiteracyInput(handlers: {
     };
     const onKeyDown = (event: KeyboardEvent) => {
       if (!isPlayableKeyEvent(event)) return;
-      const octave = shiftedTypingOctave(event.code, octaveRef.current);
+      const octave = shiftedTypingOctave(
+        event.code,
+        octaveRef.current,
+        boundsRef.current,
+      );
       if (octave !== null) {
         event.preventDefault();
         octaveRef.current = octave;

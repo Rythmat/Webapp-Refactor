@@ -47,7 +47,7 @@ export const GRID_COPY = {
   triplets: 'Fit three notes where two would usually go',
   snap: 'Clips, notes and the loop jump to grid lines',
   chordLabels: 'How the chord lane names each chord',
-  clipColours: 'Track colours, or colours that follow the chords',
+  clipColours: 'Track colors, or colors that follow the chords',
 } as const;
 
 export const GridMenu = memo(function GridMenu() {
@@ -192,12 +192,12 @@ function ClipColours() {
   const mode = useStore((s) => s.clipColorMode);
   return (
     <MenuRadioGroup
-      label="Colour clips by"
+      label="Color clips by"
       description={GRID_COPY.clipColours}
       data-testid="clip-colour-mode"
       value={mode}
       onValueChange={(value) =>
-        withTransaction('Colour clips', () =>
+        withTransaction('Color clips', () =>
           useStore.getState().setClipColorMode(value as 'track' | 'prism'),
         )
       }

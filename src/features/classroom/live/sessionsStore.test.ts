@@ -945,3 +945,116 @@ describe('Phase 4 — timer / media / position protocol', () => {
     ).toBeNull();
   });
 });
+
+describe('Echo in the classroom — the round (state.echo)', () => {
+  const round = {
+    slideId: 'sl-echo',
+    run: 2,
+    section: 'melodyEcho' as const,
+    leader: 'atlas' as const,
+    level: 1 as const,
+    key: { tonic: 'C' as const, mode: 'major' as const },
+    tempo: 90,
+    startsAt: 1_700_000_000_000,
+    call: null,
+    paused: false,
+    settings: {
+      playOn: 'choice' as const,
+      sound: 'headphones' as const,
+      afterRound: 'result' as const,
+      lights: 'pads' as const,
+      classProgress: true,
+      projector: 'class' as const,
+      snapCall: true,
+      grading: 'quantized' as const,
+    },
+    classResult: { run: 1, good: 21, answered: 24, joined: 27 },
+  };
+
+  it('a teacher’s echo body folds into state.echo; null clears it', () => {
+    const s = startFixture();
+    const msg = applyMessageForUser(USER_ID, {
+      sessionId: s.sessionId,
+      from: 'teacher',
+      body: { kind: 'echo', echo: round },
+    });
+    expect(msg?.v).toBe(1);
+    expect(
+      readSessionsStoreForUser(USER_ID).sessions[s.sessionId]?.echo,
+    ).toEqual(round);
+    applyMessageForUser(USER_ID, {
+      sessionId: s.sessionId,
+      from: 'teacher',
+      body: { kind: 'echo', echo: null },
+    });
+    expect(
+      readSessionsStoreForUser(USER_ID).sessions[s.sessionId]?.echo,
+    ).toBeNull();
+  });
+
+  it('only the teacher publishes the round', () => {
+    const s = startFixture();
+    for (const from of ['student', 'projector'] as const) {
+      expect(
+        applyMessageForUser(USER_ID, {
+          sessionId: s.sessionId,
+          from,
+          fromEnrollmentId: 'enr-1',
+          body: { kind: 'echo', echo: round },
+        }),
+      ).toBeNull();
+    }
+  });
+
+  it('a student’s echo rounds ride the response side-map, never the state', () => {
+    const s = startFixture();
+    applyMessageForUser(USER_ID, {
+      sessionId: s.sessionId,
+      from: 'student',
+      fromEnrollmentId: 'enr-1',
+      body: {
+        kind: 'response',
+        interactionId: 'ix-echo',
+        enrollmentId: 'enr-1',
+        payload: {
+          kind: 'echo',
+          slideId: 'sl-echo',
+          rounds: [
+            { run: 1, passed: true, score: 100, asked: ['1'], played: ['1'] },
+          ],
+          bestStreak: 1,
+        },
+      },
+    });
+    const store = readSessionsStoreForUser(USER_ID);
+    expect(store.responses[s.sessionId]?.['enr-1']?.['ix-echo']?.kind).toBe(
+      'echo',
+    );
+    expect(JSON.stringify(store.sessions[s.sessionId])).not.toContain('enr-1');
+  });
+
+  it('the socket’s echo message and a hello both carry it', () => {
+    const snapshot: ServerSessionSnapshot = {
+      id: 'sess-1',
+      classroomId: 'c1',
+      teacherId: 't1',
+      publishedDayId: 'pd1',
+      code: 'ABCD',
+      status: 'live',
+      state: { phase: 'groupPractice', echo: round },
+      startedAt: '2026-01-01T00:00:00.000Z',
+      endedAt: null,
+    };
+    const hello = applySessionSocketMessage(null, {
+      type: 'hello',
+      session: snapshot,
+      role: 'student',
+    });
+    expect(hello?.echo).toEqual(round);
+    const next = applySessionSocketMessage(hello, {
+      type: 'echo',
+      echo: { ...round, run: 3 },
+    });
+    expect(next?.echo?.run).toBe(3);
+  });
+});

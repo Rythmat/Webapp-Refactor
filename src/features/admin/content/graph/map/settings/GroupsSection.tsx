@@ -307,7 +307,7 @@ export function GroupsSection({
       {groups.length > 0 ? (
         <ul
           ref={listRef}
-          aria-label="Colour groups"
+          aria-label="Color groups"
           className="m-0 list-none p-0"
           onPointerLeave={() => {
             if (!drag) onGroupHover(null);
@@ -413,8 +413,8 @@ export function GroupsSection({
                     ) : null}
                     <input
                       type="color"
-                      aria-label={`Group ${n} colour`}
-                      title="Change colour"
+                      aria-label={`Group ${n} color`}
+                      title="Change color"
                       value={swatchValue(group.color)}
                       onChange={(event) =>
                         update(index, { color: event.target.value })
@@ -476,7 +476,7 @@ export function GroupsSection({
       ) : null}
       <span id={hintId} className="sr-only">
         Drag, or press Alt with the up or down arrow, to move the group. The
-        first group an item matches gives its colour.
+        first group an item matches gives its color.
       </span>
       <div className="mb-2.5 mt-1">
         <PanelCtaButton

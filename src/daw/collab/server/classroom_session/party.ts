@@ -54,6 +54,9 @@ type ModeMsg = { type: 'mode'; value: 'teacher_paced' | 'student_paced' };
 type PairsMsg = { type: 'pairs'; pairs: unknown };
 type ShowcaseMsg = { type: 'showcase'; showcase: unknown };
 type TimerMsg = { type: 'timer'; timer: unknown };
+// Echo in the classroom: the round (docs/echo-classroom.md, Messages §1).
+// Counts only, no student identifiers: every role, the projector included.
+type EchoMsg = { type: 'echo'; echo: unknown };
 type MediaMsg = {
   type: 'media';
   slideId: string;
@@ -70,6 +73,7 @@ type InboundMsg =
   | PairsMsg
   | ShowcaseMsg
   | TimerMsg
+  | EchoMsg
   | MediaMsg
   | EndMsg
   | ResponseBroadcast;
@@ -132,8 +136,10 @@ export default class ClassroomSessionServer extends Server {
       case 'showcase':
       case 'timer':
       case 'media':
+      case 'echo':
         // Deliberate all-role broadcasts (featured project, countdown, video
-        // control) — no identified data.
+        // control, Echo's round) — no identified data. A student's Echo
+        // results ride `response`, teacher-only, below.
         this.broadcastTo(msg, ['teacher', 'student', 'projector']);
         break;
       case 'end':

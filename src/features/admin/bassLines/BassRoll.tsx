@@ -29,6 +29,7 @@ import {
   type BassLineNote,
 } from '@/curriculum/engine/bassLines/bassLine';
 import type { TimeSignature } from '@/curriculum/engine/bassLines/harmony';
+import { approachHint, approachLabel } from '../approach/approachEdit';
 import { CONSOLE_LABEL } from '../ui/styles';
 
 export interface EditorNote extends BassLineNote {
@@ -489,7 +490,7 @@ export const BassRoll = ({
               return (
                 <div
                   key={nt._id}
-                  title={`${DEGREES[row].hint} — velocity ${nt.velocity}`}
+                  title={`${nt.approach ? approachHint(nt) : DEGREES[row].hint} — velocity ${nt.velocity}`}
                   style={{
                     position: 'absolute',
                     top: rowTop(row) + 3,
@@ -511,7 +512,11 @@ export const BassRoll = ({
                     fontWeight: 700,
                   }}
                 >
-                  {cellW >= 16 ? DEGREES[row].label : ''}
+                  {cellW >= 16
+                    ? nt.approach
+                      ? approachLabel(nt)
+                      : DEGREES[row].label
+                    : ''}
                   <span
                     style={{
                       position: 'absolute',

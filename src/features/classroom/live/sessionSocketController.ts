@@ -27,7 +27,11 @@
  *     infinite reconnect loop.
  *   • Heartbeat pings every `heartbeatMs` (default 25s). `close()` clears
  *     the interval and calls `socket.close()`.
+ *   • The clock check: `sendPing()` sends `{type:'ping', t}` on demand, and
+ *     every `pong {t, at}` (the server's time) goes to `onPong` with when it
+ *     arrived, for the server-clock estimate (serverClock.ts).
  */
+import type { SessionEcho } from '../echo/types';
 import type { PhaseKey } from '../phases';
 import type { InteractionResponsePayload } from '../types';
 import {
@@ -94,6 +98,13 @@ export interface SessionStatePatch {
   /** Phase 4 — likewise carried on every merge. */
   timer: SessionTimer | null;
   media: SessionMediaCommand | null;
+  /**
+   * Echo in the classroom — the round. Carried on every merge once a
+   * session has one, and only then: a session that never plays Echo sends
+   * the PATCH it always has, so a server without `echo` in its contract
+   * yet takes every other send as before.
+   */
+  echo?: SessionEcho | null;
 }
 
 export interface SessionPatchPayload {
@@ -135,6 +146,11 @@ export interface SessionSocketControllerConfig {
   /** Heartbeat interval in ms. Default: 25 s. */
   heartbeatMs?: number;
   /**
+   * The clock check: each `pong` (the server's time `at`, the `t` its ping
+   * was sent at) with this device's time it arrived.
+   */
+  onPong?: (pong: { t: number; at: string; receivedAt: number }) => void;
+  /**
    * Delays (ms) between `sendEnd` PATCH retries. Length = number of RETRIES
    * (attempts = length + 1). Default `[500, 2000]` → 3 total attempts over
    * ~2.5 s, covering typical transient network hiccups. Pass `[]` to
@@ -160,6 +176,10 @@ export interface SessionSocketController {
   sendTimer(timer: SessionTimer | null): void;
   /** Phase 4 — remote play/pause a media slide's video (teacher only). */
   sendMedia(slideId: string, action: 'play' | 'pause', atSec?: number): void;
+  /** Echo in the classroom — publish the round (teacher only). */
+  sendEcho(echo: SessionEcho | null): void;
+  /** The clock check — a ping now; its pong goes to `onPong`. */
+  sendPing(): void;
   /**
    * Phase 4 — a student's local slide position (student-paced). Sent as an
    * ephemeral socket message (NOT a state PATCH); the server stamps the
@@ -204,6 +224,11 @@ const buildStatePatch = (
     'showcase' in change ? (change.showcase ?? null) : (base.showcase ?? null),
   timer: 'timer' in change ? (change.timer ?? null) : (base.timer ?? null),
   media: 'media' in change ? (change.media ?? null) : (base.media ?? null),
+  ...('echo' in change
+    ? { echo: change.echo ?? null }
+    : base.echo
+      ? { echo: base.echo }
+      : {}),
 });
 
 /**
@@ -232,6 +257,7 @@ const mergePatchIntoState = (
   showcase: patch.showcase,
   timer: patch.timer,
   media: patch.media,
+  ...(patch.echo !== undefined ? { echo: patch.echo } : {}),
 });
 
 export function createSessionSocketController(
@@ -246,6 +272,7 @@ export function createSessionSocketController(
     onStatusChange,
     onResponse,
     onEndFailed,
+    onPong,
     now = () => Date.now(),
     heartbeatMs = DEFAULT_HEARTBEAT_MS,
     endRetryDelaysMs = [500, 2000],
@@ -309,6 +336,9 @@ export function createSessionSocketController(
         msg = JSON.parse(event.data) as SessionSocketMessage;
       } catch {
         return;
+      }
+      if (msg.type === 'pong') {
+        onPong?.({ t: msg.t, at: msg.at, receivedAt: now() });
       }
       applyIncoming(msg);
     });
@@ -417,6 +447,16 @@ export function createSessionSocketController(
           cmdId: (stateRef?.media?.cmdId ?? 0) + 1,
         },
       });
+    },
+    sendEcho(echo) {
+      void patchState({ echo });
+    },
+    sendPing() {
+      try {
+        socket?.send(JSON.stringify({ type: 'ping', t: now() }));
+      } catch {
+        // Socket may be mid-close.
+      }
     },
     sendPosition(slideIndex) {
       try {

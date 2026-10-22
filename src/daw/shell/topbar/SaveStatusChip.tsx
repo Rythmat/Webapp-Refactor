@@ -129,6 +129,7 @@ export const SaveStatusChip = memo(function SaveStatusChip({
         <Chip
           size="md"
           data-testid="save-chip"
+          data-tutorial-id="save-chip"
           data-state={chip.state}
           data-reason={reason ?? 'none'}
           className={cn(

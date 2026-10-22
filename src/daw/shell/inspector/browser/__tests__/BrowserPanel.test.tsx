@@ -171,7 +171,13 @@ describe('the Library panel', () => {
           .querySelector(`[data-value="${value}"] [data-count]`)
           ?.getAttribute('data-count'),
       );
-    expect(count('drums')).toBe(GROOVES.length + DRUM_KIT_CONFIGS.length);
+    // The grooves, the kits, and the drum parts published in the console.
+    const drumParts = listLiveParts().filter(
+      (p) => p.instrument === 'drums',
+    ).length;
+    expect(count('drums')).toBe(
+      GROOVES.length + DRUM_KIT_CONFIGS.length + drumParts,
+    );
     const named = items
       .slice(1)
       .reduce(
@@ -188,11 +194,11 @@ describe('the Library panel', () => {
       expect(useBrowserStore.getState().query.instrument).toBe('drums'),
     );
     expect(screen.queryByTestId('library-filter-clear')).toBeInTheDocument();
-    expect(
-      browser().querySelector(
-        '[data-testid="library-section"][data-type="part"]',
-      ),
-    ).toBeNull();
+    // Of the parts, only the drum parts stay.
+    const parts = browser().querySelector<HTMLElement>(
+      '[data-testid="library-section"][data-type="part"]',
+    );
+    expect(parts ? rowsOf(parts).length : 0).toBe(drumParts);
     expect(screen.queryByTestId('library-fits')).toBeNull();
   });
 

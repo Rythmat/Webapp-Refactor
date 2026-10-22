@@ -15,6 +15,10 @@ import {
 import { getAllLinkedModes } from '@/curriculum/bridge/learnCurriculumLinks';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import type { Song } from '@/curriculum/types/songLibrary';
+import {
+  courseLessons,
+  TUTORIAL_COURSES,
+} from '@/daw/components/Tutorial/tutorialCatalog';
 import { PROJECT_TEMPLATES } from '@/daw/data/projectTemplates';
 import { scoreKeywords } from '@/features/search/match';
 import {
@@ -27,6 +31,7 @@ import {
   songChartRef,
   songLessonRef,
   studioTemplateRef,
+  studioTutorialRef,
 } from '../../../slides/contentRefs';
 import type { SlideMedia } from '../../../slides/types';
 import type { LaunchTile } from '../../../types';
@@ -175,6 +180,30 @@ export const genreItems = (): PickableItem[] =>
       keywords: [title, id, slug, 'genre'],
     };
   });
+
+// ── Studio: the courses' lessons (Studio Basics) ───────────────────────────
+// A course's lessons in order, each a `studio:tutorial:<id>` that opens the
+// editor on the course's demo song with the lesson running, and reports the
+// lesson's completion back to the slide.
+export const studioLessonItems = (): PickableItem[] =>
+  TUTORIAL_COURSES.flatMap((course) =>
+    courseLessons(course).map((t, i) => ({
+      key: `studio:tutorial:${t.id}`,
+      module: 'studio' as const,
+      ref: studioTutorialRef(t.id),
+      title: `${course.title} ${i + 1}: ${t.title}`,
+      subtitle: `${t.subtitle} · ${t.estMinutes} min`,
+      thumb: { emoji: '🎓' },
+      keywords: [
+        t.title,
+        course.title,
+        'studio',
+        'lesson',
+        'tutorial',
+        'basics',
+      ],
+    })),
+  );
 
 // ── Studio: project-template starters ──────────────────────────────────────
 export const studioTemplateItems = (): PickableItem[] =>

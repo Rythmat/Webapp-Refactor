@@ -32,10 +32,11 @@ import { Toggle } from '@/daw/ui/Toggle';
 
 const METRONOME_KEYS = shortcutKeys('transport.metronome');
 
+/** The count-in's choices; each segment carries its lesson anchor. */
 export const COUNT_IN_CHOICES = [
-  { value: '0', label: 'Off' },
-  { value: '1', label: '1 bar' },
-  { value: '2', label: '2 bars' },
+  { value: '0', label: 'Off', anchor: 'count-in-0' },
+  { value: '1', label: '1 bar', anchor: 'count-in-1' },
+  { value: '2', label: '2 bars', anchor: 'count-in-2' },
 ] as const;
 
 /** One click in `sound`, to hear the choice (loaded on demand). */
@@ -202,6 +203,7 @@ export const ClickToggle = memo(function ClickToggle() {
         shortcut={METRONOME_KEYS.label}
         aria-keyshortcuts={METRONOME_KEYS.aria}
         data-testid="click-toggle"
+        data-tutorial-id="metronome-toggle"
         className="rounded-r-none"
       />
       <Popover>
@@ -212,6 +214,7 @@ export const ClickToggle = memo(function ClickToggle() {
             size="md"
             tooltipSide="top"
             data-testid="count-in-menu"
+            data-tutorial-id="count-in-menu"
             data-count-in={countInBars}
             className="w-6 rounded-l-none [&_svg]:size-3.5"
           />

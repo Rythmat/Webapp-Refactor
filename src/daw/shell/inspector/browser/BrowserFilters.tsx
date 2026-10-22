@@ -114,8 +114,8 @@ export function BrowserFilters({
         variant={query.favouritesOnly ? 'secondary' : 'ghost'}
         data-testid="library-filter-favourites"
         aria-pressed={query.favouritesOnly}
-        title="Show only your favourites"
-        aria-label={`Favourites only, ${favouriteCount}`}
+        title="Show only your favorites"
+        aria-label={`Favorites only, ${favouriteCount}`}
         className={cn(query.favouritesOnly && 'bg-daw-hover')}
         onClick={() => setQuery({ favouritesOnly: !query.favouritesOnly })}
       >

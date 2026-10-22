@@ -75,7 +75,7 @@ describe('Music Literacy’s routes', () => {
   it('never show a student a draft', () => {
     auth.role = 'student';
     open('/curriculum/music-literacy/part-2');
-    expect(screen.getByText('This lesson isn’t here')).toBeTruthy();
+    expect(screen.getByText('This Lesson Isn’t Here')).toBeTruthy();
   });
 
   it('let the console preview a draft through the mirror', () => {

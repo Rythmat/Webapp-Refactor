@@ -49,7 +49,7 @@ export const STRIP_ROWS = {
 
 const panText = (pan: number) =>
   Math.abs(pan) < 0.005
-    ? 'Centre'
+    ? 'Center'
     : `${pan < 0 ? 'L' : 'R'}${Math.round(Math.abs(pan) * 100)}`;
 
 const percent = (v: number) => `${Math.round(v * 100)}%`;
@@ -252,7 +252,7 @@ function Pan({ track, disabled }: { track: Track; disabled: boolean }) {
         label={`Pan of ${track.name}`}
         data-hint={hintText(
           `Pan of ${track.name}`,
-          'Place it left or right; double-click to centre',
+          'Place it left or right; double-click to center',
         )}
         size="sm"
         bipolar

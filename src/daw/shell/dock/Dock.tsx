@@ -27,6 +27,11 @@ import {
 } from '@/daw/shell/lazyParts';
 import { hintText } from '@/daw/shell/help/hintSource';
 import { DOCK_TAB_BAR_PX } from '@/daw/shell/layout/layoutModel';
+import { openInstrumentDialog } from '@/daw/shell/tracklist/instrumentDialogStore';
+import {
+  hasInstrumentPicker,
+  instrumentLabel,
+} from '@/daw/instruments/simpleInstruments';
 import { useStore, type Track } from '@/daw/store';
 import type { ChannelStripTabId } from '@/daw/store/uiSlice';
 import { barStartTick, timeSignatureOf } from '@/daw/time/timeModel';
@@ -202,6 +207,7 @@ export const Dock = memo(function Dock() {
           key={master ? 'master' : `${kind}:${activeTab}`}
           // Where Enter on a track row puts focus (the track list's keys).
           data-dock-content
+          data-tutorial-id="dock-body"
           // The drums' kit is built on the design system; the other bodies
           // are the legacy components until Stage C.
           data-ds={
@@ -301,6 +307,7 @@ function DockHeader({
               maximized ? MAX_KEYS.label : undefined,
             )}
             data-testid="dock-maximize"
+            data-tutorial-id="dock-maximize"
             onClick={onToggleMaximized}
           />
         ) : null}
@@ -316,6 +323,7 @@ function DockHeader({
               : 'Show the selected track’s panel under the timeline',
           )}
           data-testid="dock-toggle"
+          data-tutorial-id="dock-toggle"
           onClick={() => (open ? onClose() : setActiveTab(openingTab(kind)))}
         />
       </div>
@@ -323,6 +331,11 @@ function DockHeader({
   );
 }
 
+/**
+ * The selected track’s color, name and what plays it. On a MIDI track what
+ * plays it is a button that opens the simple instrument picker
+ * (InstrumentDialog), as the track's ⋯ ▸ Instrument… does.
+ */
 function TrackIdentity({ track }: { track: Track }) {
   return (
     <>
@@ -341,9 +354,29 @@ function TrackIdentity({ track }: { track: Track }) {
       >
         {track.name}
       </span>
-      <span className={cn(TYPE_CLASS.micro, 'shrink-0 text-daw-text-3')}>
-        {INSTRUMENT_LABEL[track.instrument] ?? 'Audio'}
-      </span>
+      {hasInstrumentPicker(track) ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="min-w-0 shrink gap-1 px-1.5 text-daw-text-2"
+          aria-label={`${track.name}’s instrument: ${instrumentLabel(track)}. Change it`}
+          aria-haspopup="dialog"
+          data-testid="dock-instrument-button"
+          data-tutorial-id="dock-instrument"
+          data-hint={hintText(
+            `${track.name}’s instrument`,
+            'Choose what this track plays',
+          )}
+          onClick={() => openInstrumentDialog(track.id)}
+        >
+          <span className="truncate">{instrumentLabel(track)}</span>
+          <ChevronDown aria-hidden />
+        </Button>
+      ) : (
+        <span className={cn(TYPE_CLASS.micro, 'shrink-0 text-daw-text-3')}>
+          {INSTRUMENT_LABEL[track.instrument] ?? 'Audio'}
+        </span>
+      )}
     </>
   );
 }
@@ -465,6 +498,7 @@ function AnalyzeNotes() {
       size="sm"
       onClick={analyze}
       data-testid="dock-analyze-notes"
+      data-tutorial-id="dock-analyze-notes"
     >
       <Sparkles aria-hidden />
       Analyze {count} note{count === 1 ? '' : 's'}

@@ -41,6 +41,28 @@ const DawUiGallery = import.meta.env.DEV
     )
   : null;
 
+// DEV only: Echo's Make Your Song on a page of its own, with a stand-in
+// input, while the play screens leading to it are built. Lazy behind a
+// literal import.meta.env.DEV, as the gallery above.
+const MakeYourSongHarness = import.meta.env.DEV
+  ? lazy(() =>
+      import(
+        './components/Games/Echo/makeYourSong/dev/MakeYourSongHarness'
+      ).then(({ MakeYourSongHarness }) => ({ default: MakeYourSongHarness })),
+    )
+  : null;
+
+// DEV only: Echo in the classroom on one page: the teacher's panel, the
+// projector, a student and a pretend class on an in-memory bus. Lazy behind
+// a literal import.meta.env.DEV, as the gallery above.
+const EchoClassroomHarness = import.meta.env.DEV
+  ? lazy(() =>
+      import('./features/classroom/echo/dev/EchoClassroomHarness').then(
+        ({ EchoClassroomHarness }) => ({ default: EchoClassroomHarness }),
+      ),
+    )
+  : null;
+
 // musicatlas.io only serves public pages; everything else hands off to the
 // app host, where sign-in state lives (see constants/hosts.ts).
 // The Modal Sphere loads with its own page, not with the app.
@@ -91,6 +113,30 @@ const appRoutes = () => [
         { path: '/__dashboard-qa', element: <DashboardResponsiveTest /> },
         { path: '/__hiphop-grooves', element: <HipHopGrooveAudition /> },
         { path: '/dev/msp/mock-learn', element: <MockLearn /> },
+        ...(MakeYourSongHarness
+          ? [
+              {
+                path: '/dev/echo/make-your-song',
+                element: (
+                  <Suspense fallback={null}>
+                    <MakeYourSongHarness />
+                  </Suspense>
+                ),
+              },
+            ]
+          : []),
+        ...(EchoClassroomHarness
+          ? [
+              {
+                path: '/dev/echo/classroom',
+                element: (
+                  <Suspense fallback={null}>
+                    <EchoClassroomHarness />
+                  </Suspense>
+                ),
+              },
+            ]
+          : []),
         ...(DawUiGallery
           ? [
               {

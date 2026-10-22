@@ -15,27 +15,36 @@ import {
   chipStarts,
   figureChips,
   figureNotes,
+  insertRest,
+  moveItem,
   overlaps,
   overrun,
   spanWords,
   type FigureChip,
 } from './literacyChips';
 import {
+  AddRest,
   BarsSelect,
   CHIP,
+  ChipHandle,
   DegreeSelect,
+  DropMark,
   LengthSelect,
   pitchLabel,
+  ReorderStatus,
   RestGlyph,
   RhythmStrip,
 } from './literacyControls';
+import { useChipReorder } from './useChipReorder';
 
 /**
  * A call or a response: a row of chips, each a note (which degree, which
- * octave, how long) or a rest, added, moved and taken out one at a time.
- * The figure keeps its rests as the gaps between notes (`figureNotes`), so
- * a rest added at the end stays here, waiting, until a note follows it; the
- * figure's bars already hold the silence after its last note.
+ * octave, how long) or a rest, added, dragged or moved, and taken out one
+ * at a time; a note's "+ rest before / after" puts a rest chip on that
+ * side of it. The figure keeps its rests as the gaps between notes
+ * (`figureNotes`), so a rest added at the end stays here, waiting, until a
+ * note follows it; the figure's bars already hold the silence after its
+ * last note. Two rests side by side are one gap, so they join up.
  */
 
 const QUARTER = 480;
@@ -48,7 +57,11 @@ export const FigureEditor: FC<{
   lit?: number | null;
   /** "Step 3 call", for the controls' names. */
   label: string;
-}> = ({ figure, timeSignature, onChange, lit, label }) => {
+  /** Scale numbering: the degree pickers offer 1–7, as the mode reads them. */
+  scale?: boolean;
+  /** Notes the schema refuses, by their index among the notes. */
+  invalid?: ReadonlySet<number>;
+}> = ({ figure, timeSignature, onChange, lit, label, scale, invalid }) => {
   const stored = useMemo(() => figureChips(figure.notes), [figure.notes]);
   // Rests after the last note, kept until a note follows them.
   const [waiting, setWaiting] = useState<FigureChip[]>([]);
@@ -84,17 +97,17 @@ export const FigureEditor: FC<{
   const move = (index: number, delta: number) => {
     const target = index + delta;
     if (target < 0 || target >= chips.length) return;
-    const next = [...chips];
-    [next[index], next[target]] = [next[target], next[index]];
-    commit(next);
+    commit(moveItem(chips, index, target));
   };
+  const reorder = useChipReorder(chips.length, (from, to) =>
+    commit(moveItem(chips, from, to)),
+  );
   const lastNote = [...chips].reverse().find((c) => c.kind === 'note');
 
   // The preview lights a note by its index among the notes.
   let noteIndex = -1;
-  const litChip = chips.map((c) =>
-    c.kind === 'note' ? ++noteIndex === lit : false,
-  );
+  const notePlace = chips.map((c) => (c.kind === 'note' ? ++noteIndex : -1));
+  const litChip = notePlace.map((n) => n >= 0 && n === lit);
 
   const over = overrun(figure.notes, figure.bars, timeSignature);
   const end = starts.length ? starts.at(-1)! + chips.at(-1)!.duration : 0;
@@ -102,22 +115,30 @@ export const FigureEditor: FC<{
 
   return (
     <div className="flex flex-col gap-2.5">
-      <div className="flex flex-wrap items-stretch gap-1.5">
+      <div
+        ref={reorder.listRef}
+        className="flex flex-wrap items-stretch gap-1.5"
+      >
         {chips.map((c, i) => {
           const where = barBeat(starts[i], timeSignature);
           const name = `${label} ${c.kind} ${i + 1}`;
           return (
             <div
               key={i}
+              {...reorder.item(i)}
               data-lit={litChip[i] || undefined}
               className={cn(
                 CHIP,
+                'relative',
                 c.kind === 'rest'
                   ? 'border-dashed border-white/15 bg-transparent'
                   : litChip[i]
                     ? 'border-sky-300/70 bg-sky-300/15'
-                    : 'border-white/[0.08] bg-white/[0.03]',
+                    : invalid?.has(notePlace[i])
+                      ? 'border-red-400/50 bg-red-400/[0.06]'
+                      : 'border-white/[0.08] bg-white/[0.03]',
                 i >= stored.length && 'opacity-60',
+                reorder.dragging === i && 'opacity-40',
               )}
               title={
                 i >= stored.length
@@ -125,10 +146,15 @@ export const FigureEditor: FC<{
                   : undefined
               }
             >
-              <div className="flex items-baseline justify-between gap-1">
+              <DropMark side={reorder.mark(i)} />
+              <ChipHandle
+                reorder={reorder}
+                index={i}
+                label={`${name}: move (drag, or Alt+← / Alt+→)`}
+              >
                 <span
                   className={cn(
-                    'text-xs',
+                    'min-w-0 flex-1 text-xs',
                     c.kind === 'rest'
                       ? 'italic text-white/50'
                       : 'text-white/70',
@@ -139,12 +165,14 @@ export const FigureEditor: FC<{
                 <span className="text-[10px] tabular-nums text-white/35">
                   {where}
                 </span>
-              </div>
+              </ChipHandle>
               {c.kind === 'note' ? (
                 <DegreeSelect
                   degree={c.degree}
                   octave={c.octave}
                   label={`${name}: which note`}
+                  scale={scale}
+                  invalid={invalid?.has(notePlace[i])}
                   onChange={(degree, octave) => patch(i, { degree, octave })}
                 />
               ) : (
@@ -158,7 +186,21 @@ export const FigureEditor: FC<{
                 label={`${name}: how long`}
                 onChange={(duration) => patch(i, { duration })}
               />
-              <div className="flex items-center justify-between">
+              {c.kind === 'note' && (
+                <>
+                  <AddRest
+                    side="before"
+                    label={`${name}: add a rest before`}
+                    onAdd={(ticks) => commit(insertRest(chips, i, ticks))}
+                  />
+                  <AddRest
+                    side="after"
+                    label={`${name}: add a rest after`}
+                    onAdd={(ticks) => commit(insertRest(chips, i + 1, ticks))}
+                  />
+                </>
+              )}
+              <div className="mt-auto flex items-center justify-between">
                 <IconButton
                   label={`Move ${name} earlier`}
                   disabled={i === 0}
@@ -213,6 +255,7 @@ export const FigureEditor: FC<{
           </Button>
         </div>
       </div>
+      <ReorderStatus reorder={reorder} />
 
       <RhythmStrip
         bars={figure.bars}

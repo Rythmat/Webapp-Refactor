@@ -6,6 +6,7 @@
  */
 
 import type { FretPosition } from '@/lib/guitar/types';
+import type { PianoFinger } from '@/lib/learn/pianoFingering/types';
 import type { NoteEvent as PianoRollNoteEvent } from '../../../components/Games/PianoRollPlay';
 import type { ActivitySectionId } from '../../types/activity';
 import type { ActivityStepV2, LessonInstrument } from '../../types/activity.v2';
@@ -21,6 +22,7 @@ export interface GenreNoteEvent {
   duration: number; // ticks
   velocity?: number;
   hand?: 'lh' | 'rh'; // grand staff stave assignment (passed through from TargetNote)
+  finger?: PianoFinger; // piano only (passed through from TargetNote)
   fretPosition?: FretPosition; // guitar only (passed through from TargetNote)
 }
 

@@ -10,6 +10,7 @@ import {
   type MidiNoteEvent,
 } from '@/daw/prism-engine/types';
 import type { AllSlices } from '@/daw/store';
+import { noDoneMoments } from '@/daw/store/doneMomentsSlice';
 import type { Marker } from '@/daw/store/markersSlice';
 import type { SongSection } from '@/daw/model/sections';
 import type { ChordRegion } from '@/daw/store/prismSlice';
@@ -384,6 +385,9 @@ const STORE_SPECS = {
   tutorialStepStatus: session('tutorial', 'waiting', 'project'),
   tutorialStepCelebrate: session('tutorial', true, 'project'),
   tutorialStepPrepared: session('tutorial', false, 'project'),
+  tutorialDemoPhase: session('tutorial', 'turn', 'project'),
+  tutorialDemoRun: session('tutorial', 0, 'project'),
+  finishedTutorialId: session('tutorial', null, 'project'),
 
   // ── analysis (the music-intelligence bus) ──
   detectedKeyRootPc: session('analysis', null, 'project'),
@@ -436,6 +440,9 @@ const STORE_SPECS = {
   settingsOpen: session('ui', false, 'page'),
   recordingLimitModalOpen: session('ui', false, 'project'),
   lastAudioExportAt: session('ui', null, 'project'),
+  // What a lesson step watches for and the project never shows (a save, an
+  // export, a print): counts that carry on through every project.
+  doneMoments: session('tutorial', noDoneMoments, 'page'),
   leadSheetSelectedChordIdx: session('ui', null, 'project'),
   selectedChordIds: session('ui', () => [], 'project'),
   selectedNotes: session('ui', () => [], 'project'),

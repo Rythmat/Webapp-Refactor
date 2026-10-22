@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useMemo } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import type { DaySnapshot } from '../../publish/publishDay';
 import { SlideRenderer } from '../../slides/SlideRenderer';
 import {
@@ -12,9 +12,18 @@ import { revealContentHeight } from '../../slides/slideGrid';
 import { ParticipationPulse } from '../../slides/viz/ParticipationPulse';
 import type { Interaction, InteractionResponsePayload } from '../../types';
 import type { SessionState } from '../sessionsStore';
+import { LOCAL_SESSION_CLOCK, type SessionClock } from '../useServerClock';
 import { ShowcaseProjectorFrame } from './ShowcaseProjectorFrame';
 import { TimerCountdown } from './TimerCountdown';
 import { buildRevealNode } from './revealNode';
+
+// Echo (class) on the projector: its circle, the class's counts, the Boss.
+// Its engine and screens load only when an Echo slide is shown.
+const EchoProjectorView = lazy(() =>
+  import('../../echo/EchoProjectorView').then(({ EchoProjectorView }) => ({
+    default: EchoProjectorView,
+  })),
+);
 
 interface ProjectorDeckViewProps {
   snapshot: DaySnapshot;
@@ -24,6 +33,8 @@ interface ProjectorDeckViewProps {
     string,
     Record<string, InteractionResponsePayload>
   >;
+  /** The server's clock: Echo's rounds are drawn on it. */
+  clock?: SessionClock;
 }
 
 /**
@@ -39,6 +50,7 @@ export const ProjectorDeckView = ({
   state,
   sessionId,
   responsesByEnrollment,
+  clock = LOCAL_SESSION_CLOCK,
 }: ProjectorDeckViewProps) => {
   const reducedMotion = useReducedMotion();
   const deck = deckFromSnapshot(snapshot);
@@ -66,6 +78,21 @@ export const ProjectorDeckView = ({
   }
 
   const interactions = interactionsForSlide(snapshot, slide);
+
+  // Echo (class): the class's round, from `state.echo` (counts only; names
+  // only if the teacher chose them). Never a student's own results.
+  if (interactions.some((i) => i.type === 'echo')) {
+    return (
+      <Suspense fallback={<div className="fixed inset-0 bg-[#101012]" />}>
+        <EchoProjectorView
+          echo={state.echo}
+          slideId={slide.id}
+          clock={clock}
+          title={slide.title.en || 'Echo!'}
+        />
+      </Suspense>
+    );
+  }
 
   // One shared builder with Present — see `revealNode.tsx`. Duplicating this
   // gating is how Present would end up showing identified responses.

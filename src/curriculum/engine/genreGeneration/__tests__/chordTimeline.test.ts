@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildChordTimeline,
   chordAtTick,
+  timedChordTimeline,
   type TimedChord,
 } from '../chordTimeline';
 import type { GenreNoteEvent } from '../resolveStepContent';
@@ -95,5 +96,60 @@ describe('chordAtTick', () => {
     expect(chordAtTick(timeline, 1919)?.symbol).toBe('Dm7');
     expect(chordAtTick(timeline, 1920)?.symbol).toBe('G7');
     expect(chordAtTick([], 0)).toBeNull();
+  });
+});
+
+describe('timedChordTimeline', () => {
+  it('repeats the caller’s changes, half bars and all, across the bars', () => {
+    const timed = {
+      changes: [
+        { tick: 0, symbol: 'C' },
+        { tick: 960, symbol: 'F' },
+        { tick: 1920, symbol: 'Am' },
+        { tick: 2880, symbol: 'G' },
+      ],
+      length: 3840,
+    };
+    expect(summary(timedChordTimeline(timed, 4))).toEqual([
+      [0, 'C'],
+      [960, 'F'],
+      [1920, 'Am'],
+      [2880, 'G'],
+      [3840, 'C'],
+      [4800, 'F'],
+      [5760, 'Am'],
+      [6720, 'G'],
+    ]);
+    // Cut at the last bar.
+    expect(summary(timedChordTimeline(timed, 1))).toEqual([
+      [0, 'C'],
+      [960, 'F'],
+    ]);
+  });
+
+  it('starts on the downbeat, keeps a chord held across a repeat, and skips what can’t be read', () => {
+    const timed = {
+      changes: [
+        { tick: 2880, symbol: 'G' },
+        { tick: 240, symbol: 'G' },
+        { tick: 960, symbol: 'Xyz' },
+        { tick: 1920, symbol: 'Am' },
+        { tick: 5000, symbol: 'F' }, // past the pass: left out
+      ],
+      length: 3840,
+    };
+    expect(summary(timedChordTimeline(timed, 4))).toEqual([
+      [0, 'G'],
+      [1920, 'Am'],
+      [2880, 'G'],
+      [5760, 'Am'],
+      [6720, 'G'],
+    ]);
+    const timeline = timedChordTimeline(timed, 4);
+    expect(chordAtTick(timeline, 1000)?.symbol).toBe('G');
+    expect(timedChordTimeline({ changes: [], length: 3840 }, 4)).toEqual([]);
+    expect(
+      timedChordTimeline({ changes: [{ tick: 0, symbol: '?' }], length: 1 }, 4),
+    ).toEqual([]);
   });
 });

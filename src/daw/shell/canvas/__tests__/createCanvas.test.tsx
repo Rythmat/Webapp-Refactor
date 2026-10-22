@@ -166,7 +166,7 @@ describe('the Grid menu’s display choices', () => {
       screen.getByRole('group', { name: 'Chord lane labels' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('group', { name: 'Colour clips by' }),
+      screen.getByRole('group', { name: 'Color clips by' }),
     ).toBeInTheDocument();
   });
 

@@ -7,6 +7,7 @@
  * handler in Sprint 5 binds to this shape 1:1; the `v: 1` version tag lets
  * us bump on divergence.
  */
+import type { SessionEcho } from '../echo/types';
 import type { PhaseKey } from '../phases';
 import type { InteractionResponsePayload } from '../types';
 
@@ -90,6 +91,13 @@ export interface SessionState {
   timer?: SessionTimer | null;
   /** Phase 4 — the last projector media command (all roles). Absent/null = none. */
   media?: SessionMediaCommand | null;
+  /**
+   * Echo in the classroom — the round under way on an `echo` slide (all
+   * roles). Teacher-authored; counts only, no identifiers, unless the
+   * teacher deliberately puts first names on the projector
+   * (docs/echo-classroom.md, Messages §1). Absent/null = no Echo.
+   */
+  echo?: SessionEcho | null;
   status: SessionStatus;
   startedAt: string;
   endedAt?: string;
@@ -136,6 +144,11 @@ export interface TimerBody {
   kind: 'timer';
   timer: SessionTimer | null;
 }
+/** Echo in the classroom — the round, published by the teacher's computer. */
+export interface EchoBody {
+  kind: 'echo';
+  echo: SessionEcho | null;
+}
 export interface MediaBody {
   kind: 'media';
   slideId: string;
@@ -165,6 +178,7 @@ export type SessionMessageBody =
   | ShowcaseBody
   | TimerBody
   | MediaBody
+  | EchoBody
   | PositionBody
   | StateSyncBody;
 
@@ -420,7 +434,8 @@ export const endClassroomLiveSessionsForUser = (
   if (changed) writeStore(userId, { ...current, sessions });
 };
 
-const applyBodyToState = (
+/** Pure: a teacher-authored body folded into the session's state. */
+export const applyBodyToState = (
   state: SessionState,
   body: SessionMessageBody,
   nowIso: string,
@@ -454,6 +469,8 @@ const applyBodyToState = (
       return { ...state, showcase: body.showcase, updatedAt: nowIso };
     case 'timer':
       return { ...state, timer: body.timer, updatedAt: nowIso };
+    case 'echo':
+      return { ...state, echo: body.echo, updatedAt: nowIso };
     case 'media':
       return {
         ...state,
@@ -483,7 +500,11 @@ const applyBodyToState = (
   }
 };
 
-const roleCanSend = (role: SessionRole, body: SessionMessageBody): boolean => {
+/** Who may send what: students only their own responses and positions. */
+export const roleCanSend = (
+  role: SessionRole,
+  body: SessionMessageBody,
+): boolean => {
   if (role === 'projector') return false;
   if (role === 'student')
     return body.kind === 'response' || body.kind === 'position';
@@ -593,6 +614,7 @@ interface ServerAuthoritativeState {
   showcase?: SessionShowcase | null;
   timer?: SessionTimer | null;
   media?: SessionMediaCommand | null;
+  echo?: SessionEcho | null;
 }
 
 export type PresenceStateValue = 'joined' | 'active' | 'idle' | 'left';
@@ -616,6 +638,8 @@ export type SessionSocketMessage =
   | { type: 'pairs'; pairs: SessionPair[] | null }
   | { type: 'showcase'; showcase: SessionShowcase | null }
   | { type: 'timer'; timer: SessionTimer | null }
+  /** Echo in the classroom — the round (all roles, no identifiers). */
+  | { type: 'echo'; echo: SessionEcho | null }
   | {
       type: 'media';
       slideId: string;
@@ -702,6 +726,7 @@ export const applySessionSocketMessage = (
         showcase: s.showcase ?? null,
         timer: s.timer ?? null,
         media: s.media ?? null,
+        echo: s.echo ?? null,
         status: snap.status,
         startedAt: snap.startedAt,
         endedAt: snap.endedAt ?? undefined,
@@ -738,6 +763,9 @@ export const applySessionSocketMessage = (
     case 'timer':
       if (!state) return state;
       return { ...state, timer: msg.timer, updatedAt: nowIso };
+    case 'echo':
+      if (!state) return state;
+      return { ...state, echo: msg.echo, updatedAt: nowIso };
     case 'media':
       if (!state) return state;
       return {

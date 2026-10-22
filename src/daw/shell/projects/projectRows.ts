@@ -167,6 +167,8 @@ function sourcePhrase(meta: DraftMeta): string | null {
       return 'Practice track';
     case 'jam':
       return 'From a jam';
+    case 'echoSong':
+      return 'From Echo';
     case 'collab':
       return 'Shared session';
     case 'project':

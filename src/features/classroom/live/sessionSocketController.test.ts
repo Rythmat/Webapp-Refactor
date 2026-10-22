@@ -735,3 +735,106 @@ describe('createSessionSocketController — heartbeat + cleanup', () => {
     expect(pingsAfter).toBe(pingsBefore);
   });
 });
+
+describe('createSessionSocketController — Echo’s round and the clock check', () => {
+  const ROUND = {
+    slideId: 'sl-echo',
+    run: 1,
+    section: 'melodyEcho' as const,
+    leader: 'atlas' as const,
+    level: 1 as const,
+    key: { tonic: 'C' as const, mode: 'major' as const },
+    tempo: 90,
+    startsAt: 1_700_000_002_000,
+    call: null,
+    paused: false,
+    settings: {
+      playOn: 'choice' as const,
+      sound: 'headphones' as const,
+      afterRound: 'result' as const,
+      lights: 'pads' as const,
+      classProgress: true,
+      projector: 'class' as const,
+      snapCall: true,
+      grading: 'quantized' as const,
+    },
+  };
+
+  it('sendEcho PATCHes the round in the merged state', async () => {
+    const { harness, controller } = makeHarness();
+    controller.open();
+    harness.socket.fireMessage({
+      type: 'hello',
+      session: SNAPSHOT,
+      role: 'teacher',
+    });
+    controller.sendEcho(ROUND);
+    await flushPromises();
+    const [payload] = harness.restClient.patch.mock.calls.at(-1)! as [
+      { state: { echo?: unknown; phase: string } },
+    ];
+    expect(payload.state.echo).toEqual(ROUND);
+    expect(payload.state.phase).toBe('connectRegulate');
+  });
+
+  it('carries the round on later sends, and leaves it out of a session without one', async () => {
+    const { harness, controller } = makeHarness();
+    controller.open();
+    harness.socket.fireMessage({
+      type: 'hello',
+      session: SNAPSHOT,
+      role: 'teacher',
+    });
+    controller.sendLock(true);
+    await flushPromises();
+    const before = harness.restClient.patch.mock.calls.at(-1)![0] as {
+      state: Record<string, unknown>;
+    };
+    // A session that never played Echo sends the PATCH it always has.
+    expect('echo' in before.state).toBe(false);
+    controller.sendEcho(ROUND);
+    controller.sendNav('groupPractice', 2);
+    await flushPromises();
+    const after = harness.restClient.patch.mock.calls.at(-1)![0] as {
+      state: { echo?: unknown; slideIndex: number };
+    };
+    expect(after.state.slideIndex).toBe(2);
+    expect(after.state.echo).toEqual(ROUND);
+  });
+
+  it('pings on demand and hands every pong to onPong with its arrival', () => {
+    const socket = new FakeSocket();
+    const onPong = vi.fn();
+    let clock = 5_000;
+    const controller = createSessionSocketController({
+      sessionId: SESSION_ID,
+      role: 'student',
+      userId: USER_ID,
+      restClient: {
+        get: async () => SNAPSHOT,
+        patch: async () => ({}),
+        postResponse: async () => ({}),
+      },
+      socketFactory: () => socket,
+      onStatusChange: () => {},
+      onResponse: () => {},
+      onPong,
+      now: () => clock,
+    });
+    controller.open();
+    controller.sendPing();
+    expect(JSON.parse(socket.sent.at(-1)!)).toEqual({ type: 'ping', t: 5_000 });
+    clock = 5_080;
+    socket.fireMessage({
+      type: 'pong',
+      t: 5_000,
+      at: '2026-10-21T10:00:00.000Z',
+    });
+    expect(onPong).toHaveBeenCalledWith({
+      t: 5_000,
+      at: '2026-10-21T10:00:00.000Z',
+      receivedAt: 5_080,
+    });
+    controller.close();
+  });
+});

@@ -248,6 +248,11 @@ export interface StaffViewProps {
   /** Measures that close a repeat. */
   repeatEnds?: ReadonlySet<number>;
   /**
+   * Measures that close with a double bar: a pickup bar's, into the real
+   * downbeat (Music Literacy).
+   */
+  doubleBarEnds?: ReadonlySet<number>;
+  /**
    * Extra room above every system for what the overlay draws there — a row
    * of rehearsal marks standing over the chord symbols, say.
    */
@@ -564,7 +569,9 @@ function buildMeasure(
       beams.push(
         ...vf.Beam.generateBeams(beamable, {
           groups: [beamGroup],
-          maintainStemDirections: twoVoices,
+          // A drum staff keeps its stems as drumStem set them, hands up even
+          // in a bar only the hands play; beaming must not flip them.
+          maintainStemDirections: twoVoices || staff === 'percussion',
         }),
       );
     }
@@ -1150,6 +1157,7 @@ interface RenderOptions {
   systemMarks?: SystemMarks;
   repeatStarts?: ReadonlySet<number>;
   repeatEnds?: ReadonlySet<number>;
+  doubleBarEnds?: ReadonlySet<number>;
   /** Bars to draw as a multi-bar rest, by the measure each one starts on. */
   multiRests?: ReadonlyMap<number, number>;
   /**
@@ -1384,6 +1392,7 @@ function render(
             restBars,
             options.repeatStarts?.has(measureIndex) ?? false,
             options.repeatEnds?.has(slotEnd) ?? false,
+            options.doubleBarEnds?.has(slotEnd) ?? false,
             slotEnd === lastMeasure,
             measureOf(lead, slotEnd).endTick,
             parts.map((part) =>
@@ -1484,6 +1493,8 @@ function render(
             stave.setEndBarType(vf.Barline.type.REPEAT_END);
           } else if (slotEnd === lastMeasure) {
             stave.setEndBarType(vf.Barline.type.END);
+          } else if (options.doubleBarEnds?.has(slotEnd)) {
+            stave.setEndBarType(vf.Barline.type.DOUBLE);
           }
           stave.setContext(ctx).draw();
           staves.set(staff, stave);
@@ -1535,7 +1546,14 @@ function render(
           }
         }
         new vf.StaveConnector(top, bottom)
-          .setType(slotEnd === lastMeasure ? 'boldDoubleRight' : 'singleRight')
+          .setType(
+            slotEnd === lastMeasure
+              ? 'boldDoubleRight'
+              : options.doubleBarEnds?.has(slotEnd) &&
+                  !options.repeatEnds?.has(slotEnd)
+                ? 'thinDouble'
+                : 'singleRight',
+          )
           .setContext(ctx)
           .draw();
       });
@@ -2072,6 +2090,7 @@ export function StaffView({
   systemMarks,
   repeatStarts,
   repeatEnds,
+  doubleBarEnds,
   headroom,
   multiRests,
   onLayout,
@@ -2140,6 +2159,7 @@ export function StaffView({
           systemMarks,
           repeatStarts,
           repeatEnds,
+          doubleBarEnds,
           headroom,
           multiRests,
           printing,
@@ -2165,6 +2185,7 @@ export function StaffView({
     systemMarks,
     repeatStarts,
     repeatEnds,
+    doubleBarEnds,
     headroom,
     multiRests,
     printing,

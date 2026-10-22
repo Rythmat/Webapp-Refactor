@@ -5,8 +5,11 @@ import {
 } from '@/audio/engine/AudioBus';
 import { metronome } from '@/audio/transport/Metronome';
 import {
+  allocateChannel,
+  getDroneChannel,
   getLocalChannel,
   initJamSynth,
+  releaseChannel,
   jamControllerChange,
   jamNoteOff,
   jamNoteOn,
@@ -16,6 +19,14 @@ import type { OscillatorEntry } from './types';
 
 const CC_CHANNEL_VOLUME = 7; // MIDI CC7
 const GRAND_PIANO_PROGRAM = 0; // GM program: "Acoustic Grand Piano"
+const PAD_PROGRAM = 4; // GM program: "Electric Piano 1"
+const BASS_PROGRAM = 33; // GM program: "Electric Bass (finger)"
+/** The bass's lease on a channel of the shared synth. */
+const BASS_LEASE = 'major-arcanum-bass';
+/** The band sits under the player: its level against the melody's. */
+const BACKING_LEVEL_SCALAR = 0.3;
+const PAD_VELOCITY = 52;
+const BASS_VELOCITY = 84;
 
 // Melody used to run synth → melodyGain(1.0) → masterGain(0.4) → speakers. It
 // now runs through the shared synth's own bus, so that 0.4 is folded into the
@@ -54,6 +65,16 @@ export class AudioEngine {
   private masterVolume = 1;
   private melodyVolume = 1;
 
+  // The band under the falling notes: a soft electric piano on the pad
+  // channel, a bass on a channel of its own. Each note's release is timed.
+  private readonly padChannel = getDroneChannel();
+  private bassChannel: number | null = null;
+  private backingVolume = 1;
+  private readonly backingNotes = new Map<
+    string,
+    { channel: number; midi: number; timer: number }
+  >();
+
   constructor() {
     // Shared context + this game's own buses, rather than a context per game.
     this.ctx = getAudioContext();
@@ -91,8 +112,12 @@ export class AudioEngine {
       // Shared load: whichever game got here first paid for the soundfont.
       await initJamSynth();
       jamProgramChange(this.channel, GRAND_PIANO_PROGRAM);
+      this.bassChannel = allocateChannel(BASS_LEASE);
+      jamProgramChange(this.padChannel, PAD_PROGRAM);
+      jamProgramChange(this.bassChannel, BASS_PROGRAM);
       this.synthReady = true;
       this.applyMelodyVolume();
+      this.applyBackingVolume();
     } catch {
       // Soundfont failed to load — oscillator fallback will be used
       this.synthReady = false;
@@ -110,8 +135,56 @@ export class AudioEngine {
     );
   }
 
+  /** Push the backing mixer position at the band's two channels. */
+  private applyBackingVolume() {
+    if (!this.synthReady) return;
+    const level = Math.round(
+      Math.max(
+        0,
+        Math.min(
+          1,
+          this.masterVolume * this.backingVolume * BACKING_LEVEL_SCALAR,
+        ),
+      ) * 127,
+    );
+    jamControllerChange(this.padChannel, CC_CHANNEL_VOLUME, level);
+    if (this.bassChannel !== null)
+      jamControllerChange(this.bassChannel, CC_CHANNEL_VOLUME, level);
+  }
+
+  /** A note of the band, for `durationS` seconds from now. */
+  playBacking(voice: 'pad' | 'bass', midi: number, durationS: number) {
+    if (!this.synthReady) return;
+    const channel = voice === 'pad' ? this.padChannel : this.bassChannel;
+    if (channel === null) return;
+    const id = `${channel}:${midi}`;
+    const held = this.backingNotes.get(id);
+    if (held) {
+      window.clearTimeout(held.timer);
+      jamNoteOff(channel, midi);
+    }
+    jamNoteOn(channel, midi, voice === 'pad' ? PAD_VELOCITY : BASS_VELOCITY);
+    const timer = window.setTimeout(
+      () => {
+        jamNoteOff(channel, midi);
+        this.backingNotes.delete(id);
+      },
+      Math.max(0.05, durationS) * 1000,
+    );
+    this.backingNotes.set(id, { channel, midi, timer });
+  }
+
+  /** Silence the band. */
+  stopBacking() {
+    for (const { channel, midi, timer } of this.backingNotes.values()) {
+      window.clearTimeout(timer);
+      jamNoteOff(channel, midi);
+    }
+    this.backingNotes.clear();
+  }
+
   setVolume(
-    category: 'master' | 'melody' | 'drums' | 'metronome',
+    category: 'master' | 'melody' | 'drums' | 'metronome' | 'backing',
     value: number,
   ) {
     const clamped = Math.max(0, Math.min(1, value));
@@ -120,6 +193,11 @@ export class AudioEngine {
         this.masterVolume = clamped;
         this.masterGain.gain.value = clamped * 0.4;
         this.applyMelodyVolume();
+        this.applyBackingVolume();
+        break;
+      case 'backing':
+        this.backingVolume = clamped;
+        this.applyBackingVolume();
         break;
       case 'melody':
         this.melodyVolume = clamped;
@@ -155,6 +233,7 @@ export class AudioEngine {
     }
     this.activeOscillators.forEach((_, midi) => this.stopTone(midi));
     this.activeNotes.clear();
+    this.stopBacking();
   }
 
   /**
@@ -163,6 +242,7 @@ export class AudioEngine {
    */
   close() {
     this.suspend();
+    if (this.bassChannel !== null) releaseChannel(BASS_LEASE);
     this.masterGain.disconnect();
   }
 

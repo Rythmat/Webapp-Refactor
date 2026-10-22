@@ -3,8 +3,9 @@
  * say what chords they were written over), so the Parts Library can be
  * browsed by progression.
  *
- * A part's `chordSymbols` are one per bar, looping, in the part's key — the
- * same shape as a genre activity step's — so they are read the way the
+ * A part's `chordSymbols` are a bar each, looping, in the part's key; in
+ * order, a bar's chords one after another, they are the same shape as a
+ * genre activity step's, so they are read the way the
  * progression crosscheck reads a step (content/harmony): a minor or modal
  * part from its own tonic and from its parent major. Only strong matches
  * count: the part plays the progression from its top, or as a phrase.
@@ -16,7 +17,7 @@ import {
   buildHarmonyIndex,
   isStrongMatch,
 } from '@/content/harmony';
-import type { InstrumentPart } from '@/curriculum/engine/parts/part';
+import { barChords, type InstrumentPart } from '@/curriculum/engine/parts/part';
 
 const PC_NAMES = [
   'C',
@@ -56,7 +57,14 @@ export function partProgressions(
         {
           id: p.id,
           steps: [
-            { stepNumber: 0, activity: p.id, chordSymbols: p.chordSymbols },
+            {
+              stepNumber: 0,
+              activity: p.id,
+              // A bar's chords, in order ('Dm7 G7' is two).
+              chordSymbols: p.chordSymbols?.flatMap((bar) =>
+                barChords(bar).filter((c): c is string => c !== null),
+              ),
+            },
           ],
         },
       ],

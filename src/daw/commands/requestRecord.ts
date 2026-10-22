@@ -59,11 +59,20 @@ export function wouldRecordOverTake(
 
 /**
  * Start recording, or ask first when the take would record over existing
- * audio. `beforeStart` runs just before recording starts, whichever way it
- * starts: the Record button passes its audio-engine init.
+ * audio; while a take runs or counts in, stop it instead. `beforeStart` runs
+ * just before recording starts, whichever way it starts: the Record button
+ * passes its audio-engine init.
  */
-export function requestRecord(beforeStart?: () => void): 'started' | 'asked' {
+export function requestRecord(
+  beforeStart?: () => void,
+): 'started' | 'asked' | 'stopped' {
   const state = useStore.getState();
+  // Record again while a take runs (or counts in) stops it, keeping what was
+  // played, as the button's hint says and the Practice view's R already does.
+  if (state.isRecording || state.isCountingIn) {
+    state.stop();
+    return 'stopped';
+  }
   const armed = armedAudioTrack(state);
   if (armed && wouldRecordOverTake(state)) {
     setPending({ trackId: armed.id, beforeStart });

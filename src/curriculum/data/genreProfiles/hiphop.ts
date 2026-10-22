@@ -206,7 +206,7 @@ Underneath every artist’s flow and message: a short loop, a deep bass, and dri
   characteristics: [
     'The beat comes first — drums and bass carry the record',
     'Short loops: one to four chords, repeated',
-    'Minor keys and modal colour: Aeolian, Dorian, Phrygian',
+    'Minor keys and modal color: Aeolian, Dorian, Phrygian',
     'Chords sit high, the bass sits low — a wide gap between them',
     'The bass locks to the kick drum',
     'Two feels: swung, behind-the-beat boom bap, and straight half-time trap with rolling hi-hats',
@@ -215,10 +215,24 @@ Underneath every artist’s flow and message: a short loop, a deep bass, and dri
   levels: {
     1: {
       keyCenter: 'C minor',
-      mode: 'Minor Pentatonic',
+      mode: 'Minor Pentatonic / Aeolian',
       keyMidi: 60,
       scaleIntervals: [0, 3, 5, 7, 10],
       scaleNotes: ['C', 'E♭', 'F', 'G', 'B♭'],
+      scales: [
+        {
+          name: 'Minor Pentatonic',
+          scaleId: 'minor_pentatonic',
+          intervals: [0, 3, 5, 7, 10],
+          notes: ['C', 'E♭', 'F', 'G', 'B♭'],
+        },
+        {
+          name: 'Aeolian',
+          scaleId: 'aeolian',
+          intervals: [0, 2, 3, 5, 7, 8, 10],
+          notes: ['C', 'D', 'E♭', 'F', 'G', 'A♭', 'B♭'],
+        },
+      ],
       tempoRange: '72–80 BPM (half-time)',
       primaryVoicings: [
         {
@@ -286,6 +300,20 @@ Underneath every artist’s flow and message: a short loop, a deep bass, and dri
       keyMidi: 69,
       scaleIntervals: [0, 3, 5, 6, 7, 10],
       scaleNotes: ['A', 'C', 'D', 'E♭', 'E', 'G'],
+      scales: [
+        {
+          name: 'Minor Blues',
+          scaleId: 'minor_blues',
+          intervals: [0, 3, 5, 6, 7, 10],
+          notes: ['A', 'C', 'D', 'E♭', 'E', 'G'],
+        },
+        {
+          name: 'Dorian',
+          scaleId: 'dorian',
+          intervals: [0, 2, 3, 5, 7, 9, 10],
+          notes: ['A', 'B', 'C', 'D', 'E', 'F♯', 'G'],
+        },
+      ],
       tempoRange: '87–90 BPM',
       primaryVoicings: [
         {
@@ -353,6 +381,26 @@ Underneath every artist’s flow and message: a short loop, a deep bass, and dri
       keyMidi: 64,
       scaleIntervals: [0, 1, 3, 5, 7, 8, 10],
       scaleNotes: ['E', 'F', 'G', 'A', 'B', 'C', 'D'],
+      scales: [
+        {
+          name: 'Phrygian',
+          scaleId: 'phrygian',
+          intervals: [0, 1, 3, 5, 7, 8, 10],
+          notes: ['E', 'F', 'G', 'A', 'B', 'C', 'D'],
+        },
+        {
+          name: 'Dorian',
+          scaleId: 'dorian',
+          intervals: [0, 2, 3, 5, 7, 9, 10],
+          notes: ['E', 'F♯', 'G', 'A', 'B', 'C♯', 'D'],
+        },
+        {
+          name: 'Harmonic Minor',
+          scaleId: 'harmonic_minor',
+          intervals: [0, 2, 3, 5, 7, 8, 11],
+          notes: ['E', 'F♯', 'G', 'A', 'B', 'C', 'D♯'],
+        },
+      ],
       tempoRange: '77–84 BPM',
       primaryVoicings: [
         {
@@ -360,18 +408,21 @@ Underneath every artist’s flow and message: a short loop, a deep bass, and dri
           symbol: 'Em9',
           midis: [40, 79, 83, 86, 90], // E2 + G5-B5-D6-F#6
           description: 'LH E, RH G–B–D–F♯: the 3, 5, 7 and 9',
+          scaleId: 'dorian',
         },
         {
           label: 'A/B',
           symbol: 'A/B',
           midis: [35, 81, 85, 88], // B1 + A5-C#6-E6
           description: 'An A triad over B — the Dorian move from Em9',
+          scaleId: 'dorian',
         },
         {
           label: 'B7♭9',
           symbol: 'B7b9',
           midis: [47, 81, 84, 87, 90], // B2 + A5-C6-D#6-F#6
           description: 'A–C–D♯–F♯ after Am7: A and C stay, two notes move',
+          scaleId: 'harmonic_minor',
         },
         {
           label: 'D♯dim7 → Em add2',
@@ -379,12 +430,12 @@ Underneath every artist’s flow and message: a short loop, a deep bass, and dri
           midis: [75, 78, 81, 84], // D#5-F#5-A5-C6
           description:
             'Harmonic minor: rising 8th-note arpeggios, the bass steps D♯ → E',
+          scaleId: 'harmonic_minor',
         },
       ],
       technique: {
         melody: {
-          summary:
-            'Three colours of E minor: Phrygian, Dorian, harmonic minor.',
+          summary: 'Three colors of E minor: Phrygian, Dorian, harmonic minor.',
           details: [
             'Phrygian: F, the ♭2, leaning on E',
             'Dorian: C♯, the 6, swung',

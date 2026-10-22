@@ -9,6 +9,11 @@ import { useSaveGameOptions } from '@/hooks/data/gameOptions/useSaveGameOptions'
 import type { GameOptionsMap } from '@/lib/gameOptions/api';
 import { emptyBlob, estimateBlobBytes, normalizeBlob } from '../setListsStore';
 import type { SetListsBlob } from '../types';
+import {
+  seedSetListSandbox,
+  useSetListSandbox,
+  writeSetListSandbox,
+} from './setListSandbox';
 
 /**
  * Where set lists live.
@@ -135,6 +140,27 @@ export function useSetListsStorage(): SetListsStorage {
       : query.isError && !local
         ? 'error'
         : 'ready';
+
+  // A Learn tour's practice copy (setListSandbox.ts): made from the player's
+  // set lists once they're in, and the only thing read or written meanwhile.
+  const sandbox = useSetListSandbox();
+  // A failed load still gets a copy (of nothing): the tour goes on.
+  const loaded = status !== 'loading';
+  useEffect(() => {
+    if (sandbox.active && !sandbox.blob && loaded) seedSetListSandbox(blob);
+  }, [sandbox.active, sandbox.blob, loaded, blob]);
+  const sandboxFlush = useCallback(async () => {}, []);
+  if (sandbox.active) {
+    return {
+      blob: sandbox.blob ?? blob,
+      status: loaded ? 'ready' : status,
+      isSaving: false,
+      isDirty: false,
+      saveState: 'saved',
+      save: writeSetListSandbox,
+      flush: sandboxFlush,
+    };
+  }
 
   return {
     blob: status === 'signedOut' && !local ? emptyBlob() : blob,

@@ -164,6 +164,7 @@ export function LeadSheetScoreView({ tracks }: LeadSheetScoreViewProps) {
         <LeadSheetToolbar selectedMeasureIdx={selectedMeasureIdx} />
 
         <div
+          data-tutorial-id="leadsheet-sheet"
           className="leadsheet-scroll flex-1 overflow-y-auto"
           style={{ padding: '32px 48px' }}
         >

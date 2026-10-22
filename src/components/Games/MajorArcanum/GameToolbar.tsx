@@ -32,11 +32,11 @@ interface GameToolbarProps {
   melodyVolume: number;
   drumVolume: number;
   metronomeVolume: number;
-  onChangeBPM: (delta: number) => void;
+  backingVolume: number;
   onToggleMetronome: () => void;
   onToggleVolumePanel: () => void;
   onChangeVolume: (
-    category: 'melody' | 'drums' | 'metronome',
+    category: 'melody' | 'drums' | 'metronome' | 'backing',
     value: number,
   ) => void;
 }
@@ -49,30 +49,19 @@ export function GameToolbar({
   melodyVolume,
   drumVolume,
   metronomeVolume,
-  onChangeBPM,
+  backingVolume,
   onToggleMetronome,
   onToggleVolumePanel,
   onChangeVolume,
 }: GameToolbarProps) {
   return (
     <div className="h-12 bg-[#101012] border-b border-white/10 flex items-center px-6 gap-4 shrink-0">
+      {/* The level sets the tempo. */}
       <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.03] rounded border border-white/10">
-        <button
-          onClick={() => onChangeBPM(-5)}
-          className="text-zinc-400 hover:text-white px-2"
-        >
-          -
-        </button>
         <span className="text-xs text-zinc-500">BPM</span>
         <span className="text-sm text-zinc-200 tabular-nums w-8 text-center">
           {bpm}
         </span>
-        <button
-          onClick={() => onChangeBPM(5)}
-          className="text-zinc-400 hover:text-white px-2"
-        >
-          +
-        </button>
       </div>
       <button
         onClick={onToggleMetronome}
@@ -102,6 +91,11 @@ export function GameToolbar({
             label="Keys"
             value={melodyVolume}
             onChange={(v) => onChangeVolume('melody', v)}
+          />
+          <VolumeSlider
+            label="Band"
+            value={backingVolume}
+            onChange={(v) => onChangeVolume('backing', v)}
           />
           <VolumeSlider
             label="Drums"

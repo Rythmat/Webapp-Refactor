@@ -93,13 +93,13 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
 
   // ── tracks ──
   nextColorIndex:
-    'The palette colour the next new track takes; a load derives it from the track count.',
+    'The palette color the next new track takes; a load derives it from the track count.',
 
   // ── harmony ──
   rootLocked:
     'The key lock guards this student’s own key changes: saved with the project, never shared.',
   rootTrackColor:
-    'The key colour: derived from rootNote and mode, and recomputed on load.',
+    'The key color: derived from rootNote and mode, and recomputed on load.',
 
   // ── prism ──
   chordSeq: BUILDER,
@@ -164,6 +164,12 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   tutorialStepCelebrate: STEP,
   tutorialStepPrepared:
     'Whether the running step’s preconditions are in place; a resumed lesson finds them in its draft’s view.',
+  tutorialDemoPhase:
+    'Whether the step’s demo is playing or it is the student’s turn; a resumed step is the student’s turn, with the demo a click away.',
+  tutorialDemoRun:
+    'How many times the step’s demo has started, so a replay starts it over.',
+  finishedTutorialId:
+    'The course lesson whose end card is showing: gone with the session, as the card is.',
 
   // ── analysis (the music-intelligence bus) ──
   detectedKeyRootPc: ANALYSIS,
@@ -223,6 +229,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   recordingLimitModalOpen: 'A notice about a take in the previous project.',
   lastAudioExportAt:
     'When this project was last exported. A lesson detects an export by it, so a new project starts without one.',
+  doneMoments:
+    'How many saves, exports and prints the student has finished on this page, for a lesson step to notice; they are things the student did, not part of any project, so a load leaves them and they only ever count up.',
   leadSheetSelectedChordIdx: SELECTION,
   selectedChordIds: SELECTION,
   selectedNotes: SELECTION,
@@ -267,7 +275,7 @@ export const TRACK_FIELD_REASONS: Reasons<Track> = Object.freeze({
   id: 'Stable across cloud loads: the cloud payload carries it as settings.sourceTrackId (decision D4).',
   type: 'A live input instrument makes an audio track. An imported audio file has no instrument, so its caller passes the type.',
   color:
-    'A new track takes the next palette colour, or the key colour while a key is set.',
+    'A new track takes the next palette color, or the key color while a key is set.',
   mute: 'Saved with the project and to the cloud; each collaborator mutes on their own.',
   solo: 'Saved with the project and to the cloud; each collaborator solos on their own.',
   recordArmed: OWN_INPUT,

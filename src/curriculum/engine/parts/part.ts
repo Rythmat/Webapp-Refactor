@@ -13,6 +13,9 @@
  * No audio and no React here.
  */
 
+import type { ApproachStep } from '../approach/approach';
+import { keyPrefersFlats, pcName } from '../bassLines/harmony';
+
 export const PPQ = 480;
 
 export type PartInstrument = 'piano' | 'bass' | 'guitar' | 'drums';
@@ -89,6 +92,15 @@ export interface PartNote {
   grace?: boolean;
   /** Fingering: 1–5 (thumb = 1). */
   finger?: number;
+  /**
+   * An approach marked by hand: its steps from the note of the goal it
+   * moves with — the hand's next chord that isn't an approach, or one
+   * marked `goal` — so C9 B9 into B♭9 stays a parallel slide over any chart
+   * (parts/followChords.ts, approach/approach.ts).
+   */
+  approach?: ApproachStep;
+  /** An approach that is also a goal: the approach before it leads into it. */
+  goal?: boolean;
 }
 
 /** Where a note sounds: written position plus feel. */
@@ -168,8 +180,20 @@ export interface InstrumentPart {
    * "this bass line, in Bahia feel". Notes' own offsets win over it.
    */
   feel?: string;
-  /** The harmony it was written over, one symbol per bar — context only. */
+  /**
+   * The harmony it was written over, one entry per bar, looping: a bar's
+   * chords as a chart writes them ('Dm7 G7' splits the bar evenly, a '.'
+   * carries the chord before it on — `barChords`). A part that names them
+   * follows another chart's chords (followChords.ts).
+   */
   chordSymbols?: string[];
+  /**
+   * Which hands Stay in Key over another chart (followChords.ts): they play
+   * the same degrees of that chart's key whatever its chords — 1–5 of the
+   * key held over a moving bass, a left-hand ostinato. 'both' for a part
+   * that names no hands. Unset, every hand follows the chords.
+   */
+  stayInKey?: 'lh' | 'rh' | 'both';
   /**
    * The Studio sound it plays on: an InstrumentType, optionally with a bass
    * voice ('bass-electric:finger').
@@ -177,6 +201,20 @@ export interface InstrumentPart {
   sound: string;
   notes: PartNote[];
   source: PartSource;
+}
+
+/**
+ * One bar of `chordSymbols`: a slot for each chord or '.' written, splitting
+ * the bar evenly — the chord struck there, or null where the chord before it
+ * (from the bar before, at the start) carries on. 'C . . G7' is three beats
+ * of C and one of G7 in 4/4; 'Dm7 G7' two beats each. Empty for an empty bar.
+ */
+export function barChords(entry: string | undefined): (string | null)[] {
+  return String(entry ?? '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((token) => (token === '.' || token === '/' ? null : token));
 }
 
 // ── Lengths ────────────────────────────────────────────────────────────────
@@ -267,9 +305,56 @@ function fitRegister(notes: PartNote[], instrument: PartInstrument) {
 /**
  * The part in another key: every note moved by the nearest shift, the figure
  * kept in its instrument's register, the mode carried over unless given.
- * Drums don't transpose. Tab positions are dropped — a fingering for one key
- * is not a fingering for another; the tab view re-derives them.
+ * Drums don't transpose. Tab positions and fingers are dropped — a fingering
+ * for one key is not a fingering for another; the tab view and the piano
+ * fingering suggester re-derive them.
  */
+const LETTER_PC: Record<string, number> = {
+  C: 0,
+  D: 2,
+  E: 4,
+  F: 5,
+  G: 7,
+  A: 9,
+  B: 11,
+};
+const NOTE_NAME = /^([A-G])([#b♯♭]?)/;
+const notePc = (letter: string, accidental: string) =>
+  LETTER_PC[letter] +
+  (accidental === '#' || accidental === '♯'
+    ? 1
+    : accidental === 'b' || accidental === '♭'
+      ? -1
+      : 0);
+
+/**
+ * A chord symbol moved by `semitones`: its root and slash bass rewritten,
+ * spelled with flats or sharps as the new key spells them, its quality as
+ * written ('Cm7/Eb' up a tone is 'Dm7/F'). A '.' or anything without a root
+ * stays as it is.
+ */
+export function transposeChordSymbol(
+  symbol: string,
+  semitones: number,
+  flats: boolean,
+): string {
+  const root = symbol.match(NOTE_NAME);
+  if (!root) return symbol;
+  const move = (letter: string, accidental: string) =>
+    pcName(notePc(letter, accidental) + semitones, flats);
+  let out = move(root[1], root[2]) + symbol.slice(root[0].length);
+  const slash = out.lastIndexOf('/');
+  const bass = slash >= 0 ? out.slice(slash + 1).match(NOTE_NAME) : null;
+  if (bass)
+    out =
+      out.slice(0, slash + 1) +
+      move(bass[1], bass[2]) +
+      out.slice(slash + 1 + bass[0].length);
+  return out;
+}
+
+const MINOR_MODES = new Set(['aeolian', 'dorian', 'phrygian', 'locrian']);
+
 export function transposePart(
   part: InstrumentPart,
   toTonic: number,
@@ -277,13 +362,26 @@ export function transposePart(
 ): InstrumentPart {
   if (part.instrument === 'drums') return part;
   const shift = shiftBetween(part.key.tonic, toTonic);
-  const moved = part.notes.map(({ string: _s, fret: _f, ...n }) => ({
-    ...n,
-    midi: n.midi + shift,
-  }));
+  // Its chords move with it, so it still follows them: Am7 D7 in A is Cm7 F7
+  // in C.
+  const flats = keyPrefersFlats(toTonic, MINOR_MODES.has(toMode));
+  const chordSymbols = part.chordSymbols?.map((bar) =>
+    bar
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((chord) => transposeChordSymbol(chord, shift, flats))
+      .join(' '),
+  );
+  const moved = part.notes.map(
+    ({ string: _s, fret: _f, finger: _g, ...n }) => ({
+      ...n,
+      midi: n.midi + shift,
+    }),
+  );
   return {
     ...part,
     key: { tonic: ((toTonic % 12) + 12) % 12, mode: toMode },
+    ...(chordSymbols && shift !== 0 ? { chordSymbols } : {}),
     notes: fitRegister(shift === 0 ? part.notes : moved, part.instrument),
   };
 }

@@ -144,6 +144,7 @@ function MoreMenu() {
           icon={<MoreHorizontal />}
           tooltipSide="bottom"
           data-testid="top-bar-overflow"
+          data-tutorial-id="top-bar-more"
           className={QUIET}
         />
       </MenuTrigger>
@@ -154,6 +155,7 @@ function MoreMenu() {
           shortcut={TYPING_KEYS.label}
           description={MORE_COPY.typing}
           data-testid="typing-menu-item"
+          data-tutorial-id="top-bar-more-typing"
         >
           Play notes from the computer keyboard
         </MenuCheckboxItem>

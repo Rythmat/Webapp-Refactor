@@ -1,21 +1,25 @@
-import { useRef } from 'react';
+import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { CircleOfFifthsSvg } from '@/components/common/CircleOfFifthsSvg';
 import { cn } from '@/components/utilities';
 import {
   degreeLabel,
   type TimedNote,
 } from '@/curriculum/engine/musicLiteracy/literacy';
-import type { RunPhase, RunView } from '@/curriculum/engine/musicLiteracy/run';
+import type { RunView } from '@/curriculum/engine/musicLiteracy/run';
 import { useElementSize } from '@/hooks/useElementSize';
+import type { HubHeadline, TurnCue } from './turnCues';
+import './literacyCues.css';
 
 // ── The call: the circle, the hub and the words ────────────────────────────
 // The left half of a Music Literacy step, as the landing page's Theory scene
-// draws its circle: the key on the circle of fifths in the house colours (a
-// minor step lights its relative major's colour), and in the circle's middle
-// a Simon-like hub: whose turn it is, the call's scale degrees lighting as
-// they sound and as they should be played back, and the beat. Under the
+// draws its circle: the key on the circle of fifths in the house colors (a
+// minor step lights its relative major's color), and in the circle's middle
+// a Simon-like hub: what to do now, in big lit letters (LISTEN, GET READY,
+// GO!, then YOUR TURN), the call's scale degrees lighting as they sound and
+// as they should be played back, and the beat. Under the
 // circle, the words, a bar to a line, each syllable lighting as its note
-// sounds; one sung off the root carries its scale degree.
+// sounds; one sung off the root carries its scale degree. A pickup's
+// syllables lead the first line, into its downbeat.
 
 /** The circle never grows past this, nor shrinks under the floor. */
 const MAX_CIRCLE = 460;
@@ -42,36 +46,59 @@ export function circleTrim(tonicPc: number): { top: number; bottom: number } {
 }
 
 export interface LiteracyCallPanelProps {
-  /** The 1's pitch class, and the step's mode by the colour rule. */
+  /** The 1's pitch class, and the step's mode by the color rule. */
   tonicPc: number;
   mode: 'major' | 'minor';
   keyColor: string;
   /** "C Major", "C Minor". */
   keyName: string;
-  /** Minor: the major key whose colour it wears ("E♭"). */
-  colourOf: string | null;
+  /** Minor: the major key whose color it wears ("E♭"). */
+  colorOf: string | null;
   call: readonly TimedNote[];
   response: readonly TimedNote[];
   words: readonly TimedNote[];
-  /** Where the words begin on the timeline, and a bar's length: one line a bar. */
+  /**
+   * Where the words' downbeat is on the timeline (a pickup comes before),
+   * and a bar's length: one line a bar.
+   */
   wordsStart: number;
   barTicks: number;
   beatsPerBar: number;
   view: RunView;
   running: boolean;
+  /**
+   * What the hub says over the degrees (turnCues.ts): LISTEN, GET READY,
+   * GO!, then whose turn; out of a run, what the degrees are.
+   */
+  headline: HubHeadline;
   /** The circle sits beside the words (a short, wide box) rather than above. */
   compact?: boolean;
+  /**
+   * What the hub shows under the headline instead of the call's degrees:
+   * a chord step's chord ("4 maj", lit while it sounds), or a list of
+   * degrees of the player's own (a create pass's notes, lit as played).
+   */
+  hubContent?:
+    | { kind: 'chord'; label: string; lit: boolean }
+    | { kind: 'degrees'; items: readonly { label: string; lit: boolean }[] };
+  /** Under the circle in place of the words (a chord step's bars). */
+  below?: ReactNode;
+  /**
+   * Drawn over the circle, in its box (Echo's boss): absolutely placed,
+   * sized as it likes against the circle's box.
+   */
+  art?: ReactNode;
+  /** The ring faded out (cross-fading under `art`). */
+  ringFaded?: boolean;
+  /**
+   * The hub as a bar under the circle instead of in its middle, so what's
+   * drawn there (`art`) shows whole: the same cues, degrees and beats.
+   */
+  hubBelow?: boolean;
 }
 
-const TURN: Record<RunPhase, string> = {
-  countIn: 'Ready',
-  words: 'My turn',
-  call: 'My turn',
-  response: 'Your turn',
-};
-
 export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
-  const { keyColor, keyName, colourOf, compact } = props;
+  const { keyColor, keyName, colorOf, compact } = props;
   // The circle takes what the words leave, and the two stay together.
   const areaRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<HTMLDivElement>(null);
@@ -105,9 +132,9 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
         style={{ backgroundColor: keyColor }}
       />
       <span className="text-[#e8e8f0]">{keyName}</span>
-      {colourOf && (
+      {colorOf && (
         <span className="normal-case tracking-normal text-white/45">
-          · in {colourOf}’s colour
+          · in {colorOf}’s color
         </span>
       )}
     </p>
@@ -123,15 +150,37 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
         marginBottom: -trim.bottom * size,
       }}
     >
-      <CircleOfFifthsSvg
-        selectedPitch={props.tonicPc}
-        selectedMode={props.mode}
-        size={size}
-        labelWeight={400}
-        ariaLabel={`${keyName}${colourOf ? `, in ${colourOf}’s colour` : ''}`}
-      />
-      <Hub {...props} size={size} />
+      <div
+        data-literacy-ring={props.ringFaded ? 'faded' : undefined}
+        className="transition-opacity duration-700 ease-out motion-reduce:transition-none"
+        style={{ opacity: props.ringFaded ? 0 : 1 }}
+      >
+        <CircleOfFifthsSvg
+          selectedPitch={props.tonicPc}
+          selectedMode={props.mode}
+          size={size}
+          labelWeight={400}
+          ariaLabel={`${keyName}${colorOf ? `, in ${colorOf}’s color` : ''}`}
+        />
+      </div>
+      {props.art}
+      {!props.hubBelow && <Hub {...props} size={size} />}
     </div>
+  );
+  // The hub's bar under the circle: sized by the panel's width, which the
+  // circle's size doesn't change, so the two don't chase each other.
+  const hubBar = props.hubBelow ? (
+    <Hub
+      {...props}
+      size={Math.max(280, Math.min(400, area.width || 400))}
+      bar
+    />
+  ) : null;
+  const under = (
+    <>
+      {hubBar}
+      {props.below ?? <WordsLine {...props} />}
+    </>
   );
 
   return (
@@ -144,8 +193,11 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
       {compact ? (
         <div className="flex min-w-0 items-center gap-6 max-[639px]:flex-col max-[639px]:gap-3">
           {circle}
-          <div ref={wordsRef} className="min-w-0 flex-1">
-            <WordsLine {...props} />
+          <div
+            ref={wordsRef}
+            className={cn('min-w-0 flex-1', hubBar && 'flex flex-col gap-2')}
+          >
+            {under}
           </div>
         </div>
       ) : (
@@ -155,8 +207,11 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
             style={{ gap: WORDS_GAP }}
           >
             {circle}
-            <div ref={wordsRef} className="w-full">
-              <WordsLine {...props} />
+            <div
+              ref={wordsRef}
+              className={cn('w-full', hubBar && 'flex flex-col gap-2')}
+            >
+              {under}
             </div>
           </div>
         </div>
@@ -167,91 +222,245 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
 
 // ── The hub ────────────────────────────────────────────────────────────────
 
+/**
+ * Each cue's letters, as a share of the hub's diameter: as big as the hub's
+ * width allows at the headline (GET READY is the longest), Go! the biggest.
+ */
+const CUE_SIZE: Readonly<Record<TurnCue, number>> = {
+  listen: 0.19,
+  getReady: 0.135,
+  go: 0.27,
+  playAlong: 0.125,
+  yourCall: 0.135,
+  repeatIt: 0.135,
+  countOff: 0.2,
+};
+
+/** The headline's height, as a share of the diameter: room for Go!. */
+const HEADLINE_BOX = 0.27;
+
+/** Each cue's light: base, the sheen's peak, the glow (CSS colors). */
+function cueColors(cue: TurnCue, keyColor: string) {
+  const mix = (share: number, other: string) =>
+    `color-mix(in oklab, ${keyColor} ${share}%, ${other})`;
+  switch (cue) {
+    // Calm: silver, lit white.
+    case 'listen':
+      return {
+        base: '#d9dbe6',
+        shine: '#ffffff',
+        glow: 'rgb(255 255 255 / 0.28)',
+        glowSize: '5px',
+      };
+    // The call's color: the degrees lighting under it are the targets. The
+    // challenge's Play Along and the create pass's own cues light the same.
+    case 'getReady':
+    case 'playAlong':
+    case 'yourCall':
+    case 'repeatIt':
+    case 'countOff':
+      return {
+        base: mix(78, 'white'),
+        shine: mix(20, 'white'),
+        glow: mix(60, 'transparent'),
+        glowSize: '7px',
+      };
+    // The brightest: white-hot in the call's color.
+    case 'go':
+      return {
+        base: mix(52, 'white'),
+        shine: '#ffffff',
+        glow: mix(85, 'transparent'),
+        glowSize: '10px',
+      };
+  }
+}
+
+function Headline({
+  headline,
+  keyColor,
+  diameter,
+}: {
+  headline: HubHeadline;
+  keyColor: string;
+  diameter: number;
+}) {
+  const label = Math.max(9, Math.min(13, diameter * 0.085));
+  let content;
+  if (headline.kind === 'cue') {
+    const colors = cueColors(headline.cue, keyColor);
+    // A count-off's numbers are as big as the Go! they count to.
+    const size =
+      headline.cue === 'countOff' && /^\d+$/.test(headline.text)
+        ? CUE_SIZE.go
+        : CUE_SIZE[headline.cue];
+    content = (
+      <span
+        // A new cue remounts, so it pops in again: a count-off's every beat.
+        key={`${headline.cue}:${headline.text}`}
+        data-literacy-cue={headline.cue}
+        className="literacy-cue"
+        style={
+          {
+            fontSize: Math.max(12, diameter * size),
+            '--cue-base': colors.base,
+            '--cue-shine': colors.shine,
+            '--cue-glow': colors.glow,
+            '--cue-glow-size': colors.glowSize,
+          } as CSSProperties
+        }
+      >
+        {headline.text}
+      </span>
+    );
+  } else if (headline.kind === 'turn') {
+    content = (
+      <span
+        className="whitespace-nowrap rounded-full font-semibold uppercase leading-none tracking-[0.14em] text-[#101012]"
+        style={{
+          fontSize: Math.max(10, Math.min(15, diameter * 0.095)),
+          backgroundColor: keyColor,
+          padding: '0.4em 0.75em',
+        }}
+      >
+        {headline.text}
+      </span>
+    );
+  } else {
+    content = (
+      <span
+        className="whitespace-nowrap font-semibold uppercase leading-none tracking-[0.14em] text-white/70"
+        style={{ fontSize: label }}
+      >
+        {headline.text}
+      </span>
+    );
+  }
+  return (
+    <p
+      aria-live="polite"
+      data-literacy-turn
+      className="flex items-center justify-center"
+      // A fixed box: the degrees under it stay put as the cues change.
+      style={{ height: Math.max(label * 2, diameter * HEADLINE_BOX) }}
+    >
+      {content}
+    </p>
+  );
+}
+
 function Hub({
   call,
   response,
   view,
   running,
+  headline,
   keyColor,
   beatsPerBar,
   size,
-}: LiteracyCallPanelProps & { size: number }) {
+  hubContent,
+  bar = false,
+}: LiteracyCallPanelProps & { size: number; bar?: boolean }) {
   // The hole in the ring is 38% of the circle (CircleOfFifthsSvg).
   const diameter = size * 0.36;
   const figure = view.phase === 'response' ? response : call;
   const lit = view.hub;
-  const turn = running && view.phase ? TURN[view.phase] : 'The call';
-  const yourTurn = running && view.phase === 'response';
-  const digits = Math.max(1, figure.length);
+  // The degrees shown: the call's (or the answer's), or the player's own.
+  const items =
+    hubContent?.kind === 'degrees'
+      ? hubContent.items
+      : figure.map((note, i) => ({
+          label: degreeLabel(note.degree),
+          lit:
+            lit !== null &&
+            lit.index === i &&
+            lit.segment === (view.phase === 'response' ? 'response' : 'call'),
+        }));
+  const digits = Math.max(1, items.length);
   const degreeSize = Math.max(
     14,
     Math.min(34, diameter / (digits * 1.25 + 0.6)),
   );
+  // From GET READY to GO! the degrees are what to copy: brought forward.
+  const copying = headline.kind === 'cue' && headline.cue !== 'listen';
+  const waiting = copying ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.4)';
 
   return (
     <div
-      data-literacy-hub
+      data-literacy-hub={bar ? 'bar' : true}
       data-turn={running ? (view.phase ?? 'idle') : 'idle'}
-      className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-[6%] rounded-full bg-[#101012] text-center"
-      style={{ width: diameter, height: diameter }}
+      data-cue={headline.kind === 'cue' ? headline.cue : undefined}
+      className={
+        bar
+          ? // A bar: the headline (its box as wide as the hub, so the rest
+            // stays put as the cues change), the degrees, the beats.
+            'flex max-w-full items-center justify-center gap-[clamp(10px,2.5%,20px)] self-center rounded-full bg-[#101012] px-5 text-center'
+          : 'absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-[4%] rounded-full bg-[#101012] text-center'
+      }
+      style={bar ? undefined : { width: diameter, height: diameter }}
     >
-      <p
-        aria-live="polite"
-        data-literacy-turn
-        className={cn(
-          'whitespace-nowrap font-semibold uppercase leading-none tracking-[0.14em] transition-colors duration-150',
-          yourTurn ? 'text-[#101012]' : 'text-white/70',
-        )}
-        style={{
-          fontSize: Math.max(9, Math.min(13, diameter * 0.085)),
-          ...(yourTurn
-            ? {
-                backgroundColor: keyColor,
-                borderRadius: 999,
-                padding: '0.35em 0.7em',
-              }
-            : {}),
-        }}
-      >
-        {turn}
-      </p>
-      <p
-        aria-label={`Scale degrees ${figure.map((n) => degreeLabel(n.degree)).join(' ')}`}
-        data-literacy-degrees
-        className="flex items-baseline justify-center gap-[0.18em] font-semibold leading-none tabular-nums"
-        style={{ fontSize: degreeSize }}
-      >
-        {figure.map((note, i) => {
-          const on =
-            lit !== null &&
-            lit.index === i &&
-            lit.segment === (view.phase === 'response' ? 'response' : 'call');
-          return (
-            <span key={i} className="flex items-baseline gap-[0.18em]">
-              {i > 0 && (
-                <span aria-hidden className="text-[0.5em] text-white/25">
-                  ·
+      {bar ? (
+        <div className="shrink-0" style={{ width: diameter }}>
+          <Headline
+            headline={headline}
+            keyColor={keyColor}
+            diameter={diameter}
+          />
+        </div>
+      ) : (
+        <Headline headline={headline} keyColor={keyColor} diameter={diameter} />
+      )}
+      {hubContent?.kind === 'chord' ? (
+        <p
+          aria-label={`Chord ${hubContent.label}`}
+          data-literacy-hub-chord
+          data-chord-lit={hubContent.lit || undefined}
+          className="whitespace-nowrap font-semibold leading-none transition-[color,text-shadow] duration-75"
+          style={{
+            fontSize: Math.max(14, Math.min(30, diameter * 0.16)),
+            ...(hubContent.lit
+              ? { color: keyColor, textShadow: `0 0 14px ${keyColor}` }
+              : { color: running ? waiting : '#e8e8f0' }),
+          }}
+        >
+          {hubContent.label}
+        </p>
+      ) : (
+        <p
+          aria-label={`Scale degrees ${items.map((item) => item.label).join(' ')}`}
+          data-literacy-degrees
+          className="flex items-baseline justify-center gap-[0.18em] font-semibold leading-none tabular-nums"
+          style={{ fontSize: degreeSize }}
+        >
+          {items.map((item, i) => {
+            const on = item.lit;
+            return (
+              <span key={i} className="flex items-baseline gap-[0.18em]">
+                {i > 0 && (
+                  <span aria-hidden className="text-[0.5em] text-white/25">
+                    ·
+                  </span>
+                )}
+                <span
+                  data-degree-lit={on || undefined}
+                  className="transition-[color,text-shadow,transform] duration-75"
+                  style={
+                    on
+                      ? {
+                          color: keyColor,
+                          textShadow: `0 0 14px ${keyColor}`,
+                          transform: 'scale(1.15)',
+                        }
+                      : { color: running ? waiting : '#e8e8f0' }
+                  }
+                >
+                  {item.label}
                 </span>
-              )}
-              <span
-                data-degree-lit={on || undefined}
-                className="transition-[color,text-shadow,transform] duration-75"
-                style={
-                  on
-                    ? {
-                        color: keyColor,
-                        textShadow: `0 0 14px ${keyColor}`,
-                        transform: 'scale(1.15)',
-                      }
-                    : { color: running ? 'rgba(255,255,255,0.4)' : '#e8e8f0' }
-                }
-              >
-                {degreeLabel(note.degree)}
               </span>
-            </span>
-          );
-        })}
-      </p>
+            );
+          })}
+        </p>
+      )}
       <div
         aria-hidden
         data-literacy-beats
@@ -287,6 +496,19 @@ function Hub({
 /** A syllable ending in "-" joins the next ("Ma-", "jor" → "Ma-jor"). */
 const joinsNext = (text: string) => text.endsWith('-');
 
+/** The words as read: syllables joined into their words ("gon-na"). */
+const wordsText = (words: readonly TimedNote[]) =>
+  words
+    .map((w, i) =>
+      i < words.length - 1 && !joinsNext(w.text ?? '') ? `${w.text} ` : w.text,
+    )
+    .join('');
+
+interface Syllable {
+  note: TimedNote;
+  i: number;
+}
+
 function WordsLine({
   words,
   wordsStart,
@@ -296,16 +518,25 @@ function WordsLine({
   keyColor,
   compact,
 }: LiteracyCallPanelProps) {
-  const lines: { note: TimedNote; i: number }[][] = [];
+  // A line a bar; on each, the syllables grouped into their words, so a
+  // word never breaks across the line's wrap and reads as one ("gon-na").
+  // A pickup, before the words' downbeat, opens the first line.
+  const lines: Syllable[][][] = [];
   words.forEach((note, i) => {
-    const bar = Math.floor((note.onset - wordsStart) / barTicks);
-    (lines[bar] ??= []).push({ note, i });
+    const bar = Math.max(0, Math.floor((note.onset - wordsStart) / barTicks));
+    const line = (lines[bar] ??= []);
+    const word = line[line.length - 1];
+    if (word && joinsNext(word[word.length - 1].note.text ?? '')) {
+      word.push({ note, i });
+    } else {
+      line.push([{ note, i }]);
+    }
   });
 
   return (
     <div
       data-literacy-words
-      aria-label={`Words: ${words.map((w) => w.text).join(' ')}`}
+      aria-label={`Words: ${wordsText(words)}`}
       className={cn(
         'flex shrink-0 flex-col gap-1.5',
         compact ? 'min-w-0 flex-1 items-start' : 'items-center',
@@ -320,42 +551,48 @@ function WordsLine({
             compact ? 'justify-start' : 'justify-center',
           )}
         >
-          {line.map(({ note, i }) => {
-            const now = running && view.word === i;
-            const sung = running && view.word > i;
-            const offRoot = note.degree !== '1';
-            return (
-              <span
-                key={i}
-                data-word-index={i}
-                data-word-now={now || undefined}
-                className={cn(
-                  'flex flex-col items-center gap-1',
-                  joinsNext(note.text ?? '') && '-mr-[0.3em]',
-                )}
-              >
-                <span
-                  className="h-[0.6em] text-[0.6em] font-semibold leading-none"
-                  style={{ color: offRoot ? keyColor : 'transparent' }}
-                >
-                  {offRoot ? degreeLabel(note.degree) : '·'}
-                </span>
-                <span
-                  className="rounded px-[0.08em] transition-colors duration-75"
-                  style={{
-                    color: now
-                      ? '#101012'
-                      : sung || !running
-                        ? '#e8e8f0'
-                        : 'rgba(255,255,255,0.4)',
-                    backgroundColor: now ? keyColor : 'transparent',
-                  }}
-                >
-                  {note.text}
-                </span>
-              </span>
-            );
-          })}
+          {line.map((word) => (
+            <span key={word[0].i} data-literacy-word className="flex items-end">
+              {word.map(({ note, i }, s) => {
+                const now = running && view.word === i;
+                const sung = running && view.word > i;
+                const offRoot = note.degree !== '1';
+                return (
+                  <span
+                    key={i}
+                    data-word-index={i}
+                    data-word-now={now || undefined}
+                    className={cn(
+                      'flex flex-col items-center gap-1',
+                      // Each syllable keeps its own highlight; the next one
+                      // in the word sits flush, over the padding between.
+                      s > 0 && '-ml-[0.16em]',
+                    )}
+                  >
+                    <span
+                      className="h-[0.6em] text-[0.6em] font-semibold leading-none"
+                      style={{ color: offRoot ? keyColor : 'transparent' }}
+                    >
+                      {offRoot ? degreeLabel(note.degree) : '·'}
+                    </span>
+                    <span
+                      className="rounded px-[0.08em] transition-colors duration-75"
+                      style={{
+                        color: now
+                          ? '#101012'
+                          : sung || !running
+                            ? '#e8e8f0'
+                            : 'rgba(255,255,255,0.4)',
+                        backgroundColor: now ? keyColor : 'transparent',
+                      }}
+                    >
+                      {note.text}
+                    </span>
+                  </span>
+                );
+              })}
+            </span>
+          ))}
         </p>
       ))}
     </div>

@@ -16,6 +16,12 @@ import {
   pairedDrumNotes,
 } from '../lessonPairings/pairedBacking';
 import { barTicks } from '../meter';
+import {
+  followChords,
+  followsChords,
+  keyNotes,
+  keyShift,
+} from '../parts/followChords';
 import { partTicks, playedTick, type InstrumentPart } from '../parts/part';
 import {
   type BandLayer,
@@ -35,12 +41,6 @@ export interface BandItems {
   part(id: string): InstrumentPart | undefined;
 }
 
-/** Semitones from one tonic to another, the shorter way (−5 … +6). */
-const shiftBetween = (from: number, to: number) => {
-  const up = (((to - from) % 12) + 12) % 12;
-  return up > 6 ? up - 12 : up;
-};
-
 /**
  * A part's notes looped across the chart, moved to the chart's key when one
  * is given (its tonic as the first chord's root, otherwise as written).
@@ -55,7 +55,7 @@ function partNotes(
   const shift =
     tonic === undefined || part.instrument === 'drums'
       ? 0
-      : shiftBetween(part.key.tonic, tonic);
+      : keyShift(part.key.tonic, tonic);
   const out: BackingNote[] = [];
   if (loop <= 0) return out;
   for (let start = 0; start < total; start += loop) {
@@ -75,14 +75,64 @@ function partNotes(
 }
 
 /**
+ * A part following the chart's chords (parts/followChords.ts) in its key,
+ * looped across it as `partNotes` loops one, the voice leading carried on
+ * from pass to pass. Null when the part names no chords to follow from, so
+ * the layer drops out and the lesson's own backing plays that part.
+ */
+function followedNotes(
+  part: InstrumentPart,
+  ctx: RealizeContext,
+  key: NonNullable<RealizeContext['followChords']>,
+): BackingNote[] | null {
+  const total = ctx.bars * barTicks(ctx.timeSignature);
+  const notes = followChords(part, ctx.chordAt, total, key);
+  if (!notes) return null;
+  return notes
+    .map((n) => {
+      const onset = Math.max(0, playedTick(n));
+      return {
+        note: n.midi,
+        onset,
+        duration: Math.min(n.duration, total - onset),
+        velocity: n.velocity,
+        part: SOURCE_PART.part,
+      };
+    })
+    .sort((a, b) => a.onset - b.onset);
+}
+
+/** How a band is realized beyond its chart. */
+export interface RealizeOptions {
+  /** The key's tonic parts move to when they play as written. */
+  tonic?: number;
+  /**
+   * A part asked to follow the chords that names none plays as written,
+   * moved to the chart's key, instead of dropping out: the console's
+   * editors, where a silent layer would hide it. Lessons let their own
+   * backing play that part.
+   */
+  keepUnfollowable?: boolean;
+  /**
+   * Whether a bass line over a followed chart takes the colors its chords
+   * don't name from the chart's key (`keyedInterval`), as the parts beside
+   * it do. Default yes; the console's editors say no, so a line walks there
+   * as lessons walk it.
+   */
+  bassLinesInKey?: boolean;
+}
+
+/**
  * One layer's notes over the chart, unswung (the caller swings, as lessons
- * do), or null when its item cannot be found (a draft, a deleted file).
+ * do), or null when its item cannot be found (a draft, a deleted file) or
+ * cannot play over it: a part asked to follow the chords that names none
+ * (unless `keepUnfollowable`).
  */
 export function realizeLayer(
   layer: BandLayer,
   items: BandItems,
   ctx: RealizeContext,
-  options: { tonic?: number } = {},
+  options: RealizeOptions = {},
 ): BackingNote[] | null {
   const { source } = layer;
   switch (source.kind) {
@@ -94,6 +144,8 @@ export function realizeLayer(
     }
     case 'bassLine': {
       const line = items.bassLine(source.id);
+      // Over a chart it wasn't written for, a line plays in the chart's key,
+      // as the parts beside it do.
       return line
         ? pairedBassNotes(
             line,
@@ -101,18 +153,34 @@ export function realizeLayer(
             ctx.bars,
             ctx.timeSignature,
             ctx.genre,
+            ctx.followChords && options.bassLinesInKey !== false
+              ? keyNotes(ctx.followChords)
+              : undefined,
+            ctx.approachKey ??
+              (ctx.followChords ? keyNotes(ctx.followChords) : undefined),
           )
         : null;
     }
     case 'comping': {
       const pattern = items.comping(source.id);
       return pattern
-        ? realizeComping(pattern, ctx.chordAt, ctx.bars, ctx.timeSignature)
+        ? realizeComping(pattern, ctx.chordAt, ctx.bars, ctx.timeSignature, {
+            approachKey:
+              ctx.approachKey ??
+              (ctx.followChords ? keyNotes(ctx.followChords) : undefined),
+          })
         : null;
     }
     case 'part': {
       const part = items.part(source.id);
-      return part ? partNotes(part, ctx, options.tonic) : null;
+      if (!part) return null;
+      // Over a chart it wasn't captured over, a part follows its chords; a
+      // melody keeps its tune and drums their hits.
+      if (ctx.followChords && followsChords(part)) {
+        const followed = followedNotes(part, ctx, ctx.followChords);
+        if (followed || !options.keepUnfollowable) return followed;
+      }
+      return partNotes(part, ctx, options.tonic ?? ctx.followChords?.tonic);
     }
   }
 }
@@ -122,7 +190,7 @@ export function realizeBand(
   band: { layers: readonly BandLayer[] },
   items: BandItems,
   ctx: RealizeContext,
-  options: { tonic?: number; includeMuted?: boolean } = {},
+  options: RealizeOptions & { includeMuted?: boolean } = {},
 ): RealizedLayer[] {
   const out: RealizedLayer[] = [];
   for (const layer of band.layers) {

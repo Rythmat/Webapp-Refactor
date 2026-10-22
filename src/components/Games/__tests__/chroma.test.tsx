@@ -19,15 +19,10 @@ import Chroma from '../chroma';
 // game's own (the first note of its sequence), so a whole round, won or lost,
 // and leaving the game, even mid-round, must write nothing to the store.
 
-vi.mock('@/components/JamRoom/jamSoundFont', () => ({
-  initJamSynth: () => Promise.resolve(),
-  jamNoteOn: () => {},
-  jamNoteOff: () => {},
-  jamProgramChange: () => {},
-  getLocalChannel: () => 0,
+// Sound is ready from the first render; no synth loads here.
+vi.mock('../chromaSound', () => ({
+  useChromaSound: () => ({ ready: true, play: () => {} }),
 }));
-// Sound is ready from the first render; no soundfont loads here.
-vi.mock('../useGameAudio', () => ({ useGameAudio: () => ({ ready: true }) }));
 // The header's back button needs a router, and isn't under test.
 vi.mock('../ArcadeGameHeader', () => ({ ArcadeGameHeader: () => null }));
 
@@ -63,7 +58,7 @@ const leave = async (unmount: () => void) => {
 
 beforeEach(() => {
   vi.useFakeTimers();
-  // Root C and one more C: the interval to name is always a unison.
+  // Level 1's one interval is the first there is: a unison.
   vi.spyOn(Math, 'random').mockReturnValue(0);
 
   // A Studio project in G Dorian with its key locked, as the editor left it.
@@ -119,7 +114,7 @@ describe('Chroma', () => {
     click('Start');
     await settle();
 
-    // Easy gives two tries; a wrong answer replays the sequence first.
+    // Level 1 gives two tries; a wrong answer replays the round first.
     click('Major 2nd');
     await settle();
     expect(screen.getByText('Name the interval')).toBeInTheDocument();

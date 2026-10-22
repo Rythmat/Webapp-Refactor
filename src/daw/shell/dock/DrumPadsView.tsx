@@ -70,7 +70,7 @@ const TYPING_KEYS = shortcutKeys('typing.on');
 
 const panText = (pan: number) =>
   Math.abs(pan) < 0.005
-    ? 'Centre'
+    ? 'Center'
     : `${pan < 0 ? 'L' : 'R'}${Math.round(Math.abs(pan) * 100)}`;
 
 const keyOf = (note: number) => typingKeyFor(note, DRUM_TYPING_OCTAVE);

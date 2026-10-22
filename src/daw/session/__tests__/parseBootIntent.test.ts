@@ -16,6 +16,7 @@ import {
   validateIntent,
   type BootCatalog,
 } from '../parseBootIntent';
+import { practiceTrackUrl } from '@/features/practiceTracks/genre/openGenrePracticeTrack';
 import type { OpenIntent } from '../types';
 
 const parse = (search: string) => parseBootIntent(new URLSearchParams(search));
@@ -228,6 +229,51 @@ describe('parseBootIntent', () => {
     expect(
       [...parse('?jam=1&collab=x1234&host=1&invite=1').consumedKeys].sort(),
     ).toEqual(['collab', 'host', 'invite', 'jam']);
+  });
+
+  it('reads a band playing a student’s chart, as its link writes it', () => {
+    const ref = {
+      band: 'latin-band-1',
+      variation: 'l1-cumbia',
+      tonic: 'F#',
+      mode: 'minor',
+      harmony: 'sevenths',
+      chords: '1-4-5-6',
+    };
+    const url = practiceTrackUrl('latin', 1, 'A', ref);
+    const parsed = parse(url.slice(url.indexOf('?')));
+    expect(parsed.intent).toEqual({
+      kind: 'practiceGenre',
+      genre: 'latin',
+      level: 1,
+      section: 'A',
+      band: ref,
+    });
+    // Every key of it goes once the track is open.
+    expect([...parsed.consumedKeys].sort()).toEqual(
+      [
+        'practiceBand',
+        'practiceChords',
+        'practiceGenre',
+        'practiceHarmony',
+        'practiceKey',
+        'practiceKeyMode',
+        'practiceLevel',
+        'practiceSection',
+        'practiceVariation',
+      ].sort(),
+    );
+    // Triads when the link leaves the harmony out; no band, no chart.
+    expect(
+      intentOf(
+        '?practiceGenre=funk&practiceLevel=1&practiceBand=funk-band-1&practiceVariation=l1-pocket&practiceKey=C&practiceKeyMode=major&practiceChords=1-6-4-5',
+      ),
+    ).toMatchObject({ band: { harmony: 'triads', chords: '1-6-4-5' } });
+    expect(
+      intentOf(
+        '?practiceGenre=funk&practiceLevel=1&practiceKey=C&practiceChords=1-6-4-5',
+      ),
+    ).toEqual({ kind: 'practiceGenre', genre: 'funk', level: 1, section: 'A' });
   });
 
   it('reads ?projects=1 as a flag on any intent, and consumes it', () => {

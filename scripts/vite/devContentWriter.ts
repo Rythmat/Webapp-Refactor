@@ -17,6 +17,9 @@
  *   PUT    /__dev/feels/:id            body: feel profile JSON
  *   PUT    /__dev/music-literacy/:id   body: Music Literacy lesson JSON
  *   DELETE /__dev/music-literacy/:id
+ *   PUT    /__dev/lesson-fingers/:id   body: a lesson level → its fingers
+ *          written into the lesson files (src/scripts/lessonFingers), the
+ *          rest of each file untouched → { files, changed, skipped }
  *   PUT    /__dev/synth-patches/:id    body: Oracle Synth preset JSON
  *   PUT    /__dev/bands/:id            body: band JSON
  *   DELETE /__dev/bands/:id
@@ -38,6 +41,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { format } from 'prettier';
 import type { Plugin } from 'vite';
+import { writeLessonFingers } from '../../src/scripts/lessonFingers/writeLessonFingers';
 import { repoPrettierOptions } from '../../src/scripts/repoContent/tsWrite';
 import { refusalFor } from './repoContentPlugin';
 
@@ -199,6 +203,24 @@ export function devContentWriter(): Plugin {
             )
           ) {
             return send(res, 415, { error: 'Upload an audio file.' });
+          }
+
+          // A lesson level's fingers, into the lesson files.
+          if (kind === 'lesson-fingers') {
+            if (method !== 'PUT')
+              return send(res, 405, { error: 'PUT a lesson level.' });
+            if (!id || !ID.test(id)) {
+              return send(res, 400, { error: `Bad id "${id ?? ''}".` });
+            }
+            const level = JSON.parse(
+              (await readBody(req, MAX_JSON_BYTES)).toString('utf8'),
+            ) as { id?: string };
+            if (level.id !== id) {
+              return send(res, 400, {
+                error: 'Body id does not match the URL.',
+              });
+            }
+            return send(res, 200, await writeLessonFingers(ROOT, level));
           }
 
           const JSON_DIRS: Record<string, string> = {

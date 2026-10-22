@@ -698,8 +698,11 @@ describe('tutorial progress persistence', () => {
 });
 
 describe('lesson data integrity', () => {
-  it('is eight lessons with unique ids, unique step ids, and a target per step', () => {
-    expect(TUTORIALS.length).toBe(8);
+  it('is eight lessons and the Studio Basics nine, with unique ids, unique step ids, and a target per step', () => {
+    expect(TUTORIALS.filter((t) => !t.course).length).toBe(8);
+    expect(TUTORIALS.filter((t) => t.course === 'studio-basics').length).toBe(
+      9,
+    );
     const lessonIds = TUTORIALS.map((t) => t.id);
     expect(new Set(lessonIds).size).toBe(lessonIds.length);
     for (const t of TUTORIALS) {

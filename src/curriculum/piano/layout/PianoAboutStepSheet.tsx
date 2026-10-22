@@ -4,7 +4,8 @@ import type { KeyDescription } from '@/lib/learn/keyDescription';
 
 // ── PianoAboutStepSheet ────────────────────────────────────────────────────
 // "About this step" on piano, in guitar's sheet: the full instruction, the
-// step's chords, and the key in words, as the Theory overview tells it. Like
+// lesson's goal (when it has one), the step's chords, and the key in words,
+// as the Theory overview tells it. Like
 // guitar's sheet it takes no key colour: nothing in it is "now".
 
 export interface PianoAboutModel {
@@ -16,6 +17,8 @@ export interface PianoAboutModel {
   chords: string[];
   /** The key, when the lesson can spell its mode. */
   key: KeyDescription | null;
+  /** The lesson's goal, when it has one (Music Literacy Part 2). */
+  goal?: string | null;
 }
 
 export interface PianoAboutStepSheetProps {
@@ -32,7 +35,7 @@ export function PianoAboutStepSheet({
   onOpenChange,
   about,
 }: PianoAboutStepSheetProps) {
-  const { instruction, chords, key } = about;
+  const { instruction, chords, key, goal } = about;
   return (
     <GuitarSheet
       open={open}
@@ -48,6 +51,12 @@ export function PianoAboutStepSheet({
           <p data-about-instruction className="text-[15px] leading-6">
             {instruction}
           </p>
+        )}
+        {goal && (
+          <section data-about-goal>
+            <h3 className={HEADING}>The goal</h3>
+            <p className="text-[15px] leading-6">{goal}</p>
+          </section>
         )}
         {chords.length > 0 && (
           <section data-about-chords>

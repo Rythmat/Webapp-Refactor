@@ -17,6 +17,10 @@ import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { PracticeControls } from '@/learn/components/PracticeControls';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
+import {
+  useActivityKeyboardFingering,
+  type ActivityFingering,
+} from '@/learn/fingering/activityFingering';
 import type { PlayedKeys } from '@/learn/keyboard/playedKeys';
 import {
   LESSON_BAR_RESERVE,
@@ -94,6 +98,8 @@ type PlayAlongProps = {
    * it waits to start, or the demo as it plays.
    */
   previewNotes?: PlaybackEvent[];
+  /** Hands and finger numbers over the keys (ActivityFlow's). */
+  fingering?: ActivityFingering;
 };
 
 type NotePerformance = {
@@ -122,6 +128,7 @@ export const PlayAlong = ({
   noteSpelling,
   bare = false,
   previewNotes,
+  fingering,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const maxEventEndTick = useMemo(
@@ -626,6 +633,11 @@ export const PlayAlong = ({
     }
     return keys;
   }, [activityColor, currentTick, notePerformance, resolvedEvents]);
+  const keyboardFingering = useActivityKeyboardFingering(
+    fingering,
+    nextTargetKeys,
+    activityColor,
+  );
 
   const gameplayContent = (
     <>
@@ -667,6 +679,7 @@ export const PlayAlong = ({
             playingNotes={previewNotes}
             playedKeys={playedKeys}
             targetMidis={targetMidiSet}
+            fingering={keyboardFingering}
           />
         </div>
         {!bare && <PracticeControls activityBpm={THEORY_ACTIVITY_BPM} />}

@@ -61,6 +61,11 @@ import { useTrackRename } from './useTrackRename';
 // A track a collaborator has selected is theirs for now: it is outlined in
 // their colour and only Mute and Solo (which are each person's own) stay
 // live; while they play it live, Listen sets whether you hear them.
+//
+// Lesson anchors by the track's place in the list (0 for the top track):
+// track-header-<i> on the row, track-name-<i>, track-instrument-<i>,
+// track-mute-<i>, track-solo-<i>, track-arm-<i> and track-volume-<i> on its
+// controls, and selected-track-header over the selected row.
 
 /** The fader and meter's length in a 200 px row. */
 const FADER_PX = 88;
@@ -143,9 +148,17 @@ const TrackRowBody = memo(function TrackRowBody({
         TRANSITION,
       )}
       style={{ height: TRACK_ROW_PX }}
+      data-tutorial-id={`track-header-${index}`}
       onClick={select}
       onContextMenu={onContextMenu}
     >
+      {isSelected ? (
+        <span
+          aria-hidden
+          data-tutorial-id="selected-track-header"
+          className="pointer-events-none absolute inset-0"
+        />
+      ) : null}
       {/* The grip that reorders the row, with the track's colour at its
           edge: a hairline, and the full 4 px edge on the selected row. */}
       <div
@@ -181,6 +194,7 @@ const TrackRowBody = memo(function TrackRowBody({
               'Show its sound in the dock',
             )}
             data-testid="track-instrument-button"
+            data-tutorial-id={`track-instrument-${index}`}
             data-meaning="track-colour"
             className="shrink-0 rounded-full"
             style={
@@ -213,6 +227,7 @@ const TrackRowBody = memo(function TrackRowBody({
             <button
               type="button"
               data-track-selector
+              data-tutorial-id={`track-name-${index}`}
               tabIndex={tabStop ? 0 : -1}
               aria-pressed={isSelected}
               aria-label={`${track.name}, track ${index + 1}`}
@@ -250,7 +265,7 @@ const TrackRowBody = memo(function TrackRowBody({
                 data-tutorial-id={menuAnchor ? 'track-menu-button' : undefined}
                 data-hint={hintText(
                   `More for ${track.name}`,
-                  'Rename, colour, duplicate, export or delete it',
+                  'Rename, color, duplicate, export or delete it',
                 )}
                 data-testid="track-menu-button"
                 onClick={(e) => e.stopPropagation()}
@@ -303,6 +318,7 @@ const TrackRowBody = memo(function TrackRowBody({
         >
           <Toggle
             label={`Mute ${track.name}`}
+            data-tutorial-id={`track-mute-${index}`}
             data-hint={hintText(`Mute ${track.name}`, 'Silence this track')}
             size="sm"
             pressed={track.mute}
@@ -312,6 +328,7 @@ const TrackRowBody = memo(function TrackRowBody({
           </Toggle>
           <Toggle
             label={`Solo ${track.name}`}
+            data-tutorial-id={`track-solo-${index}`}
             data-hint={hintText(
               `Solo ${track.name}`,
               'Hear only this track and other soloed ones',
@@ -328,6 +345,7 @@ const TrackRowBody = memo(function TrackRowBody({
             <>
               <Toggle
                 label={`Arm ${track.name} to record`}
+                data-tutorial-id={`track-arm-${index}`}
                 data-hint={hintText(
                   `Arm ${track.name} to record`,
                   'Record onto this track when you press Record',
@@ -344,7 +362,7 @@ const TrackRowBody = memo(function TrackRowBody({
                   useStore.getState().toggleRecordArm(track.id)
                 }
               />
-              <RowVolume track={track} dimmed={track.mute} />
+              <RowVolume track={track} index={index} dimmed={track.mute} />
             </>
           )}
         </div>
@@ -358,7 +376,15 @@ const TrackRowBody = memo(function TrackRowBody({
 });
 
 /** The row's volume and its meter, one under the other. */
-function RowVolume({ track, dimmed }: { track: Track; dimmed: boolean }) {
+function RowVolume({
+  track,
+  index,
+  dimmed,
+}: {
+  track: Track;
+  index: number;
+  dimmed: boolean;
+}) {
   const volume = useTrackVolumeControl(track);
   const source = useRef(meterSource(`track:${track.id}`));
   return (
@@ -368,6 +394,7 @@ function RowVolume({ track, dimmed }: { track: Track; dimmed: boolean }) {
     >
       <Fader
         label={`Volume of ${track.name}`}
+        data-tutorial-id={`track-volume-${index}`}
         data-hint={hintText(
           `Volume of ${track.name}`,
           'How loud this track is; double-click to reset',

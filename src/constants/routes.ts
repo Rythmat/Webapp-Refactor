@@ -810,6 +810,8 @@ export const GameRoutes = {
     prefix: gamesPrefix,
   }),
 
+  echo: createRouteDefinition('/echo', { prefix: gamesPrefix }),
+
   jamLobby: createRouteDefinition('/jam', { prefix: gamesPrefix }),
 
   jamLocal: createRouteDefinition('/jam/local', { prefix: gamesPrefix }),
@@ -986,12 +988,22 @@ export const CurriculumRoutes = {
   }),
 
   // Music Literacy: call-and-response lessons on scale degrees (Learn →
-  // Technique). Static segments, so they rank above '/:genre/:level'.
+  // Start Here). Static segments, so they rank above '/:genre/:level'.
   musicLiteracy: createRouteDefinition('/music-literacy', {
     prefix: curriculumPrefix,
   }),
 
-  musicLiteracyLesson: createRouteDefinition<{ id: string }>(
+  /**
+   * Part 3, Hear It with Your Band: a Band plays the student's progression
+   * in the Studio. A static segment, so it ranks above a lesson's ':id'.
+   */
+  musicLiteracyBand: createRouteDefinition(
+    '/music-literacy/hear-it-with-your-band',
+    { prefix: curriculumPrefix },
+  ),
+
+  /** A lesson; `?step=<tag>` opens it on that step (Continue). */
+  musicLiteracyLesson: createRouteDefinition<{ id: string }, { step?: string }>(
     '/music-literacy/:id',
     { prefix: curriculumPrefix },
   ),

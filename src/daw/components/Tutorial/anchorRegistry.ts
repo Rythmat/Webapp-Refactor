@@ -58,9 +58,30 @@ export const ANCHOR_FRAME_TASK = 'tutorial-anchors';
  * Renamed anchors, old id → current id. When a `data-tutorial-id` has to
  * change (a control is renamed or moved), add the old id here so lessons,
  * classroom slides and saved content that still name it keep resolving. Only
- * real renames go here; it is empty while no anchor has been renamed.
+ * real renames go here.
+ *
+ * The Stage B shell moved these Studio Basics anchors onto the controls that
+ * took their place (docs/studio-tutorial-anchors.md):
  */
-export const ANCHOR_ALIASES: Readonly<Record<string, string>> = {};
+export const ANCHOR_ALIASES: Readonly<Record<string, string>> = {
+  // The top bar's Back went; the bottom rail has Go to start.
+  'transport-back': 'transport-to-start',
+  // The Inspector toggle and the side panel's tabs became the side rail.
+  'inspector-toggle': 'rail-insight',
+  'insight-tab': 'rail-insight',
+  'library-tab': 'rail-library',
+  // The timeline's lane, ruler and clip menus are one canvas menu, with
+  // Paste here among its items.
+  'lane-menu': 'clip-menu',
+  'ruler-menu': 'clip-menu',
+  'lane-menu-paste': 'clip-menu-paste',
+  // The Piano Roll window became the dock's Notes tab.
+  'piano-roll-modal': 'dock-body',
+  'piano-roll-analyze': 'dock-analyze-notes',
+  'piano-roll-close': 'dock-toggle',
+  // Project ▾'s Lead sheet (MusicXML) went into its Notation… dialog.
+  'file-export-musicxml': 'file-export-notation',
+};
 
 /** The id an anchor renders today, following ANCHOR_ALIASES. */
 export function currentAnchorId(id: string): string {

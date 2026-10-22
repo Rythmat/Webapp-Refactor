@@ -12,6 +12,10 @@ import { ClassroomDashboard } from '../ClassroomDashboard';
 // Run: npx vitest run src/layouts/DashboardLayout/__tests__/ClassroomDashboard.focusMode.test.tsx
 
 vi.mock('@/hooks/data', () => ({ useProgressBootstrap: () => {} }));
+// The Learn tours' layer reads the account; its own tests cover it.
+vi.mock('@/features/learnTour/LearnTourLayer', () => ({
+  LearnTourLayer: () => null,
+}));
 vi.mock('@/hooks/data/useAwards', () => ({ useStampEarnedAwards: () => {} }));
 vi.mock('@/hooks/data/useStreak', () => ({ useStreakPing: () => {} }));
 vi.mock('@/hooks/useChallengeWatcher', () => ({

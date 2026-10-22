@@ -14,7 +14,11 @@
  */
 
 import type { ActivityStepV2, BackingStyle } from '../../types/activity.v2';
-import type { BandInstrument } from '../band/band';
+import type {
+  BandInstrument,
+  PlayableBand,
+  RealizeContext,
+} from '../band/band';
 import { layerSound, realizeBand } from '../band/realize';
 import { LIVE_ITEMS } from '../band/registry';
 import { buildDesignedDrums } from '../drumGrooves/drumGroove';
@@ -35,7 +39,9 @@ import type { ChordSymbolTones } from './chordSymbolTones';
 import {
   buildChordTimeline,
   chordAtTick,
+  timedChordTimeline,
   type TimedChord,
+  type TimedChords,
 } from './chordTimeline';
 import {
   buildHipHopBass,
@@ -43,12 +49,14 @@ import {
   buildHipHopDrums,
   hipHopDrumPattern,
 } from './hipHop/hipHopBacking';
+import { HIPHOP_DRUMS } from './hipHop/hipHopPatterns';
 import {
   buildMeterBass,
   buildMeterChords,
   buildMeterDrums,
 } from './meterBacking';
 import type { GenreNoteEvent } from './resolveStepContent';
+import { SCALES } from './scaleRegistry';
 import { applySwing } from './swing';
 
 const BACKING_BARS = 16;
@@ -81,6 +89,23 @@ const BACKING_PART: Record<BandInstrument, BackingNote['part']> = {
   strings: 'chords',
   horns: 'chords',
 };
+
+/**
+ * A backing whose caller picks the band (Music Literacy's Hear It with Your
+ * Band): `band` plays in place of the style's pairing, whatever the
+ * pairings say, and `followChords` is the chart's key, so captured parts
+ * follow its chords (band.ts RealizeContext). `timedChords` are chord
+ * changes the caller timed itself (Echo's Make Your Song: a take changing
+ * at the half bar): the chord timeline everything plays over, code-made
+ * bass and chords and the band's layers alike, in place of the step's
+ * symbols a bar each (chordTimeline.ts `timedChordTimeline`). Left out,
+ * nothing changes.
+ */
+export interface BackingOptions {
+  band?: PlayableBand;
+  followChords?: NonNullable<RealizeContext['followChords']>;
+  timedChords?: TimedChords;
+}
 
 /** A band layer's own instrument in the backing (`BackingNote.voice`). */
 export interface BackingVoice {
@@ -844,6 +869,23 @@ export function stepBassVoice(
   return line ? pairedBassVoice(line) : step.backing_style?.bassVoice;
 }
 
+/**
+ * A code groove's drums (codeGrooves.ts) over `bars` bars of 4/4, unswung, as
+ * a step naming it plays them: a published designed groove with its id
+ * first. Music Literacy's play-along plays them on their own, with no step.
+ */
+export function buildCodeGrooveDrums(
+  grooveId: string,
+  bars: number,
+): BackingNote[] {
+  const hipHop = HIPHOP_DRUMS[grooveId];
+  if (!hipHop) return buildDrumPatternForGroove(bars, grooveId as GrooveId);
+  const designed = getLiveGroove(grooveId);
+  return designed
+    ? buildDesignedDrums(designed, bars, BAR_TICKS)
+    : buildHipHopDrums(bars, hipHop);
+}
+
 function buildDrumPatternForGroove(
   bars: number,
   grooveId: GrooveId = 'groove_funk_01',
@@ -887,6 +929,12 @@ function buildBassPattern(
   genre: string,
   chordAt: (tick: number) => ChordSymbolTones,
   timeline: readonly TimedChord[],
+  /**
+   * A pattern note landing on a mid-bar change plays the new chord's root,
+   * not its 5th or octave: chords the caller timed (`timedChords`), where
+   * a change on beat 3 is the music's, not an exercise's.
+   */
+  rootOnChange = false,
 ): BackingNote[] {
   const notes: BackingNote[] = [];
   const rootAt = (tick: number) => bassPC_toMidi(chordAt(tick).bassPc);
@@ -902,11 +950,14 @@ function buildBassPattern(
 
     // Each note takes the root of the chord sounding when it's played.
     const push = (
-      degree: BassDegree,
+      written: BassDegree,
       onset: number,
       dur: number,
       vel: number,
     ) => {
+      const onChange =
+        rootOnChange && changes.some((t) => Math.abs(o + onset - t) < 30);
+      const degree: BassDegree = onChange ? 'root' : written;
       const chord = chordAt(o + onset);
       const root = bassPC_toMidi(chord.bassPc);
       const note =
@@ -1383,6 +1434,9 @@ function doubledLeftHand(
  * 4/4 the genre code patterns, written as 4/4 bars, give way to the step's
  * designed groove or plain meter-true parts (meterBacking.ts); pairings still
  * win. Hip Hop is 4/4 only.
+ *
+ * `options` is for a caller that picks the band itself (`BackingOptions`);
+ * left out, the style's pairing decides, as it always has.
  */
 export function buildBackingNotes(
   step: ActivityStepV2,
@@ -1394,6 +1448,7 @@ export function buildBackingNotes(
   countInTicks = 0,
   swing = 50,
   timeSignature: TimeSignature = COMMON_TIME,
+  options: BackingOptions = {},
 ): BackingNote[] {
   const ts = genre === 'hip-hop' ? COMMON_TIME : timeSignature;
   const barLength = meterBarTicks(ts);
@@ -1401,17 +1456,24 @@ export function buildBackingNotes(
   const swung = (part: BackingNote[]) =>
     applySwing(part, swing_) as BackingNote[];
   const engineGenerates = step.backing_parts?.engine_generates ?? [];
-  const timeline = buildChordTimeline(
-    step.chordSymbols,
-    targetNotes,
-    BACKING_BARS,
-    barLength,
-  );
+  const timed = options.timedChords
+    ? timedChordTimeline(options.timedChords, BACKING_BARS, barLength)
+    : [];
+  const timeline = timed.length
+    ? timed
+    : buildChordTimeline(
+        step.chordSymbols,
+        targetNotes,
+        BACKING_BARS,
+        barLength,
+      );
   const tonic = tonicChord(keyRoot, genre);
   const chordAt = (tick: number): ChordSymbolTones =>
     chordAtTick(timeline, tick) ?? tonic;
 
-  const pairing = pairingFor(genre, level, styleRef, placeOf(step));
+  // The band the caller picked, else the style's pairing's.
+  const band =
+    options.band ?? pairingFor(genre, level, styleRef, placeOf(step))?.band;
   // A back-office band (D-084, D-087) replaces the parts it covers: every
   // playing layer whose instrument is a part the engine plays for this step.
   // The first layer of a part, on its lesson sound at full level, plays on
@@ -1419,13 +1481,26 @@ export function buildBackingNotes(
   // second keyboard, a guitar, a synth, or one with a sound or level of its
   // own) carries its own voice.
   const withPairing = (notes: BackingNote[]): BackingNote[] => {
-    if (!pairing) return notes;
-    const realized = realizeBand(
-      pairing.band,
-      LIVE_ITEMS,
-      { chordAt, bars: BACKING_BARS, timeSignature: ts, genre },
-      { tonic: ((keyRoot % 12) + 12) % 12 },
-    );
+    if (!band) return notes;
+    // The step's own scale, when it names one: approaches set diatonic to
+    // the key step through it (else the key its chords suggest).
+    const stepScale =
+      step.scaleIntervals ?? (step.scaleId ? SCALES[step.scaleId] : undefined);
+    const ctx: RealizeContext = {
+      chordAt,
+      bars: BACKING_BARS,
+      timeSignature: ts,
+      genre,
+      ...(options.followChords ? { followChords: options.followChords } : {}),
+      ...(stepScale?.length
+        ? {
+            approachKey: stepScale.map((i) => (((keyRoot + i) % 12) + 12) % 12),
+          }
+        : {}),
+    };
+    const realized = realizeBand(band, LIVE_ITEMS, ctx, {
+      tonic: ((keyRoot % 12) + 12) % 12,
+    });
     let out = notes;
     for (const part of ['drums', 'bass', 'chords'] as const) {
       if (!engineGenerates.includes(part)) continue;
@@ -1510,7 +1585,16 @@ export function buildBackingNotes(
     notes.push(
       // A doubled left hand comes from target notes that already swing.
       ...(doubledLeftHand(step, targetNotes) ??
-        swung(buildBassPattern(BACKING_BARS, level, genre, chordAt, timeline))),
+        swung(
+          buildBassPattern(
+            BACKING_BARS,
+            level,
+            genre,
+            chordAt,
+            timeline,
+            timed.length > 0,
+          ),
+        )),
     );
   }
   if (engineGenerates.includes('chords')) {

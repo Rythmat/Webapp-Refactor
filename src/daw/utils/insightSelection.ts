@@ -125,6 +125,55 @@ export function notesInMarquee(
   }));
 }
 
+// ── Whole tracks ────────────────────────────────────────────────────────────
+// Insight's track picks (TrackNotePicks): a click on a track takes every note
+// of its clips, so a student can analyze the chords and the bass together
+// without a ⌘-drag.
+
+type NoteTrack = Pick<Track, 'id' | 'midiClips'>;
+
+/** Every note of `track`'s clips, as a selection. */
+export function trackNoteSelection(track: NoteTrack): ClipNoteSelection[] {
+  return track.midiClips
+    .filter((clip) => clip.events.length > 0)
+    .map((clip) => ({
+      trackId: track.id,
+      clipId: clip.id,
+      noteIndices: clip.events.map((_, i) => i),
+    }));
+}
+
+/** Whether `selection` holds every note of `track`, which has some. */
+export function hasWholeTrack(
+  track: NoteTrack,
+  selection: readonly ClipNoteSelection[],
+): boolean {
+  const whole = trackNoteSelection(track);
+  if (whole.length === 0) return false;
+  return whole.every(({ clipId, noteIndices }) => {
+    const picked = new Set(
+      selection
+        .filter((s) => s.trackId === track.id && s.clipId === clipId)
+        .flatMap((s) => s.noteIndices),
+    );
+    return noteIndices.every((i) => picked.has(i));
+  });
+}
+
+/**
+ * `selection` with every note of `track` added, or, when they were all in
+ * it, with the track's notes taken out. Other tracks' notes stay.
+ */
+export function toggleTrackNotes(
+  track: NoteTrack,
+  selection: readonly ClipNoteSelection[],
+): ClipNoteSelection[] {
+  const others = selection.filter((s) => s.trackId !== track.id);
+  return hasWholeTrack(track, selection)
+    ? others
+    : [...others, ...trackNoteSelection(track)];
+}
+
 /**
  * The selected notes per track, in track order, with song-timeline ticks.
  * Selections whose clip or notes no longer exist are dropped.

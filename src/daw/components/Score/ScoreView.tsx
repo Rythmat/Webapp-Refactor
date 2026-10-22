@@ -17,6 +17,7 @@ import { spellingMap } from './noteEditor';
 import { useScoreEditing } from './useScoreEditing';
 import { buildFullScoreXml, MUSICXML_TYPE } from '@/daw/midi/scoreExport';
 import { downloadFile } from '@/daw/utils/exportFiles';
+import { printSheet } from '@/daw/commands/projectCommands';
 
 // ── Score ──────────────────────────────────────────────────────────────────
 // Every track of the project notated and stacked, the way a conductor's score
@@ -104,6 +105,7 @@ export function ScoreView() {
     const file = buildFullScoreXml(useStore.getState());
     if (!file) return;
     downloadFile(new Blob([file.xml], { type: MUSICXML_TYPE }), file.filename);
+    useStore.getState().markDone('exportMusicXml');
   }, []);
 
   const skipped = tracks.filter(
@@ -162,10 +164,11 @@ export function ScoreView() {
           <div className="ml-auto flex items-center gap-2">
             <button
               type="button"
+              data-tutorial-id="score-print"
               onClick={() => {
                 // Selection highlights are editing state, not the music.
                 editing.staff.onBackgroundPointerDown();
-                requestAnimationFrame(() => window.print());
+                requestAnimationFrame(() => printSheet('printScore'));
               }}
               disabled={parts.length === 0}
               title="Print the score, or save it as a PDF from the print dialog"
@@ -176,6 +179,7 @@ export function ScoreView() {
             </button>
             <button
               type="button"
+              data-tutorial-id="score-export-musicxml"
               onClick={exportMusicXml}
               disabled={parts.length === 0}
               title="Download every part as MusicXML, for MuseScore, Finale, Sibelius or Dorico"
@@ -188,6 +192,7 @@ export function ScoreView() {
         </div>
 
         <div
+          data-tutorial-id="score-sheet"
           className="leadsheet-scroll flex-1 overflow-y-auto"
           style={{ padding: '32px 48px' }}
         >

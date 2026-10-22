@@ -1,0 +1,139 @@
+{
+  "id": "hip-hop-l3-7th-chords-in-c-aeolian",
+  "name": "Hip Hop L3 · 7th Chords · in C aeolian",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 3,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 81,
+  "swing": 66,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 63,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 70,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 0,
+      "duration": 1860,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 65,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 31,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 63,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 70,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 65,
+      "velocity": 96
+    },
+    {
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 31,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "description": "Left hand E, then B. Right hand as you learned it. Swung.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Cmin", "G9sus", "Cmin", "G9sus"],
+  "stayInKey": "rh"
+}

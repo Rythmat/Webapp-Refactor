@@ -6,7 +6,10 @@ import { NoteHold } from './NoteHold';
 import { PlayAlong } from './PlayAlong';
 import { PLAY_ALONG_PASS_RATIO, type PlayAlongResult } from './playAlongGrade';
 import { TheoryLessonLayout, TheoryResultPanel } from './TheoryLessonLayout';
-import { SavedRollViewSwitch } from '@/components/notation/RollViewToggle';
+import {
+  SavedHandsSwitch,
+  SavedRollViewSwitch,
+} from '@/components/notation/RollViewToggle';
 import {
   Primary,
   Secondary,
@@ -21,6 +24,10 @@ import type {
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
+import { useFingeringDisplay } from '@/features/learn/usePianoDisplaySettings';
+import type { ActivityFingering } from '@/learn/fingering/activityFingering';
+import type { FingeringCursor } from '@/learn/fingering/handFrames';
+import { buildFingeringTimeline } from '@/lib/learn/pianoFingering';
 import { describeKey } from '@/lib/learn/keyDescription';
 import { activityPayoff } from './activityPayoff';
 import type { LessonOrigin } from '@/lib/learn/lessonOrigin';
@@ -124,7 +131,8 @@ type FlowActivityProps = {
   /** On the one-page lesson screen: just the roll and the keys. */
   bare?: boolean;
   /** The step's notes, or the demo, lit on the keyboard before a run. */
-  previewNotes?: PlaybackEvent[];
+  previewNotes?: PlaybackEvent[] /** Hands and finger numbers over the keys. */;
+  fingering?: ActivityFingering;
 };
 
 type ActivityFlowProps = {
@@ -1661,6 +1669,67 @@ export const ActivityFlow = ({
       }));
   }, [isPlayingDemo, demoPlayingNotes, activityState, startOverlaySequence]);
 
+  // Fingering: the book's hands over the keys and finger numbers. The hands
+  // follow the demo, rest on the first notes before a run, and follow what
+  // each activity lights as due in practice. Off in Play Now: no fingers on
+  // a graded take.
+  const fingeringDisplay = useFingeringDisplay();
+  const showFingering =
+    usesActivityStartOverlay &&
+    (fingeringDisplay.hands || fingeringDisplay.numbers);
+  const fingeringTimeline = useMemo(() => {
+    if (!showFingering || startOverlaySequence.length === 0) return null;
+    return buildFingeringTimeline(
+      startOverlaySequence.map(({ event, midi }) => ({
+        midi,
+        onset: event.startTicks,
+        duration: event.durationTicks,
+      })),
+      {
+        tonicPc: ((rootMidi % 12) + 12) % 12,
+        ...(scaleMidis?.length
+          ? {
+              scalePcs: [
+                ...new Set(scaleMidis.map((m) => ((m % 12) + 12) % 12)),
+              ],
+            }
+          : {}),
+        defaultHand: 'rh',
+        // Theory lessons: the right hand's root-position triads thumb,
+        // middle, little finger.
+        rootTriad: '135',
+      },
+    );
+  }, [showFingering, startOverlaySequence, rootMidi, scaleMidis]);
+  const demoHighlightMidis = useMemo(
+    () => new Set(demoHighlights.keys()),
+    [demoHighlights],
+  );
+  const fingeringCursor = useMemo((): FingeringCursor | null => {
+    if (attemptMode === 'graded' && activityState === 'active')
+      return { kind: 'off' };
+    if (isPlayingDemo) return { kind: 'sounding', midis: demoHighlightMidis };
+    if (activityState !== 'active') return { kind: 'start' };
+    return null;
+  }, [attemptMode, activityState, isPlayingDemo, demoHighlightMidis]);
+  const fingering = useMemo(
+    (): ActivityFingering | undefined =>
+      fingeringTimeline
+        ? {
+            timeline: fingeringTimeline,
+            cursor: fingeringCursor,
+            hands: fingeringDisplay.hands,
+            numbers: fingeringDisplay.numbers,
+          }
+        : undefined,
+    [
+      fingeringTimeline,
+      fingeringCursor,
+      fingeringDisplay.hands,
+      fingeringDisplay.numbers,
+    ],
+  );
+
   const playDemo = async () => {
     if (startOverlaySequence.length === 0) return;
     stopDemo();
@@ -2181,7 +2250,12 @@ export const ActivityFlow = ({
             }
           : null,
         // Roll / Notation / Falling, beside Practice Track.
-        extra: usesActivityStartOverlay ? <SavedRollViewSwitch /> : undefined,
+        extra: usesActivityStartOverlay ? (
+          <>
+            <SavedRollViewSwitch />
+            <SavedHandsSwitch />
+          </>
+        ) : undefined,
       }}
       subNav={overviewTabs}
       content={
@@ -2189,6 +2263,7 @@ export const ActivityFlow = ({
           key={`${currentActivity.key}-${activityInstanceId}`}
           bare
           previewNotes={previewNotes}
+          fingering={fingering}
           activityColor={activityColor}
           events={events}
           isActive={activityState === 'active'}

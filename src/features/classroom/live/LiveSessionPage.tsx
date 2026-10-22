@@ -86,7 +86,7 @@ export const LiveSessionPage = () => {
   // no accountId, so a later refetch-success could resurrect progressKey — and
   // gating on success lets that refetch restore the cache instead of stranding.
   const { isSuccess: meSuccess } = useMe();
-  const { state, connectionStatus, sendResponse, sendPosition } =
+  const { state, connectionStatus, sendResponse, sendPosition, clock } =
     useSessionSync(sid, 'student', cid, myEnrollment?.id);
   const { getPublishedDay } = usePublishedDays(cid);
   const token = useAuthToken();
@@ -312,6 +312,7 @@ export const LiveSessionPage = () => {
             onPrev={isStudentPaced ? goPrev : undefined}
             onNext={isStudentPaced ? goNext : undefined}
             canAdvance={canAdvance}
+            clock={clock}
           />
         )}
       </div>

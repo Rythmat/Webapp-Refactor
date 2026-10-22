@@ -39,14 +39,30 @@ const PERFORMANCE_PROMPTS = [
 ];
 
 /**
+ * Music Literacy's Hear It with Your Band: a Band playing the student's own
+ * progression. Said to a beginner, in the order they'd try them: listen,
+ * find the chords, then make something of their own and keep it.
+ */
+const BAND_PROMPTS = [
+  'Listen first: your band plays your progression, over and over.',
+  'Play along with the chord tones lit on the keys.',
+  'Play just the 1 of each chord, on beat 1.',
+  'Switch to Melody and make up a tune that starts and ends on the 1.',
+  'Record a take when you’re ready, then play it back.',
+];
+
+/**
  * The prompts for one Practice Track: the section's own direction first, then a
  * set chosen by what the student is playing. A two-part track is a Performance,
- * whatever its parts happen to be.
+ * whatever its parts happen to be. A Band playing a student's own chart
+ * (`band`) has its own set, with no lesson direction to lead it.
  */
 export function practicePrompts(
   studentParts: StudentPart[],
   sourceDirection: string | null,
+  { band = false }: { band?: boolean } = {},
 ): string[] {
+  if (band) return [...BAND_PROMPTS];
   const byPart =
     studentParts.length > 1
       ? PERFORMANCE_PROMPTS

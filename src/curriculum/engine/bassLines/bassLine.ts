@@ -11,7 +11,10 @@
  * Degrees (the piano roll's rows):
  *   8 7 6 5 4 3 2 R   the chord's own intervals, R = root
  *   7- 5-             seventh / fifth below the root
- *   A                 approach: a note either side of the next target
+ *   A                 approach: notes that lead into the next goal — set
+ *                     steps from it (2A 1B: +2 +1 −1), chromatic or diatonic
+ *                     (approach/approach.ts); or, set to nothing, a note
+ *                     either side of it by the genre's rules
  *   W                 walk: a passing tone that connects the line
  *   X                 dead note: a muted ghost on the last pitch
  *
@@ -24,6 +27,11 @@
  * Elsewhere they keep the free rules ported from ICP Studio.
  */
 
+import {
+  approachPitch,
+  goalsOf,
+  type ApproachStep,
+} from '../approach/approach';
 import {
   chordSpans,
   quartersPerBar,
@@ -57,6 +65,15 @@ export interface BassLineNote {
   dur: number;
   /** 0–1. */
   velocity: number;
+  /**
+   * An approach ('A') set by hand: where it stands from the goal it leads
+   * into — the next note that isn't an approach, or one marked `goal` — so
+   * three chromatic from below into F is always D E♭ E. Left out, an 'A'
+   * picks its side and step by the genre's rules, as it always has.
+   */
+  approach?: ApproachStep;
+  /** An approach that is also a goal: the approach before it leads into it. */
+  goal?: boolean;
 }
 
 export type BassInstrument = 'upright' | 'electric';
@@ -162,6 +179,68 @@ export function degreeInterval(
     default:
       return null;
   }
+}
+
+/** What each chord-tone degree is, in a quality's own spelling of it. */
+const DEGREE_SLOT: Partial<
+  Record<BassDegree, 'second' | 'fourth' | 'fifth' | 'sixth' | 'seventh'>
+> = {
+  '2': 'second',
+  '4': 'fourth',
+  '5': 'fifth',
+  '5-': 'fifth',
+  '6': 'sixth',
+  '7': 'seventh',
+  '7-': 'seventh',
+};
+
+/** The intervals a degree may take from a key, nearest its own first. */
+const KEYED_OPTIONS: Record<
+  'second' | 'fourth' | 'fifth' | 'sixth' | 'seventh',
+  number[]
+> = {
+  second: [2, 1],
+  fourth: [5, 6],
+  fifth: [7, 6, 8],
+  sixth: [9, 8],
+  seventh: [10, 11],
+};
+
+/**
+ * A chord-tone degree's interval when the chart's key is known (a band
+ * following a student's chart). A tone the chord's quality names stays the
+ * chord's own: a written C7 keeps its B♭, a maj7 its B, a 7♭9 its ♭9. One it
+ * doesn't name takes the key's note under the chord nearest the degree's own
+ * (`chordDiatonic`): a '7' over C in C major is B, over G it's F, over Am
+ * it's G; a '4' over B♭ in D minor is E.
+ *
+ * Never an avoid note, as parts that follow the chords play them: a ♭9 is the
+ * root, and a ♮11 over a major chord or a ♭13 over a minor one is the 5th —
+ * unless the line steps through it (`passes`), the 3-4-5 climb and ♭7-6-5
+ * fall a funk line is made of.
+ */
+export function keyedInterval(
+  degree: BassDegree,
+  chord: Chord,
+  keyScale: readonly number[],
+  passes = false,
+): number | null {
+  const iv = degreeInterval(degree, chord.quality);
+  const slot = DEGREE_SLOT[degree];
+  if (iv === null || !slot || chord.nc) return iv;
+  const q = QUALITIES[chord.quality] ?? QUALITIES.maj;
+  const own = pcOf(iv);
+  // The quality spells it (in its tones, or as its own alteration).
+  if (q.tones.includes(own) || q[slot] !== QUALITIES.maj[slot]) return iv;
+  const scale = chordDiatonic(keyScale, chord);
+  const inKey = KEYED_OPTIONS[slot]
+    .filter((i) => scale.has(pcOf(chord.root + i)))
+    .sort((a, b) => Math.abs(a - own) - Math.abs(b - own));
+  if (!inKey.length) return iv;
+  const pick = inKey[0];
+  const avoid = (pick === 5 && q.third === 4) || (pick === 8 && q.third === 3);
+  const safe = pick === 1 ? 0 : avoid && !passes ? q.fifth : pick;
+  return iv - own + safe;
 }
 
 export interface BassInstrumentSpec {
@@ -324,6 +403,12 @@ interface WorkNote {
   span: number;
   midi: number;
   anticipates?: boolean;
+  /** A 2, 4 or 6 the line steps to or from: a passing note, not a color. */
+  passes?: boolean;
+  approach?: ApproachStep;
+  goal?: boolean;
+  /** Its pitch is set already: the goal of the approach before it. */
+  resolved?: boolean;
 }
 
 // ── Genre rules for Walk and Approach ─────────────────────────────────────
@@ -388,26 +473,40 @@ export function chordDiatonic(
   keyScale: readonly number[],
   chord: Chord,
 ): Set<number> {
-  const set = new Set(keyScale);
-  if (chord.nc) return set;
+  if (chord.nc) return new Set(keyScale);
   const q = QUALITIES[chord.quality] ?? QUALITIES.maj;
+  return keyNotesUnder(
+    keyScale,
+    q.tones.map((t) => (chord.root + t) % 12),
+  );
+}
+
+/**
+ * The key's notes under a chord's tones (pitch classes), each tone outside
+ * the key taking the place of the key note it alters. The Walk rules read
+ * it through `chordDiatonic`; parts that follow the chords read it from a
+ * chord symbol's tones (parts/followChords.ts).
+ */
+export function keyNotesUnder(
+  keyScale: readonly number[],
+  tones: readonly number[],
+): Set<number> {
+  const set = new Set(keyScale);
   // Three chromatic notes in a row: the altered key note is still there.
   const runs = (x: Set<number>) =>
     [...x].filter((p) => x.has((p + 1) % 12) && x.has((p + 2) % 12)).length;
-  q.tones
-    .map((t) => (chord.root + t) % 12)
-    .forEach((tone) => {
-      if (set.has(tone)) return;
-      const below = new Set(set);
-      below.delete((tone + 11) % 12);
-      below.add(tone);
-      const above = new Set(set);
-      above.delete((tone + 1) % 12);
-      above.add(tone);
-      const next = runs(below) <= runs(above) ? below : above;
-      set.clear();
-      next.forEach((p) => set.add(p));
-    });
+  tones.forEach((tone) => {
+    if (set.has(tone)) return;
+    const below = new Set(set);
+    below.delete((tone + 11) % 12);
+    below.add(tone);
+    const above = new Set(set);
+    above.delete((tone + 1) % 12);
+    above.add(tone);
+    const next = runs(below) <= runs(above) ? below : above;
+    set.clear();
+    next.forEach((p) => set.add(p));
+  });
   return set;
 }
 
@@ -443,6 +542,8 @@ export function realizeLine(
     passes = 1,
     seed = 1,
     genre,
+    keyScale,
+    approachKey,
   }: {
     timeSignature?: TimeSignature;
     instrument?: BassInstrument;
@@ -450,6 +551,20 @@ export function realizeLine(
     seed?: number;
     /** Whose Walk and Approach rules to play by; the line's own when absent. */
     genre?: string;
+    /**
+     * The chart's key as pitch classes, when it's known: a band following a
+     * student's chart. Degrees a chord doesn't name take the key's note
+     * under it (`keyedInterval`), and walks and approaches step through its
+     * scale rather than one read from the chart. Left out, a line plays as
+     * it always has.
+     */
+    keyScale?: readonly number[];
+    /**
+     * The key's notes, when it's known, that approaches set diatonic to the
+     * key step through: a lesson's, a band chart's. Left out, `keyScale`'s,
+     * else the key the chart's chords suggest.
+     */
+    approachKey?: readonly number[];
   } = {},
 ): RealizedLine {
   const inst = INSTRUMENTS[instrument] ?? INSTRUMENTS.upright;
@@ -487,8 +602,9 @@ export function realizeLine(
   const rand = mulberry32(seed);
   assignAnchors(spans, inst, rand);
   const rules = bassRulesFor(genre ?? template.genre);
+  const key = keyScale && [...new Set(keyScale.map(pcOf))];
   const ruled: RuleContext | undefined = rules
-    ? { rules, keyScale: chartKeyScale(chartSpans) }
+    ? { rules, keyScale: key ?? chartKeyScale(chartSpans) }
     : undefined;
 
   // Tile the template across the whole timeline.
@@ -513,6 +629,9 @@ export function realizeLine(
           velocity: x.velocity ?? 0.8,
           span: 0,
           midi: 0,
+          ...(x.degree === 'A' && x.approach
+            ? { approach: x.approach, ...(x.goal ? { goal: true } : {}) }
+            : {}),
         });
     });
   }
@@ -544,10 +663,88 @@ export function realizeLine(
     }
   });
 
-  // Resolve pitches left to right; walking runs look ahead to their target.
+  // A 2, 4 or 6 the line steps to or from passes through; one it leaps to
+  // and from is a color of the chord.
+  if (key) {
+    const steps: Partial<Record<BassDegree, BassDegree[]>> = {
+      '2': ['R', '3'],
+      '4': ['3', '5'],
+      '6': ['5', '7'],
+    };
+    const sounding = raw.filter((n) => n.degree !== 'X');
+    sounding.forEach((note, i) => {
+      const near = steps[note.degree];
+      if (!near) return;
+      const sides = [sounding[i - 1], sounding[i + 1]];
+      note.passes = sides.some(
+        (n) =>
+          n &&
+          (near.includes(n.degree) || n.degree === 'W' || n.degree === 'A'),
+      );
+    });
+  }
+
+  // The scale approaches set diatonic to the key step through.
+  const approachScale =
+    (approachKey ?? key)?.map(pcOf) ?? chartKeyScale(chartSpans);
+  /** A goal's own chord's scale, for approaches set diatonic to the goal. */
+  const goalScale = (goal: WorkNote) => {
+    const { chord } = spans[goal.span];
+    const q = QUALITIES[chord.quality] ?? QUALITIES.maj;
+    return q.scale.map((i) => pcOf(chord.root + i));
+  };
+
+  // Resolve pitches left to right; walking runs look ahead to their target,
+  // approaches set by hand work back from theirs.
   let prev = spans[0].anchor;
   for (let i = 0; i < raw.length; i += 1) {
     const note = raw[i];
+    if (note.resolved) {
+      prev = note.midi;
+      continue;
+    }
+    if (note.approach) {
+      let j = i;
+      while (j < raw.length && raw[j].approach) j += 1;
+      const run = raw.slice(i, j);
+      // The goal after the run, placed now so the run can lead into it; at
+      // the line's end, its first note (the next time round).
+      const last = raw[j];
+      if (last) {
+        last.midi = FREE_DEGREES.has(last.degree)
+          ? spans[last.span].anchor
+          : resolveFixed(
+              last,
+              raw[j + 1] ?? raw[0],
+              spans,
+              prev,
+              inst,
+              rand,
+              ruled,
+              key,
+            );
+        last.resolved = true;
+      }
+      const end = last ?? (raw[0].approach ? undefined : raw[0]);
+      const items = [...run, { approach: undefined }];
+      const goals = goalsOf(items);
+      for (let k = run.length - 1; k >= 0; k -= 1) {
+        const g = goals[k];
+        const goal = g === run.length ? end : run[g];
+        const step = run[k].approach!;
+        run[k].midi = goal
+          ? approachPitch(
+              goal.midi || spans[goal.span].anchor,
+              step.step,
+              step.motion,
+              step.scale === 'goal' ? goalScale(goal) : approachScale,
+            )
+          : spans[run[k].span].anchor;
+      }
+      prev = run[run.length - 1].midi;
+      i = j - 1;
+      continue;
+    }
     if (note.degree === 'W') {
       let j = i;
       while (j < raw.length && raw[j].degree === 'W') j += 1;
@@ -556,13 +753,13 @@ export function realizeLine(
         walkByRule(
           run,
           prev,
-          walkTarget(raw, j, spans, inst, ruled.rules),
+          walkTarget(raw, j, spans, inst, ruled.rules, key),
           spans,
           inst,
           ruled,
           rand,
           j < raw.length && !FREE_DEGREES.has(raw[j].degree)
-            ? chordTonePitch(raw[j], spans, inst)
+            ? chordTonePitch(raw[j], spans, inst, key)
             : undefined,
         );
         prev = run[run.length - 1].midi;
@@ -571,9 +768,18 @@ export function realizeLine(
       }
       const target =
         j < raw.length
-          ? resolveFixed(raw[j], raw[j + 1] ?? raw[0], spans, prev, inst, rand)
+          ? resolveFixed(
+              raw[j],
+              raw[j + 1] ?? raw[0],
+              spans,
+              prev,
+              inst,
+              rand,
+              undefined,
+              key,
+            )
           : spans[0].anchor;
-      fillWalk(run, prev, target, spans, inst, rand);
+      fillWalk(run, prev, target, spans, inst, rand, key);
       prev = run[run.length - 1].midi;
       i = j - 1;
     } else {
@@ -585,6 +791,7 @@ export function realizeLine(
         inst,
         rand,
         ruled,
+        key,
       );
       prev = note.midi;
     }
@@ -673,6 +880,22 @@ function fit(m: number, inst: BassInstrumentSpec): number {
   return x;
 }
 
+/**
+ * A chord-tone degree's interval: in the chart's key when it's known
+ * (`keyedInterval`), else the quality's own.
+ */
+function toneInterval(
+  note: WorkNote,
+  chord: Chord,
+  key: readonly number[] | undefined,
+): number {
+  return (
+    (key
+      ? keyedInterval(note.degree, chord, key, note.passes)
+      : degreeInterval(note.degree, chord.quality)) ?? 0
+  );
+}
+
 /** A note whose pitch doesn't depend on what follows it. */
 function resolveFixed(
   note: WorkNote,
@@ -682,6 +905,8 @@ function resolveFixed(
   inst: BassInstrumentSpec,
   rand: () => number,
   ruled?: RuleContext,
+  /** The chart's key, when it's known. */
+  key?: readonly number[],
 ): number {
   const span = spans[note.span];
   if (note.degree === 'X') return prev;
@@ -702,15 +927,26 @@ function resolveFixed(
         inst,
         rand,
         ruled,
+        key,
       );
     const t = targetSpan.anchor;
     const r = rand();
+    // In a known key, the steps and the dominant are the key's own notes;
+    // the half steps stay chromatic, as the style plays them.
+    const scale = key && chordDiatonic(key, targetSpan.chord);
     let options: number[];
-    if (r < 0.72)
-      options = [t - 1, t + 1]; // chromatic, from either side
-    else if (r < 0.88)
-      options = [t + 2, t - 2]; // a step above or below
-    else options = [t - 5, t + 7]; // its dominant
+    if (r < 0.72) {
+      // Chromatic, from either side.
+      options = [t - 1, t + 1];
+    } else if (r < 0.88) {
+      // A step above or below.
+      options = scale
+        ? [scaleStep(t, 1, scale), scaleStep(t, -1, scale)]
+        : [t + 2, t - 2];
+    } else {
+      // Its dominant.
+      options = [t - 5, t + 7].filter((m) => !scale || scale.has(pcOf(m)));
+    }
     options = options.map((m) => fit(m, inst)).filter((m) => m !== prev);
     if (!options.length) return fit(t - 1, inst);
     // Approach from whichever side the line is already on.
@@ -718,8 +954,7 @@ function resolveFixed(
     return options[0];
   }
   if (note.degree === 'R') return span.anchor;
-  const iv = degreeInterval(note.degree, span.chord.quality) ?? 0;
-  return fit(span.rootPitch + iv, inst);
+  return fit(span.rootPitch + toneInterval(note, span.chord, key), inst);
 }
 
 const FREE_DEGREES = new Set<BassDegree>(['A', 'W', 'X']);
@@ -729,11 +964,11 @@ function chordTonePitch(
   note: WorkNote,
   spans: RealizedSpan[],
   inst: BassInstrumentSpec,
+  key?: readonly number[],
 ) {
   const span = spans[note.span];
   if (note.degree === 'R') return span.anchor;
-  const iv = degreeInterval(note.degree, span.chord.quality) ?? 0;
-  return fit(span.rootPitch + iv, inst);
+  return fit(span.rootPitch + toneInterval(note, span.chord, key), inst);
 }
 
 /**
@@ -747,12 +982,13 @@ function walkTarget(
   spans: RealizedSpan[],
   inst: BassInstrumentSpec,
   rules: BassStyleRules,
+  key?: readonly number[],
 ): number {
   for (let k = from; k < raw.length; k += 1) {
     const n = raw[k];
     if (FREE_DEGREES.has(n.degree)) continue;
     if (rules.walkTarget === 'root' && n.degree !== 'R') continue;
-    return chordTonePitch(n, spans, inst);
+    return chordTonePitch(n, spans, inst, key);
   }
   return spans[0].anchor;
 }
@@ -898,10 +1134,11 @@ function approachByRule(
   inst: BassInstrumentSpec,
   rand: () => number,
   ruled: RuleContext,
+  key?: readonly number[],
 ): number {
   const t =
     after && after.q > note.q && !FREE_DEGREES.has(after.degree)
-      ? chordTonePitch(after, spans, inst)
+      ? chordTonePitch(after, spans, inst, key)
       : targetSpan.anchor;
   const scale = chordDiatonic(ruled.keyScale, targetSpan.chord);
   const diatonic = [scaleStep(t, 1, scale), scaleStep(t, -1, scale)];
@@ -919,7 +1156,8 @@ function approachByRule(
  * through the chord's scale is scored and the best kept: steps of one to four
  * semitones, no repeated notes, chord tones on the downbeats, a short last
  * step into the target. Runs are rarely longer than three notes, so trying
- * them all is cheap and beats any rule of thumb about which way to go.
+ * them all is cheap and beats any rule of thumb about which way to go. In a
+ * known key it walks the key's notes only.
  */
 function fillWalk(
   run: WorkNote[],
@@ -928,12 +1166,17 @@ function fillWalk(
   spans: RealizedSpan[],
   inst: BassInstrumentSpec,
   rand: () => number,
+  /** The chart's key, when it's known: the walk keeps to its notes. */
+  key?: readonly number[],
 ) {
   const span = spans[run[0].span];
   const q = QUALITIES[span.chord.quality] ?? QUALITIES.maj;
   const rootPc = span.chord.root;
+  const keyed = key && chordDiatonic(key, span.chord);
   const inScale = (m: number) =>
-    q.scale.includes((((m - rootPc) % 12) + 12) % 12);
+    keyed
+      ? keyed.has(pcOf(m))
+      : q.scale.includes((((m - rootPc) % 12) + 12) % 12);
   const isChordTone = (m: number) =>
     q.tones.includes((((m - rootPc) % 12) + 12) % 12);
 
@@ -946,7 +1189,7 @@ function fillWalk(
   for (let m = lo; m <= hi; m += 1) if (!inScale(m)) chromatic.push(m);
 
   const k = run.length;
-  const options = k <= 3 ? pool.concat(chromatic) : pool;
+  const options = k <= 3 && !keyed ? pool.concat(chromatic) : pool;
   // A little noise per candidate, so equally good lines take turns.
   const jitter = run.map(() => options.map(() => rand() * 0.9));
   let best: number[] | null = null;

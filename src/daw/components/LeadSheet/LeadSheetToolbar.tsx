@@ -13,6 +13,7 @@ import {
   GitMerge,
 } from 'lucide-react';
 import { useLeadSheetSections, useStore } from '@/daw/store';
+import { printSheet } from '@/daw/commands/projectCommands';
 import {
   buildLeadSheetExport,
   buildLeadSheetMelodyExport,
@@ -64,8 +65,10 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const melodyTrackIds = useStore((s) => s.leadSheetMelodyTrackIds);
   const tracks = useStore((s) => s.tracks);
 
+  // Printed from the Lead sheet layout: the lessons' Print-the-lead-sheet
+  // done moment.
   const handleExportPdf = useCallback(() => {
-    window.print();
+    printSheet('printLeadSheet');
   }, []);
 
   const toggleRepeats = useCallback(() => {
@@ -92,6 +95,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
       buildLeadSheetExport(state);
     if (!file) return;
     downloadFile(new Blob([file.xml], { type: MUSICXML_TYPE }), file.filename);
+    useStore.getState().markDone('exportMusicXml');
   }, [melodyIds]);
 
   const toggleMelody = useCallback(() => {
@@ -240,6 +244,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
           picker beside it says which */}
       <div className="flex items-center">
         <button
+          data-tutorial-id="leadsheet-melody-toggle"
           className={btnClass}
           style={{
             ...btnStyle,
@@ -269,6 +274,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
 
       {/* Measure operations */}
       <button
+        data-tutorial-id="leadsheet-add-measure"
         className={btnClass}
         style={btnStyle}
         onClick={handleInsertMeasure}
@@ -377,6 +383,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
 
       {/* Export buttons */}
       <button
+        data-tutorial-id="leadsheet-export-musicxml"
         className={btnClass}
         style={{
           ...btnStyle,
@@ -391,6 +398,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
       </button>
 
       <button
+        data-tutorial-id="leadsheet-print"
         className={btnClass}
         style={btnStyle}
         onClick={handleExportPdf}

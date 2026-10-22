@@ -491,7 +491,7 @@ const LABEL_RULES: ReadonlyArray<[label: string, keys: readonly UndoKey[]]> = [
   ['Edit master effects', ['masteringFxChain', 'masteringEffects']],
   ['Edit returns', ['returns']],
   ['Edit automation', ['masterAutomation']],
-  ['Change clip colours', ['clipColorMode']],
+  ['Change clip colors', ['clipColorMode']],
   ['Edit tracks', ['tracks']],
 ];
 

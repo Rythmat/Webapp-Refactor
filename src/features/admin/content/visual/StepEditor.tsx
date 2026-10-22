@@ -11,6 +11,11 @@ import type {
   StyleSubProfile,
   TargetNote,
 } from '@/curriculum/types/activity.v2';
+import type {
+  NoteFingerSuggestion,
+  StepFingerSuggestions,
+} from '@/learn/fingering/stepFingering';
+import type { PianoFinger } from '@/lib/learn/pianoFingering';
 import { GroovePicker } from '../../drumGrooves/GroovePicker';
 import { CONSOLE_LABEL, CONSOLE_PANEL, consoleTabClass } from '../../ui/styles';
 import {
@@ -69,6 +74,26 @@ const STUDENT_PARTS = ['melody', 'chords', 'bass'] as const;
 
 /** Radix Select has no empty-string option, so "unset" needs a sentinel. */
 const ANY_HAND = '__any';
+/** The finger select's "unset": the note follows the suggestion. */
+const AUTO_FINGER = '__auto';
+
+const FINGER_NAMES: Record<PianoFinger, string> = {
+  1: 'thumb',
+  2: 'index',
+  3: 'middle',
+  4: 'ring',
+  5: 'little',
+};
+const FINGERS: PianoFinger[] = [1, 2, 3, 4, 5];
+
+const handLabel = (s: NoteFingerSuggestion) => s.hand.toUpperCase();
+
+/** A note without its finger: it goes back to the suggestion. */
+const withoutFinger = (note: TargetNote): TargetNote => {
+  const next = { ...note };
+  delete next.finger;
+  return next;
+};
 
 /** "bar 2 · beat 3" from a tick offset — ticks alone are unreadable. */
 const tickLabel = (ticks: number) => {
@@ -82,9 +107,15 @@ export const StepEditor: FC<{
   onChange: (step: ActivityStepV2) => void;
   /** Open these notes in the Parts editor (piano roll / staff / capture). */
   onEditNotes?: (hands: 'both' | 'rh' | 'lh') => void;
-}> = ({ step, onChange, onEditNotes }) => {
+  /**
+   * Each target note's suggested hand and finger, for a piano lesson: the
+   * notes then get a finger column, and Fill writes the suggestions.
+   */
+  fingering?: (step: ActivityStepV2) => StepFingerSuggestions | null;
+}> = ({ step, onChange, onEditNotes, fingering }) => {
   const patch = (next: Partial<ActivityStepV2>) =>
     onChange({ ...step, ...next });
+  const fingers = useMemo(() => fingering?.(step) ?? null, [fingering, step]);
 
   const presetId = presetForStep(step);
   const preset = PRESET_BY_ID[presetId];
@@ -269,6 +300,7 @@ export const StepEditor: FC<{
         )}
         <TargetNoteEditor
           notes={notes}
+          fingers={fingers}
           onChange={(next) =>
             patch({ targetNotes: next.length ? next : undefined })
           }
@@ -427,11 +459,17 @@ const PartToggles: FC<{
  * Clicking a key appends a quarter note after the last one, or stacks it on the
  * same onset when "as chord" is on. Onset and length stay editable per row,
  * because rhythm is the part a keyboard click cannot express.
+ *
+ * In a piano lesson each note also has a finger: "auto" follows the
+ * suggestion (shown with the hand it is worked out for), or one of 1–5 pins
+ * it. Choosing a finger writes only the finger, never the hand: a hand turns
+ * the staff into a grand staff.
  */
 const TargetNoteEditor: FC<{
   notes: TargetNote[];
+  fingers?: StepFingerSuggestions | null;
   onChange: (notes: TargetNote[]) => void;
-}> = ({ notes, onChange }) => {
+}> = ({ notes, fingers, onChange }) => {
   const [asChord, setAsChord] = useState(false);
 
   const range = useMemo(() => {
@@ -475,6 +513,32 @@ const TargetNoteEditor: FC<{
             />
             add as chord (same onset)
           </label>
+          {fingers &&
+            notes.some((n, i) => !n.finger && fingers.shown[i]?.finger) && (
+              <button
+                type="button"
+                className="text-xs text-white/45 transition-colors hover:text-white"
+                onClick={() =>
+                  onChange(
+                    notes.map((n, i) => {
+                      const finger = fingers.shown[i]?.finger;
+                      return n.finger || !finger ? n : { ...n, finger };
+                    }),
+                  )
+                }
+              >
+                fill suggested fingers
+              </button>
+            )}
+          {fingers && notes.some((n) => n.finger) && (
+            <button
+              type="button"
+              className="text-xs text-white/45 transition-colors hover:text-red-400"
+              onClick={() => onChange(notes.map(withoutFinger))}
+            >
+              clear fingers
+            </button>
+          )}
           {notes.length > 0 && (
             <button
               type="button"
@@ -487,7 +551,9 @@ const TargetNoteEditor: FC<{
         </div>
       </div>
 
-      <div style={{ height: 90 }}>
+      {/* The keyboard's own height: a fixed box shorter than its keys let
+          them spill over the first note's row. */}
+      <div>
         <PianoKeyboard
           startC={range.startC}
           endC={range.endC}
@@ -574,6 +640,17 @@ const TargetNoteEditor: FC<{
                 ariaLabel={`Note ${index + 1} hand`}
                 className="text-xs"
               />
+              {fingers?.shown[index] && (
+                <FingerSelect
+                  note={note}
+                  index={index}
+                  shown={fingers.shown[index]}
+                  auto={fingers.auto[index] ?? fingers.shown[index]}
+                  onChange={(next) =>
+                    onChange(notes.map((n, i) => (i === index ? next : n)))
+                  }
+                />
+              )}
               <span className="ml-auto">
                 <IconButton
                   label={`Remove note ${index + 1}`}
@@ -588,5 +665,48 @@ const TargetNoteEditor: FC<{
         </ul>
       )}
     </div>
+  );
+};
+
+/**
+ * One note's finger: "auto" and the suggestion (what the lesson shows when
+ * the note has no finger of its own), or a pinned 1–5. The hand in the labels
+ * is the one the lesson works out for the note; the select never writes it.
+ */
+const FingerSelect: FC<{
+  note: TargetNote;
+  index: number;
+  /** What the lesson shows for the note now. */
+  shown: NoteFingerSuggestion;
+  /** What the suggester gives it with no finger of its own. */
+  auto: NoteFingerSuggestion;
+  onChange: (note: TargetNote) => void;
+}> = ({ note, index, shown, auto, onChange }) => {
+  const fallback = note.finger ? auto : shown;
+  return (
+    <InlineSelect
+      value={note.finger ? String(note.finger) : AUTO_FINGER}
+      onChange={(value) =>
+        onChange(
+          value === AUTO_FINGER
+            ? withoutFinger(note)
+            : { ...note, finger: Number(value) as PianoFinger },
+        )
+      }
+      options={[
+        {
+          value: AUTO_FINGER,
+          label: fallback.finger
+            ? `auto · ${handLabel(fallback)} ${fallback.finger}`
+            : 'auto · none',
+        },
+        ...FINGERS.map((f) => ({
+          value: String(f),
+          label: `${handLabel(shown)} ${f} · ${FINGER_NAMES[f]}`,
+        })),
+      ]}
+      ariaLabel={`Note ${index + 1} finger`}
+      className="text-xs"
+    />
   );
 };

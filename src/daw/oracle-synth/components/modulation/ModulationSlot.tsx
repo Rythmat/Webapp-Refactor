@@ -156,7 +156,9 @@ export const ModulationSlot: React.FC<ModulationSlotProps> = React.memo(
                 onUpdate(route.id, {
                   target: { source: newSource, param: newParam },
                   // Scale-quantize only applies to pitch targets
-                  ...(newParam !== 'detune' && newParam !== 'pitch' && route.transform
+                  ...(newParam !== 'detune' &&
+                  newParam !== 'pitch' &&
+                  route.transform
                     ? { transform: undefined }
                     : {}),
                 });

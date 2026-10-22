@@ -479,7 +479,7 @@ export async function renderProject(
           if (instrument) {
             const ready = instrument
               .init(asRunningContext(ctx), te.getInputNode())
-              .then(() => {
+              .then(async () => {
                 if (settled) {
                   instrument.dispose();
                   return;
@@ -492,7 +492,12 @@ export async function renderProject(
                     getTrackSynthState(track.id) ?? defaultSynthTrackState();
                   const engine = instrument.getEngine();
                   if (engine) {
-                    applySynthStateToEngine(engine, patch, { projectBpm: bpm });
+                    // Its pack tables load first: the render never bakes in
+                    // the fallback waveform (audit 2026-10-21).
+                    await applySynthStateToEngine(engine, patch, {
+                      projectBpm: bpm,
+                    });
+                    if (settled) return;
                   }
                   // The LFOs keep the song's bars: the render's first moment
                   // is the song at startTick (milestone 1.11).

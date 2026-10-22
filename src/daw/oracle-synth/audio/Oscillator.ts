@@ -186,6 +186,9 @@ export class Oscillator {
         if (tableName && tableName !== this.params.wavetable) {
           this.params.wavetable = tableName;
           needsWavetableUpdate = true;
+          // A new table: its frames go in even where the index matches.
+          this.currentSlotA = -1;
+          this.currentSlotB = -1;
         }
       }
     }
@@ -195,6 +198,11 @@ export class Oscillator {
     ) {
       this.params.wavetable = params.wavetable;
       needsWavetableUpdate = true;
+      // A held note switches table even where the frame index matches (a
+      // one-frame table to another, Position 0): the slot guard kept the
+      // old table sounding (audit 2026-10-21).
+      this.currentSlotA = -1;
+      this.currentSlotB = -1;
     }
     if (params.octave !== undefined) {
       this.params.octave = params.octave;

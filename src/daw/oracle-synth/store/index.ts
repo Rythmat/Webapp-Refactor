@@ -8,7 +8,7 @@ import { createEnvelopeSlice } from './slices/envelopeSlice';
 import { createLFOSlice } from './slices/lfoSlice';
 import { createModulationSlice } from './slices/modulationSlice';
 import { createVoiceSlice } from './slices/voiceSlice';
-import { createPresetSlice } from './slices/presetSlice';
+import { createPresetSlice, isApplyingPreset } from './slices/presetSlice';
 import { createGlobalSlice } from './slices/globalSlice';
 import { createUISlice } from './slices/uiSlice';
 import { createFXSlice } from './slices/fxSlice';
@@ -64,6 +64,8 @@ useSynthStore.subscribe(
     s.keyScale,
   ],
   () => {
+    // A preset being applied changes every param: it isn't an edit.
+    if (isApplyingPreset()) return;
     const { isDirty, markDirty } = useSynthStore.getState();
     if (!isDirty) markDirty();
   },

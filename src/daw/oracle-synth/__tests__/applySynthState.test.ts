@@ -85,7 +85,7 @@ describe('applySynthStateToEngine', () => {
     expect(argsOf('setBPM')).toEqual([[120], [120]]);
   });
 
-  it('loads a pre-v3 patch without a reverb section instead of throwing', () => {
+  it('loads a pre-v3 patch without a reverb section, giving it the default (off) reverb', () => {
     const { engine, argsOf } = recordingEngine();
     const patch = patchWithReverb();
     const olderFx: Partial<SynthTrackState['fx']> = { ...patch.fx };
@@ -94,7 +94,11 @@ describe('applySynthStateToEngine', () => {
     expect(() =>
       applySynthStateToEngine(engine, older, { projectBpm: 90 }),
     ).not.toThrow();
-    expect(argsOf('setReverbParams')).toEqual([]);
+    // The same migrations as a preset (migratePatchFields): the default
+    // reverb, switched off, rather than none.
+    expect(argsOf('setReverbParams')).toEqual([
+      [expect.objectContaining({ enabled: false })],
+    ]);
     expect(argsOf('setArpParams')).toHaveLength(1);
   });
 });

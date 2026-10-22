@@ -37,35 +37,11 @@ describe('computeGainOffset', () => {
     expect(1 * gain + offset).toBe(-100);
   });
 
-  it('legacy cutoff down-sweep: unipolar source 0..1 → -A..0', () => {
-    const { gain, offset } = computeGainOffset(
-      'unipolar',
-      false,
-      0.5,
-      4800,
-      true,
-    );
-    // LFO=0 → below cutoff by A; LFO=1 → at the base cutoff
-    expect(0 * gain + offset).toBe(-2400);
-    expect(1 * gain + offset).toBe(0);
-  });
-
-  it('legacy cutoff down-sweep with bipolar source: -1..1 → -A..0', () => {
-    const { gain, offset } = computeGainOffset(
-      'unipolar',
-      true,
-      0.5,
-      4800,
-      true,
-    );
-    expect(-1 * gain + offset).toBe(-2400);
-    expect(1 * gain + offset).toBe(0);
-  });
-
-  it('bipolar route ignores the legacy cutoff flag', () => {
-    const withFlag = computeGainOffset('bipolar', false, 0.5, 4800, true);
-    const withoutFlag = computeGainOffset('bipolar', false, 0.5, 4800, false);
-    expect(withFlag).toEqual(withoutFlag);
+  it('sweeps a unipolar cutoff route UP from the base, as every route (owner, 2026-10-21)', () => {
+    const { gain, offset } = computeGainOffset('unipolar', false, 0.5, 4800);
+    // Source 0 → at the base cutoff; source 1 → A above it.
+    expect(0 * gain + offset).toBe(0);
+    expect(1 * gain + offset).toBe(2400);
   });
 });
 

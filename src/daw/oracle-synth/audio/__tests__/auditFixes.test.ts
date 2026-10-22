@@ -1,0 +1,123 @@
+/**
+ * The synth audit's engine fixes (2026-10-21):
+ * - a pack table asked for before the pack registered waits for it, and a
+ *   view hears when frames land;
+ * - the built-in PWM table is a pulse (a square at 50 %);
+ * - imported tables are levelled without DC, and a procedural table's
+ *   phase-warped copy keeps each frame at full scale.
+ *
+ * Run: npx vitest run src/daw/oracle-synth/audio/__tests__/auditFixes.test.ts
+ */
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { WavetableBank } from '../WavetableBank';
+import {
+  ensureFramesLoaded,
+  getCachedFrames,
+  getFramesVersion,
+  registerPackTables,
+  setTableRegistrar,
+  subscribeFramesLoaded,
+} from '../wavetableImport';
+import { fakeOracleContext } from './fakeOracleContext';
+
+/** A mono 16-bit WAV of `frames` × 2048 samples from `sample(i)`. */
+function wav(frames: number, sample: (i: number) => number): ArrayBuffer {
+  const n = frames * 2048;
+  const buf = new ArrayBuffer(44 + n * 2);
+  const v = new DataView(buf);
+  const str = (o: number, s: string) =>
+    [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  str(0, 'RIFF');
+  v.setUint32(4, 36 + n * 2, true);
+  str(8, 'WAVE');
+  str(12, 'fmt ');
+  v.setUint32(16, 16, true);
+  v.setUint16(20, 1, true);
+  v.setUint16(22, 1, true);
+  v.setUint32(24, 44100, true);
+  v.setUint32(28, 88200, true);
+  v.setUint16(32, 2, true);
+  v.setUint16(34, 16, true);
+  str(36, 'data');
+  v.setUint32(40, n * 2, true);
+  for (let i = 0; i < n; i++) {
+    v.setInt16(44 + i * 2, Math.round(sample(i) * 32767), true);
+  }
+  return buf;
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  setTableRegistrar(async () => {});
+});
+
+describe('pack tables asked for before the pack registered', () => {
+  it('wait for the registrar, load, and tell a view the frames landed', async () => {
+    const name = 'S2/Audit Late';
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      arrayBuffer: async () =>
+        wav(2, (i) => Math.sin((i / 2048) * 2 * Math.PI)),
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    // The pack registers its tables only when asked (its manifest arriving).
+    setTableRegistrar(async () => {
+      registerPackTables([{ name, url: '/late.wav' }]);
+    });
+    const heard = vi.fn();
+    const off = subscribeFramesLoaded(heard);
+    const before = getFramesVersion();
+
+    await ensureFramesLoaded([name]);
+
+    expect(fetchMock).toHaveBeenCalledWith('/late.wav');
+    expect(getCachedFrames(name)).toHaveLength(2);
+    expect(getFramesVersion()).toBe(before + 1);
+    expect(heard).toHaveBeenCalled();
+    off();
+  });
+});
+
+describe('WavetableBank', () => {
+  const bank = () =>
+    new WavetableBank(fakeOracleContext().ctx as unknown as AudioContext);
+
+  it('builds PWM as a pulse: at 50 % it is the square', () => {
+    const b = bank();
+    const pwm = b.getDisplayFrames('PWM')!;
+    const square = b.getDisplayFrames('SQUARE')![0];
+    // The 50 % frame of the 16-frame sweep is at index ~8.
+    const half = pwm[Math.round(0.5 * (pwm.length - 1))];
+    const sign = (v: number) => (v > 0.05 ? 1 : v < -0.05 ? -1 : 0);
+    let agree = 0;
+    let counted = 0;
+    for (let i = 64; i < 2048; i += 128) {
+      if (sign(square[i]) === 0) continue;
+      counted++;
+      if (sign(half[i] - mean(half)) === sign(square[i])) agree++;
+    }
+    expect(agree / counted).toBeGreaterThan(0.9);
+  });
+
+  it('levels an imported table without its DC, and a phase-warped procedural copy per frame', () => {
+    const b = bank();
+    // One frame: a ±0.25 square sitting on −0.7 of DC. Its DC-free peak is
+    // 0.25; measured with DC it was 0.95, which played it at ~0.26.
+    const frame = new Float32Array(2048).map(
+      (_, i) => (i < 1024 ? 0.25 : -0.25) - 0.7,
+    );
+    b.loadWavetableFromFrames('dc', [frame]);
+    expect(b.getDisplayScaling('dc')).toBe('table');
+    // A procedural table and its warped copy play each frame at full scale.
+    expect(b.getDisplayScaling('HARMONIC')).toBe('frame');
+    const warped = b.resolveWarpedTable('HARMONIC', 'bend', 0.5);
+    expect(warped).not.toBe('HARMONIC');
+    expect(b.getDisplayScaling(warped)).toBe('frame');
+  });
+});
+
+function mean(f: Float32Array): number {
+  let m = 0;
+  for (const v of f) m += v;
+  return m / f.length;
+}

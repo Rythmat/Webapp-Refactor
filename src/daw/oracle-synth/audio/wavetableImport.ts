@@ -159,6 +159,35 @@ const inFlight = new Map<string, Promise<void>>();
 const listeners = new Set<Listener>();
 let namesSnapshot: string[] = [];
 
+// Frames arriving: a view drawing a table's frames (the dock's synth card)
+// subscribes, so a pack table it asked for before the fetch finished draws
+// once it lands (audit 2026-10-21: the plot stayed empty).
+const frameListeners = new Set<Listener>();
+let framesVersion = 0;
+
+/** Bumped each time a table's frames finish loading. */
+export function getFramesVersion(): number {
+  return framesVersion;
+}
+
+/** Subscribe to frames loading (for useSyncExternalStore). */
+export function subscribeFramesLoaded(listener: Listener): () => void {
+  frameListeners.add(listener);
+  return () => frameListeners.delete(listener);
+}
+
+// The pack's table names register when its manifest arrives. A table asked
+// for before then (a project reloading, an export) used to be skipped as
+// unknown and never asked for again, so the oscillator played the basic
+// fallback (audit 2026-10-21). The pack loader registers itself here, and an
+// unknown name waits for it once before it counts as unknown.
+let registrar: (() => Promise<void>) | null = null;
+
+/** Called by the pack loader: how to have the pack's tables registered. */
+export function setTableRegistrar(load: () => Promise<void>): void {
+  registrar = load;
+}
+
 function notify(): void {
   namesSnapshot = [...tableUrls.keys()];
   for (const l of listeners) l();
@@ -189,6 +218,13 @@ export function getCachedFrames(name: string): Float32Array[] | null {
 
 /** Fetch + parse the given tables (deduped); resolves when all settle. */
 export async function ensureFramesLoaded(names: string[]): Promise<void> {
+  if (registrar && names.some((n) => n && !tableUrls.has(n))) {
+    try {
+      await registrar();
+    } catch {
+      // A pack that can't load leaves its names unknown: the fallback plays.
+    }
+  }
   const jobs: Promise<void>[] = [];
   for (const name of names) {
     if (frameCache.has(name)) continue;
@@ -203,6 +239,8 @@ export async function ensureFramesLoaded(names: string[]): Promise<void> {
         })
         .then((buf) => {
           frameCache.set(name, parseWavetableWav(buf));
+          framesVersion++;
+          for (const l of frameListeners) l();
         })
         .catch((err) => {
           console.warn(`[oracle] wavetable "${name}" failed to load:`, err);

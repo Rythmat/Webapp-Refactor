@@ -26,6 +26,8 @@ export class WavetableBank {
   private framePartials: Map<string, { real: number[]; imag: number[] }[]> =
     new Map();
   private frameStore: Map<string, Float32Array[]> = new Map();
+  /** Tables whose frames each play at full scale (normalized one by one). */
+  private perFrameTables = new Set<string>();
 
   constructor(ctx: AudioContext) {
     this.ctx = ctx;
@@ -36,26 +38,47 @@ export class WavetableBank {
    * Builds an imported table from raw 2048-sample frames. Frames are
    * normalized by the table-global peak (per-frame normalization would
    * flatten intentional loudness differences across a morph), then
-   * converted to PeriodicWaves with normalization disabled.
+   * converted to PeriodicWaves with normalization disabled. `perFrame`
+   * normalizes each frame on its own instead: a warped copy of a procedural
+   * table, whose unwarped frames the browser normalizes one by one.
+   *
+   * The peak is taken without each frame's DC, which frameToPartials drops:
+   * a DC-heavy frame measured with it played up to ~2× full scale (audit
+   * 2026-10-21: Default Shapes frames 5-8 peaked at 1.94).
    */
-  loadWavetableFromFrames(name: string, frames: Float32Array[]): void {
+  loadWavetableFromFrames(
+    name: string,
+    frames: Float32Array[],
+    perFrame = false,
+  ): void {
     if (frames.length === 0) return;
     // Keep the raw frames so a phase warp can be baked from them later.
     this.frameStore.set(
       name,
       frames.map((f) => Float32Array.from(f)),
     );
-    let peak = 0;
-    for (const frame of frames) {
+    if (perFrame) this.perFrameTables.add(name);
+    const peakOf = (frame: Float32Array) => {
+      let mean = 0;
+      for (let i = 0; i < frame.length; i++) mean += frame[i];
+      mean /= frame.length || 1;
+      let peak = 0;
       for (let i = 0; i < frame.length; i++) {
-        const a = Math.abs(frame[i]);
+        const a = Math.abs(frame[i] - mean);
         if (a > peak) peak = a;
       }
+      return peak;
+    };
+    let tablePeak = 0;
+    if (!perFrame) {
+      for (const frame of frames)
+        tablePeak = Math.max(tablePeak, peakOf(frame));
     }
-    const scale = peak > 0 ? 1 / peak : 1;
     const waves: PeriodicWave[] = [];
     const scaled = new Float32Array(frames[0].length);
     for (const frame of frames) {
+      const peak = perFrame ? peakOf(frame) : tablePeak;
+      const scale = peak > 0 ? 1 / peak : 1;
       for (let i = 0; i < frame.length; i++) scaled[i] = frame[i] * scale;
       const { real, imag } = frameToPartials(scaled);
       waves.push(
@@ -81,7 +104,13 @@ export class WavetableBank {
     if (this.tables.has(derived)) return derived;
     const base = this.getTimeDomainFrames(baseName);
     if (!base || base.length === 0) return baseName;
-    this.loadWavetableFromFrames(derived, warpFrames(base, mode, q / 20));
+    // A procedural table plays each frame browser-normalized: its warped
+    // copy keeps that, rather than drop up to 28 dB (audit 2026-10-21).
+    this.loadWavetableFromFrames(
+      derived,
+      warpFrames(base, mode, q / 20),
+      this.framePartials.has(baseName),
+    );
     return derived;
   }
 
@@ -92,6 +121,19 @@ export class WavetableBank {
    */
   getDisplayFrames(name: string): readonly Float32Array[] | null {
     return this.getTimeDomainFrames(name);
+  }
+
+  /**
+   * How a table's frames play relative to each other: 'frame' when each is
+   * brought to full scale (procedural tables, which the browser normalizes,
+   * and their warped copies), 'table' when the table's own loudness
+   * contour across its frames is kept (imported tables). A plot scales its
+   * frames the same way, so it shows what plays.
+   */
+  getDisplayScaling(name: string): 'frame' | 'table' {
+    return this.framePartials.has(name) || this.perFrameTables.has(name)
+      ? 'frame'
+      : 'table';
   }
 
   /** Time-domain frames for a table (imported cache, stored, or synthesized
@@ -274,6 +316,13 @@ export class WavetableBank {
     return { real, imag };
   }
 
+  /**
+   * A pulse, high for `dutyCycle` of the period from its start: cosine
+   * terms sin(2πkd)/(kπ) and sine terms 2·sin²(πkd)/(kπ). At d = 0.5 it is
+   * the square. The old terms put a centred pulse's cosine series on the
+   * sines, which is its Hilbert transform: spikes, ~10 dB quieter (audit
+   * 2026-10-21).
+   */
   private pwmPartials(
     n: number,
     dutyCycle: number,
@@ -281,7 +330,9 @@ export class WavetableBank {
     const real = new Array(n).fill(0);
     const imag = new Array(n).fill(0);
     for (let i = 1; i < n; i++) {
-      imag[i] = (2 / (i * Math.PI)) * Math.sin(i * Math.PI * dutyCycle);
+      const k = i * Math.PI;
+      real[i] = Math.sin(2 * k * dutyCycle) / k;
+      imag[i] = (2 * Math.sin(k * dutyCycle) ** 2) / k;
     }
     return { real, imag };
   }

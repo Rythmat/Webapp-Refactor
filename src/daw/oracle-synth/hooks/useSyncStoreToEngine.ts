@@ -332,7 +332,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
     engine.setChorusParams(s.fx.chorus);
     engine.setPhaserParams(s.fx.phaser);
     engine.setDelayParams(s.fx.delay);
-    engine.setReverbParams(s.fx.reverb);
+    // A patch without a reverb section (pre-v3) must not stop the sync.
+    if (s.fx.reverb) engine.setReverbParams(s.fx.reverb);
     engine.setCompressorParams(s.fx.compressor);
     engine.setRouting(s.routing);
     engine.setArpParams(s.arp);

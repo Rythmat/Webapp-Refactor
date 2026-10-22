@@ -152,8 +152,6 @@ export class ModulationMatrix {
     }
 
     const range = getModRange(route.target.param);
-    const legacyCutoff =
-      route.target.param === 'cutoff' && route.polarity === 'unipolar';
     const { gain, offset } = usedTransform
       ? { gain: 1, offset: 0 }
       : computeGainOffset(
@@ -161,7 +159,6 @@ export class ModulationMatrix {
           resolved.bipolar,
           route.amount,
           range,
-          legacyCutoff,
         );
 
     const scaler = this.ctx.createGain();

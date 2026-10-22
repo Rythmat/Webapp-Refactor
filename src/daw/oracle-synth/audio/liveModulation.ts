@@ -34,14 +34,11 @@ export const destinationKey = (route: ModRoute) =>
  */
 export function routeOffset(route: ModRoute, source: number): number {
   const bipolar = route.source.type === 'audio';
-  const legacyCutoff =
-    route.target.param === 'cutoff' && route.polarity === 'unipolar';
   const { gain, offset } = computeGainOffset(
     route.polarity,
     bipolar,
     route.amount,
     getModRange(route.target.param),
-    legacyCutoff,
   );
   return shapeValue(route.curve ?? 'linear', source) * gain + offset;
 }

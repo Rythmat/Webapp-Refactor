@@ -12,14 +12,20 @@ import { cn } from '@/components/utilities';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import type { ModTarget, OscWarpMode } from '@/daw/oracle-synth/audio/types';
 import {
+  getFramesVersion,
   getRegisteredTableNames,
+  subscribeFramesLoaded,
   subscribeTableRegistry,
 } from '@/daw/oracle-synth/audio/wavetableImport';
+import {
+  buildWarpCurve,
+  isDistortionWarp,
+  isPhaseWarp,
+} from '@/daw/oracle-synth/audio/wavetableWarp';
 import {
   BUILT_IN_TABLES,
   WARP_OPTIONS,
 } from '@/daw/oracle-synth/components/modules/oscOptions';
-import { useModIndicator } from '@/daw/oracle-synth/hooks/useModIndicator';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
@@ -376,8 +382,18 @@ function KnobTile({
   );
 }
 
+/**
+ * Whether an enabled route aims at a control: the dot's only question, so
+ * it reads the routes rather than poll the live ring (useModIndicator ran
+ * a 30 fps analyser read per dot).
+ */
 const useModulated = (source: ModTarget['source'], param: ModTarget['param']) =>
-  useModIndicator(source, param) !== null;
+  useSynthStore((s) =>
+    s.modRoutes.some(
+      (r) =>
+        r.enabled && r.target.source === source && r.target.param === param,
+    ),
+  );
 
 // ── An oscillator ───────────────────────────────────────────────────────────
 
@@ -493,6 +509,8 @@ function OscPanel({
             engine={engine}
             table={osc.wavetable}
             position={livePosition ?? osc.wtPosition}
+            warpMode={osc.warpMode}
+            warpAmount={osc.warpAmount}
             color={color}
             height={layout.plotH}
             className={dimmed || undefined}
@@ -579,15 +597,103 @@ const CARD_SELECT =
 // ── The wavetable plot ──────────────────────────────────────────────────────
 
 /**
+ * A table's frames as the oscillator plays them, for the plot: warped (a
+ * phase warp's baked table, a distortion warp's curve on each sample),
+ * without DC, and scaled as the bank plays them (each frame to full scale
+ * for procedural tables, the table's own contour for imported ones).
+ * Frames are made on first ask and kept for the plot's inputs.
+ */
+function displayFrames(
+  engine: SynthEngine,
+  table: string,
+  warpMode: OscWarpMode,
+  warpAmount: number,
+): { count: number; frame(index: number): Float32Array } | null {
+  const bank = engine.getWavetableBank();
+  if (!bank) return null;
+  const name = isPhaseWarp(warpMode)
+    ? bank.resolveWarpedTable(table, warpMode, warpAmount)
+    : table;
+  const raw = bank.getDisplayFrames(name);
+  if (!raw || raw.length === 0) return null;
+  const curve = isDistortionWarp(warpMode)
+    ? buildWarpCurve(warpMode, warpAmount)
+    : null;
+  const means = raw.map((f) => {
+    let m = 0;
+    for (let i = 0; i < f.length; i++) m += f[i];
+    return m / (f.length || 1);
+  });
+  const peakOf = (i: number) => {
+    let p = 0;
+    const f = raw[i];
+    for (let k = 0; k < f.length; k++)
+      p = Math.max(p, Math.abs(f[k] - means[i]));
+    return p;
+  };
+  let tablePeak = 0;
+  const perFrame = bank.getDisplayScaling(name) === 'frame';
+  if (!perFrame)
+    for (let i = 0; i < raw.length; i++)
+      tablePeak = Math.max(tablePeak, peakOf(i));
+  const made = new Map<number, Float32Array>();
+  return {
+    count: raw.length,
+    frame(index) {
+      const i = Math.max(0, Math.min(raw.length - 1, index));
+      let out = made.get(i);
+      if (out) return out;
+      const peak = perFrame ? peakOf(i) : tablePeak;
+      const scale = peak > 0 ? 1 / peak : 1;
+      const f = raw[i];
+      out = new Float32Array(f.length);
+      for (let k = 0; k < f.length; k++) {
+        let v = (f[k] - means[i]) * scale;
+        if (curve) {
+          const x = Math.max(-1, Math.min(1, v));
+          v = curve[Math.round(((x + 1) / 2) * (curve.length - 1))];
+        }
+        out[k] = v;
+      }
+      made.set(i, out);
+      return out;
+    },
+  };
+}
+
+/** The screen's pixel density, following a move to another display. */
+function useDevicePixelRatio(): number {
+  const [dpr, setDpr] = useState(() =>
+    typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1,
+  );
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const query = window.matchMedia(`(resolution: ${dpr}dppx)`);
+    const onChange = () => setDpr(window.devicePixelRatio || 1);
+    query.addEventListener?.('change', onChange);
+    return () => query.removeEventListener?.('change', onChange);
+  }, [dpr]);
+  return dpr;
+}
+
+/**
  * The table's frames drawn one behind the other, the first at the front
  * and each further one down and to the right, with the frame Position
- * plays lit white; or one cycle of that frame alone. Its buttons switch the
- * view and zoom it.
+ * plays lit white in its place in the stack; or one cycle of that frame
+ * alone. A one-frame table is always that cycle, full size. Its buttons
+ * switch the view and zoom the waves.
+ *
+ * The stack is drawn once to an offscreen layer when the table, warp, size
+ * or view changes; a Position move (a knob, a note's modulation) only puts
+ * that layer back and draws the lit frame. Each column of the plot draws
+ * the frame's min and max over its samples, so a busy table's peaks show.
  */
 function WavetablePlot({
   engine,
   table,
   position,
+  warpMode,
+  warpAmount,
   color,
   height,
   className,
@@ -595,6 +701,8 @@ function WavetablePlot({
   engine: SynthEngine;
   table: string;
   position: number;
+  warpMode: OscWarpMode;
+  warpAmount: number;
   color: string;
   height: number;
   className?: string;
@@ -603,68 +711,127 @@ function WavetablePlot({
   const [stack, setStack] = useState(true);
   const [zoom, setZoom] = useState(1);
   const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const canvas = ref.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.round(width * dpr);
-    canvas.height = Math.round(height * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, width, height);
-    const frames = engine.getWavetableBank()?.getDisplayFrames(table) ?? null;
-    if (!frames || frames.length === 0) return;
+  const dpr = useDevicePixelRatio();
+  // A pack table asked for before its fetch finished draws when it lands.
+  const framesVersion = useSyncExternalStore(
+    subscribeFramesLoaded,
+    getFramesVersion,
+  );
 
-    const count = stack ? Math.min(64, frames.length) : 1;
-    const pick = (i: number) =>
-      frames[Math.round((i / Math.max(1, count - 1)) * (frames.length - 1))];
-    const current =
-      frames[Math.round(position * (frames.length - 1))] ?? frames[0];
-    // Scaled to the table's own peak, so every frame stays in the plot.
-    let peak = 0;
-    for (const v of current) peak = Math.max(peak, Math.abs(v));
-    for (let i = 0; i < count && stack; i++) {
-      for (const v of pick(i)) peak = Math.max(peak, Math.abs(v));
-    }
-    const norm = peak > 0 ? 1 / peak : 1;
-    const depthX = stack ? width * 0.26 * zoom : 0;
-    const depthY = stack ? height * 0.24 * zoom : 0;
+  const frames = useMemo(
+    () => displayFrames(engine, table, warpMode, warpAmount),
+    // framesVersion: the same table, now loaded.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [engine, table, warpMode, warpAmount, framesVersion],
+  );
+  const stacked = stack && !!frames && frames.count > 1;
+
+  // Where each frame goes, and how it is traced.
+  const geometry = useMemo(() => {
+    const depthX = stacked ? width * 0.26 : 0;
+    const depthY = stacked ? height * 0.24 : 0;
     const frameW = width - depthX - 16;
-    const amp = ((height - depthY) / 2 - 6) * (stack ? 1 : zoom);
-    const points = 128;
-    const trace = (frame: Float32Array, t: number) => {
-      const x0 = 8 + t * depthX;
-      const y0 = (stack ? 6 + amp : height / 2) + t * depthY;
-      ctx.beginPath();
-      for (let p = 0; p <= points; p++) {
-        const s = frame[Math.floor((p / points) * (frame.length - 1))] ?? 0;
-        const x = x0 + (p / points) * frameW;
-        const y = y0 - s * norm * amp;
-        if (p === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+    const amp = Math.max(4, ((height - depthY) / 2 - 6) * zoom);
+    const top = stacked ? 6 + ((height - depthY) / 2 - 6) : height / 2;
+    return { depthX, depthY, frameW, amp, top };
+  }, [stacked, height, zoom]);
+
+  const trace = (
+    ctx: CanvasRenderingContext2D,
+    frame: Float32Array,
+    t: number,
+  ) => {
+    const { depthX, depthY, frameW, amp, top } = geometry;
+    const x0 = 8 + t * depthX;
+    const y0 = top + t * depthY;
+    const columns = 128;
+    const step = frame.length / columns;
+    ctx.beginPath();
+    for (let c = 0; c < columns; c++) {
+      const from = Math.floor(c * step);
+      const to = Math.max(from + 1, Math.floor((c + 1) * step));
+      let lo = Infinity;
+      let hi = -Infinity;
+      let loAt = from;
+      let hiAt = from;
+      for (let k = from; k < to; k++) {
+        const v = frame[k];
+        if (v < lo) {
+          lo = v;
+          loAt = k;
+        }
+        if (v > hi) {
+          hi = v;
+          hiAt = k;
+        }
       }
-    };
+      const x = x0 + (c / (columns - 1)) * frameW;
+      // Min and max in the order they occur, so the line stays continuous.
+      const [a, b] = loAt <= hiAt ? [lo, hi] : [hi, lo];
+      if (c === 0) ctx.moveTo(x, y0 - a * amp);
+      else ctx.lineTo(x, y0 - a * amp);
+      if (b !== a) ctx.lineTo(x, y0 - b * amp);
+    }
+  };
+
+  // The stack, once per table, warp, size or view.
+  const layer = useMemo(() => {
+    if (typeof document === 'undefined' || !frames || !stacked) return null;
+    const off = document.createElement('canvas');
+    off.width = Math.round(width * dpr);
+    off.height = Math.round(height * dpr);
+    const ctx = off.getContext('2d');
+    if (!ctx) return null;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
-    if (stack) {
-      for (let i = count - 1; i >= 0; i--) {
-        trace(pick(i), count > 1 ? i / (count - 1) : 0);
-        ctx.strokeStyle = color;
-        ctx.globalAlpha = 0.3 + 0.4 * (1 - i / count);
-        ctx.lineWidth = 0.75;
-        ctx.stroke();
-      }
+    ctx.lineWidth = 0.75;
+    ctx.strokeStyle = color;
+    const count = Math.min(64, frames.count);
+    for (let i = count - 1; i >= 0; i--) {
+      const index = Math.round((i / (count - 1)) * (frames.count - 1));
+      trace(ctx, frames.frame(index), index / (frames.count - 1));
+      ctx.globalAlpha = 0.3 + 0.4 * (1 - i / count);
+      ctx.stroke();
     }
+    return off;
+    // trace reads geometry, which is in the deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frames, stacked, geometry, color, dpr, height]);
+
+  // The canvas's bitmap follows its size and the screen's density only.
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+  }, [dpr, height]);
+
+  // The layer, then the lit frame where Position has it.
+  useEffect(() => {
+    const ctx = ref.current?.getContext('2d');
+    if (!ctx) return;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    if (!frames) return;
+    if (layer) ctx.drawImage(layer, 0, 0);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const index = Math.round(position * (frames.count - 1));
+    const t = stacked ? index / (frames.count - 1) : 0;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
     ctx.globalAlpha = 1;
     // The lit frame: white over a dark edge.
-    trace(current, stack ? position : 0);
+    trace(ctx, frames.frame(index), t);
     ctx.strokeStyle = COLOR.bg.value;
     ctx.lineWidth = 4.5;
     ctx.stroke();
     ctx.strokeStyle = COLOR.text.value;
     ctx.lineWidth = 2.5;
     ctx.stroke();
-  }, [engine, table, position, color, height, stack, zoom]);
+    // trace reads geometry, which layer and stacked follow.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frames, layer, position, stacked, dpr, geometry]);
 
   const button =
     'flex size-[22px] items-center justify-center rounded-md bg-daw-chip text-daw-text-2 hover:text-daw-text disabled:opacity-40';

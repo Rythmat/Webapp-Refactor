@@ -38,11 +38,11 @@ describe('routeOffset', () => {
     expect(routeOffset(r, 1)).toBeCloseTo(0.5);
   });
 
-  it('keeps the v1 down-sweep on a unipolar cutoff route', () => {
+  it('opens a filter with a unipolar cutoff route (no v1 down-sweep)', () => {
     const r = route({ target: { source: 'flt1', param: 'cutoff' } });
-    // Cutoff's range is 4800 cents: a full source ends at the base.
-    expect(routeOffset(r, 1)).toBeCloseTo(0);
-    expect(routeOffset(r, 0)).toBeCloseTo(-4800);
+    // Cutoff's range is 4800 cents: a full source opens it by all of it.
+    expect(routeOffset(r, 0)).toBeCloseTo(0);
+    expect(routeOffset(r, 1)).toBeCloseTo(4800);
   });
 });
 

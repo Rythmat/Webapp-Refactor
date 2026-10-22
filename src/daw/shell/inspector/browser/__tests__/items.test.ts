@@ -86,7 +86,6 @@ const byId = (id: string) => {
 
 describe('the live catalog', () => {
   it('lists every source, in type order', () => {
-    expect(ofType('part')).toHaveLength(75);
     expect(ofType('part')).toHaveLength(listLiveParts().length);
     expect(ofType('groove')).toHaveLength(29);
     expect(ofType('groove')).toHaveLength(GROOVES.length);

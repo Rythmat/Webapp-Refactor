@@ -37,6 +37,7 @@ import { clipKeyOf } from '@/daw/harmony/clipKey';
 import { isApplePlatform } from '@/daw/shell/topbar/platformKeys';
 import { CanvasMenu } from '@/daw/shell/canvas/clipMenu/CanvasMenu';
 import { ClipEditPill } from '@/daw/shell/canvas/clipMenu/ClipEditPill';
+import { TimelineAnchors } from './TimelineAnchors';
 import {
   useCanvasMenuStore,
   type CanvasMenuTarget,
@@ -3273,6 +3274,9 @@ export function Timeline({ scrollRef }: TimelineProps) {
         {/* The selected clip's Edit pill (2.12): its menu without a
             right-click. */}
         <ClipEditPill scrollRef={scrollRef} viewportWidth={viewportWidth} />
+        {/* Lesson anchors over what the canvas draws: lanes, clips, the
+            rulers and the loop (pointer-transparent). */}
+        <TimelineAnchors scrollRef={scrollRef} viewportWidth={viewportWidth} />
       </div>
       {/* The canvas's one menu (2.12): clips, lanes, markers, the ruler. */}
       <CanvasMenu />

@@ -38,7 +38,14 @@ import {
   resetUndoHistory,
   undo,
 } from '@/daw/store/undoMiddleware';
-import { applyDemo, prepareDemo, type PreparedDemo } from '../demoSeed';
+import {
+  applyDemo,
+  FALLBACK_LESSON_SEED,
+  lessonSeedDemoId,
+  prepareDemo,
+  prepareLessonSeed,
+  type PreparedDemo,
+} from '../demoSeed';
 
 vi.mock('@/daw/midi/loadGrooveEvents', () => ({
   loadGrooveEvents: vi.fn(),
@@ -211,5 +218,33 @@ describe('applyDemo', () => {
     expect(drumTracks()).toHaveLength(1);
     settle();
     expect(getSessionGeneration()).toBe(loaded);
+  });
+});
+
+describe('a lesson’s demo song', () => {
+  const LESSON = 'studio-basics-your-tracks';
+
+  it('is its course’s seed once that demo exists', () => {
+    expect(lessonSeedDemoId(LESSON, (id) => id === 'demo-studio-basics')).toBe(
+      'demo-studio-basics',
+    );
+  });
+
+  it('falls back to an existing demo while it is missing, without a word', () => {
+    expect(lessonSeedDemoId(LESSON, () => false)).toBe(FALLBACK_LESSON_SEED);
+    expect(getDemoProject(FALLBACK_LESSON_SEED)).toBeDefined();
+  });
+
+  it('opens Studio Basics on its own song', async () => {
+    expect(getDemoProject('demo-studio-basics')).toBeDefined();
+    expect(lessonSeedDemoId(LESSON)).toBe('demo-studio-basics');
+    const prepared = await prepareLessonSeed(LESSON);
+    expect(prepared?.demo.id).toBe('demo-studio-basics');
+  });
+
+  it('is none for a lesson outside a course, or an unknown one', async () => {
+    expect(lessonSeedDemoId('pop-flip-a-sample')).toBeNull();
+    expect(lessonSeedDemoId('no-such-lesson')).toBeNull();
+    await expect(prepareLessonSeed('pop-flip-a-sample')).resolves.toBeNull();
   });
 });

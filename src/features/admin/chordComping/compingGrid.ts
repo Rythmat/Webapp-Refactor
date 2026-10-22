@@ -17,7 +17,10 @@ import {
   type ChordCompingHit,
   type CompingTones,
 } from '@/curriculum/engine/chordComping/chordComping';
-import type { ChordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbolTones';
+import {
+  chordSymbolTones,
+  type ChordSymbolTones,
+} from '@/curriculum/engine/genreGeneration/chordSymbolTones';
 import { isCompound, PPQ, type TimeSignature } from '@/curriculum/engine/meter';
 
 // ── hits in the editor ──
@@ -213,6 +216,20 @@ export function chordTones(chord: Chord): ChordSymbolTones {
   };
 }
 
+/**
+ * A chart chord's tones as lessons read the chord: a typed chord by its own
+ * spelling, extensions and all (Am9 has its 9th, which the chart's quality
+ * folds away), so a part plays over its own chords exactly as captured and
+ * comping voices them as lessons do; a preset's by its quality.
+ */
+export function chartChordTones(chord: Chord): ChordSymbolTones {
+  const written =
+    chord.symbol && !chord.nc ? chordSymbolTones(chord.symbol) : null;
+  return written && written.rootPc === mod12(chord.root)
+    ? written
+    : chordTones(chord);
+}
+
 export interface PreviewHarmony {
   /** The chord sounding at a tick (480 per quarter), the chart looping. */
   chordAt: (tick: number) => ChordSymbolTones;
@@ -239,7 +256,7 @@ export function previewHarmony(
   const chartQ = chartBars.length * chartBarQuarters(ts);
   if (!spans.length || chartQ <= 0) return null;
   const loopQ = Math.max(1, Math.ceil(patternQ / chartQ - 1e-6)) * chartQ;
-  const tones = spans.map((s) => ({ ...s, tones: chordTones(s.chord) }));
+  const tones = spans.map((s) => ({ ...s, tones: chartChordTones(s.chord) }));
   const chordAt = (tick: number) => {
     const q = (((tick / PPQ) % chartQ) + chartQ) % chartQ;
     return (

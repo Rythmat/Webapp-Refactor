@@ -19,7 +19,7 @@
       "name": "Bass",
       "instrument": "bass",
       "player": "hip-hop-bassist-1",
-      "sound": "bass-electric:808"
+      "sound": "bass-electric:finger"
     },
     {
       "id": "keys-comping",
@@ -28,7 +28,11 @@
     }
   ],
   "preview": {
-    "chart": "| Cmin |  G7  |"
+    "chart": "| Cmin |  G9sus |",
+    "chartKey": {
+      "tonic": 0,
+      "minor": true
+    }
   },
   "variations": [
     {
@@ -61,7 +65,11 @@
         },
         "bass": {
           "kind": "part",
-          "id": "hip-hop-l2-c4-c1-boom-bap-bass"
+          "id": "hip-hop-l2-c4-c1-boom-bap-bass-in-c-aeolian-in-c-aeolian"
+        },
+        "keys-comping": {
+          "kind": "part",
+          "id": "hip-hop-l2-sus2-sus4-triads-in-c-aeolian-in-c-aeolian"
         }
       }
     },
@@ -69,7 +77,20 @@
       "id": "l3-conscious",
       "name": "L3 · Conscious",
       "style": "hip-hop-l3-conscious",
-      "plays": {}
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "laid_back"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "hip-hop-conscious"
+        },
+        "keys-comping": {
+          "kind": "part",
+          "id": "hip-hop-l3-7th-chords-in-c-aeolian"
+        }
+      }
     }
   ]
 }

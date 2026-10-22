@@ -8,6 +8,7 @@ import {
   refFirewallCollision,
   songChartRef,
   songLessonRef,
+  studioTutorialRef,
 } from './contentRefs';
 import { resolveActivityRefHref } from './resolveContentHref';
 
@@ -51,6 +52,18 @@ describe('contentRefs — every builder round-trips through the resolver', () =>
     expect(
       resolveActivityRefHref('learn', curriculumRef('HIP HOP', 3, 'D')),
     ).not.toBeNull();
+  });
+
+  it('studioTutorialRef → the editor with the lesson running', () => {
+    expect(studioTutorialRef('studio-basics-record')).toBe(
+      'studio:tutorial:studio-basics-record',
+    );
+    expect(
+      resolveActivityRefHref(
+        'studio',
+        studioTutorialRef('studio-basics-record'),
+      ),
+    ).toBe('/studio/editor?tutorial=studio-basics-record');
   });
 
   it('globePathwayRef → /atlas/globe?pathway=<id>', () => {

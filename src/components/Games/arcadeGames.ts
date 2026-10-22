@@ -56,7 +56,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
   {
     title: 'Chroma',
     category: 'Ear Training',
-    blurb: 'Colour-match the pitch before the crystal fades.',
+    blurb: 'Color-match the pitch before the crystal fades.',
     route: 'chroma',
   },
   {
@@ -88,6 +88,12 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     category: 'Puzzles',
     blurb: 'Build the progression, connection by connection.',
     route: 'chordConnection',
+  },
+  {
+    title: 'Echo',
+    category: 'Ear Training',
+    blurb: 'Echo Atlas’s tunes, beat the Echo Boss, then make your song.',
+    route: 'echo',
   },
   {
     title: 'Foli',
@@ -128,10 +134,13 @@ export const FEATURED_GAME: ArcadeGame =
 /** Routes of games available to free-tier users. */
 export const FREE_GAME_ROUTES = new Set<string>([
   'chroma',
+  'echo',
   'chordPress',
   'boardChoice',
   'chordConnection',
   'harmonicStrings',
+  // Its levels are free; the Circle (any key) is the upgrade, in the game.
+  'majorArcanum',
 ]);
 
 export const isGameFree = (game: ArcadeGame): boolean =>

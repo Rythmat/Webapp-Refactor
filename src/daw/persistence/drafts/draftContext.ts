@@ -172,6 +172,27 @@ function isTheorySession(v: Record<string, unknown>): boolean {
   );
 }
 
+/** A chart as Hear It with Your Band keeps it (uiSlice LiteracyPracticeChart). */
+const isChart = (v: unknown) =>
+  isRecord(v) &&
+  isStrings(v.chords) &&
+  (v.harmony === 'triads' || v.harmony === 'sevenths') &&
+  isString(v.tonic) &&
+  (v.mode === 'major' || v.mode === 'minor');
+
+/** A band playing the student's chart: absent, or every field in place. */
+const isLiteracyBand = (v: unknown) =>
+  v === undefined ||
+  (isRecord(v) &&
+    isString(v.band) &&
+    isString(v.bandName) &&
+    isString(v.variation) &&
+    isString(v.styleName) &&
+    isChart(v.chart) &&
+    isString(v.keyName) &&
+    Array.isArray(v.charts) &&
+    v.charts.every((c) => isRecord(c) && isString(c.id) && isChart(c.chart)));
+
 function isGenreSession(v: Record<string, unknown>): boolean {
   return (
     isString(v.genre) &&
@@ -195,7 +216,8 @@ function isGenreSession(v: Record<string, unknown>): boolean {
     isNumber(v.keyboard.endC) &&
     isNumber(v.scaleTonic) &&
     isStrings(v.prompts) &&
-    isAppPath(v.returnTo)
+    isAppPath(v.returnTo) &&
+    isLiteracyBand(v.literacy)
   );
 }
 

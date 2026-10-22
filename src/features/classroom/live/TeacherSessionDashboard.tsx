@@ -6,7 +6,7 @@ import {
   StopCircle,
   Unlock,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { InteractionResponseDashboard } from '../assignments/InteractionResponseDashboard';
@@ -46,6 +46,14 @@ import { useSessionPositions } from './useSessionPositions';
 import { useSessionPresence } from './useSessionPresence';
 import { useSessionSync } from './useSessionSync';
 
+// Echo (class): the teacher's strip and live grid. Its engine and screens
+// load only when an Echo slide is the current one.
+const EchoTeacherPanel = lazy(() =>
+  import('../echo/EchoTeacherPanel').then(({ EchoTeacherPanel }) => ({
+    default: EchoTeacherPanel,
+  })),
+);
+
 export const TeacherSessionDashboard = () => {
   const { classroomId, sessionId } = useParams<{
     classroomId: string;
@@ -67,6 +75,8 @@ export const TeacherSessionDashboard = () => {
     sendShowcase,
     sendTimer,
     sendMedia,
+    sendEcho,
+    clock,
   } = useSessionSync(sid, 'teacher', cid);
   const { aggregate, countResponses, responsesByEnrollment } =
     useLiveResponses(sid);
@@ -119,6 +129,38 @@ export const TeacherSessionDashboard = () => {
         : [],
     [snapshot, currentSlide],
   );
+
+  // Echo (class): the slide's echo interaction, and the class to show in its grid.
+  const echoInteraction = currentSlideInteractions.find(
+    (i) => i.type === 'echo',
+  );
+  const echoRoster = useMemo(
+    () =>
+      activeEnrollments.map((e) => ({
+        enrollmentId: e.id,
+        displayName: e.displayName,
+      })),
+    [activeEnrollments],
+  );
+  const echoPanel =
+    echoInteraction && currentSlide && state ? (
+      <Suspense
+        fallback={<p className="text-sm text-white/50">Loading Echo…</p>}
+      >
+        <EchoTeacherPanel
+          sessionId={sid}
+          classroomId={cid}
+          slideId={currentSlide.id}
+          interaction={echoInteraction}
+          echo={state.echo}
+          responses={responsesByEnrollment}
+          roster={echoRoster}
+          presence={presence}
+          clock={clock}
+          sendEcho={sendEcho}
+        />
+      </Suspense>
+    ) : null;
 
   /**
    * Everything Present injects — not just the reveal.
@@ -323,6 +365,8 @@ export const TeacherSessionDashboard = () => {
           onEnd={() => setConfirmingEnd(true)}
           slots={presentSlots}
         />
+        {/* Echo's rounds run from this computer: they go on while presenting. */}
+        {echoPanel && <div className="hidden">{echoPanel}</div>}
         {endDialog}
       </>
     );
@@ -468,7 +512,9 @@ export const TeacherSessionDashboard = () => {
               />
             </div>
           )}
-          {currentSlide && currentSlide.kind === 'studio-collab' ? (
+          {echoPanel ? (
+            echoPanel
+          ) : currentSlide && currentSlide.kind === 'studio-collab' ? (
             <PairingPanel
               grouping={currentSlide.grouping}
               roster={activeEnrollments}

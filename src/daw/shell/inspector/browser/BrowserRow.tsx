@@ -162,8 +162,8 @@ export const BrowserRow = memo(function BrowserRow({
         noTooltip
         data-testid="library-favourite"
         aria-pressed={favourite}
-        label={`Favourite ${item.name}`}
-        title={favourite ? 'Remove from favourites' : 'Add to favourites'}
+        label={`Favorite ${item.name}`}
+        title={favourite ? 'Remove from favorites' : 'Add to favorites'}
         icon={<Heart fill={favourite ? 'currentColor' : 'none'} />}
         className={favourite ? 'text-daw-text' : 'text-daw-text-3'}
         onClick={() => toggleFavourite(item.id)}

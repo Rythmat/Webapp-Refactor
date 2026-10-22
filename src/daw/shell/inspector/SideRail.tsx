@@ -56,6 +56,7 @@ function RailButton({ panel }: { panel: RailPanel }) {
         aria-pressed={active}
         aria-keyshortcuts={active ? INSPECTOR_KEYS.aria : undefined}
         data-testid={`rail-${panel.id}`}
+        data-tutorial-id={`rail-${panel.id}`}
         data-panel={panel.id}
         onClick={() => toggle(panel.id)}
         className={cn(

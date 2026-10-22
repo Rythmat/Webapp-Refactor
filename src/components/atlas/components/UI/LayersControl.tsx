@@ -28,8 +28,8 @@ export const LAYER_OPTIONS: {
 }[] = [
   {
     layer: 'countryColors',
-    label: 'Country colours',
-    detail: 'Each country in its continent’s colours; off, plain land.',
+    label: 'Country colors',
+    detail: 'Each country in its continent’s colors; off, plain land.',
   },
   {
     layer: 'states',

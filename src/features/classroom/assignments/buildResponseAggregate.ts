@@ -88,6 +88,18 @@ export interface ShowcaseAggregate extends AggregateBase {
   }>;
 }
 
+/** Echo (class): each student's good echoes, rounds and best streak. Teacher-only. */
+export interface EchoAggregate extends AggregateBase {
+  kind: 'echo';
+  rows: Array<{
+    enrollmentId: string;
+    displayName: string;
+    good: number;
+    rounds: number;
+    bestStreak: number;
+  }>;
+}
+
 export type ResponseAggregate =
   | ChoiceAggregate
   | TextAggregate
@@ -95,7 +107,8 @@ export type ResponseAggregate =
   | DrawAggregate
   | CheckInAggregate
   | AtlasAggregate
-  | ShowcaseAggregate;
+  | ShowcaseAggregate
+  | EchoAggregate;
 
 const MAX_DRAW_STROKES = 500;
 const MAX_DRAW_BYTES = 200 * 1024;
@@ -318,6 +331,23 @@ export const buildResponseAggregate = (
             } => Boolean(r),
           );
         return { ...base, kind: 'showcase', offers };
+      }
+
+      case 'echo': {
+        const rows = matched.flatMap(({ enrollmentId, payload }) =>
+          payload.kind === 'echo'
+            ? [
+                {
+                  enrollmentId,
+                  displayName: resolveName(getDisplayName, enrollmentId),
+                  good: payload.rounds.filter((r) => r.passed).length,
+                  rounds: payload.rounds.length,
+                  bestStreak: payload.bestStreak,
+                },
+              ]
+            : [],
+        );
+        return { ...base, kind: 'echo', rows };
       }
     }
   });

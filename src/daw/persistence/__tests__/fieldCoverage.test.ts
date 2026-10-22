@@ -1073,6 +1073,8 @@ describe('the classification, key by key', () => {
         'clipboardClips',
         'clipboardAudioClip',
         'settingsOpen',
+        // what the student has done on this page (doneMomentsSlice.ts)
+        'doneMoments',
         // the collaboration room
         'isCollabActive',
         'roomId',

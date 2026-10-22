@@ -12,6 +12,7 @@ import { CHANGE_PREFIXES } from '@/curriculum/components/guitar/theory/theoryUi'
 import { theoryString } from '@/curriculum/data/guitar/theoryNotes';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
+import { ShowTourAgainRow } from '@/features/learnTour/ShowTourAgainRow';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
 import { GuitarInputChip } from '@/learn/components/guitar/GuitarInputChip';
@@ -153,6 +154,10 @@ export function GuitarSettingsSheet({
             </div>
           </SettingsSection>
         )}
+        <ShowTourAgainRow
+          className={GROUP}
+          onClose={() => onOpenChange(false)}
+        />
       </div>
     </GuitarSheet>
   );

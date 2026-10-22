@@ -1,9 +1,14 @@
 /* eslint-disable react/jsx-sort-props */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import * as Tone from 'tone';
 import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import {
+  buildSpellingMap,
+  formatNoteName,
+  MIDI_ROOT_TO_KEY,
+  spellChord,
+} from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useOptionalLearnInputStable } from '@/learn/context/LearnInputContext';
 import { formatChord, useChordNotation } from '@/lib/chordNotation';
@@ -34,20 +39,28 @@ const CHORD_INTERVALS: Record<ChordType, number[]> = {
   min7: [0, 3, 7, 10],
 };
 
-const PITCH_CLASS_NAMES = [
-  'C',
-  'C#',
-  'D',
-  'D#',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'G#',
-  'A',
-  'A#',
-  'B',
-];
+/**
+ * A chord's root as the app spells it: the twelve key centers (C D♭ D E♭ E F
+ * F♯ G A♭ A B♭ B) for every quality, with the ♭ and ♯ glyphs.
+ */
+function rootName(rootPc: number) {
+  return formatNoteName(MIDI_ROOT_TO_KEY[((rootPc % 12) + 12) % 12]);
+}
+
+/**
+ * Notes named in the chord's own spelling, as the answer's feedback lists
+ * them: its tones as the chord spells them from its root (D♭ minor's third is
+ * F♭), anything else as the root's key spells it.
+ */
+export function noteNamer(rootPc: number, intervals: number[] | null) {
+  const root = MIDI_ROOT_TO_KEY[((rootPc % 12) + 12) % 12];
+  const names = buildSpellingMap(root);
+  if (intervals)
+    spellChord(root, intervals).forEach((name, i) =>
+      names.set((((rootPc + intervals[i]) % 12) + 12) % 12, name),
+    );
+  return (value: number) => names.get(value) ?? rootName(value);
+}
 
 const DEFAULT_CHORD_POOL: ChordType[] = ['maj', 'min', 'dim', 'aug'];
 
@@ -86,8 +99,8 @@ function buildChord(rootMidi: number, type: ChordType): number[] {
   return CHORD_INTERVALS[type].map((interval) => rootMidi + interval);
 }
 
-function chordName(rootPc: number, type: ChordType) {
-  const root = PITCH_CLASS_NAMES[rootPc];
+export function chordName(rootPc: number, type: ChordType) {
+  const root = rootName(rootPc);
   switch (type) {
     case 'maj':
       return `${root} Major`;
@@ -107,15 +120,21 @@ function chordName(rootPc: number, type: ChordType) {
 }
 
 /**
- * The chord as a jazz symbol ("C♯−"), rooted on the game's own sharp spelling.
- * Hybrid shows chordName, and so does Roman: it needs a key and this game has
- * none. Display only — the answer is checked by pitch class.
+ * The chord as a jazz symbol ("D♭−"), its root spelled as the app spells a
+ * key center. Hybrid shows chordName, and so does Roman: it needs a key and
+ * this game has none. Display only — the answer is checked by pitch class.
  */
-function jazzChordName(rootPc: number, type: ChordType) {
-  return formatChord(
-    { root: PITCH_CLASS_NAMES[pc(rootPc)], quality: type },
-    'jazz',
-  );
+/**
+ * A spelled note with its octave, the octave its letter is written in: C♭4
+ * sounds as B3.
+ */
+export function withOctave(name: string, midi: number) {
+  const accidental = name.includes('♭') ? -1 : name.includes('♯') ? 1 : 0;
+  return `${name}${Math.floor((midi - accidental) / 12) - 1}`;
+}
+
+export function jazzChordName(rootPc: number, type: ChordType) {
+  return formatChord({ root: pc(rootPc), quality: type }, 'jazz');
 }
 
 function toEvents(midi: number[], color?: string): PlaybackEvent[] {
@@ -395,6 +414,16 @@ export function ChordPressGame({
     targetNotes,
   ]);
 
+  // Notes named in the chord's spelling; a lesson's own notes have no chord
+  // behind them, so they're named from their bass.
+  const nameNote = useMemo(
+    () =>
+      targetNotes && targetNotes.length > 0
+        ? noteNamer(Math.min(...targetNotes), null)
+        : noteNamer(current.rootPc, CHORD_INTERVALS[current.type]),
+    [current, targetNotes],
+  );
+
   const feedback = useMemo(() => {
     if (!checked) return null;
     if (isCorrect)
@@ -403,12 +432,8 @@ export function ChordPressGame({
           Correct! Nice job.
         </div>
       );
-    const miss = missingAndExtra.missing
-      .map((value) => PITCH_CLASS_NAMES[value])
-      .join(', ');
-    const extra = missingAndExtra.extra
-      .map((value) => PITCH_CLASS_NAMES[value])
-      .join(', ');
+    const miss = missingAndExtra.missing.map(nameNote).join(', ');
+    const extra = missingAndExtra.extra.map(nameNote).join(', ');
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: '#f87171' }}>
@@ -436,7 +461,7 @@ export function ChordPressGame({
         )}
       </div>
     );
-  }, [checked, isCorrect, missingAndExtra]);
+  }, [checked, isCorrect, missingAndExtra, nameNote]);
 
   const canCheck = selected.length > 0 && !(checked && isCorrect);
   const canClear = selected.length > 0 && !(checked && isCorrect);
@@ -526,7 +551,7 @@ export function ChordPressGame({
       >
         Target:{' '}
         {targetMidi
-          .map((value) => Tone.Frequency(value, 'midi').toNote())
+          .map((value) => withOctave(nameNote(pc(value)), value))
           .join(' ')}
       </div>
 

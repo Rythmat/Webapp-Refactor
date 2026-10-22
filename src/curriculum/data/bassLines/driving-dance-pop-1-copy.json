@@ -1,0 +1,64 @@
+{
+  "id": "driving-dance-pop-1-copy",
+  "name": "Driving Dance Pop 2",
+  "description": "What do You believe? ",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "order": 250,
+  "timeSignature": [4, 4],
+  "length": "2m",
+  "gridResolution": "16n",
+  "instrument": "electric",
+  "grooves": ["dance-pop"],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:1:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:2:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:3:2",
+      "degree": "R",
+      "dur": 1.23,
+      "velocity": 0.7
+    },
+    {
+      "time": "0:2:2",
+      "degree": "R",
+      "dur": 0.98,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:1:0",
+      "degree": "R",
+      "dur": 0.48,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:2:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:2:2",
+      "degree": "R",
+      "dur": 0.98,
+      "velocity": 0.8
+    }
+  ]
+}

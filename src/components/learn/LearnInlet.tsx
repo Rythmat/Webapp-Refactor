@@ -22,6 +22,7 @@ import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgress';
+import { START_HERE_TAB } from '@/curriculum/musicLiteracy/literacyPath';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
 import {
@@ -46,6 +47,7 @@ import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
 import { HexWaveBackground } from '../ui/hex-wave-background';
 import { LearnHome } from './LearnHome';
 import { LearnTabBar } from './LearnTabBar';
+import { StartHere } from './StartHere';
 import { WorldHarmony } from './WorldHarmony';
 import {
   COMING_SOON_FOR_GUITAR,
@@ -1000,6 +1002,10 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   return (
     <div className={className} style={style}>
       <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={isOpen}
+        data-learn-section={title}
         className="group mb-4 flex w-fit cursor-pointer select-none items-center gap-2"
         style={{
           color: 'var(--color-text)',
@@ -1009,6 +1015,11 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
           letterSpacing: '1px',
         }}
         onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={(e) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          e.preventDefault();
+          setIsOpen(!isOpen);
+        }}
       >
         <h2>{title}</h2>
         {isOpen ? (
@@ -1117,6 +1128,7 @@ const CardItem: React.FC<CardItemProps> = ({
                 : '1px solid var(--color-border)',
           }}
           onClick={unavailable ? undefined : onSelect}
+          data-learn-tile={title}
         >
           {image && interactive ? (
             <HexWaveBackground
@@ -1341,7 +1353,14 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const genreParam = searchParams.get('genre');
   const tabParam = searchParams.get('tab');
   const { isPremium } = useIsPremium();
-  const validTabs = ['Songs', 'Genre', 'Theory', 'Technique', 'WorldHarmony'];
+  const validTabs = [
+    START_HERE_TAB,
+    'Songs',
+    'Genre',
+    'Theory',
+    'Technique',
+    'WorldHarmony',
+  ];
   const defaultTab =
     tabParam && validTabs.includes(tabParam)
       ? tabParam
@@ -1765,6 +1784,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     const renderPanels = (expandedItem: ContentItem) => (
       <div className="flex flex-wrap gap-4">
         <div
+          data-learn-panel="levels"
           className="glass-panel-sm flex w-64 max-w-full flex-col gap-0.5 rounded-xl p-4"
           style={{
             background: 'rgba(255,255,255,0.03)',
@@ -1899,6 +1919,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         </div>
         {selectedSubItem && (
           <div
+            data-learn-panel="chapters"
             className="glass-panel-sm flex w-64 max-w-full flex-col gap-1 self-start rounded-xl p-4"
             style={{
               background: 'rgba(255,255,255,0.03)',
@@ -1924,6 +1945,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               return (
                 <div
                   key={section.id}
+                  data-learn-chapter={section.name}
                   className="cursor-pointer rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
                   style={{
                     color: isChapterSelected
@@ -2062,6 +2084,10 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         {subTab === 'Home' ? (
           <div className="min-h-0 flex-1 overflow-y-auto">
             <LearnHome />
+          </div>
+        ) : subTab === START_HERE_TAB ? (
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <StartHere />
           </div>
         ) : subTab === 'Songs' ? (
           <div

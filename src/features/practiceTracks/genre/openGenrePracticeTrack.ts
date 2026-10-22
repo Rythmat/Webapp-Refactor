@@ -16,11 +16,19 @@
  * but the same generator and no error, which is the right way round.
  */
 
-import { StudioRoutes } from '@/constants/routes';
+import { CurriculumRoutes, StudioRoutes } from '@/constants/routes';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 import type { ActivityFlowV2 } from '@/curriculum/types/activity.v2';
-import type { GenrePracticeSession } from '@/daw/store/uiSlice';
+import type {
+  GenrePracticeSession,
+  LiteracyBandPractice,
+} from '@/daw/store/uiSlice';
+import {
+  bandRefParams,
+  sameBandRef,
+  type BandPracticeRef,
+} from './bandPracticeRef';
 import {
   buildGenrePracticeTrack,
   type GenrePracticeTrackResult,
@@ -37,6 +45,15 @@ interface PendingPracticeTrack {
   genreLabel: string;
   returnTo: string;
   track: GenrePracticeTrackResult;
+  /**
+   * A Band playing a student's chart (Hear It with Your Band): what its link
+   * says, which the box matches on too, and what the session keeps.
+   */
+  band?: {
+    ref: BandPracticeRef;
+    literacy: LiteracyBandPractice;
+    projectName: string;
+  };
 }
 
 let pending: PendingPracticeTrack | null = null;
@@ -50,17 +67,21 @@ export function stashPracticeTrack(next: PendingPracticeTrack): void {
  * The pending Practice Track if it is the one the parameters asked for,
  * left in the box. The Studio reads it this way while it opens the track,
  * so an open that is refused, cancelled or superseded leaves it for the
- * next try; it takes it (takePracticeTrack) once the track is open.
+ * next try; it takes it (takePracticeTrack) once the track is open. A band's
+ * track is the one asked for only with the same band, style and chart: a
+ * box left for another chart is never played.
  */
 export function peekPracticeTrack(
   genre: string,
   level: number,
   section: ActivitySectionId,
+  band: BandPracticeRef | null = null,
 ): PendingPracticeTrack | null {
   return pending &&
     pending.genre === genre &&
     pending.level === level &&
-    pending.section === section
+    pending.section === section &&
+    sameBandRef(pending.band?.ref, band)
     ? pending
     : null;
 }
@@ -74,8 +95,9 @@ export function takePracticeTrack(
   genre: string,
   level: number,
   section: ActivitySectionId,
+  band: BandPracticeRef | null = null,
 ): PendingPracticeTrack | null {
-  const found = peekPracticeTrack(genre, level, section);
+  const found = peekPracticeTrack(genre, level, section, band);
   pending = null;
   return found;
 }
@@ -91,6 +113,8 @@ export function practiceSessionFor(
   track: GenrePracticeTrackResult,
   genreLabel: string,
   returnTo: string,
+  /** A Band playing the student's chart: its prompts, and what it plays. */
+  literacy?: LiteracyBandPractice,
 ): GenrePracticeSession {
   const keyboard = keyboardWindow(
     track.studentRange.low,
@@ -121,13 +145,16 @@ export function practiceSessionFor(
     studentParts: track.studentParts,
     keyboard,
     scaleTonic: scaleTonicIn(keyboard, track.keyRootPc, widest),
-    prompts: practicePrompts(track.studentParts, track.sourceDirection),
+    prompts: practicePrompts(track.studentParts, track.sourceDirection, {
+      band: !!literacy,
+    }),
     returnTo,
     styles: track.styles,
     styleId: track.styleId,
     progressions: track.progressions,
     progressionId: track.progressionId,
     ...(track.guitar ? { guitar: track.guitar } : {}),
+    ...(literacy ? { literacy } : {}),
   };
 }
 
@@ -141,6 +168,13 @@ export async function switchGenrePracticeTrack(
   choice: { styleId?: string | null; progressionId?: string },
   bpm: number,
 ): Promise<GenrePracticeSession | null> {
+  // A band's track switches within the band: its styles, the student's
+  // progressions, each style on its own level's flow.
+  const { literacy } = session;
+  if (literacy) {
+    const { switchBandPracticeTrack } = await import('./bandPracticeTrack');
+    return switchBandPracticeTrack({ ...session, literacy }, choice, bpm);
+  }
   const flow = await getActivityFlow(session.genre, session.level);
   if (
     !flow ||
@@ -190,13 +224,21 @@ export async function switchGenrePracticeTrack(
 
 // ── Opening one ──────────────────────────────────────────────────────────────
 
-/** The Studio URL that opens a genre Practice Track. */
+/**
+ * The Studio URL that opens a genre Practice Track; with a band's ref, the
+ * band playing a student's chart, which the link alone can build again
+ * (bandPracticeRef.ts).
+ */
 export function practiceTrackUrl(
   genre: string,
   level: number,
   section: ActivitySectionId,
+  band: BandPracticeRef | null = null,
 ): string {
-  return `${StudioRoutes.editor.definition}?practiceGenre=${encodeURIComponent(genre)}&practiceLevel=${level}&practiceSection=${section}`;
+  const base = `${StudioRoutes.editor.definition}?practiceGenre=${encodeURIComponent(genre)}&practiceLevel=${level}&practiceSection=${section}`;
+  if (!band) return base;
+  const params = new URLSearchParams(bandRefParams(band));
+  return `${base}&${params.toString()}`;
 }
 
 /**
@@ -227,7 +269,13 @@ export interface ResolvedPracticeTrack {
   track: GenrePracticeTrackResult;
   genreLabel: string;
   returnTo: string;
+  /** A band's track: what the session keeps, and the project's name. */
+  literacy?: LiteracyBandPractice;
+  projectName?: string;
 }
+
+/** Where a band's track goes back to: Hear It with Your Band. */
+export const BAND_PRACTICE_RETURN = CurriculumRoutes.musicLiteracyBand();
 
 /**
  * The Studio's side: the track the URL names, from the box if the lesson just
@@ -243,16 +291,47 @@ export async function resolvePracticeTrack(
   genre: string,
   level: number,
   section: ActivitySectionId,
-  opts: { consume?: boolean } = {},
+  opts: { consume?: boolean; band?: BandPracticeRef | null } = {},
 ): Promise<ResolvedPracticeTrack | null> {
+  const band = opts.band ?? null;
   const handed = opts.consume
-    ? takePracticeTrack(genre, level, section)
-    : peekPracticeTrack(genre, level, section);
+    ? takePracticeTrack(genre, level, section, band)
+    : peekPracticeTrack(genre, level, section, band);
   if (handed) {
     return {
       track: handed.track,
       genreLabel: handed.genreLabel,
       returnTo: handed.returnTo,
+      ...(handed.band
+        ? {
+            literacy: handed.band.literacy,
+            projectName: handed.band.projectName,
+          }
+        : {}),
+    };
+  }
+
+  // A band's track, rebuilt from its link: the chart the link names, and
+  // the student's own progressions on this device for the switch.
+  if (band) {
+    const [
+      { buildBandPracticeTrackFor },
+      { bandCharts, readBandProgressions },
+    ] = await Promise.all([
+      import('./bandPracticeTrack'),
+      import('@/curriculum/musicLiteracy/bandProgressions'),
+    ]);
+    const built = await buildBandPracticeTrackFor(
+      band,
+      bandCharts(readBandProgressions()),
+    );
+    if (!built) return null;
+    return {
+      track: built.track,
+      genreLabel: built.genreLabel,
+      returnTo: BAND_PRACTICE_RETURN,
+      literacy: built.literacy,
+      projectName: built.projectName,
     };
   }
 

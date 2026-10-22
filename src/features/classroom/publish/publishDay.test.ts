@@ -13,6 +13,7 @@
  * must survive publish — see the `tears_of_a_clown` case.
  */
 import { describe, expect, it } from 'vitest';
+import { emptyInteraction } from '../plan/InteractionEditor';
 import type { Slide } from '../slides/types';
 import type { Cell, Day, Interaction } from '../types';
 import {
@@ -549,6 +550,52 @@ describe('publishDay — a Cortex lesson', () => {
       role: 'promoter',
       seed: 3,
     });
+  });
+});
+
+describe('publishDay — an Echo (class) slide', () => {
+  const echoInteraction = (): Interaction => ({
+    ...emptyInteraction('echo'),
+    id: 'ix-echo',
+  });
+  const echoDay = (): Day => {
+    const day = makeDay();
+    day.cells.groupPractice.presentation.interactions = [echoInteraction()];
+    day.deck = {
+      id: 'deck-echo',
+      title: { en: 'Echo' },
+      slides: [
+        {
+          id: 'slide-echo',
+          kind: 'interaction',
+          phase: 'groupPractice',
+          title: { en: 'Echo Atlas!' },
+          interactionIds: ['ix-echo'],
+        },
+      ],
+    };
+    return day;
+  };
+
+  it('carries the setup and the Teacher Settings to students, field by field', () => {
+    const snapshot = publishDay(echoDay());
+    const [ix] = snapshot.cells.groupPractice.presentation.interactions ?? [];
+    expect(ix.type).toBe('echo');
+    expect(ix.echo).toEqual(echoInteraction().echo);
+    expect(findForbiddenKey(snapshot)).toBeNull();
+  });
+
+  it('is never shareable, and drops anything else riding on it', () => {
+    const day = echoDay();
+    const [ix] = day.cells.groupPractice.presentation.interactions!;
+    ix.shareable = true;
+    (ix.echo as unknown as Record<string, unknown>).teacherGuide = 'SECRET-1';
+    (ix.echo!.settings as unknown as Record<string, unknown>).aside =
+      'SECRET-2';
+    const snapshot = publishDay(day);
+    const [out] = snapshot.cells.groupPractice.presentation.interactions ?? [];
+    expect(out.shareable).toBe(false);
+    expect(JSON.stringify(snapshot)).not.toMatch(/SECRET|teacherGuide|aside/);
   });
 });
 

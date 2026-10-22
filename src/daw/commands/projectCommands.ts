@@ -9,7 +9,9 @@ import { downloadFile, fileSlug, songSlug } from '@/daw/utils/exportFiles';
 // ── File ▸ Export MIDI and File ▸ Analyze, from the menu and the keys ──────
 //
 // One command each, so ⇧⌘E and ⇧⌘U do exactly what the menu items do (the key
-// used to skip Analyze's chord step and number the tracks differently).
+// used to skip Analyze's chord step and number the tracks differently). The
+// sheets' printing is here too, so the Score and the Lead sheet share it and
+// its done moment (doneMomentsSlice.ts).
 
 const OUR_PPQ = 480;
 
@@ -185,6 +187,9 @@ export async function exportProjectMidi(
   const file = await buildProjectMidi(useStore.getState(), opts);
   if (!file) return false;
   downloadFile(file.blob, file.filename);
+  // Every MIDI download comes through here (⇧⌘E, the menu, the dialog): a
+  // lesson's MIDI step watches for it.
+  useStore.getState().markDone('exportMidi');
   return true;
 }
 
@@ -203,6 +208,17 @@ export async function exportProjectMidiOrSay(
   const written = await exportProjectMidi(opts);
   if (!written) notice({ title: NO_MIDI_NOTES_NOTICE });
   return written;
+}
+
+/**
+ * Opens the browser's print dialog for the Score page in the layout it
+ * shows, the full score or the lead sheet (each prints through
+ * leadsheet-print.css), and counts it as the done moment a lesson's Print
+ * step watches for.
+ */
+export function printSheet(moment: 'printScore' | 'printLeadSheet'): void {
+  useStore.getState().markDone(moment);
+  window.print();
 }
 
 /** Analyzes the song and its chords, and opens the panel that shows them. */

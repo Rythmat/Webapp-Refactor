@@ -3,7 +3,9 @@ import type { ViewType, ChannelStripTabId } from '@/daw/store/uiSlice';
 import type { SynthStore } from '@/daw/oracle-synth/store';
 import type { AnchorRack } from './anchorRegistry';
 import type { RackTarget } from '@/daw/store/effectRack';
+import type { DemoBeat } from './demo/demoTypes';
 import { GENRE_MAP } from '@prism/engine';
+import { STUDIO_BASICS_STEPS } from './studioBasics/studioBasicsLessons';
 import {
   TUTORIAL_CATALOG,
   type TutorialCatalogEntry,
@@ -11,6 +13,12 @@ import {
 } from './tutorialCatalog';
 
 export type { TutorialDifficulty } from './tutorialCatalog';
+export type {
+  DemoAction,
+  DemoBeat,
+  DemoKeyPress,
+  DemoRun,
+} from './demo/demoTypes';
 
 // ── Tutorial data model ────────────────────────────────────────────────────
 // Step-by-step, "Duolingo for the Studio" lessons. Each step spotlights a
@@ -23,13 +31,23 @@ export type { TutorialDifficulty } from './tutorialCatalog';
 //
 // A lesson's tile copy (title, subtitle, difficulty, length) and whether it
 // needs Premium live in tutorialCatalog.ts, which the Studio dashboard reads
-// without loading these steps; this file adds the steps by lesson id.
+// without loading these steps; this file adds the steps by lesson id. The
+// Studio Basics course keeps its steps in studioBasics/, its own file.
+//
+// A step may show before it asks: its `demo` (demo/demoTypes.ts) plays as
+// the step arrives, a cursor doing the move on the real Studio, and the
+// step's check is armed only once it is the student's turn. A step with no
+// demo runs as it always has.
 
 /** Preconditions applied (via store setters) when a step becomes active. */
 export interface StepRequires {
   view?: ViewType;
   libraryOpen?: boolean;
-  channelStripTab?: ChannelStripTabId;
+  /**
+   * The dock's tab to show, or null to shut the dock (the timeline and the
+   * track list then take its room).
+   */
+  channelStripTab?: ChannelStripTabId | null;
   /**
    * Clear the global clip selection so the piano roll opens in blank mode on
    * the SELECTED track (it otherwise edits the selected clip regardless of
@@ -95,6 +113,13 @@ export interface TutorialStep {
   requires?: StepRequires;
   check?: StepCheck;
   synthCheck?: SynthStepCheck;
+  /**
+   * A "watch me" demonstration played when the step arrives, before the
+   * student's turn (demo/demoTypes.ts has the beats and the conventions).
+   * `check` and `synthCheck` are armed only after it, against the Studio as
+   * it left it, so the demo's own moves never pass the step.
+   */
+  demo?: readonly DemoBeat[];
 }
 
 /** A lesson: its catalog entry plus its steps. */
@@ -729,6 +754,8 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       },
     },
   ],
+
+  ...STUDIO_BASICS_STEPS,
 };
 
 /** Every lesson, in catalog order, with its steps. */

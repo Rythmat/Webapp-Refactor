@@ -8,11 +8,11 @@
   "status": "live",
   "timeSignature": [4, 4],
   "feltBeats": 4,
-  "bars": 10,
+  "bars": 4,
   "tempo": 75,
   "tempoUnit": "quarter",
   "swing": 50,
-  "grid": "16n",
+  "grid": "16t",
   "kit": "custom_custom_natural_01",
   "padGains": {},
   "humanize": {

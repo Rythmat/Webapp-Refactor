@@ -4,6 +4,7 @@ import { MobileChordNotationBar } from '@/components/ClassroomLayout/ChordNotati
 import { TopRail } from '@/components/ClassroomLayout/TopRail';
 import { cn } from '@/components/utilities';
 import { DawSkeleton } from '@/daw/shell/DawSkeleton';
+import { LearnTourLayer } from '@/features/learnTour/LearnTourLayer';
 import { useProgressBootstrap } from '@/hooks/data';
 import { useStampEarnedAwards } from '@/hooks/data/useAwards';
 import { useStreakPing } from '@/hooks/data/useStreak';
@@ -58,6 +59,8 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
           </Suspense>
         </div>
       </main>
+      {/* The Learn tours, which run across every page this layout holds. */}
+      <LearnTourLayer />
     </div>
   );
 };

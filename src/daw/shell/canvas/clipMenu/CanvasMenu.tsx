@@ -40,7 +40,9 @@ import { runCanvasMenuItem } from './runCanvasMenuItem';
 // pill under itself, and a key (clip.menu) under the selected clip's pill.
 // It is a drop-down menu on a trigger that stands where it should hang, so
 // arrow keys, typing to jump, Enter and Escape work as in every other menu,
-// and focus goes back to the pill it was opened from.
+// and focus goes back to the pill it was opened from. Its lesson anchor is
+// clip-menu (what it is for is data-menu-target), each item's
+// clip-menu-<item id> (clip-menu-duplicate, clip-menu-paste …).
 
 const TITLE: Record<CanvasMenuTarget['kind'], string> = {
   clip: 'Clip',
@@ -84,6 +86,7 @@ function Row({ item, onRun }: RowProps) {
         title={item.disabled}
         shortcut={shortcut}
         data-item={item.id}
+        data-tutorial-id={`clip-menu-${item.id}`}
         onSelect={select}
       >
         {item.label}
@@ -97,6 +100,7 @@ function Row({ item, onRun }: RowProps) {
       shortcut={shortcut}
       danger={item.danger}
       data-item={item.id}
+      data-tutorial-id={`clip-menu-${item.id}`}
       onSelect={select}
     >
       {item.label}

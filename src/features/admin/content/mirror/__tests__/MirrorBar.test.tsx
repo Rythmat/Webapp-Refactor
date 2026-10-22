@@ -106,6 +106,8 @@ describe('the bar’s way into the Table', () => {
       '/console/content/curriculum/music-literacy/music-literacy-part-1',
       '/console/music-literacy',
     ],
+    // Learn → Start Here is the Music Literacy path, not Learn's songs.
+    ['/console/content/learn?tab=StartHere', '/console/music-literacy'],
   ])('%s → %s', (path, table) => {
     renderAt(path);
     expect(tableToggle()).toBe(table);
@@ -176,6 +178,34 @@ describe('the bar’s way into the Table', () => {
     expect(
       screen.getByRole('link', { name: 'Edit lessons' }).getAttribute('href'),
     ).toBe('/console/music-literacy');
+  });
+
+  it('edits the Bands from Part 3, Hear It with Your Band, not a lesson', () => {
+    renderAt(
+      '/console/content/curriculum/music-literacy/hear-it-with-your-band',
+    );
+    expect(
+      screen.getByRole('link', { name: 'Edit Bands' }).getAttribute('href'),
+    ).toBe('/console/bands');
+    expect(screen.queryByRole('link', { name: 'Edit lesson' })).toBeNull();
+  });
+
+  it('edits Music Literacy from Learn → Start Here, its path', () => {
+    renderAt('/console/content/learn?tab=StartHere');
+    expect(
+      screen
+        .getByRole('link', { name: 'Edit Music Literacy' })
+        .getAttribute('href'),
+    ).toBe('/console/music-literacy');
+    // The Records menu's Table: no table holds the path.
+    expect(menuLinks(openRecords())[0]).toEqual([
+      'Table',
+      '/console/table/artists',
+    ]);
+    cleanup();
+    // The other Learn tabs offer no editor of their own.
+    renderAt('/console/content/learn?tab=Songs');
+    expect(screen.queryByRole('link', { name: /^Edit/ })).toBeNull();
   });
 });
 

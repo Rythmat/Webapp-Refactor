@@ -132,6 +132,26 @@ describe('wouldRecordOverTake', () => {
 });
 
 describe('requestRecord', () => {
+  it('stops the take that is running, rather than starting another', () => {
+    const stop = vi.fn();
+    setup([audioTrack('vox', true, [])], 0, {
+      isRecording: true,
+      isPlaying: true,
+      stop,
+    });
+    expect(requestRecord()).toBe('stopped');
+    expect(stop).toHaveBeenCalledTimes(1);
+    expect(record).not.toHaveBeenCalled();
+  });
+
+  it('stops a take still counting in', () => {
+    const stop = vi.fn();
+    setup([audioTrack('vox', true, [])], 0, { isCountingIn: true, stop });
+    expect(requestRecord()).toBe('stopped');
+    expect(stop).toHaveBeenCalledTimes(1);
+    expect(record).not.toHaveBeenCalled();
+  });
+
   it('records at once when no take is in the way', () => {
     setup([audioTrack('vox', true, [])], 0);
     const order: string[] = [];

@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-sort-props */
-import { useCallback, useState } from 'react';
+import { lazy, Suspense, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TubesCursor from '@/components/ui/tubes-cursor';
 import { GameRoutes } from '@/constants/routes';
@@ -18,9 +18,33 @@ import SignalFlow from './SignalFlow/SignalFlow';
 import WaveSculptor from './WaveSculptor/WaveSculptor';
 import { ARCADE_ROOT } from './arcadeChrome';
 import Chroma from './chroma';
-import { StreakTracker } from './scoring/StreakTracker';
+import {
+  ArcadeStreakContext,
+  type ArcadeStreakState,
+} from './scoring/ArcadeStreak';
 import { useArcadeStreakReward } from './scoring/useArcadeStreakReward';
 import '@/components/learn/learn.css';
+
+// Echo is its own chunk: its engine, contours and screens load only when
+// it opens.
+const EchoGame = lazy(() => import('./Echo/EchoGame'));
+
+/**
+ * A page's streak, as its game's header shows it (scoring/ArcadeStreak.tsx):
+ * the strip under the bar, and the banner when a streak is won.
+ */
+function streakState(
+  reward: ReturnType<typeof useArcadeStreakReward>,
+  ownWinSound = false,
+): ArcadeStreakState {
+  return {
+    count: reward.streak,
+    target: reward.target,
+    win: reward.win,
+    sessionXp: reward.sessionXp,
+    ownWinSound,
+  };
+}
 
 // Full-bleed arcade shell: the game fills the whole window it's given so its
 // header bar spans the full width (matching Major Arcanum). Navigation back to
@@ -36,79 +60,91 @@ function GameShell({ children }: { children: React.ReactNode }) {
 }
 
 export function ChromaPage() {
-  const { streak, target, registerCorrect, registerWrong } =
-    useArcadeStreakReward('chroma');
+  const reward = useArcadeStreakReward('chroma');
+  // Chroma plays its win on its own lead: an arpeggio.
   return (
     <GameShell>
-      <div className="relative flex-1 min-h-0">
-        <StreakTracker count={streak} target={target} />
-        <Chroma onCorrect={registerCorrect} onWrong={registerWrong} />
-      </div>
+      <ArcadeStreakContext.Provider value={streakState(reward, true)}>
+        <div className="relative flex-1 min-h-0">
+          <Chroma
+            onCorrect={reward.registerCorrect}
+            onWrong={reward.registerWrong}
+          />
+        </div>
+      </ArcadeStreakContext.Provider>
     </GameShell>
   );
 }
 
 export function FoliPage() {
-  const { streak, target, registerCorrect, registerWrong } =
-    useArcadeStreakReward('foli');
+  const reward = useArcadeStreakReward('foli');
+  const { registerCorrect, registerWrong } = reward;
   return (
     <GameShell>
-      <div className="relative flex-1 min-h-0">
-        <StreakTracker count={streak} target={target} />
-        <Foli onCorrect={registerCorrect} onWrong={registerWrong} />
-      </div>
+      <ArcadeStreakContext.Provider value={streakState(reward)}>
+        <div className="relative flex-1 min-h-0">
+          <Foli
+            onCorrect={registerCorrect}
+            onWrong={registerWrong}
+            onRestart={reward.reset}
+          />
+        </div>
+      </ArcadeStreakContext.Provider>
     </GameShell>
   );
 }
 
 export function BoardChoicePage() {
-  const { streak, target, registerCorrect, registerWrong } =
-    useArcadeStreakReward('board_choice');
+  const reward = useArcadeStreakReward('board_choice');
+  const { registerCorrect, registerWrong } = reward;
   return (
     <GameShell>
-      <div className="relative flex-1 min-h-0">
-        <StreakTracker count={streak} target={target} />
-        <BoardChoiceGame
-          arcade
-          onCorrect={registerCorrect}
-          onWrong={registerWrong}
-        />
-      </div>
+      <ArcadeStreakContext.Provider value={streakState(reward)}>
+        <div className="relative flex-1 min-h-0">
+          <BoardChoiceGame
+            arcade
+            onCorrect={registerCorrect}
+            onWrong={registerWrong}
+          />
+        </div>
+      </ArcadeStreakContext.Provider>
     </GameShell>
   );
 }
 
 export function ChordConnectionPage() {
-  const { streak, target, registerCorrect, registerWrong } =
-    useArcadeStreakReward('chord_connection');
+  const reward = useArcadeStreakReward('chord_connection');
+  const { registerCorrect, registerWrong } = reward;
   return (
     <GameShell>
-      <div className="relative flex-1 min-h-0">
-        <StreakTracker count={streak} target={target} />
-        <ChordConnectionGame
-          arcade
-          onCorrect={registerCorrect}
-          onWrong={registerWrong}
-        />
-      </div>
+      <ArcadeStreakContext.Provider value={streakState(reward)}>
+        <div className="relative flex-1 min-h-0">
+          <ChordConnectionGame
+            arcade
+            onCorrect={registerCorrect}
+            onWrong={registerWrong}
+          />
+        </div>
+      </ArcadeStreakContext.Provider>
     </GameShell>
   );
 }
 
 export function ChordPressPage() {
-  const { streak, target, registerCorrect, registerWrong } =
-    useArcadeStreakReward('chord_press');
+  const reward = useArcadeStreakReward('chord_press');
+  const { registerCorrect, registerWrong } = reward;
   return (
     <GameShell>
-      <div className="relative flex-1 min-h-0">
-        <StreakTracker count={streak} target={target} />
-        <ChordPressGame
-          arcade
-          enableComputerKeyboard
-          onCorrect={registerCorrect}
-          onWrong={registerWrong}
-        />
-      </div>
+      <ArcadeStreakContext.Provider value={streakState(reward)}>
+        <div className="relative flex-1 min-h-0">
+          <ChordPressGame
+            arcade
+            enableComputerKeyboard
+            onCorrect={registerCorrect}
+            onWrong={registerWrong}
+          />
+        </div>
+      </ArcadeStreakContext.Provider>
     </GameShell>
   );
 }
@@ -183,22 +219,27 @@ export function ConstellationsPage() {
 }
 
 export function GrooveLabPage() {
-  const { streak, target, registerCorrect, registerWrong } =
-    useArcadeStreakReward('groove_lab');
+  const reward = useArcadeStreakReward('groove_lab');
+  const { registerCorrect, registerWrong } = reward;
   return (
     <GameShell>
-      <div className="relative flex-1 min-h-0">
-        <StreakTracker count={streak} target={target} />
-        <GrooveLab onCorrect={registerCorrect} onWrong={registerWrong} />
-      </div>
+      <ArcadeStreakContext.Provider value={streakState(reward)}>
+        <div className="relative flex-1 min-h-0">
+          <GrooveLab
+            onCorrect={registerCorrect}
+            onWrong={registerWrong}
+            onRestart={reward.reset}
+          />
+        </div>
+      </ArcadeStreakContext.Provider>
     </GameShell>
   );
 }
 
 export function WaveSculptorPage() {
   const awardXP = useAwardArcadeExperience();
-  const { streak, target, registerCorrect } =
-    useArcadeStreakReward('wave_sculptor');
+  const reward = useArcadeStreakReward('wave_sculptor');
+  const { registerCorrect } = reward;
 
   const handleComplete = useCallback(async () => {
     await awardXP.mutateAsync().catch(() => {});
@@ -206,13 +247,14 @@ export function WaveSculptorPage() {
 
   return (
     <GameShell>
-      <div className="relative flex-1 min-h-0">
-        <StreakTracker count={streak} target={target} />
-        <WaveSculptor
-          onComplete={handleComplete}
-          onRoundWon={registerCorrect}
-        />
-      </div>
+      <ArcadeStreakContext.Provider value={streakState(reward)}>
+        <div className="relative flex-1 min-h-0">
+          <WaveSculptor
+            onComplete={handleComplete}
+            onRoundWon={registerCorrect}
+          />
+        </div>
+      </ArcadeStreakContext.Provider>
     </GameShell>
   );
 }
@@ -242,5 +284,17 @@ export function SignalFlowPage() {
     <GameShell>
       <SignalFlow onComplete={handleComplete} />
     </GameShell>
+  );
+}
+
+export function EchoPage() {
+  return (
+    <LearnInputProvider detectionMode="polyphonic" instrument="piano">
+      <GameShell>
+        <Suspense fallback={<div className="flex-1" />}>
+          <EchoGame />
+        </Suspense>
+      </GameShell>
+    </LearnInputProvider>
   );
 }

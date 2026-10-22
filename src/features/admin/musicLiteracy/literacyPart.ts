@@ -2,25 +2,36 @@
  * A Music Literacy segment (the words, the call or the response) as an
  * instrumental part, for the Parts editor's piano roll and staff, and back.
  * The notes are scale degrees of the lesson's key, so they go out as pitches
- * of its 1 (`tonicMidi`) and come back as degrees of that same 1, whatever
- * key the roll is told the part is in.
+ * of its 1 and come back as degrees of that same 1, whatever key the roll
+ * is told the part is in, read the lesson's way: under scale numbering
+ * (Part 2) a 3 goes out as the mode's 3rd and comes back a 3. The 1 is
+ * where the step's melody sits in the player, in the treble staff
+ * (`melodyTonic`: its words, call and response placed together), so every
+ * segment of a step opens in the octave the student hears it in.
+ *
+ * Words with a pickup go out a bar longer: the roll's bar 1 is the pickup
+ * bar, the end of the count-in, with the pickup at its end, and the words'
+ * bar 1 is the roll's bar 2. They come back a bar earlier.
  *
  * No React here.
  */
 
-import type {
-  LiteracyFigure,
-  LiteracyNote,
-  LiteracyStep,
-  LiteracyWord,
-  LiteracyWords,
-  MusicLiteracyLesson,
+import {
+  PICKUP_STEP,
+  type LiteracyFigure,
+  type LiteracyMelodicEchoStep,
+  type LiteracyNote,
+  type LiteracyWord,
+  type LiteracyWords,
+  type MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
 import {
-  degreeOfMidi,
-  noteMidi,
-  tonicMidi,
+  barTicks,
+  melodyTonic,
+  pickupOf,
+  writtenDegree,
 } from '@/curriculum/engine/musicLiteracy/literacy';
+import { pitchFrom } from '@/curriculum/engine/musicLiteracy/register';
 import type { InstrumentPart, PartNote } from '@/curriculum/engine/parts/part';
 
 export type Segment = 'words' | 'call' | 'response';
@@ -36,25 +47,55 @@ export const PLACEHOLDER_SYLLABLE = 'la';
 
 const VELOCITY = 96;
 
+/** A step's words, or a blank line for a step with none (a Part 2 echo). */
+export const wordsOf = (step: LiteracyMelodicEchoStep): LiteracyWords =>
+  step.words ?? { bars: 1, notes: [] };
+
 /** A segment's notes and bars, as the step has them now. */
 export function segmentOf(
-  step: LiteracyStep,
+  step: LiteracyMelodicEchoStep,
   segment: Segment,
 ): LiteracyFigure | LiteracyWords {
-  if (segment === 'words') return step.words;
+  if (segment === 'words') return wordsOf(step);
   if (segment === 'call') return step.call;
   return step.response ?? step.call;
 }
 
+/**
+ * Where the segment's tick 0 is in its part: a bar in for words with a
+ * pickup, which the roll's first bar holds.
+ */
+export function partOffset(
+  lesson: Pick<MusicLiteracyLesson, 'timeSignature'>,
+  step: LiteracyMelodicEchoStep,
+  segment: Segment,
+): number {
+  return segment === 'words' && pickupOf(step) > 0
+    ? barTicks(lesson.timeSignature)
+    : 0;
+}
+
+/**
+ * The 1 a step's segments go out from: where its melody sits in the player.
+ * The roll reads its notes back from the same 1 (`partFigure`,
+ * `partWords`), so keep the one the part was opened with: a commit that
+ * moves the melody's octave must not move the notes still in the roll.
+ */
+export const partTonic = (
+  lesson: MusicLiteracyLesson,
+  step: LiteracyMelodicEchoStep,
+): number => melodyTonic(lesson, step);
+
 /** The segment as a piano part in the lesson's key, at the step's tempo. */
 export function segmentPart(
   lesson: MusicLiteracyLesson,
-  step: LiteracyStep,
+  step: LiteracyMelodicEchoStep,
   segment: Segment,
   id: string,
 ): InstrumentPart {
   const figure = segmentOf(step, segment);
-  const tonic = tonicMidi(lesson.key.tonic);
+  const tonic = partTonic(lesson, step);
+  const offset = partOffset(lesson, step, segment);
   return {
     id,
     name: `${step.title} · ${SEGMENT_LABEL[segment]}`,
@@ -68,7 +109,7 @@ export function segmentPart(
       mode: lesson.key.mode === 'minor' ? 'aeolian' : 'ionian',
     },
     timeSignature: [lesson.timeSignature[0], lesson.timeSignature[1]],
-    bars: figure.bars,
+    bars: figure.bars + (offset ? 1 : 0),
     tempo: step.tempo ?? lesson.tempo,
     swing: 50,
     sound: 'piano-sampler',
@@ -76,9 +117,9 @@ export function segmentPart(
       .sort((a, b) => a.tick - b.tick)
       .map(
         (note): PartNote => ({
-          tick: note.tick,
+          tick: note.tick + offset,
           duration: note.duration,
-          midi: noteMidi(note, tonic),
+          midi: pitchFrom(note, tonic, lesson.key, lesson.numbering),
           velocity: VELOCITY,
         }),
       ),
@@ -86,27 +127,36 @@ export function segmentPart(
   };
 }
 
-/** The part's notes as degrees of the lesson's 1, in time order. */
+/**
+ * The part's notes as degrees of `tonic`, the 1 the part went out from
+ * (`partTonic`), in time order, from the segment's tick 0: `offset` into
+ * the part.
+ */
 function partNotes(
   part: InstrumentPart,
   lesson: MusicLiteracyLesson,
+  tonic: number,
+  offset = 0,
 ): LiteracyNote[] {
-  const tonic = tonicMidi(lesson.key.tonic);
   return [...part.notes]
     .sort((a, b) => a.tick - b.tick || a.midi - b.midi)
     .map((note) => ({
-      tick: Math.max(0, Math.round(note.tick)),
+      tick: Math.max(0, Math.round(note.tick)) - offset,
       duration: Math.max(1, Math.round(note.duration)),
-      ...degreeOfMidi(note.midi, tonic),
+      ...writtenDegree(note.midi - tonic, lesson.key.mode, lesson.numbering),
     }));
 }
 
-/** A call or response back from the roll: its notes and its bars. */
+/**
+ * A call or response back from the roll: its notes and its bars, as degrees
+ * of `tonic`, the 1 the part went out from (`partTonic`).
+ */
 export function partFigure(
   part: InstrumentPart,
   lesson: MusicLiteracyLesson,
+  tonic: number,
 ): LiteracyFigure {
-  return { bars: part.bars, notes: partNotes(part, lesson) };
+  return { bars: part.bars, notes: partNotes(part, lesson, tonic) };
 }
 
 export interface WordsFromPart {
@@ -119,25 +169,40 @@ export interface WordsFromPart {
 
 /**
  * The words back from the roll: the line's syllables on the roll's notes,
- * one each in order. A note past the last syllable sings the placeholder; a
- * syllable past the last note is dropped, and both are reported.
+ * one each in order, as degrees of `tonic`, the 1 the part went out from
+ * (`partTonic`). A note past the last syllable sings the placeholder; a
+ * syllable past the last note is dropped, and both are reported. Words
+ * with a pickup come back from the roll's second bar; a note put earlier in
+ * the pickup bar than the pickup reaches makes the pickup that much longer,
+ * to the eighth, as far as a bar less an eighth.
  */
 export function partWords(
   part: InstrumentPart,
   lesson: MusicLiteracyLesson,
   previous: LiteracyWords,
+  tonic: number,
 ): WordsFromPart {
   const texts = [...previous.notes]
     .sort((a, b) => a.tick - b.tick)
     .map((note) => note.text);
-  const notes = partNotes(part, lesson).map(
+  const pickup = previous.pickup ?? 0;
+  const bar = barTicks(lesson.timeSignature);
+  const notes = partNotes(part, lesson, tonic, pickup ? bar : 0).map(
     (note, i): LiteracyWord => ({
       ...note,
       text: texts[i] ?? PLACEHOLDER_SYLLABLE,
     }),
   );
+  const earliest = Math.min(0, ...notes.map((note) => note.tick));
+  const reach = Math.min(
+    bar - PICKUP_STEP,
+    Math.ceil(-earliest / PICKUP_STEP) * PICKUP_STEP,
+  );
+  const bars = pickup ? Math.max(1, part.bars - 1) : part.bars;
   return {
-    words: { bars: part.bars, notes },
+    words: pickup
+      ? { bars, pickup: Math.max(pickup, reach), notes }
+      : { bars, notes },
     added: Math.max(0, notes.length - texts.length),
     dropped: texts.slice(notes.length),
   };

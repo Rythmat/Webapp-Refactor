@@ -652,7 +652,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     kind: 'theory',
     when: 'mapHasTriadBarIn7thMap',
     title: 'A triad in a 7th map',
-    body: 'This bar uses a triad. A triad and a 7th chord on the same number do the same job. The 7th only adds colour.',
+    body: 'This bar uses a triad. A triad and a 7th chord on the same number do the same job. The 7th only adds color.',
   },
   {
     id: 'd3.sameFret',
@@ -1032,7 +1032,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     when: 'always',
     modes: 'pentatonic-blues',
     title: 'Play over the band',
-    body: 'The band plays the chords while you play the phrase. Your notes stay the same as the chords change under them. Listen to how each chord colours them.',
+    body: 'The band plays the chords while you play the phrase. Your notes stay the same as the chords change under them. Listen to how each chord colors them.',
   },
   {
     id: 'd3.jamFamily',

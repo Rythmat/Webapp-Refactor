@@ -39,6 +39,13 @@ export interface GenreLevelProfile {
   keyMidi: number;
   scaleIntervals: number[];
   scaleNotes: string[];
+  /**
+   * Every scale the level teaches in its key, its own first, when there's
+   * more than one: each is shown and colored on its own (Hip Hop L3's E
+   * Phrygian, E Dorian and E harmonic minor). Without it the level shows the
+   * one `mode` names.
+   */
+  scales?: LevelScale[];
   tempoRange: string;
   primaryVoicings: VoicingRef[];
 
@@ -53,11 +60,23 @@ export interface GenreLevelProfile {
   locked: boolean;
 }
 
+/** One of a level's scales. */
+export interface LevelScale {
+  /** As a student reads it: 'Harmonic Minor'. */
+  name: string;
+  /** As the level's lesson steps name it: 'harmonic_minor'. */
+  scaleId: string;
+  intervals: number[];
+  notes: string[];
+}
+
 export interface VoicingRef {
   label: string;
   symbol: string;
   midis: number[];
   description: string;
+  /** The level's scale it comes from, when not its first: the card takes that scale's color. */
+  scaleId?: string;
 }
 
 export interface TechniqueEntry {

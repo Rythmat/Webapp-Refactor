@@ -13,8 +13,10 @@ import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import type {
   GenreLevelProfile,
   GenreProfile,
+  LevelScale,
   VoicingRef,
 } from '@/curriculum/types/genreProfile';
+import { scaleColorMode } from '@/curriculum/utils/flowKey';
 import { formatScaleDegrees } from '@/components/learn/modeHelpers';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import '@/components/learn/learn.css';
@@ -140,6 +142,45 @@ const levelPillStyle = (isActive: boolean, accentColor: string) => ({
     : '1px solid var(--color-border)',
   color: isActive ? accentColor : 'var(--color-text-dim)',
 });
+
+// ── A level's scales and their colors ───────────────────────────────────
+
+type ShownScale = Omit<LevelScale, 'scaleId'> & { scaleId?: string };
+
+/** The scales a level shows: its own list, else the one its mode names. */
+function levelScales(level: GenreLevelProfile): ShownScale[] {
+  return (
+    level.scales ?? [
+      {
+        name: level.mode,
+        intervals: level.scaleIntervals,
+        notes: level.scaleNotes,
+      },
+    ]
+  );
+}
+
+/**
+ * The color one of a level's scales is shown in, as its lesson steps are:
+ * its mode's color in the level's key, the harmonic minor its own. Without a
+ * scale id, the color the level's mode reads as.
+ */
+function scaleColor(level: GenreLevelProfile, scaleId?: string): string {
+  const root = level.keyCenter.split(' ')[0];
+  if (scaleId)
+    return colorForKeyMode(
+      root,
+      scaleColorMode(scaleId) as Parameters<typeof colorForKeyMode>[1],
+    );
+  const rawMode = level.mode.toLowerCase();
+  // Minor Pentatonic → treat as Dorian for color (same relative-major relationship).
+  // Major Pentatonic shares its color with Ionian, so it falls through unchanged.
+  const modeSlug = rawMode.includes('minor pentatonic') ? 'dorian' : rawMode;
+  return colorForKeyMode(
+    root,
+    modeSlug as Parameters<typeof colorForKeyMode>[1],
+  );
+}
 
 // ── VoicingCard ─────────────────────────────────────────────────────────
 
@@ -382,16 +423,22 @@ function TheoryTab({
 }) {
   const [animatingNotes, setAnimatingNotes] = useState<PlaybackEvent[]>([]);
 
+  // The scale on the keyboard: a level that teaches more than one shows
+  // each in its own color, one at a time.
+  const scales = useMemo(() => levelScales(levelProfile), [levelProfile]);
+  const [scaleAt, setScaleAt] = useState(0);
+  const scale = scales[scaleAt] ?? scales[0];
+  const scaleKeyColor = scaleColor(levelProfile, scale.scaleId);
+  const keyLetter = levelProfile.keyCenter.split(' ')[0];
+
   // Build scale MIDIs from intervals + root
   const scaleMidis = useMemo(() => {
-    const midis = levelProfile.scaleIntervals.map(
-      (i) => i + levelProfile.keyMidi,
-    );
+    const midis = scale.intervals.map((i) => i + levelProfile.keyMidi);
     // Add octave if not present
     const octave = levelProfile.keyMidi + 12;
     if (!midis.includes(octave)) midis.push(octave);
     return midis;
-  }, [levelProfile]);
+  }, [scale, levelProfile.keyMidi]);
 
   const scaleEvents = useMemo(
     () => scaleMidisToEvents(scaleMidis),
@@ -455,10 +502,38 @@ function TheoryTab({
           Key &amp; Scale
         </div>
 
+        {scales.length > 1 && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {scales.map((sc, i) => {
+              const color = scaleColor(levelProfile, sc.scaleId);
+              return (
+                <button
+                  key={sc.name}
+                  type="button"
+                  aria-pressed={i === scaleAt}
+                  onClick={() => {
+                    setScaleAt(i);
+                    setAnimatingNotes([]);
+                  }}
+                  className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
+                  style={levelPillStyle(i === scaleAt, color)}
+                >
+                  <span
+                    aria-hidden
+                    className="h-2 w-2 rounded-full"
+                    style={{ background: color }}
+                  />
+                  {keyLetter} {sc.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <ScaledPiano>
           <PianoKeyboard
-            activeWhiteKeyColor={keyColor}
-            activeBlackKeyColor={keyColor}
+            activeWhiteKeyColor={scaleKeyColor}
+            activeBlackKeyColor={scaleKeyColor}
             enableClick={false}
             startC={lowestC}
             endC={highestC}
@@ -474,14 +549,15 @@ function TheoryTab({
             className="text-sm font-semibold"
             style={{ color: 'var(--color-text)' }}
           >
-            {levelProfile.keyCenter} {levelProfile.mode}
+            {levelProfile.scales
+              ? `${keyLetter} ${scale.name}`
+              : `${levelProfile.keyCenter} ${levelProfile.mode}`}
           </p>
           <p className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
-            [{levelProfile.scaleNotes.join(', ')}]
+            [{scale.notes.join(', ')}]
           </p>
           <p className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
-            Scale degrees: [
-            {formatScaleDegrees(levelProfile.scaleIntervals).join(', ')}]
+            Scale degrees: [{formatScaleDegrees(scale.intervals).join(', ')}]
           </p>
           <p className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
             {levelProfile.tempoRange}
@@ -491,8 +567,8 @@ function TheoryTab({
             onClick={handlePlayScale}
             className="ml-auto flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
             style={{
-              border: `1px solid ${keyColor}`,
-              color: keyColor,
+              border: `1px solid ${scaleKeyColor}`,
+              color: scaleKeyColor,
             }}
           >
             <Play size={12} fill="currentColor" />
@@ -512,9 +588,11 @@ function TheoryTab({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {levelProfile.primaryVoicings.map((v) => (
             <VoicingCard
-              key={v.symbol}
+              key={v.label}
               voicing={v}
-              accentColor={keyColor}
+              accentColor={
+                v.scaleId ? scaleColor(levelProfile, v.scaleId) : keyColor
+              }
               startC={voicingStartC}
               endC={voicingEndC}
             />
@@ -609,6 +687,7 @@ function TechniqueTab({
                 </div>
                 <button
                   type="button"
+                  data-course-jump={key}
                   onClick={() => onStartActivity(selectedLevel, key)}
                   className="shrink-0 rounded-lg px-3 py-1 text-xs"
                   style={{
@@ -646,6 +725,8 @@ function LevelPills({
         <button
           key={lvl}
           type="button"
+          aria-pressed={selectedLevel === lvl}
+          data-course-level={lvl}
           onClick={() => onLevelChange(lvl)}
           className="rounded-full px-4 py-1 text-xs font-semibold"
           style={levelPillStyle(selectedLevel === lvl, keyColor ?? accentColor)}
@@ -675,17 +756,10 @@ export function GenreCourseOverview({ genreSlug }: GenreCourseOverviewProps) {
     return profile.levels[selectedLevel];
   }, [profile, selectedLevel]);
 
+  // The level's color: its first scale's.
   const keyColor = useMemo(() => {
     if (!levelProfile) return profile?.accentColor ?? '#888';
-    const root = levelProfile.keyCenter.split(' ')[0];
-    const rawMode = levelProfile.mode.toLowerCase();
-    // Minor Pentatonic → treat as Dorian for color (same relative-major relationship).
-    // Major Pentatonic shares its color with Ionian, so it falls through unchanged.
-    const modeSlug = rawMode.includes('minor pentatonic') ? 'dorian' : rawMode;
-    return colorForKeyMode(
-      root,
-      modeSlug as Parameters<typeof colorForKeyMode>[1],
-    );
+    return scaleColor(levelProfile, levelScales(levelProfile)[0]?.scaleId);
   }, [levelProfile, profile]);
 
   const handleStartActivity = useCallback(
@@ -743,6 +817,8 @@ export function GenreCourseOverview({ genreSlug }: GenreCourseOverviewProps) {
           <button
             key={tab.id}
             type="button"
+            aria-pressed={activeTab === tab.id}
+            data-course-tab={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className="rounded-full px-4 py-1.5 text-xs font-semibold"
             style={tabStyle(activeTab === tab.id)}
@@ -757,6 +833,7 @@ export function GenreCourseOverview({ genreSlug }: GenreCourseOverviewProps) {
         {activeTab === 'about' && <AboutTab profile={profile} />}
         {activeTab === 'theory' && (
           <TheoryTab
+            key={selectedLevel}
             profile={profile}
             levelProfile={levelProfile}
             selectedLevel={selectedLevel}

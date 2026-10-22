@@ -54,17 +54,15 @@ import {
   chartBarQuarters,
   chordSpans,
   chordSymbol,
-  guessKey,
-  KEYS,
-  keyPrefersFlats,
-  parseChart,
   pcName,
-  progressionById,
-  PROGRESSIONS,
   quartersPerBar,
-  realizePreset,
 } from '@/curriculum/engine/bassLines/harmony';
 import type { DrumGroove } from '@/curriculum/engine/drumGrooves/drumGroove';
+import { keyNotes } from '@/curriculum/engine/parts/followChords';
+import { ApproachFields, ApproachMenu } from '../approach/ApproachMenu';
+import { applyApproach, type ApproachChoice } from '../approach/approachEdit';
+import { ChartPicker } from '../chart/ChartPicker';
+import { chosenChart, type ChartChoice } from '../chart/chartChoice';
 import { useUnsavedChanges } from '../content/mirror/UnsavedChangesGuard';
 import { useGrooveList } from '../drumGrooves/grooveSession';
 import { useUndoable } from '../drumGrooves/useUndoable';
@@ -156,9 +154,15 @@ const rulesLabel = (genre: string | undefined) =>
 interface Props {
   line: BassLine;
   onDuplicate: (line: BassLine) => void;
+  /** The chart it opens on: its band's, when opened in one. */
+  chart?: ChartChoice;
 }
 
-export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
+export const BassLineEditor: FC<Props> = ({
+  line: initial,
+  onDuplicate,
+  chart,
+}) => {
   const history = useUndoable<Draft>(toDraft(initial));
   const draft = history.value;
   const [saved, setSaved] = useState(initial);
@@ -198,30 +202,13 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
   const cellW = zoom ?? fitW;
   const lineQ = bars * qpb;
 
-  // ── what to hear it over (not saved) ──
-  const [changesMode, setChangesMode] = useState<'preset' | 'typed'>('preset');
-  const [progressionId, setProgressionId] = useState(
-    ts[0] === 3 ? 'turnaround' : 'jazz-blues',
+  // ── what to hear it over (not saved; its band's chart, in a band) ──
+  const [choice, setChoice] = useState<ChartChoice>(
+    () => chart ?? { progression: ts[0] === 3 ? 'turnaround' : 'jazz-blues' },
   );
-  const [keyPc, setKeyPc] = useState(0);
-  const [typed, setTyped] = useState('| Dm7 G7 | Cmaj7 | Cm7 F7 | Bbmaj7 |');
-  const progression = progressionById(progressionId);
-  const parsedTyped = useMemo(() => parseChart(typed), [typed]);
-  const chartBars = useMemo(
-    () =>
-      changesMode === 'typed'
-        ? parsedTyped.bars
-        : realizePreset(progression, keyPc),
-    [changesMode, parsedTyped, progression, keyPc],
-  );
-  const key = useMemo(
-    () =>
-      changesMode === 'preset'
-        ? { pc: keyPc, minor: Boolean(progression.minor) }
-        : guessKey(chartBars),
-    [changesMode, keyPc, progression, chartBars],
-  );
-  const flats = keyPrefersFlats(key.pc, key.minor);
+  const chosen = useMemo(() => chosenChart(choice, ts), [choice, ts]);
+  const chartBars = chosen.bars;
+  const flats = chosen.flats;
 
   const allGrooves = useGrooveList();
   const paired = draft.grooves
@@ -265,8 +252,19 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
       passes,
       seed: hashSeed(draft.name || 'line', String(chartBars.length)),
       genre: rulesGenre,
+      // Approaches diatonic to the key step through the chart's.
+      approachKey: keyNotes(chosen.key),
     });
-  }, [line, chartBars, ts, lineQ, draft.instrument, draft.name, rulesGenre]);
+  }, [
+    line,
+    chartBars,
+    ts,
+    lineQ,
+    draft.instrument,
+    draft.name,
+    rulesGenre,
+    chosen.key,
+  ]);
 
   // Chords along the top of the roll, over the line's own length.
   const chordMarks = useMemo<ChordMark[]>(() => {
@@ -279,7 +277,8 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
           out.push({
             q: base + s.start,
             end: Math.min(lineQ, base + s.end),
-            label: chordSymbol(s.chord, s.chord.flats ?? flats),
+            label:
+              s.chord.symbol ?? chordSymbol(s.chord, s.chord.flats ?? flats),
           });
       });
     }
@@ -364,6 +363,16 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
   const sel = draft.notes.find((nt) => nt._id === selected) ?? null;
   const patchSel = (p: Partial<EditorNote>) =>
     edit((ns) => ns.map((nt) => (nt._id === selected ? { ...nt, ...p } : nt)));
+
+  // ── approaching the selected note ──
+  const approachInto = (choice: ApproachChoice, lengthQ: number) => {
+    if (!sel) return;
+    edit((ns) =>
+      applyApproach(ns, sel._id, choice, lengthQ, lineQ, ts, (shared) => ({
+        ...withIds([{ ...shared, degree: 'A' as const }])[0],
+      })),
+    );
+  };
   const pastEnd = draft.notes.filter(
     (nt) => timeToQuarters(nt.time, ts) >= lineQ - 1e-6,
   ).length;
@@ -625,61 +634,7 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
           'flex flex-wrap items-end gap-x-5 gap-y-3 p-4',
         )}
       >
-        <Field label="Changes">
-          <select
-            value={changesMode}
-            onChange={(e) =>
-              setChangesMode(e.target.value as 'preset' | 'typed')
-            }
-            className={control}
-          >
-            <option value="preset">A progression</option>
-            <option value="typed">Type them in</option>
-          </select>
-          {changesMode === 'preset' ? (
-            <>
-              <select
-                value={progressionId}
-                onChange={(e) => setProgressionId(e.target.value)}
-                className={control}
-                aria-label="Progression"
-              >
-                {[...new Set(PROGRESSIONS.map((p) => p.group))].map((group) => (
-                  <optgroup key={group} label={group}>
-                    {PROGRESSIONS.filter((p) => p.group === group).map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-              <select
-                value={keyPc}
-                onChange={(e) => setKeyPc(Number(e.target.value))}
-                className={control}
-                aria-label="Key"
-              >
-                {KEYS.map((k) => (
-                  <option key={k.pc} value={k.pc}>
-                    {progression.minor
-                      ? `${pcName(k.pc, keyPrefersFlats(k.pc, true))} minor`
-                      : k.name}
-                  </option>
-                ))}
-              </select>
-            </>
-          ) : (
-            <input
-              value={typed}
-              onChange={(e) => setTyped(e.target.value)}
-              spellCheck={false}
-              placeholder="| Dm7 G7 | Cmaj7 | % |"
-              className={`${control} w-96 font-mono`}
-              aria-label="Changes"
-            />
-          )}
-        </Field>
+        <ChartPicker value={choice} onChange={setChoice} timeSignature={ts} />
         <Field label="Drums">
           <select
             value={grooveId}
@@ -780,11 +735,6 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
             />
           </Field>
         )}
-        {changesMode === 'typed' && parsedTyped.bad.length > 0 && (
-          <p className="w-full text-xs text-amber-300/90">
-            Not chords, skipped: {parsedTyped.bad.join(' ')}
-          </p>
-        )}
         {groove && !sameMeter(groove.timeSignature, ts) && (
           <p className="w-full text-xs text-amber-300/90">
             {groove.name} is in {groove.timeSignature.join('/')}; this line is
@@ -868,9 +818,14 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
             <Field label="Role">
               <select
                 value={sel.degree}
-                onChange={(e) =>
-                  patchSel({ degree: e.target.value as BassDegree })
-                }
+                onChange={(e) => {
+                  const degree = e.target.value as BassDegree;
+                  patchSel(
+                    degree === 'A'
+                      ? { degree }
+                      : { degree, approach: undefined, goal: undefined },
+                  );
+                }}
                 className={control}
               >
                 {DEGREES.map((d) => (
@@ -918,6 +873,37 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
             >
               Delete
             </Button>
+            {sel.degree === 'A' &&
+              (sel.approach ? (
+                <ApproachFields
+                  approach={sel.approach}
+                  goal={sel.goal}
+                  onChange={(p) => patchSel(p)}
+                  clearLabel="By genre"
+                  clearHint="Let the genre's rules pick its side and step, as before"
+                  onClear={() =>
+                    patchSel({ approach: undefined, goal: undefined })
+                  }
+                />
+              ) : (
+                <span className="pb-1 text-xs text-white/55">
+                  Approach by genre: a side and step the genre picks.{' '}
+                  <button
+                    type="button"
+                    className="underline"
+                    onClick={() =>
+                      patchSel({ approach: { step: -1, motion: 'chromatic' } })
+                    }
+                  >
+                    Set it
+                  </button>
+                </span>
+              ))}
+            <ApproachMenu
+              noun="note"
+              defaultQ={1 / grid.perBeat}
+              onApply={approachInto}
+            />
           </>
         ) : (
           <span className="text-sm italic text-muted-foreground">

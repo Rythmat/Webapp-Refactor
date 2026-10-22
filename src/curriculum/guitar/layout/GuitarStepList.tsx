@@ -1,7 +1,7 @@
-import { Check, Hand } from 'lucide-react';
+import { Check, ChevronRight, Hand } from 'lucide-react';
 import { useId } from 'react';
 import { cn } from '@/components/utilities';
-import type { GuitarStepStatus, NavStep } from './types';
+import type { GuitarStepStatus, NavGroupAction, NavStep } from './types';
 
 // ── Step list ──────────────────────────────────────────────────────────────
 // Every step of the section, grouped by subsection, opened from the pager's
@@ -18,9 +18,19 @@ const STATUS_WORDS: Record<GuitarStepStatus, string> = {
   todo: '',
 };
 
-/** "A1.1: Major Scale Ascending (Out of Time): counted by you". */
+/** A step's further passes worth a mark: those tried. */
+const markedPasses = (step: NavStep) =>
+  (step.passes ?? []).filter((pass) => pass.status !== 'todo');
+
+/**
+ * "A1.1: Major Scale Ascending (Out of Time): counted by you", and any
+ * further pass tried: "…: passed; Create: attempted".
+ */
 export function stepAccessibleName(step: NavStep): string {
-  return `${step.code}: ${step.title}${STATUS_WORDS[step.status]}`;
+  const passes = markedPasses(step)
+    .map((pass) => `; ${pass.label}${STATUS_WORDS[pass.status]}`)
+    .join('');
+  return `${step.code}: ${step.title}${STATUS_WORDS[step.status]}${passes}`;
 }
 
 export function StepStatusMark({
@@ -83,22 +93,49 @@ export interface GuitarStepListProps {
   steps: readonly NavStep[];
   index: number;
   onPick: (index: number) => void;
+  /** A group's header button, by its subsection (StepNavModel's). */
+  groupAction?: ((subsection: string) => NavGroupAction | null) | null;
 }
 
-export function GuitarStepList({ steps, index, onPick }: GuitarStepListProps) {
+export function GuitarStepList({
+  steps,
+  index,
+  onPick,
+  groupAction,
+}: GuitarStepListProps) {
   const baseId = useId();
   return (
     <div data-guitar-step-list className="flex flex-col gap-1">
       {groupBySubsection(steps).map((group, g) => {
         const headingId = `${baseId}-${g}`;
+        const action = groupAction?.(group.subsection) ?? null;
         return (
           <section key={headingId} aria-labelledby={headingId}>
-            <h3
-              id={headingId}
-              className="px-2 pb-1 pt-2 text-xs font-normal uppercase tracking-[0.14em] text-white/45"
-            >
-              {group.subsection}
-            </h3>
+            <div className="flex items-end gap-2 px-2 pb-1 pt-2">
+              <h3
+                id={headingId}
+                className="min-w-0 flex-1 text-xs font-normal uppercase tracking-[0.14em] text-white/45"
+              >
+                {group.subsection}
+              </h3>
+              {action && (
+                <button
+                  type="button"
+                  data-group-action={group.subsection}
+                  data-group-action-status={action.status ?? 'todo'}
+                  aria-label={`${action.label}: ${group.subsection}${STATUS_WORDS[action.status ?? 'todo']}`}
+                  onClick={action.onPick}
+                  className="-my-1 inline-flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs font-normal text-[#e8e8f0] ring-1 ring-inset ring-white/15 transition-colors duration-150 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-white/60 max-[639px]:h-9"
+                >
+                  {action.label}
+                  {action.status === 'passed' ? (
+                    <StepStatusMark status="passed" className="size-3.5" />
+                  ) : (
+                    <ChevronRight aria-hidden className="size-3.5" />
+                  )}
+                </button>
+              )}
+            </div>
             <ul className="flex flex-col">
               {group.rows.map(({ step, index: i }) => (
                 <li key={i}>
@@ -130,6 +167,23 @@ export function GuitarStepList({ steps, index, onPick }: GuitarStepListProps) {
                       {step.code}
                     </span>
                     <span className="min-w-0 flex-1">{step.title}</span>
+                    {markedPasses(step).map((pass) => (
+                      <span
+                        key={pass.label}
+                        aria-hidden
+                        data-pass-mark={pass.label}
+                        data-pass-status={pass.status}
+                        className="inline-flex shrink-0 items-center gap-1 text-[11px] text-white/45"
+                      >
+                        {pass.label}
+                        <StepStatusMark
+                          status={pass.status}
+                          className={
+                            pass.status === 'attempted' ? undefined : 'size-3.5'
+                          }
+                        />
+                      </span>
+                    ))}
                     <span className="flex w-4 shrink-0 justify-center">
                       <StepStatusMark status={step.status} />
                     </span>

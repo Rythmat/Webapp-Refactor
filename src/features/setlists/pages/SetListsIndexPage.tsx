@@ -29,6 +29,7 @@ import {
   setSongDrag,
 } from '../setListDnd';
 import { isFavorite, roleList } from '../setListsStore';
+import { setListSandboxActive } from '../storage/setListSandbox';
 import { attachTouchDrag } from '../touchDrag';
 import type { Artist, SetList, SetListParent, Show } from '../types';
 import { useSetLists } from '../useSetLists';
@@ -72,7 +73,10 @@ export const SetListsIndexPage: FC = () => {
 
   const newSetList = () => {
     const id = actions.createSetList('New Set List');
-    if (id) navigate(SongRoutes.setList({ setListId: id }));
+    // On a tour's practice copy the new list stays here, beside the lead
+    // sheets and shows the tour drags it between.
+    if (id && !setListSandboxActive())
+      navigate(SongRoutes.setList({ setListId: id }));
   };
 
   const hasOrganiser =
@@ -215,13 +219,17 @@ const SetListColumn: FC<{
   const { actions } = useSetLists();
 
   return (
-    <section className="flex min-h-0 min-w-0 flex-1 flex-col rounded-xl border border-white/10 bg-white/[0.02]">
+    <section
+      data-setlists-column="setlists"
+      className="flex min-h-0 min-w-0 flex-1 flex-col rounded-xl border border-white/10 bg-white/[0.02]"
+    >
       <div className="flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2.5">
         <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
           Set Lists
         </span>
         <button
           type="button"
+          data-setlists-new="setlist"
           onClick={onNew}
           className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/60 hover:border-white/30 hover:text-white"
         >
@@ -322,7 +330,10 @@ const Repertoire: FC<{ open: boolean; onToggle: () => void }> = ({
     );
 
   return (
-    <aside className="flex w-full flex-shrink-0 flex-col rounded-xl border border-white/10 bg-white/[0.02] md:w-56 lg:w-64">
+    <aside
+      data-setlists-column="leadsheets"
+      className="flex w-full flex-shrink-0 flex-col rounded-xl border border-white/10 bg-white/[0.02] md:w-56 lg:w-64"
+    >
       <div className="flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2.5">
         <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
           My Lead Sheets
@@ -384,6 +395,7 @@ const Repertoire: FC<{ open: boolean; onToggle: () => void }> = ({
               // reference by song id, so a chart with no id has nothing to
               // hand over. Those stay click-to-open.
               draggable={!!song.songId}
+              data-lead-sheet={song.songId}
               onDragStart={(e) => {
                 if (!song.songId) return;
                 setSongDrag(e.dataTransfer, {
@@ -539,13 +551,17 @@ const BandsPanel: FC<{
   const { actions } = useSetLists();
 
   return (
-    <section className="flex min-h-0 flex-[3] flex-col rounded-xl border border-white/10 bg-white/[0.02]">
+    <section
+      data-setlists-column="bands"
+      className="flex min-h-0 flex-[3] flex-col rounded-xl border border-white/10 bg-white/[0.02]"
+    >
       <div className="flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2.5">
         <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
           Bands &amp; Artists
         </span>
         <button
           type="button"
+          data-setlists-new="band"
           onClick={() => actions.createArtist()}
           className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/60 hover:border-white/30 hover:text-white"
         >
@@ -587,13 +603,17 @@ const ShowsPanel: FC<{
   const { actions } = useSetLists();
 
   return (
-    <section className="flex min-h-0 flex-[2] flex-col rounded-xl border border-white/10 bg-white/[0.02]">
+    <section
+      data-setlists-column="shows"
+      className="flex min-h-0 flex-[2] flex-col rounded-xl border border-white/10 bg-white/[0.02]"
+    >
       <div className="flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2.5">
         <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
           Shows &amp; Concerts
         </span>
         <button
           type="button"
+          data-setlists-new="show"
           onClick={() => actions.createShow(undefined)}
           className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/60 hover:border-white/30 hover:text-white"
         >
@@ -872,6 +892,7 @@ const DropZone: FC<{ parent: SetListParent; lists: SetList[] }> = ({
 
   return (
     <div
+      data-set-list-drop
       onDragOver={(e) => {
         if (!hasCardDrag(e.dataTransfer)) return;
         e.preventDefault();
@@ -953,6 +974,7 @@ const SetListCard: FC<{
       role="button"
       tabIndex={0}
       draggable
+      data-set-list={list.id}
       onDragStart={(e) => setCardDrag(e.dataTransfer, { setListId: list.id })}
       // A chart dragged in from My Lead Sheets lands at the end of the set.
       onDragOver={(e) => {

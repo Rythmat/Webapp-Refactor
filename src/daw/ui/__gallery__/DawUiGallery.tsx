@@ -262,7 +262,7 @@ function Gallery() {
       </header>
 
       <main className="grid grid-cols-1 gap-4 p-6 xl:grid-cols-2">
-        <Section title="Colour tokens" className="xl:col-span-2">
+        <Section title="Color tokens" className="xl:col-span-2">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-6">
             {(Object.keys(COLOR) as DawColorName[]).map((name) => (
               <div key={name} className="flex items-center gap-2">
@@ -937,7 +937,7 @@ function Gallery() {
             <PremiumBadge locked />
             <Chip icon={<Lock />}>Locked</Chip>
           </Row>
-          <Row label="key colour">
+          <Row label="key color">
             {Object.entries(KEY_OF_COLORS)
               .slice(0, 4)
               .map(([key, color]) => (
@@ -955,7 +955,7 @@ function Gallery() {
           </Row>
         </Section>
 
-        <Section title="onColor: ink on every key colour (WCAG ratio)">
+        <Section title="onColor: ink on every key color (WCAG ratio)">
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
             {Object.entries(KEY_OF_COLORS).map(([key, color]) => (
               <div

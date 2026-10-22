@@ -62,7 +62,7 @@ export const AdminMusicLiteracyPage = () => {
         </ConsoleCallout>
       )}
       {error && (
-        <ConsoleCallout tone="danger" title="Couldn’t make the lesson">
+        <ConsoleCallout tone="danger" title="Couldn’t Make the Lesson">
           {error}
         </ConsoleCallout>
       )}
@@ -74,7 +74,7 @@ export const AdminMusicLiteracyPage = () => {
           onKeyDown={(e) => {
             if (e.key === 'Enter' && name.trim()) void add(name.trim());
           }}
-          placeholder="New lesson name, e.g. Music Literacy · Part 2"
+          placeholder="New lesson name, e.g. Melodies and Chords"
           className="w-80 rounded-md border border-white/10 bg-white/5 px-2 py-1.5 text-sm"
           aria-label="New lesson name"
           disabled={!canSave}

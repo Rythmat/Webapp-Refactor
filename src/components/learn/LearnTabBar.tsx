@@ -2,7 +2,9 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { InstrumentSelector } from '@/components/ClassroomLayout/dashboard/InstrumentSelector';
 import { cn } from '@/components/utilities';
 import { LearnRoutes } from '@/constants/routes';
+import { START_HERE_TAB } from '@/curriculum/musicLiteracy/literacyPath';
 import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
+import { CompassTourButton } from '@/features/learnTour/CompassTourButton';
 
 interface Tab {
   slug: string; // ?tab= value this tab activates
@@ -10,6 +12,8 @@ interface Tab {
 }
 
 const TABS: Tab[] = [
+  // First: the path a beginner (or a class) starts on, on either instrument.
+  { slug: START_HERE_TAB, label: 'Start Here' },
   { slug: 'Songs', label: 'Songs' },
   { slug: 'Genre', label: 'Genre' },
   { slug: 'Theory', label: 'Theory' },
@@ -19,9 +23,9 @@ const TABS: Tab[] = [
 
 /**
  * The Learn hub's tab bar — one inline row shown at the top of every Learn tab:
- * the "Learn" heading (which links back to the Learn Home), the five sub-tab
- * links (Songs / Genre / Theory / Technique / World Harmony), and the
- * InstrumentSelector. The
+ * the "Learn" heading (which links back to the Learn Home), the six sub-tab
+ * links (Start Here / Songs / Genre / Theory / Technique / World Harmony), and
+ * the InstrumentSelector. The
  * sub-tabs are plain text at the same size as the "Learn" heading (no pill
  * chrome or highlight) and navigate via the `?tab=` param LearnInlet reads.
  * Guitar has no Technique lessons yet, so its Technique tab is hidden.
@@ -67,14 +71,17 @@ export const LearnTabBar = () => {
         </Link>
       ))}
 
-      {/* Instrument selector, pushed to the far right. Songs serve both
-          instruments, so switching there stays put; elsewhere it opens a tab
-          with that instrument's lessons: guitar lives in Theory; piano stays
-          on Theory, or else opens Technique. */}
+      {/* The tour of the page it's on (the whole of Learn on the dashboard). */}
+      <CompassTourButton />
+
+      {/* Instrument selector, pushed to the far right. Start Here and Songs
+          serve both instruments, so switching there stays put; elsewhere it
+          opens a tab with that instrument's lessons: guitar lives in Theory;
+          piano stays on Theory, or else opens Technique. */}
       <div className="ml-auto">
         <InstrumentSelector
           onChange={(next) => {
-            if (active === 'Songs') return;
+            if (active === 'Songs' || active === START_HERE_TAB) return;
             const tab =
               next === 'guitar' || active === 'Theory' ? 'Theory' : 'Technique';
             if (active !== tab) navigate(`?tab=${tab}`);

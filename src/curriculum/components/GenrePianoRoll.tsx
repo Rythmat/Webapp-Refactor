@@ -22,6 +22,7 @@ import { LearnCascadeView } from './LearnCascadeView';
 import { LearnNotationView } from './LearnNotationView';
 import { LearnTabView } from './LearnTabView';
 import { advancePlayhead, initialClockState } from './playheadClock';
+import './rollBands.css';
 
 export type Midi = number; // 0..127
 
@@ -65,6 +66,14 @@ export interface PianoRollProps {
    * length so it counts every beat the student hears. Defaults to one bar.
    */
   leadInTicks?: number;
+  /**
+   * A pickup into bar 1, in ticks: notes before tick 0, at the end of the
+   * count-in bar (Music Literacy's words). Parked, the roll opens on it
+   * rather than on bar 1; a double bar marks bar 1, the real downbeat, on
+   * the roll and the staff, and the count-in bar's beats are numbered as
+   * the pickup bar's ("1" … "4"). Left out, none.
+   */
+  pickupTicks?: number;
   /** Staves the notation view writes on; the roll itself is unaffected. */
   staves?: 'grand' | 'treble' | 'bass';
   /**
@@ -144,6 +153,28 @@ export interface PianoRollProps {
    * between two passes of a practice loop.
    */
   tabOpensOnMusic?: boolean;
+  /**
+   * Stretches of the music marked for the student, in the events' ticks:
+   * each a tint behind its bars and a label in the ruler over them (Music
+   * Literacy's "Call" and shining "Response"). The roll only; the staff and
+   * the falling notes leave them out.
+   */
+  bands?: readonly RollBand[];
+}
+
+/** A stretch of the roll marked with a word (PianoRollProps.bands). */
+export interface RollBand {
+  startTick: number;
+  endTick: number;
+  label: string;
+  /** Its tint and its label's color. */
+  color: string;
+  /**
+   * The student's to play: a brighter tint, and a band of light sweeps
+   * across it and its label now and then (rollBands.css). Still, without
+   * motion.
+   */
+  shine?: boolean;
 }
 
 // ===== Helpers =====
@@ -200,6 +231,20 @@ function buildLaneList(
     .filter((value): value is number => typeof value === 'number');
 
   if (midiValues.length === 0) {
+    // Nothing to draw yet (Music Literacy's create pass, before the
+    // student's call is transcribed): the lanes it was given, if any.
+    if (
+      !noteOnlyLanes &&
+      midiRangeMin !== undefined &&
+      midiRangeMax !== undefined &&
+      midiRangeMin <= midiRangeMax
+    ) {
+      const lanes: string[] = [];
+      for (let midi = midiRangeMax; midi >= midiRangeMin; midi--) {
+        lanes.push(midiToNoteName(midi, keyRoot, noteSpelling));
+      }
+      return lanes;
+    }
     return ['C4'];
   }
 
@@ -276,17 +321,24 @@ function generateTickPositions(
   return ticks;
 }
 
+/** The first of `stepSize`'s multiples at or after `tick`. */
+const alignUp = (tick: number, stepSize: number) =>
+  stepSize > 0 ? Math.ceil(tick / stepSize - 1e-9) * stepSize : tick;
+
 function barBeatLabels(
   bars: number,
   beatsPerBar: number,
   showCountIn: boolean,
   beatTicks: number,
+  /** The bar before bar 1 is a pickup bar: just its beats, "1" … "4". */
+  pickupBar = false,
 ) {
   const labels: { tick: number; label: string }[] = [];
   for (let barIndex = -(showCountIn ? 1 : 0); barIndex < bars; barIndex++) {
     for (let beat = 1; beat <= beatsPerBar; beat++) {
       const absoluteBeat = barIndex * beatsPerBar + (beat - 1);
-      const prefix = barIndex < 0 ? `${barIndex}.` : `${barIndex + 1}.`;
+      const prefix =
+        barIndex < 0 ? (pickupBar ? '' : `${barIndex}.`) : `${barIndex + 1}.`;
       labels.push({
         tick: absoluteBeat * beatTicks,
         label: `${prefix}${beat}`,
@@ -295,6 +347,22 @@ function barBeatLabels(
   }
   return labels;
 }
+
+/** Bar 1 after a pickup, the real downbeat: two lines, the second on it. */
+const DoubleBar: React.FC<{ left: number }> = ({ left }) => (
+  <div
+    aria-hidden="true"
+    data-roll-double-bar
+    className="pointer-events-none absolute inset-y-0"
+    style={{
+      left: `${left}%`,
+      width: 6,
+      transform: 'translateX(-4px)',
+      borderLeft: `2px solid ${PIANO_ROLL_LANE_COLORS.doubleBarLine}`,
+      borderRight: `2px solid ${PIANO_ROLL_LANE_COLORS.doubleBarLine}`,
+    }}
+  />
+);
 
 // ===== Component =====
 const GenrePianoRoll: React.FC<PianoRollProps> = ({
@@ -307,6 +375,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   rowHeight = 36 * 24,
   inTime = false,
   leadInTicks,
+  pickupTicks = 0,
   staves,
   notationToggle,
   playSpeed = 60,
@@ -333,6 +402,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   guitarViewToggle = true,
   showViewToggle = true,
   tabOpensOnMusic = false,
+  bands,
 }) => {
   const laneList = buildLaneList(
     events,
@@ -351,9 +421,13 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   // shifted its notes to make room, so bar 1 sits that much later than tick 0
   // on this playhead — that is where the count has to run to.
   const musicStartTick = Math.max(0, countOffTicks - countInTicks);
-  const totalTicks = bars * ticksPerBar + countInTicks;
+  // A pickup sits at the end of the count-in bar; parked, the roll shows
+  // only it ahead of bar 1.
+  const pickup = Math.max(0, Math.min(pickupTicks, ticksPerBar));
+  const leadTicks = inTime ? countInTicks : pickup;
+  const totalTicks = bars * ticksPerBar + leadTicks;
   const laneLabelWidth = 72;
-  const timelineStartTick = -countInTicks;
+  const timelineStartTick = -leadTicks;
   const timelineEndTick = bars * ticksPerBar;
   const safeSubdivision = subdivision <= 0 ? 1 : subdivision;
   const beatsPerSecond = Math.max(playSpeed, 0) / 60;
@@ -369,7 +443,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
     : timelineEndTick;
   const tickPercent = (tick: number) => {
     if (!inTime) {
-      return ticksToPercent(tick, countInTicks, totalTicks);
+      return ticksToPercent(tick, leadTicks, totalTicks);
     }
     const denominator = displayEndTick - displayStartTick || 1;
     return ((tick - displayStartTick) / denominator) * 100;
@@ -570,6 +644,8 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
         beatTicks={beatTicks}
         timeSignature={timeSignature}
         musicStartTick={musicStartTick}
+        // Only a lesson with a pickup hands one on; the rest stay as they were.
+        {...(pickup > 0 ? { pickupTicks: pickup } : {})}
         staves={staves}
         noteHoldMeta={noteHoldMeta}
         performanceMeta={performanceMeta}
@@ -586,30 +662,51 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
     laneIndex[name] = i;
   });
 
-  // Sub grid (thin lines) and beat lines (stronger)
+  // Sub grid (thin lines) and beat lines (stronger). Parked, they fall on
+  // the beats counted from bar 1, wherever a pickup opens the roll.
+  const gridStart = (stepSize: number) =>
+    inTime ? displayStartTick : alignUp(displayStartTick, stepSize);
   const subStepTicks = beatTicks / safeSubdivision;
   const subLines = generateTickPositions(
-    displayStartTick,
+    gridStart(subStepTicks),
     displayEndTick,
     subStepTicks,
   );
   const beatLines = generateTickPositions(
-    displayStartTick,
+    gridStart(beatTicks),
     displayEndTick,
     beatTicks,
   );
   const barLines = generateTickPositions(
-    displayStartTick,
+    gridStart(ticksPerBar),
     displayEndTick,
     ticksPerBar,
   );
 
-  const labels = barBeatLabels(bars, beatsPerBar, inTime, beatTicks);
+  const labels = barBeatLabels(
+    bars,
+    beatsPerBar,
+    inTime || pickup > 0,
+    beatTicks,
+    pickup > 0,
+  );
   const visibleLabels = inTime
     ? labels.filter(
         ({ tick }) => tick >= displayStartTick && tick <= displayEndTick,
       )
-    : labels;
+    : labels.filter(({ tick }) => tick >= timelineStartTick);
+  // After a pickup, bar 1 is the real downbeat: a double bar, where it is.
+  const downbeatAt = tickPercent(0);
+  const doubleBar =
+    pickup > 0 && downbeatAt >= 0 && downbeatAt <= 100 ? (
+      <DoubleBar left={downbeatAt} />
+    ) : null;
+  // The bands, cut to what's in view: a label rides the visible part.
+  const shownBands = (bands ?? []).flatMap((band) => {
+    const left = clampPercent(tickPercent(band.startTick));
+    const right = clampPercent(tickPercent(band.endTick));
+    return right > left ? [{ ...band, left, width: right - left }] : [];
+  });
 
   return (
     <div className="relative">
@@ -696,6 +793,36 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                     />
                   </div>
                 ))}
+                {doubleBar}
+                {shownBands.map((band) => (
+                  <div
+                    key={`band-${band.startTick}`}
+                    aria-hidden="true"
+                    data-roll-band={band.label}
+                    data-roll-band-shine={band.shine ? '' : undefined}
+                    className={`pointer-events-none absolute bottom-[3px] flex h-4 items-center overflow-hidden rounded-[3px]${band.shine ? ' roll-band-shine' : ''}`}
+                    style={
+                      {
+                        left: `${band.left}%`,
+                        width: `${band.width}%`,
+                        backgroundColor: `color-mix(in srgb, ${band.color} ${band.shine ? 38 : 24}%, rgb(25 25 25))`,
+                        boxShadow: `inset 0 1px 0 color-mix(in srgb, ${band.color} ${band.shine ? 80 : 55}%, transparent)`,
+                        '--band-shine': `color-mix(in srgb, ${band.color} 45%, white)`,
+                      } as React.CSSProperties
+                    }
+                  >
+                    <span
+                      className="whitespace-nowrap px-1.5 text-[11px] font-semibold uppercase leading-none tracking-[0.12em]"
+                      style={{
+                        color: band.shine
+                          ? 'white'
+                          : `color-mix(in srgb, ${band.color} 55%, white)`,
+                      }}
+                    >
+                      {band.label}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -773,6 +900,22 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                   />
                 );
               })}
+              {/* bands: a tint behind their bars */}
+              {shownBands.map((band) => (
+                <div
+                  key={`band-${band.startTick}`}
+                  aria-hidden="true"
+                  className={`pointer-events-none absolute inset-y-0${band.shine ? ' roll-band-shine' : ''}`}
+                  style={
+                    {
+                      left: `${band.left}%`,
+                      width: `${band.width}%`,
+                      backgroundColor: `color-mix(in srgb, ${band.color} ${band.shine ? 18 : 10}%, transparent)`,
+                      '--band-shine': `color-mix(in srgb, ${band.color} 38%, transparent)`,
+                    } as React.CSSProperties
+                  }
+                />
+              ))}
               {/* sub grid lines */}
               {subLines.map((b) => (
                 <div
@@ -822,6 +965,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                   />
                 </div>
               ))}
+              {doubleBar}
             </div>
 
             {/* Notes layer */}

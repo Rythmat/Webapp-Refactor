@@ -61,7 +61,15 @@ const EDITOR_ENTRY = join(DAW, 'DawApp.tsx');
  * `'<lesson id>/<step id>/<target id>': '<audit finding id>: why'`.
  * Empty: every id the lessons use is rendered.
  */
-const KNOWN_MISSING: Readonly<Record<string, string>> = {};
+const KNOWN_MISSING: Readonly<Record<string, string>> = {
+  // The dock's tab bar became the bottom rail's Instrument · FX ·
+  // Automation · Edit (2026-10-21); the owner hasn't placed Prism and
+  // Grooves yet. Each step still opens its panel (requires).
+  'make-first-track/open-prism/chanstrip-tab-prism':
+    'dock views: Prism has no button until the owner places it',
+  'hiphop-build-the-beat/load-groove/chanstrip-tab-grooves':
+    'dock views: Grooves has no button until the owner places it',
+};
 
 const SKIPPED_DIRS = new Set(['node_modules', '__tests__', '__mocks__']);
 
@@ -237,9 +245,11 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
       ),
     ],
   },
+  // The bottom rail's dock views (2026-10-21): Instrument, FX and Edit.
+  // Prism and Grooves have no button until the owner places them.
   'chanstrip-tab-': {
-    file: 'shell/dock/Dock.tsx',
-    suffixes: () => constValues('shell/dock/dockTabs.ts', 'DOCK_TABS', 'id'),
+    file: 'shell/bottombar/DockViews.tsx',
+    suffixes: () => constValues('shell/dock/dockViews.ts', 'DOCK_VIEWS', 'tab'),
   },
   'view-switch-': {
     file: 'shell/topbar/ViewTabs.tsx',

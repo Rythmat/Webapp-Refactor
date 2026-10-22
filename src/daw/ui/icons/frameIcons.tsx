@@ -6,7 +6,8 @@ import type { SVGProps } from 'react';
 // floating frame's icon style (owner: "match the top rail icon style"):
 // filled shapes rather than outlines, in currentColor, so a control's
 // white/50 rest and white hover colour them. Loop, Undo and Redo are
-// round-capped 1.75 px strokes, which read as solid at 16 px. Each is
+// round-capped 1.75 px strokes, which read as solid at 16 px, as do the
+// outlines in the bottom rail's Instrument, FX and Automation. Each is
 // decorative (aria-hidden): the control around it carries the name.
 
 type IconProps = SVGProps<SVGSVGElement>;
@@ -113,6 +114,54 @@ export function MoreGlyph(props: IconProps) {
       <circle cx="3.25" cy="8" r="1.4" />
       <circle cx="8" cy="8" r="1.4" />
       <circle cx="12.75" cy="8" r="1.4" />
+    </Glyph>
+  );
+}
+
+// The bottom rail's dock views (Instrument, FX, Automation, Edit).
+
+/** Instrument: a keyboard, three white keys and two black. */
+export function InstrumentGlyph(props: IconProps) {
+  return (
+    <Glyph {...props}>
+      <rect {...STROKE} x="1.75" y="2.75" width="12.5" height="10.5" rx="2" />
+      <path {...STROKE} d="M6 9v4.25M10 9v4.25" />
+      <rect x="4.75" y="2.75" width="2.5" height="6.25" rx="0.75" />
+      <rect x="8.75" y="2.75" width="2.5" height="6.25" rx="0.75" />
+    </Glyph>
+  );
+}
+
+/** FX: three faders at different settings. */
+export function FxGlyph(props: IconProps) {
+  return (
+    <Glyph {...props}>
+      <path {...STROKE} d="M3.5 2.5v11M8 2.5v11M12.5 2.5v11" />
+      <rect x="1.75" y="8.5" width="3.5" height="2.5" rx="1" />
+      <rect x="6.25" y="4" width="3.5" height="2.5" rx="1" />
+      <rect x="10.75" y="9.75" width="3.5" height="2.5" rx="1" />
+    </Glyph>
+  );
+}
+
+/** Automation: a line through breakpoints. */
+export function AutomationGlyph(props: IconProps) {
+  return (
+    <Glyph {...props}>
+      <path {...STROKE} d="M1.75 12 5.5 5.5l4 4.5 4.75-6.5" />
+      <circle cx="5.5" cy="5.5" r="1.6" />
+      <circle cx="9.5" cy="10" r="1.6" />
+    </Glyph>
+  );
+}
+
+/** Edit: notes on a roll, three blocks stepping up. */
+export function EditGlyph(props: IconProps) {
+  return (
+    <Glyph {...props}>
+      <rect x="1.5" y="10.5" width="5" height="3" rx="1" />
+      <rect x="5.5" y="6.5" width="5.5" height="3" rx="1" />
+      <rect x="10" y="2.5" width="4.5" height="3" rx="1" />
     </Glyph>
   );
 }

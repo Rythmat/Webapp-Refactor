@@ -140,7 +140,7 @@ function frame() {
     bar: box('[data-testid="top-bar"]'),
     bottom: box('[data-testid="bottom-rail"]'),
     side: box('[data-testid="side-rail"]'),
-    bottomZones: zonesOf(rail, ['hints', 'views', 'learn']),
+    bottomZones: zonesOf(rail, ['editors', 'views', 'learn']),
     transportCentre: transport ? transport.left + transport.width / 2 : null,
     root: box('.daw-root'),
     zones: zonesOf(bar, ['project', 'transport', 'share']),

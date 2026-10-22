@@ -22,8 +22,6 @@ import {
   EffectsPanelPart,
   GroovesBrowserPart,
   PrismPanelPart,
-  preloadDockTab,
-  preloadInstrumentViews,
 } from '@/daw/shell/lazyParts';
 import { hintText } from '@/daw/shell/help/hintSource';
 import { DOCK_TAB_BAR_PX } from '@/daw/shell/layout/layoutModel';
@@ -32,27 +30,24 @@ import type { ChannelStripTabId } from '@/daw/store/uiSlice';
 import { barStartTick, timeSignatureOf } from '@/daw/time/timeModel';
 import { Button } from '@/daw/ui/Button';
 import { IconButton } from '@/daw/ui/IconButton';
-import { Segmented } from '@/daw/ui/Segmented';
-import { Tab, TabList, Tabs } from '@/daw/ui/Tabs';
 import { TYPE_CLASS } from '@/daw/ui/styles';
 import { useIsPremium } from '@/hooks/useIsPremium';
 import { MasterBypass } from '@/daw/shell/mix/master/MasterBypass';
 import {
-  dockTabPurpose,
   dockKindOf,
   isChannelStripTabId,
   tabFor,
-  tabsFor,
   type DockKind,
 } from './dockTabs';
 
 // ── The editor dock (milestones 2.4, 2.9) ──────────────────────────────────
 //
 // Between the canvas and the bottom rail, stopping at the Inspector. It
-// shows the selected track's editors, with tabs by what the track is
-// (dockTabs.ts; decision 16, after Soundtrap's drawer): Instrument ·
-// Grooves or Prism · Notes · Effects, and no tab bar for an audio or a
-// live-input track, whose body is its chain. Selection drives it: it
+// shows the selected track's editors, by what the track is (dockTabs.ts).
+// The bottom rail's Instrument, FX and Edit open them (dockViews.ts, the
+// floating frame's bottom bar, 2026-10-21); its header holds the track and
+// Maximize and Close, and no tabs. An audio or a live-input track's body is
+// its chain, whatever the tab. Selection drives it: it
 // follows the selected track, keeping the tab that applies, and a click on
 // a clip opens that clip's editor here (dockSelection.ts). Notes is the one
 // note editor: the piano roll, or the drum grid on drums. Maximize grows it
@@ -61,7 +56,7 @@ import {
 // opens Master in the same slot.
 //
 // Its height is a share of the body per tab, never a fixed px height
-// (shellGeometry: --daw-dock-h); a shut dock is its 32 px tab bar. The
+// (shellGeometry: --daw-dock-h); a shut dock is its 32 px header. The
 // frame is built on the design system; the tabs' contents are the legacy
 // components until Stage C restyles them.
 
@@ -222,7 +217,7 @@ export const Dock = memo(function Dock() {
   );
 });
 
-// ── The tab bar ─────────────────────────────────────────────────────────────
+// ── The header ──────────────────────────────────────────────────────────────
 
 interface DockHeaderProps {
   track: Track | undefined;
@@ -235,6 +230,7 @@ interface DockHeaderProps {
   onClose(): void;
 }
 
+/** The track (or Master) at the left; Maximize and Close at the right. */
 function DockHeader({
   track,
   kind,
@@ -249,13 +245,10 @@ function DockHeader({
   return (
     <div
       data-testid="dock-header"
-      className="grid shrink-0 items-center gap-2 px-2"
-      style={{
-        height: DOCK_TAB_BAR_PX,
-        gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
-      }}
+      className="flex shrink-0 items-center justify-between gap-2 px-2"
+      style={{ height: DOCK_TAB_BAR_PX }}
     >
-      <div className="flex min-w-0 items-center gap-1.5 justify-self-start">
+      <div className="flex min-w-0 items-center gap-1.5">
         {master ? (
           <h2 className={cn(TYPE_CLASS.title, 'text-daw-text')}>Master</h2>
         ) : track ? (
@@ -267,20 +260,7 @@ function DockHeader({
         )}
       </div>
 
-      <div className="flex items-center">
-        {master ? null : (
-          <DockTabs
-            track={track}
-            kind={kind}
-            activeTab={activeTab}
-            onPick={(tab) =>
-              setActiveTab(tab === activeTab && !master ? null : tab)
-            }
-          />
-        )}
-      </div>
-
-      <div className="flex min-w-0 items-center gap-1 justify-self-end">
+      <div className="flex min-w-0 items-center gap-1">
         {master ? <MasterBypass testId="dock-master-bypass" /> : null}
         {open && !master && kind === 'melodic' && activeTab === 'piano-roll' ? (
           <AnalyzeNotes />
@@ -345,99 +325,6 @@ function TrackIdentity({ track }: { track: Track }) {
         {INSTRUMENT_LABEL[track.instrument] ?? 'Audio'}
       </span>
     </>
-  );
-}
-
-/**
- * The tabs a track of `kind` has; for a live-input track, the two parts of
- * its chain (the pedalboard or voice chain, and the effects after it); for
- * an audio track, none.
- */
-function DockTabs({
-  track,
-  kind,
-  activeTab,
-  onPick,
-}: {
-  track: Track | undefined;
-  kind: DockKind;
-  activeTab: ChannelStripTabId | null;
-  onPick(tab: ChannelStripTabId): void;
-}) {
-  const instrument = track?.instrument;
-  // Each tab's content is its own chunk (1.12a): a pointer over or a focus
-  // on the tab fetches it, so a click usually finds it there.
-  const preload = useCallback(
-    (id: ChannelStripTabId) => {
-      if (id === 'controls') {
-        if (instrument) preloadInstrumentViews([instrument]);
-      } else preloadDockTab(id, instrument);
-    },
-    [instrument],
-  );
-
-  if (kind === 'live-input') {
-    const chainLabel = instrument === 'vocal-fx' ? 'Voice' : 'Pedals';
-    return (
-      <Segmented
-        label="Chain"
-        value={activeTab === 'fx' ? 'fx' : 'controls'}
-        onValueChange={(tab) => onPick(tab)}
-        options={[
-          {
-            value: 'controls' as const,
-            label: chainLabel,
-            anchor: 'chanstrip-tab-controls',
-          },
-          {
-            value: 'fx' as const,
-            label: 'Effects',
-            anchor: 'chanstrip-tab-fx',
-          },
-        ]}
-      />
-    );
-  }
-
-  const tabs = tabsFor(kind);
-  if (tabs.length === 0) return null;
-  return (
-    <Tabs
-      value={activeTab ?? ''}
-      onValueChange={(tab) => onPick(tab as ChannelStripTabId)}
-      activationMode="manual"
-    >
-      <TabList aria-label="Dock" className="gap-0.5">
-        {tabs.map((tab) => (
-          <Tab
-            key={tab.id}
-            value={tab.id}
-            data-tutorial-id={`chanstrip-tab-${tab.id}`}
-            data-testid={`dock-tab-${tab.id}`}
-            data-hint={hintText(tab.label, dockTabPurpose(tab.id, kind))}
-            onPointerEnter={() => preload(tab.id)}
-            onFocus={() => preload(tab.id)}
-            // A press on the open tab shuts the dock, as the old tabs did.
-            // Ours runs before Radix's own handler, which preventDefault
-            // skips (it would select the tab again).
-            onMouseDown={(e) => {
-              if (e.button !== 0 || tab.id !== activeTab) return;
-              e.preventDefault();
-              onPick(tab.id);
-            }}
-            onKeyDown={(e) => {
-              if (tab.id !== activeTab) return;
-              if (e.key !== 'Enter' && e.key !== ' ') return;
-              e.preventDefault();
-              onPick(tab.id);
-            }}
-            className="px-3"
-          >
-            {tab.label}
-          </Tab>
-        ))}
-      </TabList>
-    </Tabs>
   );
 }
 

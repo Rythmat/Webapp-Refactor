@@ -2,10 +2,9 @@
 /**
  * The editor dock v2 (milestone 2.9; decision 16, after Soundtrap's drawer).
  *
- * - Tabs by what the selected track is, Effects last: Instrument · Grooves ·
- *   Notes · Effects on drums, Instrument · Prism · Notes · Effects on a
- *   melodic track, no tab bar on an audio track (its chain) or a live-input
- *   track (its pedals, then the effects after them). The ids are unchanged.
+ * - Its body by what the selected track is and the tab open. It has no tab
+ *   bar since the floating frame (2026-10-21): the bottom rail's dock views
+ *   open the tabs (DockViews.test). The ids are unchanged.
  * - Selection drives it: it follows the selected track, keeping the tab
  *   that applies, and a click on a clip opens that clip's editor.
  * - Master opens in the same slot; Maximize grows it over the canvas, and
@@ -27,7 +26,6 @@ import {
   fireEvent,
   render,
   screen,
-  within,
 } from '@testing-library/react';
 
 // The tabs' contents and their engines aren't under test: each stands in
@@ -110,35 +108,35 @@ function add(type: TrackType, instrument: InstrumentType, name: string) {
   return s().addTrack(type, instrument, name);
 }
 
-/** The tab bar's labels, in order. */
+/** The tab bar's labels, in order: none since the floating frame. */
 const tabLabels = () =>
   screen.queryAllByRole('tab').map((tab) => tab.textContent);
 
-describe('the tabs by track', () => {
-  it('melodic: Instrument · Prism · Notes · Effects', () => {
+describe('the body by track', () => {
+  it('melodic: each tab its body, and no tab bar', () => {
     const keys = add('midi', 'piano-sampler', 'Keys');
     s().setSelectedTrackId(keys);
     s().setChannelStripTab('controls');
     render(<Dock />);
-    expect(tabLabels()).toEqual(['Instrument', 'Prism', 'Notes', 'Effects']);
-    expect(screen.getAllByRole('tab').map((t) => t.dataset.tutorialId)).toEqual(
-      [
-        'chanstrip-tab-controls',
-        'chanstrip-tab-prism',
-        'chanstrip-tab-piano-roll',
-        'chanstrip-tab-fx',
-      ],
-    );
+    expect(tabLabels()).toEqual([]);
     expect(screen.getByTestId('body-instrument')).toBeTruthy();
+    act(() => s().setChannelStripTab('prism'));
+    expect(screen.getByTestId('body-prism')).toBeTruthy();
+    act(() => s().setChannelStripTab('piano-roll'));
+    expect(screen.getByTestId('body-notes')).toBeTruthy();
+    act(() => s().setChannelStripTab('fx'));
+    expect(screen.getByTestId('body-effects')).toBeTruthy();
   });
 
-  it('drums: Instrument · Grooves · Notes · Effects, and Notes is the drum grid', () => {
+  it('drums: Notes is the drum grid, and Grooves still opens', () => {
     const drums = add('midi', 'drum-machine', 'Drums');
     s().setSelectedTrackId(drums);
     s().setChannelStripTab('piano-roll');
     render(<Dock />);
-    expect(tabLabels()).toEqual(['Instrument', 'Grooves', 'Notes', 'Effects']);
+    expect(tabLabels()).toEqual([]);
     expect(screen.getByTestId('body-drum-grid')).toBeTruthy();
+    act(() => s().setChannelStripTab('grooves'));
+    expect(screen.getByTestId('body-grooves')).toBeTruthy();
   });
 
   it('audio: no tab bar, the chain', () => {
@@ -150,33 +148,14 @@ describe('the tabs by track', () => {
     expect(screen.getByTestId('body-effects')).toBeTruthy();
   });
 
-  it('live input: the pedals or the effects after them, no tab bar', () => {
+  it('live input: its pedals, and no Chain switch', () => {
     const guitar = add('audio', 'guitar-fx', 'Guitar');
     s().setSelectedTrackId(guitar);
     s().setChannelStripTab('controls');
     render(<Dock />);
     expect(tabLabels()).toEqual([]);
+    expect(screen.queryByRole('radiogroup', { name: 'Chain' })).toBeNull();
     expect(screen.getByTestId('body-instrument')).toBeTruthy();
-    const chain = screen.getByRole('radiogroup', { name: 'Chain' });
-    fireEvent.click(within(chain).getByRole('radio', { name: 'Effects' }));
-    expect(s().channelStripTab).toBe('fx');
-    expect(screen.getByTestId('body-effects')).toBeTruthy();
-  });
-
-  it('shuts on a press of the open tab, and opens on another', () => {
-    const keys = add('midi', 'piano-sampler', 'Keys');
-    s().setSelectedTrackId(keys);
-    s().setChannelStripTab('fx');
-    render(<Dock />);
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'Effects' }), {
-      button: 0,
-    });
-    expect(s().channelStripTab).toBeNull();
-    expect(screen.queryByTestId('body-effects')).toBeNull();
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'Notes' }), {
-      button: 0,
-    });
-    expect(s().channelStripTab).toBe('piano-roll');
   });
 });
 

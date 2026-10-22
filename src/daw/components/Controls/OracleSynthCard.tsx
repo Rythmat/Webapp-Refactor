@@ -455,6 +455,16 @@ function OscPanel({
   );
 }
 
+/** A cycle drawn from `phase` (0..1) into it, in the oscillator's 64 steps. */
+function startAt(wave: Float32Array, phase: number): Float32Array {
+  const n = wave.length;
+  const shift = Math.round((Math.round(phase * 64) / 64) * n) % n;
+  if (shift === 0) return wave;
+  const out = new Float32Array(n);
+  for (let i = 0; i < n; i++) out[i] = wave[(i + shift) % n];
+  return out;
+}
+
 /** The plot's top, clear of the oscillator's name; its side and foot. */
 const PLOT_NAME_PX = 28;
 const PLOT_INSET_PX = 8;
@@ -696,7 +706,10 @@ function WavetablePlot({
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const index = Math.round(position * (frames.count - 1));
     const t = stacked ? index / (frames.count - 1) : 0;
-    const wave = points(index);
+    // A one-frame table starts its cycle where Position has it, as the
+    // oscillator does (in its 64 steps).
+    const wave =
+      frames.count === 1 ? startAt(points(0), position) : points(index);
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     if (!stacked) {

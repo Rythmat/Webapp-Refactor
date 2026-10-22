@@ -256,3 +256,58 @@ describe('a mod amount drag (performance, 2026-10-21)', () => {
     engine.releaseResources();
   });
 });
+
+describe('Position on a one-frame table (owner, 2026-10-22)', () => {
+  it('starts a basic shape that far into its cycle', () => {
+    const fake = fakeOracleContext();
+    const bank = new WavetableBank(fake.ctx as unknown as AudioContext);
+    const made = vi.spyOn(fake.ctx, 'createPeriodicWave');
+    // Half a cycle: every odd harmonic turns over, every even one stays.
+    const wave = bank.getPhasedWave('SAWTOOTH', 0.5);
+    const [real, imag] = made.mock.calls.at(-1)! as unknown as [
+      Float32Array,
+      Float32Array,
+    ];
+    const base = bank.getPhasedWave('SAWTOOTH', 0);
+    expect(wave).not.toBe(base);
+    const saw = (k: number) => (k % 2 === 1 ? -1 : 1);
+    for (const k of [1, 2, 3, 4]) {
+      // The saw is all sines: imag[k] carries it.
+      expect(Math.sign(imag[k]) * saw(k)).toBe(
+        Math.sign(
+          (
+            bank as unknown as {
+              framePartials: Map<string, { imag: number[] }[]>;
+            }
+          ).framePartials.get('SAWTOOTH')![0].imag[k],
+        ),
+      );
+      expect(Math.abs(real[k])).toBeLessThan(1e-9);
+    }
+    // Kept: the same phase builds nothing new; a multi-frame table has none.
+    const calls = made.mock.calls.length;
+    expect(bank.getPhasedWave('SAWTOOTH', 0.5)).toBe(wave);
+    expect(made.mock.calls.length).toBe(calls);
+    expect(bank.getPhasedWave('HARMONIC', 0.5)).toBeNull();
+  });
+
+  it('sets the phase as a note starts, and leaves a sounding note alone', async () => {
+    const { Oscillator } = await import('../Oscillator');
+    const fake = fakeOracleContext();
+    const bank = new WavetableBank(fake.ctx as unknown as AudioContext);
+    const osc = new Oscillator(
+      fake.ctx as unknown as AudioContext,
+      bank,
+      fake.ctx.createGain() as unknown as AudioNode,
+    );
+    osc.setParams({ wavetable: 'SQUARE', wtPosition: 0.25, unisonVoices: 1 });
+    const before = fake.ofKind('oscillator').length;
+    osc.start(0);
+    const node = fake.ofKind('oscillator')[before];
+    const quarter = bank.getPhasedWave('SQUARE', 0.25);
+    expect(node.setPeriodicWave).toHaveBeenLastCalledWith(quarter);
+    const set = node.setPeriodicWave.mock.calls.length;
+    osc.setParams({ wtPosition: 0.75 });
+    expect(node.setPeriodicWave.mock.calls.length).toBe(set);
+  });
+});

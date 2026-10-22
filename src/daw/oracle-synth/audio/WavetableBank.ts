@@ -17,6 +17,8 @@ import type { OscWarpMode } from './types';
  * (forContext: every synth track on it shares one bank).
  */
 const banksByContext = new WeakMap<BaseAudioContext, WavetableBank>();
+/** The start phases a one-frame table keeps (getPhasedWave). */
+const PHASE_STEPS = 64;
 
 export class WavetableBank {
   /**
@@ -43,6 +45,8 @@ export class WavetableBank {
   private framePartials: Map<string, { real: number[]; imag: number[] }[]> =
     new Map();
   private frameStore: Map<string, Float32Array[]> = new Map();
+  /** One-frame tables' waves at a start phase (getPhasedWave). */
+  private phasedWaves = new Map<string, PeriodicWave>();
   /** Tables whose frames each play at full scale (normalized one by one). */
   private perFrameTables = new Set<string>();
 
@@ -392,6 +396,64 @@ export class WavetableBank {
     if (!table) return null;
     const idx = Math.max(0, Math.min(frameIndex, table.length - 1));
     return table[idx];
+  }
+
+  /**
+   * A one-frame table's wave starting `phase` (0..1) into its cycle, for
+   * Position on a basic shape (owner, 2026-10-22: Position still sets where
+   * a sine, square, triangle or saw starts). Phases are kept in 64 steps.
+   * A procedural wave turns its partials (each harmonic k by k·θ), so the
+   * browser's normalization, and the level, are unchanged; an imported one
+   * rotates its samples and is levelled as loadWavetableFromFrames does.
+   * Null for a table with more than one frame, or none.
+   */
+  getPhasedWave(tableName: string, phase: number): PeriodicWave | null {
+    const table = this.resolveTable(tableName);
+    if (!table || table.length !== 1) return null;
+    const q = Math.round((((phase % 1) + 1) % 1) * PHASE_STEPS) % PHASE_STEPS;
+    if (q === 0) return table[0];
+    const key = `${tableName}@phase${q}`;
+    const cached = this.phasedWaves.get(key);
+    if (cached) return cached;
+    const theta = (2 * Math.PI * q) / PHASE_STEPS;
+    let wave: PeriodicWave | null = null;
+    const partials = this.framePartials.get(tableName)?.[0];
+    if (partials) {
+      const len = Math.min(partials.real.length, partials.imag.length);
+      const real = new Float32Array(len);
+      const imag = new Float32Array(len);
+      for (let k = 1; k < len; k++) {
+        const a = partials.real[k];
+        const b = partials.imag[k];
+        const c = Math.cos(k * theta);
+        const s = Math.sin(k * theta);
+        real[k] = a * c + b * s;
+        imag[k] = b * c - a * s;
+      }
+      wave = this.ctx.createPeriodicWave(real, imag, {
+        disableNormalization: false,
+      });
+    } else {
+      const frame = this.getTimeDomainFrames(tableName)?.[0];
+      if (!frame) return table[0];
+      const n = frame.length;
+      const shift = Math.round((q / PHASE_STEPS) * n);
+      let mean = 0;
+      for (let i = 0; i < n; i++) mean += frame[i];
+      mean /= n || 1;
+      let peak = 0;
+      for (let i = 0; i < n; i++)
+        peak = Math.max(peak, Math.abs(frame[i] - mean));
+      const scale = peak > 0 ? 1 / peak : 1;
+      const rotated = new Float32Array(n);
+      for (let i = 0; i < n; i++) rotated[i] = frame[(i + shift) % n] * scale;
+      const { real, imag } = frameToPartials(rotated);
+      wave = this.ctx.createPeriodicWave(real, imag, {
+        disableNormalization: true,
+      });
+    }
+    this.phasedWaves.set(key, wave);
+    return wave;
   }
 
   getTableSize(tableName: string): number {

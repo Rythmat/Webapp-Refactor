@@ -385,6 +385,23 @@ export class Oscillator {
 
     // Only update waveforms when the frame index actually changes
     const tableSize = this.wavetableBank.getTableSize(table);
+    // A one-frame table (a basic shape): Position is where in the cycle
+    // the note starts. It is set as the note starts (the slot is cleared on
+    // stop), so a knob turn or modulation never jumps a sounding note's
+    // phase, which would click.
+    if (tableSize === 1) {
+      if (this.currentSlotA !== 0) {
+        this.unisonA.setWaveform(
+          this.wavetableBank.getPhasedWave(table, this.params.wtPosition) ??
+            pair.waveA,
+        );
+        this.currentSlotA = 0;
+      }
+      const now = this.ctx.currentTime;
+      this.gainA.gain.setTargetAtTime(1, now, 0.005);
+      this.gainB.gain.setTargetAtTime(0, now, 0.005);
+      return;
+    }
     if (this.isStarted && !this.bankBStarted && tableSize > 1) {
       this.unisonB.start();
       this.bankBStarted = true;

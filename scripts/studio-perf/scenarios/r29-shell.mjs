@@ -10,7 +10,7 @@
  *   transport, song and account) clips or runs into the next (the bar folds
  *   instead, useToolbarOverflow).
  * - rails (B4a; the floating frame, 2026-10-21): the bottom rail is 44 px
- *   across the window, its zones (Master, the views, Learn) neither clip nor
+ *   across the window, its zones (the hint line, the views, Learn) neither clip nor
  *   overlap, and the top bar's transport is centred in the window (within
  *   2 px); the side rail is 48 px wide at the right edge, between the bars.
  * - regionBudget: the dock opens at 36% of the body (the window less both
@@ -140,7 +140,7 @@ function frame() {
     bar: box('[data-testid="top-bar"]'),
     bottom: box('[data-testid="bottom-rail"]'),
     side: box('[data-testid="side-rail"]'),
-    bottomZones: zonesOf(rail, ['master', 'views', 'learn']),
+    bottomZones: zonesOf(rail, ['hints', 'views', 'learn']),
     transportCentre: transport ? transport.left + transport.width / 2 : null,
     root: box('.daw-root'),
     zones: zonesOf(bar, ['project', 'transport', 'share']),

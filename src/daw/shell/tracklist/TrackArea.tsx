@@ -7,6 +7,7 @@ import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore } from '@/daw/store';
 import { Button } from '@/daw/ui/Button';
 import { ChordAnalysisBanner } from '../canvas/ChordAnalysisBanner';
+import { MasterRow } from '../bottombar/MasterRow';
 import { ChordLaneHeader } from '../canvas/ChordLaneHeader';
 import { TimelineFooter } from '../canvas/TimelineFooter';
 import { TimelineTools } from '../canvas/TimelineTools';
@@ -56,7 +57,7 @@ export const TrackArea = memo(function TrackArea() {
       >
         <div
           data-ds="v2"
-          className="relative border-r border-daw-hairline bg-daw-surface-1"
+          className="relative flex flex-col border-r border-daw-hairline bg-daw-surface-1"
         >
           <div className="sticky top-0 z-[var(--daw-z-sticky)] bg-daw-surface-1">
             <TimelineTools />
@@ -65,6 +66,14 @@ export const TrackArea = memo(function TrackArea() {
           <DevProfiler id="TrackList">
             <TrackList />
           </DevProfiler>
+          {/* Main, the master strip, at the column's foot, where the
+              floating frame keeps it: pinned there as the tracks scroll. */}
+          <div
+            data-testid="main-strip"
+            className="sticky bottom-0 z-[var(--daw-z-sticky)] mt-auto border-t border-daw-hairline bg-daw-surface-1 px-4 pb-2.5 pt-2"
+          >
+            <MasterRow layout="strip" />
+          </div>
         </div>
         <div className="relative min-w-0">
           <ChordAnalysisBanner />

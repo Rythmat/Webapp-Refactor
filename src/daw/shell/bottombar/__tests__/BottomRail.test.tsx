@@ -29,9 +29,9 @@ beforeEach(() => useStore.setState(useStore.getInitialState(), true));
 afterEach(cleanup);
 
 describe('the bottom rail (the floating frame)', () => {
-  it('has Master at the left, the views at the centre and Learn at the right', () => {
+  it('has the hint line at the left, the views at the centre and Learn at the right', () => {
     render(<BottomRail />);
-    for (const name of ['Master', 'Views', 'Learn']) {
+    for (const name of ['Views', 'Learn']) {
       expect(screen.getByRole('group', { name })).toBeInTheDocument();
     }
     // In that order, left to right: the rail's own zones as the DOM has them.
@@ -40,7 +40,9 @@ describe('the bottom rail (the floating frame)', () => {
         .getByTestId('bottom-rail')
         .querySelectorAll(':scope > [data-zone]'),
     ].map((zone) => (zone as HTMLElement).dataset.zone);
-    expect(order).toEqual(['master', 'views', 'learn']);
+    expect(order).toEqual(['hints', 'views', 'learn']);
+    // Master is the track column's Main strip since 2026-10-21.
+    expect(screen.queryByTestId('master-row')).toBeNull();
     expect(screen.getByRole('group', { name: 'Views' })).toHaveClass(
       'bg-daw-pill',
       'rounded-full',

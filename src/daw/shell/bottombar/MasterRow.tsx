@@ -17,7 +17,11 @@ import { Meter } from '@/daw/ui/Meter';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Toggle } from '@/daw/ui/Toggle';
 
-// ── Master, at the bottom rail's left (2.6; B4a; 2.9) ──────────────────────
+// ── Master (2.6; B4a; 2.9; the floating frame) ─────────────────────────────
+//
+// Since 2026-10-21 it is the Main strip at the foot of the track column,
+// where the floating frame keeps it (owner: "match Suno's placement"):
+// layout 'strip'. The 'rail' layout is the bottom rail's one-row form.
 //
 // The whole mix's volume and level, and its volume automation lane. The
 // Master button opens Master in the dock's slot (2.9, after Soundtrap's
@@ -29,7 +33,19 @@ import { Toggle } from '@/daw/ui/Toggle';
 // in the room it also switches between hearing all of them and only the
 // tracks you pick.
 
-export const MasterRow = memo(function MasterRow() {
+/** The strip's fader and meter: the 200 px track column less its padding. */
+const STRIP_FADER_PX = 168;
+
+export const MasterRow = memo(function MasterRow({
+  layout = 'rail',
+}: {
+  /**
+   * 'rail': one 44 px row (Master, the fader over its meter, automation).
+   * 'strip': the floating frame's Main strip at the foot of the track column
+   * (2026-10-21): the name and its switches above, the fader full width.
+   */
+  layout?: 'rail' | 'strip';
+}) {
   const volume = useMasterVolumeControl();
   const source = useRef(meterSource('master'));
   const fxCount = useStore((s) => s.masteringFxChain.length);
@@ -46,10 +62,19 @@ export const MasterRow = memo(function MasterRow() {
   const hasPeers = useStore((s) => s.remoteUsers.size > 0);
   const listenMode = useListenMode();
   const toggleListenMode = useStudioListenStore((s) => s.toggleListenMode);
-  const faderPx = hasPeers ? 72 : 96;
+  const strip = layout === 'strip';
+  const faderPx = strip ? STRIP_FADER_PX : hasPeers ? 72 : 96;
 
   return (
-    <div data-testid="master-row" className="flex h-full items-center gap-1.5">
+    <div
+      data-testid="master-row"
+      data-layout={layout}
+      className={
+        strip
+          ? 'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-1 gap-y-1.5'
+          : 'flex h-full items-center gap-1.5'
+      }
+    >
       <button
         type="button"
         aria-pressed={inDock}
@@ -83,6 +108,7 @@ export const MasterRow = memo(function MasterRow() {
         className={cn(
           TYPE_CLASS.label,
           'inline-flex h-7 shrink-0 items-center gap-1 rounded-[var(--daw-radius-sm)] px-2 font-bold [&_svg]:size-3.5',
+          strip && 'justify-self-start',
           inDock
             ? 'bg-daw-selected text-daw-text'
             : 'text-daw-text-2 hover:bg-daw-hover hover:text-daw-text',
@@ -90,14 +116,17 @@ export const MasterRow = memo(function MasterRow() {
           FOCUS_RING,
         )}
       >
-        Master
+        {strip ? 'Main' : 'Master'}
         <ChevronUp
           aria-hidden
           className={cn(TRANSITION, inDock && 'rotate-180')}
         />
       </button>
       <div
-        className="flex flex-col-reverse items-start"
+        className={cn(
+          'flex flex-col-reverse items-start',
+          strip && 'order-last col-span-2',
+        )}
         onPointerDownCapture={volume.begin}
       >
         {/* The meter comes first, so the fader is drawn over it: its 24 px

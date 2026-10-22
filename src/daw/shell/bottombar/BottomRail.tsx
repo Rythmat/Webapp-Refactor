@@ -1,22 +1,20 @@
 import { Lightbulb } from 'lucide-react';
 import { memo } from 'react';
-import { cn } from '@/components/utilities';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { HintLine } from '@/daw/shell/help/HintLine';
 import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore } from '@/daw/store';
 import { Pill, PILL_ZONE } from '@/daw/ui/Pill';
 import { ViewTabs } from '../topbar/ViewTabs';
-import { MasterRow } from './MasterRow';
 
 // ── The bottom rail (B4a; the floating frame, S0) ──────────────────────────
 //
 // 44 px, the window's full width, under every view, its zones in pills on
-// the page (owner, 2026-10-21): Master at the left (volume, level, its
-// automation, Effects → Mix), with the hover hint line (2.11) in the free
-// width after it; the view tabs (Create, Mix, Score) centred in the window;
-// Learn at the right, which turns the hover hints on and off. The transport
-// and the song moved to the top bar.
+// the page (owner, 2026-10-21): the hover hint line (2.11) at the left; the
+// view tabs (Create, Mix, Score) centred in the window; Learn at the right,
+// which turns the hover hints on and off. The transport and the song moved to
+// the top bar, and Master to the foot of the track column (the Main strip,
+// TrackArea).
 
 export const BottomRail = memo(function BottomRail() {
   useDevCommitCount('BottomRail');
@@ -27,14 +25,9 @@ export const BottomRail = memo(function BottomRail() {
       style={{ gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)' }}
     >
       <div
-        role="group"
-        aria-label="Master"
-        data-zone="master"
-        className="flex min-w-0 items-center gap-3 justify-self-stretch"
+        data-zone="hints"
+        className="flex min-w-0 items-center justify-self-stretch pl-2"
       >
-        <div className={cn(PILL_ZONE, 'px-3')}>
-          <MasterRow />
-        </div>
         <HintLine />
       </div>
       <div

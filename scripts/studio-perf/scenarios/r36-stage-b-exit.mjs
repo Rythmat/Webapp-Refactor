@@ -440,12 +440,6 @@ function overlays(kit) {
       open: (page) => rightClick(page, '[data-testid="count-in-menu"]'),
     },
     {
-      name: 'Chord lane key',
-      ...click('[data-testid="chord-lane-key"]', {
-        selector: '[data-testid="chord-lane-key-popover"]',
-      }),
-    },
-    {
       name: 'Track menu',
       ...click('[data-testid="track-row"] [data-testid="track-menu-button"]', {
         selector: '[data-testid="track-menu"]',

@@ -174,12 +174,6 @@ const POPOVERS = [
     panel: '[data-testid="track-menu"]',
     v2: true,
   },
-  {
-    name: 'Chord lane key',
-    trigger: '[data-testid="chord-lane-key"]',
-    panel: '[data-testid="chord-lane-key-popover"]',
-    v2: true,
-  },
 ];
 
 /** In-page: whether focus is inside the open v2 panel. */

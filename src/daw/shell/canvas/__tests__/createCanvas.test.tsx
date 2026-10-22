@@ -224,7 +224,18 @@ describe('the chord lane’s analysis offer', () => {
   });
 });
 
-describe('+ Suggest', () => {
+describe('the chord lane’s corner', () => {
+  it('is empty: the key is set in the top bar, suggestions on the clip menu', () => {
+    render(<ChordLaneHeader />);
+    const corner = screen.getByTestId('chord-lane-header');
+    expect(corner).toBeEmptyDOMElement();
+    expect(corner).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.queryByTestId('chord-lane-key')).toBeNull();
+    expect(screen.queryByTestId('chord-lane-suggest')).toBeNull();
+  });
+});
+
+describe('where Suggest puts chords', () => {
   it('suggests after the last chord, for a track that can hold chords', () => {
     const drums = s().addTrack('midi', 'drum-machine', 'Drums');
     const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
@@ -239,37 +250,5 @@ describe('+ Suggest', () => {
   it('has nothing to suggest for without such a track', () => {
     s().addTrack('midi', 'drum-machine', 'Drums');
     expect(suggestTarget(s(), 0)).toBeNull();
-    render(<ChordLaneHeader />);
-    expect(
-      screen.getByRole('button', { name: 'Suggest chords (Prism)' }),
-    ).toBeDisabled();
-  });
-
-  it('opens the suggestions for Premium, the plans for a free student', () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
-    const open = vi.fn();
-    useStore.setState({ openPrismSuggestion: open });
-    const { unmount } = render(<ChordLaneHeader />);
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Suggest chords (Prism)' }),
-    );
-    expect(open).toHaveBeenCalledWith(0, s().tracks[0].id);
-    unmount();
-
-    h.premium = { isPremium: false, isLoading: false };
-    render(<ChordLaneHeader />);
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Suggest chords (Prism, Premium, locked)',
-      }),
-    );
-    expect(h.navigate).toHaveBeenCalled();
-    expect(open).toHaveBeenCalledTimes(1);
-  });
-
-  it('shows the key as a chip, dashed when there is none', () => {
-    useStore.setState({ rootNote: null });
-    render(<ChordLaneHeader />);
-    expect(screen.getByTestId('chord-lane-key')).toHaveTextContent('No key');
   });
 });

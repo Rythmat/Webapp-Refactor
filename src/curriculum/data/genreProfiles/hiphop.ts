@@ -7,7 +7,7 @@ import type { GenreProfile } from '../../types/genreProfile';
 export const hipHopProfile: GenreProfile = {
   id: 'hip-hop',
   displayName: 'Hip Hop',
-  // The Studio's Hip Hop violet (GroovesBrowser), so the genre reads the same everywhere.
+  // The Studio's Hip Hop violet (once its Grooves browser's), so the genre reads the same everywhere.
   accentColor: '#8B5CF6',
   tagline: 'The beat comes first. The loop. The low end.',
 

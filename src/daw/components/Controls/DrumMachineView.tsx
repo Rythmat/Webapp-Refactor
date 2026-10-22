@@ -3,13 +3,14 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronDown,
-  ChevronRight,
+  ChevronUp,
   Loader2,
+  Sparkles,
   Trash2,
-  MousePointer2,
-  Pencil,
-  Eraser,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
+import { cn } from '@/components/utilities';
 import { DRUMS_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { useStore, type Track } from '@/daw/store';
@@ -27,9 +28,17 @@ import type { MidiNoteEvent } from '@prism/engine';
 import { GRID_VALUES, type GridSize } from '@/daw/utils/quantize';
 import { alternatingBarGroup } from '@/daw/utils/timelineScale';
 import { noteEditorOriginTick } from '@/daw/audio/noteEditorOrigin';
+import { midiClipLength } from '@/daw/components/Timeline/midiClipCuts';
+import {
+  generateBars,
+  generateDrumPattern,
+} from '@/daw/drums/generateDrumPattern';
+import { grooveInPattern } from '@/daw/drums/addGrooveClip';
+import { GROOVES } from '@/daw/data/groovesLibrary';
 import { resolveEditorClip } from '@/daw/model/editorClip';
 import {
   barStartTick,
+  feltBeatTicks,
   gridStepTicks,
   snapTicks,
   ticksPerBar,
@@ -45,12 +54,12 @@ import {
 import { previewTrack } from '@/daw/engine/trackReconciler';
 import { withTransaction } from '@/daw/store/history';
 import { getDawPalette } from '@/daw/ui/tokens';
+import { Select } from '@/daw/ui/Select';
+import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 
 type DrumPads = NonNullable<Track['drumPads']>;
 
 // ── Types ─────────────────────────────────────────────────────────────────
-
-type Tool = 'select' | 'draw' | 'erase';
 
 // A drag operates on the whole current selection. `originals` snapshots every
 // selected note at grab time (keyed by index); `anchorIndex` is the grabbed one.
@@ -74,7 +83,7 @@ interface MarqueeRect {
 const LABEL_W = 140;
 const PAD_ROW_H = 28;
 const RULER_H = 24;
-const TOOLBAR_H = 36;
+const BAR_H = 40; // px for the bar under the grid, as the piano roll's
 const NUM_PADS = DRUM_PADS.length; // 11
 const GRID_H = PAD_ROW_H * NUM_PADS;
 const VEL_LANE_H = 60;
@@ -89,10 +98,14 @@ const SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
 const RULER_DRAG_THRESHOLD = 3; // px before a ruler press becomes a zoom drag
 const RULER_ZOOM_SENSITIVITY = 0.01; // zoom delta per px of vertical movement
 
-// ── Custom cursors ────────────────────────────────────────────────────────
-
-const PENCIL_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z'/></svg>") 2 18, crosshair`;
-const ERASER_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21'/><path d='M22 21H7'/><path d='m5 11 9 9'/></svg>") 2 18, pointer`;
+/**
+ * Whether a press at `x` takes a hit's right edge (a resize) rather than the
+ * hit (a move). A hit too narrow to hold both is only ever moved: a sixteenth
+ * at a zoomed-out view is a few pixels, all of them edge.
+ */
+function onResizeEdge(x: number, noteX: number, noteW: number): boolean {
+  return noteW >= 3 * RESIZE_EDGE_PX && x >= noteX + noteW - RESIZE_EDGE_PX;
+}
 
 // ── Pad helpers ───────────────────────────────────────────────────────────
 // Display order: index 0 = Kick at bottom, index 8 = Ride at top.
@@ -170,6 +183,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     [padMix.begin, padMix.end],
   );
   const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
+  const updateMidiClip = useStore((s) => s.updateMidiClip);
   const addMidiClip = useStore((s) => s.addMidiClip);
   const isPlaying = useStore((s) => s.isPlaying);
 
@@ -218,11 +232,9 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
   // ── Local state ───────────────────────────────────────────────────────
   const [loading, setLoading] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedPad, setSelectedPad] = useState<number>(36);
   const [velLaneOpen, setVelLaneOpen] = useState(false);
 
-  const [tool, setTool] = useState<Tool>('draw');
   const [gridSize, setGridSize] = useState<GridSize>('1/16');
   const [velocity, setVelocity] = useState(100);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
@@ -252,12 +264,15 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const velScrollRef = useRef<HTMLDivElement>(null);
   const labelScrollRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<NoteDrag | null>(null);
+  // A box drawn from `origin`. Shift or ⌘ adds to `base`, the selection it
+  // started from; a click on a hit with no drag adds or takes it away.
   const marqueeRef = useRef<{
     originX: number;
     originY: number;
     moved: boolean;
+    base: Set<number>;
+    clickNote: number | null;
   } | null>(null);
-  const paintRef = useRef<{ padIdx: number; tick: number } | null>(null);
   const initialZoomSet = useRef(false);
   // Active ruler scale drag (vertical → horizontal zoom).
   const rulerDragRef = useRef<{
@@ -355,7 +370,6 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
   const handleKitChange = useCallback(
     async (kitId: DrumKitId) => {
-      setDropdownOpen(false);
       setDrumKit(trackId, kitId);
       // setDrumKit no-ops while a collaborator holds the track lock
       const took =
@@ -382,6 +396,37 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     if (clip) updateMidiClipEvents(trackId, clip.id, []);
     selectSingle(null);
   }, [clip, trackId, updateMidiClipEvents, selectSingle]);
+
+  // Generate (owner, 2026-10-22, after Soundtrap's drum editor): a fresh
+  // groove in the kit's style over the whole pattern, as long as the clip
+  // (two bars when there is none yet), as one undo step. Another press,
+  // another groove.
+  const handleGenerate = useCallback(() => {
+    const bars = generateBars(clip ? midiClipLength(clip) : 0, barTicks);
+    const next = generateDrumPattern({
+      bars,
+      barTicks,
+      beatTicks: feltBeatTicks(ts),
+      kit: currentKit,
+    });
+    withTransaction('Generate drums', () => {
+      // A groove's name goes with its hits: the menu stops marking it.
+      if (clip && grooveInPattern(clip.name, GROOVES)) {
+        updateMidiClip(trackId, clip.id, { name: 'Drum Pattern' });
+      }
+      onChange(next);
+    });
+    selectSingle(null);
+  }, [
+    clip,
+    barTicks,
+    ts,
+    currentKit,
+    trackId,
+    updateMidiClip,
+    onChange,
+    selectSingle,
+  ]);
 
   const handlePadTrigger = useCallback(
     (note: number) => {
@@ -787,6 +832,10 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   );
 
   // ── Mouse down (grid canvas) ──────────────────────────────────────────
+  // One way to edit, as the piano roll (owner, 2026-10-22: no Select, Draw
+  // and Erase tools): a press on a hit takes it (its right edge resizes it),
+  // on empty space draws a box. Double-click adds or removes a hit
+  // (handleDoubleClick).
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const { x, y } = getCanvasCoords(e);
@@ -794,118 +843,123 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
       const row = Math.floor(y / PAD_ROW_H);
       if (row < 0 || row >= NUM_PADS) return;
-      const padIdx = rowToPadIndex(row);
-      const pad = DRUM_PADS[padIdx];
+      const pad = DRUM_PADS[rowToPadIndex(row)];
 
       const noteIdx = hitTestNote(x, y);
       const currentEvents = eventsRef.current;
 
-      switch (tool) {
-        case 'draw': {
-          if (noteIdx !== null) {
-            selectSingle(noteIdx);
-            setSelectedPad(pad.note);
-            return;
-          }
-          selectSingle(null);
-          setSelectedPad(pad.note);
-
-          const gridTicks = gridStep;
-          const clickTick = x / pixelsPerTick + originTick;
-          const snappedTick = snapClipTick(clickTick);
-
-          const newNote: MidiNoteEvent = {
-            note: pad.note,
-            velocity,
-            startTick: snappedTick,
-            durationTicks: gridTicks,
-            channel: 10,
-          };
-          const newEvents = [...currentEvents, newNote].sort(
-            (a, b) => a.startTick - b.startTick,
-          );
-          editDraft(newEvents);
-          audition(pad.note, velocity);
-
-          // Track paint position for drag-paint
-          paintRef.current = { padIdx, tick: snappedTick };
-
-          const addedIdx = newEvents.findIndex(
-            (n) =>
-              n.startTick === snappedTick &&
-              n.note === pad.note &&
-              n.durationTicks === gridTicks,
-          );
-          selectSingle(addedIdx >= 0 ? addedIdx : null);
-          break;
+      if (e.shiftKey || e.metaKey || e.ctrlKey) {
+        // Shift or ⌘: a box from anywhere — over hits too, so a busy
+        // pattern can be boxed — adds to the selection; a click without a
+        // drag adds or takes away the one hit.
+        marqueeRef.current = {
+          originX: x,
+          originY: y,
+          moved: false,
+          base: new Set(selectedIndices),
+          clickNote: noteIdx,
+        };
+        setMarqueeRect(null);
+      } else if (noteIdx !== null) {
+        // Drag the whole selection if the grabbed hit is part of an
+        // existing multi-selection; otherwise grab just this hit.
+        let indices: Set<number>;
+        if (selectedIndices.has(noteIdx) && selectedIndices.size > 1) {
+          indices = selectedIndices;
+        } else {
+          indices = new Set([noteIdx]);
+          setSelectedIndices(indices);
         }
 
-        case 'select': {
-          if (noteIdx !== null) {
-            // Drag the whole selection if the grabbed note is part of an
-            // existing multi-selection; otherwise grab just this note.
-            let indices: Set<number>;
-            if (selectedIndices.has(noteIdx) && selectedIndices.size > 1) {
-              indices = selectedIndices;
-            } else {
-              indices = new Set([noteIdx]);
-              setSelectedIndices(indices);
-            }
+        const ev = currentEvents[noteIdx];
+        setSelectedPad(canonicalPadNote(ev.note));
+        const relTick = ev.startTick - originTick;
+        const noteX = relTick * pixelsPerTick;
+        const noteW = Math.max(MIN_NOTE_W, ev.durationTicks * pixelsPerTick);
+        const nearRightEdge = onResizeEdge(x, noteX, noteW);
+        audition(ev.note, ev.velocity);
 
-            const ev = currentEvents[noteIdx];
-            setSelectedPad(canonicalPadNote(ev.note));
-            const relTick = ev.startTick - originTick;
-            const noteX = relTick * pixelsPerTick;
-            const noteW = Math.max(
-              MIN_NOTE_W,
-              ev.durationTicks * pixelsPerTick,
-            );
-            const nearRightEdge = x >= noteX + noteW - RESIZE_EDGE_PX;
+        const originals = new Map<number, MidiNoteEvent>();
+        for (const i of indices) originals.set(i, { ...currentEvents[i] });
 
-            const originals = new Map<number, MidiNoteEvent>();
-            for (const i of indices) originals.set(i, { ...currentEvents[i] });
-
-            dragRef.current = {
-              mode: nearRightEdge ? 'resize' : 'move',
-              anchorIndex: noteIdx,
-              grabTickOffset: Math.round((x - noteX) / pixelsPerTick),
-              originals,
-            };
-          } else {
-            // Empty space: start a marquee. Clear selection now so a plain
-            // click deselects, while a drag rebuilds it live in mouse-move.
-            setSelectedIndices(new Set());
-            setSelectedPad(pad.note);
-            marqueeRef.current = { originX: x, originY: y, moved: false };
-            setMarqueeRect(null);
-          }
-          break;
-        }
-
-        case 'erase': {
-          if (noteIdx !== null) {
-            const newEvents = currentEvents.filter((_, i) => i !== noteIdx);
-            editDraft(newEvents);
-            selectSingle(null);
-          }
-          paintRef.current = { padIdx, tick: -1 }; // enable drag-erase
-          break;
-        }
+        dragRef.current = {
+          mode: nearRightEdge ? 'resize' : 'move',
+          anchorIndex: noteIdx,
+          grabTickOffset: Math.round((x - noteX) / pixelsPerTick),
+          originals,
+        };
+      } else {
+        // Empty space: start a box. The selection goes now, so a plain
+        // click deselects, while a drag rebuilds it live in mouse-move.
+        setSelectedIndices(new Set());
+        setSelectedPad(pad.note);
+        marqueeRef.current = {
+          originX: x,
+          originY: y,
+          moved: false,
+          base: new Set(),
+          clickNote: null,
+        };
+        setMarqueeRect(null);
       }
     },
     [
-      tool,
-      velocity,
       getCanvasCoords,
       hitTestNote,
       originTick,
       pixelsPerTick,
-      gridStep,
+      audition,
+      selectedIndices,
+    ],
+  );
+
+  // ── Double-click: add a hit, or take one away ─────────────────────────
+  // On empty space a hit goes in there, on the grid, a grid step long, at
+  // the velocity set in the bar; on a hit, the hit goes. Each is one undo
+  // step.
+  const handleDoubleClick = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const { x, y } = getCanvasCoords(e);
+      if (x < 0 || y < 0) return;
+      dragRef.current = null;
+      marqueeRef.current = null;
+      setMarqueeRect(null);
+      const currentEvents = eventsRef.current;
+      const noteIdx = hitTestNote(x, y);
+      if (noteIdx !== null) {
+        onChange(currentEvents.filter((_, i) => i !== noteIdx));
+        selectSingle(null);
+        return;
+      }
+      const row = Math.floor(y / PAD_ROW_H);
+      if (row < 0 || row >= NUM_PADS) return;
+      const pad = DRUM_PADS[rowToPadIndex(row)];
+      const newNote: MidiNoteEvent = {
+        note: pad.note,
+        velocity,
+        startTick: snapClipTick(x / pixelsPerTick + originTick),
+        durationTicks: gridStep,
+        channel: 10,
+      };
+      const newEvents = [...currentEvents, newNote].sort(
+        (a, b) => a.startTick - b.startTick,
+      );
+      onChange(newEvents);
+      audition(pad.note, velocity);
+      setSelectedPad(pad.note);
+      selectSingle(newEvents.indexOf(newNote));
+    },
+    [
+      getCanvasCoords,
+      hitTestNote,
+      velocity,
       snapClipTick,
-      editDraft,
+      pixelsPerTick,
+      originTick,
+      gridStep,
+      onChange,
       audition,
       selectSingle,
-      selectedIndices,
     ],
   );
 
@@ -925,7 +979,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           y2: Math.max(m.originY, y),
         };
         setMarqueeRect(rect);
-        const sel = new Set<number>();
+        const sel = new Set<number>(m.base);
         const evs = eventsRef.current;
         for (let i = 0; i < evs.length; i++) {
           const ev = evs[i];
@@ -951,90 +1005,25 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       const drag = dragRef.current;
       const canvas = gridCanvasRef.current;
 
-      // No active drag — just update cursor
-      if (!drag && !paintRef.current) {
+      // No drag: the cursor says what a press would do.
+      if (!drag) {
         if (!canvas) return;
-        switch (tool) {
-          case 'draw':
-            canvas.style.cursor = PENCIL_CURSOR;
-            break;
-          case 'erase':
-            canvas.style.cursor = ERASER_CURSOR;
-            break;
-          case 'select': {
-            const noteIdx = hitTestNote(x, y);
-            if (noteIdx !== null) {
-              const ev = eventsRef.current[noteIdx];
-              const relTick = ev.startTick - originTick;
-              const noteX = relTick * pixelsPerTick;
-              const noteW = Math.max(
-                MIN_NOTE_W,
-                ev.durationTicks * pixelsPerTick,
-              );
-              canvas.style.cursor =
-                x >= noteX + noteW - RESIZE_EDGE_PX ? 'col-resize' : 'grab';
-            } else {
-              canvas.style.cursor = 'crosshair';
-            }
-            break;
-          }
-        }
-        return;
-      }
-
-      // Paint mode (draw tool drag)
-      if (paintRef.current && tool === 'draw') {
-        const row = Math.floor(y / PAD_ROW_H);
-        if (row < 0 || row >= NUM_PADS) return;
-        const padIdx = rowToPadIndex(row);
-        const pad = DRUM_PADS[padIdx];
-        const gridTicks = gridStep;
-        const clickTick = x / pixelsPerTick + originTick;
-        const snappedTick = snapClipTick(clickTick);
-
-        if (
-          paintRef.current.padIdx !== padIdx ||
-          paintRef.current.tick !== snappedTick
-        ) {
-          // Check if a note already exists at this position
-          const currentEvents = eventsRef.current;
-          const exists = currentEvents.some(
-            (ev) =>
-              canonicalPadNote(ev.note) === pad.note &&
-              ev.startTick === snappedTick,
-          );
-          if (!exists) {
-            const newNote: MidiNoteEvent = {
-              note: pad.note,
-              velocity,
-              startTick: snappedTick,
-              durationTicks: gridTicks,
-              channel: 10,
-            };
-            editDraft(
-              [...currentEvents, newNote].sort(
-                (a, b) => a.startTick - b.startTick,
-              ),
-            );
-            audition(pad.note, velocity);
-          }
-          paintRef.current = { padIdx, tick: snappedTick };
-        }
-        return;
-      }
-
-      // Paint-erase mode (erase tool drag)
-      if (paintRef.current && tool === 'erase') {
         const noteIdx = hitTestNote(x, y);
         if (noteIdx !== null) {
-          const currentEvents = eventsRef.current;
-          editDraft(currentEvents.filter((_, i) => i !== noteIdx));
+          const ev = eventsRef.current[noteIdx];
+          const noteX = (ev.startTick - originTick) * pixelsPerTick;
+          const noteW = Math.max(MIN_NOTE_W, ev.durationTicks * pixelsPerTick);
+          canvas.style.cursor = onResizeEdge(x, noteX, noteW)
+            ? 'col-resize'
+            : 'grab';
+        } else {
+          canvas.style.cursor = 'default';
         }
         return;
       }
 
-      // Select tool drag — moves/resizes the whole selection together.
-      if (drag) {
+      // A drag moves or resizes the whole selection together.
+      {
         const currentEvents = [...eventsRef.current];
         const anchorOrig = drag.originals.get(drag.anchorIndex);
         if (!anchorOrig) return;
@@ -1095,7 +1084,6 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       }
     },
     [
-      tool,
       getCanvasCoords,
       hitTestNote,
       originTick,
@@ -1103,32 +1091,28 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       gridStep,
       snapClipTick,
       editDraft,
-      velocity,
-      audition,
     ],
   );
 
   // ── Mouse up ──────────────────────────────────────────────────────────
   const handleMouseUp = useCallback(() => {
+    const m = marqueeRef.current;
+    if (m && !m.moved && m.clickNote !== null) {
+      const toggled = new Set(m.base);
+      if (toggled.has(m.clickNote)) toggled.delete(m.clickNote);
+      else toggled.add(m.clickNote);
+      setSelectedIndices(toggled);
+    }
     dragRef.current = null;
-    paintRef.current = null;
     marqueeRef.current = null;
     setMarqueeRect(null);
     commitDraft();
-    if (gridCanvasRef.current) {
-      gridCanvasRef.current.style.cursor =
-        tool === 'draw'
-          ? PENCIL_CURSOR
-          : tool === 'erase'
-            ? ERASER_CURSOR
-            : 'default';
-    }
-  }, [tool]);
+    if (gridCanvasRef.current) gridCanvasRef.current.style.cursor = 'default';
+  }, []);
 
   useEffect(() => {
     const handler = () => {
-      if (dragRef.current || paintRef.current || marqueeRef.current)
-        handleMouseUp();
+      if (dragRef.current || marqueeRef.current) handleMouseUp();
     };
     window.addEventListener('mouseup', handler);
     return () => window.removeEventListener('mouseup', handler);
@@ -1232,15 +1216,12 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
   // ── Keyboard shortcuts ────────────────────────────────────────────────
   // ── Keys, while the grid has focus (the drums scope) ──────────────────
-  // Tools on V, D and E (never with ⌘ held: ⌘V pastes), Delete or Backspace
-  // removes the selected hits. Delete stays here with nothing selected, so
+  // Delete or Backspace removes the selected hits (no tool keys: there are
+  // no tools since 2026-10-22). Delete stays here with nothing selected, so
   // it never reaches the clip behind the grid.
   useKeymap(
     DRUMS_SCOPE.id,
     {
-      'drums.select': () => setTool('select'),
-      'drums.draw': () => setTool('draw'),
-      'drums.erase': () => setTool('erase'),
       'drums.delete': () => {
         if (selectedIndices.size === 0) return;
         onChange(eventsRef.current.filter((_, i) => !selectedIndices.has(i)));
@@ -1283,7 +1264,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   // ── Ruler scale drag: vertical → horizontal zoom ─────────────────────────
   // Movement is tracked at the window level so the gesture keeps scaling even
   // after the cursor leaves the ruler (no ceiling). Horizontal movement is
-  // ignored; the grid keeps its note tools, so scaling lives on the ruler.
+  // ignored; a drag on the grid edits hits, so scaling lives on the ruler.
   const handleRulerMouseDown = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       e.preventDefault();
@@ -1344,6 +1325,23 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     [MAX_ZOOM],
   );
 
+  // ── The corner's zoom: wider or narrower, about the middle of the view ──
+  const zoomBy = (factor: number) => {
+    const container = gridScrollRef.current;
+    const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom * factor));
+    if (!container || next === zoom) return;
+    const mid = container.scrollLeft + container.clientWidth / 2;
+    const midTick = mid / pixelsPerTick;
+    setZoom(next);
+    requestAnimationFrame(() => {
+      const nextPixelsPerTick = (40 * next) / TICKS_PER_BEAT;
+      container.scrollLeft = Math.max(
+        0,
+        midTick * nextPixelsPerTick - container.clientWidth / 2,
+      );
+    });
+  };
+
   // ── Playhead position ─────────────────────────────────────────────────
   // Painted from the playhead clock through a ref, so playback moves the
   // line without rendering the drum machine (dock-instruments-06).
@@ -1360,9 +1358,6 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     const transform = `translateX(${px}px)`;
     if (line.style.transform !== transform) line.style.transform = transform;
   });
-
-  const currentKitLabel =
-    DRUM_KITS.find((k) => k.id === currentKit)?.label ?? currentKit;
 
   if (!track) return null;
 
@@ -1383,254 +1378,39 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       className="flex flex-col h-full overflow-hidden"
       tabIndex={0}
     >
-      {/* ── Toolbar ──────────────────────────────────────────────── */}
-      <div
-        className="flex items-center gap-2 px-3 shrink-0"
-        style={{
-          height: TOOLBAR_H,
-          borderBottom: '1px solid var(--daw-hairline)',
-        }}
-      >
-        {/* Label + Kit selector */}
-        <span
-          className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          Drums
-        </span>
-
-        <div className="relative" data-tutorial-id="drum-kit-selector">
-          <button
-            onClick={() => setDropdownOpen((o) => !o)}
-            className="flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-[11px] font-medium cursor-pointer transition-colors"
-            style={{
-              backgroundColor: 'var(--daw-surface-2)',
-              color: 'var(--daw-text)',
-              border: '1px solid var(--daw-hairline)',
-            }}
-          >
-            {loading && (
-              <Loader2
-                size={10}
-                className="animate-spin"
-                style={{ color: 'var(--daw-text-3)' }}
-              />
-            )}
-            {currentKitLabel}
-            <ChevronDown size={10} style={{ color: 'var(--daw-text-3)' }} />
-          </button>
-
-          {dropdownOpen && (
-            <div
-              className="absolute top-full left-0 mt-1 rounded-lg overflow-hidden z-30"
-              style={{
-                backgroundColor: 'var(--daw-surface-1)',
-                border: '1px solid var(--daw-hairline)',
-                minWidth: 140,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-              }}
-            >
-              {DRUM_KITS.map((kit) => (
-                <button
-                  key={kit.id}
-                  onClick={() => handleKitChange(kit.id)}
-                  className="block w-full text-left px-3 py-1.5 text-[11px] cursor-pointer transition-colors"
-                  style={{
-                    backgroundColor:
-                      kit.id === currentKit
-                        ? 'var(--daw-surface-2)'
-                        : 'transparent',
-                    color:
-                      kit.id === currentKit
-                        ? 'var(--daw-text)'
-                        : 'var(--daw-text-3)',
-                    fontWeight: kit.id === currentKit ? 600 : 400,
-                    border: 'none',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (kit.id !== currentKit)
-                      e.currentTarget.style.backgroundColor =
-                        'var(--daw-surface-2)';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (kit.id !== currentKit)
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  {kit.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Divider */}
-        <div className="w-px h-4 bg-white/10" />
-
-        {/* Tool buttons */}
-        <div className="flex gap-0.5">
-          {(
-            [
-              {
-                id: 'select' as Tool,
-                icon: <MousePointer2 className="w-3.5 h-3.5" />,
-                label: 'Select',
-                shortcut: 'V',
-              },
-              {
-                id: 'draw' as Tool,
-                icon: <Pencil className="w-3.5 h-3.5" />,
-                label: 'Draw',
-                shortcut: 'D',
-              },
-              {
-                id: 'erase' as Tool,
-                icon: <Eraser className="w-3.5 h-3.5" />,
-                label: 'Erase',
-                shortcut: 'E',
-              },
-            ] as const
-          ).map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTool(t.id)}
-              title={`${t.label} (${t.shortcut})`}
-              className={`flex items-center gap-1 h-6 px-2 rounded text-[10px] font-semibold transition-colors cursor-pointer ${
-                tool === t.id
-                  ? 'bg-white/10 text-white'
-                  : 'text-white/40 hover:text-white/60 hover:bg-white/5'
-              }`}
-              style={{ border: 'none' }}
-            >
-              {t.icon}
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Divider */}
-        <div className="w-px h-4 bg-white/10" />
-
-        {/* Grid dropdown */}
-        <label
-          className="flex items-center gap-1.5 text-xs"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          Grid
-          <select
-            value={gridSize}
-            onChange={(e) => setGridSize(e.target.value as GridSize)}
-            className="bg-white/5 border border-white/10 rounded px-1.5 py-0.5 text-xs outline-none"
-            style={{ color: 'var(--daw-text)' }}
-          >
-            {Object.keys(GRID_VALUES).map((g) => (
-              <option
-                key={g}
-                value={g}
-                style={{ backgroundColor: 'var(--daw-bg)' }}
-              >
-                {g}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <button
-          onClick={handleQuantize}
-          className="px-2 py-0.5 text-xs rounded bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
-          style={{ color: 'var(--daw-text)' }}
-        >
-          Quantize
-        </button>
-
-        {/* Divider */}
-        <div className="w-px h-4 bg-white/10" />
-
-        {/* Velocity slider */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-[9px] text-white/30 font-semibold uppercase">
-            {selectedArr.length > 0 ? 'Sel Vel' : 'Vel'}
-          </span>
-          <input
-            type="range"
-            min={1}
-            max={127}
-            value={velDisplay}
-            onChange={(e) => {
-              const val = Math.max(1, Math.min(127, Number(e.target.value)));
-              if (selectedArr.length > 0) {
-                const updated = [...eventsRef.current];
-                for (const idx of selectedArr) {
-                  if (updated[idx]) {
-                    updated[idx] = { ...updated[idx], velocity: val };
-                  }
-                }
-                editDraft(updated);
-              } else {
-                setVelocity(val);
-              }
-            }}
-            // The slide is one edit: written when it is let go, or after
-            // each arrow-key step.
-            onPointerUp={commitDraft}
-            onKeyUp={commitDraft}
-            onBlur={commitDraft}
-            className="w-16 h-1 accent-white/50"
-          />
-          <span className="text-[10px] tabular-nums text-white/40 w-6 text-right">
-            {velDisplay}
-          </span>
-        </div>
-
-        {/* Spacer + meta */}
-        <div className="flex-1" />
-
-        <span className="text-xs" style={{ color: 'var(--daw-text-3)' }}>
-          {events.length} notes
-        </span>
-        <span
-          className="text-[10px] tabular-nums"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          {Math.round(zoom * 100)}%
-        </span>
-
-        <button
-          onClick={handleClear}
-          className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] uppercase tracking-wider cursor-pointer transition-colors"
-          style={{
-            backgroundColor: 'rgba(255,255,255,0.04)',
-            color: 'var(--daw-text-3)',
-            border: '1px solid var(--daw-hairline)',
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)')
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)')
-          }
-        >
-          <Trash2 size={10} />
-          Clear
-        </button>
-      </div>
-
       {/* ── Editor body ──────────────────────────────────────────── */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Grid area: labels + ruler + grid (scrolls vertically) */}
         <div className="flex flex-1 overflow-hidden" style={{ minHeight: 0 }}>
           {/* Left column: corner spacer + pad labels */}
           <div className="shrink-0 flex flex-col" style={{ width: LABEL_W }}>
-            {/* Corner spacer */}
+            {/* The corner: zoom out and in, as the piano roll has them. */}
             <div
-              style={{
-                height: RULER_H,
-                flexShrink: 0,
-                backgroundColor: 'var(--daw-bg)',
-                borderBottom: '1px solid var(--daw-hairline)',
-                borderRight: '1px solid var(--daw-hairline)',
-              }}
-            />
+              className="flex shrink-0 items-center justify-center gap-0.5 border-b border-r border-daw-hairline bg-daw-bg"
+              style={{ height: RULER_H }}
+            >
+              {(
+                [
+                  ['Zoom out', ZoomOut, 1 / 1.25],
+                  ['Zoom in', ZoomIn, 1.25],
+                ] as const
+              ).map(([label, Icon, factor]) => (
+                <button
+                  key={label}
+                  type="button"
+                  aria-label={label}
+                  data-hint={label}
+                  onClick={() => zoomBy(factor)}
+                  className={cn(
+                    'flex size-5 items-center justify-center rounded-[var(--daw-radius-sm)] text-daw-text-3 hover:bg-daw-hover hover:text-daw-text',
+                    TRANSITION,
+                    FOCUS_RING,
+                  )}
+                >
+                  <Icon className="size-3.5" aria-hidden />
+                </button>
+              ))}
+            </div>
             {/* Pad labels — reversed so Kick is at bottom, scrolls with grid */}
             <div
               ref={labelScrollRef}
@@ -1697,6 +1477,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
+                onDoubleClick={handleDoubleClick}
               />
 
               {/* CSS Playhead */}
@@ -1720,25 +1501,15 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           </div>
         </div>
 
-        {/* Velocity lane — always below grid, never overlaps */}
-        <div className="shrink-0" style={{ marginLeft: LABEL_W }}>
-          <button
-            onClick={() => setVelLaneOpen((o) => !o)}
-            className="flex items-center gap-1 w-full px-2 py-1 text-[9px] font-semibold uppercase tracking-wider cursor-pointer"
-            style={{
-              color: 'var(--daw-text-3)',
-              background: 'none',
-              border: 'none',
-              borderTop: '1px solid var(--daw-hairline)',
-            }}
-          >
-            {velLaneOpen ? (
-              <ChevronDown size={10} />
-            ) : (
-              <ChevronRight size={10} />
-            )}
-            Velocity
-          </button>
+        {/* Velocity lane — always below grid, never overlaps; its switch
+            is at the right of the bar. */}
+        <div
+          className="shrink-0"
+          style={{
+            marginLeft: LABEL_W,
+            borderTop: velLaneOpen ? '1px solid var(--daw-hairline)' : 'none',
+          }}
+        >
           <AnimatePresence>
             {velLaneOpen && (
               <motion.div
@@ -1769,6 +1540,166 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             )}
           </AnimatePresence>
         </div>
+      </div>
+      {/* The bar under the grid, where the piano roll has its own (owner,
+          2026-10-22): the kit, the grid and Quantize, the velocity new hits
+          get (the selection's, while hits are picked), Generate and Clear,
+          and at the right the velocity lane's switch. */}
+      <div
+        data-testid="drum-grid-bar"
+        className="flex shrink-0 items-center gap-3 border-t border-daw-hairline px-3"
+        style={{ height: BAR_H }}
+      >
+        <div
+          className="flex items-center gap-1.5"
+          data-tutorial-id="drum-kit-selector"
+        >
+          <Select
+            label="Drum kit"
+            size="sm"
+            value={currentKit}
+            onValueChange={(v) => void handleKitChange(v as DrumKitId)}
+            options={DRUM_KITS.map((kit) => ({
+              value: kit.id,
+              label: kit.label,
+            }))}
+          />
+          {loading && (
+            <Loader2
+              aria-label="Loading the kit"
+              className="size-3 animate-spin text-daw-text-3"
+            />
+          )}
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>Grid</span>
+          <Select
+            label="Grid"
+            size="sm"
+            value={gridSize}
+            onValueChange={(v) => setGridSize(v as GridSize)}
+            options={Object.keys(GRID_VALUES).map((g) => ({
+              value: g,
+              label: g,
+            }))}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            handleQuantize();
+            containerRef.current?.focus();
+          }}
+          data-hint="Quantize: move every hit onto the grid"
+          className={cn(
+            TYPE_CLASS.label,
+            'flex h-6 items-center rounded-full bg-daw-pill px-2.5 font-bold text-daw-text hover:bg-daw-hover',
+            TRANSITION,
+            FOCUS_RING,
+          )}
+        >
+          Quantize
+        </button>
+        <label className="flex items-center gap-1.5">
+          <span className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>
+            Note velocity
+          </span>
+          <input
+            type="range"
+            aria-label={
+              selectedArr.length > 0
+                ? 'Velocity of the selected hits'
+                : 'Velocity of new hits'
+            }
+            min={1}
+            max={127}
+            value={velDisplay}
+            onChange={(e) => {
+              const val = Math.max(1, Math.min(127, Number(e.target.value)));
+              if (selectedArr.length > 0) {
+                const updated = [...eventsRef.current];
+                for (const idx of selectedArr) {
+                  if (updated[idx]) {
+                    updated[idx] = { ...updated[idx], velocity: val };
+                  }
+                }
+                editDraft(updated);
+              } else {
+                setVelocity(val);
+              }
+            }}
+            // The slide is one edit: written when it is let go, or after
+            // each arrow-key step.
+            onPointerUp={commitDraft}
+            onKeyUp={commitDraft}
+            onBlur={commitDraft}
+            className="h-1 w-20 accent-daw-text-2"
+          />
+          <span
+            className={cn(
+              TYPE_CLASS.label,
+              'w-7 text-right tabular-nums text-daw-text-2',
+            )}
+          >
+            {velDisplay}
+          </span>
+        </label>
+        <button
+          type="button"
+          data-testid="drum-generate"
+          onClick={() => {
+            handleGenerate();
+            containerRef.current?.focus();
+          }}
+          data-hint="Generate: write a new drum pattern in the kit's style"
+          className={cn(
+            TYPE_CLASS.label,
+            'ml-auto flex h-6 items-center gap-1 rounded-full bg-daw-pill-on px-2.5 font-bold text-daw-text hover:bg-daw-hover',
+            TRANSITION,
+            FOCUS_RING,
+          )}
+        >
+          <Sparkles className="size-3" aria-hidden />
+          Generate
+        </button>
+        <button
+          type="button"
+          onClick={handleClear}
+          data-hint="Clear every hit in this pattern"
+          className={cn(
+            TYPE_CLASS.label,
+            'flex h-6 items-center gap-1 rounded-full bg-daw-pill px-2.5 font-bold text-daw-pill-text hover:text-daw-text',
+            TRANSITION,
+            FOCUS_RING,
+          )}
+        >
+          <Trash2 className="size-3" aria-hidden />
+          Clear
+        </button>
+        <button
+          type="button"
+          aria-label="Velocity lane"
+          aria-expanded={velLaneOpen}
+          data-testid="velocity-lane-toggle"
+          data-hint="Show or hide each hit's velocity under the grid"
+          onClick={() => setVelLaneOpen((o) => !o)}
+          className={cn(
+            TYPE_CLASS.label,
+            'flex h-7 items-center gap-1 rounded-full px-3 font-bold',
+            velLaneOpen
+              ? 'bg-daw-pill-on text-daw-text'
+              : 'bg-daw-pill text-daw-pill-text hover:text-daw-text',
+            TRANSITION,
+            FOCUS_RING,
+          )}
+        >
+          Velocity lane
+          {velLaneOpen ? (
+            <ChevronDown className="size-3.5" aria-hidden />
+          ) : (
+            <ChevronUp className="size-3.5" aria-hidden />
+          )}
+        </button>
       </div>
       {/* No "Sample" section under the grid: it drew the same made-up
           envelope for every pad, not the pad's sample. */}

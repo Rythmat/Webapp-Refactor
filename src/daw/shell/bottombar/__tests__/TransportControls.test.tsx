@@ -82,7 +82,7 @@ beforeEach(() => {
     countInBars: 0,
   });
   s().setTimeSignature(4, 4);
-  keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  keys = s().addTrack('midi', 'soundfont', 'Keys');
 });
 
 afterEach(cleanup);
@@ -221,7 +221,7 @@ describe('track edits', () => {
 // commands/transportSkip.
 describe('Forward', () => {
   it('goes to the end of a song made only of audio', () => {
-    const vocals = s().addTrack('audio', 'vocal-fx', 'Vocals');
+    const vocals = s().addTrack('audio', 'audio-input', 'Vocals');
     s().addAudioClip(vocals, {
       id: 'take-1',
       startTick: BAR,

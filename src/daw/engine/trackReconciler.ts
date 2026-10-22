@@ -1,4 +1,5 @@
 import * as Tone from 'tone';
+import { monitorsInput } from '@/daw/model/monitoring';
 import { useStore, type Track } from '@/daw/store';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { TrackEngine } from '@/daw/audio/TrackEngine';
@@ -6,11 +7,9 @@ import { duckerKeyLoops as loops } from '@/daw/audio/graph/duckerKeys';
 import type { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
 import { applyStoredPedalChain } from '@/daw/audio/applyPedalChain';
 import { DrumMachineEngine } from '@/daw/instruments/DrumMachineEngine';
-import { ChopsSampler } from '@/daw/instruments/ChopsSampler';
 import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
 import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
-import { TonewheelOrganEngine } from '@/daw/instruments/TonewheelOrganEngine';
 import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 import {
   applySynthStateToEngine,
@@ -23,8 +22,6 @@ import {
 } from '@/daw/session/sessionGeneration';
 import {
   applyDrumPads,
-  applyOrganState,
-  applySamplerState,
   applySends,
   applyStaticTrackParams,
   createInstrument,
@@ -151,7 +148,7 @@ export function startTrackReconciler(
       | { setMonitoring?: (on: boolean) => void }
       | null
       | undefined;
-    instrument?.setMonitoring?.(track.monitoring);
+    instrument?.setMonitoring?.(monitorsInput(track));
   }
 
   /**
@@ -193,7 +190,9 @@ export function startTrackReconciler(
           applySends(engine, next, true);
         }
       }
-      if (old.monitoring !== next.monitoring) applyMonitoring(state, next);
+      if (monitorsInput(old) !== monitorsInput(next)) {
+        applyMonitoring(state, next);
+      }
       updateInstrument(state, old, next);
     } else if (sendsRewired) {
       if (playing) reassert(next, engine);
@@ -226,23 +225,10 @@ export function startTrackReconciler(
         applyDrumPads(instrument, next);
       }
     }
-    // The GM sound, the organ settings and the sampler's sample likewise
-    // follow undo, project load and collab peers.
+    // The GM sound likewise follows undo, project load and collab peers.
     if (instrument instanceof SoundFontAdapter) {
       const program = next.gmProgram ?? 0;
       if (instrument.getProgram() !== program) instrument.setProgram(program);
-    }
-    if (
-      instrument instanceof TonewheelOrganEngine &&
-      old.organState !== next.organState
-    ) {
-      applyOrganState(instrument, next);
-    }
-    if (
-      instrument instanceof ChopsSampler &&
-      !sameValue(old.samplerSample, next.samplerSample)
-    ) {
-      applySamplerState(instrument, next);
     }
     // The amp and pedals of a Guitar/Bass/Vocal track, whether or not its
     // view is open (the view applies its own edits as they happen, so the
@@ -339,12 +325,6 @@ export function startTrackReconciler(
           // usePlaybackEngine re-applies on arrival.
           if (instrument instanceof DrumMachineEngine) {
             applyDrumPads(instrument, current);
-          }
-          if (instrument instanceof TonewheelOrganEngine) {
-            applyOrganState(instrument, current);
-          }
-          if (instrument instanceof ChopsSampler) {
-            applySamplerState(instrument, current);
           }
           // The saved amp and pedals of a Guitar/Bass/Vocal track, so its
           // takes and its live input play through them before (or without)

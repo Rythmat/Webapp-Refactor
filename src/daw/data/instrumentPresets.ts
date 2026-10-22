@@ -7,8 +7,10 @@
 // Natural, the Drum Pads, Hyperbrite and Lofi Piano, the Leads, the Pads and
 // the Percussion — nor are those that duplicated another preset's sound: Grand
 // Piano (Studio Grand), Rhodes and Wurlitzer (Mellow EP), Hammond B3 and Jazz
-// Organ (Church Organ). Tracks saved with one of those names show their
-// instrument's preset instead (KeyboardView's displayPresetName).
+// Organ (Church Organ). Every preset is an Instruments track's sound
+// (SoundFont) or another Studio track type's since the sampled piano,
+// electric piano, organ, bass, guitar and cello tracks went (2026-10-22):
+// those presets play their General MIDI instrument now.
 
 import type { InstrumentType } from '@/daw/store/tracksSlice';
 
@@ -55,14 +57,6 @@ export const PRESETS: Preset[] = [
 
   // Electric Basses
   {
-    // The sampled bass guitar the Learn lessons play, as against the GM
-    // soundfont one below it — same instrument, a real recording of it.
-    id: 'bass-guitar',
-    name: 'Bass Guitar',
-    category: 'Electric Basses',
-    instrumentType: 'bass-electric',
-  },
-  {
     id: 'electric-bass',
     name: 'Electric Bass',
     category: 'Electric Basses',
@@ -93,16 +87,8 @@ export const PRESETS: Preset[] = [
 
   // Guitars
   {
-    // The sampled steel-string guitar the guitar Practice Tracks play, as
-    // against the GM soundfont one below it.
-    id: 'acoustic-guitar-sampled',
-    name: 'Acoustic Guitar',
-    category: 'Guitars',
-    instrumentType: 'guitar-acoustic',
-  },
-  {
     id: 'acoustic-guitar',
-    name: 'Steel Guitar (GM)',
+    name: 'Acoustic Guitar',
     category: 'Guitars',
     instrumentType: 'soundfont',
     gmProgram: 25,
@@ -132,9 +118,10 @@ export const PRESETS: Preset[] = [
   // Keyboards
   {
     id: 'studio-grand',
-    name: 'Studio Grand',
+    name: 'Grand Piano',
     category: 'Keyboards',
-    instrumentType: 'piano-sampler',
+    instrumentType: 'soundfont',
+    gmProgram: 0,
   },
   {
     id: 'harpsichord',
@@ -152,9 +139,10 @@ export const PRESETS: Preset[] = [
   },
   {
     id: 'mellow-ep',
-    name: 'Mellow EP',
+    name: 'Electric Piano',
     category: 'Keyboards',
-    instrumentType: 'electric-piano',
+    instrumentType: 'soundfont',
+    gmProgram: 4,
   },
 
   // Organs
@@ -162,11 +150,25 @@ export const PRESETS: Preset[] = [
     id: 'church-organ',
     name: 'Church Organ',
     category: 'Organs',
-    instrumentType: 'organ',
+    instrumentType: 'soundfont',
+    gmProgram: 19,
+  },
+  {
+    id: 'drawbar-organ',
+    name: 'Drawbar Organ',
+    category: 'Organs',
+    instrumentType: 'soundfont',
+    gmProgram: 16,
   },
 
   // Strings
-  { id: 'cello', name: 'Cello', category: 'Strings', instrumentType: 'cello' },
+  {
+    id: 'cello',
+    name: 'Cello',
+    category: 'Strings',
+    instrumentType: 'soundfont',
+    gmProgram: 42,
+  },
   {
     id: 'string-ensemble',
     name: 'String Ensemble',

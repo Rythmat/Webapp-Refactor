@@ -147,7 +147,7 @@ describe('TutorialLayer preconditions', () => {
     render(<TutorialLayer />);
     expect(s().currentView).toBe('studio');
     expect(s().mixRack).toEqual({ kind: 'master' });
-    expect(s().libraryOpen && s().inspectorPanel === 'fx').toBe(true);
+    expect(s().effectPickerOpen).toBe(true);
   });
 
   it('opens the master rack again when the mastering step resumes after a reload', () => {

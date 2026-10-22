@@ -58,7 +58,7 @@ const track = () => useStore.getState().tracks.find((t) => t.id === trackId)!;
 
 beforeEach(() => {
   useStore.setState({ tracks: [], bpm: BPM, remoteUsers: new Map() });
-  trackId = useStore.getState().addTrack('audio', 'vocal-fx', 'Vox');
+  trackId = useStore.getState().addTrack('audio', 'audio-input', 'Vox');
   useStore.getState().addMidiClip(trackId, midiClip);
   useStore.getState().addAudioClip(trackId, recorded);
   resetUndoHistory();

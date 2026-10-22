@@ -92,7 +92,7 @@ afterEach(() => {
 describe('prepareDemo', () => {
   it('fetches the groove and changes nothing', async () => {
     grooves.mockResolvedValue(HITS);
-    s().addTrack('midi', 'piano-sampler', 'Mine');
+    s().addTrack('midi', 'soundfont', 'Mine');
     const generation = getSessionGeneration();
     const demo = getDemoProject(SUNSET)!;
 

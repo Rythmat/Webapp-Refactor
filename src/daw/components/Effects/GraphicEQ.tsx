@@ -4,6 +4,7 @@ import { useRef, useState, useCallback, useMemo, useEffect } from 'react';
 import type { EqBand, EqBandType } from '@/daw/audio/EffectChain';
 import { useSpectrumCanvas } from '@/daw/hooks/useSpectrumCanvas';
 import { useControlGesture } from '@/daw/hooks/useContinuousControl';
+import { eqNodeScale, eqShowsNumbers } from './eqScale';
 
 // ── Constants ─────────────────────────────────────────────────────────────
 
@@ -240,6 +241,14 @@ interface GraphicEQProps {
    * them out: its band picker and knobs say the same in its height.
    */
   readouts?: boolean;
+  /**
+   * Draw at the size of the box it is given, filling it edge to edge (the
+   * Master EQ, 2026-10-22), instead of a 520 × 220 picture scaled to fit
+   * inside it with bands left over.
+   */
+  fill?: boolean;
+  /** A band's node pressed: the expanded EQ's knobs follow it (2026-10-22). */
+  onPickBand?: (index: number) => void;
 }
 
 export function GraphicEQ({
@@ -247,6 +256,8 @@ export function GraphicEQ({
   onChange,
   spectrumKey = null,
   readouts = true,
+  fill = false,
+  onPickBand,
 }: GraphicEQProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -254,10 +265,39 @@ export function GraphicEQ({
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
-  // SVG internal dimensions
-  const PAD = { top: 10, right: 10, bottom: 22, left: 30 };
-  const SVG_W = 520;
-  const SVG_H = 220;
+  // The box it fills (fill), measured; the fixed picture's size otherwise.
+  const [box, setBox] = useState<{ w: number; h: number } | null>(null);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!fill || !el || typeof ResizeObserver === 'undefined') return;
+    const measure = () => {
+      const w = Math.round(el.clientWidth);
+      const h = Math.round(el.clientHeight);
+      if (w > 0 && h > 0) {
+        setBox((b) => (b && b.w === w && b.h === h ? b : { w, h }));
+      }
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [fill]);
+
+  // SVG internal dimensions. Filling its box, the plot runs to its edges,
+  // its labels inside it, with room above and below for a band's handle.
+  const PAD = fill
+    ? { top: 8, right: 0, bottom: 8, left: 0 }
+    : { top: 10, right: 10, bottom: 22, left: 30 };
+  // Filling its box the picture is drawn 1:1, so its handles and their
+  // labels grow to stay a target at the 12 px text floor.
+  const k = fill ? 1.5 : 1;
+  const SVG_W = fill && box ? box.w : 520;
+  const SVG_H = fill && box ? box.h : 220;
+  // A short box (a lower dock) shrinks the band nodes and, past a height,
+  // drops the numbers, which would only crowd the curve (eqScale.ts). The
+  // hover readout keeps its size: a band still says its values.
+  const nodeK = fill && box ? eqNodeScale(box.h) : k;
+  const numbers = !fill || box === null || eqShowsNumbers(box.h);
   const GW = SVG_W - PAD.left - PAD.right; // graph width
   const GH = SVG_H - PAD.top - PAD.bottom; // graph height
 
@@ -299,9 +339,10 @@ export function GraphicEQ({
       e.stopPropagation();
       (e.target as Element).setPointerCapture(e.pointerId);
       setDragIdx(idx);
+      onPickBand?.(idx);
       gesture?.begin();
     },
-    [gesture],
+    [gesture, onPickBand],
   );
 
   const handlePointerMove = useCallback(
@@ -470,7 +511,7 @@ export function GraphicEQ({
           <canvas
             ref={canvasRef}
             className="absolute inset-0 block"
-            style={{ borderRadius: 8, pointerEvents: 'none' }}
+            style={{ borderRadius: fill ? 0 : 8, pointerEvents: 'none' }}
           />
         )}
         <svg
@@ -489,7 +530,7 @@ export function GraphicEQ({
             y={0}
             width={SVG_W}
             height={SVG_H}
-            rx={8}
+            rx={fill ? 0 : 8}
             fill="rgba(0, 0, 0, 0.3)"
           />
 
@@ -509,15 +550,17 @@ export function GraphicEQ({
                     stroke="rgba(255,255,255,0.06)"
                     strokeWidth={db === 0 ? 0.8 : 0.5}
                   />
-                  <text
-                    x={-4}
-                    y={y + 3}
-                    textAnchor="end"
-                    fill="rgba(255,255,255,0.25)"
-                    fontSize={8}
-                  >
-                    {db > 0 ? `+${db}` : db}
-                  </text>
+                  {numbers ? (
+                    <text
+                      x={fill ? 6 : -4}
+                      y={y + 3}
+                      textAnchor={fill ? 'start' : 'end'}
+                      fill="rgba(255,255,255,0.25)"
+                      fontSize={fill ? 12 : 8}
+                    >
+                      {db > 0 ? `+${db}` : db}
+                    </text>
+                  ) : null}
                 </g>
               );
             })}
@@ -535,15 +578,17 @@ export function GraphicEQ({
                     stroke="rgba(255,255,255,0.06)"
                     strokeWidth={0.5}
                   />
-                  <text
-                    x={x}
-                    y={GH + 12}
-                    textAnchor="middle"
-                    fill="rgba(255,255,255,0.25)"
-                    fontSize={8}
-                  >
-                    {fmtFreq(f)}
-                  </text>
+                  {numbers ? (
+                    <text
+                      x={x}
+                      y={fill ? GH - 4 : GH + 12}
+                      textAnchor="middle"
+                      fill="rgba(255,255,255,0.25)"
+                      fontSize={fill ? 12 : 8}
+                    >
+                      {fmtFreq(f)}
+                    </text>
+                  ) : null}
                 </g>
               );
             })}
@@ -589,7 +634,7 @@ export function GraphicEQ({
                     <circle
                       cx={cx}
                       cy={cy}
-                      r={10}
+                      r={7 * nodeK + 3}
                       fill="none"
                       stroke={color}
                       strokeWidth={1}
@@ -601,7 +646,7 @@ export function GraphicEQ({
                   <circle
                     cx={cx}
                     cy={cy}
-                    r={7}
+                    r={7 * nodeK}
                     fill={color}
                     stroke="rgba(0,0,0,0.4)"
                     strokeWidth={1}
@@ -616,17 +661,19 @@ export function GraphicEQ({
                   />
 
                   {/* Band number */}
-                  <text
-                    x={cx}
-                    y={cy + 3}
-                    textAnchor="middle"
-                    fill="rgba(0,0,0,0.7)"
-                    fontSize={8}
-                    fontWeight={700}
-                    style={{ pointerEvents: 'none' }}
-                  >
-                    {i + 1}
-                  </text>
+                  {numbers ? (
+                    <text
+                      x={cx}
+                      y={cy + 3 * nodeK}
+                      textAnchor="middle"
+                      fill="rgba(0,0,0,0.7)"
+                      fontSize={fill ? 12 : 8}
+                      fontWeight={700}
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      {i + 1}
+                    </text>
+                  ) : null}
 
                   {/* Slope label for cut bands */}
                   {isCut && isActive && (
@@ -638,21 +685,21 @@ export function GraphicEQ({
                       style={{ cursor: 'pointer' }}
                     >
                       <rect
-                        x={cx + 10}
-                        y={cy - 8}
-                        width={22}
-                        height={14}
+                        x={cx + 10 * k}
+                        y={cy - 8 * k}
+                        width={22 * k}
+                        height={14 * k}
                         rx={3}
                         fill="rgba(0,0,0,0.6)"
                         stroke={color}
                         strokeWidth={0.5}
                       />
                       <text
-                        x={cx + 21}
-                        y={cy + 1}
+                        x={cx + 21 * k}
+                        y={cy + 1 * k}
                         textAnchor="middle"
                         fill={color}
-                        fontSize={8}
+                        fontSize={fill ? 12 : 8}
                         fontWeight={600}
                       >
                         {band.slope ?? 12}
@@ -664,19 +711,19 @@ export function GraphicEQ({
                   {isActive && (
                     <g style={{ pointerEvents: 'none' }}>
                       <rect
-                        x={cx - 36}
-                        y={cy - 28}
-                        width={72}
-                        height={16}
+                        x={cx - 36 * k}
+                        y={cy - 28 * k}
+                        width={72 * k}
+                        height={16 * k}
                         rx={4}
                         fill="rgba(0,0,0,0.7)"
                       />
                       <text
                         x={cx}
-                        y={cy - 17}
+                        y={cy - 17 * k}
                         textAnchor="middle"
                         fill="rgba(255,255,255,0.85)"
-                        fontSize={8}
+                        fontSize={fill ? 12 : 8}
                       >
                         {fmtFreq(band.freq)} Hz{' '}
                         {isCut ? '' : `${fmtDb(band.gain)} dB`} Q{' '}

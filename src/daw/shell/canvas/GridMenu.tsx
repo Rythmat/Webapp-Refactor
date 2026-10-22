@@ -45,7 +45,7 @@ export const GRID_COPY = {
   triplets: 'Fit three notes where two would usually go',
   snap: 'Clips, notes and the loop jump to grid lines',
   chordLabels: 'How the chord lane names each chord',
-  clipColours: 'Track colours, or colours that follow the chords',
+  harmonyColor: 'Tracks and clips in the key’s colour; off, their own',
 } as const;
 
 /**
@@ -190,23 +190,26 @@ function ChordLabels() {
   );
 }
 
-/** What colours the clips: their track's colour, or the chords' (one undo step). */
+/**
+ * Harmony Color (owner, 2026-10-22; it was "Colour clips by: Track or
+ * Harmony"): on, tracks and clips in the key centre's colour and notes in
+ * their chords'; off, each track's own colour, even with a key set
+ * (harmony/trackColor). One undo step.
+ */
 function ClipColours() {
-  const mode = useStore((s) => s.clipColorMode);
+  const on = useStore((s) => s.clipColorMode === 'prism');
   return (
-    <MenuRadioGroup
-      label="Colour clips by"
-      description={GRID_COPY.clipColours}
+    <MenuCheckboxItem
+      checked={on}
+      description={GRID_COPY.harmonyColor}
       data-testid="clip-colour-mode"
-      value={mode}
-      onValueChange={(value) =>
-        withTransaction('Colour clips', () =>
-          useStore.getState().setClipColorMode(value as 'track' | 'prism'),
+      onCheckedChange={(next) =>
+        withTransaction('Harmony Color', () =>
+          useStore.getState().setClipColorMode(next ? 'prism' : 'track'),
         )
       }
     >
-      <MenuRadioItem value="track">Track</MenuRadioItem>
-      <MenuRadioItem value="prism">Harmony</MenuRadioItem>
-    </MenuRadioGroup>
+      Harmony Color
+    </MenuCheckboxItem>
   );
 }

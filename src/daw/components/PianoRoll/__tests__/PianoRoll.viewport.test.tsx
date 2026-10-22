@@ -116,6 +116,8 @@ function renderRoll(events: MidiNoteEvent[]) {
       onChange={() => {}}
     />,
   );
+  // The velocity lane opens collapsed (2026-10-22): open it for its canvas.
+  fireEvent.click(view.getByTestId('velocity-lane-toggle'));
   // Paint canvases are the aria-hidden ones; each sits just before the hit
   // surface its lane's handlers measure.
   const paints = [

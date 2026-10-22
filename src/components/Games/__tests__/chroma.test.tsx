@@ -70,7 +70,7 @@ beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
   const s = useStore.getState();
   s.setMode('dorian');
-  s.addTrack('midi', 'piano-sampler', 'Keys');
+  s.addTrack('midi', 'soundfont', 'Keys');
   s.setRootNote(7);
   s.toggleRootLock();
 

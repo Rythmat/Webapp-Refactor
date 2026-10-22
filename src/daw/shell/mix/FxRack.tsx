@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, type ReactNode } from 'react';
 import { cn } from '@/components/utilities';
 import type { EffectSlotType } from '@/daw/audio/EffectChain';
 import { useShownEffect } from '@/daw/components/Effects/EffectsPanel';
@@ -29,10 +29,16 @@ const rackKey = (target: RackTarget) =>
 export function FxRack({
   target,
   onShowAll,
+  leading,
+  addSlot,
 }: {
   target: RackTarget;
   /** Makes room for a card's every control: a taller dock or rack. */
   onShowAll?(): void;
+  /** Cards before the effects, in the same row (FxCardRow's `leading`). */
+  leading?(rowH: number): ReactNode;
+  /** In place of the Add effect card (a plain Audio track's one Add). */
+  addSlot?: ReactNode;
 }) {
   const rack = useRack(target);
   const shown = useStore((s) => s.dockEffect);
@@ -91,8 +97,9 @@ export function FxRack({
         meterTarget={rack.meterTarget}
         shown={shown}
         onShow={setShown}
-        addSlot={<AddEffectSlot count={rack.chain.length} />}
+        addSlot={addSlot ?? <AddEffectSlot count={rack.chain.length} />}
         onShowAll={onShowAll}
+        leading={leading}
       />
     </div>
   );

@@ -70,7 +70,7 @@ function leaveAProjectBehind(): void {
   s().setProjectId('cloud-project-1');
   s().setProjectName('Blue Hour');
   s().setComposerName('Sam');
-  const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  const keys = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(keys, {
     id: 'verse',
     startTick: 0,
@@ -248,8 +248,8 @@ describe('a template that must not open', () => {
 
   it("keeps a connected room's project whole through the next edit", () => {
     // The project everyone in the room shares.
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
-    s().addTrack('midi', 'bass-electric', 'Bass');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Bass');
     s().insertChordRegion(0, '1 maj', 'C maj');
     s().addMarker(1920, 'Bridge');
     // Joined as CollabProvider joins one.

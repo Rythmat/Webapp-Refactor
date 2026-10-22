@@ -30,6 +30,7 @@ import {
   renameSection,
 } from '../sections/sectionActions';
 import { addMarkerAt, deleteMarker, renameMarker } from '../markerActions';
+import { deleteChords, editChord, insertChordAt } from '../chordActions';
 
 // ── What a canvas menu item does (milestone 2.12) ──────────────────────────
 //
@@ -94,6 +95,24 @@ export function runCanvasMenuItem(
     return true;
   }
   if (target.kind === 'section') return runSectionItem(target.sectionId, id);
+  if (target.kind === 'chordLane') {
+    if (id !== 'insertChord') return false;
+    return insertChordAt(target.tick) !== null;
+  }
+  if (target.kind === 'chord') {
+    if (id === 'editChord') {
+      editChord(target.chordId);
+      return true;
+    }
+    if (id === 'insertChord') return insertChordAt(target.tick) !== null;
+    if (id !== 'deleteChord') return false;
+    const { selectedChordIds } = useStore.getState();
+    return deleteChords(
+      selectedChordIds.includes(target.chordId)
+        ? selectedChordIds
+        : [target.chordId],
+    );
+  }
   if (target.kind === 'lane') {
     if (id === 'paste') {
       return pasteClipboard({

@@ -14,17 +14,23 @@ import {
 //
 // Run: npx vitest run src/daw/shell/topbar/__tests__/useToolbarOverflow.test.ts
 
-const WIDTHS = [880, 846, 826];
+// One per level, near the real bar's (2026-10-22): the name narrows, the
+// key shortens, the transport stops being centred, the tempo drops BPM and
+// Tap, the name narrows again, then the time signature and the click go to
+// the Settings menu.
+const WIDTHS = [1090, 1046, 1030, 1000, 950, 890, 850, 810];
 const room = (window: number) => window - 16;
 
 describe('foldLevelFor', () => {
   it('folds only as far as each target window needs', () => {
     expect(foldLevelFor(room(1440), WIDTHS)).toBe(0);
     expect(foldLevelFor(room(1280), WIDTHS)).toBe(0);
-    // The name narrower.
-    expect(foldLevelFor(room(870), WIDTHS)).toBe(1);
+    // The name narrower, the key short.
+    expect(foldLevelFor(room(1050), WIDTHS)).toBe(2);
+    // The transport no longer centred, the tempo compact, the name 64 px.
+    expect(foldLevelFor(room(900), WIDTHS)).toBe(6);
     // A very narrow window: every step, and nothing clipped.
-    expect(foldLevelFor(room(840), WIDTHS)).toBe(MAX_FOLD);
+    expect(foldLevelFor(room(830), WIDTHS)).toBe(MAX_FOLD);
   });
 
   it('measures a level it hasn’t yet, rather than folding past it', () => {

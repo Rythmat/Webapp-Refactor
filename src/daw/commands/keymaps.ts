@@ -182,24 +182,8 @@ export const PIANO_ROLL_SCOPE = defineScope({
   level: 'region',
 });
 
-defineCommand({
-  id: 'pianoRoll.select',
-  scope: 'pianoRoll',
-  label: 'Select tool',
-  keys: ['KeyV'],
-});
-defineCommand({
-  id: 'pianoRoll.draw',
-  scope: 'pianoRoll',
-  label: 'Draw tool',
-  keys: ['KeyD'],
-});
-defineCommand({
-  id: 'pianoRoll.erase',
-  scope: 'pianoRoll',
-  label: 'Erase tool',
-  keys: ['KeyE'],
-});
+// No tool keys (V, D, E): the roll has no tools since 2026-10-22 (a
+// double-click adds or removes a note).
 defineCommand({
   id: 'pianoRoll.delete',
   scope: 'pianoRoll',
@@ -219,24 +203,8 @@ export const DRUMS_SCOPE = defineScope({
   level: 'region',
 });
 
-defineCommand({
-  id: 'drums.select',
-  scope: 'drums',
-  label: 'Select tool',
-  keys: ['KeyV'],
-});
-defineCommand({
-  id: 'drums.draw',
-  scope: 'drums',
-  label: 'Draw tool',
-  keys: ['KeyD'],
-});
-defineCommand({
-  id: 'drums.erase',
-  scope: 'drums',
-  label: 'Erase tool',
-  keys: ['KeyE'],
-});
+// No tool keys (V, D, E): the drum grid has no tools since 2026-10-22 (a
+// double-click adds or removes a hit), as the piano roll.
 defineCommand({
   id: 'drums.delete',
   scope: 'drums',
@@ -330,6 +298,12 @@ defineCommand({
   scope: 'tracks',
   label: 'Solo the track',
   keys: ['KeyS'],
+});
+defineCommand({
+  id: 'tracks.delete',
+  scope: 'tracks',
+  label: 'Delete the track',
+  keys: ['Delete', 'Backspace'],
 });
 
 // The sections lane (milestone 2.13): with focus on a section, the arrows
@@ -629,10 +603,10 @@ defineCommand({
   keys: ['Alt+KeyM'],
 });
 
-// The Score's editor, which is also the lead sheet's once it has a melody.
+// The Score's editor, while the page has staves.
 export const SCORE_SCOPE = defineScope({
   id: 'score',
-  label: 'Score (and a lead sheet with a melody)',
+  label: 'Score',
   level: 'view',
   views: ['score', 'leadsheet'],
 });
@@ -776,11 +750,13 @@ defineCommand({
   keys: ['Escape'],
 });
 
+// The Score page as a chord chart (no staves on it); only one of the two
+// editors is on the page at a time, so their keys never meet.
 export const LEAD_SHEET_SCOPE = defineScope({
   id: 'leadsheet',
-  label: 'Lead sheet chart',
+  label: 'Score as a chord chart',
   level: 'view',
-  views: ['leadsheet'],
+  views: ['score', 'leadsheet'],
 });
 
 defineCommand({
@@ -1030,7 +1006,7 @@ defineCommand({
 defineCommand({
   id: 'view.effects',
   scope: 'global',
-  label: 'Open the Effects library',
+  label: 'Add an effect',
   keys: [],
   keywords: ['fx', 'reverb', 'delay', 'eq'],
 });

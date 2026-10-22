@@ -80,9 +80,8 @@ import { isTrackAudible } from './trackAudibility';
 import { MidiScheduler } from './MidiScheduler';
 import { AudioClipScheduler } from './AudioClipScheduler';
 import { dropRepeatedTicks } from './transportTicks';
-import { getAudioBuffer, sliceBuffer } from './AudioBufferStore';
+import { getAudioBuffer } from './AudioBufferStore';
 import { renderSoundFontTracks, type RenderedSegment } from './soundFontRender';
-import { TonewheelOrganEngine } from '@/daw/instruments/TonewheelOrganEngine';
 import {
   applyOfflineAutomation,
   applyOfflineLanes,
@@ -91,7 +90,6 @@ import { resolveMasterAutomationTargets } from './automationParams';
 import { createInstrument, applyDrumPads } from '@/daw/hooks/usePlaybackEngine';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
 import { DrumMachineEngine } from '@/daw/instruments/DrumMachineEngine';
-import { ChopsSampler } from '@/daw/instruments/ChopsSampler';
 import {
   buildPedalChain,
   type StoredPedalBlock,
@@ -101,13 +99,6 @@ import {
   applySynthStateToEngine,
   defaultSynthTrackState,
 } from '@/daw/oracle-synth/synthTrackState';
-import {
-  DEFAULT_SAMPLER_FILTER_HZ,
-  isValidRootNote,
-  samplerBufferKey,
-  samplerSampleSignature,
-  samplerTrimRange,
-} from '@/daw/instruments/samplerChops';
 
 const PPQ = 480;
 // Extra tail so reverb/delay/release aren't cut off at the project end.
@@ -504,13 +495,6 @@ export async function renderProject(
                   instrument.alignToTransport(0, startTick / PPQ);
                 } else if (instrument instanceof DrumMachineEngine) {
                   applyDrumPads(instrument, track);
-                } else if (instrument instanceof ChopsSampler) {
-                  applyOfflineSampler(instrument, track, ctx);
-                } else if (
-                  instrument instanceof TonewheelOrganEngine &&
-                  track.organState
-                ) {
-                  instrument.setState(track.organState);
                 }
                 scheduleTrackMidi(track, te, startTick);
               })
@@ -928,48 +912,13 @@ function playRenderedAudio(
   };
 }
 
-/** The pedal chain a guitar, bass or vocal track holds, or null (none, or
- *  an empty one: the clips then play straight into the track, as live). */
+/** The pedal chain an Audio track holds (its amp, pitch correction), or
+ *  null (none, or an empty one: the clips then play straight into the
+ *  track, as live). */
 function storedPedalChain(
   track: ReturnType<typeof useStore.getState>['tracks'][number],
 ): StoredPedalBlock[] | null {
   const chain =
-    track.instrument === 'guitar-fx' || track.instrument === 'bass-fx'
-      ? track.guitarChain
-      : track.instrument === 'vocal-fx'
-        ? track.vocalChain
-        : undefined;
+    track.instrument === 'audio-input' ? track.guitarChain : undefined;
   return chain && chain.length > 0 ? chain : null;
-}
-
-/** Apply a Chops sampler track's state to its offline engine (mirrors the live
- *  applySamplerState but slices on the offline context). */
-function applyOfflineSampler(
-  engine: ChopsSampler,
-  track: ReturnType<typeof useStore.getState>['tracks'][number],
-  ctx: AudioContext,
-): void {
-  const sample = track.samplerSample;
-  if (!sample) return;
-  engine.setEnvelope(sample.attack, sample.release);
-  engine.setMode(sample.mode ?? 'classic');
-  engine.setGain(sample.gain ?? 1);
-  engine.setFilter(
-    sample.filterOn ?? false,
-    sample.filterHz ?? DEFAULT_SAMPLER_FILTER_HZ,
-    sample.filterRes ?? 0,
-  );
-  const buffer = getAudioBuffer(samplerBufferKey(sample.sampleId));
-  if (!buffer) return;
-  const rootNote = isValidRootNote(sample.rootNote) ? sample.rootNote : 'C4';
-  const { startFrame, endFrame } = samplerTrimRange(
-    buffer.length,
-    sample.startPct,
-    sample.lengthPct,
-  );
-  const playBuffer =
-    startFrame === 0 && endFrame === buffer.length
-      ? buffer
-      : sliceBuffer(ctx, buffer, startFrame, endFrame);
-  engine.setSample(samplerSampleSignature(sample), playBuffer, rootNote);
 }

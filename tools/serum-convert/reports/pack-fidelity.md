@@ -1,11 +1,9 @@
 ## BA - 303 Reality (Bass) — fidelity 82/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 
 **Approximated:**
-
 - Filter 2: LadderEMS → lowpass approximation
 - Filter 2 drive 48% → master drive FX
 - mod route Env2 → VoiceFilter.kParamFreq: aux source dropped
@@ -19,17 +17,15 @@ Mapped: 13 features
 
 ---
 
-## BA - Analog Classics 7 (Bass) — fidelity 80/100
+## BA - Analog Classics 7 (Bass) — fidelity 82/100
 
 **Dropped:**
-
 - mod route source#21 → Oscillator.kParamFine: source#21
 - mod route source#22 → Oscillator.kParamFine: source#22
 - mod route Velocity → Env.kParamDecay: Env.kParamDecay
 
 **Approximated:**
-
-- Filter 1 drive 9% → master drive FX
+- Filter 1 drive 9% dropped
 - LFO1 (Normal) → stepped random approximation
 - Macro1 → Env.kParamAttack: static macro contribution (0%) not modeled
 - Macro2 → Env.kParamDecay: static macro contribution (0%) not modeled
@@ -42,17 +38,15 @@ Mapped: 17 features
 
 ---
 
-## BA - Morpheus (Bass) — fidelity 79/100
+## BA - Morpheus (Bass) — fidelity 81/100
 
 **Dropped:**
-
 - FX Utility dropped (wet 100%)
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - Filter 1: LadderEMS → lowpass approximation
-- Filter 1 drive 13% → master drive FX
+- Filter 1 drive 13% dropped
 - Macro1 → Env.kParamSustain: static macro contribution (0%) not modeled
 - Macro7 → Env.kParamAttack: static macro contribution (7%) not modeled
 - Macro1 → FXChorus.kParamWet: static macro contribution (0%) not modeled
@@ -72,12 +66,10 @@ Mapped: 13 features
 ## BA - Disconnect (Bass) — fidelity 89/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - FX EQ dropped (wet 100%)
 
 **Approximated:**
-
 - Macro2 → VoiceFilter.kParamWet: static macro contribution (84%) not modeled
 - Macro3 → LFO.kParamRate: static macro contribution (25%) not modeled
 - Macro4 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
@@ -94,33 +86,29 @@ Mapped: 15 features
 ## BA - Standard Acid (Bass) — fidelity 78/100
 
 **Dropped:**
-
 - mod route LFO3 → Env.kParamDecay: Env.kParamDecay
 - mod route source#49 → VoiceFilter.kParamFreq: source#49
 - mod route source#49 → VoiceFilter.kParamReso: source#49
 
 **Approximated:**
-
 - Filter 1: LadderAcid → lowpass approximation
 - LFO3 (RandomSH) → stepped random approximation
 - Macro3 → VoiceFilter.kParamVar: static macro contribution (59%) not modeled
 - Macro4 → WTOsc.kParamWarp: static macro contribution (60%) not modeled
 - Macro7 → FXDistortion.kParamDrive: static macro contribution (0%) not modeled
 
-Mapped: 13 features
+Mapped: 14 features
 
 ---
 
-## BA - Quasi Organ (Bass) — fidelity 81/100
+## BA - Quasi Organ (Bass) — fidelity 83/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 
 **Approximated:**
-
 - Filter 1: MgL18 → lowpass approximation
-- Filter 1 drive 20% → master drive FX
+- Filter 1 drive 20% dropped
 - LFO1 (Normal) → stepped random approximation
 - Macro1 → Oscillator.kParamVolume: static macro contribution (32%) not modeled
 - Macro2 → WTOsc.kParamWarp: static macro contribution (21%) not modeled
@@ -132,17 +120,15 @@ Mapped: 9 features
 
 ---
 
-## BA - OTT Saw Wave (Bass) — fidelity 76/100
+## BA - OTT Saw Wave (Bass) — fidelity 78/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - FX EQ dropped (wet 100%)
 - FX EQ dropped (wet 100%)
 
 **Approximated:**
-
-- Filter 1 drive 10% → master drive FX
+- Filter 1 drive 10% dropped
 - Macro1 → WTOsc.kParamWarp: static macro contribution (33%) not modeled
 - Macro2 → WTOsc.kParamWarp2: static macro contribution (47%) not modeled
 - Macro3 → NoiseOsc.kParamColor: static macro contribution (58%) not modeled
@@ -159,7 +145,6 @@ Mapped: 13 features
 ## BA - Punch Ya (Bass) — fidelity 72/100
 
 **Dropped:**
-
 - FX FX Filter dropped (wet 100%)
 - mod route LFO1 → Global.kParamMasterTuning: Global.kParamMasterTuning
 - mod route Env2 → FXFilter.kParamFreq: FXFilter.kParamFreq
@@ -169,7 +154,6 @@ Mapped: 13 features
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - Filter 1: MgL24 → lowpass approximation
 - Macro1 → FXFilter.kParamFreq: static macro contribution (0%) not modeled
 - Macro2 → FXDistortion.kParamDrive: static macro contribution (21%) not modeled
@@ -180,20 +164,18 @@ Mapped: 13 features
 - Macro7 → Env.kParamAttack: static macro contribution (58%) not modeled
 - Macro8 → LFO.kParamRate: static macro contribution (18%) not modeled
 
-Mapped: 10 features
+Mapped: 11 features
 
 ---
 
 ## BA - Sub Amplitude (Bass) — fidelity 70/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - Osc A warp AM_OSC (37%) dropped (no Oracle equivalent)
 - mod route Env3 → VoiceFilter.kParamFreq: Env3 (not the chosen mod env)
 
 **Approximated:**
-
 - Filter 1: L18 → lowpass approximation
 - Filter 1 drive 27% → master drive FX
 - FX Delay (time approximated at 120 BPM)
@@ -210,18 +192,16 @@ Mapped: 13 features
 
 ---
 
-## BA - Goa Pepper (Bass) — fidelity 70/100
+## BA - Goa Pepper (Bass) — fidelity 71/100
 
 **Dropped:**
-
 - FX FX Filter dropped (wet 100%)
 
 **Approximated:**
-
 - Filter 1: Diffuser → bandpass approximation
 - Filter 1 drive 66% → master drive FX
 - Filter 2: LadderEMS → lowpass approximation
-- Filter 2 drive 20% → master drive FX
+- Filter 2 drive 20% dropped
 - LFO1 (Normal) → stepped random approximation
 - Macro1 → Env.kParamAttack: static macro contribution (0%) not modeled
 - Macro2 → Env.kParamDecay: static macro contribution (0%) not modeled
@@ -239,7 +219,6 @@ Mapped: 14 features
 ## BA - Pulsar (Bass) — fidelity 70/100
 
 **Dropped:**
-
 - Osc A warp FilterLPF (46%) dropped (no Oracle equivalent)
 - FX Splitter dropped (wet 100%)
 - FX EQ dropped (wet 100%)
@@ -249,7 +228,6 @@ Mapped: 14 features
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - Filter 1: MgL24 → lowpass approximation
 - mod route Env2 → VoiceFilter.kParamFreq: aux source dropped
 - Macro6 → FXDistortion.kParamDrive: static macro contribution (87%) not modeled
@@ -263,7 +241,6 @@ Mapped: 13 features
 ## BA - Donk (Bass) — fidelity 80/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - mod route Env3 → WTOsc.kParamWarp: Env3 (not the chosen mod env)
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
@@ -272,7 +249,6 @@ Mapped: 13 features
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - Filter 1: MgL18 → lowpass approximation
 - Macro6 → FXReverb.kParamWet: static macro contribution (19%) not modeled
 - Macro2 → FXDistortion.kParamDrive: static macro contribution (12%) not modeled
@@ -287,12 +263,10 @@ Mapped: 12 features
 ## BA - Dual MG Bass (Bass) — fidelity 66/100
 
 **Dropped:**
-
 - FX Splitter dropped (wet 100%)
 - mod route Note → FXSplit.kParamFreq: FXSplit.kParamFreq
 
 **Approximated:**
-
 - Filter 1: MgL18 → lowpass approximation
 - Filter 2: DirtyMg → lowpass approximation
 - mod route Env3 → VoiceFilter.kParamFreq: aux source dropped
@@ -309,18 +283,16 @@ Mapped: 17 features
 
 ---
 
-## BA - Hard Grizly (Bass) — fidelity 72/100
+## BA - Hard Grizly (Bass) — fidelity 73/100
 
 **Dropped:**
-
 - Osc B dropped (level 0.18) — Oracle has 2 oscillators
 - FX EQ dropped (wet 100%)
 - mod route Velocity → Env.kParamDecay: Env.kParamDecay
 
 **Approximated:**
-
 - Filter 1: Wsp → lowpass approximation
-- Filter 1 drive 15% → master drive FX
+- Filter 1 drive 15% dropped
 - Macro2 → VoiceFilter.kParamDrive: static macro contribution (0%) not modeled
 - Macro3 → Env.kParamAttack: static macro contribution (0%) not modeled
 - Macro3 → Env.kParamAttack: static macro contribution (0%) not modeled
@@ -341,14 +313,12 @@ Mapped: 16 features
 ## BA - Lately Bass 2025 (Bass) — fidelity 77/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - FX Flanger dropped (wet 100%)
 - FX EQ dropped (wet 100%)
 - mod route Env2 → Oscillator.kParamVolume: Osc C kParamVolume (osc dropped)
 
 **Approximated:**
-
 - Filter 1 drive 42% → master drive FX
 - Macro2 → WTOsc.kParamWarp: static macro contribution (100%) not modeled
 - Macro5 → FXDelay.kParamWet: static macro contribution (86%) not modeled
@@ -359,10 +329,9 @@ Mapped: 13 features
 
 ---
 
-## BA - Eighty (Bass) — fidelity 61/100
+## BA - Eighty (Bass) — fidelity 62/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - FX EQ dropped (wet 100%)
 - FX Bode dropped (wet 100%)
@@ -376,9 +345,8 @@ Mapped: 13 features
 - mod route LFO2 → FXFilter.kParamFreq: FXFilter.kParamFreq
 
 **Approximated:**
-
 - noise sample "Attacks_Misc/TransPerc3.wav" → white noise
-- Filter 1 drive 22% → master drive FX
+- Filter 1 drive 22% dropped
 - amp env hold 0.03s folded into decay
 - Macro1 → RoutingSlot.kParamFXBus1Level: static macro contribution (0%) not modeled
 - Macro2 → FXDistortion.kParamDrive: static macro contribution (0%) not modeled
@@ -396,13 +364,11 @@ Mapped: 15 features
 ## BA - McSplatty Bass (Bass) — fidelity 72/100
 
 **Dropped:**
-
 - Osc B dropped (level 0.00) — Oracle has 2 oscillators
 - FX EQ dropped (wet 100%)
 - FX Flanger dropped (wet 56%)
 
 **Approximated:**
-
 - noise sample "Attacks_Kick/XF_KikAtk_32.wav" → white noise
 - Filter 1 drive 34% → master drive FX
 - FX Delay (time approximated at 120 BPM)
@@ -418,10 +384,9 @@ Mapped: 17 features
 
 ---
 
-## BA - Renegade (Bass) — fidelity 77/100
+## BA - Renegade (Bass) — fidelity 79/100
 
 **Dropped:**
-
 - FX FX Filter dropped (wet 100%)
 - FX Utility dropped (wet 100%)
 - mod route Env2 → Global.kParamMasterTuning: Global.kParamMasterTuning
@@ -431,8 +396,7 @@ Mapped: 17 features
 - mod route ModWheel → FXFilter.kParamDrive: FXFilter.kParamDrive
 
 **Approximated:**
-
-- Filter 1 drive 20% → master drive FX
+- Filter 1 drive 20% dropped
 - Macro3 → FXDelay.kParamWet: static macro contribution (0%) not modeled
 - Macro6 → FXDistortion.kParamWet: static macro contribution (27%) not modeled
 - Macro7 → FXChorus.kParamWet: static macro contribution (10%) not modeled
@@ -446,7 +410,6 @@ Mapped: 17 features
 ## BA - Citrus (Bass) — fidelity 74/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - mod route Env3 → WTOsc.kParamWarp: Env3 (not the chosen mod env)
 - mod route ModWheel → Env.kParamSustain: Env.kParamSustain
@@ -454,7 +417,6 @@ Mapped: 17 features
 - mod route ModWheel → Env.kParamRelease: Env.kParamRelease
 
 **Approximated:**
-
 - Filter 1: LadderAcid → lowpass approximation
 - FX Delay (time approximated at 120 BPM)
 - Macro8 → FXDelay.kParamWet: static macro contribution (0%) not modeled
@@ -471,7 +433,6 @@ Mapped: 10 features
 ## BA - Reese Square (Bass) — fidelity 58/100
 
 **Dropped:**
-
 - FX FX Filter dropped (wet 100%)
 - FX EQ dropped (wet 100%)
 - FX FX Filter dropped (wet 100%)
@@ -484,7 +445,6 @@ Mapped: 10 features
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - Osc B folded into Oracle's sub oscillator (sub-like table)
 - Macro5 → FXFilter.kParamFreq: static macro contribution (0%) not modeled
 - Macro6 → FXChorus.kParamWet: static macro contribution (35%) not modeled
@@ -506,7 +466,6 @@ Mapped: 11 features
 ## LD - Modular (Lead) — fidelity 86/100
 
 **Approximated:**
-
 - FX Delay (time approximated at 120 BPM)
 - mod route LFO1 → VoiceFilter.kParamFreq: aux source dropped
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
@@ -526,11 +485,9 @@ Mapped: 12 features
 ## LD - Artform (Lead) — fidelity 86/100
 
 **Dropped:**
-
 - mod route LFO1 → FXFilter.kParamFreq: FXFilter.kParamFreq
 
 **Approximated:**
-
 - FX Delay (time approximated at 120 BPM)
 - FX Reverb (hall → convolver)
 - mod route LFO1 → Oscillator.kParamVolume: aux source dropped
@@ -548,10 +505,9 @@ Mapped: 19 features
 
 ---
 
-## LD - Sharp Brassy Keys (Lead) — fidelity 74/100
+## LD - Sharp Brassy Keys (Lead) — fidelity 76/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - FX EQ dropped (wet 100%)
 - mod route Env3 → Oscillator.kParamCoarsePit: Env3 (not the chosen mod env)
@@ -561,8 +517,7 @@ Mapped: 19 features
 - mod route Env2 → FXEQ.kParamGain2: FXEQ.kParamGain2
 
 **Approximated:**
-
-- Filter 1 drive 18% → master drive FX
+- Filter 1 drive 18% dropped
 - Macro3 → FXChorus.kParamWet: static macro contribution (0%) not modeled
 - Macro4 → FXDelay.kParamWet: static macro contribution (30%) not modeled
 - Macro5 → FXReverb.kParamWet: static macro contribution (19%) not modeled
@@ -581,12 +536,10 @@ Mapped: 15 features
 ## LD - Slide (Lead) — fidelity 69/100
 
 **Dropped:**
-
 - FX FX Filter dropped (wet 69%)
 - mod route Note → FXFilter.kParamFreq: FXFilter.kParamFreq
 
 **Approximated:**
-
 - Filter 1: LadderEMS → lowpass approximation
 - Filter 1 drive 27% → master drive FX
 - LFO1 (Normal) → stepped random approximation
@@ -609,10 +562,9 @@ Mapped: 19 features
 
 ---
 
-## LD - Darkness (Lead) — fidelity 74/100
+## LD - Darkness (Lead) — fidelity 73/100
 
 **Dropped:**
-
 - Osc A warp PD_OSC (30%) dropped (no Oracle equivalent)
 - FX FX Filter dropped (wet 35%)
 - FX Convolve dropped (wet 15%)
@@ -621,8 +573,8 @@ Mapped: 19 features
 - mod route LFO2 → FXFilter.kParamFreq: FXFilter.kParamFreq
 
 **Approximated:**
-
-- Filter 1 drive 10% → master drive FX
+- Filter 1 drive 10% dropped
+- LFO1 free rate 7.7Hz → 15 cycles/bar @120BPM
 - LFO9 (Lorenz) → stepped random approximation
 - mod route LFO1 → Oscillator.kParamFine: aux source dropped
 - mod route Macro1 → Oscillator.kParamFine: aux source dropped
@@ -633,14 +585,13 @@ Mapped: 19 features
 - Macro7 → FXConv.kParamSize: static macro contribution (0%) not modeled
 - Macro8 → FXBode.kParamWet: static macro contribution (0%) not modeled
 
-Mapped: 16 features
+Mapped: 17 features
 
 ---
 
-## LD - Iridium (Lead) — fidelity 63/100
+## LD - Iridium (Lead) — fidelity 64/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - mod route source#39 → Oscillator.kParamFine: source#39
 - mod route source#40 → FXDelay.kParamTimeR: source#40
@@ -649,9 +600,8 @@ Mapped: 16 features
 - mod route LFO2 → FXDelay.kParamTimeR: FXDelay.kParamTimeR
 
 **Approximated:**
-
 - Filter 1: MgL6 → lowpass approximation
-- Filter 1 drive 16% → master drive FX
+- Filter 1 drive 16% dropped
 - LFO2 (RandomSH) → stepped random approximation
 - FX Delay (time approximated at 120 BPM)
 - FX Reverb (kVintage → convolver)
@@ -674,16 +624,15 @@ Mapped: 11 features
 
 ---
 
-## LD - Das EDM (Lead) — fidelity 67/100
+## LD - Das EDM (Lead) — fidelity 65/100
 
 **Dropped:**
-
 - FX Utility dropped (wet 100%)
 - FX EQ dropped (wet 100%)
 - FX Splitter dropped (wet 100%)
 
 **Approximated:**
-
+- LFO1 free rate 2.0Hz → 1 cycles/bar @120BPM
 - mod route LFO1 → Global.kParamVoiceAmp: aux source dropped
 - Macro8 → FXReverb.kParamWet: static macro contribution (28%) not modeled
 - Macro2 → FXUtils.kParamLPF: static macro contribution (0%) not modeled
@@ -694,14 +643,13 @@ Mapped: 11 features
 - Macro6 → FXDistortion.kParamWet: static macro contribution (100%) not modeled
 - Macro7 → FXComp.kParamWet: static macro contribution (66%) not modeled
 
-Mapped: 9 features
+Mapped: 10 features
 
 ---
 
 ## LD - Drift Pluck (Lead) — fidelity 74/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - FX EQ dropped (wet 100%)
 - mod route source#21 → Env.kParamDecay: source#21
@@ -712,7 +660,6 @@ Mapped: 9 features
 - mod route ModWheel → FXDistortion.kParamWet: FXDistortion.kParamWet
 
 **Approximated:**
-
 - LFO10 (Rossler) → stepped random approximation
 - Macro5 → FXHyperD.kParamDimEWet: static macro contribution (28%) not modeled
 - Macro3 → FXDelay.kParamWet: static macro contribution (65%) not modeled
@@ -730,7 +677,6 @@ Mapped: 14 features
 ## LD - Deep Acid (Lead) — fidelity 68/100
 
 **Dropped:**
-
 - FX FX Filter dropped (wet 100%)
 - FX EQ dropped (wet 100%)
 - mod route Env2 → FXFilter.kParamFreq: FXFilter.kParamFreq
@@ -738,7 +684,6 @@ Mapped: 14 features
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - Macro2 → Oscillator.kParamDetuneWid: static macro contribution (89%) not modeled
 - Macro1 → FXDistortion.kParamWet: static macro contribution (100%) not modeled
 - Macro3 → FXFilter.kParamReso: static macro contribution (0%) not modeled
@@ -758,7 +703,6 @@ Mapped: 13 features
 ## LD - Hypa Saw (Lead) — fidelity 61/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - FX FX type 15 dropped (wet 100%)
 - FX FX Filter dropped (wet 100%)
@@ -770,7 +714,6 @@ Mapped: 13 features
 - mod route LFO1 → Global.kParamMasterTuning: Global.kParamMasterTuning
 
 **Approximated:**
-
 - LFO1 (Rossler) → stepped random approximation
 - Macro1 → Oscillator.kParamDetune: static macro contribution (100%) not modeled
 - Macro7 → Global.kParamPortamentoTime: static macro contribution (0%) not modeled
@@ -789,10 +732,9 @@ Mapped: 12 features
 
 ---
 
-## PD - Safari (Pad) — fidelity 68/100
+## PD - Safari (Pad) — fidelity 66/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - FX Convolve dropped (wet 21%)
 - FX FX Filter dropped (wet 100%)
@@ -802,8 +744,8 @@ Mapped: 12 features
 - mod route ModWheel → FXFilter.kParamDrive: FXFilter.kParamDrive
 
 **Approximated:**
-
 - Filter 1: NN12 → lowpass approximation
+- LFO2 free rate 0.5Hz → 1 cycles/bar @120BPM
 - LFO3 (Normal) → stepped random approximation
 - mod route LFO3 → Oscillator.kParamFine: aux source dropped
 - Macro8 → FXConv.kParamWet: static macro contribution (0%) not modeled
@@ -824,7 +766,6 @@ Mapped: 12 features
 ## PD - Classic Analog (Pad) — fidelity 59/100
 
 **Dropped:**
-
 - Osc A dropped (level 0.20) — Oracle has 2 oscillators
 - FX EQ dropped (wet 100%)
 - mod route source#21 → Oscillator.kParamFine: source#21
@@ -833,7 +774,6 @@ Mapped: 12 features
 - mod route LFO4 → Oscillator.kParamFine: Osc A kParamFine (osc dropped)
 
 **Approximated:**
-
 - Filter 2: H18 → lowpass approximation
 - LFO2 (Normal) → stepped random approximation
 - LFO3 (Normal) → stepped random approximation
@@ -856,7 +796,6 @@ Mapped: 20 features
 ## PD - Illuminous (Pad) — fidelity 56/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - FX Convolve dropped (wet 100%)
 - mod route LFO2 → Oscillator.kParamDetune: Osc B kParamDetune
@@ -866,10 +805,10 @@ Mapped: 20 features
 - mod route ModWheel → FXChorus.kParamFilt: FXChorus.kParamFilt
 
 **Approximated:**
-
 - noise sample "Analog/SID whine.wav" → white noise
 - Filter 1: MgL24 → lowpass approximation
-- Filter 2 drive 15% → master drive FX
+- Filter 2 drive 15% dropped
+- LFO3 free rate 0.4Hz → 1 cycles/bar @120BPM
 - LFO2 (Normal) → stepped random approximation
 - FX Delay (time approximated at 120 BPM)
 - Macro1 → FXConv.kParamSize: static macro contribution (0%) not modeled
@@ -893,7 +832,6 @@ Mapped: 23 features
 ## PD - Beach Butterfly (Pad) — fidelity 67/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - Osc B warp FM_OSC (33%) dropped (no Oracle equivalent)
 - FX Convolve dropped (wet 1%)
@@ -904,7 +842,6 @@ Mapped: 23 features
 - mod route ModWheel → FXConv.kParamPredelay: FXConv.kParamPredelay
 
 **Approximated:**
-
 - LFO1 (Normal) → stepped random approximation
 - LFO3 (Normal) → stepped random approximation
 - LFO2 (Normal) → stepped random approximation
@@ -919,10 +856,9 @@ Mapped: 14 features
 
 ---
 
-## PD - Emotions (Pad) — fidelity 71/100
+## PD - Emotions (Pad) — fidelity 69/100
 
 **Dropped:**
-
 - FX FX Filter dropped (wet 100%)
 - FX EQ dropped (wet 100%)
 - mod route ModWheel → LFO.kParamRate: LFO.kParamRate
@@ -931,8 +867,8 @@ Mapped: 14 features
 - mod route Velocity → FXDelay.kParamWet: FXDelay.kParamWet
 
 **Approximated:**
-
 - LFO3 (Lorenz) → stepped random approximation
+- LFO1 free rate 0.9Hz → 1 cycles/bar @120BPM
 - LFO2 free rate 0.9Hz → 2 cycles/bar @120BPM
 - FX Delay (time approximated at 120 BPM)
 - mod route LFO3 → Oscillator.kParamFine: aux source dropped
@@ -943,14 +879,13 @@ Mapped: 14 features
 - Macro7 → FXReverb.kParamWet: static macro contribution (64%) not modeled
 - Macro8 → FXBode.kParamWet: static macro contribution (8%) not modeled
 
-Mapped: 18 features
+Mapped: 19 features
 
 ---
 
 ## PD - Midnight (Pad) — fidelity 66/100
 
 **Dropped:**
-
 - Osc A warp FM_OSC (10%) dropped (no Oracle equivalent)
 - FX Bode dropped (wet 100%)
 - mod route Env2 → WTOsc.kParamTablePos: Env2 (not the chosen mod env)
@@ -959,7 +894,6 @@ Mapped: 18 features
 - mod route LFO2 → FXFilter.kParamFreq: FXFilter.kParamFreq
 
 **Approximated:**
-
 - LFO1 (RandomSH) → stepped random approximation
 - FX Delay (time approximated at 120 BPM)
 - FX Reverb (kHall → convolver)
@@ -981,7 +915,6 @@ Mapped: 19 features
 ## PD - Octavian (Pad) — fidelity 56/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.30) — Oracle has 2 oscillators
 - FX EQ dropped (wet 100%)
 - mod route source#21 → Oscillator.kParamFine: source#21
@@ -990,7 +923,6 @@ Mapped: 19 features
 - mod route source#18 → Oscillator.kParamVolume: source#18
 
 **Approximated:**
-
 - LFO1 (Normal) → stepped random approximation
 - LFO2 (Normal) → stepped random approximation
 - LFO3 (Normal) → stepped random approximation
@@ -1017,7 +949,6 @@ Mapped: 19 features
 ## PD - Lush Band-Pass Sweep (Pad) — fidelity 55/100
 
 **Dropped:**
-
 - Osc B dropped (level 0.17) — Oracle has 2 oscillators
 - FX EQ dropped (wet 100%)
 - mod route LFO1 → Oscillator.kParamFine: Osc B kParamFine (osc dropped)
@@ -1026,7 +957,6 @@ Mapped: 19 features
 - mod route LFO4 → Oscillator.kParamVolume: Osc B kParamVolume (osc dropped)
 
 **Approximated:**
-
 - Filter 2: MgL18 → lowpass approximation
 - LFO1 (Normal) → stepped random approximation
 - LFO2 (Normal) → stepped random approximation
@@ -1055,11 +985,9 @@ Mapped: 16 features
 ## SY - Rolling Plains (Synth) — fidelity 82/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 
 **Approximated:**
-
 - Filter 1: LadderAcid → lowpass approximation
 - mod route Env1 → VoiceFilter.kParamFreq: aux source dropped
 - Macro3 → NoiseOsc.kParamColor: static macro contribution (49%) not modeled
@@ -1077,13 +1005,11 @@ Mapped: 12 features
 ## SY - Smooth Dubs (Synth) — fidelity 74/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.08) — Oracle has 2 oscillators
 - Osc B warp FM_OSC (14%) dropped (no Oracle equivalent)
 - mod route LFO2 → Oscillator.kParamVolume: Osc C kParamVolume (osc dropped)
 
 **Approximated:**
-
 - LFO2 (Rossler) → stepped random approximation
 - Macro2 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 - Macro3 → Oscillator.kParamVolume: static macro contribution (0%) not modeled
@@ -1099,7 +1025,6 @@ Mapped: 17 features
 ## SY - Over The Dune (Synth) — fidelity 70/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - FX EQ dropped (wet 100%)
 - FX FX Filter dropped (wet 100%)
@@ -1108,7 +1033,6 @@ Mapped: 17 features
 - mod route Env2 → FXFilter.kParamFreq: FXFilter.kParamFreq
 
 **Approximated:**
-
 - Macro1 → FXChorus.kParamWet: static macro contribution (53%) not modeled
 - Macro5 → FXConv.kParamWet: static macro contribution (45%) not modeled
 - Macro4 → FXDelay.kParamWet: static macro contribution (78%) not modeled
@@ -1118,14 +1042,13 @@ Mapped: 17 features
 - Macro2 → VoiceFilter.kParamDrive: static macro contribution (78%) not modeled
 - Macro8 → FXFilter.kParamReso: static macro contribution (0%) not modeled
 
-Mapped: 16 features
+Mapped: 17 features
 
 ---
 
 ## SY - EMS Poly (Synth) — fidelity 67/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - mod route source#23 → Oscillator.kParamPan: source#23
 - mod route LFO1 → VoiceFilter.kParamStereo: Filter kParamStereo
@@ -1136,7 +1059,6 @@ Mapped: 16 features
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - noise sample "Analog/J8.flac" → white noise
 - Filter 1: LadderEMS → lowpass approximation
 - LFO1 (Rossler) → stepped random approximation
@@ -1153,14 +1075,12 @@ Mapped: 14 features
 ## SY - Env LPF Seq (Synth) — fidelity 58/100
 
 **Dropped:**
-
 - Osc B dropped (level 0.34) — Oracle has 2 oscillators
 - Osc A warp PD_OSC (17%) dropped (no Oracle equivalent)
 - FX FX Filter dropped (wet 100%)
 - mod route source#38 → Global.kParamTranspose: source#38
 
 **Approximated:**
-
 - Filter 1: LadderEMS → lowpass approximation
 - Filter 1 drive 30% → master drive FX
 - FX Delay (time approximated at 120 BPM)
@@ -1183,7 +1103,6 @@ Mapped: 16 features
 ## SY - Magnetic (Synth) — fidelity 73/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - FX Utility dropped (wet 100%)
 - mod route Env2 → FXFlanger.kParamWet: FXFlanger.kParamWet
@@ -1195,7 +1114,6 @@ Mapped: 16 features
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - Filter 1: MgL6 → lowpass approximation
 - Macro7 → Env.kParamAttack: static macro contribution (56%) not modeled
 - Macro1 → Oscillator.kParamDetuneWid: static macro contribution (39%) not modeled
@@ -1210,10 +1128,9 @@ Mapped: 13 features
 
 ---
 
-## SY - Warm Synth Keys (Synth) — fidelity 57/100
+## SY - Warm Synth Keys (Synth) — fidelity 58/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - FX EQ dropped (wet 100%)
 - mod route source#21 → Oscillator.kParamFine: source#21
@@ -1222,9 +1139,8 @@ Mapped: 13 features
 - mod route source#18 → Env.kParamSustain: source#18
 
 **Approximated:**
-
 - Filter 1: LadderMg → lowpass approximation
-- Filter 1 drive 18% → master drive FX
+- Filter 1 drive 18% dropped
 - LFO1 (Normal) → stepped random approximation
 - LFO2 (Normal) → stepped random approximation
 - FX Delay (time approximated at 120 BPM)
@@ -1248,10 +1164,9 @@ Mapped: 18 features
 
 ---
 
-## SY - Square Wave Synth Keys (Synth) — fidelity 54/100
+## SY - Square Wave Synth Keys (Synth) — fidelity 55/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.02) — Oracle has 2 oscillators
 - FX EQ dropped (wet 100%)
 - mod route source#21 → Oscillator.kParamFine: source#21
@@ -1261,9 +1176,8 @@ Mapped: 18 features
 - mod route Velocity → Env.kParamDecay: Env.kParamDecay
 
 **Approximated:**
-
 - Filter 1: LadderMg → lowpass approximation
-- Filter 1 drive 15% → master drive FX
+- Filter 1 drive 15% dropped
 - LFO1 (Normal) → stepped random approximation
 - LFO2 (Normal) → stepped random approximation
 - FX Delay (time approximated at 120 BPM)
@@ -1287,16 +1201,14 @@ Mapped: 18 features
 
 ---
 
-## PL - High Drive (Pluck) — fidelity 79/100
+## PL - High Drive (Pluck) — fidelity 81/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - mod route Velocity → VoiceFilter.kParamWet: Filter kParamWet
 
 **Approximated:**
-
-- Filter 2 drive 7% → master drive FX
+- Filter 2 drive 7% dropped
 - LFO1 (Normal) → stepped random approximation
 - Macro8 → FXReverb.kParamWet: static macro contribution (67%) not modeled
 - Macro7 → FXDelay.kParamWet: static macro contribution (80%) not modeled
@@ -1308,16 +1220,14 @@ Mapped: 21 features
 
 ---
 
-## PL - Camp Fire 1 (Pluck) — fidelity 79/100
+## PL - Camp Fire 1 (Pluck) — fidelity 81/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - FX EQ dropped (wet 100%)
 
 **Approximated:**
-
-- Filter 2 drive 10% → master drive FX
+- Filter 2 drive 10% dropped
 - LFO1 free rate 5.0Hz → 10 cycles/bar @120BPM
 - Macro2 → FXEQ.kParamFreq1: static macro contribution (0%) not modeled
 - Macro3 → FXEQ.kParamFreq2: static macro contribution (100%) not modeled
@@ -1333,7 +1243,6 @@ Mapped: 15 features
 ## PL - June (Pluck) — fidelity 75/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - FX Splitter dropped (wet 100%)
 - FX EQ dropped (wet 100%)
@@ -1341,7 +1250,6 @@ Mapped: 15 features
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - LFO10 (Rossler) → stepped random approximation
 - Macro1 → Env.kParamDecay: static macro contribution (0%) not modeled
 - Macro2 → FXEQ.kParamFreq1: static macro contribution (30%) not modeled
@@ -1361,7 +1269,6 @@ Mapped: 15 features
 ## PL - Broken Light (Pluck) — fidelity 65/100
 
 **Dropped:**
-
 - FX FX Filter dropped (wet 100%)
 - FX EQ dropped (wet 100%)
 - mod route ModWheel → FXReverb.kParamWet: FXReverb.kParamWet
@@ -1373,7 +1280,6 @@ Mapped: 15 features
 - mod route source#18 → Macro.kParamValue: source#18
 
 **Approximated:**
-
 - noise sample "Attacks_Misc/gtr mute 1.wav" → white noise
 - Filter 1: MgL24 → lowpass approximation
 - LFO3 free rate 6.9Hz → 14 cycles/bar @120BPM
@@ -1384,21 +1290,19 @@ Mapped: 15 features
 - Macro3 → FXFilter.kParamFreq: static macro contribution (32%) not modeled
 - Macro8 → RoutingSlot.kParamFXBus1Level: static macro contribution (0%) not modeled
 
-Mapped: 30 features
+Mapped: 31 features
 
 ---
 
 ## PL - Alive (Pluck) — fidelity 66/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.75) — Oracle has 2 oscillators
 - mod route LFO1 → Global.kParamMasterTuning: Global.kParamMasterTuning
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - Filter 1: MgL18 → lowpass approximation
 - LFO1 (Lorenz) → stepped random approximation
 - Macro5 → Env.kParamDecay: static macro contribution (0%) not modeled
@@ -1410,10 +1314,9 @@ Mapped: 14 features
 
 ---
 
-## PL - Xylo Pluck (Pluck) — fidelity 61/100
+## PL - Xylo Pluck (Pluck) — fidelity 59/100
 
 **Dropped:**
-
 - Osc A warp FilterLPF (74%) dropped (no Oracle equivalent)
 - FX EQ dropped (wet 100%)
 - FX Utility dropped (wet 100%)
@@ -1426,9 +1329,9 @@ Mapped: 14 features
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - noise sample "Attacks_Misc/TransPerc3.wav" → white noise
 - Filter 1: MgL6 → lowpass approximation
+- LFO1 free rate 2.7Hz → 1 cycles/bar @120BPM
 - Macro5 → FXDistortion.kParamWet: static macro contribution (14%) not modeled
 - Macro2 → Oscillator.kParamDetune: static macro contribution (17%) not modeled
 - Macro2 → Oscillator.kParamDetune: static macro contribution (17%) not modeled
@@ -1437,14 +1340,13 @@ Mapped: 14 features
 - Macro3 → FXDelay.kParamWet: static macro contribution (11%) not modeled
 - Macro8 → FXReverb.kParamWet: static macro contribution (17%) not modeled
 
-Mapped: 12 features
+Mapped: 13 features
 
 ---
 
 ## PL - Harp (Pluck) — fidelity 53/100
 
 **Dropped:**
-
 - Osc B dropped (level 0.00) — Oracle has 2 oscillators
 - FX Convolve dropped (wet 35%)
 - FX EQ dropped (wet 100%)
@@ -1458,7 +1360,6 @@ Mapped: 12 features
 - mod route LFO2 → WTOsc.kParamWarp: WT Warp modulation (no Oracle target)
 
 **Approximated:**
-
 - noise sample "Attacks_Misc/kick trans 5.wav" → white noise
 - LFO1 (RandomSH) → stepped random approximation
 - LFO2 (Lorenz) → stepped random approximation
@@ -1484,7 +1385,6 @@ Mapped: 13 features
 ## PL - Sines Rule (Pluck) — fidelity 68/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - FX Convolve dropped (wet 63%)
 - mod route ModWheel → FXPhaser.kParamWet: FXPhaser.kParamWet
@@ -1495,7 +1395,6 @@ Mapped: 13 features
 - mod route source#18 → Macro.kParamValue: source#18
 
 **Approximated:**
-
 - amp env hold 0.96s folded into decay
 - LFO3 free rate 6.7Hz → 13 cycles/bar @120BPM
 - FX Reverb (kAbyss → convolver)
@@ -1513,10 +1412,9 @@ Mapped: 11 features
 
 ---
 
-## FX - Office Telephone (SFX) — fidelity 75/100
+## FX - Office Telephone (SFX) — fidelity 70/100
 
 **Dropped:**
-
 - FX FX Filter dropped (wet 100%)
 - FX Convolve dropped (wet 100%)
 - FX Utility dropped (wet 100%)
@@ -1524,7 +1422,8 @@ Mapped: 11 features
 - mod route Note → Oscillator.kParamPitchRatio: Osc A kParamPitchRatio
 
 **Approximated:**
-
+- LFO1 free rate 8.0Hz → 16 cycles/bar @120BPM
+- LFO2 free rate 0.2Hz → 1 cycles/bar @120BPM
 - mod route LFO2 → Oscillator.kParamVolume: aux source dropped
 - Macro2 → LFO.kParamRate: static macro contribution (0%) not modeled
 - Macro5 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
@@ -1533,19 +1432,17 @@ Mapped: 13 features
 
 ---
 
-## FX - Rise Sweep - Digi (SFX) — fidelity 67/100
+## FX - Rise Sweep - Digi (SFX) — fidelity 69/100
 
 **Dropped:**
-
 - mod route Env2 → LFO.kParamSmooth: LFO.kParamSmooth
 - mod route ModWheel → FXComp.kParamMakeup: FXComp.kParamMakeup
 
 **Approximated:**
-
 - Filter 1: HP12 → lowpass approximation
 - Filter 1 drive 25% → master drive FX
 - Filter 2: RM → lowpass approximation
-- Filter 2 drive 5% → master drive FX
+- Filter 2 drive 5% dropped
 - LFO3 (Normal) → stepped random approximation
 - Macro3 → WTOsc.kParamWarp2: static macro contribution (0%) not modeled
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
@@ -1561,23 +1458,21 @@ Mapped: 13 features
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 - Macro5 → Env.kParamDecay: static macro contribution (0%) not modeled
 
-Mapped: 16 features
+Mapped: 17 features
 
 ---
 
-## FX - Drop Sweep - Square (SFX) — fidelity 69/100
+## FX - Drop Sweep - Square (SFX) — fidelity 70/100
 
 **Dropped:**
-
 - mod route Env2 → LFO.kParamSmooth: LFO.kParamSmooth
 - mod route ModWheel → FXComp.kParamMakeup: FXComp.kParamMakeup
 
 **Approximated:**
-
 - Filter 1: HP12 → lowpass approximation
 - Filter 1 drive 25% → master drive FX
 - Filter 2: RM → lowpass approximation
-- Filter 2 drive 5% → master drive FX
+- Filter 2 drive 5% dropped
 - LFO3 (Normal) → stepped random approximation
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 - Macro3 → LFO.kParamRate: static macro contribution (0%) not modeled
@@ -1593,22 +1488,20 @@ Mapped: 16 features
 - Macro1 → WTOsc.kParamWarp2: static macro contribution (0%) not modeled
 - Macro2 → Oscillator.kParamDetune: static macro contribution (0%) not modeled
 
-Mapped: 20 features
+Mapped: 21 features
 
 ---
 
-## FX - FM Bubble Sweep (SFX) — fidelity 75/100
+## FX - FM Bubble Sweep (SFX) — fidelity 77/100
 
 **Dropped:**
-
 - Osc A warp FM_OSC (3%) dropped (no Oracle equivalent)
 - mod route Env2 → WTOsc.kParamWarp: WT Warp modulation (no Oracle target)
 - mod route LFO1 → WTOsc.kParamWarp: WT Warp modulation (no Oracle target)
 
 **Approximated:**
-
 - Filter 1: RMT → lowpass approximation
-- Filter 1 drive 23% → master drive FX
+- Filter 1 drive 23% dropped
 - Macro1 → Oscillator.kParamOctave: static macro contribution (0%) not modeled
 - Macro2 → Env.kParamAttack: static macro contribution (0%) not modeled
 - Macro3 → Env.kParamAttack: static macro contribution (0%) not modeled
@@ -1623,19 +1516,17 @@ Mapped: 10 features
 
 ---
 
-## FX - Drop Sweep - Shaker (SFX) — fidelity 67/100
+## FX - Drop Sweep - Shaker (SFX) — fidelity 69/100
 
 **Dropped:**
-
 - mod route Env2 → LFO.kParamSmooth: LFO.kParamSmooth
 - mod route ModWheel → FXComp.kParamMakeup: FXComp.kParamMakeup
 
 **Approximated:**
-
 - Filter 1: HP12 → lowpass approximation
 - Filter 1 drive 25% → master drive FX
 - Filter 2: RM → lowpass approximation
-- Filter 2 drive 5% → master drive FX
+- Filter 2 drive 5% dropped
 - LFO3 (Normal) → stepped random approximation
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 - Macro3 → LFO.kParamRate: static macro contribution (0%) not modeled
@@ -1651,23 +1542,21 @@ Mapped: 10 features
 - Macro1 → WTOsc.kParamWarp2: static macro contribution (0%) not modeled
 - Macro2 → Oscillator.kParamDetune: static macro contribution (0%) not modeled
 
-Mapped: 20 features
+Mapped: 21 features
 
 ---
 
-## FX - Drop Sweep - Alien (SFX) — fidelity 66/100
+## FX - Drop Sweep - Alien (SFX) — fidelity 68/100
 
 **Dropped:**
-
 - mod route Env2 → LFO.kParamSmooth: LFO.kParamSmooth
 - mod route ModWheel → FXComp.kParamMakeup: FXComp.kParamMakeup
 
 **Approximated:**
-
 - Filter 1: HP12 → lowpass approximation
 - Filter 1 drive 25% → master drive FX
 - Filter 2: RM → lowpass approximation
-- Filter 2 drive 5% → master drive FX
+- Filter 2 drive 5% dropped
 - LFO3 (Normal) → stepped random approximation
 - LFO1 (Normal) → stepped random approximation
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
@@ -1682,14 +1571,13 @@ Mapped: 20 features
 - Macro8 → FXDelay.kParamWet: static macro contribution (22%) not modeled
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 
-Mapped: 17 features
+Mapped: 18 features
 
 ---
 
-## FX - Techno Siren (SFX) — fidelity 65/100
+## FX - Techno Siren (SFX) — fidelity 60/100
 
 **Dropped:**
-
 - FX FX Filter dropped (wet 100%)
 - FX EQ dropped (wet 100%)
 - FX EQ dropped (wet 100%)
@@ -1698,10 +1586,12 @@ Mapped: 17 features
 - mod route source#20 → Oscillator.kParamFine: source#20
 
 **Approximated:**
-
 - noise sample "Organics/AC hum1.wav" → white noise
 - Filter 1: MgL24 → lowpass approximation
-- Filter 1 drive 6% → master drive FX
+- Filter 1 drive 6% dropped
+- LFO4 free rate 0.0Hz → 1 cycles/bar @120BPM
+- LFO1 free rate 0.0Hz → 1 cycles/bar @120BPM
+- LFO2 free rate 0.0Hz → 1 cycles/bar @120BPM
 - FX Reverb (kHall → convolver)
 - mod route LFO1 → Oscillator.kParamCoarsePit: aux source dropped
 - mod route Macro2 → Oscillator.kParamVolume: aux source dropped
@@ -1712,24 +1602,22 @@ Mapped: 17 features
 - Macro8 → FXDelay.kParamWet: static macro contribution (13%) not modeled
 - Macro7 → FXDelay.kParamWet: static macro contribution (21%) not modeled
 
-Mapped: 18 features
+Mapped: 22 features
 
 ---
 
-## FX - Rise Sweep - SubSizzla (SFX) — fidelity 64/100
+## FX - Rise Sweep - SubSizzla (SFX) — fidelity 65/100
 
 **Dropped:**
-
 - mod route Env2 → LFO.kParamSmooth: LFO.kParamSmooth
 - mod route ModWheel → FXComp.kParamMakeup: FXComp.kParamMakeup
 - mod route LFO2 → WTOsc.kParamWarp2: WT Warp2 modulation (no Oracle target)
 
 **Approximated:**
-
 - Filter 1: HP12 → lowpass approximation
 - Filter 1 drive 25% → master drive FX
 - Filter 2: RM → lowpass approximation
-- Filter 2 drive 5% → master drive FX
+- Filter 2 drive 5% dropped
 - LFO3 (Normal) → stepped random approximation
 - FX Reverb (kHall → convolver)
 - Macro3 → WTOsc.kParamWarp2: static macro contribution (0%) not modeled
@@ -1747,14 +1635,13 @@ Mapped: 18 features
 - Macro5 → Env.kParamDecay: static macro contribution (0%) not modeled
 - Macro1 → Oscillator.kParamOctave: static macro contribution (0%) not modeled
 
-Mapped: 17 features
+Mapped: 18 features
 
 ---
 
-## FX - Laser Generator (SFX) — fidelity 58/100
+## FX - Laser Generator (SFX) — fidelity 57/100
 
 **Dropped:**
-
 - Osc A warp FM_OSC (13%) dropped (no Oracle equivalent)
 - FX EQ dropped (wet 100%)
 - mod route source#59 → LFO.kParamRate: source#59
@@ -1762,12 +1649,12 @@ Mapped: 17 features
 - mod route source#59 → WTOsc.kParamWarp: source#59
 
 **Approximated:**
-
 - Filter 1: LadderAcid → lowpass approximation
 - Filter 1 drive 40% → master drive FX
 - Filter 2: Diffuser → bandpass approximation
-- Filter 2 drive 20% → master drive FX
+- Filter 2 drive 20% dropped
 - amp env hold 0.20s folded into decay
+- LFO1 free rate 3.5Hz → 1 cycles/bar @120BPM
 - Macro1 → Oscillator.kParamOctave: static macro contribution (53%) not modeled
 - Macro2 → WTOsc.kParamWarp: static macro contribution (75%) not modeled
 - Macro3 → LFO.kParamRate: static macro contribution (36%) not modeled
@@ -1775,14 +1662,13 @@ Mapped: 17 features
 - Macro7 → FXDelay.kParamWet: static macro contribution (100%) not modeled
 - Macro7 → FXReverb.kParamWet: static macro contribution (100%) not modeled
 
-Mapped: 14 features
+Mapped: 15 features
 
 ---
 
 ## FX - BHouse Glide - 04 (SFX) — fidelity 61/100
 
 **Dropped:**
-
 - Osc A warp PD_OSC (40%) dropped (no Oracle equivalent)
 - FX Hyper/Dimension dropped (wet 32%)
 - FX EQ dropped (wet 100%)
@@ -1792,7 +1678,6 @@ Mapped: 14 features
 - mod route LFO4 → Global.kParamMasterTuning: Global.kParamMasterTuning
 
 **Approximated:**
-
 - Filter 1: Phase36N → allpass approximation
 - Macro1 → VoiceFilter.kParamWet: static macro contribution (100%) not modeled
 - Macro2 → WTOsc.kParamWarp: static macro contribution (62%) not modeled
@@ -1802,14 +1687,13 @@ Mapped: 14 features
 - Macro7 → FXEQ.kParamGain2: static macro contribution (60%) not modeled
 - Macro8 → FXDelay.kParamWet: static macro contribution (10%) not modeled
 
-Mapped: 16 features
+Mapped: 18 features
 
 ---
 
-## KY - Vincent (Keyboard) — fidelity 74/100
+## KY - Vincent (Keyboard) — fidelity 72/100
 
 **Dropped:**
-
 - mod route LFO1 → Global.kParamMasterTuning: Global.kParamMasterTuning
 - mod route LFO2 → Global.kParamMasterTuning: Global.kParamMasterTuning
 - mod route source#23 → Oscillator.kParamPan: source#23
@@ -1818,8 +1702,8 @@ Mapped: 16 features
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - noise sample "Analog/OrganNoise.wav" → white noise
+- LFO1 free rate 2.9Hz → 1 cycles/bar @120BPM
 - LFO2 (Rossler) → stepped random approximation
 - Macro5 → LFO.kParamRate: static macro contribution (64%) not modeled
 - Macro6 → FXChorus.kParamWet: static macro contribution (8%) not modeled
@@ -1828,14 +1712,13 @@ Mapped: 16 features
 - Macro4 → FXDistortion.kParamWet: static macro contribution (23%) not modeled
 - Macro8 → Oscillator.kParamDetuneWid: static macro contribution (0%) not modeled
 
-Mapped: 10 features
+Mapped: 11 features
 
 ---
 
-## KY - Sonder (Keyboard) — fidelity 70/100
+## KY - Sonder (Keyboard) — fidelity 72/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - FX EQ dropped (wet 100%)
 - mod route source#23 → Oscillator.kParamPan: source#23
@@ -1845,8 +1728,7 @@ Mapped: 10 features
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
-- Filter 1 drive 14% → master drive FX
+- Filter 1 drive 14% dropped
 - LFO2 (Normal) → stepped random approximation
 - LFO1 (Rossler) → stepped random approximation
 - Macro6 → FXDistortion.kParamWet: static macro contribution (40%) not modeled
@@ -1862,14 +1744,12 @@ Mapped: 15 features
 ## KY - Retrograde (Keyboard) — fidelity 66/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - mod route LFO4 → Global.kParamMasterTuning: Global.kParamMasterTuning
 - mod route LFO1 → Oscillator.kParamVolume: Osc C kParamVolume (osc dropped)
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - Filter 1: MgL18 → lowpass approximation
 - LFO3 (Normal) → stepped random approximation
 - LFO4 (Rossler) → stepped random approximation
@@ -1884,14 +1764,13 @@ Mapped: 15 features
 - Macro8 → Oscillator.kParamOctave: static macro contribution (0%) not modeled
 - Macro8 → Oscillator.kParamOctave: static macro contribution (0%) not modeled
 
-Mapped: 18 features
+Mapped: 20 features
 
 ---
 
-## KY - Smart Future (Keyboard) — fidelity 61/100
+## KY - Smart Future (Keyboard) — fidelity 63/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - Osc B warp DLM (39%) dropped (no Oracle equivalent)
 - FX Utility dropped (wet 100%)
@@ -1902,9 +1781,8 @@ Mapped: 18 features
 - mod route LFO1 → Oscillator.kParamVolume: Osc C kParamVolume (osc dropped)
 
 **Approximated:**
-
 - Filter 1: HN12 → lowpass approximation
-- Filter 1 drive 12% → master drive FX
+- Filter 1 drive 12% dropped
 - FX Reverb (hall → convolver)
 - Macro1 → VoiceFilter.kParamWet: static macro contribution (35%) not modeled
 - Macro2 → VoiceFilter.kParamWet: static macro contribution (0%) not modeled
@@ -1925,7 +1803,6 @@ Mapped: 14 features
 ## KY - Delicacy (Keyboard) — fidelity 57/100
 
 **Dropped:**
-
 - Osc B dropped (level 0.00) — Oracle has 2 oscillators
 - Osc A warp FM_OSC (7%) dropped (no Oracle equivalent)
 - Osc C warp FilterHPF (88%) dropped (no Oracle equivalent)
@@ -1934,7 +1811,6 @@ Mapped: 14 features
 - mod route Env2 → WTOsc.kParamWarp2: WT Warp2 modulation (no Oracle target)
 
 **Approximated:**
-
 - noise sample "Organics/AC hum1.wav" → white noise
 - Filter 1: MgL6 → lowpass approximation
 - Filter 2 drive 100% → master drive FX
@@ -1956,13 +1832,11 @@ Mapped: 19 features
 ## OR - Harmonic Sub Vibes (Organ) — fidelity 80/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - FX Hyper/Dimension dropped (wet 45%)
 - mod route ModWheel → Env.kParamSustain: Env.kParamSustain
 
 **Approximated:**
-
 - noise sample "Organics/Air Can 2.wav" → white noise
 - Macro2 → FXDistortion.kParamDrive: static macro contribution (21%) not modeled
 - Macro3 → FXHyperD.kParamWet: static macro contribution (0%) not modeled
@@ -1977,13 +1851,11 @@ Mapped: 10 features
 ## OR - Organ Also (Organ) — fidelity 71/100
 
 **Dropped:**
-
 - mod route Env2 → VoiceFilter.kParamFreq: Env2 (not the chosen mod env)
 - mod route Env4 → Oscillator.kParamVolume: Env4 (not the chosen mod env)
 - mod route ModWheel → Env.kParamSustain: Env.kParamSustain
 
 **Approximated:**
-
 - LFO1 free rate 5.2Hz → 10 cycles/bar @120BPM
 - FX Reverb (hall → convolver)
 - FX Delay (time approximated at 120 BPM)
@@ -2002,17 +1874,16 @@ Mapped: 17 features
 
 ---
 
-## OR - Memory Organ (Organ) — fidelity 75/100
+## OR - Memory Organ  (Organ) — fidelity 72/100
 
 **Dropped:**
-
 - mod route LFO2 → Global.kParamMasterTuning: Global.kParamMasterTuning
 - mod route Note → LFO.kParamRate: LFO.kParamRate
 
 **Approximated:**
-
 - noise sample "Attacks_Kick/XF_KikAtk_03.wav" → white noise
 - amp env hold 0.03s folded into decay
+- LFO1 free rate 0.8Hz → 1 cycles/bar @120BPM
 - LFO2 (Normal) → stepped random approximation
 - Macro1 → LFOPointModBus.kParamValue: static macro contribution (29%) not modeled
 - Macro6 → Env.kParamSustain: static macro contribution (19%) not modeled
@@ -2025,14 +1896,13 @@ Mapped: 17 features
 - Macro5 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 - Macro7 → Env.kParamRelease: static macro contribution (31%) not modeled
 
-Mapped: 11 features
+Mapped: 12 features
 
 ---
 
 ## OR - Pipe Dream (Organ) — fidelity 85/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - FX EQ dropped (wet 100%)
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
@@ -2041,7 +1911,6 @@ Mapped: 11 features
 - mod route ModWheel → Macro.kParamValue: Macro.kParamValue
 
 **Approximated:**
-
 - Macro5 → Oscillator.kParamVolume: static macro contribution (40%) not modeled
 - Macro3 → FXReverb.kParamWet: static macro contribution (42%) not modeled
 - Macro7 → FXReverb.kParamSize: static macro contribution (45%) not modeled
@@ -2057,13 +1926,11 @@ Mapped: 10 features
 ## OR - House Organ (Organ) — fidelity 73/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - mod route Velocity → Env.kParamDecay: Env.kParamDecay
 - mod route Env3 → Oscillator.kParamVolume: Env3 (not the chosen mod env)
 
 **Approximated:**
-
 - noise sample "Organics/AC hum2.wav" → white noise
 - Filter 1: LadderMg → lowpass approximation
 - Filter 1 drive 29% → master drive FX
@@ -2084,14 +1951,12 @@ Mapped: 16 features
 ## DR - Tom Simm (Drum) — fidelity 83/100
 
 **Dropped:**
-
 - FX EQ dropped (wet 100%)
 - mod route Env3 → Oscillator.kParamVolume: Env3 (not the chosen mod env)
 - mod route ModWheel → FXDelay.kParamWet: FXDelay.kParamWet
 - mod route ModWheel → FXDelay.kParamLevelOut: FXDelay.kParamLevelOut
 
 **Approximated:**
-
 - FX Reverb (hall → convolver)
 - Macro2 → RoutingSlot.kParamFXBus1Level: static macro contribution (100%) not modeled
 - Macro5 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
@@ -2104,7 +1969,6 @@ Mapped: 12 features
 ## DR - Kick Synth 1 (Drum) — fidelity 64/100
 
 **Dropped:**
-
 - FX Splitter dropped (wet 100%)
 - mod route Env1 → FXDistortion.kParamLevelOut: FXDistortion.kParamLevelOut
 - mod route Env3 → Oscillator.kParamVolume: Env3 (not the chosen mod env)
@@ -2115,7 +1979,6 @@ Mapped: 12 features
 - mod route source#59 → WTOsc.kParamInitialPhase: source#59
 
 **Approximated:**
-
 - noise sample "Attacks_Kick/XF_KikAtk_34.wav" → white noise
 - amp env hold 0.08s folded into decay
 - mod route Env2 → Oscillator.kParamCoarsePit: aux source dropped
@@ -2130,20 +1993,17 @@ Mapped: 13 features
 
 ---
 
-## DR - Kick Minimal (Drum) — fidelity 83/100
+## DR - Kick Minimal (Drum) — fidelity 84/100
 
 **Dropped:**
-
 - mod route ModWheel → FXBode.kParamShift: FXBode.kParamShift
 - mod route ModWheel → FXBode.kParamWet: FXBode.kParamWet
 - mod route ModWheel → FXBode.kParamRange: FXBode.kParamRange
 
 **Approximated:**
-
 - noise sample "Organics/AC hum1.wav" → white noise
 - Filter 1 drive 51% → master drive FX
 - Macro1 → Env.kParamDecay: static macro contribution (0%) not modeled
-- Macro2 → Oscillator.kParamPitch: static macro contribution (66%) not modeled
 - Macro3 → WTOsc.kParamWarp2: static macro contribution (0%) not modeled
 - Macro4 → NoiseOsc.kParamColor: static macro contribution (25%) not modeled
 - Macro5 → FXDistortion.kParamWet: static macro contribution (0%) not modeled
@@ -2151,25 +2011,22 @@ Mapped: 13 features
 - Macro7 → Env.kParamAttack: static macro contribution (1%) not modeled
 - Macro8 → FXReverb.kParamWet: static macro contribution (1%) not modeled
 
-Mapped: 12 features
+Mapped: 13 features
 
 ---
 
-## DR - Kick Hype (Drum) — fidelity 79/100
+## DR - Kick Hype (Drum) — fidelity 81/100
 
 **Dropped:**
-
 - mod route Env3 → Oscillator.kParamVolume: Env3 (not the chosen mod env)
 - mod route ModWheel → FXBode.kParamShift: FXBode.kParamShift
 - mod route ModWheel → FXBode.kParamWet: FXBode.kParamWet
 - mod route ModWheel → FXBode.kParamRange: FXBode.kParamRange
 
 **Approximated:**
-
 - noise sample "Organics/Air Can 1.wav" → white noise
-- Filter 1 drive 23% → master drive FX
+- Filter 1 drive 23% dropped
 - Macro1 → Env.kParamDecay: static macro contribution (34%) not modeled
-- Macro2 → Oscillator.kParamPitch: static macro contribution (2%) not modeled
 - Macro3 → WTOsc.kParamWarp2: static macro contribution (0%) not modeled
 - Macro4 → NoiseOsc.kParamColor: static macro contribution (25%) not modeled
 - Macro5 → FXDistortion.kParamWet: static macro contribution (0%) not modeled
@@ -2179,20 +2036,16 @@ Mapped: 12 features
 - Macro1 → Env.kParamDecay: static macro contribution (34%) not modeled
 - Macro3 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 
-Mapped: 12 features
+Mapped: 13 features
 
 ---
 
-## SEQ - LOW Freqz (Seq) — fidelity 75/100
+## SEQ - LOW Freqz (Seq) — fidelity 80/100
 
 **Dropped:**
-
-- mod route LFO1 → Oscillator.kParamPitch: Osc B kParamPitch
-- mod route LFO1 → Oscillator.kParamPitch: Osc A kParamPitch
 - mod route ModWheel → WTOsc.kParamWarp: WT Warp modulation (no Oracle target)
 
 **Approximated:**
-
 - Filter 1: CombH6N → bandpass approximation
 - Filter 1 drive 35% → master drive FX
 - FX Delay (time approximated at 120 BPM)
@@ -2205,16 +2058,15 @@ Mapped: 12 features
 - mod route LFO3 → Oscillator.kParamVolume: aux source dropped
 - Macro8 → LFO.kParamRate: static macro contribution (0%) not modeled
 
-Mapped: 16 features
+Mapped: 18 features
 
 ---
 
-## SEQ - Trance in the Pance (Seq) — fidelity 79/100
+## SEQ - Trance in the Pance (Seq) — fidelity 81/100
 
 **Approximated:**
-
 - Filter 1: Exp → lowpass approximation
-- Filter 1 drive 13% → master drive FX
+- Filter 1 drive 13% dropped
 - FX Reverb (hall → convolver)
 - Macro1 → FXReverb.kParamWidth: static macro contribution (100%) not modeled
 - Macro3 → Oscillator.kParamDetune: static macro contribution (71%) not modeled
@@ -2228,7 +2080,6 @@ Mapped: 10 features
 ## SEQ - Almost A Guitar (Seq) — fidelity 63/100
 
 **Dropped:**
-
 - Osc C dropped (level 0.00) — Oracle has 2 oscillators
 - FX Hyper/Dimension dropped (wet 100%)
 - FX EQ dropped (wet 100%)
@@ -2236,7 +2087,6 @@ Mapped: 10 features
 - mod route LFO4 → VoiceFilter.kParamWet: Filter kParamWet
 
 **Approximated:**
-
 - Filter 1 drive 31% → master drive FX
 - FX Delay (time approximated at 120 BPM)
 - FX Reverb (kVintage → convolver)
@@ -2256,7 +2106,6 @@ Mapped: 15 features
 ## SEQ - Trons Echolot (Seq) — fidelity 62/100
 
 **Dropped:**
-
 - LFO6/10 dropped (beyond Oracle's 4)
 - FX FX Filter dropped (wet 100%)
 - FX EQ dropped (wet 100%)
@@ -2268,7 +2117,6 @@ Mapped: 15 features
 - mod route source#48 → VoiceFilter.kParamVar: source#48
 
 **Approximated:**
-
 - Macro1 → FXFilter.kParamFreq: static macro contribution (29%) not modeled
 - Macro8 → FXReverb.kParamWet: static macro contribution (43%) not modeled
 - Macro7 → FXConv.kParamWet: static macro contribution (0%) not modeled

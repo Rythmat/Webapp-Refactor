@@ -12,6 +12,7 @@
  * the song's notes; with none, every part fits (the first part sets the key).
  */
 
+import { audioSourceOf } from '@/daw/audio/audioSource';
 import type { MidiNoteEvent } from '@prism/engine';
 import { detectClipKey } from '@/daw/harmony/clipKey';
 import { selectEffectiveKey } from '@/daw/harmony/effectiveKey';
@@ -60,8 +61,7 @@ const isDrums = (t: Track) =>
 
 const isBass = (t: Track) =>
   trackRole(t) === 'bass' ||
-  t.instrument === 'bass-electric' ||
-  t.instrument === 'bass-fx' ||
+  audioSourceOf(t) === 'bass' ||
   (t.instrument === 'soundfont' &&
     (t.gmProgram ?? 0) >= 32 &&
     (t.gmProgram ?? 0) <= 39);

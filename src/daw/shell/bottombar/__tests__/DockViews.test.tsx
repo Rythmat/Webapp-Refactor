@@ -41,7 +41,7 @@ afterEach(cleanup);
 
 describe('the dock views', () => {
   it('are four icon toggles in two pills, with the lessons’ anchors', () => {
-    const keys = add('midi', 'piano-sampler', 'Keys');
+    const keys = add('midi', 'soundfont', 'Keys');
     s().setSelectedTrackId(keys);
     render(<DockViews />);
     const sound = screen.getByRole('group', { name: 'Instrument and effects' });
@@ -69,7 +69,7 @@ describe('the dock views', () => {
   });
 
   it('open their tab, and a press on the open one shuts the dock', () => {
-    const keys = add('midi', 'piano-sampler', 'Keys');
+    const keys = add('midi', 'soundfont', 'Keys');
     s().setSelectedTrackId(keys);
     render(<DockViews />);
     expect(pressed()).toEqual([]);
@@ -90,17 +90,33 @@ describe('the dock views', () => {
     expect(s().channelStripTab).toBe('controls');
   });
 
-  it('take the slot back from Master', () => {
-    const keys = add('midi', 'piano-sampler', 'Keys');
+  it('are FX and Automation on Master, as on a track (2026-10-22)', () => {
+    const keys = add('midi', 'soundfont', 'Keys');
     s().setSelectedTrackId(keys);
     s().setChannelStripTab('controls');
     s().setDockMaster(true);
     render(<DockViews />);
-    expect(pressed()).toEqual([]);
-    fireEvent.click(view('Instrument'));
+    // Master's dock is its effects: FX shows pressed, as wide as the
+    // Instrument · FX pair; Master has no Instrument (2026-10-22).
+    expect(pressed()).toEqual(['FX']);
+    expect(screen.queryByRole('button', { name: 'Instrument' })).toBeNull();
+    expect(view('FX').className).toContain('w-[74px]');
+    expect(view('Edit')).toBeDisabled();
+    expect(view('FX')).toBeEnabled();
+    expect(view('Automation')).toBeEnabled();
+
+    // Its lane, then back to its effects: Master stays in the dock.
+    fireEvent.click(view('Automation'));
+    expect(s().automationOpenTrackId).toBe(MASTER_AUTOMATION_ID);
+    fireEvent.click(view('FX'));
+    expect(s().automationOpenTrackId).toBeNull();
+    expect(s().dockMaster).toBe(true);
+    expect(pressed()).toEqual(['FX']);
+
+    // FX again shuts the dock, and Master with it.
+    fireEvent.click(view('FX'));
     expect(s().dockMaster).toBe(false);
-    expect(s().channelStripTab).toBe('controls');
-    expect(pressed()).toEqual(['Instrument']);
+    expect(s().channelStripTab).toBeNull();
   });
 
   it('are off where they don’t fit the track', () => {
@@ -110,21 +126,40 @@ describe('the dock views', () => {
     }
     cleanup();
 
+    // An uploaded file's track: its effects alone, FX as wide as the pair
+    // (2026-10-22).
     const take = add('audio', 'none', 'Take');
     s().setSelectedTrackId(take);
     render(<DockViews />);
-    expect(view('Instrument')).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Instrument' })).toBeNull();
     expect(view('FX')).toBeEnabled();
+    expect(view('FX').className).toContain('w-[74px]');
     expect(view('Automation')).toBeEnabled();
     expect(view('Edit')).toBeDisabled();
     cleanup();
 
-    const guitar = add('audio', 'guitar-fx', 'Guitar');
-    s().setSelectedTrackId(guitar);
+    // An Audio track (Guitar, Bass and Voice folded into it, 2026-10-22):
+    // one button, its effects in the same dock.
+    const audio = add('audio', 'audio-input', 'Guitar');
+    s().setSelectedTrackId(audio);
     render(<DockViews />);
-    expect(view('Instrument')).toBeEnabled();
-    expect(view('FX')).toBeDisabled();
+    expect(view('Instrument and effects')).toBeEnabled();
+    expect(screen.queryByRole('button', { name: 'FX' })).toBeNull();
     expect(view('Edit')).toBeDisabled();
+  });
+
+  it('show an Audio track one button, the Effects icon, as wide as the pair', () => {
+    const audio = add('audio', 'audio-input', 'Audio');
+    s().setSelectedTrackId(audio);
+    s().setChannelStripTab('controls');
+    render(<DockViews />);
+    expect(screen.queryByRole('button', { name: 'FX' })).toBeNull();
+    const one = screen.getByRole('button', { name: 'Instrument and effects' });
+    expect(one.className).toContain('w-[74px]');
+    expect(pressed()).toEqual(['Instrument and effects']);
+    // Whatever the tab: its effects share the dock.
+    act(() => s().setChannelStripTab('fx'));
+    expect(pressed()).toEqual(['Instrument and effects']);
   });
 
   it('show an audio track’s chain as FX, whatever the tab', () => {
@@ -136,7 +171,7 @@ describe('the dock views', () => {
   });
 
   it('press none on a tab with no button (Prism)', () => {
-    const keys = add('midi', 'piano-sampler', 'Keys');
+    const keys = add('midi', 'soundfont', 'Keys');
     s().setSelectedTrackId(keys);
     s().setChannelStripTab('prism');
     render(<DockViews />);
@@ -147,22 +182,42 @@ describe('the dock views', () => {
 });
 
 describe('Automation', () => {
-  it('opens the selected track’s lane, beside the dock, and shuts it', () => {
-    const keys = add('midi', 'piano-sampler', 'Keys');
+  it('opens the selected track’s lane in the dock, over the tab, and shuts it', () => {
+    const keys = add('midi', 'soundfont', 'Keys');
     s().setSelectedTrackId(keys);
     s().setChannelStripTab('controls');
     render(<DockViews />);
     fireEvent.click(view('Automation'));
     expect(s().automationOpenTrackId).toBe(keys);
+    // The tab stays underneath, for when the lane shuts.
     expect(s().channelStripTab).toBe('controls');
-    expect(pressed()).toEqual(['Instrument', 'Automation']);
+    expect(pressed()).toEqual(['Automation']);
     fireEvent.click(view('Automation'));
     expect(s().automationOpenTrackId).toBeNull();
+    expect(pressed()).toEqual(['Instrument']);
+  });
+
+  it('gives the dock back to another view', () => {
+    const keys = add('midi', 'soundfont', 'Keys');
+    s().setSelectedTrackId(keys);
+    s().setChannelStripTab('controls');
+    render(<DockViews />);
+    fireEvent.click(view('Automation'));
+    // Instrument was underneath: a press shows it again, never shuts it.
+    fireEvent.click(view('Instrument'));
+    expect(s().automationOpenTrackId).toBeNull();
+    expect(s().channelStripTab).toBe('controls');
+    expect(pressed()).toEqual(['Instrument']);
+
+    fireEvent.click(view('Automation'));
+    fireEvent.click(view('FX'));
+    expect(s().automationOpenTrackId).toBeNull();
+    expect(s().channelStripTab).toBe('fx');
   });
 
   it('follows the selection, and leaves Master’s lane alone', () => {
-    const keys = add('midi', 'piano-sampler', 'Keys');
-    const bass = add('midi', 'bass-electric', 'Bass');
+    const keys = add('midi', 'soundfont', 'Keys');
+    const bass = add('midi', 'soundfont', 'Bass');
     s().setSelectedTrackId(keys);
     render(<DockViews />);
     fireEvent.click(view('Automation'));
@@ -171,8 +226,17 @@ describe('Automation', () => {
     expect(pressed()).toEqual(['Automation']);
 
     act(() => s().setAutomationOpenTrackId(MASTER_AUTOMATION_ID));
-    expect(pressed()).toEqual([]);
+    expect(pressed()).toEqual(['Automation']);
     act(() => s().setSelectedTrackId(keys));
+    expect(s().automationOpenTrackId).toBe(MASTER_AUTOMATION_ID);
+  });
+
+  it('opens Master’s lane while the dock shows Master', () => {
+    add('midi', 'soundfont', 'Keys');
+    s().setSelectedTrackId(null);
+    s().setDockMaster(true);
+    render(<DockViews />);
+    fireEvent.click(view('Automation'));
     expect(s().automationOpenTrackId).toBe(MASTER_AUTOMATION_ID);
   });
 });

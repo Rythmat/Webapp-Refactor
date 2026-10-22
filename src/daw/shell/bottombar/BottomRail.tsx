@@ -1,22 +1,30 @@
-import { Lightbulb } from 'lucide-react';
 import { memo } from 'react';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { HintLine } from '@/daw/shell/help/HintLine';
-import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore } from '@/daw/store';
-import { Pill, PILL_ZONE } from '@/daw/ui/Pill';
+import { PILL_ZONE } from '@/daw/ui/Pill';
 import { ViewTabs } from '../topbar/ViewTabs';
+import { dockKindOf, type DockKind } from '../dock/dockTabs';
 import { DockViews } from './DockViews';
+import { TypingKeys } from './TypingKeys';
 
 // ── The bottom rail (B4a; the floating frame, S0) ──────────────────────────
 //
 // 44 px, the window's full width, under every view, its zones in pills on
 // the page (owner, 2026-10-21): at the left, Create's dock views
-// (Instrument · FX and Automation · Edit, DockViews) and then the hover hint
-// line (2.11); the view tabs (Create, Mix, Score) centred in the window;
-// Learn at the right, which turns the hover hints on and off. The transport and the song moved to
-// the top bar, and Master to the foot of the track column (the Main strip,
-// TrackArea).
+// (Instrument · FX and Automation · Edit, DockViews), Typing keys (the
+// computer keyboard's switch, in every view); the view tabs (Create, Mix,
+// Score) centred in the window; and the hover hint line (2.11) centred in
+// the space to their right (owner, 2026-10-22). Learn went from the right
+// (owner, 2026-10-21): the hover hints switch is in the top bar's ⋯ menu.
+// The transport and the song moved to the top bar, and Master to the foot
+// of the track column (the Master strip, TrackArea).
+
+/** The tracks the computer keyboard plays no notes on. */
+const NOTELESS: ReadonlySet<DockKind> = new Set<DockKind>([
+  'audio',
+  'audio-in',
+]);
 
 export const BottomRail = memo(function BottomRail() {
   useDevCommitCount('BottomRail');
@@ -26,6 +34,16 @@ export const BottomRail = memo(function BottomRail() {
     (s) =>
       s.currentView === 'arrange' ||
       (s.currentView === 'practice' && s.practiceSession === null),
+  );
+  // The computer keyboard plays notes: no Typing keys while an audio track
+  // (an Audio track or an upload) or Master is selected (owner,
+  // 2026-10-22).
+  const typingApplies = useStore(
+    (s) =>
+      !s.dockMaster &&
+      !NOTELESS.has(
+        dockKindOf(s.tracks.find((t) => t.id === s.selectedTrackId)),
+      ),
   );
   return (
     <div
@@ -38,9 +56,7 @@ export const BottomRail = memo(function BottomRail() {
         className="flex min-w-0 items-center gap-2 justify-self-stretch"
       >
         {create ? <DockViews /> : null}
-        <div className="flex min-w-0 flex-1 items-center pl-2">
-          <HintLine />
-        </div>
+        {typingApplies ? <TypingKeys /> : null}
       </div>
       <div
         role="group"
@@ -50,40 +66,14 @@ export const BottomRail = memo(function BottomRail() {
       >
         <ViewTabs />
       </div>
+      {/* The hover hint, centred in the space right of the view tabs
+          (owner, 2026-10-22). */}
       <div
-        role="group"
-        aria-label="Learn"
-        data-zone="learn"
-        className="flex min-w-0 items-center justify-self-end"
+        data-zone="hint"
+        className="flex min-w-0 items-center justify-self-stretch"
       >
-        <LearnPill />
+        <HintLine align="center" />
       </div>
     </div>
   );
 });
-
-/**
- * Learn: the hover hints' switch. The white pill while they're on, as the
- * floating frame's Learn is.
- */
-function LearnPill() {
-  const on = useStore((s) => s.hoverHints);
-  const setHoverHints = useStore((s) => s.setHoverHints);
-  return (
-    <Pill
-      variant={on ? 'primary' : 'pill'}
-      aria-pressed={on}
-      data-testid="learn-pill"
-      data-hint={hintText(
-        'Learn',
-        on
-          ? 'Stop saying what each control does'
-          : 'Say what each control does as you point at it',
-      )}
-      onClick={() => setHoverHints(!on)}
-    >
-      <Lightbulb />
-      Learn
-    </Pill>
-  );
-}

@@ -18,7 +18,6 @@ import {
   setAudioBuffer,
   setOriginalAudio,
   getAudioBuffer,
-  subscribeAudioBufferChanges,
 } from '@/daw/audio/AudioBufferStore';
 import {
   audioClipIntervalsSeconds,
@@ -29,7 +28,6 @@ import { overwriteAudioRegion } from '@/daw/audio/overwriteAudioRegion';
 import { mutedClipIds } from '@/daw/audio/trackAudibility';
 import { seekTo } from '@/daw/hooks/useTransport';
 import {
-  applySamplerState,
   applyStaticMasterVolume,
   applyStaticTrackParams,
   scheduleMasterAutomation,
@@ -56,13 +54,11 @@ import {
   type TrackReconciler,
 } from '@/daw/engine/trackReconciler';
 import { beginTake } from '@/daw/session/takesInFlight';
-import { ChopsSampler } from '@/daw/instruments/ChopsSampler';
 import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
 import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 
 export {
   applyDrumPads,
-  applySamplerState,
   applySends,
   applyStaticTrackParams,
   createInstrument,
@@ -283,6 +279,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   const masteringEffects = useStore((s) => s.masteringEffects);
   const masteringBypass = useStore((s) => s.masteringBypass);
   const masterVolume = useStore((s) => s.masterVolume);
+  const masterMuted = useStore((s) => s.masterMuted);
   const masterAutomation = useStore((s) => s.masterAutomation);
   const returns = useStore((s) => s.returns);
 
@@ -299,24 +296,6 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       reconciler.stop();
       if (reconcilerRef.current === reconciler) reconcilerRef.current = null;
     };
-  }, [isReady]);
-
-  // ── Apply sampler buffers as they finish decoding ─────────────────────
-  // Sample bytes arrive asynchronously (file drop decode, asset rehydration
-  // after load, collab peer's upload) without touching the store's tracks
-  // array, so the track-sync effect above won't re-run. React to the buffer
-  // store instead and idempotently re-apply.
-  useEffect(() => {
-    if (!isReady) return;
-    return subscribeAudioBufferChanges(() => {
-      for (const track of useStore.getState().tracks) {
-        if (track.instrument !== 'sampler' || !track.samplerSample) continue;
-        const state = trackEngineRegistry.get(track.id);
-        if (state?.instrument instanceof ChopsSampler) {
-          applySamplerState(state.instrument, track);
-        }
-      }
-    });
   }, [isReady]);
 
   // ── Sync mastering effects with audio engine ─────────────────────────
@@ -348,6 +327,12 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       );
     }
   }, [isReady, masterVolume, masterAutomation]);
+
+  // ── The Master strip's mute ──────────────────────────────────────────
+  useEffect(() => {
+    if (!isReady) return;
+    audioEngine.setMasterMuted(masterMuted);
+  }, [isReady, masterMuted]);
 
   // ── Sync return-bus effects + volume with audio engine ───────────────
   useEffect(() => {

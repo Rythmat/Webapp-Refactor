@@ -71,10 +71,7 @@ export function applyPracticeModeTrack(
 
   // 'soundfont' + GM program 33 (Electric Bass finger) — a real electric
   // bass guitar timbre, as opposed to 'oracle-synth' (its `BASS` preset is
-  // a subtractive synth-bass patch, not a bass guitar) or 'bass-fx' (that
-  // instrument is reserved for live audio-input bass tracks — addTrack sets
-  // its `audioInputChannel` to a mono input channel, which doesn't apply
-  // to a programmed/MIDI track like this one). `addTrack` has no way to set
+  // a subtractive synth-bass patch, not a bass guitar). `addTrack` has no way to set
   // `gmProgram` at creation time, so it's applied with a follow-up
   // `updateTrack` call, mirroring the existing preset-select flow in
   // KeyboardView.tsx and the jam-import path.
@@ -88,10 +85,13 @@ export function applyPracticeModeTrack(
   }
   store.addMidiClip(drumsTrackId, result.beatClip);
 
+  // The chords and melody on a piano: an Instruments track's grand (the
+  // sampled piano track went, 2026-10-22).
   const chordsTrackId = store.addTrack(
     'midi',
-    'piano-sampler',
+    'soundfont',
     `Chords — ${rootLabel} ${modeLabel}`,
+    { gmProgram: 0 },
   );
   if (result.chordsClip) {
     store.addMidiClip(chordsTrackId, result.chordsClip);
@@ -99,8 +99,9 @@ export function applyPracticeModeTrack(
 
   const melodyTrackId = store.addTrack(
     'midi',
-    'piano-sampler',
+    'soundfont',
     `Melody — ${rootLabel} ${modeLabel}`,
+    { gmProgram: 0 },
   );
   if (result.melodyClip) {
     store.addMidiClip(melodyTrackId, result.melodyClip);

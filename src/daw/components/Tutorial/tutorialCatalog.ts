@@ -55,14 +55,6 @@ export const TUTORIAL_CATALOG = [
     requiresPremium: false,
   },
   {
-    id: 'pop-flip-a-sample',
-    title: 'Pop — Flip a sample',
-    subtitle: 'Load a one-shot and play it like an instrument.',
-    difficulty: 'Beginner',
-    estMinutes: 3,
-    requiresPremium: false,
-  },
-  {
     id: 'edm-design-the-drop',
     title: 'EDM — Design the drop',
     subtitle: 'Wobble bass, minor keys, and saturation — our take on dubstep.',

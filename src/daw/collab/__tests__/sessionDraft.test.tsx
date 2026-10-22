@@ -62,7 +62,7 @@ const store = () => useStore.getState();
 
 /** Work the student made: a track with a part played into it. */
 function makeBeat(name = 'Beat'): void {
-  store().addTrack('midi', 'piano-sampler', name);
+  store().addTrack('midi', 'soundfont', name);
   const trackId = store().tracks[store().tracks.length - 1].id;
   store().addMidiClip(trackId, {
     id: `clip-${name}`,

@@ -35,7 +35,7 @@ function makeTrack(overrides: Partial<Track> = {}): Track {
     id: 't1',
     name: 'Keys',
     type: 'midi',
-    instrument: 'piano-sampler',
+    instrument: 'soundfont',
     color: '#ff0000',
     mute: false,
     solo: false,

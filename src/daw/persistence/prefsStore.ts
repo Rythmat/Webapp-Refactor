@@ -88,6 +88,7 @@ const IS_VALID: {
   timelineTripletMode: isBoolean,
   followPlayhead: isBoolean,
   chordRulerShowNotes: isBoolean,
+  chordAutoAnalyze: isBoolean,
   singleKeyShortcuts: isBoolean,
   inspectorOpenByView: isInspectorOpenByView,
   inspectorWidth: isInspectorWidth,

@@ -60,7 +60,7 @@ let now = 0;
 
 function tracks(enabled: boolean) {
   return [
-    { id: 'gtr', type: 'audio', instrument: 'guitar-fx', audioInputId: 'in' },
+    { id: 'gtr', type: 'audio', instrument: 'audio-input', audioInputId: 'in' },
     {
       id: 'syn',
       type: 'midi',

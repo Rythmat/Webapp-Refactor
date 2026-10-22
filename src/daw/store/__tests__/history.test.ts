@@ -34,7 +34,7 @@ let keys = '';
 beforeEach(() => {
   vi.useFakeTimers();
   useStore.setState(useStore.getInitialState(), true);
-  keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  keys = s().addTrack('midi', 'soundfont', 'Keys');
   resetHistory();
   release = startHistory();
 });
@@ -194,7 +194,9 @@ describe('what undo covers: the registry', () => {
     expect(s().rootNote).toBe(0);
     expect(s().mode).toBe('ionian');
     expect(s().rootTrackColor).toBe(colour);
-    expect(s().tracks[0].color).toBe(colour);
+    // A key change never recolours the tracks themselves: Harmony Color
+    // shows the key's colour in their place (2026-10-22).
+    expect(s().tracks[0].color).not.toBe(colour);
   });
 
   it('undoes a marker and a tempo change', () => {

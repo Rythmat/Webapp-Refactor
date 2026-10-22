@@ -40,11 +40,14 @@ const KEYS = {
 export interface TransportControlsProps {
   isReady: boolean;
   onInit(): void;
+  /** The narrowest top bar's: the click is in the Settings menu. */
+  hideClick?: boolean;
 }
 
 export const TransportControls = memo(function TransportControls({
   isReady,
   onInit,
+  hideClick = false,
 }: TransportControlsProps) {
   useDevCommitCount('TransportControls');
   const isPlaying = useStore((s) => s.isPlaying);
@@ -82,7 +85,7 @@ export const TransportControls = memo(function TransportControls({
   return (
     <>
       <PillGroup label="Transport controls" data-testid="transport-pill">
-        <ClickToggle />
+        {hideClick ? null : <ClickToggle />}
         <IconButton
           variant="bare"
           size="lg"
@@ -151,6 +154,7 @@ export const TransportControls = memo(function TransportControls({
             KEYS.playPause.label,
           )}
           data-testid="transport-play"
+          data-tutorial-id="transport-play"
           data-playing={isPlaying || undefined}
           onClick={handlePlayPause}
         />

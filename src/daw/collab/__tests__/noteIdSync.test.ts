@@ -50,7 +50,7 @@ function makeTrack(midiClips: MidiClip[], id = 'keys'): Track {
     id,
     name: 'Keys',
     type: 'midi',
-    instrument: 'piano-sampler',
+    instrument: 'soundfont',
     color: '#ff0000',
     mute: false,
     solo: false,

@@ -26,14 +26,15 @@ vi.mock('@/hooks/data/auth/useMe', () => ({
   useMe: () => ({ data: undefined }),
 }));
 // The toolbar's menus and set-list button aren't under test.
-vi.mock('@/daw/components/LeadSheet/LeadSheetToolbar', () => ({
-  LeadSheetToolbar: () => null,
+vi.mock('@/daw/components/Score/ScoreToolbar', () => ({
+  ScoreToolbar: () => null,
 }));
 
 import { installKeyDispatcher } from '@/daw/commands/dispatcher';
 import type { SongSection } from '@/daw/model/sections';
 import { useStore, type AllSlices } from '@/daw/store';
-import { LeadSheetView } from '../LeadSheetView';
+import { ScoreView } from '../../Score/ScoreView';
+import { LeadSheetChartView as LeadSheetView } from '../LeadSheetView';
 
 const BAR = 1920;
 const st = () => useStore.getState();
@@ -171,7 +172,7 @@ describe('a section starting inside a multi-bar rest', () => {
 
 describe('the notated sheet', () => {
   it('runs as far as the sections, past the last chord', () => {
-    const keys = st().addTrack('midi', 'piano-sampler', 'Melody');
+    const keys = st().addTrack('midi', 'soundfont', 'Melody');
     st().addMidiClip(keys, {
       id: 'clip',
       startTick: 0,
@@ -190,8 +191,8 @@ describe('the notated sheet', () => {
         sec('c', 'Chorus', 'chorus', 4, 12),
       ],
     } as Partial<AllSlices>);
-    st().setLeadSheetShowMelody(true);
-    render(<LeadSheetView />);
+    // The staves are the Score's, which is the lead sheet too (2026-10-21).
+    render(<ScoreView />);
     expect(h.staffParts).toHaveLength(1);
     expect(h.staffParts[0].score.measures).toHaveLength(12);
   });

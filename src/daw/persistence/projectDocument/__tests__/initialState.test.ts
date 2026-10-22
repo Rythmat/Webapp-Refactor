@@ -238,7 +238,7 @@ describe('resetProjectState', () => {
   });
 
   it('starts a new session generation before it writes the store, once', () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Keys');
     const heard: string[] = [];
     stops.push(
       onSessionGeneration((generation, reason) => {

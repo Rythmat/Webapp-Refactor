@@ -36,7 +36,7 @@ let release: () => void = () => {};
 
 beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
-  s().addTrack('midi', 'piano-sampler', 'Keys');
+  s().addTrack('midi', 'soundfont', 'Keys');
   resetHistory();
   release = startHistory();
   doc = new Y.Doc();

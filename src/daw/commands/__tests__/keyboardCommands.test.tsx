@@ -119,7 +119,7 @@ const vocalTrack = {
   id: 'vox',
   name: 'Vocals',
   type: 'audio',
-  instrument: 'vocal-fx',
+  instrument: 'audio-input',
   recordArmed: true,
   midiClips: [],
   audioClips: [
@@ -450,13 +450,13 @@ describe('the dispatcher: keys stay where the student is working', () => {
   });
 
   it('gives the docked piano roll its own keys, and never the clip behind it', () => {
-    const select = vi.fn();
+    const selectAll = vi.fn();
     const deleteNotes = vi.fn();
     renderEditor(
       <Bound
         scope={PIANO_ROLL_SCOPE.id}
         handlers={{
-          'pianoRoll.select': select,
+          'pianoRoll.selectAll': selectAll,
           'pianoRoll.delete': deleteNotes,
         }}
       >
@@ -471,11 +471,9 @@ describe('the dispatcher: keys stay where the student is working', () => {
     expect(deleteNotes).toHaveBeenCalledTimes(2);
     expect(clip()).toBeDefined();
 
-    // ⌘V is never the Select tool (it used to switch tools as it pasted).
-    press('KeyV', { metaKey: true }, roll);
-    expect(select).not.toHaveBeenCalled();
-    press('KeyV', {}, roll);
-    expect(select).toHaveBeenCalledTimes(1);
+    // ⌘A selects every note in the roll, not the clips behind it.
+    press('KeyA', { metaKey: true }, roll);
+    expect(selectAll).toHaveBeenCalledTimes(1);
   });
 
   it('leaves keys inside a dialog or menu to it', () => {
@@ -509,7 +507,7 @@ describe('the dispatcher: keys stay where the student is working', () => {
       <Bound scope={DOCK_SCOPE.id} handlers={{}}>
         <Bound
           scope={PIANO_ROLL_SCOPE.id}
-          handlers={{ 'pianoRoll.draw': tool }}
+          handlers={{ 'pianoRoll.selectAll': tool }}
         >
           <div tabIndex={0} data-testid="roll" />
         </Bound>
@@ -527,7 +525,7 @@ describe('the dispatcher: keys stay where the student is working', () => {
     });
     expect(clip()?.startTick).toBe(1920);
 
-    press('KeyD', {}, roll);
+    press('KeyA', { metaKey: true }, roll);
     expect(tool).toHaveBeenCalledTimes(1);
     press('KeyZ', { metaKey: true }, roll);
     expect(smartUndo).toHaveBeenCalledTimes(1);
@@ -902,10 +900,25 @@ describe('musical typing', () => {
     engine.noteOn.mockClear();
     engine.noteOff.mockClear();
     trackEngineRegistry.set('keys', { trackEngine: engine } as never);
+    // The keys play the track that hears its input: armed and monitoring
+    // (2026-10-22), not the selected one.
+    useStore
+      .getState()
+      .updateTrack('keys', { recordArmed: true, monitoring: true });
   });
 
   afterEach(() => {
     trackEngineRegistry.delete('keys');
+  });
+
+  it('plays nothing on a selected track that isn’t monitoring', () => {
+    useStore
+      .getState()
+      .updateTrack('keys', { recordArmed: false, monitoring: false });
+    useMusicalTypingStore.setState({ enabled: true });
+    renderEditor();
+    press('KeyA');
+    expect(engine.noteOn).not.toHaveBeenCalled();
   });
 
   function up(code: string, target: EventTarget = document.body) {
@@ -921,7 +934,7 @@ describe('musical typing', () => {
     });
   }
 
-  it('turns on with the backquote and plays the selected track', () => {
+  it('turns on with the backquote and plays the monitoring track', () => {
     renderEditor();
     press('Backquote', { key: '`' });
     expect(useMusicalTypingStore.getState().enabled).toBe(true);
@@ -955,6 +968,9 @@ describe('musical typing', () => {
 
   it('beats a view’s letters, and leaves text fields alone', () => {
     reset('score');
+    useStore
+      .getState()
+      .updateTrack('keys', { recordArmed: true, monitoring: true });
     useMusicalTypingStore.setState({ enabled: true });
     const slur = vi.fn();
     renderEditor(
@@ -1005,9 +1021,11 @@ describe('musical typing', () => {
     const s = useStore.getState();
     const kit = s.addTrack('midi', 'drum-machine', 'Kit');
     useStore.setState({
-      tracks: useStore
-        .getState()
-        .tracks.map((t) => ({ ...t, monitoring: false })),
+      tracks: useStore.getState().tracks.map((t) => ({
+        ...t,
+        recordArmed: t.id === kit,
+        monitoring: t.id === kit,
+      })),
     });
     s.setSelectedTrackId(kit);
     trackEngineRegistry.set(kit, { trackEngine: kitEngine } as never);

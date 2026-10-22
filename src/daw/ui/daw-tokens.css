@@ -13,6 +13,7 @@
   --daw-pill: #141417;
   --daw-pill-text: rgba(255, 255, 255, 0.5);
   --daw-pill-on: rgba(255, 255, 255, 0.2);
+  --daw-arm-off: rgba(255, 255, 255, 0.4);
   --daw-column: rgba(20, 20, 22, 0.85);
   --daw-edge: rgba(255, 255, 255, 0.1);
   --daw-menu: #252529;
@@ -52,6 +53,15 @@
   --daw-ruler-text: rgba(255, 255, 255, 0.7);
   --daw-grid: rgba(255, 255, 255, 0.04);
   --daw-scrollbar: rgba(255, 255, 255, 0.08);
+  --daw-key-white: #f7f7f8;
+  --daw-key-white-top: #e9e9ec;
+  --daw-key-white-pressed: #cfcfd5;
+  --daw-key-divider: #c8c8ce;
+  --daw-key-black: #2b2b2f;
+  --daw-key-black-top: #1c1c1f;
+  --daw-key-black-lip: #3a3a3f;
+  --daw-key-black-pressed: #4a4a51;
+  --daw-key-ink: #3a3a40;
   --daw-accent: var(--daw-text);
   --daw-selection-rgb: 255, 255, 255;
   --daw-line-rgb: 255, 255, 255;

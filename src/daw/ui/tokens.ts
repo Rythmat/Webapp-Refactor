@@ -65,6 +65,8 @@ export const COLOR = colors({
   'pill-text': own('rgba(255, 255, 255, 0.5)'),
   /** A pressed toggle inside a pill: white/20. */
   'pill-on': own('rgba(255, 255, 255, 0.2)'),
+  /** A track header's record-arm circle at rest: white/40, its A in on-primary. */
+  'arm-off': own('rgba(255, 255, 255, 0.4)'),
   /**
    * The track column, over the stage. Never an overlay's surface: overlays
    * stay opaque.
@@ -132,6 +134,22 @@ export const COLOR = colors({
   'ruler-text': own('rgba(255, 255, 255, 0.7)'),
   grid: own('rgba(255, 255, 255, 0.04)'),
   scrollbar: own('rgba(255, 255, 255, 0.08)'),
+
+  // The dock's piano (Soundtrap's, 2026-10-22): ivory and ebony keys in
+  // either theme, the letters the computer keyboard plays on them.
+  'key-white': own('#f7f7f8'),
+  /** A white key's top, where the black keys shade it. */
+  'key-white-top': own('#e9e9ec'),
+  'key-white-pressed': own('#cfcfd5'),
+  /** The line between two white keys, and a white key's badge edge. */
+  'key-divider': own('#c8c8ce'),
+  'key-black': own('#2b2b2f'),
+  'key-black-top': own('#1c1c1f'),
+  /** A black key's lighter lip at its foot. */
+  'key-black-lip': own('#3a3a3f'),
+  'key-black-pressed': own('#4a4a51'),
+  /** A white key's letter and its C's name. */
+  'key-ink': own('#3a3a40'),
 
   // Interim, for the --color-* to --daw-* codemod (2.1): what was the accent
   // reads as text until each use moves to a primitive.

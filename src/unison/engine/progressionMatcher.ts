@@ -2,11 +2,18 @@
  * Match detected chord regions against the 589-entry chord progression library.
  *
  * Strategy:
- *   1. Extract hybrid name sequence from UnisonChordRegions
- *   2. Sliding window comparison against library entries
+ *   1. Extract hybrid name sequence from UnisonChordRegions, a chord held
+ *      across several regions counted once
+ *   2. Sliding window comparison against library entries, at least three
+ *      chords long (or the whole pattern or song, when shorter)
  *   3. Circular matching (detected progression may start mid-pattern)
- *   4. Score: exact match = 1.0, same-degree different-quality = 0.5
- *   5. Return top matches above threshold with inherited vibes/styles
+ *   4. Score per chord: exact match = 1.0, the same chord with or without its
+ *      7th (or another colour) = 0.8, same degree another kind = 0.4; the
+ *      window's score is weighed by how much of the pattern or the song it
+ *      covers, so a two-chord fragment never reads as a sure match
+ *      (2026-10-21: short windows scored 100% and crowded the list)
+ *   5. Return the top matches above the threshold, one per progression,
+ *      with inherited vibes/styles
  */
 
 import CHORD_PROGRESSION_LIBRARY, {
@@ -19,8 +26,12 @@ import type {
 
 // ── Configuration ─────────────────────────────────────────────────────────────
 
-const MIN_SCORE = 0.6;
+const MIN_SCORE = 0.7;
 const MAX_RESULTS = 10;
+/** Shorter windows only when the pattern or the song is this short. */
+const MIN_WINDOW = 3;
+/** A rotated pattern ranks just under the one the song starts on. */
+const ROTATION_PENALTY = 0.02;
 
 // ── Core ──────────────────────────────────────────────────────────────────────
 
@@ -32,17 +43,21 @@ export function matchProgressions(
 ): ProgressionMatchResult[] {
   if (regions.length === 0) return [];
 
-  const detected = regions.map((r) => r.hybridName);
-  const results: ProgressionMatchResult[] = [];
+  const detected = collapseRepeats(regions.map((r) => r.hybridName));
+  // One entry per progression: the library lists some under several songs.
+  const byProgression = new Map<string, ProgressionMatchResult>();
 
   for (const entry of CHORD_PROGRESSION_LIBRARY) {
     const match = bestMatch(detected, entry);
-    if (match && match.score >= MIN_SCORE) {
-      results.push(match);
+    if (!match || match.score < MIN_SCORE) continue;
+    const kept = byProgression.get(match.progression);
+    if (!kept || match.score > kept.score) {
+      byProgression.set(match.progression, match);
     }
   }
 
   // Sort by score descending, then by match length descending
+  const results = [...byProgression.values()];
   results.sort((a, b) => b.score - a.score || b.matchLength - a.matchLength);
   return results.slice(0, MAX_RESULTS);
 }
@@ -66,6 +81,15 @@ function bestMatch(
   let bestMatchLength = 0;
   let bestMatchedChords: string[] = [];
 
+  // What a window must cover to be sure: the whole pattern, and the song's
+  // loop (a song that plays I–V–vi–IV twice is a 4-chord loop).
+  const loop = loopLength(detected);
+  const whole = Math.max(libChords.length, loop);
+  const minWindow = Math.max(
+    2,
+    Math.min(MIN_WINDOW, libChords.length, detected.length),
+  );
+
   // Try each circular rotation of the library pattern
   for (let rotation = 0; rotation < libChords.length; rotation++) {
     const rotated = rotateArray(libChords, rotation);
@@ -73,7 +97,7 @@ function bestMatch(
     // Sliding window: try every starting position in the detected sequence
     for (let start = 0; start <= detected.length - 1; start++) {
       const windowLen = Math.min(rotated.length, detected.length - start);
-      if (windowLen < 2) continue; // need at least 2 chords to match
+      if (windowLen < minWindow) continue;
 
       let totalScore = 0;
       const matched: string[] = [];
@@ -84,7 +108,14 @@ function bestMatch(
         matched.push(detected[start + i]);
       }
 
-      const normalizedScore = totalScore / windowLen;
+      // How alike the chords are, weighed by how much of the pattern and of
+      // the song's loop the window covers; a pattern the song doesn't start
+      // its loop on (a rotation, or the loop read from its middle) reads a
+      // touch less sure than the one it does.
+      const coverage = Math.min(1, windowLen / whole);
+      const normalizedScore =
+        (totalScore / windowLen) * (0.6 + 0.4 * coverage) -
+        (rotation === 0 && start % loop === 0 ? 0 : ROTATION_PENALTY);
 
       if (normalizedScore > bestScore) {
         bestScore = normalizedScore;
@@ -117,7 +148,8 @@ function bestMatch(
 /**
  * Compare two hybrid-name chords.
  *   - Exact match: 1.0
- *   - Same degree, different quality: 0.5
+ *   - Same degree, same kind of chord (C and Cmaj7, G and G7): 0.8
+ *   - Same degree, another kind (C and Cm): 0.4
  *   - Different degree: 0.0
  */
 function compareChords(a: string, b: string): number {
@@ -126,8 +158,50 @@ function compareChords(a: string, b: string): number {
   const degreeA = extractDegree(a);
   const degreeB = extractDegree(b);
 
-  if (degreeA === degreeB) return 0.5;
-  return 0;
+  if (degreeA !== degreeB) return 0;
+  return chordFamily(extractQuality(a)) === chordFamily(extractQuality(b))
+    ? 0.8
+    : 0.4;
+}
+
+/** The quality after the degree ('major7' in '1 major7'). */
+function extractQuality(hybridName: string): string {
+  const spaceIdx = hybridName.indexOf(' ');
+  return spaceIdx > 0 ? hybridName.slice(spaceIdx + 1) : 'major';
+}
+
+/**
+ * The triad a quality is built on: what a chord sounds like before its
+ * 7th, 6th, 9th or other colour.
+ */
+function chordFamily(quality: string): string {
+  const q = quality.toLowerCase();
+  if (q.startsWith('half') || q.includes('m7b5') || q.startsWith('dim')) {
+    return 'diminished';
+  }
+  if (q.startsWith('aug') || q.includes('#5')) return 'augmented';
+  if (q.startsWith('sus')) return 'sus';
+  if (q.startsWith('maj')) return 'major';
+  if (q.startsWith('min') || q.startsWith('m')) return 'minor';
+  return 'major';
+}
+
+/**
+ * The shortest run of chords the song repeats (the whole song when it
+ * doesn't): I–V–vi–IV–I–V–vi–IV is 4, I–IV–V–I is 4.
+ */
+function loopLength(names: string[]): number {
+  for (let period = 1; period < names.length; period++) {
+    // A loop must come round at least once in full.
+    if (period * 2 > names.length) break;
+    if (names.every((name, i) => name === names[i % period])) return period;
+  }
+  return names.length;
+}
+
+/** A chord held across several regions in a row counts once. */
+function collapseRepeats(names: string[]): string[] {
+  return names.filter((name, i) => i === 0 || name !== names[i - 1]);
 }
 
 /** Extract the degree portion from a hybrid name (e.g., "b3" from "b3 major7") */

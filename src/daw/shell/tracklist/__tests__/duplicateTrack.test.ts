@@ -107,7 +107,7 @@ beforeEach(() => {
     scoreSlashNotes: [],
   });
   src = useStore.getState().addTrack('midi', 'oracle-synth', 'Lead');
-  useStore.getState().addTrack('midi', 'piano-sampler', 'Keys');
+  useStore.getState().addTrack('midi', 'soundfont', 'Keys');
   useStore.getState().addMidiClip(src, {
     id: 'm1',
     startTick: 0,
@@ -195,7 +195,7 @@ describe('duplicateTrack', () => {
 
   it('refuses at the track limit, saying so', () => {
     while (tracks().length < MAX_TOTAL_TRACKS) {
-      useStore.getState().addTrack('midi', 'piano-sampler', 'More');
+      useStore.getState().addTrack('midi', 'soundfont', 'More');
     }
     resetHistory();
     const before = tracks();
@@ -268,9 +268,12 @@ function Rows() {
 }
 
 describe('a Chops sample’s copy', () => {
-  /** A Chops track holding a sample, with its audio in the store. */
+  /**
+   * A track holding a Chops sample (as saves from before 2026-10-22 do),
+   * with its audio in the store.
+   */
   function chops(sample: Partial<SamplerSampleRef> = {}) {
-    const id = useStore.getState().addTrack('midi', 'sampler', 'Chops');
+    const id = useStore.getState().addTrack('midi', 'soundfont', 'Chops');
     const ref: SamplerSampleRef = {
       sampleId: 'smp-source',
       assetId: null,
@@ -304,7 +307,7 @@ describe('a Chops sample’s copy', () => {
       buffer.getChannelData(0),
     );
 
-    // What SamplerChopsView does to the sample it replaces.
+    // What replacing the copy's sample does to the old one.
     removeAudioBuffer(copyKey);
     expect(getAudioBuffer(key)).toBe(buffer);
     expect(getOriginalAudio(key)?.bytes.byteLength).toBe(3);

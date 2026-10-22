@@ -1,11 +1,5 @@
 // @vitest-environment jsdom
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-} from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import {
   afterEach,
   beforeAll,
@@ -29,19 +23,22 @@ beforeEach(() => useStore.setState(useStore.getInitialState(), true));
 afterEach(cleanup);
 
 describe('the bottom rail (the floating frame)', () => {
-  it('has the dock views and the hint line at the left, the views at the centre and Learn at the right', () => {
+  it('has the dock views at the left, the views at the centre, the hint line right of them and no Learn', () => {
     render(<BottomRail />);
-    for (const name of ['Views', 'Learn']) {
-      expect(screen.getByRole('group', { name })).toBeInTheDocument();
-    }
+    expect(screen.getByRole('group', { name: 'Views' })).toBeInTheDocument();
+    // Learn went (owner, 2026-10-21): the hover hints switch is the top
+    // bar's.
+    expect(screen.queryByRole('button', { name: 'Learn' })).toBeNull();
+    expect(screen.queryByTestId('learn-pill')).toBeNull();
     // In that order, left to right: the rail's own zones as the DOM has them.
     const order = [
       ...screen
         .getByTestId('bottom-rail')
         .querySelectorAll(':scope > [data-zone]'),
     ].map((zone) => (zone as HTMLElement).dataset.zone);
-    expect(order).toEqual(['editors', 'views', 'learn']);
-    // Master is the track column's Main strip since 2026-10-21.
+    // The hint line sits right of the view tabs (owner, 2026-10-22).
+    expect(order).toEqual(['editors', 'views', 'hint']);
+    // Master is the track column's Master strip since 2026-10-21.
     expect(screen.queryByTestId('master-row')).toBeNull();
     expect(screen.getByRole('group', { name: 'Views' })).toHaveClass(
       'bg-daw-pill',
@@ -85,17 +82,5 @@ describe('the bottom rail (the floating frame)', () => {
     render(<BottomRail />);
     const tabs = screen.getAllByRole('tab').map((t) => t.textContent);
     expect(tabs[0]).toBe('Practice');
-  });
-
-  it('turns the hover hints on and off from Learn, white while on', () => {
-    act(() => useStore.getState().setHoverHints(false));
-    render(<BottomRail />);
-    const learn = screen.getByRole('button', { name: 'Learn' });
-    expect(learn).toHaveAttribute('aria-pressed', 'false');
-    expect(learn).toHaveAttribute('data-variant', 'pill');
-    fireEvent.click(learn);
-    expect(useStore.getState().hoverHints).toBe(true);
-    expect(learn).toHaveAttribute('aria-pressed', 'true');
-    expect(learn).toHaveAttribute('data-variant', 'primary');
   });
 });

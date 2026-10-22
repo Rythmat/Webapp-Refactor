@@ -90,7 +90,7 @@ function noise(length: number): Float32Array {
 
 /** A clip on an audio track at bar 1, `seconds` long, with no audio yet. */
 function addClip(id: string, seconds: number, assetId: string | null = null) {
-  const trackId = s().addTrack('audio', 'vocal-fx', 'Vocals');
+  const trackId = s().addTrack('audio', 'audio-input', 'Vocals');
   const ticksPerSecond = (s().bpm * 480) / 60;
   s().addAudioClip(trackId, {
     id,
@@ -104,15 +104,15 @@ function addClip(id: string, seconds: number, assetId: string | null = null) {
 }
 
 /** A take on an audio track at bar 1, `seconds` long, with its buffer loaded. */
-function addTake(id: string, seconds: number) {
+function addTake(id: string, seconds: number, channels = 2) {
   addClip(id, seconds);
   const left = noise(seconds * RATE);
   const buffer = {
     length: left.length,
     sampleRate: RATE,
     duration: seconds,
-    numberOfChannels: 2,
-    // Both channels play the same audio.
+    numberOfChannels: channels,
+    // Every channel plays the same audio.
     getChannelData: () => left,
   };
   setAudioBuffer(id, buffer as unknown as AudioBuffer);
@@ -199,11 +199,31 @@ describe('audio clip waveforms', () => {
     addTake('take', 25);
     render(<ScrolledTimeline />);
 
+    // Two sides of a stereo take, each two curves a point.
     const curves = count('quadraticCurveTo');
-    expect(curves).toBeGreaterThan(2 * 500);
-    expect(curves).toBeLessThan(2 * (VIEWPORT / 2 + 8));
+    expect(curves).toBeGreaterThan(2 * 2 * 500);
+    expect(curves).toBeLessThan(2 * 2 * (VIEWPORT / 2 + 8));
     expect(loadingLabels()).toBe(0);
     expect(flatLines()).toBe(0);
+  });
+
+  it('draws a stereo take as two halves, left over right, and a mono one whole', () => {
+    vi.stubGlobal('Worker', undefined);
+    addTake('stereo', 25);
+    render(<ScrolledTimeline />);
+    const stereo = count('quadraticCurveTo');
+    // Each side starts at its own height: the halves' centres.
+    const starts = lastDraw()
+      .filter((c) => c.name === 'moveTo')
+      .map((c) => c.args[1] as number);
+    cleanup();
+
+    useStore.setState({ tracks: [] });
+    addTake('mono', 25, 1);
+    render(<ScrolledTimeline />);
+    const mono = count('quadraticCurveTo');
+    expect(stereo).toBe(2 * mono);
+    expect(new Set(starts).size).toBeGreaterThanOrEqual(2);
   });
 
   it('draws a flat line, not Loading…, until the worker delivers a long take’s peaks', () => {
@@ -226,7 +246,7 @@ describe('audio clip waveforms', () => {
     // The arrival redraws the timeline on the next frame, now with the
     // waveform.
     act(() => runFrames());
-    expect(count('quadraticCurveTo')).toBeGreaterThan(2 * 500);
+    expect(count('quadraticCurveTo')).toBeGreaterThan(2 * 2 * 500);
     expect(flatLines()).toBe(0);
     expect(loadingLabels()).toBe(0);
   });

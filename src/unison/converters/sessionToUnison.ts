@@ -175,18 +175,31 @@ function resolveKey(
   rootNote: number | null,
   mode: string,
 ): KeyDetection {
-  // Always run detection for confidence score
   const detected = detectKey(events);
 
-  // If user has set a root note, prefer it but keep detection metadata
+  // The key the student set is the key: certain, with no alternates
+  // (2026-10-21: it showed the detector's doubt, '43%', beside the
+  // student's own choice). What the notes alone suggest is kept apart, for
+  // a hint when the two disagree.
   if (rootNote !== null) {
     const effectiveMode = mode || detected.mode;
     return {
-      ...detected,
       rootPc: rootNote,
       rootName: NOTES[rootNote],
       mode: effectiveMode,
       modeDisplay: mode ? (MODE_DISPLAY[mode] ?? mode) : detected.modeDisplay,
+      confidence: 1,
+      alternateKeys: [],
+      fromNotes:
+        events.length > 0
+          ? {
+              rootPc: detected.rootPc,
+              rootName: detected.rootName,
+              mode: detected.mode,
+              modeDisplay: detected.modeDisplay,
+              confidence: detected.confidence,
+            }
+          : undefined,
     };
   }
 

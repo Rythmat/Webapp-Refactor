@@ -75,7 +75,7 @@ describe('the dock’s minimum', () => {
     for (const slot of ['controls', 'fx', 'master', 'rack'] as const) {
       expect(dockMinPx(slot)).toBe(DOCK_FX_MIN_PX);
     }
-    for (const slot of ['piano-roll', 'prism', 'grooves'] as const) {
+    for (const slot of ['piano-roll', 'prism'] as const) {
       expect(dockMinPx(slot)).toBe(DOCK_MIN_PX);
     }
   });

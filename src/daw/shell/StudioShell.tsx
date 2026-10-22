@@ -3,9 +3,9 @@ import { DevProfiler } from '@/daw/dev/DevProfiler';
 import { cn } from '@/components/utilities';
 import { useStore } from '@/daw/store';
 import { Resizer } from '@/daw/ui/Resizer';
+import { closeDock } from '@/daw/shell/dock/dockOpen';
 import {
   clampInspectorPx,
-  DOCK_DEFAULT_FRAC,
   DOCK_MAX_FRAC,
   dockMinPx,
   DOCK_TALL_FRAC,
@@ -28,7 +28,6 @@ import {
 } from './layout/shellGeometry';
 import { useInspectorFollowsPrefs } from './layout/useInspectorFollowsPrefs';
 import {
-  LeadSheetViewPart,
   PracticeTrackViewPart,
   ScoreViewPart,
   StudioViewPart,
@@ -58,8 +57,10 @@ import { TrackArea } from './tracklist/TrackArea';
 //
 // The side rail (48 px of icons) picks what the Inspector beside it shows:
 // Insight, Library, Effects, Lessons, People, Chat (owner, 2026-10-16, after
-// Soundtrap's). The Inspector runs from the top bar to the bottom rail, so
-// the dock stops at it. It stays mounted in every view and only opens and
+// Soundtrap's). The Inspector runs from the top bar to the bottom rail. It
+// makes room in the view above the dock (the timeline stops at it), and
+// lies over the dock, which keeps its whole width under it (owner,
+// 2026-10-21: the dock's instrument and effects never squeeze). It stays mounted in every view and only opens and
 // closes, as the student keeps it per view. The practice screen is
 // full-window: the top bar, the rails and the Inspector are hidden (still
 // mounted) while it shows.
@@ -96,6 +97,7 @@ export const StudioShell = memo(function StudioShell({
   // Create's timeline is the practice view's too until its session exists.
   const create = view === 'arrange' || (view === 'practice' && !practiceScreen);
   const dockOpen = useStore((s) => s.channelStripTab !== null || s.dockMaster);
+  const inspectorOpen = useStore((s) => s.libraryOpen) && !practiceScreen;
   const maximized =
     useStore((s) => s.dockMaximized) && create && !practiceScreen && dockOpen;
   useShellGeometry(rootRef);
@@ -119,7 +121,9 @@ export const StudioShell = memo(function StudioShell({
       style={{
         gridTemplateAreas: practiceScreen
           ? '"stage stage stage"'
-          : '"top top top" "stage inspector rail" "bottom bottom bottom"',
+          : // The stage spans the Inspector's column: the Inspector lies over
+            // its right edge, above the dock (InspectorRegion).
+            '"top top top" "stage stage rail" "bottom bottom bottom"',
         gridTemplateRows: practiceScreen
           ? 'minmax(0, 1fr)'
           : `${TOP_BAR_PX}px minmax(0, 1fr) ${BOTTOM_RAIL_PX}px`,
@@ -160,6 +164,12 @@ export const StudioShell = memo(function StudioShell({
             // Under a maximized dock the view keeps its place at no height.
             maximized ? 'h-0 flex-none' : 'flex-1',
           )}
+          // The view makes room for the open Inspector; the dock doesn't.
+          style={
+            inspectorOpen
+              ? { paddingRight: 'var(--daw-insp-w, 300px)' }
+              : undefined
+          }
           ref={mainRef}
         >
           {practiceScreen && practiceSession ? (
@@ -178,13 +188,10 @@ export const StudioShell = memo(function StudioShell({
             <DevProfiler id="StudioView">
               <StudioViewPart isReady={isReady} />
             </DevProfiler>
-          ) : view === 'score' ? (
+          ) : (
+            // The Score, which is the Lead sheet too (one editor, 2026-10-21).
             <DevProfiler id="ScoreView">
               <ScoreViewPart />
-            </DevProfiler>
-          ) : (
-            <DevProfiler id="LeadSheetView">
-              <LeadSheetViewPart />
             </DevProfiler>
           )}
         </section>
@@ -275,8 +282,14 @@ const InspectorRegion = memo(function InspectorRegion({
       data-mount-id={mountId.current}
       data-open={libraryOpen || undefined}
       aria-label="Inspector"
-      className="relative flex min-h-0 overflow-hidden"
-      style={{ gridArea: 'inspector' }}
+      className={cn(
+        'relative z-[var(--daw-z-panel)] flex min-h-0 overflow-hidden',
+        // Over the dock it floats, so it reads as a card above it.
+        libraryOpen &&
+          'rounded-[var(--daw-radius-lg)] [box-shadow:var(--daw-shadow-float)]',
+      )}
+      // Its own column, which the stage also spans: it lies over the stage.
+      style={{ gridColumn: 2, gridRow: 2 }}
       hidden={hidden}
     >
       {libraryOpen ? (
@@ -345,10 +358,10 @@ function RackResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
       }
       onCommit={(px) => setDockHeight('rack', px / bodyPx)}
       onDoubleClick={() => {
-        // Between the default and as tall as the strips allow.
+        // Between the default (every dock's) and as tall as the strips allow.
         const tallPx = Math.min(Math.round(bodyPx * DOCK_TALL_FRAC), max);
         const tall = Math.abs(value - tallPx) < 2;
-        setDockHeight('rack', tall ? DOCK_DEFAULT_FRAC.rack : tallPx / bodyPx);
+        setDockHeight('rack', tall ? null : tallPx / bodyPx);
       }}
       onToggle={() => setMixRack(null)}
       data-testid="rack-resizer"
@@ -368,11 +381,10 @@ function DockResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
   const master = useStore((s) => s.dockMaster);
   const heights = useStore((s) => s.dockHeights);
   const setDockHeight = useStore((s) => s.setDockHeight);
-  const setTab = useStore((s) => s.setChannelStripTab);
   const bodyPx = useShellBodyPx(rootRef);
   // A shut dock is its tab bar only: nothing to drag until a tab opens.
   if ((tab === null && !master) || bodyPx === 0) return null;
-  // Master keeps a height of its own, as each tab does.
+  // One height for every dock, Master's too (dockSlotOf).
   const slot = dockSlotOf(tab, master);
   const value = dockPxFor(slot, heights, bodyPx);
   // A dock of effect cards keeps the height they need (dockMinPx).
@@ -392,12 +404,11 @@ function DockResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
         rootRef.current?.style.setProperty(DOCK_HEIGHT_VAR, `${px}px`)
       }
       onCommit={commit}
-      onDoubleClick={() => {
-        const fallback = DOCK_DEFAULT_FRAC[slot] ?? DOCK_DEFAULT_FRAC.controls;
-        const tall = Math.abs(value - bodyPx * DOCK_TALL_FRAC) < 2;
-        setDockHeight(slot, tall ? fallback : DOCK_TALL_FRAC);
-      }}
-      onToggle={() => setTab(null)}
+      // Double-click shuts the dock, as Enter does (owner, 2026-10-22: a
+      // double-click opens and shuts it; the shut dock's title row opens
+      // it, Dock). It used to toggle a tall height.
+      onDoubleClick={closeDock}
+      onToggle={closeDock}
       data-testid="dock-resizer"
       className="top-0 z-[var(--daw-z-sticky)]"
     />

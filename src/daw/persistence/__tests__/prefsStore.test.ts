@@ -52,7 +52,8 @@ const CHOSEN = {
   timelineGridSize: '1/8T',
   timelineTripletMode: true,
   followPlayhead: false,
-  chordRulerShowNotes: true,
+  chordRulerShowNotes: false,
+  chordAutoAnalyze: false,
   singleKeyShortcuts: false,
   inspectorOpenByView: { arrange: false, score: true },
   inspectorWidth: 280,
@@ -304,12 +305,13 @@ describe('writing changes', () => {
     const stop = start(A);
     s().toggleChordRulerLabels();
     stop();
-    expect(stored(A)!.chordRulerShowNotes).toBe(true);
+    // Names is the default: the toggle picked Numbers.
+    expect(stored(A)!.chordRulerShowNotes).toBe(false);
 
     s().toggleChordRulerLabels();
     vi.advanceTimersByTime(1000);
     window.dispatchEvent(new Event('pagehide'));
-    expect(stored(A)!.chordRulerShowNotes).toBe(true);
+    expect(stored(A)!.chordRulerShowNotes).toBe(false);
   });
 
   it('carries on when storage is full', () => {

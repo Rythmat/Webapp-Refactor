@@ -1,6 +1,5 @@
 import { DevProfiler } from '@/daw/dev/DevProfiler';
 import { AvatarMenu } from './AvatarMenu';
-import { MusicalTypingChip } from './MusicalTypingChip';
 import { SaveStatusChip } from './SaveStatusChip';
 
 // ── The practice screen's header (milestone 1.4) ───────────────────────────
@@ -47,7 +46,6 @@ export function PracticeHeader({
         {projectName}
       </h1>
       <div className="flex items-center gap-3 justify-self-end">
-        <MusicalTypingChip />
         <DevProfiler id="PracticeHeaderChip">
           <SaveStatusChip />
         </DevProfiler>

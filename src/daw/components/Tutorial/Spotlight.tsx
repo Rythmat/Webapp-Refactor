@@ -20,8 +20,10 @@ import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 // only. Under prefers-reduced-motion it neither glides nor pulses. The rect
 // comes from the registry, which re-measures only when something moves.
 
-const PAD = 6;
-const RADIUS = 8;
+/** The ring's gap around its target, and its corner radius (RainbowHighlight
+ *  draws on the same outline). */
+export const PAD = 6;
+export const RADIUS = 8;
 const DIM = 'rgba(6, 8, 12, 0.4)';
 const ACCENT = 'var(--daw-accent)';
 

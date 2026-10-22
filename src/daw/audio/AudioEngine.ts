@@ -5,6 +5,9 @@ import { createMeterTap } from './meterTap';
 export class AudioEngine {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
+  // The Master strip's mute, after the mastering chain (and its meter tap):
+  // apart from masterGain, which the volume and its automation ride.
+  private muteGain: GainNode | null = null;
   private analyserL: AnalyserNode | null = null;
   private analyserR: AnalyserNode | null = null;
   private masteringChain: EffectChain | null = null;
@@ -29,10 +32,13 @@ export class AudioEngine {
     this.masterGain = this.ctx.createGain();
     this.masterGain.gain.value = 0.8;
 
-    // Mastering effect chain: masterGain → masteringChain → destination
+    // Mastering effect chain: masterGain → masteringChain → muteGain →
+    // destination
     this.masteringChain = new EffectChain(this.ctx);
     this.masterGain.connect(this.masteringChain.getInputNode());
-    this.masteringChain.getOutputNode().connect(this.ctx.destination);
+    this.muteGain = this.ctx.createGain();
+    this.masteringChain.getOutputNode().connect(this.muteGain);
+    this.muteGain.connect(this.ctx.destination);
 
     // Return buses: returnChain → returnGain → masterGain. Track sends feed
     // the chain input. Effect state + volume are applied from the store by
@@ -47,9 +53,10 @@ export class AudioEngine {
       this.returnGains.set(id, gain);
     }
 
-    // Stereo master metering — parallel dead-end tap after mastering chain
+    // Stereo master metering — parallel dead-end tap after the mute, so a
+    // muted Master's meter falls silent as a muted track's does
     const splitter = this.ctx.createChannelSplitter(2);
-    this.masteringChain.getOutputNode().connect(splitter);
+    this.muteGain.connect(splitter);
 
     // Meter taps (meterTap.ts): only the meters read them.
     this.analyserL = createMeterTap(this.ctx);
@@ -115,6 +122,13 @@ export class AudioEngine {
     if (!this.ctx)
       throw new Error('AudioEngine not initialized. Call init() first.');
     return this.ctx;
+  }
+
+  /** Silences the whole mix (the Master strip's mute), or brings it back. */
+  setMasterMuted(muted: boolean): void {
+    const gain = this.muteGain;
+    if (!gain) return;
+    gain.gain.setTargetAtTime(muted ? 0 : 1, gain.context.currentTime, 0.01);
   }
 
   getMasterGain(): GainNode {
@@ -231,6 +245,8 @@ export class AudioEngine {
     this.returnBuses.clear();
     this.returnGains.clear();
     this.masterGain?.disconnect();
+    this.muteGain?.disconnect();
+    this.muteGain = null;
     this.analyserL?.disconnect();
     this.analyserR?.disconnect();
     this.monitorBus?.disconnect();

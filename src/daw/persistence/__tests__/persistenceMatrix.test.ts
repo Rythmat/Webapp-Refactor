@@ -293,7 +293,7 @@ type TrackName =
 
 /** Keys with one clip, an Oracle lead, drums and a live guitar. */
 function buildProject(p: Page): void {
-  const keys = st(p).addTrack('midi', 'piano-sampler', 'Keys');
+  const keys = st(p).addTrack('midi', 'soundfont', 'Keys');
   st(p).addMidiClip(keys, {
     id: KEYS_CLIP,
     name: 'Verse',
@@ -302,7 +302,7 @@ function buildProject(p: Page): void {
   });
   st(p).addTrack('midi', 'oracle-synth', 'Lead');
   st(p).addTrack('midi', 'drum-machine', 'Drums');
-  st(p).addTrack('audio', 'guitar-fx', 'Guitar');
+  st(p).addTrack('audio', 'audio-input', 'Guitar');
 }
 
 // Look tracks up by name, so the probes hold whether or not a load keeps
@@ -524,15 +524,16 @@ const probes = {
         grid: '1/8',
         snap: false,
         triplet: true,
-        chordRulerShowNotes: true,
+        // Names is the default (2026-10-22): the toggle picks Numbers.
+        chordRulerShowNotes: false,
       }),
   },
   // How this project was last seen on this device (decision D5): the draft
-  // keeps it, the cloud copy never does. The lead sheet view shuts the
-  // Library panel.
+  // keeps it, the cloud copy never does. The Score view (the lead sheet's
+  // too since 2026-10-21) shuts the Library panel.
   projectView: {
     write: (p) => {
-      st(p).setCurrentView('leadsheet');
+      st(p).setCurrentView('score');
       st(p).setTimelineZoom(2.5);
       st(p).setTimelineScrollLeft(120);
       st(p).setSelectedTrackId(track(p, 'Drums').id);
@@ -550,7 +551,7 @@ const probes = {
         automation: [st(p).automationOpenTrackId, st(p).automationParamId],
         dockTab: st(p).channelStripTab,
       }).toEqual({
-        view: 'leadsheet',
+        view: 'score',
         libraryOpen: false,
         zoom: 2.5,
         scroll: 120,
@@ -873,8 +874,8 @@ const probes = {
     write: (p) => st(p).reorderTrack(track(p, 'Guitar').id, 0),
     check: (p) =>
       expect(st(p).tracks.map((t) => [t.name, t.type, t.instrument])).toEqual([
-        ['Guitar', 'audio', 'guitar-fx'],
-        ['Keys', 'midi', 'piano-sampler'],
+        ['Guitar', 'audio', 'audio-input'],
+        ['Keys', 'midi', 'soundfont'],
         ['Lead', 'midi', 'oracle-synth'],
         ['Drums', 'midi', 'drum-machine'],
       ]),
@@ -980,26 +981,28 @@ const probes = {
         presetName: 'Rhodes',
       }),
   },
-  // The lesson bass a Practice Track hands the Studio
-  // (applyGenrePracticeTrack); unset means the sampled electric.
+  // The bass voice saves from before 2026-10-22 hold (a bass track is an
+  // Instruments track now); the save format still carries it.
   bassVoice: {
     write: (p) => {
-      const bass = st(p).addTrack('midi', 'bass-electric', 'Bass');
+      const bass = st(p).addTrack('midi', 'soundfont', 'Bass');
       st(p).updateTrack(bass, { bassVoice: 'upright' });
     },
     check: (p) => expect(track(p, 'Bass').bassVoice).toBe('upright'),
   },
+  // A Chops sample, as saves from before 2026-10-22 hold it.
   samplerSample: {
     write: (p) => {
-      const chops = st(p).addTrack('midi', 'sampler', 'Chops');
+      const chops = st(p).addTrack('midi', 'soundfont', 'Chops');
       st(p).setSamplerSample(chops, { ...CHOP });
     },
     check: (p) => expect(track(p, 'Chops').samplerSample).toEqual(CHOP),
   },
-  // What OrganView saves on the track after each drawbar or switch change.
+  // The drawbars and switches saves from before 2026-10-22 hold for an
+  // organ track; the save format still carries them.
   organState: {
     write: (p) => {
-      const organ = st(p).addTrack('midi', 'tonewheel-organ', 'Organ');
+      const organ = st(p).addTrack('midi', 'soundfont', 'Organ');
       st(p).updateTrack(organ, { organState: structuredClone(ORGAN) });
     },
     check: (p) => expect(track(p, 'Organ').organState).toEqual(ORGAN),
@@ -1026,7 +1029,7 @@ const probes = {
   },
   vocalChain: {
     write: (p) => {
-      const vocal = st(p).addTrack('audio', 'vocal-fx', 'Vocal');
+      const vocal = st(p).addTrack('audio', 'audio-input', 'Vocal');
       st(p).setVocalChain(vocal, structuredClone(VOCAL_CHAIN));
     },
     check: (p) => expect(track(p, 'Vocal').vocalChain).toEqual(VOCAL_CHAIN),
@@ -1384,7 +1387,7 @@ describe('a draft reopened after a reload (IndexedDB) keeps', () => {
     {
       name: 'the bytes of a dropped sampler sample',
       add: (p: Page) => {
-        const chops = st(p).addTrack('midi', 'sampler', 'Chops');
+        const chops = st(p).addTrack('midi', 'soundfont', 'Chops');
         st(p).setSamplerSample(chops, {
           ...CHOP,
           sampleId: 'smp-pending',
@@ -1530,7 +1533,7 @@ describe('a Chops sample saved before samples had ids', () => {
   ])('gets the same id on every %s', async (_how, reload: Reload) => {
     const page = await loadPage();
     buildProject(page);
-    const chops = st(page).addTrack('midi', 'sampler', 'Chops');
+    const chops = st(page).addTrack('midi', 'soundfont', 'Chops');
     // The store type requires the id, which older saves don't have.
     st(page).setSamplerSample(chops, { ...LEGACY_CHOP } as SamplerSampleRef);
 

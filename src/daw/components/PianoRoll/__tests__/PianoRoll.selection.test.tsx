@@ -23,7 +23,8 @@ import { PianoRoll } from '../PianoRoll';
 // one, and Delete removed them. It is let go when the clip or the session
 // changes.
 
-const ROW_H = 12;
+// The roll opens with rows 1.5 × 12 px tall (2026-10-22).
+const ROW_H = 18;
 const VIEW_MAX = 96;
 
 const note = (startTick: number, midi = 60): MidiNoteEvent => ({

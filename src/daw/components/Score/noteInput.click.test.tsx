@@ -145,7 +145,7 @@ beforeEach(() => {
     scoreSpellings: [],
     scoreSlashNotes: [],
   } as Partial<AllSlices>);
-  trackId = st().addTrack('midi', 'piano-sampler', 'Piano');
+  trackId = st().addTrack('midi', 'soundfont', 'Piano');
   stopUndo = initUndoTracking();
   resetUndoHistory();
   vi.mocked(auditionNote).mockClear();
@@ -363,7 +363,9 @@ describe('note input on a staff written an octave above its sound', () => {
 
   beforeEach(() => {
     useStore.setState({ tracks: [] } as Partial<AllSlices>);
-    trackId = st().addTrack('midi', 'bass-electric', 'Bass');
+    trackId = st().addTrack('midi', 'soundfont', 'Bass', {
+      gmProgram: 33,
+    });
     resetUndoHistory();
   });
 

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render } from '@testing-library/react';
 
 // ── Which rack an FX list row belongs to ────────────────────────────────────
-// The side rail's Effects library (FxBody) is the one FX list since 2.8, and
+// The Add effect picker (EffectPicker) is the one FX list since 2.8, and
 // it adds to the rack in front of the student (2.10): a track's, the
 // master's or a return's. Each row says which rack it adds to, so a lesson
 // step spotlights the rack it means, the track's unless the step names
@@ -13,7 +13,7 @@ vi.mock('@/daw/hooks/usePlaybackEngine', () => ({
   getTrackAudioState: () => null,
 }));
 
-import { FxBody } from '@/daw/shell/inspector/panels/FxBody';
+import { EffectPickerBody } from '@/daw/shell/dock/EffectPicker';
 import { useStore } from '@/daw/store';
 import { resolveAnchor } from '../anchorRegistry';
 import { setBox } from './anchorTestUtils';
@@ -50,7 +50,7 @@ describe('the Effects library’s rack stamp', () => {
       },
     ]) {
       setUp();
-      render(<FxBody />);
+      render(<EffectPickerBody />);
       seen.push(rackOf('compressor'));
       // Every fx-add-* row says its rack.
       for (const row of document.querySelectorAll(

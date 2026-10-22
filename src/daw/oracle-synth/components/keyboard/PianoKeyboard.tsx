@@ -9,6 +9,10 @@ interface PianoKeyboardProps {
   activeColor?: string; // hex color for active keys (default: cyan from CSS)
   onNoteOn: (note: number, velocity: number) => void;
   onNoteOff: (note: number) => void;
+  /** The computer key that plays a note, shown on its key (Soundtrap's). */
+  keyLabel?: (note: number) => string | null;
+  /** Name every C ('C3', 'C4') on its key. */
+  octaveLabels?: boolean;
 }
 
 // Semitone pattern: which notes in an octave are black keys
@@ -27,13 +31,16 @@ const BLACK_KEY_PATTERN = [
   false,
 ];
 
-// Black key offset positions (how far right from the white key, as fraction of white key width)
-const BLACK_KEY_OFFSETS: Record<number, number> = {
-  1: 0.65, // C#
-  3: 0.75, // D#
-  6: 0.6, // F#
-  8: 0.7, // G#
-  10: 0.8, // A#
+// A black key is this much of a white key's width (Soundtrap's, 2026-10-22;
+// it was 0.39), centred on the line between its two white keys, nudged as a
+// piano's are: C# and F# a little left, D# and A# a little right.
+const BLACK_KEY_WIDTH = 0.6;
+const BLACK_KEY_NUDGE: Record<number, number> = {
+  1: -0.08, // C#
+  3: 0.08, // D#
+  6: -0.1, // F#
+  8: 0, // G#
+  10: 0.1, // A#
 };
 
 function isBlackKey(note: number): boolean {
@@ -47,6 +54,8 @@ export const PianoKeyboard: React.FC<PianoKeyboardProps> = ({
   activeColor,
   onNoteOn,
   onNoteOff,
+  keyLabel,
+  octaveLabels = false,
 }) => {
   const handleNoteOn = useCallback(
     (note: number) => {
@@ -96,14 +105,21 @@ export const PianoKeyboard: React.FC<PianoKeyboardProps> = ({
           activeColor={activeColor}
           onNoteOn={handleNoteOn}
           onNoteOff={handleNoteOff}
+          label={keyLabel?.(note)}
+          octaveName={
+            octaveLabels && note % 12 === 0
+              ? `C${Math.floor(note / 12) - 1}`
+              : null
+          }
         />
       ))}
 
       {/* Black keys positioned absolutely */}
       {blackKeys.map(({ note, whiteKeyIndex }) => {
         const semitone = note % 12;
-        const offset = BLACK_KEY_OFFSETS[semitone] ?? 0.7;
-        const left = (whiteKeyIndex + offset) * whiteKeyWidth;
+        const nudge = BLACK_KEY_NUDGE[semitone] ?? 0;
+        const left =
+          (whiteKeyIndex + 1 - BLACK_KEY_WIDTH / 2 + nudge) * whiteKeyWidth;
 
         return (
           <div
@@ -111,7 +127,7 @@ export const PianoKeyboard: React.FC<PianoKeyboardProps> = ({
             className={styles.blackKeyContainer}
             style={{
               left: `${left}%`,
-              width: `${whiteKeyWidth * 0.65}%`,
+              width: `${whiteKeyWidth * BLACK_KEY_WIDTH}%`,
             }}
           >
             <PianoKey
@@ -121,6 +137,7 @@ export const PianoKeyboard: React.FC<PianoKeyboardProps> = ({
               activeColor={activeColor}
               onNoteOn={handleNoteOn}
               onNoteOff={handleNoteOff}
+              label={keyLabel?.(note)}
             />
           </div>
         );

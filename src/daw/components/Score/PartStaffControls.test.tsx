@@ -140,8 +140,8 @@ beforeAll(installDomShims);
 
 beforeEach(() => {
   useStore.setState({ tracks: [] } as Partial<AllSlices>);
-  keys = st().addTrack('midi', 'electric-piano', 'Keys');
-  bass = st().addTrack('midi', 'bass-electric', 'Bass');
+  keys = st().addTrack('midi', 'soundfont', 'Keys', { gmProgram: 4 });
+  bass = st().addTrack('midi', 'soundfont', 'Bass', { gmProgram: 33 });
   const drums = st().addTrack('midi', 'drum-machine', 'Drums');
   for (const [id, midi] of [
     [keys, 72],
@@ -230,10 +230,10 @@ describe('a new instrument', () => {
     mount();
     await choose('Bass', 'Treble clef');
     expect(stavesOf(bass)).toEqual(['treble']);
-    // The keyboard's preset browser: a soundfont cello, as one edit.
+    // A cello from the Instruments panel's program list, as one edit.
     act(() =>
       withTransaction('Change instrument', () =>
-        st().updateTrack(bass, { instrument: 'soundfont', gmProgram: 42 }),
+        st().updateTrack(bass, { gmProgram: 42 }),
       ),
     );
     expect(trackOf(bass).notationStaff).toBeUndefined();
@@ -241,7 +241,7 @@ describe('a new instrument', () => {
     expect(
       screen.getByRole('combobox', { name: 'Clef for Bass' }),
     ).toHaveTextContent('Auto (Bass clef)');
-    // Then a viola, from the Instruments panel's program list.
+    // Then a viola.
     act(() =>
       withTransaction('Change instrument', () =>
         st().updateTrack(bass, { gmProgram: 41 }),
@@ -253,12 +253,12 @@ describe('a new instrument', () => {
     expect(trackOf(bass)).toMatchObject({ gmProgram: 42 });
     act(() => undo());
     expect(trackOf(bass)).toMatchObject({
-      instrument: 'bass-electric',
+      gmProgram: 33,
       notationStaff: 'treble',
     });
     expect(stavesOf(bass)).toEqual(['treble']);
     act(() => redo());
-    expect(trackOf(bass)).toMatchObject({ instrument: 'soundfont' });
+    expect(trackOf(bass)).toMatchObject({ gmProgram: 42 });
     expect(trackOf(bass).notationStaff).toBeUndefined();
   });
 
@@ -287,7 +287,7 @@ describe("a part's name on the page", () => {
       height: '180px',
     });
     expect(button.getAttribute('title')).toBe(
-      'Bass — Auto: Bass clef 8vb (sounds an octave lower), for Bass guitar. Click to change the clef.',
+      'Bass — Auto: Bass clef 8vb (sounds an octave lower), for Electric Bass (finger). Click to change the clef.',
     );
   });
 

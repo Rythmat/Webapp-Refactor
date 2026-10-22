@@ -1,10 +1,5 @@
-import {
-  ChevronDown,
-  ChevronUp,
-  Maximize2,
-  Minimize2,
-  Sparkles,
-} from 'lucide-react';
+import { ChevronDown, ChevronUp, Minimize2, Sparkles } from 'lucide-react';
+import { useTrackColor } from '@/daw/harmony/trackColor';
 import { memo, useCallback, useEffect, useRef } from 'react';
 import { cn } from '@/components/utilities';
 import { LockedFeatureOverlay } from '@/components/ui/LockedFeatureOverlay';
@@ -13,14 +8,13 @@ import { DOCK_MAX_SCOPE, DOCK_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
 import { TrackControlsPanel } from '@/daw/components/Controls/TrackControlsPanel';
+import { AutomationLaneEditor } from '@/daw/components/Timeline/AutomationLaneEditor';
 import { resolveEditorClip } from '@/daw/model/editorClip';
 import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
 import {
   ClipPianoRollPart,
-  DockMasterPart,
   DrumMachineViewPart,
   EffectsPanelPart,
-  GroovesBrowserPart,
   PrismPanelPart,
 } from '@/daw/shell/lazyParts';
 import { hintText } from '@/daw/shell/help/hintSource';
@@ -32,27 +26,31 @@ import { Button } from '@/daw/ui/Button';
 import { IconButton } from '@/daw/ui/IconButton';
 import { TYPE_CLASS } from '@/daw/ui/styles';
 import { useIsPremium } from '@/hooks/useIsPremium';
-import { MasterBypass } from '@/daw/shell/mix/master/MasterBypass';
 import {
   dockKindOf,
   isChannelStripTabId,
   tabFor,
   type DockKind,
 } from './dockTabs';
+import { toggleDock } from './dockOpen';
 
 // ── The editor dock (milestones 2.4, 2.9) ──────────────────────────────────
 //
 // Between the canvas and the bottom rail, stopping at the Inspector. It
 // shows the selected track's editors, by what the track is (dockTabs.ts).
 // The bottom rail's Instrument, FX and Edit open them (dockViews.ts, the
-// floating frame's bottom bar, 2026-10-21); its header holds the track and
-// Maximize and Close, and no tabs. An audio or a live-input track's body is
-// its chain, whatever the tab. Selection drives it: it
+// floating frame's bottom bar, 2026-10-21). Open on a track it has no title
+// row: its Close floats in its top-right corner, so the sound menu
+// and the instrument get the height (owner, 2026-10-21); Master and a shut
+// dock keep the 32 px row with the name. No tabs. A track with no input
+// shows its chain whatever the tab; an Audio track shows its one dock (its
+// Tuner, amp, pitch correction and effects). Selection drives it: it
 // follows the selected track, keeping the tab that applies, and a click on
 // a clip opens that clip's editor here (dockSelection.ts). Notes is the one
-// note editor: the piano roll, or the drum grid on drums. Maximize grows it
-// over the canvas, in place of the old modal piano roll and the pop-out
-// windows, and Escape gives the canvas back. The bottom rail's Master
+// note editor: the piano roll, or the drum grid on drums. There is no
+// Maximize button (owner, 2026-10-22: what needs room has its own Expand);
+// the effect cards' Show all still grows the dock over the canvas, and
+// Restore or Escape gives the canvas back. The bottom rail's Master
 // opens Master in the same slot.
 //
 // Its height is a share of the body per tab, never a fixed px height
@@ -67,20 +65,21 @@ const MAX_KEYS = shortcutKeys('dockMax.restore');
 
 const INSTRUMENT_LABEL: Partial<Record<Track['instrument'], string>> = {
   'oracle-synth': 'Synth',
-  'piano-sampler': 'Keys',
-  'electric-piano': 'E.Piano',
-  'bass-electric': 'E.Bass',
-  'guitar-acoustic': 'A.Guitar',
-  cello: 'Cello',
-  organ: 'Organ',
-  'tonewheel-organ': 'Organ',
   soundfont: 'GM',
   'drum-machine': 'Drums',
-  sampler: 'Sampler',
-  'guitar-fx': 'Guitar',
-  'bass-fx': 'Bass',
-  'vocal-fx': 'Voice',
+  'audio-input': 'Audio',
 };
+
+/**
+ * How far from the dock's right edge its own controls sit: past the
+ * Inspector while it is open, since the Inspector lies over the dock's right
+ * end (StudioShell), so its buttons stay in reach.
+ */
+function insetRight(px: number): string {
+  return useStore.getState().libraryOpen
+    ? `calc(var(--daw-insp-w, 300px) + ${px}px)`
+    : `${px}px`;
+}
 
 /** The tab that opens a shut dock for a track of `kind`. */
 const openingTab = (kind: DockKind): ChannelStripTabId =>
@@ -104,7 +103,17 @@ export const Dock = memo(function Dock() {
   const selectedTrackId = useStore((s) => s.selectedTrackId);
   const trackCount = useStore((s) => s.tracks.length);
   const kind = dockKindOf(track);
-  const open = activeTab !== null || master;
+  // An open automation lane (the bottom rail's Automation, a track's ⋯) is
+  // a dock view too: it shows in the dock, over the tab, until another view
+  // is picked or the dock shuts (owner, 2026-10-21).
+  const automation = useStore((s) => s.automationOpenTrackId !== null);
+  // Re-renders as the Inspector opens and shuts: it covers the dock's right
+  // end, and the dock's controls move clear of it (insetRight).
+  useStore((s) => s.libraryOpen);
+  const open = activeTab !== null || master || automation;
+  // An open dock has no title row, a track's or Master's (owner,
+  // 2026-10-22: Master's dock is like the others); a shut one keeps it.
+  const headerless = open && (master || track !== undefined);
 
   // The session generation moves on with every load and reset of the
   // project (sessionGeneration.ts). A project opened in place of another goes
@@ -154,7 +163,10 @@ export const Dock = memo(function Dock() {
     if (s.channelStripTab === null) setActiveTab(openingTab(kind));
   }, [selectedTrackId, kind, setMaster, setActiveTab]);
 
-  const close = useCallback(() => setActiveTab(null), [setActiveTab]);
+  const close = useCallback(() => {
+    setActiveTab(null);
+    useStore.getState().setAutomationOpenTrackId(null);
+  }, [setActiveTab]);
   const toggleMaximized = useCallback(
     () => setMaximized(!useStore.getState().dockMaximized),
     [setMaximized],
@@ -174,47 +186,96 @@ export const Dock = memo(function Dock() {
       ref={rootRef}
       data-testid="dock"
       data-kind={master ? 'master' : kind}
-      data-tab={master ? 'master' : (activeTab ?? undefined)}
+      data-tab={
+        automation ? 'automation' : master ? 'master' : (activeTab ?? undefined)
+      }
       data-maximized={(maximized && open) || undefined}
-      className="flex h-full shrink-0 flex-col border-t border-daw-hairline bg-daw-surface-1"
+      className="relative flex h-full shrink-0 flex-col border-t border-daw-hairline bg-daw-surface-1"
     >
-      <DockHeader
-        track={track}
-        kind={kind}
-        activeTab={activeTab}
-        master={master}
-        open={open}
-        maximized={maximized && open}
-        onToggleMaximized={toggleMaximized}
-        onClose={close}
-      />
+      {headerless ? (
+        // Open on a track: no title row (owner, 2026-10-21), so the sound
+        // menu and the instrument get its height; its controls float in the
+        // top-right corner.
+        <div
+          data-testid="dock-header"
+          data-floating
+          className="absolute top-1.5 z-[var(--daw-z-sticky)] flex items-center gap-1 rounded-[var(--daw-radius-md)] bg-daw-surface-1"
+          style={{ right: insetRight(6) }}
+        >
+          <DockControls
+            kind={kind}
+            activeTab={activeTab}
+            master={master}
+            open={open}
+            maximized={maximized && open}
+            onToggleMaximized={toggleMaximized}
+            onClose={close}
+          />
+        </div>
+      ) : (
+        <DockHeader
+          track={track}
+          kind={kind}
+          activeTab={activeTab}
+          master={master}
+          open={open}
+          maximized={maximized && open}
+          onToggleMaximized={toggleMaximized}
+          onClose={close}
+        />
+      )}
       {/* The body takes its height in one step, the shell's --daw-dock-h
           (the student's for this tab) less the tab bar, and only its
           content fades in: a height spring re-laid out the timeline above
           it every frame (milestone 2.4's motion rules). */}
       {open ? (
         <div
-          key={master ? 'master' : `${kind}:${activeTab}`}
+          key={
+            automation
+              ? 'automation'
+              : master
+                ? 'master'
+                : `${kind}:${activeTab}`
+          }
           // Where Enter on a track row puts focus (the track list's keys).
           data-dock-content
           // The drums' kit and the effect cards (Effects, an audio track's
           // chain, Master) are built on the design system; the other bodies
           // are the legacy components until Stage C.
           data-ds={
-            master ||
-            kind === 'audio' ||
-            (activeTab === 'fx' && kind !== 'live-input') ||
-            (kind === 'drums' && activeTab === 'controls')
+            // The automation editor is a legacy component until it's
+            // restyled.
+            !automation &&
+            (master ||
+              kind === 'audio' ||
+              activeTab === 'fx' ||
+              (kind === 'drums' && activeTab === 'controls'))
               ? 'v2'
               : 'legacy'
           }
           tabIndex={-1}
-          className="min-h-0 overflow-hidden border-t border-daw-hairline outline-none duration-daw-fast animate-in fade-in-0 motion-reduce:animate-none"
+          className={cn(
+            'min-h-0 overflow-hidden outline-none duration-daw-fast animate-in fade-in-0 motion-reduce:animate-none',
+            !headerless && 'border-t border-daw-hairline',
+          )}
           style={{
-            height: `calc(var(--daw-dock-h, ${DOCK_FALLBACK_PX}px) - ${DOCK_TAB_BAR_PX + 1}px)`,
+            // Without the title row the body takes the dock's whole height,
+            // less the dock's own top edge.
+            height: headerless
+              ? `calc(var(--daw-dock-h, ${DOCK_FALLBACK_PX}px) - 1px)`
+              : `calc(var(--daw-dock-h, ${DOCK_FALLBACK_PX}px) - ${DOCK_TAB_BAR_PX + 1}px)`,
           }}
         >
-          <DockBody track={track} kind={kind} master={master} tab={activeTab} />
+          {automation ? (
+            <AutomationLaneEditor />
+          ) : (
+            <DockBody
+              track={track}
+              kind={kind}
+              master={master}
+              tab={activeTab}
+            />
+          )}
         </div>
       ) : null}
     </div>
@@ -234,7 +295,7 @@ interface DockHeaderProps {
   onClose(): void;
 }
 
-/** The track (or Master) at the left; Maximize and Close at the right. */
+/** The track (or Master) at the left; its controls at the right. */
 function DockHeader({
   track,
   kind,
@@ -245,12 +306,24 @@ function DockHeader({
   onToggleMaximized,
   onClose,
 }: DockHeaderProps) {
-  const setActiveTab = useStore((s) => s.setChannelStripTab);
   return (
     <div
       data-testid="dock-header"
-      className="flex shrink-0 items-center justify-between gap-2 px-2"
-      style={{ height: DOCK_TAB_BAR_PX }}
+      className="flex shrink-0 items-center justify-between gap-2 pl-2"
+      style={{ height: DOCK_TAB_BAR_PX, paddingRight: insetRight(8) }}
+      // A double-click on the title row opens or shuts the dock (owner,
+      // 2026-10-22), as the resizer's does; its buttons keep their own
+      // clicks.
+      // A double-click selects a word, which lands on the dock's contents
+      // once it opens: the second press selects nothing.
+      onMouseDown={(e) => {
+        if (e.detail > 1) e.preventDefault();
+      }}
+      onDoubleClick={(e) => {
+        if ((e.target as Element).closest('button')) return;
+        window.getSelection()?.removeAllRanges();
+        toggleDock();
+      }}
     >
       <div className="flex min-w-0 items-center gap-1.5">
         {master ? (
@@ -265,56 +338,88 @@ function DockHeader({
       </div>
 
       <div className="flex min-w-0 items-center gap-1">
-        {master ? <MasterBypass testId="dock-master-bypass" /> : null}
-        {open && !master && kind === 'melodic' && activeTab === 'piano-roll' ? (
-          <AnalyzeNotes />
-        ) : null}
-        {open ? (
-          <IconButton
-            label={maximized ? 'Restore the dock' : 'Maximize the dock'}
-            icon={maximized ? <Minimize2 /> : <Maximize2 />}
-            shortcut={maximized ? MAX_KEYS.label : undefined}
-            size="sm"
-            tooltipSide="top"
-            aria-pressed={maximized}
-            data-hint={hintText(
-              maximized ? 'Restore the dock' : 'Maximize the dock',
-              maximized
-                ? 'Give the timeline its room back'
-                : 'Give the dock the whole editor’s height',
-              maximized ? MAX_KEYS.label : undefined,
-            )}
-            data-testid="dock-maximize"
-            onClick={onToggleMaximized}
-          />
-        ) : null}
-        <IconButton
-          label={open ? 'Close the dock' : 'Open the dock'}
-          icon={open ? <ChevronDown /> : <ChevronUp />}
-          size="sm"
-          tooltipSide="top"
-          data-hint={hintText(
-            open ? 'Close the dock' : 'Open the dock',
-            open
-              ? 'Hide the panel under the timeline'
-              : 'Show the selected track’s panel under the timeline',
-          )}
-          data-testid="dock-toggle"
-          onClick={() => (open ? onClose() : setActiveTab(openingTab(kind)))}
+        <DockControls
+          kind={kind}
+          activeTab={activeTab}
+          master={master}
+          open={open}
+          maximized={maximized}
+          onToggleMaximized={onToggleMaximized}
+          onClose={onClose}
         />
       </div>
     </div>
   );
 }
 
+/**
+ * Analyze (notes picked in the piano roll), Restore (while maximized) and
+ * Close: the header's right end, or the corner of a dock with no title row.
+ * Master's dock has no Bypass (owner, 2026-10-22); Mix's Master column
+ * keeps its own.
+ */
+function DockControls({
+  kind,
+  activeTab,
+  master,
+  open,
+  maximized,
+  onToggleMaximized,
+  onClose,
+}: Omit<DockHeaderProps, 'track'>) {
+  const setActiveTab = useStore((s) => s.setChannelStripTab);
+  return (
+    <>
+      {open && !master && kind === 'melodic' && activeTab === 'piano-roll' ? (
+        <AnalyzeNotes />
+      ) : null}
+      {/* No Maximize (owner, 2026-10-22): what needs room has its own
+          Expand. Restore shows while something else maximized the dock
+          (the effect cards' Show all), as Escape does. */}
+      {open && maximized ? (
+        <IconButton
+          label="Restore the dock"
+          icon={<Minimize2 />}
+          shortcut={MAX_KEYS.label}
+          size="sm"
+          tooltipSide="top"
+          data-hint={hintText(
+            'Restore the dock',
+            'Give the timeline its room back',
+            MAX_KEYS.label,
+          )}
+          data-testid="dock-restore"
+          onClick={onToggleMaximized}
+        />
+      ) : null}
+      <IconButton
+        label={open ? 'Close the dock' : 'Open the dock'}
+        icon={open ? <ChevronDown /> : <ChevronUp />}
+        size="sm"
+        tooltipSide="top"
+        data-hint={hintText(
+          open ? 'Close the dock' : 'Open the dock',
+          open
+            ? 'Hide the panel under the timeline'
+            : 'Show the selected track’s panel under the timeline',
+        )}
+        data-testid="dock-toggle"
+        onClick={() => (open ? onClose() : setActiveTab(openingTab(kind)))}
+      />
+    </>
+  );
+}
+
 function TrackIdentity({ track }: { track: Track }) {
+  // Harmony Color: the key centre's colour in its own's place.
+  const trackColor = useTrackColor(track.color);
   return (
     <>
       <span
         aria-hidden
         className="size-2 shrink-0 rounded-full"
         // The track's colour is meaning: it marks the track on the canvas.
-        style={{ backgroundColor: track.color }}
+        style={{ backgroundColor: trackColor }}
       />
       <span
         className={cn(
@@ -378,7 +483,9 @@ function DockBody({
 }) {
   const { isPremium } = useIsPremium();
   const maximized = useStore((s) => s.dockMaximized);
-  if (master) return <DockMasterPart />;
+  // Master's dock is its Effects (the master chain's cards), as a track's
+  // FX is; its automation lane is the rail's Automation (owner, 2026-10-22).
+  if (master) return <EffectsPanelPart />;
   if (!track) {
     return (
       <Empty>Select a track to see its instrument, notes and effects.</Empty>
@@ -387,18 +494,14 @@ function DockBody({
   switch (kind) {
     case 'audio':
       return <EffectsPanelPart />;
-    case 'live-input':
-      return tab === 'fx' ? (
-        <EffectsPanelPart />
-      ) : (
-        <TrackControlsPanel roomy={maximized} />
-      );
+    case 'audio-in':
+      // A plain Audio track: its Tuner, amp and pitch correction, and its
+      // effects, in one dock whatever the tab (GuitarBassView).
+      return <TrackControlsPanel roomy={maximized} />;
     default:
       break;
   }
   switch (tab) {
-    case 'grooves':
-      return <GroovesBrowserPart trackId={track.id} />;
     case 'prism':
       return (
         <LockedFeatureOverlay locked={!isPremium}>

@@ -1,9 +1,8 @@
-import { Search, Settings2, Timer } from 'lucide-react';
+import { Search, Settings, Settings2, Timer } from 'lucide-react';
 import { memo, useMemo, useRef } from 'react';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
-import { MoreGlyph } from '@/daw/ui/icons/frameIcons';
 import { PillGroup } from '@/daw/ui/Pill';
 import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
@@ -21,7 +20,6 @@ import { AvatarMenu } from './AvatarMenu';
 import { BackToStudio } from './BackToStudio';
 import { ExportPill } from './ExportPill';
 import { HelpItems } from './HelpMenu';
-import { MusicalTypingChip } from './MusicalTypingChip';
 import { ProjectMenu } from './ProjectMenu';
 import { ProjectName } from './ProjectName';
 import { SaveChipAnnouncer, SaveStatusChip } from './SaveStatusChip';
@@ -29,6 +27,7 @@ import { useClickSettings } from '../bottombar/ClickToggle';
 import { SnapToGridSub, TimelineDisplaySub } from '../canvas/GridMenu';
 import { SongControls } from '../bottombar/SongControls';
 import { TransportControls } from '../bottombar/TransportControls';
+import { ClickMenuItem, TimeSignatureSub } from './FoldedMenuItems';
 import { UndoRedoButtons } from './UndoRedoButtons';
 import { folded, useToolbarOverflow } from './useToolbarOverflow';
 
@@ -39,12 +38,13 @@ import { folded, useToolbarOverflow } from './useToolbarOverflow';
 // - project, at the left: Back, the Project menu and the name in one pill
 //   (the save chip shows there only when work is at risk: a failed save or
 //   audio not stored; 'Saved on this device' went, owner 2026-10-21); Undo
-//   and Redo in the next;
+//   and Redo in the next (the editing tool's button went, owner
+//   2026-10-22: Pointer, Draw and Cut are their keys, V, B and C);
 // - transport, centred in the bar: Click, Go to start, Rewind, Record,
 //   Play, Fast-forward and Loop in one pill, the position in the next;
 // - song and account, at the right: Key, Tempo and Metre in one pill; the
-//   computer keyboard's chip and '⋯' in the next; the white Export pill and
-//   the avatar. Sessions (Share, Invite, Join, Leave) are the side rail's
+//   Settings (a gear, the menu once called '⋯', owner 2026-10-21) in the
+//   next; Export, its icon only, and the avatar. Sessions (Share, Invite, Join, Leave) are the side rail's
 //   People panel's alone since 2026-10-21 (owner: "this already is in the
 //   side rail"); the invite dialog's one instance mounts here (InviteHost).
 // The view tabs (Create, Mix, Score) moved to the bottom rail's centre.
@@ -55,6 +55,9 @@ import { folded, useToolbarOverflow } from './useToolbarOverflow';
 
 /** The least room either side of the transport (the grid's column gaps). */
 const BAR_CHROME_PX = 4 + 4;
+
+/** Whether the bar centres the transport at fold level `level`. */
+const centredAt = (level: number) => !folded(level, 'uncentre');
 
 const TYPING_KEYS = shortcutKeys('typing.on');
 const PALETTE_KEYS = shortcutKeys('help.palette');
@@ -82,8 +85,9 @@ export const TopBar = memo(function TopBar({
     zones,
     BAR_CHROME_PX,
     undefined,
-    true,
+    centredAt,
   );
+  const centred = centredAt(fold);
   // Undo and Redo are off in the practice view, as Cmd+Z is.
   const practiceView = useStore((s) => s.currentView === 'practice');
 
@@ -94,12 +98,23 @@ export const TopBar = memo(function TopBar({
         data-testid="top-bar"
         data-fold={fold}
         className="grid h-11 items-center overflow-hidden px-2"
-        style={{
-          // The transport centred in the window, as the floating frame's is:
-          // equal side columns, each zone against its own edge.
-          gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
-          columnGap: 4,
-        }}
+        style={
+          centred
+            ? {
+                // The transport centred in the window, as the floating
+                // frame's is: equal side columns, each zone against its
+                // own edge.
+                gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+                columnGap: 4,
+              }
+            : {
+                // Too narrow to centre it: each zone its own width, spread
+                // across the bar, the transport between the sides.
+                gridTemplateColumns: 'auto auto auto',
+                justifyContent: 'space-between',
+                columnGap: 4,
+              }
+        }
       >
         <div
           ref={leftRef}
@@ -111,7 +126,10 @@ export const TopBar = memo(function TopBar({
           <PillGroup label="Project name and menu" className="pr-2">
             <BackToStudio />
             <ProjectMenu />
-            <ProjectName narrow={folded(fold, 'name-narrow')} />
+            <ProjectName
+              narrow={folded(fold, 'name-narrow')}
+              minimal={folded(fold, 'name-min')}
+            />
             <SaveStatusChip announce={false} warningsOnly />
           </PillGroup>
           {practiceView ? null : (
@@ -127,7 +145,11 @@ export const TopBar = memo(function TopBar({
           data-zone="transport"
           className="flex items-center gap-2"
         >
-          <TransportControls isReady={isReady} onInit={onInit} />
+          <TransportControls
+            isReady={isReady}
+            onInit={onInit}
+            hideClick={folded(fold, 'click-in-menu')}
+          />
         </div>
         <div
           ref={rightRef}
@@ -137,13 +159,19 @@ export const TopBar = memo(function TopBar({
           className="flex items-center gap-2 justify-self-end"
         >
           <PillGroup label="Song" data-zone="song" className="px-1">
-            <SongControls short={folded(fold, 'key-short')} />
+            <SongControls
+              short={folded(fold, 'key-short')}
+              compactTempo={folded(fold, 'tempo-compact')}
+              hideMetre={folded(fold, 'metre-in-menu')}
+            />
           </PillGroup>
           <PillGroup label="More">
-            <MusicalTypingChip />
-            <MoreMenu />
+            <MoreMenu
+              metre={folded(fold, 'metre-in-menu')}
+              click={folded(fold, 'click-in-menu')}
+            />
           </PillGroup>
-          <ExportPill iconOnly={folded(fold, 'export-icon')} />
+          <ExportPill />
           <AvatarMenu className="ml-1" />
         </div>
       </div>
@@ -167,7 +195,15 @@ export const MORE_COPY = {
  * 2026-10-21), the metronome's settings (also a right-click on it), Help
  * (shortcuts, lessons) and Audio & MIDI settings.
  */
-function MoreMenu() {
+function MoreMenu({
+  metre = false,
+  click = false,
+}: {
+  /** The time signature, folded off a narrow bar (FoldedMenuItems). */
+  metre?: boolean;
+  /** The metronome's switch, folded off the narrowest bar. */
+  click?: boolean;
+}) {
   const setSettingsOpen = useStore((s) => s.setSettingsOpen);
   const hoverHints = useStore((s) => s.hoverHints);
   const setHoverHints = useStore((s) => s.setHoverHints);
@@ -180,8 +216,8 @@ function MoreMenu() {
     <Menu>
       <MenuTrigger asChild>
         <IconButton
-          label="More"
-          icon={<MoreGlyph />}
+          label="Settings"
+          icon={<Settings />}
           variant="bare"
           size="lg"
           tooltipSide="bottom"
@@ -224,6 +260,8 @@ function MoreMenu() {
         >
           Find a command
         </MenuItem>
+        {click ? <ClickMenuItem /> : null}
+        {metre ? <TimeSignatureSub /> : null}
         <SnapToGridSub />
         <TimelineDisplaySub />
         <MenuSeparator />

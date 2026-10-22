@@ -6,11 +6,10 @@ import { CHANNEL_STRIP_TAB_IDS, isChannelStripTabId } from '../dockTabs';
 // keeps the list complete; these cases pin what passes the check.
 
 describe('isChannelStripTabId', () => {
-  it('knows the dock’s five tabs', () => {
+  it('knows the dock’s four tabs', () => {
     expect([...CHANNEL_STRIP_TAB_IDS].sort()).toEqual([
       'controls',
       'fx',
-      'grooves',
       'piano-roll',
       'prism',
     ]);
@@ -24,6 +23,8 @@ describe('isChannelStripTabId', () => {
       'mixer',
       // Parts left the dock for the Library panel (2.9).
       'parts',
+      // The drums' Grooves went into their Instrument tab (2026-10-22).
+      'grooves',
       'Controls',
       '',
       // On the prototype of the table, not one of its tabs.

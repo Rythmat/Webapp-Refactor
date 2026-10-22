@@ -30,6 +30,7 @@ import { openExport } from '@/daw/shell/export/exportDialogStore';
 import { FOCUS_RING, TYPE_CLASS } from '@/daw/ui/styles';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
 import { duplicateTrack } from './duplicateTrack';
+import { TrackInputSub } from './TrackInputMenu';
 import { focusTrackRow } from './useTrackListKeys';
 import { renameTrack } from './useTrackRename';
 
@@ -37,8 +38,8 @@ import { renameTrack } from './useTrackRename';
 //
 // What the old header packed into its 200×80 px, one item each: the name
 // (a field at the top to type over, Mozart AI's pattern, 2.15), colour, the
-// role chord analysis reads it as, Duplicate (2.15), monitoring, a test
-// note, the automation lane, Export track ▸ (2.15), releasing it to
+// role chord analysis reads it as, Duplicate (2.15), a test note (input
+// monitoring is the record button's alone since 2026-10-22), the automation lane, Export track ▸ (2.15), releasing it to
 // collaborators (in a session), and delete, which can be undone from its
 // toast. The ⋯ button and a right-click on the row open it (TrackRow). On a
 // track a collaborator holds, everything that would change it is off;
@@ -307,13 +308,8 @@ export function TrackMenuContent({
         Duplicate track
       </MenuItem>
       <MenuSeparator />
-      <MenuCheckboxItem
-        checked={track.monitoring}
-        disabled={locked}
-        onCheckedChange={() => s().toggleMonitoring(track.id)}
-      >
-        Monitor input
-      </MenuCheckboxItem>
+      {/* Its input, which was the ▾ on the header (owner, 2026-10-22). */}
+      <TrackInputSub track={track} disabled={locked} />
       {track.type === 'midi' ? (
         <MenuItem icon={<Volume2 />} onSelect={() => testSound(track.id)}>
           Test sound

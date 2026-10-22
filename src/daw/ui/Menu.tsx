@@ -31,7 +31,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/components/utilities';
-import { Kbd } from './Kbd';
+import { Kbd, Keycap } from './Kbd';
 import { FLOATING_SURFACE, TYPE_CLASS } from './styles';
 
 /**
@@ -76,6 +76,11 @@ interface ItemExtras {
   icon?: ReactNode;
   /** The shortcut, shown at the end ('⌘D'). */
   shortcut?: string;
+  /**
+   * A single key that picks the row while the menu is open ('A' for Add
+   * Audio), on a keycap at the end. The menu handles the key itself.
+   */
+  keycap?: string;
   /** Red text: the action destroys something. */
   danger?: boolean;
   /**
@@ -114,12 +119,14 @@ function useDescribed(
 function ItemFace({
   icon,
   shortcut,
+  keycap,
   description,
   descriptionId,
   children,
 }: {
   icon?: ReactNode;
   shortcut?: string;
+  keycap?: string;
   description?: string;
   descriptionId?: string;
   children?: ReactNode;
@@ -146,6 +153,11 @@ function ItemFace({
       )}
       {shortcut && (
         <Kbd className="ml-4 h-auto min-w-0 border-0 px-0">{shortcut}</Kbd>
+      )}
+      {keycap && (
+        <Keycap aria-hidden className="ml-4">
+          {keycap}
+        </Keycap>
       )}
     </>
   );
@@ -217,7 +229,16 @@ export const MenuItem = forwardRef<
   ElementRef<typeof DropdownMenuItem>,
   ComponentPropsWithoutRef<typeof DropdownMenuItem> & ItemExtras
 >(function MenuItem(
-  { icon, shortcut, danger, description, className, children, ...props },
+  {
+    icon,
+    shortcut,
+    keycap,
+    danger,
+    description,
+    className,
+    children,
+    ...props
+  },
   ref,
 ) {
   const { descriptionId, described } = useDescribed(
@@ -242,6 +263,7 @@ export const MenuItem = forwardRef<
       <ItemFace
         icon={icon}
         shortcut={shortcut}
+        keycap={keycap}
         description={description}
         descriptionId={descriptionId}
       >
@@ -254,7 +276,7 @@ export const MenuItem = forwardRef<
 export const MenuCheckboxItem = forwardRef<
   ElementRef<typeof DropdownMenuCheckboxItem>,
   ComponentPropsWithoutRef<typeof DropdownMenuCheckboxItem> &
-    Omit<ItemExtras, 'icon' | 'danger'>
+    Omit<ItemExtras, 'icon' | 'danger' | 'keycap'>
 >(function MenuCheckboxItem(
   { shortcut, description, className, children, ...props },
   ref,
@@ -347,15 +369,20 @@ export const MenuSeparator = forwardRef<
 export const MenuSubTrigger = forwardRef<
   ElementRef<typeof DropdownMenuSubTrigger>,
   ComponentPropsWithoutRef<typeof DropdownMenuSubTrigger> &
-    Pick<ItemExtras, 'icon'>
->(function MenuSubTrigger({ icon, className, children, ...props }, ref) {
+    Pick<ItemExtras, 'icon' | 'keycap'>
+>(function MenuSubTrigger(
+  { icon, keycap, className, children, ...props },
+  ref,
+) {
   return (
     <DropdownMenuSubTrigger
       ref={ref}
       className={cn(ITEM, TYPE_CLASS.item, className)}
       {...props}
     >
-      <ItemFace icon={icon}>{children}</ItemFace>
+      <ItemFace icon={icon} keycap={keycap}>
+        {children}
+      </ItemFace>
     </DropdownMenuSubTrigger>
   );
 });
@@ -399,7 +426,16 @@ export const ContextMenuItem = forwardRef<
   ElementRef<typeof KitContextMenuItem>,
   ComponentPropsWithoutRef<typeof KitContextMenuItem> & ItemExtras
 >(function ContextMenuItem(
-  { icon, shortcut, danger, description, className, children, ...props },
+  {
+    icon,
+    shortcut,
+    keycap,
+    danger,
+    description,
+    className,
+    children,
+    ...props
+  },
   ref,
 ) {
   const { descriptionId, described } = useDescribed(
@@ -424,6 +460,7 @@ export const ContextMenuItem = forwardRef<
       <ItemFace
         icon={icon}
         shortcut={shortcut}
+        keycap={keycap}
         description={description}
         descriptionId={descriptionId}
       >

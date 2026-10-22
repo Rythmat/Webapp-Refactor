@@ -1,4 +1,4 @@
-import { Maximize2, Minus, MoveRight, Plus } from 'lucide-react';
+import { FoldHorizontal, Minus, MoveRight, Plus } from 'lucide-react';
 import { memo } from 'react';
 import { cn } from '@/components/utilities';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
@@ -14,16 +14,16 @@ import { IconButton } from '@/daw/ui/IconButton';
 import { TYPE_CLASS } from '@/daw/ui/styles';
 import { Toggle } from '@/daw/ui/Toggle';
 import { Tooltip } from '@/daw/ui/Tooltip';
-import { SCROLL_FOOTER_PX } from '../tracklist/rowLayout';
-import { TimelineScrollbar } from './TimelineScrollbar';
+import { SCROLL_FOOTER_PX, TRACK_COLUMN_PX } from '../tracklist/rowLayout';
+import { TimelineOverview } from './TimelineOverview';
 
 // ── The timeline's footer (milestones 2.6 and 2.13) ────────────────────────
 //
-// Under the lanes: the horizontal scrollbar, and beside its right end the
-// view's own controls, zoom (−, the level, +, Fit) and Follow, as
-// Soundtrap keeps its zoom (decision 16). They were in Create's toolbar
-// until it folded away; the footer grew from 16 to 24 px so each is a 24 px
-// target.
+// Under the lanes: the song at a glance (TimelineOverview, after Suno's
+// timeline strip; it was a plain scrollbar until 2026-10-22), as wide as the
+// lanes above it, and beside its right end the view's own controls, zoom
+// (−, the level, +, Fit) and Follow, as Soundtrap keeps its zoom (decision
+// 16). They were in Create's toolbar until it folded away.
 
 const ZOOM_IN_KEYS = shortcutKeys('timeline.zoomIn');
 const ZOOM_OUT_KEYS = shortcutKeys('timeline.zoomOut');
@@ -34,11 +34,11 @@ export const TimelineFooter = memo(function TimelineFooter() {
     <div
       data-ds="v2"
       data-testid="timeline-footer"
-      className="flex shrink-0 items-center gap-1 border-t border-daw-hairline bg-daw-surface-1 pl-[200px] pr-1"
-      style={{ height: SCROLL_FOOTER_PX }}
+      className="flex shrink-0 items-center gap-1 border-t border-daw-hairline bg-daw-surface-1 pr-1"
+      style={{ height: SCROLL_FOOTER_PX, paddingLeft: TRACK_COLUMN_PX }}
     >
-      <div className="min-w-0 flex-1 px-2">
-        <TimelineScrollbar />
+      <div className="min-w-0 flex-1 pr-2">
+        <TimelineOverview />
       </div>
       <ZoomControls />
       <span aria-hidden className="mx-0.5 h-4 w-px shrink-0 bg-daw-hairline" />
@@ -47,13 +47,24 @@ export const TimelineFooter = memo(function TimelineFooter() {
   );
 });
 
-function ZoomControls() {
+/**
+ * Zoom out, the level, zoom in and Fit, on the timeline's one zoom. The
+ * automation lane shows them too (AutomationLaneEditor), its test ids
+ * prefixed so the two groups can be told apart.
+ */
+export function ZoomControls({
+  testIdPrefix = '',
+  className,
+}: {
+  testIdPrefix?: string;
+  className?: string;
+}) {
   const zoom = useStore((s) => s.timelineZoom);
   return (
     <div
       role="group"
       aria-label="Timeline zoom"
-      className="flex shrink-0 items-center gap-0.5"
+      className={cn('flex shrink-0 items-center gap-0.5', className)}
     >
       <IconButton
         label="Zoom out"
@@ -66,7 +77,7 @@ function ZoomControls() {
           'See more of the song at once',
           ZOOM_OUT_KEYS.label,
         )}
-        data-testid="zoom-out"
+        data-testid={`${testIdPrefix}zoom-out`}
         onClick={zoomTimelineOut}
       />
       <Tooltip content="Timeline zoom" side="top">
@@ -75,7 +86,7 @@ function ZoomControls() {
             TYPE_CLASS.label,
             'w-10 text-center tabular-nums text-daw-text-2',
           )}
-          data-testid="zoom-level"
+          data-testid={`${testIdPrefix}zoom-level`}
           data-hint={hintText(
             'Timeline zoom',
             'How far the timeline is zoomed in',
@@ -95,12 +106,14 @@ function ZoomControls() {
           'See the timeline in more detail',
           ZOOM_IN_KEYS.label,
         )}
-        data-testid="zoom-in"
+        data-testid={`${testIdPrefix}zoom-in`}
         onClick={zoomTimelineIn}
       />
       <IconButton
         label="Fit the song"
-        icon={<Maximize2 />}
+        // Arrows closing in: the song squeezed to the window (Maximize2 is
+        // the dock's maximize).
+        icon={<FoldHorizontal />}
         shortcut={FIT_KEYS.label}
         size="sm"
         tooltipSide="top"
@@ -109,7 +122,7 @@ function ZoomControls() {
           'Zoom so the whole song fits the window',
           FIT_KEYS.label,
         )}
-        data-testid="zoom-fit"
+        data-testid={`${testIdPrefix}zoom-fit`}
         onClick={fitTimeline}
       />
     </div>

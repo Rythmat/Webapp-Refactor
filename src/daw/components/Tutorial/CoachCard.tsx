@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue } from 'framer-motion';
 import { X, ArrowLeft, ArrowRight, GraduationCap } from 'lucide-react';
 import type { TutorialStepStatus } from '@/daw/store/tutorialSlice';
 import {
@@ -16,8 +16,9 @@ import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 // Floating, draggable step card shown over the Studio while a lesson runs.
 // Mirrors the reference "beatspark" card: stage label, progress bar + counter,
 // instruction, a Waiting… status on validated steps, and Back / Next / Quit.
-// It dynamically anchors itself clear of the spotlighted region so it never
-// obstructs the highlighted control.
+// It anchors itself clear of the spotlighted region, and of any open menu,
+// popover or dialog (where the student clicks next), so it never covers what
+// the step asks for.
 
 interface CoachCardProps {
   title: string;
@@ -40,50 +41,110 @@ interface CoachCardProps {
 
 const CARD_WIDTH = 380;
 const MARGIN = 16;
+/** The target's keep-clear border: the spotlight ring's gap and glow. */
+const KEEP_CLEAR = 12;
 const clamp = (v: number, lo: number, hi: number) =>
   Math.max(lo, Math.min(hi, v));
 
-/** Place the card clear of the target: in the larger vertical gap (above/below),
- *  horizontally centered on it and clamped to the viewport. Falls back to a side
- *  when the target is too tall, and to low-center when there's no target. */
-function computeCardPos(
+/** Open menus, select lists, popovers and dialogs: where a click goes next. */
+const FLOATING_SELECTOR =
+  '[role="menu"], [role="listbox"], [role="dialog"], [role="alertdialog"]';
+
+/** The open floating surfaces outside the lesson layer, as boxes. */
+export function floatingSurfaces(): Rect[] {
+  if (typeof document === 'undefined') return [];
+  const out: Rect[] = [];
+  for (const el of document.querySelectorAll(FLOATING_SELECTOR)) {
+    if (el.closest('[data-tutorial-layer]')) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0) {
+      out.push({ top: r.top, left: r.left, width: r.width, height: r.height });
+    }
+  }
+  return out;
+}
+
+const overlapArea = (a: Rect, b: Rect) =>
+  Math.max(
+    0,
+    Math.min(a.left + a.width, b.left + b.width) - Math.max(a.left, b.left),
+  ) *
+  Math.max(
+    0,
+    Math.min(a.top + a.height, b.top + b.height) - Math.max(a.top, b.top),
+  );
+
+/**
+ * Place the card clear of the target and of open menus and dialogs
+ * (`obstacles`). It tries, in order: the larger vertical gap, then the other,
+ * centred on the target; the larger side gap, then the other; then the
+ * window's corners and edges. Each place is clamped to the window, and the
+ * first that covers nothing wins. When every place covers something (a
+ * target nearly the size of the window), the one covering the least of the
+ * target wins, and of the obstacles after that. With no target it rests
+ * low-centre, clear of the obstacles.
+ */
+export function computeCardPos(
   rect: Rect | null,
   cardW: number,
   cardH: number,
   vw: number,
   vh: number,
+  obstacles: Rect[] = [],
 ): { top: number; left: number } {
-  if (!rect) {
-    return { top: Math.round(vh * 0.6), left: Math.round((vw - cardW) / 2) };
+  const maxLeft = Math.max(MARGIN, vw - cardW - MARGIN);
+  const maxTop = Math.max(MARGIN, vh - cardH - MARGIN);
+  const place = (top: number, left: number) => ({
+    top: Math.round(clamp(top, MARGIN, maxTop)),
+    left: Math.round(clamp(left, MARGIN, maxLeft)),
+  });
+  const candidates: Array<{ top: number; left: number }> = [];
+  if (rect) {
+    const midX = rect.left + rect.width / 2 - cardW / 2;
+    const midY = rect.top + rect.height / 2 - cardH / 2;
+    const below = place(rect.top + rect.height + MARGIN, midX);
+    const above = place(rect.top - cardH - MARGIN, midX);
+    const right = place(midY, rect.left + rect.width + MARGIN);
+    const left = place(midY, rect.left - cardW - MARGIN);
+    const gapBelow = vh - (rect.top + rect.height);
+    const gapRight = vw - (rect.left + rect.width);
+    candidates.push(
+      ...(gapBelow >= rect.top ? [below, above] : [above, below]),
+      ...(gapRight >= rect.left ? [right, left] : [left, right]),
+    );
+  } else {
+    candidates.push(place(vh * 0.6, (vw - cardW) / 2));
   }
-  const gapTop = rect.top;
-  const gapBottom = vh - (rect.top + rect.height);
-  const needV = cardH + MARGIN * 2;
-  const left = clamp(
-    rect.left + rect.width / 2 - cardW / 2,
-    MARGIN,
-    vw - cardW - MARGIN,
-  );
-
-  if (gapBottom >= needV || gapTop >= needV) {
-    const below = gapBottom >= gapTop;
-    const top = below
-      ? rect.top + rect.height + MARGIN
-      : rect.top - cardH - MARGIN;
-    return { top: clamp(top, MARGIN, vh - cardH - MARGIN), left };
+  for (const top of [MARGIN, maxTop, (vh - cardH) / 2]) {
+    for (const left of [MARGIN, maxLeft, (vw - cardW) / 2]) {
+      candidates.push(place(top, left));
+    }
   }
 
-  // Target too tall for vertical placement → go to the larger side.
-  const right = vw - (rect.left + rect.width) >= rect.left;
-  const sideLeft = right
-    ? rect.left + rect.width + MARGIN
-    : rect.left - cardW - MARGIN;
-  const top = clamp(
-    rect.top + rect.height / 2 - cardH / 2,
-    MARGIN,
-    vh - cardH - MARGIN,
-  );
-  return { top, left: clamp(sideLeft, MARGIN, vw - cardW - MARGIN) };
+  const clear = rect && {
+    top: rect.top - KEEP_CLEAR,
+    left: rect.left - KEEP_CLEAR,
+    width: rect.width + KEEP_CLEAR * 2,
+    height: rect.height + KEEP_CLEAR * 2,
+  };
+  let best = candidates[0];
+  let bestCost = Infinity;
+  for (const c of candidates) {
+    const box = { ...c, width: cardW, height: cardH };
+    const onTarget = clear ? overlapArea(box, clear) : 0;
+    const onObstacles = obstacles.reduce(
+      (sum, o) => sum + overlapArea(box, o),
+      0,
+    );
+    // Covering the target always costs more than covering a menu.
+    const cost = onTarget * (vw * vh + 1) + onObstacles;
+    if (cost < bestCost) {
+      best = c;
+      bestCost = cost;
+      if (cost === 0) break;
+    }
+  }
+  return best;
 }
 
 /** Render text with **bold** segments. */
@@ -175,6 +236,8 @@ export function CoachCard({
   // (a longer instruction) or the window resizes. The card glides there.
   const reducedMotion = usePrefersReducedMotion();
   const targetRect = useRef<Rect | null>(null);
+  const dragX = useMotionValue(0);
+  const dragY = useMotionValue(0);
   const key = anchorKey(target, rack);
   useEffect(() => {
     const recompute = () => {
@@ -185,6 +248,7 @@ export function CoachCard({
         box?.height || 220,
         window.innerWidth,
         window.innerHeight,
+        floatingSurfaces(),
       );
       setPos((prev) =>
         Math.abs(prev.top - next.top) < 4 && Math.abs(prev.left - next.left) < 4
@@ -213,9 +277,29 @@ export function CoachCard({
         : null;
     if (card) ro?.observe(card);
     window.addEventListener('resize', recompute);
+    // Menus, popovers and dialogs mount in portals on <body>: the card moves
+    // off one that opens (the Add MIDI submenu) on the next frame.
+    let pending = 0;
+    const mo =
+      typeof MutationObserver !== 'undefined'
+        ? new MutationObserver(() => {
+            if (pending) return;
+            pending = window.requestAnimationFrame(() => {
+              pending = 0;
+              recompute();
+            });
+          })
+        : null;
+    mo?.observe(document.body, { childList: true });
+    // A new step re-anchors the card from where it is placed, not from
+    // where the student last dragged it.
+    dragX.set(0);
+    dragY.set(0);
     return () => {
       unsubscribe();
       ro?.disconnect();
+      mo?.disconnect();
+      if (pending) window.cancelAnimationFrame(pending);
       window.removeEventListener('resize', recompute);
     };
     // `key` is the value-stable form of `target` + `rack`.
@@ -234,6 +318,8 @@ export function CoachCard({
         position: 'fixed',
         top: pos.top,
         left: pos.left,
+        x: dragX,
+        y: dragY,
         width: CARD_WIDTH,
         maxWidth: 'calc(100vw - 24px)',
         pointerEvents: 'auto',
@@ -340,7 +426,7 @@ export function CoachCard({
               margin: '7px 0 0',
             }}
           >
-            {hint}
+            <Rich text={hint} />
           </p>
         )}
 

@@ -7,12 +7,16 @@ import { Tooltip } from '@/daw/ui/Tooltip';
 /**
  * The project's name, edited in place: Enter or a click away keeps it, an
  * empty name goes back to what it was. In a collab session only the host
- * renames the shared project. 140 px wide, 96 px when the top bar folds.
+ * renames the shared project. 140 px wide, 96 px when the top bar folds,
+ * 64 px when it folds further.
  */
 export const ProjectName = memo(function ProjectName({
   narrow = false,
+  minimal = false,
 }: {
   narrow?: boolean;
+  /** The narrowest window's 64 px. */
+  minimal?: boolean;
 }) {
   const projectName = useStore((s) => s.projectName);
   const setProjectName = useStore((s) => s.setProjectName);
@@ -54,7 +58,7 @@ export const ProjectName = memo(function ProjectName({
         spellCheck={false}
         className={cn(
           'h-8 shrink-0 truncate rounded-[var(--daw-radius-md)] border border-transparent bg-transparent px-2 text-daw-text',
-          narrow ? 'w-24' : 'w-[140px]',
+          minimal ? 'w-16' : narrow ? 'w-24' : 'w-[140px]',
           canEdit
             ? 'hover:bg-daw-chip focus:border-daw-outline'
             : 'cursor-default',

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from '@/daw/store';
+import { useDockSidePanels } from '@/daw/shell/dock/dockSidePanels';
 import {
   studioTutorialActivityRef,
   useMspModuleCompletion,
@@ -9,7 +10,8 @@ import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgre
 import { getTutorial } from './tutorials';
 import { Spotlight } from './Spotlight';
 import { CoachCard } from './CoachCard';
-import { Confetti } from './Confetti';
+import { RainbowHighlight } from './RainbowHighlight';
+import type { AnchorRack, Target } from './anchorRegistry';
 import { useTutorialDetection } from './useTutorialDetection';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
@@ -20,9 +22,9 @@ import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 // Renders nothing when no tutorial is active. A lesson resumed with its draft
 // (milestone 1.15) carries on at its step, over the view the draft kept.
 
-// Both pulses animate opacity only (the spotlight's is the wider glow over
-// its ring), so they run on the compositor. Neither is defined, nor used,
-// under prefers-reduced-motion.
+// The pulses animate opacity only (the spotlight's is the wider glow over its
+// ring) and the rainbow spins with transform, so all run on the compositor.
+// None is defined, nor used, under prefers-reduced-motion.
 const PULSE_KEYFRAMES = `
 @keyframes tutorialPulse {
   0%, 100% { opacity: 0; }
@@ -31,6 +33,16 @@ const PULSE_KEYFRAMES = `
 @keyframes tutorialDot {
   0%, 100% { opacity: 0.35; }
   50%      { opacity: 1; }
+}
+@keyframes tutorialRainbowSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes tutorialRainbowFade {
+  0%   { opacity: 0; }
+  15%  { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
 }
 `;
 
@@ -61,17 +73,27 @@ export function TutorialLayer() {
   const isLast = tutorial ? stepIndex >= total - 1 : false;
   const isValidated = !!(step?.check || step?.synthCheck);
 
-  // The burst on screen (a fresh key replays it), or null once it is done:
-  // the full-screen canvas is unmounted between bursts, and skipped under
-  // reduced motion.
+  // The rainbow on the region of the step just done (a fresh key replays it),
+  // or null once it is done. It keeps that step's target, so it stays put
+  // when Next moves the spotlight on. Under reduced motion it holds still.
   const reducedMotion = usePrefersReducedMotion();
-  const [confettiKey, setConfettiKey] = useState<number | null>(null);
+  const [rainbow, setRainbow] = useState<{
+    key: number;
+    target?: Target;
+    rack?: AnchorRack;
+  } | null>(null);
+  const stepTarget = step?.target;
+  const stepRack = step?.rack;
   const burst = useCallback(() => {
-    if (!reducedMotion) setConfettiKey((k) => (k ?? 0) + 1);
-  }, [reducedMotion]);
-  const endBurst = useCallback(() => setConfettiKey(null), []);
-  // A new lesson (or none) never inherits a burst from the last one.
-  useEffect(() => setConfettiKey(null), [activeId]);
+    setRainbow((r) => ({
+      key: (r?.key ?? 0) + 1,
+      target: stepTarget,
+      rack: stepRack,
+    }));
+  }, [stepTarget, stepRack]);
+  const endBurst = useCallback(() => setRainbow(null), []);
+  // A new lesson (or none) never inherits a celebration from the last one.
+  useEffect(() => setRainbow(null), [activeId]);
 
   // Apply the step's preconditions once, as it arrives. Not again when the
   // layer mounts over a step already set up (a return to the editor) or a
@@ -89,6 +111,12 @@ export function TutorialLayer() {
     )
       return;
     const r = step.requires;
+    // The step's own view: the Add effect picker or an automation lane left
+    // open (by an earlier step, Back, or the student) would cover its target.
+    if (!r?.effectsLibrary && live.effectPickerOpen)
+      live.cancelEffectsLibrary();
+    if (r?.channelStripTab !== undefined && live.automationOpenTrackId !== null)
+      live.setAutomationOpenTrackId(null);
     if (r?.view !== undefined) setCurrentView(r.view);
     if (r?.libraryOpen !== undefined) setLibraryOpen(r.libraryOpen);
     if (r?.channelStripTab !== undefined) {
@@ -97,7 +125,8 @@ export function TutorialLayer() {
       useStore.getState().setDockMaster(false);
       setChannelStripTab(r.channelStripTab);
     }
-    if (r?.effectsLibrary) useStore.getState().showInspectorPanel('fx');
+    if (r?.effectsLibrary) useStore.getState().openEffectsLibrary();
+    if (r?.soundsOpen) useDockSidePanels.getState().setFolded('sounds', false);
     if (r?.mixRack) useStore.getState().setMixRack(r.mixRack);
     if (r?.automationParam !== undefined)
       setAutomationParamId(r.automationParam);
@@ -141,7 +170,7 @@ export function TutorialLayer() {
       live.mixRack === null
     ) {
       live.setMixRack(mixRackNeeded);
-      if (step?.requires?.effectsLibrary) live.showInspectorPanel('fx');
+      if (step?.requires?.effectsLibrary) live.openEffectsLibrary();
     }
     // Once per step.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -198,16 +227,29 @@ export function TutorialLayer() {
 
   return createPortal(
     <div
+      // A modal under a lesson (the Add effect picker) lets the coach card
+      // take clicks and focus without closing (DawDialog).
+      data-tutorial-layer=""
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 60,
+        // Over menus, popovers and tooltips (tokens.ts Z), so the spotlight
+        // can ring a menu row and the dim covers the rest.
+        zIndex: 'var(--daw-z-tutorial)',
         pointerEvents: 'none',
       }}
     >
       {!reducedMotion && <style>{PULSE_KEYFRAMES}</style>}
       <Spotlight target={step.target} rack={step.rack} />
-      {confettiKey !== null && <Confetti key={confettiKey} onDone={endBurst} />}
+      {rainbow && (
+        <RainbowHighlight
+          key={rainbow.key}
+          target={rainbow.target}
+          rack={rainbow.rack}
+          reducedMotion={reducedMotion}
+          onDone={endBurst}
+        />
+      )}
       <CoachCard
         title={tutorial.title}
         stage={step.stage}

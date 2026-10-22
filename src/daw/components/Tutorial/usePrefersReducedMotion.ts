@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 // ── Reduced motion for the lesson overlay ──────────────────────────────────
 // True while the student's system asks for reduced motion. The lesson overlay
-// then drops its pulses, glides, fades and confetti. Read live (a change in
+// then drops its pulses, glides, fades and the rainbow's spin. Read live (a change in
 // the system setting applies mid-lesson), and false where matchMedia is
 // missing (tests, SSR).
 

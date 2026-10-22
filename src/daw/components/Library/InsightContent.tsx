@@ -125,76 +125,74 @@ export function InsightContent() {
 
   return (
     <div className="flex flex-col gap-0.5">
-      {/* Now Playing — always visible */}
-      <div
-        className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-        style={{ borderColor: 'var(--daw-hairline)', minHeight: 120 }}
-      >
-        <div className="flex items-center gap-1.5">
-          {liveChord?.color && (
-            <div
-              className="w-1.5 h-1.5 rounded-full shrink-0"
-              style={{ backgroundColor: liveChord.color }}
-            />
-          )}
-          <span
-            className="text-[10px] uppercase tracking-wider font-medium"
-            style={{ color: 'var(--daw-accent)' }}
-          >
-            Now Playing
-          </span>
-        </div>
-        {liveChord ? (
-          <>
-            <div className="flex items-center gap-1.5">
-              <span
-                className="text-[11px] font-semibold"
-                style={{ color: 'var(--daw-text)' }}
-              >
-                {liveLabels?.title}
-              </span>
-              {liveLabels?.detail && (
-                <span
-                  className="text-[10px]"
-                  style={{ color: 'var(--daw-text-3)' }}
-                >
-                  {liveLabels.detail}
-                </span>
-              )}
-            </div>
-            <ChordTones
-              intervals={liveChord.intervals}
-              noteNames={liveChord.noteNames}
-            />
-            {liveChord.chordRootMode && (
-              <ChordLessonLinks
-                chord={{ ...liveChord, chordRootMode: liveChord.chordRootMode }}
-                chordName={liveLabels?.title ?? liveChord.chordLabel}
-                keyLetter={keyLetter}
-                mode={mode}
+      {/* The held chord's details (tones, lessons, alternatives) while one
+          is held: Now Playing itself lives over the track list, in the
+          track column's corner (NowPlaying, 2026-10-21). */}
+      {liveChord ? (
+        <div
+          className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
+          style={{ borderColor: 'var(--daw-hairline)' }}
+        >
+          <div className="flex items-center gap-1.5">
+            {liveChord?.color && (
+              <div
+                className="w-1.5 h-1.5 rounded-full shrink-0"
+                style={{ backgroundColor: liveChord.color }}
               />
             )}
-            <ChordAlternatives
-              rootLetter={liveChord.rootLetter}
-              alternatives={liveChord.alternatives}
-              chordName={liveLabels?.title ?? liveChord.chordLabel}
-              rootNote={rootNote}
-              mode={mode}
-              expanded={showLiveAlts}
-              onToggleExpand={() => setShowLiveAlts((v) => !v)}
-            />
-          </>
-        ) : (
-          <div className="flex flex-1 items-center justify-center">
             <span
-              className="text-[10px]"
-              style={{ color: 'var(--daw-text-3)' }}
+              className="text-[10px] uppercase tracking-wider font-medium"
+              style={{ color: 'var(--daw-accent)' }}
             >
-              Play a chord to see analysis
+              Now Playing
             </span>
           </div>
-        )}
-      </div>
+          {liveChord ? (
+            <>
+              <div className="flex items-center gap-1.5">
+                <span
+                  className="text-[11px] font-semibold"
+                  style={{ color: 'var(--daw-text)' }}
+                >
+                  {liveLabels?.title}
+                </span>
+                {liveLabels?.detail && (
+                  <span
+                    className="text-[10px]"
+                    style={{ color: 'var(--daw-text-3)' }}
+                  >
+                    {liveLabels.detail}
+                  </span>
+                )}
+              </div>
+              <ChordTones
+                intervals={liveChord.intervals}
+                noteNames={liveChord.noteNames}
+              />
+              {liveChord.chordRootMode && (
+                <ChordLessonLinks
+                  chord={{
+                    ...liveChord,
+                    chordRootMode: liveChord.chordRootMode,
+                  }}
+                  chordName={liveLabels?.title ?? liveChord.chordLabel}
+                  keyLetter={keyLetter}
+                  mode={mode}
+                />
+              )}
+              <ChordAlternatives
+                rootLetter={liveChord.rootLetter}
+                alternatives={liveChord.alternatives}
+                chordName={liveLabels?.title ?? liveChord.chordLabel}
+                rootNote={rootNote}
+                mode={mode}
+                expanded={showLiveAlts}
+                onToggleExpand={() => setShowLiveAlts((v) => !v)}
+              />
+            </>
+          ) : null}
+        </div>
+      ) : null}
 
       {/* The project's chord symbols: analyze, re-analyze, use */}
       <ChordSymbolsSection />

@@ -25,7 +25,7 @@ import { pullDocIntoStore } from '../yjsToZustand';
 /** A guitar track as its owner has it: armed, monitoring, on input 3/4. */
 const guitar = (): Track => ({
   id: 'gtr',
-  ...initialTrackDefaults('guitar-fx', 'Guitar'),
+  ...initialTrackDefaults('audio-input', 'Guitar'),
   color: '#f94144',
   mute: true,
   solo: true,
@@ -79,7 +79,11 @@ describe('a track read from the doc', () => {
   });
 
   it("reads an older peer's missing role as 'auto', not a guess", () => {
-    const bass = { ...guitar(), name: 'Bass', instrument: 'bass-fx' as const };
+    const bass = {
+      ...guitar(),
+      name: 'Bass',
+      instrument: 'audio-input' as const,
+    };
     const read = throughDoc(bass, (m) => m.delete('trackRole'));
     expect(read.trackRole).toBe('auto');
     const blank = throughDoc(bass, (m) => m.set('trackRole', ''));

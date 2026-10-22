@@ -14,6 +14,8 @@ import { ArpPanel } from '@/daw/oracle-synth/components/arp/ArpPanel';
 import { PresetSelector } from '@/daw/oracle-synth/components/preset/PresetSelector';
 import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
 import { KeyScaleBar } from '@/daw/oracle-synth/components/keyboard/KeyScaleBar';
+import { typingKeyFor } from '@/daw/commands/musicalTypingMap';
+import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import { useLiveChordColor } from '@/daw/hooks/useLiveChordColor';
 import { WheelControl } from '@/daw/oracle-synth/components/controls/WheelControl';
 import { Knob } from '@/daw/oracle-synth/components/controls/Knob';
@@ -36,6 +38,8 @@ export const DawSynthLayout: FC<DawSynthLayoutProps> = ({ engine }) => {
   const { scale, offsetX, offsetY } = useContainerScale(containerRef);
 
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
+  const typingOctave = useMusicalTypingStore((s) => s.octave);
+  const typing = useMusicalTypingStore((s) => s.enabled);
   const hwActiveNotes = useStore((s) => s.hwActiveNotes);
   const mergedNotes = useMemo(
     () => new Set([...activeNotes, ...hwActiveNotes]),
@@ -188,6 +192,12 @@ export const DawSynthLayout: FC<DawSynthLayoutProps> = ({ engine }) => {
             <PianoKeyboard
               startNote={36}
               endNote={96}
+              // The computer keyboard's letters (while Typing keys is on)
+              // and each C's name, as the dock's piano shows them.
+              keyLabel={
+                typing ? (note) => typingKeyFor(note, typingOctave) : undefined
+              }
+              octaveLabels
               activeNotes={mergedNotes}
               activeColor={chordColor ?? undefined}
               onNoteOn={handleNoteOn}

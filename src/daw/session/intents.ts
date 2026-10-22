@@ -446,7 +446,7 @@ export async function prepareIntent(
       return prepareProject(intent, ctx);
     case 'new':
       return seeded(await claimNew(ctx), {
-        apply: noExtras,
+        apply: () => seedComposer(ctx),
         baseline: { source: 'new', reopenable: true },
       });
     case 'template':
@@ -454,6 +454,7 @@ export async function prepareIntent(
         name: getProjectTemplate(intent.templateId)?.label ?? null,
         apply: () => {
           useStore.getState().loadProjectTemplate(intent.templateId);
+          seedComposer(ctx);
           // Its synth tracks' patches, before the baseline so they aren't an edit.
           seedTemplateSynthPatches(intent.templateId);
         },
@@ -514,6 +515,16 @@ export async function prepareIntent(
       // openSession handles a rejoin itself: no keep, no reset.
       throw new Error('A rejoin is not prepared');
   }
+}
+
+/**
+ * A new project's composer: whoever started it (owner, 2026-10-22). Part of
+ * the seed, so it is no edit to undo; a project opened, joined or made from
+ * a song keeps its own.
+ */
+function seedComposer(ctx: PrepareContext): void {
+  const name = ctx.deps.userName?.()?.trim();
+  if (name) useStore.getState().setComposerName(name);
 }
 
 async function prepareResume(ctx: PrepareContext): Promise<PreparedOpen> {

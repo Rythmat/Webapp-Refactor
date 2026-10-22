@@ -564,3 +564,53 @@ describe('peaksWorker', () => {
     expect(transfer).toContain(message.levels[0].min[0].buffer);
   });
 });
+
+describe('readChannelPeaks (stereo waveforms)', () => {
+  it('reads each channel apart, on one shared scale', async () => {
+    const { getPeakPyramid, readChannelPeaks } = await freshPeaks();
+    const length = 8192;
+    // Left: full scale in the first half only. Right: half scale throughout.
+    const left = new Float32Array(length);
+    const right = new Float32Array(length);
+    for (let i = 0; i < length; i++) {
+      left[i] = i < length / 2 ? (i % 2 ? 1 : -1) : 0;
+      right[i] = i % 2 ? 0.5 : -0.5;
+    }
+    const buffer = fakeBuffer([left, right]);
+    const pyramid = getPeakPyramid(buffer) as PeakPyramid;
+    const [l, r] = readChannelPeaks(pyramid, buffer, 4, 0, length);
+    expect(l).toEqual([1, 1, 0, 0]);
+    // The right is half the left's loudest, so it draws half as tall.
+    expect(r).toEqual([0.5, 0.5, 0.5, 0.5]);
+  });
+
+  it('gives a mono buffer one channel, as readPeaks does', async () => {
+    const { getPeakPyramid, readChannelPeaks, readPeaks } = await freshPeaks();
+    const data = noise(10_000, 7);
+    const buffer = fakeBuffer([data]);
+    const pyramid = getPeakPyramid(buffer) as PeakPyramid;
+    const channels = readChannelPeaks(pyramid, buffer, 50, 0, 10_000);
+    expect(channels).toHaveLength(1);
+    expect(channels[0]).toEqual(readPeaks(pyramid, buffer, 50, 0, 10_000));
+  });
+
+  it('reads a window and a range of points of each side', async () => {
+    const { getPeakPyramid, readChannelPeaks } = await freshPeaks();
+    const left = noise(20_000, 1);
+    const right = noise(20_000, 2).map((v) => v / 4);
+    const buffer = fakeBuffer([left, right]);
+    const pyramid = getPeakPyramid(buffer) as PeakPyramid;
+    const [l, r] = readChannelPeaks(pyramid, buffer, 40, 3000, 17_000, 5, 9);
+    const scale = Math.max(
+      bruteMaxAbs([left], 3000, 17_000),
+      bruteMaxAbs([right], 3000, 17_000),
+    );
+    const per = (17_000 - 3000) / 40;
+    for (let i = 5; i <= 9; i++) {
+      const from = 3000 + Math.floor(i * per);
+      const to = 3000 + Math.floor((i + 1) * per);
+      expect(l[i - 5]).toBeCloseTo(bruteMaxAbs([left], from, to) / scale, 6);
+      expect(r[i - 5]).toBeCloseTo(bruteMaxAbs([right], from, to) / scale, 6);
+    }
+  });
+});

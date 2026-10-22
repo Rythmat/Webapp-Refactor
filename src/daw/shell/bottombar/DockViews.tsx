@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useRef, type ReactNode } from 'react';
+import { cn } from '@/components/utilities';
 import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
 import { hintText } from '@/daw/shell/help/hintSource';
 import { preloadDockTab, preloadInstrumentViews } from '@/daw/shell/lazyParts';
@@ -15,6 +16,10 @@ import { dockKindOf } from '../dock/dockTabs';
 import {
   activeDockView,
   dockViewApplies,
+  dockViewFillsPair,
+  dockViewLabel,
+  dockViewShown,
+  dockViewAppliesToMaster,
   dockViewPurpose,
   DOCK_VIEWS,
   type DockView,
@@ -25,9 +30,12 @@ import {
 //
 // Instrument · FX and Automation · Edit, icon toggles in two pills, as the
 // floating frame's bottom bar has them (dockViews.ts). A press opens the
-// view under the timeline and a press on the open one shuts it; Automation
-// opens the selected track's lane, which stacks with the dock and follows
-// the selection. They are Create's: the dock and the lane live there.
+// view in the dock and a press on the open one shuts it. Automation opens
+// the selected track's lane in the dock (Master's while the dock shows
+// Master), which follows the selection; another view takes the dock back
+// from it. While the dock shows Master, FX (its effects) and Automation
+// are its views and Instrument and Edit are off (owner, 2026-10-22). They
+// are Create's: the dock lives there.
 
 const ICONS: Record<DockViewId, ReactNode> = {
   instrument: <InstrumentGlyph />,
@@ -35,6 +43,12 @@ const ICONS: Record<DockViewId, ReactNode> = {
   automation: <AutomationGlyph />,
   edit: <EditGlyph />,
 };
+
+/**
+ * The Instrument and FX buttons side by side: two 36 px toggles (Toggle's
+ * lg: a 16 px icon, 10 px either side) and the pill's 2 px gap.
+ */
+const PAIR_WIDTH = 'w-[74px]';
 
 export const DockViews = memo(function DockViews() {
   const kind = useStore((s) =>
@@ -44,13 +58,14 @@ export const DockViews = memo(function DockViews() {
     (s) => s.tracks.find((t) => t.id === s.selectedTrackId)?.instrument,
   );
   const selectedTrackId = useStore((s) => s.selectedTrackId);
+  // The automation lane shows in the dock over the tab while it is open
+  // (the selected track's, or Master's while the dock shows Master).
+  const automationOpen = useStore((s) => s.automationOpenTrackId !== null);
+  const master = useStore((s) => s.dockMaster);
   const active = useStore((s) =>
-    activeDockView(kind, s.channelStripTab, s.dockMaster),
-  );
-  const automationOpen = useStore(
-    (s) =>
-      s.selectedTrackId !== null &&
-      s.automationOpenTrackId === s.selectedTrackId,
+    s.automationOpenTrackId !== null
+      ? null
+      : activeDockView(kind, s.channelStripTab, s.dockMaster),
   );
 
   // A track's lane follows the selection while it is open, as the dock
@@ -80,10 +95,26 @@ export const DockViews = memo(function DockViews() {
   const pick = (view: DockView) => {
     const s = useStore.getState();
     if (view.id === 'automation') {
-      s.setAutomationOpenTrackId(automationOpen ? null : s.selectedTrackId);
+      // Master's lane while the dock shows Master, else the track's.
+      s.setAutomationOpenTrackId(
+        automationOpen
+          ? null
+          : s.dockMaster
+            ? MASTER_AUTOMATION_ID
+            : s.selectedTrackId,
+      );
       return;
     }
     if (!view.tab) return;
+    // Another view takes the dock back from the automation lane: Master's
+    // FX from Master's lane, else the track's view.
+    if (s.automationOpenTrackId !== null) {
+      s.setAutomationOpenTrackId(null);
+      if (s.dockMaster && view.id === 'fx') return;
+      if (s.dockMaster) s.setDockMaster(false);
+      s.setChannelStripTab(view.tab);
+      return;
+    }
     // Shutting the dock also gives Master's slot back (uiSlice).
     if (active === view.id) {
       s.setChannelStripTab(null);
@@ -95,23 +126,36 @@ export const DockViews = memo(function DockViews() {
 
   const toggle = (view: DockView) => {
     const on = view.id === 'automation' ? automationOpen : active === view.id;
-    const purpose = dockViewPurpose(view.id, kind);
+    const purpose = dockViewPurpose(view.id, kind, master);
+    const label = dockViewLabel(view, kind);
+    // A track's one sound button, as wide as the pair it stands for, so the
+    // rail keeps its shape from track to track (owner, 2026-10-22): an
+    // Audio track's Instrument (its input and FX in one dock), and Master's
+    // or an uploaded file's FX (they have no instrument).
+    const combined = dockViewFillsPair(view.id, kind, master);
     return (
       <Toggle
         key={view.id}
-        label={view.label}
+        label={label}
         size="lg"
         tooltipSide="top"
-        className={PILL_TOGGLE}
-        icon={ICONS[view.id]}
+        className={cn(PILL_TOGGLE, combined && PAIR_WIDTH)}
+        // The wide button is the Effects icon on every track that has one
+        // (owner, 2026-10-22: an Audio track's too, where the amp was).
+        icon={combined ? ICONS.fx : ICONS[view.id]}
         pressed={on}
-        disabled={!dockViewApplies(view.id, kind)}
+        // While the dock shows Master: its FX and Automation, as a track's.
+        disabled={
+          master
+            ? !dockViewAppliesToMaster(view.id)
+            : !dockViewApplies(view.id, kind)
+        }
         onPressedChange={() => pick(view)}
         onPointerEnter={() => preload(view)}
         onFocus={() => preload(view)}
         data-tutorial-id={view.tab ? `chanstrip-tab-${view.tab}` : undefined}
         data-testid={view.tab ? `dock-tab-${view.tab}` : `dock-view-${view.id}`}
-        data-hint={hintText(view.label, purpose)}
+        data-hint={hintText(label, purpose)}
       />
     );
   };
@@ -119,7 +163,9 @@ export const DockViews = memo(function DockViews() {
   return (
     <>
       <PillGroup label="Instrument and effects" data-testid="dock-views-sound">
-        {DOCK_VIEWS.slice(0, 2).map(toggle)}
+        {DOCK_VIEWS.slice(0, 2)
+          .filter((view) => dockViewShown(view.id, kind, master))
+          .map(toggle)}
       </PillGroup>
       <PillGroup label="Automation and editing" data-testid="dock-views-edit">
         {DOCK_VIEWS.slice(2).map(toggle)}

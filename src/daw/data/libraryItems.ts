@@ -113,6 +113,27 @@ export const FX_CATALOG: LibraryItem[] = [
     color: COLOR.accent.value,
     dragPayload: { kind: 'audio-effect', effectType: 'ducker' },
   },
+  // The guitar pedals as effects (2026-10-22): audio/graph/effects/
+  // pedalEffects. Their icons are FxBlockIcon's.
+  ...(
+    [
+      ['overdrive', 'Overdrive', 'Zap'],
+      ['amp', 'Amp', 'Speaker'],
+      ['chorus', 'Chorus', 'Waves'],
+      ['phaser', 'Phaser', 'Orbit'],
+      ['flanger', 'Flanger', 'Wind'],
+      ['wah', 'Wah', 'Footprints'],
+    ] as const
+  ).map(
+    ([effectType, label, icon]): LibraryItem => ({
+      id: `fx-${effectType}`,
+      label,
+      category: 'Audio Effects',
+      icon,
+      color: COLOR.accent.value,
+      dragPayload: { kind: 'audio-effect', effectType },
+    }),
+  ),
 ];
 
 /** Effect type → color */

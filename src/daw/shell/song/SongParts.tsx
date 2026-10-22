@@ -252,7 +252,12 @@ export function MetreChoices({ onPicked }: { onPicked?(): void }) {
  * field sets it; the store clamps 40–300), ↑ ↓ step it, and Tap sets it from
  * four taps or more.
  */
-export function TempoField() {
+export function TempoField({
+  compact = false,
+}: {
+  /** A narrow window's: the number only, no 'BPM' and no Tap. */
+  compact?: boolean;
+} = {}) {
   const bpm = useStore((s) => s.bpm);
   const setBpm = useStore((s) => s.setBpm);
   // Local text, so the student can clear the field and type a new tempo.
@@ -298,29 +303,33 @@ export function TempoField() {
               FOCUS_RING,
             )}
           />
-          <span className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>BPM</span>
+          {compact ? null : (
+            <span className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>BPM</span>
+          )}
         </label>
       </Tooltip>
-      <Button
-        size="sm"
-        variant="ghost"
-        aria-label="Tap tempo: tap in time, four taps or more"
-        data-active={tapping || undefined}
-        className={
-          tapping ? 'bg-daw-selected text-daw-text' : 'text-daw-text-2'
-        }
-        onClick={() => {
-          const next = tapper.tap(performance.now());
-          setTapping(true);
-          if (next !== null) setBpm(next);
-        }}
-        onBlur={() => {
-          tapper.reset();
-          setTapping(false);
-        }}
-      >
-        Tap
-      </Button>
+      {compact ? null : (
+        <Button
+          size="sm"
+          variant="ghost"
+          aria-label="Tap tempo: tap in time, four taps or more"
+          data-active={tapping || undefined}
+          className={
+            tapping ? 'bg-daw-selected text-daw-text' : 'text-daw-text-2'
+          }
+          onClick={() => {
+            const next = tapper.tap(performance.now());
+            setTapping(true);
+            if (next !== null) setBpm(next);
+          }}
+          onBlur={() => {
+            tapper.reset();
+            setTapping(false);
+          }}
+        >
+          Tap
+        </Button>
+      )}
     </div>
   );
 }

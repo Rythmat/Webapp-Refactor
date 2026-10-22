@@ -18,9 +18,9 @@ export interface TutorialSlice {
   tutorialStepIndex: number;
   /** 'waiting' until the step's action is detected (or Next on free-form). */
   tutorialStepStatus: TutorialStepStatus;
-  /** Whether the last completion should celebrate (confetti). False when a
-   *  step's precondition was already satisfied on arrival, so we advance
-   *  quietly instead of firing confetti for something the user didn't do. */
+  /** Whether the last completion should celebrate (the rainbow highlight).
+   *  False when a step's precondition was already satisfied on arrival, so
+   *  we advance quietly instead of celebrating something the user didn't do. */
   tutorialStepCelebrate: boolean;
   /** Whether the current step's preconditions (its view, panel, tab) are in
    *  place: the layer applies them once, as the step arrives. A remounted

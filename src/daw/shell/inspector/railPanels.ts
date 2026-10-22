@@ -3,7 +3,6 @@ import {
   Library,
   Lightbulb,
   MessageSquare,
-  Sparkles,
   Users,
   type LucideIcon,
 } from 'lucide-react';
@@ -11,7 +10,8 @@ import type { InspectorPanelId } from '../layout/layoutModel';
 
 // ── The side rail's panels (B4a) ───────────────────────────────────────────
 //
-// One entry per icon, top to bottom (the owner's six, 2026-10-16): the
+// One entry per icon, top to bottom (the owner's six, 2026-10-16; Effects moved
+// to the Add effect picker, 2026-10-21): the
 // rail's button and the Inspector's header both read it.
 
 export interface RailPanel {
@@ -35,12 +35,6 @@ export const RAIL_PANELS: readonly RailPanel[] = [
     title: 'Library',
     hint: 'Library: parts, grooves, drum kits, sounds and templates',
     icon: Library,
-  },
-  {
-    id: 'fx',
-    title: 'Effects',
-    hint: 'Effects: add one to the selected track',
-    icon: Sparkles,
   },
   {
     id: 'lessons',

@@ -76,8 +76,8 @@ let bass = '';
 
 beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
-  keys = s().addTrack('midi', 'piano-sampler', 'Keys');
-  bass = s().addTrack('midi', 'bass-electric', 'Bass');
+  keys = s().addTrack('midi', 'soundfont', 'Keys');
+  bass = s().addTrack('midi', 'soundfont', 'Bass');
 });
 
 describe('a clip coming in', () => {

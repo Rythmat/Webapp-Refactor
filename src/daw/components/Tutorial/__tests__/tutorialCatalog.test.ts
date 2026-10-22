@@ -56,7 +56,7 @@ describe('the lesson catalog', () => {
     }
   });
 
-  it('makes the four Prism lessons Premium and leaves the other four free', () => {
+  it('makes the four Prism lessons Premium and leaves the other three free', () => {
     const premium = (want: boolean) =>
       TUTORIAL_CATALOG.filter((t) => t.requiresPremium === want).map(
         (t) => t.id,
@@ -69,15 +69,14 @@ describe('the lesson catalog', () => {
     ]);
     expect(premium(false)).toEqual([
       'hiphop-build-the-beat',
-      'pop-flip-a-sample',
       'house-make-it-pump',
       'indie-movement-and-dynamics',
     ]);
   });
 
   it('finds an entry by id, and nothing for an unknown or missing id', () => {
-    expect(getTutorialEntry('pop-flip-a-sample')?.title).toBe(
-      'Pop — Flip a sample',
+    expect(getTutorialEntry('house-make-it-pump')?.title).toBe(
+      'House — Make it pump',
     );
     expect(getTutorialEntry('no-such-lesson')).toBeNull();
     expect(getTutorialEntry(null)).toBeNull();
@@ -110,7 +109,7 @@ describe('lesson access', () => {
 
   it('waits on a Premium lesson while the subscription loads, never on a free one', () => {
     expect(lessonAccess('edm-design-the-drop', loading)).toBe('wait');
-    expect(lessonAccess('pop-flip-a-sample', loading)).toBe('open');
+    expect(lessonAccess('house-make-it-pump', loading)).toBe('open');
   });
 
   it('leaves an unknown lesson to the boot, which says it was not found', () => {

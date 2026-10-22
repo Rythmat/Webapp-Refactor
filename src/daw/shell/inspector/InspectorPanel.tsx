@@ -7,7 +7,6 @@ import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
 import { TYPE_CLASS } from '@/daw/ui/styles';
 import { ChatBody } from './panels/ChatBody';
-import { FxBody } from './panels/FxBody';
 import { LessonsBody } from './panels/LessonsBody';
 import { LibraryBody } from './panels/LibraryBody';
 import { PeopleBody } from './panels/PeopleBody';
@@ -68,8 +67,6 @@ function Body({ panel }: { panel: string }) {
   switch (panel) {
     case 'library':
       return <LibraryBody />;
-    case 'fx':
-      return <FxBody />;
     case 'lessons':
       return <LessonsBody />;
     case 'people':

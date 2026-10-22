@@ -266,7 +266,7 @@ const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 describe('renderProject: pedal chains', () => {
   it("plays a guitar track's clips through its stored chain into the track", async () => {
     store.state.tracks = [
-      track('gtr', 'guitar-fx', { guitarChain: AMP_CHAIN }),
+      track('gtr', 'audio-input', { guitarChain: AMP_CHAIN }),
     ];
 
     const render = renderProject();
@@ -290,10 +290,12 @@ describe('renderProject: pedal chains', () => {
     expect(build.disposed).toBe(true);
   });
 
-  it("uses a bass track's guitar chain and a vocal track's vocal chain", async () => {
+  it("uses each Audio track's chain, its amp or its pitch correction", async () => {
+    // The Guitar, Bass and Voice tracks folded into Audio (2026-10-22): an
+    // Audio track's one chain holds an amp or pitch correction.
     store.state.tracks = [
-      track('bass', 'bass-fx', { guitarChain: AMP_CHAIN }),
-      track('vox', 'vocal-fx', { vocalChain: VOCAL_CHAIN }),
+      track('bass', 'audio-input', { guitarChain: AMP_CHAIN }),
+      track('vox', 'audio-input', { guitarChain: VOCAL_CHAIN }),
     ];
     const render = renderProject();
     await settle();
@@ -311,8 +313,9 @@ describe('renderProject: pedal chains', () => {
   it('builds no chain for other tracks or a track with none stored', async () => {
     store.state.tracks = [
       track('keys', 'piano-sampler', { guitarChain: AMP_CHAIN }),
-      track('gtr', 'guitar-fx'),
-      track('vox', 'vocal-fx', { vocalChain: [] }),
+      track('gtr', 'audio-input'),
+      // A Voice track's chain is no longer read: Audio tracks have one chain.
+      track('vox', 'audio-input', { guitarChain: [], vocalChain: VOCAL_CHAIN }),
     ];
     await renderProject();
     expect(pedals.builds).toEqual([]);

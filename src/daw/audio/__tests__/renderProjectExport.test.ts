@@ -479,7 +479,7 @@ describe('renderProject', () => {
     store.state.tracks = [
       {
         ...track('vocal'),
-        instrument: 'vocal-fx',
+        instrument: 'audio-input',
         audioClips: [take('take-1', 0), take('take-2', 1920, true)],
       },
     ];

@@ -9,9 +9,9 @@ import {
   type PartNote,
 } from '@/curriculum/engine/parts/part';
 import { ScoreView } from '@/daw/components/Score/ScoreView';
+import { soundSettings } from '@/daw/instruments/trackSound';
 import { useStore } from '@/daw/store';
 import { resetUndoHistory } from '@/daw/store/undoMiddleware';
-import { parseSound } from './sounds';
 
 const CLIP_ID = 'parts-library-clip';
 
@@ -91,8 +91,13 @@ export const StudioScoreBridge: FC<{
     const s = useStore.getState();
     s.setTimeSignature(p.timeSignature[0], p.timeSignature[1]);
     s.setBpm(p.tempo);
-    const { type } = parseSound(p.sound);
-    const id = s.addTrack('midi', type, p.name);
+    // The part's sound as a Studio track: a removed track type's sound
+    // opens as an Instruments track with the same instrument (trackSound).
+    const { settings } = soundSettings(p.sound);
+    const id = s.addTrack('midi', settings.instrument ?? 'none', p.name, {
+      gmProgram: settings.gmProgram,
+      presetName: settings.presetName,
+    });
     s.addMidiClip(id, {
       id: CLIP_ID,
       name: p.name,

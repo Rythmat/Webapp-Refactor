@@ -47,9 +47,9 @@ let vox = '';
 beforeEach(() => {
   toasts.length = 0;
   useStore.setState(useStore.getInitialState(), true);
-  keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  keys = s().addTrack('midi', 'soundfont', 'Keys');
   drums = s().addTrack('midi', 'drum-machine', 'Drums');
-  vox = s().addTrack('audio', 'vocal-fx', 'Vox');
+  vox = s().addTrack('audio', 'audio-input', 'Vox');
   s().addMidiClip(keys, {
     id: 'take',
     startTick: 0,
@@ -98,7 +98,7 @@ describe('moving a clip', () => {
   });
 
   it('is one store write, onto another track too, the selection following', () => {
-    const second = s().addTrack('midi', 'piano-sampler', 'Pad');
+    const second = s().addTrack('midi', 'soundfont', 'Pad');
     s().setSelectedClip('take', keys);
     let writes = 0;
     const stop = useStore.subscribe(() => {

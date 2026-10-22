@@ -1,3 +1,4 @@
+import { audioSourceOf, type AudioSource } from '@/daw/audio/audioSource';
 import { GM_PROGRAMS, type GMCategory } from '@/daw/instruments/gmPrograms';
 import type {
   InstrumentType,
@@ -60,36 +61,26 @@ export type PartStaff = PitchedStaff | 'percussion';
 export const INSTRUMENT_STAFF: Readonly<
   Record<InstrumentType, PartStaff | 'program' | null>
 > = {
-  'piano-sampler': 'grand',
-  'electric-piano': 'grand',
-  organ: 'grand',
-  'tonewheel-organ': 'grand',
-  'bass-electric': 'bass8vb',
-  cello: 'bass',
-  'guitar-acoustic': 'treble',
   'drum-machine': 'percussion',
   soundfont: 'program',
   'oracle-synth': null,
-  sampler: null, // Chops: a one-shot sample played across the keys
-  'guitar-fx': 'treble',
-  'bass-fx': 'bass8vb',
-  'vocal-fx': 'treble',
+  // An Audio track: by what it records (audioSource), else nothing.
+  'audio-input': null,
   none: null,
 };
 
 /** What each instrument is called, for saying why Auto chose its staff. */
 const INSTRUMENT_NAME: Readonly<Partial<Record<InstrumentType, string>>> = {
-  'piano-sampler': 'Piano',
-  'electric-piano': 'Electric piano',
-  organ: 'Organ',
-  'tonewheel-organ': 'Organ',
-  'bass-electric': 'Bass guitar',
-  cello: 'Cello',
-  'guitar-acoustic': 'Acoustic guitar',
   'drum-machine': 'Drum kit',
-  'guitar-fx': 'Guitar',
-  'bass-fx': 'Bass',
-  'vocal-fx': 'Voice',
+};
+
+/** An Audio track's staff, by what it records (audioSource). */
+const SOURCE_STAFF: Readonly<
+  Record<Exclude<AudioSource, 'other'>, [PartStaff, string]>
+> = {
+  guitar: ['treble', 'a guitar'],
+  bass: ['bass8vb', 'a bass'],
+  voice: ['treble', 'a voice'],
 };
 
 /**
@@ -144,10 +135,6 @@ export const GM_PROGRAM_STAFF: Readonly<Partial<Record<number, PartStaff>>> = {
  */
 const PATCH_NAMED: ReadonlySet<InstrumentType> = new Set<InstrumentType>([
   'oracle-synth',
-  'piano-sampler',
-  'electric-piano',
-  'organ',
-  'tonewheel-organ',
 ]);
 
 /**
@@ -230,7 +217,7 @@ export type StaffTrack = Pick<
   Track,
   'name' | 'instrument' | 'gmProgram' | 'presetName' | 'trackRole'
 > &
-  Partial<Pick<Track, 'notationStaff'>>;
+  Partial<Pick<Track, 'notationStaff' | 'guitarChain'>>;
 
 export interface StaffChoice {
   staff: PartStaff;
@@ -279,6 +266,11 @@ function instrumentStaff(track: StaffTrack): StaffChoice | null {
   if (PATCH_NAMED.has(track.instrument)) {
     const staff = patchStaff(track.presetName);
     if (staff) return { staff, because: `for the ${track.presetName} patch` };
+  }
+  const source = audioSourceOf(track);
+  if (source !== 'other') {
+    const [staff, what] = SOURCE_STAFF[source];
+    return { staff, because: `for ${what}` };
   }
   const rule = INSTRUMENT_STAFF[track.instrument] ?? null;
   if (rule === 'program') return programStaff(track.gmProgram);

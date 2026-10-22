@@ -1,5 +1,5 @@
 // ── useAudioChordDetection ────────────────────────────────────────────────
-// Detects chords from armed audio tracks (guitar-fx, bass-fx, vocal-fx) and
+// Detects chords from armed Audio tracks (a voice: audioSource) and
 // writes detected MIDI notes to the store. Mounted once in DawApp, no UI.
 //
 // The analysis runs as an engineClock task at ~20 Hz, registered only while
@@ -10,6 +10,7 @@
 // Uses AudioChordDetector with HMM temporal smoothing (debouncing handled
 // internally by the detector's HMM, not by frame counting).
 
+import { audioSourceOf, type AudioSource } from '@/daw/audio/audioSource';
 import { useEffect } from 'react';
 import { useStore } from '@/daw/store';
 import { selectEffectiveKey } from '@/daw/harmony/effectiveKey';
@@ -26,19 +27,27 @@ import {
 } from '@/daw/audio/OfflineChordAnalyzer';
 import { getAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import { CHORDS, ALL_MODES } from '@prism/engine';
-import { deriveChordRegionsFromAudioSnapshots } from '@/daw/store/prismSlice';
+import {
+  deriveChordRegionsFromAudioSnapshots,
+  type ChordRegion,
+} from '@/daw/store/prismSlice';
+import { takeWritesChords, writeHeardChords } from '@/daw/harmony/takeChords';
+import { withTransaction, withoutHistory } from '@/daw/store/history';
 import { audioChordAnalysis } from '@/daw/utils/chordAnalysis';
 import type { InstrumentAdapter } from '@/daw/instruments/InstrumentAdapter';
 
-const AUDIO_INSTRUMENT_TYPES = new Set(['guitar-fx', 'bass-fx', 'vocal-fx']);
-const VOCAL_TYPES = new Set(['vocal-fx']);
+/** Audio tracks: a voice (audioSource) is heard one note at a time. */
+const AUDIO_INSTRUMENT_TYPES = new Set(['audio-input']);
 const ANALYSIS_FPS = 20;
 // Compensates for the detector's vote buffer (~300 ms group delay).
 const VOTE_LATENCY_MS = 300;
+/** How often (ms) an audio take's chords are written while it plays. */
+const LIVE_CHORDS_MS = 500;
 
 interface ChordSource {
   trackId: string;
-  instrument: string;
+  /** What it records (audioSource): a voice is heard one note at a time. */
+  source: AudioSource;
   /** The engine's adapter: a new one under the same track id is a new input. */
   adapter: InstrumentAdapter;
   analyser: AnalyserNode;
@@ -56,7 +65,7 @@ function findChordSource(): ChordSource | null {
       | undefined;
     const analyser = adapter?.getChordAnalyserNode?.() ?? null;
     if (adapter && analyser) {
-      return { trackId: t.id, instrument: t.instrument, adapter, analyser };
+      return { trackId: t.id, source: audioSourceOf(t), adapter, analyser };
     }
   }
   return null;
@@ -67,7 +76,7 @@ function armedAudioKey(s: ReturnType<typeof useStore.getState>): string {
   let key = '';
   for (const t of s.tracks) {
     if (t.recordArmed && AUDIO_INSTRUMENT_TYPES.has(t.instrument)) {
-      key += `${t.id}:${t.instrument};`;
+      key += `${t.id}:${audioSourceOf(t)};`;
     }
   }
   return key;
@@ -97,6 +106,10 @@ export function useAudioChordDetection(): void {
     let wasRecording = false;
     let recordingStartTick = 0;
     let recordingTrackId: string | null = null;
+    // The chord ruler at punch-in, once the take's live chords wrote to it
+    // (Auto on), and when they last did.
+    let laneBefore: ChordRegion[] | null = null;
+    let chordsReadAt = 0;
     let offlineAnalysisTimer: ReturnType<typeof setTimeout> | null = null;
 
     const clearNotes = () => {
@@ -139,9 +152,8 @@ export function useAudioChordDetection(): void {
         source.trackId !== lastSource?.trackId ||
         source.adapter !== lastSource?.adapter
       ) {
-        const inputType: InputType = VOCAL_TYPES.has(source.instrument)
-          ? 'vocal'
-          : 'guitar';
+        const inputType: InputType =
+          source.source === 'voice' ? 'vocal' : 'guitar';
         if (!detector || inputType !== currentInputType) {
           currentInputType = inputType;
           detector = new AudioChordDetector(16384, inputType);
@@ -229,17 +241,30 @@ export function useAudioChordDetection(): void {
         const latencyTicks = Math.round(
           (VOTE_LATENCY_MS * (bpm * 480)) / 60000,
         );
-        recordingChords.push({
-          tick: Math.max(0, getPlayheadTick() - latencyTicks),
-          notes: [...notes],
-        });
+        const tick = Math.max(0, getPlayheadTick() - latencyTicks);
+        recordingChords.push({ tick, notes: [...notes] });
+        // Auto chords: the take's chords on the ruler as it plays, outside
+        // undo (finishRecording writes them as one step).
+        const now = performance.now();
+        if (
+          now - chordsReadAt >= LIVE_CHORDS_MS &&
+          takeWritesChords(recordingTrackId)
+        ) {
+          chordsReadAt = now;
+          const base = laneBefore ?? useStore.getState().chordRegions;
+          laneBefore = base;
+          withoutHistory(() =>
+            writeHeardChords(recordingChords, recordingStartTick, tick, base),
+          );
+        }
       }
     }
 
-    /** Recording just stopped: propose chord symbols from what was heard. */
+    /**
+     * Recording just stopped: the chords heard go on the chord ruler (Auto
+     * on), else Insight proposes them.
+     */
     const finishRecording = () => {
-      // Propose chord symbols from the live snapshots (instant). Insight
-      // offers them; the chord lane only takes them on "Use Chord Symbols".
       const {
         rootNote,
         mode,
@@ -247,7 +272,29 @@ export function useAudioChordDetection(): void {
         tracks: storeTracks,
         bpm,
       } = useStore.getState();
-      if (recordingChords.length > 0) {
+      // Auto chords: the ruler goes back to how it was at punch-in, then the
+      // take's chords land as one undo step. The offline read below writes
+      // its better ones over the same span, on that same ruler.
+      const autoChords = takeWritesChords(recordingTrackId);
+      const takeBase = laneBefore ?? useStore.getState().chordRegions;
+      if (laneBefore !== null) {
+        const before = laneBefore;
+        withoutHistory(() => useStore.setState({ chordRegions: before }));
+      }
+      laneBefore = null;
+      chordsReadAt = 0;
+      const takeEnd =
+        recordingChords.length > 0
+          ? recordingChords[recordingChords.length - 1].tick + 1
+          : recordingStartTick;
+      if (autoChords && recordingChords.length > 0) {
+        const heard = recordingChords;
+        withTransaction('Chords from take', () =>
+          writeHeardChords(heard, recordingStartTick, takeEnd, takeBase),
+        );
+      } else if (recordingChords.length > 0) {
+        // Propose chord symbols from the live snapshots (instant). Insight
+        // offers them; the chord lane only takes them on "Use Chord Symbols".
         const regions = deriveChordRegionsFromAudioSnapshots(
           recordingChords,
           (rootNote ?? 0) + 48,
@@ -261,56 +308,70 @@ export function useAudioChordDetection(): void {
       const capturedStartTick = recordingStartTick;
       const capturedBpm = bpm;
       if (capturedTrackId) {
-        const track = storeTracks.find((t) => t.id === capturedTrackId);
-        const lastClip = track?.audioClips[track.audioClips.length - 1];
-        if (lastClip) {
-          // Delay slightly to ensure AudioBuffer is stored (recording stop is async)
-          offlineAnalysisTimer = setTimeout(() => {
-            offlineAnalysisTimer = null;
-            const audioBuffer = getAudioBuffer(lastClip.id);
-            if (!audioBuffer) return;
-            const { rootNote: rn, mode: m } = useStore.getState();
-            // The chords are named in C when no key is set, as the proposal
-            // above names them, but the analysis gets no key prior then: it
-            // used to assume C major and favour its roots.
-            const effectiveRoot = rn ?? 0;
-            const key = selectEffectiveKey(useStore.getState());
-            const offlineFrames = analyzeChords(
-              audioBuffer,
-              key?.rootPc,
-              key ? ALL_MODES[key.mode] : undefined,
-              capturedBpm,
+        // The take's clip lands after the stop (the recorder finishes
+        // async): it is the clip on the track that wasn't there now.
+        const clipsAtStop = new Set(
+          storeTracks
+            .find((t) => t.id === capturedTrackId)
+            ?.audioClips.map((c) => c.id) ?? [],
+        );
+        // Delay slightly to ensure AudioBuffer is stored (recording stop is async)
+        offlineAnalysisTimer = setTimeout(() => {
+          offlineAnalysisTimer = null;
+          const takeClip = useStore
+            .getState()
+            .tracks.find((t) => t.id === capturedTrackId)
+            ?.audioClips.find((c) => !clipsAtStop.has(c.id));
+          if (!takeClip) return;
+          const audioBuffer = getAudioBuffer(takeClip.id);
+          if (!audioBuffer) return;
+          const { rootNote: rn, mode: m } = useStore.getState();
+          // The chords are named in C when no key is set, as the proposal
+          // above names them, but the analysis gets no key prior then: it
+          // used to assume C major and favour its roots.
+          const effectiveRoot = rn ?? 0;
+          const key = selectEffectiveKey(useStore.getState());
+          const offlineFrames = analyzeChords(
+            audioBuffer,
+            key?.rootPc,
+            key ? ALL_MODES[key.mode] : undefined,
+            capturedBpm,
+          );
+          if (offlineFrames.length === 0) return;
+          const snapshots = offlineFramesToSnapshots(
+            offlineFrames,
+            capturedStartTick,
+            capturedBpm,
+            audioBuffer.sampleRate,
+          );
+          const refinedRegions = deriveChordRegionsFromAudioSnapshots(
+            snapshots,
+            effectiveRoot + 48,
+            m,
+          );
+          if (refinedRegions.length > 0 && autoChords) {
+            // Over the take's span, on the ruler as it was before the take:
+            // undoing the take's chords still goes back to that.
+            withoutHistory(() =>
+              writeHeardChords(snapshots, capturedStartTick, takeEnd, takeBase),
             );
-            if (offlineFrames.length === 0) return;
-            const snapshots = offlineFramesToSnapshots(
-              offlineFrames,
-              capturedStartTick,
-              capturedBpm,
-              audioBuffer.sampleRate,
-            );
-            const refinedRegions = deriveChordRegionsFromAudioSnapshots(
-              snapshots,
-              effectiveRoot + 48,
-              m,
-            );
-            if (refinedRegions.length > 0) {
-              useStore
-                .getState()
-                .proposeChordSymbols(
-                  audioChordAnalysis(refinedRegions, effectiveRoot, m),
-                );
-            }
+          } else if (refinedRegions.length > 0) {
+            useStore
+              .getState()
+              .proposeChordSymbols(
+                audioChordAnalysis(refinedRegions, effectiveRoot, m),
+              );
+          }
 
-            // Run full UNISON analysis only if user has already activated it
-            if (useStore.getState().unisonDoc) {
-              useStore.getState().analyzeAudio(audioBuffer, {
-                bpm: capturedBpm,
-                keyRootPc: key?.rootPc,
-                modeIntervals: key ? ALL_MODES[key.mode] : undefined,
-              });
-            }
-          }, 500); // wait for AudioBuffer to be stored
-        }
+          // Run full UNISON analysis only if user has already activated it
+          if (useStore.getState().unisonDoc) {
+            useStore.getState().analyzeAudio(audioBuffer, {
+              bpm: capturedBpm,
+              keyRootPc: key?.rootPc,
+              modeIntervals: key ? ALL_MODES[key.mode] : undefined,
+            });
+          }
+        }, 500); // wait for AudioBuffer to be stored
       }
 
       recordingChords = [];

@@ -41,9 +41,10 @@ describe('saved instrument sounds reload', () => {
   function setUp() {
     s().addTrack('midi', 'soundfont', 'Agogo');
     s().updateTrack(lastTrackId(), { gmProgram: AGOGO });
-    s().addTrack('midi', 'tonewheel-organ', 'B3');
+    // An organ's drawbars, as saves from before 2026-10-22 hold them.
+    s().addTrack('midi', 'soundfont', 'B3');
     s().updateTrack(lastTrackId(), { organState: ORGAN });
-    s().addTrack('midi', 'electric-piano', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Keys');
     s().updateTrack(lastTrackId(), { presetName: 'Wurlitzer' });
   }
 

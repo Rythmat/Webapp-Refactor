@@ -62,27 +62,31 @@ describe('applyGenrePracticeTrack', () => {
     ]);
   });
 
+  // The electric piano and bass are Instruments tracks playing them in
+  // General MIDI since 2026-10-22.
   it('plays the backing on the instruments the lesson uses', () => {
     const { state } = seed('A');
     const byName = Object.fromEntries(
-      state.tracks.map((t) => [t.name, t.instrument]),
+      state.tracks.map((t) => [t.name, [t.instrument, t.gmProgram]]),
     );
-    expect(byName.Drums).toBe('drum-machine');
-    expect(byName.Bass).toBe('bass-electric');
-    expect(byName.Chords).toBe('electric-piano');
+    expect(byName.Drums).toEqual(['drum-machine', undefined]);
+    // Funk's finger electric: Electric Bass (finger).
+    expect(byName.Bass).toEqual(['soundfont', 33]);
+    // Electric Piano 1.
+    expect(byName.Chords).toEqual(['soundfont', 4]);
   });
 
   it('puts a bass part on a bass and everything else on the Rhodes', () => {
     const bass = seed('C');
     expect(
-      bass.state.tracks.find((t) => t.id === bass.studentTrackId)!.instrument,
-    ).toBe('bass-electric');
+      bass.state.tracks.find((t) => t.id === bass.studentTrackId),
+    ).toMatchObject({ instrument: 'soundfont', gmProgram: 33 });
 
     for (const section of ['A', 'B', 'D'] as ActivitySectionId[]) {
       const s = seed(section);
       expect(
-        s.state.tracks.find((t) => t.id === s.studentTrackId)!.instrument,
-      ).toBe('electric-piano');
+        s.state.tracks.find((t) => t.id === s.studentTrackId),
+      ).toMatchObject({ instrument: 'soundfont', gmProgram: 4 });
     }
   });
 
@@ -96,7 +100,8 @@ describe('applyGenrePracticeTrack', () => {
       )!;
       const id = applyGenrePracticeTrack(track, 'Guitar');
       const student = useStore.getState().tracks.find((t) => t.id === id)!;
-      expect(student.instrument).toBe('guitar-acoustic');
+      // Acoustic Guitar (steel).
+      expect(student).toMatchObject({ instrument: 'soundfont', gmProgram: 25 });
       expect(student.recordArmed).toBe(true);
     }
   });

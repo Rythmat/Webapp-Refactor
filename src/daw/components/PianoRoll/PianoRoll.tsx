@@ -8,14 +8,10 @@ import {
   type RefObject,
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  MousePointer2,
-  Pencil,
-  Eraser,
-  ChevronDown,
-  ChevronRight,
-  Trash2,
-} from 'lucide-react';
+import { ChevronDown, ChevronUp, ZoomIn, ZoomOut } from 'lucide-react';
+import { cn } from '@/components/utilities';
+import { Select } from '@/daw/ui/Select';
+import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import {
   noteNameInKey,
   midiNameInKey,
@@ -49,7 +45,6 @@ import {
   LOOP_STRIP_H,
   PLAYHEAD_COLOR,
   PLAYHEAD_HANDLE_H,
-  PLAYHEAD_HANDLE_W,
   dragLoopRange,
   drawLoopRegion,
   rulerPressTarget,
@@ -67,8 +62,6 @@ import {
   type PaintedWindow,
 } from './viewportCanvas';
 import { getDawPalette } from '@/daw/ui/tokens';
-
-type Tool = 'select' | 'draw' | 'erase';
 
 function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace('#', '');
@@ -106,7 +99,7 @@ function resolveNoteColor(
 // ── Constants ───────────────────────────────────────────────────────────────
 const KEYS_WIDTH = 48; // px for piano key column
 const RULER_H = 36; // px for top ruler: loop strip (LOOP_STRIP_H) + bar numbers
-const TOOLBAR_H = 36; // px for toolbar
+const BAR_H = 40; // px for the bar under the notes (Suno's clip editor)
 const ROW_H = 12; // px per pitch row
 const VEL_LANE_H = 60; // px height for velocity lane
 const VEL_CIRCLE_R = 4; // px radius of draggable velocity circle
@@ -136,8 +129,6 @@ function getThemeColors() {
 }
 
 // ── Custom cursors (inline SVG data URIs) ───────────────────────────────────
-const PENCIL_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z'/></svg>") 2 18, crosshair`;
-const ERASER_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21'/><path d='M22 21H7'/><path d='m5 11 9 9'/></svg>") 2 18, pointer`;
 
 // ── Note helpers ────────────────────────────────────────────────────────────
 function noteName(midi: number, keyPc: number, mode?: string): string {
@@ -168,9 +159,10 @@ interface MarqueeRect {
 // Painted through a ref, so playback moves this line without rendering it or
 // the editor (milestone 1.7). In the Studio it follows the playhead clock;
 // with a host (the back office) it follows the host's position instead and
-// does not subscribe to the clock at all.
-// With `handle`, it also draws the grab triangle at the bottom of the ruler
-// (purely visual — the ruler's mouse handler hit-tests it).
+// does not subscribe to the clock at all. Suno's (2026-10-22, as the
+// timeline's): a 1 px line, white while the song plays and a dim grey while
+// it is stopped. With `handle`, it also draws the round head at the bottom of
+// the ruler (purely visual — the ruler's mouse handler hit-tests it).
 interface PlayheadProps {
   songOffset: number;
   pixelsPerTick: number;
@@ -207,11 +199,20 @@ function paintPlayhead(
 
 function ClockPlayhead(props: PlayheadProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const playing = useStore((s) => s.isPlaying);
   usePlayheadEffect((tick) => paintPlayhead(ref.current, tick, props));
   return (
-    <PlayheadLine lineRef={ref} height={props.height} handle={props.handle} />
+    <PlayheadLine
+      lineRef={ref}
+      height={props.height}
+      handle={props.handle}
+      color={playing ? PLAYHEAD_COLOR : STOPPED_PLAYHEAD_COLOR}
+    />
   );
 }
+
+/** The playhead while the song is stopped: dim, as Suno's. */
+const STOPPED_PLAYHEAD_COLOR = 'var(--daw-text-3)';
 
 function HostPlayhead({
   position,
@@ -228,10 +229,12 @@ function PlayheadLine({
   lineRef,
   height,
   handle = false,
+  color = PLAYHEAD_COLOR,
 }: {
   lineRef: RefObject<HTMLDivElement>;
   height: number;
   handle?: boolean;
+  color?: string;
 }) {
   return (
     <div
@@ -239,16 +242,17 @@ function PlayheadLine({
       className="pointer-events-none absolute left-0 top-0"
       style={{ height, willChange: 'transform' }}
     >
-      <div style={{ width: 2, height, backgroundColor: PLAYHEAD_COLOR }} />
+      <div style={{ width: 1, height, backgroundColor: color }} />
       {handle && (
         <div
           style={{
             position: 'absolute',
             bottom: 0,
-            left: 1 - PLAYHEAD_HANDLE_W / 2,
-            borderLeft: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
-            borderRight: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
-            borderTop: `${PLAYHEAD_HANDLE_H}px solid ${PLAYHEAD_COLOR}`,
+            left: 0.5 - PLAYHEAD_HANDLE_H / 2,
+            width: PLAYHEAD_HANDLE_H,
+            height: PLAYHEAD_HANDLE_H,
+            borderRadius: '50%',
+            backgroundColor: color,
           }}
         />
       )}
@@ -418,12 +422,13 @@ export function PianoRoll({
   // A coarser default (e.g. 1/2) leaves beats 2 and 4 of each bar unreachable
   // when dragging/drawing notes, even though their beat lines are visible.
   const [gridSize, setGridSize] = useState<GridSize>('1/4');
-  const [tool, setTool] = useState<Tool>('draw');
   const [velocity, setVelocity] = useState(100);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
     () => new Set(),
   );
-  const [velLaneOpen, setVelLaneOpen] = useState(true);
+  // The velocity lane opens collapsed, its Vel row showing (owner,
+  // 2026-10-22): the notes get the dock's height until it is asked for.
+  const [velLaneOpen, setVelLaneOpen] = useState(false);
   const [marqueeRect, setMarqueeRect] = useState<MarqueeRect | null>(null);
   const dragRef = useRef<NoteDrag | null>(null);
   const marqueeRef = useRef<{
@@ -501,7 +506,8 @@ export function PianoRoll({
   // Zoom (horizontal + vertical)
   const [zoom, setZoom] = useState(1);
   const MAX_ZOOM = 6;
-  const [vZoom, setVZoom] = useState(1);
+  // Rows tall enough for each note's name, as Suno's clip editor opens.
+  const [vZoom, setVZoom] = useState(1.5);
   const MIN_V_ZOOM = 0.5;
   const MAX_V_ZOOM = 4;
 
@@ -890,7 +896,7 @@ export function PianoRoll({
         ? `rgb(${nr}, ${ng}, ${nb})`
         : `rgba(${nr}, ${ng}, ${nb}, ${alpha})`;
       ctx.beginPath();
-      ctx.roundRect(x, noteY + 1, noteW, rowH - 2, 2);
+      ctx.roundRect(x, noteY + 1, noteW, rowH - 2, 4);
       ctx.fill();
 
       // Show note name when zoomed in enough
@@ -912,7 +918,7 @@ export function PianoRoll({
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.roundRect(x, noteY + 1, noteW, rowH - 2, 2);
+        ctx.roundRect(x, noteY + 1, noteW, rowH - 2, 4);
         ctx.stroke();
       }
     }
@@ -1310,126 +1316,124 @@ export function PianoRoll({
       const noteIdx = hitTestNote(x, y);
       const currentEvents = eventsRef.current;
 
-      switch (tool) {
-        case 'draw': {
-          if (noteIdx !== null) {
-            // In draw mode, clicking an existing note selects it (for velocity editing)
-            selectSingle(noteIdx);
-            onAuditionNote?.(
-              currentEvents[noteIdx].note,
-              currentEvents[noteIdx].velocity,
-            );
-            return;
-          }
-          selectSingle(null);
-          const gridTicks = gridStep;
-          const clickTick = x / pixelsPerTick + clipStartTick;
-          const snappedTick = snapClipTick(clickTick);
-          const pitch = VIEW_MAX - Math.floor(y / rowH);
-
-          if (pitch >= VIEW_MIN && pitch <= VIEW_MAX) {
-            // A drawn note is a new note: it gets its id here, and the
-            // selection finds it by that id.
-            const newNote: MidiNoteEvent = {
-              id: mintNoteId(),
-              note: pitch,
-              velocity,
-              startTick: snappedTick,
-              durationTicks: gridTicks,
-              channel: 0,
-            };
-            const newEvents = [...currentEvents, newNote].sort(
-              (a, b) => a.startTick - b.startTick,
-            );
-            onChange(newEvents);
-            onAuditionNote?.(pitch, velocity);
-            const addedIdx = newEvents.findIndex((n) => n.id === newNote.id);
-            selectSingle(addedIdx >= 0 ? addedIdx : null);
-          }
-          break;
+      // One way to edit, as Suno's clip editor (owner, 2026-10-22: no
+      // Select, Draw and Erase tools): a press on a note takes it (its right
+      // edge resizes it), on empty space draws a box. Double-click adds or
+      // removes a note (handleDoubleClick).
+      if (e.shiftKey || e.metaKey || e.ctrlKey) {
+        // Shift or ⌘: a box from anywhere — over notes too, so a dense
+        // part can be boxed — adds to the selection; a click without a
+        // drag adds or takes away the one note.
+        marqueeRef.current = {
+          originX: x,
+          originY: y,
+          moved: false,
+          base: new Set(selectedIndices),
+          clickNote: noteIdx,
+        };
+        setMarqueeRect(null);
+      } else if (noteIdx !== null) {
+        // Drag the whole selection if the grabbed note is part of an
+        // existing multi-selection; otherwise grab just this note.
+        let indices: Set<number>;
+        if (selectedIndices.has(noteIdx) && selectedIndices.size > 1) {
+          indices = selectedIndices;
+        } else {
+          indices = new Set([noteIdx]);
+          setSelectedIndices(indices);
         }
 
-        case 'select': {
-          if (e.shiftKey || e.metaKey || e.ctrlKey) {
-            // Shift or ⌘: a box from anywhere — over notes too, so a dense
-            // part can be boxed — adds to the selection; a click without a
-            // drag adds or takes away the one note.
-            marqueeRef.current = {
-              originX: x,
-              originY: y,
-              moved: false,
-              base: new Set(selectedIndices),
-              clickNote: noteIdx,
-            };
-            setMarqueeRect(null);
-          } else if (noteIdx !== null) {
-            // Drag the whole selection if the grabbed note is part of an
-            // existing multi-selection; otherwise grab just this note.
-            let indices: Set<number>;
-            if (selectedIndices.has(noteIdx) && selectedIndices.size > 1) {
-              indices = selectedIndices;
-            } else {
-              indices = new Set([noteIdx]);
-              setSelectedIndices(indices);
-            }
+        const ev = currentEvents[noteIdx];
+        const relTick = ev.startTick - clipStartTick;
+        const noteX = relTick * pixelsPerTick;
+        const noteW = Math.max(3, ev.durationTicks * pixelsPerTick);
+        const nearRightEdge = x >= noteX + noteW - 6;
+        onAuditionNote?.(ev.note, ev.velocity);
 
-            const ev = currentEvents[noteIdx];
-            const relTick = ev.startTick - clipStartTick;
-            const noteX = relTick * pixelsPerTick;
-            const noteW = Math.max(3, ev.durationTicks * pixelsPerTick);
-            const nearRightEdge = x >= noteX + noteW - 6;
-            onAuditionNote?.(ev.note, ev.velocity);
+        const originals = new Map<number, MidiNoteEvent>();
+        for (const i of indices) originals.set(i, { ...currentEvents[i] });
 
-            const originals = new Map<number, MidiNoteEvent>();
-            for (const i of indices) originals.set(i, { ...currentEvents[i] });
-
-            dragRef.current = {
-              mode: nearRightEdge ? 'resize' : 'move',
-              anchorIndex: noteIdx,
-              grabTickOffset: Math.round((x - noteX) / pixelsPerTick),
-              originals,
-              auditionPitch: ev.note,
-            };
-          } else {
-            // Empty space: start a marquee. Selection is cleared now so that a
-            // plain click (no drag) deselects everything, while a drag rebuilds
-            // the selection live in handleMouseMove.
-            setSelectedIndices(new Set());
-            marqueeRef.current = {
-              originX: x,
-              originY: y,
-              moved: false,
-              base: new Set(),
-              clickNote: null,
-            };
-            setMarqueeRect(null);
-          }
-          break;
-        }
-
-        case 'erase': {
-          if (noteIdx !== null) {
-            const newEvents = currentEvents.filter((_, i) => i !== noteIdx);
-            onChange(newEvents);
-            selectSingle(null);
-          }
-          break;
-        }
+        dragRef.current = {
+          mode: nearRightEdge ? 'resize' : 'move',
+          anchorIndex: noteIdx,
+          grabTickOffset: Math.round((x - noteX) / pixelsPerTick),
+          originals,
+          auditionPitch: ev.note,
+        };
+      } else {
+        // Empty space: start a marquee. Selection is cleared now so that a
+        // plain click (no drag) deselects everything, while a drag rebuilds
+        // the selection live in handleMouseMove.
+        setSelectedIndices(new Set());
+        marqueeRef.current = {
+          originX: x,
+          originY: y,
+          moved: false,
+          base: new Set(),
+          clickNote: null,
+        };
+        setMarqueeRect(null);
       }
     },
     [
-      tool,
-      velocity,
       getCanvasCoords,
       hitTestNote,
       clipStartTick,
       pixelsPerTick,
-      gridStep,
-      snapClipTick,
-      onChange,
-      selectSingle,
       selectedIndices,
       onAuditionNote,
+    ],
+  );
+
+  // ── Double-click: add a note, or take one away ─────────────────────────
+  // On empty space a note goes in there, on the grid, a grid step long, at
+  // the velocity set in the bar; on a note, the note goes (owner,
+  // 2026-10-22). Each is one undo step.
+  const handleDoubleClick = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const { x, y } = getCanvasCoords(e);
+      if (x < 0 || y < 0) return;
+      dragRef.current = null;
+      marqueeRef.current = null;
+      setMarqueeRect(null);
+      const currentEvents = eventsRef.current;
+      const noteIdx = hitTestNote(x, y);
+      if (noteIdx !== null) {
+        onChange(currentEvents.filter((_, i) => i !== noteIdx));
+        selectSingle(null);
+        return;
+      }
+      const pitch = VIEW_MAX - Math.floor(y / rowH);
+      if (pitch < VIEW_MIN || pitch > VIEW_MAX) return;
+      // A new note gets its id here, and the selection finds it by that id.
+      const newNote: MidiNoteEvent = {
+        id: mintNoteId(),
+        note: pitch,
+        velocity,
+        startTick: snapClipTick(x / pixelsPerTick + clipStartTick),
+        durationTicks: gridStep,
+        channel: 0,
+      };
+      const newEvents = [...currentEvents, newNote].sort(
+        (a, b) => a.startTick - b.startTick,
+      );
+      onChange(newEvents);
+      onAuditionNote?.(pitch, velocity);
+      const addedIdx = newEvents.findIndex((n) => n.id === newNote.id);
+      selectSingle(addedIdx >= 0 ? addedIdx : null);
+    },
+    [
+      getCanvasCoords,
+      hitTestNote,
+      rowH,
+      velocity,
+      snapClipTick,
+      pixelsPerTick,
+      clipStartTick,
+      gridStep,
+      onChange,
+      onAuditionNote,
+      selectSingle,
     ],
   );
 
@@ -1476,28 +1480,16 @@ export function PianoRoll({
         const canvas = gridCanvasRef.current;
         if (!canvas) return;
 
-        switch (tool) {
-          case 'draw':
-            canvas.style.cursor = PENCIL_CURSOR;
-            break;
-          case 'erase':
-            canvas.style.cursor = ERASER_CURSOR;
-            break;
-          case 'select': {
-            const { x, y } = getCanvasCoords(e);
-            const noteIdx = hitTestNote(x, y);
-            if (noteIdx !== null) {
-              const ev = eventsRef.current[noteIdx];
-              const relTick = ev.startTick - clipStartTick;
-              const noteX = relTick * pixelsPerTick;
-              const noteW = Math.max(3, ev.durationTicks * pixelsPerTick);
-              canvas.style.cursor =
-                x >= noteX + noteW - 6 ? 'col-resize' : 'grab';
-            } else {
-              canvas.style.cursor = 'crosshair';
-            }
-            break;
-          }
+        const { x, y } = getCanvasCoords(e);
+        const noteIdx = hitTestNote(x, y);
+        if (noteIdx !== null) {
+          const ev = eventsRef.current[noteIdx];
+          const relTick = ev.startTick - clipStartTick;
+          const noteX = relTick * pixelsPerTick;
+          const noteW = Math.max(3, ev.durationTicks * pixelsPerTick);
+          canvas.style.cursor = x >= noteX + noteW - 6 ? 'col-resize' : 'grab';
+        } else {
+          canvas.style.cursor = 'default';
         }
         return;
       }
@@ -1562,7 +1554,6 @@ export function PianoRoll({
       editDraft(currentEvents);
     },
     [
-      tool,
       getCanvasCoords,
       hitTestNote,
       clipStartTick,
@@ -1588,15 +1579,8 @@ export function PianoRoll({
     marqueeRef.current = null;
     setMarqueeRect(null);
     commitDraft();
-    if (gridCanvasRef.current) {
-      gridCanvasRef.current.style.cursor =
-        tool === 'draw'
-          ? PENCIL_CURSOR
-          : tool === 'erase'
-            ? ERASER_CURSOR
-            : 'default';
-    }
-  }, [tool]);
+    if (gridCanvasRef.current) gridCanvasRef.current.style.cursor = 'default';
+  }, []);
 
   useEffect(() => {
     const handler = () => {
@@ -1610,8 +1594,8 @@ export function PianoRoll({
 
   // ── Keyboard: Tool shortcuts + Delete ───────────────────────────────────
   // ── Keys, while the roll has focus (the pianoRoll scope) ───────────────
-  // Tools on V, D and E (never with ⌘ held: ⌘V pastes), Delete or Backspace
-  // removes the selected notes. Delete stays here with nothing selected, so
+  // Delete or Backspace removes the selected notes, ⌘A selects them all (no
+  // tool keys: there are no tools since 2026-10-22). Delete stays here with nothing selected, so
   // it never reaches the clip behind the roll.
   const bodyRef = useRef<HTMLDivElement>(null);
   const deleteSelected = () => {
@@ -1628,14 +1612,28 @@ export function PianoRoll({
   useKeymap(
     PIANO_ROLL_SCOPE.id,
     {
-      'pianoRoll.select': () => setTool('select'),
-      'pianoRoll.draw': () => setTool('draw'),
-      'pianoRoll.erase': () => setTool('erase'),
       'pianoRoll.delete': deleteSelected,
       'pianoRoll.selectAll': selectAll,
     },
     { element: bodyRef },
   );
+
+  // ── The corner's zoom: wider or narrower, about the middle of the view ──
+  const zoomBy = (factor: number) => {
+    const container = gridScrollRef.current;
+    const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom * factor));
+    if (!container || next === zoom) return;
+    const mid = container.scrollLeft + container.clientWidth / 2;
+    const midTick = mid / pixelsPerTick;
+    setZoom(next);
+    requestAnimationFrame(() => {
+      const nextPixelsPerTick = (40 * next) / TICKS_PER_BEAT;
+      container.scrollLeft = Math.max(
+        0,
+        midTick * nextPixelsPerTick - container.clientWidth / 2,
+      );
+    });
+  };
 
   // ── Quantize handler ────────────────────────────────────────────────────
   // On the song's grid, as drawing and dragging snap.
@@ -1887,168 +1885,6 @@ export function PianoRoll({
       className="flex flex-col"
       style={{ height: '100%' }}
     >
-      {/* Toolbar */}
-      <div
-        className="flex shrink-0 items-center gap-2 px-3"
-        style={{
-          height: TOOLBAR_H,
-          borderBottom: '1px solid var(--daw-hairline)',
-        }}
-      >
-        {!host && <RollViewToggle view={rollView} onChange={setRollView} />}
-        <div className="h-4 w-px bg-white/10" />
-
-        {/* Tool mode buttons */}
-        <div className="flex gap-0.5">
-          {(
-            [
-              {
-                id: 'select' as Tool,
-                icon: <MousePointer2 className="size-3.5" />,
-                label: 'Select',
-                shortcut: 'V',
-              },
-              {
-                id: 'draw' as Tool,
-                icon: <Pencil className="size-3.5" />,
-                label: 'Draw',
-                shortcut: 'D',
-              },
-              {
-                id: 'erase' as Tool,
-                icon: <Eraser className="size-3.5" />,
-                label: 'Erase',
-                shortcut: 'E',
-              },
-            ] as const
-          ).map((t) => (
-            <button
-              key={t.id}
-              onClick={() => {
-                setTool(t.id);
-                focusRoll();
-              }}
-              title={`${t.label} (${t.shortcut})`}
-              className={`flex h-6 items-center gap-1 rounded px-2 text-[10px] font-semibold transition-colors ${
-                tool === t.id
-                  ? 'bg-white/10 text-white'
-                  : 'text-white/40 hover:bg-white/5 hover:text-white/60'
-              }`}
-            >
-              {t.icon}
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* The selection: everything at once, and away with it. */}
-        <button
-          onClick={selectAll}
-          title="Select every note (⌘A) · Shift- or ⌘-drag boxes notes, even over notes"
-          className="flex h-6 items-center rounded px-2 text-xs font-semibold text-white/40 transition-colors hover:bg-white/5 hover:text-white/60"
-        >
-          Select all
-        </button>
-        {selectedIndices.size > 0 && (
-          <button
-            onClick={deleteSelected}
-            title="Delete the selected notes (Delete)"
-            className="flex h-6 items-center gap-1 rounded bg-rose-500/20 px-2 text-xs font-semibold text-rose-200 transition-colors hover:bg-rose-500/30"
-          >
-            <Trash2 className="size-3.5" />
-            Delete {selectedIndices.size}
-          </button>
-        )}
-
-        {/* Divider */}
-        <div className="h-4 w-px bg-white/10" />
-
-        {/* Grid dropdown */}
-        <label
-          className="flex items-center gap-1.5 text-xs"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          Grid
-          <select
-            value={gridSize}
-            onChange={(e) => setGridSize(e.target.value as GridSize)}
-            className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-xs outline-none"
-            style={{ color: 'var(--daw-text)' }}
-          >
-            {Object.keys(GRID_VALUES).map((g) => (
-              <option
-                key={g}
-                value={g}
-                style={{ backgroundColor: 'var(--daw-bg)' }}
-              >
-                {g}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <button
-          onClick={handleQuantize}
-          className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-xs transition-colors hover:bg-white/10"
-          style={{ color: 'var(--daw-text)' }}
-        >
-          Quantize
-        </button>
-
-        {/* Divider */}
-        <div className="h-4 w-px bg-white/10" />
-
-        {/* Velocity control */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-[9px] font-semibold uppercase text-white/30">
-            {selectedArr.length > 0 ? 'Sel Vel' : 'Vel'}
-          </span>
-          <input
-            type="range"
-            min={1}
-            max={127}
-            value={velDisplay}
-            onChange={(e) => {
-              const val = Math.max(1, Math.min(127, Number(e.target.value)));
-              if (selectedArr.length > 0) {
-                const updated = [...eventsRef.current];
-                for (const idx of selectedArr) {
-                  if (updated[idx]) {
-                    updated[idx] = { ...updated[idx], velocity: val };
-                  }
-                }
-                editDraft(updated);
-              } else {
-                setVelocity(val);
-              }
-            }}
-            // The slide is one edit: written when it is let go, or after
-            // each arrow-key step.
-            onPointerUp={commitDraft}
-            onKeyUp={commitDraft}
-            onBlur={commitDraft}
-            className="h-1 w-16 accent-white/50"
-          />
-          <span className="w-6 text-right text-[10px] tabular-nums text-white/40">
-            {velDisplay}
-          </span>
-        </div>
-
-        {/* Note count + zoom */}
-        <span
-          className="ml-auto text-xs"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          {events.length} notes
-        </span>
-        <span
-          className="inline-block min-w-[13ch] text-right text-[10px] tabular-nums"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          H:{Math.round(zoom * 100)}% V:{Math.round(vZoom * 100)}%
-        </span>
-      </div>
-
       {/* Piano roll body — synced layout + velocity lane */}
       <div
         ref={bodyRef}
@@ -2081,16 +1917,33 @@ export function PianoRoll({
         >
           {/* Left column: corner spacer + piano keys */}
           <div className="flex shrink-0 flex-col" style={{ width: KEYS_WIDTH }}>
-            {/* Corner spacer */}
+            {/* The corner: zoom out and in, as Suno's clip editor has them. */}
             <div
-              style={{
-                height: RULER_H,
-                flexShrink: 0,
-                backgroundColor: 'var(--daw-bg)',
-                borderBottom: '1px solid var(--daw-hairline)',
-                borderRight: '1px solid var(--daw-hairline)',
-              }}
-            />
+              className="flex shrink-0 items-center justify-center gap-0.5 border-b border-r border-daw-hairline bg-daw-bg"
+              style={{ height: RULER_H }}
+            >
+              {(
+                [
+                  ['Zoom out', ZoomOut, 1 / 1.25],
+                  ['Zoom in', ZoomIn, 1.25],
+                ] as const
+              ).map(([label, Icon, factor]) => (
+                <button
+                  key={label}
+                  type="button"
+                  aria-label={label}
+                  data-hint={label}
+                  onClick={() => zoomBy(factor)}
+                  className={cn(
+                    'flex size-5 items-center justify-center rounded-[var(--daw-radius-sm)] text-daw-text-3 hover:bg-daw-hover hover:text-daw-text',
+                    TRANSITION,
+                    FOCUS_RING,
+                  )}
+                >
+                  <Icon className="size-3.5" aria-hidden />
+                </button>
+              ))}
+            </div>
             {/* Piano keys — syncs vertically with grid */}
             <div
               ref={pianoScrollRef}
@@ -2154,10 +2007,12 @@ export function PianoRoll({
               />
               <canvas
                 ref={gridCanvasRef}
+                data-testid="piano-roll-grid"
                 className="block"
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
+                onDoubleClick={handleDoubleClick}
               />
               <Playhead
                 height={gridH}
@@ -2174,38 +2029,6 @@ export function PianoRoll({
           className="shrink-0"
           style={{ visibility: showNotation ? 'hidden' : undefined }}
         >
-          <div className="flex">
-            {/* Toggle button aligned with piano keys */}
-            <button
-              onClick={() => setVelLaneOpen((o) => !o)}
-              className="flex shrink-0 cursor-pointer items-center justify-center gap-1"
-              style={{
-                width: KEYS_WIDTH,
-                height: 18,
-                background: 'none',
-                border: 'none',
-                borderTop: '1px solid var(--daw-hairline)',
-                borderRight: '1px solid var(--daw-hairline)',
-                color: 'var(--daw-text-3)',
-              }}
-            >
-              {velLaneOpen ? (
-                <ChevronDown size={9} />
-              ) : (
-                <ChevronRight size={9} />
-              )}
-              <span className="text-[8px] font-semibold uppercase tracking-wider">
-                Vel
-              </span>
-            </button>
-            <div
-              className="flex-1"
-              style={{
-                height: 18,
-                borderTop: '1px solid var(--daw-hairline)',
-              }}
-            />
-          </div>
           <AnimatePresence>
             {velLaneOpen && (
               <motion.div
@@ -2253,6 +2076,114 @@ export function PianoRoll({
             )}
           </AnimatePresence>
         </div>
+      </div>
+      {/* The bar under the notes, after Suno's clip editor (owner,
+          2026-10-22): the picture (roll or staff), the grid and Quantize,
+          the velocity new notes get (the selection's, while notes are
+          picked), and at the right the velocity lane's switch. */}
+      <div
+        data-testid="piano-roll-bar"
+        className="flex shrink-0 items-center gap-3 border-t border-daw-hairline px-3"
+        style={{ height: BAR_H }}
+      >
+        {!host && <RollViewToggle view={rollView} onChange={setRollView} />}
+        <div className="flex items-center gap-1.5">
+          <span className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>Grid</span>
+          <Select
+            label="Grid"
+            size="sm"
+            value={gridSize}
+            onValueChange={(v) => setGridSize(v as GridSize)}
+            options={Object.keys(GRID_VALUES).map((g) => ({
+              value: g,
+              label: g,
+            }))}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            handleQuantize();
+            focusRoll();
+          }}
+          data-hint="Quantize: move every note onto the grid"
+          className={cn(
+            TYPE_CLASS.label,
+            'flex h-6 items-center rounded-full bg-daw-pill px-2.5 font-bold text-daw-text hover:bg-daw-hover',
+            TRANSITION,
+            FOCUS_RING,
+          )}
+        >
+          Quantize
+        </button>
+        <label className="flex items-center gap-1.5">
+          <span className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>
+            Note velocity
+          </span>
+          <input
+            type="range"
+            aria-label={
+              selectedArr.length > 0
+                ? 'Velocity of the selected notes'
+                : 'Velocity of new notes'
+            }
+            min={1}
+            max={127}
+            value={velDisplay}
+            onChange={(e) => {
+              const val = Math.max(1, Math.min(127, Number(e.target.value)));
+              if (selectedArr.length > 0) {
+                const updated = [...eventsRef.current];
+                for (const idx of selectedArr) {
+                  if (updated[idx]) {
+                    updated[idx] = { ...updated[idx], velocity: val };
+                  }
+                }
+                editDraft(updated);
+              } else {
+                setVelocity(val);
+              }
+            }}
+            // The slide is one edit: written when it is let go, or after
+            // each arrow-key step.
+            onPointerUp={commitDraft}
+            onKeyUp={commitDraft}
+            onBlur={commitDraft}
+            className="h-1 w-20 accent-daw-text-2"
+          />
+          <span
+            className={cn(
+              TYPE_CLASS.label,
+              'w-7 text-right tabular-nums text-daw-text-2',
+            )}
+          >
+            {velDisplay}
+          </span>
+        </label>
+        <button
+          type="button"
+          aria-label="Velocity lane"
+          aria-expanded={velLaneOpen}
+          data-testid="velocity-lane-toggle"
+          data-hint="Show or hide each note's velocity under the notes"
+          onClick={() => setVelLaneOpen((o) => !o)}
+          className={cn(
+            TYPE_CLASS.label,
+            'ml-auto flex h-7 items-center gap-1 rounded-full px-3 font-bold',
+            velLaneOpen
+              ? 'bg-daw-pill-on text-daw-text'
+              : 'bg-daw-pill text-daw-pill-text hover:text-daw-text',
+            TRANSITION,
+            FOCUS_RING,
+          )}
+        >
+          Velocity lane
+          {velLaneOpen ? (
+            <ChevronDown className="size-3.5" aria-hidden />
+          ) : (
+            <ChevronUp className="size-3.5" aria-hidden />
+          )}
+        </button>
       </div>
     </div>
   );

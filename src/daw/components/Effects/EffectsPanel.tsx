@@ -1,4 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
+import {
+  defaultPedalParams,
+  pedalEffectDef,
+  pedalKnobValues,
+} from '@/daw/audio/graph/effects/pedalEffects';
 import { useStore } from '@/daw/store';
 import { useShallow } from 'zustand/react/shallow';
 import type {
@@ -97,6 +102,40 @@ export function FxKnobs({
   const reverbDecayMax =
     (irManifestReady && getReverbIrMeta(effects.reverb.type)?.decaySeconds) ||
     10;
+
+  // A guitar pedal (2026-10-22): its knobs, 0–1, from its definition.
+  const pedal = pedalEffectDef(slot);
+  if (pedal) {
+    const state = effects[pedal.slot];
+    const values = pedalKnobValues(pedal, state);
+    return (
+      <>
+        {pedal.knobs.map((knob) => (
+          <RotaryKnob
+            key={knob.key}
+            label={knob.label}
+            value={values[knob.key]}
+            min={0}
+            max={1}
+            step={0.01}
+            size={ks}
+            arcColor={color}
+            formatValue={knob.format}
+            onChange={(v) =>
+              onUpdate(trackId, {
+                // A slot that hasn't been saved yet starts at its defaults.
+                [pedal.slot]: {
+                  ...defaultPedalParams(pedal.slot),
+                  ...state,
+                  [knob.key]: v,
+                },
+              })
+            }
+          />
+        ))}
+      </>
+    );
+  }
 
   switch (slot) {
     case 'compressor':

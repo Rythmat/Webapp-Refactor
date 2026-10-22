@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { GM_CATEGORIES, GM_PROGRAMS } from '@/daw/instruments/gmPrograms';
 import { trackSound } from '@/daw/instruments/trackSound';
-import type { InstrumentType, Track } from '@/daw/store/tracksSlice';
+import type { Track } from '@/daw/store/tracksSlice';
 import {
   autoHint,
   autoLabel,
@@ -39,24 +39,37 @@ const program = (gmProgram: number) =>
   staffOf({ instrument: 'soundfont', gmProgram });
 
 describe('the Studio instruments', () => {
-  it.each<[InstrumentType, PartStaff]>([
-    ['piano-sampler', 'grand'],
-    ['electric-piano', 'grand'],
-    ['organ', 'grand'],
-    ['tonewheel-organ', 'grand'],
-    ['bass-electric', 'bass8vb'],
-    ['cello', 'bass'],
-    ['guitar-acoustic', 'treble'],
-    ['drum-machine', 'percussion'],
-    ['guitar-fx', 'treble'],
-    ['bass-fx', 'bass8vb'],
-    ['vocal-fx', 'treble'],
-  ])('%s → %s', (instrument, staff) => {
-    expect(staffOf({ instrument })).toBe(staff);
+  it('writes a drum machine on a drum staff', () => {
+    expect(staffOf({ instrument: 'drum-machine' })).toBe('percussion');
   });
 
-  it('leaves a synth, a sampler and no instrument to the role, else treble', () => {
-    for (const instrument of ['oracle-synth', 'sampler', 'none'] as const) {
+  it('writes an Instruments track by its program', () => {
+    expect(INSTRUMENT_STAFF.soundfont).toBe('program');
+    // The programs that replaced the keyboard, organ, bass, guitar and
+    // cello tracks (trackSound.ts).
+    expect(program(0)).toBe('grand');
+    expect(program(4)).toBe('grand');
+    expect(program(16)).toBe('grand');
+    expect(program(33)).toBe('bass8vb');
+    expect(program(25)).toBe('treble');
+    expect(program(42)).toBe('bass');
+  });
+
+  it('writes an Audio track by what it records (audioSource)', () => {
+    const amp = (namModelId: string) => [
+      { type: 'nam-amp', enabled: true, params: {}, namModelId },
+    ];
+    const audio = (guitarChain: Track['guitarChain']) =>
+      staffOf({ instrument: 'audio-input', guitarChain });
+    expect(audio(amp('nam-clean-twin'))).toBe('treble');
+    expect(audio(amp('nam-ampeg-svt'))).toBe('bass8vb');
+    expect(
+      audio([{ type: 'pitch-correction', enabled: true, params: {} }]),
+    ).toBe('treble');
+  });
+
+  it('leaves a synth and no instrument to the role, else treble', () => {
+    for (const instrument of ['oracle-synth', 'none'] as const) {
       expect(INSTRUMENT_STAFF[instrument]).toBeNull();
       expect(staffOf({ instrument })).toBe('treble');
       // A synth playing the bass line is a synth bass.
@@ -182,21 +195,6 @@ describe('patch names', () => {
     expect(staffOf({ presetName: 'DRIFT', name: 'Bass' })).toBe('bass8vb');
   });
 
-  it('lets a keyboard preset that names a bass or a lead say so', () => {
-    expect(
-      staffOf({ instrument: 'piano-sampler', presetName: '808 Sub Bass' }),
-    ).toBe('bass8vb');
-    expect(
-      staffOf({ instrument: 'electric-piano', presetName: 'Analog Lead' }),
-    ).toBe('treble');
-    expect(
-      staffOf({ instrument: 'electric-piano', presetName: 'Mellow EP' }),
-    ).toBe('grand');
-    expect(
-      staffOf({ instrument: 'piano-sampler', presetName: '808 Trap Kit' }),
-    ).toBe('grand');
-  });
-
   it('ignores a preset name on a General MIDI track: its program decides', () => {
     expect(
       staffOf({
@@ -226,10 +224,12 @@ describe('the role', () => {
   });
 
   it('comes after the instrument', () => {
-    expect(staffOf({ instrument: 'piano-sampler', trackRole: 'bass' })).toBe(
-      'grand',
-    );
-    expect(staffOf({ instrument: 'cello', trackRole: 'melody' })).toBe('bass');
+    expect(
+      staffOf({ instrument: 'soundfont', gmProgram: 0, trackRole: 'bass' }),
+    ).toBe('grand');
+    expect(
+      staffOf({ instrument: 'soundfont', gmProgram: 42, trackRole: 'melody' }),
+    ).toBe('bass');
   });
 });
 
@@ -238,7 +238,7 @@ describe('drum kits', () => {
     expect(isKit(track({ instrument: 'drum-machine' }))).toBe(true);
     // An imported MIDI drum part plays on a synth.
     expect(isKit(track({ trackRole: 'drums' }))).toBe(true);
-    expect(isKit(track({ instrument: 'piano-sampler' }))).toBe(false);
+    expect(isKit(track({ instrument: 'soundfont' }))).toBe(false);
   });
 
   it('stay on the drum staff whatever their setting says', () => {
@@ -263,7 +263,11 @@ describe('drum kits', () => {
 describe("a part's own setting", () => {
   it('wins over the instrument, the program, the patch and the role', () => {
     expect(
-      staffOf({ instrument: 'piano-sampler', notationStaff: 'treble' }),
+      staffOf({
+        instrument: 'soundfont',
+        gmProgram: 0,
+        notationStaff: 'treble',
+      }),
     ).toBe('treble');
     expect(
       staffOf({
@@ -279,12 +283,9 @@ describe("a part's own setting", () => {
   });
 
   it('is Auto when unset or set to Auto', () => {
-    expect(staffOf({ instrument: 'cello', notationStaff: 'auto' })).toBe(
-      'bass',
-    );
-    expect(staffOf({ instrument: 'cello', notationStaff: undefined })).toBe(
-      'bass',
-    );
+    const cello = { instrument: 'soundfont', gmProgram: 42 } as const;
+    expect(staffOf({ ...cello, notationStaff: 'auto' })).toBe('bass');
+    expect(staffOf({ ...cello, notationStaff: undefined })).toBe('bass');
   });
 
   it('is kept as nothing when set back to Auto', () => {
@@ -295,7 +296,9 @@ describe("a part's own setting", () => {
 
 describe('the control', () => {
   it('names what Auto writes, then the staves, high to low', () => {
-    const state = partStaffState(track({ instrument: 'electric-piano' }));
+    const state = partStaffState(
+      track({ instrument: 'soundfont', gmProgram: 4 }),
+    );
     expect(state).toMatchObject({ setting: 'auto', kit: false });
     expect(autoLabel(state)).toBe('Auto (Grand staff)');
     expect(staffOptions(state)).toEqual([
@@ -306,13 +309,17 @@ describe('the control', () => {
       { value: 'bass8vb', label: 'Bass clef 8vb (sounds an octave lower)' },
       { value: 'grand', label: 'Grand staff' },
     ]);
-    expect(autoHint(state)).toBe('Auto: Grand staff, for Electric piano');
-    expect(staffSummary(state)).toBe('Auto: Grand staff, for Electric piano');
+    expect(autoHint(state)).toBe('Auto: Grand staff, for Electric Piano 1');
+    expect(staffSummary(state)).toBe('Auto: Grand staff, for Electric Piano 1');
   });
 
   it('shows the setting, and Auto still names the instrument’s staff', () => {
     const state = partStaffState(
-      track({ instrument: 'bass-electric', notationStaff: 'treble' }),
+      track({
+        instrument: 'soundfont',
+        gmProgram: 33,
+        notationStaff: 'treble',
+      }),
     );
     expect(state.setting).toBe('treble');
     expect(autoLabel(state)).toBe('Auto (Bass clef 8vb)');
@@ -320,9 +327,11 @@ describe('the control', () => {
   });
 
   it('says what the 8 does, and names the viola’s clef', () => {
-    const bass = partStaffState(track({ instrument: 'bass-electric' }));
+    const bass = partStaffState(
+      track({ instrument: 'soundfont', gmProgram: 33 }),
+    );
     expect(autoHint(bass)).toBe(
-      'Auto: Bass clef 8vb (sounds an octave lower), for Bass guitar',
+      'Auto: Bass clef 8vb (sounds an octave lower), for Electric Bass (finger)',
     );
     const viola = partStaffState(
       track({ instrument: 'soundfont', gmProgram: 41 }),
@@ -330,7 +339,11 @@ describe('the control', () => {
     expect(autoLabel(viola)).toBe('Auto (Alto clef)');
     expect(autoHint(viola)).toBe('Auto: Alto clef, for Viola');
     const set = partStaffState(
-      track({ instrument: 'cello', notationStaff: 'bass8vb' }),
+      track({
+        instrument: 'soundfont',
+        gmProgram: 42,
+        notationStaff: 'bass8vb',
+      }),
     );
     expect(staffSummary(set)).toBe(
       'Bass clef 8vb (sounds an octave lower), set by hand',
@@ -379,7 +392,6 @@ describe('sampled instruments', () => {
 
 describe('the low instruments that sound where they are written', () => {
   it('keep the plain bass clef', () => {
-    expect(staffOf({ instrument: 'cello' })).toBe('bass');
     for (const gm of [42, 47, 57, 58, 67, 70]) expect(program(gm)).toBe('bass');
   });
 });
@@ -393,7 +405,7 @@ describe('a new instrument', () => {
   });
 
   it('is another instrument, program, or a patch that plays something else', () => {
-    expect(instrumentChanges(bass, { instrument: 'cello' })).toBe(true);
+    expect(instrumentChanges(bass, { instrument: 'oracle-synth' })).toBe(true);
     expect(instrumentChanges(bass, { gmProgram: 41 })).toBe(true);
     expect(
       instrumentChanges(track({ presetName: 'BASS' }), { presetName: 'PAD' }),
@@ -417,7 +429,10 @@ describe('a new instrument', () => {
 
   it('is not one that sets the staff as well', () => {
     expect(
-      instrumentChanges(bass, { instrument: 'cello', notationStaff: 'alto' }),
+      instrumentChanges(bass, {
+        instrument: 'oracle-synth',
+        notationStaff: 'alto',
+      }),
     ).toBe(false);
   });
 });

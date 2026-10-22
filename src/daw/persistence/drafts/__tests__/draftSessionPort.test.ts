@@ -217,7 +217,7 @@ async function openDraft(
 }
 
 const seedTemplate = () => {
-  const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  const keys = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(keys, { id: 'clip-1', startTick: 0, events: [] });
   s().setProjectName('Pop Template');
 };

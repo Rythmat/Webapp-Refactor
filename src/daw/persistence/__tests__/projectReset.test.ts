@@ -219,7 +219,7 @@ describe('the live-session marker', () => {
   });
 
   it('a cloud project counts as untouched until it changes', () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Keys');
     deserializeCloudProject(cloudProject(serializeSessionForCloud()));
     expect(hasWorkToKeep()).toBe(false);
     s().setPosition(1920); // the playhead is not work
@@ -229,7 +229,7 @@ describe('the live-session marker', () => {
   });
 
   it('a restored session never counts as untouched', () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Keys');
     markSessionPristine();
     deserializeSession(serializeSession());
     expect(isPristineSession()).toBe(false);
@@ -241,7 +241,7 @@ describe('the live-session marker', () => {
     resetSessionToEmpty();
     const release = initUndoTracking();
     withTransaction('Add track', () =>
-      s().addTrack('midi', 'piano-sampler', 'Keys'),
+      s().addTrack('midi', 'soundfont', 'Keys'),
     );
     expect(canUndo()).toBe(true);
     deserializeSession(serializeSession());
@@ -252,8 +252,8 @@ describe('the live-session marker', () => {
 
 describe('track role and live input channel', () => {
   const addGuitar = () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
-    const guitar = s().addTrack('audio', 'guitar-fx', 'Guitar');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
+    const guitar = s().addTrack('audio', 'audio-input', 'Guitar');
     s().updateTrack(keys, { trackRole: 'melody' });
     s().updateTrack(guitar, {
       audioInputChannel: { mode: 'stereo', left: 2, right: 3 },

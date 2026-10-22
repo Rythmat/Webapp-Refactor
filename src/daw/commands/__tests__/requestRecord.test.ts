@@ -23,7 +23,7 @@ function audioTrack(
     id,
     name: id,
     type: 'audio',
-    instrument: 'vocal-fx',
+    instrument: 'audio-input',
     recordArmed,
     midiClips: [],
     audioClips: takes.map(([startTick, duration], i) => ({

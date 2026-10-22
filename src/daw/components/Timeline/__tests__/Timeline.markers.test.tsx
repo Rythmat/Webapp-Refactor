@@ -187,7 +187,7 @@ beforeEach(() => {
     loopEnd: 7680,
   });
   useCanvasMenuStore.setState({ request: null });
-  s().addTrack('midi', 'piano-sampler', 'Keys');
+  s().addTrack('midi', 'soundfont', 'Keys');
   s().addMarker(CHORUS_TICK, 'Chorus');
   chorusId = s().markers[0].id;
   resetHistory();

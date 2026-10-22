@@ -96,7 +96,7 @@ describe('the live catalog', () => {
     const presets = ofType('preset');
     const source = (s: string) =>
       presets.filter((p) => p.type === 'preset' && p.source === s);
-    expect(source('studio')).toHaveLength(23);
+    expect(source('studio')).toHaveLength(22);
     expect(source('studio')).toHaveLength(PRESETS.length);
     expect(source('oracle')).toHaveLength(10);
     expect(source('oracle').map((p) => p.name)).not.toContain('INITIALIZE');
@@ -106,7 +106,7 @@ describe('the live catalog', () => {
     ]);
     // Only the student's own: a factory patch in the store isn't "mine".
     expect(source('mine').map((p) => p.name)).toEqual(['My Wobble']);
-    expect(presets).toHaveLength(23 + 10 + 2 + 1);
+    expect(presets).toHaveLength(22 + 10 + 2 + 1);
 
     const order = ['part', 'groove', 'kit', 'preset', 'template'];
     const types = catalog.map((i) => order.indexOf(i.type));

@@ -85,19 +85,9 @@ describe('loading', () => {
  */
 const INSTRUMENTS: Record<Exclude<InstrumentType, 'none'>, TrackType> = {
   'oracle-synth': 'midi',
-  'piano-sampler': 'midi',
-  'electric-piano': 'midi',
-  'bass-electric': 'midi',
-  'guitar-acoustic': 'midi',
-  cello: 'midi',
-  organ: 'midi',
-  'tonewheel-organ': 'midi',
   soundfont: 'midi',
   'drum-machine': 'midi',
-  sampler: 'midi',
-  'guitar-fx': 'audio',
-  'bass-fx': 'audio',
-  'vocal-fx': 'audio',
+  'audio-input': 'audio',
 };
 
 /** A track addTrack makes, found by its id. */
@@ -151,6 +141,10 @@ describe('initialTrackDefaults', () => {
           ...initialTrackDefaults(def.instrument, def.name),
           type: def.type,
           color: def.color,
+          // A template's Instruments track plays its own program (2026-10-22).
+          ...(def.gmProgram !== undefined ? { gmProgram: def.gmProgram } : {}),
+          // A template's guitar: an Audio track with its amp (2026-10-22).
+          ...(def.guitarChain ? { guitarChain: def.guitarChain } : {}),
           // The template arms and monitors its first MIDI track.
           ...(i === firstMidi ? { recordArmed: true, monitoring: true } : {}),
         });
@@ -162,20 +156,18 @@ describe('initialTrackDefaults', () => {
     const drums = initialTrackDefaults('drum-machine', 'Drums');
     expect(drums.effects.compressor.enabled).toBe(true);
     expect(drums.activeEffects).toEqual(['compressor']);
-    const keys = initialTrackDefaults('piano-sampler', 'Keys');
+    const keys = initialTrackDefaults('soundfont', 'Keys');
     expect(keys.effects).toEqual(DEFAULT_EFFECTS);
     expect(keys.activeEffects).toEqual([]);
   });
 
-  it('puts a live guitar, bass or vocal track on the first input channel', () => {
-    for (const instrument of ['guitar-fx', 'bass-fx', 'vocal-fx'] as const) {
-      expect(initialTrackDefaults(instrument, 'Live')).toMatchObject({
-        type: 'audio',
-        audioInputChannel: { mode: 'mono', channel: 0 },
-        recordArmed: false,
-        monitoring: false,
-      });
-    }
+  it('puts an Audio track on the first input channel', () => {
+    expect(initialTrackDefaults('audio-input', 'Live')).toMatchObject({
+      type: 'audio',
+      audioInputChannel: { mode: 'mono', channel: 0 },
+      recordArmed: false,
+      monitoring: false,
+    });
     expect(initialTrackDefaults('oracle-synth', 'Lead').audioInputChannel).toBe(
       null,
     );
@@ -216,8 +208,8 @@ describe('initialTrackDefaults', () => {
   });
 
   it('hands out fresh effects, clip lists and input channel on every call', () => {
-    const first = initialTrackDefaults('guitar-fx', 'Guitar');
-    const second = initialTrackDefaults('guitar-fx', 'Guitar');
+    const first = initialTrackDefaults('audio-input', 'Guitar');
+    const second = initialTrackDefaults('audio-input', 'Guitar');
     expect(second).toEqual(first);
     for (const key of [
       'effects',
@@ -283,7 +275,7 @@ const WRITTEN_OUT: { type: TrackType; track: Omit<Track, 'id'> }[] = [
     track: {
       name: 'Guitar',
       type: 'audio',
-      instrument: 'guitar-fx',
+      instrument: 'audio-input',
       color: FIRST_COLOUR,
       ...UNTOUCHED,
       audioInputChannel: { mode: 'mono', channel: 0 },

@@ -1,4 +1,4 @@
-import type { TrackType, InstrumentType } from '@/daw/store/tracksSlice';
+import type { InstrumentType, Track, TrackType } from '@/daw/store/tracksSlice';
 
 // ── Project Template Types ──────────────────────────────────────────────
 
@@ -13,7 +13,32 @@ export interface ProjectTemplateTrack {
    * seedTemplateSynthPatches.
    */
   synthPreset?: string;
+  /** An Instruments track's General MIDI program. */
+  gmProgram?: number;
+  /** An Audio track's chain to start with (its amp; audioSource). */
+  guitarChain?: Track['guitarChain'];
 }
+
+/**
+ * A template's guitar: an Audio track with a clean guitar amp (Quartz), as
+ * the Guitar track it was until those folded into Audio (2026-10-22).
+ */
+const GUITAR_AMP_CHAIN: Track['guitarChain'] = [
+  {
+    type: 'nam-amp',
+    enabled: true,
+    params: {
+      inputLevel: 0.5,
+      bass: 0.5,
+      mid: 0.5,
+      treble: 0.5,
+      presence: 0.5,
+      outputLevel: 0.5,
+      volume: 0.7,
+    },
+    namModelId: 'nam-clean-twin',
+  },
+];
 
 export interface ProjectTemplate {
   id: string;
@@ -51,13 +76,14 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       {
         name: 'Guitar',
         type: 'audio',
-        instrument: 'guitar-fx',
+        instrument: 'audio-input',
+        guitarChain: GUITAR_AMP_CHAIN,
         color: '#f94144',
       },
       {
         name: 'Vocal',
         type: 'audio',
-        instrument: 'vocal-fx',
+        instrument: 'audio-input',
         color: '#f3722c',
       },
     ],
@@ -85,7 +111,8 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       {
         name: 'Keys',
         type: 'midi',
-        instrument: 'electric-piano',
+        instrument: 'soundfont',
+        gmProgram: 4, // Electric Piano 1
         color: '#43aa8b',
       },
       {
@@ -97,7 +124,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       {
         name: 'Vocal',
         type: 'audio',
-        instrument: 'vocal-fx',
+        instrument: 'audio-input',
         color: '#da627d',
       },
     ],
@@ -137,7 +164,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       {
         name: 'Vocal',
         type: 'audio',
-        instrument: 'vocal-fx',
+        instrument: 'audio-input',
         color: '#f94144',
       },
     ],
@@ -165,7 +192,8 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       {
         name: 'Guitar',
         type: 'audio',
-        instrument: 'guitar-fx',
+        instrument: 'audio-input',
+        guitarChain: GUITAR_AMP_CHAIN,
         color: '#f3722c',
       },
       {
@@ -177,7 +205,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       {
         name: 'Vocal',
         type: 'audio',
-        instrument: 'vocal-fx',
+        instrument: 'audio-input',
         color: '#90be6d',
       },
     ],

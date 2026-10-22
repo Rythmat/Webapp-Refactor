@@ -30,7 +30,7 @@ function armVocalsOverTake() {
         id: 'vox',
         name: 'Vocals',
         type: 'audio',
-        instrument: 'vocal-fx',
+        instrument: 'audio-input',
         color: '#888888',
         mute: false,
         solo: false,

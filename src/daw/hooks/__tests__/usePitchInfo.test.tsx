@@ -29,7 +29,7 @@ function vocalTrack(pitchOn: boolean) {
   return {
     id: 'v',
     type: 'audio',
-    instrument: 'vocal-fx',
+    instrument: 'audio-input',
     vocalChain: [{ type: 'pitch-correction', enabled: pitchOn, params: {} }],
   };
 }

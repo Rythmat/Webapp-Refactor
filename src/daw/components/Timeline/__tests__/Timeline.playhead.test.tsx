@@ -104,7 +104,7 @@ const playhead = () =>
     (el) =>
       el.style.backgroundColor !== '' &&
       el.style.transform.startsWith('translateX(') &&
-      el.style.width === '2px' &&
+      el.style.width === '1px' &&
       el.style.display !== 'none',
   );
 
@@ -120,7 +120,7 @@ beforeEach(() => {
     remoteUsers: new Map(),
     isCollabActive: false,
   });
-  s().addTrack('midi', 'piano-sampler', 'Keys');
+  s().addTrack('midi', 'soundfont', 'Keys');
 });
 
 afterEach(cleanup);
@@ -150,6 +150,19 @@ describe('playback', () => {
     const handle = playhead()!.firstElementChild as HTMLDivElement;
     expect(handle.style.top).not.toBe('');
     expect(parseFloat(handle.style.top)).toBeLessThan(RULER_PX);
+  });
+
+  it('is Suno’s: a 1 px line under a round head, grey stopped, white playing', () => {
+    renderTimeline();
+    act(() => s().setPosition(480));
+    const line = playhead()!;
+    const head = line.firstElementChild as HTMLDivElement;
+    expect(head.style.borderRadius).toBe('50%');
+    expect(line.style.backgroundColor).toBe('var(--daw-text-3)');
+    act(() => useStore.setState({ isPlaying: true }));
+    expect(playhead()!.style.backgroundColor).toBe('var(--daw-playhead)');
+    expect(head.style.backgroundColor).toBe('var(--daw-playhead)');
+    act(() => useStore.setState({ isPlaying: false }));
   });
 
   it('hides the playhead once it leaves the view', () => {

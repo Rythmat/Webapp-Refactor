@@ -6,9 +6,9 @@ import { act, cleanup, render, renderHook } from '@testing-library/react';
 // ── Track engines across a load that reuses track ids (milestone 1.3) ──────
 // Track ids now survive a cloud reopen, and a kept session restored reuses
 // them. The engine reconciler used to keep a track's engine whenever its id
-// and instrument matched, but the Oracle patch and the bass voice reach an
-// engine only when it is made, so the reopened project played the previous
-// project's sound (audio-core-08). A load or reset now bumps the session
+// and instrument matched, but the Oracle patch reaches an engine only when
+// it is made, so the reopened project played the previous project's sound
+// (audio-core-08). A load or reset now bumps the session
 // generation, and every engine from an earlier generation is made again.
 
 const audio = vi.hoisted(() => ({
@@ -29,6 +29,7 @@ vi.mock('@/daw/audio/AudioEngine', () => ({
     // The click goes straight to the output (milestone 2.8).
     getOutput: () => ({}),
     updateMasteringEffects() {},
+    setMasterMuted() {},
     updateReturnEffects() {},
     setReturnVolume() {},
     getReturnIds: () => [],
@@ -154,21 +155,6 @@ vi.mock('@/daw/oracle-synth/synthTrackState', () => ({
   defaultSynthTrackState: () => ({ name: 'default patch' }),
 }));
 
-/** The bass voices sampler instruments are made with, in order. */
-const voices = vi.hoisted(() => ({ made: [] as string[] }));
-vi.mock('@/daw/instruments/SamplerInstrument', () => ({
-  SamplerInstrument: class {
-    constructor(config: { name: string }) {
-      voices.made.push(config.name);
-    }
-    init() {
-      return Promise.resolve();
-    }
-    allNotesOff() {}
-    dispose() {}
-  },
-}));
-
 import { bumpSessionGeneration } from '@/daw/session/sessionGeneration';
 import { useStore } from '@/daw/store';
 import {
@@ -204,7 +190,6 @@ beforeEach(() => {
   oracle.holdInit = false;
   patches.byTrack.clear();
   patches.apply.mockReset();
-  voices.made.length = 0;
   useStore.setState({
     tracks: [],
     bpm: 120,
@@ -360,31 +345,5 @@ describe('an Oracle track with no patch of its own', () => {
       { name: 'default patch' },
       { projectBpm: 120 },
     );
-  });
-});
-
-describe('a bass track', () => {
-  it('is made with its bass voice, again when the voice changes', async () => {
-    const id = s().addTrack('midi', 'bass-electric', 'Bass');
-    act(() => s().updateTrack(id, { bassVoice: 'fretless' }));
-    renderHook(() => usePlaybackEngine(true, null));
-    await settle();
-    expect(voices.made).toEqual(['Fretless (FluidR3)']);
-
-    act(() => s().updateTrack(id, { bassVoice: 'upright' }));
-    await settle();
-    expect(voices.made).toEqual(['Fretless (FluidR3)', 'Upright (FluidR3)']);
-    expect(audio.engines[0].disposed).toBe(true);
-  });
-
-  it("is made again with the reopened project's voice", async () => {
-    const id = s().addTrack('midi', 'bass-electric', 'Bass');
-    act(() => s().updateTrack(id, { bassVoice: 'fretless' }));
-    renderHook(() => usePlaybackEngine(true, null));
-    await settle();
-
-    reopen(() => s().updateTrack(id, { bassVoice: 'finger' }));
-    await settle();
-    expect(voices.made.at(-1)).toBe('Finger electric (FluidR3)');
   });
 });

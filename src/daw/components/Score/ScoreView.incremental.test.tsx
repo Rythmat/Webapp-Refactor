@@ -40,8 +40,10 @@ let bass = '';
 beforeEach(() => {
   h.staff = null;
   useStore.setState({ tracks: [], remoteUsers: new Map() });
-  lead = s().addTrack('midi', 'piano-sampler', 'Lead');
-  bass = s().addTrack('midi', 'bass-electric', 'Bass');
+  lead = s().addTrack('midi', 'soundfont', 'Lead');
+  bass = s().addTrack('midi', 'soundfont', 'Bass', {
+    gmProgram: 33,
+  });
   s().addMidiClip(lead, {
     id: 'lead-clip',
     startTick: 0,

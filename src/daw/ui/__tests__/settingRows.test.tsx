@@ -255,10 +255,11 @@ describe('every setting explains itself', () => {
     expect(screen.getByRole('group', { name: 'Grid' })).toBeTruthy();
   });
 
-  it('in More ▸ Timeline display: chord labels and clip colours', () => {
+  it('in More ▸ Timeline display: chord labels and Harmony Color', () => {
     renderMoreSub(<TimelineDisplaySub />, 'timeline-display-menu');
     const { items } = expectEverySettingExplained();
-    expect(items).toBe(2 + 2);
+    // The chord lane's two choices, and Harmony Color's one switch.
+    expect(items).toBe(2 + 1);
   });
 
   it('in More ▸ Timeline display under a fixed notation, the lock is the line', () => {

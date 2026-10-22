@@ -17,7 +17,7 @@ function makeTrack(id: string): Track {
     id,
     name: id.toUpperCase(),
     type: 'midi',
-    instrument: 'piano-sampler',
+    instrument: 'soundfont',
     color: '#ff0000',
     mute: false,
     solo: false,

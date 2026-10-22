@@ -1,6 +1,10 @@
 /* eslint-disable tailwindcss/classnames-order */
 /* eslint-disable tailwindcss/enforces-shorthand */
 /* eslint-disable sonarjs/cognitive-complexity */
+import { cn } from '@/components/utilities';
+import { ChevronDown } from 'lucide-react';
+import { useDockPanelFolded } from '@/daw/shell/dock/dockSidePanels';
+import { FOCUS_RING, TYPE_CLASS } from '@/daw/ui/styles';
 import { memo, type ReactNode, useCallback, useMemo } from 'react';
 import { useTuner } from '@/daw/hooks/useTuner';
 import { useStore } from '@/daw/store';
@@ -177,6 +181,12 @@ interface TunerDisplayProps {
   /** Optional AnalyserNode from the DAW audio graph. When provided, reuses the
    *  existing AudioContext instead of creating a separate one. */
   externalAnalyser?: AnalyserNode | null;
+  /**
+   * The tuner as a card of its own, the dock's whole height: an audio
+   * track's dock gives it the Input column (GuitarBassView). Else it sits
+   * at the foot of the Input column.
+   */
+  panel?: boolean;
 }
 
 export const TunerDisplay = memo(function TunerDisplay({
@@ -184,9 +194,11 @@ export const TunerDisplay = memo(function TunerDisplay({
   instrumentType = 'guitar',
   onActiveChange,
   externalAnalyser,
+  panel = false,
 }: TunerDisplayProps) {
   const { active, note, octave, cents, frequency, error, start, stop } =
     useTuner(deviceId, externalAnalyser);
+  const [folded, setFolded] = useDockPanelFolded('tuner');
 
   // Global tuning offset from chord detector via MusicIntelligenceBus
   const globalTuningCents = useStore((s) => s.globalTuningCents);
@@ -239,18 +251,53 @@ export const TunerDisplay = memo(function TunerDisplay({
 
   return (
     <div
-      className="flex flex-col select-none border-t pt-3 gap-1"
-      style={{ borderColor: 'var(--daw-hairline)' }}
+      data-testid="tuner"
+      className={
+        panel
+          ? 'flex h-full select-none flex-col justify-between gap-1 overflow-hidden rounded-[var(--daw-radius-card)] bg-daw-device px-3 pb-3 pt-2'
+          : 'flex flex-col select-none border-t pt-3 gap-1'
+      }
+      style={panel ? undefined : { borderColor: 'var(--daw-hairline)' }}
     >
       {/* Header: label + toggle */}
       <div className="flex items-center justify-between">
-        <span
-          className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          Tuner
-        </span>
+        {panel ? (
+          // The effect cards' header: the name at body size.
+          <h3 className={cn(TYPE_CLASS.body, 'text-daw-text')}>Tuner</h3>
+        ) : (
+          // Folds the tuner to this row, under a guitar's or a voice's
+          // input (dockSidePanels: remembered on this device).
+          <button
+            type="button"
+            aria-expanded={!folded}
+            aria-label={folded ? 'Show the tuner' : 'Hide the tuner'}
+            title={folded ? 'Show the tuner' : 'Hide the tuner'}
+            data-testid="tuner-fold"
+            onClick={() => setFolded(!folded)}
+            className={cn(
+              '-ml-1 flex h-6 items-center gap-1 rounded-[var(--daw-radius-sm)] pl-0.5 pr-1.5 hover:bg-daw-hover',
+              FOCUS_RING,
+            )}
+          >
+            <ChevronDown
+              aria-hidden
+              className={cn(
+                'size-3.5 text-daw-text-3 transition-transform',
+                folded && '-rotate-90',
+              )}
+            />
+            <span
+              className="text-[10px] font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--daw-text-3)' }}
+            >
+              Tuner
+            </span>
+          </button>
+        )}
         <button
+          type="button"
+          aria-label={active ? 'Turn the tuner off' : 'Turn the tuner on'}
+          aria-pressed={active}
           onClick={handleToggle}
           className="w-7 h-3.5 rounded-full flex items-center px-0.5 cursor-pointer shrink-0"
           style={{
@@ -270,83 +317,102 @@ export const TunerDisplay = memo(function TunerDisplay({
         </button>
       </div>
 
-      {/* Note display — Phase 7: shows octave */}
-      <div className="flex flex-col items-center gap-0.5">
-        <div
-          className="font-bold leading-none tracking-tight"
-          style={{
-            color: hasNote ? color : 'var(--daw-hover)',
-            textShadow: hasNote
-              ? `0 0 12px ${inTune ? GREEN : YELLOW}40`
-              : 'none',
-          }}
-        >
-          {hasNote ? (
-            <>
-              <span className="text-[18px]">{displayAccidentals(note)}</span>
-              <span className="text-[12px] opacity-70">{octave}</span>
-            </>
-          ) : (
-            <span className="text-[18px]">&mdash;</span>
-          )}
-        </div>
-
-        <span
-          className="text-[10px] font-medium"
-          style={{ color: statusColor }}
-        >
-          {statusText}
-        </span>
-      </div>
-
-      {/* LED bar */}
-      <LedBar
-        cents={cents}
-        hasNote={hasNote}
-        color={hasNote ? (inTune ? GREEN : YELLOW) : 'var(--daw-hover)'}
-      />
-
-      {/* Phase 9: Cents offset + frequency readout */}
-      <div className="flex items-center justify-center gap-2 pb-0.5">
-        {hasNote && (
-          <span
-            className="inline-block min-w-11 text-right text-[10px] font-semibold tabular-nums"
-            style={{ color: inTune ? GREEN : YELLOW }}
+      {/* The tuner's body: folded away under its header (not as a panel,
+          whose column folds instead). */}
+      <div
+        className={
+          panel ? 'contents' : cn('flex flex-col gap-1', folded && 'hidden')
+        }
+      >
+        {/* Note display — Phase 7: shows octave */}
+        <div className="flex flex-col items-center gap-0.5">
+          <div
+            className="font-bold leading-none tracking-tight"
+            style={{
+              color: hasNote ? color : 'var(--daw-hover)',
+              textShadow: hasNote
+                ? `0 0 12px ${inTune ? GREEN : YELLOW}40`
+                : 'none',
+            }}
           >
-            {centsText}
-          </span>
-        )}
-        <span
-          className="inline-block min-w-[3.75rem] text-left text-[10px] tabular-nums"
-          style={{ color: hasNote ? 'var(--daw-text-3)' : 'transparent' }}
-        >
-          {hasNote && frequency > 0 ? `${frequency} Hz` : '\u00A0'}
-        </span>
-      </div>
+            {hasNote ? (
+              <>
+                <span className={panel ? 'text-[40px]' : 'text-[18px]'}>
+                  {displayAccidentals(note)}
+                </span>
+                <span
+                  className={cn(
+                    'opacity-70',
+                    panel ? 'text-[20px]' : 'text-[12px]',
+                  )}
+                >
+                  {octave}
+                </span>
+              </>
+            ) : (
+              <span className={panel ? 'text-[40px]' : 'text-[18px]'}>
+                &mdash;
+              </span>
+            )}
+          </div>
 
-      {/* Global tuning reference from chord detector */}
-      {active && Math.abs(globalTuningCents) >= 2 && (
-        <div className="text-center">
           <span
-            className="text-[9px] tabular-nums"
-            style={{ color: 'var(--daw-text-3)' }}
+            className="text-[10px] font-medium"
+            style={{ color: statusColor }}
           >
-            A4 ≈ {Math.round(440 * Math.pow(2, globalTuningCents / 1200))} Hz (
-            {globalTuningCents > 0 ? '+' : ''}
-            {Math.round(globalTuningCents)}¢)
+            {statusText}
           </span>
         </div>
-      )}
 
-      {/* Phase 8: String reference indicators */}
-      {active && (
-        <StringIndicator
-          strings={strings}
-          currentNote={note}
-          currentOctave={octave}
+        {/* LED bar */}
+        <LedBar
+          cents={cents}
           hasNote={hasNote}
+          color={hasNote ? (inTune ? GREEN : YELLOW) : 'var(--daw-hover)'}
         />
-      )}
+
+        {/* Phase 9: Cents offset + frequency readout */}
+        <div className="flex items-center justify-center gap-2 pb-0.5">
+          {hasNote && (
+            <span
+              className="inline-block min-w-11 text-right text-[10px] font-semibold tabular-nums"
+              style={{ color: inTune ? GREEN : YELLOW }}
+            >
+              {centsText}
+            </span>
+          )}
+          <span
+            className="inline-block min-w-[3.75rem] text-left text-[10px] tabular-nums"
+            style={{ color: hasNote ? 'var(--daw-text-3)' : 'transparent' }}
+          >
+            {hasNote && frequency > 0 ? `${frequency} Hz` : '\u00A0'}
+          </span>
+        </div>
+
+        {/* Global tuning reference from chord detector */}
+        {active && Math.abs(globalTuningCents) >= 2 && (
+          <div className="text-center">
+            <span
+              className="text-[9px] tabular-nums"
+              style={{ color: 'var(--daw-text-3)' }}
+            >
+              A4 ≈ {Math.round(440 * Math.pow(2, globalTuningCents / 1200))} Hz
+              ({globalTuningCents > 0 ? '+' : ''}
+              {Math.round(globalTuningCents)}¢)
+            </span>
+          </div>
+        )}
+
+        {/* Phase 8: String reference indicators */}
+        {active && (
+          <StringIndicator
+            strings={strings}
+            currentNote={note}
+            currentOctave={octave}
+            hasNote={hasNote}
+          />
+        )}
+      </div>
     </div>
   );
 });

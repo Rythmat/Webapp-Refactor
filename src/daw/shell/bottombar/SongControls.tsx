@@ -1,4 +1,3 @@
-import { Lock } from 'lucide-react';
 import { memo, useState } from 'react';
 import { cn } from '@/components/utilities';
 import { hintText } from '@/daw/shell/help/hintSource';
@@ -15,7 +14,8 @@ import { KeyCircle, MetreChoices, TempoField } from '../song/SongParts';
 // 2026-10-16); they replaced the top bar's Song chip. Key and Metre open
 // popovers; the tempo is a field. With no key set the Key button has a
 // neutral dashed outline; the key colour's dot is meaning, so it stays in
-// colour.
+// colour. A locked key shows no lock (owner, 2026-10-21): the button's name
+// still says so to a screen reader.
 
 const RAIL_BUTTON = cn(
   'inline-flex h-8 items-center gap-1.5 rounded-[var(--daw-radius-md)] px-2.5 text-daw-pill-text hover:bg-daw-chip hover:text-daw-text [&_svg]:size-3.5',
@@ -26,15 +26,21 @@ const RAIL_BUTTON = cn(
 
 export const SongControls = memo(function SongControls({
   short = false,
+  compactTempo = false,
+  hideMetre = false,
 }: {
   /** A narrow window's short key ('C', not 'C major'). */
   short?: boolean;
+  /** A narrower window's tempo: the number only (TempoField). */
+  compactTempo?: boolean;
+  /** The narrowest window's: the time signature is in the Settings menu. */
+  hideMetre?: boolean;
 }) {
   return (
     <div className="flex items-center gap-1">
       <KeyButton short={short} />
-      <TempoField />
-      <MetreButton />
+      <TempoField compact={compactTempo} />
+      {hideMetre ? null : <MetreButton />}
     </div>
   );
 });
@@ -77,7 +83,6 @@ function KeyButton({ short }: { short: boolean }) {
               />
             ) : null}
             {short ? brief : full}
-            {locked ? <Lock aria-hidden className="text-daw-text-3" /> : null}
           </button>
         </PopoverTrigger>
       </Tooltip>

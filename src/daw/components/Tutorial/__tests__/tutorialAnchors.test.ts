@@ -64,11 +64,10 @@ const EDITOR_ENTRY = join(DAW, 'DawApp.tsx');
 const KNOWN_MISSING: Readonly<Record<string, string>> = {
   // The dock's tab bar became the bottom rail's Instrument · FX ·
   // Automation · Edit (2026-10-21); the owner hasn't placed Prism and
-  // Grooves yet. Each step still opens its panel (requires).
+  // Grooves yet. Each step still opens its panel (requires); the grooves
+  // moved into the drums' Instrument tab (2026-10-22).
   'make-first-track/open-prism/chanstrip-tab-prism':
     'dock views: Prism has no button until the owner places it',
-  'hiphop-build-the-beat/load-groove/chanstrip-tab-grooves':
-    'dock views: Grooves has no button until the owner places it',
 };
 
 const SKIPPED_DIRS = new Set(['node_modules', '__tests__', '__mocks__']);
@@ -229,21 +228,15 @@ interface TemplateSource {
 /** The template anchors the lessons can use, by the text before `${`. */
 const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
   'add-track-': {
-    file: 'shell/tracklist/AddTrackSheet.tsx',
-    // One tile per choice and per category with a second step
-    // (trackTemplates.ts); Import and the library chip are exact ids.
-    suffixes: () => [
-      ...constValues(
+    file: 'shell/tracklist/AddTrackMenu.tsx',
+    // One row per MIDI instrument in Add MIDI's submenu (trackTemplates.ts);
+    // Add Audio, Add MIDI and Upload are exact ids.
+    suffixes: () =>
+      constValues(
         'shell/tracklist/trackTemplates.ts',
         'TRACK_CHOICES',
         'anchor',
       ),
-      ...constValues(
-        'shell/tracklist/trackTemplates.ts',
-        'TRACK_CATEGORIES',
-        'anchor',
-      ),
-    ],
   },
   // The bottom rail's dock views (2026-10-21): Instrument, FX and Edit.
   // Prism and Grooves have no button until the owner places them.
@@ -259,7 +252,7 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     ],
   },
   'fx-add-': {
-    file: 'shell/inspector/panels/FxBody.tsx',
+    file: 'shell/dock/EffectPicker.tsx',
     suffixes: () => AUDIO_EFFECTS,
   },
   // One effect card per slot in a rack's row (the floating frame).
@@ -278,15 +271,6 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
   'return-fx-': {
     file: 'shell/mix/RackDock.tsx',
     suffixes: () => RETURN_IDS,
-  },
-  'sampler-mode-': {
-    file: 'components/Controls/SamplerChopsView.tsx',
-    suffixes: () =>
-      constValues(
-        'components/Controls/SamplerChopsView.tsx',
-        'PLAYBACK_MODES',
-        'id',
-      ),
   },
 };
 

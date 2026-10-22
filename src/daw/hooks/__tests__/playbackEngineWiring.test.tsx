@@ -14,6 +14,7 @@ import {
 
 const engine = vi.hoisted(() => ({
   updateMasteringEffects: vi.fn(),
+  setMasterMuted: vi.fn(),
   context: {
     createMediaStreamSource: () => ({ connect() {}, disconnect() {} }),
     createAnalyser: () => ({
@@ -35,6 +36,7 @@ vi.mock('@/daw/audio/AudioEngine', () => ({
     // The click goes straight to the output (milestone 2.8).
     getOutput: () => ({}),
     updateMasteringEffects: engine.updateMasteringEffects,
+    setMasterMuted: engine.setMasterMuted,
     updateReturnEffects() {},
     setReturnVolume() {},
     getReturnIds: () => [],
@@ -224,6 +226,17 @@ beforeEach(() => {
 });
 
 afterEach(cleanup);
+
+describe('the Master strip’s mute', () => {
+  it('silences the output and brings it back', () => {
+    renderHook(() => usePlaybackEngine(true, null));
+    expect(engine.setMasterMuted).toHaveBeenLastCalledWith(false);
+    act(() => s().toggleMasterMute());
+    expect(engine.setMasterMuted).toHaveBeenLastCalledWith(true);
+    act(() => s().toggleMasterMute());
+    expect(engine.setMasterMuted).toHaveBeenLastCalledWith(false);
+  });
+});
 
 describe('the mastering chain', () => {
   it('runs every slot off under Bypass, and the stored chain after', () => {

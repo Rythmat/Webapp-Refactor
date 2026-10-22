@@ -1,9 +1,9 @@
 import { useEffect, useState, type RefObject } from 'react';
 import { useStore } from '@/daw/store';
 import type { ChannelStripTabId } from '@/daw/store/uiSlice';
+import { EQ_NUMBERS_MIN_H } from '@/daw/components/Effects/eqScale';
 import {
-  DOCK_DEFAULT_FRAC,
-  dockFracFor,
+  DOCK_MAX_FRAC,
   dockHeightPx,
   dockMinPx,
   rackMaxPx,
@@ -26,16 +26,36 @@ export const DOCK_HEIGHT_VAR = '--daw-dock-h';
 export const INSPECTOR_WIDTH_VAR = '--daw-insp-w';
 
 /**
- * What the dock sizes itself for: Master when it shows, else the open tab,
- * else Instrument.
+ * Where the dock's height is kept: one height for every dock in Create,
+ * Instrument, Effects, Edit and Master alike (owner, 2026-10-22: Master
+ * opens at the others' height), kept in the Instrument slot. Each tab and
+ * Master used to keep a height of their own, so a dock jumped from one to
+ * the next; their old heights are still valid prefs, and are never read.
+ * `tab` and `master` stay so callers say what the dock shows.
  */
 export function dockSlotOf(
-  tab: ChannelStripTabId | null,
-  master = false,
+  _tab: ChannelStripTabId | null,
+  _master = false,
 ): DockSlotId {
-  if (master) return 'master';
-  return tab !== null && tab in DOCK_DEFAULT_FRAC ? tab : 'controls';
+  return 'controls';
 }
+
+/**
+ * What an Effects dock spends around its EQ's graph, which fills its card
+ * edge to edge: the dock's 1 px top edge, the card row's 8 px padding above
+ * and below (FxCards' CARD_GAP_PX) and the card's 32 px header
+ * (CARD_HEADER_PX). Kept here rather than imported, so the shell's chunk
+ * doesn't take in the effect cards.
+ */
+const EQ_DOCK_CHROME_PX = 1 + 2 * 8 + 32;
+
+/**
+ * Every dock's default height, whatever it shows: just tall enough for an
+ * EQ's graph in the Effects dock to show its numbers (eqScale; owner,
+ * 2026-10-22), so the dock keeps its height from tab to tab. A height the
+ * student sets stands, for every dock (dockSlotOf).
+ */
+export const DOCK_DEFAULT_PX = EQ_NUMBERS_MIN_H + EQ_DOCK_CHROME_PX;
 
 /** The dock's height in px for `slot`, in a body `bodyPx` high. */
 export function dockPxFor(
@@ -43,7 +63,13 @@ export function dockPxFor(
   heights: DockHeights,
   bodyPx: number,
 ): number {
-  return dockHeightPx(dockFracFor(slot, heights), bodyPx, dockMinPx(slot));
+  const min = dockMinPx(slot);
+  const frac = heights[slot];
+  if (frac === undefined) {
+    const max = Math.max(min, Math.round(bodyPx * DOCK_MAX_FRAC));
+    return Math.min(max, Math.max(min, DOCK_DEFAULT_PX));
+  }
+  return dockHeightPx(frac, bodyPx, min);
 }
 
 /**

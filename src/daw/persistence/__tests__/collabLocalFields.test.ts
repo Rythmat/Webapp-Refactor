@@ -36,7 +36,7 @@ function makeTrack(overrides: Partial<Track> = {}): Track {
     id: 'g1',
     name: 'Guitar',
     type: 'audio',
-    instrument: 'guitar-fx',
+    instrument: 'audio-input',
     color: '#ff0000',
     mute: false,
     solo: false,

@@ -1,4 +1,4 @@
-import { Maximize2, X } from 'lucide-react';
+import { Expand, Maximize2, X } from 'lucide-react';
 import {
   useCallback,
   useEffect,
@@ -20,6 +20,7 @@ import {
   ControlGestureContext,
   useContinuousControl,
 } from '@/daw/hooks/useContinuousControl';
+import { DawDialog } from '@/daw/ui/DawDialog';
 import { IconButton } from '@/daw/ui/IconButton';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { COLOR } from '@/daw/ui/tokens';
@@ -81,6 +82,13 @@ const NARROW_ROW_PX = 640;
  * Auto makeup is a cell of its own; the EQ's are its band's).
  */
 export const CONTROL_COUNT: Record<EffectSlotType, number> = {
+  // The guitar pedals: their knobs (pedalEffects).
+  overdrive: 3,
+  amp: 6,
+  chorus: 3,
+  phaser: 3,
+  flanger: 3,
+  wah: 6,
   compressor: 8,
   gate: 5,
   eq: 6,
@@ -182,6 +190,17 @@ export interface FxCardRowProps {
    * a card that keeps only its main ones. None: no offer.
    */
   onShowAll?(): void;
+  /**
+   * A picture of the device (the Add effect picker's cards): no Remove or
+   * Show all, no scrolling, and none of the dock's test ids or lesson
+   * anchors. The caller makes it inert.
+   */
+  preview?: boolean;
+  /**
+   * Cards before the effects, at the row's height (a plain Audio track's
+   * amp and pitch correction, AudioFxCards): one row for both.
+   */
+  leading?(rowH: number): ReactNode;
 }
 
 export function FxCardRow({
@@ -196,6 +215,8 @@ export function FxCardRow({
   onShow,
   addSlot,
   onShowAll,
+  preview = false,
+  leading,
 }: FxCardRowProps) {
   // One control for the whole rack: a knob or a band drag previews and
   // writes the store once on release; a switch or a list writes at once. A
@@ -266,12 +287,16 @@ export function FxCardRow({
       <RotaryKnobLookContext.Provider value="card">
         <div
           ref={rowRef}
-          role="group"
-          aria-label="Effects chain"
-          data-testid="fx-cards"
-          className="flex h-full min-h-0 min-w-0 flex-1 items-stretch gap-2 overflow-x-auto overflow-y-hidden p-2"
+          role={preview ? undefined : 'group'}
+          aria-label={preview ? undefined : 'Effects chain'}
+          data-testid={preview ? undefined : 'fx-cards'}
+          className={cn(
+            'flex h-full min-h-0 min-w-0 flex-1 items-stretch gap-2 overflow-y-hidden p-2',
+            preview ? 'overflow-x-hidden' : 'overflow-x-auto',
+          )}
           style={{ scrollbarWidth: 'thin' }}
         >
+          {leading?.(rowH)}
           {chain.map((slot) => (
             <FxCard
               key={slot}
@@ -286,6 +311,7 @@ export function FxCardRow({
               rowH={rowH}
               rowW={rowW}
               onShowAll={onShowAll}
+              preview={preview}
             />
           ))}
           {addSlot}
@@ -309,6 +335,7 @@ function FxCard({
   rowH,
   rowW,
   onShowAll,
+  preview,
 }: {
   slot: EffectSlotType;
   fxId: string;
@@ -321,6 +348,7 @@ function FxCard({
   rowH: number;
   rowW: number;
   onShowAll?(): void;
+  preview: boolean;
 }) {
   const label = FX_LABEL[slot] ?? slot;
   const color = FX_COLOR[slot] ?? COLOR.accent.value;
@@ -328,11 +356,17 @@ function FxCard({
     enabled: boolean;
   };
   const enabled = state?.enabled ?? false;
-  const layout = cardLayout(rowH, slot === 'eq' ? EQ_BANDS_PX : 0, rowW);
-  const hidden = Math.max(0, CONTROL_COUNT[slot] - layout.keep);
+  const isEq = slot === 'eq';
+  const layout = cardLayout(rowH, 0, rowW);
+  // The EQ is its graph alone, its knobs in its expanded view (EqExpanded,
+  // 2026-10-22): nothing of it is left out of the card.
+  const hidden = isEq ? 0 : Math.max(0, CONTROL_COUNT[slot] - layout.keep);
   const ratio = layout.graph ? GRAPH_RATIO[slot] : undefined;
   const graphH = Math.min(layout.bodyH, GRAPH_MAX_PX);
   const graphW = ratio ? Math.round(graphH * ratio) : 0;
+  // The EQ's graph runs to the card's edges, as wide as its height allows.
+  const eqW = Math.max(EQ_MIN_W_PX, Math.round(layout.cardH * EQ_RATIO));
+  const [expanded, setExpanded] = useState(false);
   const pick = () => {
     if (!shown) onShow(slot);
   };
@@ -340,8 +374,8 @@ function FxCard({
   return (
     <section
       aria-label={label}
-      data-testid={`fx-card-${slot}`}
-      data-tutorial-id={`fx-slot-${slot}`}
+      data-testid={preview ? undefined : `fx-card-${slot}`}
+      data-tutorial-id={preview ? undefined : `fx-slot-${slot}`}
       data-fx-card={slot}
       data-shown={shown || undefined}
       data-enabled={enabled}
@@ -369,7 +403,18 @@ function FxCard({
         >
           {label}
         </h3>
-        {hidden > 0 && onShowAll ? (
+        {isEq && !preview ? (
+          <IconButton
+            label="Expand the EQ"
+            icon={<Expand />}
+            size="sm"
+            variant="bare"
+            tooltipSide="top"
+            data-testid="fx-eq-expand"
+            onClick={() => setExpanded(true)}
+          />
+        ) : null}
+        {hidden > 0 && onShowAll && !preview ? (
           <IconButton
             label={`Show all ${CONTROL_COUNT[slot]} controls`}
             icon={<Maximize2 />}
@@ -380,66 +425,84 @@ function FxCard({
             onClick={onShowAll}
           />
         ) : null}
-        <IconButton
-          label={`Remove ${label}`}
-          icon={<X />}
-          size="sm"
-          variant="bare"
-          tooltipSide="top"
-          data-testid={`fx-remove-${slot}`}
-          onClick={() => onRemove(slot)}
-        />
-      </header>
-      {/* A switched-off effect dims, all but its switch. */}
-      <div
-        className={cn(
-          'flex min-h-0 flex-1 items-center gap-3 px-2',
-          !enabled && 'opacity-50',
-          TRANSITION,
+        {preview ? null : (
+          <IconButton
+            label={`Remove ${label}`}
+            icon={<X />}
+            size="sm"
+            variant="bare"
+            tooltipSide="top"
+            data-testid={`fx-remove-${slot}`}
+            onClick={() => onRemove(slot)}
+          />
         )}
-        style={{ paddingBottom: CARD_GAP_PX }}
-      >
-        {ratio ? (
-          <CardGraph
-            slot={slot}
+      </header>
+      {isEq ? (
+        // The graph to the card's edges; the card's corners clip it.
+        <div
+          className={cn('min-h-0 flex-1', !enabled && 'opacity-50', TRANSITION)}
+          style={{ width: eqW }}
+        >
+          <EqGraph
             effects={effects}
             update={update}
             meterTarget={meterTarget}
-            width={graphW}
-            height={graphH}
           />
-        ) : null}
-        {slot === 'eq' ? (
-          <EqControls
-            effects={effects}
-            update={update}
-            layout={layout}
-            color={color}
-          />
-        ) : (
-          <div
-            className={cn(
-              'grid h-full min-w-max shrink-0 content-center items-center justify-items-center gap-x-3',
-              HIDE_AFTER[layout.keep],
-            )}
-            style={{
-              gridAutoFlow: 'column',
-              gridTemplateRows: `repeat(${layout.rows}, auto)`,
-              rowGap: KNOB_ROW_GAP_PX,
-            }}
-          >
-            <FxKnobs
-              trackId={fxId}
+          {preview ? null : (
+            <EqExpanded
+              open={expanded}
+              onOpenChange={setExpanded}
+              effects={effects}
+              update={update}
+              meterTarget={meterTarget}
+            />
+          )}
+        </div>
+      ) : (
+        /* A switched-off effect dims, all but its switch. */
+        <div
+          className={cn(
+            'flex min-h-0 flex-1 items-center gap-3 px-2',
+            !enabled && 'opacity-50',
+            TRANSITION,
+          )}
+          style={{ paddingBottom: CARD_GAP_PX }}
+        >
+          {ratio ? (
+            <CardGraph
               slot={slot}
               effects={effects}
-              onUpdate={(_id, partial) => update(partial)}
-              color={color}
-              knobSize={layout.knob}
-              card
+              update={update}
+              meterTarget={meterTarget}
+              width={graphW}
+              height={graphH}
             />
-          </div>
-        )}
-      </div>
+          ) : null}
+          {
+            <div
+              className={cn(
+                'grid h-full min-w-max shrink-0 content-center items-center justify-items-center gap-x-3',
+                HIDE_AFTER[layout.keep],
+              )}
+              style={{
+                gridAutoFlow: 'column',
+                gridTemplateRows: `repeat(${layout.rows}, auto)`,
+                rowGap: KNOB_ROW_GAP_PX,
+              }}
+            >
+              <FxKnobs
+                trackId={fxId}
+                slot={slot}
+                effects={effects}
+                onUpdate={(_id, partial) => update(partial)}
+                color={color}
+                knobSize={layout.knob}
+                card
+              />
+            </div>
+          }
+        </div>
+      )}
     </section>
   );
 }
@@ -448,7 +511,7 @@ function FxCard({
  * The card's on switch: a ring with the effect's colour lit inside while
  * it plays, empty while it is bypassed.
  */
-function PowerDot({
+export function PowerDot({
   label,
   on,
   color,
@@ -589,29 +652,151 @@ function CardGraph({
   );
 }
 
-// ── The EQ's controls ───────────────────────────────────────────────────────
+// ── The EQ (owner, 2026-10-22) ─────────────────────────────────────────────
+//
+// One EQ wherever it plays (a track's, a send's, Master's): its graph to
+// the card's edges over the live spectrum, and Expand, which opens it large
+// with its knobs (EqControls). Master's is this same card, in its chain
+// like any effect (owner, 2026-10-22).
 
-/** The EQ's band picker over its knobs: a 20 px row and a 4 px gap. */
-const EQ_BANDS_PX = 24;
+/** The EQ's graph: as wide for its height as its 520 × 220 drawing. */
+const EQ_RATIO = 520 / 220;
+/** Its card is never narrower than this (px). */
+const EQ_MIN_W_PX = 280;
+
+/** The expanded view's controls: one row of full-size knobs, all shown. */
+const EQ_EXPANDED_LAYOUT: CardLayout = {
+  cardH: 0,
+  bodyH: 0,
+  rows: 1,
+  knob: 48,
+  keep: Infinity,
+  graph: true,
+};
+
+/** A band moved or a knob turned turns the EQ on. */
+const switchedOn = (
+  effects: TrackEffectState,
+  partial: Partial<TrackEffectState>,
+): Partial<TrackEffectState> =>
+  partial.eq ? { ...partial, eq: { ...partial.eq, enabled: true } } : partial;
+
+/** The EQ's graph, filling its box, no readouts under it. */
+export function EqGraph({
+  effects,
+  update,
+  meterTarget,
+  onPickBand,
+}: {
+  effects: TrackEffectState;
+  update(partial: Partial<TrackEffectState>): void;
+  meterTarget: string | null;
+  /** A band's node pressed (the expanded view's knobs follow it). */
+  onPickBand?(index: number): void;
+}) {
+  return (
+    <GraphicEQ
+      onPickBand={onPickBand}
+      bands={effects.eq.bands}
+      onChange={(bands) =>
+        update(switchedOn(effects, { eq: { ...effects.eq, bands } }))
+      }
+      spectrumKey={meterTarget ? `fx-pre:${meterTarget}` : null}
+      readouts={false}
+      fill
+    />
+  );
+}
+
+/** The EQ large, nearly the whole window: its graph over its knobs. */
+export function EqExpanded({
+  open,
+  onOpenChange,
+  effects,
+  update,
+  meterTarget,
+}: {
+  open: boolean;
+  onOpenChange(open: boolean): void;
+  effects: TrackEffectState;
+  update(partial: Partial<TrackEffectState>): void;
+  meterTarget: string | null;
+}) {
+  const eq = effects.eq;
+  const color = FX_COLOR.eq ?? COLOR.accent.value;
+  // The band the knobs show: picked by its number or by its node on the
+  // graph (owner, 2026-10-22).
+  const [picked, setPicked] = useState(0);
+  return (
+    <DawDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="EQ"
+      size="full"
+      data={{ 'data-testid': 'eq-expanded' }}
+    >
+      <div className="flex h-full min-h-0 flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <PowerDot
+            label="EQ"
+            on={eq.enabled}
+            color={color}
+            onToggle={() => update({ eq: { ...eq, enabled: !eq.enabled } })}
+          />
+        </div>
+        <div className="min-h-[240px] flex-1 overflow-hidden rounded-[var(--daw-radius-md)]">
+          <EqGraph
+            effects={effects}
+            update={update}
+            meterTarget={meterTarget}
+            onPickBand={setPicked}
+          />
+        </div>
+        <div className="flex shrink-0 justify-center pb-1">
+          <EqControls
+            effects={effects}
+            update={(partial) => update(switchedOn(effects, partial))}
+            layout={EQ_EXPANDED_LAYOUT}
+            color={color}
+            picked={picked}
+            onPick={setPicked}
+          />
+        </div>
+      </div>
+    </DawDialog>
+  );
+}
+
+// ── The EQ's controls ───────────────────────────────────────────────────────
 
 /**
  * The EQ beside its graph: a band picker, then the picked band's switch,
  * shape, frequency, gain and Q, and the EQ's makeup gain. The graph's
  * handles move any band.
  */
-function EqControls({
+export function EqControls({
   effects,
   update,
   layout,
   color,
+  picked: pickedFromOutside,
+  onPick,
 }: {
   effects: TrackEffectState;
   update(partial: Partial<TrackEffectState>): void;
   layout: CardLayout;
   color: string;
+  /** The band the knobs show, when the graph picks it too (EqExpanded). */
+  picked?: number;
+  onPick?(index: number): void;
 }) {
   const eq = effects.eq;
-  const [picked, setPicked] = useState(0);
+  const [pickedHere, setPickedHere] = useState(0);
+  const picked = pickedFromOutside ?? pickedHere;
+  const setPicked = (i: number) => {
+    setPickedHere(i);
+    onPick?.(i);
+  };
   const index = Math.min(picked, eq.bands.length - 1);
   const band = eq.bands[index];
   if (!band) return null;

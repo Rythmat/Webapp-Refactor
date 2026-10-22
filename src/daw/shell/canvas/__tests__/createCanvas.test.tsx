@@ -45,7 +45,7 @@ import { ChordLaneHeader, suggestTarget } from '../ChordLaneHeader';
 import { Menu, MenuContent, MenuTrigger } from '@/daw/ui/Menu';
 import { SnapToGridSub, TimelineDisplaySub } from '../GridMenu';
 import { TimelineFooter } from '../TimelineFooter';
-import { TimelineTools } from '../TimelineTools';
+import { EditToolButton } from '../TimelineTools';
 
 const s = () => useStore.getState();
 
@@ -106,26 +106,38 @@ describe('the header’s controls', () => {
     expect(s().position).toBe(960);
   });
 
-  it('picks the tool beside the ruler, and Follow is the student’s switch', () => {
-    render(
-      <>
-        <TimelineTools />
-        <TimelineFooter />
-      </>,
-    );
-    fireEvent.click(screen.getByRole('radio', { name: 'Cut clips (C)' }));
+  it('steps the tool with one button: Pointer, Draw, Cut, Pointer', () => {
+    useStore.setState({ activeTool: 'cursor' });
+    render(<EditToolButton />);
+    const button = screen.getByTestId('edit-tool');
+    expect(button).toHaveAccessibleName('Pointer (V): click for Draw clips');
+    fireEvent.click(button);
+    expect(s().activeTool).toBe('pencil');
+    expect(button).toHaveAccessibleName('Draw clips (B): click for Cut clips');
+    fireEvent.click(button);
     expect(s().activeTool).toBe('scissors');
+    fireEvent.click(button);
+    expect(s().activeTool).toBe('cursor');
+    // The layout tool (key 4) shows as the pointer; a click takes Draw.
+    act(() => useStore.setState({ activeTool: 'layout' }));
+    expect(button).toHaveAttribute('data-tool', 'cursor');
+    fireEvent.click(button);
+    expect(s().activeTool).toBe('pencil');
+  });
+
+  it('Follow is the student’s switch', () => {
+    render(<TimelineFooter />);
     fireEvent.click(
       screen.getByRole('button', { name: 'Follow the playhead' }),
     );
     expect(s().followPlayhead).toBe(false);
   });
 
-  it('zooms from the footer, beside the scrollbar', () => {
+  it('zooms from the footer, beside the song overview', () => {
     useStore.setState({ timelineZoom: 1 });
     render(<TimelineFooter />);
     const footer = screen.getByTestId('timeline-footer');
-    expect(footer).toContainElement(screen.getByTestId('timeline-scrollbar'));
+    expect(footer).toContainElement(screen.getByTestId('timeline-overview'));
     fireEvent.click(screen.getByRole('button', { name: 'Zoom in' }));
     expect(s().timelineZoom).toBeGreaterThan(1);
     fireEvent.click(screen.getByRole('button', { name: 'Zoom out' }));
@@ -151,11 +163,11 @@ describe('the header’s tips', () => {
   // at the sections lane's right end; below, Grid's covered the side rail.
   // Radix keeps a tip open while the pointer is over it, so a click meant
   // for what it covered landed on the tip.
-  it('open the tools’ to the right, past the group', () => {
-    render(<TimelineTools />);
-    act(() => screen.getByRole('radio', { name: 'Pointer (V)' }).focus());
+  it('open the tool’s under the top bar', () => {
+    render(<EditToolButton />);
+    act(() => screen.getByTestId('edit-tool').focus());
     expect(shownTip()).toHaveTextContent('Pointer (V)');
-    expect(shownTip()).toHaveAttribute('data-side', 'right');
+    expect(shownTip()).toHaveAttribute('data-side', 'bottom');
   });
 });
 
@@ -175,9 +187,20 @@ describe('More ▸ Timeline display', () => {
     expect(
       screen.getByRole('group', { name: 'Chord lane labels' }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('group', { name: 'Colour clips by' }),
-    ).toBeInTheDocument();
+    // Harmony Color is a switch, not a group (2026-10-22).
+    expect(screen.queryByRole('group', { name: 'Colour clips by' })).toBeNull();
+  });
+
+  it('switches Harmony Color on and off', () => {
+    useStore.setState({ clipColorMode: 'track' });
+    render(<Display />);
+    open();
+    const item = screen.getByRole('menuitemcheckbox', {
+      name: /Harmony Color/,
+    });
+    expect(item).toHaveAttribute('aria-checked', 'false');
+    fireEvent.click(item);
+    expect(useStore.getState().clipColorMode).toBe('prism');
   });
 
   it('checks the hybrid labels choice, and neither under Jazz notation', () => {
@@ -238,7 +261,7 @@ describe('the chord lane’s corner', () => {
 describe('where Suggest puts chords', () => {
   it('suggests after the last chord, for a track that can hold chords', () => {
     const drums = s().addTrack('midi', 'drum-machine', 'Drums');
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().setSelectedTrackId(drums);
     expect(suggestTarget(s(), 2500)).toEqual({ tick: 1920, trackId: keys });
     useStore.setState({

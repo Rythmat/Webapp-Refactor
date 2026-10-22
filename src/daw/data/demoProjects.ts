@@ -124,6 +124,12 @@ const PIANO = '#f9c74f';
  *  'soundfont' instrument (see gmPrograms.ts); 'oracle-synth' is a synth. */
 const ELECTRIC_BASS_FINGER = 33;
 
+/** GM programs 4 and 0, Electric Piano 1 and Acoustic Grand Piano, on the
+ *  'soundfont' instrument: the demos' keys since the sampled piano and
+ *  electric piano tracks went (2026-10-22). */
+const ELECTRIC_PIANO = 4;
+const GRAND_PIANO = 0;
+
 export interface DemoProject {
   id: string;
   label: string;
@@ -157,7 +163,8 @@ export const DEMO_PROJECTS: DemoProject[] = [
         demoTrack({
           name: 'Rhodes',
           type: 'midi',
-          instrument: 'electric-piano',
+          instrument: 'soundfont',
+          settings: { gmProgram: ELECTRIC_PIANO },
           color: RHODES,
           clips: [
             midiClip('Chords', [
@@ -196,7 +203,8 @@ export const DEMO_PROJECTS: DemoProject[] = [
         demoTrack({
           name: 'Keys',
           type: 'midi',
-          instrument: 'electric-piano',
+          instrument: 'soundfont',
+          settings: { gmProgram: ELECTRIC_PIANO },
           color: RHODES,
           clips: [
             // Voice-led upper-structure voicings — the bass carries the roots.
@@ -255,7 +263,8 @@ export const DEMO_PROJECTS: DemoProject[] = [
         demoTrack({
           name: 'Piano',
           type: 'midi',
-          instrument: 'piano-sampler',
+          instrument: 'soundfont',
+          settings: { gmProgram: GRAND_PIANO },
           color: PIANO,
           clips: [
             // Open pop voicings: root on the bottom, the 3rd lifted an octave

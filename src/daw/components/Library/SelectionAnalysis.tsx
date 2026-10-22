@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTrackColorOf } from '@/daw/harmony/trackColor';
 import { Sparkles, X } from 'lucide-react';
 import { ionianToModeLabel } from '@prism/engine';
 import { useStore } from '@/daw/store';
@@ -38,6 +39,8 @@ const labelStyle = { color: 'var(--daw-text-3)' };
  * unchanged; anything else asks to analyze again.
  */
 export function SelectionAnalysis() {
+  // Harmony Color: tracks in the key centre's colour, else their own.
+  const colorOf = useTrackColorOf();
   const selectedChordIds = useStore((s) => s.selectedChordIds);
   const setSelectedChordIds = useStore((s) => s.setSelectedChordIds);
   const selectedNotes = useStore((s) => s.selectedNotes);
@@ -168,7 +171,7 @@ export function SelectionAnalysis() {
                 </Chip>
               ))
             : pickedNotes.map(({ track, events }) => (
-                <Chip key={track.id} css={track.color}>
+                <Chip key={track.id} css={colorOf(track.color)}>
                   {`${track.name} · ${plural(events.length, 'note')}`}
                 </Chip>
               ))}
@@ -217,7 +220,7 @@ export function SelectionAnalysis() {
               }
             />
           ))}
-          <UnisonSections unisonDoc={doc} harmonyOnly />
+          <UnisonSections unisonDoc={doc} />
         </>
       )}
     </div>

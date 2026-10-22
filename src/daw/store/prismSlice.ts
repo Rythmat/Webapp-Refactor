@@ -150,6 +150,12 @@ export interface PrismSlice {
   rootLocked: boolean;
   chordRulerShowNotes: boolean;
   chordRecordMode: ChordRecordMode;
+  /**
+   * Chords go on the chord ruler as the student records (a MIDI take's
+   * chords as it plays and when it ends, an audio take's when it ends):
+   * the chord ruler's Auto (ChordRulerSettings, 2026-10-21).
+   */
+  chordAutoAnalyze: boolean;
 
   // Actions — parameters
   setRootNote: (root: number | null) => void;
@@ -166,6 +172,7 @@ export interface PrismSlice {
 
   toggleChordRulerLabels: () => void;
   setChordRecordMode: (mode: ChordRecordMode) => void;
+  setChordAutoAnalyze: (on: boolean) => void;
 
   // Actions — chord building
   addChord: (chordName: string) => void;
@@ -189,6 +196,20 @@ export interface PrismSlice {
     regions: ChordRegion[],
     force?: boolean,
     source?: ChordIdentitySource,
+  ) => void;
+  /**
+   * Puts `regions` on the chord ruler across [rangeStart, rangeEnd) only, as
+   * recording does (a take's chords, 2026-10-21): Replace writes over the
+   * chords there, Merge joins them, Keep only fills gaps (chordRecordMode).
+   * `base` is the ruler to write onto (the ruler as it was before the take,
+   * while a take's live chords are redrawn); the store's own by default.
+   */
+  writeChordsInRange: (
+    regions: ChordRegion[],
+    rangeStart: number,
+    rangeEnd: number,
+    source?: ChordIdentitySource,
+    base?: ChordRegion[],
   ) => void;
   setMeasureRowSizes: (sizes: number[] | null) => void;
   setMeasureRestMap: (map: Record<number, number> | null) => void;
@@ -1564,8 +1585,10 @@ export const createPrismSlice: StateCreator<
   selectedTrackId: null,
   rootTrackColor: null,
   rootLocked: false,
-  chordRulerShowNotes: false,
+  // Chords read as names by default (owner, 2026-10-22).
+  chordRulerShowNotes: true,
   chordRecordMode: 'replace',
+  chordAutoAnalyze: true,
 
   // ── Actions — parameters ──
 
@@ -1577,14 +1600,15 @@ export const createPrismSlice: StateCreator<
     if (get().rootLocked) return;
 
     const clamped = Math.max(0, Math.min(11, root));
-    const { stringSeq, tracks, mode: currentMode, chordRegions } = get();
+    const { stringSeq, mode: currentMode, chordRegions } = get();
     const hex = keyColourOf(clamped, currentMode);
 
     // Batch all updates into a single set() to avoid cascading re-renders
+    // The key's colour is rootTrackColor; each track keeps its own
+    // (Harmony Color shows the key's in its place; harmony/trackColor).
     const updates: Record<string, unknown> = {
       rootNote: clamped,
       rootTrackColor: hex,
-      tracks: tracks.map((t) => ({ ...t, color: hex })),
     };
 
     if (stringSeq.length > 0) {
@@ -1611,9 +1635,10 @@ export const createPrismSlice: StateCreator<
     set((s) => ({ chordRulerShowNotes: !s.chordRulerShowNotes })),
 
   setChordRecordMode: (mode) => set({ chordRecordMode: mode }),
+  setChordAutoAnalyze: (on) => set({ chordAutoAnalyze: on }),
 
   setMode: (mode) => {
-    const { rootNote, stringSeq, tracks, chordRegions } = get();
+    const { rootNote, stringSeq, chordRegions } = get();
     if (rootNote === null) {
       set({ mode });
       return;
@@ -1622,7 +1647,6 @@ export const createPrismSlice: StateCreator<
     const updates: Record<string, unknown> = {
       mode,
       rootTrackColor: hex,
-      tracks: tracks.map((t) => ({ ...t, color: hex })),
     };
 
     if (stringSeq.length > 0) {
@@ -1803,7 +1827,6 @@ export const createPrismSlice: StateCreator<
                 endTick,
               ),
       });
-      currentState.setClipColorMode('prism');
     };
   },
 
@@ -1851,9 +1874,38 @@ export const createPrismSlice: StateCreator<
       currentMode,
     );
     set({ chordRegions: result });
-    if (result.length > 0) {
-      get().setClipColorMode('prism');
-    }
+  },
+
+  writeChordsInRange: (
+    regions,
+    rangeStart,
+    rangeEnd,
+    source = 'detected',
+    base,
+  ) => {
+    const {
+      chordRecordMode,
+      chordRegions,
+      rootNote,
+      mode: currentMode,
+    } = get();
+    const existing = base ?? chordRegions;
+    const tagged = ensureChordIdentities(
+      regions.map((r) => (r.id ? r : { ...r, id: nextChordId() })),
+      keyFrameOf(rootNote, currentMode),
+      source,
+    );
+    const result =
+      chordRecordMode === 'replace'
+        ? replaceChordRegionsInRange(existing, tagged, rangeStart, rangeEnd)
+        : reconcileChordRegions(
+            existing,
+            tagged,
+            chordRecordMode,
+            (rootNote ?? 0) + 48,
+            currentMode,
+          );
+    set({ chordRegions: result });
   },
 
   setMeasureRowSizes: (sizes) => set({ measureRowSizes: sizes }),

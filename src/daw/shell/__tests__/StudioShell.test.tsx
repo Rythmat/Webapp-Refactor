@@ -88,15 +88,35 @@ describe('StudioShell', () => {
     render(<StudioShell isReady onInit={() => {}} />);
     act(() => useStore.getState().setInspectorOpenFor('arrange', false));
     expect(q('[data-testid="library-panel"]')).toBeNull();
-    const fx = q('[data-testid="rail-fx"]') as HTMLButtonElement;
-    act(() => fx.click());
-    expect(useStore.getState().inspectorPanel).toBe('fx');
+    // Effects left the rail for the Add effect picker (2026-10-21).
+    expect(q('[data-testid="rail-fx"]')).toBeNull();
+    const lib = q('[data-testid="rail-library"]') as HTMLButtonElement;
+    act(() => lib.click());
+    expect(useStore.getState().inspectorPanel).toBe('library');
     expect(q('[data-testid="library-panel"]')).not.toBeNull();
-    expect(fx).toHaveAttribute('aria-pressed', 'true');
+    expect(lib).toHaveAttribute('aria-pressed', 'true');
     expect(useStore.getState().inspectorOpenByView.arrange).toBe(true);
-    act(() => fx.click());
+    act(() => lib.click());
     expect(q('[data-testid="library-panel"]')).toBeNull();
-    expect(fx).toHaveAttribute('aria-pressed', 'false');
+    expect(lib).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('lays the open Inspector over the dock, making room in the view only', () => {
+    render(<StudioShell isReady onInit={() => {}} />);
+    act(() => useStore.getState().setInspectorOpenFor('arrange', false));
+    const main = q('[data-region="main"]') as HTMLElement;
+    const inspector = q('[data-region="inspector"]') as HTMLElement;
+    const stage = q('[data-testid="stage-card"]') as HTMLElement;
+    // The stage spans the Inspector's column; the Inspector sits over it.
+    expect(stage.style.gridArea).toBe('stage');
+    expect(inspector.style.gridColumn).toBe('2');
+    expect(main.style.paddingRight).toBe('');
+
+    act(() => (q('[data-testid="rail-library"]') as HTMLButtonElement).click());
+    expect(main.style.paddingRight).toBe('var(--daw-insp-w, 300px)');
+    // The dock keeps its width: no room is made for the Inspector there.
+    const dock = q('[data-region="dock"]') as HTMLElement;
+    expect(dock.style.paddingRight).toBe('');
   });
 
   it('shows the view the student picked in the main region', () => {

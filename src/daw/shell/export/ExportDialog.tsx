@@ -63,13 +63,11 @@ const FORMATS: { id: AudioExportFormat; label: string; hint: string }[] = [
 ];
 const BIT_DEPTHS: WavBitDepth[] = [16, 24];
 
-const AMP_TRACKS = new Set(['guitar-fx', 'bass-fx']);
-
-/** Whether the amp a guitar or bass track plays through names a model this
- *  build doesn't bundle: the export can't load it (pedalChainBuilder), so
- *  that amp passes the signal through. */
+/** Whether the amp an Audio track plays through names a model this build
+ *  doesn't bundle: the export can't load it (pedalChainBuilder), so that
+ *  amp passes the signal through. */
 function ampModelLeftOut(t: Track): boolean {
-  if (!AMP_TRACKS.has(t.instrument) || t.audioClips.length === 0) return false;
+  if (t.instrument !== 'audio-input' || t.audioClips.length === 0) return false;
   // The first amp is the one that gets a model, live and in an export.
   const amp = t.guitarChain?.find((b) => b.type === 'nam-amp');
   if (!amp?.enabled || !amp.namModelId) return false;

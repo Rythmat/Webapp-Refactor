@@ -301,7 +301,9 @@ const STORE_SPECS = {
   tiltAmount: doc('prism', 0, 'document', SHARED),
   filterPercent: doc('prism', 1, 'document', SHARED),
   chordRecordMode: doc('prism', 'replace', 'document', SHARED),
-  chordRulerShowNotes: pref('prism', false),
+  // Chords read as names by default (owner, 2026-10-22).
+  chordRulerShowNotes: pref('prism', true),
+  chordAutoAnalyze: pref('prism', true),
   availableFirstChords: session('prism', () => getFirstChords(), 'page'),
   availableNextChords: session('prism', () => [], 'project'),
 
@@ -345,6 +347,7 @@ const STORE_SPECS = {
   masterAutomation: doc('mixer', () => ({}), 'legacy', SHARED_UNDO),
   returns: doc('mixer', () => defaultReturns(), 'legacy', SHARED_UNDO),
   masteringBypass: view('mixer', false),
+  masterMuted: session('mixer', false, 'project'),
 
   // ── view ──
   clipColorMode: doc('view', 'track', 'document', SHARED_UNDO),
@@ -372,6 +375,7 @@ const STORE_SPECS = {
   hoverHints: pref('view', true),
   activeTool: session('view', 'cursor', 'project'),
   scoreNoteInput: session('view', false, 'project'),
+  scoreHiddenTrackIds: session('view', () => [], 'project'),
   selectedClipId: session('view', null, 'project'),
   selectedClipTrackId: session('view', null, 'project'),
   parkedClipSelection: session('view', null, 'project'),
@@ -439,7 +443,7 @@ const STORE_SPECS = {
   leadSheetSelectedChordIdx: session('ui', null, 'project'),
   selectedChordIds: session('ui', () => [], 'project'),
   selectedNotes: session('ui', () => [], 'project'),
-  fxLibraryReturn: session('ui', null, 'project'),
+  effectPickerOpen: session('ui', false, 'project'),
   dockEffect: session('ui', null, 'project'),
   dockMaster: session('ui', false, 'project'),
   dockMaximized: session('ui', false, 'project'),
@@ -518,11 +522,9 @@ type TrackFieldSpec<T> = Omit<FieldSpec<T>, 'default'> & {
   default: TrackDefault<T>;
 };
 
-/** Live guitar, bass and vocal tracks: audio tracks fed by an input. */
+/** Audio tracks fed by an input (Guitar, Bass and Voice folded in, 2026-10-22). */
 const LIVE_INPUT_INSTRUMENTS: ReadonlySet<InstrumentType> = new Set([
-  'guitar-fx',
-  'bass-fx',
-  'vocal-fx',
+  'audio-input',
 ]);
 
 const isLiveInput = (ctx?: TrackDefaultContext) =>

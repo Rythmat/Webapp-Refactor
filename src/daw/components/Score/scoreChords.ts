@@ -108,7 +108,7 @@ export function placeChords({
         text: formatChordSymbol(region.noteName, format, region.name),
         x: onBeat
           ? onBeat.x
-          : box.x + ((tick - box.startTick) / span) * box.width,
+          : betweenBeats(anchors ?? [], partIndex, box, tick, span),
         y: Math.min(
           box.y - CHORD_OFFSET * scale,
           inkTop - (CHORD_FONT_SIZE + MELODY_CLEARANCE) * scale,
@@ -117,6 +117,34 @@ export function placeChords({
     }
   }
   return placements;
+}
+
+/**
+ * Where a chord with nothing written on its beat stands (a chord ruler chord
+ * that starts while a note is held): between what is written before it in
+ * the bar and the next thing (or the bar's end), by time. Measured across
+ * the whole bar it would land over the bar's first chord, since the bar's
+ * box starts at its clef and signatures.
+ */
+function betweenBeats(
+  anchors: readonly BeatAnchor[],
+  partIndex: number,
+  box: { x: number; width: number; startTick: number; endTick: number },
+  tick: number,
+  span: number,
+): number {
+  const inBar = anchors.filter(
+    (a) =>
+      a.partIndex === partIndex &&
+      a.tick >= box.startTick &&
+      a.tick < box.endTick,
+  );
+  const before = inBar.filter((a) => a.tick < tick).at(-1);
+  if (!before) return box.x + ((tick - box.startTick) / span) * box.width;
+  const after = inBar.find((a) => a.tick > tick);
+  const end = after ?? { tick: box.endTick, x: box.x + box.width };
+  const t = (tick - before.tick) / (end.tick - before.tick || 1);
+  return before.x + t * (end.x - before.x);
 }
 
 /**

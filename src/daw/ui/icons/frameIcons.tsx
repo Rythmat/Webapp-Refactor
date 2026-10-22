@@ -107,27 +107,61 @@ export function RedoGlyph(props: IconProps) {
   );
 }
 
-/** More: three dots. */
-export function MoreGlyph(props: IconProps) {
+// The bottom rail's Typing keys (the computer keyboard plays notes).
+
+/**
+ * Typing keys: a computer keyboard, a row of keys over the space bar: the
+ * letters play notes.
+ */
+export function TypingKeysGlyph(props: IconProps) {
   return (
     <Glyph {...props}>
-      <circle cx="3.25" cy="8" r="1.4" />
-      <circle cx="8" cy="8" r="1.4" />
-      <circle cx="12.75" cy="8" r="1.4" />
+      <rect {...STROKE} x="1.5" y="3.5" width="13" height="9" rx="2" />
+      <rect x="3.375" y="5.5" width="1.75" height="1.75" rx="0.5" />
+      <rect x="5.875" y="5.5" width="1.75" height="1.75" rx="0.5" />
+      <rect x="8.375" y="5.5" width="1.75" height="1.75" rx="0.5" />
+      <rect x="10.875" y="5.5" width="1.75" height="1.75" rx="0.5" />
+      <rect x="5" y="8.75" width="6" height="1.75" rx="0.75" />
     </Glyph>
   );
 }
 
 // The bottom rail's dock views (Instrument, FX, Automation, Edit).
 
-/** Instrument: a keyboard, three white keys and two black. */
+/**
+ * Instrument: an eighth note, its head filled, its stem and flag
+ * round-capped strokes (owner, 2026-10-22: it was a keyboard).
+ */
 export function InstrumentGlyph(props: IconProps) {
   return (
     <Glyph {...props}>
+      <ellipse
+        cx="5.4"
+        cy="12.1"
+        rx="2.9"
+        ry="2.15"
+        transform="rotate(-22 5.4 12.1)"
+      />
+      <path {...STROKE} d="M7.9 11.4V2.1" />
+      <path {...STROKE} d="M7.9 2.1c2.8.8 4.9 2.8 4.3 6.1" />
+    </Glyph>
+  );
+}
+
+/**
+ * Amp: a combo amp, its control strip of three knobs over the speaker: a
+ * plain Audio track's one dock, its amp, pitch correction and effects
+ * (owner, 2026-10-22).
+ */
+export function AmpGlyph(props: IconProps) {
+  return (
+    <Glyph {...props}>
       <rect {...STROKE} x="1.75" y="2.75" width="12.5" height="10.5" rx="2" />
-      <path {...STROKE} d="M6 9v4.25M10 9v4.25" />
-      <rect x="4.75" y="2.75" width="2.5" height="6.25" rx="0.75" />
-      <rect x="8.75" y="2.75" width="2.5" height="6.25" rx="0.75" />
+      <path {...STROKE} d="M1.75 6.25h12.5" />
+      <circle cx="4.75" cy="4.5" r="0.85" />
+      <circle cx="7.25" cy="4.5" r="0.85" />
+      <circle cx="9.75" cy="4.5" r="0.85" />
+      <circle {...STROKE} cx="8" cy="9.75" r="1.9" />
     </Glyph>
   );
 }

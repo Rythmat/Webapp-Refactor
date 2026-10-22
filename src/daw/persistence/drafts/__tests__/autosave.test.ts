@@ -244,7 +244,7 @@ beforeEach(async () => {
   useCloudSaveStore.setState(useCloudSaveStore.getInitialState(), true);
   useSynthStore.setState(useSynthStore.getInitialState(), true);
   useStore.setState(useStore.getInitialState(), true);
-  keysId = s().addTrack('midi', 'piano-sampler', 'Keys');
+  keysId = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(keysId, { id: CLIP_ID, startTick: 0, events: [] });
   memory = new MemoryStorage();
   real = createDraftStore({
@@ -1315,7 +1315,7 @@ describe('a take’s bytes in the draft', () => {
   });
 
   function recordTake(): void {
-    const guitar = s().addTrack('audio', 'guitar-fx', 'Guitar');
+    const guitar = s().addTrack('audio', 'audio-input', 'Guitar');
     s().addAudioClip(guitar, {
       id: 'take-1',
       startTick: 0,

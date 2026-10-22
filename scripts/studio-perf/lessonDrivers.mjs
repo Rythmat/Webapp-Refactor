@@ -518,16 +518,19 @@ const PAINT_HITS = {
     }),
 };
 
-/** "Add to track" on the first groove; "Add Anyway" if the BPM dialog asks. */
+/**
+ * Add on the first groove in the drums' Instrument menu; "Add Anyway" if a
+ * BPM dialog asks.
+ */
 const ADD_FIRST_GROOVE = {
   how: 'click',
-  describe: 'click "Add to track" on the first groove in grooves-browser',
+  describe: 'click Add on the first groove in drum-grooves',
   advanceTimeoutMs: 30_000,
   async run(ctx) {
     const add = ctx.page
-      .locator(`${anchor('grooves-browser')} button[title="Add to track"]`)
+      .locator(`${anchor('drum-grooves')} [data-testid="groove-add"]`)
       .first();
-    await ctx.click(add, 'Add to track on the first groove');
+    await ctx.click(add, 'Add on the first groove');
     const dialog = ctx.page.getByText('Change Project BPM?');
     const asked = await dialog
       .waitFor({ state: 'visible', timeout: 3000 })

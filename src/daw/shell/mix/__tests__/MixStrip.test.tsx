@@ -70,7 +70,7 @@ beforeEach(() => {
     remoteUsers: new Map(),
   });
   ids = [
-    s().addTrack('midi', 'piano-sampler', 'Keys'),
+    s().addTrack('midi', 'soundfont', 'Keys'),
     s().addTrack('midi', 'drum-machine', 'Drums'),
   ];
   resetHistory();
@@ -136,15 +136,16 @@ describe('a Mix strip’s drags', () => {
     expect(historyLabels()).toEqual(['Change volume']);
   });
 
-  it('reads the fader in dB: unity is 0.0 dB, the default −1.9 dB', () => {
+  it('reads the fader in dB, as the track header’s pill: unity is +0.00dB, the default −1.94dB', () => {
     render(<MixStrip trackId={ids[0]} />);
     const fader = screen.getByRole('slider', { name: 'Volume of Keys' });
-    expect(fader).toHaveAttribute('aria-valuetext', `${MINUS}1.9 dB`);
+    expect(fader).toHaveAttribute('data-volume-pill');
+    expect(fader).toHaveAttribute('aria-valuetext', `${MINUS}1.94dB`);
     expect(screen.getByTestId('mix-strip-volume')).toHaveTextContent(
-      `${MINUS}1.9 dB`,
+      `${MINUS}1.94dB`,
     );
     act(() => s().updateTrack(ids[0], { volume: 1 }));
-    expect(fader).toHaveAttribute('aria-valuetext', '0.0 dB');
+    expect(fader).toHaveAttribute('aria-valuetext', '+0.00dB');
   });
 });
 
@@ -187,8 +188,7 @@ describe('a Mix strip’s toggles', () => {
     expect(faders).toHaveLength(1);
     for (const slider of sliders) {
       if (faders.includes(slider)) {
-        // The vertical fader's length is its height; its width (the
-        // target across) is a Tailwind class, w-6 = 24 px.
+        // The volume pill's length is its height; it is 26 px across.
         expect(crossWidth(slider)).toBeGreaterThanOrEqual(24);
         expect(parseFloat(slider.style.height)).toBeGreaterThanOrEqual(24);
       } else {
@@ -248,7 +248,7 @@ describe('re-renders', () => {
     const slot = Object.keys(effects)[0] as keyof typeof effects;
     act(() =>
       s().updateReturnEffects('A', {
-        [slot]: { ...effects[slot], enabled: !effects[slot].enabled },
+        [slot]: { ...effects[slot], enabled: !effects[slot]!.enabled },
       }),
     );
     // The edits landed (so a re-render had a reason to happen).

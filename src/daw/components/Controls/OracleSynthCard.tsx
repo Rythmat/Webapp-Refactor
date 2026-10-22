@@ -132,6 +132,8 @@ export function OracleSynthCard({ engine }: { engine: SynthEngine }) {
     <div
       ref={rowRef}
       data-testid="synth-card-row"
+      // The lessons' anchor for the synth's sound (its macros and filter).
+      data-tutorial-id="synth-controls"
       className="absolute inset-y-0 left-0 overflow-x-auto overflow-y-hidden p-2"
       // Short of the dock's Maximize and Close, which float in its corner:
       // no card slides under them.

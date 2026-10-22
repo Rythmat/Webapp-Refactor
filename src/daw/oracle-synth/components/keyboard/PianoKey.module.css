@@ -1,40 +1,104 @@
+/* ── Keys after Soundtrap's dock piano (owner, 2026-10-22) ──────────────
+ * Ivory keys with hairline dividers and rounded feet; ebony keys with a
+ * lighter lip; each key the computer keyboard plays carries its letter in a
+ * small rounded badge, and every C its name (C3, C4). Colours are the DAW's
+ * key tokens (src/daw/ui/tokens.ts); hover lightens or darkens a key. */
+
 .whiteKey {
   position: relative;
   flex: 1;
   height: 100%;
-  background: linear-gradient(to bottom, #e8e8e8, #fff);
-  border: 1px solid #444;
-  border-radius: 0 0 4px 4px;
+  background: linear-gradient(
+    to bottom,
+    var(--daw-key-white-top),
+    var(--daw-key-white) 18%
+  );
+  box-shadow: inset -1px 0 0 var(--daw-key-divider);
+  border-radius: 0 0 6px 6px;
   cursor: pointer;
-  transition: background 0.05s;
+  transition: filter 0.05s;
   min-width: 20px;
 }
 
 .whiteKey:hover {
-  background: linear-gradient(to bottom, #d0d0d0, #f0f0f0);
+  filter: brightness(0.96);
 }
 
 .whiteKey.active {
-  background: linear-gradient(to bottom, #a8a8b0, #c8c8ce);
+  background: var(--daw-key-white-pressed);
 }
 
 .blackKey {
   position: absolute;
   top: 0;
-  width: 60%;
-  height: 62%;
-  background: linear-gradient(to bottom, #333, #1a1a1a);
-  border: 1px solid #000;
-  border-radius: 0 0 3px 3px;
+  width: 100%;
+  height: 60%;
+  background: linear-gradient(
+    to bottom,
+    var(--daw-key-black-top),
+    var(--daw-key-black) 82%,
+    var(--daw-key-black-lip) 82%
+  );
+  border-radius: 0 0 5px 5px;
   cursor: pointer;
   z-index: 2;
-  transition: background 0.05s;
+  transition: filter 0.05s;
 }
 
 .blackKey:hover {
-  background: linear-gradient(to bottom, #444, #2a2a2a);
+  filter: brightness(1.3);
 }
 
 .blackKey.active {
-  background: linear-gradient(to bottom, #6a6a72, #4a4a52);
+  background: var(--daw-key-black-pressed);
+}
+
+/* The computer key that plays it: a small rounded badge, near a white
+ * key's foot and partway down a black key. */
+.badge {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 5px;
+  font:
+    600 12px / 1 'Glacial Indifference',
+    system-ui,
+    sans-serif;
+  pointer-events: none;
+}
+
+.whiteKey .badge {
+  bottom: 8px;
+  color: var(--daw-key-ink);
+  border: 1px solid var(--daw-key-divider);
+}
+
+.blackKey .badge {
+  top: 34%;
+  /* Inside the key however narrow it is. */
+  min-width: 0;
+  width: calc(100% - 4px);
+  max-width: 22px;
+  padding: 0;
+  color: var(--daw-text);
+  border: 1px solid var(--daw-key-black-pressed);
+}
+
+/* A C's name, over its badge. */
+.octave {
+  position: absolute;
+  left: 8px;
+  bottom: 38px;
+  font:
+    400 13px / 1 'Glacial Indifference',
+    system-ui,
+    sans-serif;
+  color: var(--daw-key-ink);
+  pointer-events: none;
 }

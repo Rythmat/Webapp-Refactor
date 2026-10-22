@@ -35,7 +35,11 @@ vi.mock('react-router-dom', () => ({ useNavigate: () => () => {} }));
 
 import { useStore } from '@/daw/store';
 import { tickToPixel } from '@/daw/utils/timelineScale';
-import { LANE_HEADER_PX, TRACK_ROW_PX } from '@/daw/shell/tracklist/rowLayout';
+import {
+  LANE_HEADER_PX,
+  TRACK_FOOT_PX,
+  TRACK_ROW_PX,
+} from '@/daw/shell/tracklist/rowLayout';
 import { ScrolledTimeline } from './scrolledTimeline';
 
 const s = () => useStore.getState();
@@ -128,7 +132,7 @@ afterEach(() => {
 
 /** An audio track with a 4-bar clip at bar 1. Returns the track's id. */
 function addClip(id = 'clip'): string {
-  const trackId = s().addTrack('audio', 'vocal-fx', 'Vocals');
+  const trackId = s().addTrack('audio', 'audio-input', 'Vocals');
   s().addAudioClip(trackId, {
     id,
     startTick: 0,
@@ -261,10 +265,10 @@ describe('timeline redraws', () => {
 });
 
 describe('lanes on the track list’s rows (milestone 2.6)', () => {
-  it('moves a clip into the lane under the pointer, 64 px a row', () => {
+  it('moves a clip into the lane under the pointer, a row at a time', () => {
     addClip();
-    s().addTrack('audio', 'vocal-fx', 'Second');
-    s().addTrack('audio', 'vocal-fx', 'Third');
+    s().addTrack('audio', 'audio-input', 'Second');
+    s().addTrack('audio', 'audio-input', 'Third');
     const { container } = render(<ScrolledTimeline />);
     const canvas = container.querySelector('canvas')!;
     const x = tickToPixel(960, ZOOM, 0);
@@ -280,8 +284,19 @@ describe('lanes on the track list’s rows (milestone 2.6)', () => {
     expect(s().tracks.map((t) => t.audioClips.length)).toEqual([0, 0, 1]);
   });
 
+  it('reaches below the lanes to the track column’s foot, so the grid never ends early', () => {
+    s().addTrack('audio', 'audio-input', 'Second');
+    s().addTrack('audio', 'audio-input', 'Third');
+    const { container } = render(<ScrolledTimeline />);
+    const canvas = container.querySelector('canvas')!;
+    // jsdom lays nothing out: the scroller is 0 high, so the content sets it.
+    expect(parseFloat(canvas.style.height)).toBe(
+      LANE_HEADER_PX + s().tracks.length * TRACK_ROW_PX + TRACK_FOOT_PX,
+    );
+  });
+
   it('draws a one-bar clip in the MIDI lane clicked with Draw, from the grid line before it', () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Keys');
     const synth = s().addTrack('midi', 'oracle-synth', 'Synth');
     useStore.setState({
       activeTool: 'pencil',

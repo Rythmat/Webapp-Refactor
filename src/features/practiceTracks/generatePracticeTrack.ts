@@ -425,11 +425,11 @@ function buildBassClip(barChords: BarChord[], rootMidi: number): MidiClip {
 
 /**
  * Fetch + parse the fixed practice-track groove with `loadGrooveEvents` — the
- * exact pipeline Studio's own Grooves browser uses when a user manually drops
- * a groove onto a Drums track (`doLoadGroove` in GroovesBrowser.tsx).
+ * exact pipeline Studio uses when a user adds a groove to a Drums track from
+ * its Instrument menu (`addGrooveClip`, via DrumPadsView).
  *
  * This groove's source file is a real ~8-bar drum performance, not a tight
- * 1-bar loop — so, mirroring GroovesBrowser exactly, the resulting clip is
+ * 1-bar loop — so, mirroring addGrooveClip exactly, the resulting clip is
  * used at its *natural* length with no forced repeat/truncate to
  * `barCount`. The practice track's transport loop range (set from
  * `bassClip.durationTicks` back in `seedStudioFromPracticeTrack.ts`) already

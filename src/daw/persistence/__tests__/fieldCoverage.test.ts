@@ -209,19 +209,9 @@ describe('store keys', () => {
 /** Each instrument, with the track type the app creates it as. */
 const INSTRUMENTS: Record<InstrumentType, TrackType> = {
   'oracle-synth': 'midi',
-  'piano-sampler': 'midi',
-  'electric-piano': 'midi',
-  'bass-electric': 'midi',
-  'guitar-acoustic': 'midi',
-  cello: 'midi',
-  organ: 'midi',
-  'tonewheel-organ': 'midi',
   soundfont: 'midi',
   'drum-machine': 'midi',
-  sampler: 'midi',
-  'guitar-fx': 'audio',
-  'bass-fx': 'audio',
-  'vocal-fx': 'audio',
+  'audio-input': 'audio',
   none: 'midi',
 };
 
@@ -401,10 +391,12 @@ describe('projects loaded from the captured autosaves', () => {
         });
       }
     }
-    // The save holds the instruments whose new-track defaults differ, so the
-    // check means something.
+    // The save holds an instrument whose new-track defaults differ (the
+    // drum machine's compressor), so the check means something. Its old
+    // Guitar and Voice tracks load as they were saved: no longer live-input
+    // types (2026-10-22), they take the plain defaults too.
     expect(s().tracks.map((t) => t.instrument)).toEqual(
-      expect.arrayContaining(['drum-machine', 'guitar-fx', 'vocal-fx']),
+      expect.arrayContaining(['drum-machine']),
     );
   });
 });
@@ -415,7 +407,7 @@ describe('entries the editor makes', () => {
   beforeEach(resetStore);
 
   it('classifies every field of clips, notes, takes, chords, markers and sections', () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().addMidiClip(keys, {
       id: 'clip-keys',
       name: 'Verse',
@@ -432,7 +424,7 @@ describe('entries the editor makes', () => {
       ],
       ccEvents: [{ tick: 0, controller: 64, value: 127, channel: 0 }],
     });
-    const guitar = s().addTrack('audio', 'guitar-fx', 'Guitar');
+    const guitar = s().addTrack('audio', 'audio-input', 'Guitar');
     s().addAudioClip(guitar, {
       id: 'take-1',
       startTick: 0,
@@ -735,6 +727,8 @@ describe('decision D5', () => {
         // Create's toolbar (milestone 2.7).
         'followPlayhead',
         'chordRulerShowNotes',
+        // The chord ruler's Auto (2026-10-21).
+        'chordAutoAnalyze',
         'singleKeyShortcuts',
         // The shell's layout, per user (milestone 2.4).
         'inspectorOpenByView',
@@ -811,7 +805,7 @@ describe('decision D5', () => {
 
   it('lets a refresh drop the binding while keeping the track', () => {
     resetStore();
-    const guitar = s().addTrack('audio', 'guitar-fx', 'Guitar');
+    const guitar = s().addTrack('audio', 'audio-input', 'Guitar');
     const synth = s().addTrack('midi', 'oracle-synth', 'Lead');
     s().updateTrack(synth, {
       audioMidiSource: { enabled: true, sourceTrackId: guitar, mode: 'mono' },

@@ -556,16 +556,8 @@ export class Voice {
     const osc = index === 0 ? this.osc1 : this.osc2;
     if (index === 0) this.osc1Enabled = params.enabled ?? this.osc1Enabled;
     if (index === 1) this.osc2Enabled = params.enabled ?? this.osc2Enabled;
+    // setParams re-pitches the oscillator itself when its tuning changes.
     osc.setParams(params);
-
-    if (
-      (params.octave !== undefined ||
-        params.semitone !== undefined ||
-        params.fine !== undefined) &&
-      this.currentNote >= 0
-    ) {
-      osc.setFrequency(this.currentNote);
-    }
   }
 
   setSubOscillatorParams(params: Partial<SubOscillatorParams>): void {

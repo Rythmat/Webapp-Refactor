@@ -13,9 +13,26 @@ import type { OscWarpMode } from './types';
  *
  * Beyond the built-in procedural tables, imported tables (wavetable packs)
  * are built lazily from the shared frame cache on first access — frames are
- * fetched once app-wide, PeriodicWaves are built per engine/AudioContext.
+ * fetched once app-wide, PeriodicWaves are built once per AudioContext
+ * (forContext: every synth track on it shares one bank).
  */
+const banksByContext = new WeakMap<BaseAudioContext, WavetableBank>();
+
 export class WavetableBank {
+  /**
+   * The context's bank, made on first use. Each synth track built its own,
+   * with every built-in and pack table's waves again (audit 2026-10-21); an
+   * export's offline context gets one of its own.
+   */
+  static forContext(ctx: AudioContext): WavetableBank {
+    let bank = banksByContext.get(ctx);
+    if (!bank) {
+      bank = new WavetableBank(ctx);
+      banksByContext.set(ctx, bank);
+    }
+    return bank;
+  }
+
   private ctx: AudioContext;
   private tables: Map<string, PeriodicWave[]> = new Map();
 

@@ -18,6 +18,7 @@ import {
   setTableRegistrar,
   subscribeFramesLoaded,
 } from '../wavetableImport';
+import type { ModRoute } from '../types';
 import { fakeOracleContext, param } from './fakeOracleContext';
 
 /** A mono 16-bit WAV of `frames` × 2048 samples from `sample(i)`. */
@@ -192,6 +193,66 @@ describe('key tracking off (a Serum kick or tom)', () => {
     expect(freqs.some((f) => Math.abs(f - midiToFrequency(60)) < 0.5)).toBe(
       true,
     );
+    engine.releaseResources();
+  });
+});
+
+describe('the crossfade’s second bank (performance, 2026-10-21)', () => {
+  const oscillatorsFor = async (wavetable: string) => {
+    const { Oscillator } = await import('../Oscillator');
+    const fake = fakeOracleContext();
+    const bank = new WavetableBank(fake.ctx as unknown as AudioContext);
+    const osc = new Oscillator(
+      fake.ctx as unknown as AudioContext,
+      bank,
+      fake.ctx.createGain() as unknown as AudioNode,
+    );
+    osc.setParams({ wavetable, unisonVoices: 1 });
+    const before = fake.ofKind('oscillator').length;
+    osc.start(0);
+    return fake.ofKind('oscillator').length - before;
+  };
+
+  it('sits out a note on a one-frame table, and runs on a multi-frame one', async () => {
+    expect(await oscillatorsFor('SAWTOOTH')).toBe(1);
+    expect(await oscillatorsFor('HARMONIC')).toBe(2);
+  });
+});
+
+describe('a mod amount drag (performance, 2026-10-21)', () => {
+  it('retunes the sounding voice’s route in place; another edit rebuilds', async () => {
+    const { SynthEngine } = await import('../SynthEngine');
+    const fake = fakeOracleContext();
+    const engine = new SynthEngine();
+    await engine.init(fake.ctx as unknown as AudioContext, {
+      disableMidi: true,
+    });
+    const cutoff = (
+      amount: number,
+      polarity: 'unipolar' | 'bipolar',
+    ): ModRoute => ({
+      id: 'r1',
+      source: { type: 'envelope' as const, index: 1 },
+      target: { source: 'flt1', param: 'cutoff' },
+      amount,
+      polarity,
+      enabled: true,
+    });
+    engine.setModRoutes([cutoff(0.5, 'unipolar')]);
+    engine.noteOn(60, 1, 0);
+    const gains = () => fake.ofKind('gain').length;
+
+    const before = gains();
+    engine.setModRoutes([cutoff(0.25, 'unipolar')]);
+    expect(gains()).toBe(before);
+    // The route's scaler heads for 0.25 × the cutoff's 12,000 cents.
+    const scaler = fake
+      .ofKind('gain')
+      .find((g) => param(g, 'gain').valueAt(1) === 3000);
+    expect(scaler).toBeDefined();
+
+    engine.setModRoutes([cutoff(0.25, 'bipolar')]);
+    expect(gains()).toBeGreaterThan(before);
     engine.releaseResources();
   });
 });

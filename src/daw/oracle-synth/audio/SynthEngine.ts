@@ -197,8 +197,8 @@ export class SynthEngine {
       new Filter(this.ctx, this.vizSink),
     ];
 
-    // Wavetable bank
-    this.wavetableBank = new WavetableBank(this.ctx);
+    // Wavetable bank, shared by the context's synths
+    this.wavetableBank = WavetableBank.forContext(this.ctx);
 
     // Voice manager with wavetable bank
     this.voiceManager = new VoiceManager(
@@ -671,8 +671,10 @@ export class SynthEngine {
   setModRoutes(routes: ModRoute[]): void {
     if (!this.modMatrix) return;
     this.modRoutes = routes.map(migrateModRoute);
-    this.modMatrix.setRoutes(this.modRoutes);
     this.updateControlRate();
+    // An amount drag retunes the live connections; other edits rebuild.
+    if (this.modMatrix.updateAmounts(this.modRoutes)) return;
+    this.modMatrix.setRoutes(this.modRoutes);
     // Apply edits to already-sounding notes, not just the next note-on
     if (this.voiceManager) {
       this.modMatrix.reconnectActiveVoices(this.voiceManager.getActiveVoices());

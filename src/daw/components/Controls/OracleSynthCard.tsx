@@ -247,16 +247,37 @@ export function OracleSynthCard({ engine }: { engine: SynthEngine }) {
   );
 }
 
-/** What the routes add to each destination now ('flt1:cutoff'), or null. */
-type LiveModulation = Map<string, number> | null;
+/**
+ * What the routes add to each destination now ('flt1:cutoff'), as a store
+ * a control reads its own key from (useLiveValue): a tick re-renders only
+ * the panel whose value moved, not the whole card.
+ */
+interface LiveModulation {
+  subscribe(onChange: () => void): () => void;
+  get(key: string): number | undefined;
+}
 
 /**
  * The engine's live modulation (SynthEngine.getLiveModulation), read about
- * 30 times a second; a render only when it moved. Null while no note
- * sounds, so the controls show their own values.
+ * 30 times a second while the card shows. Nothing while no note sounds, so
+ * the controls show their own values.
  */
 function useLiveModulation(engine: SynthEngine): LiveModulation {
-  const [live, setLive] = useState<LiveModulation>(null);
+  const store = useMemo(() => {
+    let values = new Map<string, number>();
+    const listeners = new Set<() => void>();
+    return {
+      subscribe(onChange: () => void) {
+        listeners.add(onChange);
+        return () => listeners.delete(onChange);
+      },
+      get: (key: string) => values.get(key),
+      set(next: Map<string, number>) {
+        values = next;
+        for (const l of listeners) l();
+      },
+    };
+  }, []);
   useEffect(() => {
     let raf = 0;
     let last = 0;
@@ -265,19 +286,24 @@ function useLiveModulation(engine: SynthEngine): LiveModulation {
       raf = requestAnimationFrame(tick);
       if (t - last < 33) return;
       last = t;
-      const next = engine.getLiveModulation();
-      const now =
-        next && next.size > 0
-          ? [...next].map(([k, v]) => `${k}=${v.toFixed(3)}`).join('|')
-          : '';
+      const live = engine.getLiveModulation();
+      const next = new Map<string, number>();
+      // Three decimals: finer moves draw nothing different.
+      for (const [k, v] of live ?? []) next.set(k, Math.round(v * 1000) / 1000);
+      const now = [...next].join('|');
       if (now === seen) return;
       seen = now;
-      setLive(now ? next : null);
+      store.set(next);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [engine]);
-  return live;
+  }, [engine, store]);
+  return store;
+}
+
+/** One destination's live offset, or undefined while it isn't moving. */
+function useLiveValue(live: LiveModulation, key: string): number | undefined {
+  return useSyncExternalStore(live.subscribe, () => live.get(key));
 }
 
 const clamp = (v: number, lo: number, hi: number) =>
@@ -412,7 +438,10 @@ function OscPanel({
 }) {
   const osc = useSynthStore((s) => s.oscillators[index]);
   // Where modulation has the table's position now, while a note plays.
-  const positionOffset = live?.get(`${index === 0 ? 'osc1' : 'osc2'}:wtPos`);
+  const positionOffset = useLiveValue(
+    live,
+    `${index === 0 ? 'osc1' : 'osc2'}:wtPos`,
+  );
   const livePosition =
     positionOffset === undefined
       ? null
@@ -965,12 +994,12 @@ function FilterColumn({
 }) {
   const filter = useSynthStore((s) => s.filters[0]);
   // The matrix moves the cutoff in cents and the resonance in Q.
-  const cents = live?.get('flt1:cutoff');
+  const cents = useLiveValue(live, 'flt1:cutoff');
   const liveCutoff =
     cents === undefined
       ? null
       : clamp(filter.cutoff * 2 ** (cents / 1200), 20, 20000);
-  const q = live?.get('flt1:resonance');
+  const q = useLiveValue(live, 'flt1:resonance');
   const liveRes = q === undefined ? null : clamp(filter.resonance + q, 0, 30);
   const setParam = useSynthStore((s) => s.setFilterParam);
   const cutoffModulated = useModulated('flt1', 'cutoff');

@@ -210,7 +210,8 @@ export class LFO {
 
   // The setters below rebuild the whole 4-bar buffer, and a patch push calls
   // them 9 times per LFO; the editor's panel then pushes the same patch again
-  // on mount. A value that hasn't changed builds nothing.
+  // on mount. A value that hasn't changed builds nothing, and the edits of
+  // one push rebuild once, after it (queueRebuild).
 
   setBPM(bpm: number): void {
     const next = Math.max(1, bpm);
@@ -226,23 +227,37 @@ export class LFO {
 
   setBars(bars: [LFONode[], LFONode[], LFONode[], LFONode[]]): void {
     this.bars = bars;
-    this.buffer = null;
-    if (this.isRunning) this.restart(this.ctx.currentTime);
+    this.queueRebuild();
   }
 
   setBarNodes(barIndex: number, nodes: LFONode[]): void {
     if (sameNodes(this.bars[barIndex], nodes)) return;
     // A copy, so a caller that edits its array in place still rebuilds.
     this.bars[barIndex] = nodes.map((n) => ({ ...n }));
-    this.buffer = null;
-    if (this.isRunning) this.restart(this.ctx.currentTime);
+    this.queueRebuild();
   }
 
   setBarSmooth(barIndex: number, smooth: number): void {
     if (this.smooths[barIndex] === smooth) return;
     this.smooths[barIndex] = smooth;
+    this.queueRebuild();
+  }
+
+  private rebuildQueued = false;
+
+  /**
+   * Drops the buffer and restarts on it once the current task's edits are
+   * in (a preset load sets 8 values per LFO in one go). A note-on in the
+   * meantime builds it on demand.
+   */
+  private queueRebuild(): void {
     this.buffer = null;
-    if (this.isRunning) this.restart(this.ctx.currentTime);
+    if (!this.isRunning || this.rebuildQueued) return;
+    this.rebuildQueued = true;
+    queueMicrotask(() => {
+      this.rebuildQueued = false;
+      if (this.isRunning && !this.buffer) this.restart(this.ctx.currentTime);
+    });
   }
 
   getOutputNode(): GainNode {

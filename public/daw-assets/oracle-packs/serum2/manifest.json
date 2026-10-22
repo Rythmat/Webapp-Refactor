@@ -17,7 +17,7 @@
    "category": "Bass",
    "wavetables": [
     "S2/PWM MG",
-    "S2/Default Shapes"
+    "S2/Shape Pulse 25%"
    ]
   },
   {
@@ -25,7 +25,6 @@
    "file": "BA - MORPHEUS.json",
    "category": "Bass",
    "wavetables": [
-    "S2/Basic Shapes",
     "S2/Basic Shapes"
    ]
   },
@@ -42,7 +41,7 @@
    "file": "BA - STANDARD ACID.json",
    "category": "Bass",
    "wavetables": [
-    "S2/Default Shapes"
+    "S2/Shape Saw"
    ]
   },
   {
@@ -59,8 +58,8 @@
    "file": "BA - OTT SAW WAVE.json",
    "category": "Bass",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/BA - OTT Saw Wave B"
+    "S2/BA - OTT Saw Wave B",
+    "S2/Shape Saw"
    ]
   },
   {
@@ -85,8 +84,8 @@
    "file": "BA - GOA PEPPER.json",
    "category": "Bass",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Saw",
+    "S2/Shape Sine"
    ]
   },
   {
@@ -94,8 +93,8 @@
    "file": "BA - PULSAR.json",
    "category": "Bass",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Square saw",
+    "S2/Shape Saw"
    ]
   },
   {
@@ -113,7 +112,7 @@
    "category": "Bass",
    "wavetables": [
     "S2/Debussy",
-    "S2/Default Shapes"
+    "S2/Shape Saw"
    ]
   },
   {
@@ -121,7 +120,6 @@
    "file": "BA - HARD GRIZLY.json",
    "category": "Bass",
    "wavetables": [
-    "S2/DM FMOD 01",
     "S2/DM FMOD 01"
    ]
   },
@@ -149,7 +147,7 @@
    "category": "Bass",
    "wavetables": [
     "S2/Acid",
-    "S2/Default Shapes"
+    "S2/Shape Saw"
    ]
   },
   {
@@ -157,7 +155,6 @@
    "file": "BA - RENEGADE.json",
    "category": "Bass",
    "wavetables": [
-    "S2/Renegade",
     "S2/Renegade"
    ]
   },
@@ -175,7 +172,6 @@
    "file": "BA - REESE SQUARE.json",
    "category": "Bass",
    "wavetables": [
-    "S2/Basic Shapes",
     "S2/Basic Shapes"
    ]
   },
@@ -193,8 +189,8 @@
    "file": "LD - ARTFORM.json",
    "category": "Lead",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Sine",
+    "S2/Shape Pulse 25%"
    ]
   },
   {
@@ -202,7 +198,6 @@
    "file": "LD - SHARP BRASSY KEYS.json",
    "category": "Lead",
    "wavetables": [
-    "S2/Saw Drift PR1",
     "S2/Saw Drift PR1"
    ]
   },
@@ -229,7 +224,7 @@
    "file": "LD - IRIDIUM.json",
    "category": "Lead",
    "wavetables": [
-    "S2/Default Shapes"
+    "S2/Shape Saw"
    ]
   },
   {
@@ -237,8 +232,7 @@
    "file": "LD - DAS EDM.json",
    "category": "Lead",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Saw"
    ]
   },
   {
@@ -322,8 +316,8 @@
    "file": "PD - OCTAVIAN.json",
    "category": "Pad",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/DM - OSCAR"
+    "S2/DM - OSCAR",
+    "S2/Shape Saw"
    ]
   },
   {
@@ -331,8 +325,7 @@
    "file": "PD - LUSH BAND-PASS SWEEP.json",
    "category": "Pad",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Saw"
    ]
   },
   {
@@ -366,8 +359,8 @@
    "file": "SY - EMS POLY.json",
    "category": "Synth",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Saw",
+    "S2/Shape Square saw"
    ]
   },
   {
@@ -375,8 +368,8 @@
    "file": "SY - ENV LPF SEQ.json",
    "category": "Synth",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/DM - OSCAR"
+    "S2/DM - OSCAR",
+    "S2/Shape Saw"
    ]
   },
   {
@@ -427,7 +420,6 @@
    "file": "PL - JUNE.json",
    "category": "Pluck",
    "wavetables": [
-    "S2/Jno",
     "S2/Jno"
    ]
   },
@@ -436,7 +428,6 @@
    "file": "PL - BROKEN LIGHT.json",
    "category": "Pluck",
    "wavetables": [
-    "S2/Analog_BD_Sin",
     "S2/Analog_BD_Sin"
    ]
   },
@@ -445,8 +436,7 @@
    "file": "PL - ALIVE.json",
    "category": "Pluck",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Saw"
    ]
   },
   {
@@ -480,8 +470,8 @@
    "file": "FX - OFFICE TELEPHONE.json",
    "category": "SFX",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Dying Sine"
+    "S2/Dying Sine",
+    "S2/Shape Triangle"
    ]
   },
   {
@@ -507,8 +497,8 @@
    "file": "FX - FM BUBBLE SWEEP.json",
    "category": "SFX",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Sine",
+    "S2/Shape Square saw"
    ]
   },
   {
@@ -534,8 +524,8 @@
    "file": "FX - TECHNO SIREN.json",
    "category": "SFX",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Monster 1 [SL]"
+    "S2/Monster 1 [SL]",
+    "S2/Shape Saw"
    ]
   },
   {
@@ -552,8 +542,7 @@
    "file": "FX - LASER GENERATOR.json",
    "category": "SFX",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Saw"
    ]
   },
   {
@@ -586,8 +575,7 @@
    "file": "KY - RETROGRADE.json",
    "category": "Keyboard",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Saw"
    ]
   },
   {
@@ -622,7 +610,6 @@
    "file": "OR - ORGAN ALSO.json",
    "category": "Organ",
    "wavetables": [
-    "S2/Basic Shapes",
     "S2/Basic Shapes"
    ]
   },
@@ -631,7 +618,6 @@
    "file": "OR - MEMORY ORGAN.json",
    "category": "Organ",
    "wavetables": [
-    "S2/Memory Organ",
     "S2/Memory Organ"
    ]
   },
@@ -640,7 +626,6 @@
    "file": "OR - PIPE DREAM.json",
    "category": "Organ",
    "wavetables": [
-    "S2/Harmonic Series Smooth",
     "S2/Harmonic Series Smooth"
    ]
   },
@@ -650,7 +635,7 @@
    "category": "Organ",
    "wavetables": [
     "S2/Memory Organ",
-    "S2/Default Shapes"
+    "S2/Shape Triangle"
    ]
   },
   {
@@ -666,8 +651,8 @@
    "file": "DR - KICK SYNTH 1.json",
    "category": "Drum",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Sine",
+    "S2/Shape Triangle"
    ]
   },
   {
@@ -675,8 +660,7 @@
    "file": "DR - KICK MINIMAL.json",
    "category": "Drum",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Sine"
    ]
   },
   {
@@ -684,8 +668,7 @@
    "file": "DR - KICK HYPE.json",
    "category": "Drum",
    "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
+    "S2/Shape Sine"
    ]
   },
   {
@@ -723,6 +706,51 @@
  ],
  "wavetables": [
   {
+   "name": "S2/Shape Saw",
+   "file": "Shape Saw.wav",
+   "frames": 1
+  },
+  {
+   "name": "S2/Shape Sine",
+   "file": "Shape Sine.wav",
+   "frames": 1
+  },
+  {
+   "name": "S2/Shape Triangle",
+   "file": "Shape Triangle.wav",
+   "frames": 1
+  },
+  {
+   "name": "S2/Shape Square saw",
+   "file": "Shape Square saw.wav",
+   "frames": 1
+  },
+  {
+   "name": "S2/Shape Square",
+   "file": "Shape Square.wav",
+   "frames": 1
+  },
+  {
+   "name": "S2/Shape Pulse 25%",
+   "file": "Shape Pulse 25.wav",
+   "frames": 1
+  },
+  {
+   "name": "S2/Shape Pulse 12%",
+   "file": "Shape Pulse 12.wav",
+   "frames": 1
+  },
+  {
+   "name": "S2/Shape Pulse 6%",
+   "file": "Shape Pulse 6.wav",
+   "frames": 1
+  },
+  {
+   "name": "S2/Shape Pulse 3%",
+   "file": "Shape Pulse 3.wav",
+   "frames": 1
+  },
+  {
    "name": "S2/BA - 303 Reality A",
    "file": "BA - 303 Reality A.wav",
    "frames": 2
@@ -730,12 +758,7 @@
   {
    "name": "S2/PWM MG",
    "file": "PWM MG.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Default Shapes",
-   "file": "Default Shapes.wav",
-   "frames": 9
+   "frames": 68
   },
   {
    "name": "S2/Basic Shapes",
@@ -785,7 +808,7 @@
   {
    "name": "S2/DM FMOD 01",
    "file": "DM FMOD 01.wav",
-   "frames": 32
+   "frames": 256
   },
   {
    "name": "S2/BS2 - Subby Saw",
@@ -805,7 +828,7 @@
   {
    "name": "S2/Acid",
    "file": "Acid.wav",
-   "frames": 32
+   "frames": 40
   },
   {
    "name": "S2/Renegade",
@@ -825,12 +848,12 @@
   {
    "name": "S2/Saw Drift PR1",
    "file": "Saw Drift PR1.wav",
-   "frames": 32
+   "frames": 50
   },
   {
    "name": "S2/Saw Drift",
    "file": "Saw Drift.wav",
-   "frames": 32
+   "frames": 81
   },
   {
    "name": "S2/No Fundamental Saw",
@@ -845,7 +868,7 @@
   {
    "name": "S2/Hardware Waveforms",
    "file": "Hardware Waveforms.wav",
-   "frames": 32
+   "frames": 128
   },
   {
    "name": "S2/Hypa",
@@ -855,22 +878,22 @@
   {
    "name": "S2/MWoog",
    "file": "MWoog.wav",
-   "frames": 32
+   "frames": 254
   },
   {
    "name": "S2/Dying Saw",
    "file": "Dying Saw.wav",
-   "frames": 32
+   "frames": 256
   },
   {
    "name": "S2/PWM Juno",
    "file": "PWM Juno.wav",
-   "frames": 32
+   "frames": 112
   },
   {
    "name": "S2/MB Saw",
    "file": "MB Saw.wav",
-   "frames": 32
+   "frames": 256
   },
   {
    "name": "S2/Shep. Oct+Fifths",
@@ -885,7 +908,7 @@
   {
    "name": "S2/Mellow But Instable",
    "file": "Mellow But Instable.wav",
-   "frames": 32
+   "frames": 249
   },
   {
    "name": "S2/Bass Pluck",
@@ -895,7 +918,7 @@
   {
    "name": "S2/RCM Bass 1",
    "file": "RCM Bass 1.wav",
-   "frames": 32
+   "frames": 78
   },
   {
    "name": "S2/DM - OSCAR",
@@ -905,7 +928,7 @@
   {
    "name": "S2/JF Flute",
    "file": "JF Flute.wav",
-   "frames": 32
+   "frames": 256
   },
   {
    "name": "S2/Warm Sub",
@@ -915,12 +938,12 @@
   {
    "name": "S2/Solina Viola",
    "file": "Solina Viola.wav",
-   "frames": 32
+   "frames": 206
   },
   {
    "name": "S2/Softest Growl",
    "file": "Softest Growl.wav",
-   "frames": 32
+   "frames": 95
   },
   {
    "name": "S2/Evolution",
@@ -930,7 +953,7 @@
   {
    "name": "S2/PWM Genji",
    "file": "PWM Genji.wav",
-   "frames": 32
+   "frames": 136
   },
   {
    "name": "S2/Jno",
@@ -940,12 +963,12 @@
   {
    "name": "S2/Xylo Pluck",
    "file": "Xylo Pluck.wav",
-   "frames": 32
+   "frames": 127
   },
   {
    "name": "S2/Braids Bell Pluck",
    "file": "Braids Bell Pluck.wav",
-   "frames": 32
+   "frames": 43
   },
   {
    "name": "S2/Basic OPL",
@@ -955,22 +978,22 @@
   {
    "name": "S2/Dying Sine",
    "file": "Dying Sine.wav",
-   "frames": 32
+   "frames": 256
   },
   {
    "name": "S2/Fish flips and morphs into Swordfish",
    "file": "Fish flips and morphs into Swordfish.wav",
-   "frames": 32
+   "frames": 256
   },
   {
    "name": "S2/AM Sine Harmonics",
    "file": "AM Sine Harmonics.wav",
-   "frames": 32
+   "frames": 256
   },
   {
    "name": "S2/Dinosaurs",
    "file": "Dinosaurs.wav",
-   "frames": 32
+   "frames": 256
   },
   {
    "name": "S2/Harm Octave",
@@ -980,12 +1003,12 @@
   {
    "name": "S2/Sine SuperChirp",
    "file": "Sine SuperChirp.wav",
-   "frames": 32
+   "frames": 256
   },
   {
    "name": "S2/Harsh Harm",
    "file": "Harsh Harm.wav",
-   "frames": 32
+   "frames": 254
   },
   {
    "name": "S2/Monster 1 [SL]",
@@ -995,7 +1018,7 @@
   {
    "name": "S2/FM Dirty Square",
    "file": "FM Dirty Square.wav",
-   "frames": 32
+   "frames": 104
   },
   {
    "name": "S2/Additive Talk",
@@ -1045,7 +1068,7 @@
   {
    "name": "S2/BS2 - Acid",
    "file": "BS2 - Acid.wav",
-   "frames": 32
+   "frames": 128
   },
   {
    "name": "S2/Basic_Wrd",

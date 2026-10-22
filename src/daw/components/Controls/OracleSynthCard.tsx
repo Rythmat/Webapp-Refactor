@@ -468,8 +468,6 @@ function startAt(wave: Float32Array, phase: number): Float32Array {
 /** The plot's top, clear of the oscillator's name; its side and foot. */
 const PLOT_NAME_PX = 28;
 const PLOT_INSET_PX = 8;
-/** How many of a table's frames the stack draws. */
-const STACK_LINES = 56;
 
 // ── The wavetable plot ──────────────────────────────────────────────────────
 
@@ -672,12 +670,14 @@ function WavetablePlot({
     ctx.lineCap = 'round';
     ctx.lineWidth = 0.8;
     ctx.strokeStyle = color;
-    const count = Math.min(STACK_LINES, frames.count);
-    for (let i = count - 1; i >= 0; i--) {
-      const index = Math.round((i / (count - 1)) * (frames.count - 1));
-      const t = index / (frames.count - 1);
+    // Every frame, each fainter as a table has more of them, so a 256-frame
+    // table reads as a fine ribbon and an 8-frame one as clear lines.
+    const count = frames.count;
+    const density = Math.min(1, Math.max(0.3, Math.sqrt(24 / count)));
+    for (let index = count - 1; index >= 0; index--) {
+      const t = index / (count - 1);
       trace(ctx, points(index), t);
-      ctx.globalAlpha = 0.14 + 0.36 * (1 - t);
+      ctx.globalAlpha = (0.14 + 0.36 * (1 - t)) * density;
       ctx.stroke();
     }
     return off;

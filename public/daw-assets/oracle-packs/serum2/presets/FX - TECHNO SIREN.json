@@ -4,11 +4,11 @@
  "oscillators": [
   {
    "waveform": "sawtooth",
-   "wavetable": "S2/Default Shapes",
+   "wavetable": "S2/Shape Saw",
    "octave": 0,
    "semitone": 0,
    "fine": 0,
-   "wtPosition": 0.038856908155139536,
+   "wtPosition": 0,
    "pan": 0,
    "level": 0.05003463095079841,
    "unisonVoices": 1,

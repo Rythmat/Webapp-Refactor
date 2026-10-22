@@ -35,3 +35,29 @@ export const WARP_OPTIONS: { value: OscWarpMode; label: string }[] = [
   { value: 'quantize', label: 'QUANTIZE' },
   { value: 'flip', label: 'FLIP' },
 ];
+
+// Serum's Default Shapes left the pack on 2026-10-22: each of its nine
+// frames is its own one-frame table (tools/serum-convert/src/mapping/
+// defaultShapes.ts). A patch saved on it moves to the nearest shape.
+const DEFAULT_SHAPES = [
+  'Saw',
+  'Sine',
+  'Triangle',
+  'Square saw',
+  'Square',
+  'Pulse 25%',
+  'Pulse 12%',
+  'Pulse 6%',
+  'Pulse 3%',
+];
+
+/** A patch's table and position with Default Shapes split into shapes. */
+export function migrateDefaultShapes(
+  wavetable: string,
+  wtPosition: number,
+): { wavetable: string; wtPosition: number } {
+  if (wavetable !== 'S2/Default Shapes') return { wavetable, wtPosition };
+  const last = DEFAULT_SHAPES.length - 1;
+  const frame = Math.max(0, Math.min(last, Math.round(wtPosition * last)));
+  return { wavetable: `S2/Shape ${DEFAULT_SHAPES[frame]}`, wtPosition: 0 };
+}

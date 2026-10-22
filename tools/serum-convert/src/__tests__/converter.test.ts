@@ -168,3 +168,20 @@ describe('wavetable helpers', () => {
     expect(downsampleFrames(frames, 32)).toBe(frames);
   });
 });
+
+describe('Default Shapes split into one table per shape', () => {
+  it('moves an oscillator to its nearest shape at phase 0', async () => {
+    const { splitDefaultShapes } = await import('../mapping/defaultShapes.ts');
+    const { defaultPreset } = await import('../oracleTypes.ts');
+    const preset = defaultPreset('t');
+    preset.oscillators[0].wavetable = 'S2/Default Shapes';
+    preset.oscillators[0].wtPosition = 4.2 / 8; // nearest the square
+    preset.oscillators[1].wavetable = 'S2/Other';
+    expect(splitDefaultShapes(preset)).toEqual([4]);
+    expect(preset.oscillators[0]).toMatchObject({
+      wavetable: 'S2/Shape Square',
+      wtPosition: 0,
+    });
+    expect(preset.oscillators[1].wavetable).toBe('S2/Other');
+  });
+});

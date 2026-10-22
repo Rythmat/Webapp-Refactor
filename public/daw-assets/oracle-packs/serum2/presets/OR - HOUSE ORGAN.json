@@ -20,11 +20,11 @@
   },
   {
    "waveform": "sawtooth",
-   "wavetable": "S2/Default Shapes",
+   "wavetable": "S2/Shape Triangle",
    "octave": -2,
    "semitone": 0,
    "fine": 0,
-   "wtPosition": 0.20829993934603408,
+   "wtPosition": 0,
    "pan": 0,
    "level": 0.1759445402867641,
    "unisonVoices": 1,

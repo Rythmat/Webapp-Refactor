@@ -303,11 +303,41 @@ describe('Position on a one-frame table (owner, 2026-10-22)', () => {
     osc.setParams({ wavetable: 'SQUARE', wtPosition: 0.25, unisonVoices: 1 });
     const before = fake.ofKind('oscillator').length;
     osc.start(0);
-    const node = fake.ofKind('oscillator')[before];
+    const setWave = fake.ofKind('oscillator')[before]
+      .setPeriodicWave as ReturnType<typeof vi.fn>;
     const quarter = bank.getPhasedWave('SQUARE', 0.25);
-    expect(node.setPeriodicWave).toHaveBeenLastCalledWith(quarter);
-    const set = node.setPeriodicWave.mock.calls.length;
+    expect(setWave).toHaveBeenLastCalledWith(quarter);
+    const set = setWave.mock.calls.length;
     osc.setParams({ wtPosition: 0.75 });
-    expect(node.setPeriodicWave.mock.calls.length).toBe(set);
+    expect(setWave.mock.calls.length).toBe(set);
+  });
+});
+
+describe('Default Shapes split into shapes (owner, 2026-10-22)', () => {
+  it('moves a saved patch on it to the nearest shape, from phase 0', async () => {
+    const { migratePatchFields } = await import(
+      '../../store/slices/presetSlice'
+    );
+    const { INITIALIZE } = await import('../../store/presets/factoryPresets');
+    const oscillators = structuredClone(INITIALIZE.oscillators);
+    oscillators[0] = {
+      ...oscillators[0],
+      wavetable: 'S2/Default Shapes',
+      wtPosition: 0.155, // frame 1.24: the sine
+    };
+    oscillators[1] = {
+      ...oscillators[1],
+      wavetable: 'SAWTOOTH',
+      wtPosition: 0.4,
+    };
+    const out = migratePatchFields({ oscillators });
+    expect(out.oscillators[0]).toMatchObject({
+      wavetable: 'S2/Shape Sine',
+      wtPosition: 0,
+    });
+    expect(out.oscillators[1]).toMatchObject({
+      wavetable: 'SAWTOOTH',
+      wtPosition: 0.4,
+    });
   });
 });

@@ -4,7 +4,7 @@
  "oscillators": [
   {
    "waveform": "sawtooth",
-   "wavetable": "S2/Default Shapes",
+   "wavetable": "S2/Shape Saw",
    "octave": -1,
    "semitone": 0,
    "fine": -3.4999489784240723,

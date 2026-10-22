@@ -14,6 +14,12 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runCalibrate } from './calibrate.ts';
 import { convertPreset } from './convert.ts';
+import {
+  DEFAULT_SHAPE_NAMES,
+  DEFAULT_SHAPES_TABLE,
+  shapeTableName,
+  splitDefaultShapes,
+} from './mapping/defaultShapes.ts';
 import { queryCandidates, type CandidateRow } from './db.ts';
 import { formatReport, type FidelityReport } from './fidelity.ts';
 import { parseSerumMetaOnly } from './serumPreset.ts';
@@ -197,6 +203,21 @@ function cmdPack(): void {
   const writtenTables = new Map<string, { file: string; frames: number }>();
   const reports: string[] = [];
 
+  // Default Shapes as nine one-frame tables, first in the pack so every
+  // shape is on offer (mapping/defaultShapes.ts).
+  const shapesSrc = resolveTablePath('S2 Tables/Default Shapes.wav', library);
+  if (shapesSrc) {
+    const shapeFrames = parseWavetableFile(shapesSrc).frames;
+    DEFAULT_SHAPE_NAMES.forEach((_, f) => {
+      const name = shapeTableName(f);
+      const file = `${safeFileName(name.replace(/^S2\//, ''))}.wav`;
+      writePackWav(join(PACK_DIR, 'wavetables', file), [shapeFrames[f]]);
+      writtenTables.set(name, { file, frames: 1 });
+    });
+  } else {
+    console.warn('  Default Shapes not found: presets on it keep a sawtooth');
+  }
+
   for (const name of packList.presets) {
     const cand = resolveCandidate(name);
     if (!cand || !existsSync(cand.file)) {
@@ -208,8 +229,12 @@ function cmdPack(): void {
       cand.category,
     );
 
+    // Off Default Shapes, onto each shape's own table.
+    const shapes = splitDefaultShapes(preset).map(shapeTableName);
+
     // Extract + downsample this preset's tables (embedded or file-referenced)
     for (const wt of wavetables) {
+      if (wt.name === DEFAULT_SHAPES_TABLE) continue;
       if (writtenTables.has(wt.name)) continue;
       let frames: Float32Array[];
       if (wt.embeddedFrames) {
@@ -260,9 +285,9 @@ function cmdPack(): void {
       name: preset.name,
       file: presetFile,
       category: cand.category || 'Other',
-      wavetables: wavetables
-        .map((w) => w.name)
-        .filter((n) => writtenTables.has(n)),
+      wavetables: [...wavetables.map((w) => w.name), ...shapes].filter(
+        (n, i, all) => writtenTables.has(n) && all.indexOf(n) === i,
+      ),
     });
     reports.push(formatReport(report));
   }

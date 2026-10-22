@@ -13,6 +13,7 @@ import { defaultMacros } from './macroSlice';
 import { DEFAULT_KEYSCALE } from './keyScaleSlice';
 import { withUniqueModRouteIds } from './modulationSlice';
 import { migrateModRoute } from '../../audio/modMath';
+import { migrateDefaultShapes } from '../../components/modules/oscOptions';
 import type { SynthStore } from '../storeTypes';
 import {
   getLocalStoreUserKey,
@@ -170,6 +171,7 @@ export function migratePatchFields(
   for (const o of oscillators) {
     if (o.warpMode === undefined) o.warpMode = 'none';
     if (o.warpAmount === undefined) o.warpAmount = 0;
+    Object.assign(o, migrateDefaultShapes(o.wavetable, o.wtPosition));
   }
 
   // Migrate FX data: old presets may lack the `fx` field entirely, and v2

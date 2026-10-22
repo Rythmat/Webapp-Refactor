@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import {
   useEffect,
   useLayoutEffect,
@@ -6,153 +6,133 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type ReactNode,
 } from 'react';
 import { cn } from '@/components/utilities';
-import {
-  RotaryKnob,
-  RotaryKnobLookContext,
-} from '@/daw/components/Controls/RotaryKnob';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
+import type { ModTarget, OscWarpMode } from '@/daw/oracle-synth/audio/types';
 import {
   getRegisteredTableNames,
   subscribeTableRegistry,
 } from '@/daw/oracle-synth/audio/wavetableImport';
-import type { OscWarpMode } from '@/daw/oracle-synth/audio/types';
 import {
   BUILT_IN_TABLES,
   WARP_OPTIONS,
 } from '@/daw/oracle-synth/components/modules/oscOptions';
+import { useModIndicator } from '@/daw/oracle-synth/hooks/useModIndicator';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
 import { Select } from '@/daw/ui/Select';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { COLOR } from '@/daw/ui/tokens';
+import { DeviceKnob } from './DeviceKnob';
 
 // ── The Synth in the dock (the floating frame, 2026-10-21) ──────────────────
 //
-// The Oracle synth as the floating frame's dock shows its synth: one device
-// card, 528 px wide and at most 208 high. Its header has the track's mark,
-// the name, the sound with ‹ › to step through the sounds, and the full
-// synth (the maximized dock, every module). Under it: Oscillator 1 and
-// Oscillator 2 either side of the filter. Each oscillator has its on
-// switch, its wavetable drawn frame by frame with the frame it plays lit,
-// Position (the frame) and Warp, and its table and warp mode. The filter is
-// Cutoff, its value inside, and Res. The knobs and the plot take the
-// track's colour.
+// The Oracle synth as the floating frame's dock shows its synth, to the
+// pixel at the frame's height: one 528 × 208 device card (white/4, radius
+// 10).
+//   Header, 32 px: the track's mark and the name at the left; the sound in
+//   a pill at the centre with ‹ › to step through the sounds; the full
+//   synth (every module, the maximized dock) at the right.
+//   Body, 8 px in: Oscillator 1 (224) · the filter (64) · Oscillator 2 (224),
+//   160 high. An oscillator is a panel (white/4, inset 2, radius 8): its on
+//   switch and name over the corner of its wavetable plot (154 × 122,
+//   radius 10, its view buttons along the bottom), Position (a ring of
+//   ticks) and Warp (bipolar) in 64 px tiles at the right, and its table
+//   and warp mode as 30 px selects under all of it. The filter is Cutoff
+//   (50 px, its value inside) over Res. A violet dot marks a control the
+//   modulation matrix moves. The knobs and the plot take the track's
+//   colour.
 //
 // The dock shows the synth's main controls only; the rest (the sub, noise,
-// tuning, unison, the second filter, the envelopes, LFOs, modulation, FX,
-// arp and routing) are the full synth's, a click away.
-//
-// The card fits the dock's height (synthCardLayout), dropping controls as
-// it gets lower: at the frame's height every one shows, each oscillator's
-// knobs standing beside its plot; lower ('compact') Warp and the warp mode
-// go and the plot narrows; lower still ('tight') Res and the plots go, each
-// oscillator its table and Position in a line. Its controls write the
-// synth's store, as the full synth's do.
+// tuning, unison, the second filter, envelopes, LFOs, modulation, FX, arp
+// and routing) are the full synth's, a click away. And it fits the dock's
+// height (synthCardLayout), hiding controls as the dock gets lower:
+// 'compact' drops Warp, the warp mode and Res; 'tight' the plots too, each
+// oscillator its table and Position in a line.
 
-/** The card's tallest: the floating frame's device card. */
+/** The card: the floating frame's device card. */
+export const SYNTH_CARD_W = 528;
 export const SYNTH_CARD_MAX_PX = 208;
-/** The header: the mark, the name, the sound and the full synth. */
 const HEADER_PX = 32;
-/** The body's padding, all round. */
 const PAD_PX = 8;
-/** An oscillator panel's width, and the gap between the three columns. */
 const OSC_W = 224;
-const GAP_PX = 6;
-/** The table and warp selects' row under each oscillator, and its gap. */
-const SELECTS_PX = 30;
-/** A knob's name under it, and the gap. */
-const KNOB_LABEL_PX = 20;
-/** At this body height and up, every control shows (the frame's 160). */
-const FULL_BODY_PX = 150;
-/** Under this one, the plots and Res go too. */
-const TIGHT_BODY_PX = 100;
-/** A tight oscillator's name, on its own line. */
-const TITLE_PX = 20;
-
+const FILTER_W = 64;
+/** A knob tile. */
+const TILE_PX = 64;
+const SELECT_H = 30;
 /**
- * How much the card shows: 'full' every control, the knobs beside the
- * plot; 'compact' Position and the table per oscillator, Cutoff and Res;
- * 'tight' no plots and no Res, each oscillator's table and Position in a
- * line under its name.
+ * Under this body height the card is 'compact', under the next 'tight'.
+ * 'full' is the frame's 160 at its height; down to 150 its tiles give way.
  */
+const FULL_BODY_PX = 150;
+const COMPACT_BODY_PX = 128;
+
 export type SynthCardMode = 'full' | 'compact' | 'tight';
 
 export interface SynthCardLayout {
   mode: SynthCardMode;
   cardH: number;
-  /** Under the header, less the padding. */
+  /** Under the header, less the padding: the panels' height. */
   bodyH: number;
-  /** Position and Warp, Res. */
-  knob: number;
-  /** Cutoff, a size up. */
-  cutoff: number;
-  plotW: number;
-  /** 0: no plot. */
+  /** The plot's height (154 wide); 0 in 'tight'. */
   plotH: number;
-  /** The filter column's width. */
-  filterW: number;
-  cardW: number;
+  /** Position's and Res's diameter (Cutoff's is `cutoff`). */
+  knob: number;
+  cutoff: number;
+  /** A knob tile's height: 64 at the frame's height. */
+  tileH: number;
 }
 
-/** How the card fits a row `rowH` high (its padding included). */
+/** How the card fits a row `rowH` high (its 8 px padding included). */
 export function synthCardLayout(rowH: number): SynthCardLayout {
   const cardH = Math.max(0, Math.min(SYNTH_CARD_MAX_PX, rowH - 2 * PAD_PX));
   const bodyH = Math.max(0, cardH - HEADER_PX - 2 * PAD_PX);
-  // Over the selects: the plot and the oscillator's knobs.
-  const top = Math.max(0, bodyH - SELECTS_PX - 4);
-  const width = (filterW: number) =>
-    2 * PAD_PX + 2 * OSC_W + filterW + 2 * GAP_PX;
   if (bodyH >= FULL_BODY_PX) {
-    const knob = Math.min(37, Math.floor((top - 8) / 2) - KNOB_LABEL_PX);
     return {
       mode: 'full',
       cardH,
       bodyH,
-      knob,
-      cutoff: Math.min(50, knob + 13),
-      plotW: OSC_W - 58 - 12,
-      plotH: top - 6,
-      filterW: 52,
-      cardW: width(52),
+      plotH: bodyH - 38,
+      knob: 37,
+      cutoff: 50,
+      tileH: Math.min(TILE_PX, Math.floor((bodyH - SELECT_H - 2) / 2)),
     };
   }
-  if (bodyH >= TIGHT_BODY_PX) {
-    const knob = Math.min(37, top - KNOB_LABEL_PX - 4);
+  if (bodyH >= COMPACT_BODY_PX) {
     return {
       mode: 'compact',
       cardH,
       bodyH,
-      knob,
-      cutoff: Math.min(50, bodyH - KNOB_LABEL_PX - 4),
-      plotW: OSC_W - (knob + 16) - 12,
-      plotH: top - 6,
-      filterW: 116,
-      cardW: width(116),
+      plotH: bodyH - 38,
+      knob: 37,
+      cutoff: Math.min(50, bodyH - 52),
+      tileH: TILE_PX,
     };
   }
-  const knob = Math.max(
-    20,
-    Math.min(37, bodyH - TITLE_PX - 4 - KNOB_LABEL_PX - 4),
-  );
+  // A line of 32 (the name) over the table and Position.
+  const knob = Math.max(20, Math.min(37, bodyH - 32 - 26));
   return {
     mode: 'tight',
     cardH,
     bodyH,
-    knob,
-    cutoff: Math.max(20, Math.min(50, bodyH - KNOB_LABEL_PX - 4)),
-    plotW: 0,
     plotH: 0,
-    filterW: 64,
-    cardW: width(64),
+    knob,
+    cutoff: Math.max(20, Math.min(37, bodyH - 26)),
+    tileH: TILE_PX,
   };
 }
 
 /** 'SUPER SAW' → 'Super saw', as a select shows it. */
 const sentenceCase = (s: string) =>
   s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
+
+const formatHz = (hz: number) =>
+  hz >= 1000
+    ? `${(hz / 1000).toFixed(hz >= 10000 ? 0 : 1)}kHz`
+    : `${Math.round(hz)}Hz`;
 
 export function OracleSynthCard({ engine }: { engine: SynthEngine }) {
   const color = useStore(
@@ -186,60 +166,66 @@ export function OracleSynthCard({ engine }: { engine: SynthEngine }) {
       className="absolute inset-0 flex items-start overflow-x-auto overflow-y-hidden p-2"
       style={{ scrollbarWidth: 'thin' }}
     >
-      <RotaryKnobLookContext.Provider value="card">
-        <section
-          aria-label="Synth"
-          data-testid="synth-card"
-          data-mode={layout.mode}
-          className="flex shrink-0 flex-col overflow-hidden rounded-[var(--daw-radius-card)] bg-daw-device"
-          style={{ width: layout.cardW, height: layout.cardH }}
+      <section
+        aria-label="Synth"
+        data-testid="synth-card"
+        data-mode={layout.mode}
+        className="relative shrink-0 overflow-hidden rounded-[var(--daw-radius-card)] bg-daw-device"
+        style={{ width: SYNTH_CARD_W, height: layout.cardH }}
+      >
+        <header
+          className="relative flex items-center justify-between px-2"
+          style={{ height: HEADER_PX }}
         >
-          <header
-            className="grid shrink-0 items-center gap-2 px-2"
-            style={{
-              height: HEADER_PX,
-              gridTemplateColumns: 'minmax(0,1fr) auto minmax(0,1fr)',
-            }}
-          >
-            <div className="flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <span
+              aria-hidden
+              className="flex size-4 shrink-0 items-center justify-center"
+            >
               <span
-                aria-hidden
-                className="size-3 shrink-0 rounded-full"
+                className="size-3 rounded-full"
                 // The track's colour: its mark on the canvas.
                 style={{ backgroundColor: color }}
               />
-              <h3 className={cn(TYPE_CLASS.body, 'truncate text-daw-text')}>
-                Synth
-              </h3>
-            </div>
-            <SoundStepper />
-            <div className="flex justify-end">
-              <IconButton
-                label="Open the full synth"
-                icon={<Maximize2 />}
-                size="sm"
-                variant="bare"
-                tooltipSide="top"
-                data-testid="synth-card-expand"
-                onClick={() => setMaximized(true)}
-              />
-            </div>
-          </header>
-          <div
-            className="flex min-h-0 flex-1 items-stretch"
-            style={{ gap: GAP_PX, padding: PAD_PX }}
-          >
-            <OscPanel index={0} engine={engine} color={color} layout={layout} />
-            <FilterColumn color={color} layout={layout} />
-            <OscPanel index={1} engine={engine} color={color} layout={layout} />
+            </span>
+            <h3
+              className={cn(
+                TYPE_CLASS.body,
+                'truncate leading-5 text-daw-text',
+              )}
+            >
+              Synth
+            </h3>
           </div>
-        </section>
-      </RotaryKnobLookContext.Provider>
+          <SoundStepper />
+          <IconButton
+            label="Open the full synth"
+            icon={<ExpandGlyph />}
+            size="sm"
+            variant="bare"
+            tooltipSide="top"
+            data-testid="synth-card-expand"
+            className="size-[22px]"
+            onClick={() => setMaximized(true)}
+          />
+        </header>
+        <div
+          className="absolute flex"
+          style={{ left: PAD_PX, top: HEADER_PX + PAD_PX }}
+        >
+          <OscPanel index={0} engine={engine} color={color} layout={layout} />
+          <FilterColumn color={color} layout={layout} />
+          <OscPanel index={1} engine={engine} color={color} layout={layout} />
+        </div>
+      </section>
     </div>
   );
 }
 
-/** The sound, with ‹ › to the one before and after in the list. */
+/**
+ * The sound, in a pill at the header's centre, with ‹ › to the one before
+ * and after in the list.
+ */
 function SoundStepper() {
   const name = useSynthStore((s) => s.presetName);
   const loadPreset = useSynthStore((s) => s.loadPreset);
@@ -258,36 +244,85 @@ function SoundStepper() {
     const next = at < 0 ? 0 : (at + by + names.length) % names.length;
     loadPreset(names[next]);
   };
+  const arrow =
+    'flex size-5 shrink-0 items-center justify-center rounded-full text-daw-text-3 hover:bg-daw-hover hover:text-daw-text';
   return (
-    <div className="flex min-w-0 items-center gap-1">
-      <IconButton
-        label="Previous sound"
-        icon={<ChevronLeft />}
-        size="sm"
-        variant="bare"
-        tooltipSide="top"
+    <div
+      className="absolute left-1/2 top-1 flex h-6 -translate-x-1/2 items-center rounded-full px-0.5"
+      style={{ width: 149 }}
+    >
+      <button
+        type="button"
+        aria-label="Previous sound"
+        title="Previous sound"
         onClick={() => step(-1)}
-      />
+        className={cn(arrow, TRANSITION, FOCUS_RING)}
+      >
+        <StepGlyph back />
+      </button>
       <span
         data-testid="synth-card-sound"
-        className={cn(
-          TYPE_CLASS.label,
-          'max-w-40 truncate text-center text-daw-text',
-        )}
+        className="min-w-0 flex-1 truncate text-center text-[length:var(--daw-font-label)] leading-3 text-daw-text"
       >
         {sentenceCase(name)}
       </span>
-      <IconButton
-        label="Next sound"
-        icon={<ChevronRight />}
-        size="sm"
-        variant="bare"
-        tooltipSide="top"
+      <button
+        type="button"
+        aria-label="Next sound"
+        title="Next sound"
         onClick={() => step(1)}
-      />
+        className={cn(arrow, TRANSITION, FOCUS_RING)}
+      >
+        <StepGlyph />
+      </button>
     </div>
   );
 }
+
+// ── The knob tile ───────────────────────────────────────────────────────────
+
+/**
+ * A knob in its tile: 64 px wide, a soft square under the pointer, and the
+ * violet dot at its corner while the modulation matrix moves it.
+ */
+function KnobTile({
+  height = TILE_PX,
+  top = 10,
+  modulated,
+  children,
+}: {
+  height?: number;
+  /** Where the knob sits in the tile. */
+  top?: number;
+  modulated: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div className="group relative shrink-0" style={{ width: TILE_PX, height }}>
+      <span
+        aria-hidden
+        className={cn(
+          'absolute inset-[3px] rounded-xl group-hover:bg-daw-device',
+          TRANSITION,
+        )}
+      />
+      {modulated ? (
+        <span
+          role="img"
+          aria-label="Modulated"
+          title="A modulation source moves this"
+          className="absolute left-2 top-2 size-[7px] rounded-full bg-daw-modulation"
+        />
+      ) : null}
+      <div className="absolute inset-x-0 flex justify-center" style={{ top }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+const useModulated = (source: ModTarget['source'], param: ModTarget['param']) =>
+  useModIndicator(source, param) !== null;
 
 // ── An oscillator ───────────────────────────────────────────────────────────
 
@@ -304,6 +339,10 @@ function OscPanel({
 }) {
   const osc = useSynthStore((s) => s.oscillators[index]);
   const setParam = useSynthStore((s) => s.setOscParam);
+  const positionModulated = useModulated(
+    index === 0 ? 'osc1' : 'osc2',
+    'wtPos',
+  );
   const packTables = useSyncExternalStore(
     subscribeTableRegistry,
     getRegisteredTableNames,
@@ -330,43 +369,21 @@ function OscPanel({
     [],
   );
   const name = `Oscillator ${index + 1}`;
-  const full = layout.mode === 'full';
+  const { mode, bodyH } = layout;
   const position = (
-    <RotaryKnob
+    <DeviceKnob
       label="Position"
+      look="ticks"
       value={osc.wtPosition}
       min={0}
       max={1}
       step={0.01}
+      resetValue={0}
       size={layout.knob}
-      arcColor={color}
+      color={color}
+      format={(v) => `${Math.round(v * 100)}%`}
       onChange={(v) => setParam(index, 'wtPosition', v)}
     />
-  );
-  const onSwitch = (
-    <button
-      type="button"
-      aria-pressed={osc.enabled}
-      aria-label={`${name} on`}
-      onClick={() => setParam(index, 'enabled', !osc.enabled)}
-      className={cn(
-        TYPE_CLASS.label,
-        'flex items-center gap-1.5 rounded-full px-1 font-bold text-daw-text',
-        layout.mode !== 'tight' && 'absolute left-1 top-1',
-        TRANSITION,
-        FOCUS_RING,
-      )}
-    >
-      <span
-        aria-hidden
-        className="size-3 rounded-full border border-daw-text-3"
-        style={{
-          backgroundColor: osc.enabled ? color : 'transparent',
-          borderColor: osc.enabled ? color : undefined,
-        }}
-      />
-      {name}
-    </button>
   );
   const table = (
     <Select
@@ -377,113 +394,150 @@ function OscPanel({
       className={CARD_SELECT}
     />
   );
+  // A switched-off oscillator dims, all but its switch.
+  const dimmed = !osc.enabled && 'opacity-50';
 
   return (
     <div
       role="group"
       aria-label={name}
       data-testid={`synth-osc-${index + 1}`}
-      className={cn(
-        'flex min-h-0 shrink-0 flex-col gap-1 rounded-[var(--daw-radius-card)] bg-daw-device p-[3px]',
-        !osc.enabled && '[&>*:not(:first-child)]:opacity-50',
-      )}
-      style={{ width: OSC_W }}
+      className="relative shrink-0"
+      style={{ width: OSC_W, height: bodyH }}
     >
-      {layout.mode === 'tight' ? (
-        <>
+      {/* The panel: white/4, 2 px in, radius 8. */}
+      <span
+        aria-hidden
+        className="absolute inset-[2px] rounded-lg bg-daw-device"
+      />
+      {mode === 'tight' ? (
+        <div
+          className={cn('absolute flex items-center gap-1', dimmed)}
+          style={{ left: 4, right: 0, top: 32 }}
+        >
+          <div className="min-w-0 flex-1">{table}</div>
           <div
-            className="flex shrink-0 items-center"
-            style={{ height: TITLE_PX }}
+            className="flex shrink-0 justify-center"
+            style={{ width: TILE_PX }}
           >
-            {onSwitch}
-          </div>
-          <div className="flex min-h-0 flex-1 items-center gap-2">
-            <div className="min-w-0 flex-1">{table}</div>
             {position}
           </div>
-        </>
+        </div>
       ) : (
         <>
-          <div className="relative flex min-h-0 flex-1 items-center justify-between gap-1">
-            <WavetablePlot
-              engine={engine}
-              table={osc.wavetable}
-              position={osc.wtPosition}
-              color={color}
-              width={layout.plotW}
-              height={layout.plotH}
-            />
-            {/* The on switch and the name, over the plot's corner (after
-                it, so it paints above it). */}
-            {onSwitch}
-            <div
-              className="flex shrink-0 flex-col items-center justify-center gap-2"
-              style={{ width: full ? 58 : layout.knob + 16 }}
-            >
+          <WavetablePlot
+            engine={engine}
+            table={osc.wavetable}
+            position={osc.wtPosition}
+            color={color}
+            height={layout.plotH}
+            className={dimmed || undefined}
+          />
+          <div
+            className={cn('absolute flex flex-col', dimmed)}
+            style={{ left: 160, top: 0 }}
+          >
+            <KnobTile height={layout.tileH} modulated={positionModulated}>
               {position}
-              {full ? (
-                <RotaryKnob
+            </KnobTile>
+            {mode === 'full' ? (
+              <KnobTile height={layout.tileH} modulated={false}>
+                <DeviceKnob
                   label="Warp"
+                  dim={osc.warpMode === 'none'}
                   value={osc.warpAmount}
                   min={0}
                   max={1}
                   step={0.01}
-                  size={layout.knob}
-                  arcColor={osc.warpMode === 'none' ? undefined : color}
+                  resetValue={0}
+                  color={color}
+                  format={(v) => `${Math.round(v * 100)}%`}
                   onChange={(v) => setParam(index, 'warpAmount', v)}
                 />
-              ) : null}
-            </div>
+              </KnobTile>
+            ) : null}
           </div>
           <div
-            className="grid shrink-0 gap-1"
-            style={{
-              height: SELECTS_PX,
-              gridTemplateColumns: full ? '4fr 3fr' : '1fr',
-            }}
+            className={cn('absolute flex gap-0.5', dimmed)}
+            style={{ left: 1, right: 1, top: bodyH - SELECT_H - 1 }}
           >
-            {table}
-            {full ? (
-              <Select
-                label={`${name} warp`}
-                options={warps}
-                value={osc.warpMode}
-                onValueChange={(v) =>
-                  setParam(index, 'warpMode', v as OscWarpMode)
-                }
-                className={CARD_SELECT}
-              />
+            <div style={{ width: mode === 'full' ? 126 : 222 }}>{table}</div>
+            {mode === 'full' ? (
+              <div style={{ width: 94 }}>
+                <Select
+                  label={`${name} warp`}
+                  options={warps}
+                  value={osc.warpMode}
+                  onValueChange={(v) =>
+                    setParam(index, 'warpMode', v as OscWarpMode)
+                  }
+                  className={CARD_SELECT}
+                />
+              </div>
             ) : null}
           </div>
         </>
       )}
+      {/* The on switch and the name, over the plot's corner (last, so it
+          paints above it). */}
+      <button
+        type="button"
+        aria-pressed={osc.enabled}
+        aria-label={`${name} on`}
+        onClick={() => setParam(index, 'enabled', !osc.enabled)}
+        className={cn(
+          'absolute left-0 top-0 flex h-8 items-center gap-1 rounded-[var(--daw-radius-md)] px-2 text-[11px] font-bold leading-4 text-daw-text',
+          TRANSITION,
+          FOCUS_RING,
+        )}
+      >
+        <span
+          aria-hidden
+          className="size-2.5 rounded-full border border-daw-text-3"
+          style={{
+            backgroundColor: osc.enabled ? color : 'transparent',
+            borderColor: osc.enabled ? color : undefined,
+          }}
+        />
+        {name}
+      </button>
     </div>
   );
 }
 
-/** A select on the card: 30 px, white/4, as the frame's. */
+/**
+ * A select on the card: 30 px, white/4, radius 8, 12 px, and a small
+ * triangle in place of the kit's chevrons.
+ */
 const CARD_SELECT =
-  'h-[30px] w-full min-w-0 rounded-[var(--daw-radius-md)] border-0 bg-daw-device';
+  "h-[30px] w-full min-w-0 rounded-lg border-0 bg-daw-device px-2 [&>svg]:hidden after:ml-1 after:shrink-0 after:text-[length:var(--daw-font-micro)] after:leading-none after:text-daw-text after:content-['▾']";
+
+// ── The wavetable plot ──────────────────────────────────────────────────────
 
 /**
- * The table's frames drawn one behind the other, from the first at the
- * front to the last at the back, with the frame Position plays lit white.
+ * The table's frames drawn one behind the other, the first at the front
+ * and each further one down and to the right, with the frame Position
+ * plays lit white; or one cycle of that frame alone. Its buttons switch the
+ * view and zoom it.
  */
 function WavetablePlot({
   engine,
   table,
   position,
   color,
-  width,
   height,
+  className,
 }: {
   engine: SynthEngine;
   table: string;
   position: number;
   color: string;
-  width: number;
   height: number;
+  className?: string;
 }) {
+  const width = 154;
+  const [stack, setStack] = useState(true);
+  const [zoom, setZoom] = useState(1);
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -497,27 +551,26 @@ function WavetablePlot({
     const frames = engine.getWavetableBank()?.getDisplayFrames(table) ?? null;
     if (!frames || frames.length === 0) return;
 
-    // At most 24 frames drawn, evenly through the table.
-    const count = Math.min(24, frames.length);
+    const count = stack ? Math.min(64, frames.length) : 1;
     const pick = (i: number) =>
       frames[Math.round((i / Math.max(1, count - 1)) * (frames.length - 1))];
-    const lit = Math.round(position * (count - 1));
+    const current =
+      frames[Math.round(position * (frames.length - 1))] ?? frames[0];
     // Scaled to the table's own peak, so every frame stays in the plot.
     let peak = 0;
-    for (let i = 0; i < count; i++) {
+    for (const v of current) peak = Math.max(peak, Math.abs(v));
+    for (let i = 0; i < count && stack; i++) {
       for (const v of pick(i)) peak = Math.max(peak, Math.abs(v));
     }
     const norm = peak > 0 ? 1 / peak : 1;
-    // Each frame further back sits up and to the right.
-    const depthX = width * 0.3;
-    const depthY = height * 0.32;
-    const frameW = width - depthX - 8;
-    const amp = (height - depthY) * 0.4;
-    const points = 64;
-    const line = (frame: Float32Array, i: number) => {
-      const t = count > 1 ? i / (count - 1) : 0;
-      const x0 = 4 + t * depthX;
-      const y0 = height - 2 - amp - t * depthY;
+    const depthX = stack ? width * 0.26 * zoom : 0;
+    const depthY = stack ? height * 0.24 * zoom : 0;
+    const frameW = width - depthX - 16;
+    const amp = ((height - depthY) / 2 - 6) * (stack ? 1 : zoom);
+    const points = 128;
+    const trace = (frame: Float32Array, t: number) => {
+      const x0 = 8 + t * depthX;
+      const y0 = (stack ? 6 + amp : height / 2) + t * depthY;
       ctx.beginPath();
       for (let p = 0; p <= points; p++) {
         const s = frame[Math.floor((p / points) * (frame.length - 1))] ?? 0;
@@ -529,38 +582,146 @@ function WavetablePlot({
     };
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
-    for (let i = count - 1; i >= 0; i--) {
-      if (i === lit) continue;
-      line(pick(i), i);
-      ctx.strokeStyle = color;
-      ctx.globalAlpha = 0.35 + 0.4 * (1 - i / count);
-      ctx.lineWidth = 1;
-      ctx.stroke();
+    if (stack) {
+      for (let i = count - 1; i >= 0; i--) {
+        trace(pick(i), count > 1 ? i / (count - 1) : 0);
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = 0.3 + 0.4 * (1 - i / count);
+        ctx.lineWidth = 0.75;
+        ctx.stroke();
+      }
     }
     ctx.globalAlpha = 1;
-    line(pick(lit), lit);
+    // The lit frame: white over a dark edge.
+    trace(current, stack ? position : 0);
+    ctx.strokeStyle = COLOR.bg.value;
+    ctx.lineWidth = 4.5;
+    ctx.stroke();
     ctx.strokeStyle = COLOR.text.value;
     ctx.lineWidth = 2.5;
     ctx.stroke();
-  }, [engine, table, position, color, width, height]);
+  }, [engine, table, position, color, height, stack, zoom]);
 
+  const button =
+    'flex size-[22px] items-center justify-center rounded-md bg-daw-chip text-daw-text-2 hover:text-daw-text disabled:opacity-40';
   return (
-    <canvas
-      ref={ref}
+    <div
+      className={cn(
+        'group/plot absolute overflow-hidden rounded-[10px]',
+        className,
+      )}
+      style={{ left: 3, top: 3, width, height }}
+    >
+      <canvas
+        ref={ref}
+        aria-hidden
+        data-testid="synth-wavetable-plot"
+        style={{ width, height }}
+      />
+      {height >= 70 ? (
+        <>
+          <button
+            type="button"
+            aria-pressed={!stack}
+            aria-label={stack ? 'Show one cycle' : 'Show every frame'}
+            title={stack ? 'Show one cycle' : 'Show every frame'}
+            onClick={() => setStack((v) => !v)}
+            className={cn(
+              button,
+              'absolute bottom-1.5 left-1.5',
+              PLOT_TOOL,
+              FOCUS_RING,
+            )}
+          >
+            <CycleGlyph />
+          </button>
+          <div
+            className={cn(
+              'absolute bottom-1.5 right-1.5 flex gap-1 [&_svg]:size-2.5',
+              PLOT_TOOL,
+            )}
+          >
+            <button
+              type="button"
+              aria-label="Zoom the plot out"
+              title="Zoom out"
+              disabled={zoom <= 0.5}
+              onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))}
+              className={cn(button, FOCUS_RING)}
+            >
+              <Minus aria-hidden />
+            </button>
+            <button
+              type="button"
+              aria-label="Zoom the plot in"
+              title="Zoom in"
+              disabled={zoom >= 1.5}
+              onClick={() => setZoom((z) => Math.min(1.5, z + 0.25))}
+              className={cn(button, FOCUS_RING)}
+            >
+              <Plus aria-hidden />
+            </button>
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+/** A small filled triangle: the sound before (back) or after. */
+function StepGlyph({ back = false }: { back?: boolean }) {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden>
+      <path
+        d={back ? 'M10 4.5v7L5.5 8z' : 'M6 4.5v7L10.5 8z'}
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+/** The plot's view buttons show while the pointer or focus is on it. */
+const PLOT_TOOL =
+  'opacity-0 transition-opacity group-hover/plot:opacity-100 group-focus-within/plot:opacity-100';
+
+/** Two corner brackets: the card opens out to the full synth. */
+function ExpandGlyph() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       aria-hidden
-      data-testid="synth-wavetable-plot"
-      className="shrink-0 rounded-[var(--daw-radius-md)]"
-      style={{ width, height }}
-    />
+    >
+      <path d="M9.5 3.5h3v3M6.5 12.5h-3v-3" />
+    </svg>
+  );
+}
+
+/** One cycle of a wave, for the plot's view switch. */
+function CycleGlyph() {
+  return (
+    <svg
+      viewBox="0 0 12 12"
+      width="12"
+      height="12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      aria-hidden
+    >
+      <path d="M1 6c1.2-4.5 3.8-4.5 5 0s3.8 4.5 5 0" />
+    </svg>
   );
 }
 
 // ── The filter ──────────────────────────────────────────────────────────────
-
-const formatHz = (hz: number) =>
-  hz >= 1000
-    ? `${(hz / 1000).toFixed(hz >= 10000 ? 0 : 1)}k`
-    : `${Math.round(hz)}Hz`;
 
 function FilterColumn({
   color,
@@ -571,49 +732,54 @@ function FilterColumn({
 }) {
   const filter = useSynthStore((s) => s.filters[0]);
   const setParam = useSynthStore((s) => s.setFilterParam);
+  const cutoffModulated = useModulated('flt1', 'cutoff');
+  const resModulated = useModulated('flt1', 'resonance');
+  const { mode, bodyH } = layout;
   return (
     <div
       role="group"
       aria-label="Filter"
       data-testid="synth-filter"
-      className={cn(
-        'flex shrink-0 items-center justify-center',
-        layout.mode === 'full' ? 'flex-col justify-around' : 'gap-3',
-      )}
-      style={{ width: layout.filterW }}
+      className="flex shrink-0 flex-col"
+      style={{ width: FILTER_W, height: bodyH }}
     >
-      <div className="relative">
-        <RotaryKnob
+      <KnobTile
+        height={mode === 'full' ? bodyH - layout.tileH : bodyH}
+        top={
+          mode === 'full'
+            ? 20
+            : Math.max(4, Math.floor((bodyH - layout.cutoff - 20) / 2))
+        }
+        modulated={cutoffModulated}
+      >
+        <DeviceKnob
           label="Cutoff"
+          look="value"
           value={filter.cutoff}
           min={20}
           max={20000}
           step={1}
-          log
+          scale="log"
+          resetValue={20000}
           size={layout.cutoff}
-          arcColor={color}
+          color={color}
+          format={formatHz}
           onChange={(v) => setParam(0, 'cutoff', v)}
         />
-        {/* The cutoff's value inside its knob, as the frame's. */}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 text-center text-[11px] leading-none text-daw-text"
-          style={{ top: layout.cutoff / 2 - 5 }}
-        >
-          {layout.cutoff >= 40 ? formatHz(filter.cutoff) : null}
-        </span>
-      </div>
-      {layout.mode !== 'tight' ? (
-        <RotaryKnob
-          label="Res"
-          value={filter.resonance}
-          min={0}
-          max={30}
-          step={0.1}
-          size={layout.knob}
-          arcColor={color}
-          onChange={(v) => setParam(0, 'resonance', v)}
-        />
+      </KnobTile>
+      {mode === 'full' ? (
+        <KnobTile height={layout.tileH} modulated={resModulated}>
+          <DeviceKnob
+            label="Res"
+            value={filter.resonance}
+            min={0}
+            max={30}
+            step={0.1}
+            resetValue={0}
+            color={color}
+            onChange={(v) => setParam(0, 'resonance', v)}
+          />
+        </KnobTile>
       ) : null}
     </div>
   );

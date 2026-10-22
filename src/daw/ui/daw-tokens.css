@@ -20,6 +20,8 @@
   --daw-float: #1c1c1f;
   --daw-device: rgba(255, 255, 255, 0.04);
   --daw-slot-edge: #2a2a2a;
+  --daw-knob-track: rgba(255, 255, 255, 0.07);
+  --daw-modulation: #9a82ff;
   --daw-hairline: hsl(var(--ui-border));
   --daw-outline: hsl(var(--ui-input));
   --daw-focus: hsl(var(--ui-ring));

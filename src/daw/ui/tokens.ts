@@ -82,6 +82,10 @@ export const COLOR = colors({
   device: own('rgba(255, 255, 255, 0.04)'),
   /** The dashed edge of the dock's empty Add effect card. */
   'slot-edge': own('#2a2a2a'),
+  /** A device knob's unlit track: white/7. */
+  'knob-track': own('rgba(255, 255, 255, 0.07)'),
+  /** A control a modulation source moves (the synth's matrix). */
+  modulation: own('#9a82ff'),
 
   // Lines.
   hairline: alias('border', '#232325'),

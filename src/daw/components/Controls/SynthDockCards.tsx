@@ -66,8 +66,9 @@ import {
 //   Macros & modulation      the eight macros, and every route with its
 //                            amount and on switch
 //
-// They fit the dock's height as the Synth card does (synthCardLayout):
-// 'compact' keeps every control; 'tight' drops the drawings and selects.
+// They fit the dock's height by the room each panel has (panelFit): the
+// drawings and selects stay while they fit, and the knobs shrink a little
+// before anything goes. In a tall dock the whole row zooms (cardZoom).
 // The full synth (the card header's expand button) edits the rest: drawn
 // LFOs, routes' sources and targets, tuning.
 
@@ -209,6 +210,41 @@ function Panel({
   );
 }
 
+/** A device knob's height with its name, for a knob `size` across. */
+const knobHeight = (size: number) => size - Math.round((6 * size) / 37) + 15;
+
+/** The largest knob from `max` down to 22 whose height fits `room`. */
+function knobFor(room: number, max = 37): number {
+  for (let size = max; size > 22; size--) {
+    if (knobHeight(size) <= room) return size;
+  }
+  return 22;
+}
+
+/**
+ * How a panel's knobs and selects fit its body: the selects stay while a
+ * 30 px knob still fits over them, and the knobs take the room there is,
+ * 37 at most. Decided by the room, not the card's mode, so nothing goes
+ * that would still fit (owner, 2026-10-22: scale correctly in the dock).
+ */
+interface PanelFit {
+  selects: boolean;
+  /** The knob tiles' height over the selects (or the whole body). */
+  tileH: number;
+  knob: number;
+}
+
+function panelFit(layout: SynthCardLayout): PanelFit {
+  const overSelects = layout.bodyH - NAME_PX - SELECT_H - 4;
+  const selects = overSelects >= knobHeight(30) + 2;
+  const room = selects ? overSelects : layout.bodyH - NAME_PX - 2;
+  return {
+    selects,
+    tileH: Math.min(TILE_PX, room),
+    knob: knobFor(room - 6),
+  };
+}
+
 /** A row of knob tiles over a panel's selects, centred in the room. */
 function TileRow({
   layout,
@@ -217,10 +253,10 @@ function TileRow({
   layout: SynthCardLayout;
   children: ReactNode;
 }) {
-  const height =
-    layout.mode === 'tight'
-      ? layout.bodyH - NAME_PX - 2
-      : layout.bodyH - NAME_PX - SELECT_H - 4;
+  const fit = panelFit(layout);
+  const height = fit.selects
+    ? layout.bodyH - NAME_PX - SELECT_H - 4
+    : layout.bodyH - NAME_PX - 2;
   return (
     <div
       className="absolute left-0 top-0 flex items-center justify-center"
@@ -231,7 +267,7 @@ function TileRow({
   );
 }
 
-/** The selects along a panel's foot (none in 'tight'). */
+/** The selects along a panel's foot, while they fit (panelFit). */
 function SelectRow({
   layout,
   children,
@@ -239,7 +275,7 @@ function SelectRow({
   layout: SynthCardLayout;
   children: ReactNode;
 }) {
-  if (layout.mode === 'tight') return null;
+  if (!panelFit(layout).selects) return null;
   return (
     <div
       className="absolute inset-x-0 bottom-0 flex gap-0.5"
@@ -250,18 +286,11 @@ function SelectRow({
   );
 }
 
-/** A knob's size: the card's in 'tight', 37 otherwise. */
-const knobSize = (layout: SynthCardLayout) =>
-  layout.mode === 'tight' ? layout.knob : 37;
+/** A panel knob's size (panelFit). */
+const knobSize = (layout: SynthCardLayout) => panelFit(layout).knob;
 
-/** A tile's height in a TileRow, with the knob 6 px from its top. */
-const tileHeight = (layout: SynthCardLayout) =>
-  Math.min(
-    TILE_PX,
-    layout.mode === 'tight'
-      ? layout.bodyH - NAME_PX - 2
-      : layout.bodyH - NAME_PX - SELECT_H - 4,
-  );
+/** A knob tile's height in a TileRow, the knob 6 px from its top. */
+const tileHeight = (layout: SynthCardLayout) => panelFit(layout).tileH;
 
 // ── Sub · Noise · Filter 2 ─────────────────────────────────────────────────
 
@@ -649,8 +678,7 @@ function EnvelopePanel({
 }) {
   const env = useSynthStore((s) => s.envelopes[index]);
   const setEnv = useSynthStore((s) => s.setEnvParam);
-  const size =
-    layout.mode === 'tight' ? Math.min(ENV_KNOB, layout.knob) : ENV_KNOB;
+  const size = knobFor(layout.bodyH - NAME_PX - 4, ENV_KNOB);
   const curveH = layout.bodyH - NAME_PX - ENV_ROW_PX - 4;
   const knob = (
     label: string,
@@ -682,7 +710,7 @@ function EnvelopePanel({
       color={color}
       testId={`synth-envelope-${index + 1}`}
     >
-      {layout.mode !== 'tight' && curveH >= 28 ? (
+      {curveH >= 24 ? (
         <div className="absolute left-1 top-0">
           <EnvelopeCurve
             env={env}
@@ -907,8 +935,8 @@ export function LfoCard({
   );
   const detected = detectLfoShape(lfo);
   const smooth = lfo.smooths[0];
-  const tight = layout.mode === 'tight';
-  const plotH = layout.bodyH - NAME_PX - SELECT_H - 6;
+  const fit = panelFit(layout);
+  const plotH = layout.bodyH - NAME_PX - (fit.selects ? SELECT_H + 6 : 4);
 
   const pick = (shape: LfoShape | null, rate: RateDiv | null) => {
     const s = shape ?? detected?.shape ?? 'triangle';
@@ -952,7 +980,7 @@ export function LfoCard({
           </Toggle>
         }
       >
-        {!tight && plotH >= 28 ? (
+        {plotH >= 24 ? (
           <div className="absolute left-1 top-0">
             <LfoPlot
               engine={engine}
@@ -1131,8 +1159,12 @@ export function ModCard({
   const updateRoute = useSynthStore((s) => s.updateModRoute);
   const setMaximized = useStore((s) => s.setDockMaximized);
   const macroNames = macros.map((m) => m.name);
-  // Two rows of four while they fit; one row in a low dock.
-  const shown = layout.bodyH - NAME_PX >= 2 * 44 ? 8 : 4;
+  // Two rows of four, their knobs as big as fits (30 at most); one row of
+  // four in a dock too low for two of even 22 px knobs.
+  const room = layout.bodyH - NAME_PX - 4;
+  const twoRows = knobFor((room - 4) / 2, MACRO_KNOB);
+  const shown = knobHeight(twoRows) * 2 + 4 <= room ? 8 : 4;
+  const macroKnob = shown === 8 ? twoRows : knobFor(room, MACRO_KNOB);
 
   return (
     <DockCard
@@ -1152,7 +1184,7 @@ export function ModCard({
                 max={1}
                 step={0.01}
                 resetValue={0}
-                size={MACRO_KNOB}
+                size={macroKnob}
                 color={color}
                 format={percent}
                 className="max-w-[58px] [&>span]:min-w-0 [&>span]:max-w-[58px] [&>span]:truncate"

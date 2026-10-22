@@ -1,5 +1,6 @@
 import { Minus, Plus } from 'lucide-react';
 import {
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -35,6 +36,8 @@ import { DeviceKnob } from './DeviceKnob';
 import { EnvelopesCard, LfoCard, ModCard, SourcesCard } from './SynthDockCards';
 import {
   CARD_SELECT,
+  CardZoomContext,
+  cardZoom,
   clamp,
   formatHz,
   HEADER_PX,
@@ -119,86 +122,98 @@ export function OracleSynthCard({ engine }: { engine: SynthEngine }) {
     observer.observe(row);
     return () => observer.disconnect();
   }, []);
-  const layout = synthCardLayout(rowH);
+  // In a tall dock the cards zoom; they lay out for the height they get
+  // before it.
+  const zoom = cardZoom(rowH);
+  const layout = synthCardLayout((rowH - 2 * PAD_PX) / zoom + 2 * PAD_PX);
   const live = useLiveModulation(engine);
 
   return (
     <div
       ref={rowRef}
       data-testid="synth-card-row"
-      className="absolute inset-y-0 left-0 flex items-start gap-2 overflow-x-auto overflow-y-hidden p-2"
+      className="absolute inset-y-0 left-0 overflow-x-auto overflow-y-hidden p-2"
       // Short of the dock's Maximize and Close, which float in its corner:
       // no card slides under them.
       style={{ right: DOCK_CORNER_PX, scrollbarWidth: 'thin' }}
     >
-      <section
-        aria-label="Synth"
-        data-testid="synth-card"
-        data-mode={layout.mode}
-        className="relative shrink-0 overflow-hidden rounded-[var(--daw-radius-card)] bg-daw-device"
-        style={{ width: SYNTH_CARD_W, height: layout.cardH }}
-      >
-        <header
-          className="relative flex items-center justify-between px-2"
-          style={{ height: HEADER_PX }}
-        >
-          <div className="flex min-w-0 items-center gap-2">
-            <span
-              aria-hidden
-              className="flex size-4 shrink-0 items-center justify-center"
-            >
-              <span
-                className="size-3 rounded-full"
-                // The track's colour: its mark on the canvas.
-                style={{ backgroundColor: color }}
-              />
-            </span>
-            <h3
-              className={cn(
-                TYPE_CLASS.body,
-                'truncate leading-5 text-daw-text',
-              )}
-            >
-              Synth
-            </h3>
-          </div>
-          <SoundStepper />
-          <IconButton
-            label="Open the full synth"
-            icon={<ExpandGlyph />}
-            size="sm"
-            variant="bare"
-            tooltipSide="top"
-            data-testid="synth-card-expand"
-            className="size-[22px]"
-            onClick={() => setMaximized(true)}
-          />
-        </header>
+      <CardZoomContext.Provider value={zoom}>
+        {/* The cards at their zoom: bigger in a tall dock (cardZoom). */}
         <div
-          className="absolute flex"
-          style={{ left: PAD_PX, top: HEADER_PX + PAD_PX }}
+          data-testid="synth-card-zoom"
+          className="flex w-max items-start gap-2"
+          style={{ zoom }}
         >
-          <OscPanel
-            index={0}
-            engine={engine}
-            color={color}
-            layout={layout}
-            live={live}
-          />
-          <FilterColumn color={color} layout={layout} live={live} />
-          <OscPanel
-            index={1}
-            engine={engine}
-            color={color}
-            layout={layout}
-            live={live}
-          />
+          <section
+            aria-label="Synth"
+            data-testid="synth-card"
+            data-mode={layout.mode}
+            className="relative shrink-0 overflow-hidden rounded-[var(--daw-radius-card)] bg-daw-device"
+            style={{ width: SYNTH_CARD_W, height: layout.cardH }}
+          >
+            <header
+              className="relative flex items-center justify-between px-2"
+              style={{ height: HEADER_PX }}
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <span
+                  aria-hidden
+                  className="flex size-4 shrink-0 items-center justify-center"
+                >
+                  <span
+                    className="size-3 rounded-full"
+                    // The track's colour: its mark on the canvas.
+                    style={{ backgroundColor: color }}
+                  />
+                </span>
+                <h3
+                  className={cn(
+                    TYPE_CLASS.body,
+                    'truncate leading-5 text-daw-text',
+                  )}
+                >
+                  Synth
+                </h3>
+              </div>
+              <SoundStepper />
+              <IconButton
+                label="Open the full synth"
+                icon={<ExpandGlyph />}
+                size="sm"
+                variant="bare"
+                tooltipSide="top"
+                data-testid="synth-card-expand"
+                className="size-[22px]"
+                onClick={() => setMaximized(true)}
+              />
+            </header>
+            <div
+              className="absolute flex"
+              style={{ left: PAD_PX, top: HEADER_PX + PAD_PX }}
+            >
+              <OscPanel
+                index={0}
+                engine={engine}
+                color={color}
+                layout={layout}
+                live={live}
+              />
+              <FilterColumn color={color} layout={layout} live={live} />
+              <OscPanel
+                index={1}
+                engine={engine}
+                color={color}
+                layout={layout}
+                live={live}
+              />
+            </div>
+          </section>
+          <SourcesCard color={color} layout={layout} live={live} />
+          <EnvelopesCard color={color} layout={layout} />
+          <LfoCard engine={engine} color={color} layout={layout} />
+          <ModCard color={color} layout={layout} />
         </div>
-      </section>
-      <SourcesCard color={color} layout={layout} live={live} />
-      <EnvelopesCard color={color} layout={layout} />
-      <LfoCard engine={engine} color={color} layout={layout} />
-      <ModCard color={color} layout={layout} />
+      </CardZoomContext.Provider>
     </div>
   );
 }
@@ -610,7 +625,8 @@ function WavetablePlot({
   const [stack, setStack] = useState(true);
   const [zoom, setZoom] = useState(1);
   const ref = useRef<HTMLCanvasElement>(null);
-  const dpr = useDevicePixelRatio();
+  // The canvas covers more pixels when the cards are zoomed.
+  const dpr = useDevicePixelRatio() * useContext(CardZoomContext);
   // A pack table asked for before its fetch finished draws when it lands.
   const framesVersion = useSyncExternalStore(
     subscribeFramesLoaded,

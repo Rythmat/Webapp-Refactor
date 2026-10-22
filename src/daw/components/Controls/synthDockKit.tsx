@@ -1,4 +1,5 @@
 import {
+  createContext,
   useEffect,
   useMemo,
   useSyncExternalStore,
@@ -28,9 +29,32 @@ export const SELECT_H = 30;
  * 'full' is the frame's 160 at its height; down to 150 its tiles give way.
  */
 const FULL_BODY_PX = 150;
-const COMPACT_BODY_PX = 128;
+/**
+ * 'compact' keeps the plots, Position and the table down to the dock's
+ * least height (a 119 px body); it was 128, which hid the plots there.
+ */
+const COMPACT_BODY_PX = 96;
 
 export type SynthCardMode = 'full' | 'compact' | 'tight';
+
+/** The most the row's cards grow in a tall dock. */
+export const MAX_CARD_ZOOM = 1.5;
+
+/**
+ * How much the row's cards are zoomed in a row `rowH` high (its padding
+ * included): 1 while the card's own 208 fits, then in proportion to the
+ * height, up to MAX_CARD_ZOOM, so a tall dock shows bigger cards rather
+ * than a strip of them over empty space.
+ */
+export function cardZoom(rowH: number): number {
+  return Math.min(
+    MAX_CARD_ZOOM,
+    Math.max(1, (rowH - 2 * PAD_PX) / SYNTH_CARD_MAX_PX),
+  );
+}
+
+/** The cards' zoom, for a canvas to draw at the pixels it covers. */
+export const CardZoomContext = createContext(1);
 
 export interface SynthCardLayout {
   mode: SynthCardMode;

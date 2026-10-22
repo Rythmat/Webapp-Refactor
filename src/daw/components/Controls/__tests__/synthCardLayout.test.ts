@@ -17,6 +17,7 @@ import {
   SYNTH_CARD_W,
   synthCardLayout,
 } from '../OracleSynthCard';
+import { cardZoom, MAX_CARD_ZOOM } from '../synthDockKit';
 
 /** Room for a sideways scrollbar under the row. */
 const SCROLLBAR_PX = 12;
@@ -45,7 +46,9 @@ describe('synthCardLayout', () => {
   it('keeps every control a little under the frame’s height, then drops some', () => {
     expect(synthCardLayout(222).mode).toBe('full');
     expect(synthCardLayout(200).mode).toBe('compact');
-    const tight = synthCardLayout(160);
+    // Compact keeps the plots down to the dock's least height.
+    expect(synthCardLayout(183).mode).toBe('compact');
+    const tight = synthCardLayout(150);
     expect(tight.mode).toBe('tight');
     expect(tight.plotH).toBe(0);
   });
@@ -64,6 +67,8 @@ describe('synthCardLayout', () => {
         expect(l.plotH + 3, at).toBeLessThanOrEqual(l.bodyH - 30 - 1);
       } else if (l.mode === 'compact') {
         expect(l.plotH + 3, at).toBeLessThanOrEqual(l.bodyH - 30 - 1);
+        // Position's tile clears the table select under it.
+        expect(l.tileH, at).toBeLessThanOrEqual(l.bodyH - 30 - 1);
         expect(10 + knobH(l.knob), at).toBeLessThanOrEqual(l.tileH);
         expect(knobH(l.cutoff), at).toBeLessThanOrEqual(l.bodyH);
       } else {
@@ -73,5 +78,11 @@ describe('synthCardLayout', () => {
         expect(knobH(l.cutoff), at).toBeLessThanOrEqual(l.bodyH);
       }
     }
+  });
+
+  it('zooms the cards in a tall dock, in proportion, up to 1.5×', () => {
+    expect(cardZoom(224)).toBe(1);
+    expect(cardZoom(16 + 208 * 1.25)).toBeCloseTo(1.25);
+    expect(cardZoom(900)).toBe(MAX_CARD_ZOOM);
   });
 });

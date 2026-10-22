@@ -346,8 +346,8 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'slow-bpm',
       stage: 'STAGE 4 — TEMPO',
       instruction:
-        'Hip hop breathes slower. Set the **Tempo** at the bottom to **95 BPM or less**.',
-      // The tempo field in the bottom rail (B4a).
+        'Hip hop breathes slower. Set the **Tempo** at the top to **95 BPM or less**.',
+      // The tempo field in the top bar's Song pill (2026-10-21).
       target: 'transport-bpm',
       check: (s, armed) => s.bpm <= 95 && s.bpm !== armed.bpm,
     },
@@ -646,7 +646,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'goto-master',
       stage: 'STAGE 4 — MIX',
       instruction:
-        'Time to mix. Click **Mix** in the top bar to open the mixing console.',
+        'Time to mix. Click **Mix** at the bottom to open the mixing console.',
       target: 'view-switch-studio',
       check: (s) => s.currentView === 'studio',
     },

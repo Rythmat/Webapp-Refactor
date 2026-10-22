@@ -138,7 +138,7 @@ function TypingPill({ text, onOff }: { text: string; onOff: () => void }) {
           }}
           aria-keyshortcuts={TOGGLE_KEYS.aria}
           data-testid="musical-typing-chip"
-          className="shrink-0 whitespace-nowrap rounded-full pr-1 data-[state=on]:bg-transparent data-[state=on]:hover:bg-daw-hover"
+          className="shrink-0 whitespace-nowrap rounded-full pr-1 data-[state=on]:bg-transparent data-[state=on]:hover:bg-daw-hover aria-pressed:bg-transparent aria-pressed:hover:bg-daw-hover"
         >
           {text}
         </Toggle>

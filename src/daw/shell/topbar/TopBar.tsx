@@ -26,6 +26,7 @@ import { ProjectMenu } from './ProjectMenu';
 import { ProjectName } from './ProjectName';
 import { SaveChipAnnouncer, SaveStatusChip } from './SaveStatusChip';
 import { useClickSettings } from '../bottombar/ClickToggle';
+import { SnapToGridSub, TimelineDisplaySub } from '../canvas/GridMenu';
 import { SongControls } from '../bottombar/SongControls';
 import { TransportControls } from '../bottombar/TransportControls';
 import { UndoRedoButtons } from './UndoRedoButtons';
@@ -52,7 +53,7 @@ import { folded, useToolbarOverflow } from './useToolbarOverflow';
 // none of the bar. The left zone leaves room for Stage D's assignment strip
 // and the read-only review banner (4.1).
 
-/** The least room either side of the transport (the grid's spacers). */
+/** The least room either side of the transport (the grid's column gaps). */
 const BAR_CHROME_PX = 4 + 4;
 
 const TYPING_KEYS = shortcutKeys('typing.on');
@@ -76,7 +77,13 @@ export const TopBar = memo(function TopBar({
   const centreRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
   const zones = useMemo(() => [leftRef, centreRef, rightRef], []);
-  const fold = useToolbarOverflow(barRef, zones, BAR_CHROME_PX);
+  const fold = useToolbarOverflow(
+    barRef,
+    zones,
+    BAR_CHROME_PX,
+    undefined,
+    true,
+  );
   // Undo and Redo are off in the practice view, as Cmd+Z is.
   const practiceView = useStore((s) => s.currentView === 'practice');
 
@@ -88,8 +95,10 @@ export const TopBar = memo(function TopBar({
         data-fold={fold}
         className="grid h-11 items-center overflow-hidden px-2"
         style={{
-          gridTemplateColumns:
-            'auto minmax(4px, 1fr) auto minmax(4px, 1fr) auto',
+          // The transport centred in the window, as the floating frame's is:
+          // equal side columns, each zone against its own edge.
+          gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+          columnGap: 4,
         }}
       >
         <div
@@ -97,7 +106,7 @@ export const TopBar = memo(function TopBar({
           role="group"
           aria-label="Project"
           data-zone="project"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 justify-self-start"
         >
           <PillGroup label="Project name and menu" className="pr-2">
             <BackToStudio />
@@ -111,7 +120,6 @@ export const TopBar = memo(function TopBar({
             </PillGroup>
           )}
         </div>
-        <span aria-hidden />
         <div
           ref={centreRef}
           role="group"
@@ -121,13 +129,12 @@ export const TopBar = memo(function TopBar({
         >
           <TransportControls isReady={isReady} onInit={onInit} />
         </div>
-        <span aria-hidden />
         <div
           ref={rightRef}
           role="group"
           aria-label="Song and account"
           data-zone="share"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 justify-self-end"
         >
           <PillGroup label="Song" data-zone="song" className="px-1">
             <SongControls short={folded(fold, 'key-short')} />
@@ -156,7 +163,8 @@ export const MORE_COPY = {
 
 /**
  * '⋯': the computer keyboard's switch, the hover hints' switch, the command
- * palette, the metronome's settings (also a right-click on it), Help
+ * palette, Snap to grid and Timeline display (from the ruler's end since
+ * 2026-10-21), the metronome's settings (also a right-click on it), Help
  * (shortcuts, lessons) and Audio & MIDI settings.
  */
 function MoreMenu() {
@@ -216,6 +224,9 @@ function MoreMenu() {
         >
           Find a command
         </MenuItem>
+        <SnapToGridSub />
+        <TimelineDisplaySub />
+        <MenuSeparator />
         <MenuItem
           icon={<Timer />}
           data-testid="metronome-settings-menu-item"

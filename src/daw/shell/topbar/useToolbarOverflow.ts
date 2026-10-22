@@ -76,6 +76,11 @@ export function useToolbarOverflow(
   zoneRefs: ReadonlyArray<RefObject<HTMLElement>>,
   chromePx: number,
   maxFold: number = MAX_FOLD,
+  /**
+   * Three zones with the middle one centred in the bar (the top bar's
+   * transport): the sides need room for twice the wider of them.
+   */
+  centred = false,
 ): number {
   const [level, setLevel] = useState(0);
   const levelRef = useRef(level);
@@ -91,8 +96,11 @@ export function useToolbarOverflow(
       parseFloat(style.paddingLeft || '0') -
       parseFloat(style.paddingRight || '0');
     if (available <= 0) return;
-    let needed = chromePx;
-    for (const zone of zoneRefs) needed += zone.current?.scrollWidth ?? 0;
+    const zoneWidths = zoneRefs.map((zone) => zone.current?.scrollWidth ?? 0);
+    let needed =
+      centred && zoneWidths.length === 3
+        ? chromePx + zoneWidths[1] + 2 * Math.max(zoneWidths[0], zoneWidths[2])
+        : chromePx + zoneWidths.reduce((sum, w) => sum + w, 0);
     needed = Math.ceil(needed);
     const at = levelRef.current;
     // Content changed since this level was measured: every level is stale.
@@ -102,7 +110,7 @@ export function useToolbarOverflow(
     widths.current[at] = needed;
     const next = foldLevelFor(available, widths.current, maxFold);
     if (next !== at) setLevel(next);
-  }, [barRef, chromePx, zoneRefs, maxFold]);
+  }, [barRef, chromePx, zoneRefs, maxFold, centred]);
 
   // After every render of the bar, before paint.
   useLayoutEffect(settle);

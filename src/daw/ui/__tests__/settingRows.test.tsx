@@ -53,7 +53,8 @@ import { audioEngine } from '@/daw/audio/AudioEngine';
 import { SettingsModal } from '@/daw/components/Transport/SettingsModal';
 import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import { ClickToggle } from '@/daw/shell/bottombar/ClickToggle';
-import { GridMenu } from '@/daw/shell/canvas/GridMenu';
+import { SnapToGridSub, TimelineDisplaySub } from '@/daw/shell/canvas/GridMenu';
+import { Menu, MenuContent, MenuTrigger } from '@/daw/ui/Menu';
 import { ShortcutSheet } from '@/daw/shell/help/ShortcutSheet';
 import { AvatarMenu } from '@/daw/shell/topbar/AvatarMenu';
 import { TopBar } from '@/daw/shell/topbar/TopBar';
@@ -146,6 +147,17 @@ function expectShort(lines: string[]) {
 const openMenu = (trigger: HTMLElement) =>
   fireEvent.keyDown(trigger, { key: 'Enter' });
 
+/** A More-menu submenu, open: the menu around it, then the sub. */
+function renderMoreSub(sub: JSX.Element, trigger: string) {
+  render(
+    <Menu defaultOpen modal={false}>
+      <MenuTrigger>More</MenuTrigger>
+      <MenuContent>{sub}</MenuContent>
+    </Menu>,
+  );
+  fireEvent.keyDown(screen.getByTestId(trigger), { key: 'ArrowRight' });
+}
+
 beforeAll(installDomShims);
 beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
@@ -235,20 +247,24 @@ describe('every setting explains itself', () => {
     ).toBeGreaterThanOrEqual(3);
   });
 
-  it('in the Grid menu: grid, triplets, snap, chord labels, colour', () => {
-    render(<GridMenu />);
-    openMenu(screen.getByTestId('grid-menu'));
+  it('in More ▸ Snap to grid: snap, grid and triplets', () => {
+    renderMoreSub(<SnapToGridSub />, 'grid-menu');
     const { items } = expectEverySettingExplained();
-    // Bar to sixteenth (five in 4/4), triplets, snap, two and two.
-    expect(items).toBe(5 + 2 + 2 + 2);
+    // Snap, bar to sixteenth (five in 4/4), triplets.
+    expect(items).toBe(1 + 5 + 1);
     expect(screen.getByRole('group', { name: 'Grid' })).toBeTruthy();
   });
 
-  it('in the Grid menu under a fixed notation, the lock is the line', () => {
+  it('in More ▸ Timeline display: chord labels and clip colours', () => {
+    renderMoreSub(<TimelineDisplaySub />, 'timeline-display-menu');
+    const { items } = expectEverySettingExplained();
+    expect(items).toBe(2 + 2);
+  });
+
+  it('in More ▸ Timeline display under a fixed notation, the lock is the line', () => {
     setChordNotationSwitcherEnabled(true);
     setChordNotation('jazz');
-    render(<GridMenu />);
-    openMenu(screen.getByTestId('grid-menu'));
+    renderMoreSub(<TimelineDisplaySub />, 'timeline-display-menu');
     expectEverySettingExplained();
     expect(
       describedBy(screen.getByRole('group', { name: 'Chord lane labels' })),

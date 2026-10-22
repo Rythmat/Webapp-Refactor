@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import type { ReactNode } from 'react';
 import {
   act,
   cleanup,
@@ -41,12 +42,24 @@ import {
 } from '@/lib/chordNotation';
 import { ChordAnalysisBanner } from '../ChordAnalysisBanner';
 import { ChordLaneHeader, suggestTarget } from '../ChordLaneHeader';
-import { GridMenu } from '../GridMenu';
-import { RulerEndControls } from '../RulerEndControls';
+import { Menu, MenuContent, MenuTrigger } from '@/daw/ui/Menu';
+import { SnapToGridSub, TimelineDisplaySub } from '../GridMenu';
 import { TimelineFooter } from '../TimelineFooter';
 import { TimelineTools } from '../TimelineTools';
 
 const s = () => useStore.getState();
+
+/** A submenu as the top bar's More menu holds it: open, with its trigger. */
+function InMore({ children }: { children: ReactNode }) {
+  return (
+    <Menu defaultOpen modal={false}>
+      <MenuTrigger>More</MenuTrigger>
+      <MenuContent>{children}</MenuContent>
+    </Menu>
+  );
+}
+const openSub = (testId: string) =>
+  fireEvent.keyDown(screen.getByTestId(testId), { key: 'ArrowRight' });
 /** The tip on screen (Radix's hidden copy, role="tooltip", sits inside). */
 const shownTip = () => screen.getByRole('tooltip').parentElement!;
 
@@ -78,12 +91,18 @@ afterEach(() => {
 });
 
 describe('the header’s controls', () => {
-  it('turns snap off and on without moving the playhead (shell-18)', () => {
-    render(<RulerEndControls />);
-    fireEvent.click(screen.getByRole('button', { name: 'Snap to grid' }));
-    expect(s().timelineSnapEnabled).toBe(false);
-    fireEvent.click(screen.getByRole('button', { name: 'Snap to grid' }));
-    expect(s().timelineSnapEnabled).toBe(true);
+  it('turns snap off and on from More, without moving the playhead (shell-18)', () => {
+    for (const expected of [false, true]) {
+      const { unmount } = render(
+        <InMore>
+          <SnapToGridSub />
+        </InMore>,
+      );
+      openSub('grid-menu');
+      fireEvent.click(screen.getByTestId('grid-snap'));
+      expect(s().timelineSnapEnabled).toBe(expected);
+      unmount();
+    }
     expect(s().position).toBe(960);
   });
 
@@ -114,19 +133,16 @@ describe('the header’s controls', () => {
     expect(s().timelineZoom).toBeLessThan(1);
   });
 
-  it('names the grid on its button', () => {
+  it('names the grid, and says when snap is off, on its More row', () => {
     useStore.setState({ timelineGridSize: '1/8T', timelineSnapEnabled: false });
-    render(<GridMenu />);
-    expect(
-      screen.getByRole('button', { name: 'Grid: 1/8 triplet, snap off' }),
-    ).toBeInTheDocument();
-  });
-
-  it('puts snap and the grid together at the ruler’s end', () => {
-    render(<RulerEndControls />);
-    const end = screen.getByRole('group', { name: 'Grid and snap' });
-    expect(end).toContainElement(screen.getByTestId('snap-toggle'));
-    expect(end).toContainElement(screen.getByTestId('grid-menu'));
+    render(
+      <InMore>
+        <SnapToGridSub />
+      </InMore>,
+    );
+    expect(screen.getByTestId('grid-menu')).toHaveAccessibleName(
+      'Snap to grid: 1/8 triplet, snap off',
+    );
   });
 });
 
@@ -141,26 +157,20 @@ describe('the header’s tips', () => {
     expect(shownTip()).toHaveTextContent('Pointer (V)');
     expect(shownTip()).toHaveAttribute('data-side', 'right');
   });
-
-  it('open Snap’s and Grid’s to the left, over the ruler', () => {
-    render(<RulerEndControls />);
-    act(() => screen.getByTestId('snap-toggle').focus());
-    expect(shownTip()).toHaveTextContent('Snap to grid');
-    expect(shownTip()).toHaveAttribute('data-side', 'left');
-    act(() => screen.getByTestId('grid-menu').focus());
-    expect(shownTip()).toHaveTextContent('Grid, snap and display');
-    expect(shownTip()).toHaveAttribute('data-side', 'left');
-  });
 });
 
-describe('the Grid menu’s display choices', () => {
-  const open = () =>
-    fireEvent.keyDown(screen.getByTestId('grid-menu'), { key: 'Enter' });
+describe('More ▸ Timeline display', () => {
+  const open = () => openSub('timeline-display-menu');
+  const Display = () => (
+    <InMore>
+      <TimelineDisplaySub />
+    </InMore>
+  );
   const checked = (name: string) =>
     screen.getByRole('menuitemradio', { name }).getAttribute('aria-checked');
 
   it('names its radio groups', () => {
-    render(<GridMenu />);
+    render(<Display />);
     open();
     expect(
       screen.getByRole('group', { name: 'Chord lane labels' }),
@@ -172,7 +182,7 @@ describe('the Grid menu’s display choices', () => {
 
   it('checks the hybrid labels choice, and neither under Jazz notation', () => {
     useStore.setState({ chordRulerShowNotes: true });
-    const { unmount } = render(<GridMenu />);
+    const { unmount } = render(<Display />);
     open();
     expect(checked('Note names')).toBe('true');
     expect(checked('Degree numbers')).toBe('false');
@@ -180,7 +190,7 @@ describe('the Grid menu’s display choices', () => {
 
     setChordNotationSwitcherEnabled(true);
     setChordNotation('jazz');
-    render(<GridMenu />);
+    render(<Display />);
     open();
     // The lane draws jazz symbols, not the note names the choice keeps.
     expect(checked('Note names')).toBe('false');

@@ -108,7 +108,7 @@ describe('the master column', () => {
     render(<MasterColumn isReady={false} />);
     expect(bypass()).toHaveAttribute('data-state', 'on');
     expect(bypass()).toHaveAttribute('data-tone', 'neutral');
-    expect(bypass().className).toContain('data-[state=on]:bg-daw-selected');
+    expect(bypass().className).toContain('aria-pressed:bg-daw-selected');
   });
 
   it('says Bypass is for listening: exports keep the mastering', () => {

@@ -132,11 +132,25 @@ export const SaveStatusChip = memo(function SaveStatusChip({
   }, [reason, deviceFailing, fix]);
 
   if (warningsOnly && !warning) {
-    return announce ? (
-      <span role="status" aria-live="polite" className="sr-only">
-        {chip.announce ?? ''}
-      </span>
-    ) : null;
+    // Out of sight, but the state is kept on a hidden marker (the save
+    // harness and tests read it); the live region still says it.
+    return (
+      <>
+        <span
+          hidden
+          data-testid="save-chip"
+          data-state={chip.state}
+          data-reason={reason ?? 'none'}
+        >
+          {chip.label}
+        </span>
+        {announce ? (
+          <span role="status" aria-live="polite" className="sr-only">
+            {chip.announce ?? ''}
+          </span>
+        ) : null}
+      </>
+    );
   }
 
   return (

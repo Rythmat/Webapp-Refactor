@@ -168,7 +168,7 @@ describe('a Mix strip’s toggles', () => {
     expect(s().tracks[0].solo).toBe(true);
     expect(solo).toHaveAttribute('aria-pressed', 'true');
     // Neutral: white/10 when on, not a colour.
-    expect(mute.className).toContain('data-[state=on]:bg-daw-selected');
+    expect(mute.className).toContain('aria-pressed:bg-daw-selected');
   });
 
   it('every control is at least 24 px', () => {

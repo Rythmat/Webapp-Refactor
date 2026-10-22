@@ -67,13 +67,26 @@ describe('the song controls', () => {
   it('lists the seven time signatures, picks one and closes', () => {
     render(<SongControls />);
     fireEvent.click(screen.getByTestId('metre-button'));
-    const group = screen.getByRole('radiogroup', { name: 'Time signature' });
-    expect(
-      within(group)
-        .getAllByRole('radio')
-        .map((r) => r.textContent),
-    ).toEqual(['2/4', '3/4', '4/4', '5/4', '6/4', '7/4', '12/8']);
-    fireEvent.click(screen.getByRole('radio', { name: '12/8' }));
+    const list = screen.getByRole('listbox', { name: 'Time signature' });
+    const options = within(list).getAllByRole('option');
+    expect(options.map((o) => o.textContent)).toEqual([
+      '2/4',
+      '3/4',
+      '4/4',
+      '5/4',
+      '6/4',
+      '7/4',
+      '12/8',
+    ]);
+    // The current one is marked (selected, with a check), and is the one
+    // tab stop; the arrows move between rows.
+    const four = within(list).getByRole('option', { name: '4/4' });
+    expect(four).toHaveAttribute('aria-selected', 'true');
+    expect(options.filter((o) => o.tabIndex === 0)).toEqual([four]);
+    act(() => four.focus());
+    fireEvent.keyDown(four, { key: 'ArrowDown' });
+    expect(within(list).getByRole('option', { name: '5/4' })).toHaveFocus();
+    fireEvent.click(screen.getByRole('option', { name: '12/8' }));
     expect([s().timeSignatureNumerator, s().timeSignatureDenominator]).toEqual([
       12, 8,
     ]);
@@ -88,14 +101,19 @@ describe('the song controls', () => {
     const note = screen.getByTestId('metre-custom-note');
     expect(beats).toHaveValue('');
     expect(note).toHaveValue('');
-    // A beat note the store can't hold is marked and not set.
+    // A beat note the store can't hold is marked, explained and not set.
     fireEvent.change(beats, { target: { value: '11' } });
     fireEvent.change(note, { target: { value: '3' } });
     fireEvent.keyDown(note, { key: 'Enter' });
     expect(note).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Beat note: 2, 4, 8 or 16',
+    );
+    expect(screen.getByTestId('metre-custom-set')).toBeDisabled();
     expect(s().timeSignatureNumerator).toBe(4);
+    // ✓ sets it (a phone's number pad has no Enter).
     fireEvent.change(note, { target: { value: '8' } });
-    fireEvent.keyDown(note, { key: 'Enter' });
+    fireEvent.click(screen.getByTestId('metre-custom-set'));
     expect([s().timeSignatureNumerator, s().timeSignatureDenominator]).toEqual([
       11, 8,
     ]);

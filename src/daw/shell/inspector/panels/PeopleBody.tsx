@@ -1,5 +1,5 @@
 import { Check, Copy, Link2, LogOut, Users } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useId, useState } from 'react';
 import { cn } from '@/components/utilities';
 import { useCollab } from '@/daw/collab/CollabProvider';
 import { useRemoteUsers } from '@/daw/collab/presence';
@@ -211,6 +211,7 @@ function JoinWithCode() {
   const roomError = useStore((s) => s.roomError);
   const setRoomError = useStore((s) => s._setRoomError);
   const [typed, setTyped] = useState('');
+  const inputId = useId();
   const join = useCallback(async () => {
     const code = joinCodeOf(typed);
     if (!code || useStore.getState().roomId !== null) return;
@@ -223,39 +224,38 @@ function JoinWithCode() {
   }, [typed, setRoomError]);
   return (
     <div className="flex shrink-0 flex-col gap-1.5 border-t border-daw-hairline px-3 py-3">
-      <label className="flex flex-col gap-1.5">
-        <span className={cn(TYPE_CLASS.micro, 'text-daw-text-3')}>
-          Join with a code
-        </span>
-        <div className="flex items-center gap-1.5">
-          <input
-            value={typed}
-            onChange={(e) => {
-              setTyped(e.target.value);
-              if (roomError) setRoomError(null);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') void join();
-            }}
-            disabled={inRoom}
-            placeholder="Code or link"
-            spellCheck={false}
-            autoComplete="off"
-            data-testid="people-join-code"
-            className={cn(
-              'h-7 min-w-0 flex-1 rounded-[var(--daw-radius-sm)] border border-daw-outline bg-transparent px-2 text-daw-text placeholder:text-daw-text-3',
-              TYPE_CLASS.body,
-              FOCUS_RING,
-            )}
-          />
-          <Button
-            onClick={() => void join()}
-            disabled={!typed.trim() || inRoom}
-          >
-            Join
-          </Button>
-        </div>
+      <label
+        htmlFor={inputId}
+        className={cn(TYPE_CLASS.micro, 'text-daw-text-3')}
+      >
+        Join with a code
       </label>
+      <div className="flex items-center gap-1.5">
+        <input
+          id={inputId}
+          value={typed}
+          onChange={(e) => {
+            setTyped(e.target.value);
+            if (roomError) setRoomError(null);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') void join();
+          }}
+          disabled={inRoom}
+          placeholder="Code or link"
+          spellCheck={false}
+          autoComplete="off"
+          data-testid="people-join-code"
+          className={cn(
+            'h-7 min-w-0 flex-1 rounded-[var(--daw-radius-sm)] border border-daw-outline bg-transparent px-2 text-daw-text placeholder:text-daw-text-3',
+            TYPE_CLASS.body,
+            FOCUS_RING,
+          )}
+        />
+        <Button onClick={() => void join()} disabled={!typed.trim() || inRoom}>
+          Join
+        </Button>
+      </div>
       {roomError ? (
         <span
           role="alert"

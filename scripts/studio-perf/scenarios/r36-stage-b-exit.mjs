@@ -439,7 +439,6 @@ function overlays(kit) {
       panel: { selector: '[data-testid="click-menu"]' },
       open: (page) => rightClick(page, '[data-testid="count-in-menu"]'),
     },
-    { name: 'Grid menu', ...click('[data-testid="grid-menu"]', menu) },
     {
       name: 'Chord lane key',
       ...click('[data-testid="chord-lane-key"]', {

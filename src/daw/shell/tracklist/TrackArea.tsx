@@ -8,7 +8,6 @@ import { useStore } from '@/daw/store';
 import { Button } from '@/daw/ui/Button';
 import { ChordAnalysisBanner } from '../canvas/ChordAnalysisBanner';
 import { ChordLaneHeader } from '../canvas/ChordLaneHeader';
-import { RulerEndControls } from '../canvas/RulerEndControls';
 import { TimelineFooter } from '../canvas/TimelineFooter';
 import { TimelineTools } from '../canvas/TimelineTools';
 import {
@@ -68,7 +67,6 @@ export const TrackArea = memo(function TrackArea() {
           </DevProfiler>
         </div>
         <div className="relative min-w-0">
-          <RulerEndControls />
           <ChordAnalysisBanner />
           <Timeline scrollRef={scrollRef} />
           {empty ? (

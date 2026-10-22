@@ -31,11 +31,15 @@ afterEach(cleanup);
 describe('the bottom rail (the floating frame)', () => {
   it('has Master at the left, the views at the centre and Learn at the right', () => {
     render(<BottomRail />);
-    const groups = ['Master', 'Views', 'Learn'].map((name) =>
-      screen.getByRole('group', { name }),
-    );
-    // In that order, left to right.
-    const order = groups.map((g) => g.dataset.zone);
+    for (const name of ['Master', 'Views', 'Learn']) {
+      expect(screen.getByRole('group', { name })).toBeInTheDocument();
+    }
+    // In that order, left to right: the rail's own zones as the DOM has them.
+    const order = [
+      ...screen
+        .getByTestId('bottom-rail')
+        .querySelectorAll(':scope > [data-zone]'),
+    ].map((zone) => (zone as HTMLElement).dataset.zone);
     expect(order).toEqual(['master', 'views', 'learn']);
     expect(screen.getByRole('group', { name: 'Views' })).toHaveClass(
       'bg-daw-pill',
@@ -55,11 +59,21 @@ describe('the bottom rail (the floating frame)', () => {
     expect(screen.queryByTestId('transport-play')).toBeNull();
   });
 
-  it('marks the open view with its fill, not colour alone', () => {
+  it('marks only the open view as active, with its fill and its weight', () => {
     render(<BottomRail />);
     const create = screen.getByRole('tab', { name: 'Create' });
     expect(create).toHaveAttribute('aria-selected', 'true');
-    expect(create).toHaveClass('data-[state=active]:bg-daw-pill-on');
+    expect(create).toHaveAttribute('data-state', 'active');
+    expect(create).toHaveClass(
+      'data-[state=active]:bg-daw-pill-on',
+      'data-[state=active]:font-bold',
+    );
+    for (const name of ['Mix', 'Score']) {
+      expect(screen.getByRole('tab', { name })).toHaveAttribute(
+        'data-state',
+        'inactive',
+      );
+    }
   });
 
   it('adds Practice first while a practice session exists', () => {

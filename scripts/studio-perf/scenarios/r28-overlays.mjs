@@ -175,12 +175,6 @@ const POPOVERS = [
     v2: true,
   },
   {
-    name: 'Grid menu',
-    trigger: '[data-testid="grid-menu"]',
-    panel: '[role=menu][data-state=open]',
-    v2: true,
-  },
-  {
     name: 'Chord lane key',
     trigger: '[data-testid="chord-lane-key"]',
     panel: '[data-testid="chord-lane-key-popover"]',

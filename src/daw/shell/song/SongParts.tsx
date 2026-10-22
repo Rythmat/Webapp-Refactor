@@ -1,8 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { cn } from '@/components/utilities';
 import { CircleOfFifths } from '@/daw/components/Prism/CircleOfFifths';
 import { useStore } from '@/daw/store';
-import { X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { Button } from '@/daw/ui/Button';
 import { IconButton } from '@/daw/ui/IconButton';
 import { PopoverClose } from '@/daw/ui/Popover';
@@ -67,9 +74,14 @@ export function KeyCircle({ onDone }: { onDone(): void }) {
 /**
  * The time signature menu, laid out as the floating frame's (owner,
  * 2026-10-21): a small 'Time signature' heading with a close button, one
- * 40 px row per common time signature (the current one lit), and two empty
- * boxes at the bottom for a custom one. Enter in either box sets it when
- * both hold a valid value: 1 to 32 beats, a beat note of 2, 4, 8 or 16.
+ * 40 px row per common time signature, and two empty boxes at the bottom
+ * for a custom one.
+ *
+ * The rows are a listbox: one tab stop, ↑ ↓ Home End move between rows,
+ * Enter or a click picks. The current row carries a check, not only a
+ * lighter fill. The custom boxes set it on Enter, on ✓, or as focus leaves
+ * them with both valid (1 to 32 beats; a beat note of 2, 4, 8 or 16), and
+ * say what is wrong under them.
  */
 export function MetreChoices({ onPicked }: { onPicked?(): void }) {
   const numerator = useStore((s) => s.timeSignatureNumerator);
@@ -77,6 +89,12 @@ export function MetreChoices({ onPicked }: { onPicked?(): void }) {
   const setTimeSignature = useStore((s) => s.setTimeSignature);
   const [beats, setBeats] = useState('');
   const [note, setNote] = useState('');
+  const current = METRES.findIndex(
+    ([n, d]) => n === numerator && d === denominator,
+  );
+  const [focusIndex, setFocusIndex] = useState(Math.max(0, current));
+  const rows = useRef<Array<HTMLButtonElement | null>>([]);
+  const errorId = useId();
   const pick = (n: number, d: number) => {
     setTimeSignature(n, d);
     onPicked?.();
@@ -85,20 +103,27 @@ export function MetreChoices({ onPicked }: { onPicked?(): void }) {
   const noteN = Number(note);
   const beatsOk = Number.isInteger(beatsN) && beatsN >= 1 && beatsN <= 32;
   const noteOk = BEAT_NOTES.includes(noteN);
+  const beatsBad = beats !== '' && !beatsOk;
+  const noteBad = note !== '' && !noteOk;
   const setCustom = () => {
     if (beatsOk && noteOk) pick(beatsN, noteN);
+  };
+  const move = (to: number) => {
+    const next = (to + METRES.length) % METRES.length;
+    setFocusIndex(next);
+    rows.current[next]?.focus();
   };
   const box = (bad: boolean) =>
     cn(
       'h-8 w-10 rounded-[var(--daw-radius-md)] border bg-transparent px-1 text-center text-daw-text placeholder:text-daw-text-3',
-      bad ? 'border-daw-danger-text' : 'border-daw-edge',
+      bad ? 'border-daw-danger-text' : 'border-daw-outline',
       TYPE_CLASS.item,
       TRANSITION,
       FOCUS_RING,
     );
   return (
     <div className="flex flex-col">
-      <div className="flex items-center justify-between pb-1 pl-4 pr-1 pt-1">
+      <div className="flex items-center justify-between pb-1 pl-4 pr-2 pt-2">
         <span className={cn(TYPE_CLASS.label, 'text-daw-text-2')}>
           Time signature
         </span>
@@ -113,27 +138,44 @@ export function MetreChoices({ onPicked }: { onPicked?(): void }) {
         </PopoverClose>
       </div>
       <div
-        role="radiogroup"
+        role="listbox"
         aria-label="Time signature"
         className="flex flex-col"
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown') move(focusIndex + 1);
+          else if (e.key === 'ArrowUp') move(focusIndex - 1);
+          else if (e.key === 'Home') move(0);
+          else if (e.key === 'End') move(METRES.length - 1);
+          else return;
+          e.preventDefault();
+        }}
       >
-        {METRES.map(([n, d]) => {
-          const active = n === numerator && d === denominator;
+        {METRES.map(([n, d], i) => {
+          const active = i === current;
           return (
             <button
               key={`${n}/${d}`}
+              ref={(el) => {
+                rows.current[i] = el;
+              }}
               type="button"
-              role="radio"
-              aria-checked={active}
+              role="option"
+              aria-selected={active}
+              tabIndex={i === focusIndex ? 0 : -1}
+              onFocus={() => setFocusIndex(i)}
               onClick={() => pick(n, d)}
               className={cn(
-                'flex h-10 items-center px-4 text-left text-daw-text outline-none hover:bg-daw-menu-hover focus-visible:bg-daw-menu-hover',
-                active && 'bg-daw-chip',
+                'flex h-10 items-center justify-between px-4 text-left text-daw-text hover:bg-daw-menu-hover',
+                active && 'bg-daw-chip font-bold',
                 TYPE_CLASS.item,
                 TRANSITION,
+                FOCUS_RING,
+                // Inside the card's edge, so the ring is never clipped.
+                'focus-visible:-outline-offset-2',
               )}
             >
               {n}/{d}
+              {active ? <Check aria-hidden className="size-4" /> : null}
             </button>
           );
         })}
@@ -141,37 +183,65 @@ export function MetreChoices({ onPicked }: { onPicked?(): void }) {
       <div
         role="group"
         aria-label="Custom time signature"
-        className="flex items-center gap-1.5 border-t border-daw-edge px-4 py-2.5"
+        className="flex flex-col gap-1 border-t border-daw-edge px-4 py-2.5"
+        onBlur={(e) => {
+          // Focus left both boxes: set it if both hold a valid value.
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+            setCustom();
+          }
+        }}
       >
-        <input
-          inputMode="numeric"
-          aria-label="Custom: beats in a bar"
-          aria-invalid={beats !== '' && !beatsOk ? true : undefined}
-          value={beats}
-          onChange={(e) => setBeats(e.target.value.replace(/[^0-9]/g, ''))}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') setCustom();
-          }}
-          maxLength={2}
-          data-testid="metre-custom-beats"
-          className={box(beats !== '' && !beatsOk)}
-        />
-        <span aria-hidden className={cn(TYPE_CLASS.item, 'text-daw-text-3')}>
-          /
-        </span>
-        <input
-          inputMode="numeric"
-          aria-label="Custom: beat note"
-          aria-invalid={note !== '' && !noteOk ? true : undefined}
-          value={note}
-          onChange={(e) => setNote(e.target.value.replace(/[^0-9]/g, ''))}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') setCustom();
-          }}
-          maxLength={2}
-          data-testid="metre-custom-note"
-          className={box(note !== '' && !noteOk)}
-        />
+        <div className="flex items-center gap-1.5">
+          <input
+            inputMode="numeric"
+            aria-label="Custom: beats in a bar"
+            aria-invalid={beatsBad || undefined}
+            aria-describedby={beatsBad || noteBad ? errorId : undefined}
+            value={beats}
+            onChange={(e) => setBeats(e.target.value.replace(/[^0-9]/g, ''))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') setCustom();
+            }}
+            maxLength={2}
+            data-testid="metre-custom-beats"
+            className={box(beatsBad)}
+          />
+          <span aria-hidden className={cn(TYPE_CLASS.item, 'text-daw-text-3')}>
+            /
+          </span>
+          <input
+            inputMode="numeric"
+            aria-label="Custom: beat note"
+            aria-invalid={noteBad || undefined}
+            aria-describedby={beatsBad || noteBad ? errorId : undefined}
+            value={note}
+            onChange={(e) => setNote(e.target.value.replace(/[^0-9]/g, ''))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') setCustom();
+            }}
+            maxLength={2}
+            data-testid="metre-custom-note"
+            className={box(noteBad)}
+          />
+          <IconButton
+            label="Set this time signature"
+            icon={<Check />}
+            variant="bare"
+            size="md"
+            disabled={!beatsOk || !noteOk}
+            onClick={setCustom}
+            data-testid="metre-custom-set"
+          />
+        </div>
+        {beatsBad || noteBad ? (
+          <span
+            id={errorId}
+            role="alert"
+            className={cn(TYPE_CLASS.label, 'text-daw-danger-text')}
+          >
+            {beatsBad ? '1 to 32 beats' : 'Beat note: 2, 4, 8 or 16'}
+          </span>
+        ) : null}
       </div>
     </div>
   );

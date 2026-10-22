@@ -17,6 +17,7 @@ import { formatDb } from '@/daw/ui/format';
 import { Popover, PopoverAnchor, PopoverContent } from '@/daw/ui/Popover';
 import { Segmented } from '@/daw/ui/Segmented';
 import { SettingRow } from '@/daw/ui/SettingRow';
+import { PILL_TOGGLE } from '@/daw/ui/Pill';
 import { Toggle } from '@/daw/ui/Toggle';
 
 // ── Click and its menu (milestones 2.5, 2.8, 2.11) ──────────────────────────
@@ -131,10 +132,11 @@ function MetronomeIcon({ on }: { on: boolean }) {
   const sounding = countingIn || (isPlaying && on);
 
   useEffect(() => {
-    // At rest every bar is lit; while a click sounds, the beat's bar is.
+    // At rest every bar is lit while the metronome is on and dim while it is
+    // off; while a click sounds, the beat's bar is lit.
     const fill = (beat: number | null) => {
       bars.current.forEach((bar, i) => {
-        const lit = beat === null || beat % BEAT_BARS.length === i;
+        const lit = beat === null ? on : beat % BEAT_BARS.length === i;
         bar?.setAttribute('fill-opacity', lit ? '1' : '0.35');
       });
     };
@@ -181,7 +183,14 @@ function MetronomeIcon({ on }: { on: boolean }) {
       fill="currentColor"
       aria-hidden
     >
-      <rect x="1.25" y="2" width="1.75" height="12" rx="0.875" />
+      <rect
+        x="1.25"
+        y="2"
+        width="1.75"
+        height="12"
+        rx="0.875"
+        fillOpacity={on ? 1 : 0.35}
+      />
       {BEAT_BARS.map((x, i) => (
         <rect
           key={x}
@@ -193,6 +202,7 @@ function MetronomeIcon({ on }: { on: boolean }) {
           width="1.75"
           height="8"
           rx="0.875"
+          fillOpacity={on ? 1 : 0.35}
           className="transition-[fill-opacity] duration-daw-fast"
         />
       ))}
@@ -220,6 +230,10 @@ export const ClickToggle = memo(function ClickToggle() {
   const countInBars = useStore((s) => s.countInBars);
   const open = useClickSettings((s) => s.open);
   const setOpen = useClickSettings((s) => s.setOpen);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  // The settings never outlive the editor: a module store would reopen them
+  // on the next visit.
+  useEffect(() => () => useClickSettings.getState().setOpen(false), []);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverAnchor asChild>
@@ -233,6 +247,7 @@ export const ClickToggle = memo(function ClickToggle() {
           }}
         >
           <Toggle
+            ref={toggleRef}
             label="Metronome"
             tooltipSide="bottom"
             icon={<MetronomeIcon on={on} />}
@@ -241,11 +256,21 @@ export const ClickToggle = memo(function ClickToggle() {
             shortcut={METRONOME_KEYS.label}
             aria-keyshortcuts={METRONOME_KEYS.aria}
             data-testid="click-toggle"
-            className="h-8 rounded-[var(--daw-radius-md)]"
+            className={PILL_TOGGLE}
           />
         </span>
       </PopoverAnchor>
-      <PopoverContent side="bottom" align="start" sideOffset={8}>
+      <PopoverContent
+        side="bottom"
+        align="start"
+        sideOffset={8}
+        // No trigger to hand focus back to (the popover hangs off an
+        // anchor): back to the metronome, so the keyboard keeps its place.
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+          toggleRef.current?.focus();
+        }}
+      >
         <ClickSettings />
       </PopoverContent>
     </Popover>

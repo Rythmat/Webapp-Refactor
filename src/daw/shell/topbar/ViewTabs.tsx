@@ -49,11 +49,12 @@ const MAIN_REGION = 'daw-main-region';
 
 /**
  * The tabs as the bottom rail draws them (the floating frame, S0): 32 px
- * pill segments, white/50 at rest, the open view's on white/20. The open
- * view is marked by its fill and by aria-selected, not colour alone.
+ * pill segments, white/50 at rest, the open view's on white/20 and bold:
+ * the weight is the cue that is not colour alone (the underline's job in
+ * Tabs).
  */
 const SEGMENT =
-  'h-8 rounded-full px-4 font-normal text-daw-pill-text hover:text-daw-text data-[state=active]:bg-daw-pill-on data-[state=active]:text-daw-text after:hidden';
+  'h-8 rounded-full px-4 font-normal text-daw-pill-text hover:text-daw-text data-[state=active]:bg-daw-pill-on data-[state=active]:font-bold data-[state=active]:text-daw-text after:hidden';
 
 export const ViewTabs = memo(function ViewTabs() {
   const currentView = useStore((s) => s.currentView);

@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
 import {
+  act,
   cleanup,
   fireEvent,
   render,
   screen,
+  waitFor,
   within,
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -118,8 +120,8 @@ describe('the top bar', () => {
     // 2026-10-21: sessions are the side rail's People panel's alone, and the
     // save chip shows only when work is at risk.
     expect(screen.queryByTestId('share-pill')).toBeNull();
-    expect(screen.queryByTestId('save-chip')).toBeNull();
-    expect(screen.queryByText('Saved on this device')).toBeNull();
+    // The chip keeps its state on a hidden marker; nothing of it shows.
+    expect(screen.getByTestId('save-chip')).not.toBeVisible();
     // Metronome, Back to start, Record, Play, Loop: no bar skips.
     const transport = screen.getByRole('group', { name: 'Transport controls' });
     expect(
@@ -128,6 +130,28 @@ describe('the top bar', () => {
         .map((b) => b.getAttribute('aria-label')),
     ).toEqual(['Metronome', 'Back to start', 'Record', 'Play', 'Loop']);
     expect(screen.getByTestId('top-bar')).toHaveAttribute('data-fold', '0');
+  });
+
+  it('opens the metronome settings from ⋯, under the metronome', async () => {
+    renderBar();
+    fireEvent.keyDown(screen.getByTestId('top-bar-overflow'), {
+      key: 'Enter',
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('metronome-settings-menu-item'));
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId('click-menu')).toBeInTheDocument(),
+    );
+  });
+
+  it('holds Snap to grid and Timeline display in ⋯', () => {
+    renderBar();
+    fireEvent.keyDown(screen.getByTestId('top-bar-overflow'), {
+      key: 'Enter',
+    });
+    expect(screen.getByTestId('grid-menu')).toBeInTheDocument();
+    expect(screen.getByTestId('timeline-display-menu')).toBeInTheDocument();
   });
 
   it('keeps Help, Settings and the computer keyboard in ⋯', () => {

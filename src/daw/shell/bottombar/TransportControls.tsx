@@ -14,7 +14,7 @@ import {
   PlayGlyph,
   RecordGlyph,
 } from '@/daw/ui/icons/frameIcons';
-import { PillGroup } from '@/daw/ui/Pill';
+import { PILL_TOGGLE, PillGroup } from '@/daw/ui/Pill';
 import { Toggle } from '@/daw/ui/Toggle';
 import { ClickToggle } from './ClickToggle';
 import { PositionReadout } from './PositionReadout';
@@ -157,7 +157,7 @@ export const TransportControls = memo(function TransportControls({
         <Toggle
           label="Loop"
           tooltipSide="bottom"
-          className="h-8 rounded-[var(--daw-radius-md)]"
+          className={PILL_TOGGLE}
           icon={<LoopGlyph />}
           pressed={loopEnabled}
           onPressedChange={() => toggleLoop()}

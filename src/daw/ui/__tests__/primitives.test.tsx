@@ -199,7 +199,7 @@ describe('Toggle', () => {
       </Toggle>,
     );
     const mute = screen.getByRole('button', { name: 'Mute' });
-    expect(mute).toHaveClass('data-[state=on]:bg-daw-selected');
+    expect(mute).toHaveClass('aria-pressed:bg-daw-selected');
     expect(mute.className).not.toMatch(/yellow|amber|accent/);
   });
 
@@ -218,7 +218,7 @@ describe('Toggle', () => {
     );
     const arm = screen.getByRole('button', { name: 'Arm' });
     expect(arm).toHaveAttribute('data-tone', 'record');
-    expect(arm).toHaveClass('data-[state=on]:bg-daw-danger');
+    expect(arm).toHaveClass('aria-pressed:bg-daw-danger');
   });
 
   it('gives an icon-only toggle its label as a tooltip', () => {

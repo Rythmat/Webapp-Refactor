@@ -38,6 +38,14 @@ export const IconPill = forwardRef<HTMLButtonElement, IconPillProps>(
 export const PILL_ZONE =
   'inline-flex h-9 shrink-0 items-center gap-0.5 rounded-full bg-daw-pill px-1 text-daw-pill-text';
 
+/**
+ * A Toggle inside a pill (Metronome, Loop): 32 px, white/50 at rest; while
+ * on, a white/20 fill with the icon at full white (owner, 2026-10-21: not
+ * the white pill). The metronome's bars also dim while it is off.
+ */
+export const PILL_TOGGLE =
+  'h-8 rounded-[var(--daw-radius-md)] text-daw-pill-text hover:bg-daw-chip hover:text-daw-text data-[state=on]:bg-daw-pill-on data-[state=on]:text-daw-text data-[state=on]:hover:bg-daw-pill-on aria-pressed:bg-daw-pill-on aria-pressed:text-daw-text aria-pressed:hover:bg-daw-pill-on';
+
 export interface PillGroupProps
   extends Omit<HTMLAttributes<HTMLDivElement>, 'aria-label'> {
   /** What the group is ('Undo and redo', 'Transport'): its accessible name. */

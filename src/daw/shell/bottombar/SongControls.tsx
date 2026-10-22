@@ -123,7 +123,7 @@ function MetreButton() {
         sideOffset={8}
         data-testid="metre-popover"
         data-ds="v2"
-        className="w-[140px] overflow-hidden p-0"
+        className="w-[184px] p-0"
       >
         <MetreChoices onPicked={() => setOpen(false)} />
       </PopoverContent>

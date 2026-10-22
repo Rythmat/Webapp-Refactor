@@ -1138,11 +1138,6 @@
       "velocity": 96
     },
     {
-      "tick": 4080,
-      "note": 42,
-      "velocity": 96
-    },
-    {
       "tick": 4320,
       "note": 49,
       "velocity": 96
@@ -1164,6 +1159,21 @@
     },
     {
       "tick": 5520,
+      "note": 42,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "note": 42,
+      "velocity": 96
+    },
+    {
+      "tick": 3360,
+      "note": 42,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
       "note": 42,
       "velocity": 96
     }

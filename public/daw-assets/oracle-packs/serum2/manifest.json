@@ -758,7 +758,7 @@
   {
    "name": "S2/PWM MG",
    "file": "PWM MG.wav",
-   "frames": 68
+   "frames": 32
   },
   {
    "name": "S2/Basic Shapes",
@@ -808,7 +808,7 @@
   {
    "name": "S2/DM FMOD 01",
    "file": "DM FMOD 01.wav",
-   "frames": 256
+   "frames": 32
   },
   {
    "name": "S2/BS2 - Subby Saw",
@@ -828,7 +828,7 @@
   {
    "name": "S2/Acid",
    "file": "Acid.wav",
-   "frames": 40
+   "frames": 32
   },
   {
    "name": "S2/Renegade",
@@ -848,12 +848,12 @@
   {
    "name": "S2/Saw Drift PR1",
    "file": "Saw Drift PR1.wav",
-   "frames": 50
+   "frames": 32
   },
   {
    "name": "S2/Saw Drift",
    "file": "Saw Drift.wav",
-   "frames": 81
+   "frames": 32
   },
   {
    "name": "S2/No Fundamental Saw",
@@ -868,7 +868,7 @@
   {
    "name": "S2/Hardware Waveforms",
    "file": "Hardware Waveforms.wav",
-   "frames": 128
+   "frames": 32
   },
   {
    "name": "S2/Hypa",
@@ -878,22 +878,22 @@
   {
    "name": "S2/MWoog",
    "file": "MWoog.wav",
-   "frames": 254
+   "frames": 32
   },
   {
    "name": "S2/Dying Saw",
    "file": "Dying Saw.wav",
-   "frames": 256
+   "frames": 32
   },
   {
    "name": "S2/PWM Juno",
    "file": "PWM Juno.wav",
-   "frames": 112
+   "frames": 32
   },
   {
    "name": "S2/MB Saw",
    "file": "MB Saw.wav",
-   "frames": 256
+   "frames": 32
   },
   {
    "name": "S2/Shep. Oct+Fifths",
@@ -908,7 +908,7 @@
   {
    "name": "S2/Mellow But Instable",
    "file": "Mellow But Instable.wav",
-   "frames": 249
+   "frames": 32
   },
   {
    "name": "S2/Bass Pluck",
@@ -918,7 +918,7 @@
   {
    "name": "S2/RCM Bass 1",
    "file": "RCM Bass 1.wav",
-   "frames": 78
+   "frames": 32
   },
   {
    "name": "S2/DM - OSCAR",
@@ -928,7 +928,7 @@
   {
    "name": "S2/JF Flute",
    "file": "JF Flute.wav",
-   "frames": 256
+   "frames": 32
   },
   {
    "name": "S2/Warm Sub",
@@ -938,12 +938,12 @@
   {
    "name": "S2/Solina Viola",
    "file": "Solina Viola.wav",
-   "frames": 206
+   "frames": 32
   },
   {
    "name": "S2/Softest Growl",
    "file": "Softest Growl.wav",
-   "frames": 95
+   "frames": 32
   },
   {
    "name": "S2/Evolution",
@@ -953,7 +953,7 @@
   {
    "name": "S2/PWM Genji",
    "file": "PWM Genji.wav",
-   "frames": 136
+   "frames": 32
   },
   {
    "name": "S2/Jno",
@@ -963,12 +963,12 @@
   {
    "name": "S2/Xylo Pluck",
    "file": "Xylo Pluck.wav",
-   "frames": 127
+   "frames": 32
   },
   {
    "name": "S2/Braids Bell Pluck",
    "file": "Braids Bell Pluck.wav",
-   "frames": 43
+   "frames": 32
   },
   {
    "name": "S2/Basic OPL",
@@ -978,22 +978,22 @@
   {
    "name": "S2/Dying Sine",
    "file": "Dying Sine.wav",
-   "frames": 256
+   "frames": 32
   },
   {
    "name": "S2/Fish flips and morphs into Swordfish",
    "file": "Fish flips and morphs into Swordfish.wav",
-   "frames": 256
+   "frames": 32
   },
   {
    "name": "S2/AM Sine Harmonics",
    "file": "AM Sine Harmonics.wav",
-   "frames": 256
+   "frames": 32
   },
   {
    "name": "S2/Dinosaurs",
    "file": "Dinosaurs.wav",
-   "frames": 256
+   "frames": 32
   },
   {
    "name": "S2/Harm Octave",
@@ -1003,12 +1003,12 @@
   {
    "name": "S2/Sine SuperChirp",
    "file": "Sine SuperChirp.wav",
-   "frames": 256
+   "frames": 32
   },
   {
    "name": "S2/Harsh Harm",
    "file": "Harsh Harm.wav",
-   "frames": 254
+   "frames": 32
   },
   {
    "name": "S2/Monster 1 [SL]",
@@ -1018,7 +1018,7 @@
   {
    "name": "S2/FM Dirty Square",
    "file": "FM Dirty Square.wav",
-   "frames": 104
+   "frames": 32
   },
   {
    "name": "S2/Additive Talk",
@@ -1068,7 +1068,7 @@
   {
    "name": "S2/BS2 - Acid",
    "file": "BS2 - Acid.wav",
-   "frames": 128
+   "frames": 32
   },
   {
    "name": "S2/Basic_Wrd",

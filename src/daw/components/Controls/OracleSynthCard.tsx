@@ -455,6 +455,30 @@ function OscPanel({
   );
 }
 
+/** The lines in a basic shape's stack: its cycle at every 1/32 of phase. */
+const PHASE_STACK = 33;
+
+/** A one-frame table's cycle at each start phase, as display frames. */
+function phaseStack(cycle: Float32Array): {
+  count: number;
+  frame(index: number): Float32Array;
+} {
+  const made = new Map<number, Float32Array>();
+  return {
+    count: PHASE_STACK,
+    frame(index) {
+      let out = made.get(index);
+      if (out) return out;
+      const n = cycle.length;
+      const shift = Math.round((index / (PHASE_STACK - 1)) * n) % n;
+      out = new Float32Array(n);
+      for (let i = 0; i < n; i++) out[i] = cycle[(i + shift) % n];
+      made.set(index, out);
+      return out;
+    },
+  };
+}
+
 /** A cycle drawn from `phase` (0..1) into it, in the oscillator's 64 steps. */
 function startAt(wave: Float32Array, phase: number): Float32Array {
   const n = wave.length;
@@ -593,11 +617,18 @@ function WavetablePlot({
     getFramesVersion,
   );
 
-  const frames = useMemo(
+  const source = useMemo(
     () => displayFrames(engine, table, warpMode, warpAmount),
     // framesVersion: the same table, now loaded.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [engine, table, warpMode, warpAmount, framesVersion],
+  );
+  // A one-frame table (a basic shape) stacks its cycle at each start
+  // phase, which is what Position moves it through (owner, 2026-10-22).
+  const phased = !!source && source.count === 1;
+  const frames = useMemo(
+    () => (source && phased ? phaseStack(source.frame(0)) : source),
+    [source, phased],
   );
   const stacked = stack && !!frames && frames.count > 1;
 
@@ -705,11 +736,16 @@ function WavetablePlot({
     if (layer) ctx.drawImage(layer, 0, 0);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const index = Math.round(position * (frames.count - 1));
-    const t = stacked ? index / (frames.count - 1) : 0;
+    // A basic shape's lit cycle sits at its own phase (the oscillator's 64
+    // steps), between the stack's lines.
+    const t = !stacked
+      ? 0
+      : phased
+        ? Math.round(position * 64) / 64
+        : index / (frames.count - 1);
     // A one-frame table starts its cycle where Position has it, as the
     // oscillator does (in its 64 steps).
-    const wave =
-      frames.count === 1 ? startAt(points(0), position) : points(index);
+    const wave = phased ? startAt(points(0), position) : points(index);
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     if (!stacked) {

@@ -7,12 +7,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const FRAME_SIZE = 2048;
-/**
- * Every frame a table has, up to Serum's 256 (owner, 2026-10-22: the plot
- * shows each frame; the pack had thinned tables to 32). A 256-frame table
- * is ~1 MB and builds in ~90 ms, once, when a preset first plays it.
- */
-export const MAX_PACK_FRAMES = 256;
+export const MAX_PACK_FRAMES = 32;
 
 export interface WavetableData {
   frames: Float32Array[];

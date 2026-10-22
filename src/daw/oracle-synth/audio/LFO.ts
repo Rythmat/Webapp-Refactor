@@ -204,6 +204,13 @@ export class LFO {
     return (((this.anchorFrac + elapsed) % 1) + 1) % 1;
   }
 
+  /** The loop's position now (0..1), for a playhead; null when it isn't looping. */
+  phaseNow(): number | null {
+    return this.isRunning && !this.once
+      ? this.phaseAt(this.ctx.currentTime)
+      : null;
+  }
+
   private loopSeconds(): number {
     return (LOOP_BEATS * 60) / this.bpm;
   }

@@ -6,11 +6,10 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
-  type ReactNode,
 } from 'react';
 import { cn } from '@/components/utilities';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
-import type { ModTarget, OscWarpMode } from '@/daw/oracle-synth/audio/types';
+import type { OscWarpMode } from '@/daw/oracle-synth/audio/types';
 import {
   getFramesVersion,
   getRegisteredTableNames,
@@ -33,6 +32,32 @@ import { Select } from '@/daw/ui/Select';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { COLOR } from '@/daw/ui/tokens';
 import { DeviceKnob } from './DeviceKnob';
+import { EnvelopesCard, LfoCard, ModCard, SourcesCard } from './SynthDockCards';
+import {
+  CARD_SELECT,
+  clamp,
+  formatHz,
+  HEADER_PX,
+  KnobTile,
+  PAD_PX,
+  SELECT_H,
+  sentenceCase,
+  SYNTH_CARD_MAX_PX,
+  synthCardLayout,
+  TILE_PX,
+  useLiveModulation,
+  useLiveValue,
+  useModulated,
+  type LiveModulation,
+  type SynthCardLayout,
+} from './synthDockKit';
+
+export {
+  SYNTH_CARD_MAX_PX,
+  synthCardLayout,
+  type SynthCardLayout,
+  type SynthCardMode,
+} from './synthDockKit';
 
 // ── The Synth in the dock (the floating frame, 2026-10-21) ──────────────────
 //
@@ -67,85 +92,10 @@ import { DeviceKnob } from './DeviceKnob';
 
 /** The card: the floating frame's device card. */
 export const SYNTH_CARD_W = 528;
-export const SYNTH_CARD_MAX_PX = 208;
-const HEADER_PX = 32;
-const PAD_PX = 8;
 const OSC_W = 224;
+/** The dock's corner buttons' width (Dock.tsx), kept clear of the row. */
+const DOCK_CORNER_PX = 64;
 const FILTER_W = 64;
-/** A knob tile. */
-const TILE_PX = 64;
-const SELECT_H = 30;
-/**
- * Under this body height the card is 'compact', under the next 'tight'.
- * 'full' is the frame's 160 at its height; down to 150 its tiles give way.
- */
-const FULL_BODY_PX = 150;
-const COMPACT_BODY_PX = 128;
-
-export type SynthCardMode = 'full' | 'compact' | 'tight';
-
-export interface SynthCardLayout {
-  mode: SynthCardMode;
-  cardH: number;
-  /** Under the header, less the padding: the panels' height. */
-  bodyH: number;
-  /** The plot's height (154 wide); 0 in 'tight'. */
-  plotH: number;
-  /** Position's and Res's diameter (Cutoff's is `cutoff`). */
-  knob: number;
-  cutoff: number;
-  /** A knob tile's height: 64 at the frame's height. */
-  tileH: number;
-}
-
-/** How the card fits a row `rowH` high (its 8 px padding included). */
-export function synthCardLayout(rowH: number): SynthCardLayout {
-  const cardH = Math.max(0, Math.min(SYNTH_CARD_MAX_PX, rowH - 2 * PAD_PX));
-  const bodyH = Math.max(0, cardH - HEADER_PX - 2 * PAD_PX);
-  if (bodyH >= FULL_BODY_PX) {
-    return {
-      mode: 'full',
-      cardH,
-      bodyH,
-      plotH: bodyH - 38,
-      knob: 37,
-      cutoff: 50,
-      tileH: Math.min(TILE_PX, Math.floor((bodyH - SELECT_H - 2) / 2)),
-    };
-  }
-  if (bodyH >= COMPACT_BODY_PX) {
-    return {
-      mode: 'compact',
-      cardH,
-      bodyH,
-      plotH: bodyH - 38,
-      knob: 37,
-      cutoff: Math.min(50, bodyH - 52),
-      tileH: TILE_PX,
-    };
-  }
-  // A line of 32 (the name) over the table and Position.
-  const knob = Math.max(20, Math.min(37, bodyH - 32 - 26));
-  return {
-    mode: 'tight',
-    cardH,
-    bodyH,
-    plotH: 0,
-    knob,
-    cutoff: Math.max(20, Math.min(37, bodyH - 26)),
-    tileH: TILE_PX,
-  };
-}
-
-/** 'SUPER SAW' → 'Super saw', as a select shows it. */
-const sentenceCase = (s: string) =>
-  s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
-
-const formatHz = (hz: number) =>
-  hz >= 1000
-    ? `${(hz / 1000).toFixed(hz >= 10000 ? 0 : 1)}kHz`
-    : `${Math.round(hz)}Hz`;
-
 export function OracleSynthCard({ engine }: { engine: SynthEngine }) {
   const color = useStore(
     (s) =>
@@ -176,8 +126,10 @@ export function OracleSynthCard({ engine }: { engine: SynthEngine }) {
     <div
       ref={rowRef}
       data-testid="synth-card-row"
-      className="absolute inset-0 flex items-start overflow-x-auto overflow-y-hidden p-2"
-      style={{ scrollbarWidth: 'thin' }}
+      className="absolute inset-y-0 left-0 flex items-start gap-2 overflow-x-auto overflow-y-hidden p-2"
+      // Short of the dock's Maximize and Close, which float in its corner:
+      // no card slides under them.
+      style={{ right: DOCK_CORNER_PX, scrollbarWidth: 'thin' }}
     >
       <section
         aria-label="Synth"
@@ -243,71 +195,13 @@ export function OracleSynthCard({ engine }: { engine: SynthEngine }) {
           />
         </div>
       </section>
+      <SourcesCard color={color} layout={layout} live={live} />
+      <EnvelopesCard color={color} layout={layout} />
+      <LfoCard engine={engine} color={color} layout={layout} />
+      <ModCard color={color} layout={layout} />
     </div>
   );
 }
-
-/**
- * What the routes add to each destination now ('flt1:cutoff'), as a store
- * a control reads its own key from (useLiveValue): a tick re-renders only
- * the panel whose value moved, not the whole card.
- */
-interface LiveModulation {
-  subscribe(onChange: () => void): () => void;
-  get(key: string): number | undefined;
-}
-
-/**
- * The engine's live modulation (SynthEngine.getLiveModulation), read about
- * 30 times a second while the card shows. Nothing while no note sounds, so
- * the controls show their own values.
- */
-function useLiveModulation(engine: SynthEngine): LiveModulation {
-  const store = useMemo(() => {
-    let values = new Map<string, number>();
-    const listeners = new Set<() => void>();
-    return {
-      subscribe(onChange: () => void) {
-        listeners.add(onChange);
-        return () => listeners.delete(onChange);
-      },
-      get: (key: string) => values.get(key),
-      set(next: Map<string, number>) {
-        values = next;
-        for (const l of listeners) l();
-      },
-    };
-  }, []);
-  useEffect(() => {
-    let raf = 0;
-    let last = 0;
-    let seen = '';
-    const tick = (t: number) => {
-      raf = requestAnimationFrame(tick);
-      if (t - last < 33) return;
-      last = t;
-      const live = engine.getLiveModulation();
-      const next = new Map<string, number>();
-      // Three decimals: finer moves draw nothing different.
-      for (const [k, v] of live ?? []) next.set(k, Math.round(v * 1000) / 1000);
-      const now = [...next].join('|');
-      if (now === seen) return;
-      seen = now;
-      store.set(next);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [engine, store]);
-  return store;
-}
-
-/** One destination's live offset, or undefined while it isn't moving. */
-function useLiveValue(live: LiveModulation, key: string): number | undefined {
-  return useSyncExternalStore(live.subscribe, () => live.get(key));
-}
-
-const clamp = (v: number, lo: number, hi: number) =>
-  v < lo ? lo : v > hi ? hi : v;
 
 /**
  * The sound, in a pill at the header's centre, with ‹ › to the one before
@@ -365,61 +259,6 @@ function SoundStepper() {
     </div>
   );
 }
-
-// ── The knob tile ───────────────────────────────────────────────────────────
-
-/**
- * A knob in its tile: 64 px wide, a soft square under the pointer, and the
- * violet dot at its corner while the modulation matrix moves it.
- */
-function KnobTile({
-  height = TILE_PX,
-  top = 10,
-  modulated,
-  children,
-}: {
-  height?: number;
-  /** Where the knob sits in the tile. */
-  top?: number;
-  modulated: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <div className="group relative shrink-0" style={{ width: TILE_PX, height }}>
-      <span
-        aria-hidden
-        className={cn(
-          'absolute inset-[3px] rounded-xl group-hover:bg-daw-device',
-          TRANSITION,
-        )}
-      />
-      {modulated ? (
-        <span
-          role="img"
-          aria-label="Modulated"
-          title="A modulation source moves this"
-          className="absolute left-2 top-2 size-[7px] rounded-full bg-daw-modulation"
-        />
-      ) : null}
-      <div className="absolute inset-x-0 flex justify-center" style={{ top }}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Whether an enabled route aims at a control: the dot's only question, so
- * it reads the routes rather than poll the live ring (useModIndicator ran
- * a 30 fps analyser read per dot).
- */
-const useModulated = (source: ModTarget['source'], param: ModTarget['param']) =>
-  useSynthStore((s) =>
-    s.modRoutes.some(
-      (r) =>
-        r.enabled && r.target.source === source && r.target.param === param,
-    ),
-  );
 
 // ── An oscillator ───────────────────────────────────────────────────────────
 
@@ -616,12 +455,11 @@ function OscPanel({
   );
 }
 
-/**
- * A select on the card: 30 px, white/4, radius 8, 12 px, and a small
- * triangle in place of the kit's chevrons.
- */
-const CARD_SELECT =
-  "h-[30px] w-full min-w-0 rounded-lg border-0 bg-daw-device px-2 [&>svg]:hidden after:ml-1 after:shrink-0 after:text-[length:var(--daw-font-micro)] after:leading-none after:text-daw-text after:content-['▾']";
+/** The plot's top, clear of the oscillator's name; its side and foot. */
+const PLOT_NAME_PX = 28;
+const PLOT_INSET_PX = 8;
+/** How many of a table's frames the stack draws. */
+const STACK_LINES = 56;
 
 // ── The wavetable plot ──────────────────────────────────────────────────────
 
@@ -755,55 +593,63 @@ function WavetablePlot({
   );
   const stacked = stack && !!frames && frames.count > 1;
 
-  // Where each frame goes, and how it is traced.
+  // Where each frame goes: the front one under the oscillator's name at
+  // the left, each further one a little down and to the right.
   const geometry = useMemo(() => {
-    const depthX = stacked ? width * 0.26 : 0;
-    const depthY = stacked ? height * 0.24 : 0;
-    const frameW = width - depthX - 16;
-    const amp = Math.max(4, ((height - depthY) / 2 - 6) * zoom);
-    const top = stacked ? 6 + ((height - depthY) / 2 - 6) : height / 2;
-    return { depthX, depthY, frameW, amp, top };
+    const top = Math.min(PLOT_NAME_PX, height * 0.22);
+    const usableH = height - top - PLOT_INSET_PX;
+    const depthX = stacked ? width * 0.3 : 0;
+    const depthY = stacked ? usableH * 0.34 : 0;
+    const frameW = width - 2 * PLOT_INSET_PX - depthX;
+    const waveH = usableH - depthY;
+    const amp = Math.max(3, (waveH / 2) * (stacked ? 0.92 : 0.8) * zoom);
+    return { top, depthX, depthY, frameW, waveH, amp };
   }, [stacked, height, zoom]);
+
+  // A frame as the plot draws it: one point per 1.5 px, each the mean of
+  // its samples, so a line is smooth at any table (the min and max of each
+  // column drew a busy table as a wall of spikes).
+  const points = useMemo(() => {
+    const made = new Map<number, Float32Array>();
+    const n = Math.max(16, Math.round(geometry.frameW / 1.5));
+    return (index: number) => {
+      let out = made.get(index);
+      if (out || !frames) return out ?? new Float32Array(0);
+      const frame = frames.frame(index);
+      out = new Float32Array(n);
+      const span = frame.length / n;
+      for (let p = 0; p < n; p++) {
+        const from = Math.floor(p * span);
+        const to = Math.max(from + 1, Math.floor((p + 1) * span));
+        let sum = 0;
+        for (let k = from; k < to; k++) sum += frame[k];
+        out[p] = sum / (to - from);
+      }
+      made.set(index, out);
+      return out;
+    };
+  }, [frames, geometry.frameW]);
 
   const trace = (
     ctx: CanvasRenderingContext2D,
-    frame: Float32Array,
+    wave: Float32Array,
     t: number,
   ) => {
-    const { depthX, depthY, frameW, amp, top } = geometry;
-    const x0 = 8 + t * depthX;
-    const y0 = top + t * depthY;
-    const columns = 128;
-    const step = frame.length / columns;
+    const { top, depthX, depthY, frameW, waveH, amp } = geometry;
+    const x0 = PLOT_INSET_PX + t * depthX;
+    const mid = top + waveH / 2 + t * depthY;
     ctx.beginPath();
-    for (let c = 0; c < columns; c++) {
-      const from = Math.floor(c * step);
-      const to = Math.max(from + 1, Math.floor((c + 1) * step));
-      let lo = Infinity;
-      let hi = -Infinity;
-      let loAt = from;
-      let hiAt = from;
-      for (let k = from; k < to; k++) {
-        const v = frame[k];
-        if (v < lo) {
-          lo = v;
-          loAt = k;
-        }
-        if (v > hi) {
-          hi = v;
-          hiAt = k;
-        }
-      }
-      const x = x0 + (c / (columns - 1)) * frameW;
-      // Min and max in the order they occur, so the line stays continuous.
-      const [a, b] = loAt <= hiAt ? [lo, hi] : [hi, lo];
-      if (c === 0) ctx.moveTo(x, y0 - a * amp);
-      else ctx.lineTo(x, y0 - a * amp);
-      if (b !== a) ctx.lineTo(x, y0 - b * amp);
+    for (let p = 0; p < wave.length; p++) {
+      const x = x0 + (p / (wave.length - 1)) * frameW;
+      const y = mid - wave[p] * amp;
+      if (p === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
     }
+    return mid;
   };
 
-  // The stack, once per table, warp, size or view.
+  // The stack, once per table, warp, size or view: fine lines in the
+  // track's colour, fading toward the back, drawn back to front.
   const layer = useMemo(() => {
     if (typeof document === 'undefined' || !frames || !stacked) return null;
     const off = document.createElement('canvas');
@@ -814,19 +660,20 @@ function WavetablePlot({
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
-    ctx.lineWidth = 0.75;
+    ctx.lineWidth = 0.8;
     ctx.strokeStyle = color;
-    const count = Math.min(64, frames.count);
+    const count = Math.min(STACK_LINES, frames.count);
     for (let i = count - 1; i >= 0; i--) {
       const index = Math.round((i / (count - 1)) * (frames.count - 1));
-      trace(ctx, frames.frame(index), index / (frames.count - 1));
-      ctx.globalAlpha = 0.3 + 0.4 * (1 - i / count);
+      const t = index / (frames.count - 1);
+      trace(ctx, points(index), t);
+      ctx.globalAlpha = 0.14 + 0.36 * (1 - t);
       ctx.stroke();
     }
     return off;
-    // trace reads geometry, which is in the deps.
+    // trace reads geometry, which points follows.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [frames, stacked, geometry, color, dpr, height]);
+  }, [frames, stacked, points, color, dpr, height]);
 
   // The canvas's bitmap follows its size and the screen's density only.
   useEffect(() => {
@@ -836,7 +683,9 @@ function WavetablePlot({
     canvas.height = Math.round(height * dpr);
   }, [dpr, height]);
 
-  // The layer, then the lit frame where Position has it.
+  // The layer, then the lit frame where Position has it: white, with a
+  // soft glow in the track's colour. On its own (one cycle, or a one-frame
+  // table) it stands over a fill fading down to its midline.
   useEffect(() => {
     const ctx = ref.current?.getContext('2d');
     if (!ctx) return;
@@ -847,20 +696,43 @@ function WavetablePlot({
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const index = Math.round(position * (frames.count - 1));
     const t = stacked ? index / (frames.count - 1) : 0;
+    const wave = points(index);
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
+    if (!stacked) {
+      const mid = trace(ctx, wave, t);
+      const x0 = PLOT_INSET_PX;
+      const x1 = x0 + geometry.frameW;
+      ctx.lineTo(x1, mid);
+      ctx.lineTo(x0, mid);
+      ctx.closePath();
+      const fill = ctx.createLinearGradient(0, mid - geometry.amp, 0, mid);
+      fill.addColorStop(0, color);
+      fill.addColorStop(1, 'transparent');
+      ctx.globalAlpha = 0.32;
+      ctx.fillStyle = fill;
+      ctx.fill();
+      ctx.globalAlpha = 0.12;
+      ctx.strokeStyle = COLOR.text.value;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x0, mid);
+      ctx.lineTo(x1, mid);
+      ctx.stroke();
+    }
+    trace(ctx, wave, t);
     ctx.globalAlpha = 1;
-    // The lit frame: white over a dark edge.
-    trace(ctx, frames.frame(index), t);
-    ctx.strokeStyle = COLOR.bg.value;
-    ctx.lineWidth = 4.5;
-    ctx.stroke();
+    ctx.save();
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 8 * dpr;
     ctx.strokeStyle = COLOR.text.value;
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 2;
     ctx.stroke();
-    // trace reads geometry, which layer and stacked follow.
+    ctx.restore();
+    // trace reads geometry. A new height clears the bitmap (the effect
+    // above), so it redraws then too, even with no stack layer to follow.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [frames, layer, position, stacked, dpr, geometry]);
+  }, [frames, layer, points, position, stacked, dpr, color, geometry, height]);
 
   const button =
     'flex size-[22px] items-center justify-center rounded-md bg-daw-chip text-daw-text-2 hover:text-daw-text disabled:opacity-40';

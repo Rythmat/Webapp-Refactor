@@ -25,6 +25,14 @@ export interface LFOSlice {
   /** An LFO loops (false) or plays once from each note-on (true). */
   setLFOOnce: (index: number, once: boolean) => void;
   setLFONodes: (lfoIndex: number, barIndex: number, nodes: LFONode[]) => void;
+  /**
+   * Every bar's shape and every quarter's rate at once (the dock's shape
+   * and rate pickers): one update, so the engine rebuilds once.
+   */
+  setLFOPattern: (
+    lfoIndex: number,
+    pattern: Pick<LFOParams, 'bars' | 'rateDivs'>,
+  ) => void;
 }
 
 // Default triangle waveform nodes (unipolar 0..1)
@@ -166,5 +174,21 @@ export const createLFOSlice: StateCreator<LFOSlice, [], [], LFOSlice> = (
       newBars[barIndex] = nodes;
       newLfos[lfoIndex] = { ...newLfos[lfoIndex], bars: newBars };
       return { lfos: newLfos };
+    }),
+
+  setLFOPattern: (lfoIndex, pattern) =>
+    set((state) => {
+      const lfos = [...state.lfos] as [
+        LFOParams,
+        LFOParams,
+        LFOParams,
+        LFOParams,
+      ];
+      lfos[lfoIndex] = {
+        ...lfos[lfoIndex],
+        bars: pattern.bars,
+        rateDivs: pattern.rateDivs,
+      };
+      return { lfos };
     }),
 });

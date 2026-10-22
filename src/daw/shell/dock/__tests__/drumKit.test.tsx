@@ -3,8 +3,8 @@
  * The drums' Instrument tab (milestone 2.9, after the owner's Soundtrap
  * reference): a top-down kit of round pads, each with the computer key that
  * plays it at the kit's own octave (A the kick), three of them badges on a
- * drum's rim. A click plays a pad and picks it for the pad knobs. The kit's
- * layout keeps every pad inside its box.
+ * drum's rim. A click plays a pad. The kit takes the whole tab (no volume
+ * or pan knobs, owner 2026-10-21) and keeps every pad inside its box.
  */
 import {
   act,
@@ -41,6 +41,8 @@ beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
   drums = s().addTrack('midi', 'drum-machine', 'Drums');
   s().setSelectedTrackId(drums);
+  // Heard: armed and monitoring (the keys play only such a track).
+  s().updateTrack(drums, { recordArmed: true, monitoring: true });
   h.audition.mockClear();
   // jsdom lays nothing out: give the kit a size to draw in.
   vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(1000);
@@ -69,8 +71,8 @@ describe('the kit’s keys', () => {
 
   it('play the kit only while every live target is a drum kit', () => {
     expect(liveTargetsAreDrums()).toBe(true);
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
-    s().setSelectedTrackId(keys);
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
+    s().updateTrack(keys, { recordArmed: true, monitoring: true });
     expect(liveTargetsAreDrums()).toBe(false);
   });
 });
@@ -97,7 +99,7 @@ describe('the kit’s layout', () => {
 });
 
 describe('the drums’ Instrument tab', () => {
-  it('shows each pad with its key, and a click plays it and picks it', () => {
+  it('shows each pad with its key, and a click plays it', () => {
     render(<DrumPadsView trackId={drums} />);
     expect(screen.getByRole('button', { name: 'Kick (A)' })).toBeTruthy();
     expect(
@@ -107,8 +109,9 @@ describe('the drums’ Instrument tab', () => {
     fireEvent.pointerDown(snare, { button: 0 });
     expect(h.audition).toHaveBeenCalledWith(drums, 38, 100);
     expect(snare.dataset.lit).toBe('true');
-    // The pad knobs are the snare's now.
-    expect(screen.getByRole('group', { name: 'Snare' })).toBeTruthy();
+    // No volume or pan knobs: the kit is the whole tab.
+    expect(screen.queryByRole('slider')).toBeNull();
+    expect(screen.queryByTestId('drum-kit-controls')).toBeNull();
   });
 
   it('lights a pad the keys play', () => {

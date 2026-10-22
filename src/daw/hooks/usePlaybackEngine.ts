@@ -11,14 +11,13 @@ import { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
 import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
 import { MetronomeEngine, clickPitch } from '@/daw/audio/MetronomeEngine';
 import { createClickVoice, type ClickVoice } from '@/daw/audio/clickVoice';
-import { AudioRecorder } from '@/daw/audio/AudioRecorder';
+import { AudioRecorder, prepareRecording } from '@/daw/audio/AudioRecorder';
 import { emitTakeCommitted } from '@/daw/audio/takeEvents';
 import { notice } from '@/daw/shell/notice';
 import {
   setAudioBuffer,
   setOriginalAudio,
   getAudioBuffer,
-  subscribeAudioBufferChanges,
 } from '@/daw/audio/AudioBufferStore';
 import {
   audioClipIntervalsSeconds,
@@ -29,7 +28,6 @@ import { overwriteAudioRegion } from '@/daw/audio/overwriteAudioRegion';
 import { mutedClipIds } from '@/daw/audio/trackAudibility';
 import { seekTo } from '@/daw/hooks/useTransport';
 import {
-  applySamplerState,
   applyStaticMasterVolume,
   applyStaticTrackParams,
   scheduleMasterAutomation,
@@ -56,13 +54,11 @@ import {
   type TrackReconciler,
 } from '@/daw/engine/trackReconciler';
 import { beginTake } from '@/daw/session/takesInFlight';
-import { ChopsSampler } from '@/daw/instruments/ChopsSampler';
 import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
 import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 
 export {
   applyDrumPads,
-  applySamplerState,
   applySends,
   applyStaticTrackParams,
   createInstrument,
@@ -127,13 +123,18 @@ function finishAudioTake(
         originalBytes,
         originalContentType,
         placement,
+        leadSeconds,
       }) => {
         const clipId = `clip-audio-${crypto.randomUUID().slice(0, 8)}`;
         const startTick = placement?.startTick ?? fallbackStartTick;
         // Audio before the take began (the decoded bytes start a little ahead
         // of the tap, or before the song's start) is kept but trimmed off.
+        // Without a placement the take sits at the playhead where recording
+        // began, which after a count-in is the downbeat, while the recorder
+        // started up to COUNT_IN_TIMER_LEAD_S before it: that lead is
+        // trimmed.
         const offsetSeconds = Math.min(
-          placement?.offsetSeconds ?? 0,
+          placement ? placement.offsetSeconds : leadSeconds,
           Math.max(0, audioBuffer.duration - 0.01),
         );
         setAudioBuffer(clipId, audioBuffer);
@@ -278,6 +279,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   const masteringEffects = useStore((s) => s.masteringEffects);
   const masteringBypass = useStore((s) => s.masteringBypass);
   const masterVolume = useStore((s) => s.masterVolume);
+  const masterMuted = useStore((s) => s.masterMuted);
   const masterAutomation = useStore((s) => s.masterAutomation);
   const returns = useStore((s) => s.returns);
 
@@ -294,24 +296,6 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       reconciler.stop();
       if (reconcilerRef.current === reconciler) reconcilerRef.current = null;
     };
-  }, [isReady]);
-
-  // ── Apply sampler buffers as they finish decoding ─────────────────────
-  // Sample bytes arrive asynchronously (file drop decode, asset rehydration
-  // after load, collab peer's upload) without touching the store's tracks
-  // array, so the track-sync effect above won't re-run. React to the buffer
-  // store instead and idempotently re-apply.
-  useEffect(() => {
-    if (!isReady) return;
-    return subscribeAudioBufferChanges(() => {
-      for (const track of useStore.getState().tracks) {
-        if (track.instrument !== 'sampler' || !track.samplerSample) continue;
-        const state = trackEngineRegistry.get(track.id);
-        if (state?.instrument instanceof ChopsSampler) {
-          applySamplerState(state.instrument, track);
-        }
-      }
-    });
   }, [isReady]);
 
   // ── Sync mastering effects with audio engine ─────────────────────────
@@ -343,6 +327,12 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       );
     }
   }, [isReady, masterVolume, masterAutomation]);
+
+  // ── The Master strip's mute ──────────────────────────────────────────
+  useEffect(() => {
+    if (!isReady) return;
+    audioEngine.setMasterMuted(masterMuted);
+  }, [isReady, masterMuted]);
 
   // ── Sync return-bus effects + volume with audio engine ───────────────
   useEffect(() => {
@@ -492,8 +482,10 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     // count-in was armed by Record rather than Play).
     // With the start planned, the timer fires a little early, so a timer
     // that runs late (a busy Chromebook) can't push the downbeat back.
-    // A take is placed from its capture time (takePlacement.ts), so a
-    // recorder that starts early is trimmed to the downbeat.
+    // A take is placed from its capture time (takePlacement.ts), and one
+    // without a capture time is trimmed by how early its recorder started
+    // (AudioRecorder's leadSeconds), so a recorder that starts early is
+    // trimmed to the downbeat either way.
     const early = isLegacyScheduler() ? 0 : COUNT_IN_TIMER_LEAD_S;
     const timer = setTimeout(
       () => {
@@ -591,6 +583,10 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   // ── Audio recording (record-armed audio tracks) ─────────────────────
   useEffect(() => {
     if (!isReady) return;
+
+    // The capture tap's module loads ahead of the first take, so the tap is
+    // listening before the recorder starts (AudioRecorder).
+    prepareRecording(nativeContextOf(audioEngine.getContext()));
 
     // Read when the take starts: the effect doesn't follow track edits, so
     // a collab sync or a clip added mid-take no longer re-runs it.
@@ -753,6 +749,10 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
             onError: recorderStopped,
             transportStart: transportStartedAt,
             context: nativeContextOf(audioEngine.getContext()),
+            // A guitar or vocal adapter's stream is made inside the context
+            // and reports no input latency, and the adapters don't expose
+            // their device's; such a take counts the output side only
+            // (takePlacement). Pass `inputLatency` here once they do.
           });
         } catch (err) {
           if (audioRecorderRef.current !== recorder) dropStale();

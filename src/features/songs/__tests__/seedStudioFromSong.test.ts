@@ -321,7 +321,7 @@ describe('applySong', () => {
       vi.useFakeTimers();
       resetSessionToEmpty();
       resetUndoHistory();
-      useStore.getState().addTrack('midi', 'piano-sampler', 'Before');
+      useStore.getState().addTrack('midi', 'soundfont', 'Before');
       vi.advanceTimersByTime(1000);
       expect(canUndo()).toBe(true);
 

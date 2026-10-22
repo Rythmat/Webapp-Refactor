@@ -15,6 +15,8 @@ import { usePrefsSync } from '@/daw/hooks/usePrefsSync';
 import { useGlobalCommands } from '@/daw/commands/globalCommands';
 import { useMusicalTyping } from '@/daw/hooks/useMusicalTyping';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import { composerNameOf } from '@/daw/model/composerName';
+import { useMe } from '@/hooks/data/auth/useMe';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { StudioRoutes } from '@/constants/routes';
 import { useStudioCurrentProjectNote } from '@/daw/hooks/useStudioCurrentProjectNote';
@@ -52,8 +54,8 @@ import {
 import { StudioShell } from '@/daw/shell/StudioShell';
 import { OpeningHost } from '@/daw/shell/opening/OpeningHost';
 import { CommandPaletteHost } from '@/daw/shell/help/CommandPaletteHost';
+import { EffectPickerHost } from '@/daw/shell/dock/EffectPicker';
 import { ExportDialogHost } from '@/daw/shell/export/ExportDialogHost';
-import { InstrumentDialogHost } from '@/daw/shell/tracklist/InstrumentDialog';
 import { ShortcutSheetHost } from '@/daw/shell/help/ShortcutSheetHost';
 import { ReportProblemHost } from '@/daw/shell/help/ReportProblemHost';
 import { ProjectsDialogHost } from '@/daw/shell/projects/ProjectsDialogHost';
@@ -188,6 +190,10 @@ function DawAppInner() {
   // looks again.
   const authRef = useRef({ userId, ownerKnown, token: authToken });
   authRef.current = { userId, ownerKnown, token: authToken };
+  // A new project's composer (composerNameOf).
+  const { data: me } = useMe();
+  const userNameRef = useRef('');
+  userNameRef.current = composerNameOf(me);
   const lessonAccessRef = useRef(lessonAccessFor);
   lessonAccessRef.current = lessonAccessFor;
   const collabRef = useRef(collab);
@@ -202,6 +208,7 @@ function DawAppInner() {
         const { userId: id, ownerKnown: known } = authRef.current;
         return known ? { userId: id, userKey: userKeyOf(id) } : null;
       },
+      userName: () => userNameRef.current || null,
       token: () => authRef.current.token,
       lessonAccess: (tutorialId) => lessonAccessRef.current(tutorialId),
       collab: {
@@ -346,7 +353,7 @@ function DawAppInner() {
       <ReportProblemHost />
       <CommandPaletteHost />
       <ExportDialogHost />
-      <InstrumentDialogHost />
+      <EffectPickerHost />
       <SaveConflictDialog />
       {/* confirmDialog() and promptDialog(): the editor's questions, one at a
           time (Delete project, Save a copy, marker and section names). */}

@@ -2,20 +2,45 @@
 //
 // Create's track rows and the timeline's lanes are one list: each row is as
 // tall as its lane, and both are placed from the same height array, so a
-// header and its lane can't drift apart (timeline-12). Every row is 64 px
-// today; the array is there for rows that grow (inline automation, Stage C),
-// so the canvas and the list never assume one height again.
+// header and its lane can't drift apart (timeline-12). Every row is 86 px
+// today (Suno's header, 2026-10-21); the array is there for rows that grow
+// or shrink (inline automation, a collapsed track), so the canvas and the
+// list never assume one height again.
 //
 // The heights of the bars above and below the rows live here too, so the
 // shell, the canvas and the harness agree on them.
 
-/** A track row: name and ⋯ on top, M, S, Arm and the fader below. */
-export const TRACK_ROW_PX = 64;
+/** The track column's width (Suno's, 2026-10-21): the headers and Main. */
+export const TRACK_COLUMN_PX = 260;
+
 /**
- * Under the lanes: the timeline's scrollbar, with zoom and Follow beside it
- * (milestone 2.13; 24 px, so each is a 24 px target).
+ * A track row (Suno's header): number, name, mute, solo, arm and input on
+ * top; the volume pill and pan dial below.
  */
-export const SCROLL_FOOTER_PX = 24;
+export const TRACK_ROW_PX = 86;
+/** + Add track's slot under the last track: a row high (AddTrackMenu). */
+export const ADD_TRACK_SLOT_PX = TRACK_ROW_PX;
+/** The Master strip pinned at the track column's foot (MasterRow). */
+export const MASTER_STRIP_PX = 80;
+
+/**
+ * Under the lanes: the song at a glance (TimelineOverview), with zoom and
+ * Follow beside it (milestone 2.13; 32 px since 2026-10-22, Suno's strip).
+ */
+export const SCROLL_FOOTER_PX = 32;
+/**
+ * How much of the Master strip stands beside the lanes: it sits at the
+ * track area's foot, level with the song overview (owner, 2026-10-22, as
+ * Suno's Main does), the rest of it in the footer's row.
+ */
+export const MASTER_OVER_LANES_PX = MASTER_STRIP_PX - SCROLL_FOOTER_PX;
+/**
+ * The track column under its rows: + Add track and room for the Master
+ * strip over the lanes' foot. The timeline's canvas reaches this far below
+ * the lanes too, so the grid shows as far down as the column scrolls (it
+ * left a blank band, 2026-10-21).
+ */
+export const TRACK_FOOT_PX = ADD_TRACK_SLOT_PX + MASTER_OVER_LANES_PX;
 /**
  * The song's sections, above the ruler (milestone 2.13), in the row Create's
  * toolbar had before it folded away.

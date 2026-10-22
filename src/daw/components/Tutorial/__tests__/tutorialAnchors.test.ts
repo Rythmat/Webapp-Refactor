@@ -9,7 +9,6 @@ import {
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 import { FX_CATALOG } from '@/daw/data/libraryItems';
-import { SIMPLE_INSTRUMENTS } from '@/daw/instruments/simpleInstruments';
 import { defaultReturns } from '@/daw/store/returnsSlice';
 import { MAX_TOTAL_TRACKS } from '@/daw/store/tracksSlice';
 import { TUTORIALS } from '../tutorials';
@@ -73,7 +72,14 @@ const EDITOR_ENTRY = join(DAW, 'DawApp.tsx');
  * moved ones resolve through ANCHOR_ALIASES or their new controls).
  * Lessons 1 to 5 are rewritten and name none.
  */
-const KNOWN_MISSING: Readonly<Record<string, string>> = {};
+const KNOWN_MISSING: Readonly<Record<string, string>> = {
+  // The dock's tab bar became the bottom rail's Instrument · FX ·
+  // Automation · Edit (2026-10-21); the owner hasn't placed Prism and
+  // Grooves yet. Each step still opens its panel (requires); the grooves
+  // moved into the drums' Instrument tab (2026-10-22).
+  'make-first-track/open-prism/chanstrip-tab-prism':
+    'dock views: Prism has no button until the owner places it',
+};
 
 const SKIPPED_DIRS = new Set(['node_modules', '__tests__', '__mocks__']);
 
@@ -232,7 +238,6 @@ function constValues(file: string, name: string, prop: string): string[] {
  */
 const SEGMENT_ANCHORS: readonly [file: string, list: string][] = [
   ['shell/bottombar/ClickToggle.tsx', 'COUNT_IN_CHOICES'],
-  ['components/Score/ScoreLayoutSwitch.tsx', 'LAYOUTS'],
   ['shell/export/ExportDialog.tsx', 'SONG_NOTATION_FORMATS'],
   ['shell/export/ExportDialog.tsx', 'TRACK_NOTATION_FORMATS'],
 ];
@@ -326,14 +331,6 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     file: 'shell/canvas/clipMenu/CanvasMenu.tsx',
     suffixes: () => menuItemIds('shell/canvas/clipMenu/clipMenuModel.ts'),
   },
-  'instrument-': {
-    file: 'shell/tracklist/InstrumentPicker.tsx',
-    suffixes: () => SIMPLE_INSTRUMENTS.map((item) => item.id),
-  },
-  'instrument-family-': {
-    file: 'shell/tracklist/InstrumentPicker.tsx',
-    suffixes: () => [...new Set(SIMPLE_INSTRUMENTS.map((item) => item.family))],
-  },
   'timeline-lane-': {
     file: 'components/Timeline/TimelineAnchors.tsx',
     suffixes: () => TRACK_INDEXES,
@@ -347,17 +344,9 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     // A track's clips, in time order: a lesson's song has a handful.
     suffixes: () => pairs(TRACK_INDEXES, upTo(16)),
   },
-  'insight-track-': {
-    file: 'components/Library/TrackNotePicks.tsx',
-    suffixes: () => TRACK_INDEXES,
-  },
   'piano-roll-tool-': {
     file: 'components/PianoRoll/PianoRoll.tsx',
     suffixes: () => ['select', 'draw', 'erase'],
-  },
-  'leadsheet-melody-track-': {
-    file: 'components/LeadSheet/MelodyTrackPicker.tsx',
-    suffixes: () => TRACK_INDEXES,
   },
   'leadsheet-chord-': {
     file: 'components/LeadSheet/LeadSheetMeasure.tsx',
@@ -365,25 +354,21 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     suffixes: () => pairs(upTo(64), upTo(4)),
   },
   'add-track-': {
-    file: 'shell/tracklist/AddTrackSheet.tsx',
-    // One tile per choice and per category with a second step
-    // (trackTemplates.ts); Import and the library chip are exact ids.
-    suffixes: () => [
-      ...constValues(
+    file: 'shell/tracklist/AddTrackMenu.tsx',
+    // One row per MIDI instrument in Add MIDI's submenu (trackTemplates.ts);
+    // Add Audio, Add MIDI and Upload are exact ids.
+    suffixes: () =>
+      constValues(
         'shell/tracklist/trackTemplates.ts',
         'TRACK_CHOICES',
         'anchor',
       ),
-      ...constValues(
-        'shell/tracklist/trackTemplates.ts',
-        'TRACK_CATEGORIES',
-        'anchor',
-      ),
-    ],
   },
+  // The bottom rail's dock views (2026-10-21): Instrument, FX and Edit.
+  // Prism and Grooves have no button until the owner places them.
   'chanstrip-tab-': {
-    file: 'shell/dock/Dock.tsx',
-    suffixes: () => constValues('shell/dock/dockTabs.ts', 'DOCK_TABS', 'id'),
+    file: 'shell/bottombar/DockViews.tsx',
+    suffixes: () => constValues('shell/dock/dockViews.ts', 'DOCK_VIEWS', 'tab'),
   },
   'view-switch-': {
     file: 'shell/topbar/ViewTabs.tsx',
@@ -393,11 +378,12 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     ],
   },
   'fx-add-': {
-    file: 'shell/inspector/panels/FxBody.tsx',
+    file: 'shell/dock/EffectPicker.tsx',
     suffixes: () => AUDIO_EFFECTS,
   },
+  // One effect card per slot in a rack's row (the floating frame).
   'fx-slot-': {
-    file: 'components/Effects/EffectsPanel.tsx',
+    file: 'components/Effects/FxCards.tsx',
     suffixes: () => AUDIO_EFFECTS,
   },
   'mixer-sends-': {
@@ -411,15 +397,6 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
   'return-fx-': {
     file: 'shell/mix/RackDock.tsx',
     suffixes: () => RETURN_IDS,
-  },
-  'sampler-mode-': {
-    file: 'components/Controls/SamplerChopsView.tsx',
-    suffixes: () =>
-      constValues(
-        'components/Controls/SamplerChopsView.tsx',
-        'PLAYBACK_MODES',
-        'id',
-      ),
   },
 };
 

@@ -22,7 +22,17 @@ export interface LFOSlice {
   ) => void;
   setLFOBarSmooth: (lfoIndex: number, barIndex: number, smooth: number) => void;
   setLFOSync: (index: number, sync: boolean) => void;
+  /** An LFO loops (false) or plays once from each note-on (true). */
+  setLFOOnce: (index: number, once: boolean) => void;
   setLFONodes: (lfoIndex: number, barIndex: number, nodes: LFONode[]) => void;
+  /**
+   * Every bar's shape and every quarter's rate at once (the dock's shape
+   * and rate pickers): one update, so the engine rebuilds once.
+   */
+  setLFOPattern: (
+    lfoIndex: number,
+    pattern: Pick<LFOParams, 'bars' | 'rateDivs'>,
+  ) => void;
 }
 
 // Default triangle waveform nodes (unipolar 0..1)
@@ -41,7 +51,7 @@ const defaultTriangleNodes = (): LFONode[] => [
 
 const defaultQuarterRates = (): QuarterRates => ['1/4', '1/4', '1/4', '1/4'];
 
-const defaultLFO = (): LFOParams => ({
+export const defaultLFO = (): LFOParams => ({
   rateDivs: [
     defaultQuarterRates(),
     defaultQuarterRates(),
@@ -123,6 +133,18 @@ export const createLFOSlice: StateCreator<LFOSlice, [], [], LFOSlice> = (
       return { lfos: newLfos };
     }),
 
+  setLFOOnce: (index, once) =>
+    set((state) => {
+      const lfos = [...state.lfos] as [
+        LFOParams,
+        LFOParams,
+        LFOParams,
+        LFOParams,
+      ];
+      lfos[index] = { ...lfos[index], once };
+      return { lfos };
+    }),
+
   setLFOSync: (index, sync) =>
     set((state) => {
       const newLfos = [...state.lfos] as [
@@ -152,5 +174,21 @@ export const createLFOSlice: StateCreator<LFOSlice, [], [], LFOSlice> = (
       newBars[barIndex] = nodes;
       newLfos[lfoIndex] = { ...newLfos[lfoIndex], bars: newBars };
       return { lfos: newLfos };
+    }),
+
+  setLFOPattern: (lfoIndex, pattern) =>
+    set((state) => {
+      const lfos = [...state.lfos] as [
+        LFOParams,
+        LFOParams,
+        LFOParams,
+        LFOParams,
+      ];
+      lfos[lfoIndex] = {
+        ...lfos[lfoIndex],
+        bars: pattern.bars,
+        rateDivs: pattern.rateDivs,
+      };
+      return { lfos };
     }),
 });

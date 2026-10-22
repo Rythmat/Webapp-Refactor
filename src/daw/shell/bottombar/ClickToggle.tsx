@@ -1,5 +1,5 @@
-import { ChevronDown } from 'lucide-react';
 import { memo, useEffect, useRef } from 'react';
+import { create } from 'zustand';
 import {
   CLICK_SOUNDS,
   DEFAULT_CLICK_DB,
@@ -14,16 +14,17 @@ import { useStore } from '@/daw/store';
 import { ticksPerBeat } from '@/daw/time/timeModel';
 import { Fader } from '@/daw/ui/Fader';
 import { formatDb } from '@/daw/ui/format';
-import { IconButton } from '@/daw/ui/IconButton';
-import { Popover, PopoverContent, PopoverTrigger } from '@/daw/ui/Popover';
+import { Popover, PopoverAnchor, PopoverContent } from '@/daw/ui/Popover';
 import { Segmented } from '@/daw/ui/Segmented';
 import { SettingRow } from '@/daw/ui/SettingRow';
+import { PILL_TOGGLE } from '@/daw/ui/Pill';
 import { Toggle } from '@/daw/ui/Toggle';
 
 // ── Click and its menu (milestones 2.5, 2.8, 2.11) ──────────────────────────
 //
-// The metronome as a toggle, with a caret for its menu (after Soundtrap's):
-// the click's sound, its volume and the count-in (off, one bar, two). The
+// The metronome as one toggle (the floating frame's transport, 2026-10-21);
+// its settings open on a right-click or from '⋯': the click's sound, its
+// volume and the count-in (off, one bar, two). The
 // sound and the volume are the student's (per-user prefs); a new choice
 // plays one click. The icon's two dots take turns on each beat while a
 // click is sounding; the playhead clock moves them by writing the dots'
@@ -32,11 +33,10 @@ import { Toggle } from '@/daw/ui/Toggle';
 
 const METRONOME_KEYS = shortcutKeys('transport.metronome');
 
-/** The count-in's choices; each segment carries its lesson anchor. */
 export const COUNT_IN_CHOICES = [
-  { value: '0', label: 'Off', anchor: 'count-in-0' },
-  { value: '1', label: '1 bar', anchor: 'count-in-1' },
-  { value: '2', label: '2 bars', anchor: 'count-in-2' },
+  { value: '0', label: 'Off' },
+  { value: '1', label: '1 bar' },
+  { value: '2', label: '2 bars' },
 ] as const;
 
 /** One click in `sound`, to hear the choice (loaded on demand). */
@@ -122,19 +122,23 @@ const beatTicksFor = (den: number) =>
  * count-in): one filled at a time, left first, swapping each beat. Idle and
  * on: both filled. Off: both outlined.
  */
+/** Where the four beat bars sit, after the metronome's tall bar. */
+const BEAT_BARS = [4.5, 7.5, 10.5, 13.5];
+
 function MetronomeIcon({ on }: { on: boolean }) {
-  const left = useRef<SVGCircleElement>(null);
-  const right = useRef<SVGCircleElement>(null);
+  const bars = useRef<Array<SVGRectElement | null>>([]);
   const isPlaying = useStore((s) => s.isPlaying);
   const countingIn = useStore((s) => s.isCountingIn);
   const sounding = countingIn || (isPlaying && on);
 
   useEffect(() => {
+    // At rest every bar is lit while the metronome is on and dim while it is
+    // off; while a click sounds, the beat's bar is lit.
     const fill = (beat: number | null) => {
-      const l = beat === null ? on : beat % 2 === 0;
-      const r = beat === null ? on : beat % 2 !== 0;
-      left.current?.setAttribute('fill-opacity', l ? '1' : '0');
-      right.current?.setAttribute('fill-opacity', r ? '1' : '0');
+      bars.current.forEach((bar, i) => {
+        const lit = beat === null ? on : beat % BEAT_BARS.length === i;
+        bar?.setAttribute('fill-opacity', lit ? '1' : '0.35');
+      });
     };
     if (!sounding) {
       fill(null);
@@ -155,7 +159,7 @@ function MetronomeIcon({ on }: { on: boolean }) {
       );
     }
     // Playing: from the heard playhead, so the first beat after the start
-    // fills the left dot.
+    // lights the first beat bar.
     const beatOf = (tick: number) =>
       Math.floor(
         tick / beatTicksFor(useStore.getState().timeSignatureDenominator),
@@ -169,19 +173,36 @@ function MetronomeIcon({ on }: { on: boolean }) {
     });
   }, [sounding, countingIn, on]);
 
+  // The floating frame's metronome (2026-10-21): a tall bar, then a bar
+  // per beat, as solid glyphs; the beat's bar lights as the click sounds.
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      {[4, 10].map((cx, i) => (
-        <circle
-          key={cx}
-          ref={i === 0 ? left : right}
-          cx={cx}
-          cy="7"
-          r="2.5"
-          fill="currentColor"
-          fillOpacity={on ? 1 : 0}
-          stroke="currentColor"
-          strokeWidth="1.5"
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden
+    >
+      <rect
+        x="1.25"
+        y="2"
+        width="1.75"
+        height="12"
+        rx="0.875"
+        fillOpacity={on ? 1 : 0.35}
+      />
+      {BEAT_BARS.map((x, i) => (
+        <rect
+          key={x}
+          ref={(el) => {
+            bars.current[i] = el;
+          }}
+          x={x}
+          y="4"
+          width="1.75"
+          height="8"
+          rx="0.875"
+          fillOpacity={on ? 1 : 0.35}
           className="transition-[fill-opacity] duration-daw-fast"
         />
       ))}
@@ -189,40 +210,69 @@ function MetronomeIcon({ on }: { on: boolean }) {
   );
 }
 
+/**
+ * Whether the metronome's settings are open. A store, so the top bar's '⋯'
+ * menu can open them too (the metronome itself is one button now).
+ */
+export const useClickSettings = create<{
+  open: boolean;
+  setOpen(open: boolean): void;
+}>((set) => ({ open: false, setOpen: (open) => set({ open }) }));
+
+/**
+ * The metronome, as the floating frame's transport has it (owner,
+ * 2026-10-21): one button. Its settings (sound, volume, count-in) open on a
+ * right-click or from the '⋯' menu, anchored under it.
+ */
 export const ClickToggle = memo(function ClickToggle() {
   const on = useStore((s) => s.metronomeEnabled);
   const toggle = useStore((s) => s.toggleMetronome);
   const countInBars = useStore((s) => s.countInBars);
+  const open = useClickSettings((s) => s.open);
+  const setOpen = useClickSettings((s) => s.setOpen);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  // The settings never outlive the editor: a module store would reopen them
+  // on the next visit.
+  useEffect(() => () => useClickSettings.getState().setOpen(false), []);
   return (
-    <div className="flex shrink-0 items-center">
-      <Toggle
-        label="Click"
-        icon={<MetronomeIcon on={on} />}
-        pressed={on}
-        onPressedChange={() => toggle()}
-        shortcut={METRONOME_KEYS.label}
-        aria-keyshortcuts={METRONOME_KEYS.aria}
-        data-testid="click-toggle"
-        data-tutorial-id="metronome-toggle"
-        className="rounded-r-none"
-      />
-      <Popover>
-        <PopoverTrigger asChild>
-          <IconButton
-            label="Click settings: sound, volume and count-in"
-            icon={<ChevronDown />}
-            size="md"
-            tooltipSide="top"
-            data-testid="count-in-menu"
-            data-tutorial-id="count-in-menu"
-            data-count-in={countInBars}
-            className="w-6 rounded-l-none [&_svg]:size-3.5"
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverAnchor asChild>
+        <span
+          className="inline-flex shrink-0"
+          data-testid="count-in-menu"
+          data-count-in={countInBars}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            setOpen(true);
+          }}
+        >
+          <Toggle
+            ref={toggleRef}
+            label="Metronome"
+            tooltipSide="bottom"
+            icon={<MetronomeIcon on={on} />}
+            pressed={on}
+            onPressedChange={() => toggle()}
+            shortcut={METRONOME_KEYS.label}
+            aria-keyshortcuts={METRONOME_KEYS.aria}
+            data-testid="click-toggle"
+            className={PILL_TOGGLE}
           />
-        </PopoverTrigger>
-        <PopoverContent side="top" align="end" sideOffset={8}>
-          <ClickSettings />
-        </PopoverContent>
-      </Popover>
-    </div>
+        </span>
+      </PopoverAnchor>
+      <PopoverContent
+        side="bottom"
+        align="start"
+        sideOffset={8}
+        // No trigger to hand focus back to (the popover hangs off an
+        // anchor): back to the metronome, so the keyboard keeps its place.
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+          toggleRef.current?.focus();
+        }}
+      >
+        <ClickSettings />
+      </PopoverContent>
+    </Popover>
   );
 });

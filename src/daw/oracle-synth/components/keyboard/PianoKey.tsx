@@ -16,10 +16,23 @@ interface PianoKeyProps {
   activeColor?: string;
   onNoteOn: (note: number) => void;
   onNoteOff: (note: number) => void;
+  /** The computer key that plays it ('A', ';'), shown in a badge. */
+  label?: string | null;
+  /** A C's name ('C4'), shown over its badge. */
+  octaveName?: string | null;
 }
 
 export const PianoKey: React.FC<PianoKeyProps> = React.memo(
-  ({ note, isBlack, isActive, activeColor, onNoteOn, onNoteOff }) => {
+  ({
+    note,
+    isBlack,
+    isActive,
+    activeColor,
+    onNoteOn,
+    onNoteOff,
+    label,
+    octaveName,
+  }) => {
     const className = isBlack ? styles.blackKey : styles.whiteKey;
     const activeClass = isActive ? styles.active : '';
 
@@ -45,7 +58,12 @@ export const PianoKey: React.FC<PianoKeyProps> = React.memo(
         onPointerLeave={() => {
           if (isActive) onNoteOff(note);
         }}
-      />
+      >
+        {octaveName ? (
+          <span className={styles.octave}>{octaveName}</span>
+        ) : null}
+        {label ? <span className={styles.badge}>{label}</span> : null}
+      </div>
     );
   },
 );

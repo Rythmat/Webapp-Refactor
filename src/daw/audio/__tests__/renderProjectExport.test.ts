@@ -99,6 +99,7 @@ vi.mock('../EffectChain', async (importOriginal) => ({
 
 // What each TrackEngine the render built was given.
 interface BuiltTrack {
+  resolve?: (key: string) => unknown;
   volume?: number;
   pan?: number;
   effects?: TrackEffectState;
@@ -185,9 +186,11 @@ vi.mock('../TrackEngine', () => ({
     whenDynamicsReady() {
       return Promise.resolve();
     }
-    setKeySourceResolver() {}
+    setKeySourceResolver(fn: (key: string) => unknown) {
+      this.built.resolve = fn;
+    }
     getAnalyserNode() {
-      return null;
+      return { tapOf: this.built };
     }
     updateEffects(effects: TrackEffectState) {
       this.built.effects = effects;
@@ -351,6 +354,24 @@ afterEach(() => {
 });
 
 describe('renderProject', () => {
+  it("keys each ducker by another track's tap, refusing a loop", async () => {
+    const duckedBy = (id: string, keyTrackId: string) => {
+      const t = track(id);
+      t.effects.ducker = { ...t.effects.ducker, enabled: true, keyTrackId };
+      return t;
+    };
+    // A ducks by B and B by A: connecting both would be a cycle (silence).
+    store.state.tracks = [duckedBy('a', 'b'), duckedBy('b', 'a'), track('c')];
+    await renderProject();
+    const [a, b, c] = engines.built;
+    expect(a.resolve!('b')).toBeNull();
+    expect(b.resolve!('a')).toBeNull();
+    expect(a.resolve!('a')).toBeNull();
+    expect(a.resolve!('c')).toEqual({ tapOf: c });
+    expect(c.resolve!('a')).toEqual({ tapOf: a });
+    expect(a.resolve!('gone')).toBeNull();
+  });
+
   it("renders at the live engine's rate when none is asked for", async () => {
     const buffer = await renderProject();
     expect(tone.state.rates).toEqual([48000]);
@@ -458,7 +479,7 @@ describe('renderProject', () => {
     store.state.tracks = [
       {
         ...track('vocal'),
-        instrument: 'vocal-fx',
+        instrument: 'audio-input',
         audioClips: [take('take-1', 0), take('take-2', 1920, true)],
       },
     ];

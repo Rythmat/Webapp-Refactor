@@ -20,11 +20,11 @@
     },
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Triangle",
       "octave": -2,
       "semitone": 0,
       "fine": 0,
-      "wtPosition": 0.20829993934603408,
+      "wtPosition": 0,
       "pan": 0,
       "level": 0.1759445402867641,
       "unisonVoices": 1,
@@ -373,7 +373,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.9665791988372803,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -448,7 +448,7 @@
         "source": "osc2",
         "param": "level"
       },
-      "amount": 0.006790637969970703,
+      "amount": 0.013581275939941406,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -463,7 +463,7 @@
         "source": "osc2",
         "param": "level"
       },
-      "amount": 0.006790637969970703,
+      "amount": 0.013581275939941406,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -473,7 +473,7 @@
   "voiceCount": 8,
   "glide": 0.00009434272633951399,
   "spread": 0,
-  "masterVolume": 0.07691045257259646,
+  "masterVolume": 0.06391258608782766,
   "fx": {
     "chorus": {
       "enabled": false,

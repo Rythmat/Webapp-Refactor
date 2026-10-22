@@ -1,4 +1,5 @@
-import { Circle, Ear, EarOff, MoreHorizontal } from 'lucide-react';
+import { Ear, EarOff, SlidersHorizontal } from 'lucide-react';
+import { useTrackColor } from '@/daw/harmony/trackColor';
 import {
   memo,
   useCallback,
@@ -18,57 +19,67 @@ import {
 } from '@/daw/collab/studioListenStore';
 import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
 import { meterSource } from '@/daw/engine/meterBus';
-import { useTrackVolumeControl } from '@/daw/hooks/useMixControls';
-import { openTrackInDock } from '@/daw/shell/dock/dockSelection';
+import {
+  useTrackPanControl,
+  useTrackVolumeControl,
+} from '@/daw/hooks/useMixControls';
 import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore, useTrack, type Track } from '@/daw/store';
-import { contrastRatio, onColor } from '@/daw/ui/color';
-import { COLOR } from '@/daw/ui/tokens';
-import { Fader } from '@/daw/ui/Fader';
-import { formatGain } from '@/daw/ui/format';
-import { IconButton } from '@/daw/ui/IconButton';
-import { Meter } from '@/daw/ui/Meter';
+import { RecordGlyph } from '@/daw/ui/icons/frameIcons';
 import { Menu, MenuTrigger } from '@/daw/ui/Menu';
+import { formatPan } from '@/daw/ui/format';
+import { Knob } from '@/daw/ui/Knob';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Toggle } from '@/daw/ui/Toggle';
+import { VolumePill } from '@/daw/ui/VolumePill';
+import { selectTrackInList } from './useTrackListKeys';
+import { armHint, armLabel, armStateOf, nextArm } from './recordArm';
 import { TRACK_ROW_PX } from './rowLayout';
-import { trackIcon } from './trackIcon';
 import { onTrackMenuRequest } from './trackMenuRequests';
 import { TrackMenuContent } from './TrackMenu';
 import { useTrackRename } from './useTrackRename';
 
-// ── A track row (milestone 2.6) ────────────────────────────────────────────
+// ── A track row (milestone 2.6; Suno's track header, 2026-10-21) ────────
 //
-// 64 px, two lines (ia-flows-36, timeline-21):
-//   grip · instrument · name · collaborators · ⋯
-//   M · S · Arm · volume over its meter
-// Everything else (the name, colour, role, duplicate, monitor, test sound,
-// automation, export, release, delete) is in the ⋯ menu, which a right-click
-// on the row opens too, at the pointer (2.15). The instrument button opens
-// the track's instrument in the dock, as Soundtrap's row does (ST10). The
-// selected row has a 4 px edge in its track colour and its instrument on a
-// track-colour fill; the others show their colour in the instrument's glyph
-// (colour is the track's meaning here, and selection also reads as the
-// lighter row and aria-current). Every control is named in full
-// ('Mute Rhodes'), shows its state by more than colour (pressed, filled),
-// and is at least 24×24. A muted row dims.
+// 86 px, two lines, after Suno's header:
+//   number · name · (⋯ on hover) · mute · solo · arm · input ▾
+//   the volume pill (the fader over the track's stereo meter) · pan dial
+// The track's colour runs down the left edge (4 px), which is the grip
+// that drags the row up or down; the selected row is lifted white/4, and a
+// muted row fades. Everything else (the name, colour, role, duplicate,
+// monitor, test sound, automation, export, release, delete) is in the ⋯
+// menu, which a right-click on the row opens too, at the pointer (2.15),
+// and so is the track's input: its MIDI device, or its audio input and
+// channel (TrackInputSub; it was a ▾ on the header until 2026-10-22). Every control is named in full ('Mute Rhodes'),
+// shows its state by more than colour (pressed, filled), and is at least
+// 24 × 24. Solo shows on in white, never yellow (owner decision 3). The
+// record button steps through three states (recordArm.ts): armed and
+// hearing its input (a red disc with a halo), armed and quiet (the red
+// disc), off (a grey dot).
 //
 // The name is the row's selector: a click selects the track, a double-click
 // (or F2 / N with focus on it) renames it, and the arrow keys move the
-// selection (the track list's keys, useTrackListKeys). The colour bar at
-// the left edge is the grip that drags the row up or down.
+// selection (the track list's keys, useTrackListKeys).
 //
 // A track a collaborator has selected is theirs for now: it is outlined in
 // their colour and only Mute and Solo (which are each person's own) stay
 // live; while they play it live, Listen sets whether you hear them.
-//
-// Lesson anchors by the track's place in the list (0 for the top track):
-// track-header-<i> on the row, track-name-<i>, track-instrument-<i>,
-// track-mute-<i>, track-solo-<i>, track-arm-<i> and track-volume-<i> on its
-// controls, and selected-track-header over the selected row.
 
-/** The fader and meter's length in a 200 px row. */
-const FADER_PX = 88;
+/** A header button: 28 × 32, its icon or letter in white/50 until hovered. */
+const HEADER_BUTTON = cn(
+  'flex h-8 w-7 shrink-0 items-center justify-center rounded-[var(--daw-radius-sm)] text-daw-pill-text hover:text-daw-text [&_svg]:size-3.5',
+  TRANSITION,
+  FOCUS_RING,
+);
+
+/** The 24 px circle a header toggle fills when it is on. */
+const CIRCLE = 'flex size-6 items-center justify-center rounded-full';
+
+/**
+ * The volume pill's width: with the 28 px pan knob and the 4 px gap, as wide
+ * as Main's pill (MasterRow's 232 px), so their right ends line up.
+ */
+const TRACK_PILL_PX = 200;
 
 export interface TrackRowProps {
   trackId: string;
@@ -96,7 +107,13 @@ const TrackRowBody = memo(function TrackRowBody({
   onGripDown,
   dragging = false,
 }: TrackRowProps & { track: Track }) {
-  const isSelected = useStore((s) => s.selectedTrackId === track.id);
+  // Harmony Color: the key centre's colour in its own's place.
+  const trackColor = useTrackColor(track.color);
+  // One thing is selected in the list: a track, or Master (its strip at the
+  // foot, 2026-10-22), whose selection shows Master in the dock.
+  const isSelected = useStore(
+    (s) => s.selectedTrackId === track.id && !s.dockMaster,
+  );
   const lockOwner = useTrackPresence(track.id)[0] ?? null;
   const locked = lockOwner !== null;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -113,7 +130,7 @@ const TrackRowBody = memo(function TrackRowBody({
   );
 
   const select = useCallback(() => {
-    useStore.getState().setSelectedTrackId(track.id);
+    selectTrackInList(track.id);
   }, [track.id]);
 
   // A right-click selects the track (as Soundtrap's does; a collaborator's
@@ -129,93 +146,96 @@ const TrackRowBody = memo(function TrackRowBody({
     },
     [locked, select],
   );
-  const Icon = trackIcon(track.instrument);
-  // A dark track colour can't be read as a glyph on the row: then it is
-  // drawn in the row's own text colour (3:1, WCAG's for graphics).
-  const glyphReads = contrastRatio(track.color, COLOR['surface-1'].value) >= 3;
+  const volume = useTrackVolumeControl(track);
+  const pan = useTrackPanControl(track);
+  const meter = useRef(meterSource(`track-lr:${track.id}`));
+  const muted = track.mute;
+  const arm = armStateOf(track);
 
   return (
     <li
       data-track-id={track.id}
       data-testid="track-row"
       data-selected={isSelected || undefined}
+      data-muted={muted || undefined}
       aria-label={track.name}
       aria-current={isSelected || undefined}
       className={cn(
-        'relative flex border-b border-daw-hairline',
-        isSelected ? 'bg-daw-selected' : 'bg-daw-surface-1 hover:bg-daw-hover',
+        'group/row relative flex border-b border-daw-bg',
+        isSelected ? 'bg-daw-surface-2' : 'hover:bg-daw-surface-2',
         dragging && 'opacity-60',
         TRANSITION,
       )}
       style={{ height: TRACK_ROW_PX }}
-      data-tutorial-id={`track-header-${index}`}
-      onClick={select}
+      onClick={(e) => {
+        select();
+        // A click on the row itself (not one of its controls) puts focus on
+        // the track's name, so the list's keys (Delete, M, S, the arrows)
+        // act on the track just selected.
+        if (
+          e.target instanceof Element &&
+          !e.target.closest('button, input, [role="slider"], [tabindex]')
+        ) {
+          e.currentTarget
+            .querySelector<HTMLElement>('[data-track-selector]')
+            ?.focus({ preventScroll: true });
+        }
+      }}
       onContextMenu={onContextMenu}
     >
-      {isSelected ? (
-        <span
-          aria-hidden
-          data-tutorial-id="selected-track-header"
-          className="pointer-events-none absolute inset-0"
-        />
-      ) : null}
-      {/* The grip that reorders the row, with the track's colour at its
-          edge: a hairline, and the full 4 px edge on the selected row. */}
+      {/* The track's colour down the left edge, 4 px: the grip that drags
+          the row up or down. Muted, it fades. */}
       <div
         aria-hidden
         data-testid="track-grip"
-        className="flex w-3 shrink-0 cursor-grab touch-none justify-start active:cursor-grabbing"
+        className="flex w-2 shrink-0 cursor-grab touch-none justify-start active:cursor-grabbing"
         onPointerDown={(e) => onGripDown(e, track.id)}
       >
-        {isSelected ? (
-          <span
-            data-testid="track-selected-edge"
-            className="h-full w-1"
-            style={{ backgroundColor: track.color }}
-            data-meaning="track-colour"
-          />
-        ) : (
-          <span
-            className="h-full w-0.5 opacity-60"
-            style={{ backgroundColor: track.color }}
-            data-meaning="track-colour"
-          />
-        )}
+        <span
+          data-testid="track-colour-bar"
+          className={cn('h-full w-1', muted && 'opacity-40')}
+          style={{ backgroundColor: trackColor }}
+          data-meaning="track-colour"
+        />
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 py-1 pr-1">
-        <div className="flex h-7 min-w-0 items-center gap-1">
-          <IconButton
-            label={`Open ${track.name}’s instrument`}
-            icon={<Icon />}
-            size="sm"
+      <div className="flex min-w-0 flex-1 flex-col gap-1 pl-2 pr-3 pt-2">
+        {/* Row 1: number (the mute), name, ⋯ (on hover), solo, arm, input. */}
+        <div className="flex h-8 min-w-0 items-center">
+          {/* The track's number is its mute (owner, 2026-10-22: the mute
+              icon went): a click silences the track, its number filled in
+              while it is muted. */}
+          <button
+            type="button"
+            data-testid="track-number"
+            aria-label={`Mute ${track.name}`}
+            aria-pressed={muted}
             data-hint={hintText(
-              `Open ${track.name}’s instrument`,
-              'Show its sound in the dock',
+              `Mute ${track.name}`,
+              muted
+                ? 'Muted: click the number to hear this track again'
+                : 'Click the number to silence this track',
             )}
-            data-testid="track-instrument-button"
-            data-tutorial-id={`track-instrument-${index}`}
-            data-meaning="track-colour"
-            className="shrink-0 rounded-full"
-            style={
-              isSelected
-                ? { backgroundColor: track.color, color: onColor(track.color) }
-                : glyphReads
-                  ? { color: track.color }
-                  : undefined
-            }
-            onClick={(e) => {
-              e.stopPropagation();
-              openTrackInDock(track.id);
-            }}
-          />
+            onClick={() => useStore.getState().toggleMute(track.id)}
+            className={cn(
+              TYPE_CLASS.label,
+              '-ml-1 flex size-6 shrink-0 items-center justify-center rounded-full font-bold tabular-nums',
+              muted
+                ? 'bg-daw-pill-on text-daw-text'
+                : 'text-daw-text-3 hover:bg-daw-hover hover:text-daw-text',
+              TRANSITION,
+              FOCUS_RING,
+            )}
+          >
+            {index + 1}
+          </button>
           {rename.editing ? (
             <input
               ref={rename.inputRef}
               aria-label={`Name of ${track.name}`}
               defaultValue={track.name}
               className={cn(
-                'h-6 min-w-0 flex-1 rounded-[var(--daw-radius-sm)] border border-daw-outline bg-daw-bg px-1 font-bold text-daw-text outline-none',
+                'ml-2 h-6 min-w-0 flex-1 rounded-[var(--daw-radius-sm)] border border-daw-outline bg-daw-bg px-1 font-bold text-daw-text outline-none',
                 TYPE_CLASS.label,
               )}
               spellCheck={false}
@@ -227,7 +247,6 @@ const TrackRowBody = memo(function TrackRowBody({
             <button
               type="button"
               data-track-selector
-              data-tutorial-id={`track-name-${index}`}
               tabIndex={tabStop ? 0 : -1}
               aria-pressed={isSelected}
               aria-label={`${track.name}, track ${index + 1}`}
@@ -238,9 +257,9 @@ const TrackRowBody = memo(function TrackRowBody({
                   : 'Select this track; double-click to rename it',
               )}
               className={cn(
-                'h-6 min-w-0 flex-1 truncate rounded-[var(--daw-radius-sm)] px-1 text-left font-bold text-daw-text',
+                'ml-2 h-6 min-w-0 flex-1 truncate rounded-[var(--daw-radius-sm)] text-left font-bold text-daw-text',
                 TYPE_CLASS.label,
-                track.mute && 'opacity-45',
+                muted && 'opacity-50',
                 FOCUS_RING,
               )}
               onClick={(e) => {
@@ -256,29 +275,100 @@ const TrackRowBody = memo(function TrackRowBody({
             </button>
           )}
           <PresenceTrackDots trackId={track.id} />
-          <Menu open={menuOpen} onOpenChange={setMenuOpen}>
-            <MenuTrigger asChild>
-              <IconButton
-                label={`More for ${track.name}`}
-                icon={<MoreHorizontal />}
-                size="sm"
-                data-tutorial-id={menuAnchor ? 'track-menu-button' : undefined}
-                data-hint={hintText(
-                  `More for ${track.name}`,
-                  'Rename, color, duplicate, export or delete it',
+          <div
+            className="flex shrink-0 items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Menu open={menuOpen} onOpenChange={setMenuOpen}>
+              <MenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={`More for ${track.name}`}
+                  data-tutorial-id={
+                    menuAnchor ? 'track-menu-button' : undefined
+                  }
+                  data-hint={hintText(
+                    `More for ${track.name}`,
+                    'Rename, colour, duplicate, export or delete it',
+                  )}
+                  data-testid="track-menu-button"
+                  className={cn(
+                    HEADER_BUTTON,
+                    // Shown on hover, with the keyboard, or while open
+                    // (Suno's); its room stays, so nothing shifts.
+                    'opacity-0 focus-visible:opacity-100 group-hover/row:opacity-100 data-[state=open]:opacity-100',
+                  )}
+                >
+                  {/* Sliders, not '⋯': the chord ruler's settings are '⋯'
+                      (ChordRulerSettings), and the two sat one over the
+                      other (owner, 2026-10-22). */}
+                  <SlidersHorizontal aria-hidden />
+                </button>
+              </MenuTrigger>
+              {menuOpen ? (
+                <TrackMenuContent
+                  track={track}
+                  locked={locked}
+                  isSelected={isSelected}
+                />
+              ) : null}
+            </Menu>
+            <button
+              type="button"
+              aria-label={`Solo ${track.name}`}
+              aria-pressed={track.solo}
+              data-testid="track-solo"
+              data-hint={hintText(
+                `Solo ${track.name}`,
+                'Hear this track on its own while everything else goes quiet',
+              )}
+              className={HEADER_BUTTON}
+              onClick={() => useStore.getState().toggleSolo(track.id)}
+            >
+              <span
+                className={cn(
+                  CIRCLE,
+                  TYPE_CLASS.label,
+                  track.solo && 'bg-daw-text font-bold text-daw-on-primary',
                 )}
-                data-testid="track-menu-button"
-                onClick={(e) => e.stopPropagation()}
-              />
-            </MenuTrigger>
-            {menuOpen ? (
-              <TrackMenuContent
-                track={track}
-                locked={locked}
-                isSelected={isSelected}
-              />
-            ) : null}
-          </Menu>
+              >
+                S
+              </span>
+            </button>
+            {locked && lockOwner ? null : (
+              <>
+                <button
+                  type="button"
+                  aria-label={armLabel(track.name, arm)}
+                  aria-pressed={track.recordArmed}
+                  data-arm-state={arm}
+                  data-testid="track-arm"
+                  data-hint={hintText(armLabel(track.name, arm), armHint(arm))}
+                  className={HEADER_BUTTON}
+                  onClick={() =>
+                    useStore.getState().updateTrack(track.id, nextArm(track))
+                  }
+                >
+                  {/* The record dot: grey when off, on a red disc when
+                      armed, with a red halo while it hears its input. */}
+                  <span
+                    data-testid="track-arm-face"
+                    className={cn(
+                      'flex size-5 items-center justify-center rounded-full [&_svg]:size-2.5',
+                      TRANSITION,
+                      arm === 'off'
+                        ? 'text-daw-pill-text'
+                        : 'bg-daw-record text-daw-on-danger',
+                      arm === 'monitoring' &&
+                        'shadow-[0_0_0_2px_var(--daw-bg),0_0_0_3.5px_var(--daw-record)]',
+                    )}
+                  >
+                    <RecordGlyph />
+                  </span>
+                </button>
+              </>
+            )}
+          </div>
           {pointerMenu ? (
             <Menu
               open
@@ -312,57 +402,61 @@ const TrackRowBody = memo(function TrackRowBody({
             </Menu>
           ) : null}
         </div>
+
+        {/* Row 2: the volume pill (the fader over the track's stereo
+            meter) and the Mix strips' pan knob, as wide together as Main's
+            pill. */}
         <div
-          className="flex h-7 items-center gap-0.5"
+          className="flex h-[26px] items-center gap-1"
           onClick={(e) => e.stopPropagation()}
         >
-          <Toggle
-            label={`Mute ${track.name}`}
-            data-tutorial-id={`track-mute-${index}`}
-            data-hint={hintText(`Mute ${track.name}`, 'Silence this track')}
-            size="sm"
-            pressed={track.mute}
-            onPressedChange={() => useStore.getState().toggleMute(track.id)}
-          >
-            M
-          </Toggle>
-          <Toggle
-            label={`Solo ${track.name}`}
-            data-tutorial-id={`track-solo-${index}`}
-            data-hint={hintText(
-              `Solo ${track.name}`,
-              'Hear only this track and other soloed ones',
-            )}
-            size="sm"
-            pressed={track.solo}
-            onPressedChange={() => useStore.getState().toggleSolo(track.id)}
-          >
-            S
-          </Toggle>
           {locked && lockOwner ? (
             <RemoteListen trackId={track.id} owner={lockOwner.userName} />
           ) : (
             <>
-              <Toggle
-                label={`Arm ${track.name} to record`}
-                data-tutorial-id={`track-arm-${index}`}
+              <VolumePill
+                label={`Volume of ${track.name}`}
                 data-hint={hintText(
-                  `Arm ${track.name} to record`,
-                  'Record onto this track when you press Record',
+                  `Volume of ${track.name}`,
+                  'How loud this track is, over its level; double-click to reset',
                 )}
-                tone="record"
-                size="sm"
-                icon={
-                  <Circle
-                    className={track.recordArmed ? 'fill-current' : undefined}
-                  />
-                }
-                pressed={track.recordArmed}
-                onPressedChange={() =>
-                  useStore.getState().toggleRecordArm(track.id)
-                }
+                data-testid="track-volume"
+                value={volume.value}
+                onBegin={volume.begin}
+                onChange={volume.change}
+                onEnd={volume.end}
+                resetValue={0.8}
+                meter={meter.current}
+                color={trackColor}
+                dimmed={muted}
+                width={TRACK_PILL_PX}
               />
-              <RowVolume track={track} index={index} dimmed={track.mute} />
+              {/* The Mix strips' pan knob (owner, 2026-10-22). */}
+              <div
+                className={cn('flex shrink-0', muted && 'opacity-50')}
+                onPointerDownCapture={pan.begin}
+              >
+                <Knob
+                  label={`Pan of ${track.name}`}
+                  data-hint={hintText(
+                    `Pan of ${track.name}`,
+                    'Where it sits from left to right; double-click to centre',
+                  )}
+                  data-testid="track-pan"
+                  size="sm"
+                  bipolar
+                  min={-1}
+                  max={1}
+                  step={0.01}
+                  resetValue={0}
+                  value={pan.value}
+                  format={formatPan}
+                  onChange={pan.change}
+                  onCommit={pan.end}
+                  showValue={false}
+                  hideLabel
+                />
+              </div>
             </>
           )}
         </div>
@@ -374,58 +468,6 @@ const TrackRowBody = memo(function TrackRowBody({
     </li>
   );
 });
-
-/** The row's volume and its meter, one under the other. */
-function RowVolume({
-  track,
-  index,
-  dimmed,
-}: {
-  track: Track;
-  index: number;
-  dimmed: boolean;
-}) {
-  const volume = useTrackVolumeControl(track);
-  const source = useRef(meterSource(`track:${track.id}`));
-  return (
-    <div
-      className={cn('ml-1 flex flex-col items-start', dimmed && 'opacity-45')}
-      onPointerDownCapture={volume.begin}
-    >
-      <Fader
-        label={`Volume of ${track.name}`}
-        data-tutorial-id={`track-volume-${index}`}
-        data-hint={hintText(
-          `Volume of ${track.name}`,
-          'How loud this track is; double-click to reset',
-        )}
-        orientation="horizontal"
-        length={FADER_PX}
-        min={0}
-        max={1}
-        step={0.01}
-        resetValue={0.8}
-        value={volume.value}
-        format={(v) => formatGain(v)}
-        onChange={volume.change}
-        onCommit={volume.end}
-        showValue={false}
-        hideLabel
-      />
-      <Meter
-        label={`${track.name} level`}
-        data-hint={hintText(
-          `${track.name} level`,
-          'How loud it plays; click to clear the red light',
-        )}
-        source={source.current}
-        orientation="horizontal"
-        length={FADER_PX}
-        channels={1}
-      />
-    </div>
-  );
-}
 
 /**
  * Whether you hear a collaborator's live signal on a track they hold: in

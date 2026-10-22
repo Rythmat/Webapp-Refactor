@@ -916,7 +916,7 @@
         "source": "osc1",
         "param": "level"
       },
-      "amount": 0.7499314546585083,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -931,7 +931,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": -0.8535373359918594,
+      "amount": -0.9754643792704332,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -956,7 +956,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.2902808171946504,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -978,13 +978,13 @@
     },
     "compressor": {
       "enabled": true,
-      "threshold": 0,
+      "threshold": -16.287036176693746,
       "ratio": 20,
-      "attack": 0.10000000149011612,
-      "release": 1
+      "attack": 0.00010000000149011611,
+      "release": 0.03372408844961148
     },
     "drive": {
-      "enabled": true,
+      "enabled": false,
       "amount": 0.3,
       "mix": 0.5
     },
@@ -1055,5 +1055,6 @@
     "rootPc": 0,
     "mode": "ionian",
     "snapMode": "nearest"
-  }
+  },
+  "modWheel": 0.0859375
 }

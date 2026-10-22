@@ -1,14 +1,7 @@
 // @vitest-environment jsdom
 import { File as NodeFile } from 'node:buffer';
-import { createElement } from 'react';
 import { Midi } from '@tonejs/midi';
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Drops on the timeline (milestone 2.14, F11) ────────────────────────────
@@ -39,7 +32,6 @@ import {
   startHistory,
   undo,
 } from '@/daw/store/history';
-import { EmptyProjectTiles } from '@/daw/shell/tracklist/EmptyProjectTiles';
 import {
   acceptsDrop,
   dropOnTimeline,
@@ -167,27 +159,5 @@ describe('a drop on the timeline', () => {
       stop();
       resetHistory();
     }
-  });
-});
-
-describe('an empty project’s first steps', () => {
-  it('take a Library row dropped on them as a new track at bar 1', async () => {
-    render(createElement(EmptyProjectTiles));
-    const tiles = screen.getByTestId('empty-project');
-    const payload = JSON.stringify({ kind: 'library-item', itemId: 'part:x' });
-    const dataTransfer = {
-      types: [DRAG_MIME],
-      files: [],
-      dropEffect: 'none',
-      getData: (type: string) => (type === DRAG_MIME ? payload : ''),
-    };
-    // dragover says it copies (the default is prevented).
-    expect(fireEvent.dragOver(tiles, { dataTransfer })).toBe(false);
-    expect(dataTransfer.dropEffect).toBe('copy');
-
-    fireEvent.drop(tiles, { dataTransfer });
-    await waitFor(() =>
-      expect(h.drop).toHaveBeenCalledWith('part:x', { trackId: null, tick: 0 }),
-    );
   });
 });

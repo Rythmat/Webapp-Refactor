@@ -44,7 +44,7 @@ const REGION: ChordRegion = {
 
 function notesOnly(): void {
   resetSessionToEmpty();
-  const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  const keys = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(keys, {
     id: 'clip-1',
     startTick: 0,
@@ -125,7 +125,7 @@ describe('projectHoldsDocumentOnlyData', () => {
 
   it('counts audio not uploaded, which the groups leave to their own warning', () => {
     notesOnly();
-    const vox = s().addTrack('audio', 'vocal-fx', 'Vox');
+    const vox = s().addTrack('audio', 'audio-input', 'Vox');
     s().addAudioClip(vox, {
       id: 'take',
       startTick: 0,

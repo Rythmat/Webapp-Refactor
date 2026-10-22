@@ -1,17 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import {
-  X,
-  ArrowLeft,
-  ArrowRight,
-  Eye,
-  GraduationCap,
-  RotateCcw,
-} from 'lucide-react';
-import type {
-  TutorialDemoPhase,
-  TutorialStepStatus,
-} from '@/daw/store/tutorialSlice';
+import { motion, useMotionValue } from 'framer-motion';
+import { X, ArrowLeft, ArrowRight, GraduationCap } from 'lucide-react';
+import type { TutorialStepStatus } from '@/daw/store/tutorialSlice';
 import {
   type AnchorRack,
   type Rect,
@@ -20,21 +10,15 @@ import {
   idsOf,
   subscribeAnchorRect,
 } from './anchorRegistry';
-import { openOverlayRects, placeCard } from './cardPlacement';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
 // ── CoachCard ───────────────────────────────────────────────────────────────
 // Floating, draggable step card shown over the Studio while a lesson runs.
 // Mirrors the reference "beatspark" card: stage label, progress bar + counter,
 // instruction, a Waiting… status on validated steps, and Back / Next / Quit.
-// It dynamically anchors itself clear of the spotlighted region so it never
-// obstructs the highlighted control.
-//
-// A step with a demo (TutorialStep.demo) has two states: "Watch" while the
-// demo plays, with Skip and the demo's caption read out, then "Your turn",
-// with the instruction and "Show me again". A step without one shows as it
-// always has. A course lesson says where it is in its course ("Lesson 3 of
-// 9").
+// It anchors itself clear of the spotlighted region, and of any open menu,
+// popover or dialog (where the student clicks next), so it never covers what
+// the step asks for.
 
 interface CoachCardProps {
   title: string;
@@ -53,69 +37,114 @@ interface CoachCardProps {
   onBack: () => void;
   onNext: () => void;
   onQuit: () => void;
-  /** The step's demo, when it has one. */
-  demo?: {
-    phase: TutorialDemoPhase;
-    /** The caption on screen while it plays. */
-    caption: string | null;
-    onSkip: () => void;
-    onReplay: () => void;
-  };
-  /** A course lesson's place in its course: "Lesson 3 of 9". */
-  lessonPlace?: string;
-  /**
-   * Room kept clear all around the target, past its own box: while a demo
-   * plays, its callout sits beside the cursor on the target.
-   */
-  clearance?: number;
 }
 
 const CARD_WIDTH = 380;
 const MARGIN = 16;
+/** The target's keep-clear border: the spotlight ring's gap and glow. */
+const KEEP_CLEAR = 12;
 const clamp = (v: number, lo: number, hi: number) =>
   Math.max(lo, Math.min(hi, v));
 
-/** Place the card clear of the target: in the larger vertical gap (above/below),
- *  horizontally centered on it and clamped to the viewport. Falls back to a side
- *  when the target is too tall, and to low-center when there's no target. */
-function computeCardPos(
+/** Open menus, select lists, popovers and dialogs: where a click goes next. */
+const FLOATING_SELECTOR =
+  '[role="menu"], [role="listbox"], [role="dialog"], [role="alertdialog"]';
+
+/** The open floating surfaces outside the lesson layer, as boxes. */
+export function floatingSurfaces(): Rect[] {
+  if (typeof document === 'undefined') return [];
+  const out: Rect[] = [];
+  for (const el of document.querySelectorAll(FLOATING_SELECTOR)) {
+    if (el.closest('[data-tutorial-layer]')) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0) {
+      out.push({ top: r.top, left: r.left, width: r.width, height: r.height });
+    }
+  }
+  return out;
+}
+
+const overlapArea = (a: Rect, b: Rect) =>
+  Math.max(
+    0,
+    Math.min(a.left + a.width, b.left + b.width) - Math.max(a.left, b.left),
+  ) *
+  Math.max(
+    0,
+    Math.min(a.top + a.height, b.top + b.height) - Math.max(a.top, b.top),
+  );
+
+/**
+ * Place the card clear of the target and of open menus and dialogs
+ * (`obstacles`). It tries, in order: the larger vertical gap, then the other,
+ * centred on the target; the larger side gap, then the other; then the
+ * window's corners and edges. Each place is clamped to the window, and the
+ * first that covers nothing wins. When every place covers something (a
+ * target nearly the size of the window), the one covering the least of the
+ * target wins, and of the obstacles after that. With no target it rests
+ * low-centre, clear of the obstacles.
+ */
+export function computeCardPos(
   rect: Rect | null,
   cardW: number,
   cardH: number,
   vw: number,
   vh: number,
+  obstacles: Rect[] = [],
 ): { top: number; left: number } {
-  if (!rect) {
-    return { top: Math.round(vh * 0.6), left: Math.round((vw - cardW) / 2) };
+  const maxLeft = Math.max(MARGIN, vw - cardW - MARGIN);
+  const maxTop = Math.max(MARGIN, vh - cardH - MARGIN);
+  const place = (top: number, left: number) => ({
+    top: Math.round(clamp(top, MARGIN, maxTop)),
+    left: Math.round(clamp(left, MARGIN, maxLeft)),
+  });
+  const candidates: Array<{ top: number; left: number }> = [];
+  if (rect) {
+    const midX = rect.left + rect.width / 2 - cardW / 2;
+    const midY = rect.top + rect.height / 2 - cardH / 2;
+    const below = place(rect.top + rect.height + MARGIN, midX);
+    const above = place(rect.top - cardH - MARGIN, midX);
+    const right = place(midY, rect.left + rect.width + MARGIN);
+    const left = place(midY, rect.left - cardW - MARGIN);
+    const gapBelow = vh - (rect.top + rect.height);
+    const gapRight = vw - (rect.left + rect.width);
+    candidates.push(
+      ...(gapBelow >= rect.top ? [below, above] : [above, below]),
+      ...(gapRight >= rect.left ? [right, left] : [left, right]),
+    );
+  } else {
+    candidates.push(place(vh * 0.6, (vw - cardW) / 2));
   }
-  const gapTop = rect.top;
-  const gapBottom = vh - (rect.top + rect.height);
-  const needV = cardH + MARGIN * 2;
-  const left = clamp(
-    rect.left + rect.width / 2 - cardW / 2,
-    MARGIN,
-    vw - cardW - MARGIN,
-  );
-
-  if (gapBottom >= needV || gapTop >= needV) {
-    const below = gapBottom >= gapTop;
-    const top = below
-      ? rect.top + rect.height + MARGIN
-      : rect.top - cardH - MARGIN;
-    return { top: clamp(top, MARGIN, vh - cardH - MARGIN), left };
+  for (const top of [MARGIN, maxTop, (vh - cardH) / 2]) {
+    for (const left of [MARGIN, maxLeft, (vw - cardW) / 2]) {
+      candidates.push(place(top, left));
+    }
   }
 
-  // Target too tall for vertical placement → go to the larger side.
-  const right = vw - (rect.left + rect.width) >= rect.left;
-  const sideLeft = right
-    ? rect.left + rect.width + MARGIN
-    : rect.left - cardW - MARGIN;
-  const top = clamp(
-    rect.top + rect.height / 2 - cardH / 2,
-    MARGIN,
-    vh - cardH - MARGIN,
-  );
-  return { top, left: clamp(sideLeft, MARGIN, vw - cardW - MARGIN) };
+  const clear = rect && {
+    top: rect.top - KEEP_CLEAR,
+    left: rect.left - KEEP_CLEAR,
+    width: rect.width + KEEP_CLEAR * 2,
+    height: rect.height + KEEP_CLEAR * 2,
+  };
+  let best = candidates[0];
+  let bestCost = Infinity;
+  for (const c of candidates) {
+    const box = { ...c, width: cardW, height: cardH };
+    const onTarget = clear ? overlapArea(box, clear) : 0;
+    const onObstacles = obstacles.reduce(
+      (sum, o) => sum + overlapArea(box, o),
+      0,
+    );
+    // Covering the target always costs more than covering a menu.
+    const cost = onTarget * (vw * vh + 1) + onObstacles;
+    if (cost < bestCost) {
+      best = c;
+      bestCost = cost;
+      if (cost === 0) break;
+    }
+  }
+  return best;
 }
 
 /** Render text with **bold** segments. */
@@ -185,12 +214,8 @@ export function CoachCard({
   onBack,
   onNext,
   onQuit,
-  demo,
-  lessonPlace,
-  clearance = 0,
 }: CoachCardProps) {
   const done = status === 'done';
-  const watching = demo?.phase === 'watch';
   const progress = total > 0 ? (stepIndex + (done ? 1 : 0)) / total : 0;
   const nextDisabled = isValidated && !done;
 
@@ -211,52 +236,19 @@ export function CoachCard({
   // (a longer instruction) or the window resizes. The card glides there.
   const reducedMotion = usePrefersReducedMotion();
   const targetRect = useRef<Rect | null>(null);
+  const dragX = useMotionValue(0);
+  const dragY = useMotionValue(0);
   const key = anchorKey(target, rack);
   useEffect(() => {
-    // An open overlay that grows or moves (a sheet sliding in, a menu's
-    // submenu) re-places the card too.
-    const overlayRo =
-      typeof ResizeObserver !== 'undefined'
-        ? new ResizeObserver(() => recompute())
-        : null;
-    const watched = new Set<Element>();
-    const watchOverlays = () => {
-      if (!overlayRo) return;
-      watched.forEach((el) => {
-        if (el.isConnected) return;
-        overlayRo.unobserve(el);
-        watched.delete(el);
-      });
-      document
-        .querySelectorAll('[role="dialog"],[role="menu"],[role="listbox"]')
-        .forEach((el) => {
-          if (watched.has(el) || el.closest('[data-tutorial-layer]')) return;
-          watched.add(el);
-          overlayRo.observe(el);
-        });
-    };
     const recompute = () => {
       const box = cardRef.current?.getBoundingClientRect();
-      const r = targetRect.current;
-      const kept =
-        r && clearance
-          ? {
-              top: r.top - clearance,
-              left: r.left - clearance,
-              width: r.width + clearance * 2,
-              height: r.height + clearance * 2,
-            }
-          : r;
-      const card = { w: box?.width || CARD_WIDTH, h: box?.height || 220 };
-      const view = { w: window.innerWidth, h: window.innerHeight };
-      const overlays = openOverlayRects(document, view);
-      watchOverlays();
-      const next = placeCard(
-        computeCardPos(kept, card.w, card.h, view.w, view.h),
-        card,
-        view,
-        kept,
-        overlays,
+      const next = computeCardPos(
+        targetRect.current,
+        box?.width || CARD_WIDTH,
+        box?.height || 220,
+        window.innerWidth,
+        window.innerHeight,
+        floatingSurfaces(),
       );
       setPos((prev) =>
         Math.abs(prev.top - next.top) < 4 && Math.abs(prev.left - next.left) < 4
@@ -285,37 +277,34 @@ export function CoachCard({
         : null;
     if (card) ro?.observe(card);
     window.addEventListener('resize', recompute);
-    // Menus, sheets and dialogs open in portals on <body>: re-place when one
-    // comes or goes, on the next frame and again once its opening animation
-    // has settled.
-    let frame = 0;
-    let settle = 0;
-    const soon = () => {
-      if (frame) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        recompute();
-      });
-      window.clearTimeout(settle);
-      settle = window.setTimeout(recompute, 320);
-    };
+    // Menus, popovers and dialogs mount in portals on <body>: the card moves
+    // off one that opens (the Add MIDI submenu) on the next frame.
+    let pending = 0;
     const mo =
       typeof MutationObserver !== 'undefined'
-        ? new MutationObserver(soon)
+        ? new MutationObserver(() => {
+            if (pending) return;
+            pending = window.requestAnimationFrame(() => {
+              pending = 0;
+              recompute();
+            });
+          })
         : null;
     mo?.observe(document.body, { childList: true });
+    // A new step re-anchors the card from where it is placed, not from
+    // where the student last dragged it.
+    dragX.set(0);
+    dragY.set(0);
     return () => {
       unsubscribe();
       ro?.disconnect();
       mo?.disconnect();
-      overlayRo?.disconnect();
-      cancelAnimationFrame(frame);
-      window.clearTimeout(settle);
+      if (pending) window.cancelAnimationFrame(pending);
       window.removeEventListener('resize', recompute);
     };
     // `key` is the value-stable form of `target` + `rack`.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, clearance]);
+  }, [key]);
 
   return (
     <motion.div
@@ -329,6 +318,8 @@ export function CoachCard({
         position: 'fixed',
         top: pos.top,
         left: pos.left,
+        x: dragX,
+        y: dragY,
         width: CARD_WIDTH,
         maxWidth: 'calc(100vw - 24px)',
         pointerEvents: 'auto',
@@ -366,18 +357,6 @@ export function CoachCard({
         >
           {title}
         </span>
-        {lessonPlace && (
-          <span
-            data-testid="tutorial-lesson-place"
-            style={{
-              fontSize: 12,
-              color: 'var(--daw-text-3)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {lessonPlace}
-          </span>
-        )}
         <div style={{ flex: 1 }} />
         <span style={{ fontSize: 12, color: 'var(--daw-text-3)' }}>
           {stepIndex + 1} / {total}
@@ -415,156 +394,96 @@ export function CoachCard({
       </div>
 
       {/* Body */}
-      {watching ? (
-        <div style={{ padding: '12px 14px' }} data-demo-phase="watch">
+      <div style={{ padding: '12px 14px' }}>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: 1,
+            textTransform: 'uppercase',
+            color: 'var(--daw-accent)',
+            marginBottom: 7,
+          }}
+        >
+          {stage}
+        </div>
+        <p
+          style={{
+            fontSize: 15,
+            lineHeight: 1.5,
+            color: '#fff',
+            margin: 0,
+          }}
+        >
+          <Rich text={instruction} />
+        </p>
+        {hint && (
+          <p
+            style={{
+              fontSize: 13,
+              color: 'var(--daw-text)',
+              opacity: 0.85,
+              margin: '7px 0 0',
+            }}
+          >
+            <Rich text={hint} />
+          </p>
+        )}
+
+        {isValidated && (
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: 1,
-              textTransform: 'uppercase',
-              color: 'var(--daw-accent)',
-              marginBottom: 7,
-            }}
-          >
-            <Eye size={14} aria-hidden />
-            Watch
-          </div>
-          <p
-            style={{
-              fontSize: 15,
-              lineHeight: 1.5,
-              color: 'var(--daw-text)',
-              margin: 0,
-            }}
-          >
-            Watch first, then it’s your turn.
-          </p>
-          <p
-            aria-live="polite"
-            data-testid="tutorial-demo-caption"
-            style={{
+              marginTop: 12,
               fontSize: 13,
-              color: 'var(--daw-text-2)',
-              margin: '7px 0 0',
-              minHeight: 20,
             }}
           >
-            {demo?.caption ? <Rich text={demo.caption} /> : null}
-          </p>
-        </div>
-      ) : (
-        <div
-          style={{ padding: '12px 14px' }}
-          data-demo-phase={demo ? 'turn' : undefined}
-        >
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: 1,
-              textTransform: 'uppercase',
-              color: 'var(--daw-accent)',
-              marginBottom: 7,
-            }}
-          >
-            {demo ? `Your turn · ${stage}` : stage}
-          </div>
-          <p
-            style={{
-              fontSize: 15,
-              lineHeight: 1.5,
-              color: '#fff',
-              margin: 0,
-            }}
-          >
-            <Rich text={instruction} />
-          </p>
-          {hint && (
-            <p
-              style={{
-                fontSize: 13,
-                color: 'var(--daw-text)',
-                opacity: 0.85,
-                margin: '7px 0 0',
-              }}
-            >
-              <Rich text={hint} />
-            </p>
-          )}
-
-          {isValidated && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                marginTop: 12,
-                fontSize: 13,
-              }}
-            >
-              {done ? (
-                <span style={{ color: 'var(--daw-accent)', fontWeight: 700 }}>
-                  ✓ Nice!
+            {done ? (
+              <span style={{ color: 'var(--daw-accent)', fontWeight: 700 }}>
+                ✓ Nice!
+              </span>
+            ) : (
+              <>
+                <span
+                  style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    background: 'var(--daw-accent)',
+                    animation: reducedMotion
+                      ? 'none'
+                      : 'tutorialDot 1.1s ease-in-out infinite',
+                  }}
+                />
+                <span style={{ color: 'var(--daw-text)' }}>
+                  Waiting for your move…
                 </span>
-              ) : (
-                <>
-                  <span
-                    style={{
-                      width: 7,
-                      height: 7,
-                      borderRadius: '50%',
-                      background: 'var(--daw-accent)',
-                      animation: reducedMotion
-                        ? 'none'
-                        : 'tutorialDot 1.1s ease-in-out infinite',
-                    }}
-                  />
-                  <span style={{ color: 'var(--daw-text)' }}>
-                    Waiting for your move…
-                  </span>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Controls */}
-      {watching ? (
-        <div style={{ display: 'flex', gap: 6, padding: '4px 14px 14px' }}>
-          <div style={{ flex: 1 }} />
-          <button onClick={demo?.onSkip} style={primaryBtn(false)}>
-            Skip <ArrowRight size={15} />
-          </button>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', gap: 6, padding: '4px 14px 14px' }}>
-          <button
-            onClick={onBack}
-            disabled={stepIndex === 0}
-            style={ctrlBtn(stepIndex === 0)}
-          >
-            <ArrowLeft size={15} /> Back
-          </button>
-          <div style={{ flex: 1 }} />
-          {demo && (
-            <button onClick={demo.onReplay} style={ctrlBtn(false)}>
-              <RotateCcw size={14} /> Show me again
-            </button>
-          )}
-          <button
-            onClick={onNext}
-            disabled={nextDisabled}
-            style={primaryBtn(nextDisabled)}
-          >
-            {isLast ? 'Finish' : 'Next'} <ArrowRight size={15} />
-          </button>
-        </div>
-      )}
+      <div style={{ display: 'flex', gap: 6, padding: '4px 14px 14px' }}>
+        <button
+          onClick={onBack}
+          disabled={stepIndex === 0}
+          style={ctrlBtn(stepIndex === 0)}
+        >
+          <ArrowLeft size={15} /> Back
+        </button>
+        <div style={{ flex: 1 }} />
+        <button
+          onClick={onNext}
+          disabled={nextDisabled}
+          style={primaryBtn(nextDisabled)}
+        >
+          {isLast ? 'Finish' : 'Next'} <ArrowRight size={15} />
+        </button>
+      </div>
     </motion.div>
   );
 }

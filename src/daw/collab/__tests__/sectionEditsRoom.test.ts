@@ -54,7 +54,7 @@ const partnerForm = () =>
 
 beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
-  const trackId = s().addTrack('midi', 'piano-sampler', 'Keys');
+  const trackId = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(trackId, {
     id: 'clip-verse',
     startTick: 0,

@@ -4,13 +4,13 @@
   "oscillators": [
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Saw",
       "octave": 0,
       "semitone": 0,
       "fine": -5.609911680221558,
       "wtPosition": 0,
       "pan": 0,
-      "level": 0.1799697606457471,
+      "level": 0.21376039807235153,
       "unisonVoices": 6,
       "unisonDetune": 0.15567929416480641,
       "unisonBlend": 0.5,
@@ -20,13 +20,13 @@
     },
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Saw",
       "octave": 0,
       "semitone": 0,
       "fine": 0,
       "wtPosition": 0,
       "pan": 0,
-      "level": 0.1817190017128434,
+      "level": 0.21583807192981155,
       "unisonVoices": 3,
       "unisonDetune": 0.09629914352277424,
       "unisonBlend": 0.5,
@@ -1377,7 +1377,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.8003173172473907,
+      "amount": 0.9146419285582957,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1392,7 +1392,7 @@
         "source": "flt2",
         "param": "cutoff"
       },
-      "amount": -0.5950439274311066,
+      "amount": -0.6800454190275292,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1407,7 +1407,7 @@
         "source": "osc1",
         "param": "level"
       },
-      "amount": -0.9275680631399155,
+      "amount": -1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1432,7 +1432,7 @@
   "voiceCount": 10,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.29693932650874333,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -1475,8 +1475,8 @@
   "fxRoutes": [],
   "routing": {
     "filterRouting": {
-      "filter1Sources": ["osc1", "osc2", "noise", "sub"],
-      "filter2Sources": []
+      "filter1Sources": ["osc1", "noise", "sub"],
+      "filter2Sources": ["osc2"]
     },
     "envelopeRouting": {
       "env1Sources": ["osc1", "osc2", "sub", "noise"],

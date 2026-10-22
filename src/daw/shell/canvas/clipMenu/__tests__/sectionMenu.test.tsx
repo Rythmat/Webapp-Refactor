@@ -142,8 +142,8 @@ beforeEach(() => {
   h.shared = [];
   useStore.setState(useStore.getInitialState(), true);
   useCanvasMenuStore.setState({ request: null });
-  keys = s().addTrack('midi', 'piano-sampler', 'Keys');
-  vocal = s().addTrack('audio', 'vocal-fx', 'Vocal');
+  keys = s().addTrack('midi', 'soundfont', 'Keys');
+  vocal = s().addTrack('audio', 'audio-input', 'Vocal');
   // In the verse, a riff (bar 6) and a take (bars 7 and 8); a hook starts
   // the chorus (bar 13).
   s().addMidiClip(keys, {

@@ -4,13 +4,9 @@ import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
 import {
   DrumPadsViewPart,
   GuitarBassViewPart,
-  KeyboardViewPart,
   OracleSynthInlinePart,
   OracleSynthViewPart,
-  OrganViewPart,
-  SamplerChopsViewPart,
   SoundFontViewPart,
-  VocalViewPart,
 } from '@/daw/shell/lazyParts';
 import { AudioMidiSourcePanel } from './AudioMidiSourcePanel';
 
@@ -61,33 +57,16 @@ export function TrackControlsPanel({ roomy = false }: { roomy?: boolean }) {
 
 function renderView(track: { id: string; instrument: string }) {
   switch (track.instrument) {
-    case 'piano-sampler':
-    case 'electric-piano':
-    case 'bass-electric':
-    case 'guitar-acoustic':
-    case 'cello':
-    case 'organ':
-      return <KeyboardViewPart trackId={track.id} />;
-    case 'tonewheel-organ':
-      return <OrganViewPart trackId={track.id} />;
-    case 'guitar-fx':
-    case 'bass-fx':
-      return (
-        <GuitarBassViewPart
-          trackId={track.id}
-          instrument={track.instrument as 'guitar-fx' | 'bass-fx'}
-        />
-      );
+    case 'audio-input':
+      // An Audio track: its Tuner, amp, pitch correction and effects (the
+      // Guitar, Bass and Voice tracks folded into it, 2026-10-22).
+      return <GuitarBassViewPart trackId={track.id} />;
     case 'oracle-synth':
       return <OracleSynthInlinePart />;
     case 'soundfont':
       return <SoundFontViewPart trackId={track.id} />;
     case 'drum-machine':
       return <DrumPadsViewPart trackId={track.id} />;
-    case 'sampler':
-      return <SamplerChopsViewPart trackId={track.id} />;
-    case 'vocal-fx':
-      return <VocalViewPart trackId={track.id} />;
     default:
       return (
         <DefaultView message="No controls available for this track type" />

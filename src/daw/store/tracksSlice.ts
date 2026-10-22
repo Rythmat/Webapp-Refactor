@@ -82,22 +82,35 @@ function guardTrack(
 
 export type TrackType = 'midi' | 'audio';
 
+/**
+ * A Studio track's instrument: the + Add track menu's Audio, Instruments
+ * (SoundFont), Synth and Drums (owner, 2026-10-22: every other track type
+ * went), and 'none', a track whose instrument didn't load.
+ */
 export type InstrumentType =
   | 'oracle-synth'
+  | 'soundfont'
+  | 'drum-machine'
+  // An Audio track: live input, its amp, pitch correction and effects (the
+  // Guitar, Bass and Voice tracks folded into it, 2026-10-22; audioSource).
+  | 'audio-input'
+  | 'none';
+
+/**
+ * A sound the instruments can play (soundString.ts): a Studio track's
+ * instrument, or one of the sampled and modelled sounds Learn, Practice
+ * Tracks and the console still play. A Studio track made from one of these
+ * becomes an Instruments track with the same sound (trackSound.ts).
+ */
+export type SoundType =
+  | InstrumentType
   | 'piano-sampler'
   | 'electric-piano'
   | 'bass-electric'
   | 'guitar-acoustic'
   | 'cello'
   | 'organ'
-  | 'tonewheel-organ'
-  | 'soundfont'
-  | 'drum-machine'
-  | 'sampler'
-  | 'guitar-fx'
-  | 'bass-fx'
-  | 'vocal-fx'
-  | 'none';
+  | 'tonewheel-organ';
 
 export type StudioBassVoice = 'fretless' | 'finger' | 'upright' | '808';
 
@@ -129,7 +142,7 @@ export type AudioInputChannel =
  */
 export interface AudioMidiSource {
   enabled: boolean;
-  /** Source guitar-fx/bass-fx track id, or null to auto-pick the first one. */
+  /** Source Audio track id (not a voice), or null to auto-pick the first one. */
   sourceTrackId: string | null;
   mode: 'mono' | 'poly';
 }
@@ -209,16 +222,15 @@ export interface Track {
   drumPads?: Record<number, { volume: number; pan: number }>;
   /** Selected drum kit for drum-machine tracks ('natural' when unset). */
   drumKit?: DrumKitId;
-  /**
-   * The bass sound on a bass-electric track: a lesson bass voice or the 808;
-   * the sampled electric bass when unset. Set when a Practice Track carries
-   * its lesson's bass into the Studio.
-   */
+  // The three fields below belonged to track types that went on 2026-10-22
+  // (the bass-electric, Chops sampler and tonewheel organ tracks). Nothing
+  // plays them now; they stay in the saved format, as saved data, so older
+  // projects and drafts still load without a migration.
+  /** A bass-electric track's bass voice (a lesson's, or the 808). */
   bassVoice?: StudioBassVoice;
-  /** Loaded one-shot for 'sampler' (Chops) tracks; unset until a sample lands. */
+  /** A Chops sampler track's loaded one-shot. */
   samplerSample?: SamplerSampleRef;
-  /** Tonewheel organ settings (drawbars, Leslie, percussion, …) for
-   *  'tonewheel-organ' tracks; the engine's defaults when unset. */
+  /** A tonewheel organ track's settings (drawbars, Leslie, percussion, …). */
   organState?: OrganState;
   /** The keyboard preset name shown on piano/keys tracks (display only — the
    *  sound itself is `instrument` + `gmProgram`). */
@@ -461,10 +473,8 @@ export const createTracksSlice: StateCreator<
         TRACK_PALETTES[state.nextColorIndex % TRACK_PALETTES.length];
       return { nextColorIndex: state.nextColorIndex + 1 };
     });
-    const rootColor = get().rootTrackColor;
-    if (rootColor) {
-      assignedColor = rootColor;
-    }
+    // Its own colour, key or no key: Harmony Color shows the key's in its
+    // place (harmony/trackColor; owner, 2026-10-22).
     // The registry's new-track defaults; the caller's type stands, since an
     // imported audio file makes an audio track with no instrument.
     const track: Track = {
@@ -955,6 +965,8 @@ export const createTracksSlice: StateCreator<
       ...initialTrackDefaults(def.instrument, def.name),
       type: def.type,
       color: def.color,
+      ...(def.gmProgram !== undefined ? { gmProgram: def.gmProgram } : {}),
+      ...(def.guitarChain ? { guitarChain: def.guitarChain } : {}),
     }));
     // The first MIDI track is armed and monitored, ready to play into.
     const firstMidi = tracks.findIndex((t) => t.type === 'midi');

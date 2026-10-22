@@ -100,13 +100,17 @@ export function Tooltip({
           repeatsName && shortcut ? `Shortcut ${shortcut}` : undefined
         }
         className={cn(
-          'z-[var(--daw-z-tooltip)] flex items-center gap-2 rounded-[var(--daw-radius-sm)] border border-daw-hairline bg-daw-popover px-2 py-1 text-daw-text shadow-lg shadow-black/40',
+          'z-[var(--daw-z-tooltip)] flex min-h-9 items-center gap-3 rounded-[var(--daw-radius-md)] border-0 bg-daw-float px-3 py-2 text-daw-text [box-shadow:var(--daw-shadow-menu)]',
           OVERLAY_MOTION.fast,
-          TYPE_CLASS.label,
+          TYPE_CLASS.item,
         )}
       >
         {content}
-        {shortcut && <Kbd>{shortcut}</Kbd>}
+        {shortcut && (
+          <Kbd className="h-[18px] rounded-[var(--daw-radius-sm)] border-daw-edge px-1.5 uppercase">
+            {shortcut}
+          </Kbd>
+        )}
       </TooltipContent>
     </KitTooltip>
   );

@@ -1,11 +1,8 @@
 import { PRESETS } from '@/daw/data/instrumentPresets';
-import type {
-  InstrumentType,
-  StudioBassVoice,
-  Track,
-} from '@/daw/store/tracksSlice';
+import type { Track } from '@/daw/store/tracksSlice';
 import { DRUM_KITS } from './drumKits';
 import { getGMProgram } from './gmPrograms';
+import { soundSettings } from './trackSound';
 
 // ── The simple instrument picker's catalog ──────────────────────────────────
 //
@@ -194,10 +191,6 @@ export function trackSoundString(track: SoundFields): string {
   switch (track.instrument) {
     case 'soundfont':
       return `soundfont:${track.gmProgram ?? 0}`;
-    case 'bass-electric':
-      return track.bassVoice
-        ? `bass-electric:${track.bassVoice}`
-        : 'bass-electric';
     case 'drum-machine':
       return `drum-machine:${track.drumKit ?? 'natural'}`;
     default:
@@ -231,24 +224,16 @@ export function pickerFamilies(
   return all.filter((id) => id !== 'drums');
 }
 
-const AUDIO_LABELS: Partial<Record<InstrumentType, string>> = {
-  'guitar-fx': 'Guitar (Audio)',
-  'bass-fx': 'Bass (Audio)',
-  'vocal-fx': 'Vocal (Audio)',
-};
-
 /** What a track header calls the track's instrument. */
 export function instrumentLabel(
   track: SoundFields & Pick<Track, 'type'>,
 ): string {
-  if (track.type === 'audio') return AUDIO_LABELS[track.instrument] ?? 'Audio';
+  if (track.type === 'audio') return 'Audio';
   const item = simpleInstrumentOf(track);
   if (item) return item.label;
   switch (track.instrument) {
     case 'oracle-synth':
       return 'Synth';
-    case 'sampler':
-      return 'Sampler';
     case 'soundfont':
       return getGMProgram(track.gmProgram ?? 0)?.name ?? 'Instrument';
     case 'drum-machine': {
@@ -317,33 +302,15 @@ export interface InstrumentSettings {
 }
 
 export function instrumentSettings(item: SimpleInstrument): InstrumentSettings {
-  const [type, arg] = item.sound.split(':') as [InstrumentType, string?];
+  // A sound no Studio track type plays any more opens as an Instruments
+  // track playing the same instrument (trackSound.ts).
+  const { settings, drumKit } = soundSettings(item.sound);
   // The keyboard view's preset name, when one names this very sound.
   const preset = PRESETS.find(
     (p) =>
-      p.instrumentType === type &&
-      (type !== 'soundfont' || p.gmProgram === Number(arg)),
+      p.instrumentType === settings.instrument &&
+      (settings.instrument !== 'soundfont' ||
+        p.gmProgram === settings.gmProgram),
   );
-  const presetName = type === 'bass-electric' && arg ? undefined : preset?.name;
-  switch (type) {
-    case 'soundfont':
-      return {
-        settings: { instrument: type, gmProgram: Number(arg), presetName },
-      };
-    case 'bass-electric':
-      return {
-        settings: {
-          instrument: type,
-          bassVoice: arg as StudioBassVoice | undefined,
-          presetName,
-        },
-      };
-    case 'drum-machine':
-      return {
-        settings: { instrument: type, presetName },
-        drumKit: arg ?? 'natural',
-      };
-    default:
-      return { settings: { instrument: type, presetName } };
-  }
+  return { settings: { ...settings, presetName: preset?.name }, drumKit };
 }

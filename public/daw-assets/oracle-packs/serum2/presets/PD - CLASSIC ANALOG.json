@@ -10,7 +10,7 @@
       "fine": 1.9563674926757812,
       "wtPosition": 0,
       "pan": 0,
-      "level": 0.20319339642414036,
+      "level": 0.5027139037997309,
       "unisonVoices": 4,
       "unisonDetune": 0.07047175656013227,
       "unisonBlend": 0.7633616328239441,
@@ -26,7 +26,7 @@
       "fine": 0.8074641227722168,
       "wtPosition": 0.5083179022185504,
       "pan": 0.005876302719116211,
-      "level": 0.40419291149163783,
+      "level": 1,
       "unisonVoices": 3,
       "unisonDetune": 0.05554405752527547,
       "unisonBlend": 0.5,
@@ -1301,7 +1301,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.23238980770111084,
+      "amount": 0.26558648340147295,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1346,7 +1346,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.08468461036682129,
+      "amount": 0.09678173104078211,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1361,7 +1361,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.602443665266037,
+      "amount": 0.6885022027785603,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1376,7 +1376,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.602443665266037,
+      "amount": 0.6885022027785603,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1406,7 +1406,7 @@
         "source": "osc1",
         "param": "level"
       },
-      "amount": -0.22062265872955322,
+      "amount": -0.44124531745910645,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1421,7 +1421,7 @@
         "source": "osc2",
         "param": "level"
       },
-      "amount": -0.17417186498641968,
+      "amount": -0.34834372997283936,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1436,7 +1436,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.602443665266037,
+      "amount": 0.6885022027785603,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1451,7 +1451,7 @@
         "source": "flt2",
         "param": "cutoff"
       },
-      "amount": 0.6772505044937134,
+      "amount": 0.7739951319280644,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1476,7 +1476,7 @@
   "voiceCount": 16,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.8,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,

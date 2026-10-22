@@ -25,10 +25,6 @@ const h = vi.hoisted(() => ({
   me: undefined as
     | { nickname: string; username: string | null; fullName: string | null }
     | undefined,
-  buildScoreXml: vi.fn<
-    (parts: unknown, options: { composer?: string }) => string
-  >(() => '<score-partwise/>'),
-  downloadFile: vi.fn(),
 }));
 
 vi.mock('@/hooks/data/auth/useMe', () => ({
@@ -39,24 +35,11 @@ vi.mock('@/components/notation/StaffView', () => ({
   StaffView: () => null,
   loadVexFlow: () => new Promise(() => {}),
 }));
-// The toolbar's menus and set-list button aren't under test.
-vi.mock('@/daw/components/LeadSheet/LeadSheetToolbar', () => ({
-  LeadSheetToolbar: () => null,
-}));
-// The Score's MusicXML button builds its file with this (through
-// scoreExport.ts) and hands it to downloadFile; nothing downloads here.
-vi.mock('@/daw/midi/ScoreMusicXmlExport', () => ({
-  buildScoreXml: h.buildScoreXml,
-}));
-vi.mock('@/daw/utils/exportFiles', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/daw/utils/exportFiles')>()),
-  downloadFile: h.downloadFile,
-}));
 
 import { DOC_KEYS } from '@/daw/persistence/projectDocument/fields';
 import { useStore } from '@/daw/store';
 import { ScoreView } from '@/daw/components/Score/ScoreView';
-import { LeadSheetView } from '../LeadSheetView';
+import { LeadSheetChartView as LeadSheetView } from '../LeadSheetView';
 
 const st = () => useStore.getState();
 
@@ -66,7 +49,11 @@ let composerWrites: string[] = [];
 let docWrites: string[] = [];
 let unsubscribe = () => {};
 
-const PROMPT = 'Double-click to add composer';
+/**
+ * What a sheet with no composer shows: the signed-in name, faint (owner,
+ * 2026-10-22: in place of "Double-click to add composer").
+ */
+const PROMPT = 'by Ada';
 
 /**
  * A collaborator's edit, applied the way the collab bridge (yjsToZustand)
@@ -80,12 +67,10 @@ const fromCollaborator = (composerName: string) =>
 
 beforeEach(() => {
   h.me = { nickname: 'Ada', username: 'ada', fullName: 'Ada Lovelace' };
-  h.buildScoreXml.mockClear();
-  h.downloadFile.mockClear();
   useStore.setState(useStore.getInitialState(), true);
 
   // A template-like project: a melody to notate and a chord to chart.
-  const keys = st().addTrack('midi', 'piano-sampler', 'Keys');
+  const keys = st().addTrack('midi', 'soundfont', 'Keys');
   st().addMidiClip(keys, {
     id: 'clip',
     startTick: 0,
@@ -278,7 +263,7 @@ describe.each(sheets)('opening %s', (_name, Sheet, setUp) => {
   it('suggests nothing when no one is signed in', () => {
     h.me = undefined;
     render(<Sheet />);
-    fireEvent.doubleClick(screen.getByText(PROMPT));
+    fireEvent.doubleClick(screen.getByText('Composer'));
     expect(
       screen.getByRole('textbox', { name: 'Composer' }),
     ).not.toHaveAttribute('placeholder');
@@ -288,28 +273,6 @@ describe.each(sheets)('opening %s', (_name, Sheet, setUp) => {
   it('keeps the on-screen prompt off the printed page', () => {
     render(<Sheet />);
     expect(screen.getByText(PROMPT)).toHaveClass('print:hidden');
-  });
-});
-
-// The composer line no longer re-renders the whole Score: the MusicXML export
-// reads the composer from the project when the button is pressed.
-describe("the Score's MusicXML export", () => {
-  it('credits the composer the project has when the button is pressed', () => {
-    render(<ScoreView />);
-    act(() => st().setComposerName('Carole King'));
-    fireEvent.click(screen.getByRole('button', { name: 'MusicXML' }));
-
-    expect(h.downloadFile).toHaveBeenCalledTimes(1);
-    expect(h.buildScoreXml.mock.lastCall?.[1]).toMatchObject({
-      composer: 'Carole King',
-    });
-  });
-
-  it('credits no one when the project has no composer', () => {
-    render(<ScoreView />);
-    fireEvent.click(screen.getByRole('button', { name: 'MusicXML' }));
-
-    expect(h.downloadFile).toHaveBeenCalledTimes(1);
-    expect(h.buildScoreXml.mock.lastCall?.[1]?.composer).toBeUndefined();
+    expect(screen.queryByText(/double-click to add/i)).toBeNull();
   });
 });

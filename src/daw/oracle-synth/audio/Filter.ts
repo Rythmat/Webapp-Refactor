@@ -13,6 +13,7 @@ export class Filter {
   private wetGain: GainNode;
   private output: GainNode;
   private params: FilterParams;
+  private destination: AudioNode;
 
   constructor(ctx: AudioContext, destination: AudioNode) {
     this.ctx = ctx;
@@ -57,6 +58,15 @@ export class Filter {
     this.dryGain.connect(this.output);
     this.wetGain.connect(this.output);
     this.output.connect(destination);
+    this.destination = destination;
+  }
+
+  /** Sends the filter's output to `node` instead (series routing). */
+  setDestination(node: AudioNode): void {
+    if (node === this.destination) return;
+    this.output.disconnect(this.destination);
+    this.output.connect(node);
+    this.destination = node;
   }
 
   getInputNode(): AudioNode {

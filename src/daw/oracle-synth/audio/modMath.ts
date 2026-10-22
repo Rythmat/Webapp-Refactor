@@ -23,25 +23,18 @@ export interface GainOffset {
  * - bipolar route + unipolar source:          sweep base-A → base+A
  * - bipolar route + bipolar source:           sweep base-A → base+A
  *
- * Legacy cutoff case: v1 presets expect a unipolar LFO on cutoff to sweep
- * DOWN from the base cutoff (LFO=1 → at cutoff, LFO=0 → base-A). Pass
- * `legacyCutoffDownSweep` to reproduce that exactly.
+ * Every destination follows these, cutoff included (owner, 2026-10-21):
+ * a positive amount opens a filter, as in Serum. Cutoff routes used to
+ * sweep DOWN from the base (a v1 rule applied to every unipolar route), so
+ * an envelope meant to open a filter set near 20 Hz closed it to silence.
  */
 export function computeGainOffset(
   polarity: ModPolarity,
   sourceBipolar: boolean,
   amount: number,
   range: number,
-  legacyCutoffDownSweep = false,
 ): GainOffset {
   const A = amount * range;
-
-  if (legacyCutoffDownSweep && polarity === 'unipolar') {
-    // source 0..1 → offset -A..0 (down-sweep ending at the base value)
-    return sourceBipolar
-      ? { gain: A / 2, offset: -A / 2 }
-      : { gain: A, offset: -A };
-  }
 
   if (polarity === 'unipolar') {
     return sourceBipolar
@@ -59,7 +52,10 @@ export function computeGainOffset(
 export function getModRange(param: string): number {
   switch (param) {
     case 'cutoff':
-      return 4800; // cents (4 octaves) via biquad.detune
+      // cents via biquad.detune: the audible span, 20 Hz–20 kHz is ~10
+      // octaves (audit 2026-10-21: 4 octaves left Serum's env-to-cutoff
+      // sweeps ~3× too shallow; factory routes were rescaled to match)
+      return 12000;
     case 'resonance':
       return 15; // Q
     case 'level':
@@ -69,10 +65,13 @@ export function getModRange(param: string): number {
     case 'pan':
       return 1; // full L-R
     case 'detune':
-      return 100; // cents
+      return 100; // cents: fine
+    case 'pitch':
+      return 4800; // cents: ±48 semitones, coarse
+    case 'wtPos':
+      return 1; // the whole table (it was half; nothing drove it before)
     case 'blend':
     case 'mix':
-    case 'wtPos':
       return 0.5;
     default:
       return 1;

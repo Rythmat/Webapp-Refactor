@@ -13,13 +13,13 @@
       "name": "BA - ANALOG CLASSICS 7",
       "file": "BA - ANALOG CLASSICS 7.json",
       "category": "Bass",
-      "wavetables": ["S2/PWM MG", "S2/Default Shapes"]
+      "wavetables": ["S2/PWM MG", "S2/Shape Pulse 25%"]
     },
     {
       "name": "BA - MORPHEUS",
       "file": "BA - MORPHEUS.json",
       "category": "Bass",
-      "wavetables": ["S2/Basic Shapes", "S2/Basic Shapes"]
+      "wavetables": ["S2/Basic Shapes"]
     },
     {
       "name": "BA - DISCONNECT",
@@ -31,7 +31,7 @@
       "name": "BA - STANDARD ACID",
       "file": "BA - STANDARD ACID.json",
       "category": "Bass",
-      "wavetables": ["S2/Default Shapes"]
+      "wavetables": ["S2/Shape Saw"]
     },
     {
       "name": "BA - QUASI ORGAN",
@@ -43,7 +43,7 @@
       "name": "BA - OTT SAW WAVE",
       "file": "BA - OTT SAW WAVE.json",
       "category": "Bass",
-      "wavetables": ["S2/Default Shapes", "S2/BA - OTT Saw Wave B"]
+      "wavetables": ["S2/BA - OTT Saw Wave B", "S2/Shape Saw"]
     },
     {
       "name": "BA - PUNCH YA",
@@ -61,13 +61,13 @@
       "name": "BA - GOA PEPPER",
       "file": "BA - GOA PEPPER.json",
       "category": "Bass",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Saw", "S2/Shape Sine"]
     },
     {
       "name": "BA - PULSAR",
       "file": "BA - PULSAR.json",
       "category": "Bass",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Square saw", "S2/Shape Saw"]
     },
     {
       "name": "BA - DONK",
@@ -79,13 +79,13 @@
       "name": "BA - DUAL MG BASS",
       "file": "BA - DUAL MG BASS.json",
       "category": "Bass",
-      "wavetables": ["S2/Debussy", "S2/Default Shapes"]
+      "wavetables": ["S2/Debussy", "S2/Shape Saw"]
     },
     {
       "name": "BA - HARD GRIZLY",
       "file": "BA - HARD GRIZLY.json",
       "category": "Bass",
-      "wavetables": ["S2/DM FMOD 01", "S2/DM FMOD 01"]
+      "wavetables": ["S2/DM FMOD 01"]
     },
     {
       "name": "BA - LATELY BASS 2025",
@@ -103,13 +103,13 @@
       "name": "BA - MCSPLATTY BASS",
       "file": "BA - MCSPLATTY BASS.json",
       "category": "Bass",
-      "wavetables": ["S2/Acid", "S2/Default Shapes"]
+      "wavetables": ["S2/Acid", "S2/Shape Saw"]
     },
     {
       "name": "BA - RENEGADE",
       "file": "BA - RENEGADE.json",
       "category": "Bass",
-      "wavetables": ["S2/Renegade", "S2/Renegade"]
+      "wavetables": ["S2/Renegade"]
     },
     {
       "name": "BA - CITRUS",
@@ -121,7 +121,7 @@
       "name": "BA - REESE SQUARE",
       "file": "BA - REESE SQUARE.json",
       "category": "Bass",
-      "wavetables": ["S2/Basic Shapes", "S2/Basic Shapes"]
+      "wavetables": ["S2/Basic Shapes"]
     },
     {
       "name": "LD - MODULAR",
@@ -133,13 +133,13 @@
       "name": "LD - ARTFORM",
       "file": "LD - ARTFORM.json",
       "category": "Lead",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Sine", "S2/Shape Pulse 25%"]
     },
     {
       "name": "LD - SHARP BRASSY KEYS",
       "file": "LD - SHARP BRASSY KEYS.json",
       "category": "Lead",
-      "wavetables": ["S2/Saw Drift PR1", "S2/Saw Drift PR1"]
+      "wavetables": ["S2/Saw Drift PR1"]
     },
     {
       "name": "LD - SLIDE",
@@ -157,13 +157,13 @@
       "name": "LD - IRIDIUM",
       "file": "LD - IRIDIUM.json",
       "category": "Lead",
-      "wavetables": ["S2/Default Shapes"]
+      "wavetables": ["S2/Shape Saw"]
     },
     {
       "name": "LD - DAS EDM",
       "file": "LD - DAS EDM.json",
       "category": "Lead",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Saw"]
     },
     {
       "name": "LD - DRIFT PLUCK",
@@ -223,13 +223,13 @@
       "name": "PD - OCTAVIAN",
       "file": "PD - OCTAVIAN.json",
       "category": "Pad",
-      "wavetables": ["S2/Default Shapes", "S2/DM - OSCAR"]
+      "wavetables": ["S2/DM - OSCAR", "S2/Shape Saw"]
     },
     {
       "name": "PD - LUSH BAND-PASS SWEEP",
       "file": "PD - LUSH BAND-PASS SWEEP.json",
       "category": "Pad",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Saw"]
     },
     {
       "name": "SY - ROLLING PLAINS",
@@ -253,13 +253,13 @@
       "name": "SY - EMS POLY",
       "file": "SY - EMS POLY.json",
       "category": "Synth",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Saw", "S2/Shape Square saw"]
     },
     {
       "name": "SY - ENV LPF SEQ",
       "file": "SY - ENV LPF SEQ.json",
       "category": "Synth",
-      "wavetables": ["S2/Default Shapes", "S2/DM - OSCAR"]
+      "wavetables": ["S2/DM - OSCAR", "S2/Shape Saw"]
     },
     {
       "name": "SY - MAGNETIC",
@@ -295,19 +295,19 @@
       "name": "PL - JUNE",
       "file": "PL - JUNE.json",
       "category": "Pluck",
-      "wavetables": ["S2/Jno", "S2/Jno"]
+      "wavetables": ["S2/Jno"]
     },
     {
       "name": "PL - BROKEN LIGHT",
       "file": "PL - BROKEN LIGHT.json",
       "category": "Pluck",
-      "wavetables": ["S2/Analog_BD_Sin", "S2/Analog_BD_Sin"]
+      "wavetables": ["S2/Analog_BD_Sin"]
     },
     {
       "name": "PL - ALIVE",
       "file": "PL - ALIVE.json",
       "category": "Pluck",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Saw"]
     },
     {
       "name": "PL - XYLO PLUCK",
@@ -331,7 +331,7 @@
       "name": "FX - OFFICE TELEPHONE",
       "file": "FX - OFFICE TELEPHONE.json",
       "category": "SFX",
-      "wavetables": ["S2/Default Shapes", "S2/Dying Sine"]
+      "wavetables": ["S2/Dying Sine", "S2/Shape Triangle"]
     },
     {
       "name": "FX - RISE SWEEP - DIGI",
@@ -352,7 +352,7 @@
       "name": "FX - FM BUBBLE SWEEP",
       "file": "FX - FM BUBBLE SWEEP.json",
       "category": "SFX",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Sine", "S2/Shape Square saw"]
     },
     {
       "name": "FX - DROP SWEEP - SHAKER",
@@ -373,7 +373,7 @@
       "name": "FX - TECHNO SIREN",
       "file": "FX - TECHNO SIREN.json",
       "category": "SFX",
-      "wavetables": ["S2/Default Shapes", "S2/Monster 1 [SL]"]
+      "wavetables": ["S2/Monster 1 [SL]", "S2/Shape Saw"]
     },
     {
       "name": "FX - RISE SWEEP - SUBSIZZLA",
@@ -385,7 +385,7 @@
       "name": "FX - LASER GENERATOR",
       "file": "FX - LASER GENERATOR.json",
       "category": "SFX",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Saw"]
     },
     {
       "name": "FX - BHOUSE GLIDE - 04",
@@ -409,7 +409,7 @@
       "name": "KY - RETROGRADE",
       "file": "KY - RETROGRADE.json",
       "category": "Keyboard",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Saw"]
     },
     {
       "name": "KY - SMART FUTURE",
@@ -433,25 +433,25 @@
       "name": "OR - ORGAN ALSO",
       "file": "OR - ORGAN ALSO.json",
       "category": "Organ",
-      "wavetables": ["S2/Basic Shapes", "S2/Basic Shapes"]
+      "wavetables": ["S2/Basic Shapes"]
     },
     {
       "name": "OR - MEMORY ORGAN ",
       "file": "OR - MEMORY ORGAN.json",
       "category": "Organ",
-      "wavetables": ["S2/Memory Organ", "S2/Memory Organ"]
+      "wavetables": ["S2/Memory Organ"]
     },
     {
       "name": "OR - PIPE DREAM",
       "file": "OR - PIPE DREAM.json",
       "category": "Organ",
-      "wavetables": ["S2/Harmonic Series Smooth", "S2/Harmonic Series Smooth"]
+      "wavetables": ["S2/Harmonic Series Smooth"]
     },
     {
       "name": "OR - HOUSE ORGAN",
       "file": "OR - HOUSE ORGAN.json",
       "category": "Organ",
-      "wavetables": ["S2/Memory Organ", "S2/Default Shapes"]
+      "wavetables": ["S2/Memory Organ", "S2/Shape Triangle"]
     },
     {
       "name": "DR - TOM SIMM",
@@ -463,19 +463,19 @@
       "name": "DR - KICK SYNTH 1",
       "file": "DR - KICK SYNTH 1.json",
       "category": "Drum",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Sine", "S2/Shape Triangle"]
     },
     {
       "name": "DR - KICK MINIMAL",
       "file": "DR - KICK MINIMAL.json",
       "category": "Drum",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Sine"]
     },
     {
       "name": "DR - KICK HYPE",
       "file": "DR - KICK HYPE.json",
       "category": "Drum",
-      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+      "wavetables": ["S2/Shape Sine"]
     },
     {
       "name": "SEQ - LOW FREQZ",
@@ -504,6 +504,51 @@
   ],
   "wavetables": [
     {
+      "name": "S2/Shape Saw",
+      "file": "Shape Saw.wav",
+      "frames": 1
+    },
+    {
+      "name": "S2/Shape Sine",
+      "file": "Shape Sine.wav",
+      "frames": 1
+    },
+    {
+      "name": "S2/Shape Triangle",
+      "file": "Shape Triangle.wav",
+      "frames": 1
+    },
+    {
+      "name": "S2/Shape Square saw",
+      "file": "Shape Square saw.wav",
+      "frames": 1
+    },
+    {
+      "name": "S2/Shape Square",
+      "file": "Shape Square.wav",
+      "frames": 1
+    },
+    {
+      "name": "S2/Shape Pulse 25%",
+      "file": "Shape Pulse 25.wav",
+      "frames": 1
+    },
+    {
+      "name": "S2/Shape Pulse 12%",
+      "file": "Shape Pulse 12.wav",
+      "frames": 1
+    },
+    {
+      "name": "S2/Shape Pulse 6%",
+      "file": "Shape Pulse 6.wav",
+      "frames": 1
+    },
+    {
+      "name": "S2/Shape Pulse 3%",
+      "file": "Shape Pulse 3.wav",
+      "frames": 1
+    },
+    {
       "name": "S2/BA - 303 Reality A",
       "file": "BA - 303 Reality A.wav",
       "frames": 2
@@ -512,11 +557,6 @@
       "name": "S2/PWM MG",
       "file": "PWM MG.wav",
       "frames": 32
-    },
-    {
-      "name": "S2/Default Shapes",
-      "file": "Default Shapes.wav",
-      "frames": 9
     },
     {
       "name": "S2/Basic Shapes",

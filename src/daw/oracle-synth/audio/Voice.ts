@@ -249,6 +249,11 @@ export class Voice {
       }
     }
 
+    // Series: Filter 1 runs into Filter 2; parallel: both to the output.
+    this.filter1.setDestination(
+      this.routingConfig.filterRouting.serial ? flt2In : this.postFilterBus,
+    );
+
     // Reconnect based on routing config
     const { filter1Sources, filter2Sources } = this.routingConfig.filterRouting;
     for (const sourceId of allSourceIds) {
@@ -551,16 +556,8 @@ export class Voice {
     const osc = index === 0 ? this.osc1 : this.osc2;
     if (index === 0) this.osc1Enabled = params.enabled ?? this.osc1Enabled;
     if (index === 1) this.osc2Enabled = params.enabled ?? this.osc2Enabled;
+    // setParams re-pitches the oscillator itself when its tuning changes.
     osc.setParams(params);
-
-    if (
-      (params.octave !== undefined ||
-        params.semitone !== undefined ||
-        params.fine !== undefined) &&
-      this.currentNote >= 0
-    ) {
-      osc.setFrequency(this.currentNote);
-    }
   }
 
   setSubOscillatorParams(params: Partial<SubOscillatorParams>): void {
@@ -632,6 +629,27 @@ export class Voice {
   }
 
   /** Per-voice modulation source node for the matrix. */
+  /**
+   * A per-voice modulation source's value at context time `time`, as its
+   * node carries it: the note's velocity, its key (note / 127), or an
+   * envelope's contour (0..1). For the engine's control-rate destinations
+   * and the synth card's live view (liveModulation.ts).
+   */
+  modSourceValueAt(kind: VoiceModSourceKind, time: number): number {
+    switch (kind) {
+      case 'velocity':
+        return this.currentVelocity;
+      case 'keytrack':
+        return this.currentNote < 0 ? 0 : this.currentNote / 127;
+      case 'env1':
+      case 'env2': {
+        const node = kind === 'env1' ? this.env1ModSource : this.env2ModSource;
+        const seg = this.segments.get(node.offset);
+        return seg ? envelopeLevelAt(seg, time) : 0;
+      }
+    }
+  }
+
   getModSourceNode(kind: VoiceModSourceKind): AudioNode {
     switch (kind) {
       case 'velocity':

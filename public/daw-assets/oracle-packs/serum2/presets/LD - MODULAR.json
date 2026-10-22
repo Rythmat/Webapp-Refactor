@@ -533,7 +533,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.3141789436340332,
+      "amount": 0.3590591240811703,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -548,7 +548,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.5591076612472534,
+      "amount": 0.6389756894349813,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -563,7 +563,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.21833884716033936,
+      "amount": 0.24952835574367155,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -578,7 +578,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.5936472415924072,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -588,7 +588,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.3888882304909354,
+  "masterVolume": 0.27844397303150975,
   "fx": {
     "chorus": {
       "enabled": false,

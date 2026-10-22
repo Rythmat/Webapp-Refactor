@@ -114,7 +114,7 @@ beforeEach(() => {
     scoreArticulations: [],
     scoreSlurs: [],
   } as Partial<AllSlices>);
-  trackId = st().addTrack('midi', 'piano-sampler', 'Piano');
+  trackId = st().addTrack('midi', 'soundfont', 'Piano');
   st().addMidiClip(trackId, {
     id: 'clip',
     startTick: 0,

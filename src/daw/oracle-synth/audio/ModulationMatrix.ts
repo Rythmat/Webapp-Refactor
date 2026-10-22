@@ -45,7 +45,15 @@ interface ActiveConnection {
   curveNode: WaveShaperNode | null;
   scaler: GainNode;
   offsetGain: GainNode | null;
+  /** The source's range (-1..1 or 0..1), for an in-place amount change. */
+  bipolar: boolean;
+  /** A transform curve sets its own scale; amount doesn't apply. */
+  transformed: boolean;
 }
+
+/** A route with its amount set aside, to tell an amount-only edit. */
+const withoutAmount = (route: ModRoute) =>
+  JSON.stringify({ ...route, amount: 0 });
 
 export class ModulationMatrix {
   private ctx: AudioContext;
@@ -83,6 +91,45 @@ export class ModulationMatrix {
   setRoutes(routes: ModRoute[]): void {
     this.disconnectAll();
     this.routes = routes.map(migrateModRoute);
+  }
+
+  /**
+   * Routes that differ from the current ones only in their amounts (a drag
+   * on a route's amount) retune the live connections in place, and this
+   * returns true; anything else returns false and changes nothing, for a
+   * rebuild (setRoutes). Rebuilding every voice's graph per drag step was
+   * the cost (audit 2026-10-21).
+   */
+  updateAmounts(routes: ModRoute[]): boolean {
+    const next = routes.map(migrateModRoute);
+    if (next.length !== this.routes.length) return false;
+    for (let i = 0; i < next.length; i++) {
+      if (withoutAmount(next[i]) !== withoutAmount(this.routes[i]))
+        return false;
+    }
+    const byId = new Map(next.map((r) => [r.id, r]));
+    const changes: [ActiveConnection, number, number][] = [];
+    for (const conn of this.connections) {
+      const route = byId.get(conn.routeId);
+      if (!route) return false;
+      if (conn.transformed) continue;
+      const { gain, offset } = computeGainOffset(
+        route.polarity,
+        conn.bipolar,
+        route.amount,
+        getModRange(route.target.param),
+      );
+      // An offset node is made only where the offset isn't 0.
+      if ((offset !== 0) !== (conn.offsetGain !== null)) return false;
+      changes.push([conn, gain, offset]);
+    }
+    const now = this.ctx.currentTime;
+    for (const [conn, gain, offset] of changes) {
+      conn.scaler.gain.setTargetAtTime(gain, now, 0.005);
+      conn.offsetGain?.gain.setTargetAtTime(offset, now, 0.005);
+    }
+    this.routes = next;
+    return true;
   }
 
   /**
@@ -152,8 +199,6 @@ export class ModulationMatrix {
     }
 
     const range = getModRange(route.target.param);
-    const legacyCutoff =
-      route.target.param === 'cutoff' && route.polarity === 'unipolar';
     const { gain, offset } = usedTransform
       ? { gain: 1, offset: 0 }
       : computeGainOffset(
@@ -161,7 +206,6 @@ export class ModulationMatrix {
           resolved.bipolar,
           route.amount,
           range,
-          legacyCutoff,
         );
 
     const scaler = this.ctx.createGain();
@@ -188,6 +232,8 @@ export class ModulationMatrix {
       curveNode,
       scaler,
       offsetGain,
+      bipolar: resolved.bipolar,
+      transformed: usedTransform,
     });
   }
 
@@ -218,16 +264,19 @@ export class ModulationMatrix {
         level: () => voice.getOsc1().getGainParam(),
         pan: () => voice.getOsc1().getPanParam(),
         detune: () => voice.getOsc1().getDetuneModInput(),
+        pitch: () => voice.getOsc1().getDetuneModInput(),
       },
       osc2: {
         level: () => voice.getOsc2().getGainParam(),
         pan: () => voice.getOsc2().getPanParam(),
         detune: () => voice.getOsc2().getDetuneModInput(),
+        pitch: () => voice.getOsc2().getDetuneModInput(),
       },
       sub: {
         level: () => voice.getSub().getGainParam(),
         pan: () => voice.getSub().getPanParam(),
         detune: () => voice.getSub().getDetuneModInput(),
+        pitch: () => voice.getSub().getDetuneModInput(),
       },
       noise: {
         level: () => voice.getNoise().getGainParam(),

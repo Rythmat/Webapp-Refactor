@@ -16,6 +16,8 @@ export interface RoutingSlice {
   routing: RoutingConfig;
   toggleFilterSource: (filterIndex: 0 | 1, source: SourceId) => void;
   toggleEnvSource: (envIndex: 0 | 1, source: SourceId) => void;
+  /** Filter 1 into Filter 2 (true) or side by side (false). */
+  setFilterSerial: (serial: boolean) => void;
 }
 
 function toggleInArray(arr: SourceId[], item: SourceId): SourceId[] {
@@ -55,6 +57,14 @@ export const createRoutingSlice: StateCreator<
         };
       }
     }),
+
+  setFilterSerial: (serial) =>
+    set((state) => ({
+      routing: {
+        ...state.routing,
+        filterRouting: { ...state.routing.filterRouting, serial },
+      },
+    })),
 
   toggleEnvSource: (envIndex, source) =>
     set((state) => {

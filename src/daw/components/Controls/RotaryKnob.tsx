@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { createContext, useCallback, useContext, useRef } from 'react';
 import { useControlGesture } from '@/daw/hooks/useContinuousControl';
 
 // ── RotaryKnob ──────────────────────────────────────────────────────────
@@ -7,6 +7,16 @@ import { useControlGesture } from '@/daw/hooks/useContinuousControl';
 // A drag is one gesture: it starts on press and ends on release, through
 // onChangeStart/onChangeEnd and the panel's ControlGestureContext, so the
 // owner previews the moves and writes the store once (useContinuousControl).
+
+/**
+ * How a knob labels itself. 'card' is the dock's effect cards (the floating
+ * frame, 2026-10-21): a 12 px title-case name and the value under it, where
+ * the default is the legacy panels' small upper-case name.
+ */
+export type RotaryKnobLook = 'default' | 'card';
+
+/** The look of the knobs inside: an effect card provides 'card'. */
+export const RotaryKnobLookContext = createContext<RotaryKnobLook>('default');
 
 interface RotaryKnobProps {
   value: number;
@@ -91,6 +101,7 @@ export function RotaryKnob({
 }: RotaryKnobProps) {
   const dragRef = useRef<{ startY: number; startValue: number } | null>(null);
   const gesture = useControlGesture();
+  const card = useContext(RotaryKnobLookContext) === 'card';
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
@@ -203,20 +214,33 @@ export function RotaryKnob({
           strokeLinecap="round"
         />
       </svg>
-      <span
-        className="text-center text-[10px] leading-tight"
-        style={{ color: 'var(--daw-text-3)' }}
-      >
-        {label}
-      </span>
-      {formatValue && (
+      {card ? (
+        // Title case from the panels' upper-case names ('PRE-DLY' reads
+        // 'Pre-dly'); one line each, so a card can count on the height.
+        <span className="block whitespace-nowrap text-center text-[length:var(--daw-font-label)] leading-4 text-daw-text-2 lowercase first-letter:uppercase">
+          {label}
+        </span>
+      ) : (
         <span
-          className="text-center text-[9px] tabular-nums"
-          style={{ color: 'var(--daw-text-3)', opacity: 0.7 }}
+          className="text-center text-[10px] leading-tight"
+          style={{ color: 'var(--daw-text-3)' }}
         >
-          {formatValue(value)}
+          {label}
         </span>
       )}
+      {formatValue &&
+        (card ? (
+          <span className="whitespace-nowrap text-center text-[11px] leading-[14px] text-daw-text-3">
+            {formatValue(value)}
+          </span>
+        ) : (
+          <span
+            className="text-center text-[9px] tabular-nums"
+            style={{ color: 'var(--daw-text-3)', opacity: 0.7 }}
+          >
+            {formatValue(value)}
+          </span>
+        ))}
     </div>
   );
 }

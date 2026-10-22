@@ -19,6 +19,10 @@ export type CanvasMenuTarget =
   | { kind: 'lane'; trackId: string; tick: number }
   | { kind: 'marker'; markerId: string; tick: number }
   | { kind: 'ruler'; tick: number }
+  /** A chord on the chord ruler; `tick`: the pointer's, on the grid. */
+  | { kind: 'chord'; chordId: string; tick: number }
+  /** The chord ruler where it has no chord. */
+  | { kind: 'chordLane'; tick: number }
   | { kind: 'section'; sectionId: string; tick: number };
 
 /** Where the menu hangs, in viewport px: a point, or a box (the pill). */

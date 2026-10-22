@@ -54,25 +54,39 @@ export function rackMaxPx(bodyPx: number): number {
 export type DockSlotId = ChannelStripTabId | 'master' | 'rack';
 
 /**
- * Each tab's default height, as a share of the body (window height less the
- * top bar and the bottom rail): about 204 px on a Chromebook in focus mode
- * (567 px of body), and a little more for the two editors.
+ * The dock's slots. Each keeps a height of its own once the student sets
+ * one; until then every dock opens at the same height (shellGeometry's
+ * DOCK_DEFAULT_PX; owner, 2026-10-22). A slot missing here, or one too
+ * many, fails to compile.
  */
-export const DOCK_DEFAULT_FRAC: Readonly<Record<DockSlotId, number>> = {
-  controls: 0.36,
-  fx: 0.36,
-  grooves: 0.36,
-  prism: 0.4,
-  'piano-roll': 0.4,
-  master: 0.36,
-  rack: 0.36,
+const DOCK_SLOT_TABLE: Readonly<Record<DockSlotId, true>> = {
+  controls: true,
+  fx: true,
+  prism: true,
+  'piano-roll': true,
+  master: true,
+  rack: true,
 };
 
+/** Every dock slot. */
+export const DOCK_SLOTS = Object.freeze(
+  Object.keys(DOCK_SLOT_TABLE),
+) as readonly DockSlotId[];
+
+/** Whether `value` is one of the dock's slots. */
+export function isDockSlot(value: unknown): value is DockSlotId {
+  return (
+    typeof value === 'string' &&
+    Object.prototype.hasOwnProperty.call(DOCK_SLOT_TABLE, value)
+  );
+}
+
 /**
- * Tabs the dock had once (Parts, until 2.9): a stored height for one is
- * still a valid pref, and is never read.
+ * Tabs the dock had once (Parts until 2.9, the drums' Grooves until
+ * 2026-10-22): a stored height for one is still a valid pref, and is never
+ * read.
  */
-const FORMER_DOCK_TABS = ['parts'];
+const FORMER_DOCK_TABS = ['parts', 'grooves'];
 
 /** The Inspector panel, beside the side rail. */
 export const INSPECTOR_MIN_PX = 240;
@@ -86,7 +100,6 @@ export const INSPECTOR_DEFAULT_PX = 300;
 export const INSPECTOR_PANELS = [
   'insight',
   'library',
-  'fx',
   'lessons',
   'people',
   'chat',
@@ -107,28 +120,51 @@ export type ReadoutMode = 'bars' | 'time';
 const clamp = (v: number, min: number, max: number) =>
   Math.min(max, Math.max(min, v));
 
-/** The dock's share of the body for `tab`: the student's, else the default. */
-export function dockFracFor(tab: DockSlotId, heights: DockHeights): number {
-  return heights[tab] ?? DOCK_DEFAULT_FRAC[tab];
+/**
+ * A dock showing device cards (an instrument, a track's Effects, Master,
+ * the Mix view's rack) is never shorter than this, its 32 px bar included:
+ * its cards keep their main controls and room for a sideways scrollbar, so
+ * nothing spills out of them (FxCards' cardLayout, OracleSynthCard's
+ * synthCardLayout).
+ */
+export const DOCK_FX_MIN_PX = 184;
+
+const CARD_SLOTS: ReadonlySet<DockSlotId> = new Set([
+  'controls',
+  'fx',
+  'master',
+  'rack',
+]);
+
+/** The shortest the dock may be for `slot`. */
+export function dockMinPx(slot: DockSlotId): number {
+  return CARD_SLOTS.has(slot) ? DOCK_FX_MIN_PX : DOCK_MIN_PX;
 }
 
 /** The dock's height in px, tab bar included, for a body `bodyPx` high. */
-export function dockHeightPx(frac: number, bodyPx: number): number {
-  const max = Math.max(DOCK_MIN_PX, Math.round(bodyPx * DOCK_MAX_FRAC));
-  return clamp(Math.round(frac * bodyPx), DOCK_MIN_PX, max);
+export function dockHeightPx(
+  frac: number,
+  bodyPx: number,
+  min: number = DOCK_MIN_PX,
+): number {
+  const max = Math.max(min, Math.round(bodyPx * DOCK_MAX_FRAC));
+  return clamp(Math.round(frac * bodyPx), min, max);
 }
 
 /**
  * Where a dock drag lands: within the limits, and on a snap height when it
  * comes within DOCK_SNAP_PX of one.
  */
-export function snapDockPx(px: number, bodyPx: number): number {
-  const max = Math.max(DOCK_MIN_PX, Math.round(bodyPx * DOCK_MAX_FRAC));
-  const clamped = clamp(px, DOCK_MIN_PX, max);
+export function snapDockPx(
+  px: number,
+  bodyPx: number,
+  min: number = DOCK_MIN_PX,
+): number {
+  const max = Math.max(min, Math.round(bodyPx * DOCK_MAX_FRAC));
+  const clamped = clamp(px, min, max);
   for (const frac of DOCK_SNAPS) {
     const at = Math.round(frac * bodyPx);
-    if (Math.abs(at - clamped) <= DOCK_SNAP_PX)
-      return clamp(at, DOCK_MIN_PX, max);
+    if (Math.abs(at - clamped) <= DOCK_SNAP_PX) return clamp(at, min, max);
   }
   return Math.round(clamped);
 }
@@ -166,10 +202,7 @@ export function resolveInspectorOpen(
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-const DOCK_TABS = new Set<string>([
-  ...Object.keys(DOCK_DEFAULT_FRAC),
-  ...FORMER_DOCK_TABS,
-]);
+const DOCK_TABS = new Set<string>([...DOCK_SLOTS, ...FORMER_DOCK_TABS]);
 const VIEWS = new Set<string>([
   'arrange',
   'studio',

@@ -45,7 +45,7 @@ function track(id: string, midiClips: MidiClip[]): Track {
     id,
     name: id,
     type: 'midi',
-    instrument: 'piano-sampler',
+    instrument: 'soundfont',
     color: '#ff0000',
     mute: false,
     solo: false,

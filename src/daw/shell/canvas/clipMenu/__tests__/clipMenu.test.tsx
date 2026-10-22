@@ -118,7 +118,7 @@ beforeEach(() => {
     openPrismSuggestion: open,
   });
   useCanvasMenuStore.setState({ request: null });
-  keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  keys = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(keys, {
     id: 'keys-1',
     name: 'Riff',

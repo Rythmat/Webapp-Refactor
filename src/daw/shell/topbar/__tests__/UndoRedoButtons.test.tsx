@@ -72,7 +72,7 @@ describe('UndoRedoButtons', () => {
     render(<UndoRedoButtons />);
     expect(undoButton()).toHaveAttribute('data-testid', 'undo-button');
     expect(redoButton()).toHaveAttribute('data-testid', 'redo-button');
-    expect(undoButton().className).toContain('size-7');
+    expect(undoButton().className).toContain('size-8');
   });
 
   it('follows the undo stacks', () => {

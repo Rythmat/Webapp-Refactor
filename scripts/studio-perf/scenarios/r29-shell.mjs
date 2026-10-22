@@ -6,12 +6,13 @@
  *
  * - focusMode: the editor fills the window (no sidebar, no TopRail); the
  *   Studio dashboard still has its TopRail.
- * - topBar: the top bar is 44 px, and none of its three zones clips or runs
- *   into the next (the bar folds instead, useToolbarOverflow).
- * - rails (B4a): the bottom rail is 44 px across the window, its zones
- *   (Master, transport, song) neither clip nor overlap and the transport is
- *   centred in the window (within 2 px); the side rail is 48 px wide at
- *   the right edge, between the bars.
+ * - topBar: the top bar is 44 px, and none of its three zones (project,
+ *   transport, song and account) clips or runs into the next (the bar folds
+ *   instead, useToolbarOverflow).
+ * - rails (B4a; the floating frame, 2026-10-21): the bottom rail is 44 px
+ *   across the window, its zones (the hint line, the views, Learn) neither clip nor
+ *   overlap, and the top bar's transport is centred in the window (within
+ *   2 px); the side rail is 48 px wide at the right edge, between the bars.
  * - regionBudget: the dock opens at 36% of the body (the window less both
  *   bars: 204 px on a Chromebook, within 2 px), the Inspector starts closed
  *   below 1440 px and open from it, and the timeline is at least 1,100 px
@@ -58,7 +59,7 @@ export const flags = {
   },
   rails: {
     goal: true,
-    text: 'the bottom rail was 44 px with its zones clear and the transport centred; the side rail was 48 px at the right edge',
+    text: 'the bottom rail was 44 px with its zones clear and the top bar’s transport centred; the side rail was 48 px at the right edge',
   },
   regionBudget: {
     goal: true,
@@ -129,7 +130,9 @@ function frame() {
     });
   const bar = document.querySelector('[data-testid="top-bar"]');
   const rail = document.querySelector('[data-testid="bottom-rail"]');
-  const transport = rail
+  // The floating frame (2026-10-21): the transport is the top bar's centre,
+  // the views the bottom rail's.
+  const transport = bar
     ?.querySelector('[data-zone="transport"]')
     ?.getBoundingClientRect();
   return {
@@ -137,10 +140,10 @@ function frame() {
     bar: box('[data-testid="top-bar"]'),
     bottom: box('[data-testid="bottom-rail"]'),
     side: box('[data-testid="side-rail"]'),
-    bottomZones: zonesOf(rail, ['master', 'transport', 'song']),
+    bottomZones: zonesOf(rail, ['editors', 'views', 'learn']),
     transportCentre: transport ? transport.left + transport.width / 2 : null,
     root: box('.daw-root'),
-    zones: zonesOf(bar, ['project', 'views', 'share']),
+    zones: zonesOf(bar, ['project', 'transport', 'share']),
     main: box('[data-region="main"]'),
     dock: box('[data-region="dock"]'),
     inspector: box('[data-region="inspector"]'),

@@ -63,7 +63,7 @@ beforeEach(() => {
   vi.spyOn(console, 'error').mockImplementation(() => {});
   clearAssets();
   useStore.setState(useStore.getInitialState(), true);
-  vox = s().addTrack('audio', 'vocal-fx', 'Vox');
+  vox = s().addTrack('audio', 'audio-input', 'Vox');
 });
 
 afterEach(() => {

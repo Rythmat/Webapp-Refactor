@@ -5,6 +5,16 @@ import { LFONode } from './types';
  * Each bar is an array of {time: 0..1, value: 0..1} nodes.
  * Linear interpolation between nodes produces the continuous waveform.
  */
+/**
+ * The rate an LFO buffer is built at: an eighth of the context's (6 kHz at
+ * 48 kHz), within what every browser's createBuffer takes. A buffer source
+ * resamples it as it plays; modulation has nothing above a few hundred Hz,
+ * and a 4-bar loop at the full rate was 384k samples per LFO.
+ */
+export function lfoSampleRate(contextRate: number): number {
+  return Math.max(3000, Math.round(contextRate / 8));
+}
+
 export class LFOWaveformBuilder {
   /**
    * Build a single-bar waveform buffer from breakpoint nodes.
@@ -17,6 +27,8 @@ export class LFOWaveformBuilder {
     nodes: LFONode[],
     samplesPerBar: number,
     smooth: number = 0,
+    /** Context samples per sample built, to keep smoothing's time constant. */
+    step: number = 1,
   ): Float32Array {
     const buffer = new Float32Array(samplesPerBar);
 
@@ -32,11 +44,14 @@ export class LFOWaveformBuilder {
     // Ensure nodes are sorted by time
     const sorted = [...nodes].sort((a, b) => a.time - b.time);
 
+    // t only grows, so the segment search picks up where it left off (a
+    // Serum shape has dozens of points; restarting it per sample was most
+    // of a preset load, audit 2026-10-21).
+    let nodeIdx = 0;
     for (let i = 0; i < samplesPerBar; i++) {
       const t = i / samplesPerBar; // 0..1 across the whole bar
 
       // Find the right segment in sorted nodes
-      let nodeIdx = 0;
       while (nodeIdx < sorted.length - 2 && sorted[nodeIdx + 1].time <= t) {
         nodeIdx++;
       }
@@ -57,8 +72,8 @@ export class LFOWaveformBuilder {
     // Apply smoothing: forward-backward one-pole IIR filter (zero-phase).
     // At smooth=0 no filtering; at smooth=1 heavy filtering (triangle → sine).
     if (smooth > 0) {
-      const alpha = Math.exp(-smooth * 6);
-      const coeff = 1 - alpha;
+      const coeff = Math.pow(1 - Math.exp(-smooth * 6), step);
+      const alpha = 1 - coeff;
       // Forward pass
       for (let i = 1; i < samplesPerBar; i++) {
         buffer[i] = alpha * buffer[i] + coeff * buffer[i - 1];
@@ -86,7 +101,7 @@ export class LFOWaveformBuilder {
     barDurations: [number, number, number, number],
     smooths: [number, number, number, number] = [0, 0, 0, 0],
   ): AudioBuffer {
-    const sampleRate = ctx.sampleRate;
+    const sampleRate = lfoSampleRate(ctx.sampleRate);
     const barSamples = barDurations.map((d) =>
       Math.max(1, Math.round(sampleRate * d)),
     );
@@ -98,7 +113,12 @@ export class LFOWaveformBuilder {
 
     let offset = 0;
     for (let bar = 0; bar < 4; bar++) {
-      const barData = this.buildBar(bars[bar], barSamples[bar], smooths[bar]);
+      const barData = this.buildBar(
+        bars[bar],
+        barSamples[bar],
+        smooths[bar],
+        ctx.sampleRate / sampleRate,
+      );
       data.set(barData, offset);
       offset += barSamples[bar];
     }

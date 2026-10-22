@@ -167,9 +167,9 @@ beforeEach(() => {
     remoteUsers: new Map(),
   } as Partial<AllSlices>);
 
-  other = st().addTrack('midi', 'piano-sampler', 'Bass');
+  other = st().addTrack('midi', 'soundfont', 'Bass');
   st().addMidiClip(other, clipAt('bass-take', 0));
-  keys = st().addTrack('midi', 'piano-sampler', 'Rhodes');
+  keys = st().addTrack('midi', 'soundfont', 'Rhodes');
   st().addMidiClip(keys, clipAt('recorded-take', 0));
   st().addMidiClip(keys, clipAt('chorus-take', 8));
   st().setSelectedTrackId(keys);

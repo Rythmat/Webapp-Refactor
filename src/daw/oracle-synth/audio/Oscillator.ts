@@ -11,6 +11,9 @@ import { buildWarpCurve, isPhaseWarp } from './wavetableWarp';
  * when WT POS changes, one engine plays the frame below and
  * the other plays the frame above, with gains crossfading between them.
  */
+/** The note a key-tracking-off oscillator plays at: middle C. */
+const FIXED_PITCH_NOTE = 60;
+
 export class Oscillator {
   private ctx: AudioContext;
   private wavetableBank: WavetableBank;
@@ -43,6 +46,13 @@ export class Oscillator {
   // Track current wavetable frame indices to avoid redundant updates
   private currentSlotA: number = -1;
   private currentSlotB: number = -1;
+  /**
+   * Whether bank B runs this note. It only ever sounds between two frames,
+   * so a note on a one-frame table (the basic waves) leaves it off: half the
+   * oscillators (audit 2026-10-21). It starts with A, so the two stay in
+   * phase; a table change mid-note to a multi-frame one starts it late.
+   */
+  private bankBStarted = false;
 
   constructor(
     ctx: AudioContext,
@@ -118,7 +128,11 @@ export class Oscillator {
     this.unisonB.setBlend(this.params.unisonBlend);
 
     this.unisonA.start(time);
-    this.unisonB.start(time);
+    // 0 frames: a pack table still loading, which may have many.
+    if (this.wavetableBank.getTableSize(this.effectiveTableName()) !== 1) {
+      this.unisonB.start(time);
+      this.bankBStarted = true;
+    }
 
     this.applyWavetablePosition();
   }
@@ -136,11 +150,16 @@ export class Oscillator {
     }
     // A set already in its tail can still be moved earlier (a voice steal).
     const running = this.unisonA.stop(time, onEnded);
+    // B too when it sat this note out: a steal can move its last tail.
     this.unisonB.stop(time);
+    this.bankBStarted = false;
     return running;
   }
 
   private noteToFrequency(midiNote: number): number {
+    // Key tracking off: the oscillator plays its pitch from middle C,
+    // whatever the key (a Serum kick or tom's fixed pitch).
+    if (this.params.keyTrack === false) midiNote = FIXED_PITCH_NOTE;
     const tuningOffset =
       this.params.octave * 12 + this.params.semitone + this.params.fine / 100;
     return midiToFrequency(midiNote) * Math.pow(2, tuningOffset / 12);
@@ -186,6 +205,9 @@ export class Oscillator {
         if (tableName && tableName !== this.params.wavetable) {
           this.params.wavetable = tableName;
           needsWavetableUpdate = true;
+          // A new table: its frames go in even where the index matches.
+          this.currentSlotA = -1;
+          this.currentSlotB = -1;
         }
       }
     }
@@ -195,16 +217,33 @@ export class Oscillator {
     ) {
       this.params.wavetable = params.wavetable;
       needsWavetableUpdate = true;
+      // A held note switches table even where the frame index matches (a
+      // one-frame table to another, Position 0): the slot guard kept the
+      // old table sounding (audit 2026-10-21).
+      this.currentSlotA = -1;
+      this.currentSlotB = -1;
     }
-    if (params.octave !== undefined) {
+    // A patch push sends the whole oscillator: only what changed is applied
+    // (a re-sent pitch would re-pitch every voice and cut a glide short).
+    if (params.octave !== undefined && params.octave !== this.params.octave) {
       this.params.octave = params.octave;
       needsFreqUpdate = true;
     }
-    if (params.semitone !== undefined) {
+    if (
+      params.keyTrack !== undefined &&
+      params.keyTrack !== this.params.keyTrack
+    ) {
+      this.params.keyTrack = params.keyTrack;
+      needsFreqUpdate = true;
+    }
+    if (
+      params.semitone !== undefined &&
+      params.semitone !== this.params.semitone
+    ) {
       this.params.semitone = params.semitone;
       needsFreqUpdate = true;
     }
-    if (params.fine !== undefined) {
+    if (params.fine !== undefined && params.fine !== this.params.fine) {
       this.params.fine = params.fine;
       needsFreqUpdate = true;
     }
@@ -212,11 +251,11 @@ export class Oscillator {
       this.params.wtPosition = params.wtPosition;
       needsWavetableUpdate = true;
     }
-    if (params.level !== undefined) {
+    if (params.level !== undefined && params.level !== this.params.level) {
       this.params.level = params.level;
       smoothParam(this.levelGain.gain, params.level, this.ctx);
     }
-    if (params.pan !== undefined) {
+    if (params.pan !== undefined && params.pan !== this.params.pan) {
       this.params.pan = params.pan;
       smoothParam(this.panNode.pan, params.pan, this.ctx);
     }
@@ -225,13 +264,19 @@ export class Oscillator {
       this.unisonA.setVoiceCount(params.unisonVoices);
       this.unisonB.setVoiceCount(params.unisonVoices);
     }
-    if (params.unisonDetune !== undefined) {
+    if (
+      params.unisonDetune !== undefined &&
+      params.unisonDetune !== this.params.unisonDetune
+    ) {
       this.params.unisonDetune = params.unisonDetune;
       const cents = params.unisonDetune * 100;
       this.unisonA.setDetune(cents);
       this.unisonB.setDetune(cents);
     }
-    if (params.unisonBlend !== undefined) {
+    if (
+      params.unisonBlend !== undefined &&
+      params.unisonBlend !== this.params.unisonBlend
+    ) {
       this.params.unisonBlend = params.unisonBlend;
       this.unisonA.setBlend(params.unisonBlend);
       this.unisonB.setBlend(params.unisonBlend);
@@ -340,6 +385,28 @@ export class Oscillator {
 
     // Only update waveforms when the frame index actually changes
     const tableSize = this.wavetableBank.getTableSize(table);
+    // A one-frame table (a basic shape): Position is where in the cycle
+    // the note starts. It is set as the note starts (the slot is cleared on
+    // stop), so a knob turn or modulation never jumps a sounding note's
+    // phase, which would click.
+    if (tableSize === 1) {
+      if (this.currentSlotA !== 0) {
+        this.unisonA.setWaveform(
+          this.wavetableBank.getPhasedWave(table, this.params.wtPosition) ??
+            pair.waveA,
+        );
+        this.currentSlotA = 0;
+      }
+      const now = this.ctx.currentTime;
+      this.gainA.gain.setTargetAtTime(1, now, 0.005);
+      this.gainB.gain.setTargetAtTime(0, now, 0.005);
+      return;
+    }
+    if (this.isStarted && !this.bankBStarted && tableSize > 1) {
+      this.unisonB.start();
+      this.bankBStarted = true;
+      this.currentSlotB = -1;
+    }
     const scaledPos = this.params.wtPosition * (tableSize - 1);
     const slotA = Math.floor(scaledPos);
     const slotB = Math.min(slotA + 1, tableSize - 1);

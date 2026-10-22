@@ -233,6 +233,7 @@ function liveDeps(captured: SessionDeps): SessionDeps {
   const current = () => getSessionDeps() ?? captured;
   return {
     user: () => current().user(),
+    userName: () => current().userName?.() ?? null,
     token: () => current().token(),
     lessonAccess: (tutorialId) => current().lessonAccess(tutorialId),
     collab: forward(() => current().collab),

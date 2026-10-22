@@ -104,7 +104,7 @@ describe('the registry', () => {
   });
 
   it('is never an undo step, and undo leaves them', () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     resetHistory();
     s().markDone('save');
     expect(historyLabels()).toEqual([]);
@@ -121,7 +121,7 @@ describe('the registry', () => {
 
 describe('where they are counted', () => {
   it('Export MIDI counts once the file is downloaded', async () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().addMidiClip(keys, { id: 'c', startTick: 0, events: [NOTE] });
     await exportProjectMidi();
     expect(h.downloadFile).toHaveBeenCalledTimes(1);
@@ -129,7 +129,7 @@ describe('where they are counted', () => {
   });
 
   it('Export MIDI with no notes downloads and counts nothing', async () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Keys');
     await exportProjectMidi();
     expect(h.downloadFile).not.toHaveBeenCalled();
     expect(s().doneMoments.exportMidi).toBe(0);

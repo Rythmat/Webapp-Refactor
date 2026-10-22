@@ -6,7 +6,7 @@
       "waveform": "sawtooth",
       "wavetable": "S2/Subby Roller",
       "octave": 0,
-      "semitone": 0,
+      "semitone": 7,
       "fine": 0,
       "wtPosition": 0.5795340370386839,
       "pan": 0,
@@ -398,7 +398,7 @@
   "voiceCount": 8,
   "glide": 0.00004399929072497368,
   "spread": 0,
-  "masterVolume": 0.5946662759238318,
+  "masterVolume": 0.09811993552743226,
   "fx": {
     "chorus": {
       "enabled": false,

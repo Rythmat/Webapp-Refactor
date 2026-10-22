@@ -50,35 +50,16 @@ export interface ProjectMidiPlan {
   key: MidiKey | null;
 }
 
-/** General MIDI programs (0-based) of the bass voices. */
-const BASS_VOICE_PROGRAMS = {
-  finger: 33, // Electric Bass (finger)
-  fretless: 35, // Fretless Bass
-  upright: 32, // Acoustic Bass
-  '808': 38, // Synth Bass 1
-} as const;
-
 /**
  * The General MIDI program (0-based) nearest the track's instrument, where
- * one is plain; undefined for a sound with no GM match (the Oracle synth, the
- * Chops sampler), which the file leaves at program 0 as it always has. A
+ * one is plain; undefined for a sound with no GM match (the Oracle synth),
+ * which the file leaves at program 0 as it always has. A
  * SoundFont track plays a GM program already, so the file names that one.
  */
 export function gmProgramOf(track: Track): number | undefined {
   switch (track.instrument) {
     case 'soundfont':
       return track.gmProgram ?? 0;
-    case 'piano-sampler':
-      return 0; // Acoustic Grand Piano
-    case 'electric-piano':
-      return 4; // Electric Piano 1
-    case 'bass-electric':
-      return BASS_VOICE_PROGRAMS[track.bassVoice ?? 'finger'];
-    case 'cello':
-      return 42; // Cello
-    case 'organ':
-    case 'tonewheel-organ':
-      return 16; // Drawbar Organ
     case 'drum-machine':
       return 0; // Standard kit (channel 10)
     default:

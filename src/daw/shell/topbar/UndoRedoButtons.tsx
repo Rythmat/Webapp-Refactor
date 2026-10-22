@@ -1,4 +1,3 @@
-import { Redo2, Undo2 } from 'lucide-react';
 import { memo, useSyncExternalStore } from 'react';
 import { isBusyPhase, useSessionStore } from '@/daw/session/sessionStore';
 import { useStore } from '@/daw/store';
@@ -9,9 +8,8 @@ import {
   smartUndo,
   subscribeUndo,
 } from '@/daw/store/undoMiddleware';
-import { cn } from '@/components/utilities';
 import { IconButton } from '@/daw/ui/IconButton';
-import { QUIET } from '@/daw/ui/styles';
+import { RedoGlyph, UndoGlyph } from '@/daw/ui/icons/frameIcons';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
 
 // ── Undo and Redo (milestone 1.4) ──────────────────────────────────────────
@@ -38,7 +36,7 @@ function undoFlags(): number {
 }
 
 /** 14 px icons in the 28 px button, like the Score bar's. */
-const ICON_SIZE = '[&_svg]:size-3.5';
+const ICON_SIZE = '[&_svg]:size-4';
 
 export const UndoRedoButtons = memo(function UndoRedoButtons() {
   const flags = useSyncExternalStore(subscribeUndo, undoFlags, () => 0);
@@ -51,14 +49,14 @@ export const UndoRedoButtons = memo(function UndoRedoButtons() {
     <div className="flex shrink-0 items-center gap-1">
       <IconButton
         label="Undo"
-        icon={<Undo2 />}
+        icon={<UndoGlyph />}
+        variant="bare"
+        size="lg"
         shortcut={UNDO_KEYS.label}
         aria-keyshortcuts={UNDO_KEYS.aria}
         data-testid="undo-button"
-        data-tutorial-id="undo-button"
-        size="md"
         tooltipSide="bottom"
-        className={cn(ICON_SIZE, QUIET)}
+        className={ICON_SIZE}
         disabled={!canUndo || blocked}
         onClick={() => {
           smartUndo();
@@ -66,14 +64,14 @@ export const UndoRedoButtons = memo(function UndoRedoButtons() {
       />
       <IconButton
         label="Redo"
-        icon={<Redo2 />}
+        icon={<RedoGlyph />}
+        variant="bare"
+        size="lg"
         shortcut={REDO_KEYS.label}
         aria-keyshortcuts={REDO_KEYS.aria}
         data-testid="redo-button"
-        data-tutorial-id="redo-button"
-        size="md"
         tooltipSide="bottom"
-        className={cn(ICON_SIZE, QUIET)}
+        className={ICON_SIZE}
         disabled={!canRedo || blocked}
         onClick={() => {
           smartRedo();

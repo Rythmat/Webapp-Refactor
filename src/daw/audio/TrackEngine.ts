@@ -19,6 +19,10 @@ export class TrackEngine {
   // The meters' own tap (meterTap.ts); analyserNode is the post-fader tap a
   // ducker on another track takes as its key (it passes the sound through).
   private meterAnalyser: AnalyserNode;
+  // The track header's stereo meter (2026-10-21): the same post-pan signal
+  // split into its left and right channels, a tap each.
+  private meterSplitter: ChannelSplitterNode;
+  private meterAnalysersLR: [AnalyserNode, AnalyserNode];
   // Post-fader aux sends: pannerNode → sendGain → returnBus input, keyed by
   // return id. `bus` is remembered so a return recreated with a new input node
   // gets rewired instead of silently feeding the stale one.
@@ -38,6 +42,8 @@ export class TrackEngine {
     this.analyserNode.fftSize = 256;
     this.analyserNode.smoothingTimeConstant = 0;
     this.meterAnalyser = createMeterTap(ctx);
+    this.meterSplitter = ctx.createChannelSplitter(2);
+    this.meterAnalysersLR = [createMeterTap(ctx), createMeterTap(ctx)];
 
     // Signal chain: instrument → gainNode → effectChain → audibleGain → pannerNode → destination
     this.gainNode.connect(this.effectChain.getInputNode());
@@ -48,6 +54,9 @@ export class TrackEngine {
     // Parallel metering tap (dead-end branch — does not alter signal path)
     this.pannerNode.connect(this.analyserNode);
     this.pannerNode.connect(this.meterAnalyser);
+    this.pannerNode.connect(this.meterSplitter);
+    this.meterSplitter.connect(this.meterAnalysersLR[0], 0);
+    this.meterSplitter.connect(this.meterAnalysersLR[1], 1);
   }
 
   getInputNode(): AudioNode {
@@ -68,6 +77,11 @@ export class TrackEngine {
   /** The track's meter tap, read by the meter bus. */
   getMeterAnalyser(): AnalyserNode {
     return this.meterAnalyser;
+  }
+
+  /** The track's left and right meter taps (the header's stereo meter). */
+  getMeterAnalysersLR(): [AnalyserNode, AnalyserNode] {
+    return this.meterAnalysersLR;
   }
 
   getEffectChain(): EffectChain {
@@ -231,6 +245,8 @@ export class TrackEngine {
     this.pannerNode.disconnect();
     this.analyserNode.disconnect();
     this.meterAnalyser.disconnect();
+    this.meterSplitter.disconnect();
+    for (const tap of this.meterAnalysersLR) tap.disconnect();
     for (const { gain } of this.sends.values()) gain.disconnect();
     this.sends.clear();
   }

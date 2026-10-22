@@ -10,7 +10,7 @@
       "fine": -4.6173095703125,
       "wtPosition": 0,
       "pan": 0,
-      "level": 0.07746219635009766,
+      "level": 0.12165805871115763,
       "unisonVoices": 2,
       "unisonDetune": 0.0364398565493238,
       "unisonBlend": 0.5,
@@ -26,7 +26,7 @@
       "fine": 8.4930419921875,
       "wtPosition": 0,
       "pan": 0,
-      "level": 0.1850585616634257,
+      "level": 0.2906432611089144,
       "unisonVoices": 2,
       "unisonDetune": 0.06791503202028171,
       "unisonBlend": 0.5,
@@ -40,7 +40,7 @@
     "octave": -1,
     "semitone": 0,
     "fine": 0,
-    "level": 0.19874596274206713,
+    "level": 0.312139974634859,
     "pan": 0,
     "enabled": true
   },
@@ -885,7 +885,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.5426775217056274,
+      "amount": 0.6201985191889082,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -900,7 +900,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.214758038520813,
+      "amount": 0.24543603180006482,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -915,7 +915,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": -0.22144031524658203,
+      "amount": -0.2530728657656709,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -945,7 +945,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.09195613861083984,
+      "amount": 0.10509199057577524,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -960,7 +960,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.5898547172546387,
+      "amount": 0.6741149348293074,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1035,7 +1035,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.10551249980926514,
+      "amount": 0.12058486581856817,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1045,7 +1045,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.1221645534044086,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -1073,7 +1073,7 @@
       "release": 0.2
     },
     "drive": {
-      "enabled": true,
+      "enabled": false,
       "amount": 0.3,
       "mix": 0.5
     },
@@ -1144,5 +1144,6 @@
     "rootPc": 0,
     "mode": "ionian",
     "snapMode": "nearest"
-  }
+  },
+  "modWheel": 0.1015625
 }

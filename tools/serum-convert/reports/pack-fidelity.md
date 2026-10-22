@@ -19,7 +19,7 @@ Mapped: 13 features
 
 ---
 
-## BA - Analog Classics 7 (Bass) — fidelity 80/100
+## BA - Analog Classics 7 (Bass) — fidelity 82/100
 
 **Dropped:**
 
@@ -29,7 +29,7 @@ Mapped: 13 features
 
 **Approximated:**
 
-- Filter 1 drive 9% → master drive FX
+- Filter 1 drive 9% dropped
 - LFO1 (Normal) → stepped random approximation
 - Macro1 → Env.kParamAttack: static macro contribution (0%) not modeled
 - Macro2 → Env.kParamDecay: static macro contribution (0%) not modeled
@@ -42,7 +42,7 @@ Mapped: 17 features
 
 ---
 
-## BA - Morpheus (Bass) — fidelity 79/100
+## BA - Morpheus (Bass) — fidelity 81/100
 
 **Dropped:**
 
@@ -52,7 +52,7 @@ Mapped: 17 features
 **Approximated:**
 
 - Filter 1: LadderEMS → lowpass approximation
-- Filter 1 drive 13% → master drive FX
+- Filter 1 drive 13% dropped
 - Macro1 → Env.kParamSustain: static macro contribution (0%) not modeled
 - Macro7 → Env.kParamAttack: static macro contribution (7%) not modeled
 - Macro1 → FXChorus.kParamWet: static macro contribution (0%) not modeled
@@ -107,11 +107,11 @@ Mapped: 15 features
 - Macro4 → WTOsc.kParamWarp: static macro contribution (60%) not modeled
 - Macro7 → FXDistortion.kParamDrive: static macro contribution (0%) not modeled
 
-Mapped: 13 features
+Mapped: 14 features
 
 ---
 
-## BA - Quasi Organ (Bass) — fidelity 81/100
+## BA - Quasi Organ (Bass) — fidelity 83/100
 
 **Dropped:**
 
@@ -120,7 +120,7 @@ Mapped: 13 features
 **Approximated:**
 
 - Filter 1: MgL18 → lowpass approximation
-- Filter 1 drive 20% → master drive FX
+- Filter 1 drive 20% dropped
 - LFO1 (Normal) → stepped random approximation
 - Macro1 → Oscillator.kParamVolume: static macro contribution (32%) not modeled
 - Macro2 → WTOsc.kParamWarp: static macro contribution (21%) not modeled
@@ -132,7 +132,7 @@ Mapped: 9 features
 
 ---
 
-## BA - OTT Saw Wave (Bass) — fidelity 76/100
+## BA - OTT Saw Wave (Bass) — fidelity 78/100
 
 **Dropped:**
 
@@ -142,7 +142,7 @@ Mapped: 9 features
 
 **Approximated:**
 
-- Filter 1 drive 10% → master drive FX
+- Filter 1 drive 10% dropped
 - Macro1 → WTOsc.kParamWarp: static macro contribution (33%) not modeled
 - Macro2 → WTOsc.kParamWarp2: static macro contribution (47%) not modeled
 - Macro3 → NoiseOsc.kParamColor: static macro contribution (58%) not modeled
@@ -180,7 +180,7 @@ Mapped: 13 features
 - Macro7 → Env.kParamAttack: static macro contribution (58%) not modeled
 - Macro8 → LFO.kParamRate: static macro contribution (18%) not modeled
 
-Mapped: 10 features
+Mapped: 11 features
 
 ---
 
@@ -210,7 +210,7 @@ Mapped: 13 features
 
 ---
 
-## BA - Goa Pepper (Bass) — fidelity 70/100
+## BA - Goa Pepper (Bass) — fidelity 71/100
 
 **Dropped:**
 
@@ -221,7 +221,7 @@ Mapped: 13 features
 - Filter 1: Diffuser → bandpass approximation
 - Filter 1 drive 66% → master drive FX
 - Filter 2: LadderEMS → lowpass approximation
-- Filter 2 drive 20% → master drive FX
+- Filter 2 drive 20% dropped
 - LFO1 (Normal) → stepped random approximation
 - Macro1 → Env.kParamAttack: static macro contribution (0%) not modeled
 - Macro2 → Env.kParamDecay: static macro contribution (0%) not modeled
@@ -309,7 +309,7 @@ Mapped: 17 features
 
 ---
 
-## BA - Hard Grizly (Bass) — fidelity 72/100
+## BA - Hard Grizly (Bass) — fidelity 73/100
 
 **Dropped:**
 
@@ -320,7 +320,7 @@ Mapped: 17 features
 **Approximated:**
 
 - Filter 1: Wsp → lowpass approximation
-- Filter 1 drive 15% → master drive FX
+- Filter 1 drive 15% dropped
 - Macro2 → VoiceFilter.kParamDrive: static macro contribution (0%) not modeled
 - Macro3 → Env.kParamAttack: static macro contribution (0%) not modeled
 - Macro3 → Env.kParamAttack: static macro contribution (0%) not modeled
@@ -359,7 +359,7 @@ Mapped: 13 features
 
 ---
 
-## BA - Eighty (Bass) — fidelity 61/100
+## BA - Eighty (Bass) — fidelity 62/100
 
 **Dropped:**
 
@@ -378,7 +378,7 @@ Mapped: 13 features
 **Approximated:**
 
 - noise sample "Attacks_Misc/TransPerc3.wav" → white noise
-- Filter 1 drive 22% → master drive FX
+- Filter 1 drive 22% dropped
 - amp env hold 0.03s folded into decay
 - Macro1 → RoutingSlot.kParamFXBus1Level: static macro contribution (0%) not modeled
 - Macro2 → FXDistortion.kParamDrive: static macro contribution (0%) not modeled
@@ -418,7 +418,7 @@ Mapped: 17 features
 
 ---
 
-## BA - Renegade (Bass) — fidelity 77/100
+## BA - Renegade (Bass) — fidelity 79/100
 
 **Dropped:**
 
@@ -432,7 +432,7 @@ Mapped: 17 features
 
 **Approximated:**
 
-- Filter 1 drive 20% → master drive FX
+- Filter 1 drive 20% dropped
 - Macro3 → FXDelay.kParamWet: static macro contribution (0%) not modeled
 - Macro6 → FXDistortion.kParamWet: static macro contribution (27%) not modeled
 - Macro7 → FXChorus.kParamWet: static macro contribution (10%) not modeled
@@ -548,7 +548,7 @@ Mapped: 19 features
 
 ---
 
-## LD - Sharp Brassy Keys (Lead) — fidelity 74/100
+## LD - Sharp Brassy Keys (Lead) — fidelity 76/100
 
 **Dropped:**
 
@@ -562,7 +562,7 @@ Mapped: 19 features
 
 **Approximated:**
 
-- Filter 1 drive 18% → master drive FX
+- Filter 1 drive 18% dropped
 - Macro3 → FXChorus.kParamWet: static macro contribution (0%) not modeled
 - Macro4 → FXDelay.kParamWet: static macro contribution (30%) not modeled
 - Macro5 → FXReverb.kParamWet: static macro contribution (19%) not modeled
@@ -609,7 +609,7 @@ Mapped: 19 features
 
 ---
 
-## LD - Darkness (Lead) — fidelity 74/100
+## LD - Darkness (Lead) — fidelity 73/100
 
 **Dropped:**
 
@@ -622,7 +622,8 @@ Mapped: 19 features
 
 **Approximated:**
 
-- Filter 1 drive 10% → master drive FX
+- Filter 1 drive 10% dropped
+- LFO1 free rate 7.7Hz → 15 cycles/bar @120BPM
 - LFO9 (Lorenz) → stepped random approximation
 - mod route LFO1 → Oscillator.kParamFine: aux source dropped
 - mod route Macro1 → Oscillator.kParamFine: aux source dropped
@@ -633,11 +634,11 @@ Mapped: 19 features
 - Macro7 → FXConv.kParamSize: static macro contribution (0%) not modeled
 - Macro8 → FXBode.kParamWet: static macro contribution (0%) not modeled
 
-Mapped: 16 features
+Mapped: 17 features
 
 ---
 
-## LD - Iridium (Lead) — fidelity 63/100
+## LD - Iridium (Lead) — fidelity 64/100
 
 **Dropped:**
 
@@ -651,7 +652,7 @@ Mapped: 16 features
 **Approximated:**
 
 - Filter 1: MgL6 → lowpass approximation
-- Filter 1 drive 16% → master drive FX
+- Filter 1 drive 16% dropped
 - LFO2 (RandomSH) → stepped random approximation
 - FX Delay (time approximated at 120 BPM)
 - FX Reverb (kVintage → convolver)
@@ -674,7 +675,7 @@ Mapped: 11 features
 
 ---
 
-## LD - Das EDM (Lead) — fidelity 67/100
+## LD - Das EDM (Lead) — fidelity 65/100
 
 **Dropped:**
 
@@ -684,6 +685,7 @@ Mapped: 11 features
 
 **Approximated:**
 
+- LFO1 free rate 2.0Hz → 1 cycles/bar @120BPM
 - mod route LFO1 → Global.kParamVoiceAmp: aux source dropped
 - Macro8 → FXReverb.kParamWet: static macro contribution (28%) not modeled
 - Macro2 → FXUtils.kParamLPF: static macro contribution (0%) not modeled
@@ -694,7 +696,7 @@ Mapped: 11 features
 - Macro6 → FXDistortion.kParamWet: static macro contribution (100%) not modeled
 - Macro7 → FXComp.kParamWet: static macro contribution (66%) not modeled
 
-Mapped: 9 features
+Mapped: 10 features
 
 ---
 
@@ -789,7 +791,7 @@ Mapped: 12 features
 
 ---
 
-## PD - Safari (Pad) — fidelity 68/100
+## PD - Safari (Pad) — fidelity 66/100
 
 **Dropped:**
 
@@ -804,6 +806,7 @@ Mapped: 12 features
 **Approximated:**
 
 - Filter 1: NN12 → lowpass approximation
+- LFO2 free rate 0.5Hz → 1 cycles/bar @120BPM
 - LFO3 (Normal) → stepped random approximation
 - mod route LFO3 → Oscillator.kParamFine: aux source dropped
 - Macro8 → FXConv.kParamWet: static macro contribution (0%) not modeled
@@ -869,7 +872,8 @@ Mapped: 20 features
 
 - noise sample "Analog/SID whine.wav" → white noise
 - Filter 1: MgL24 → lowpass approximation
-- Filter 2 drive 15% → master drive FX
+- Filter 2 drive 15% dropped
+- LFO3 free rate 0.4Hz → 1 cycles/bar @120BPM
 - LFO2 (Normal) → stepped random approximation
 - FX Delay (time approximated at 120 BPM)
 - Macro1 → FXConv.kParamSize: static macro contribution (0%) not modeled
@@ -919,7 +923,7 @@ Mapped: 14 features
 
 ---
 
-## PD - Emotions (Pad) — fidelity 71/100
+## PD - Emotions (Pad) — fidelity 69/100
 
 **Dropped:**
 
@@ -933,6 +937,7 @@ Mapped: 14 features
 **Approximated:**
 
 - LFO3 (Lorenz) → stepped random approximation
+- LFO1 free rate 0.9Hz → 1 cycles/bar @120BPM
 - LFO2 free rate 0.9Hz → 2 cycles/bar @120BPM
 - FX Delay (time approximated at 120 BPM)
 - mod route LFO3 → Oscillator.kParamFine: aux source dropped
@@ -943,7 +948,7 @@ Mapped: 14 features
 - Macro7 → FXReverb.kParamWet: static macro contribution (64%) not modeled
 - Macro8 → FXBode.kParamWet: static macro contribution (8%) not modeled
 
-Mapped: 18 features
+Mapped: 19 features
 
 ---
 
@@ -1118,7 +1123,7 @@ Mapped: 17 features
 - Macro2 → VoiceFilter.kParamDrive: static macro contribution (78%) not modeled
 - Macro8 → FXFilter.kParamReso: static macro contribution (0%) not modeled
 
-Mapped: 16 features
+Mapped: 17 features
 
 ---
 
@@ -1210,7 +1215,7 @@ Mapped: 13 features
 
 ---
 
-## SY - Warm Synth Keys (Synth) — fidelity 57/100
+## SY - Warm Synth Keys (Synth) — fidelity 58/100
 
 **Dropped:**
 
@@ -1224,7 +1229,7 @@ Mapped: 13 features
 **Approximated:**
 
 - Filter 1: LadderMg → lowpass approximation
-- Filter 1 drive 18% → master drive FX
+- Filter 1 drive 18% dropped
 - LFO1 (Normal) → stepped random approximation
 - LFO2 (Normal) → stepped random approximation
 - FX Delay (time approximated at 120 BPM)
@@ -1248,7 +1253,7 @@ Mapped: 18 features
 
 ---
 
-## SY - Square Wave Synth Keys (Synth) — fidelity 54/100
+## SY - Square Wave Synth Keys (Synth) — fidelity 55/100
 
 **Dropped:**
 
@@ -1263,7 +1268,7 @@ Mapped: 18 features
 **Approximated:**
 
 - Filter 1: LadderMg → lowpass approximation
-- Filter 1 drive 15% → master drive FX
+- Filter 1 drive 15% dropped
 - LFO1 (Normal) → stepped random approximation
 - LFO2 (Normal) → stepped random approximation
 - FX Delay (time approximated at 120 BPM)
@@ -1287,7 +1292,7 @@ Mapped: 18 features
 
 ---
 
-## PL - High Drive (Pluck) — fidelity 79/100
+## PL - High Drive (Pluck) — fidelity 81/100
 
 **Dropped:**
 
@@ -1296,7 +1301,7 @@ Mapped: 18 features
 
 **Approximated:**
 
-- Filter 2 drive 7% → master drive FX
+- Filter 2 drive 7% dropped
 - LFO1 (Normal) → stepped random approximation
 - Macro8 → FXReverb.kParamWet: static macro contribution (67%) not modeled
 - Macro7 → FXDelay.kParamWet: static macro contribution (80%) not modeled
@@ -1308,7 +1313,7 @@ Mapped: 21 features
 
 ---
 
-## PL - Camp Fire 1 (Pluck) — fidelity 79/100
+## PL - Camp Fire 1 (Pluck) — fidelity 81/100
 
 **Dropped:**
 
@@ -1317,7 +1322,7 @@ Mapped: 21 features
 
 **Approximated:**
 
-- Filter 2 drive 10% → master drive FX
+- Filter 2 drive 10% dropped
 - LFO1 free rate 5.0Hz → 10 cycles/bar @120BPM
 - Macro2 → FXEQ.kParamFreq1: static macro contribution (0%) not modeled
 - Macro3 → FXEQ.kParamFreq2: static macro contribution (100%) not modeled
@@ -1384,7 +1389,7 @@ Mapped: 15 features
 - Macro3 → FXFilter.kParamFreq: static macro contribution (32%) not modeled
 - Macro8 → RoutingSlot.kParamFXBus1Level: static macro contribution (0%) not modeled
 
-Mapped: 30 features
+Mapped: 31 features
 
 ---
 
@@ -1410,7 +1415,7 @@ Mapped: 14 features
 
 ---
 
-## PL - Xylo Pluck (Pluck) — fidelity 61/100
+## PL - Xylo Pluck (Pluck) — fidelity 59/100
 
 **Dropped:**
 
@@ -1429,6 +1434,7 @@ Mapped: 14 features
 
 - noise sample "Attacks_Misc/TransPerc3.wav" → white noise
 - Filter 1: MgL6 → lowpass approximation
+- LFO1 free rate 2.7Hz → 1 cycles/bar @120BPM
 - Macro5 → FXDistortion.kParamWet: static macro contribution (14%) not modeled
 - Macro2 → Oscillator.kParamDetune: static macro contribution (17%) not modeled
 - Macro2 → Oscillator.kParamDetune: static macro contribution (17%) not modeled
@@ -1437,7 +1443,7 @@ Mapped: 14 features
 - Macro3 → FXDelay.kParamWet: static macro contribution (11%) not modeled
 - Macro8 → FXReverb.kParamWet: static macro contribution (17%) not modeled
 
-Mapped: 12 features
+Mapped: 13 features
 
 ---
 
@@ -1513,7 +1519,7 @@ Mapped: 11 features
 
 ---
 
-## FX - Office Telephone (SFX) — fidelity 75/100
+## FX - Office Telephone (SFX) — fidelity 70/100
 
 **Dropped:**
 
@@ -1525,6 +1531,8 @@ Mapped: 11 features
 
 **Approximated:**
 
+- LFO1 free rate 8.0Hz → 16 cycles/bar @120BPM
+- LFO2 free rate 0.2Hz → 1 cycles/bar @120BPM
 - mod route LFO2 → Oscillator.kParamVolume: aux source dropped
 - Macro2 → LFO.kParamRate: static macro contribution (0%) not modeled
 - Macro5 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
@@ -1533,7 +1541,7 @@ Mapped: 13 features
 
 ---
 
-## FX - Rise Sweep - Digi (SFX) — fidelity 67/100
+## FX - Rise Sweep - Digi (SFX) — fidelity 69/100
 
 **Dropped:**
 
@@ -1545,7 +1553,7 @@ Mapped: 13 features
 - Filter 1: HP12 → lowpass approximation
 - Filter 1 drive 25% → master drive FX
 - Filter 2: RM → lowpass approximation
-- Filter 2 drive 5% → master drive FX
+- Filter 2 drive 5% dropped
 - LFO3 (Normal) → stepped random approximation
 - Macro3 → WTOsc.kParamWarp2: static macro contribution (0%) not modeled
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
@@ -1561,11 +1569,11 @@ Mapped: 13 features
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 - Macro5 → Env.kParamDecay: static macro contribution (0%) not modeled
 
-Mapped: 16 features
+Mapped: 17 features
 
 ---
 
-## FX - Drop Sweep - Square (SFX) — fidelity 69/100
+## FX - Drop Sweep - Square (SFX) — fidelity 70/100
 
 **Dropped:**
 
@@ -1577,7 +1585,7 @@ Mapped: 16 features
 - Filter 1: HP12 → lowpass approximation
 - Filter 1 drive 25% → master drive FX
 - Filter 2: RM → lowpass approximation
-- Filter 2 drive 5% → master drive FX
+- Filter 2 drive 5% dropped
 - LFO3 (Normal) → stepped random approximation
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 - Macro3 → LFO.kParamRate: static macro contribution (0%) not modeled
@@ -1593,11 +1601,11 @@ Mapped: 16 features
 - Macro1 → WTOsc.kParamWarp2: static macro contribution (0%) not modeled
 - Macro2 → Oscillator.kParamDetune: static macro contribution (0%) not modeled
 
-Mapped: 20 features
+Mapped: 21 features
 
 ---
 
-## FX - FM Bubble Sweep (SFX) — fidelity 75/100
+## FX - FM Bubble Sweep (SFX) — fidelity 77/100
 
 **Dropped:**
 
@@ -1608,7 +1616,7 @@ Mapped: 20 features
 **Approximated:**
 
 - Filter 1: RMT → lowpass approximation
-- Filter 1 drive 23% → master drive FX
+- Filter 1 drive 23% dropped
 - Macro1 → Oscillator.kParamOctave: static macro contribution (0%) not modeled
 - Macro2 → Env.kParamAttack: static macro contribution (0%) not modeled
 - Macro3 → Env.kParamAttack: static macro contribution (0%) not modeled
@@ -1623,7 +1631,7 @@ Mapped: 10 features
 
 ---
 
-## FX - Drop Sweep - Shaker (SFX) — fidelity 67/100
+## FX - Drop Sweep - Shaker (SFX) — fidelity 69/100
 
 **Dropped:**
 
@@ -1635,7 +1643,7 @@ Mapped: 10 features
 - Filter 1: HP12 → lowpass approximation
 - Filter 1 drive 25% → master drive FX
 - Filter 2: RM → lowpass approximation
-- Filter 2 drive 5% → master drive FX
+- Filter 2 drive 5% dropped
 - LFO3 (Normal) → stepped random approximation
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 - Macro3 → LFO.kParamRate: static macro contribution (0%) not modeled
@@ -1651,11 +1659,11 @@ Mapped: 10 features
 - Macro1 → WTOsc.kParamWarp2: static macro contribution (0%) not modeled
 - Macro2 → Oscillator.kParamDetune: static macro contribution (0%) not modeled
 
-Mapped: 20 features
+Mapped: 21 features
 
 ---
 
-## FX - Drop Sweep - Alien (SFX) — fidelity 66/100
+## FX - Drop Sweep - Alien (SFX) — fidelity 68/100
 
 **Dropped:**
 
@@ -1667,7 +1675,7 @@ Mapped: 20 features
 - Filter 1: HP12 → lowpass approximation
 - Filter 1 drive 25% → master drive FX
 - Filter 2: RM → lowpass approximation
-- Filter 2 drive 5% → master drive FX
+- Filter 2 drive 5% dropped
 - LFO3 (Normal) → stepped random approximation
 - LFO1 (Normal) → stepped random approximation
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
@@ -1682,11 +1690,11 @@ Mapped: 20 features
 - Macro8 → FXDelay.kParamWet: static macro contribution (22%) not modeled
 - Macro1 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 
-Mapped: 17 features
+Mapped: 18 features
 
 ---
 
-## FX - Techno Siren (SFX) — fidelity 65/100
+## FX - Techno Siren (SFX) — fidelity 60/100
 
 **Dropped:**
 
@@ -1701,7 +1709,10 @@ Mapped: 17 features
 
 - noise sample "Organics/AC hum1.wav" → white noise
 - Filter 1: MgL24 → lowpass approximation
-- Filter 1 drive 6% → master drive FX
+- Filter 1 drive 6% dropped
+- LFO4 free rate 0.0Hz → 1 cycles/bar @120BPM
+- LFO1 free rate 0.0Hz → 1 cycles/bar @120BPM
+- LFO2 free rate 0.0Hz → 1 cycles/bar @120BPM
 - FX Reverb (kHall → convolver)
 - mod route LFO1 → Oscillator.kParamCoarsePit: aux source dropped
 - mod route Macro2 → Oscillator.kParamVolume: aux source dropped
@@ -1712,11 +1723,11 @@ Mapped: 17 features
 - Macro8 → FXDelay.kParamWet: static macro contribution (13%) not modeled
 - Macro7 → FXDelay.kParamWet: static macro contribution (21%) not modeled
 
-Mapped: 18 features
+Mapped: 22 features
 
 ---
 
-## FX - Rise Sweep - SubSizzla (SFX) — fidelity 64/100
+## FX - Rise Sweep - SubSizzla (SFX) — fidelity 65/100
 
 **Dropped:**
 
@@ -1729,7 +1740,7 @@ Mapped: 18 features
 - Filter 1: HP12 → lowpass approximation
 - Filter 1 drive 25% → master drive FX
 - Filter 2: RM → lowpass approximation
-- Filter 2 drive 5% → master drive FX
+- Filter 2 drive 5% dropped
 - LFO3 (Normal) → stepped random approximation
 - FX Reverb (kHall → convolver)
 - Macro3 → WTOsc.kParamWarp2: static macro contribution (0%) not modeled
@@ -1747,11 +1758,11 @@ Mapped: 18 features
 - Macro5 → Env.kParamDecay: static macro contribution (0%) not modeled
 - Macro1 → Oscillator.kParamOctave: static macro contribution (0%) not modeled
 
-Mapped: 17 features
+Mapped: 18 features
 
 ---
 
-## FX - Laser Generator (SFX) — fidelity 58/100
+## FX - Laser Generator (SFX) — fidelity 57/100
 
 **Dropped:**
 
@@ -1766,8 +1777,9 @@ Mapped: 17 features
 - Filter 1: LadderAcid → lowpass approximation
 - Filter 1 drive 40% → master drive FX
 - Filter 2: Diffuser → bandpass approximation
-- Filter 2 drive 20% → master drive FX
+- Filter 2 drive 20% dropped
 - amp env hold 0.20s folded into decay
+- LFO1 free rate 3.5Hz → 1 cycles/bar @120BPM
 - Macro1 → Oscillator.kParamOctave: static macro contribution (53%) not modeled
 - Macro2 → WTOsc.kParamWarp: static macro contribution (75%) not modeled
 - Macro3 → LFO.kParamRate: static macro contribution (36%) not modeled
@@ -1775,7 +1787,7 @@ Mapped: 17 features
 - Macro7 → FXDelay.kParamWet: static macro contribution (100%) not modeled
 - Macro7 → FXReverb.kParamWet: static macro contribution (100%) not modeled
 
-Mapped: 14 features
+Mapped: 15 features
 
 ---
 
@@ -1802,11 +1814,11 @@ Mapped: 14 features
 - Macro7 → FXEQ.kParamGain2: static macro contribution (60%) not modeled
 - Macro8 → FXDelay.kParamWet: static macro contribution (10%) not modeled
 
-Mapped: 16 features
+Mapped: 18 features
 
 ---
 
-## KY - Vincent (Keyboard) — fidelity 74/100
+## KY - Vincent (Keyboard) — fidelity 72/100
 
 **Dropped:**
 
@@ -1820,6 +1832,7 @@ Mapped: 16 features
 **Approximated:**
 
 - noise sample "Analog/OrganNoise.wav" → white noise
+- LFO1 free rate 2.9Hz → 1 cycles/bar @120BPM
 - LFO2 (Rossler) → stepped random approximation
 - Macro5 → LFO.kParamRate: static macro contribution (64%) not modeled
 - Macro6 → FXChorus.kParamWet: static macro contribution (8%) not modeled
@@ -1828,11 +1841,11 @@ Mapped: 16 features
 - Macro4 → FXDistortion.kParamWet: static macro contribution (23%) not modeled
 - Macro8 → Oscillator.kParamDetuneWid: static macro contribution (0%) not modeled
 
-Mapped: 10 features
+Mapped: 11 features
 
 ---
 
-## KY - Sonder (Keyboard) — fidelity 70/100
+## KY - Sonder (Keyboard) — fidelity 72/100
 
 **Dropped:**
 
@@ -1846,7 +1859,7 @@ Mapped: 10 features
 
 **Approximated:**
 
-- Filter 1 drive 14% → master drive FX
+- Filter 1 drive 14% dropped
 - LFO2 (Normal) → stepped random approximation
 - LFO1 (Rossler) → stepped random approximation
 - Macro6 → FXDistortion.kParamWet: static macro contribution (40%) not modeled
@@ -1884,11 +1897,11 @@ Mapped: 15 features
 - Macro8 → Oscillator.kParamOctave: static macro contribution (0%) not modeled
 - Macro8 → Oscillator.kParamOctave: static macro contribution (0%) not modeled
 
-Mapped: 18 features
+Mapped: 20 features
 
 ---
 
-## KY - Smart Future (Keyboard) — fidelity 61/100
+## KY - Smart Future (Keyboard) — fidelity 63/100
 
 **Dropped:**
 
@@ -1904,7 +1917,7 @@ Mapped: 18 features
 **Approximated:**
 
 - Filter 1: HN12 → lowpass approximation
-- Filter 1 drive 12% → master drive FX
+- Filter 1 drive 12% dropped
 - FX Reverb (hall → convolver)
 - Macro1 → VoiceFilter.kParamWet: static macro contribution (35%) not modeled
 - Macro2 → VoiceFilter.kParamWet: static macro contribution (0%) not modeled
@@ -2002,7 +2015,7 @@ Mapped: 17 features
 
 ---
 
-## OR - Memory Organ (Organ) — fidelity 75/100
+## OR - Memory Organ (Organ) — fidelity 72/100
 
 **Dropped:**
 
@@ -2013,6 +2026,7 @@ Mapped: 17 features
 
 - noise sample "Attacks_Kick/XF_KikAtk_03.wav" → white noise
 - amp env hold 0.03s folded into decay
+- LFO1 free rate 0.8Hz → 1 cycles/bar @120BPM
 - LFO2 (Normal) → stepped random approximation
 - Macro1 → LFOPointModBus.kParamValue: static macro contribution (29%) not modeled
 - Macro6 → Env.kParamSustain: static macro contribution (19%) not modeled
@@ -2025,7 +2039,7 @@ Mapped: 17 features
 - Macro5 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 - Macro7 → Env.kParamRelease: static macro contribution (31%) not modeled
 
-Mapped: 11 features
+Mapped: 12 features
 
 ---
 
@@ -2130,7 +2144,7 @@ Mapped: 13 features
 
 ---
 
-## DR - Kick Minimal (Drum) — fidelity 83/100
+## DR - Kick Minimal (Drum) — fidelity 84/100
 
 **Dropped:**
 
@@ -2143,7 +2157,6 @@ Mapped: 13 features
 - noise sample "Organics/AC hum1.wav" → white noise
 - Filter 1 drive 51% → master drive FX
 - Macro1 → Env.kParamDecay: static macro contribution (0%) not modeled
-- Macro2 → Oscillator.kParamPitch: static macro contribution (66%) not modeled
 - Macro3 → WTOsc.kParamWarp2: static macro contribution (0%) not modeled
 - Macro4 → NoiseOsc.kParamColor: static macro contribution (25%) not modeled
 - Macro5 → FXDistortion.kParamWet: static macro contribution (0%) not modeled
@@ -2151,11 +2164,11 @@ Mapped: 13 features
 - Macro7 → Env.kParamAttack: static macro contribution (1%) not modeled
 - Macro8 → FXReverb.kParamWet: static macro contribution (1%) not modeled
 
-Mapped: 12 features
+Mapped: 13 features
 
 ---
 
-## DR - Kick Hype (Drum) — fidelity 79/100
+## DR - Kick Hype (Drum) — fidelity 81/100
 
 **Dropped:**
 
@@ -2167,9 +2180,8 @@ Mapped: 12 features
 **Approximated:**
 
 - noise sample "Organics/Air Can 1.wav" → white noise
-- Filter 1 drive 23% → master drive FX
+- Filter 1 drive 23% dropped
 - Macro1 → Env.kParamDecay: static macro contribution (34%) not modeled
-- Macro2 → Oscillator.kParamPitch: static macro contribution (2%) not modeled
 - Macro3 → WTOsc.kParamWarp2: static macro contribution (0%) not modeled
 - Macro4 → NoiseOsc.kParamColor: static macro contribution (25%) not modeled
 - Macro5 → FXDistortion.kParamWet: static macro contribution (0%) not modeled
@@ -2179,16 +2191,14 @@ Mapped: 12 features
 - Macro1 → Env.kParamDecay: static macro contribution (34%) not modeled
 - Macro3 → WTOsc.kParamWarp: static macro contribution (0%) not modeled
 
-Mapped: 12 features
+Mapped: 13 features
 
 ---
 
-## SEQ - LOW Freqz (Seq) — fidelity 75/100
+## SEQ - LOW Freqz (Seq) — fidelity 80/100
 
 **Dropped:**
 
-- mod route LFO1 → Oscillator.kParamPitch: Osc B kParamPitch
-- mod route LFO1 → Oscillator.kParamPitch: Osc A kParamPitch
 - mod route ModWheel → WTOsc.kParamWarp: WT Warp modulation (no Oracle target)
 
 **Approximated:**
@@ -2205,16 +2215,16 @@ Mapped: 12 features
 - mod route LFO3 → Oscillator.kParamVolume: aux source dropped
 - Macro8 → LFO.kParamRate: static macro contribution (0%) not modeled
 
-Mapped: 16 features
+Mapped: 18 features
 
 ---
 
-## SEQ - Trance in the Pance (Seq) — fidelity 79/100
+## SEQ - Trance in the Pance (Seq) — fidelity 81/100
 
 **Approximated:**
 
 - Filter 1: Exp → lowpass approximation
-- Filter 1 drive 13% → master drive FX
+- Filter 1 drive 13% dropped
 - FX Reverb (hall → convolver)
 - Macro1 → FXReverb.kParamWidth: static macro contribution (100%) not modeled
 - Macro3 → Oscillator.kParamDetune: static macro contribution (71%) not modeled

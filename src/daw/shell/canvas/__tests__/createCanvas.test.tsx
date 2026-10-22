@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import type { ReactNode } from 'react';
 import {
   act,
   cleanup,
@@ -41,12 +42,24 @@ import {
 } from '@/lib/chordNotation';
 import { ChordAnalysisBanner } from '../ChordAnalysisBanner';
 import { ChordLaneHeader, suggestTarget } from '../ChordLaneHeader';
-import { GridMenu } from '../GridMenu';
-import { RulerEndControls } from '../RulerEndControls';
+import { Menu, MenuContent, MenuTrigger } from '@/daw/ui/Menu';
+import { SnapToGridSub, TimelineDisplaySub } from '../GridMenu';
 import { TimelineFooter } from '../TimelineFooter';
-import { TimelineTools } from '../TimelineTools';
+import { EditToolButton } from '../TimelineTools';
 
 const s = () => useStore.getState();
+
+/** A submenu as the top bar's More menu holds it: open, with its trigger. */
+function InMore({ children }: { children: ReactNode }) {
+  return (
+    <Menu defaultOpen modal={false}>
+      <MenuTrigger>More</MenuTrigger>
+      <MenuContent>{children}</MenuContent>
+    </Menu>
+  );
+}
+const openSub = (testId: string) =>
+  fireEvent.keyDown(screen.getByTestId(testId), { key: 'ArrowRight' });
 /** The tip on screen (Radix's hidden copy, role="tooltip", sits inside). */
 const shownTip = () => screen.getByRole('tooltip').parentElement!;
 
@@ -78,35 +91,53 @@ afterEach(() => {
 });
 
 describe('the header’s controls', () => {
-  it('turns snap off and on without moving the playhead (shell-18)', () => {
-    render(<RulerEndControls />);
-    fireEvent.click(screen.getByRole('button', { name: 'Snap to grid' }));
-    expect(s().timelineSnapEnabled).toBe(false);
-    fireEvent.click(screen.getByRole('button', { name: 'Snap to grid' }));
-    expect(s().timelineSnapEnabled).toBe(true);
+  it('turns snap off and on from More, without moving the playhead (shell-18)', () => {
+    for (const expected of [false, true]) {
+      const { unmount } = render(
+        <InMore>
+          <SnapToGridSub />
+        </InMore>,
+      );
+      openSub('grid-menu');
+      fireEvent.click(screen.getByTestId('grid-snap'));
+      expect(s().timelineSnapEnabled).toBe(expected);
+      unmount();
+    }
     expect(s().position).toBe(960);
   });
 
-  it('picks the tool beside the ruler, and Follow is the student’s switch', () => {
-    render(
-      <>
-        <TimelineTools />
-        <TimelineFooter />
-      </>,
-    );
-    fireEvent.click(screen.getByRole('radio', { name: 'Cut clips (C)' }));
+  it('steps the tool with one button: Pointer, Draw, Cut, Pointer', () => {
+    useStore.setState({ activeTool: 'cursor' });
+    render(<EditToolButton />);
+    const button = screen.getByTestId('edit-tool');
+    expect(button).toHaveAccessibleName('Pointer (V): click for Draw clips');
+    fireEvent.click(button);
+    expect(s().activeTool).toBe('pencil');
+    expect(button).toHaveAccessibleName('Draw clips (B): click for Cut clips');
+    fireEvent.click(button);
     expect(s().activeTool).toBe('scissors');
+    fireEvent.click(button);
+    expect(s().activeTool).toBe('cursor');
+    // The layout tool (key 4) shows as the pointer; a click takes Draw.
+    act(() => useStore.setState({ activeTool: 'layout' }));
+    expect(button).toHaveAttribute('data-tool', 'cursor');
+    fireEvent.click(button);
+    expect(s().activeTool).toBe('pencil');
+  });
+
+  it('Follow is the student’s switch', () => {
+    render(<TimelineFooter />);
     fireEvent.click(
       screen.getByRole('button', { name: 'Follow the playhead' }),
     );
     expect(s().followPlayhead).toBe(false);
   });
 
-  it('zooms from the footer, beside the scrollbar', () => {
+  it('zooms from the footer, beside the song overview', () => {
     useStore.setState({ timelineZoom: 1 });
     render(<TimelineFooter />);
     const footer = screen.getByTestId('timeline-footer');
-    expect(footer).toContainElement(screen.getByTestId('timeline-scrollbar'));
+    expect(footer).toContainElement(screen.getByTestId('timeline-overview'));
     fireEvent.click(screen.getByRole('button', { name: 'Zoom in' }));
     expect(s().timelineZoom).toBeGreaterThan(1);
     fireEvent.click(screen.getByRole('button', { name: 'Zoom out' }));
@@ -114,19 +145,16 @@ describe('the header’s controls', () => {
     expect(s().timelineZoom).toBeLessThan(1);
   });
 
-  it('names the grid on its button', () => {
+  it('names the grid, and says when snap is off, on its More row', () => {
     useStore.setState({ timelineGridSize: '1/8T', timelineSnapEnabled: false });
-    render(<GridMenu />);
-    expect(
-      screen.getByRole('button', { name: 'Grid: 1/8 triplet, snap off' }),
-    ).toBeInTheDocument();
-  });
-
-  it('puts snap and the grid together at the ruler’s end', () => {
-    render(<RulerEndControls />);
-    const end = screen.getByRole('group', { name: 'Grid and snap' });
-    expect(end).toContainElement(screen.getByTestId('snap-toggle'));
-    expect(end).toContainElement(screen.getByTestId('grid-menu'));
+    render(
+      <InMore>
+        <SnapToGridSub />
+      </InMore>,
+    );
+    expect(screen.getByTestId('grid-menu')).toHaveAccessibleName(
+      'Snap to grid: 1/8 triplet, snap off',
+    );
   });
 });
 
@@ -135,44 +163,49 @@ describe('the header’s tips', () => {
   // at the sections lane's right end; below, Grid's covered the side rail.
   // Radix keeps a tip open while the pointer is over it, so a click meant
   // for what it covered landed on the tip.
-  it('open the tools’ to the right, past the group', () => {
-    render(<TimelineTools />);
-    act(() => screen.getByRole('radio', { name: 'Pointer (V)' }).focus());
+  it('open the tool’s under the top bar', () => {
+    render(<EditToolButton />);
+    act(() => screen.getByTestId('edit-tool').focus());
     expect(shownTip()).toHaveTextContent('Pointer (V)');
-    expect(shownTip()).toHaveAttribute('data-side', 'right');
-  });
-
-  it('open Snap’s and Grid’s to the left, over the ruler', () => {
-    render(<RulerEndControls />);
-    act(() => screen.getByTestId('snap-toggle').focus());
-    expect(shownTip()).toHaveTextContent('Snap to grid');
-    expect(shownTip()).toHaveAttribute('data-side', 'left');
-    act(() => screen.getByTestId('grid-menu').focus());
-    expect(shownTip()).toHaveTextContent('Grid, snap and display');
-    expect(shownTip()).toHaveAttribute('data-side', 'left');
+    expect(shownTip()).toHaveAttribute('data-side', 'bottom');
   });
 });
 
-describe('the Grid menu’s display choices', () => {
-  const open = () =>
-    fireEvent.keyDown(screen.getByTestId('grid-menu'), { key: 'Enter' });
+describe('More ▸ Timeline display', () => {
+  const open = () => openSub('timeline-display-menu');
+  const Display = () => (
+    <InMore>
+      <TimelineDisplaySub />
+    </InMore>
+  );
   const checked = (name: string) =>
     screen.getByRole('menuitemradio', { name }).getAttribute('aria-checked');
 
   it('names its radio groups', () => {
-    render(<GridMenu />);
+    render(<Display />);
     open();
     expect(
       screen.getByRole('group', { name: 'Chord lane labels' }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('group', { name: 'Color clips by' }),
-    ).toBeInTheDocument();
+    // Harmony Color is a switch, not a group (2026-10-22).
+    expect(screen.queryByRole('group', { name: 'Colour clips by' })).toBeNull();
+  });
+
+  it('switches Harmony Color on and off', () => {
+    useStore.setState({ clipColorMode: 'track' });
+    render(<Display />);
+    open();
+    const item = screen.getByRole('menuitemcheckbox', {
+      name: /Harmony Color/,
+    });
+    expect(item).toHaveAttribute('aria-checked', 'false');
+    fireEvent.click(item);
+    expect(useStore.getState().clipColorMode).toBe('prism');
   });
 
   it('checks the hybrid labels choice, and neither under Jazz notation', () => {
     useStore.setState({ chordRulerShowNotes: true });
-    const { unmount } = render(<GridMenu />);
+    const { unmount } = render(<Display />);
     open();
     expect(checked('Note names')).toBe('true');
     expect(checked('Degree numbers')).toBe('false');
@@ -180,7 +213,7 @@ describe('the Grid menu’s display choices', () => {
 
     setChordNotationSwitcherEnabled(true);
     setChordNotation('jazz');
-    render(<GridMenu />);
+    render(<Display />);
     open();
     // The lane draws jazz symbols, not the note names the choice keeps.
     expect(checked('Note names')).toBe('false');
@@ -214,10 +247,21 @@ describe('the chord lane’s analysis offer', () => {
   });
 });
 
-describe('+ Suggest', () => {
+describe('the chord lane’s corner', () => {
+  it('is empty: the key is set in the top bar, suggestions on the clip menu', () => {
+    render(<ChordLaneHeader />);
+    const corner = screen.getByTestId('chord-lane-header');
+    expect(corner).toBeEmptyDOMElement();
+    expect(corner).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.queryByTestId('chord-lane-key')).toBeNull();
+    expect(screen.queryByTestId('chord-lane-suggest')).toBeNull();
+  });
+});
+
+describe('where Suggest puts chords', () => {
   it('suggests after the last chord, for a track that can hold chords', () => {
     const drums = s().addTrack('midi', 'drum-machine', 'Drums');
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().setSelectedTrackId(drums);
     expect(suggestTarget(s(), 2500)).toEqual({ tick: 1920, trackId: keys });
     useStore.setState({
@@ -229,37 +273,5 @@ describe('+ Suggest', () => {
   it('has nothing to suggest for without such a track', () => {
     s().addTrack('midi', 'drum-machine', 'Drums');
     expect(suggestTarget(s(), 0)).toBeNull();
-    render(<ChordLaneHeader />);
-    expect(
-      screen.getByRole('button', { name: 'Suggest chords (Prism)' }),
-    ).toBeDisabled();
-  });
-
-  it('opens the suggestions for Premium, the plans for a free student', () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
-    const open = vi.fn();
-    useStore.setState({ openPrismSuggestion: open });
-    const { unmount } = render(<ChordLaneHeader />);
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Suggest chords (Prism)' }),
-    );
-    expect(open).toHaveBeenCalledWith(0, s().tracks[0].id);
-    unmount();
-
-    h.premium = { isPremium: false, isLoading: false };
-    render(<ChordLaneHeader />);
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Suggest chords (Prism, Premium, locked)',
-      }),
-    );
-    expect(h.navigate).toHaveBeenCalled();
-    expect(open).toHaveBeenCalledTimes(1);
-  });
-
-  it('shows the key as a chip, dashed when there is none', () => {
-    useStore.setState({ rootNote: null });
-    render(<ChordLaneHeader />);
-    expect(screen.getByTestId('chord-lane-key')).toHaveTextContent('No key');
   });
 });

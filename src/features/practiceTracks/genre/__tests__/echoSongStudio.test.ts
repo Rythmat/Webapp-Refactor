@@ -288,8 +288,8 @@ describe('opening it in the Studio', () => {
     expect(s.loopEnd).toBe(8 * BAR_TICKS);
     const tracks = s.tracks.map((t) => [t.name, t.instrument]);
     expect(tracks.slice(0, 2)).toEqual([
-      ['Melody', 'piano-sampler'],
-      ['Chords', 'electric-piano'],
+      ['Melody', 'soundfont'],
+      ['Chords', 'soundfont'],
     ]);
     expect(tracks.slice(2).map(([name]) => name)).toEqual(
       song.band.map((p) => p.name),

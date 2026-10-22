@@ -341,7 +341,7 @@ describe('a course lesson’s end', () => {
   it('offers the next lesson, on the same project', async () => {
     studioAnchors();
     act(() => {
-      s().addTrack('midi', 'piano-sampler', 'My keys');
+      s().addTrack('midi', 'soundfont', 'My keys');
       s().resumeTutorial(LESSON, steps().length - 1);
     });
     const tracks = s().tracks;

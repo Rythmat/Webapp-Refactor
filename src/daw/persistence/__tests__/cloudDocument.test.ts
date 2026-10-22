@@ -64,7 +64,7 @@ const fromServer = (
 /** Keys and Bass with a clip each, and what only the document carries. */
 function buildProject(): void {
   resetSessionToEmpty();
-  const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  const keys = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(keys, {
     id: 'clip-keys',
     startTick: 0,
@@ -73,7 +73,7 @@ function buildProject(): void {
       { note: 60, velocity: 90, startTick: 0, durationTicks: 480, channel: 0 },
     ],
   });
-  const bass = s().addTrack('midi', 'bass-electric', 'Bass');
+  const bass = s().addTrack('midi', 'soundfont', 'Bass');
   s().addMidiClip(bass, {
     id: 'clip-bass',
     startTick: 0,
@@ -250,7 +250,7 @@ describe('a cloud open reads the document', () => {
   it('with each clip’s mute, and an audio clip’s name by its row (2.12)', () => {
     buildProject();
     s().updateMidiClip(byName('Keys').id, 'clip-keys', { muted: true });
-    const vocal = s().addTrack('audio', 'vocal-fx', 'Vocal');
+    const vocal = s().addTrack('audio', 'audio-input', 'Vocal');
     for (const [id, startTick] of [
       ['take-1', 0],
       ['take-2', 3840],

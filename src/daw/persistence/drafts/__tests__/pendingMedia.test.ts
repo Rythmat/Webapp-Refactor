@@ -194,7 +194,7 @@ beforeEach(() => {
   vi.mocked(isOpusEncodingSupported).mockReturnValue(true);
   useDraftStatusStore.setState(useDraftStatusStore.getInitialState(), true);
   useStore.setState(useStore.getInitialState(), true);
-  trackId = useStore.getState().addTrack('audio', 'vocal-fx', 'Vox');
+  trackId = useStore.getState().addTrack('audio', 'audio-input', 'Vox');
   store = createDraftStore({
     indexedDB: new IDBFactory(),
     storage: new MemoryStorage(),
@@ -356,7 +356,7 @@ describe('capture', () => {
   });
 
   it('captures a pending sampler sample and skips bundled and uploaded audio', async () => {
-    const chops = useStore.getState().addTrack('audio', 'vocal-fx', 'Chops');
+    const chops = useStore.getState().addTrack('audio', 'audio-input', 'Chops');
     useStore.getState().setSamplerSample(chops, {
       sampleId: 's1',
       assetId: null,
@@ -367,7 +367,9 @@ describe('capture', () => {
     setAudioBuffer(samplerBufferKey('s1'), fakeBuffer('s1'));
     setOriginalAudio(samplerBufferKey('s1'), bytesOf('kick'), 'audio/mpeg');
 
-    const bundled = useStore.getState().addTrack('audio', 'vocal-fx', 'Demo');
+    const bundled = useStore
+      .getState()
+      .addTrack('audio', 'audio-input', 'Demo');
     useStore.getState().setSamplerSample(bundled, {
       sampleId: 's2',
       assetId: null,
@@ -519,7 +521,7 @@ describe('restore', () => {
     const record = await storeMedia('take-bytes');
     addClip('a');
     addClip('b');
-    const chops = useStore.getState().addTrack('audio', 'vocal-fx', 'Chops');
+    const chops = useStore.getState().addTrack('audio', 'audio-input', 'Chops');
     useStore.getState().setSamplerSample(chops, {
       sampleId: 's1',
       assetId: null,

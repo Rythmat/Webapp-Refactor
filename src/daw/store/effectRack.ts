@@ -10,8 +10,8 @@ export const MAX_RACK_EFFECTS = 5;
 // ── Which rack (milestone 2.10) ────────────────────────────────────────────
 //
 // A rack is a track's chain, a return's or the master's. The Mix view's
-// RackDock shows one at a time, and the side rail's Effects library adds to
-// the rack that shows (FxBody), so both name it the same way.
+// RackDock shows one at a time, and the Add effect picker adds to
+// the rack that shows (EffectPicker), so both name it the same way.
 
 export type ReturnId = 'A' | 'B';
 

@@ -149,7 +149,7 @@ function cloudProject(updatedAt: string) {
         ordinal: 0,
         name: 'Cloud',
         type: 'midi',
-        instrument: 'piano-sampler',
+        instrument: 'soundfont',
         color: '#ffffff',
         mute: false,
         solo: false,
@@ -185,7 +185,7 @@ describe('openSession over the real draft port', () => {
     const first = await openSession({ kind: 'new' }, { source: 'boot' });
     expect(first.status).toBe('ready');
     const firstId = useSessionStore.getState().draftId!;
-    s().addTrack('midi', 'piano-sampler', 'Mine');
+    s().addTrack('midi', 'soundfont', 'Mine');
     await flushDraftNow();
     await whenDraftWritesSettled();
 

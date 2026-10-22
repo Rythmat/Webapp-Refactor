@@ -373,7 +373,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.23245608806610107,
+      "amount": 0.2656622318571839,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -388,7 +388,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.5789473056793213,
+      "amount": 0.661649409288588,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -428,7 +428,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.6627366938786055,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": true,
@@ -471,8 +471,8 @@
   "fxRoutes": [],
   "routing": {
     "filterRouting": {
-      "filter1Sources": ["osc1", "noise", "sub"],
-      "filter2Sources": []
+      "filter1Sources": ["osc1", "sub"],
+      "filter2Sources": ["noise"]
     },
     "envelopeRouting": {
       "env1Sources": ["osc1", "osc2", "sub", "noise"],
@@ -527,5 +527,6 @@
     "rootPc": 0,
     "mode": "ionian",
     "snapMode": "nearest"
-  }
+  },
+  "modWheel": 0.4140625
 }

@@ -33,8 +33,8 @@ beforeEach(() => {
     stringSeq: [],
     remoteUsers: new Map(),
   });
-  keys = s().addTrack('midi', 'piano-sampler', 'Keys');
-  vocals = s().addTrack('audio', 'vocal-fx', 'Vocals');
+  keys = s().addTrack('midi', 'soundfont', 'Keys');
+  vocals = s().addTrack('audio', 'audio-input', 'Vocals');
   s().setSelectedTrackId(keys);
 });
 

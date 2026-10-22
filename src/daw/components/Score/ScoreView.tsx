@@ -1,36 +1,82 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { NOTES } from '@prism/engine';
 import { StaffView, type ScorePart } from '@/components/notation/StaffView';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
+import type { UiSlice } from '@/daw/store/uiSlice';
+import type { Track } from '@/daw/store/tracksSlice';
+import { chartExtraBars } from '@/daw/time/measureEdits';
 import { ComposerLine } from '../LeadSheet/ComposerLine';
+import { LeadSheetChartView } from '../LeadSheet/LeadSheetView';
 import '../LeadSheet/leadsheet-print.css';
 import {
   PRINT_TITLE_INSET,
   useLeadSheetPrint,
 } from '../LeadSheet/useLeadSheetPrint';
-import { ScoreLayoutSwitch } from './ScoreLayoutSwitch';
 import { ScorePalettes } from './ScorePalettes';
 import { ScorePartsPanel } from './ScorePartsPanel';
-import { buildScoreParts, isNotatable, ScorePartsCache } from './scoreParts';
+import { ScoreToolbar } from './ScoreToolbar';
+import {
+  buildScoreParts,
+  isDrumTrack,
+  isNotatable,
+  SCORE_MIN_MEASURES,
+  ScorePartsCache,
+} from './scoreParts';
+import { ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
 import { spellingMap } from './noteEditor';
 import { useScoreEditing } from './useScoreEditing';
-import { buildFullScoreXml, MUSICXML_TYPE } from '@/daw/midi/scoreExport';
-import { downloadFile } from '@/daw/utils/exportFiles';
-import { printSheet } from '@/daw/commands/projectCommands';
 
 // ── Score ──────────────────────────────────────────────────────────────────
-// Every track of the project notated and stacked, the way a conductor's score
-// is laid out: one part per track, shared barlines, the transport's playhead
-// running through all of them. The editing itself lives in useScoreEditing,
-// which the Lead Sheet uses too. The Score and the Lead sheet are one page
-// (one Score tab; ScoreLayoutSwitch picks the layout), and the note tools
-// are palettes beside the staff rather than a row above it.
+// The Score and the Lead sheet are one editor (owner, 2026-10-21): one page,
+// one toolbar (ScoreToolbar) and one palette column. Its tracks are notated
+// and stacked the way a conductor's score is laid out, one part per track,
+// shared barlines, the transport's playhead running through all of them,
+// with the song's chords standing over them; the toolbar's Staves menu
+// says which tracks have a staff. With none to show (every one off, or no
+// notes yet), the page is the chord chart (LeadSheetChartView), under the
+// same toolbar. The editing itself lives in useScoreEditing, and the note
+// tools are palettes beside the staff rather than a row above it.
+
+/** The tracks with a staff on the page: the instruments not switched off. */
+function staveTracks(
+  tracks: readonly Track[],
+  hidden: readonly string[],
+): Track[] {
+  return tracks.filter((t) => isNotatable(t) && !hidden.includes(t.id));
+}
+
+/**
+ * Staves while a shown track has notes, or note input has a pitched one to
+ * write on; otherwise the chord chart.
+ */
+function pageOf(
+  s: Pick<UiSlice, 'scoreHiddenTrackIds' | 'scoreNoteInput'> & {
+    tracks: Track[];
+  },
+): 'staves' | 'chart' {
+  const shown = staveTracks(s.tracks, s.scoreHiddenTrackIds);
+  const notes = shown.some((t) => t.midiClips.some((c) => c.events.length));
+  const writable = s.scoreNoteInput && shown.some((t) => !isDrumTrack(t));
+  return notes || writable ? 'staves' : 'chart';
+}
 
 export function ScoreView() {
+  const page = useStore(pageOf);
+  return page === 'staves' ? <ScoreStaves /> : <LeadSheetChartView />;
+}
+
+function ScoreStaves() {
   // The score prints through the lead sheet's print rules (its named page).
   useLeadSheetPrint();
-  const tracks = useStore((s) => s.tracks);
+  const allTracks = useStore((s) => s.tracks);
+  const hidden = useStore((s) => s.scoreHiddenTrackIds);
+  const tracks = useMemo(
+    () => staveTracks(allTracks, hidden),
+    [allTracks, hidden],
+  );
+  const chordRegions = useStore((s) => s.chordRegions);
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
   const bpm = useStore((s) => s.bpm);
@@ -42,6 +88,17 @@ export function ScoreView() {
   const scoreSpellings = useStore((s) => s.scoreSpellings);
   // Note input shows the instruments with nothing written yet, to write on.
   const noteInput = useStore((s) => s.scoreNoteInput);
+  // The chart's bars: chords past the last note, bars added with + Measure
+  // and the bars the song's sections cover all get their bars, so the
+  // staves are as long as the chord chart is.
+  const extraBars = useStore((s) =>
+    chartExtraBars(s.leadSheetBars, s.sections, timeSignatureOf(s)),
+  );
+  const ticksPerMeasure = ticksPerBar({ numerator, denominator });
+  const chordBars = useMemo(
+    () => regionToMeasures(chordRegions, ticksPerMeasure, extraBars).length,
+    [chordRegions, ticksPerMeasure, extraBars],
+  );
 
   const timeSignature: [number, number] = useMemo(
     () => [numerator, denominator],
@@ -68,6 +125,7 @@ export function ScoreView() {
         spellings,
         cache: partsCache,
         includeEmpty: noteInput,
+        ...(chordBars > SCORE_MIN_MEASURES ? { minMeasures: chordBars } : {}),
       }),
     [
       tracks,
@@ -78,6 +136,7 @@ export function ScoreView() {
       spellings,
       partsCache,
       noteInput,
+      chordBars,
     ],
   );
   const parts: ScorePart[] = useMemo(
@@ -93,22 +152,36 @@ export function ScoreView() {
     return `${note} ${modeLabel}`;
   }, [rootNote, mode]);
 
-  // Every editing tool lives in the shared hook, so the Lead Sheet's melody
-  // is edited with exactly these tools rather than a second set.
   const editing = useScoreEditing({ parts, scoreParts });
   const { selection } = editing;
 
-  // Exports: MusicXML of every part, and printing the engraved pages. The
-  // file is the Export dialog's full score, built from the store at the
-  // click (scoreExport.ts).
-  const exportMusicXml = useCallback(() => {
-    const file = buildFullScoreXml(useStore.getState());
-    if (!file) return;
-    downloadFile(new Blob([file.xml], { type: MUSICXML_TYPE }), file.filename);
-    useStore.getState().markDone('exportMusicXml');
-  }, []);
+  // The toolbar's bar, section and repeat tools work on a bar: the first one
+  // touched by whatever is selected.
+  const selectedMeasureIdx = useMemo(() => {
+    const cells = [...selection.cells]
+      .map((key) => Number(key.split(':')[1] ?? NaN))
+      .filter(Number.isFinite);
+    if (cells.length > 0) return Math.min(...cells);
+    if (selection.barline !== null) return selection.barline;
+    const starts = [...selection.chords]
+      .map((key) => key.split(':').slice(1).join(':'))
+      .map((id) => chordRegions.find((r) => r.id === id)?.startTick)
+      .filter((tick): tick is number => tick !== undefined);
+    if (starts.length > 0) {
+      return Math.floor(Math.min(...starts) / ticksPerMeasure);
+    }
+    return null;
+  }, [
+    selection.cells,
+    selection.barline,
+    selection.chords,
+    chordRegions,
+    ticksPerMeasure,
+  ]);
 
-  const skipped = tracks.filter(
+  const staveTrackIds = useMemo(() => parts.map((p) => p.id), [parts]);
+
+  const skipped = allTracks.filter(
     (t) =>
       !isNotatable(t) && (t.midiClips.length > 0 || t.audioClips.length > 0),
   );
@@ -131,68 +204,37 @@ export function ScoreView() {
         />
       </div>
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div
-          className="score-no-print flex shrink-0 items-center gap-3 px-3 text-xs"
-          style={{
-            height: 40,
-            borderBottom: '1px solid var(--daw-hairline)',
-            color: 'var(--daw-text-3)',
-          }}
-        >
-          <ScoreLayoutSwitch />
-          <span>
-            {parts.length} {parts.length === 1 ? 'part' : 'parts'}
-          </span>
-          {editing.noteInput.on && (
+        <ScoreToolbar
+          selectedMeasureIdx={selectedMeasureIdx}
+          staveTrackIds={staveTrackIds}
+          status={
             <span
-              data-note-input-status
-              className="rounded px-2 py-0.5 font-semibold uppercase tracking-wider"
-              style={{
-                border: '1px solid var(--daw-accent)',
-                color: 'var(--daw-text)',
-              }}
+              className="ml-2 flex items-center gap-2 text-[11px]"
+              style={{ color: 'var(--daw-text-3)' }}
             >
-              Note input · {editing.noteInput.dotted ? 'dotted ' : ''}
-              {editing.noteInput.duration.name.toLowerCase()}
+              {editing.noteInput.on && (
+                <span
+                  data-note-input-status
+                  className="rounded px-2 py-0.5 font-semibold uppercase tracking-wider"
+                  style={{
+                    border: '1px solid var(--daw-accent)',
+                    color: 'var(--daw-text)',
+                  }}
+                >
+                  Note input · {editing.noteInput.dotted ? 'dotted ' : ''}
+                  {editing.noteInput.duration.name.toLowerCase()}
+                </span>
+              )}
+              {skipped.length > 0 && (
+                <span title={skipped.map((t) => t.name).join(', ')}>
+                  {skipped.length} not notated (audio)
+                </span>
+              )}
             </span>
-          )}
-          {skipped.length > 0 && (
-            <span title={skipped.map((t) => t.name).join(', ')}>
-              · {skipped.length} not notated (audio)
-            </span>
-          )}
-          <div className="ml-auto flex items-center gap-2">
-            <button
-              type="button"
-              data-tutorial-id="score-print"
-              onClick={() => {
-                // Selection highlights are editing state, not the music.
-                editing.staff.onBackgroundPointerDown();
-                requestAnimationFrame(() => printSheet('printScore'));
-              }}
-              disabled={parts.length === 0}
-              title="Print the score, or save it as a PDF from the print dialog"
-              className="rounded px-2 py-1 font-semibold uppercase tracking-wider transition-colors hover:bg-white/5 disabled:opacity-40"
-              style={{ border: '1px solid var(--daw-hairline)' }}
-            >
-              Print / PDF
-            </button>
-            <button
-              type="button"
-              data-tutorial-id="score-export-musicxml"
-              onClick={exportMusicXml}
-              disabled={parts.length === 0}
-              title="Download every part as MusicXML, for MuseScore, Finale, Sibelius or Dorico"
-              className="rounded px-2 py-1 font-semibold uppercase tracking-wider transition-colors hover:bg-white/5 disabled:opacity-40"
-              style={{ border: '1px solid var(--daw-hairline)' }}
-            >
-              MusicXML
-            </button>
-          </div>
-        </div>
+          }
+        />
 
         <div
-          data-tutorial-id="score-sheet"
           className="leadsheet-scroll flex-1 overflow-y-auto"
           style={{ padding: '32px 48px' }}
         >

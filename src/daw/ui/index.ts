@@ -9,8 +9,8 @@
  */
 export { Button, buttonVariants } from './Button';
 export type { ButtonProps, ButtonVariant } from './Button';
-export { Chip } from './Chip';
-export type { ChipProps, ChipTone } from './Chip';
+export { Chip, ColorChip } from './Chip';
+export type { ChipProps, ChipTone, ColorChipProps } from './Chip';
 export { contrastRatio, onColor, parseColor, relativeLuminance } from './color';
 export { ConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
@@ -24,6 +24,8 @@ export type {
 export { confirmDialog, DialogHost, promptDialog } from './DialogHost';
 export type { ConfirmOptions, PromptOptions } from './DialogHost';
 export { EmptyState } from './EmptyState';
+export { FloatingCard } from './FloatingCard';
+export type { FloatingCardProps, FloatingCardRadius } from './FloatingCard';
 export type { EmptyStateProps } from './EmptyState';
 export { Fader } from './Fader';
 export type { FaderProps } from './Fader';
@@ -43,7 +45,7 @@ export type {
   IconButtonSize,
   IconButtonVariant,
 } from './IconButton';
-export { Kbd } from './Kbd';
+export { Kbd, Keycap } from './Kbd';
 export { Knob } from './Knob';
 export type { KnobProps, KnobSize } from './Knob';
 export {
@@ -71,6 +73,8 @@ export {
 } from './Menu';
 export { Meter, resetClipLights } from './Meter';
 export type { MeterLevels, MeterProps, MeterSource } from './Meter';
+export { IconPill, Pill, PillGroup } from './Pill';
+export type { IconPillProps, PillGroupProps, PillProps } from './Pill';
 export {
   Popover,
   PopoverAnchor,

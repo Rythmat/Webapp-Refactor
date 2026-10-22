@@ -1,37 +1,25 @@
 import { Download } from 'lucide-react';
 import { memo } from 'react';
 import { openExport } from '@/daw/shell/export/exportDialogStore';
-import { Button } from '@/daw/ui/Button';
-import { Tooltip } from '@/daw/ui/Tooltip';
+import { IconButton } from '@/daw/ui/IconButton';
 
-// ── The Export pill (milestone 2.15; decision 16, ST11) ────────────────────
+// ── Export (milestone 2.15; decision 16, ST11) ─────────────────────────────
 //
-// The top bar's one white pill, at its right: it opens the Export dialog
-// (Audio | Notation). In a narrow window the bar folds it to its icon.
+// At the top bar's right, beside Settings: it opens the Export dialog
+// (Audio | Notation). Its icon only, bare, as Settings is (owner,
+// 2026-10-21: it was the bar's one white pill, with its label).
 
-export const ExportPill = memo(function ExportPill({
-  iconOnly = false,
-}: {
-  iconOnly?: boolean;
-}) {
-  const pill = (
-    <Button
-      variant="primary"
+export const ExportPill = memo(function ExportPill() {
+  return (
+    <IconButton
+      label="Export"
+      icon={<Download />}
+      variant="bare"
+      size="lg"
+      tooltipSide="bottom"
       data-testid="export-pill"
       data-tutorial-id="export-pill"
-      aria-label={iconOnly ? 'Export' : undefined}
-      className={iconOnly ? 'w-7 px-0' : undefined}
       onClick={() => openExport()}
-    >
-      <Download strokeWidth={2.5} />
-      {iconOnly ? null : 'Export'}
-    </Button>
-  );
-  return iconOnly ? (
-    <Tooltip content="Export" side="bottom">
-      {pill}
-    </Tooltip>
-  ) : (
-    pill
+    />
   );
 });

@@ -1,12 +1,11 @@
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { scaleMask } from '@/daw/oracle-synth/audio/ScaleQuantizer';
-import { migrateModRoute } from '@/daw/oracle-synth/audio/modMath';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import type { PresetData } from '@/daw/oracle-synth/store/presets/PresetData';
-import { applyPresetData } from '@/daw/oracle-synth/store/slices/presetSlice';
-import { defaultMacros } from '@/daw/oracle-synth/store/slices/macroSlice';
-import { DEFAULT_KEYSCALE } from '@/daw/oracle-synth/store/slices/keyScaleSlice';
-import { withUniqueModRouteIds } from '@/daw/oracle-synth/store/slices/modulationSlice';
+import {
+  applyPresetData,
+  migratePatchFields,
+} from '@/daw/oracle-synth/store/slices/presetSlice';
 import type { SynthStore } from '@/daw/oracle-synth/store/storeTypes';
 import {
   SYNTH_STATE_KEYS,
@@ -84,23 +83,19 @@ export function synthTrackStateFromPreset(
 }
 
 /**
- * Fill fields older saved projects lack (pre-v2 snapshots have no macros/
- * keyScale and v1-shaped modRoutes). Without this, loading an old project
- * would crash on `macros` and leak the previous track's values into the
+ * Fill fields older saved projects lack, through the same migrations a
+ * preset goes through (migratePatchFields): pre-v2 snapshots have no
+ * macros/keyScale and v1-shaped modRoutes, pre-v3 ones no reverb or warp,
+ * older ones flat LFO rate divisions and no smooths. Without them, loading
+ * an old project crashed the panel's sync on the reverb and the LFOs
+ * (audit 2026-10-21) or leaked the previous track's values into the
  * restored patch. Mod routes saved under one id twice get unique ids
  * (synth-store-06).
  */
 export function normalizeSynthTrackState(
   snap: SynthTrackState,
 ): SynthTrackState {
-  return {
-    ...snap,
-    modRoutes: withUniqueModRouteIds(
-      (snap.modRoutes ?? []).map(migrateModRoute),
-    ),
-    macros: snap.macros ?? defaultMacros(),
-    keyScale: snap.keyScale ?? structuredClone(DEFAULT_KEYSCALE),
-  };
+  return { ...snap, ...migratePatchFields(snap) } as SynthTrackState;
 }
 
 /** Push a patch snapshot back into the shared synth store. */
@@ -319,11 +314,13 @@ export function applySynthStateToEngine(
   engine: SynthEngine,
   snap: SynthTrackState,
   { projectBpm }: ApplySynthStateOptions = {},
-): void {
+): Promise<void> {
   const s = normalizeSynthTrackState(snap);
   engine.setOscillatorParams(0, s.oscillators[0]);
   engine.setOscillatorParams(1, s.oscillators[1]);
-  void engine.ensureWavetables([
+  // Resolves when the patch's pack tables have loaded and the voices use
+  // them: an export waits for it, so it never bakes in the fallback.
+  const tables = engine.ensureWavetables([
     s.oscillators[0].wavetable,
     s.oscillators[1].wavetable,
   ]);
@@ -349,6 +346,7 @@ export function applySynthStateToEngine(
       engine.setLFONodes(i, j, s.lfos[i].bars[j]);
       engine.setLFOSmooth(i, j, s.lfos[i].smooths[j]);
     }
+    engine.setLFOOnce(i, s.lfos[i].once ?? false);
   }
   engine.setModRoutes(s.modRoutes);
   for (let i = 0; i < s.macros.length; i++) {
@@ -371,4 +369,5 @@ export function applySynthStateToEngine(
   engine.setCompressorParams(s.fx.compressor);
   engine.setRouting(s.routing);
   engine.setArpParams(s.arp);
+  return tables;
 }

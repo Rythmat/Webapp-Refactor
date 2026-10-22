@@ -4,7 +4,7 @@
   "oscillators": [
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Saw",
       "octave": 0,
       "semitone": 0,
       "fine": -11.71875,
@@ -20,7 +20,7 @@
     },
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Saw",
       "octave": 0,
       "semitone": 0,
       "fine": 11.71875,
@@ -106,41 +106,17 @@
             "curve": -0.33823529411764686
           },
           {
-            "time": 0.25,
+            "time": 1,
             "value": 0
           },
           {
-            "time": 0.25,
+            "time": 1,
             "value": 0
-          },
+          }
+        ],
+        [
           {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.33823529411764686
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.33823529411764686
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
+            "time": 0,
             "value": 1,
             "curve": -0.33823529411764686
           },
@@ -160,45 +136,6 @@
             "curve": -0.33823529411764686
           },
           {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.33823529411764686
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.33823529411764686
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1,
-            "curve": -0.33823529411764686
-          },
-          {
             "time": 1,
             "value": 0
           },
@@ -210,99 +147,6 @@
         [
           {
             "time": 0,
-            "value": 1,
-            "curve": -0.33823529411764686
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.33823529411764686
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.33823529411764686
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1,
-            "curve": -0.33823529411764686
-          },
-          {
-            "time": 1,
-            "value": 0
-          },
-          {
-            "time": 1,
-            "value": 0
-          }
-        ],
-        [
-          {
-            "time": 0,
-            "value": 1,
-            "curve": -0.33823529411764686
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.33823529411764686
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.33823529411764686
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
             "value": 1,
             "curve": -0.33823529411764686
           },
@@ -315,7 +159,8 @@
             "value": 0
           }
         ]
-      ]
+      ],
+      "once": true
     },
     {
       "rateDivs": [
@@ -667,41 +512,17 @@
             "curve": -0.19117647058823528
           },
           {
-            "time": 0.25,
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
             "value": 0
           },
           {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.19117647058823528
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.19117647058823528
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
+            "time": 0,
             "value": 1,
             "curve": -0.19117647058823528
           },
@@ -721,45 +542,6 @@
             "curve": -0.19117647058823528
           },
           {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.19117647058823528
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.19117647058823528
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1,
-            "curve": -0.19117647058823528
-          },
-          {
             "time": 1,
             "value": 0
           }
@@ -771,99 +553,6 @@
           },
           {
             "time": 0,
-            "value": 1,
-            "curve": -0.19117647058823528
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.19117647058823528
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.19117647058823528
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1,
-            "curve": -0.19117647058823528
-          },
-          {
-            "time": 1,
-            "value": 0
-          }
-        ],
-        [
-          {
-            "time": 0,
-            "value": 0
-          },
-          {
-            "time": 0,
-            "value": 1,
-            "curve": -0.19117647058823528
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.19117647058823528
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.19117647058823528
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
             "value": 1,
             "curve": -0.19117647058823528
           },
@@ -872,7 +561,8 @@
             "value": 0
           }
         ]
-      ]
+      ],
+      "once": true
     },
     {
       "rateDivs": [
@@ -1209,7 +899,7 @@
       },
       "target": {
         "source": "osc2",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.09375,
       "polarity": "unipolar",
@@ -1224,7 +914,7 @@
       },
       "target": {
         "source": "osc1",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": -0.09375,
       "polarity": "unipolar",
@@ -1271,7 +961,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": -0.3508773446083069,
+      "amount": -0.4009998587357218,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1286,7 +976,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": -0.37719303369522095,
+      "amount": -0.7543860673904419,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1301,7 +991,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.5570175647735596,
+      "amount": 0.6365870245537223,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1316,7 +1006,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.5131579637527466,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1326,7 +1016,7 @@
   "voiceCount": 12,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.13867472416817464,
+  "masterVolume": 0.44403646678649517,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -1369,8 +1059,8 @@
   "fxRoutes": [],
   "routing": {
     "filterRouting": {
-      "filter1Sources": ["osc1", "osc2", "noise", "sub"],
-      "filter2Sources": []
+      "filter1Sources": ["osc1", "osc2", "sub"],
+      "filter2Sources": ["noise"]
     },
     "envelopeRouting": {
       "env1Sources": ["osc1", "osc2", "sub", "noise"],
@@ -1425,5 +1115,6 @@
     "rootPc": 0,
     "mode": "ionian",
     "snapMode": "nearest"
-  }
+  },
+  "modWheel": 0.7063492063492062
 }

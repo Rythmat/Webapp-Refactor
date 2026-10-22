@@ -90,7 +90,7 @@ beforeEach(() => {
   upload.mockResolvedValue({ id: 'asset-1' } as Asset);
   vi.mocked(ensureProjectId).mockClear();
   useStore.setState(useStore.getInitialState(), true);
-  trackId = useStore.getState().addTrack('audio', 'vocal-fx', 'Vox');
+  trackId = useStore.getState().addTrack('audio', 'audio-input', 'Vox');
   useStore.getState().addAudioClip(trackId, take);
   setAudioBuffer('take', {
     duration: 4,

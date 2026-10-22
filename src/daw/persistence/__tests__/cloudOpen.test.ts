@@ -58,7 +58,7 @@ const fromServer = (body: CloudProjectInput): CloudProjectDetail => ({
 
 /** Keys, an Oracle lead, Drums the Keys duck under, and a guitar take. */
 function buildProject(): void {
-  const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  const keys = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(keys, {
     id: 'clip-keys',
     startTick: 0,
@@ -82,7 +82,7 @@ function buildProject(): void {
       keyTrackId: drums,
     },
   });
-  const guitar = s().addTrack('audio', 'guitar-fx', 'Guitar');
+  const guitar = s().addTrack('audio', 'audio-input', 'Guitar');
   s().addAudioClip(guitar, {
     id: 'take-1',
     startTick: 0,

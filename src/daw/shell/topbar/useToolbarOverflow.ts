@@ -21,8 +21,8 @@ import {
 /**
  * The fold steps, in order; a step folds everything before it too. What
  * never goes into '⋯': Back, the Project menu, the name, the save chip,
- * Undo and Redo, the view tabs, Share, Export (its label folds, last) and
- * the avatar. (Help, Settings and
+ * Undo and Redo, the transport, the song, Share, Export (an icon since
+ * 2026-10-21) and the avatar. (Help, Settings and
  * the computer keyboard's switch live in '⋯' at every width since the bar
  * was trimmed, 2.7; the transport and the song moved to the bottom rail and
  * the Inspector's toggle to the side rail, B4a.)
@@ -30,10 +30,22 @@ import {
 export const FOLD_STEPS = [
   /** The project name: 96 px instead of 140. */
   'name-narrow',
-  /** The view tabs: tighter padding. */
-  'tabs-tight',
-  /** The Export pill: its icon only (2.15). */
-  'export-icon',
+  /** The song's key: its short name ('C', not 'C major'). */
+  'key-short',
+  /**
+   * The transport stops being centred in the window and sits between the
+   * sides: centred, the sides need twice the wider of them (owner,
+   * 2026-10-22: the bar overlapped below about 1040 px).
+   */
+  'uncentre',
+  /** The tempo: its number only, no 'BPM' and no Tap (typing still sets it). */
+  'tempo-compact',
+  /** The project name: 64 px. */
+  'name-min',
+  /** The time signature: into the Settings menu (FoldedMenuItems). */
+  'metre-in-menu',
+  /** The metronome's switch: into the Settings menu (FoldedMenuItems). */
+  'click-in-menu',
 ] as const;
 
 export type FoldStep = (typeof FOLD_STEPS)[number];
@@ -76,6 +88,12 @@ export function useToolbarOverflow(
   zoneRefs: ReadonlyArray<RefObject<HTMLElement>>,
   chromePx: number,
   maxFold: number = MAX_FOLD,
+  /**
+   * Three zones with the middle one centred in the bar (the top bar's
+   * transport): the sides need room for twice the wider of them. A function
+   * says it per fold level (the top bar stops centring at 'uncentre').
+   */
+  centred: boolean | ((level: number) => boolean) = false,
 ): number {
   const [level, setLevel] = useState(0);
   const levelRef = useRef(level);
@@ -91,10 +109,14 @@ export function useToolbarOverflow(
       parseFloat(style.paddingLeft || '0') -
       parseFloat(style.paddingRight || '0');
     if (available <= 0) return;
-    let needed = chromePx;
-    for (const zone of zoneRefs) needed += zone.current?.scrollWidth ?? 0;
-    needed = Math.ceil(needed);
+    const zoneWidths = zoneRefs.map((zone) => zone.current?.scrollWidth ?? 0);
     const at = levelRef.current;
+    const centredNow = typeof centred === 'function' ? centred(at) : centred;
+    let needed =
+      centredNow && zoneWidths.length === 3
+        ? chromePx + zoneWidths[1] + 2 * Math.max(zoneWidths[0], zoneWidths[2])
+        : chromePx + zoneWidths.reduce((sum, w) => sum + w, 0);
+    needed = Math.ceil(needed);
     // Content changed since this level was measured: every level is stale.
     if (widths.current[at] !== undefined && widths.current[at] !== needed) {
       widths.current = [];
@@ -102,7 +124,7 @@ export function useToolbarOverflow(
     widths.current[at] = needed;
     const next = foldLevelFor(available, widths.current, maxFold);
     if (next !== at) setLevel(next);
-  }, [barRef, chromePx, zoneRefs, maxFold]);
+  }, [barRef, chromePx, zoneRefs, maxFold, centred]);
 
   // After every render of the bar, before paint.
   useLayoutEffect(settle);

@@ -101,6 +101,12 @@ export interface KeyDetection {
   modeDisplay: string;
   confidence: number;
   alternateKeys: AlternateKey[];
+  /**
+   * The key the notes alone suggest, when the student set the key: theirs
+   * is the key (confidence 1, no alternates), and this is only what the
+   * detector heard, for a hint when the two disagree.
+   */
+  fromNotes?: AlternateKey;
 }
 
 export interface AlternateKey {

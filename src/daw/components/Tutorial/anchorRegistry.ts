@@ -31,7 +31,7 @@ export interface Rect {
 }
 
 /**
- * Which effect rack an anchor belongs to. The side rail's Effects library
+ * Which effect rack an anchor belongs to. The Add effect picker
  * adds to one rack at a time (a track's, the master's or a return's;
  * shell/mix/rackTarget.ts) with the same `fx-add-*` ids, so each row says
  * which rack it adds to.
@@ -59,28 +59,22 @@ export const ANCHOR_FRAME_TASK = 'tutorial-anchors';
  * change (a control is renamed or moved), add the old id here so lessons,
  * classroom slides and saved content that still name it keep resolving. Only
  * real renames go here.
- *
- * The Stage B shell moved these Studio Basics anchors onto the controls that
- * took their place (docs/studio-tutorial-anchors.md):
  */
 export const ANCHOR_ALIASES: Readonly<Record<string, string>> = {
-  // The top bar's Back went; the bottom rail has Go to start.
-  'transport-back': 'transport-to-start',
-  // The Inspector toggle and the side panel's tabs became the side rail.
-  'inspector-toggle': 'rail-insight',
-  'insight-tab': 'rail-insight',
-  'library-tab': 'rail-library',
-  // The timeline's lane, ruler and clip menus are one canvas menu, with
-  // Paste here among its items.
-  'lane-menu': 'clip-menu',
-  'ruler-menu': 'clip-menu',
-  'lane-menu-paste': 'clip-menu-paste',
-  // The Piano Roll window became the dock's Notes tab.
-  'piano-roll-modal': 'dock-body',
-  'piano-roll-analyze': 'dock-analyze-notes',
-  'piano-roll-close': 'dock-toggle',
-  // Project ▾'s Lead sheet (MusicXML) went into its Notation… dialog.
-  'file-export-musicxml': 'file-export-notation',
+  // The Add-track picker became + Add track's menu (Audio, MIDI › an
+  // instrument, Upload; 2026-10-21): its category tiles, live-input choices
+  // and Import chip point at the menu's rows.
+  'add-track-cat-keys': 'add-track-midi',
+  'add-track-cat-drums': 'add-track-midi',
+  'add-track-cat-amp': 'add-track-audio',
+  'add-track-vocal-fx': 'add-track-audio',
+  'add-track-guitar-fx': 'add-track-audio',
+  'add-track-bass-fx': 'add-track-audio',
+  'add-track-import': 'add-track-upload',
+  // Add MIDI's Sampler and Organ went (2026-10-21): their old ids point at
+  // Add MIDI. The Flip a sample lesson still asks for a Sampler track.
+  'add-track-sampler': 'add-track-midi',
+  'add-track-tonewheel-organ': 'add-track-midi',
 };
 
 /** The id an anchor renders today, following ANCHOR_ALIASES. */
@@ -169,6 +163,9 @@ interface Candidate {
   rack: string | null;
 }
 
+/** A device preview (EffectPreview): its controls are pictures. */
+const PREVIEW_SELECTOR = '[data-fx-preview]';
+
 function candidatesOf(id: string): Candidate[] {
   const out: Candidate[] = [];
   const seen = new Set<Element>();
@@ -178,6 +175,8 @@ function candidatesOf(id: string): Candidate[] {
     out.push({ el, rack: meta.rack ?? el.getAttribute(RACK_ATTR) });
   }
   for (const el of document.querySelectorAll(selectorOf(id))) {
+    // The Add effect picker's device previews are pictures, never targets.
+    if (el.closest(PREVIEW_SELECTOR)) continue;
     if (!seen.has(el)) out.push({ el, rack: el.getAttribute(RACK_ATTR) });
   }
   return out;

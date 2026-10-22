@@ -1,109 +1,103 @@
-import { useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import { useRef } from 'react';
 import { cn } from '@/components/utilities';
 import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore } from '@/daw/store';
-import { TYPE_CLASS } from '@/daw/ui/styles';
+import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Toggle } from '@/daw/ui/Toggle';
 import { InsertList } from './InsertList';
 import { MasterBypass } from './master/MasterBypass';
-import { MasterGainFader } from './master/MasterGainFader';
-import { MasterOutputMeter } from './master/MasterOutputMeter';
-import { Spectrum } from './master/Spectrum';
+import { MasterVolumePill } from './master/MasterGainFader';
+import { MIX_STRIP_PX, STRIP_ROWS } from './MixStrip';
 import { allMuted, toggleMuteAll } from './muteAll';
-import { MIN_FADER_PX, useFaderLength } from './useFaderLength';
+import { openRack } from './rackTarget';
+import { useFaderLength } from './useFaderLength';
 
-// ── The Mix view's master column (milestone 2.10) ──────────────────────────
+// ── The Mix view's Master strip (milestone 2.10; a strip, 2026-10-21) ──────
 //
-// 240 px, pinned at the right of the strips. At the top, the master's gain
-// beside its output peak (the same parts as the dock's Master), filling
-// what the column has left; then Bypass and Mute All; then Mastering: the
-// master chain's names with their power dots (a click opens the master
-// rack in the RackDock) and the spectrum of the output, which makes way for
-// the fader when the column is short (a rack open on a Chromebook). Gain
-// Match stays hidden until it does something.
+// Pinned at the right, after Send A and B, and built as a strip (owner,
+// 2026-10-21): 96 px, under a neutral edge its name (a click opens the
+// master rack in the RackDock), its mastering chain (the effects' names
+// with their power dots), Bypass and Mute All where a track has its knobs
+// and Mute and Solo, then its volume pill over the mix's level, at the
+// tracks' height. The spectrum and the separate peak meter are gone: the
+// pill draws the level, as a track's does.
 
-export const MASTER_COLUMN_PX = 240;
+/** The value's line under the volume pill. */
+const VALUE_PX = 16;
 
-/** The value and caption lines under the fader and the meter. */
-const UNDER_PX = 36;
-/** The micro heading's line. */
-const HEADING_PX = 14;
-/**
- * Below this column height the spectrum makes way for the master fader:
- * at 1366×655 with a rack open, the fader would be at its 80 px floor and
- * the spectrum cut off.
- */
-const SPECTRUM_MIN_COLUMN_PX = 460;
-
-export function MasterColumn({ isReady }: { isReady: boolean }) {
+export function MasterColumn() {
+  const open = useStore((s) => s.mixRack?.kind === 'master');
   const box = useRef<HTMLDivElement>(null);
-  const length = useFaderLength(box, { reserve: UNDER_PX + 4 });
-  const column = useRef<HTMLElement>(null);
-  const roomy = useTallEnough(column, SPECTRUM_MIN_COLUMN_PX);
+  const length = useFaderLength(box, { reserve: VALUE_PX + 8 });
+  const show = () => openRack({ kind: 'master' });
 
   return (
     <aside
-      ref={column}
       data-testid="master-column"
+      data-tutorial-id="master-strip"
       aria-label="Master"
-      className="flex min-h-0 shrink-0 flex-col gap-2 overflow-y-auto border-l border-daw-hairline bg-daw-surface-1 px-3 pb-3 pt-2"
-      style={{ width: MASTER_COLUMN_PX }}
+      className={cn(
+        'flex min-h-fit shrink-0 flex-col',
+        open ? 'bg-daw-selected' : 'bg-daw-surface-1',
+        TRANSITION,
+      )}
+      style={{ width: MIX_STRIP_PX }}
     >
       <div
-        data-tutorial-id="master-strip"
-        className="flex flex-1 flex-col gap-1"
-        // Never shorter than its heading and the shortest fader with its
-        // value: a short window scrolls the column instead of cutting Peak.
-        style={{ minHeight: HEADING_PX + 4 + MIN_FADER_PX + UNDER_PX }}
+        className="flex shrink-0 flex-col"
+        style={{ height: STRIP_ROWS.header }}
       >
-        <h3 className={cn(TYPE_CLASS.micro, 'shrink-0 text-daw-text-3')}>
+        <span aria-hidden className="h-1 shrink-0 bg-daw-outline" />
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-label="Master: show its mastering effects"
+          data-hint={hintText('Master', 'Show the mastering effects')}
+          data-testid="master-strip-name"
+          onClick={show}
+          className={cn(
+            TYPE_CLASS.label,
+            'mx-1 mt-0.5 h-6 truncate rounded-[var(--daw-radius-sm)] px-1 text-left font-bold text-daw-text hover:bg-daw-hover',
+            TRANSITION,
+            FOCUS_RING,
+          )}
+        >
           Master
-        </h3>
+        </button>
+      </div>
+      <div className="flex min-h-0 flex-1 flex-col gap-1 px-1 pb-2 pt-1">
+        <section
+          data-tutorial-id="mastering-section"
+          aria-label="Mastering"
+          className="flex min-h-0 flex-col"
+        >
+          {/* The R&B lesson's way back to the master's rack when it is shut. */}
+          <div data-tutorial-id="mastering-chain">
+            <InsertList target={{ kind: 'master' }} owner="Master" />
+          </div>
+        </section>
+        <div
+          className="flex shrink-0 items-center justify-center"
+          style={{ height: STRIP_ROWS.knobs }}
+        >
+          <MasterBypass testId="master-bypass" />
+        </div>
+        <div
+          className="flex shrink-0 items-center justify-center"
+          style={{ height: STRIP_ROWS.toggles }}
+        >
+          <MuteAll />
+        </div>
         <div
           ref={box}
-          className="flex min-h-0 flex-1 items-start justify-center gap-4 overflow-hidden pt-1"
+          data-testid="master-strip-fader"
+          className="flex min-h-[100px] flex-1 flex-col items-center overflow-hidden pt-1"
         >
-          <MasterGainFader length={length} />
-          <MasterOutputMeter length={length} />
+          <MasterVolumePill length={length} valueHeight={VALUE_PX} />
         </div>
       </div>
-
-      <div className="flex shrink-0 items-center gap-1">
-        <MasterBypass testId="master-bypass" />
-        <MuteAll />
-      </div>
-
-      <section
-        data-tutorial-id="mastering-section"
-        aria-label="Mastering"
-        className="flex shrink-0 flex-col gap-1 border-t border-daw-hairline pt-2"
-      >
-        <h3 className={cn(TYPE_CLASS.micro, 'text-daw-text-3')}>Mastering</h3>
-        {/* The R&B lesson's way back to the master's rack when it is shut. */}
-        <div data-tutorial-id="mastering-chain">
-          <InsertList target={{ kind: 'master' }} owner="Master" />
-        </div>
-        {roomy ? <Spectrum isReady={isReady} /> : null}
-      </section>
     </aside>
   );
-}
-
-/** Whether the element is at least `px` tall, as it resizes. */
-function useTallEnough(ref: RefObject<HTMLElement>, px: number): boolean {
-  const [tall, setTall] = useState(true);
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    // Not laid out yet (0): as tall as it needs.
-    const measure = () =>
-      setTall(el.clientHeight === 0 || el.clientHeight >= px);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [ref, px]);
-  return tall;
 }
 
 /** Mutes every track, and again unmutes the ones it muted (muteAll.ts). */

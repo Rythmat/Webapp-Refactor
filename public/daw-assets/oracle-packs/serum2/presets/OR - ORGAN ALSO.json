@@ -10,7 +10,7 @@
       "fine": 0,
       "wtPosition": 0.39293712319340557,
       "pan": 0,
-      "level": 0.5592666078620745,
+      "level": 1,
       "unisonVoices": 4,
       "unisonDetune": 0,
       "unisonBlend": 0,
@@ -22,11 +22,11 @@
       "waveform": "sawtooth",
       "wavetable": "S2/Basic Shapes",
       "octave": 0,
-      "semitone": 0,
+      "semitone": 7,
       "fine": 0,
       "wtPosition": 0.5522117812652141,
       "pan": 0,
-      "level": 0.2516646586062876,
+      "level": 0.449990496604712,
       "unisonVoices": 4,
       "unisonDetune": 0,
       "unisonBlend": 0.5955146551132202,
@@ -1443,7 +1443,7 @@
       },
       "target": {
         "source": "osc1",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.3595312833786011,
       "polarity": "unipolar",
@@ -1458,7 +1458,7 @@
       },
       "target": {
         "source": "osc2",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.35656261444091797,
       "polarity": "unipolar",
@@ -1535,7 +1535,7 @@
         "source": "osc1",
         "param": "level"
       },
-      "amount": 0.45269525051116943,
+      "amount": 0.9053905010223389,
       "polarity": "bipolar",
       "curve": "linear",
       "enabled": true
@@ -1550,7 +1550,7 @@
         "source": "osc2",
         "param": "level"
       },
-      "amount": 0.45269525051116943,
+      "amount": 0.9053905010223389,
       "polarity": "bipolar",
       "curve": "linear",
       "enabled": true
@@ -1560,7 +1560,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.39358957495024166,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,

@@ -8,7 +8,7 @@
  * and the console all play a sound the same way.
  */
 
-import type { InstrumentType, StudioBassVoice } from '@/daw/store/tracksSlice';
+import type { SoundType, StudioBassVoice } from '@/daw/store/tracksSlice';
 import { FACTORY_PRESETS } from '@/daw/oracle-synth/store/presets/factoryPresets';
 import {
   applySynthStateToEngine,
@@ -28,20 +28,21 @@ export const SYNTH_PREFIX = 'oracle-synth:';
 
 /** A sound string, read. */
 export interface PartSound {
-  type: InstrumentType;
+  /** What plays it; undefined for a sampled instrument (`sampleId`). */
+  type?: SoundType;
   /** Oracle Synth: the factory or Music Atlas patch name. */
   synthPatch?: string;
   bassVoice?: StudioBassVoice;
   gmProgram?: number;
   drumKit?: string;
-  /** A sampled instrument's id ('sample:<id>'); `type` is 'sampler'. */
+  /** A sampled instrument's id ('sample:<id>'). */
   sampleId?: string;
 }
 
 export function parseSound(sound: string): PartSound {
   if (sound.startsWith(SAMPLE_PREFIX))
-    return { type: 'sampler', sampleId: sound.slice(SAMPLE_PREFIX.length) };
-  const [type, arg] = sound.split(':') as [InstrumentType, string | undefined];
+    return { sampleId: sound.slice(SAMPLE_PREFIX.length) };
+  const [type, arg] = sound.split(':') as [SoundType, string | undefined];
   if (type === 'bass-electric' && arg)
     return { type, bassVoice: arg as StudioBassVoice };
   if (type === 'soundfont') return { type, gmProgram: Number(arg ?? 0) };
@@ -57,6 +58,7 @@ export function createSoundInstrument(sound: string): InstrumentAdapter | null {
     const file = getSampleInstrument(parsed.sampleId);
     return file ? new SamplerInstrument(sampleInstrumentConfig(file)) : null;
   }
+  if (!parsed.type) return null;
   return createInstrument(
     parsed.type,
     parsed.gmProgram,

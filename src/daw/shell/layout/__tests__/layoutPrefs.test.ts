@@ -52,10 +52,10 @@ describe('the Inspector', () => {
   });
 
   it('keeps the student’s toggle for the view showing', () => {
-    s().setCurrentView('leadsheet');
+    s().setCurrentView('score');
     s().toggleLibrary();
     expect(s().libraryOpen).toBe(true);
-    expect(s().inspectorOpenByView).toEqual({ leadsheet: true });
+    expect(s().inspectorOpenByView).toEqual({ score: true });
   });
 
   it('opens for the moment without changing the choice (a lesson step)', () => {
@@ -86,6 +86,13 @@ describe('the dock and the readout', () => {
     s().setDockHeight('fx', 0.5);
     s().setDockHeight('prism', 0.99);
     expect(s().dockHeights).toEqual({ fx: 0.5, prism: 0.85 });
+  });
+
+  it('forgets a tab’s height, so it opens at the default again', () => {
+    s().setDockHeight('fx', 0.5);
+    s().setDockHeight('rack', 0.6);
+    s().setDockHeight('rack', null);
+    expect(s().dockHeights).toEqual({ fx: 0.5 });
   });
 
   it('switches the readout', () => {

@@ -7,9 +7,11 @@
  *
  * Preview uses a standalone SoundFontAdapter routed to the master gain,
  * picking a GM program based on the right-clicked track's instrument type.
- * Guitar-fx and bass-fx tracks show a sound picker dropdown.
+ * An Audio track with a guitar or bass amp (audioSource) shows a sound
+ * picker dropdown.
  */
 
+import { audioSourceOf, type AudioSource } from '@/daw/audio/audioSource';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ChevronLeft,
@@ -91,24 +93,14 @@ const BASS_PROGRAMS = GM_PROGRAMS.filter(
 
 function defaultGmProgram(
   instrument: InstrumentType,
-  gmProgram?: number,
+  gmProgram: number | undefined,
+  source: AudioSource,
 ): number {
-  switch (instrument) {
-    case 'soundfont':
-      return gmProgram ?? 0;
-    case 'guitar-fx':
-      return 27; // Electric Guitar (clean)
-    case 'bass-fx':
-      return 33; // Electric Bass (finger)
-    case 'electric-piano':
-      return 4;
-    case 'bass-electric':
-      return 33; // Electric Bass (finger)
-    case 'guitar-acoustic':
-      return 25; // Acoustic Guitar (steel)
-    default:
-      return 0; // Acoustic Grand Piano
-  }
+  // An Audio track previews as what it records (audioSource).
+  if (source === 'guitar') return 27; // Electric Guitar (clean)
+  if (source === 'bass') return 33; // Electric Bass (finger)
+  // An Instruments track previews its own program; else the grand piano.
+  return instrument === 'soundfont' ? (gmProgram ?? 0) : 0;
 }
 
 // ── Main Modal ─────────────────────────────────────────────────────────────
@@ -157,19 +149,31 @@ export function PrismSuggestionModal({
   // Determine track instrument type
   const trackInfo = useMemo(() => {
     if (!trackId)
-      return { instrument: 'none' as InstrumentType, gmProgram: undefined };
+      return {
+        instrument: 'none' as InstrumentType,
+        gmProgram: undefined,
+        source: 'other' as AudioSource,
+      };
     const track = useStore.getState().tracks.find((t) => t.id === trackId);
     if (!track)
-      return { instrument: 'none' as InstrumentType, gmProgram: undefined };
-    return { instrument: track.instrument, gmProgram: track.gmProgram };
+      return {
+        instrument: 'none' as InstrumentType,
+        gmProgram: undefined,
+        source: 'other' as AudioSource,
+      };
+    return {
+      instrument: track.instrument,
+      gmProgram: track.gmProgram,
+      source: audioSourceOf(track),
+    };
   }, [trackId]);
 
   const showSoundPicker =
-    trackInfo.instrument === 'guitar-fx' || trackInfo.instrument === 'bass-fx';
+    trackInfo.source === 'guitar' || trackInfo.source === 'bass';
   const soundPickerPrograms =
-    trackInfo.instrument === 'guitar-fx'
+    trackInfo.source === 'guitar'
       ? GUITAR_PROGRAMS
-      : trackInfo.instrument === 'bass-fx'
+      : trackInfo.source === 'bass'
         ? BASS_PROGRAMS
         : [];
 
@@ -181,7 +185,11 @@ export function PrismSuggestionModal({
   useEffect(() => {
     if (!isOpen || !audioReady || !audioEngine.getIsInitialized()) return;
 
-    const program = defaultGmProgram(trackInfo.instrument, trackInfo.gmProgram);
+    const program = defaultGmProgram(
+      trackInfo.instrument,
+      trackInfo.gmProgram,
+      trackInfo.source,
+    );
     setPreviewProgram(program);
 
     const adapter = new SoundFontAdapter(program);

@@ -128,7 +128,7 @@ afterEach(() => {
 async function liveWork(): Promise<void> {
   const opened = await openSession({ kind: 'new' }, { source: 'menu' });
   if (opened.status !== 'ready') throw new Error('no live session');
-  s().addTrack('midi', 'piano-sampler', 'Mine');
+  s().addTrack('midi', 'soundfont', 'Mine');
 }
 
 describe('a song link', () => {

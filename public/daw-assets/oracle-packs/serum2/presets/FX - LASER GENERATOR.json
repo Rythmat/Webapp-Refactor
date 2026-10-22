@@ -4,13 +4,13 @@
   "oscillators": [
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Saw",
       "octave": -3,
       "semitone": 0,
       "fine": 0,
       "wtPosition": 0,
       "pan": 0,
-      "level": 0.75,
+      "level": 1,
       "unisonVoices": 1,
       "unisonDetune": 0.25,
       "unisonBlend": 0.5,
@@ -20,7 +20,7 @@
     },
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Saw",
       "octave": -3,
       "semitone": -12,
       "fine": 0,
@@ -108,44 +108,18 @@
             "curve": -0.17647058823529427
           },
           {
-            "time": 0.25,
+            "time": 1,
             "value": 0
-          },
+          }
+        ],
+        [
           {
-            "time": 0.25,
+            "time": 0,
             "value": 0,
             "curve": 0.3529411764705883
           },
           {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.17647058823529427
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0,
-            "curve": 0.3529411764705883
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.17647058823529427
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0,
-            "curve": 0.3529411764705883
-          },
-          {
-            "time": 0.75,
+            "time": 0,
             "value": 1,
             "curve": -0.17647058823529427
           },
@@ -166,48 +140,6 @@
             "curve": -0.17647058823529427
           },
           {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0,
-            "curve": 0.3529411764705883
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.17647058823529427
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0,
-            "curve": 0.3529411764705883
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.17647058823529427
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0,
-            "curve": 0.3529411764705883
-          },
-          {
-            "time": 0.75,
-            "value": 1,
-            "curve": -0.17647058823529427
-          },
-          {
             "time": 1,
             "value": 0
           }
@@ -220,106 +152,6 @@
           },
           {
             "time": 0,
-            "value": 1,
-            "curve": -0.17647058823529427
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0,
-            "curve": 0.3529411764705883
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.17647058823529427
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0,
-            "curve": 0.3529411764705883
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.17647058823529427
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0,
-            "curve": 0.3529411764705883
-          },
-          {
-            "time": 0.75,
-            "value": 1,
-            "curve": -0.17647058823529427
-          },
-          {
-            "time": 1,
-            "value": 0
-          }
-        ],
-        [
-          {
-            "time": 0,
-            "value": 0,
-            "curve": 0.3529411764705883
-          },
-          {
-            "time": 0,
-            "value": 1,
-            "curve": -0.17647058823529427
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0,
-            "curve": 0.3529411764705883
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.17647058823529427
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0,
-            "curve": 0.3529411764705883
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.17647058823529427
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0,
-            "curve": 0.3529411764705883
-          },
-          {
-            "time": 0.75,
             "value": 1,
             "curve": -0.17647058823529427
           },
@@ -328,7 +160,8 @@
             "value": 0
           }
         ]
-      ]
+      ],
+      "once": true
     },
     {
       "rateDivs": [
@@ -547,7 +380,7 @@
       },
       "target": {
         "source": "osc1",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.16750001907348633,
       "polarity": "bipolar",
@@ -564,7 +397,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.5877193212509155,
+      "amount": 0.671674499420764,
       "polarity": "bipolar",
       "curve": "linear",
       "enabled": true
@@ -577,7 +410,7 @@
       },
       "target": {
         "source": "osc2",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.16750001907348633,
       "polarity": "bipolar",
@@ -594,7 +427,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.6271929740905762,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -639,7 +472,7 @@
         "source": "flt2",
         "param": "cutoff"
       },
-      "amount": 0.456140398979187,
+      "amount": 0.5212996460586512,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -649,7 +482,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.11160484447691583,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -678,7 +511,7 @@
     },
     "drive": {
       "enabled": true,
-      "amount": 0.39912280440330505,
+      "amount": 0.3,
       "mix": 0.5
     },
     "reverb": {

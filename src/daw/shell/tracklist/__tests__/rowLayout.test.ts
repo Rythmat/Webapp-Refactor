@@ -14,10 +14,10 @@ const tracks = ['a', 'b', 'c', 'd'];
 describe('the row layout', () => {
   const layout = rowLayoutOf(tracks);
 
-  it('places 64 px rows one under another', () => {
-    expect(TRACK_ROW_PX).toBe(64);
-    expect(layout.tops).toEqual([0, 64, 128, 192]);
-    expect(layout.total).toBe(256);
+  it('places 86 px rows one under another (Suno’s header)', () => {
+    expect(TRACK_ROW_PX).toBe(86);
+    expect(layout.tops).toEqual([0, 86, 172, 258]);
+    expect(layout.total).toBe(344);
   });
 
   it('is shared while the tracks array is the same', () => {
@@ -27,11 +27,11 @@ describe('the row layout', () => {
 
   it('finds the row at a y, and says when it is above or below them', () => {
     expect(rowIndexAt(layout, 0)).toBe(0);
-    expect(rowIndexAt(layout, 63.9)).toBe(0);
-    expect(rowIndexAt(layout, 64)).toBe(1);
-    expect(rowIndexAt(layout, 255)).toBe(3);
+    expect(rowIndexAt(layout, 85.9)).toBe(0);
+    expect(rowIndexAt(layout, 86)).toBe(1);
+    expect(rowIndexAt(layout, 343)).toBe(3);
     expect(rowIndexAt(layout, -1)).toBe(-1);
-    expect(rowIndexAt(layout, 256)).toBe(4);
+    expect(rowIndexAt(layout, 344)).toBe(4);
     expect(clampedRowAt(layout, -50)).toBe(0);
     expect(clampedRowAt(layout, 9999)).toBe(3);
     expect(clampedRowAt(rowLayoutOf([]), 10)).toBe(0);
@@ -43,13 +43,13 @@ describe('reordering', () => {
 
   it('drops above a row from its top half, below it from its bottom half', () => {
     expect(dropGap(layout, 10)).toBe(0);
-    expect(dropGap(layout, 40)).toBe(1);
-    expect(dropGap(layout, 70)).toBe(1);
-    expect(dropGap(layout, 250)).toBe(4);
+    expect(dropGap(layout, 50)).toBe(1);
+    expect(dropGap(layout, 95)).toBe(1);
+    expect(dropGap(layout, 335)).toBe(4);
     expect(dropGap(layout, -20)).toBe(0);
     expect(dropGap(layout, 900)).toBe(4);
-    expect(gapTop(layout, 2)).toBe(128);
-    expect(gapTop(layout, 4)).toBe(256);
+    expect(gapTop(layout, 2)).toBe(172);
+    expect(gapTop(layout, 4)).toBe(344);
   });
 
   it('gives the index the row ends up at once it has left its place', () => {

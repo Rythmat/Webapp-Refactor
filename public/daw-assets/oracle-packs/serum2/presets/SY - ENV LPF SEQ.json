@@ -4,7 +4,7 @@
   "oscillators": [
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Saw",
       "octave": -1,
       "semitone": 0,
       "fine": -13.232421875,
@@ -837,7 +837,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.7668585777282715,
+      "amount": 0.8764036380935186,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -882,7 +882,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.46378767490386963,
+      "amount": 0.530039328493646,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -897,7 +897,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": -0.31194615364074707,
+      "amount": -0.3565073820389653,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -910,7 +910,7 @@
       },
       "target": {
         "source": "osc2",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.1875,
       "polarity": "bipolar",
@@ -927,7 +927,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": -0.1274283528327942,
+      "amount": -0.14563137879967425,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -942,7 +942,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.7515130043029785,
+      "amount": 0.8588659632612192,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -952,7 +952,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.08717332107229084,
+  "masterVolume": 0.06215457792454337,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -981,7 +981,7 @@
     },
     "drive": {
       "enabled": true,
-      "amount": 0.30388227105140686,
+      "amount": 0.3,
       "mix": 0.5
     },
     "reverb": {

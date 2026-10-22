@@ -171,8 +171,9 @@ describe('+ on a part', () => {
     expect(track).toMatchObject({
       type: 'midi',
       name: BASS.name,
-      instrument: 'bass-electric',
-      bassVoice: '808',
+      // The 808 bass, as an Instruments track: Synth Bass 1.
+      instrument: 'soundfont',
+      gmProgram: 38,
       trackRole: 'bass',
     });
     expect(track.midiClips).toHaveLength(1);
@@ -341,7 +342,7 @@ describe('at the track limit', () => {
   function full() {
     useStore.setState(useStore.getInitialState(), true);
     for (let i = 0; i < MAX_TOTAL_TRACKS; i++) {
-      s().addTrack('midi', 'piano-sampler', `Keys ${i}`);
+      s().addTrack('midi', 'soundfont', `Keys ${i}`);
     }
     useStore.setState({ rootNote: null, bpm: 120 });
     song();
@@ -443,7 +444,7 @@ describe('a drop', () => {
   let drums = '';
 
   beforeEach(() => {
-    keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    keys = s().addTrack('midi', 'soundfont', 'Keys');
     drums = s().addTrack('midi', 'drum-machine', 'Drums');
     song({ ...C_MAJOR, bpm: GROOVE.bpm!, selectedTrackId: null });
   });
@@ -460,7 +461,7 @@ describe('a drop', () => {
     expect(await addItem(KEYS, { trackId: keys, tick: 2 * BAR })).toBe(true);
     expect(s().tracks).toHaveLength(2);
     const track = s().tracks.find((t) => t.id === keys)!;
-    expect(track.instrument).toBe('piano-sampler');
+    expect(track.instrument).toBe('soundfont');
     expect(track.name).toBe('Keys');
     expect(track.midiClips).toHaveLength(1);
     expect(track.midiClips[0].startTick).toBe(2 * BAR);
@@ -517,7 +518,7 @@ describe('a drop', () => {
     expect(s().tracks.find((t) => t.id === drums)!.midiClips).toEqual([]);
     const made = s().tracks[2];
     expect(made.name).toBe(KEYS.name);
-    expect(made.instrument).toBe('electric-piano');
+    expect(made).toMatchObject({ instrument: 'soundfont', gmProgram: 4 });
     expect(made.midiClips[0].startTick).toBe(3 * BAR);
   });
 });
@@ -581,7 +582,7 @@ describe('the dock after an add', () => {
 // Review fixes (2.14).
 describe('what a waiting question and a load meet', () => {
   it('makes a new drum track when the lane it was dropped on went while the question waited', async () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     const drums = s().addTrack('midi', 'drum-machine', 'Drums');
     song({ ...C_MAJOR, bpm: 120 });
     const added = addItem(GROOVE, { trackId: drums, tick: BAR });

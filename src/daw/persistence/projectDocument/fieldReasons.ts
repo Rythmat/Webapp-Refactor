@@ -128,6 +128,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
     'The two return buses. Today’s cloud payload sends them at its top level, but nobody has confirmed that music-atlas-api stores that field (its StudioProjectInput type has no `returns`). The 1.5 document carries them either way.',
   masteringBypass:
     'A/B listening on this device; an export always runs the stored chain.',
+  masterMuted:
+    'The Master strip’s mute (2026-10-22): listening on this device for now, as a track’s mute is this student’s own; a project opens heard, and an export is never silent.',
 
   // ── view ──
   clipColorMode:
@@ -148,6 +150,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   activeTool: 'The editing tool: every project opens with the cursor.',
   scoreNoteInput:
     'The Score’s note input mode, like the editing tool: every project opens selecting, not writing.',
+  scoreHiddenTrackIds:
+    'Which tracks the Score leaves off its staves: a way of looking at the song, so every project opens with every staff.',
   selectedClipId: SELECTION,
   selectedClipTrackId: SELECTION,
   parkedClipSelection:
@@ -234,8 +238,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   leadSheetSelectedChordIdx: SELECTION,
   selectedChordIds: SELECTION,
   selectedNotes: SELECTION,
-  fxLibraryReturn:
-    'Where the armed effect slot’s × puts the Inspector back: a moment in this session, never saved (milestone 2.8).',
+  effectPickerOpen:
+    'The Add effect picker showing: a moment in this session, never saved.',
   dockEffect: SELECTION,
   dockMaster:
     'Master shown in the dock’s slot: a moment of this session; a project opens with its tracks (milestone 2.9).',

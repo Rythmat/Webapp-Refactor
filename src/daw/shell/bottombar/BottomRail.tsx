@@ -1,81 +1,79 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo } from 'react';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { HintLine } from '@/daw/shell/help/HintLine';
-import { MasterRow } from './MasterRow';
-import { SongControls } from './SongControls';
-import { TransportControls } from './TransportControls';
+import { useStore } from '@/daw/store';
+import { PILL_ZONE } from '@/daw/ui/Pill';
+import { ViewTabs } from '../topbar/ViewTabs';
+import { dockKindOf, type DockKind } from '../dock/dockTabs';
+import { DockViews } from './DockViews';
+import { TypingKeys } from './TypingKeys';
 
-// ── The bottom rail (B4a) ──────────────────────────────────────────────────
+// ── The bottom rail (B4a; the floating frame, S0) ──────────────────────────
 //
-// 44 px, the window's full width, under every view (owner, 2026-10-16,
-// after Soundtrap's): Master at the left (volume, level, its automation,
-// Effects → Mix), the transport in the middle (Play, Record, the readout,
-// Loop, Click and its count-in), the song at the right (Key, Tempo, Metre).
-// The top bar keeps the project, the views, Share and the account. The
-// transport stays centred in the window whatever the sides hold; below
-// SHORT_KEY_PX of width the key drops its mode word ('C', not 'C major').
-// The Master zone's free width after Master holds the hover hint line
-// (2.11): what the control under the pointer does; it hides when narrow.
+// 44 px, the window's full width, under every view, its zones in pills on
+// the page (owner, 2026-10-21): at the left, Create's dock views
+// (Instrument · FX and Automation · Edit, DockViews), Typing keys (the
+// computer keyboard's switch, in every view); the view tabs (Create, Mix,
+// Score) centred in the window; and the hover hint line (2.11) centred in
+// the space to their right (owner, 2026-10-22). Learn went from the right
+// (owner, 2026-10-21): the hover hints switch is in the top bar's ⋯ menu.
+// The transport and the song moved to the top bar, and Master to the foot
+// of the track column (the Master strip, TrackArea).
 
-const SHORT_KEY_PX = 1100;
+/** The tracks the computer keyboard plays no notes on. */
+const NOTELESS: ReadonlySet<DockKind> = new Set<DockKind>([
+  'audio',
+  'audio-in',
+]);
 
-export const BottomRail = memo(function BottomRail({
-  isReady,
-  onInit,
-}: {
-  isReady: boolean;
-  onInit(): void;
-}) {
+export const BottomRail = memo(function BottomRail() {
   useDevCommitCount('BottomRail');
-  const ref = useRef<HTMLDivElement>(null);
-  const narrow = useNarrow(ref, SHORT_KEY_PX);
+  // The dock and the automation lane are Create's (StudioShell): its
+  // timeline is the practice view's too until a practice session exists.
+  const create = useStore(
+    (s) =>
+      s.currentView === 'arrange' ||
+      (s.currentView === 'practice' && s.practiceSession === null),
+  );
+  // The computer keyboard plays notes: no Typing keys while an audio track
+  // (an Audio track or an upload) or Master is selected (owner,
+  // 2026-10-22).
+  const typingApplies = useStore(
+    (s) =>
+      !s.dockMaster &&
+      !NOTELESS.has(
+        dockKindOf(s.tracks.find((t) => t.id === s.selectedTrackId)),
+      ),
+  );
   return (
     <div
-      ref={ref}
       data-testid="bottom-rail"
-      className="grid h-11 items-center gap-2 border-t border-daw-hairline bg-daw-bg px-3"
+      className="grid h-11 items-center gap-2 px-2"
       style={{ gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)' }}
     >
       <div
-        role="group"
-        aria-label="Master"
-        data-zone="master"
-        className="flex min-w-0 items-center gap-3 justify-self-stretch"
+        data-zone="editors"
+        className="flex min-w-0 items-center gap-2 justify-self-stretch"
       >
-        <MasterRow />
-        <HintLine />
+        {create ? <DockViews /> : null}
+        {typingApplies ? <TypingKeys /> : null}
       </div>
       <div
         role="group"
-        aria-label="Transport"
-        data-zone="transport"
-        className="flex items-center"
+        aria-label="Views"
+        data-zone="views"
+        className={PILL_ZONE}
       >
-        <TransportControls isReady={isReady} onInit={onInit} />
+        <ViewTabs />
       </div>
+      {/* The hover hint, centred in the space right of the view tabs
+          (owner, 2026-10-22). */}
       <div
-        role="group"
-        aria-label="Song"
-        data-zone="song"
-        className="flex min-w-0 items-center justify-self-end"
+        data-zone="hint"
+        className="flex min-w-0 items-center justify-self-stretch"
       >
-        <SongControls short={narrow} />
+        <HintLine align="center" />
       </div>
     </div>
   );
 });
-
-/** Whether the element is narrower than `px`, as it resizes. */
-function useNarrow(ref: React.RefObject<HTMLElement>, px: number): boolean {
-  const [narrow, setNarrow] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(([entry]) =>
-      setNarrow(entry.contentRect.width < px),
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [ref, px]);
-  return narrow;
-}

@@ -31,9 +31,6 @@ vi.mock('@/daw/shell/dock/DockEffects', () => ({
 vi.mock('@/daw/components/Prism/PrismPanel', () => ({
   PrismPanel: () => null,
 }));
-vi.mock('@/daw/components/Controls/GroovesBrowser', () => ({
-  GroovesBrowser: () => null,
-}));
 vi.mock('@/components/ui/LockedFeatureOverlay', () => ({
   LockedFeatureOverlay: ({ children }: { children: unknown }) => children,
 }));
@@ -58,7 +55,7 @@ const s = () => useStore.getState();
  * store, built off screen and cleared from the store again.
  */
 function project(names: string[]) {
-  const ids = names.map((name) => s().addTrack('midi', 'piano-sampler', name));
+  const ids = names.map((name) => s().addTrack('midi', 'soundfont', name));
   const built = { tracks: s().tracks, selectedTrackId: ids[0] };
   useStore.setState({ tracks: [], selectedTrackId: null });
   return built;
@@ -128,7 +125,7 @@ describe('The dock keeps a restored tab', () => {
     expect(s().channelStripTab).toBeNull();
 
     act(() => {
-      s().addTrack('midi', 'piano-sampler', 'Keys');
+      s().addTrack('midi', 'soundfont', 'Keys');
     });
 
     expect(s().channelStripTab).toBe('controls');
@@ -141,15 +138,19 @@ describe('The dock keeps a restored tab', () => {
     expect(s().channelStripTab).toBe('controls');
   });
 
-  it('takes the tab in its place when the restored tab doesn’t apply to the selected track', () => {
+  it('falls back to Instrument for the old Grooves tab a draft could hold', () => {
     const restored = keysProject();
     render(<Dock />);
 
-    // Grooves is a drum machine's tab; Keys is a melodic track, whose tab in
-    // that place is Prism (milestone 2.9; it fell back to Instrument).
-    act(() => useStore.setState({ ...restored, channelStripTab: 'grooves' }));
+    // The drums' Grooves tab went into their Instrument tab (2026-10-22).
+    act(() =>
+      useStore.setState({
+        ...restored,
+        channelStripTab: 'grooves' as ChannelStripTabId,
+      }),
+    );
 
-    expect(s().channelStripTab).toBe('prism');
+    expect(s().channelStripTab).toBe('controls');
   });
 
   it('falls back to Controls for a value that isn’t one of its tabs', () => {
@@ -224,7 +225,7 @@ describe('The dock on a project opened in place of another', () => {
     expect(s().channelStripTab).toBeNull();
 
     act(() => {
-      s().addTrack('midi', 'piano-sampler', 'Keys');
+      s().addTrack('midi', 'soundfont', 'Keys');
     });
     expect(s().channelStripTab).toBe('controls');
   });
@@ -235,7 +236,7 @@ describe('The dock on a project opened in place of another', () => {
 
     act(() => s().setChannelStripTab(null));
     act(() => {
-      s().addTrack('midi', 'piano-sampler', 'Pad');
+      s().addTrack('midi', 'soundfont', 'Pad');
     });
 
     expect(s().channelStripTab).toBeNull();
@@ -250,7 +251,7 @@ describe('The dock on a project opened in place of another', () => {
 
     act(() => s().setChannelStripTab(null));
     act(() => {
-      s().addTrack('midi', 'piano-sampler', 'Pad');
+      s().addTrack('midi', 'soundfont', 'Pad');
     });
 
     expect(s().channelStripTab).toBeNull();

@@ -57,11 +57,7 @@ const note = (n: number, startTick = 0) => ({
 });
 
 /** A bare MIDI track holding one note, for states past the track limit. */
-const bareTrack = (
-  id: string,
-  instrument = 'piano-sampler',
-  name = id,
-): Track =>
+const bareTrack = (id: string, instrument = 'soundfont', name = id): Track =>
   ({
     id,
     name,
@@ -90,8 +86,8 @@ beforeEach(() => {
 
 describe('exportProjectMidi', () => {
   it('leaves muted clips out of the file', async () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
-    const bass = s().addTrack('midi', 'piano-sampler', 'Bass');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
+    const bass = s().addTrack('midi', 'soundfont', 'Bass');
     s().addMidiClip(keys, {
       id: 'heard',
       startTick: 0,
@@ -117,7 +113,7 @@ describe('exportProjectMidi', () => {
   });
 
   it('writes no file when every clip is muted', async () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().addMidiClip(keys, {
       id: 'muted',
       startTick: 0,
@@ -133,8 +129,8 @@ describe('exportProjectMidi', () => {
 
   it('names the file after the song, and after the track for one track', async () => {
     s().setProjectName('Night Drive!');
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
-    const bass = s().addTrack('midi', 'piano-sampler', 'Bass Line');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
+    const bass = s().addTrack('midi', 'soundfont', 'Bass Line');
     s().addMidiClip(keys, {
       id: 'k',
       startTick: 0,
@@ -157,9 +153,9 @@ describe('exportProjectMidi', () => {
   });
 
   it('puts a drum track on channel 10 and the others on 1, 2…', async () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     const drums = s().addTrack('midi', 'drum-machine', 'Beat');
-    const bass = s().addTrack('midi', 'piano-sampler', 'Bass');
+    const bass = s().addTrack('midi', 'soundfont', 'Bass');
     for (const id of [keys, drums, bass]) {
       s().addMidiClip(id, {
         id: `${id}-c`,
@@ -194,8 +190,8 @@ describe('planProjectMidi', () => {
   it('knows a kit by its role too, and every kit shares channel 10', () => {
     const plan = planProjectMidi(
       bareState([
-        bareTrack('a', 'piano-sampler', 'Drums'),
-        bareTrack('b', 'piano-sampler', 'Piano'),
+        bareTrack('a', 'soundfont', 'Drums'),
+        bareTrack('b', 'soundfont', 'Piano'),
         bareTrack('c', 'drum-machine', 'Perc'),
       ]),
     )!;
@@ -230,13 +226,13 @@ describe('planProjectMidi', () => {
 
   it('falls back to "mixdown" for a song without a name', () => {
     const plan = planProjectMidi({
-      ...bareState([bareTrack('a', 'piano-sampler', '???')]),
+      ...bareState([bareTrack('a', 'soundfont', '???')]),
       projectName: '',
     })!;
     expect(plan.filename).toBe('mixdown.mid');
     expect(
       planProjectMidi(
-        { ...bareState([bareTrack('a', 'piano-sampler', '???')]) },
+        { ...bareState([bareTrack('a', 'soundfont', '???')]) },
         { trackIds: ['a'] },
       )!.filename,
     ).toBe('night-drive-track.mid');
@@ -292,11 +288,9 @@ describe('the MIDI file, read back', () => {
     s().setTimeSignature(6, 8);
     s().setRootNote(2); // D
     s().setMode('ionian');
-    const keys = s().addTrack('midi', 'electric-piano', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys', { gmProgram: 4 });
     const drums = s().addTrack('midi', 'drum-machine', 'Beat');
-    const bass = s().addTrack('midi', 'bass-electric', 'Bass', {
-      bassVoice: 'fretless',
-    });
+    const bass = s().addTrack('midi', 'soundfont', 'Bass', { gmProgram: 35 });
     const synth = s().addTrack('midi', 'oracle-synth', 'Lead');
     // A clip at bar 3 (6/8: 1440 ticks a bar) with a note 240 ticks in.
     s().addMidiClip(keys, {
@@ -339,7 +333,8 @@ describe('the MIDI file, read back', () => {
     expect(d.channel).toBe(9);
     expect(d.instrument.percussion).toBe(true);
     expect([k.channel, b.channel, l.channel]).toEqual([0, 1, 2]);
-    // Electric Piano 1, Fretless Bass; the Oracle synth has no GM match.
+    // Each Instruments track's own program (Electric Piano 1, Fretless
+    // Bass); the Oracle synth has no GM match.
     expect(k.instrument.number).toBe(4);
     expect(b.instrument.number).toBe(35);
     expect(l.instrument.number).toBe(0);
@@ -355,7 +350,7 @@ describe('the MIDI file, read back', () => {
   it('writes a minor-third mode as minor with its parent signature', async () => {
     s().setRootNote(9); // A
     s().setMode('aeolian');
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().addMidiClip(keys, {
       id: 'k',
       startTick: 0,
@@ -377,7 +372,7 @@ describe('the MIDI file, read back', () => {
 
   it('writes no key signature for a song without a key', async () => {
     s().setRootNote(null);
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().addMidiClip(keys, {
       id: 'k',
       startTick: 0,
@@ -390,7 +385,7 @@ describe('the MIDI file, read back', () => {
   it('hands the key to the writer from buildProjectMidi', async () => {
     s().setRootNote(5);
     s().setMode('ionian');
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().addMidiClip(keys, {
       id: 'k',
       startTick: 0,
@@ -413,7 +408,7 @@ describe('exportProjectMidiOrSay', () => {
   });
 
   it('says nothing when it writes a file', async () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().addMidiClip(keys, {
       id: 'k',
       startTick: 0,

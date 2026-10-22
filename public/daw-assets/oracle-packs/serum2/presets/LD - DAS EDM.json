@@ -4,7 +4,7 @@
   "oscillators": [
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Saw",
       "octave": 0,
       "semitone": 0,
       "fine": 0,
@@ -20,7 +20,7 @@
     },
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Saw",
       "octave": 0,
       "semitone": 0,
       "fine": 0,
@@ -106,55 +106,7 @@
             "value": 1
           },
           {
-            "time": 0.017202107860110803,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1
-          },
-          {
-            "time": 0.2672021078601108,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1
-          },
-          {
-            "time": 0.5172021078601108,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1
-          },
-          {
-            "time": 0.7672021078601108,
+            "time": 0.06880843144044321,
             "value": 0
           },
           {
@@ -172,55 +124,7 @@
             "value": 1
           },
           {
-            "time": 0.017202107860110803,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1
-          },
-          {
-            "time": 0.2672021078601108,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1
-          },
-          {
-            "time": 0.5172021078601108,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1
-          },
-          {
-            "time": 0.7672021078601108,
+            "time": 0.06880843144044321,
             "value": 0
           },
           {
@@ -238,55 +142,7 @@
             "value": 1
           },
           {
-            "time": 0.017202107860110803,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1
-          },
-          {
-            "time": 0.2672021078601108,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1
-          },
-          {
-            "time": 0.5172021078601108,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1
-          },
-          {
-            "time": 0.7672021078601108,
+            "time": 0.06880843144044321,
             "value": 0
           },
           {
@@ -304,55 +160,7 @@
             "value": 1
           },
           {
-            "time": 0.017202107860110803,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1
-          },
-          {
-            "time": 0.2672021078601108,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1
-          },
-          {
-            "time": 0.5172021078601108,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1
-          },
-          {
-            "time": 0.7672021078601108,
+            "time": 0.06880843144044321,
             "value": 0
           },
           {
@@ -360,7 +168,8 @@
             "value": 0
           }
         ]
-      ]
+      ],
+      "once": true
     },
     {
       "rateDivs": [
@@ -611,7 +420,7 @@
         "source": "osc2",
         "param": "level"
       },
-      "amount": 0.6950041055679321,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -621,7 +430,7 @@
   "voiceCount": 8,
   "glide": 0.21067622155232635,
   "spread": 0,
-  "masterVolume": 0.23087595425304622,
+  "masterVolume": 0.11012783017870303,
   "fx": {
     "chorus": {
       "enabled": false,

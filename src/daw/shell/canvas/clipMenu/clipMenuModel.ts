@@ -92,6 +92,8 @@ export type MenuState = Pick<
   | 'loopStart'
   | 'loopEnd'
   | 'isRecording'
+  | 'chordRegions'
+  | 'selectedChordIds'
 >;
 
 /** Why the clipboard's clip can't be pasted on `track`, or undefined. */
@@ -446,6 +448,35 @@ function sectionMenu(
   ];
 }
 
+/**
+ * A chord on the chord ruler (owner, 2026-10-21): type another over it, put
+ * one in, delete it (or every selected chord, when it is one of them).
+ */
+function chordMenu(
+  state: MenuState,
+  target: Extract<CanvasMenuTarget, { kind: 'chord' }>,
+): MenuModel {
+  if (!state.chordRegions.some((r) => r.id === target.chordId)) return [];
+  const selected = state.selectedChordIds.includes(target.chordId)
+    ? state.selectedChordIds.length
+    : 1;
+  return [
+    [
+      { type: 'item', id: 'editChord', label: 'Edit chord…' },
+      { type: 'item', id: 'insertChord', label: 'Insert chord here' },
+    ],
+    [
+      {
+        type: 'item',
+        id: 'deleteChord',
+        label: selected > 1 ? `Delete ${selected} chords` : 'Delete chord',
+        command: 'clip.delete',
+        danger: true,
+      },
+    ],
+  ];
+}
+
 /** The menu for `target` now, or no groups when it has gone. */
 export function canvasMenuModel(
   state: MenuState,
@@ -474,6 +505,12 @@ export function canvasMenuModel(
       return [[{ type: 'item', id: 'addMarker', label: 'Add marker here' }]];
     case 'section':
       return sectionMenu(state, target);
+    case 'chord':
+      return chordMenu(state, target);
+    case 'chordLane':
+      return [
+        [{ type: 'item', id: 'insertChord', label: 'Insert chord here' }],
+      ];
   }
 }
 

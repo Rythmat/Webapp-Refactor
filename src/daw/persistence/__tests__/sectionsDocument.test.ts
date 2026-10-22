@@ -224,7 +224,7 @@ describe('a draft', () => {
       durationTicks: 16 * BAR,
       events: [],
     };
-    const keys = s().addTrack('midi', 'piano-sampler', 'Melody');
+    const keys = s().addTrack('midi', 'soundfont', 'Melody');
     s().addMidiClip(keys, clip);
     const stored = JSON.parse(
       JSON.stringify(encodeSession(s() as ProjectSnapshot, noPatches, 1)),

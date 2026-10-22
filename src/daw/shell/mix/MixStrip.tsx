@@ -1,4 +1,5 @@
 import { memo, useRef } from 'react';
+import { useTrackColor } from '@/daw/harmony/trackColor';
 import { useShallow } from 'zustand/react/shallow';
 import { cn } from '@/components/utilities';
 import { useTrackPresence } from '@/daw/collab/presence';
@@ -10,13 +11,12 @@ import {
 } from '@/daw/hooks/useMixControls';
 import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore, useTrack, type Track } from '@/daw/store';
-import { Fader } from '@/daw/ui/Fader';
-import { formatGain } from '@/daw/ui/format';
+import { formatPan } from '@/daw/ui/format';
 import { Knob } from '@/daw/ui/Knob';
-import { Meter } from '@/daw/ui/Meter';
 import { Readout } from '@/daw/ui/Readout';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Toggle } from '@/daw/ui/Toggle';
+import { pillDbText, VolumePill } from '@/daw/ui/VolumePill';
 import { InsertList } from './InsertList';
 import { useFaderLength } from './useFaderLength';
 
@@ -25,8 +25,9 @@ import { useFaderLength } from './useFaderLength';
 // 96 px wide (owner, 2026-10-18), the height of the view. Top to bottom:
 // the name under a 4 px edge in the track's colour (a click selects the
 // track), its effects (InsertList), one send knob per return and the pan
-// knob, Mute and Solo, then the fader beside the track's meter with its
-// value under them. Every control comes from the 2.2 primitives and is at
+// knob, Mute and Solo, then the volume pill (the fader over the track's
+// stereo meter, the track header's pill stood on end, 2026-10-21) with its
+// value under it. Every control comes from the 2.2 primitives and is at
 // least 24 px; a drag plays as it moves and writes the store once on
 // release, as one undo step (useMixControls). The meter paints itself off
 // the meter bus, so playing re-renders nothing here, and each strip reads
@@ -37,7 +38,7 @@ import { useFaderLength } from './useFaderLength';
 
 export const MIX_STRIP_PX = 96;
 
-/** The value's line under the fader and meter. */
+/** The value's line under the volume pill. */
 const VALUE_PX = 16;
 
 /** The rows above the fader, in px, so the faders line up across strips. */
@@ -46,11 +47,6 @@ export const STRIP_ROWS = {
   knobs: 48,
   toggles: 24,
 } as const;
-
-const panText = (pan: number) =>
-  Math.abs(pan) < 0.005
-    ? 'Center'
-    : `${pan < 0 ? 'L' : 'R'}${Math.round(Math.abs(pan) * 100)}`;
 
 const percent = (v: number) => `${Math.round(v * 100)}%`;
 
@@ -134,6 +130,8 @@ export function StripHeader({
   track: Track;
   selected: boolean;
 }) {
+  // Harmony Color: the key centre's colour in its own's place.
+  const trackColor = useTrackColor(track.color);
   return (
     <div
       className="flex shrink-0 flex-col"
@@ -144,7 +142,7 @@ export function StripHeader({
         data-meaning="track-colour"
         data-testid="mix-strip-colour"
         className="h-1 shrink-0"
-        style={{ backgroundColor: track.color }}
+        style={{ backgroundColor: trackColor }}
       />
       <button
         type="button"
@@ -252,7 +250,7 @@ function Pan({ track, disabled }: { track: Track; disabled: boolean }) {
         label={`Pan of ${track.name}`}
         data-hint={hintText(
           `Pan of ${track.name}`,
-          'Place it left or right; double-click to center',
+          'Place it left or right; double-click to centre',
         )}
         size="sm"
         bipolar
@@ -261,7 +259,7 @@ function Pan({ track, disabled }: { track: Track; disabled: boolean }) {
         step={0.01}
         resetValue={0}
         value={pan.value}
-        format={panText}
+        format={formatPan}
         onChange={pan.change}
         onCommit={pan.end}
         showValue={false}
@@ -275,63 +273,47 @@ function Pan({ track, disabled }: { track: Track; disabled: boolean }) {
   );
 }
 
-/** The fader beside the track's meter, its length the room left. */
+/** The volume pill over the track's level, its length the room left. */
 function Volume({ track, disabled }: { track: Track; disabled: boolean }) {
+  // Harmony Color: the key centre's colour in its own's place.
+  const trackColor = useTrackColor(track.color);
   const volume = useTrackVolumeControl(track);
   const box = useRef<HTMLDivElement>(null);
   const length = useFaderLength(box, { reserve: VALUE_PX + 8 });
-  const source = useRef(meterSource(`track:${track.id}`));
+  const source = useRef(meterSource(`track-lr:${track.id}`));
   return (
     <div
       ref={box}
       data-testid="mix-strip-fader"
-      className={cn(
-        'flex min-h-[100px] flex-1 flex-col items-center gap-1 overflow-hidden pt-1',
-        track.mute && 'opacity-45',
-      )}
+      // A lesson's "move any track fader": the first strip's is spotlit.
+      data-tutorial-id="mixer-fader"
+      className="flex min-h-[100px] flex-1 flex-col items-center gap-1 overflow-hidden pt-1"
     >
-      <div className="flex items-start justify-center gap-1">
-        <div
-          className="flex"
-          onPointerDownCapture={disabled ? undefined : volume.begin}
-        >
-          <Fader
-            label={`Volume of ${track.name}`}
-            data-hint={hintText(
-              `Volume of ${track.name}`,
-              'How loud this track is; double-click to reset',
-            )}
-            length={length}
-            min={0}
-            max={1}
-            step={0.01}
-            resetValue={0.8}
-            value={volume.value}
-            format={(v) => formatGain(v)}
-            onChange={volume.change}
-            onCommit={volume.end}
-            showValue={false}
-            hideLabel
-            disabled={disabled}
-          />
-        </div>
-        <Meter
-          label={`${track.name} level`}
-          data-hint={hintText(
-            `${track.name} level`,
-            'How loud it plays; click to clear the red light',
-          )}
-          source={source.current}
-          orientation="vertical"
-          length={length}
-          channels={1}
-        />
-      </div>
+      <VolumePill
+        label={`Volume of ${track.name}`}
+        data-hint={hintText(
+          `Volume of ${track.name}`,
+          'How loud this track is, over its level; double-click to reset',
+        )}
+        orientation="vertical"
+        length={length}
+        value={volume.value}
+        onBegin={volume.begin}
+        onChange={volume.change}
+        onEnd={volume.end}
+        resetValue={0.8}
+        meter={source.current}
+        color={trackColor}
+        dimmed={track.mute}
+        disabled={disabled}
+        showChip={false}
+      />
       <Readout
-        value={formatGain(volume.value)}
+        value={pillDbText(volume.value)}
         tone="muted"
         aria-hidden
         data-testid="mix-strip-volume"
+        className={cn(track.mute && 'opacity-45')}
         style={{ height: VALUE_PX }}
       />
     </div>

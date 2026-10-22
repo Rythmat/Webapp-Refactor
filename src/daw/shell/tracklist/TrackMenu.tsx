@@ -1,7 +1,6 @@
 import {
   Copy,
   Download,
-  Music2,
   Palette,
   Tag,
   Trash2,
@@ -30,9 +29,8 @@ import {
 import { openExport } from '@/daw/shell/export/exportDialogStore';
 import { FOCUS_RING, TYPE_CLASS } from '@/daw/ui/styles';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
-import { hasInstrumentPicker } from '@/daw/instruments/simpleInstruments';
 import { duplicateTrack } from './duplicateTrack';
-import { openInstrumentDialog } from './instrumentDialogStore';
+import { TrackInputSub } from './TrackInputMenu';
 import { focusTrackRow } from './useTrackListKeys';
 import { renameTrack } from './useTrackRename';
 
@@ -40,11 +38,10 @@ import { renameTrack } from './useTrackRename';
 //
 // What the old header packed into its 200×80 px, one item each: the name
 // (a field at the top to type over, Mozart AI's pattern, 2.15), colour, the
-// role chord analysis reads it as, the instrument (a MIDI track's: the
-// simple instrument picker, in InstrumentDialog), Duplicate (2.15),
-// monitoring, a test note, the automation lane, Export track ▸
-// (2.15), releasing it to collaborators (in a session), and delete, which
-// can be undone from its toast. The ⋯ button and a right-click on the row open it (TrackRow). On a
+// role chord analysis reads it as, Duplicate (2.15), a test note (input
+// monitoring is the record button's alone since 2026-10-22), the automation lane, Export track ▸ (2.15), releasing it to
+// collaborators (in a session), and delete, which can be undone from its
+// toast. The ⋯ button and a right-click on the row open it (TrackRow). On a
 // track a collaborator holds, everything that would change it is off;
 // Duplicate and Export, which leave it as it is, stay on.
 
@@ -250,18 +247,18 @@ export function TrackMenuContent({
       <NameField track={track} locked={locked} />
       <MenuSub>
         <MenuSubTrigger icon={<Palette />} disabled={locked}>
-          Color
+          Colour
         </MenuSubTrigger>
         <MenuSubContent data-ds="v2" className="w-[188px] p-2">
           <div
             role="group"
-            aria-label="Track color"
+            aria-label="Track colour"
             className="grid grid-cols-5 gap-1.5"
           >
             {TRACK_PALETTES.map((color, i) => (
               <MenuItem
                 key={color}
-                aria-label={`Color ${i + 1}${color === track.color ? ' (now)' : ''}`}
+                aria-label={`Colour ${i + 1}${color === track.color ? ' (now)' : ''}`}
                 data-meaning="track-colour"
                 className={cn(
                   'size-7 min-h-0 justify-center rounded-full p-0',
@@ -302,35 +299,17 @@ export function TrackMenuContent({
           </MenuRadioGroup>
         </MenuSubContent>
       </MenuSub>
-      {hasInstrumentPicker(track) ? (
-        <MenuItem
-          icon={<Music2 />}
-          disabled={locked}
-          data-testid="track-menu-instrument"
-          data-tutorial-id="track-menu-change-instrument"
-          onSelect={() => openInstrumentDialog(track.id)}
-        >
-          Instrument…
-        </MenuItem>
-      ) : null}
       <MenuItem
         icon={<Copy />}
         data-testid="track-menu-duplicate"
-        data-tutorial-id="track-menu-duplicate"
         shortcut={DUPLICATE_KEYS.label}
         onSelect={() => duplicateFromMenu(track.id)}
       >
         Duplicate track
       </MenuItem>
       <MenuSeparator />
-      <MenuCheckboxItem
-        checked={track.monitoring}
-        disabled={locked}
-        data-tutorial-id="track-menu-monitor"
-        onCheckedChange={() => s().toggleMonitoring(track.id)}
-      >
-        Monitor input
-      </MenuCheckboxItem>
+      {/* Its input, which was the ▾ on the header (owner, 2026-10-22). */}
+      <TrackInputSub track={track} disabled={locked} />
       {track.type === 'midi' ? (
         <MenuItem icon={<Volume2 />} onSelect={() => testSound(track.id)}>
           Test sound
@@ -417,7 +396,6 @@ export function TrackMenuContent({
         icon={<Trash2 />}
         danger
         disabled={locked}
-        data-tutorial-id="track-menu-delete"
         onSelect={() => deleteTrack(track)}
       >
         Delete track

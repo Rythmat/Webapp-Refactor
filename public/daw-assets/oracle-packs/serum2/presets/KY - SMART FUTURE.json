@@ -549,7 +549,7 @@
         "source": "osc1",
         "param": "level"
       },
-      "amount": 0.6499999761581421,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -564,7 +564,7 @@
         "source": "osc2",
         "param": "level"
       },
-      "amount": 0.6499999761581421,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -579,7 +579,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.25438594818115234,
+      "amount": 0.5087718963623047,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -594,7 +594,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.18859636783599854,
+      "amount": 0.21553718991099316,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -619,7 +619,7 @@
   "voiceCount": 16,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.16300245176747696,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": true,
@@ -641,13 +641,13 @@
     },
     "compressor": {
       "enabled": true,
-      "threshold": -18,
+      "threshold": -12.041199826559248,
       "ratio": 4,
-      "attack": 1,
-      "release": 1
+      "attack": 0.09009100715319826,
+      "release": 0.25137934550677155
     },
     "drive": {
-      "enabled": true,
+      "enabled": false,
       "amount": 0.3,
       "mix": 0.5
     },

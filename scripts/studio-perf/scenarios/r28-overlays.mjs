@@ -163,12 +163,6 @@ const POPOVERS = [
     v2: true,
   },
   {
-    name: 'Share popover',
-    trigger: '[data-testid="share-pill"]',
-    panel: '[data-testid="collab-popover"]',
-    v2: true,
-  },
-  {
     name: 'Account menu',
     trigger: '[data-testid="avatar-menu"]',
     panel: '[role=menu][data-state=open]',
@@ -178,18 +172,6 @@ const POPOVERS = [
     name: 'Track menu',
     trigger: '[data-testid="track-menu-button"]',
     panel: '[data-testid="track-menu"]',
-    v2: true,
-  },
-  {
-    name: 'Grid menu',
-    trigger: '[data-testid="grid-menu"]',
-    panel: '[role=menu][data-state=open]',
-    v2: true,
-  },
-  {
-    name: 'Chord lane key',
-    trigger: '[data-testid="chord-lane-key"]',
-    panel: '[data-testid="chord-lane-key-popover"]',
     v2: true,
   },
 ];

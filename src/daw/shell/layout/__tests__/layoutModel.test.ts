@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DOCK_DEFAULT_FRAC,
   DOCK_MIN_PX,
-  dockFracFor,
+  DOCK_SLOTS,
   dockHeightPx,
   isDockHeights,
   isInspectorOpenByView,
@@ -17,23 +16,22 @@ import {
 
 /** A Chromebook in focus mode: 655 px less the 44 px top bar. */
 const CHROMEBOOK_BODY = 611;
-/** A laptop window: 787 px less the top bar. */
-const LAPTOP_BODY = 743;
 
 describe('the dock’s height', () => {
-  it('meets the plan’s pixel budget by default', () => {
-    // 220 px on a Chromebook, 267 px on a laptop (plan, pixel budget).
-    const frac = dockFracFor('controls', {});
-    expect(dockHeightPx(frac, CHROMEBOOK_BODY)).toBe(220);
-    expect(dockHeightPx(frac, LAPTOP_BODY)).toBe(267);
-  });
+  // The default height, the same for every dock, is shellGeometry's
+  // (dockDefault.test.ts).
 
-  it('keeps each tab’s own height, and the default for the others', () => {
-    const heights = { fx: 0.5 };
-    expect(dockFracFor('fx', heights)).toBe(0.5);
-    expect(dockFracFor('piano-roll', heights)).toBe(
-      DOCK_DEFAULT_FRAC['piano-roll'],
-    );
+  it('stores a height for each slot, and for a tab the dock no longer has', () => {
+    expect(DOCK_SLOTS).toEqual([
+      'controls',
+      'fx',
+      'prism',
+      'piano-roll',
+      'master',
+      'rack',
+    ]);
+    expect(isDockHeights({ fx: 0.5, grooves: 0.36, parts: 0.4 })).toBe(true);
+    expect(isDockHeights({ mixer: 0.5 })).toBe(false);
   });
 
   it('stays between 120 px and 85% of the body', () => {

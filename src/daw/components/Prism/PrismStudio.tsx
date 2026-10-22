@@ -100,6 +100,8 @@ export function PrismStudio() {
 
   return (
     <div
+      // The whole of Prism, for a lesson that shows it before using it.
+      data-tutorial-id="prism-panel"
       className="flex h-full overflow-x-auto"
       style={{
         gap: 6,

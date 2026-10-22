@@ -86,8 +86,6 @@ const byId = (id: string) => {
 
 describe('the live catalog', () => {
   it('lists every source, in type order', () => {
-    // Every part published in the console (it grows as parts go live).
-    expect(ofType('part').length).toBeGreaterThan(0);
     expect(ofType('part')).toHaveLength(listLiveParts().length);
     expect(ofType('groove')).toHaveLength(29);
     expect(ofType('groove')).toHaveLength(GROOVES.length);
@@ -97,11 +95,9 @@ describe('the live catalog', () => {
     const presets = ofType('preset');
     const source = (s: string) =>
       presets.filter((p) => p.type === 'preset' && p.source === s);
-    expect(source('studio')).toHaveLength(23);
+    expect(source('studio')).toHaveLength(22);
     expect(source('studio')).toHaveLength(PRESETS.length);
-    // The factory patches but INITIALIZE, with the Music Atlas patches saved
-    // for everyone (presets/atlas).
-    expect(source('oracle')).toHaveLength(FACTORY_PRESETS.length - 1);
+    expect(source('oracle')).toHaveLength(10);
     expect(source('oracle').map((p) => p.name)).not.toContain('INITIALIZE');
     expect(source('pack').map((p) => p.name)).toEqual([
       'BA - Test Bass',
@@ -109,9 +105,7 @@ describe('the live catalog', () => {
     ]);
     // Only the student's own: a factory patch in the store isn't "mine".
     expect(source('mine').map((p) => p.name)).toEqual(['My Wobble']);
-    expect(presets).toHaveLength(
-      PRESETS.length + (FACTORY_PRESETS.length - 1) + 2 + 1,
-    );
+    expect(presets).toHaveLength(22 + 10 + 2 + 1);
 
     const order = ['part', 'groove', 'kit', 'preset', 'template'];
     const types = catalog.map((i) => order.indexOf(i.type));

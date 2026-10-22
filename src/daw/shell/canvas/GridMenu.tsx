@@ -1,5 +1,5 @@
-import { ChevronDown, Grid3x3 } from 'lucide-react';
-import { memo, useState, type SyntheticEvent } from 'react';
+import { Magnet, Palette } from 'lucide-react';
+import { memo } from 'react';
 import { cn } from '@/components/utilities';
 import {
   baseOf,
@@ -13,29 +13,27 @@ import {
 } from '@/daw/editor/snap';
 import { useStore } from '@/daw/store';
 import { withTransaction } from '@/daw/store/history';
-import { buttonVariants } from '@/daw/ui/Button';
 import {
-  Menu,
   MenuCheckboxItem,
-  MenuContent,
   MenuRadioGroup,
   MenuRadioItem,
   MenuSeparator,
-  MenuTrigger,
+  MenuSub,
+  MenuSubContent,
+  MenuSubTrigger,
 } from '@/daw/ui/Menu';
-import { TIP_GAP_PX, Tooltip } from '@/daw/ui/Tooltip';
+import { TYPE_CLASS } from '@/daw/ui/styles';
 import { chordNotationLockTitle } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
 
-// ── The Grid menu (milestones 2.7 and 2.13) ────────────────────────────────
+// ── Snap to grid and timeline display, in the top bar's More menu ─────────
 //
 // What clips, the loop, markers and the playhead snap to: a bar, a half, a
 // beat, an eighth or a sixteenth (those that fit the metre), in triplets or
-// not, and Snap on or off (timeline-14). The button names the grid; a
-// struck-out grid means snap is off. Turning snap on or off never moves the
-// playhead (shell-18). Since Create's toolbar folded away (2.13, decision
-// 16) it sits at the ruler's right end, and it also holds the timeline's
-// two display choices: how the chord lane labels chords, and what colours
+// not, and Snap on or off (timeline-14). Turning snap on or off never moves
+// the playhead (shell-18). They sat at the ruler's right end (2.13) until the
+// owner moved them into More (2026-10-21), with the timeline's two display
+// choices beside them: how the chord lane labels chords, and what colours
 // the clips. Every setting carries a one-line explanation (2.11).
 
 /**
@@ -47,10 +45,14 @@ export const GRID_COPY = {
   triplets: 'Fit three notes where two would usually go',
   snap: 'Clips, notes and the loop jump to grid lines',
   chordLabels: 'How the chord lane names each chord',
-  clipColours: 'Track colors, or colors that follow the chords',
+  harmonyColor: 'Tracks and clips in the key’s colour; off, their own',
 } as const;
 
-export const GridMenu = memo(function GridMenu() {
+/**
+ * More ▸ Snap to grid: the grid (those that fit the metre), triplets and snap
+ * on or off. Its row names the grid, and says when snap is off.
+ */
+export const SnapToGridSub = memo(function SnapToGridSub() {
   const size = useStore((s) => s.timelineGridSize);
   const snap = useStore((s) => s.timelineSnapEnabled);
   const numerator = useStore((s) => s.timeSignatureNumerator);
@@ -60,18 +62,6 @@ export const GridMenu = memo(function GridMenu() {
   const triplets = isTriplet(size);
   const triplet = tripletOf(base);
   const label = gridLabel(size, metre);
-  // The tip opens to the left past Snap, over the ruler: the trigger's
-  // distance from the ruler end's start, measured as the pointer or the
-  // focus comes in, before the tip opens.
-  const [tipOffset, setTipOffset] = useState(TIP_GAP_PX);
-  const measureTip = (e: SyntheticEvent<HTMLElement>) => {
-    const group = e.currentTarget.closest('[data-testid="ruler-end"]');
-    if (!group) return;
-    const past =
-      e.currentTarget.getBoundingClientRect().left -
-      group.getBoundingClientRect().left;
-    setTipOffset(TIP_GAP_PX + Math.max(0, past));
-  };
 
   const set = (nextBase: GridBase, nextTriplets: boolean) => {
     const next = gridChoice(nextBase, nextTriplets);
@@ -83,35 +73,37 @@ export const GridMenu = memo(function GridMenu() {
   };
 
   return (
-    <Menu>
-      <Tooltip
-        content="Grid, snap and display"
-        side="left"
-        sideOffset={tipOffset}
+    <MenuSub>
+      <MenuSubTrigger
+        icon={<Magnet />}
+        data-testid="grid-menu"
+        aria-label={`Snap to grid: ${label}${snap ? '' : ', snap off'}`}
       >
-        <MenuTrigger
-          data-testid="grid-menu"
-          onPointerEnter={measureTip}
-          onFocus={measureTip}
-          aria-label={`Grid: ${label}${snap ? '' : ', snap off'}`}
+        <span className="flex-1">Snap to grid</span>
+        <span
           className={cn(
-            buttonVariants({ variant: 'ghost', size: 'sm' }),
-            'gap-1 px-2',
+            TYPE_CLASS.label,
+            'ml-4 text-daw-text-3',
+            !snap && 'line-through',
           )}
         >
-          <Grid3x3 aria-hidden />
-          <span className={cn('tabular-nums', !snap && 'line-through')}>
-            {label}
-          </span>
-          <ChevronDown aria-hidden className="!size-3" />
-        </MenuTrigger>
-      </Tooltip>
-      <MenuContent
-        align="end"
+          {label}
+        </span>
+      </MenuSubTrigger>
+      <MenuSubContent
         data-ds="v2"
         data-testid="grid-menu-content"
         className="w-80"
       >
+        <MenuCheckboxItem
+          data-testid="grid-snap"
+          checked={snap}
+          onCheckedChange={() => useStore.getState().toggleTimelineSnap()}
+          description={GRID_COPY.snap}
+        >
+          Snap to grid
+        </MenuCheckboxItem>
+        <MenuSeparator />
         <MenuRadioGroup
           label="Grid"
           description={GRID_COPY.grid}
@@ -135,20 +127,31 @@ export const GridMenu = memo(function GridMenu() {
         >
           Triplets
         </MenuCheckboxItem>
-        <MenuCheckboxItem
-          data-testid="grid-snap"
-          checked={snap}
-          onCheckedChange={() => useStore.getState().toggleTimelineSnap()}
-          description={GRID_COPY.snap}
-        >
-          Snap to grid
-        </MenuCheckboxItem>
-        <MenuSeparator />
+      </MenuSubContent>
+    </MenuSub>
+  );
+});
+
+/**
+ * More ▸ Timeline display: how the chord lane labels chords and what colours
+ * the clips (the Grid menu's two display choices, which moved with it).
+ */
+export const TimelineDisplaySub = memo(function TimelineDisplaySub() {
+  return (
+    <MenuSub>
+      <MenuSubTrigger icon={<Palette />} data-testid="timeline-display-menu">
+        Timeline display
+      </MenuSubTrigger>
+      <MenuSubContent
+        data-ds="v2"
+        data-testid="timeline-display-content"
+        className="w-80"
+      >
         <ChordLabels />
         <MenuSeparator />
         <ClipColours />
-      </MenuContent>
-    </Menu>
+      </MenuSubContent>
+    </MenuSub>
   );
 });
 
@@ -187,23 +190,26 @@ function ChordLabels() {
   );
 }
 
-/** What colours the clips: their track's colour, or the chords' (one undo step). */
+/**
+ * Harmony Color (owner, 2026-10-22; it was "Colour clips by: Track or
+ * Harmony"): on, tracks and clips in the key centre's colour and notes in
+ * their chords'; off, each track's own colour, even with a key set
+ * (harmony/trackColor). One undo step.
+ */
 function ClipColours() {
-  const mode = useStore((s) => s.clipColorMode);
+  const on = useStore((s) => s.clipColorMode === 'prism');
   return (
-    <MenuRadioGroup
-      label="Color clips by"
-      description={GRID_COPY.clipColours}
+    <MenuCheckboxItem
+      checked={on}
+      description={GRID_COPY.harmonyColor}
       data-testid="clip-colour-mode"
-      value={mode}
-      onValueChange={(value) =>
-        withTransaction('Color clips', () =>
-          useStore.getState().setClipColorMode(value as 'track' | 'prism'),
+      onCheckedChange={(next) =>
+        withTransaction('Harmony Color', () =>
+          useStore.getState().setClipColorMode(next ? 'prism' : 'track'),
         )
       }
     >
-      <MenuRadioItem value="track">Track</MenuRadioItem>
-      <MenuRadioItem value="prism">Harmony</MenuRadioItem>
-    </MenuRadioGroup>
+      Harmony Color
+    </MenuCheckboxItem>
   );
 }

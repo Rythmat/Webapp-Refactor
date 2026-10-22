@@ -5,7 +5,7 @@ overlays (B1), the shell and the top bar (B2), the track list and the Create can
 rails, the Inspector and the dock (B4a, B4), then decision 16's Soundtrap layout: clips (B5),
 lanes and sections (B6), the browser (B7), commands and output (B8), and the Mix view and help
 (B9, prompt 16). This report checks every Stage B exit criterion in the plan
-(`docs/prompts/studio-overhaul/reference/plan.md`, "Stage B exit criteria"), and that the Stage A
+(`docs/prompts/studio-overhaul/reference/plan.md`, retired 2026-10-21 and kept in git at `487930ff`; "Stage B exit criteria"), and that the Stage A
 numbers hold (`stage-a-exit.md`).
 
 **Result:** every criterion the harness can measure is met, with two exceptions inherited from
@@ -134,7 +134,7 @@ Neither has been signed off (plan, "my defaults"; B1 deferred them to this revie
 
 ## Audit ledger
 
-`docs/prompts/studio-overhaul/reference/phase-map.json` now records each finding's status after
+`docs/prompts/studio-overhaul/reference/phase-map.json`, retired 2026-10-21 and kept in git at `487930ff`, now records each finding's status after
 Stage B, with the commits that closed it.
 
 | Severity  | Fixed (Stage A) | Fixed (Stage B) | Partly fixed | Open    |

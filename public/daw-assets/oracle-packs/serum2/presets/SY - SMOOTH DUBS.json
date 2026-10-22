@@ -1589,7 +1589,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.2686549425125122,
+      "amount": 0.3070320602101945,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1604,7 +1604,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.2383040189743042,
+      "amount": 0.4766080379486084,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1619,7 +1619,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.03216373920440674,
+      "amount": 0.03675830051603267,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1634,7 +1634,7 @@
         "source": "flt1",
         "param": "level"
       },
-      "amount": 0.48000001907348633,
+      "amount": 0.9600000381469727,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1649,7 +1649,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.6257308721542358,
+      "amount": 0.7151159662945311,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1664,7 +1664,7 @@
         "source": "osc1",
         "param": "level"
       },
-      "amount": -0.612573117017746,
+      "amount": -1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1679,7 +1679,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.7880116701126099,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1689,7 +1689,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.20110804486472866,
+  "masterVolume": 0.6590310630217159,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -1711,10 +1711,10 @@
     },
     "compressor": {
       "enabled": true,
-      "threshold": 0,
+      "threshold": -7.905131788000289,
       "ratio": 4.024851118048984,
-      "attack": 1,
-      "release": 1
+      "attack": 0.08018785156654905,
+      "release": 0.1729944360538219
     },
     "drive": {
       "enabled": false,

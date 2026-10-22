@@ -42,9 +42,6 @@ vi.mock('@/daw/shell/dock/DockEffects', () => ({
 vi.mock('@/daw/components/Prism/PrismPanel', () => ({
   PrismPanel: () => null,
 }));
-vi.mock('@/daw/components/Controls/GroovesBrowser', () => ({
-  GroovesBrowser: () => null,
-}));
 vi.mock('@/hooks/useIsPremium', () => ({
   useIsPremium: () => ({ isPremium: true }),
 }));
@@ -76,7 +73,7 @@ beforeEach(() => {
   roll.props = null;
   useStore.setState({ tracks: [], remoteUsers: new Map() });
   useStore.getState().setSelectedClip(null, null);
-  trackId = useStore.getState().addTrack('midi', 'piano-sampler', 'Keys');
+  trackId = useStore.getState().addTrack('midi', 'soundfont', 'Keys');
   useStore.getState().setChannelStripTab('piano-roll');
 });
 

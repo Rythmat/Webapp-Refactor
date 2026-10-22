@@ -16,7 +16,7 @@ beforeEach(() => {
 
 describe('starting a lesson in place', () => {
   it('runs the course’s first lesson on the open project, from the practice screen', () => {
-    s().addTrack('midi', 'piano-sampler', 'My chords');
+    s().addTrack('midi', 'soundfont', 'My chords');
     s().setPracticeSession({ kind: 'theory' } as never);
     s().setCurrentView('practice');
     const tracks = s().tracks;

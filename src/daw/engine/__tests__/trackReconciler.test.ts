@@ -83,10 +83,17 @@ vi.mock('@/daw/oracle-synth/synthTrackState', () => ({
   defaultSynthTrackState: () => ({}),
 }));
 
-vi.mock('@/daw/instruments/PianoSampler', () => ({
-  PianoSampler: class {
+vi.mock('@/daw/instruments/SoundFontAdapter', () => ({
+  SoundFontAdapter: class {
+    constructor(private program = 0) {}
     init() {
       return Promise.resolve();
+    }
+    getProgram() {
+      return this.program;
+    }
+    setProgram(program: number) {
+      this.program = program;
     }
     allNotesOff() {}
     dispose() {}
@@ -212,7 +219,7 @@ function start(): void {
 
 describe('the track reconciler', () => {
   it('makes an engine for each track and applies all of it once', () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Keys');
     start();
     expect(calls.engines).toHaveLength(1);
     expect(calls.log).toEqual([
@@ -224,8 +231,8 @@ describe('the track reconciler', () => {
   });
 
   it('applies only the field that changed', () => {
-    const id = s().addTrack('midi', 'piano-sampler', 'Keys');
-    s().addTrack('midi', 'piano-sampler', 'Pad');
+    const id = s().addTrack('midi', 'soundfont', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Pad');
     start();
     calls.log.length = 0;
 
@@ -238,7 +245,7 @@ describe('the track reconciler', () => {
   });
 
   it('applies nothing for a colour or name change (prism-ui-12)', () => {
-    const id = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const id = s().addTrack('midi', 'soundfont', 'Keys');
     start();
     calls.log.length = 0;
     s().updateTrack(id, { color: '#ff0000', name: 'Renamed' });
@@ -246,7 +253,7 @@ describe('the track reconciler', () => {
   });
 
   it('applies nothing when a collab sync rebuilds equal tracks', () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Keys');
     start();
     calls.log.length = 0;
     useStore.setState({
@@ -256,8 +263,8 @@ describe('the track reconciler', () => {
   });
 
   it("changes every track's gate when one is soloed", () => {
-    const a = s().addTrack('midi', 'piano-sampler', 'A');
-    s().addTrack('midi', 'piano-sampler', 'B');
+    const a = s().addTrack('midi', 'soundfont', 'A');
+    s().addTrack('midi', 'soundfont', 'B');
     start();
     calls.log.length = 0;
     s().toggleSolo(a);
@@ -268,8 +275,8 @@ describe('the track reconciler', () => {
   });
 
   it('re-asserts automation only for the changed track, while playing', () => {
-    const a = s().addTrack('midi', 'piano-sampler', 'A');
-    s().addTrack('midi', 'piano-sampler', 'B');
+    const a = s().addTrack('midi', 'soundfont', 'A');
+    s().addTrack('midi', 'soundfont', 'B');
     start();
     useStore.setState({ isPlaying: true });
     s().updateTrack(a, { volume: 0.4 });
@@ -282,7 +289,7 @@ describe('the track reconciler', () => {
   });
 
   it('makes the engine again for a new instrument, not for an edit', () => {
-    const id = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const id = s().addTrack('midi', 'soundfont', 'Keys');
     start();
     s().updateTrack(id, { volume: 0.3 });
     expect(calls.engines).toHaveLength(1);
@@ -292,7 +299,7 @@ describe('the track reconciler', () => {
   });
 
   it('makes every engine again after a load bump', async () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Keys');
     start();
     bumpSessionGeneration('test');
     await Promise.resolve();
@@ -301,13 +308,13 @@ describe('the track reconciler', () => {
   });
 
   it('retires the engine of a deleted track and stops after stop()', () => {
-    const id = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const id = s().addTrack('midi', 'soundfont', 'Keys');
     start();
     s().removeTrack(id);
     expect(calls.engines[0].disposed).toBe(true);
     expect(trackEngineRegistry.size).toBe(0);
     reconciler?.stop();
-    s().addTrack('midi', 'piano-sampler', 'Late');
+    s().addTrack('midi', 'soundfont', 'Late');
     expect(calls.engines).toHaveLength(1);
   });
 });
@@ -318,7 +325,7 @@ describe('the track reconciler', () => {
 
 describe('previews', () => {
   it('plays a dragged value without a store write, and the release applies nothing more', () => {
-    const id = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const id = s().addTrack('midi', 'soundfont', 'Keys');
     start();
     calls.log.length = 0;
     const tracks = s().tracks;
@@ -334,7 +341,7 @@ describe('previews', () => {
   });
 
   it("builds a reverb's new impulse response once, on release", () => {
-    const id = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const id = s().addTrack('midi', 'soundfont', 'Keys');
     start();
     calls.log.length = 0;
     const effects = s().tracks[0].effects;
@@ -352,7 +359,7 @@ describe('previews', () => {
   });
 
   it('puts the sound back when a gesture changes nothing', () => {
-    const id = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const id = s().addTrack('midi', 'soundfont', 'Keys');
     start();
     previewTrack(id, { volume: 0.2 });
     calls.log.length = 0;
@@ -362,7 +369,7 @@ describe('previews', () => {
   });
 
   it('does not re-assert a track with no lanes on every preview frame while playing', () => {
-    const id = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const id = s().addTrack('midi', 'soundfont', 'Keys');
     start();
     useStore.setState({ isPlaying: true });
     automation.cleared.length = 0;
@@ -385,8 +392,8 @@ describe('the ducker key wiring', () => {
   }
 
   it("resolves another track's post-fader tap, never its own", () => {
-    const bass = s().addTrack('midi', 'piano-sampler', 'Bass');
-    const kick = s().addTrack('midi', 'piano-sampler', 'Kick');
+    const bass = s().addTrack('midi', 'soundfont', 'Bass');
+    const kick = s().addTrack('midi', 'soundfont', 'Kick');
     start();
     const [bassEngine] = calls.engines;
     expect(bassEngine.resolver!(kick)).toEqual({ tapOf: 1 });
@@ -395,9 +402,9 @@ describe('the ducker key wiring', () => {
   });
 
   it('refuses a key whose own ducker chain leads back (a cycle)', () => {
-    const a = s().addTrack('midi', 'piano-sampler', 'A');
-    const b = s().addTrack('midi', 'piano-sampler', 'B');
-    const c = s().addTrack('midi', 'piano-sampler', 'C');
+    const a = s().addTrack('midi', 'soundfont', 'A');
+    const b = s().addTrack('midi', 'soundfont', 'B');
+    const c = s().addTrack('midi', 'soundfont', 'C');
     start();
     duckBy(b, c);
     duckBy(c, a);
@@ -410,15 +417,34 @@ describe('the ducker key wiring', () => {
   });
 
   it('every ducker re-resolves its key when engines are made again', () => {
-    s().addTrack('midi', 'piano-sampler', 'Bass');
+    s().addTrack('midi', 'soundfont', 'Bass');
     start();
     expect(calls.refreshes).toEqual([0]);
     calls.refreshes.length = 0;
-    s().addTrack('midi', 'piano-sampler', 'Kick');
+    s().addTrack('midi', 'soundfont', 'Kick');
     expect(calls.refreshes.sort()).toEqual([0, 1]);
     calls.refreshes.length = 0;
     s().updateTrack(s().tracks[0].id, { volume: 0.3 });
     expect(calls.refreshes).toEqual([]);
+  });
+
+  it('every ducker re-resolves its key when any ducker changes', () => {
+    const a = s().addTrack('midi', 'soundfont', 'A');
+    const b = s().addTrack('midi', 'soundfont', 'B');
+    start();
+    duckBy(a, b);
+    duckBy(b, a); // refused: a loop
+    calls.refreshes.length = 0;
+    // A lets go of B, which breaks the loop: B's refused key is wired now.
+    const track = s().tracks.find((t) => t.id === a)!;
+    s().updateTrack(a, {
+      effects: {
+        ...track.effects,
+        ducker: { ...track.effects.ducker, enabled: false },
+      },
+    });
+    expect(calls.refreshes.sort()).toEqual([0, 1]);
+    expect(calls.engines[1].resolver!(a)).toEqual({ tapOf: 0 });
   });
 });
 
@@ -453,7 +479,7 @@ const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 const steps = (log: unknown[][]) => log.map(([step]) => step);
 
 function guitarTrack(chain?: unknown[]) {
-  const id = s().addTrack('audio', 'guitar-fx', 'Gtr');
+  const id = s().addTrack('audio', 'audio-input', 'Gtr');
   if (chain) s().setGuitarChain(id, chain as never);
   return id;
 }
@@ -482,9 +508,11 @@ describe('guitar and vocal chains', () => {
     expect(atReady.at(-1)?.[0]).toBe('sync');
   });
 
-  it("plays a vocal track's saved pitch correction", async () => {
-    const id = s().addTrack('audio', 'vocal-fx', 'Vox');
-    s().setVocalChain(id, [pitch()]);
+  it("plays an Audio track's saved pitch correction", async () => {
+    // A voice is an Audio track with pitch correction in its one chain
+    // (the Voice track folded into Audio, 2026-10-22).
+    const id = s().addTrack('audio', 'audio-input', 'Vox');
+    s().setGuitarChain(id, [pitch()]);
     start();
     await settle();
     expect(pedals.adapters[0].log).toEqual([

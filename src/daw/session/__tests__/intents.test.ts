@@ -213,7 +213,7 @@ describe('time limits', () => {
 
 describe('prepare changes nothing; apply writes the session', () => {
   it('claims a new draft for a seed, and only claims', async () => {
-    s().addTrack('midi', 'piano-sampler', 'Live');
+    s().addTrack('midi', 'soundfont', 'Live');
     const before = JSON.stringify(serializeSession().data);
     const prepared = await prepare({
       kind: 'template',

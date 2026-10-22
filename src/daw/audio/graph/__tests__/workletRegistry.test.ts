@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 // ── The worklet registry: one module load per context and url ──────────────
@@ -115,5 +116,64 @@ describe('disposeWorkletNode', () => {
     expect(node.port.close).toHaveBeenCalled();
     expect(node.port.onmessage).toBeNull();
     expect(node.disconnect).toHaveBeenCalled();
+  });
+});
+
+describe('one load per native context', () => {
+  const SOURCE = readFileSync(
+    new URL('../../worklets/dynamics-processor.js', import.meta.url),
+    'utf8',
+  );
+
+  /**
+   * A native context whose global scope runs the module and, as Web Audio
+   * does, throws NotSupportedError when a processor name is registered
+   * twice; and Tone's wrapper over it, which adds modules to that scope.
+   */
+  function scope() {
+    const names = new Set<string>();
+    const run = () =>
+      new Function('AudioWorkletProcessor', 'registerProcessor', SOURCE)(
+        class {},
+        (name: string) => {
+          if (names.has(name)) {
+            const err = new Error(`${name} is already registered`);
+            err.name = 'NotSupportedError';
+            throw err;
+          }
+          names.add(name);
+        },
+      );
+    const addModule = vi.fn(async () => run());
+    const native = {
+      audioWorklet: { addModule },
+    } as unknown as BaseAudioContext;
+    const wrapped = {
+      _nativeContext: native,
+      audioWorklet: { addModule },
+    } as unknown as BaseAudioContext;
+    return { native, wrapped, addModule, run };
+  }
+
+  it('a wah on the native context, then a gate through the wrapper', async () => {
+    const { native, wrapped, addModule } = scope();
+    await ensureWorklet(native, '/dyn.js');
+    await ensureWorklet(wrapped, '/dyn.js');
+    expect(addModule).toHaveBeenCalledTimes(1);
+    expect(isWorkletReady(wrapped, '/dyn.js')).toBe(true);
+  });
+
+  it('a gate through the wrapper, then a wah on the native context', async () => {
+    const { native, wrapped, addModule } = scope();
+    await ensureWorklet(wrapped, '/dyn.js');
+    await ensureWorklet(native, '/dyn.js');
+    expect(addModule).toHaveBeenCalledTimes(1);
+    expect(isWorkletReady(native, '/dyn.js')).toBe(true);
+  });
+
+  it('the processor tolerates its module running twice in one scope', () => {
+    const { run } = scope();
+    run();
+    expect(run).not.toThrow();
   });
 });

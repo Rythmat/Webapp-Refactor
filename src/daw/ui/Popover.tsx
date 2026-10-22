@@ -33,7 +33,14 @@ export const PopoverContent = forwardRef<
     <KitPopoverContent
       ref={ref}
       collisionPadding={8}
-      className={cn(FLOATING_SURFACE, 'w-auto p-3', TYPE_CLASS.body, className)}
+      className={cn(
+        FLOATING_SURFACE,
+        // A popover is a larger card than a menu: 16 px corners, a deeper
+        // shadow, the float surface.
+        'w-auto rounded-[var(--daw-radius-xl)] bg-daw-float p-3 [box-shadow:var(--daw-shadow-pop)]',
+        TYPE_CLASS.body,
+        className,
+      )}
       {...props}
     />
   );

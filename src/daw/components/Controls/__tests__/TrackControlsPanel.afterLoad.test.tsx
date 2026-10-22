@@ -4,12 +4,13 @@
  * last project's track ids: kept work restored, a project reopened, a
  * Save-As copy opened beside its original.
  *
- * The views copy some of the track into their own state as they mount. The
- * guitar and vocal views copy the pedal chain, play their copy through the
- * track's engine and save it back to the track. TrackControlsPanel keyed the
- * views by track id alone, so a load that kept the id kept them mounted: the
- * last project's chain went into the new project's engine and, with the next
- * edit, over the chain it had loaded. Now every view mounts again for every
+ * The views copy some of the track into their own state as they mount. An
+ * Audio track's view (GuitarBassView) copies its chain (amp and pitch
+ * correction), plays its copy through the track's engine and saves it back
+ * to the track. TrackControlsPanel keyed the views by track id alone, so a
+ * load that kept the id kept them mounted: the last project's chain went
+ * into the new project's engine and, with the next edit, over the chain it
+ * had loaded. Now every view mounts again for every
  * load (useSessionGeneration), and still for every track selected: a view
  * kept mounted from one track to the next would put the first track's chain
  * into the second track's engine and save it over the second track's.
@@ -101,20 +102,11 @@ const views = vi.hoisted(() => {
       },
   };
 });
-vi.mock('../KeyboardView', async () => ({
-  KeyboardView: views.stub(await import('react'), 'KeyboardView'),
-}));
-vi.mock('../OrganView', async () => ({
-  OrganView: views.stub(await import('react'), 'OrganView'),
-}));
 vi.mock('../DrumMachineView', async () => ({
   DrumMachineView: views.stub(await import('react'), 'DrumMachineView'),
 }));
 vi.mock('../SoundFontView', async () => ({
   SoundFontView: views.stub(await import('react'), 'SoundFontView'),
-}));
-vi.mock('../SamplerChopsView', async () => ({
-  SamplerChopsView: views.stub(await import('react'), 'SamplerChopsView'),
 }));
 vi.mock('../OracleSynthInline', async () => ({
   OracleSynthInline: views.stub(await import('react'), 'OracleSynthInline'),
@@ -127,7 +119,6 @@ vi.mock('@/daw/shell/dock/DrumPadsView', async () => ({
 }));
 
 import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
-import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 import {
   deserializeSession,
   forgetLiveSession,
@@ -137,13 +128,9 @@ import {
 import {
   DrumPadsViewPart,
   GuitarBassViewPart,
-  KeyboardViewPart,
   OracleSynthInlinePart,
   OracleSynthViewPart,
-  OrganViewPart,
-  SamplerChopsViewPart,
   SoundFontViewPart,
-  VocalViewPart,
 } from '@/daw/shell/lazyParts';
 import { useStore } from '@/daw/store';
 import type { InstrumentType, Track } from '@/daw/store/tracksSlice';
@@ -161,8 +148,7 @@ type Chain = NonNullable<Track['guitarChain']>;
 
 /** The project open on screen: one track, selected, the panel on it. */
 function openProject(instrument: InstrumentType, fields: Partial<Track> = {}) {
-  const type =
-    instrument === 'guitar-fx' || instrument === 'vocal-fx' ? 'audio' : 'midi';
+  const type = instrument === 'audio-input' ? 'audio' : 'midi';
   const id = s().addTrack(type, instrument, 'Track');
   s().updateTrack(id, fields);
   s().setSelectedTrackId(id);
@@ -190,11 +176,11 @@ function load(draft: SessionData) {
 
 /** Every value the store takes for the track's `key`, from now on. */
 let stopRecording = () => {};
-function recordWrites(id: string, key: 'guitarChain' | 'vocalChain') {
+function recordWrites(id: string) {
   const writes: unknown[] = [];
   stopRecording = useStore.subscribe((state, prev) => {
-    const now = state.tracks.find((t) => t.id === id)?.[key];
-    if (now !== prev.tracks.find((t) => t.id === id)?.[key]) {
+    const now = state.tracks.find((t) => t.id === id)?.guitarChain;
+    if (now !== prev.tracks.find((t) => t.id === id)?.guitarChain) {
       writes.push(structuredClone(now));
     }
   });
@@ -214,20 +200,6 @@ function fakeGuitarAdapter() {
   };
 }
 
-function fakeVocalAdapter() {
-  const adapter = new VocalFxAdapter();
-  vi.spyOn(adapter, 'setDevice').mockResolvedValue();
-  vi.spyOn(adapter, 'setChannelConfig').mockImplementation(() => {});
-  return {
-    adapter,
-    syncChain: vi.spyOn(adapter, 'syncChain').mockImplementation(() => {}),
-    // A freshly built chain has no processors, so the param fast path fails.
-    updateChainParams: vi
-      .spyOn(adapter, 'updateChainParams')
-      .mockReturnValue(false),
-  };
-}
-
 // The amp the student left on screen, and the chain the draft holds.
 const LEFT_ON_SCREEN: Chain = [
   {
@@ -239,35 +211,15 @@ const LEFT_ON_SCREEN: Chain = [
 ];
 const IN_THE_DRAFT: Chain = [
   {
-    type: 'compressor',
+    type: 'pitch-correction',
     enabled: true,
-    params: { threshold: 0.4, ratio: 0.3, attack: 0.2, release: 0.5 },
+    params: { rootNote: 7, scaleType: 2, correction: 80, speed: 50, mix: 100 },
   },
   {
     type: 'nam-amp',
     enabled: true,
     params: { inputLevel: 0.6, volume: 0.5 },
     namModelId: 'nam-clean-twin', // Quartz
-  },
-];
-
-const VOCALS_ON_SCREEN: NonNullable<Track['vocalChain']> = [
-  {
-    type: 'reverb',
-    enabled: true,
-    params: { size: 0.8, decay: 0.7, mix: 0.6 },
-  },
-];
-const VOCALS_IN_THE_DRAFT: NonNullable<Track['vocalChain']> = [
-  {
-    type: 'delay',
-    enabled: true,
-    params: { time: 0.25, feedback: 0.4, mix: 0.35 },
-  },
-  {
-    type: 'compressor',
-    enabled: false,
-    params: { threshold: 0.5, ratio: 0.3, attack: 0.2, release: 0.5 },
   },
 ];
 
@@ -290,15 +242,11 @@ beforeAll(async () => {
   // the panel renders them at once, as after a preload in the editor.
   await Promise.all(
     [
-      KeyboardViewPart,
-      OrganViewPart,
       GuitarBassViewPart,
       OracleSynthInlinePart,
       OracleSynthViewPart,
       SoundFontViewPart,
       DrumPadsViewPart,
-      SamplerChopsViewPart,
-      VocalViewPart,
     ].map((part) => part.preload()),
   );
 });
@@ -318,15 +266,20 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('the guitar view after a load that keeps the track id', () => {
+/** The amp card's model name, as the dock shows it. */
+const ampOnScreen = () =>
+  screen.getByTestId('audio-fx-card-nam-amp').querySelector('h3')?.textContent;
+
+describe('the audio view after a load that keeps the track id', () => {
   it('plays and shows the chain the project loaded with', async () => {
-    const id = openProject('guitar-fx', { guitarChain: LEFT_ON_SCREEN });
+    const id = openProject('audio-input', { guitarChain: LEFT_ON_SCREEN });
     const draft = draftOfThisProjectWith(id, { guitarChain: IN_THE_DRAFT });
     render(<TrackControlsPanel />);
     const first = fakeGuitarAdapter();
     act(() => engine.ready(id, first.adapter));
     await settle();
     expect(first.syncChain).toHaveBeenLastCalledWith(toEngine(LEFT_ON_SCREEN));
+    expect(ampOnScreen()).toBe('Fire Opal');
 
     load(draft);
     // The load rebuilt the track's engine.
@@ -338,41 +291,40 @@ describe('the guitar view after a load that keeps the track id', () => {
     for (const [chain] of rebuilt.syncChain.mock.calls) {
       expect(chain).toEqual(toEngine(IN_THE_DRAFT));
     }
-    // The loaded amp's model is the one marked in the model list.
-    expect(screen.getByText('Quartz').style.color).toBe('var(--daw-accent)');
-    expect(screen.getByText('Fire Opal').style.color).toBe('var(--daw-text)');
+    // One card per block of the loaded chain, its amp the loaded model.
+    expect(screen.getByTestId('audio-fx-card-pitch-correction')).toBeTruthy();
+    expect(ampOnScreen()).toBe('Quartz');
   });
 
   it('never saves the last chain over the loaded one, not even with the next edit', async () => {
-    const id = openProject('guitar-fx', { guitarChain: LEFT_ON_SCREEN });
+    const id = openProject('audio-input', { guitarChain: LEFT_ON_SCREEN });
     const draft = draftOfThisProjectWith(id, { guitarChain: IN_THE_DRAFT });
     render(<TrackControlsPanel />);
     act(() => engine.ready(id, fakeGuitarAdapter().adapter));
     await settle();
 
-    const writes = recordWrites(id, 'guitarChain');
+    const writes = recordWrites(id);
     load(draft);
     act(() => engine.ready(id, fakeGuitarAdapter().adapter));
     await settle();
     expect(s().tracks[0].guitarChain).toEqual(IN_THE_DRAFT);
 
-    // The student adds a pedal: it goes into the loaded chain, before its amp.
-    fireEvent.click(screen.getByRole('button', { name: 'Overdrive' }));
+    // The student switches the amp off: the loaded chain's amp.
+    fireEvent.click(screen.getByRole('button', { name: 'Quartz on' }));
     await settle();
 
     expect(s().tracks[0].guitarChain).toEqual([
       IN_THE_DRAFT[0],
-      expect.objectContaining({ type: 'overdrive' }),
-      IN_THE_DRAFT[1],
+      { ...IN_THE_DRAFT[1], enabled: false },
     ]);
     expect(JSON.stringify(writes)).not.toContain('nam-vox-ac15');
   });
 });
 
-describe('the guitar view when another guitar track is selected', () => {
+describe('the audio view when another audio track is selected', () => {
   it('plays, shows and keeps the chain of the track selected', async () => {
-    const first = openProject('guitar-fx', { guitarChain: LEFT_ON_SCREEN });
-    const next = openProject('guitar-fx', { guitarChain: IN_THE_DRAFT });
+    const first = openProject('audio-input', { guitarChain: LEFT_ON_SCREEN });
+    const next = openProject('audio-input', { guitarChain: IN_THE_DRAFT });
     s().setSelectedTrackId(first);
     render(<TrackControlsPanel />);
     act(() => engine.ready(first, fakeGuitarAdapter().adapter));
@@ -381,7 +333,7 @@ describe('the guitar view when another guitar track is selected', () => {
     await settle();
     expect(onNext.syncChain).not.toHaveBeenCalled();
 
-    const writes = recordWrites(next, 'guitarChain');
+    const writes = recordWrites(next);
     act(() => s().setSelectedTrackId(next));
     await settle();
 
@@ -389,7 +341,7 @@ describe('the guitar view when another guitar track is selected', () => {
     for (const [chain] of onNext.syncChain.mock.calls) {
       expect(chain).toEqual(toEngine(IN_THE_DRAFT));
     }
-    expect(screen.getByText('Quartz').style.color).toBe('var(--daw-accent)');
+    expect(ampOnScreen()).toBe('Quartz');
     expect(s().tracks.find((t) => t.id === next)?.guitarChain).toEqual(
       IN_THE_DRAFT,
     );
@@ -397,97 +349,10 @@ describe('the guitar view when another guitar track is selected', () => {
   });
 });
 
-describe('the vocal view after a load that keeps the track id', () => {
-  it('plays and shows the chain the project loaded with', async () => {
-    const id = openProject('vocal-fx', { vocalChain: VOCALS_ON_SCREEN });
-    const draft = draftOfThisProjectWith(id, {
-      vocalChain: VOCALS_IN_THE_DRAFT,
-    });
-    const { container } = render(<TrackControlsPanel />);
-    const first = fakeVocalAdapter();
-    act(() => engine.ready(id, first.adapter));
-    await settle();
-    expect(first.syncChain).toHaveBeenLastCalledWith(VOCALS_ON_SCREEN);
-    expect(container.querySelectorAll('[draggable="true"]')).toHaveLength(1);
-
-    load(draft);
-    const rebuilt = fakeVocalAdapter();
-    act(() => engine.ready(id, rebuilt.adapter));
-    await settle();
-
-    const handed = [
-      ...rebuilt.updateChainParams.mock.calls,
-      ...rebuilt.syncChain.mock.calls,
-    ];
-    expect(handed.length).toBeGreaterThan(0);
-    for (const [chain] of handed) expect(chain).toEqual(VOCALS_IN_THE_DRAFT);
-    // One pedal on screen per block of the loaded chain.
-    expect(container.querySelectorAll('[draggable="true"]')).toHaveLength(2);
-  });
-
-  it('never saves the last chain over the loaded one, not even with the next edit', async () => {
-    const id = openProject('vocal-fx', { vocalChain: VOCALS_ON_SCREEN });
-    const draft = draftOfThisProjectWith(id, {
-      vocalChain: VOCALS_IN_THE_DRAFT,
-    });
-    render(<TrackControlsPanel />);
-    act(() => engine.ready(id, fakeVocalAdapter().adapter));
-    await settle();
-
-    const writes = recordWrites(id, 'vocalChain');
-    load(draft);
-    act(() => engine.ready(id, fakeVocalAdapter().adapter));
-    await settle();
-    expect(s().tracks[0].vocalChain).toEqual(VOCALS_IN_THE_DRAFT);
-
-    // The student adds a pedal: it goes on the end of the loaded chain.
-    fireEvent.click(screen.getByRole('button', { name: 'Chorus' }));
-    await settle();
-
-    expect(s().tracks[0].vocalChain).toEqual([
-      ...VOCALS_IN_THE_DRAFT,
-      expect.objectContaining({ type: 'chorus' }),
-    ]);
-    expect(JSON.stringify(writes)).not.toContain('reverb');
-  });
-});
-
-describe('the vocal view when another vocal track is selected', () => {
-  it('plays, shows and keeps the chain of the track selected', async () => {
-    const first = openProject('vocal-fx', { vocalChain: VOCALS_ON_SCREEN });
-    const next = openProject('vocal-fx', { vocalChain: VOCALS_IN_THE_DRAFT });
-    s().setSelectedTrackId(first);
-    const { container } = render(<TrackControlsPanel />);
-    act(() => engine.ready(first, fakeVocalAdapter().adapter));
-    const onNext = fakeVocalAdapter();
-    act(() => engine.ready(next, onNext.adapter));
-    await settle();
-
-    const writes = recordWrites(next, 'vocalChain');
-    act(() => s().setSelectedTrackId(next));
-    await settle();
-
-    const handed = [
-      ...onNext.updateChainParams.mock.calls,
-      ...onNext.syncChain.mock.calls,
-    ];
-    expect(handed.length).toBeGreaterThan(0);
-    for (const [chain] of handed) expect(chain).toEqual(VOCALS_IN_THE_DRAFT);
-    expect(container.querySelectorAll('[draggable="true"]')).toHaveLength(2);
-    expect(s().tracks.find((t) => t.id === next)?.vocalChain).toEqual(
-      VOCALS_IN_THE_DRAFT,
-    );
-    expect(JSON.stringify(writes)).not.toContain('reverb');
-  });
-});
-
 describe('every instrument view', () => {
   it.each([
-    ['piano-sampler', 'KeyboardView'],
-    ['tonewheel-organ', 'OrganView'],
     ['drum-machine', 'DrumPadsView'],
     ['soundfont', 'SoundFontView'],
-    ['sampler', 'SamplerChopsView'],
     ['oracle-synth', 'OracleSynthInline'],
   ] as const)(
     'on a %s track mounts again for a load, and only for a load',
@@ -509,11 +374,8 @@ describe('every instrument view', () => {
   );
 
   it.each([
-    ['piano-sampler', 'KeyboardView'],
-    ['tonewheel-organ', 'OrganView'],
     ['drum-machine', 'DrumPadsView'],
     ['soundfont', 'SoundFontView'],
-    ['sampler', 'SamplerChopsView'],
     ['oracle-synth', 'OracleSynthInline'],
   ] as const)(
     'on a %s track mounts again for another track of its kind',

@@ -31,8 +31,9 @@ describe('session serialization — drumKit', () => {
     expect(s().tracks.find((t) => t.id === id)?.drumKit).toBe('808');
   });
 
+  // A Chops sample, as saves from before 2026-10-22 hold it.
   it('round-trips samplerSample through serialize → deserialize', () => {
-    s().addTrack('midi', 'sampler', 'Chops');
+    s().addTrack('midi', 'soundfont', 'Chops');
     const id = s().tracks[s().tracks.length - 1].id;
     const sample = {
       sampleId: 'smp-1',
@@ -52,7 +53,7 @@ describe('session serialization — drumKit', () => {
   });
 
   it('backfills sampleId for saves written before the field existed', () => {
-    s().addTrack('midi', 'sampler', 'Chops');
+    s().addTrack('midi', 'soundfont', 'Chops');
     const id = s().tracks[s().tracks.length - 1].id;
     s().setSamplerSample(id, {
       sampleId: 'smp-1',

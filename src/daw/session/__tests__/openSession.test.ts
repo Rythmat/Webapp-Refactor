@@ -123,7 +123,7 @@ const trackNames = () => s().tracks.map((t) => t.name);
 async function liveWork(name = 'Mine'): Promise<string> {
   const opened = await openSession({ kind: 'new' }, { source: 'menu' });
   if (opened.status !== 'ready') throw new Error('no live session');
-  s().addTrack('midi', 'piano-sampler', name);
+  s().addTrack('midi', 'soundfont', name);
   s().setProjectName(`${name} project`);
   notice.mockClear();
   errorToast.mockClear();
@@ -135,7 +135,7 @@ async function liveWork(name = 'Mine'): Promise<string> {
 function draftText(name: string): string {
   const saved = useStore.getState();
   useStore.setState(useStore.getInitialState(), true);
-  s().addTrack('midi', 'piano-sampler', name);
+  s().addTrack('midi', 'soundfont', name);
   const text = JSON.stringify(serializeSession());
   useStore.setState(saved, true);
   return text;
@@ -163,7 +163,7 @@ function cloudProject(
         ordinal: 0,
         name,
         type: 'midi',
-        instrument: 'piano-sampler',
+        instrument: 'soundfont',
         color: '#ffffff',
         mute: false,
         solo: false,

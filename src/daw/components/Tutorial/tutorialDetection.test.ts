@@ -56,7 +56,7 @@ describe('intro lesson checks (pure)', () => {
     // Drum machines are type 'midi' but Prism is hidden for them.
     expect(check(withTrack('drum-machine'), armed)).toBe(false);
     // Audio-input tracks are not type 'midi'.
-    expect(check(withTrack('vocal-fx', 'audio'), armed)).toBe(false);
+    expect(check(withTrack('audio-input', 'audio'), armed)).toBe(false);
     expect(check(mock({ tracks: [], selectedTrackId: null }), armed)).toBe(
       false,
     );
@@ -198,81 +198,6 @@ describe('genre pack — Hip Hop checks', () => {
     const changed = drumTrack([], { drumPads: { ...pads } });
     expect(check(unchanged, before)).toBe(false);
     expect(check(changed, before)).toBe(true);
-  });
-});
-
-describe('genre pack — Pop (Chops) checks', () => {
-  const chopsTrack = (events: unknown[], extra: Record<string, unknown> = {}) =>
-    mock({
-      tracks: [
-        {
-          id: 's1',
-          type: 'midi',
-          instrument: 'sampler',
-          activeEffects: [],
-          midiClips: [{ id: 'c1', events }],
-          ...extra,
-        },
-      ],
-      selectedTrackId: 's1',
-    });
-
-  const otherInstrumentTrack = () =>
-    mock({
-      tracks: [{ id: 'd1', type: 'midi', instrument: 'drum-machine' }],
-      selectedTrackId: 'd1',
-    });
-
-  it('add-chops requires a selected sampler track', () => {
-    const check = stepOf('pop-flip-a-sample', 'add-chops').check!;
-    expect(check(chopsTrack([]), mock({}))).toBe(true);
-    expect(check(otherInstrumentTrack(), mock({}))).toBe(false);
-  });
-
-  it('load-sample requires a NEW sample identity (change-based)', () => {
-    const check = stepOf('pop-flip-a-sample', 'load-sample').check!;
-    const sample = {
-      sampleId: 'smp-1',
-      assetId: null,
-      rootNote: 'C4',
-      attack: 0.005,
-      release: 0.25,
-    };
-    const empty = chopsTrack([]);
-    const loaded = chopsTrack([], { samplerSample: sample });
-    // No sample at all → not done
-    expect(check(empty, empty)).toBe(false);
-    // Sample loaded after arming → done
-    expect(check(loaded, empty)).toBe(true);
-    // Same sample already present when armed → not done (replay-safe)
-    expect(check(loaded, chopsTrack([], { samplerSample: sample }))).toBe(
-      false,
-    );
-    // Knob/root tweak replaces the object but keeps the sampleId → not done
-    const tweaked = chopsTrack([], {
-      samplerSample: { ...sample, rootNote: 'D4', attack: 0.1 },
-    });
-    expect(check(tweaked, loaded)).toBe(false);
-    // A genuine replace mints a new sampleId → done
-    const replaced = chopsTrack([], {
-      samplerSample: { ...sample, sampleId: 'smp-2' },
-    });
-    expect(check(replaced, loaded)).toBe(true);
-  });
-
-  it('play-notes requires 3 more events than when armed', () => {
-    const check = stepOf('pop-flip-a-sample', 'play-notes').check!;
-    const armed = chopsTrack([{}]);
-    expect(check(chopsTrack([{}, {}, {}]), armed)).toBe(false); // +2
-    expect(check(chopsTrack([{}, {}, {}, {}]), armed)).toBe(true); // +3
-  });
-
-  it('space-it-out requires the delay effect active', () => {
-    const check = stepOf('pop-flip-a-sample', 'space-it-out').check!;
-    expect(check(chopsTrack([], { activeEffects: ['delay'] }), mock({}))).toBe(
-      true,
-    );
-    expect(check(chopsTrack([]), mock({}))).toBe(false);
   });
 });
 
@@ -698,8 +623,8 @@ describe('tutorial progress persistence', () => {
 });
 
 describe('lesson data integrity', () => {
-  it('is eight lessons and the Studio Basics nine, with unique ids, unique step ids, and a target per step', () => {
-    expect(TUTORIALS.filter((t) => !t.course).length).toBe(8);
+  it('is seven lessons and the Studio Basics nine, with unique ids, unique step ids, and a target per step', () => {
+    expect(TUTORIALS.filter((t) => !t.course).length).toBe(7);
     expect(TUTORIALS.filter((t) => t.course === 'studio-basics').length).toBe(
       9,
     );

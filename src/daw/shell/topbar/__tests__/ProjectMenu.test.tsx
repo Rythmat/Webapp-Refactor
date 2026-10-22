@@ -233,7 +233,7 @@ describe('Project ▸ Save and Save as', () => {
 describe('Project ▸ Delete project', () => {
   it('keeps the session open as device-only work, its link let go everywhere', async () => {
     h.confirmDialog.mockResolvedValue(true);
-    const keys = s().addTrack('audio', 'guitar-fx', 'Take');
+    const keys = s().addTrack('audio', 'audio-input', 'Take');
     s().updateTrack(keys, {
       audioClips: [
         {

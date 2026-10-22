@@ -4,8 +4,7 @@ import { importMidiToTracks } from '@/daw/midi/importMidiToTracks';
 
 // ── Drops on the timeline (milestone 2.14, plan finding F11) ───────────────
 //
-// What the canvas (and an empty project's first steps, which cover it) take
-// when something is dropped on them:
+// What the canvas takes when something is dropped on it:
 // - a Library row: its item, at the bar under the pointer, on the lane's
 //   track when it fits there, else on a new track (addItem, with the song's
 //   key and tempo rules). Drag is the Library's second way in; + is the

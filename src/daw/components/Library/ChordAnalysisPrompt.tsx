@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTrackColorOf } from '@/daw/harmony/trackColor';
 import { Check, Sparkles } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { trackRole, type ChordAnalysis } from '@/daw/utils/chordAnalysis';
@@ -58,6 +59,8 @@ function ScopeChoice({
  * at either step leaves the chord lane untouched; Insight keeps the analysis.
  */
 export function ChordAnalysisPrompt() {
+  // Harmony Color: tracks in the key centre's colour, else their own.
+  const colorOf = useTrackColorOf();
   const open = useStore((s) => s.chordAnalysisPromptOpen);
   const closePrompt = useStore((s) => s.closeChordAnalysisPrompt);
   const tracks = useStore((s) => s.tracks);
@@ -211,7 +214,7 @@ export function ChordAnalysisPrompt() {
                     />
                     <span
                       className="size-2 rounded-full"
-                      style={{ backgroundColor: t.color }}
+                      style={{ backgroundColor: colorOf(t.color) }}
                     />
                     {t.name}
                     <span className={TYPE_CLASS.label} style={dim}>

@@ -1,4 +1,3 @@
-import { ChevronLeft, ChevronRight, Keyboard, Loader2 } from 'lucide-react';
 import {
   useCallback,
   useEffect,
@@ -7,20 +6,25 @@ import {
   useState,
   type RefObject,
 } from 'react';
+import { Loader2, Play, Plus, Square } from 'lucide-react';
 import { cn } from '@/components/utilities';
+import {
+  LIST,
+  ROW,
+  ROW_OFF,
+  ROW_ON,
+} from '@/daw/components/Controls/SoundBrowser';
 import { auditionNote } from '@/daw/audio/auditionNote';
 import {
   DRUM_TYPING_OCTAVE,
   typingKeyFor,
 } from '@/daw/commands/musicalTypingMap';
-import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
-import { shortcutKeys } from '@/daw/commands/shortcuts';
-import { previewTrack } from '@/daw/engine/trackReconciler';
-import { useContinuousControl } from '@/daw/hooks/useContinuousControl';
 import {
-  useTrackPanControl,
-  useTrackVolumeControl,
-} from '@/daw/hooks/useMixControls';
+  GROOVE_GENRES,
+  GROOVES,
+  type GrooveItem,
+} from '@/daw/data/groovesLibrary';
+import { addGrooveClip, grooveInPattern } from '@/daw/drums/addGrooveClip';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import {
   DRUM_KITS,
@@ -29,13 +33,18 @@ import {
 } from '@/daw/instruments/DrumMachineEngine';
 import { padLabel } from '@/daw/instruments/drumKits';
 import { liveMidiTargetIds } from '@/daw/midi/liveTarget';
+import { loadGrooveEvents } from '@/daw/midi/loadGrooveEvents';
+import { resolveEditorClip } from '@/daw/model/editorClip';
 import { useStore, type Track } from '@/daw/store';
-import { formatGain } from '@/daw/ui/format';
+import { useBrowserStore } from '@/daw/shell/inspector/browser/browserStore';
+import {
+  fromEvents,
+  startNotesPreview,
+  stopPreview,
+} from '@/daw/shell/inspector/browser/preview';
 import { IconButton } from '@/daw/ui/IconButton';
-import { Knob } from '@/daw/ui/Knob';
-import { Select } from '@/daw/ui/Select';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
-import { Toggle } from '@/daw/ui/Toggle';
+import { FoldableDockColumn } from './FoldableDockColumn';
 import {
   badgePoint,
   KIT_BADGES,
@@ -50,28 +59,26 @@ import {
 // owner's reference, 2026-10-16): a top-down kit of round pads, each with
 // the computer key that plays it (the kit's own octave, DRUM_TYPING_OCTAVE:
 // A is the kick), and the sidestick and the open and pedal hats as badges
-// on the rims of the drums they're played on. A click plays a pad and picks
-// it for the pad knobs. Above the kit (beside it when the dock is short, as
-// on a Chromebook, so the kit keeps the height): the kit's menu with ‹ ›,
-// the track's volume and pan, the picked pad's volume and pan, and the
-// computer keyboard's switch. Our look, not Soundtrap's: neutral rings, the
-// white key badges, Glacial and the 12 px floor. The beat itself is edited
-// on the drum grid in Notes. The kit menu keeps the lesson anchor
-// drum-kit-selector. A pad mix drag plays through the track's engine and
-// writes the pads it changed once, on release, as one undo step (as the
-// drum grid's own pad knobs do).
+// on the rims of the drums they're played on. A click plays a pad. The
+// menu at the left is the drums' own (owner, 2026-10-22), in the look of
+// every MIDI instrument's (SoundBrowser): the kits in its first column
+// (Natural, 808, House…; the list keeps the lesson anchor
+// drum-kit-selector), the grooves in its second, by genre. A kit picked
+// plays the pads; a groove has Preview, to hear it first, and Add, to put
+// it on the timeline (addGrooveClip). The kit takes the rest of the tab: the track's
+// and the pads' volume and pan knobs went from it (owner, 2026-10-21; the
+// track's are its row's, the pads' the drum grid's). Our look, not
+// Soundtrap's: neutral rings, the white key badges, Glacial and the 12 px
+// floor. The beat itself is edited on the drum grid in Notes.
 
-type DrumPads = NonNullable<Track['drumPads']>;
-
-/** Below this height the controls go beside the kit instead of above it. */
-const SIDE_CONTROLS_BELOW_PX = 240;
-
-const TYPING_KEYS = shortcutKeys('typing.on');
-
-const panText = (pan: number) =>
-  Math.abs(pan) < 0.005
-    ? 'Center'
-    : `${pan < 0 ? 'L' : 'R'}${Math.round(Math.abs(pan) * 100)}`;
+/** The grooves, by genre, in the Grooves tab's genre order. */
+const GROOVE_GROUPS: readonly { genre: string; grooves: GrooveItem[] }[] =
+  GROOVE_GENRES.filter((g) => g !== 'All')
+    .map((genre) => ({
+      genre,
+      grooves: GROOVES.filter((g) => g.genre === genre),
+    }))
+    .filter((group) => group.grooves.length > 0);
 
 const keyOf = (note: number) => typingKeyFor(note, DRUM_TYPING_OCTAVE);
 
@@ -94,16 +101,11 @@ function useBoxSize(ref: RefObject<HTMLElement>) {
 
 export function DrumPadsView({ trackId }: { trackId: string }) {
   const track = useStore((s) => s.tracks.find((t) => t.id === trackId));
-  const rootRef = useRef<HTMLDivElement>(null);
-  const root = useBoxSize(rootRef);
-  const side = root.height > 0 && root.height < SIDE_CONTROLS_BELOW_PX;
-  const [picked, setPicked] = useState(36);
   const [hit, setHit] = useState<number | null>(null);
 
   const play = useCallback(
     (note: number) => {
       auditionNote(trackId, note, 100);
-      setPicked(note);
       setHit(note);
     },
     [trackId],
@@ -114,263 +116,241 @@ export function DrumPadsView({ trackId }: { trackId: string }) {
     return () => window.clearTimeout(id);
   }, [hit]);
 
-  return (
-    <div
-      ref={rootRef}
-      data-testid="drum-pads"
-      data-ds="v2"
-      data-layout={side ? 'side' : 'top'}
-      className={cn(
-        'flex h-full min-h-0 gap-2 p-2',
-        side ? 'flex-row' : 'flex-col',
-      )}
-    >
-      {track ? (
-        <>
-          <KitControls track={track} picked={picked} side={side} />
-          <Kit track={track} picked={picked} hit={hit} onPlay={play} />
-        </>
-      ) : null}
-    </div>
-  );
-}
-
-// ── The controls ────────────────────────────────────────────────────────────
-
-function KitControls({
-  track,
-  picked,
-  side,
-}: {
-  track: Track;
-  picked: number;
-  side: boolean;
-}) {
-  return (
-    <div
-      data-testid="drum-kit-controls"
-      className={cn(
-        'flex shrink-0 gap-x-4 gap-y-2',
-        side
-          ? 'w-60 flex-col justify-center'
-          : 'flex-wrap items-center justify-between px-1',
-      )}
-    >
-      <KitPicker track={track} />
-      <div className="flex items-start gap-4">
-        <TrackKnobs track={track} />
-        <PadKnobs track={track} note={picked} />
-      </div>
-      <TypingSwitch />
-    </div>
-  );
-}
-
-function KitPicker({ track }: { track: Track }) {
-  const kit = track.drumKit ?? 'natural';
+  // The kits are the dock's sound column (SoundBrowser), as every MIDI
+  // instrument's sounds are.
+  const kit = track?.drumKit ?? 'natural';
   const setDrumKit = useStore((s) => s.setDrumKit);
-  const [loading, setLoading] = useState(false);
-  const index = Math.max(
-    0,
-    DRUM_KITS.findIndex((k) => k.id === kit),
-  );
-
+  const [loadingKit, setLoadingKit] = useState<string | null>(null);
   const changeKit = async (kitId: string) => {
-    setDrumKit(track.id, kitId);
+    setDrumKit(trackId, kitId);
     // setDrumKit does nothing while a collaborator holds the track.
     const took =
-      useStore.getState().tracks.find((t) => t.id === track.id)?.drumKit ===
+      useStore.getState().tracks.find((t) => t.id === trackId)?.drumKit ===
       kitId;
     if (!took) return;
-    const state = trackEngineRegistry.get(track.id);
+    const state = trackEngineRegistry.get(trackId);
     if (!(state?.instrument instanceof DrumMachineEngine)) return;
-    setLoading(true);
+    setLoadingKit(kitId);
     try {
       await state.instrument.setKit(kitId);
     } catch (err) {
       console.error('[DrumPadsView] Failed to load kit:', err);
     } finally {
-      setLoading(false);
+      setLoadingKit((k) => (k === kitId ? null : k));
     }
   };
-  const step = (by: number) => {
-    const next = DRUM_KITS[(index + by + DRUM_KITS.length) % DRUM_KITS.length];
-    if (next) void changeKit(next.id);
+
+  // The grooves: listen first, then add (owner, 2026-10-22). Preview plays
+  // one on this track's kit at the song's tempo (the Library's preview, one
+  // at a time across the Library and the dock); Add puts it on the timeline
+  // at the playhead's bar (addGrooveClip). The groove the drum grid shows
+  // is marked.
+  const patternName = useStore(
+    (s) => resolveEditorClip(s, trackId)?.name ?? undefined,
+  );
+  const inPattern = grooveInPattern(patternName, GROOVES);
+  const previewing = useBrowserStore((s) =>
+    s.preview?.itemId.startsWith(previewPrefix(trackId))
+      ? s.preview.itemId.slice(previewPrefix(trackId).length)
+      : null,
+  );
+  const togglePreview = (item: GrooveItem) => {
+    if (previewing === item.id) {
+      stopPreview();
+      return;
+    }
+    const entry = trackEngineRegistry.get(trackId);
+    if (!entry) return;
+    void startNotesPreview(
+      previewPrefix(trackId) + item.id,
+      entry.trackEngine,
+      async () => {
+        const events = await loadGrooveEvents(item.id);
+        return events ? fromEvents(events, useStore.getState().bpm) : [];
+      },
+    );
+  };
+  // A preview stops when the song plays or records, and when the tab goes.
+  useEffect(() => {
+    const stopMine = () => {
+      const id = useBrowserStore.getState().preview?.itemId;
+      if (id?.startsWith(previewPrefix(trackId))) stopPreview();
+    };
+    const off = useStore.subscribe(
+      (s) => s.isPlaying || s.isRecording,
+      (on) => {
+        if (on) stopMine();
+      },
+    );
+    return () => {
+      off();
+      stopMine();
+    };
+  }, [trackId]);
+  const [adding, setAdding] = useState<string | null>(null);
+  const addGroove = async (item: GrooveItem) => {
+    setAdding(item.id);
+    try {
+      await addGrooveClip(trackId, item);
+    } finally {
+      setAdding((g) => (g === item.id ? null : g));
+    }
   };
 
   return (
-    <div className="flex items-center gap-1">
-      <IconButton
-        label="Previous kit"
-        icon={<ChevronLeft />}
-        size="md"
-        onClick={() => step(-1)}
-      />
-      <div data-tutorial-id="drum-kit-selector">
-        <Select
-          label="Drum kit"
-          value={kit}
-          onValueChange={(next) => void changeKit(next)}
-          options={DRUM_KITS.map((k) => ({ value: k.id, label: k.label }))}
-          className="w-36"
-        />
+    <div className="flex h-full min-h-0 flex-1">
+      {/* Folds to a rail for the kit's room, as every instrument's menu. */}
+      <FoldableDockColumn
+        panel="sounds"
+        name="Menu"
+        width={380}
+        testId="sound-browser"
+      >
+        <div data-ds="v2" className="flex min-h-0 flex-1">
+          <ul
+            aria-label="Drum kits"
+            data-testid="drum-kit-list"
+            data-tutorial-id="drum-kit-selector"
+            className={cn(
+              LIST,
+              'w-[128px] shrink-0 border-r border-daw-hairline',
+            )}
+            style={{ scrollbarWidth: 'thin' }}
+          >
+            {DRUM_KITS.map((k) => {
+              const on = k.id === kit;
+              return (
+                <li key={k.id}>
+                  <button
+                    type="button"
+                    aria-current={on || undefined}
+                    data-sound={k.id}
+                    onClick={() => void changeKit(k.id)}
+                    className={cn(ROW, on ? ROW_ON : ROW_OFF)}
+                  >
+                    <span className="min-w-0 flex-1 truncate">{k.label}</span>
+                    {k.id === loadingKit ? <Spinner /> : null}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          {/* Its right padding keeps each row's Add clear of the fold
+              handle on the column's edge. */}
+          <ul
+            aria-label="Grooves"
+            data-testid="drum-groove-list"
+            data-tutorial-id="drum-grooves"
+            className={cn(LIST, 'min-w-0 flex-1 pr-7')}
+            style={{ scrollbarWidth: 'thin' }}
+          >
+            {GROOVE_GROUPS.map((group) => (
+              <li key={group.genre}>
+                <p
+                  className={cn(
+                    TYPE_CLASS.label,
+                    'px-2 pb-1 pt-2 font-bold text-daw-text-3',
+                  )}
+                >
+                  {group.genre}
+                </p>
+                <ul className="m-0 list-none p-0">
+                  {group.grooves.map((item) => (
+                    <li key={item.id}>
+                      <GrooveRow
+                        groove={item}
+                        current={item.id === inPattern}
+                        playing={item.id === previewing}
+                        adding={item.id === adding}
+                        onPreview={() => togglePreview(item)}
+                        onAdd={() => void addGroove(item)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </FoldableDockColumn>
+      <div className="relative min-w-0 flex-1">
+        <div
+          data-testid="drum-pads"
+          data-ds="v2"
+          className="absolute inset-0 flex min-h-0 p-2"
+        >
+          {track ? <Kit track={track} hit={hit} onPlay={play} /> : null}
+        </div>
       </div>
-      <IconButton
-        label="Next kit"
-        icon={<ChevronRight />}
-        size="md"
-        onClick={() => step(1)}
-      />
-      {loading ? (
-        <Loader2
-          aria-label="Loading the kit"
-          className="size-4 animate-spin text-daw-text-3 motion-reduce:animate-none"
-        />
-      ) : null}
     </div>
   );
 }
 
-function KnobGroup({
-  title,
-  children,
+/** The shared preview's id for a groove played from this track's menu. */
+const previewPrefix = (trackId: string) => `dock-groove:${trackId}:`;
+
+/** A groove: its name and tempo, Preview and Add. */
+function GrooveRow({
+  groove,
+  current,
+  playing,
+  adding,
+  onPreview,
+  onAdd,
 }: {
-  title: string;
-  children: React.ReactNode;
+  groove: GrooveItem;
+  /** The groove the drum grid shows now. */
+  current: boolean;
+  playing: boolean;
+  adding: boolean;
+  onPreview(): void;
+  onAdd(): void;
 }) {
   return (
-    <div role="group" aria-label={title} className="flex flex-col gap-0.5">
-      <span className={cn(TYPE_CLASS.micro, 'truncate text-daw-text-3')}>
-        {title}
+    <div
+      data-groove={groove.id}
+      aria-current={current || undefined}
+      className={cn(ROW, 'gap-1 pr-0.5', current || playing ? ROW_ON : ROW_OFF)}
+    >
+      <span className="min-w-0 flex-1 truncate">{groove.name}</span>
+      <span className="shrink-0 tabular-nums text-daw-text-3">
+        {groove.bpm} BPM
       </span>
-      <div className="flex items-start gap-2">{children}</div>
+      <IconButton
+        label={playing ? `Stop ${groove.name}` : `Preview ${groove.name}`}
+        icon={playing ? <Square /> : <Play />}
+        size="sm"
+        variant="ghost"
+        aria-pressed={playing}
+        data-testid="groove-preview"
+        data-hint={playing ? 'Stop the preview' : 'Preview: hear the groove'}
+        onClick={onPreview}
+      />
+      {adding ? (
+        <span className="flex size-6 shrink-0 items-center justify-center">
+          <Spinner />
+        </span>
+      ) : (
+        <IconButton
+          label={`Add ${groove.name} to the timeline`}
+          icon={<Plus />}
+          size="sm"
+          variant="ghost"
+          data-testid="groove-add"
+          data-hint="Add: put the groove on the timeline at the playhead"
+          onClick={onAdd}
+        />
+      )}
     </div>
   );
 }
 
-/** The whole kit's level and place: the track's volume and pan. */
-function TrackKnobs({ track }: { track: Track }) {
-  const volume = useTrackVolumeControl(track);
-  const pan = useTrackPanControl(track);
+function Spinner() {
   return (
-    <KnobGroup title="Kit">
-      <div onPointerDownCapture={volume.begin}>
-        <Knob
-          label="Volume"
-          size="sm"
-          min={0}
-          max={1}
-          step={0.01}
-          resetValue={0.8}
-          value={volume.value}
-          format={(v) => formatGain(v)}
-          onChange={volume.change}
-          onCommit={volume.end}
-          showValue={false}
-        />
-      </div>
-      <div onPointerDownCapture={pan.begin}>
-        <Knob
-          label="Pan"
-          size="sm"
-          min={-1}
-          max={1}
-          step={0.01}
-          resetValue={0}
-          bipolar
-          value={pan.value}
-          format={panText}
-          onChange={pan.change}
-          onCommit={pan.end}
-          showValue={false}
-        />
-      </div>
-    </KnobGroup>
-  );
-}
-
-/** The picked pad's level and place in the kit (the track's drumPads). */
-function PadKnobs({ track, note }: { track: Track; note: number }) {
-  const updateDrumPad = useStore((s) => s.updateDrumPad);
-  const mix = useContinuousControl<DrumPads | undefined>({
-    value: track.drumPads,
-    preview: (drumPads) => previewTrack(track.id, { drumPads }),
-    commit: (next, start) => {
-      if (!next) return;
-      for (const [pad, params] of Object.entries(next)) {
-        if (params !== start?.[Number(pad)]) {
-          updateDrumPad(track.id, Number(pad), params);
-        }
-      }
-    },
-    label: 'Change drum mix',
-  });
-  const latest = useRef(mix.value);
-  latest.current = mix.value;
-  const change = mix.change;
-  const setPad = (params: Partial<DrumPads[number]>) => {
-    const current = latest.current;
-    const prev = current?.[note] ?? { volume: 0.8, pan: 0 };
-    const next = { ...current, [note]: { ...prev, ...params } };
-    latest.current = next;
-    change(next);
-  };
-  const name = padLabel(note, track.drumKit ?? 'natural');
-  const state = mix.value?.[note];
-  return (
-    <KnobGroup title={name}>
-      <div onPointerDownCapture={mix.begin}>
-        <Knob
-          label="Volume"
-          size="sm"
-          min={0}
-          max={1}
-          step={0.01}
-          resetValue={0.8}
-          value={state?.volume ?? 0.8}
-          format={(v) => formatGain(v)}
-          onChange={(v) => setPad({ volume: v })}
-          onCommit={mix.end}
-          showValue={false}
-        />
-      </div>
-      <div onPointerDownCapture={mix.begin}>
-        <Knob
-          label="Pan"
-          size="sm"
-          min={-1}
-          max={1}
-          step={0.01}
-          resetValue={0}
-          bipolar
-          value={state?.pan ?? 0}
-          format={panText}
-          onChange={(v) => setPad({ pan: v })}
-          onCommit={mix.end}
-          showValue={false}
-        />
-      </div>
-    </KnobGroup>
-  );
-}
-
-/** The computer keyboard's switch: with it on, the letters play the kit. */
-function TypingSwitch() {
-  const on = useMusicalTypingStore((s) => s.enabled);
-  const setEnabled = useMusicalTypingStore((s) => s.setEnabled);
-  return (
-    <Toggle
-      label="Play the kit from the computer keyboard (the letters on the pads)"
-      icon={<Keyboard />}
-      pressed={on}
-      onPressedChange={setEnabled}
-      shortcut={TYPING_KEYS.label}
-      aria-keyshortcuts={TYPING_KEYS.aria}
-      data-testid="drum-kit-typing"
-      className="self-start"
-    >
-      Keys
-    </Toggle>
+    <Loader2
+      aria-label="Loading"
+      className="size-3.5 shrink-0 animate-spin text-daw-text-3 motion-reduce:animate-none"
+    />
   );
 }
 
@@ -380,12 +360,10 @@ const EMPTY = new Set<number>();
 
 function Kit({
   track,
-  picked,
   hit,
   onPlay,
 }: {
   track: Track;
-  picked: number;
   hit: number | null;
   onPlay(note: number): void;
 }) {
@@ -443,9 +421,7 @@ function Kit({
                   'absolute rounded-full border-2',
                   lit(drum.note)
                     ? '!border-daw-text bg-daw-selected'
-                    : drum.note === picked
-                      ? '!border-daw-text bg-daw-surface-2 hover:bg-daw-hover'
-                      : '!border-daw-text-3 bg-daw-surface-2 hover:bg-daw-hover',
+                    : '!border-daw-text-3 bg-daw-surface-2 hover:bg-daw-hover',
                   TRANSITION,
                   FOCUS_RING,
                 )}
@@ -493,9 +469,7 @@ function Kit({
                   TYPE_CLASS.label,
                   lit(badge.note)
                     ? 'bg-daw-text-2 text-daw-on-primary ring-2 ring-daw-text'
-                    : badge.note === picked
-                      ? 'bg-daw-primary text-daw-on-primary ring-2 ring-daw-text-2'
-                      : 'bg-daw-primary text-daw-on-primary hover:bg-daw-primary-hover',
+                    : 'bg-daw-primary text-daw-on-primary hover:bg-daw-primary-hover',
                   TRANSITION,
                   FOCUS_RING,
                 )}

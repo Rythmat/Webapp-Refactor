@@ -8,9 +8,11 @@ import {
   useState,
   type RefObject,
 } from 'react';
+import { trackColorOf } from '@/daw/harmony/trackColor';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useArrangeKeymap } from '@/daw/commands/clipCommands';
-import { withTransaction } from '@/daw/store/history';
+import { withTransaction, withoutHistory } from '@/daw/store/history';
+import { insertChordAt, setChordEditor } from '@/daw/shell/canvas/chordActions';
 import { openClipEditor } from '@/daw/shell/dock/dockSelection';
 import { useStore } from '@/daw/store';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
@@ -62,7 +64,7 @@ import {
 } from './clipChrome';
 import {
   getPeakPyramid,
-  readPeaks,
+  readChannelPeaks,
   subscribePeakPyramids,
 } from '@/daw/audio/peaks';
 import { splitAudioClipAt } from './splitAudioClipAt';
@@ -81,7 +83,6 @@ import {
 import {
   LOOP_STRIP_H,
   PLAYHEAD_HANDLE_H,
-  PLAYHEAD_HANDLE_W,
   dragLoopRange,
   drawLoopRegion,
   rulerPressTarget,
@@ -119,12 +120,19 @@ import {
   useTimelineTracks,
 } from './timelineGeometry';
 import {
+  CHORD_LABEL_INSET_PX,
+  chordLabelFits,
+  chordLabelsShown,
+  chordRulerLabel,
+} from './chordLabels';
+import {
   CHORD_LANE_PX,
   LANE_HEADER_PX,
   RULER_PX,
   clampedRowAt,
   rowIndexAt,
   rowLayoutOf,
+  TRACK_FOOT_PX,
 } from '@/daw/shell/tracklist/rowLayout';
 import { pauseFollow, useFollowPlayhead } from '@/daw/editor/follow';
 import { publishTimelineWidth, songLengthOf } from '@/daw/editor/viewport';
@@ -158,6 +166,8 @@ const PAN_DRAG_THRESHOLD = 4;
 // Pixels a press on a marker may move and still be a click, which goes to
 // the marker (plan finding F8); further, it drags the marker.
 const MARKER_DRAG_SLOP_PX = 3;
+/** How near (px) a chord's end the pointer takes the end, to resize it. */
+const CHORD_EDGE_PX = 5;
 
 // ── Audio tiles without their audio ─────────────────────────────────────
 
@@ -419,8 +429,9 @@ function readCanvasTokens(): CanvasTokens {
 // Painted through a ref from the playhead clock (milestone 1.7): playback
 // moves this line every frame without rendering it or the Timeline
 // (timeline-23). It renders only when the zoom, scroll or width change, and
-// when recording starts or stops: it is white, and record red while
-// recording (milestone 2.7).
+// when playback or recording starts or stops. Suno's (owner, 2026-10-22): a
+// 1 px line under a round head on the bar ruler, white while the song plays,
+// a dim grey while it is stopped, and record red while recording (2.7).
 const TimelinePlayhead = memo(function TimelinePlayhead({
   zoom,
   scrollLeft,
@@ -436,7 +447,12 @@ const TimelinePlayhead = memo(function TimelinePlayhead({
 }) {
   const lineRef = useRef<HTMLDivElement | null>(null);
   const recording = useStore((s) => s.isRecording);
-  const color = recording ? 'var(--daw-record)' : 'var(--daw-playhead)';
+  const playing = useStore((s) => s.isPlaying);
+  const color = recording
+    ? 'var(--daw-record)'
+    : playing
+      ? 'var(--daw-playhead)'
+      : 'var(--daw-text-3)';
   usePlayheadEffect((tick) => {
     const line = lineRef.current;
     if (!line) return;
@@ -455,22 +471,26 @@ const TimelinePlayhead = memo(function TimelinePlayhead({
       ref={lineRef}
       className="pointer-events-none absolute inset-y-0"
       data-testid="timeline-playhead"
+      data-playing={playing || undefined}
       style={{
-        width: 2,
+        width: 1,
         backgroundColor: color,
         willChange: 'transform',
       }}
     >
-      {/* Grab handle at the foot of the bar ruler (hit-tested by the canvas
-          via rulerPressTarget; the Timeline re-pins it on scroll). */}
+      {/* The round head, the grab handle, at the foot of the bar ruler
+          (hit-tested by the canvas via rulerPressTarget; the Timeline
+          re-pins it on scroll). */}
       <div
         ref={handleRef}
+        data-testid="timeline-playhead-head"
         style={{
           position: 'absolute',
-          left: 1 - PLAYHEAD_HANDLE_W / 2,
-          borderLeft: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
-          borderRight: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
-          borderTop: `${PLAYHEAD_HANDLE_H}px solid ${color}`,
+          left: 0.5 - PLAYHEAD_HANDLE_H / 2,
+          width: PLAYHEAD_HANDLE_H,
+          height: PLAYHEAD_HANDLE_H,
+          borderRadius: '50%',
+          backgroundColor: color,
         }}
       />
     </div>
@@ -532,6 +552,18 @@ export function Timeline({ scrollRef }: TimelineProps) {
   // Chord-lane selection anchor: the last chord clicked without Shift, so a
   // Shift-click selects the run from it (nextChordSelection).
   const chordAnchorRef = useRef<string | null>(null);
+  // A press on the chord ruler (owner, 2026-10-21): near a chord's end it
+  // resizes it, elsewhere on a chord it moves it, once past the slop (a
+  // click only selects). The drag shows on the ruler, and in the Score,
+  // outside undo; the release writes it as one step from `before`.
+  const chordDragRef = useRef<{
+    id: string;
+    mode: 'move' | 'resize';
+    startX: number;
+    grabTicks: number;
+    before: ChordRegion[];
+    moved: boolean;
+  } | null>(null);
   // ⌘/Ctrl-drag in the track area: a marquee selecting, for Insight, every
   // note it touches in the clips it crosses. Canvas coords.
   // A plain press on empty canvas starts one too: released without a drag
@@ -673,6 +705,9 @@ export function Timeline({ scrollRef }: TimelineProps) {
     const drawStart = import.meta.env.DEV ? performance.now() : 0;
 
     const state = useStore.getState();
+    // Harmony Color: a track's clips in the key centre's colour, else its
+    // own (harmony/trackColor; owner, 2026-10-22).
+    const colorOf = (t: { color: string }) => trackColorOf(t.color, state);
     const tracks = state.tracks;
     const gridSize = state.timelineGridSize;
     const chordRulerShowNotes = state.chordRulerShowNotes;
@@ -692,9 +727,11 @@ export function Timeline({ scrollRef }: TimelineProps) {
     // (timeline-11).
     const dpr = window.devicePixelRatio || 1;
     const cw = container.clientWidth;
+    // Down to the track column's foot (+ Add track and the Master strip
+    // under the rows), so the grid shows wherever the column scrolls to.
     const ch = Math.max(
       viewportH > 0 ? viewportH : container.clientHeight,
-      rows.total + RULERS_HEIGHT,
+      rows.total + RULERS_HEIGHT + TRACK_FOOT_PX,
     );
 
     // Resize canvas to viewport (virtual rendering — not content size)
@@ -732,6 +769,23 @@ export function Timeline({ scrollRef }: TimelineProps) {
     // ── Clear ──────────────────────────────────────────────────────
     ctx.fillStyle = colorBg;
     ctx.fillRect(0, 0, cw, ch);
+
+    // ── The selected track's lane ─────────────────────────────────
+    // A neutral lift across the whole lane, under the bar shading and the
+    // grid, so the lines read through it (Suno's selection). None while
+    // Master is the list's selection (its strip, 2026-10-22).
+    const selectedLane = state.dockMaster
+      ? -1
+      : tracks.findIndex((t) => t.id === state.selectedTrackId);
+    if (selectedLane >= 0) {
+      ctx.fillStyle = `rgba(${colorGridRgb}, 0.05)`;
+      ctx.fillRect(
+        0,
+        rows.tops[selectedLane] + RULERS_HEIGHT,
+        cw,
+        rows.heights[selectedLane],
+      );
+    }
 
     // (Top ruler + time ruler drawn at end with scroll-offset for sticky behavior)
 
@@ -923,8 +977,10 @@ export function Timeline({ scrollRef }: TimelineProps) {
         ctx.fill();
 
         // ── Clip header + piano-roll notes ─────────────────────────
-        // Skip details at extreme zoom-out for performance
-        if (clipWidth > 8 && currentPpb >= 5) {
+        // At every zoom: they used to go below 5 px a beat, so the furthest
+        // zoom-out showed empty clips. Only a clip too narrow to hold
+        // anything skips them.
+        if (clipWidth > 8) {
           ctx.save();
           ctx.beginPath();
           ctx.roundRect(
@@ -952,7 +1008,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
               effectiveH,
               eventsMinTick,
               clipDuration,
-              track.color,
+              colorOf(track),
               state.chordRegions,
               state.clipColorMode === 'prism',
               marqueeHits
@@ -988,7 +1044,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
                 ? null
                 : (clipKeyOf(clip.events, songKey)?.label ?? null),
               muted,
-              color: track.color,
+              color: colorOf(track),
             },
             palette,
           );
@@ -1029,7 +1085,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
         if (liveDur > 0) {
           const liveX = tickToPixel(liveStart, currentZoom, currentScrollLeft);
           const liveW = Math.max((liveDur / TICKS_PER_BEAT) * currentPpb, 20);
-          ctx.fillStyle = track.color + '28';
+          ctx.fillStyle = colorOf(track) + '28';
           ctx.beginPath();
           ctx.roundRect(liveX, y + CLIP_INSET, liveW, boxH, 4);
           ctx.fill();
@@ -1047,7 +1103,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
             boxH,
             liveStart,
             liveDur,
-            track.color,
+            colorOf(track),
             state.chordRegions,
             state.clipColorMode === 'prism',
           );
@@ -1069,7 +1125,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
         const liveW = Math.max((totalTicks / TICKS_PER_BEAT) * currentPpb, 20);
 
         // Background
-        ctx.fillStyle = track.color + '28';
+        ctx.fillStyle = colorOf(track) + '28';
         ctx.beginPath();
         ctx.roundRect(liveX, y + CLIP_INSET, liveW, boxH, 4);
         ctx.fill();
@@ -1099,7 +1155,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
             centerY,
             liveW,
             maxH,
-            track.color + 'AA',
+            colorOf(track) + 'AA',
           );
           ctx.restore();
         }
@@ -1174,7 +1230,11 @@ export function Timeline({ scrollRef }: TimelineProps) {
         ctx.roundRect(clipX, effectiveY + CLIP_INSET, clipWidth, effectiveH, 4);
         ctx.fill();
 
-        if (clipWidth > 8 && currentPpb >= 5) {
+        // The waveform at every zoom: it used to go below 5 px a beat, so
+        // the furthest zoom-out showed audio clips empty while they played.
+        // It reads only the peaks of the points on the canvas, fewer the
+        // further out, so a zoomed-out song costs less, not more.
+        if (clipWidth > 8) {
           ctx.save();
           ctx.beginPath();
           ctx.roundRect(
@@ -1206,7 +1266,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
           const pyramid = audioBuffer ? getPeakPyramid(audioBuffer) : undefined;
 
           if (pyramid === null) {
-            ctx.strokeStyle = track.color + '66';
+            ctx.strokeStyle = colorOf(track) + '66';
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(clipX + 4, centerY);
@@ -1253,7 +1313,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
               Math.min(sampleCount - 1, Math.ceil((cw - clipX) / dx) + 1),
             );
             const sr = audioBuffer.sampleRate;
-            const amps = readPeaks(
+            const channels = readChannelPeaks(
               pyramid,
               audioBuffer,
               sampleCount,
@@ -1263,15 +1323,32 @@ export function Timeline({ scrollRef }: TimelineProps) {
               lastPoint,
             );
 
-            drawSmoothWaveform(
-              ctx,
-              amps,
-              clipX + firstPoint * dx,
-              centerY,
-              (lastPoint - firstPoint) * dx,
-              maxH,
-              track.color + 'AA',
-            );
+            // A stereo clip draws left over right, each in half the body
+            // with a faint line between them; a mono one fills the body.
+            const lanes = channels.length;
+            const laneH = bodyH / lanes;
+            const bodyTop = effectiveY + CLIP_INSET + CLIP_HEADER_PX;
+            channels.forEach((amps, c) => {
+              drawSmoothWaveform(
+                ctx,
+                amps,
+                clipX + firstPoint * dx,
+                bodyTop + laneH * (c + 0.5),
+                (lastPoint - firstPoint) * dx,
+                lanes > 1 ? (laneH - 2) * 0.46 : maxH,
+                colorOf(track) + 'AA',
+              );
+            });
+            if (lanes > 1) {
+              ctx.strokeStyle = colorOf(track) + '33';
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              const midY = Math.round(bodyTop + laneH) + 0.5;
+              // Only across the canvas: a long take is far wider.
+              ctx.moveTo(Math.max(clipX, 0), midY);
+              ctx.lineTo(Math.min(clipX + clipWidth, cw), midY);
+              ctx.stroke();
+            }
           }
 
           // ── Fade overlays ── over the body, under the header: the
@@ -1325,7 +1402,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
               title: clip.name?.trim() || track.name,
               keyLabel: null,
               muted,
-              color: track.color,
+              color: colorOf(track),
               insetLeft: 12,
               insetRight: 12,
             },
@@ -1550,6 +1627,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
 
     // Chord regions
     const currentChordRegions = state.chordRegions;
+    const showChordNames = chordLabelsShown(currentZoom);
     for (const region of currentChordRegions) {
       const x1 = tickToPixel(region.startTick, currentZoom, currentScrollLeft);
       const x2 = tickToPixel(region.endTick, currentZoom, currentScrollLeft);
@@ -1573,25 +1651,34 @@ export function Timeline({ scrollRef }: TimelineProps) {
         ctx.lineWidth = 1;
       }
 
-      // Chord name
-      ctx.fillStyle = isSelected ? palette.text : `rgb(${cr}, ${cg}, ${cb})`;
-      ctx.font = "12px 'Glacial Indifference', system-ui, sans-serif";
-      ctx.textBaseline = 'middle';
-      const label = displayChordLabel(
-        chordRulerShowNotes ? region.name : region.noteName,
-      );
-      ctx.fillText(
-        chordNotation === 'hybrid'
-          ? label
-          : formatChordRegion(
-              region,
-              chordNotation,
-              { keyRootPc: state.rootNote, mode: state.mode },
-              label,
-            ),
-        x1 + 6,
-        chordRulerY + CHORD_RULER_HEIGHT / 2,
-      );
+      // Chord name: none zoomed far out, and only where it fits its own
+      // chord, so names never run into each other (chordLabels.ts).
+      if (showChordNames) {
+        ctx.font = "12px 'Glacial Indifference', system-ui, sans-serif";
+        ctx.textBaseline = 'middle';
+        const label = displayChordLabel(
+          chordRulerLabel(region, chordRulerShowNotes),
+        );
+        const text =
+          chordNotation === 'hybrid'
+            ? label
+            : formatChordRegion(
+                region,
+                chordNotation,
+                { keyRootPc: state.rootNote, mode: state.mode },
+                label,
+              );
+        if (chordLabelFits(ctx.measureText(text).width, x2 - x1)) {
+          ctx.fillStyle = isSelected
+            ? palette.text
+            : `rgb(${cr}, ${cg}, ${cb})`;
+          ctx.fillText(
+            text,
+            x1 + CHORD_LABEL_INSET_PX,
+            chordRulerY + CHORD_RULER_HEIGHT / 2,
+          );
+        }
+      }
 
       // Right separator
       ctx.strokeStyle = `rgba(${colorGridRgb}, 0.06)`;
@@ -1850,9 +1937,24 @@ export function Timeline({ scrollRef }: TimelineProps) {
           currentState.timelineZoom,
           currentState.timelineScrollLeft,
         );
-        const region = currentState.chordRegions.find(
-          (r) => r.startTick <= tick && r.endTick > tick,
+        // A chord's end takes the press first (to resize it), then the
+        // chord under it.
+        const edge = currentState.chordRegions.find(
+          (r) =>
+            Math.abs(
+              x -
+                tickToPixel(
+                  r.endTick,
+                  currentState.timelineZoom,
+                  currentState.timelineScrollLeft,
+                ),
+            ) <= CHORD_EDGE_PX,
         );
+        const region =
+          edge ??
+          currentState.chordRegions.find(
+            (r) => r.startTick <= tick && r.endTick > tick,
+          );
         if (!region) {
           chordAnchorRef.current = null;
           currentState.setSelectedChordIds([]);
@@ -1867,6 +1969,18 @@ export function Timeline({ scrollRef }: TimelineProps) {
         );
         chordAnchorRef.current = next.anchorId;
         currentState.setSelectedChordIds(next.selectedIds);
+        // The chords are what Delete acts on now, not a clip.
+        currentState.setSelectedClip(null, null);
+        if (!e.shiftKey && !e.metaKey && !e.ctrlKey) {
+          chordDragRef.current = {
+            id: region.id,
+            mode: edge ? 'resize' : 'move',
+            startX: x,
+            grabTicks: tick - region.startTick,
+            before: currentState.chordRegions,
+            moved: false,
+          };
+        }
         return;
       }
 
@@ -2102,13 +2216,41 @@ export function Timeline({ scrollRef }: TimelineProps) {
     [getCanvasCoords, getScrollTop, hitTestClip, zoneAt, doSnap, tsNum, tsDen],
   );
 
+  // The chord box on a chord: double-click, its menu's Edit chord… and
+  // Insert chord here open it (chordActions.ts).
+  const openChordBox = useCallback(
+    (id: string) => {
+      const state = useStore.getState();
+      const region = state.chordRegions.find((r) => r.id === id);
+      if (!region) return;
+      setEditingChord({
+        id: region.id,
+        x: tickToPixel(
+          region.startTick,
+          state.timelineZoom,
+          state.timelineScrollLeft,
+        ),
+        // The chord lane is drawn at the scroll offset (sticky).
+        y: getScrollTop() + RULER_HEIGHT,
+        // Opens on the chord, as a symbol the box reads back.
+        value: chordInputText(region, keyFrameOf(state.rootNote, state.mode)),
+      });
+    },
+    [getScrollTop],
+  );
+  useEffect(() => {
+    setChordEditor(openChordBox);
+    return () => setChordEditor(null);
+  }, [openChordBox]);
+
   // Double-click: bar numbers → add or rename a marker, clip → its editor
   // in the dock
   const handleCanvasDoubleClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const { x, y } = getCanvasCoords(e);
       const st = getScrollTop();
-      // Chord ruler: double-click renames the chord (a single click selects it).
+      // Chord ruler: double-click types over the chord (a single click
+      // selects it); on an empty stretch it puts one in to type.
       if (y >= st + RULER_HEIGHT && y < st + RULERS_HEIGHT) {
         const state = useStore.getState();
         const tick = pixelToTick(
@@ -2119,23 +2261,8 @@ export function Timeline({ scrollRef }: TimelineProps) {
         const region = state.chordRegions.find(
           (r) => r.startTick <= tick && r.endTick > tick,
         );
-        if (region) {
-          setEditingChord({
-            id: region.id,
-            x: tickToPixel(
-              region.startTick,
-              state.timelineZoom,
-              state.timelineScrollLeft,
-            ),
-            // The chord lane is drawn at the scroll offset (sticky).
-            y: st + RULER_HEIGHT,
-            // Opens on the chord, as a symbol the box reads back.
-            value: chordInputText(
-              region,
-              keyFrameOf(state.rootNote, state.mode),
-            ),
-          });
-        }
+        if (region) openChordBox(region.id);
+        else insertChordAt(tick);
         return;
       }
       // The loop strip: each of the double-click's clicks has toggled the
@@ -2161,7 +2288,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
       const hit = hitTestClip(x, y);
       if (hit) openClipEditor(hit.trackId);
     },
-    [getCanvasCoords, getScrollTop, hitTestClip, markerUnder],
+    [getCanvasCoords, getScrollTop, hitTestClip, markerUnder, openChordBox],
   );
 
   // ── Context menu (right-click) ────────────────────────────────────
@@ -2188,11 +2315,27 @@ export function Timeline({ scrollRef }: TimelineProps) {
 
       let target: CanvasMenuTarget | null = null;
       if (y >= st && y < st + RULERS_HEIGHT) {
-        // A marker's flag or its name as drawn, else the ruler itself.
+        // A marker's flag or its name as drawn; else on the chord ruler a
+        // chord (selected, as a click would) or the ruler's empty stretch;
+        // else the ruler itself.
         const marker = markerUnder(x, y - st);
+        const chord =
+          y >= st + RULER_HEIGHT
+            ? state.chordRegions.find(
+                (r) => r.startTick <= pointerTick && r.endTick > pointerTick,
+              )
+            : undefined;
+        if (chord && !state.selectedChordIds.includes(chord.id)) {
+          state.setSelectedChordIds([chord.id]);
+          chordAnchorRef.current = chord.id;
+        }
         target = marker
           ? { kind: 'marker', markerId: marker.id, tick: marker.tick }
-          : { kind: 'ruler', tick };
+          : chord
+            ? { kind: 'chord', chordId: chord.id, tick }
+            : y >= st + RULER_HEIGHT
+              ? { kind: 'chordLane', tick }
+              : { kind: 'ruler', tick };
       } else if (y >= st + RULERS_HEIGHT) {
         const hit = hitTestClip(x, y);
         if (hit) {
@@ -2329,6 +2472,29 @@ export function Timeline({ scrollRef }: TimelineProps) {
         return;
       }
 
+      // Chord drag: a click until it moves past the slop, then the chord (or
+      // its end) follows the pointer, on the beat (the store's own snap).
+      const chordDrag = chordDragRef.current;
+      if (chordDrag) {
+        if (!chordDrag.moved) {
+          if (Math.abs(x - chordDrag.startX) <= MARKER_DRAG_SLOP_PX) return;
+          chordDrag.moved = true;
+        }
+        const tick = pixelToTick(x, currentZoom, currentScrollLeft);
+        withoutHistory(() => {
+          useStore.setState({ chordRegions: chordDrag.before });
+          const s = useStore.getState();
+          if (chordDrag.mode === 'resize') {
+            s.resizeChordRegion(chordDrag.id, tick);
+          } else {
+            s.moveChordRegion(chordDrag.id, tick - chordDrag.grabTicks);
+          }
+        });
+        canvas.style.cursor =
+          chordDrag.mode === 'resize' ? 'ew-resize' : 'grabbing';
+        return;
+      }
+
       // Note marquee in progress
       if (noteMarqueeRef.current) {
         extendNoteMarquee(x, y);
@@ -2452,6 +2618,25 @@ export function Timeline({ scrollRef }: TimelineProps) {
         // the playhead's handle is over it (the press takes the handle).
         if (!onPlayheadHandle(x, localY, playheadX) && markerUnder(x, localY)) {
           canvas.style.cursor = 'grab';
+          return;
+        }
+        // The chord ruler: resize arrows on a chord's end, a hand on a chord.
+        if (localY >= RULER_HEIGHT) {
+          const tick = pixelToTick(x, currentZoom, currentScrollLeft);
+          const onEdge = state.chordRegions.some(
+            (r) =>
+              Math.abs(
+                x - tickToPixel(r.endTick, currentZoom, currentScrollLeft),
+              ) <= CHORD_EDGE_PX,
+          );
+          const onChord = state.chordRegions.some(
+            (r) => r.startTick <= tick && r.endTick > tick,
+          );
+          canvas.style.cursor = onEdge
+            ? 'ew-resize'
+            : onChord
+              ? 'grab'
+              : 'default';
           return;
         }
         // Top ruler: a grab hand on the playhead handle, resize arrows on a
@@ -2598,6 +2783,24 @@ export function Timeline({ scrollRef }: TimelineProps) {
         );
       }
       requestRedraw();
+      if (canvasRef.current) canvasRef.current.style.cursor = 'default';
+      return;
+    }
+
+    const chordDrag = chordDragRef.current;
+    if (chordDrag) {
+      chordDragRef.current = null;
+      const after = useStore.getState().chordRegions;
+      if (chordDrag.moved && after !== chordDrag.before) {
+        // The preview goes, and the result lands as one undo step.
+        withoutHistory(() =>
+          useStore.setState({ chordRegions: chordDrag.before }),
+        );
+        withTransaction(
+          chordDrag.mode === 'resize' ? 'Resize chord' : 'Move chord',
+          () => useStore.setState({ chordRegions: after }),
+        );
+      }
       if (canvasRef.current) canvasRef.current.style.cursor = 'default';
       return;
     }
@@ -2761,7 +2964,10 @@ export function Timeline({ scrollRef }: TimelineProps) {
         const { x, y } = getCanvasCoords(e);
         moveRulerPress(x, y);
       } else if (
-        (dragRef.current || markerDragRef.current || fadeDragRef.current) &&
+        (dragRef.current ||
+          markerDragRef.current ||
+          chordDragRef.current ||
+          fadeDragRef.current) &&
         e.target !== canvasRef.current
       ) {
         // A clip or marker drag keeps following the pointer off the canvas
@@ -2811,6 +3017,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
       if (
         dragRef.current ||
         markerDragRef.current ||
+        chordDragRef.current ||
         rulerPressRef.current ||
         panDragRef.current ||
         noteMarqueeRef.current ||

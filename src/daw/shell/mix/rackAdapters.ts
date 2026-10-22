@@ -13,10 +13,10 @@ import type { RackTarget } from '@/daw/store/effectRack';
 // A track's chain, a return's and the master's live in three slices with
 // their own actions. FxRack reads and writes any of them through this one
 // shape, so the dock's Effects tab, the dock's Master, the Mix view's racks
-// and the side rail's Effects library are one implementation.
+// and the Add effect picker are one implementation.
 
 export interface Rack {
-  /** What the rack is called where it shows ('Bass', 'Return A', 'Master'). */
+  /** What the rack is called where it shows ('Bass', 'Send A', 'Master'). */
   name: string;
   /** The id FxControlsPanel and the lesson anchors know the rack by. */
   fxId: string;
@@ -60,7 +60,13 @@ export function useRack(target: RackTarget | null): Rack | null {
       return {
         name: 'Master',
         fxId: 'master',
-        chain: masterChain,
+        // An EQ is one of its cards, the track's EQ, once added; Master has
+        // none by default. An EQ a fixed Master EQ card turned on (briefly,
+        // 2026-10-22) is listed too, so nothing plays that can't be seen.
+        chain:
+          masterEffects.eq.enabled && !masterChain.includes('eq')
+            ? ['eq', ...masterChain]
+            : masterChain,
         effects: masterEffects,
         update: (effects) => s().updateMasteringEffects(effects),
         remove: (slot) => s().removeMasteringFx(slot),
@@ -72,7 +78,7 @@ export function useRack(target: RackTarget | null): Rack | null {
     if (kind === 'return' && ret) {
       const rid = ret.id;
       return {
-        name: `Return ${rid}`,
+        name: `Send ${rid}`,
         fxId: `return-${rid}`,
         chain: ret.fxChain,
         effects: ret.effects,

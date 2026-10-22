@@ -8,31 +8,14 @@ import {
   beforeEach,
   afterEach,
 } from 'vitest';
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-} from '@testing-library/react';
+import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import type { MidiNoteEvent } from '@prism/engine';
 
 // ── Instrument views edit clips in clip-relative ticks ─────────────────────
 // Playback schedules a clip's events at clip.startTick + event.startTick, so
-// an editor's left edge is the clip's own tick 0. Keyboard's Piano Roll mode
-// and the drum grid used the clip's song position as that origin: a clip
-// after bar 1 drew its notes off the left edge, and a kick drawn on beat 1 of
-// a clip at bar 5 was stored to play at bar 9.
-
-const roll = vi.hoisted(() => ({
-  props: null as null | { clipStartTick: number; timelineStartTick: number },
-}));
-vi.mock('@/daw/components/PianoRoll/PianoRoll', () => ({
-  PianoRoll: (props: NonNullable<typeof roll.props>) => {
-    roll.props = props;
-    return null;
-  },
-}));
+// an editor's left edge is the clip's own tick 0. The drum grid used the
+// clip's song position as that origin: a kick drawn on beat 1 of a clip at
+// bar 5 was stored to play at bar 9.
 
 // Engines and live-input plumbing aren't under test.
 vi.mock('@/daw/hooks/usePlaybackEngine', () => ({
@@ -44,14 +27,9 @@ vi.mock('@/daw/collab/studioRealtime', () => ({
 vi.mock('@/daw/instruments/SoundFontAdapter', () => ({
   SoundFontAdapter: class {},
 }));
-vi.mock('@/daw/oracle-synth/components/keyboard/PianoKeyboard', () => ({
-  PianoKeyboard: () => null,
-}));
-vi.mock('../PresetBrowser', () => ({ PresetBrowser: () => null }));
 vi.mock('@/daw/audio/auditionNote', () => ({ auditionNote: vi.fn() }));
 
 import { useStore } from '@/daw/store';
-import { KeyboardView } from '../KeyboardView';
 import { DrumMachineView } from '../DrumMachineView';
 
 const BAR = 1920;
@@ -81,7 +59,6 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  roll.props = null;
   useStore.setState({
     tracks: [],
     remoteUsers: new Map(),
@@ -91,25 +68,6 @@ beforeEach(() => {
 });
 
 afterEach(cleanup);
-
-describe('KeyboardView Piano Roll mode', () => {
-  it('draws a clip at bar 5 from its own start', () => {
-    trackId = useStore.getState().addTrack('midi', 'piano-sampler', 'Keys');
-    useStore.getState().addMidiClip(trackId, {
-      id: 'later',
-      name: 'Verse',
-      startTick: 4 * BAR,
-      events: [hit(60, 0)],
-    });
-    render(<KeyboardView trackId={trackId} />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Piano Roll' }));
-
-    expect(roll.props).toEqual(
-      expect.objectContaining({ clipStartTick: 0, timelineStartTick: 4 * BAR }),
-    );
-  });
-});
 
 describe('DrumMachineView grid', () => {
   /** The drum grid canvas (the ruler comes first). */
@@ -129,10 +87,9 @@ describe('DrumMachineView grid', () => {
   it('stores a hit drawn on the clip’s first beat at clip tick 0', () => {
     const { container } = render(<DrumMachineView trackId={trackId} />);
 
-    // Grid x = 0 is the clip's first beat, whatever the zoom. A press can
-    // paint on as it drags, so the hits are written on release.
-    fireEvent.mouseDown(grid(container), { clientX: 0, clientY: RIDE_Y });
-    fireEvent.mouseUp(grid(container), { clientX: 0, clientY: RIDE_Y });
+    // Grid x = 0 is the clip's first beat, whatever the zoom. A double-click
+    // on empty grid adds a hit there.
+    fireEvent.doubleClick(grid(container), { clientX: 0, clientY: RIDE_Y });
 
     const ride = clipEvents().filter((e) => e.note === RIDE);
     expect(ride.map((e) => e.startTick)).toEqual([0]);
@@ -141,11 +98,41 @@ describe('DrumMachineView grid', () => {
   it('draws the clip’s first hit at the left edge, where clicking selects it', () => {
     const { container } = render(<DrumMachineView trackId={trackId} />);
 
-    // In the draw tool a click on an existing hit selects it; a click on
-    // empty grid adds one. The kick at clip tick 0 must be at x = 0.
+    // A click on a hit takes it and adds nothing: the kick at clip tick 0
+    // must be at x = 0.
     fireEvent.mouseDown(grid(container), { clientX: 0, clientY: KICK_Y });
+    fireEvent.mouseUp(grid(container), { clientX: 0, clientY: KICK_Y });
 
     expect(clipEvents()).toMatchObject([hit(KICK, 0)]);
+  });
+
+  it('adds nothing on a single click of empty grid, as the piano roll', () => {
+    const { container } = render(<DrumMachineView trackId={trackId} />);
+
+    fireEvent.mouseDown(grid(container), { clientX: 0, clientY: RIDE_Y });
+    fireEvent.mouseUp(grid(container), { clientX: 0, clientY: RIDE_Y });
+
+    expect(clipEvents()).toMatchObject([hit(KICK, 0)]);
+  });
+
+  it('takes a hit away on a double-click', () => {
+    const { container } = render(<DrumMachineView trackId={trackId} />);
+
+    fireEvent.doubleClick(grid(container), { clientX: 1, clientY: KICK_Y });
+
+    expect(clipEvents()).toEqual([]);
+  });
+
+  it('moves a hit dragged along its row', () => {
+    const { container } = render(<DrumMachineView trackId={trackId} />);
+    const canvas = grid(container);
+    // jsdom has no width, so the grid is at its widest zoom-out (0.15):
+    // 40 × 0.15 px a beat, a bar 24 px.
+    fireEvent.mouseDown(canvas, { clientX: 1, clientY: KICK_Y });
+    fireEvent.mouseMove(canvas, { clientX: 25, clientY: KICK_Y });
+    fireEvent.mouseUp(canvas, { clientX: 25, clientY: KICK_Y });
+
+    expect(clipEvents()).toMatchObject([{ note: KICK, startTick: BAR }]);
   });
 
   it('edits the selected groove, not always the track’s first clip', () => {
@@ -160,8 +147,7 @@ describe('DrumMachineView grid', () => {
     useStore.getState().setSelectedClip('fill', trackId);
     const { container } = render(<DrumMachineView trackId={trackId} />);
 
-    fireEvent.mouseDown(grid(container), { clientX: 0, clientY: RIDE_Y });
-    fireEvent.mouseUp(grid(container), { clientX: 0, clientY: RIDE_Y });
+    fireEvent.doubleClick(grid(container), { clientX: 0, clientY: RIDE_Y });
 
     const clips = useStore
       .getState()

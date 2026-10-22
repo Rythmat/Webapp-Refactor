@@ -373,7 +373,7 @@
         "source": "flt2",
         "param": "cutoff"
       },
-      "amount": 0.3554152250289917,
+      "amount": 0.4061859713064424,
       "polarity": "bipolar",
       "curve": "linear",
       "enabled": true
@@ -403,7 +403,7 @@
         "source": "flt2",
         "param": "cutoff"
       },
-      "amount": 0.24035096168518066,
+      "amount": 0.27468488109525707,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -433,7 +433,7 @@
         "source": "flt2",
         "param": "cutoff"
       },
-      "amount": 0.06400001049041748,
+      "amount": 0.07314235461509058,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -473,7 +473,7 @@
   "voiceCount": 8,
   "glide": 0.04254668256934349,
   "spread": 0,
-  "masterVolume": 0.1699189471944095,
+  "masterVolume": 0.22089463135273235,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -502,7 +502,7 @@
     },
     "drive": {
       "enabled": true,
-      "amount": 0.4830409288406372,
+      "amount": 0.3,
       "mix": 0.5
     },
     "reverb": {
@@ -517,7 +517,8 @@
   "routing": {
     "filterRouting": {
       "filter1Sources": ["osc1", "noise", "sub"],
-      "filter2Sources": []
+      "filter2Sources": [],
+      "serial": true
     },
     "envelopeRouting": {
       "env1Sources": ["osc1", "osc2", "sub", "noise"],

@@ -4,7 +4,10 @@ import { cn } from '@/components/utilities';
 import { DOCK_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { hintText } from '@/daw/shell/help/hintSource';
-import { DOCK_TAB_BAR_PX } from '@/daw/shell/layout/layoutModel';
+import {
+  DOCK_TAB_BAR_PX,
+  DOCK_TALL_FRAC,
+} from '@/daw/shell/layout/layoutModel';
 import { useStore } from '@/daw/store';
 import type { RackTarget } from '@/daw/store/effectRack';
 import { IconButton } from '@/daw/ui/IconButton';
@@ -30,6 +33,7 @@ export const RackDock = memo(function RackDock() {
   const rootRef = useRef<HTMLDivElement>(null);
   const target = useStore((s) => s.mixRack);
   const setMixRack = useStore((s) => s.setMixRack);
+  const setDockHeight = useStore((s) => s.setDockHeight);
   const rack = useRack(target);
   // The last rack shown, for the bar's open button.
   const last = useRef<RackTarget | null>(null);
@@ -121,16 +125,19 @@ export const RackDock = memo(function RackDock() {
           ref={bodyRef}
           data-testid="rack-dock-body"
           data-tutorial-id={returnId ? `return-fx-${returnId}` : undefined}
-          // The chain's blocks and controls are the legacy components until
-          // Stage C restyles them, as in the dock.
-          data-ds="legacy"
+          // The effect cards are built on the design system (FxCards).
+          data-ds="v2"
           tabIndex={-1}
           className="flex min-h-0 overflow-hidden border-t border-daw-hairline outline-none duration-daw-fast animate-in fade-in-0 motion-reduce:animate-none"
           style={{
             height: `calc(var(--daw-dock-h, ${RACK_FALLBACK_PX}px) - ${DOCK_TAB_BAR_PX + 1}px)`,
           }}
         >
-          <FxRack target={target} layout="side" />
+          <FxRack
+            target={target}
+            // The rack as tall as the strips allow (rackMaxPx clamps it).
+            onShowAll={() => setDockHeight('rack', DOCK_TALL_FRAC)}
+          />
         </div>
       ) : null}
     </div>

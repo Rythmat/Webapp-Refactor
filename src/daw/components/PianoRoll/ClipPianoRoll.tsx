@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { trackColorOf } from '@/daw/harmony/trackColor';
 import type { MidiNoteEvent } from '@prism/engine';
 import { noteEditorOriginTick } from '@/daw/audio/noteEditorOrigin';
 import { useStore } from '@/daw/store';
@@ -52,9 +53,11 @@ export function ClipPianoRoll({
           ?.midiClips.find((c) => c.id === clipId)
       : undefined,
   );
-  const trackColor = useStore(
-    (s) => s.tracks.find((t) => t.id === trackId)?.color,
-  );
+  // Harmony Color: the key centre's colour in the track's own place.
+  const trackColor = useStore((s) => {
+    const own = s.tracks.find((t) => t.id === trackId)?.color;
+    return own ? trackColorOf(own, s) : undefined;
+  });
   const barTicks = useStore((s) => ticksPerBar(timeSignatureOf(s)));
 
   const handleChange = useCallback(

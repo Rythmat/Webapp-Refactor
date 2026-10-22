@@ -1,4 +1,5 @@
 import { useStore } from '@/daw/store';
+import { monitorsInput } from '@/daw/model/monitoring';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import type { EffectChain } from '@/daw/audio/EffectChain';
 import type { TrackEngine } from '@/daw/audio/TrackEngine';
@@ -83,6 +84,7 @@ export interface BusLevels extends MeterLevels {
 
 type Kind =
   | 'track'
+  | 'track-lr'
   | 'master'
   | 'fx-pre'
   | 'fx-post'
@@ -167,6 +169,12 @@ function resolve(e: Entry): Resolved | null {
     case 'track': {
       const node = getTrackAudioState(e.arg)?.trackEngine.getMeterAnalyser();
       return node ? { type: 'analysers', nodes: [node] } : null;
+    }
+    case 'track-lr': {
+      const engine = getTrackAudioState(e.arg)?.trackEngine;
+      return engine
+        ? { type: 'analysers', nodes: engine.getMeterAnalysersLR() }
+        : null;
     }
     case 'master':
       if (!audioEngine.getIsInitialized()) return null;
@@ -399,7 +407,7 @@ function inputIsLive(e: Entry): boolean {
   const track = s.tracks.find((t) => t.id === e.arg);
   if (!track) return false;
   if (track.recordArmed && s.isRecording) return true;
-  return track.monitoring && (r.adapter.getDeviceId?.() ?? null) !== null;
+  return monitorsInput(track) && (r.adapter.getDeviceId?.() ?? null) !== null;
 }
 
 /** Whether the loop must run even with every meter at rest. */
@@ -539,7 +547,7 @@ function subscribe(e: Entry, listener: Listener): () => void {
 }
 
 function makeEntry(kind: Kind, arg: string, node: AnalyserNode | null): Entry {
-  const channels = kind === 'master' ? 2 : 1;
+  const channels = kind === 'master' || kind === 'track-lr' ? 2 : 1;
   const e: Entry = {
     kind,
     arg,
@@ -567,6 +575,7 @@ function makeEntry(kind: Kind, arg: string, node: AnalyserNode | null): Entry {
 
 const KINDS = new Set<Kind>([
   'track',
+  'track-lr',
   'fx-pre',
   'fx-post',
   'gr',

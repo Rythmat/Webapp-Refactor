@@ -31,7 +31,9 @@ function mirrorToOracleWheels(
 
 // ── useMidiInputRouting ──────────────────────────────────────────────────
 // Subscribes to ALL available MIDI input devices and routes note, CC and
-// pitch-bend events to monitored (or selected) tracks. Notes take the shared
+// pitch-bend events to monitored (or selected) tracks, each event only to
+// the tracks listening to its device or to All Devices (a track's
+// midiInputId, liveTarget.trackHearsInput). Notes take the shared
 // live-notes path (midi/liveNotes), which the computer keyboard uses too;
 // this hook's MidiRecorder is the take they are recorded into.
 
@@ -78,12 +80,17 @@ export function useMidiInputRouting() {
     let sustainActive = false;
     const sustainHeldNotes = new Set<number>();
 
-    const onNoteOn = (note: number, velocity: number, timestamp: number) => {
+    const onNoteOn = (
+      note: number,
+      velocity: number,
+      timestamp: number,
+      source: string,
+    ) => {
       // If re-striking a note held by sustain pedal, remove from pending release
       sustainHeldNotes.delete(note);
 
       if (noteCount++ < 3) {
-        const targets = liveMidiTargets();
+        const targets = liveMidiTargets(source);
         const status = targets.map((id) => {
           const entry = trackEngineRegistry.get(id);
           if (!entry) return 'no-engine';
@@ -101,13 +108,13 @@ export function useMidiInputRouting() {
       }
 
       // Sound, keys, collaborators; then the take, when recording.
-      playLiveNote(note, velocity);
-      captureLiveNoteOn(note, velocity, timestamp);
+      playLiveNote(note, velocity, source);
+      captureLiveNoteOn(note, velocity, timestamp, source);
     };
 
-    const onNoteOff = (note: number, timestamp: number) => {
+    const onNoteOff = (note: number, timestamp: number, source: string) => {
       // Record the physical noteOff regardless of sustain state
-      captureLiveNoteOff(note, timestamp);
+      captureLiveNoteOff(note, timestamp, source);
 
       // If sustain pedal is active, defer the release
       if (sustainActive) {
@@ -118,10 +125,10 @@ export function useMidiInputRouting() {
       releaseLiveNote(note);
     };
 
-    const onCC = (cc: number, value: number) => {
+    const onCC = (cc: number, value: number, source: string) => {
       // Record CC event if recording
       const state = useStore.getState();
-      if (state.isRecording && recordTargetTrackId(state) !== null) {
+      if (state.isRecording && recordTargetTrackId(state, source) !== null) {
         midiRecorderRef.current.captureCC(cc, value);
       }
 
@@ -130,7 +137,7 @@ export function useMidiInputRouting() {
       // Sustain is held here instead, so every instrument gets the same
       // pedal behaviour whether or not it implements CC64 itself.
       if (cc !== 64) {
-        const targets = liveMidiTargets();
+        const targets = liveMidiTargets(source);
         for (const id of targets) {
           trackEngineRegistry.get(id)?.trackEngine.cc(cc, value);
         }
@@ -152,8 +159,8 @@ export function useMidiInputRouting() {
       }
     };
 
-    const onPitchBend = (value: number) => {
-      const targets = liveMidiTargets();
+    const onPitchBend = (value: number, source: string) => {
+      const targets = liveMidiTargets(source);
       for (const id of targets) {
         trackEngineRegistry.get(id)?.trackEngine.pitchBend(value);
       }
@@ -164,10 +171,11 @@ export function useMidiInputRouting() {
     for (const input of inputs) {
       const unsub = midiDeviceManager.subscribeToInput(
         input.id,
-        onNoteOn,
-        onNoteOff,
-        onCC,
-        onPitchBend,
+        (note, velocity, timestamp) =>
+          onNoteOn(note, velocity, timestamp, input.id),
+        (note, timestamp) => onNoteOff(note, timestamp, input.id),
+        (cc, value) => onCC(cc, value, input.id),
+        (value) => onPitchBend(value, input.id),
       );
       unsubsRef.current.push(unsub);
     }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { chordPartIds, toggledChordParts } from './chordParts';
 import {
   type MeasureBox,
   type NoteInfo,
@@ -254,7 +255,7 @@ export function useScoreEditing({
   const setFermatas = useStore((s) => s.setMeasureFermatas);
   const chordFormat = useStore((s) => s.leadSheetChordFormat);
   const scoreChordTracks = useStore((s) => s.scoreChordTracks);
-  const toggleScoreChordTrack = useStore((s) => s.toggleScoreChordTrack);
+  const setScoreChordTracks = useStore((s) => s.setScoreChordTracks);
   const scoreChordHidden = useStore((s) => s.scoreChordHidden);
   const setScoreChordHidden = useStore((s) => s.setScoreChordHidden);
   const articulations = useStore((s) => s.scoreArticulations);
@@ -1174,6 +1175,27 @@ export function useScoreEditing({
   const projectBarTicks = useStore((s) => ticksPerBar(timeSignatureOf(s)));
   const measureTicks = parts[0]?.score.ticksPerMeasure ?? projectBarTicks;
 
+  // The parts showing chords: until the student picks, the top one
+  // (chordParts.ts).
+  const pickedChordParts = useMemo(
+    () =>
+      chordPartIds(
+        scoreChordTracks,
+        scoreParts.map((part) => part.id),
+      ),
+    [scoreChordTracks, scoreParts],
+  );
+  const toggleChordPart = useCallback(
+    (trackId: string) =>
+      setScoreChordTracks(
+        toggledChordParts(
+          useStore.getState().scoreChordTracks,
+          scoreParts.map((part) => part.id),
+          trackId,
+        ),
+      ),
+    [scoreParts, setScoreChordTracks],
+  );
   const visibleChordParts = useMemo(
     () =>
       new Set(
@@ -1182,14 +1204,14 @@ export function useScoreEditing({
             (
               chordsAlwaysVisible === 'top'
                 ? index === 0
-                : chordsAlwaysVisible || scoreChordTracks.includes(part.id)
+                : chordsAlwaysVisible || pickedChordParts.has(part.id)
             )
               ? index
               : -1,
           )
           .filter((index) => index >= 0),
       ),
-    [scoreParts, scoreChordTracks, chordsAlwaysVisible],
+    [scoreParts, pickedChordParts, chordsAlwaysVisible],
   );
   const hiddenChords = useMemo(
     () => new Set(scoreChordHidden),
@@ -1297,12 +1319,8 @@ export function useScoreEditing({
       }
       // A part has to be showing chords for what was just typed to appear.
       const trackId = trackIdByPart.get(entry.partIndex);
-      if (
-        !chordsAlwaysVisible &&
-        trackId &&
-        !scoreChordTracks.includes(trackId)
-      ) {
-        toggleScoreChordTrack(trackId);
+      if (!chordsAlwaysVisible && trackId && !pickedChordParts.has(trackId)) {
+        toggleChordPart(trackId);
       }
       return true;
     },
@@ -1311,8 +1329,8 @@ export function useScoreEditing({
       renameChordRegion,
       insertChordRegion,
       trackIdByPart,
-      scoreChordTracks,
-      toggleScoreChordTrack,
+      pickedChordParts,
+      toggleChordPart,
       chordsAlwaysVisible,
     ],
   );
@@ -1446,12 +1464,12 @@ export function useScoreEditing({
         name: part.name,
         color: part.color,
         staff: staffStates[index],
-        showChords: scoreChordTracks.includes(part.id),
+        showChords: pickedChordParts.has(part.id),
         hiddenChords: scoreChordHidden.filter((entry) =>
           entry.startsWith(`${part.id}:`),
         ).length,
       })),
-    [scoreParts, staffStates, scoreChordTracks, scoreChordHidden],
+    [scoreParts, staffStates, pickedChordParts, scoreChordHidden],
   );
 
   // ── Copy and paste ──────────────────────────────────────────────────────
@@ -2938,7 +2956,7 @@ export function useScoreEditing({
     /** Per-part clefs and chord symbol switches. */
     partRows,
     onSetStaff: setPartStaff,
-    onToggleChords: toggleScoreChordTrack,
+    onToggleChords: toggleChordPart,
     onRestoreChords: (trackId: string) =>
       setScoreChordHidden(withPartChordsRestored(scoreChordHidden, trackId)),
   };

@@ -1,12 +1,13 @@
 import { memo, useEffect, useRef, type RefObject } from 'react';
 import { DevProfiler } from '@/daw/dev/DevProfiler';
+import { cn } from '@/components/utilities';
 import { useStore } from '@/daw/store';
 import { Resizer } from '@/daw/ui/Resizer';
+import { closeDock } from '@/daw/shell/dock/dockOpen';
 import {
   clampInspectorPx,
-  DOCK_DEFAULT_FRAC,
   DOCK_MAX_FRAC,
-  DOCK_MIN_PX,
+  dockMinPx,
   DOCK_TALL_FRAC,
   INSPECTOR_DEFAULT_PX,
   INSPECTOR_MAX_PX,
@@ -27,7 +28,6 @@ import {
 } from './layout/shellGeometry';
 import { useInspectorFollowsPrefs } from './layout/useInspectorFollowsPrefs';
 import {
-  LeadSheetViewPart,
   PracticeTrackViewPart,
   ScoreViewPart,
   StudioViewPart,
@@ -47,14 +47,20 @@ import { TrackArea } from './tracklist/TrackArea';
 // view change remounts only what the main region shows:
 //
 //   top     top        top    the 44 px top bar
-//   main    inspector  rail   the view: Create's timeline, Mix, Score, Lead sheet
-//   dock    inspector  rail   Create's editor dock
+//   stage   inspector  rail   the stage card: the view (Create's timeline,
+//                             Mix, Score, Lead sheet) over Create's editor dock
 //   bottom  bottom     bottom the 44 px bottom rail: Master, transport, song
+//
+// The floating frame (S0): the bars' controls are pills on the page, and the
+// view and its dock share one rounded card with an 8 px gutter at each side
+// and none above or below, so the body is as tall as it was.
 //
 // The side rail (48 px of icons) picks what the Inspector beside it shows:
 // Insight, Library, Effects, Lessons, People, Chat (owner, 2026-10-16, after
-// Soundtrap's). The Inspector runs from the top bar to the bottom rail, so
-// the dock stops at it. It stays mounted in every view and only opens and
+// Soundtrap's). The Inspector runs from the top bar to the bottom rail. It
+// makes room in the view above the dock (the timeline stops at it), and
+// lies over the dock, which keeps its whole width under it (owner,
+// 2026-10-21: the dock's instrument and effects never squeeze). It stays mounted in every view and only opens and
 // closes, as the student keeps it per view. The practice screen is
 // full-window: the top bar, the rails and the Inspector are hidden (still
 // mounted) while it shows.
@@ -91,6 +97,7 @@ export const StudioShell = memo(function StudioShell({
   // Create's timeline is the practice view's too until its session exists.
   const create = view === 'arrange' || (view === 'practice' && !practiceScreen);
   const dockOpen = useStore((s) => s.channelStripTab !== null || s.dockMaster);
+  const inspectorOpen = useStore((s) => s.libraryOpen) && !practiceScreen;
   const maximized =
     useStore((s) => s.dockMaximized) && create && !practiceScreen && dockOpen;
   useShellGeometry(rootRef);
@@ -113,13 +120,13 @@ export const StudioShell = memo(function StudioShell({
       className="relative grid min-h-0 w-full flex-1 overflow-hidden"
       style={{
         gridTemplateAreas: practiceScreen
-          ? '"main main main"'
-          : '"top top top" "main inspector rail" "dock inspector rail" "bottom bottom bottom"',
+          ? '"stage stage stage"'
+          : // The stage spans the Inspector's column: the Inspector lies over
+            // its right edge, above the dock (InspectorRegion).
+            '"top top top" "stage stage rail" "bottom bottom bottom"',
         gridTemplateRows: practiceScreen
           ? 'minmax(0, 1fr)'
-          : maximized
-            ? `${TOP_BAR_PX}px 0px minmax(0, 1fr) ${BOTTOM_RAIL_PX}px`
-            : `${TOP_BAR_PX}px minmax(0, 1fr) auto ${BOTTOM_RAIL_PX}px`,
+          : `${TOP_BAR_PX}px minmax(0, 1fr) ${BOTTOM_RAIL_PX}px`,
         gridTemplateColumns: practiceScreen
           ? 'minmax(0, 1fr) 0 0'
           : `minmax(0, 1fr) auto ${SIDE_RAIL_PX}px`,
@@ -133,45 +140,92 @@ export const StudioShell = memo(function StudioShell({
         hidden={practiceScreen}
       >
         <DevProfiler id="TopBar">
-          <TopBar />
+          <TopBar isReady={isReady} onInit={onInit} />
         </DevProfiler>
       </div>
 
-      <section
-        id={MAIN_REGION_ID}
-        data-region="main"
-        data-ds="legacy"
-        aria-label={MAIN_LABEL[practiceScreen ? 'practice' : view]}
-        className="flex min-h-0 min-w-0 flex-col overflow-hidden"
-        style={{ gridArea: 'main' }}
-        ref={mainRef}
-      >
-        {practiceScreen && practiceSession ? (
-          <DevProfiler id="PracticeTrackView">
-            <PracticeTrackViewPart
-              session={practiceSession}
-              isReady={isReady}
-              onInit={onInit}
-            />
-          </DevProfiler>
-        ) : create ? (
-          <DevProfiler id="TrackArea">
-            <TrackArea />
-          </DevProfiler>
-        ) : view === 'studio' ? (
-          <DevProfiler id="StudioView">
-            <StudioViewPart isReady={isReady} />
-          </DevProfiler>
-        ) : view === 'score' ? (
-          <DevProfiler id="ScoreView">
-            <ScoreViewPart />
-          </DevProfiler>
-        ) : (
-          <DevProfiler id="LeadSheetView">
-            <LeadSheetViewPart />
-          </DevProfiler>
+      <div
+        data-testid="stage-card"
+        className={cn(
+          'flex min-h-0 min-w-0 flex-col overflow-hidden',
+          // The practice screen is full-window: no card.
+          !practiceScreen &&
+            'mx-2 rounded-[var(--daw-radius-lg)] bg-daw-surface-1',
         )}
-      </section>
+        style={{ gridArea: 'stage' }}
+      >
+        <section
+          id={MAIN_REGION_ID}
+          data-region="main"
+          data-ds="legacy"
+          aria-label={MAIN_LABEL[practiceScreen ? 'practice' : view]}
+          className={cn(
+            'flex min-h-0 min-w-0 flex-col overflow-hidden',
+            // Under a maximized dock the view keeps its place at no height.
+            maximized ? 'h-0 flex-none' : 'flex-1',
+          )}
+          // The view makes room for the open Inspector; the dock doesn't.
+          style={
+            inspectorOpen
+              ? { paddingRight: 'var(--daw-insp-w, 300px)' }
+              : undefined
+          }
+          ref={mainRef}
+        >
+          {practiceScreen && practiceSession ? (
+            <DevProfiler id="PracticeTrackView">
+              <PracticeTrackViewPart
+                session={practiceSession}
+                isReady={isReady}
+                onInit={onInit}
+              />
+            </DevProfiler>
+          ) : create ? (
+            <DevProfiler id="TrackArea">
+              <TrackArea />
+            </DevProfiler>
+          ) : view === 'studio' ? (
+            <DevProfiler id="StudioView">
+              <StudioViewPart isReady={isReady} />
+            </DevProfiler>
+          ) : (
+            // The Score, which is the Lead sheet too (one editor, 2026-10-21).
+            <DevProfiler id="ScoreView">
+              <ScoreViewPart />
+            </DevProfiler>
+          )}
+        </section>
+        {create && !practiceScreen ? (
+          <section
+            data-region="dock"
+            data-ds="v2"
+            aria-label="Editor dock"
+            className={cn(
+              'relative min-h-0 min-w-0',
+              maximized ? 'flex-1' : 'shrink-0',
+            )}
+          >
+            {maximized ? null : <DockResizer rootRef={rootRef} />}
+            <DevProfiler id="Dock">
+              <Dock />
+            </DevProfiler>
+          </section>
+        ) : view === 'studio' && !practiceScreen ? (
+          // Mix's RackDock (2.10) takes the same slot: a share of the body,
+          // stopping at the Inspector.
+          <section
+            data-region="dock"
+            data-ds="v2"
+            aria-label="Effects rack"
+            className="relative min-h-0 min-w-0 shrink-0"
+          >
+            <RackResizer rootRef={rootRef} />
+            <DevProfiler id="RackDock">
+              <RackDock />
+            </DevProfiler>
+          </section>
+        ) : null}
+      </div>
 
       <InspectorRegion hidden={practiceScreen} rootRef={rootRef} />
 
@@ -186,36 +240,6 @@ export const StudioShell = memo(function StudioShell({
         <SideRail />
       </nav>
 
-      {create && !practiceScreen ? (
-        <section
-          data-region="dock"
-          data-ds="v2"
-          aria-label="Editor dock"
-          className="relative min-h-0 min-w-0"
-          style={{ gridArea: 'dock' }}
-        >
-          {maximized ? null : <DockResizer rootRef={rootRef} />}
-          <DevProfiler id="Dock">
-            <Dock />
-          </DevProfiler>
-        </section>
-      ) : view === 'studio' && !practiceScreen ? (
-        // Mix's RackDock (2.10) takes the same slot: a share of the body,
-        // stopping at the Inspector.
-        <section
-          data-region="dock"
-          data-ds="v2"
-          aria-label="Effects rack"
-          className="relative min-h-0 min-w-0"
-          style={{ gridArea: 'dock' }}
-        >
-          <RackResizer rootRef={rootRef} />
-          <DevProfiler id="RackDock">
-            <RackDock />
-          </DevProfiler>
-        </section>
-      ) : null}
-
       <div
         data-region="bottom"
         data-ds="v2"
@@ -224,7 +248,7 @@ export const StudioShell = memo(function StudioShell({
         hidden={practiceScreen}
       >
         <DevProfiler id="BottomRail">
-          <BottomRail isReady={isReady} onInit={onInit} />
+          <BottomRail />
         </DevProfiler>
       </div>
     </div>
@@ -258,8 +282,14 @@ const InspectorRegion = memo(function InspectorRegion({
       data-mount-id={mountId.current}
       data-open={libraryOpen || undefined}
       aria-label="Inspector"
-      className="relative flex min-h-0 overflow-hidden"
-      style={{ gridArea: 'inspector' }}
+      className={cn(
+        'relative z-[var(--daw-z-panel)] flex min-h-0 overflow-hidden',
+        // Over the dock it floats, so it reads as a card above it.
+        libraryOpen &&
+          'rounded-[var(--daw-radius-lg)] [box-shadow:var(--daw-shadow-float)]',
+      )}
+      // Its own column, which the stage also spans: it lies over the stage.
+      style={{ gridColumn: 2, gridRow: 2 }}
       hidden={hidden}
     >
       {libraryOpen ? (
@@ -313,24 +343,25 @@ function RackResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
   // Never so tall that the strips lose their faders (MIX_STRIPS_MIN_PX).
   const max = rackMaxPx(bodyPx);
   const value = Math.min(dockPxFor('rack', heights, bodyPx), max);
+  const min = Math.min(dockMinPx('rack'), max);
   return (
     <Resizer
       label="Resize the effects rack"
       orientation="horizontal"
       direction={-1}
       value={value}
-      min={DOCK_MIN_PX}
+      min={min}
       max={max}
-      constrain={(px) => Math.min(snapDockPx(px, bodyPx), max)}
+      constrain={(px) => Math.min(snapDockPx(px, bodyPx, min), max)}
       onPreview={(px) =>
         rootRef.current?.style.setProperty(DOCK_HEIGHT_VAR, `${px}px`)
       }
       onCommit={(px) => setDockHeight('rack', px / bodyPx)}
       onDoubleClick={() => {
-        // Between the default and as tall as the strips allow.
+        // Between the default (every dock's) and as tall as the strips allow.
         const tallPx = Math.min(Math.round(bodyPx * DOCK_TALL_FRAC), max);
         const tall = Math.abs(value - tallPx) < 2;
-        setDockHeight('rack', tall ? DOCK_DEFAULT_FRAC.rack : tallPx / bodyPx);
+        setDockHeight('rack', tall ? null : tallPx / bodyPx);
       }}
       onToggle={() => setMixRack(null)}
       data-testid="rack-resizer"
@@ -350,14 +381,15 @@ function DockResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
   const master = useStore((s) => s.dockMaster);
   const heights = useStore((s) => s.dockHeights);
   const setDockHeight = useStore((s) => s.setDockHeight);
-  const setTab = useStore((s) => s.setChannelStripTab);
   const bodyPx = useShellBodyPx(rootRef);
   // A shut dock is its tab bar only: nothing to drag until a tab opens.
   if ((tab === null && !master) || bodyPx === 0) return null;
-  // Master keeps a height of its own, as each tab does.
+  // One height for every dock, Master's too (dockSlotOf).
   const slot = dockSlotOf(tab, master);
   const value = dockPxFor(slot, heights, bodyPx);
-  const max = Math.max(DOCK_MIN_PX, Math.round(bodyPx * DOCK_MAX_FRAC));
+  // A dock of effect cards keeps the height they need (dockMinPx).
+  const min = dockMinPx(slot);
+  const max = Math.max(min, Math.round(bodyPx * DOCK_MAX_FRAC));
   const commit = (px: number) => setDockHeight(slot, px / bodyPx);
   return (
     <Resizer
@@ -365,19 +397,18 @@ function DockResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
       orientation="horizontal"
       direction={-1}
       value={value}
-      min={DOCK_MIN_PX}
+      min={min}
       max={max}
-      constrain={(px) => snapDockPx(px, bodyPx)}
+      constrain={(px) => snapDockPx(px, bodyPx, min)}
       onPreview={(px) =>
         rootRef.current?.style.setProperty(DOCK_HEIGHT_VAR, `${px}px`)
       }
       onCommit={commit}
-      onDoubleClick={() => {
-        const fallback = DOCK_DEFAULT_FRAC[slot] ?? DOCK_DEFAULT_FRAC.controls;
-        const tall = Math.abs(value - bodyPx * DOCK_TALL_FRAC) < 2;
-        setDockHeight(slot, tall ? fallback : DOCK_TALL_FRAC);
-      }}
-      onToggle={() => setTab(null)}
+      // Double-click shuts the dock, as Enter does (owner, 2026-10-22: a
+      // double-click opens and shuts it; the shut dock's title row opens
+      // it, Dock). It used to toggle a tall height.
+      onDoubleClick={closeDock}
+      onToggle={closeDock}
       data-testid="dock-resizer"
       className="top-0 z-[var(--daw-z-sticky)]"
     />

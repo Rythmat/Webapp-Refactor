@@ -50,6 +50,8 @@ const TITLE: Record<CanvasMenuTarget['kind'], string> = {
   marker: 'Marker',
   ruler: 'Ruler',
   section: 'Section',
+  chord: 'Chord',
+  chordLane: 'Chord ruler',
 };
 
 /** A shortcut's label for a menu row, or undefined for none. */
@@ -253,6 +255,8 @@ export function CanvasMenu() {
   const loopStart = useStore((s) => s.loopStart);
   const loopEnd = useStore((s) => s.loopEnd);
   const isRecording = useStore((s) => s.isRecording);
+  const chordRegions = useStore((s) => s.chordRegions);
+  const selectedChordIds = useStore((s) => s.selectedChordIds);
 
   const model = useMemo(
     () =>
@@ -270,6 +274,8 @@ export function CanvasMenu() {
               loopStart,
               loopEnd,
               isRecording,
+              chordRegions,
+              selectedChordIds,
             },
             request.target,
             { premium: isPremium, playheadTick: request.playheadTick },
@@ -288,6 +294,8 @@ export function CanvasMenu() {
       loopStart,
       loopEnd,
       isRecording,
+      chordRegions,
+      selectedChordIds,
       isPremium,
     ],
   );

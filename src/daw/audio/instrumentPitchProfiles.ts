@@ -13,6 +13,7 @@
 //     to see its lowest notes — at the cost of higher latency (~150 ms). Bass is
 //     monophonic, so this is an acceptable trade.
 
+import type { AudioSource } from './audioSource';
 import type { OrchestratorOptions } from '@/learn/audio/v2/ProbabilisticOrchestrator';
 import type { DetectionMode } from '@/learn/audio/v2/types';
 
@@ -60,11 +61,9 @@ export const BASS_PITCH_PROFILE: PitchDetectProfile = {
   allowPolyphonic: false,
 };
 
-/** Resolve a profile from a track's instrument type. */
-export function pitchProfileForInstrument(
-  instrument: string,
-): PitchDetectProfile {
-  return instrument === 'bass-fx' ? BASS_PITCH_PROFILE : GUITAR_PITCH_PROFILE;
+/** The profile for what an Audio track records: a bass's, else a guitar's. */
+export function pitchProfileForSource(source: AudioSource): PitchDetectProfile {
+  return source === 'bass' ? BASS_PITCH_PROFILE : GUITAR_PITCH_PROFILE;
 }
 
 /**

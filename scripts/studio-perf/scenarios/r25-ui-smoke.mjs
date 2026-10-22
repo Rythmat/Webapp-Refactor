@@ -4,12 +4,12 @@
  * at 1366×655 (a Chromebook) and 1280×720 (the smallest window kept), in
  * Create and in Practice:
  *
- * - chipFits: the chip is on screen in the TopRail's leading slot, 150 px
- *   (±2) wide in every state it reaches here (Saved on this device,
- *   Unsaved, Saving…, Saved, Couldn't save – Retry, and Audio not saved
- *   yet, the longest label, shown by setting the draft status's missing
- *   media count: R16 media drives that state for real), its text never
- *   clipped (scrollWidth ≤ clientWidth, the label's too).
+ * - chipFits: in the top bar the chip shows only when work is at risk
+ *   (2026-10-21): Couldn't save – Retry, and Audio not saved yet (the
+ *   longest label, shown by setting the draft status's missing media count:
+ *   R16 media drives that state for real) are on screen, 150 px (±2) wide,
+ *   their text never clipped; Saved on this device, Unsaved, Saving… and
+ *   Saved are reached but hidden.
  * - targetsAtLeast24: Undo, Redo and the chip's Retry are at least 24×24
  *   px (the target floor) at both window sizes.
  * - chipType: every text in it is Glacial at 12 px or more.
@@ -205,20 +205,43 @@ const undoState = (page) =>
   }));
 
 /** Waits for the chip to read `state`, then measures it (null on timeout). */
+/**
+ * The states the top bar keeps out of sight since 2026-10-21 (the owner
+ * removed 'Saved on this device'): the chip is there, hidden, carrying the
+ * state for the live region and tests; only a failed save and audio not yet
+ * stored show.
+ */
+const QUIET_STATES = new Set(['local', 'unsaved', 'saving', 'saved']);
+
 async function chipIn(page, state, timeout = 15_000) {
+  const quiet = QUIET_STATES.has(state);
   const ok = await page
     .waitForSelector(
       `${SLOT} [data-testid="save-chip"][data-state="${state}"]`,
       {
         timeout,
         polling: 50,
+        state: quiet ? 'attached' : 'visible',
       },
     )
     .then(
       () => true,
       () => false,
     );
-  return ok ? page.evaluate(measureChip, SLOT) : null;
+  if (!ok) return null;
+  if (quiet) {
+    const hidden = await page.evaluate(
+      ({ slot, want }) => {
+        const chip = document.querySelector(
+          `${slot} [data-testid="save-chip"][data-state="${want}"]`,
+        );
+        return !!chip && chip.getBoundingClientRect().width === 0;
+      },
+      { slot: SLOT, want: state },
+    );
+    return { state, quiet: true, hidden };
+  }
+  return page.evaluate(measureChip, SLOT);
 }
 
 async function pressSave(page) {
@@ -402,8 +425,10 @@ async function uiSmoke(kit, run) {
     create.push(await smokeAt(kit, run, viewport));
     practice.push(await practiceAt(kit, run, viewport));
   }
+  const shownChips = create.flatMap((c) => c.reached).filter((m) => !m.quiet);
+  const quietChips = create.flatMap((c) => c.reached).filter((m) => m.quiet);
   const allChips = [
-    ...create.flatMap((c) => c.reached),
+    ...shownChips,
     ...practice.map((p) => p.header).filter(Boolean),
   ];
   const fits = (m) =>
@@ -417,7 +442,9 @@ async function uiSmoke(kit, run) {
     extraLosses: [],
     flags: {
       chipFits:
-        create.every((c) => c.missing.length === 0) && allChips.every(fits),
+        create.every((c) => c.missing.length === 0) &&
+        allChips.every(fits) &&
+        quietChips.every((m) => m.hidden),
       chipType: allChips.every((m) =>
         m.fonts.every((f) => f.size >= 12 && f.glacial),
       ),
@@ -438,8 +465,10 @@ async function uiSmoke(kit, run) {
     checks: {
       create: create.map((c) => ({
         viewport: `${c.viewport.width}x${c.viewport.height}`,
-        states: c.reached.map(
-          (m) => `${m.state} ${m.width}px${m.clipped ? ' clipped' : ''}`,
+        states: c.reached.map((m) =>
+          m.quiet
+            ? `${m.state} ${m.hidden ? 'hidden' : 'SHOWN'}`
+            : `${m.state} ${m.width}px${m.clipped ? ' clipped' : ''}`,
         ),
         missing: c.missing,
         colours: [...c.reached.flatMap((m) => m.colours), ...c.undoColours],

@@ -629,7 +629,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.4780702590942383,
+      "amount": 0.5463621670317466,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -644,7 +644,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.574561357498169,
+      "amount": 0.6566369323416149,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -674,7 +674,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.5087718963623047,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -689,7 +689,7 @@
         "source": "osc1",
         "param": "level"
       },
-      "amount": -0.2631579637527466,
+      "amount": -0.5263159275054932,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -699,7 +699,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.30245691780875555,
+  "masterVolume": 0.7373899656177461,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -742,8 +742,8 @@
   "fxRoutes": [],
   "routing": {
     "filterRouting": {
-      "filter1Sources": ["osc1", "noise", "sub"],
-      "filter2Sources": []
+      "filter1Sources": ["osc1", "sub"],
+      "filter2Sources": ["noise"]
     },
     "envelopeRouting": {
       "env1Sources": ["osc1", "osc2", "sub", "noise"],
@@ -798,5 +798,6 @@
     "rootPc": 0,
     "mode": "ionian",
     "snapMode": "nearest"
-  }
+  },
+  "modWheel": 0.2890625
 }

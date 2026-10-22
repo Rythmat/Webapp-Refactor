@@ -159,8 +159,8 @@ describe('menu descriptions', () => {
       'Clips jump to the grid lines',
     );
     // The item grows to two lines, never under 24 px (40 px).
-    expect(snap.className).toMatch(/min-h-10/);
-    expect(snap.className).not.toMatch(/\bh-7\b/);
+    expect(snap.className).toMatch(/min-h-12/);
+    expect(snap.className).not.toMatch(/\bh-10\b/);
     // The shortcut stays.
     expect(snap).toHaveTextContent('⌘G');
     const settings = screen.getByRole('menuitem', { name: 'Settings' });
@@ -174,7 +174,7 @@ describe('menu descriptions', () => {
     open();
     const plain = screen.getByRole('menuitem', { name: 'Plain item' });
     expect(plain).not.toHaveAttribute('aria-describedby');
-    expect(plain.className).toMatch(/\bh-7\b/);
+    expect(plain.className).toMatch(/\bh-10\b/);
     expect(plain.querySelector('[data-menu-description]')).toBeNull();
   });
 
@@ -261,7 +261,7 @@ describe('context menu descriptions', () => {
     expect(
       duplicate.querySelector('[data-menu-description]'),
     ).toHaveTextContent('Makes a copy after it');
-    expect(duplicate.className).toMatch(/min-h-10/);
+    expect(duplicate.className).toMatch(/min-h-12/);
     expect(duplicate).toHaveTextContent('⌘D');
     const plain = screen.getByRole('menuitem', { name: 'Delete' });
     expect(plain).not.toHaveAttribute('aria-describedby');

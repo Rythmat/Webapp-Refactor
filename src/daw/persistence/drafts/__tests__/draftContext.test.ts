@@ -184,7 +184,7 @@ const LESSON = 'make-first-track';
 const OTHER_LESSON = 'jazz-color-your-chords';
 
 const seedLesson = (id: string) => () => {
-  s().addTrack('midi', 'piano-sampler', 'Keys');
+  s().addTrack('midi', 'soundfont', 'Keys');
   s().startTutorial(id);
 };
 
@@ -203,7 +203,7 @@ const theorySession = (studentTrackId?: string): TheoryPracticeSession => ({
 
 const seedPractice = () => {
   s().addTrack('midi', 'soundfont', 'Bass');
-  const melody = s().addTrack('midi', 'piano-sampler', 'Melody');
+  const melody = s().addTrack('midi', 'soundfont', 'Melody');
   s().setPracticeSession(theorySession(melody));
   s().setCurrentView('practice');
 };

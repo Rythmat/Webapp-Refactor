@@ -22,9 +22,9 @@ import {
 // It starts with the name, a field to type over: Enter, leaving it or
 // closing the menu renames as one undo step, but only a name typed there;
 // Escape puts it back. Its keys are its own (letters never jump the menu to
-// an item) and ↓ goes on to the first item. Then Colour, Role, Instrument…
-// (a MIDI track's), Duplicate track (⌘D), Monitor, Test sound, Show
-// automation, Export track ▸, Release and Delete. On a track a collaborator holds, what would change it is off.
+// an item) and ↓ goes on to the first item. Then Colour, Role, Duplicate
+// track (⌘D), Monitor, Test sound, Show automation, Export track ▸, Release
+// and Delete. On a track a collaborator holds, what would change it is off.
 // A right-click on a row selects it and opens the same menu at the pointer;
 // closing it gives focus back to the row's name.
 //
@@ -48,7 +48,6 @@ import {
   undoLabel,
 } from '@/daw/store/history';
 import type { AudioClip, MidiClip } from '@/daw/store/tracksSlice';
-import { useInstrumentDialogStore } from '../instrumentDialogStore';
 import { TrackList } from '../TrackList';
 
 const s = () => useStore.getState();
@@ -111,7 +110,7 @@ beforeEach(() => {
     isRecording: false,
     automationOpenTrackId: null,
   });
-  rhodes = s().addTrack('midi', 'piano-sampler', 'Rhodes');
+  rhodes = s().addTrack('midi', 'soundfont', 'Rhodes');
   drums = s().addTrack('midi', 'drum-machine', 'Drums');
   vox = s().addTrack('audio', 'none', 'Vox');
   s().addMidiClip(rhodes, {
@@ -200,11 +199,11 @@ describe('the ⋯ menu’s items', () => {
         el.textContent?.replace(DUPLICATE_LABEL, '').trim(),
       ),
     ).toEqual([
-      'Color',
+      'Colour',
       'Role for chord analysis',
-      'Instrument…',
       'Duplicate track',
-      'Monitor input',
+      // The track's input, with the device it listens to (2026-10-22).
+      'MIDI inputAll Devices',
       'Test sound',
       'Show automation',
       'Export track',
@@ -218,25 +217,6 @@ describe('the ⋯ menu’s items', () => {
     const duplicate = within(menu).getByTestId('track-menu-duplicate');
     expect(DUPLICATE_LABEL).toMatch(/D$/);
     expect(duplicate).toHaveTextContent(DUPLICATE_LABEL);
-  });
-
-  it('opens the Instrument dialog on a MIDI track from Instrument…', () => {
-    useInstrumentDialogStore.setState({ trackId: null });
-    render(<TrackList />);
-    const menu = openMenu('Drums');
-    const item = within(menu).getByTestId('track-menu-instrument');
-    expect(item).toHaveAttribute(
-      'data-tutorial-id',
-      'track-menu-change-instrument',
-    );
-    fireEvent.click(item);
-    expect(useInstrumentDialogStore.getState().trackId).toBe(drums);
-  });
-
-  it('has no Instrument… on an audio track', () => {
-    render(<TrackList />);
-    const menu = openMenu('Vox');
-    expect(within(menu).queryByTestId('track-menu-instrument')).toBeNull();
   });
 
   it('has no Test sound on an audio track', () => {
@@ -340,7 +320,7 @@ describe('the name field', () => {
     openMenu('Rhodes');
     nameField().focus();
     fireEvent.keyDown(nameField(), { key: 'ArrowDown' });
-    expect(document.activeElement).toHaveTextContent('Color');
+    expect(document.activeElement).toHaveTextContent('Colour');
   });
 
   it('is off, with what would change the track, while a collaborator holds it', () => {
@@ -348,13 +328,7 @@ describe('the name field', () => {
     render(<TrackList />);
     const menu = openMenu('Rhodes');
     expect(nameField()).toBeDisabled();
-    for (const text of [
-      'Color',
-      'Role for chord analysis',
-      'Instrument…',
-      'Monitor input',
-      'Delete track',
-    ]) {
+    for (const text of ['Colour', 'Role for chord analysis', 'Delete track']) {
       expect(itemNamed(menu, text)).toHaveAttribute('data-disabled');
     }
     // Duplicate and Export leave the track as it is.
@@ -570,7 +544,7 @@ describe('the menu opens on the name', () => {
   it('↑ on the first item goes back up to the name', () => {
     render(<TrackList />);
     const menu = openMenu('Rhodes');
-    const colour = itemNamed(menu, 'Color');
+    const colour = itemNamed(menu, 'Colour');
     colour.focus();
     fireEvent.keyDown(colour, { key: 'ArrowUp' });
     expect(document.activeElement).toBe(nameField());

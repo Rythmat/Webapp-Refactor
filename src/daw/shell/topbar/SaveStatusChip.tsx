@@ -106,10 +106,18 @@ export const SaveChipAnnouncer = memo(function SaveChipAnnouncer() {
 export const SaveStatusChip = memo(function SaveStatusChip({
   className,
   announce = true,
+  warningsOnly = false,
 }: {
   className?: string;
   /** Render the live region here (false: a SaveChipAnnouncer elsewhere). */
   announce?: boolean;
+  /**
+   * Show the chip only when the work is at risk: a save that failed (with
+   * Retry, Resolve or Reload) or audio not yet stored. The top bar's way
+   * since the owner asked for 'Saved on this device' to go (2026-10-21);
+   * the live region still says every state.
+   */
+  warningsOnly?: boolean;
 }) {
   const chip = useSaveChipState();
   const opening = useSessionStore((s) => isBusyPhase(s.phase));
@@ -122,6 +130,28 @@ export const SaveStatusChip = memo(function SaveStatusChip({
     if (isBusyPhase(useSessionStore.getState().phase)) return;
     retrySave(reason, deviceFailing, fix);
   }, [reason, deviceFailing, fix]);
+
+  if (warningsOnly && !warning) {
+    // Out of sight, but the state is kept on a hidden marker (the save
+    // harness and tests read it); the live region still says it.
+    return (
+      <>
+        <span
+          hidden
+          data-testid="save-chip"
+          data-state={chip.state}
+          data-reason={reason ?? 'none'}
+        >
+          {chip.label}
+        </span>
+        {announce ? (
+          <span role="status" aria-live="polite" className="sr-only">
+            {chip.announce ?? ''}
+          </span>
+        ) : null}
+      </>
+    );
+  }
 
   return (
     <>

@@ -52,18 +52,27 @@ export function applyEchoSong(song: EchoStudioSong): string {
   store.setTimeSignature(4, 4);
   store.setChordRegions(echoChordRegions(song), false, 'given');
 
-  const melodyId = store.addTrack('midi', ECHO_MELODY_INSTRUMENT, 'Melody');
+  // Each track on its sound: a sound no Studio track type plays any more
+  // (the piano, the Rhodes, a bass voice) as an Instruments track playing
+  // the same instrument (trackSound.ts).
+  const addSoundTrack = (sound: string, name: string): string => {
+    const trackId = store.addTrack('midi', 'soundfont', name);
+    const { settings, drumKit } = trackSound(trackId, sound, song.tempo);
+    store.updateTrack(trackId, settings);
+    if (drumKit) store.setDrumKit(trackId, drumKit);
+    return trackId;
+  };
+
+  const melodyId = addSoundTrack(ECHO_MELODY_INSTRUMENT, 'Melody');
   store.addMidiClip(melodyId, song.melody);
-  const chordsId = store.addTrack('midi', ECHO_CHORDS_INSTRUMENT, 'Chords');
+  const chordsId = addSoundTrack(ECHO_CHORDS_INSTRUMENT, 'Chords');
   store.addMidiClip(chordsId, song.chords);
 
   // The band: each part on its sound (a kit, a bass voice, a layer's
   // instrument) at its level, as the Practice Track seeds a band's layers.
   for (const part of song.band) {
-    const trackId = store.addTrack('midi', 'electric-piano', part.name);
-    const { settings, drumKit } = trackSound(trackId, part.sound, song.tempo);
-    store.updateTrack(trackId, { ...settings, volume: part.volume });
-    if (drumKit) store.setDrumKit(trackId, drumKit);
+    const trackId = addSoundTrack(part.sound, part.name);
+    store.updateTrack(trackId, { volume: part.volume });
     store.addMidiClip(trackId, part.clip);
   }
 

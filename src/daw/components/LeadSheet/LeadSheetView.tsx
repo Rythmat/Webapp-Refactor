@@ -20,10 +20,11 @@ import {
   withRepeatStart,
   withoutRepeatAt,
 } from '../Score/roadmap';
+import { isDrumTrack, isNotatable } from '../Score/scoreParts';
+import type { NoteTools } from '../Score/notePalettes';
+import { ScoreToolbar } from '../Score/ScoreToolbar';
 import { ComposerLine } from './ComposerLine';
-import { LeadSheetScoreView } from './LeadSheetScoreView';
 import { LeadSheetStaff } from './LeadSheetStaff';
-import { LeadSheetToolbar } from './LeadSheetToolbar';
 import {
   buildClipboard,
   type CopySource,
@@ -33,7 +34,6 @@ import {
   roadmapAt,
   type LeadSheetClipboard,
 } from './leadSheetClipboard';
-import { pickMelodyTracks } from './leadSheetMelody';
 import {
   applyItemClick,
   clickKind,
@@ -46,6 +46,9 @@ import {
 import './leadsheet-print.css';
 import { useLeadSheetPrint } from './useLeadSheetPrint';
 
+/** The chart has no staves: the toolbar's bar tools move no track's notes. */
+const NO_STAVES: readonly string[] = [];
+
 /** The chord being typed on a beat: drawn with its box open, not yet stored. */
 const PENDING_CHORD = { id: 'pending-chord', name: '', noteName: '' } as const;
 
@@ -53,27 +56,10 @@ const PENDING_CHORD = { id: 'pending-chord', name: '', noteName: '' } as const;
 const DEFAULT_MEASURES_PER_LINE = 4;
 
 /**
- * The lead sheet in one of its two forms. With Melody on it is a score of
- * the melody tracks, a staff each, written and edited with the Score's own
- * tools; with it off, or no track to read, it is the chord chart, slashes
- * and all.
+ * The Score page as a chord chart, slashes and all: what it shows when no
+ * track has a staff on it (ScoreView), under the Score's one toolbar.
  */
-export function LeadSheetView() {
-  const showMelody = useStore((s) => s.leadSheetShowMelody);
-  const melodyTrackIds = useStore((s) => s.leadSheetMelodyTrackIds);
-  const tracks = useStore((s) => s.tracks);
-  const melodyTracks = useMemo(
-    () => (showMelody ? pickMelodyTracks(tracks, melodyTrackIds).tracks : []),
-    [showMelody, tracks, melodyTrackIds],
-  );
-  return melodyTracks.length > 0 ? (
-    <LeadSheetScoreView tracks={melodyTracks} />
-  ) : (
-    <LeadSheetChartView />
-  );
-}
-
-function LeadSheetChartView() {
+export function LeadSheetChartView() {
   useLeadSheetPrint();
   const chordRegions = useStore((s) => s.chordRegions);
   const MEASURES_PER_LINE =
@@ -641,6 +627,7 @@ function LeadSheetChartView() {
     [systemBreaks, measureCount, rowSizesFor, setMeasureRowSizes],
   );
 
+  const chartNoteTools = useChartNoteTools();
   const applyPalette = useCallback(
     (action: PaletteAction) => {
       const barline = targetBarline;
@@ -895,13 +882,17 @@ function LeadSheetChartView() {
         <ScorePalettes
           hasSelection={targetBarline !== null}
           onApply={applyPalette}
+          notes={chartNoteTools}
         />
       </div>
       <div
         className="flex flex-1 flex-col overflow-hidden"
         onClick={handleBackgroundClick}
       >
-        <LeadSheetToolbar selectedMeasureIdx={selectedMeasureIdx} />
+        <ScoreToolbar
+          selectedMeasureIdx={selectedMeasureIdx}
+          staveTrackIds={NO_STAVES}
+        />
 
         <div
           ref={contentRef}
@@ -981,8 +972,132 @@ function LeadSheetChartView() {
               chords, or double-click a beat on the staff to add one.
             </div>
           )}
+
+          <StavesHint />
         </div>
       </div>
+    </div>
+  );
+}
+
+const noop = () => undefined;
+const NO_ARTICULATIONS: ReadonlySet<never> = new Set();
+
+/**
+ * Add notes from the chord chart: a pitched track to write on is shown, then
+ * the Score's note input is on (which brings the staves in). Undefined with
+ * no pitched track to write on.
+ */
+function useStartNoteInput(): (() => void) | undefined {
+  const tracks = useStore((s) => s.tracks);
+  const hidden = useStore((s) => s.scoreHiddenTrackIds);
+  const setHidden = useStore((s) => s.setScoreHiddenTrackIds);
+  const setNoteInput = useStore((s) => s.setScoreNoteInput);
+  const pitched = useMemo(
+    () => tracks.filter((t) => isNotatable(t) && !isDrumTrack(t)),
+    [tracks],
+  );
+  return useMemo(() => {
+    if (pitched.length === 0) return undefined;
+    return () => {
+      if (!pitched.some((t) => !hidden.includes(t.id))) {
+        setHidden(hidden.filter((id) => id !== pitched[0].id));
+      }
+      setNoteInput(true);
+    };
+  }, [pitched, hidden, setHidden, setNoteInput]);
+}
+
+/**
+ * The note palettes on the chord chart (owner, 2026-10-22: every palette in
+ * the Palettes panel, staves or not). There are no notes here to select, so
+ * their cells wait; Add notes above them goes to the staves.
+ */
+function useChartNoteTools(): NoteTools {
+  const onToggleNoteInput = useStartNoteInput();
+  return useMemo(
+    () => ({
+      hasNotes: false,
+      noteInput: false,
+      onToggleNoteInput,
+      layer: 'notes',
+      onLayer: noop,
+      currentDuration: null,
+      dotted: false,
+      activeArticulations: NO_ARTICULATIONS,
+      slurred: false,
+      canTie: false,
+      onTie: noop,
+      canAddChord: false,
+      onAddChord: noop,
+      currentAccidental: null,
+      onAccidental: noop,
+      onDuration: noop,
+      onToggleDot: noop,
+      onArticulation: noop,
+      onSlur: noop,
+    }),
+    [onToggleNoteInput],
+  );
+}
+
+/**
+ * Under the chart: why there are no staves, and the way to them. Staves
+ * show once a shown track has notes; Add notes starts writing on the first
+ * pitched one (the Score's note input).
+ */
+function StavesHint() {
+  const tracks = useStore((s) => s.tracks);
+  const hidden = useStore((s) => s.scoreHiddenTrackIds);
+  const setHidden = useStore((s) => s.setScoreHiddenTrackIds);
+  const startNoteInput = useStartNoteInput();
+  const instruments = tracks.filter(isNotatable);
+  const shown = instruments.filter((t) => !hidden.includes(t.id));
+  const allOff = instruments.length > 0 && shown.length === 0;
+  const button =
+    'score-no-print rounded px-2 py-0.5 font-semibold transition-colors hover:bg-white/5';
+  return (
+    <div
+      data-testid="score-staves-hint"
+      className="score-no-print mt-8 flex flex-wrap items-center justify-center gap-2 text-xs"
+      style={{ color: 'var(--daw-text-3)' }}
+    >
+      {instruments.length === 0 ? (
+        <span>
+          Staves show here for instrument tracks. Add one in Create to write its
+          notes.
+        </span>
+      ) : allOff ? (
+        <>
+          <span>Every track’s staff is off, so this is the chord chart.</span>
+          <button
+            type="button"
+            className={button}
+            style={{ border: '1px solid var(--daw-hairline)' }}
+            onClick={() => setHidden([])}
+          >
+            Show every track
+          </button>
+        </>
+      ) : (
+        <>
+          <span>
+            Staves show here once a track has notes. Record or write MIDI in
+            Create, or write them here.
+          </span>
+          {startNoteInput ? (
+            <button
+              type="button"
+              className={button}
+              style={{ border: '1px solid var(--daw-hairline)' }}
+              onClick={startNoteInput}
+              data-testid="score-add-notes"
+            >
+              Add notes
+            </button>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }

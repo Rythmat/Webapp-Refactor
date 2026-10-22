@@ -4,7 +4,7 @@ import type { RackTarget } from '@/daw/store/effectRack';
 
 // ── Which rack shows, and which one the library fills (milestone 2.10) ─────
 //
-// The side rail's Effects library is the only list that adds effects
+// The Add effect picker is the only list that adds effects
 // (2.8). It fills the rack in front of the student: in Create, the dock's
 // Master when it shows, else the selected track's chain; in Mix, the rack
 // the RackDock shows, else the selected track's. A rack whose track was

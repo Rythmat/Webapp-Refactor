@@ -4,15 +4,20 @@
 // the student a moment earlier, against music that had left the context
 // earlier still:
 //
-//   - inputLatency: the time from the microphone (or the guitar's input) to
-//     the audio graph. The track's own figure (MediaStreamTrack settings'
-//     `latency`) where the browser gives one, else the context's baseLatency.
-//   - outputLatency: the time from the audio graph to the speakers
-//     (AudioContext.outputLatency, 0 where the browser doesn't say).
+//   - inputLatency: the time from the microphone to the audio graph: the
+//     track's own figure (MediaStreamTrack settings' `latency`) where the
+//     browser gives one, else 0. A guitar or vocal adapter's stream is made
+//     inside the context (a MediaStreamDestination) and reports none, and
+//     the adapters don't expose their device's figure, so their takes count
+//     only the output side (the caller may pass a figure it knows).
+//   - baseLatency + outputLatency: the time from the audio graph to the
+//     speakers: the context's own buffering plus the device's (0 where the
+//     browser doesn't say). heardTime's fallback uses the same sum, so an
+//     audio take and a MIDI take agree.
 //
 // So the student was hearing context time
 //
-//     heard = captureStart − inputLatency − outputLatency
+//     heard = captureStart − inputLatency − baseLatency − outputLatency
 //
 // when they played the first captured frame, and the take starts at the
 // transport's tick for that time. A joint play+record start books the
@@ -49,6 +54,7 @@ export interface CaptureTiming {
   /** The context time of the tap's first frame. */
   captureStart: number;
   inputLatency: number;
+  baseLatency: number;
   outputLatency: number;
   transportStart: number | null;
   /** The transport's tick at a context time. */
@@ -60,7 +66,10 @@ export interface CaptureTiming {
 /** The anchor for a take whose tap started at `timing.captureStart`. */
 export function takeAnchor(timing: CaptureTiming): TakeAnchor {
   const heard =
-    timing.captureStart - timing.inputLatency - timing.outputLatency;
+    timing.captureStart -
+    timing.inputLatency -
+    timing.baseLatency -
+    timing.outputLatency;
   const start = timing.transportStart;
   const baseTime = start !== null && heard < start ? start : heard;
   return {
@@ -95,8 +104,14 @@ export function placeTake(
 export interface LagOptions {
   /** How much of the tap to compare, in seconds. */
   windowSeconds?: number;
-  /** The largest lag looked for, either way, in seconds. */
+  /** The lags looked for, in seconds (see findLagSeconds). The tap starts
+   *  first, and MediaRecorder's own start-up makes the decoded audio start
+   *  later: about −150 ms to +20 ms. */
+  minLagSeconds?: number;
   maxLagSeconds?: number;
+  /** Among scores this close to the best, the lag nearest this one wins. */
+  preferLagSeconds?: number;
+  tieTolerance?: number;
   /** Below this normalised correlation (silence, noise) there's no lag. */
   minCorrelation?: number;
 }
@@ -104,36 +119,33 @@ export interface LagOptions {
 /** Averages `factor` samples at a time (a crude low-pass, then decimation). */
 function downsample(
   signal: Float32Array,
+  from: number,
   length: number,
   factor: number,
 ): Float32Array {
   const out = new Float32Array(Math.floor(length / factor));
   for (let i = 0; i < out.length; i++) {
     let sum = 0;
-    const from = i * factor;
-    for (let j = 0; j < factor; j++) sum += signal[from + j];
+    const at = from + i * factor;
+    for (let j = 0; j < factor; j++) sum += signal[at + j];
     out[i] = sum / factor;
   }
   return out;
 }
 
-/** The normalised correlation of reference[0..n) with target shifted by
- *  `lag` (target[i + lag] against reference[i]). */
+/** The normalised correlation of reference[0..n) with target[at..at+n). */
 function correlationAt(
   reference: Float32Array,
   n: number,
   target: Float32Array,
-  lag: number,
+  at: number,
 ): number {
-  const from = Math.max(0, -lag);
-  const to = Math.min(n, target.length - lag);
-  if (to - from < 16) return 0;
   let dot = 0;
   let refEnergy = 0;
   let tgtEnergy = 0;
-  for (let i = from; i < to; i++) {
+  for (let i = 0; i < n; i++) {
     const r = reference[i];
-    const t = target[i + lag];
+    const t = target[at + i];
     dot += r * t;
     refEnergy += r * r;
     tgtEnergy += t * t;
@@ -142,12 +154,38 @@ function correlationAt(
   return norm > 1e-9 ? dot / norm : 0;
 }
 
+/** The best-scoring lag; among near-ties, the one nearest `prefer`. */
+function pickLag(
+  scores: ReadonlyArray<readonly [lag: number, score: number]>,
+  prefer: number,
+  tolerance: number,
+): { lag: number; score: number } {
+  let best = -Infinity;
+  for (const [, score] of scores) best = Math.max(best, score);
+  let pick = { lag: prefer, score: best };
+  let distance = Infinity;
+  for (const [lag, score] of scores) {
+    if (score < best - tolerance) continue;
+    const d = Math.abs(lag - prefer);
+    if (d < distance) {
+      distance = d;
+      pick = { lag, score };
+    }
+  }
+  return pick;
+}
+
 /**
  * How many seconds earlier `target` (the decoded audio) starts than
  * `reference` (the tap's PCM): target[i + lag·rate] ≈ reference[i]. Negative
  * when it starts later. 0 when the two don't correlate (a silent start).
- * A coarse search at about 4 kHz finds the peak, then a search at the full
- * rate around it finds the sample.
+ *
+ * Every lag is scored over the same slice of the tap (one that every lag in
+ * the range can see whole), so a lag at the range's edge can't win on a
+ * short overlap, and periodic input (a click track) can't tie a beat away.
+ * The range is the plausible one only, near-ties go to the lag nearest
+ * `preferLagSeconds`, and a coarse search at about 4 kHz finds the peak
+ * before a search at the full rate around it finds the sample.
  */
 export function findLagSeconds(
   reference: Float32Array,
@@ -156,42 +194,61 @@ export function findLagSeconds(
   options: LagOptions = {},
 ): number {
   const windowSeconds = options.windowSeconds ?? 2;
-  const maxLagSeconds = options.maxLagSeconds ?? 0.5;
+  const minLagSeconds = options.minLagSeconds ?? -0.15;
+  const maxLagSeconds = Math.max(minLagSeconds, options.maxLagSeconds ?? 0.02);
+  const prefer = Math.min(
+    maxLagSeconds,
+    Math.max(minLagSeconds, options.preferLagSeconds ?? 0),
+  );
+  const tolerance = options.tieTolerance ?? 0.02;
   const minCorrelation = options.minCorrelation ?? 0.3;
-  const n = Math.min(reference.length, Math.round(windowSeconds * sampleRate));
-  if (n < 64 || target.length < 64) return 0;
-
-  let refEnergy = 0;
-  for (let i = 0; i < n; i++) refEnergy += reference[i] * reference[i];
-  if (refEnergy / n < 1e-8) return 0;
 
   const factor = Math.max(1, Math.floor(sampleRate / 4000));
-  const refDs = downsample(reference, n, factor);
-  const tgtDs = downsample(target, target.length, factor);
-  const maxLagDs = Math.round((maxLagSeconds * sampleRate) / factor);
+  const minLag = Math.round(minLagSeconds * sampleRate);
+  const maxLag = Math.round(maxLagSeconds * sampleRate);
+  // The slice of the tap: it starts late enough that the earliest lag
+  // reads from target[0], on the coarse grid.
+  const from = Math.ceil(Math.max(0, -minLag) / factor) * factor;
+  const n =
+    Math.floor(
+      Math.min(
+        Math.round(windowSeconds * sampleRate),
+        reference.length - from,
+        target.length - from - maxLag - 2 * factor,
+      ) / factor,
+    ) * factor;
+  if (n < 64 * factor) return 0;
 
-  let bestDs = 0;
-  let bestScore = -Infinity;
-  for (let lag = -maxLagDs; lag <= maxLagDs; lag++) {
-    const score = correlationAt(refDs, refDs.length, tgtDs, lag);
-    if (score > bestScore) {
-      bestScore = score;
-      bestDs = lag;
-    }
-  }
-  if (bestScore < minCorrelation) return 0;
+  const slice = reference.subarray(from, from + n);
+  let refEnergy = 0;
+  for (let i = 0; i < n; i++) refEnergy += slice[i] * slice[i];
+  if (refEnergy / n < 1e-8) return 0;
 
-  const centre = bestDs * factor;
-  let best = centre;
-  bestScore = -Infinity;
-  for (let lag = centre - 2 * factor; lag <= centre + 2 * factor; lag++) {
-    const score = correlationAt(reference, n, target, lag);
-    if (score > bestScore) {
-      bestScore = score;
-      best = lag;
-    }
+  const refDs = downsample(slice, 0, n, factor);
+  const tgtDs = downsample(target, 0, target.length, factor);
+  const coarse: Array<[number, number]> = [];
+  for (
+    let lagDs = Math.ceil(minLag / factor);
+    lagDs <= Math.floor(maxLag / factor);
+    lagDs++
+  ) {
+    coarse.push([
+      lagDs * factor,
+      correlationAt(refDs, refDs.length, tgtDs, from / factor + lagDs),
+    ]);
   }
-  return best / sampleRate;
+  const preferSamples = Math.round(prefer * sampleRate);
+  const peak = pickLag(coarse, preferSamples, tolerance);
+  if (peak.score < minCorrelation) return 0;
+
+  const fine: Array<[number, number]> = [];
+  const lo = Math.max(minLag, peak.lag - 2 * factor);
+  const hi = Math.min(maxLag, peak.lag + 2 * factor);
+  for (let lag = lo; lag <= hi; lag++) {
+    if (from + lag < 0) continue;
+    fine.push([lag, correlationAt(slice, n, target, from + lag)]);
+  }
+  return pickLag(fine, preferSamples, 1e-6).lag / sampleRate;
 }
 
 /** The first `frames` frames of `channels`, mixed to mono. */

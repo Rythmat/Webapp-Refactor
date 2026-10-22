@@ -97,6 +97,9 @@ const DRAWN_FIELDS = [
   'timelineGridSize',
   'timelineTripletMode',
   'selectedClipId',
+  // The selected track's lane is lit (Suno's selection).
+  'selectedTrackId',
+  'dockMaster',
   'selectedChordIds',
   'selectedNotes',
   'loopEnabled',
@@ -111,6 +114,7 @@ const DRAWN_FIELDS = [
   'detectedKeyRootPc',
   'detectedMode',
   'clipColorMode',
+  'rootTrackColor',
   'liveRecordingTrackId',
   'liveRecordingStartTick',
   'liveRecordingNotes',

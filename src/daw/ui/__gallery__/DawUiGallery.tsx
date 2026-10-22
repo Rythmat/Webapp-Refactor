@@ -18,7 +18,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { KEY_OF_COLORS } from '@/constants/theme';
 import { cn } from '@/components/utilities';
 import { Button, type ButtonVariant } from '../Button';
-import { Chip } from '../Chip';
+import { Chip, ColorChip } from '../Chip';
 import { contrastRatio, onColor } from '../color';
 import { ConfirmDialog } from '../ConfirmDialog';
 import {
@@ -29,10 +29,11 @@ import {
 } from '../DawDialog';
 import { confirmDialog, DialogHost, promptDialog } from '../DialogHost';
 import { EmptyState } from '../EmptyState';
+import { FloatingCard } from '../FloatingCard';
 import { Fader } from '../Fader';
 import { formatDb, formatGain } from '../format';
 import { IconButton, type IconButtonVariant } from '../IconButton';
-import { Kbd } from '../Kbd';
+import { Kbd, Keycap } from '../Kbd';
 import { Knob } from '../Knob';
 import {
   ContextMenu,
@@ -65,6 +66,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '../Popover';
+import { IconPill, Pill, PillGroup } from '../Pill';
 import { PremiumBadge } from '../PremiumBadge';
 import { PromptDialog } from '../PromptDialog';
 import { Readout } from '../Readout';
@@ -877,6 +879,45 @@ function Gallery() {
             <Kbd>⌘Z</Kbd>
             <Kbd>Shift</Kbd>
             <Kbd>Space</Kbd>
+          </Row>
+        </Section>
+
+        <Section title="The floating frame: pills, cards, keycaps (S0)">
+          <Row label="pills">
+            <Pill>Library</Pill>
+            <Pill variant="primary">Learn</Pill>
+            <IconPill label="Zoom in" icon={<Plus />} />
+          </Row>
+          <Row label="pill group">
+            <PillGroup label="Undo and redo">
+              <IconButton label="Undo" icon={<Undo2 />} variant="bare" />
+              <IconButton label="Redo" icon={<Redo2 />} variant="bare" />
+            </PillGroup>
+            <PillGroup label="Tempo" className="px-3">
+              <span className={TYPE_CLASS.label}>120 BPM</span>
+              <span className={cn(TYPE_CLASS.label, 'ml-3')}>4/4</span>
+            </PillGroup>
+          </Row>
+          <Row label="keycaps">
+            <Keycap aria-hidden>A</Keycap>
+            <Keycap aria-hidden>M</Keycap>
+            <Keycap aria-hidden>Shift T</Keycap>
+          </Row>
+          <Row label="colour chips">
+            {Object.entries(KEY_OF_COLORS)
+              .slice(0, 3)
+              .map(([key, color]) => (
+                <ColorChip key={key} color={color} meaning="key-colour">
+                  4 bars · {key}
+                </ColorChip>
+              ))}
+          </Row>
+          <Row label="floating card">
+            <FloatingCard className="w-72 p-3">
+              <p className={cn(TYPE_CLASS.body, 'text-daw-text-2')}>
+                Write a bass line that follows the chords
+              </p>
+            </FloatingCard>
           </Row>
         </Section>
 

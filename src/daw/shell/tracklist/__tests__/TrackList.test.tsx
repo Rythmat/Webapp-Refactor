@@ -19,21 +19,24 @@ import {
 } from 'vitest';
 
 // ── The track list (milestone 2.6) ─────────────────────────────────────────
-// 64 px rows with M, S, Arm and the fader named in full and showing their
-// state as pressed (timeline-21); the keyboard moves the selection (A11Y#3),
-// mutes, solos, renames and reorders; the ⋯ menu deletes with Undo. Since
-// 2.15 the row's instrument button opens the track in the dock, and the
-// selected row has an edge in its track's colour. (The ⋯ menu itself, and
-// the right-click that opens it: TrackMenu.test.tsx.)
+// 86 px rows after Suno's header (2026-10-21): the track's number, its name,
+// Mute, Solo, Arm and its input named in full and showing their state as
+// pressed (timeline-21), the volume pill and the pan dial; the track's
+// colour down every row's edge. The keyboard moves the selection (A11Y#3),
+// mutes, solos, renames and reorders; the ⋯ menu deletes with Undo. (The ⋯
+// menu itself, and the right-click that opens it: TrackMenu.test.tsx.)
 
 const h = vi.hoisted(() => ({ toast: vi.fn() }));
 vi.mock('sonner', () => ({ toast: h.toast }));
 
 import { installKeyDispatcher } from '@/daw/commands/dispatcher';
 import { useStore } from '@/daw/store';
-import { contrastRatio } from '@/daw/ui/color';
-import { COLOR } from '@/daw/ui/tokens';
-import { resetHistory, startHistory } from '@/daw/store/history';
+import {
+  resetHistory,
+  startHistory,
+  undo,
+  undoLabel,
+} from '@/daw/store/history';
 import { TrackList } from '../TrackList';
 
 const s = () => useStore.getState();
@@ -70,9 +73,9 @@ beforeEach(() => {
     singleKeyShortcuts: true,
     automationOpenTrackId: null,
   });
-  s().addTrack('midi', 'piano-sampler', 'Rhodes');
+  s().addTrack('midi', 'soundfont', 'Rhodes');
   s().addTrack('midi', 'drum-machine', 'Drums');
-  s().addTrack('audio', 'vocal-fx', 'Vox');
+  s().addTrack('audio', 'audio-input', 'Vox');
   s().setSelectedTrackId(null);
   resetHistory();
   stopHistory = startHistory();
@@ -103,9 +106,16 @@ describe('a track row', () => {
       within(row).getByRole('slider', { name: 'Volume of Rhodes' }),
     ).toHaveAttribute('aria-valuetext');
     expect(
+      within(row).getByRole('slider', { name: 'Pan of Rhodes' }),
+    ).toHaveAttribute('aria-valuetext', 'Centre');
+    // No ▾ of its own: the input is in the track's menu (2026-10-22).
+    expect(
+      within(row).queryByRole('button', { name: 'MIDI input of Rhodes' }),
+    ).toBeNull();
+    expect(
       within(row).getByRole('button', { name: 'More for Rhodes' }),
     ).toBeInTheDocument();
-    expect(row.style.height).toBe('64px');
+    expect(row.style.height).toBe('86px');
   });
 
   it('selects its track from the name, which is the one Tab stop', () => {
@@ -129,73 +139,90 @@ describe('a track row', () => {
   });
 });
 
-describe('a track row’s instrument button', () => {
-  it('shows the track’s instrument', () => {
+describe('the record button', () => {
+  it('arms and monitors, then stops monitoring, then disarms', () => {
     render(<TrackList />);
-    const [keys, drums, vox] = screen.getAllByTestId('track-instrument-button');
-    expect(keys).toHaveAccessibleName('Open Rhodes’s instrument');
-    expect(keys.querySelector('svg.lucide-piano')).not.toBeNull();
-    expect(drums.querySelector('svg.lucide-drum')).not.toBeNull();
-    expect(vox.querySelector('svg.lucide-mic')).not.toBeNull();
+    const t = () => s().tracks[0];
+    const arm = () => screen.getAllByTestId('track-arm')[0];
+
+    expect(arm()).toHaveAccessibleName('Arm Rhodes to record');
+    expect(arm()).toHaveAttribute('data-arm-state', 'off');
+
+    fireEvent.click(arm());
+    expect(t()).toMatchObject({ recordArmed: true, monitoring: true });
+    expect(arm()).toHaveAttribute('data-arm-state', 'monitoring');
+    expect(arm()).toHaveAttribute('aria-pressed', 'true');
+    expect(arm()).toHaveAccessibleName('Stop hearing Rhodes’s input');
+
+    fireEvent.click(arm());
+    expect(t()).toMatchObject({ recordArmed: true, monitoring: false });
+    expect(arm()).toHaveAttribute('data-arm-state', 'armed');
+    expect(arm()).toHaveAccessibleName('Disarm Rhodes');
+
+    fireEvent.click(arm());
+    expect(t()).toMatchObject({ recordArmed: false, monitoring: false });
+    expect(arm()).toHaveAttribute('data-arm-state', 'off');
+    expect(arm()).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('selects the track and opens its instrument in the dock, focus there', () => {
-    useStore.setState({ channelStripTab: null, dockMaster: false });
-    const dock = document.createElement('div');
-    dock.tabIndex = -1;
-    dock.setAttribute('data-dock-content', '');
-    document.body.append(dock);
+  it('arms a track already monitoring from the menu, and keeps it heard', () => {
+    s().updateTrack(s().tracks[0].id, { monitoring: true });
     render(<TrackList />);
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Open Drums’s instrument' }),
-    );
-    expect(s().selectedTrackId).toBe(s().tracks[1].id);
-    expect(s().channelStripTab).toBe('controls');
-    expect(document.activeElement).toBe(dock);
-    dock.remove();
-  });
-
-  it('opens an audio track’s effects', () => {
-    useStore.setState({ channelStripTab: null });
-    s().addTrack('audio', 'none', 'Take');
-    s().setSelectedTrackId(null);
-    render(<TrackList />);
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Open Take’s instrument' }),
-    );
-    expect(s().selectedTrackId).toBe(s().tracks[3].id);
-    expect(s().channelStripTab).toBe('fx');
+    fireEvent.click(screen.getAllByTestId('track-arm')[0]);
+    expect(s().tracks[0]).toMatchObject({
+      recordArmed: true,
+      monitoring: true,
+    });
   });
 });
 
-describe('the instrument glyph’s colour', () => {
-  const ROW = COLOR['surface-1'].value;
-  const glyph = (name: string) =>
-    screen.getByRole('button', { name: `Open ${name}’s instrument` });
-
-  it('leaves a dark track colour out of an unselected row', () => {
-    // A wine red: under 3:1 on the row, so the glyph takes the row's text.
-    expect(contrastRatio('#450920', ROW)).toBeLessThan(3);
-    s().updateTrack(s().tracks[0].id, { color: '#450920' });
+describe('a track row’s number and colour', () => {
+  it('numbers the tracks in order, in place of an instrument icon', () => {
     render(<TrackList />);
-    expect(glyph('Rhodes').style.color).toBe('');
-    expect(glyph('Rhodes').style.backgroundColor).toBe('');
+    expect(
+      screen.getAllByTestId('track-number').map((n) => n.textContent),
+    ).toEqual(['1', '2', '3']);
+    expect(screen.queryByTestId('track-instrument-button')).toBeNull();
   });
 
-  it('keeps a light track colour on the glyph', () => {
-    expect(contrastRatio('#f5d76e', ROW)).toBeGreaterThanOrEqual(3);
-    s().updateTrack(s().tracks[0].id, { color: '#f5d76e' });
+  it('mutes a track from its number, with no mute icon (2026-10-22)', () => {
     render(<TrackList />);
-    expect(glyph('Rhodes').style.color).toBe('rgb(245, 215, 110)');
+    const number = screen.getAllByTestId('track-number')[1];
+    expect(number).toHaveAccessibleName('Mute Drums');
+    expect(number).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(number);
+    expect(s().tracks[1].mute).toBe(true);
+    expect(number).toHaveAttribute('aria-pressed', 'true');
+    expect(number).toHaveClass('bg-daw-pill-on');
+    // One mute control per row: the number.
+    expect(screen.getAllByRole('button', { name: /^Mute / })).toHaveLength(3);
+    expect(screen.queryByTestId('track-mute')).toBeNull();
+    fireEvent.click(number);
+    expect(s().tracks[1].mute).toBe(false);
   });
 
-  it('fills the selected row’s button with the track colour, dark or not', () => {
-    s().updateTrack(s().tracks[0].id, { color: '#450920' });
-    s().setSelectedTrackId(s().tracks[0].id);
+  it('runs every track’s colour down its row’s edge, fading it when muted', () => {
     render(<TrackList />);
-    expect(glyph('Rhodes').style.backgroundColor).toBe('rgb(69, 9, 32)');
-    expect(glyph('Rhodes').style.color).not.toBe('');
+    const bars = screen.getAllByTestId('track-colour-bar');
+    expect(bars).toHaveLength(3);
+    const probe = document.createElement('span');
+    probe.style.backgroundColor = s().tracks[1].color;
+    expect(bars[1].style.backgroundColor).toBe(probe.style.backgroundColor);
+    fireEvent.click(screen.getByRole('button', { name: 'Mute Drums' }));
+    expect(bars[1]).toHaveClass('opacity-40');
+  });
+
+  it('gives an audio track its input in its menu, not a ▾ of its own', () => {
+    render(<TrackList />);
+    expect(
+      screen.queryByRole('button', { name: 'Audio input of Vox' }),
+    ).toBeNull();
+    fireEvent.keyDown(screen.getByRole('button', { name: 'More for Vox' }), {
+      key: 'Enter',
+    });
+    const input = screen.getByTestId('track-menu-input');
+    expect(input.textContent).toContain('Audio input');
+    expect(input.textContent).toContain('Input 1');
   });
 });
 
@@ -253,24 +280,17 @@ describe('the track menu from the keys', () => {
 });
 
 describe('the selected row', () => {
-  it('has an edge in its track’s colour; the others don’t', () => {
+  it('is lifted and marked current; the selection moves it', () => {
     s().setSelectedTrackId(s().tracks[1].id);
     render(<TrackList />);
     const rows = screen.getAllByTestId('track-row');
-    expect(within(rows[0]).queryByTestId('track-selected-edge')).toBeNull();
-    expect(within(rows[2]).queryByTestId('track-selected-edge')).toBeNull();
-    const edge = within(rows[1]).getByTestId('track-selected-edge');
-    const probe = document.createElement('span');
-    probe.style.backgroundColor = s().tracks[1].color;
-    expect(edge.style.backgroundColor).toBe(probe.style.backgroundColor);
     expect(rows[1]).toHaveAttribute('aria-current', 'true');
+    expect(rows[1]).toHaveClass('bg-daw-surface-2');
+    expect(rows[0]).not.toHaveAttribute('aria-current');
 
-    // The edge follows the selection.
     fireEvent.click(selector('Rhodes'));
-    expect(
-      within(rows[0]).getByTestId('track-selected-edge'),
-    ).toBeInTheDocument();
-    expect(within(rows[1]).queryByTestId('track-selected-edge')).toBeNull();
+    expect(rows[0]).toHaveAttribute('aria-current', 'true');
+    expect(rows[1]).not.toHaveAttribute('aria-current');
   });
 });
 
@@ -293,6 +313,28 @@ describe('the track list’s keys', () => {
     expect(s().selectedTrackId).toBe(s().tracks[2].id);
     fireEvent.keyDown(document.activeElement!, { key: 'Home', code: 'Home' });
     expect(s().selectedTrackId).toBe(s().tracks[0].id);
+  });
+
+  it('deletes the selected track with Delete, as one undo step, the next track taking its place', () => {
+    render(<TrackList />);
+    const drums = s().tracks[1].id;
+    const vox = s().tracks[2].id;
+    // A click on the row (not its name) selects it and gives it the keys.
+    fireEvent.click(
+      document.querySelector(`li[data-track-id="${drums}"]`) as HTMLElement,
+    );
+    expect(s().selectedTrackId).toBe(drums);
+    expect(document.activeElement).toBe(selector('Drums'));
+    fireEvent.keyDown(selector('Drums'), { key: 'Delete', code: 'Delete' });
+    expect(s().tracks.map((t) => t.id)).not.toContain(drums);
+    expect(undoLabel()).toBe('Delete track');
+    expect(s().selectedTrackId).toBe(vox);
+    expect(document.activeElement).toBe(selector('Vox'));
+    // Backspace too (a Chromebook has no Delete key).
+    fireEvent.keyDown(selector('Vox'), { key: 'Backspace', code: 'Backspace' });
+    expect(s().tracks.map((t) => t.id)).toEqual([s().tracks[0].id]);
+    undo();
+    expect(s().tracks.map((t) => t.id)).toContain(vox);
   });
 
   it('mutes and solos the focused track ahead of the metronome key', () => {
@@ -359,7 +401,7 @@ describe('reordering by the grip', () => {
     render(<TrackList />);
     const list = screen.getByTestId('track-list');
     list.getBoundingClientRect = () =>
-      ({ top: 100, left: 0, width: 200, height: 192 }) as DOMRect;
+      ({ top: 100, left: 0, width: 260, height: 258 }) as DOMRect;
     const grip = screen.getAllByTestId('track-grip')[0];
     grip.setPointerCapture = () => {};
     // jsdom's PointerEvent has no button or pointerId: a MouseEvent with
@@ -374,11 +416,11 @@ describe('reordering by the grip', () => {
     });
     // Into the bottom half of the last row: below it.
     act(() => {
-      grip.dispatchEvent(pointer('pointermove', 100 + 64 * 2 + 50));
+      grip.dispatchEvent(pointer('pointermove', 100 + 86 * 2 + 50));
     });
-    expect(screen.getByTestId('track-drop-line').style.top).toBe('192px');
+    expect(screen.getByTestId('track-drop-line').style.top).toBe('258px');
     act(() => {
-      grip.dispatchEvent(pointer('pointerup', 100 + 64 * 2 + 50));
+      grip.dispatchEvent(pointer('pointerup', 100 + 86 * 2 + 50));
     });
     expect(names()).toEqual(['Drums', 'Vox', 'Rhodes']);
   });

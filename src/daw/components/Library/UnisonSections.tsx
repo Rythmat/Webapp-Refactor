@@ -1,328 +1,133 @@
 import { useState } from 'react';
 import { useStore } from '@/daw/store';
 import { formatProgression, useChordNotation } from '@/lib/chordNotation';
-import { midiToNoteName } from './insightConstants';
 import { keyContext } from './insightNotation';
-import type { UnisonDocument } from '@/unison/types/schema';
+import type {
+  ProgressionMatchResult,
+  UnisonDocument,
+} from '@/unison/types/schema';
+
+// ── Insight's progression (2026-10-21) ─────────────────────────────────────
+//
+// What the song's chords are: the progression they match best, stated with
+// how sure the match is and a song that uses it, then the others that come
+// close. Vibes, styles, rhythm and melody went from Insight (owner): only
+// the harmony is read here. A weak match isn't listed at all (the matcher
+// scores how much of the pattern and of the song a match covers).
+
+/** A match this sure, besides the best, is listed as also close. */
+const ALSO_CLOSE_AT = 0.85;
+/** How many close matches show before 'Show more'. */
+const CLOSE_SHOWN = 3;
 
 interface UnisonSectionsProps {
   unisonDoc: UnisonDocument;
-  /** Only the harmony sections (progression matches, vibes & styles) — for
-   *  a chord selection, where session-wide rhythm and melody don't apply. */
-  harmonyOnly?: boolean;
 }
 
-export function UnisonSections({
-  unisonDoc,
-  harmonyOnly = false,
-}: UnisonSectionsProps) {
-  const [expandedMatches, setExpandedMatches] = useState(false);
+export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
+  const [showAll, setShowAll] = useState(false);
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
   const notation = useChordNotation();
   // Progression degrees in the session key; without one, the analysis's key.
-  const progressionContext =
+  const context =
     rootNote !== null
       ? keyContext(rootNote, mode)
       : keyContext(unisonDoc.analysis.key.rootPc, unisonDoc.analysis.key.mode);
 
+  const [best, ...rest] = unisonDoc.analysis.progressionMatches;
+  if (!best) return null;
+  const close = rest.filter((m) => m.score >= ALSO_CLOSE_AT);
+  const shown = showAll ? close : close.slice(0, CLOSE_SHOWN);
+  const text = (m: ProgressionMatchResult) =>
+    formatProgression(m.progression, notation, context);
+
   return (
-    <>
-      {/* Progression Matches */}
-      {unisonDoc.analysis.progressionMatches.length > 0 && (
-        <div
-          className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-          style={{ borderColor: 'var(--daw-hairline)' }}
-        >
+    <div
+      data-testid="insight-progression"
+      className="flex flex-col gap-1.5 border-b px-3 py-2.5"
+      style={{ borderColor: 'var(--daw-hairline)' }}
+    >
+      <span
+        className="text-[11px] font-semibold uppercase tracking-wider"
+        style={{ color: 'var(--daw-text-3)' }}
+      >
+        Progression
+      </span>
+      <div
+        data-testid="insight-progression-best"
+        className="flex flex-col gap-0.5 rounded px-2 py-1.5"
+        style={{ backgroundColor: 'var(--daw-surface-2)' }}
+      >
+        <div className="flex items-baseline justify-between gap-2">
           <span
-            className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--daw-text-3)' }}
+            className="text-[12px] font-semibold"
+            style={{ color: 'var(--daw-text)' }}
           >
-            Progression Matches ({unisonDoc.analysis.progressionMatches.length})
+            {text(best)}
           </span>
-          {(expandedMatches
-            ? unisonDoc.analysis.progressionMatches
-            : unisonDoc.analysis.progressionMatches.slice(0, 5)
-          ).map((match) => (
+          <span
+            className="shrink-0 text-[12px] font-semibold tabular-nums"
+            style={{ color: 'var(--daw-text)' }}
+          >
+            {Math.round(best.score * 100)}%
+          </span>
+        </div>
+        <SongRef match={best} />
+      </div>
+
+      {close.length > 0 ? (
+        <>
+          <span className="text-[12px]" style={{ color: 'var(--daw-text-3)' }}>
+            Also close
+          </span>
+          {shown.map((m) => (
             <div
-              key={match.libraryId}
-              className="rounded px-2 py-1.5"
-              style={{ backgroundColor: 'var(--daw-surface-2)' }}
+              key={m.libraryId}
+              data-testid="insight-progression-close"
+              className="flex flex-col gap-0.5 px-2"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-baseline justify-between gap-2">
                 <span
-                  className="text-[10px] font-medium"
-                  style={{ color: 'var(--daw-text)' }}
+                  className="text-[12px]"
+                  style={{ color: 'var(--daw-text-2)' }}
                 >
-                  {formatProgression(
-                    match.progression,
-                    notation,
-                    progressionContext,
-                  )}
+                  {text(m)}
                 </span>
                 <span
-                  className="text-[9px] tabular-nums"
-                  style={{ color: 'var(--daw-accent)' }}
-                >
-                  {Math.round(match.score * 100)}%
-                </span>
-              </div>
-              {(match.artist || match.song) && (
-                <span
-                  className="text-[9px]"
+                  className="shrink-0 text-[12px] tabular-nums"
                   style={{ color: 'var(--daw-text-3)' }}
                 >
-                  {[match.artist, match.song].filter(Boolean).join(' — ')}
+                  {Math.round(m.score * 100)}%
                 </span>
-              )}
+              </div>
+              <SongRef match={m} />
             </div>
           ))}
-          {unisonDoc.analysis.progressionMatches.length > 5 && (
+          {close.length > CLOSE_SHOWN ? (
             <button
               type="button"
-              onClick={() => setExpandedMatches(!expandedMatches)}
-              className="text-[9px] font-medium cursor-pointer"
-              style={{
-                color: 'var(--daw-accent)',
-                background: 'none',
-                border: 'none',
-                padding: 0,
-              }}
+              onClick={() => setShowAll((v) => !v)}
+              className="self-start text-[12px] font-medium"
+              style={{ color: 'var(--daw-text-2)' }}
             >
-              {expandedMatches
-                ? 'Show less'
-                : `Show all ${unisonDoc.analysis.progressionMatches.length}`}
+              {showAll
+                ? 'Show fewer'
+                : `Show ${close.length - CLOSE_SHOWN} more`}
             </button>
-          )}
-        </div>
-      )}
-
-      {/* Vibes & Styles */}
-      {(unisonDoc.analysis.vibes.length > 0 ||
-        unisonDoc.analysis.styles.length > 0) && (
-        <div
-          className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-          style={{ borderColor: 'var(--daw-hairline)' }}
-        >
-          {unisonDoc.analysis.vibes.length > 0 && (
-            <div className="flex flex-col gap-1">
-              <span
-                className="text-[9px] font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--daw-text-3)' }}
-              >
-                Vibes
-              </span>
-              <div className="flex flex-wrap gap-1">
-                {unisonDoc.analysis.vibes.slice(0, 8).map((vibe) => (
-                  <span
-                    key={vibe}
-                    className="rounded-full px-1.5 py-0.5 text-[9px]"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                      color: 'var(--daw-accent)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                    }}
-                  >
-                    {vibe}
-                  </span>
-                ))}
-                {unisonDoc.analysis.vibes.length > 8 && (
-                  <span
-                    className="text-[9px]"
-                    style={{ color: 'var(--daw-text-3)' }}
-                  >
-                    +{unisonDoc.analysis.vibes.length - 8}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-          {unisonDoc.analysis.styles.length > 0 && (
-            <div className="flex flex-col gap-1">
-              <span
-                className="text-[9px] font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--daw-text-3)' }}
-              >
-                Styles
-              </span>
-              <div className="flex flex-wrap gap-1">
-                {unisonDoc.analysis.styles.slice(0, 8).map((style) => (
-                  <span
-                    key={style}
-                    className="rounded-full px-1.5 py-0.5 text-[9px]"
-                    style={{
-                      backgroundColor: 'rgba(168, 85, 247, 0.1)',
-                      color: '#c084fc',
-                      border: '1px solid rgba(168, 85, 247, 0.2)',
-                    }}
-                  >
-                    {style}
-                  </span>
-                ))}
-                {unisonDoc.analysis.styles.length > 8 && (
-                  <span
-                    className="text-[9px]"
-                    style={{ color: 'var(--daw-text-3)' }}
-                  >
-                    +{unisonDoc.analysis.styles.length - 8}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {harmonyOnly ? null : (
-        <SessionSections
-          unisonDoc={unisonDoc}
-          rootNote={rootNote}
-          mode={mode}
-        />
-      )}
-    </>
+          ) : null}
+        </>
+      ) : null}
+    </div>
   );
 }
 
-function SessionSections({
-  unisonDoc,
-  rootNote,
-  mode,
-}: {
-  unisonDoc: UnisonDocument;
-  rootNote: number | null;
-  mode: string;
-}) {
+/** 'Fleetwood Mac — Dreams', when the library names a song that uses it. */
+function SongRef({ match }: { match: ProgressionMatchResult }) {
+  if (!match.artist && !match.song) return null;
   return (
-    <>
-      {/* Rhythm */}
-      <div
-        className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-        style={{ borderColor: 'var(--daw-hairline)' }}
-      >
-        <span
-          className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          Rhythm
-        </span>
-        <div className="grid grid-cols-3 gap-1">
-          <div className="flex flex-col">
-            <span className="text-[8px]" style={{ color: 'var(--daw-text-3)' }}>
-              BPM
-            </span>
-            <span
-              className="text-[11px] font-bold"
-              style={{ color: 'var(--daw-text)' }}
-            >
-              {unisonDoc.rhythm.bpm}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[8px]" style={{ color: 'var(--daw-text-3)' }}>
-              Time
-            </span>
-            <span
-              className="text-[11px] font-bold"
-              style={{ color: 'var(--daw-text)' }}
-            >
-              {unisonDoc.rhythm.timeSignatureNumerator}/
-              {unisonDoc.rhythm.timeSignatureDenominator}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[8px]" style={{ color: 'var(--daw-text-3)' }}>
-              Feel
-            </span>
-            <span
-              className="text-[11px] font-bold"
-              style={{ color: 'var(--daw-text)' }}
-            >
-              {unisonDoc.rhythm.subdivision}
-            </span>
-          </div>
-        </div>
-        {unisonDoc.rhythm.swingAmount > 0 && (
-          <div className="flex items-center gap-1.5">
-            <span className="text-[8px]" style={{ color: 'var(--daw-text-3)' }}>
-              Swing
-            </span>
-            <div
-              className="h-1 flex-1 rounded-full overflow-hidden"
-              style={{ backgroundColor: 'var(--daw-surface-2)' }}
-            >
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${unisonDoc.rhythm.swingAmount * 100}%`,
-                  backgroundColor: 'var(--daw-accent)',
-                }}
-              />
-            </div>
-            <span
-              className="text-[8px] tabular-nums"
-              style={{ color: 'var(--daw-text-3)' }}
-            >
-              {Math.round(unisonDoc.rhythm.swingAmount * 100)}%
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Melody */}
-      {unisonDoc.melody && (
-        <div
-          className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-          style={{ borderColor: 'var(--daw-hairline)' }}
-        >
-          <span
-            className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--daw-text-3)' }}
-          >
-            Melody
-          </span>
-          <div className="grid grid-cols-2 gap-1">
-            <div className="flex flex-col">
-              <span
-                className="text-[8px]"
-                style={{ color: 'var(--daw-text-3)' }}
-              >
-                Range
-              </span>
-              <span
-                className="text-[10px] font-medium"
-                style={{ color: 'var(--daw-text)' }}
-              >
-                {midiToNoteName(
-                  unisonDoc.melody.pitchRange.low,
-                  rootNote,
-                  mode,
-                )}{' '}
-                —{' '}
-                {midiToNoteName(
-                  unisonDoc.melody.pitchRange.high,
-                  rootNote,
-                  mode,
-                )}
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span
-                className="text-[8px]"
-                style={{ color: 'var(--daw-text-3)' }}
-              >
-                Contour
-              </span>
-              <span
-                className="text-[10px] font-medium capitalize"
-                style={{ color: 'var(--daw-text)' }}
-              >
-                {unisonDoc.melody.contour}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    <span className="text-[12px]" style={{ color: 'var(--daw-text-3)' }}>
+      {[match.artist, match.song].filter(Boolean).join(' — ')}
+    </span>
   );
 }

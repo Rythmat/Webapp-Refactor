@@ -69,7 +69,7 @@ beforeEach(() => {
     projectId: 'project-1',
     roomId: null,
   });
-  trackId = useStore.getState().addTrack('audio', 'vocal-fx', 'Vox');
+  trackId = useStore.getState().addTrack('audio', 'audio-input', 'Vox');
   useStore.getState().addAudioClip(trackId, take);
   setAudioBuffer('take', {
     duration: 10,

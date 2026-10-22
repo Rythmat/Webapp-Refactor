@@ -30,9 +30,9 @@ let vocal = '';
 
 beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
-  keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  keys = s().addTrack('midi', 'soundfont', 'Keys');
   drums = s().addTrack('midi', 'drum-machine', 'Beat');
-  vocal = s().addTrack('audio', 'vocal-fx', 'Vocal');
+  vocal = s().addTrack('audio', 'audio-input', 'Vocal');
   s().addMidiClip(keys, {
     id: 'keys-1',
     startTick: 1920,

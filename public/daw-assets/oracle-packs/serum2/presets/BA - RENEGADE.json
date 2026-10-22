@@ -388,7 +388,7 @@
         "source": "osc1",
         "param": "level"
       },
-      "amount": 0.25,
+      "amount": 0.5,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -473,7 +473,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.23492356413166818,
+  "masterVolume": 0.407122536640181,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -495,13 +495,13 @@
     },
     "compressor": {
       "enabled": true,
-      "threshold": 0,
+      "threshold": -10.133529848958418,
       "ratio": 4,
       "attack": 0.01,
-      "release": 1
+      "release": 0.749616452515167
     },
     "drive": {
-      "enabled": true,
+      "enabled": false,
       "amount": 0.3,
       "mix": 0.5
     },

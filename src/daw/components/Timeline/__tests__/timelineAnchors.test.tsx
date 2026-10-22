@@ -48,7 +48,7 @@ beforeEach(() => {
     loopStart: 0,
     loopEnd: TICKS_PER_BEAT * 8,
   });
-  keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  keys = s().addTrack('midi', 'soundfont', 'Keys');
   drums = s().addTrack('midi', 'drum-machine', 'Drums');
   s().addMidiClip(keys, {
     id: 'verse',
@@ -119,7 +119,7 @@ describe('the anchors over the canvas', () => {
     expect(box('timeline-lane-end-1')?.left).toBe(hit.left + hit.width);
     // A lane with no clips has none.
     act(() => {
-      s().addTrack('midi', 'piano-sampler', 'Empty');
+      s().addTrack('midi', 'soundfont', 'Empty');
     });
     expect(box('timeline-lane-2')).not.toBeNull();
     expect(box('timeline-lane-end-2')).toBeNull();

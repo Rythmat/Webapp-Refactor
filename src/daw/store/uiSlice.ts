@@ -199,12 +199,7 @@ export interface PracticeKeyboard {
 }
 /** The editor dock's tabs (shell/dock/dockTabs.ts). Kept here so the
  *  tutorial system can read and open a tab from the store. */
-export type ChannelStripTabId =
-  | 'controls'
-  | 'fx'
-  | 'prism'
-  | 'piano-roll'
-  | 'grooves';
+export type ChannelStripTabId = 'controls' | 'fx' | 'prism' | 'piano-roll';
 export type LeadSheetChordFormat = 'jazz' | 'hybrid' | 'numbers';
 
 /**
@@ -234,6 +229,13 @@ export interface UiSlice {
    */
   scoreNoteInput: boolean;
   setScoreNoteInput: (on: boolean) => void;
+  /**
+   * The tracks the Score leaves off its staves (its Staves menu, 2026-10-21).
+   * With every instrument track off, the page is the chord chart. The view's
+   * own choice, not the song's, so it isn't saved with the project.
+   */
+  scoreHiddenTrackIds: string[];
+  setScoreHiddenTrackIds: (ids: string[]) => void;
   activeTool: ToolType;
   selectedClipId: string | null;
   selectedClipTrackId: string | null;
@@ -324,17 +326,16 @@ export interface UiSlice {
   /** ♡ on a Library row or a groove: marks the item, or unmarks it. */
   toggleLibraryFavourite: (id: string) => void;
 
-  // ── The effects library and the dock's chain (milestone 2.8) ──
+  // ── The Add effect picker and the dock's chain ──
   /**
-   * The Effects panel and the dock's chain are one state, as in Soundtrap:
-   * while the panel shows, the next empty slot of the chain is armed, and
-   * each pick fills it and arms the next. What the armed slot's × goes back
-   * to: the panel that showed before (null: the Inspector was shut).
+   * The Add effect picker shows (shell/dock/EffectPicker.tsx, after Suno's
+   * "Add a track plugin" modal): a pick adds to the rack in front of the
+   * student and closes it.
    */
-  fxLibraryReturn: InspectorPanelId | null;
-  /** Add effect: shows the Effects panel (the student's choice) and arms. */
+  effectPickerOpen: boolean;
+  /** Add effect: opens the picker. */
   openEffectsLibrary: () => void;
-  /** The armed slot's ×: stops adding and puts the Inspector back. */
+  /** Closes the picker without adding. */
   cancelEffectsLibrary: () => void;
   /** The effect whose controls the dock's chain shows. */
   dockEffect: EffectSlotType | null;
@@ -342,7 +343,8 @@ export interface UiSlice {
 
   /** Per-user: the dock's height for each tab, as a share of the editor body. */
   dockHeights: DockHeights;
-  setDockHeight: (slot: DockSlotId, frac: number) => void;
+  /** null forgets the tab's height: it opens at the default again. */
+  setDockHeight: (slot: DockSlotId, frac: number | null) => void;
   /** Per-user: the position readout in bars and beats, or minutes. */
   readoutMode: ReadoutMode;
   setReadoutMode: (mode: ReadoutMode) => void;
@@ -472,6 +474,7 @@ export interface UiSlice {
    */
   scoreChordTracks: string[];
   toggleScoreChordTrack: (trackId: string) => void;
+  setScoreChordTracks: (trackIds: string[]) => void;
   /**
    * Chords taken off one part, keyed `trackId:regionId`. Hiding one here
    * never touches the lead sheet or any other part.
@@ -511,11 +514,6 @@ export interface UiSlice {
   setScoreSlashNotes: (ids: string[]) => void;
 }
 
-/** The panel the Effects library goes back to: the one showing, if any. */
-function returnPanel(s: UiSlice): InspectorPanelId | null {
-  return s.libraryOpen && s.inspectorPanel !== 'fx' ? s.inspectorPanel : null;
-}
-
 export const createUiSlice: StateCreator<
   AllSlices,
   [['zustand/subscribeWithSelector', never]],
@@ -526,6 +524,8 @@ export const createUiSlice: StateCreator<
   setSingleKeyShortcuts: (on) => set({ singleKeyShortcuts: on }),
   scoreNoteInput: false,
   setScoreNoteInput: (on) => set({ scoreNoteInput: on }),
+  scoreHiddenTrackIds: [],
+  setScoreHiddenTrackIds: (ids) => set({ scoreHiddenTrackIds: ids }),
   activeTool: 'cursor',
   selectedClipId: null,
   selectedClipTrackId: null,
@@ -600,8 +600,11 @@ export const createUiSlice: StateCreator<
         ...patch,
       },
     })),
-  setCurrentView: (view) =>
+  setCurrentView: (asked) =>
     set((s) => {
+      // The Lead sheet is the Score's one editor since 2026-10-21: a draft,
+      // a link or a lesson that asks for it gets the Score.
+      const view = asked === 'leadsheet' ? 'score' : asked;
       const next: Partial<UiSlice> = { currentView: view };
       // Lesson steps re-assert the view they are already on: not a switch,
       // so the Inspector stays as the step left it.
@@ -664,9 +667,6 @@ export const createUiSlice: StateCreator<
   toggleInspectorPanel: (panel) => {
     const s = get();
     const open = !(s.libraryOpen && s.inspectorPanel === panel);
-    // The rail's Effects icon arms the chain too: its × goes back to the
-    // panel that showed before.
-    if (open && panel === 'fx') set({ fxLibraryReturn: returnPanel(s) });
     set({ inspectorPanel: panel });
     s.setInspectorOpenFor(s.currentView, open);
   },
@@ -678,31 +678,26 @@ export const createUiSlice: StateCreator<
       libraryFavourites: toggledFavourites(s.libraryFavourites, id),
     })),
 
-  fxLibraryReturn: null,
-  openEffectsLibrary: () => {
-    const s = get();
-    if (!(s.libraryOpen && s.inspectorPanel === 'fx')) {
-      set({ fxLibraryReturn: returnPanel(s), inspectorPanel: 'fx' });
-    }
-    s.setInspectorOpenFor(s.currentView, true);
-  },
-  cancelEffectsLibrary: () => {
-    const s = get();
-    const back = s.fxLibraryReturn;
-    set({ fxLibraryReturn: null });
-    if (back) set({ inspectorPanel: back });
-    else s.setInspectorOpenFor(s.currentView, false);
-  },
+  effectPickerOpen: false,
+  openEffectsLibrary: () => set({ effectPickerOpen: true }),
+  cancelEffectsLibrary: () => set({ effectPickerOpen: false }),
   dockEffect: null,
   setDockEffect: (effect) => set({ dockEffect: effect }),
   dockHeights: {},
   setDockHeight: (tab, frac) =>
-    set((s) => ({
-      dockHeights: {
-        ...s.dockHeights,
-        [tab]: Math.min(DOCK_MAX_FRAC, Math.max(0.05, frac)),
-      },
-    })),
+    set((s) => {
+      if (frac === null) {
+        const rest = { ...s.dockHeights };
+        delete rest[tab];
+        return { dockHeights: rest };
+      }
+      return {
+        dockHeights: {
+          ...s.dockHeights,
+          [tab]: Math.min(DOCK_MAX_FRAC, Math.max(0.05, frac)),
+        },
+      };
+    }),
   readoutMode: 'bars',
   setReadoutMode: (mode) => set({ readoutMode: mode }),
 
@@ -831,6 +826,7 @@ export const createUiSlice: StateCreator<
         ? s.scoreChordTracks.filter((id) => id !== trackId)
         : [...s.scoreChordTracks, trackId],
     })),
+  setScoreChordTracks: (trackIds) => set({ scoreChordTracks: trackIds }),
   scoreChordHidden: [],
   setScoreChordHidden: (hidden) => set({ scoreChordHidden: hidden }),
   scoreArticulations: [],

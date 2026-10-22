@@ -135,4 +135,49 @@ describe('matchProgressions', () => {
     // With only 1 chord, window length < 2, so no matches
     expect(results).toEqual([]);
   });
+
+  describe('confidence and accuracy (2026-10-21)', () => {
+    const top = (names: string[]) =>
+      matchProgressions(names.map((n, i) => chord(n, i)));
+
+    it('puts the progression the song plays first, at 100%, over its rotations', () => {
+      const results = top([
+        '1 major',
+        '5 major',
+        '6 minor',
+        '4 major',
+        '1 major',
+        '5 major',
+        '6 minor',
+        '4 major',
+      ]);
+      expect(results[0].progression).toBe(
+        '1 major - 5 major - 6 minor - 4 major',
+      );
+      expect(results[0].score).toBe(1);
+      // A rotation reads a touch less sure, a fragment clearly less.
+      for (const r of results.slice(1)) expect(r.score).toBeLessThan(1);
+    });
+
+    it('counts a chord held across regions once', () => {
+      const held = top(['2 minor7', '5 dominant7', '1 major7', '1 major7']);
+      expect(held[0].progression).toBe('2 minor7 - 5 dominant7 - 1 major7');
+      expect(held[0].score).toBe(1);
+    });
+
+    it('never calls a pattern with chords the song lacks a sure match', () => {
+      const results = top(['2 minor7', '5 dominant7', '1 major7']);
+      for (const r of results) {
+        if (r.progression.split(' - ').length > 3) {
+          expect(r.score).toBeLessThan(0.95);
+        }
+      }
+    });
+
+    it('lists a progression once', () => {
+      const results = top(['1 major', '5 major', '6 minor', '4 major']);
+      const names = results.map((r) => r.progression);
+      expect(new Set(names).size).toBe(names.length);
+    });
+  });
 });

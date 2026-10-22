@@ -221,7 +221,8 @@ describe('mono and legato', () => {
     const first = mark();
     const voice = vm.noteOn(60, 1, 0)!;
     vm.noteOn(64, 1, 0.5);
-    expect(first()).toHaveLength(2); // osc1's two unison engines, once
+    // osc1's oscillator, once (a one-frame table runs one unison bank).
+    expect(first()).toHaveLength(1);
     // The attack restarts at 0.5 from where the envelope was, so the level
     // just after is on its way back up rather than at the 0.005 floor.
     const at = voice.levelAt('osc1', 0.5);

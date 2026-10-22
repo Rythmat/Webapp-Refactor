@@ -7,8 +7,8 @@ import { useDockPanelFolded, type DockSidePanel } from './dockSidePanels';
 // ── A dock column that folds to a rail (owner, 2026-10-22) ──────────────────
 //
 // Open, the column is its own width with a small tab on its right edge to
-// fold it. Folded, it is a 28 px rail: the tab to open it, and the column's
-// name running up the rail. The column stays mounted while folded (a tuner
+// fold it. Folded, it is a 28 px rail: the tab to open it at the top, and
+// the column's name running up the rail's middle. The column stays mounted while folded (a tuner
 // keeps listening, a menu keeps its place), only out of sight.
 
 export const RAIL_PX = 28;
@@ -49,12 +49,15 @@ export function FoldableDockColumn({
           data-testid={`dock-unfold-${panel}`}
           onClick={() => setFolded(false)}
           className={cn(
-            'flex h-full w-full flex-col items-center gap-2 pt-2 text-daw-text-3 hover:bg-daw-hover hover:text-daw-text',
+            'relative flex h-full w-full items-center justify-center text-daw-text-3 hover:bg-daw-hover hover:text-daw-text',
             TRANSITION,
             FOCUS_RING,
           )}
         >
-          <ChevronRight aria-hidden className="size-4 shrink-0" />
+          <ChevronRight
+            aria-hidden
+            className="absolute left-1/2 top-2 size-4 -translate-x-1/2"
+          />
           <span
             className={cn(TYPE_CLASS.label, 'whitespace-nowrap font-bold')}
             style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}

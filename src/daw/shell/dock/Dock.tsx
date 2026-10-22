@@ -197,10 +197,14 @@ export const Dock = memo(function Dock() {
           key={master ? 'master' : `${kind}:${activeTab}`}
           // Where Enter on a track row puts focus (the track list's keys).
           data-dock-content
-          // The drums' kit is built on the design system; the other bodies
+          // The drums' kit and the effect cards (Effects, an audio track's
+          // chain, Master) are built on the design system; the other bodies
           // are the legacy components until Stage C.
           data-ds={
-            !master && kind === 'drums' && activeTab === 'controls'
+            master ||
+            kind === 'audio' ||
+            (activeTab === 'fx' && kind !== 'live-input') ||
+            (kind === 'drums' && activeTab === 'controls')
               ? 'v2'
               : 'legacy'
           }

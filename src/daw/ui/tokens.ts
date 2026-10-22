@@ -78,6 +78,10 @@ export const COLOR = colors({
   'menu-hover': own('rgba(255, 255, 255, 0.06)'),
   /** Popovers and tooltips: between the page and a menu. */
   float: own('#1c1c1f'),
+  /** A device card in the dock (an effect, the instrument): white/4. */
+  device: own('rgba(255, 255, 255, 0.04)'),
+  /** The dashed edge of the dock's empty Add effect card. */
+  'slot-edge': own('#2a2a2a'),
 
   // Lines.
   hairline: alias('border', '#232325'),

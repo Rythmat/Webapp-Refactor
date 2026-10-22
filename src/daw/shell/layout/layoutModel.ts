@@ -112,23 +112,45 @@ export function dockFracFor(tab: DockSlotId, heights: DockHeights): number {
   return heights[tab] ?? DOCK_DEFAULT_FRAC[tab];
 }
 
+/**
+ * A dock showing effect cards (a track's Effects, Master, the Mix view's
+ * rack) is never shorter than this, its 32 px bar included: its cards keep
+ * one row of knobs, the EQ's band picker and room for a sideways scrollbar,
+ * so nothing spills out of them (FxCards' cardLayout).
+ */
+export const DOCK_FX_MIN_PX = 184;
+
+const FX_SLOTS: ReadonlySet<DockSlotId> = new Set(['fx', 'master', 'rack']);
+
+/** The shortest the dock may be for `slot`. */
+export function dockMinPx(slot: DockSlotId): number {
+  return FX_SLOTS.has(slot) ? DOCK_FX_MIN_PX : DOCK_MIN_PX;
+}
+
 /** The dock's height in px, tab bar included, for a body `bodyPx` high. */
-export function dockHeightPx(frac: number, bodyPx: number): number {
-  const max = Math.max(DOCK_MIN_PX, Math.round(bodyPx * DOCK_MAX_FRAC));
-  return clamp(Math.round(frac * bodyPx), DOCK_MIN_PX, max);
+export function dockHeightPx(
+  frac: number,
+  bodyPx: number,
+  min: number = DOCK_MIN_PX,
+): number {
+  const max = Math.max(min, Math.round(bodyPx * DOCK_MAX_FRAC));
+  return clamp(Math.round(frac * bodyPx), min, max);
 }
 
 /**
  * Where a dock drag lands: within the limits, and on a snap height when it
  * comes within DOCK_SNAP_PX of one.
  */
-export function snapDockPx(px: number, bodyPx: number): number {
-  const max = Math.max(DOCK_MIN_PX, Math.round(bodyPx * DOCK_MAX_FRAC));
-  const clamped = clamp(px, DOCK_MIN_PX, max);
+export function snapDockPx(
+  px: number,
+  bodyPx: number,
+  min: number = DOCK_MIN_PX,
+): number {
+  const max = Math.max(min, Math.round(bodyPx * DOCK_MAX_FRAC));
+  const clamped = clamp(px, min, max);
   for (const frac of DOCK_SNAPS) {
     const at = Math.round(frac * bodyPx);
-    if (Math.abs(at - clamped) <= DOCK_SNAP_PX)
-      return clamp(at, DOCK_MIN_PX, max);
+    if (Math.abs(at - clamped) <= DOCK_SNAP_PX) return clamp(at, min, max);
   }
   return Math.round(clamped);
 }

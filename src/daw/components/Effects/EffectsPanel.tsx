@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { X, Zap } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/daw/store';
 import { useShallow } from 'zustand/react/shallow';
 import type {
@@ -8,15 +7,7 @@ import type {
   ReverbType,
   DuckerParams,
 } from '@/daw/audio/EffectChain';
-import { FX_COLOR, FX_CATEGORY, FX_LABEL } from '@/daw/data/libraryItems';
-import { GraphicEQ } from './GraphicEQ';
 import { RotaryKnob } from '@/daw/components/Controls/RotaryKnob';
-import {
-  CompressorCurve,
-  ReverbDecay,
-  DelayTaps,
-  GateCurve,
-} from './visualizers';
 import { FxMeter } from './FxMeter';
 import { meterSource } from '@/daw/engine/meterBus';
 import { getReverbManifest, getReverbIrMeta } from '@/daw/audio/reverbIR';
@@ -25,27 +16,10 @@ import {
   AutoCheckbox,
   BandTab,
   CurveTypeSelector,
-  FxPowerButton,
 } from './FxShared';
 import { FxBlockIcon } from './FxBlockIcon';
-import {
-  ControlGestureContext,
-  useContinuousControl,
-} from '@/daw/hooks/useContinuousControl';
-import { COLOR } from '@/daw/ui/tokens';
 
 export { FxBlockIcon };
-
-// Effects that have a visualizer component
-// The ducker's GR meter is inline in its FxKnobs controls (DuckerControls), so
-// it does not need a pop-out FxVisualizer entry here.
-export const HAS_VIZ = new Set<EffectSlotType>([
-  'compressor',
-  'gate',
-  'eq',
-  'reverb',
-  'delay',
-]);
 
 /**
  * Keeps the shown effect one of the chain's: the first when none is picked
@@ -71,346 +45,6 @@ export function useShownEffect(
   }, [chain, shown, show]);
 }
 
-// ── Signal Chain Row ────────────────────────────────────────────────────
-
-export function FxChainRow({
-  activeEffects,
-  effects,
-  selectedEffect,
-  onSelect,
-  onToggle,
-  addSlot,
-}: {
-  activeEffects: EffectSlotType[];
-  effects: TrackEffectState;
-  selectedEffect: EffectSlotType | null;
-  onSelect: (slot: EffectSlotType) => void;
-  onToggle: (slot: EffectSlotType) => void;
-  /** The card after the last effect (the dock's Add effect slot). */
-  addSlot?: React.ReactNode;
-}) {
-  return (
-    <div
-      className="relative flex shrink-0 items-center border-b"
-      style={{ borderColor: 'var(--daw-hairline)', minHeight: 110 }}
-    >
-      {/* Connection line */}
-      <div
-        className="absolute"
-        style={{
-          top: '50%',
-          left: 16,
-          right: 16,
-          height: 1,
-          backgroundColor: 'rgba(255,255,255,0.12)',
-          zIndex: 0,
-          transform: 'translateY(-8px)',
-        }}
-      />
-
-      {/* Input */}
-      <div
-        className="relative flex shrink-0 flex-col items-center pl-4"
-        style={{ zIndex: 1 }}
-      >
-        <div
-          className="flex items-center justify-center rounded-xl"
-          style={{
-            width: 68,
-            height: 68,
-            backgroundColor: 'rgba(255,255,255,0.03)',
-            border: '2px solid rgba(255,255,255,0.15)',
-          }}
-        >
-          <Zap
-            size={28}
-            strokeWidth={1.5}
-            style={{ color: 'rgba(255,255,255,0.5)' }}
-          />
-        </div>
-        <span
-          className="mt-1 text-[9px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          In
-        </span>
-      </div>
-
-      {/* Effect blocks */}
-      <div
-        className="flex flex-1 items-center justify-center gap-2 overflow-x-auto px-3 py-5"
-        style={{ zIndex: 1 }}
-      >
-        {activeEffects.length === 0 && !addSlot && (
-          <span className="text-[11px]" style={{ color: 'var(--daw-text-3)' }}>
-            Add effects from the list
-          </span>
-        )}
-        {activeEffects.map((slot) => {
-          const color = FX_COLOR[slot] ?? COLOR.accent.value;
-          const isSelected = slot === selectedEffect;
-          const effectState = effects[slot as keyof TrackEffectState] as {
-            enabled: boolean;
-          };
-          const enabled = effectState?.enabled ?? false;
-          return (
-            <div
-              key={slot}
-              data-tutorial-id={`fx-slot-${slot}`}
-              className="flex shrink-0 flex-col items-center"
-            >
-              <div className="relative">
-                <div
-                  onClick={() => onSelect(slot)}
-                  className="relative flex shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl"
-                  style={{
-                    width: 68,
-                    height: 68,
-                    backgroundColor: 'rgba(255,255,255,0.03)',
-                    border: `2px solid ${color}`,
-                    opacity: enabled ? 1 : 0.35,
-                    boxShadow: isSelected ? `0 0 10px ${color}40` : 'none',
-                    transition: 'opacity 150ms ease, box-shadow 150ms ease',
-                  }}
-                >
-                  <FxBlockIcon type={slot} size={28} color={color} />
-                </div>
-                {/* On/off — outside the dimmed block so it stays readable
-                    (and clickable) while the effect is bypassed. */}
-                <div className="absolute" style={{ top: -8, right: -8 }}>
-                  <FxPowerButton
-                    enabled={enabled}
-                    onToggle={() => onToggle(slot)}
-                    effectName={FX_LABEL[slot] ?? slot}
-                    size={20}
-                  />
-                </div>
-              </div>
-              <span
-                className="mt-1 text-[9px] font-semibold uppercase tracking-wider"
-                style={{ color: isSelected ? color : 'var(--daw-text-3)' }}
-              >
-                {FX_LABEL[slot] ?? slot}
-              </span>
-            </div>
-          );
-        })}
-        {addSlot}
-      </div>
-
-      {/* Output */}
-      <div
-        className="relative flex shrink-0 flex-col items-center pr-4"
-        style={{ zIndex: 1 }}
-      >
-        <div
-          className="flex items-center justify-center rounded-xl"
-          style={{
-            width: 68,
-            height: 68,
-            backgroundColor: 'rgba(255,255,255,0.03)',
-            border: '2px solid rgba(255,255,255,0.15)',
-          }}
-        >
-          <svg
-            width={28}
-            height={28}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="rgba(255,255,255,0.5)"
-            strokeWidth={1.8}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M2,12 Q6,2 12,12 Q18,22 22,12" />
-          </svg>
-        </div>
-        <span
-          className="mt-1 text-[9px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          Out
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// ── Controls Panel ──────────────────────────────────────────────────────
-
-export function FxControlsPanel({
-  trackId,
-  selectedEffect,
-  effects: storeEffects,
-  onUpdate,
-  onPreview,
-  onRemove,
-  roomy = false,
-  meterTarget = null,
-}: {
-  trackId: string;
-  selectedEffect: EffectSlotType;
-  effects: TrackEffectState;
-  onUpdate: (trackId: string, effects: Partial<TrackEffectState>) => void;
-  /** Plays the rack's effects without writing the store, while a knob or an
-   *  EQ band moves (the engine/preview.ts functions). */
-  onPreview: (effects: TrackEffectState) => void;
-  onRemove: (slot: EffectSlotType) => void;
-  /**
-   * The dock is maximized (milestone 2.9): larger knobs, and the effect's
-   * graph shown large under them. It replaced the pop-out window.
-   */
-  roomy?: boolean;
-  /** Whose effect chain the meters read on the meter bus (a track id or
-   *  'master'); null when the rack has no live chain to meter. */
-  meterTarget?: string | null;
-}) {
-  // One control for the whole rack: a knob or band drag previews and writes
-  // the store once on release; a toggle or a list writes at once. A write
-  // carries only the slots the gesture changed, so a collaborator's edit to
-  // another slot meanwhile stands.
-  const fx = useContinuousControl<TrackEffectState>({
-    value: storeEffects,
-    preview: onPreview,
-    commit: (next, start) => {
-      const changed: Partial<TrackEffectState> = {};
-      for (const key of Object.keys(next) as (keyof TrackEffectState)[]) {
-        if (next[key] !== start[key]) {
-          (changed as Record<string, unknown>)[key] = next[key];
-        }
-      }
-      onUpdate(trackId, changed);
-    },
-    label: 'Change effect',
-  });
-  const effects = fx.value;
-  const latest = useRef(effects);
-  latest.current = effects;
-  const update = useCallback(
-    (_trackId: string, partial: Partial<TrackEffectState>) => {
-      const next = { ...latest.current, ...partial };
-      latest.current = next;
-      fx.change(next);
-    },
-    [fx],
-  );
-  const gesture = useMemo(
-    () => ({ begin: fx.begin, end: fx.end }),
-    [fx.begin, fx.end],
-  );
-
-  const color = FX_COLOR[selectedEffect] ?? COLOR.accent.value;
-  const category = FX_CATEGORY[selectedEffect] ?? '';
-  const label = FX_LABEL[selectedEffect] ?? selectedEffect;
-  const hasViz = HAS_VIZ.has(selectedEffect);
-  const slotState = effects[selectedEffect as keyof TrackEffectState] as {
-    enabled: boolean;
-  };
-  const enabled = slotState?.enabled ?? false;
-  const toggleEnabled = () =>
-    update(trackId, {
-      [selectedEffect]: { ...slotState, enabled: !enabled },
-    });
-  // The effect's graph (the compressor's curve, the EQ, the reverb's tail):
-  // a labelled toggle shows it under the knobs, and a maximized dock shows
-  // it from the start (fx-mixer-11: it was behind an unlabelled pop-out).
-  const [showGraph, setShowGraph] = useState(roomy);
-  useEffect(() => {
-    if (roomy) setShowGraph(true);
-  }, [roomy]);
-
-  return (
-    <ControlGestureContext.Provider value={gesture}>
-      <div
-        className="flex-1 overflow-y-auto"
-        style={{ backgroundColor: 'var(--daw-surface-1)' }}
-      >
-        {/* Header */}
-        <div
-          className="flex items-center gap-2.5 border-b px-4 py-1.5"
-          style={{ borderColor: 'var(--daw-hairline)' }}
-        >
-          <FxPowerButton
-            enabled={enabled}
-            onToggle={toggleEnabled}
-            effectName={label}
-            size={22}
-            withText
-          />
-          <div
-            className="size-2.5 shrink-0 rounded-full"
-            style={{ backgroundColor: color }}
-          />
-          <span
-            className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--daw-text-3)' }}
-          >
-            {category}
-          </span>
-          <span
-            className="flex-1 text-[13px] font-medium"
-            style={{ color: 'var(--daw-text)' }}
-          >
-            {label}
-          </span>
-          {hasViz ? (
-            <button
-              type="button"
-              aria-pressed={showGraph}
-              onClick={() => setShowGraph((v) => !v)}
-              className={`flex h-6 cursor-pointer items-center rounded-full border border-daw-hairline px-2.5 text-[12px] font-medium transition-colors hover:bg-daw-hover ${
-                showGraph
-                  ? 'bg-daw-selected text-daw-text'
-                  : 'bg-transparent text-daw-text-3'
-              }`}
-            >
-              Graph
-            </button>
-          ) : null}
-          <button
-            type="button"
-            aria-label={`Remove ${FX_LABEL[selectedEffect] ?? selectedEffect}`}
-            onClick={() => onRemove(selectedEffect)}
-            className="flex size-6 cursor-pointer items-center justify-center rounded-md"
-            style={{
-              color: 'var(--daw-text-3)',
-              background: 'none',
-              border: 'none',
-            }}
-          >
-            <X size={14} />
-          </button>
-        </div>
-
-        {/* Knobs */}
-        <div className="flex flex-wrap items-center justify-evenly px-4 py-3">
-          <FxKnobs
-            trackId={trackId}
-            slot={selectedEffect}
-            effects={effects}
-            onUpdate={update}
-            color={color}
-            roomy={roomy}
-          />
-        </div>
-
-        {hasViz && showGraph ? (
-          <div className="flex items-center justify-center px-4 pb-3">
-            <FxVisualizer
-              slot={selectedEffect}
-              effects={effects}
-              trackId={trackId}
-              onUpdate={update}
-              meterTarget={meterTarget}
-              large={roomy}
-            />
-          </div>
-        ) : null}
-      </div>
-    </ControlGestureContext.Provider>
-  );
-}
-
 // ── Effect Knobs (per type) ─────────────────────────────────────────────
 
 export function FxKnobs({
@@ -420,6 +54,8 @@ export function FxKnobs({
   onUpdate,
   color,
   roomy,
+  knobSize,
+  card = false,
 }: {
   trackId: string;
   slot: EffectSlotType;
@@ -428,8 +64,15 @@ export function FxKnobs({
   color: string;
   /** Larger knobs, in a maximized dock. */
   roomy?: boolean;
+  /** The knobs' diameter, in px: an effect card sizes them to its height. */
+  knobSize?: number;
+  /**
+   * In an effect card (FxCards): every control is its own cell of the
+   * card's grid, and the selects take the card's look.
+   */
+  card?: boolean;
 }) {
-  const ks = roomy ? 62 : 52; // knob size
+  const ks = knobSize ?? (roomy ? 62 : 52); // knob size
   const eqKs = roomy ? 42 : 32; // EQ band knob size
   const eqQs = roomy ? 32 : 26; // EQ Q knob size
   const comp = effects.compressor;
@@ -460,19 +103,6 @@ export function FxKnobs({
       return (
         <>
           <RotaryKnob
-            label="RATIO"
-            value={comp.ratio}
-            min={1}
-            max={20}
-            step={0.5}
-            size={ks}
-            arcColor={color}
-            formatValue={(v) => `${v.toFixed(1)}:1`}
-            onChange={(v) =>
-              onUpdate(trackId, { compressor: { ...comp, ratio: v } })
-            }
-          />
-          <RotaryKnob
             label="THRESHOLD"
             value={comp.threshold}
             min={-60}
@@ -486,16 +116,16 @@ export function FxKnobs({
             }
           />
           <RotaryKnob
-            label="KNEE"
-            value={comp.knee}
-            min={0}
-            max={40}
-            step={1}
+            label="RATIO"
+            value={comp.ratio}
+            min={1}
+            max={20}
+            step={0.5}
             size={ks}
             arcColor={color}
-            formatValue={(v) => `${v}dB`}
+            formatValue={(v) => `${v.toFixed(1)}:1`}
             onChange={(v) =>
-              onUpdate(trackId, { compressor: { ...comp, knee: v } })
+              onUpdate(trackId, { compressor: { ...comp, ratio: v } })
             }
           />
           <RotaryKnob
@@ -526,27 +156,65 @@ export function FxKnobs({
               onUpdate(trackId, { compressor: { ...comp, release: v } })
             }
           />
-          <div className="flex flex-col items-center">
-            <RotaryKnob
-              label="MAKEUP"
-              value={comp.makeup}
-              min={0}
-              max={24}
-              step={0.5}
-              size={ks}
-              arcColor={color}
-              formatValue={(v) => `${v.toFixed(1)}dB`}
-              onChange={(v) =>
-                onUpdate(trackId, { compressor: { ...comp, makeup: v } })
-              }
-            />
-            <AutoCheckbox
-              checked={comp.auto}
-              onChange={(v) =>
-                onUpdate(trackId, { compressor: { ...comp, auto: v } })
-              }
-            />
-          </div>
+          {card ? (
+            <>
+              <RotaryKnob
+                label="MAKEUP"
+                value={comp.makeup}
+                min={0}
+                max={24}
+                step={0.5}
+                size={ks}
+                arcColor={color}
+                formatValue={(v) => `${v.toFixed(1)}dB`}
+                onChange={(v) =>
+                  onUpdate(trackId, { compressor: { ...comp, makeup: v } })
+                }
+              />
+              <CardSwitch
+                label="Auto makeup"
+                on={comp.auto}
+                onChange={(v) =>
+                  onUpdate(trackId, { compressor: { ...comp, auto: v } })
+                }
+              />
+            </>
+          ) : (
+            <div className="flex flex-col items-center">
+              <RotaryKnob
+                label="MAKEUP"
+                value={comp.makeup}
+                min={0}
+                max={24}
+                step={0.5}
+                size={ks}
+                arcColor={color}
+                formatValue={(v) => `${v.toFixed(1)}dB`}
+                onChange={(v) =>
+                  onUpdate(trackId, { compressor: { ...comp, makeup: v } })
+                }
+              />
+              <AutoCheckbox
+                checked={comp.auto}
+                onChange={(v) =>
+                  onUpdate(trackId, { compressor: { ...comp, auto: v } })
+                }
+              />
+            </div>
+          )}
+          <RotaryKnob
+            label="KNEE"
+            value={comp.knee}
+            min={0}
+            max={40}
+            step={1}
+            size={ks}
+            arcColor={color}
+            formatValue={(v) => `${v}dB`}
+            onChange={(v) =>
+              onUpdate(trackId, { compressor: { ...comp, knee: v } })
+            }
+          />
           <RotaryKnob
             label="CRUSH"
             value={comp.crush}
@@ -591,17 +259,6 @@ export function FxKnobs({
             onChange={(v) => onUpdate(trackId, { gate: { ...gate, range: v } })}
           />
           <RotaryKnob
-            label="HOLD"
-            value={gate.hold}
-            min={0}
-            max={0.5}
-            step={0.001}
-            size={ks}
-            arcColor={color}
-            formatValue={(v) => `${(v * 1000).toFixed(0)}ms`}
-            onChange={(v) => onUpdate(trackId, { gate: { ...gate, hold: v } })}
-          />
-          <RotaryKnob
             label="ATTACK"
             value={gate.attack}
             min={0.001}
@@ -626,6 +283,17 @@ export function FxKnobs({
             onChange={(v) =>
               onUpdate(trackId, { gate: { ...gate, release: v } })
             }
+          />
+          <RotaryKnob
+            label="HOLD"
+            value={gate.hold}
+            min={0}
+            max={0.5}
+            step={0.001}
+            size={ks}
+            arcColor={color}
+            formatValue={(v) => `${(v * 1000).toFixed(0)}ms`}
+            onChange={(v) => onUpdate(trackId, { gate: { ...gate, hold: v } })}
           />
         </>
       );
@@ -738,14 +406,43 @@ export function FxKnobs({
     case 'reverb':
       return (
         <>
+          <RotaryKnob
+            label="DECAY"
+            value={effects.reverb.decay}
+            min={0.1}
+            max={reverbDecayMax}
+            step={0.1}
+            size={ks}
+            arcColor={color}
+            formatValue={(v) => `${v.toFixed(1)}s`}
+            onChange={(v) =>
+              onUpdate(trackId, { reverb: { ...effects.reverb, decay: v } })
+            }
+          />
+          <RotaryKnob
+            label="WET"
+            value={effects.reverb.wet}
+            min={0}
+            max={1}
+            step={0.01}
+            size={ks}
+            arcColor={color}
+            formatValue={(v) => `${Math.round(v * 100)}%`}
+            onChange={(v) =>
+              onUpdate(trackId, { reverb: { ...effects.reverb, wet: v } })
+            }
+          />
           <div className="flex flex-col items-center gap-1">
             <span
-              className="text-[8px] uppercase tracking-wider"
-              style={{ color: 'var(--daw-text-3)' }}
+              className={
+                card ? CARD_SELECT_LABEL : 'text-[8px] uppercase tracking-wider'
+              }
+              style={card ? undefined : { color: 'var(--daw-text-3)' }}
             >
-              TYPE
+              {card ? 'Room' : 'TYPE'}
             </span>
             <select
+              aria-label="Reverb room"
               value={effects.reverb.type}
               onChange={(e) =>
                 onUpdate(trackId, {
@@ -755,8 +452,12 @@ export function FxKnobs({
                   },
                 })
               }
-              className="cursor-pointer rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] outline-none"
-              style={{ color: 'var(--daw-text)' }}
+              className={
+                card
+                  ? CARD_SELECT
+                  : 'cursor-pointer rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] outline-none'
+              }
+              style={card ? undefined : { color: 'var(--daw-text)' }}
             >
               {(['hall', 'room', 'chamber', 'plate', 'spring'] as const).map(
                 (t) => (
@@ -771,19 +472,6 @@ export function FxKnobs({
               )}
             </select>
           </div>
-          <RotaryKnob
-            label="DECAY"
-            value={effects.reverb.decay}
-            min={0.1}
-            max={reverbDecayMax}
-            step={0.1}
-            size={ks}
-            arcColor={color}
-            formatValue={(v) => `${v.toFixed(1)}s`}
-            onChange={(v) =>
-              onUpdate(trackId, { reverb: { ...effects.reverb, decay: v } })
-            }
-          />
           <RotaryKnob
             label="PRE-DLY"
             value={effects.reverb.preDelay}
@@ -823,19 +511,6 @@ export function FxKnobs({
             formatValue={(v) => `${(v / 1000).toFixed(1)}k`}
             onChange={(v) =>
               onUpdate(trackId, { reverb: { ...effects.reverb, lowPass: v } })
-            }
-          />
-          <RotaryKnob
-            label="WET"
-            value={effects.reverb.wet}
-            min={0}
-            max={1}
-            step={0.01}
-            size={ks}
-            arcColor={color}
-            formatValue={(v) => `${Math.round(v * 100)}%`}
-            onChange={(v) =>
-              onUpdate(trackId, { reverb: { ...effects.reverb, wet: v } })
             }
           />
         </>
@@ -1122,9 +797,51 @@ export function FxKnobs({
           onUpdate={onUpdate}
           color={color}
           knobSize={ks}
+          card={card}
         />
       );
   }
+}
+
+/** An effect card's select (FxCards): 30 px, white/4, as the frame's. */
+const CARD_SELECT =
+  'h-[30px] max-w-[132px] cursor-pointer rounded-lg border-0 bg-daw-device px-2 text-[length:var(--daw-font-label)] text-daw-text outline-none hover:bg-daw-hover focus-visible:ring-1 focus-visible:ring-daw-focus';
+/** A select's name over it in an effect card: as a knob's name. */
+export const CARD_SELECT_LABEL =
+  'text-[length:var(--daw-font-label)] leading-4 text-daw-text-2';
+
+/**
+ * An on/off switch as an effect card's cell (the compressor's Auto
+ * makeup): a pill toggle and its name, the height of a knob's cell.
+ */
+export function CardSwitch({
+  label,
+  on,
+  onChange,
+}: {
+  label: string;
+  on: boolean;
+  onChange: (on: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      onClick={() => onChange(!on)}
+      className="flex flex-col items-center gap-1.5 rounded-[var(--daw-radius-sm)] px-1 py-0.5 outline-none hover:bg-daw-hover focus-visible:ring-1 focus-visible:ring-daw-focus"
+    >
+      <span
+        aria-hidden
+        className={`relative h-3.5 w-6 rounded-full transition-colors ${on ? 'bg-daw-text' : 'bg-daw-chip'}`}
+      >
+        <span
+          className={`absolute top-0.5 size-2.5 rounded-full transition-[left] ${on ? 'left-3 bg-daw-bg' : 'left-0.5 bg-daw-text-3'}`}
+        />
+      </span>
+      <span className={CARD_SELECT_LABEL}>{label}</span>
+    </button>
+  );
 }
 
 // ── Ducker (sidechain) controls: key-source dropdown + knobs + live GR meter ──
@@ -1142,12 +859,15 @@ function DuckerControls({
   onUpdate,
   color,
   knobSize,
+  card = false,
 }: {
   trackId: string;
   ducker: DuckerParams;
   onUpdate: (trackId: string, effects: Partial<TrackEffectState>) => void;
   color: string;
   knobSize: number;
+  /** In an effect card: each control a cell of the card's grid. */
+  card?: boolean;
 }) {
   // Candidate key tracks = every OTHER track (no self-sidechain). Select flat
   // PRIMITIVES (id, name interleaved) so useShallow stays stable — an array of
@@ -1165,16 +885,19 @@ function DuckerControls({
   const set = (patch: Partial<DuckerParams>) =>
     onUpdate(trackId, { ducker: { ...ducker, ...patch } });
 
-  return (
-    <div className="flex items-center gap-4">
+  const controls = (
+    <>
       <div className="flex flex-col items-center gap-1">
         <span
-          className="text-[8px] uppercase tracking-wider"
-          style={{ color: 'var(--daw-text-3)' }}
+          className={
+            card ? CARD_SELECT_LABEL : 'text-[8px] uppercase tracking-wider'
+          }
+          style={card ? undefined : { color: 'var(--daw-text-3)' }}
         >
           Key
         </span>
         <select
+          aria-label="Duck under"
           data-tutorial-id="ducker-key-select"
           // Fall back to "None" if the key points at a track that is gone (e.g.
           // deleted mid-session) so the control never renders blank/uncontrolled.
@@ -1184,8 +907,12 @@ function DuckerControls({
               : ''
           }
           onChange={(e) => set({ keyTrackId: e.target.value || null })}
-          className="cursor-pointer rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] outline-none"
-          style={{ color: 'var(--daw-text)', maxWidth: 110 }}
+          className={
+            card
+              ? CARD_SELECT
+              : 'cursor-pointer rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] outline-none'
+          }
+          style={card ? undefined : { color: 'var(--daw-text)', maxWidth: 110 }}
         >
           <option value="" style={{ backgroundColor: 'var(--daw-bg)' }}>
             None
@@ -1202,17 +929,6 @@ function DuckerControls({
         </select>
       </div>
       <RotaryKnob
-        label="THRESHOLD"
-        value={ducker.threshold}
-        min={-60}
-        max={0}
-        step={1}
-        size={knobSize}
-        arcColor={color}
-        formatValue={(v) => `${Math.round(v)}dB`}
-        onChange={(v) => set({ threshold: v })}
-      />
-      <RotaryKnob
         label="AMOUNT"
         value={ducker.amount}
         min={0}
@@ -1224,15 +940,15 @@ function DuckerControls({
         onChange={(v) => set({ amount: v })}
       />
       <RotaryKnob
-        label="ATTACK"
-        value={ducker.attack}
-        min={0.001}
-        max={0.2}
-        step={0.001}
+        label="THRESHOLD"
+        value={ducker.threshold}
+        min={-60}
+        max={0}
+        step={1}
         size={knobSize}
         arcColor={color}
-        formatValue={(v) => `${Math.round(v * 1000)}ms`}
-        onChange={(v) => set({ attack: v })}
+        formatValue={(v) => `${Math.round(v)}dB`}
+        onChange={(v) => set({ threshold: v })}
       />
       <RotaryKnob
         label="RELEASE"
@@ -1245,136 +961,28 @@ function DuckerControls({
         formatValue={(v) => `${Math.round(v * 1000)}ms`}
         onChange={(v) => set({ release: v })}
       />
+      <RotaryKnob
+        label="ATTACK"
+        value={ducker.attack}
+        min={0.001}
+        max={0.2}
+        step={0.001}
+        size={knobSize}
+        arcColor={color}
+        formatValue={(v) => `${Math.round(v * 1000)}ms`}
+        onChange={(v) => set({ attack: v })}
+      />
       <FxMeter
         source={duckSource(trackId)}
         label="GR"
         color="var(--daw-accent)"
-        height={72}
+        height={card ? knobSize + 20 : 72}
       />
-    </div>
+    </>
   );
-}
-
-// ── Visualizer ──────────────────────────────────────────────────────────
-
-export function FxVisualizer({
-  slot,
-  effects,
-  trackId,
-  onUpdate,
-  meterTarget = null,
-  large,
-}: {
-  slot: EffectSlotType;
-  effects: TrackEffectState;
-  trackId: string;
-  onUpdate: (trackId: string, effects: Partial<TrackEffectState>) => void;
-  /** Whose effect chain the meters read (a track id or 'master'), or null. */
-  meterTarget?: string | null;
-  large?: boolean;
-}) {
-  // Stable meter bus sources: the meters paint themselves from them.
-  const grSource = meterTarget ? meterSource(`gr:${meterTarget}`) : null;
-  const inSource = meterTarget ? meterSource(`fx-pre:${meterTarget}`) : null;
-  const outSource = meterTarget ? meterSource(`fx-post:${meterTarget}`) : null;
-  switch (slot) {
-    case 'compressor': {
-      const c = effects.compressor;
-      return (
-        <div className="flex items-center gap-4">
-          <CompressorCurve
-            threshold={c.threshold}
-            ratio={c.ratio}
-            knee={c.knee}
-            width={large ? 400 : 200}
-            height={large ? 240 : 120}
-          />
-          <div className="flex gap-1">
-            <FxMeter
-              source={grSource}
-              label="GR"
-              color="var(--daw-accent)"
-              height={large ? 200 : 100}
-            />
-            <FxMeter
-              source={inSource}
-              label="IN"
-              color="#e8785a"
-              height={large ? 200 : 100}
-            />
-            <FxMeter
-              source={outSource}
-              label="OUT"
-              color="#e8785a"
-              height={large ? 200 : 100}
-            />
-          </div>
-        </div>
-      );
-    }
-    case 'gate':
-      return (
-        <GateCurve
-          threshold={effects.gate.threshold}
-          range={effects.gate.range}
-          width={large ? 400 : 200}
-          height={large ? 200 : 100}
-        />
-      );
-    case 'eq':
-      return (
-        <div className="flex w-full gap-2.5">
-          <div className="min-w-0 flex-1">
-            <GraphicEQ
-              bands={effects.eq.bands}
-              onChange={(bands) =>
-                onUpdate(trackId, { eq: { ...effects.eq, bands } })
-              }
-              spectrumKey={meterTarget ? `fx-pre:${meterTarget}` : null}
-            />
-          </div>
-          <div className="flex shrink-0 flex-col items-center gap-2">
-            <div className="flex gap-1">
-              <FxMeter
-                source={inSource}
-                label="IN"
-                color="#e8785a"
-                height={large ? 240 : 100}
-              />
-              <FxMeter
-                source={outSource}
-                label="OUT"
-                color="#e8785a"
-                height={large ? 240 : 100}
-              />
-            </div>
-          </div>
-        </div>
-      );
-    case 'reverb':
-      return (
-        <ReverbDecay
-          decay={effects.reverb.decay}
-          wet={effects.reverb.wet}
-          type={effects.reverb.type}
-          preDelay={effects.reverb.preDelay}
-          highPass={effects.reverb.highPass}
-          lowPass={effects.reverb.lowPass}
-          width={large ? 400 : 200}
-          height={large ? 120 : 60}
-        />
-      );
-    case 'delay':
-      return (
-        <DelayTaps
-          time={effects.delay.time}
-          feedback={effects.delay.feedback}
-          wet={effects.delay.wet}
-          width={large ? 400 : 200}
-          height={large ? 120 : 60}
-        />
-      );
-    default:
-      return null;
-  }
+  return card ? (
+    controls
+  ) : (
+    <div className="flex items-center gap-4">{controls}</div>
+  );
 }

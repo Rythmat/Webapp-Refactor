@@ -5,6 +5,7 @@ import {
   DOCK_DEFAULT_FRAC,
   dockFracFor,
   dockHeightPx,
+  dockMinPx,
   rackMaxPx,
   BOTTOM_RAIL_PX,
   TOP_BAR_PX,
@@ -42,7 +43,7 @@ export function dockPxFor(
   heights: DockHeights,
   bodyPx: number,
 ): number {
-  return dockHeightPx(dockFracFor(slot, heights), bodyPx);
+  return dockHeightPx(dockFracFor(slot, heights), bodyPx, dockMinPx(slot));
 }
 
 /**

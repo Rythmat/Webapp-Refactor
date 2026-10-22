@@ -235,12 +235,18 @@ interface GraphicEQProps {
   onChange: (bands: EqBand[]) => void;
   /** The meter bus source whose spectrum shows behind the curve. */
   spectrumKey?: string | null;
+  /**
+   * The bands' frequency and gain under the graph. An effect card leaves
+   * them out: its band picker and knobs say the same in its height.
+   */
+  readouts?: boolean;
 }
 
 export function GraphicEQ({
   bands,
   onChange,
   spectrumKey = null,
+  readouts = true,
 }: GraphicEQProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -459,7 +465,7 @@ export function GraphicEQ({
 
   return (
     <div className="flex flex-col gap-1 h-full">
-      <div ref={containerRef} className="relative w-full flex-1">
+      <div ref={containerRef} className="relative w-full min-h-0 flex-1">
         {spectrumKey && (
           <canvas
             ref={canvasRef}
@@ -686,41 +692,43 @@ export function GraphicEQ({
       </div>
 
       {/* ── Bottom readouts ────────────────────────────────────────── */}
-      <div className="flex justify-between px-0.5">
-        {bands.map((band, i) => (
-          <div
-            key={i}
-            className="flex flex-col items-center"
-            style={{ minWidth: 0, flex: 1 }}
-          >
+      {readouts ? (
+        <div className="flex justify-between px-0.5">
+          {bands.map((band, i) => (
             <div
-              className="w-1.5 h-1.5 rounded-full mb-0.5"
-              style={{
-                backgroundColor: band.enabled
-                  ? BAND_COLORS[i]
-                  : 'rgba(255,255,255,0.1)',
-              }}
-            />
-            <span
-              className="text-[8px] tabular-nums leading-none"
-              style={{
-                color: BAND_COLORS[i],
-                opacity: band.enabled ? 0.7 : 0.3,
-              }}
+              key={i}
+              className="flex flex-col items-center"
+              style={{ minWidth: 0, flex: 1 }}
             >
-              {fmtFreq(band.freq)}
-            </span>
-            <span
-              className="text-[7px] tabular-nums leading-none mt-px"
-              style={{ color: 'rgba(255,255,255,0.3)' }}
-            >
-              {band.type === 'lowcut' || band.type === 'highcut'
-                ? `${band.slope ?? 12}dB`
-                : fmtDb(band.gain)}
-            </span>
-          </div>
-        ))}
-      </div>
+              <div
+                className="w-1.5 h-1.5 rounded-full mb-0.5"
+                style={{
+                  backgroundColor: band.enabled
+                    ? BAND_COLORS[i]
+                    : 'rgba(255,255,255,0.1)',
+                }}
+              />
+              <span
+                className="text-[8px] tabular-nums leading-none"
+                style={{
+                  color: BAND_COLORS[i],
+                  opacity: band.enabled ? 0.7 : 0.3,
+                }}
+              >
+                {fmtFreq(band.freq)}
+              </span>
+              <span
+                className="text-[7px] tabular-nums leading-none mt-px"
+                style={{ color: 'rgba(255,255,255,0.3)' }}
+              >
+                {band.type === 'lowcut' || band.type === 'highcut'
+                  ? `${band.slope ?? 12}dB`
+                  : fmtDb(band.gain)}
+              </span>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -262,8 +262,9 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     file: 'shell/inspector/panels/FxBody.tsx',
     suffixes: () => AUDIO_EFFECTS,
   },
+  // One effect card per slot in a rack's row (the floating frame).
   'fx-slot-': {
-    file: 'components/Effects/EffectsPanel.tsx',
+    file: 'components/Effects/FxCards.tsx',
     suffixes: () => AUDIO_EFFECTS,
   },
   'mixer-sends-': {

@@ -7,7 +7,7 @@ import {
   clampInspectorPx,
   DOCK_DEFAULT_FRAC,
   DOCK_MAX_FRAC,
-  DOCK_MIN_PX,
+  dockMinPx,
   DOCK_TALL_FRAC,
   INSPECTOR_DEFAULT_PX,
   INSPECTOR_MAX_PX,
@@ -330,15 +330,16 @@ function RackResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
   // Never so tall that the strips lose their faders (MIX_STRIPS_MIN_PX).
   const max = rackMaxPx(bodyPx);
   const value = Math.min(dockPxFor('rack', heights, bodyPx), max);
+  const min = Math.min(dockMinPx('rack'), max);
   return (
     <Resizer
       label="Resize the effects rack"
       orientation="horizontal"
       direction={-1}
       value={value}
-      min={DOCK_MIN_PX}
+      min={min}
       max={max}
-      constrain={(px) => Math.min(snapDockPx(px, bodyPx), max)}
+      constrain={(px) => Math.min(snapDockPx(px, bodyPx, min), max)}
       onPreview={(px) =>
         rootRef.current?.style.setProperty(DOCK_HEIGHT_VAR, `${px}px`)
       }
@@ -374,7 +375,9 @@ function DockResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
   // Master keeps a height of its own, as each tab does.
   const slot = dockSlotOf(tab, master);
   const value = dockPxFor(slot, heights, bodyPx);
-  const max = Math.max(DOCK_MIN_PX, Math.round(bodyPx * DOCK_MAX_FRAC));
+  // A dock of effect cards keeps the height they need (dockMinPx).
+  const min = dockMinPx(slot);
+  const max = Math.max(min, Math.round(bodyPx * DOCK_MAX_FRAC));
   const commit = (px: number) => setDockHeight(slot, px / bodyPx);
   return (
     <Resizer
@@ -382,9 +385,9 @@ function DockResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
       orientation="horizontal"
       direction={-1}
       value={value}
-      min={DOCK_MIN_PX}
+      min={min}
       max={max}
-      constrain={(px) => snapDockPx(px, bodyPx)}
+      constrain={(px) => snapDockPx(px, bodyPx, min)}
       onPreview={(px) =>
         rootRef.current?.style.setProperty(DOCK_HEIGHT_VAR, `${px}px`)
       }

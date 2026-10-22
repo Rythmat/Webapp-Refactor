@@ -77,10 +77,7 @@
     "zIndex": 11
   },
   "src/daw/components/Effects/EffectsPanel.tsx": {
-    "hex": 4,
-    "rgb": 8,
-    "smallText": 8,
-    "zIndex": 4
+    "smallText": 4
   },
   "src/daw/components/Effects/FxMeter.tsx": {
     "rgb": 2,

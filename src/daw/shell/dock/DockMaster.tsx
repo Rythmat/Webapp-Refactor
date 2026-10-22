@@ -18,7 +18,7 @@ import { TYPE_CLASS } from '@/daw/ui/styles';
 const FADER_PX = 112;
 
 export function DockMaster() {
-  const roomy = useStore((s) => s.dockMaximized);
+  const setMaximized = useStore((s) => s.setDockMaximized);
   return (
     <div
       data-tutorial-id="dock-master"
@@ -29,11 +29,7 @@ export function DockMaster() {
         <MasterGainFader length={FADER_PX} />
       </Column>
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden border-x border-daw-hairline">
-        <FxRack
-          target={MASTER}
-          roomy={roomy}
-          empty="Effects here shape the whole mix. Add effect opens the library."
-        />
+        <FxRack target={MASTER} onShowAll={() => setMaximized(true)} />
       </div>
       <Column label="Output">
         <MasterOutputMeter length={FADER_PX} />

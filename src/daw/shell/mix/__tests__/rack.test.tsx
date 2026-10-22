@@ -191,8 +191,8 @@ describe('the RackDock', () => {
 });
 
 describe('FxRack', () => {
-  // Each kind of rack writes its own slice and only it: a power switch in
-  // the side layout's chain list turns the effect off where it lives.
+  // Each kind of rack writes its own slice and only it: an effect card's
+  // on switch turns the effect off where it lives.
   const effectOf = (
     kind: 'track' | 'return' | 'master',
   ): { enabled: boolean } =>
@@ -216,18 +216,27 @@ describe('FxRack', () => {
       return: effectOf('return').enabled,
       master: effectOf('master').enabled,
     };
-    render(<FxRack target={t()} layout="side" />);
+    render(<FxRack target={t()} />);
     fireEvent.click(screen.getByRole('button', { name: 'EQ on' }));
     for (const k of ['track', 'return', 'master'] as const) {
       expect(effectOf(k).enabled, k).toBe(k === kind ? !before[k] : before[k]);
     }
   });
 
-  it('lists the chain beside the controls in the side layout', () => {
+  it('shows the chain as cards, the Add effect card after them', () => {
     s().addMasteringFx('compressor');
-    render(<FxRack target={{ kind: 'master' }} layout="side" />);
-    expect(screen.getByTestId('fx-rack').dataset.layout).toBe('side');
-    expect(screen.getByText('1 of 5')).toBeTruthy();
+    s().addMasteringFx('eq');
+    render(<FxRack target={{ kind: 'master' }} />);
+    const row = screen.getByRole('group', { name: 'Effects chain' });
+    expect(
+      [...row.children].map((card) => (card as HTMLElement).dataset.testid),
+    ).toEqual(['fx-card-compressor', 'fx-card-eq', 'fx-add-slot']);
+    // No In and Out ends: the row is the chain.
+    expect(screen.queryByText('In')).toBeNull();
+    expect(screen.queryByText('Out')).toBeNull();
+    expect(screen.getByText('2 of 5')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Remove EQ' }));
+    expect(s().masteringFxChain).toEqual(['compressor']);
     // Its Add effect arms the library, as the dock's slot does.
     fireEvent.click(screen.getByTestId('fx-add-slot'));
     expect(s().libraryOpen && s().inspectorPanel === 'fx').toBe(true);

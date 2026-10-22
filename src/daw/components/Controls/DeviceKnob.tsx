@@ -18,7 +18,9 @@ import { useSliderControl } from '@/daw/ui/useSliderControl';
 //   'ticks'  a ring of 25 ticks lit up to the value, round the same face
 //            (a position through a table);
 //   'value'  the arc with the value written inside, no pointer (Cutoff).
-// A bipolar knob marks its middle with a small triangle over the arc and
+// While modulation moves it (a note playing), it draws the live value and
+// keeps its own. A bipolar knob marks its middle with a small triangle over
+// the arc and
 // draws its arc from there. Its name sits under it (12 px, bold), up into
 // the arc's open bottom. The
 // geometry scales with the diameter, drawn at 37 px (50 for a lead knob).
@@ -49,6 +51,11 @@ export interface DeviceKnobProps {
   color: string;
   /** Draw the arc unlit (a warp with no mode). */
   dim?: boolean;
+  /**
+   * Where modulation has the value now, while a note plays: the arc, ticks
+   * and pointer follow it, and the knob's own value stays the name's.
+   */
+  live?: number | null;
   className?: string;
   'data-testid'?: string;
 }
@@ -86,6 +93,7 @@ export function DeviceKnob({
   bipolar = false,
   color,
   dim = false,
+  live = null,
   className,
   'data-testid': testId,
 }: DeviceKnobProps) {
@@ -108,7 +116,8 @@ export function DeviceKnob({
   const arcR = 13.15 * k;
   const weight = look === 'value' ? 4.25 * (size / 50) : 3.15 * k;
   const faceR = size / 4;
-  const angle = START + toNorm(shown, range) * SWEEP;
+  const drawn = live ?? shown;
+  const angle = START + toNorm(drawn, range) * SWEEP;
   const middle = START + toNorm((min + max) / 2, range) * SWEEP;
   const origin = bipolar ? middle : START;
   const lit =
@@ -130,6 +139,7 @@ export function DeviceKnob({
         aria-valuenow={shown}
         aria-valuetext={text}
         data-dragging={dragging || undefined}
+        data-live={live !== null || undefined}
         data-testid={testId}
         title={`${label}: ${text}`}
         className={cn(

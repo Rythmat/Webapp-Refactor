@@ -46,6 +46,12 @@ import { DeviceKnob } from './DeviceKnob';
 //   modulation matrix moves. The knobs and the plot take the track's
 //   colour.
 //
+// It answers the keys as the frame's does: while a note plays, each
+// modulated control moves with it (useLiveModulation, from the engine's
+// own modulation maths), so the plot's lit frame travels through the table
+// with Position, Position's ticks and Cutoff's and Res's arcs follow, and
+// all settle back as the note ends. With nothing modulated they hold still.
+//
 // The dock shows the synth's main controls only; the rest (the sub, noise,
 // tuning, unison, the second filter, envelopes, LFOs, modulation, FX, arp
 // and routing) are the full synth's, a click away. And it fits the dock's
@@ -158,6 +164,7 @@ export function OracleSynthCard({ engine }: { engine: SynthEngine }) {
     return () => observer.disconnect();
   }, []);
   const layout = synthCardLayout(rowH);
+  const live = useLiveModulation(engine);
 
   return (
     <div
@@ -213,14 +220,62 @@ export function OracleSynthCard({ engine }: { engine: SynthEngine }) {
           className="absolute flex"
           style={{ left: PAD_PX, top: HEADER_PX + PAD_PX }}
         >
-          <OscPanel index={0} engine={engine} color={color} layout={layout} />
-          <FilterColumn color={color} layout={layout} />
-          <OscPanel index={1} engine={engine} color={color} layout={layout} />
+          <OscPanel
+            index={0}
+            engine={engine}
+            color={color}
+            layout={layout}
+            live={live}
+          />
+          <FilterColumn color={color} layout={layout} live={live} />
+          <OscPanel
+            index={1}
+            engine={engine}
+            color={color}
+            layout={layout}
+            live={live}
+          />
         </div>
       </section>
     </div>
   );
 }
+
+/** What the routes add to each destination now ('flt1:cutoff'), or null. */
+type LiveModulation = Map<string, number> | null;
+
+/**
+ * The engine's live modulation (SynthEngine.getLiveModulation), read about
+ * 30 times a second; a render only when it moved. Null while no note
+ * sounds, so the controls show their own values.
+ */
+function useLiveModulation(engine: SynthEngine): LiveModulation {
+  const [live, setLive] = useState<LiveModulation>(null);
+  useEffect(() => {
+    let raf = 0;
+    let last = 0;
+    let seen = '';
+    const tick = (t: number) => {
+      raf = requestAnimationFrame(tick);
+      if (t - last < 33) return;
+      last = t;
+      const next = engine.getLiveModulation();
+      const now =
+        next && next.size > 0
+          ? [...next].map(([k, v]) => `${k}=${v.toFixed(3)}`).join('|')
+          : '';
+      if (now === seen) return;
+      seen = now;
+      setLive(now ? next : null);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [engine]);
+  return live;
+}
+
+const clamp = (v: number, lo: number, hi: number) =>
+  v < lo ? lo : v > hi ? hi : v;
 
 /**
  * The sound, in a pill at the header's centre, with ‹ › to the one before
@@ -331,13 +386,21 @@ function OscPanel({
   engine,
   color,
   layout,
+  live,
 }: {
   index: 0 | 1;
   engine: SynthEngine;
   color: string;
   layout: SynthCardLayout;
+  live: LiveModulation;
 }) {
   const osc = useSynthStore((s) => s.oscillators[index]);
+  // Where modulation has the table's position now, while a note plays.
+  const positionOffset = live?.get(`${index === 0 ? 'osc1' : 'osc2'}:wtPos`);
+  const livePosition =
+    positionOffset === undefined
+      ? null
+      : clamp(osc.wtPosition + positionOffset, 0, 1);
   const setParam = useSynthStore((s) => s.setOscParam);
   const positionModulated = useModulated(
     index === 0 ? 'osc1' : 'osc2',
@@ -381,6 +444,7 @@ function OscPanel({
       resetValue={0}
       size={layout.knob}
       color={color}
+      live={livePosition}
       format={(v) => `${Math.round(v * 100)}%`}
       onChange={(v) => setParam(index, 'wtPosition', v)}
     />
@@ -428,7 +492,7 @@ function OscPanel({
           <WavetablePlot
             engine={engine}
             table={osc.wavetable}
-            position={osc.wtPosition}
+            position={livePosition ?? osc.wtPosition}
             color={color}
             height={layout.plotH}
             className={dimmed || undefined}
@@ -726,11 +790,21 @@ function CycleGlyph() {
 function FilterColumn({
   color,
   layout,
+  live,
 }: {
   color: string;
   layout: SynthCardLayout;
+  live: LiveModulation;
 }) {
   const filter = useSynthStore((s) => s.filters[0]);
+  // The matrix moves the cutoff in cents and the resonance in Q.
+  const cents = live?.get('flt1:cutoff');
+  const liveCutoff =
+    cents === undefined
+      ? null
+      : clamp(filter.cutoff * 2 ** (cents / 1200), 20, 20000);
+  const q = live?.get('flt1:resonance');
+  const liveRes = q === undefined ? null : clamp(filter.resonance + q, 0, 30);
   const setParam = useSynthStore((s) => s.setFilterParam);
   const cutoffModulated = useModulated('flt1', 'cutoff');
   const resModulated = useModulated('flt1', 'resonance');
@@ -763,6 +837,7 @@ function FilterColumn({
           resetValue={20000}
           size={layout.cutoff}
           color={color}
+          live={liveCutoff}
           format={formatHz}
           onChange={(v) => setParam(0, 'cutoff', v)}
         />
@@ -777,6 +852,7 @@ function FilterColumn({
             step={0.1}
             resetValue={0}
             color={color}
+            live={liveRes}
             onChange={(v) => setParam(0, 'resonance', v)}
           />
         </KnobTile>

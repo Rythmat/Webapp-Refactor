@@ -632,6 +632,27 @@ export class Voice {
   }
 
   /** Per-voice modulation source node for the matrix. */
+  /**
+   * A per-voice modulation source's value at context time `time`, as its
+   * node carries it: the note's velocity, its key (note / 127), or an
+   * envelope's contour (0..1). For the engine's control-rate destinations
+   * and the synth card's live view (liveModulation.ts).
+   */
+  modSourceValueAt(kind: VoiceModSourceKind, time: number): number {
+    switch (kind) {
+      case 'velocity':
+        return this.currentVelocity;
+      case 'keytrack':
+        return this.currentNote < 0 ? 0 : this.currentNote / 127;
+      case 'env1':
+      case 'env2': {
+        const node = kind === 'env1' ? this.env1ModSource : this.env2ModSource;
+        const seg = this.segments.get(node.offset);
+        return seg ? envelopeLevelAt(seg, time) : 0;
+      }
+    }
+  }
+
   getModSourceNode(kind: VoiceModSourceKind): AudioNode {
     switch (kind) {
       case 'velocity':

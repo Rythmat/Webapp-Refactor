@@ -52,7 +52,10 @@ export function computeGainOffset(
 export function getModRange(param: string): number {
   switch (param) {
     case 'cutoff':
-      return 4800; // cents (4 octaves) via biquad.detune
+      // cents via biquad.detune: the audible span, 20 Hz–20 kHz is ~10
+      // octaves (audit 2026-10-21: 4 octaves left Serum's env-to-cutoff
+      // sweeps ~3× too shallow; factory routes were rescaled to match)
+      return 12000;
     case 'resonance':
       return 15; // Q
     case 'level':
@@ -62,10 +65,13 @@ export function getModRange(param: string): number {
     case 'pan':
       return 1; // full L-R
     case 'detune':
-      return 100; // cents
+      return 100; // cents: fine
+    case 'pitch':
+      return 4800; // cents: ±48 semitones, coarse
+    case 'wtPos':
+      return 1; // the whole table (it was half; nothing drove it before)
     case 'blend':
     case 'mix':
-    case 'wtPos':
       return 0.5;
     default:
       return 1;

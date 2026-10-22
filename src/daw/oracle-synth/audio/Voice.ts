@@ -249,6 +249,11 @@ export class Voice {
       }
     }
 
+    // Series: Filter 1 runs into Filter 2; parallel: both to the output.
+    this.filter1.setDestination(
+      this.routingConfig.filterRouting.serial ? flt2In : this.postFilterBus,
+    );
+
     // Reconnect based on routing config
     const { filter1Sources, filter2Sources } = this.routingConfig.filterRouting;
     for (const sourceId of allSourceIds) {

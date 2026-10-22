@@ -22,6 +22,8 @@ export interface LFOSlice {
   ) => void;
   setLFOBarSmooth: (lfoIndex: number, barIndex: number, smooth: number) => void;
   setLFOSync: (index: number, sync: boolean) => void;
+  /** An LFO loops (false) or plays once from each note-on (true). */
+  setLFOOnce: (index: number, once: boolean) => void;
   setLFONodes: (lfoIndex: number, barIndex: number, nodes: LFONode[]) => void;
 }
 
@@ -41,7 +43,7 @@ const defaultTriangleNodes = (): LFONode[] => [
 
 const defaultQuarterRates = (): QuarterRates => ['1/4', '1/4', '1/4', '1/4'];
 
-const defaultLFO = (): LFOParams => ({
+export const defaultLFO = (): LFOParams => ({
   rateDivs: [
     defaultQuarterRates(),
     defaultQuarterRates(),
@@ -121,6 +123,18 @@ export const createLFOSlice: StateCreator<LFOSlice, [], [], LFOSlice> = (
       newSmooths[barIndex] = smooth;
       newLfos[lfoIndex] = { ...newLfos[lfoIndex], smooths: newSmooths };
       return { lfos: newLfos };
+    }),
+
+  setLFOOnce: (index, once) =>
+    set((state) => {
+      const lfos = [...state.lfos] as [
+        LFOParams,
+        LFOParams,
+        LFOParams,
+        LFOParams,
+      ];
+      lfos[index] = { ...lfos[index], once };
+      return { lfos };
     }),
 
   setLFOSync: (index, sync) =>

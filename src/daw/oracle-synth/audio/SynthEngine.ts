@@ -511,6 +511,9 @@ export class SynthEngine {
     if (voice && this.modMatrix) {
       this.modMatrix.connectVoice(voice);
     }
+    // One-shot LFOs start over with each note (Serum's envelope mode).
+    const at = time ?? this.ctx?.currentTime ?? 0;
+    for (const lfo of this.lfos) lfo.trigger(at);
     // A new note starts at its modulated position, not a tick late.
     if (voice && this.controlRateTimer) {
       this.controlRateApplied.delete(voice);
@@ -648,6 +651,11 @@ export class SynthEngine {
     }
   }
 
+  /** An LFO loops (false) or plays once from each note-on (true). */
+  setLFOOnce(lfoIndex: number, once: boolean): void {
+    this.lfos[lfoIndex]?.setOnce(once);
+  }
+
   setLFONodes(lfoIndex: number, barIndex: number, nodes: LFONode[]): void {
     this.lfos[lfoIndex]?.setBarNodes(barIndex, nodes);
   }
@@ -768,10 +776,10 @@ export class SynthEngine {
         const base = this.voiceSeed.osc[index];
         const source = index === 0 ? 'osc1' : 'osc2';
         const position = clamp01(
-          base.wtPosition + (offsets.get(`${source}:wtPos`) ?? 0),
+          (base.wtPosition ?? 0) + (offsets.get(`${source}:wtPos`) ?? 0),
         );
         const blend = clamp01(
-          base.unisonBlend + (offsets.get(`${source}:blend`) ?? 0),
+          (base.unisonBlend ?? 0) + (offsets.get(`${source}:blend`) ?? 0),
         );
         next.push(position, blend);
         const params: Partial<OscillatorParams> = {};

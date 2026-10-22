@@ -8,6 +8,7 @@ import { FACTORY_PRESETS, INITIALIZE } from '../presets/factoryPresets';
 import { DEFAULT_FX } from './fxSlice';
 import { DEFAULT_ROUTING } from './routingSlice';
 import { DEFAULT_ARP } from './arpSlice';
+import { defaultLFO } from './lfoSlice';
 import { defaultMacros } from './macroSlice';
 import { DEFAULT_KEYSCALE } from './keyScaleSlice';
 import { withUniqueModRouteIds } from './modulationSlice';
@@ -136,7 +137,14 @@ export function migratePatchFields(
   data: Partial<MigratedFields>,
 ): Required<MigratedFields> {
   // Migrate LFO data: old presets may lack the `smooths` field
-  const lfos = structuredClone(data.lfos ?? []);
+  const lfos = data.lfos
+    ? structuredClone(data.lfos)
+    : ([
+        defaultLFO(),
+        defaultLFO(),
+        defaultLFO(),
+        defaultLFO(),
+      ] as Required<MigratedFields>['lfos']);
   for (const lfo of lfos) {
     if (!lfo.smooths) {
       lfo.smooths = [0, 0, 0, 0];
@@ -236,6 +244,8 @@ export function applyPresetData(data: PresetData): Partial<SynthStore> {
     glide: data.glide,
     spread: data.spread,
     masterVolume: data.masterVolume,
+    // A preset that saved its mod wheel rests it there; others leave it.
+    ...(data.modWheel !== undefined ? { modWheel: data.modWheel } : {}),
     fx,
     fxRoutes,
     routing,

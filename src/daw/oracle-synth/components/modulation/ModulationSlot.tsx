@@ -71,7 +71,9 @@ const FILTER_PARAM_OPTIONS = [
 const OSC_PARAM_OPTIONS = [
   { value: 'level', label: 'LEVEL' },
   { value: 'pan', label: 'PAN' },
-  { value: 'detune', label: 'PITCH' },
+  // Pitch sweeps ±48 semitones; Fine is ±1 (it was the only "pitch").
+  { value: 'pitch', label: 'PITCH' },
+  { value: 'detune', label: 'FINE' },
 ];
 
 const NOISE_PARAM_OPTIONS = [
@@ -121,7 +123,8 @@ export const ModulationSlot: React.FC<ModulationSlotProps> = React.memo(
       ? route.target.param
       : paramOptions[0].value;
 
-    const isPitchTarget = effectiveParam === 'detune';
+    const isPitchTarget =
+      effectiveParam === 'detune' || effectiveParam === 'pitch';
     const scaleQuantized = route.transform === SCALE_PITCH_TRANSFORM_ID;
 
     return (
@@ -153,7 +156,7 @@ export const ModulationSlot: React.FC<ModulationSlotProps> = React.memo(
                 onUpdate(route.id, {
                   target: { source: newSource, param: newParam },
                   // Scale-quantize only applies to pitch targets
-                  ...(newParam !== 'detune' && route.transform
+                  ...(newParam !== 'detune' && newParam !== 'pitch' && route.transform
                     ? { transform: undefined }
                     : {}),
                 });
@@ -168,7 +171,7 @@ export const ModulationSlot: React.FC<ModulationSlotProps> = React.memo(
                     ...route.target,
                     param: v as typeof route.target.param,
                   },
-                  ...(v !== 'detune' && route.transform
+                  ...(v !== 'detune' && v !== 'pitch' && route.transform
                     ? { transform: undefined }
                     : {}),
                 })

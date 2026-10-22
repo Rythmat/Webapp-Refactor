@@ -346,6 +346,7 @@ export function applySynthStateToEngine(
       engine.setLFONodes(i, j, s.lfos[i].bars[j]);
       engine.setLFOSmooth(i, j, s.lfos[i].smooths[j]);
     }
+    engine.setLFOOnce(i, s.lfos[i].once ?? false);
   }
   engine.setModRoutes(s.modRoutes);
   for (let i = 0; i < s.macros.length; i++) {

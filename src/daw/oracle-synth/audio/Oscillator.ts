@@ -11,6 +11,9 @@ import { buildWarpCurve, isPhaseWarp } from './wavetableWarp';
  * when WT POS changes, one engine plays the frame below and
  * the other plays the frame above, with gains crossfading between them.
  */
+/** The note a key-tracking-off oscillator plays at: middle C. */
+const FIXED_PITCH_NOTE = 60;
+
 export class Oscillator {
   private ctx: AudioContext;
   private wavetableBank: WavetableBank;
@@ -141,6 +144,9 @@ export class Oscillator {
   }
 
   private noteToFrequency(midiNote: number): number {
+    // Key tracking off: the oscillator plays its pitch from middle C,
+    // whatever the key (a Serum kick or tom's fixed pitch).
+    if (this.params.keyTrack === false) midiNote = FIXED_PITCH_NOTE;
     const tuningOffset =
       this.params.octave * 12 + this.params.semitone + this.params.fine / 100;
     return midiToFrequency(midiNote) * Math.pow(2, tuningOffset / 12);
@@ -206,6 +212,13 @@ export class Oscillator {
     }
     if (params.octave !== undefined) {
       this.params.octave = params.octave;
+      needsFreqUpdate = true;
+    }
+    if (
+      params.keyTrack !== undefined &&
+      params.keyTrack !== this.params.keyTrack
+    ) {
+      this.params.keyTrack = params.keyTrack;
       needsFreqUpdate = true;
     }
     if (params.semitone !== undefined) {

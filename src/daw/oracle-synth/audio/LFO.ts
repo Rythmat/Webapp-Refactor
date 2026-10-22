@@ -56,6 +56,13 @@ export class LFO {
   private isRunning: boolean = false;
   private anchorTime = 0;
   private anchorFrac = 0;
+  /**
+   * One-shot (a Serum envelope-mode LFO): no loop; each note-on plays bar 1
+   * once from its start (trigger), then the LFO holds bar 1's last value.
+   * The hold is a constant source summed into the output.
+   */
+  private once = false;
+  private hold: ConstantSourceNode | null = null;
 
   constructor(ctx: AudioContext) {
     this.ctx = ctx;
@@ -87,6 +94,92 @@ export class LFO {
     this.isRunning = false;
     const now = this.ctx.currentTime;
     for (const source of this.sources) this.endSource(source, now, 0);
+    this.dropHold();
+  }
+
+  /** Loops (false, the default) or plays once per note-on (true). */
+  setOnce(on: boolean): void {
+    if (on === this.once) return;
+    this.once = on;
+    const now = this.ctx.currentTime;
+    for (const source of this.sources) {
+      this.endSource(source, now, source.startedAt < now ? REBUILD_FADE : 0);
+    }
+    if (on) {
+      this.idleHold(now);
+    } else {
+      this.dropHold();
+      if (this.isRunning) this.restart(now);
+    }
+  }
+
+  /**
+   * A note-on at `time`: a one-shot LFO plays bar 1 from its start, then
+   * holds its last value. A looping LFO ignores it (it keeps the bars).
+   */
+  trigger(time: number): void {
+    if (!this.once || !this.isRunning) return;
+    const buffer = this.getBuffer();
+    const bar = this.loopSeconds() / 4;
+    for (const old of this.sources) {
+      if (old.stopAt <= time) continue;
+      this.endSource(old, time, old.startedAt < time ? REBUILD_FADE : 0);
+    }
+    const node = this.ctx.createBufferSource();
+    node.buffer = buffer;
+    const gain = this.ctx.createGain();
+    node.connect(gain);
+    gain.connect(this.output);
+    node.start(time, 0, bar);
+    const source: LfoSource = {
+      node,
+      gain,
+      startedAt: time,
+      stopAt: time + bar,
+    };
+    node.onended = () => {
+      node.disconnect();
+      gain.disconnect();
+      this.sources = this.sources.filter((s) => s !== source);
+    };
+    this.sources.push(source);
+    const hold = this.ensureHold();
+    const last =
+      buffer.getChannelData(0)[
+        Math.min(buffer.length - 1, Math.round(bar * buffer.sampleRate) - 1)
+      ];
+    hold.offset.cancelScheduledValues(time);
+    hold.offset.setValueAtTime(0, time);
+    hold.offset.setValueAtTime(last, time + bar);
+  }
+
+  /** Before any note: a one-shot LFO rests at bar 1's first value. */
+  private idleHold(when: number): void {
+    const first = this.getBuffer().getChannelData(0)[0] ?? 0;
+    const hold = this.ensureHold();
+    hold.offset.cancelScheduledValues(when);
+    hold.offset.setValueAtTime(first, when);
+  }
+
+  private ensureHold(): ConstantSourceNode {
+    if (!this.hold) {
+      this.hold = this.ctx.createConstantSource();
+      this.hold.offset.value = 0;
+      this.hold.connect(this.output);
+      this.hold.start();
+    }
+    return this.hold;
+  }
+
+  private dropHold(): void {
+    if (!this.hold) return;
+    try {
+      this.hold.stop();
+    } catch {
+      // never started
+    }
+    this.hold.disconnect();
+    this.hold = null;
   }
 
   /**
@@ -184,6 +277,11 @@ export class LFO {
    * later is cancelled.
    */
   private restart(when: number): void {
+    // A one-shot LFO has no loop: an edit only moves where it rests.
+    if (this.once) {
+      if (this.isRunning) this.idleHold(when);
+      return;
+    }
     const node = this.ctx.createBufferSource();
     node.buffer = this.getBuffer();
     node.loop = true;

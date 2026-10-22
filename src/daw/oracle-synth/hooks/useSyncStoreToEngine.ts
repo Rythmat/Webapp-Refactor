@@ -178,6 +178,13 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
 
     // LFO bar nodes + smooth (subscribe to each bar of each LFO)
     for (let lfo = 0; lfo < 4; lfo++) {
+      const li = lfo;
+      unsubs.push(
+        useSynthStore.subscribe(
+          (state) => state.lfos[li].once ?? false,
+          (once) => engine.setLFOOnce(li, once),
+        ),
+      );
       for (let bar = 0; bar < 4; bar++) {
         const li = lfo;
         const bi = bar;
@@ -326,6 +333,7 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
         engine.setLFONodes(i, j, s.lfos[i].bars[j]);
         engine.setLFOSmooth(i, j, s.lfos[i].smooths[j]);
       }
+      engine.setLFOOnce(i, s.lfos[i].once ?? false);
     }
     engine.setModRoutes(s.modRoutes);
     engine.setDriveParams(s.fx.drive);

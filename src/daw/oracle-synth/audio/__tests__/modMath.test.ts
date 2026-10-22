@@ -38,16 +38,18 @@ describe('computeGainOffset', () => {
   });
 
   it('sweeps a unipolar cutoff route UP from the base, as every route (owner, 2026-10-21)', () => {
-    const { gain, offset } = computeGainOffset('unipolar', false, 0.5, 4800);
+    const { gain, offset } = computeGainOffset('unipolar', false, 0.5, 12000);
     // Source 0 → at the base cutoff; source 1 → A above it.
     expect(0 * gain + offset).toBe(0);
-    expect(1 * gain + offset).toBe(2400);
+    expect(1 * gain + offset).toBe(6000);
   });
 });
 
 describe('getModRange', () => {
   it('returns native units per parameter', () => {
-    expect(getModRange('cutoff')).toBe(4800);
+    expect(getModRange('cutoff')).toBe(12000);
+    expect(getModRange('wtPos')).toBe(1);
+    expect(getModRange('pitch')).toBe(4800);
     expect(getModRange('resonance')).toBe(15);
     expect(getModRange('pan')).toBe(1);
     expect(getModRange('detune')).toBe(100);

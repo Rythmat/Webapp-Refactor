@@ -264,7 +264,7 @@ export const PAD: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 2345,
+      cutoff: 1021,
       resonance: 2,
       pan: 0,
       gain: 0,
@@ -333,7 +333,7 @@ export const PAD: PresetData = {
       id: 'pad-mod-1',
       source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'cutoff' },
-      amount: 0.3,
+      amount: 0.12,
       polarity: 'unipolar',
       curve: 'linear',
       enabled: true,
@@ -750,7 +750,7 @@ export const WOBBLE: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 402,
+      cutoff: 44,
       resonance: 6,
       pan: 0,
       gain: 0,
@@ -814,7 +814,7 @@ export const WOBBLE: PresetData = {
       id: 'wobble-mod-1',
       source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'cutoff' },
-      amount: 0.8,
+      amount: 0.32,
       polarity: 'unipolar',
       curve: 'linear',
       enabled: true,
@@ -905,7 +905,7 @@ export const DRIFT: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 1675,
+      cutoff: 419,
       resonance: 3,
       pan: 0,
       gain: 0,
@@ -990,7 +990,7 @@ export const DRIFT: PresetData = {
       id: 'drift-mod-1',
       source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'cutoff' },
-      amount: 0.5,
+      amount: 0.2,
       polarity: 'unipolar',
       curve: 'linear',
       enabled: true,
@@ -1097,7 +1097,7 @@ export const TRANCE: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 2680,
+      cutoff: 385,
       resonance: 4,
       pan: 0,
       gain: 0,
@@ -1166,7 +1166,7 @@ export const TRANCE: PresetData = {
       id: 'trance-mod-1',
       source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'cutoff' },
-      amount: 0.7,
+      amount: 0.28,
       polarity: 'unipolar',
       curve: 'linear',
       enabled: true,
@@ -1266,7 +1266,7 @@ export const SEQUENCE: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 2010,
+      cutoff: 502,
       resonance: 4,
       pan: 0,
       gain: 0,
@@ -1314,7 +1314,7 @@ export const SEQUENCE: PresetData = {
       id: 'seq-mod-1',
       source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'cutoff' },
-      amount: 0.5,
+      amount: 0.2,
       polarity: 'unipolar',
       curve: 'linear',
       enabled: true,
@@ -1396,7 +1396,7 @@ export const CHORDS: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 3015,
+      cutoff: 995,
       resonance: 2,
       pan: 0,
       gain: 0,
@@ -1444,7 +1444,7 @@ export const CHORDS: PresetData = {
       id: 'chords-mod-1',
       source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'cutoff' },
-      amount: 0.4,
+      amount: 0.16,
       polarity: 'unipolar',
       curve: 'linear',
       enabled: true,

@@ -18,7 +18,7 @@ import {
   setTableRegistrar,
   subscribeFramesLoaded,
 } from '../wavetableImport';
-import { fakeOracleContext } from './fakeOracleContext';
+import { fakeOracleContext, param } from './fakeOracleContext';
 
 /** A mono 16-bit WAV of `frames` × 2048 samples from `sample(i)`. */
 function wav(frames: number, sample: (i: number) => number): ArrayBuffer {
@@ -121,3 +121,77 @@ function mean(f: Float32Array): number {
   for (const v of f) m += v;
   return m / f.length;
 }
+
+describe('one-shot LFOs and series filters (the Serum pack, 2026-10-21)', () => {
+  it('a one-shot LFO plays bar 1 from each note-on, then holds its end', async () => {
+    const { SynthEngine } = await import('../SynthEngine');
+    const fake = fakeOracleContext();
+    const engine = new SynthEngine();
+    await engine.init(fake.ctx as unknown as AudioContext, {
+      disableMidi: true,
+    });
+    const before = fake.ofKind('bufferSource').length;
+    engine.setLFOOnce(0, true);
+    engine.noteOn(60, 1, 0.5);
+    const started = fake
+      .ofKind('bufferSource')
+      .slice(before)
+      .filter((n) => n.start.mock.calls.some((c) => c[0] === 0.5));
+    // One non-looping source from the note, for one bar (2 s at 120 BPM).
+    expect(started).toHaveLength(1);
+    const [when, offset, duration] = started[0].start.mock.calls.at(-1)!;
+    expect([when, offset]).toEqual([0.5, 0]);
+    expect(duration).toBeCloseTo(2, 3);
+    engine.releaseResources();
+  });
+
+  it('runs Filter 1 into Filter 2 when the routing says series', async () => {
+    const { Voice } = await import('../Voice');
+    const fake = fakeOracleContext();
+    const bank = new WavetableBank(fake.ctx as unknown as AudioContext);
+    const voice = new Voice(
+      fake.ctx as unknown as AudioContext,
+      0,
+      bank,
+      fake.ctx.createGain() as unknown as AudioNode,
+    );
+    const f1 = voice.getFilter1() as unknown as {
+      setDestination: (n: AudioNode) => void;
+    };
+    const spy = vi.spyOn(f1, 'setDestination');
+    voice.setRouting({
+      filterRouting: {
+        filter1Sources: ['osc1'],
+        filter2Sources: [],
+        serial: true,
+      },
+      envelopeRouting: { env1Sources: ['osc1'], env2Sources: [] },
+    });
+    const into = spy.mock.calls.at(-1)?.[0];
+    expect(into).toBe(voice.getFilter2().getInputNode());
+  });
+});
+
+describe('key tracking off (a Serum kick or tom)', () => {
+  it('plays the oscillator from middle C whatever the key', async () => {
+    const { SynthEngine } = await import('../SynthEngine');
+    const { midiToFrequency } = await import('../constants');
+    const fake = fakeOracleContext();
+    const engine = new SynthEngine();
+    await engine.init(fake.ctx as unknown as AudioContext, {
+      disableMidi: true,
+    });
+    engine.setOscillatorParams(0, { keyTrack: false, octave: 0, semitone: 0 });
+    const before = fake.ofKind('oscillator').length;
+    engine.noteOn(36, 1, 0.25);
+    const freqs = fake
+      .ofKind('oscillator')
+      .slice(before)
+      .map((o) => param(o, 'frequency').valueAt(0.25));
+    // Osc 1's voices at C4 for a C2 key; osc 2 (tracking) at C2.
+    expect(freqs.some((f) => Math.abs(f - midiToFrequency(60)) < 0.5)).toBe(
+      true,
+    );
+    engine.releaseResources();
+  });
+});

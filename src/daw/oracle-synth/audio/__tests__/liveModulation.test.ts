@@ -26,23 +26,23 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('routeOffset', () => {
   it('sweeps base → base + amount × range for a unipolar route', () => {
-    // wtPos's range is 0.5.
+    // wtPos's range is the whole table (1).
     expect(routeOffset(route({}), 0)).toBeCloseTo(0);
-    expect(routeOffset(route({}), 1)).toBeCloseTo(0.5);
-    expect(routeOffset(route({ amount: 0.5 }), 1)).toBeCloseTo(0.25);
+    expect(routeOffset(route({}), 1)).toBeCloseTo(1);
+    expect(routeOffset(route({ amount: 0.5 }), 1)).toBeCloseTo(0.5);
   });
 
   it('sweeps either side for a bipolar route', () => {
     const r = route({ polarity: 'bipolar' });
-    expect(routeOffset(r, 0)).toBeCloseTo(-0.5);
-    expect(routeOffset(r, 1)).toBeCloseTo(0.5);
+    expect(routeOffset(r, 0)).toBeCloseTo(-1);
+    expect(routeOffset(r, 1)).toBeCloseTo(1);
   });
 
   it('opens a filter with a unipolar cutoff route (no v1 down-sweep)', () => {
     const r = route({ target: { source: 'flt1', param: 'cutoff' } });
-    // Cutoff's range is 4800 cents: a full source opens it by all of it.
+    // Cutoff's range is 12,000 cents: a full source opens it by all of it.
     expect(routeOffset(r, 0)).toBeCloseTo(0);
-    expect(routeOffset(r, 1)).toBeCloseTo(4800);
+    expect(routeOffset(r, 1)).toBeCloseTo(12000);
   });
 });
 
@@ -58,7 +58,7 @@ describe('liveOffsets', () => {
     const offsets = liveOffsets(routes, (r) =>
       r.source.type === 'audio' ? null : 1,
     );
-    expect([...offsets]).toEqual([['osc1:wtPos', 0.5]]);
+    expect([...offsets]).toEqual([['osc1:wtPos', 1]]);
   });
 
   it('keeps only the destinations asked for', () => {
@@ -98,7 +98,7 @@ describe('SynthEngine’s live modulation', () => {
 
   it('follows a note’s envelope, and drives the wavetable position per voice', async () => {
     const { fake, engine } = await setup();
-    engine.setModRoutes([route({})]);
+    engine.setModRoutes([route({ amount: 0.5 })]);
     engine.setOscillatorParams(0, { wtPosition: 0.2 });
     const voices = (
       engine as unknown as {
@@ -113,7 +113,7 @@ describe('SynthEngine’s live modulation', () => {
     const half = engine.getLiveModulation()?.get('osc1:wtPos') ?? 0;
     fake.setTime(1.5);
     const full = engine.getLiveModulation()?.get('osc1:wtPos') ?? 0;
-    // The attack climbs: halfway in, then the whole 0.5 range at the top.
+    // The attack climbs: halfway in, then the route's 0.5 at the top.
     expect(half).toBeGreaterThan(0.1);
     expect(half).toBeLessThan(full);
     expect(full).toBeCloseTo(0.5, 1);

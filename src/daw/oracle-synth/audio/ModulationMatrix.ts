@@ -215,16 +215,19 @@ export class ModulationMatrix {
         level: () => voice.getOsc1().getGainParam(),
         pan: () => voice.getOsc1().getPanParam(),
         detune: () => voice.getOsc1().getDetuneModInput(),
+        pitch: () => voice.getOsc1().getDetuneModInput(),
       },
       osc2: {
         level: () => voice.getOsc2().getGainParam(),
         pan: () => voice.getOsc2().getPanParam(),
         detune: () => voice.getOsc2().getDetuneModInput(),
+        pitch: () => voice.getOsc2().getDetuneModInput(),
       },
       sub: {
         level: () => voice.getSub().getGainParam(),
         pan: () => voice.getSub().getPanParam(),
         detune: () => voice.getSub().getDetuneModInput(),
+        pitch: () => voice.getSub().getDetuneModInput(),
       },
       noise: {
         level: () => voice.getNoise().getGainParam(),

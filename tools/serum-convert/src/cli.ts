@@ -14,14 +14,14 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runCalibrate } from './calibrate.ts';
 import { convertPreset } from './convert.ts';
+import { queryCandidates, type CandidateRow } from './db.ts';
+import { formatReport, type FidelityReport } from './fidelity.ts';
 import {
   DEFAULT_SHAPE_NAMES,
   DEFAULT_SHAPES_TABLE,
   shapeTableName,
   splitDefaultShapes,
 } from './mapping/defaultShapes.ts';
-import { queryCandidates, type CandidateRow } from './db.ts';
-import { formatReport, type FidelityReport } from './fidelity.ts';
 import { parseSerumMetaOnly } from './serumPreset.ts';
 import {
   parseWavetableFile,

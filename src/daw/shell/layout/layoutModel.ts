@@ -113,18 +113,24 @@ export function dockFracFor(tab: DockSlotId, heights: DockHeights): number {
 }
 
 /**
- * A dock showing effect cards (a track's Effects, Master, the Mix view's
- * rack) is never shorter than this, its 32 px bar included: its cards keep
- * one row of knobs, the EQ's band picker and room for a sideways scrollbar,
- * so nothing spills out of them (FxCards' cardLayout).
+ * A dock showing device cards (an instrument, a track's Effects, Master,
+ * the Mix view's rack) is never shorter than this, its 32 px bar included:
+ * its cards keep their main controls and room for a sideways scrollbar, so
+ * nothing spills out of them (FxCards' cardLayout, OracleSynthCard's
+ * synthCardLayout).
  */
 export const DOCK_FX_MIN_PX = 184;
 
-const FX_SLOTS: ReadonlySet<DockSlotId> = new Set(['fx', 'master', 'rack']);
+const CARD_SLOTS: ReadonlySet<DockSlotId> = new Set([
+  'controls',
+  'fx',
+  'master',
+  'rack',
+]);
 
 /** The shortest the dock may be for `slot`. */
 export function dockMinPx(slot: DockSlotId): number {
-  return FX_SLOTS.has(slot) ? DOCK_FX_MIN_PX : DOCK_MIN_PX;
+  return CARD_SLOTS.has(slot) ? DOCK_FX_MIN_PX : DOCK_MIN_PX;
 }
 
 /** The dock's height in px, tab bar included, for a body `bodyPx` high. */

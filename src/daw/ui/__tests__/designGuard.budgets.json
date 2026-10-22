@@ -29,11 +29,6 @@
     "smallText": 5,
     "zIndex": 1
   },
-  "src/daw/components/Controls/OracleSynthInline.tsx": {
-    "hex": 8,
-    "rgb": 1,
-    "smallText": 1
-  },
   "src/daw/components/Controls/OrganView.module.css": {
     "hex": 4,
     "rgb": 20,

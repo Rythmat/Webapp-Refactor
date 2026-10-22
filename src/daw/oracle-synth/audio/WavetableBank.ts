@@ -85,6 +85,15 @@ export class WavetableBank {
     return derived;
   }
 
+  /**
+   * A table's frames to draw (the dock's synth card plots them), unwarped:
+   * time-domain, one per WT position step, or null when none are obtainable
+   * yet (a pack table still loading). Never on the audio path.
+   */
+  getDisplayFrames(name: string): readonly Float32Array[] | null {
+    return this.getTimeDomainFrames(name);
+  }
+
   /** Time-domain frames for a table (imported cache, stored, or synthesized
    *  from procedural partials), or null when none are obtainable. */
   private getTimeDomainFrames(name: string): Float32Array[] | null {

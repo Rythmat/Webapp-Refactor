@@ -71,11 +71,11 @@ describe('cardLayout', () => {
 });
 
 describe('the dock’s minimum', () => {
-  it('is taller for the effect cards than for the other tabs', () => {
-    for (const slot of ['fx', 'master', 'rack'] as const) {
+  it('is taller for the device cards than for the editors', () => {
+    for (const slot of ['controls', 'fx', 'master', 'rack'] as const) {
       expect(dockMinPx(slot)).toBe(DOCK_FX_MIN_PX);
     }
-    for (const slot of ['controls', 'piano-roll', 'prism'] as const) {
+    for (const slot of ['piano-roll', 'prism', 'grooves'] as const) {
       expect(dockMinPx(slot)).toBe(DOCK_MIN_PX);
     }
   });

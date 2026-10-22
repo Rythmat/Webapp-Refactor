@@ -39,7 +39,10 @@ if (!dir) {
   );
   process.exit(1);
 }
-const OUT = new URL('../../src/learn/fingering/handPoseArt.ts', import.meta.url);
+const OUT = new URL(
+  '../../src/learn/fingering/handPoseArt.ts',
+  import.meta.url,
+);
 
 /** Units to a white key in the output. */
 const KEY = 100;
@@ -71,58 +74,547 @@ const SEVENTH = [
 ];
 
 const CATALOG = {
-  'LH 12.svg': { hand: 'lh', plays: [1, 2], tips: { 5: [218, 491], 4: [454, 367], 3: [663, 307], 2: [956, 67], 1: [1244, 518] } },
-  'LH 123.svg': { hand: 'lh', plays: [1, 2, 3], tips: { 5: [120, 600], 4: [372, 374], 3: [638, 39], 2: [918, 157], 1: [1208, 630] } },
-  'LH 123_.svg': { hand: 'lh', plays: [1, 2, 3], tips: { 5: [196, 832], 4: [414, 471], 3: [513, 46], 2: [848, 118], 1: [1221, 522] } },
-  'LH 1234_1 or 5-1.svg': { hand: 'lh', plays: [1, 2, 3, 4, 5], uses: [[1, 2, 3, 4], [1, 5]], tips: { 5: [89, 530], 4: [458, 88], 3: [679, 61], 2: [992, 224], 1: [1258, 679] } },
-  'LH 5432.svg': { hand: 'lh', plays: [2, 3, 4, 5], tips: { 5: [131, 316], 4: [465, 94], 3: [726, 64], 2: [1023, 180], 1: [1293, 910] } },
-  'LH.svg': { hand: 'lh', plays: [2, 3, 4, 5], tips: { 5: [98, 349], 4: [449, 89], 3: [676, 65], 2: [1084, 298], 1: [1261, 718] } },
-  'LH 54321.svg': { hand: 'lh', plays: [1, 2, 3, 4, 5], neutral: true, tips: { 5: [67, 473], 4: [311, 228], 3: [530, 168], 2: [798, 259], 1: [1066, 628] } },
-  'LH 54321_1.svg': { hand: 'lh', plays: [1, 2, 3, 4, 5], neutral: true, tips: { 5: [60, 438], 4: [335, 236], 3: [527, 217], 2: [805, 333], 1: [1064, 749] } },
-  'LH 1357 3579_.svg': { hand: 'lh', plays: [1, 2, 3, 4, 5], uses: SEVENTH, tips: { 5: [34, 469], 4: [364, 186], 3: [557, 14], 2: [885, 188], 1: [1311, 663] } },
-  'LH 3579 or 1357.svg': { hand: 'lh', plays: [1, 2, 3, 4, 5], uses: SEVENTH, tips: { 5: [93, 461], 4: [405, 210], 3: [624, 32], 2: [898, 192], 1: [1309, 641] } },
-  'LH 7935_.svg': { hand: 'lh', plays: [1, 2, 3, 4, 5], uses: SEVENTH, tips: { 5: [78, 520], 4: [264, 171], 3: [472, 232], 2: [668, 276], 1: [1065, 786] } },
-  'LH 7th chord.svg': { hand: 'lh', plays: [1, 2, 3, 4, 5], uses: SEVENTH, tips: { 5: [205, 326], 4: [444, 26], 3: [718, 103], 2: [941, 224], 1: [1289, 788] } },
-  'LH 7th chord_2.svg': { hand: 'lh', plays: [1, 2, 3, 4, 5], uses: [...SEVENTH, [1, 3, 5], [1, 4, 5]], tips: { 5: [147, 467], 4: [275, 154], 3: [496, 64], 2: [905, 125], 1: [1384, 699] } },
-  'LH wide interval_.svg': { hand: 'lh', plays: [1, 2, 3, 4, 5], uses: [[1, 5]], span: [5, 1, 7], tips: { 5: [116, 572], 4: [321, 176], 3: [539, 32], 2: [831, 74], 1: [1389, 800] } },
-  'LH 7935 7th chord.svg': { hand: 'lh', plays: [1, 2, 3, 5], tips: { 5: [307, 138], 4: [467, 390], 3: [676, 63], 2: [922, 122], 1: [1287, 608] } },
-  'LH 7935_2.svg': { hand: 'lh', plays: [1, 2, 3, 5], tips: { 5: [227, 288], 4: [462, 468], 3: [643, 101], 2: [865, 62], 1: [1313, 527] } },
-  'LH root position triad 135.svg': { hand: 'lh', plays: [1, 3, 5], tips: { 5: [142, 268], 4: [390, 509], 3: [606, 50], 2: [892, 447], 1: [1252, 560] } },
-  'LH 2nd inversion triad.svg': { hand: 'lh', plays: [1, 2, 5], tips: { 5: [249, 245], 4: [452, 478], 2: [852, 91], 1: [1239, 517] } },
-  'LH 3-7-9.svg': { hand: 'lh', plays: [1, 2, 5], tips: { 5: [190, 119], 4: [529, 398], 3: [753, 381], 2: [956, 154], 1: [1375, 547] } },
-  'LH 7-3-13 or 3-6-9.svg': { hand: 'lh', plays: [1, 2, 5], tips: { 5: [237, 199], 4: [575, 419], 3: [780, 400], 2: [950, 115], 1: [1341, 584] } },
-  'LH 7-3-13_.svg': { hand: 'lh', plays: [1, 2, 5], tips: { 5: [104, 385], 3: [636, 509], 2: [763, 49], 1: [1262, 559] } },
-  'LH 7-3-5 or 5-1-2_.svg': { hand: 'lh', plays: [1, 2, 5], tips: { 5: [393, 206], 3: [787, 429], 2: [954, 93], 1: [1361, 529] } },
-  'LH 735 or 7-3-13.svg': { hand: 'lh', plays: [1, 2, 5], tips: { 5: [133, 225], 4: [428, 469], 3: [659, 415], 2: [841, 71], 1: [1278, 546] } },
-  'LH power chord 1-5-8.svg': { hand: 'lh', plays: [1, 2, 5], span: [5, 1, 7], tips: { 5: [49, 628], 4: [228, 290], 3: [405, 179], 2: [679, 270], 1: [1057, 805] } },
-  'LH sus4.svg': { hand: 'lh', plays: [1, 2, 5], tips: { 5: [389, 112], 4: [530, 386], 3: [709, 388], 2: [928, 93], 1: [1278, 568] } },
-  'LH r.svg': { hand: 'lh', plays: [1, 2, 4], tips: { 5: [74, 601], 4: [355, 236], 3: [539, 413], 2: [771, 273], 1: [1062, 710] } },
-  'LH sus2.svg': { hand: 'lh', plays: [1, 3, 4], tips: { 5: [174, 627], 4: [366, 233], 3: [554, 211], 2: [811, 642], 1: [1073, 672] } },
-  'LH sus2_2.svg': { hand: 'lh', plays: [1, 3, 4], tips: { 5: [142, 697], 4: [311, 233], 3: [538, 191], 2: [760, 721], 1: [1066, 648] } },
-  'LH octave.svg': { hand: 'lh', plays: [1, 5], span: [5, 1, 7], tips: { 5: [90, 186], 4: [474, 345], 3: [670, 265], 2: [914, 254], 1: [1406, 422] } },
+  'LH 12.svg': {
+    hand: 'lh',
+    plays: [1, 2],
+    tips: {
+      5: [218, 491],
+      4: [454, 367],
+      3: [663, 307],
+      2: [956, 67],
+      1: [1244, 518],
+    },
+  },
+  'LH 123.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3],
+    tips: {
+      5: [120, 600],
+      4: [372, 374],
+      3: [638, 39],
+      2: [918, 157],
+      1: [1208, 630],
+    },
+  },
+  'LH 123_.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3],
+    tips: {
+      5: [196, 832],
+      4: [414, 471],
+      3: [513, 46],
+      2: [848, 118],
+      1: [1221, 522],
+    },
+  },
+  'LH 1234_1 or 5-1.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3, 4, 5],
+    uses: [
+      [1, 2, 3, 4],
+      [1, 5],
+    ],
+    tips: {
+      5: [89, 530],
+      4: [458, 88],
+      3: [679, 61],
+      2: [992, 224],
+      1: [1258, 679],
+    },
+  },
+  'LH 5432.svg': {
+    hand: 'lh',
+    plays: [2, 3, 4, 5],
+    tips: {
+      5: [131, 316],
+      4: [465, 94],
+      3: [726, 64],
+      2: [1023, 180],
+      1: [1293, 910],
+    },
+  },
+  'LH.svg': {
+    hand: 'lh',
+    plays: [2, 3, 4, 5],
+    tips: {
+      5: [98, 349],
+      4: [449, 89],
+      3: [676, 65],
+      2: [1084, 298],
+      1: [1261, 718],
+    },
+  },
+  'LH 54321.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3, 4, 5],
+    neutral: true,
+    tips: {
+      5: [67, 473],
+      4: [311, 228],
+      3: [530, 168],
+      2: [798, 259],
+      1: [1066, 628],
+    },
+  },
+  'LH 54321_1.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3, 4, 5],
+    neutral: true,
+    tips: {
+      5: [60, 438],
+      4: [335, 236],
+      3: [527, 217],
+      2: [805, 333],
+      1: [1064, 749],
+    },
+  },
+  'LH 1357 3579_.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3, 4, 5],
+    uses: SEVENTH,
+    tips: {
+      5: [34, 469],
+      4: [364, 186],
+      3: [557, 14],
+      2: [885, 188],
+      1: [1311, 663],
+    },
+  },
+  'LH 3579 or 1357.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3, 4, 5],
+    uses: SEVENTH,
+    tips: {
+      5: [93, 461],
+      4: [405, 210],
+      3: [624, 32],
+      2: [898, 192],
+      1: [1309, 641],
+    },
+  },
+  'LH 7935_.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3, 4, 5],
+    uses: SEVENTH,
+    tips: {
+      5: [78, 520],
+      4: [264, 171],
+      3: [472, 232],
+      2: [668, 276],
+      1: [1065, 786],
+    },
+  },
+  'LH 7th chord.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3, 4, 5],
+    uses: SEVENTH,
+    tips: {
+      5: [205, 326],
+      4: [444, 26],
+      3: [718, 103],
+      2: [941, 224],
+      1: [1289, 788],
+    },
+  },
+  'LH 7th chord_2.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3, 4, 5],
+    uses: [...SEVENTH, [1, 3, 5], [1, 4, 5]],
+    tips: {
+      5: [147, 467],
+      4: [275, 154],
+      3: [496, 64],
+      2: [905, 125],
+      1: [1384, 699],
+    },
+  },
+  'LH wide interval_.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3, 4, 5],
+    uses: [[1, 5]],
+    span: [5, 1, 7],
+    tips: {
+      5: [116, 572],
+      4: [321, 176],
+      3: [539, 32],
+      2: [831, 74],
+      1: [1389, 800],
+    },
+  },
+  'LH 7935 7th chord.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3, 5],
+    tips: {
+      5: [307, 138],
+      4: [467, 390],
+      3: [676, 63],
+      2: [922, 122],
+      1: [1287, 608],
+    },
+  },
+  'LH 7935_2.svg': {
+    hand: 'lh',
+    plays: [1, 2, 3, 5],
+    tips: {
+      5: [227, 288],
+      4: [462, 468],
+      3: [643, 101],
+      2: [865, 62],
+      1: [1313, 527],
+    },
+  },
+  'LH root position triad 135.svg': {
+    hand: 'lh',
+    plays: [1, 3, 5],
+    tips: {
+      5: [142, 268],
+      4: [390, 509],
+      3: [606, 50],
+      2: [892, 447],
+      1: [1252, 560],
+    },
+  },
+  'LH 2nd inversion triad.svg': {
+    hand: 'lh',
+    plays: [1, 2, 5],
+    tips: { 5: [249, 245], 4: [452, 478], 2: [852, 91], 1: [1239, 517] },
+  },
+  'LH 3-7-9.svg': {
+    hand: 'lh',
+    plays: [1, 2, 5],
+    tips: {
+      5: [190, 119],
+      4: [529, 398],
+      3: [753, 381],
+      2: [956, 154],
+      1: [1375, 547],
+    },
+  },
+  'LH 7-3-13 or 3-6-9.svg': {
+    hand: 'lh',
+    plays: [1, 2, 5],
+    tips: {
+      5: [237, 199],
+      4: [575, 419],
+      3: [780, 400],
+      2: [950, 115],
+      1: [1341, 584],
+    },
+  },
+  'LH 7-3-13_.svg': {
+    hand: 'lh',
+    plays: [1, 2, 5],
+    tips: { 5: [104, 385], 3: [636, 509], 2: [763, 49], 1: [1262, 559] },
+  },
+  'LH 7-3-5 or 5-1-2_.svg': {
+    hand: 'lh',
+    plays: [1, 2, 5],
+    tips: { 5: [393, 206], 3: [787, 429], 2: [954, 93], 1: [1361, 529] },
+  },
+  'LH 735 or 7-3-13.svg': {
+    hand: 'lh',
+    plays: [1, 2, 5],
+    tips: {
+      5: [133, 225],
+      4: [428, 469],
+      3: [659, 415],
+      2: [841, 71],
+      1: [1278, 546],
+    },
+  },
+  'LH power chord 1-5-8.svg': {
+    hand: 'lh',
+    plays: [1, 2, 5],
+    span: [5, 1, 7],
+    tips: {
+      5: [49, 628],
+      4: [228, 290],
+      3: [405, 179],
+      2: [679, 270],
+      1: [1057, 805],
+    },
+  },
+  'LH sus4.svg': {
+    hand: 'lh',
+    plays: [1, 2, 5],
+    tips: {
+      5: [389, 112],
+      4: [530, 386],
+      3: [709, 388],
+      2: [928, 93],
+      1: [1278, 568],
+    },
+  },
+  'LH r.svg': {
+    hand: 'lh',
+    plays: [1, 2, 4],
+    tips: {
+      5: [74, 601],
+      4: [355, 236],
+      3: [539, 413],
+      2: [771, 273],
+      1: [1062, 710],
+    },
+  },
+  'LH sus2.svg': {
+    hand: 'lh',
+    plays: [1, 3, 4],
+    tips: {
+      5: [174, 627],
+      4: [366, 233],
+      3: [554, 211],
+      2: [811, 642],
+      1: [1073, 672],
+    },
+  },
+  'LH sus2_2.svg': {
+    hand: 'lh',
+    plays: [1, 3, 4],
+    tips: {
+      5: [142, 697],
+      4: [311, 233],
+      3: [538, 191],
+      2: [760, 721],
+      1: [1066, 648],
+    },
+  },
+  'LH octave.svg': {
+    hand: 'lh',
+    plays: [1, 5],
+    span: [5, 1, 7],
+    tips: {
+      5: [90, 186],
+      4: [474, 345],
+      3: [670, 265],
+      2: [914, 254],
+      1: [1406, 422],
+    },
+  },
 
-  'RH Thumb alone.svg': { hand: 'rh', plays: [1], tips: { 1: [149, 402], 2: [541, 82], 3: [800, 60], 4: [994, 212], 5: [1303, 523] } },
-  'RH 12.svg': { hand: 'rh', plays: [1, 2], tips: { 1: [80, 500], 2: [429, 47], 3: [743, 158], 4: [994, 301], 5: [1235, 536] } },
-  'RH 123.svg': { hand: 'rh', plays: [1, 2, 3], tips: { 1: [7, 622], 2: [415, 108], 3: [656, 1], 4: [1000, 350], 5: [1304, 577] } },
-  'RH 1234.svg': { hand: 'rh', plays: [1, 2, 3, 4], tips: { 1: [48, 623], 2: [418, 159], 3: [641, 76], 4: [892, 151], 5: [1282, 572] } },
-  'RH 12345_1.svg': { hand: 'rh', plays: [1, 2, 3, 4, 5], neutral: true, tips: { 1: [52, 531], 2: [423, 83], 3: [640, 23], 4: [856, 112], 5: [1216, 431] } },
-  'RH 12345_2.svg': { hand: 'rh', plays: [1, 2, 3, 4, 5], neutral: true, tips: { 1: [65, 643], 2: [411, 125], 3: [648, 32], 4: [892, 118], 5: [1142, 313] } },
-  'RH 234.svg': { hand: 'rh', plays: [2, 3, 4], tips: { 1: [38, 670], 2: [367, 160], 3: [642, 66], 4: [939, 154], 5: [1320, 647] } },
-  'RH 345.svg': { hand: 'rh', plays: [3, 4, 5], tips: { 1: [73, 710], 2: [270, 363], 3: [579, 25], 4: [885, 111], 5: [1161, 326] } },
-  'RH 124.svg': { hand: 'rh', plays: [1, 2, 4], span: [1, 4, 4], tips: { 1: [158, 503], 2: [536, 89], 3: [749, 422], 4: [939, 72], 5: [1195, 529] } },
-  'RH root position triad Thumb Index Ring.svg': { hand: 'rh', plays: [1, 2, 4], tips: { 1: [33, 729], 2: [415, 384], 3: [639, 156], 4: [845, 417], 5: [1041, 731] } },
-  'RH sus2.svg': { hand: 'rh', plays: [1, 2, 4], tips: { 1: [130, 436], 2: [472, 94], 3: [760, 342], 4: [1021, 66], 5: [1312, 612] } },
-  'RH Root Position Triad Thumb Middle Pinky.svg': { hand: 'rh', plays: [1, 3, 5], tips: { 1: [35, 643], 2: [346, 164], 3: [532, 219], 4: [729, 129], 5: [1003, 426] } },
-  'RH 2nd inversion triad.svg': { hand: 'rh', plays: [1, 3, 5], tips: { 1: [15, 661], 2: [469, 377], 3: [655, 118], 4: [865, 607], 5: [1022, 441] } },
-  'RH power chord 158.svg': { hand: 'rh', plays: [1, 3, 5], span: [1, 5, 7], tips: { 1: [21, 661], 2: [434, 516], 3: [612, 284], 4: [769, 663], 5: [1067, 621] } },
-  'RH 1st inversion triad.svg': { hand: 'rh', plays: [1, 2, 5], tips: { 1: [62, 453], 2: [556, 21], 3: [759, 238], 4: [1002, 378], 5: [1182, 261] } },
-  'RH power chord 1-5.svg': { hand: 'rh', plays: [1, 3], span: [1, 3, 4], tips: { 1: [51, 523], 2: [597, 345], 3: [854, 92], 5: [1070, 838] } },
+  'RH Thumb alone.svg': {
+    hand: 'rh',
+    plays: [1],
+    tips: {
+      1: [149, 402],
+      2: [541, 82],
+      3: [800, 60],
+      4: [994, 212],
+      5: [1303, 523],
+    },
+  },
+  'RH 12.svg': {
+    hand: 'rh',
+    plays: [1, 2],
+    tips: {
+      1: [80, 500],
+      2: [429, 47],
+      3: [743, 158],
+      4: [994, 301],
+      5: [1235, 536],
+    },
+  },
+  'RH 123.svg': {
+    hand: 'rh',
+    plays: [1, 2, 3],
+    tips: {
+      1: [7, 622],
+      2: [415, 108],
+      3: [656, 1],
+      4: [1000, 350],
+      5: [1304, 577],
+    },
+  },
+  'RH 1234.svg': {
+    hand: 'rh',
+    plays: [1, 2, 3, 4],
+    tips: {
+      1: [48, 623],
+      2: [418, 159],
+      3: [641, 76],
+      4: [892, 151],
+      5: [1282, 572],
+    },
+  },
+  'RH 12345_1.svg': {
+    hand: 'rh',
+    plays: [1, 2, 3, 4, 5],
+    neutral: true,
+    tips: {
+      1: [52, 531],
+      2: [423, 83],
+      3: [640, 23],
+      4: [856, 112],
+      5: [1216, 431],
+    },
+  },
+  'RH 12345_2.svg': {
+    hand: 'rh',
+    plays: [1, 2, 3, 4, 5],
+    neutral: true,
+    tips: {
+      1: [65, 643],
+      2: [411, 125],
+      3: [648, 32],
+      4: [892, 118],
+      5: [1142, 313],
+    },
+  },
+  'RH 234.svg': {
+    hand: 'rh',
+    plays: [2, 3, 4],
+    tips: {
+      1: [38, 670],
+      2: [367, 160],
+      3: [642, 66],
+      4: [939, 154],
+      5: [1320, 647],
+    },
+  },
+  'RH 345.svg': {
+    hand: 'rh',
+    plays: [3, 4, 5],
+    tips: {
+      1: [73, 710],
+      2: [270, 363],
+      3: [579, 25],
+      4: [885, 111],
+      5: [1161, 326],
+    },
+  },
+  'RH 124.svg': {
+    hand: 'rh',
+    plays: [1, 2, 4],
+    span: [1, 4, 4],
+    tips: {
+      1: [158, 503],
+      2: [536, 89],
+      3: [749, 422],
+      4: [939, 72],
+      5: [1195, 529],
+    },
+  },
+  'RH root position triad Thumb Index Ring.svg': {
+    hand: 'rh',
+    plays: [1, 2, 4],
+    tips: {
+      1: [33, 729],
+      2: [415, 384],
+      3: [639, 156],
+      4: [845, 417],
+      5: [1041, 731],
+    },
+  },
+  'RH sus2.svg': {
+    hand: 'rh',
+    plays: [1, 2, 4],
+    tips: {
+      1: [130, 436],
+      2: [472, 94],
+      3: [760, 342],
+      4: [1021, 66],
+      5: [1312, 612],
+    },
+  },
+  'RH Root Position Triad Thumb Middle Pinky.svg': {
+    hand: 'rh',
+    plays: [1, 3, 5],
+    tips: {
+      1: [35, 643],
+      2: [346, 164],
+      3: [532, 219],
+      4: [729, 129],
+      5: [1003, 426],
+    },
+  },
+  'RH 2nd inversion triad.svg': {
+    hand: 'rh',
+    plays: [1, 3, 5],
+    tips: {
+      1: [15, 661],
+      2: [469, 377],
+      3: [655, 118],
+      4: [865, 607],
+      5: [1022, 441],
+    },
+  },
+  'RH power chord 158.svg': {
+    hand: 'rh',
+    plays: [1, 3, 5],
+    span: [1, 5, 7],
+    tips: {
+      1: [21, 661],
+      2: [434, 516],
+      3: [612, 284],
+      4: [769, 663],
+      5: [1067, 621],
+    },
+  },
+  'RH 1st inversion triad.svg': {
+    hand: 'rh',
+    plays: [1, 2, 5],
+    tips: {
+      1: [62, 453],
+      2: [556, 21],
+      3: [759, 238],
+      4: [1002, 378],
+      5: [1182, 261],
+    },
+  },
+  'RH power chord 1-5.svg': {
+    hand: 'rh',
+    plays: [1, 3],
+    span: [1, 3, 4],
+    tips: { 1: [51, 523], 2: [597, 345], 3: [854, 92], 5: [1070, 838] },
+  },
   // Four-note close position (root position 7ths, 3-5-7-9): one drawing a
   // shape, by which keys are black.
-  'RH_root position 7th chord white notes keys.svg': { hand: 'rh', plays: [1, 2, 4, 5], tips: { 1: [17, 619], 2: [417, 36], 3: [733, 59], 4: [945, 194], 5: [1288, 440] } },
-  'RH_white black white black 7th chord shape.svg': { hand: 'rh', plays: [1, 2, 4, 5], scale: 1.15, wash: 2.4, tips: { 1: [19, 653], 2: [344, 148], 3: [567, 335], 4: [749, 144], 5: [1054, 480] } },
-  'RH_white white black white OR black white black white 7th chord shape.svg': { hand: 'rh', plays: [1, 2, 3, 5], wash: 2.4, tips: { 1: [13, 603], 2: [434, 338], 3: [836, 152], 4: [899, 699], 5: [1074, 688] } },
-  'RH_137 voicing.svg': { hand: 'rh', plays: [1, 2, 5], tips: { 1: [25, 650], 2: [353, 328], 3: [612, 139], 4: [840, 211], 5: [1047, 538] } },
+  'RH_root position 7th chord white notes keys.svg': {
+    hand: 'rh',
+    plays: [1, 2, 4, 5],
+    tips: {
+      1: [17, 619],
+      2: [417, 36],
+      3: [733, 59],
+      4: [945, 194],
+      5: [1288, 440],
+    },
+  },
+  'RH_white black white black 7th chord shape.svg': {
+    hand: 'rh',
+    plays: [1, 2, 4, 5],
+    scale: 1.15,
+    wash: 2.4,
+    tips: {
+      1: [19, 653],
+      2: [344, 148],
+      3: [567, 335],
+      4: [749, 144],
+      5: [1054, 480],
+    },
+  },
+  'RH_white white black white OR black white black white 7th chord shape.svg': {
+    hand: 'rh',
+    plays: [1, 2, 3, 5],
+    wash: 2.4,
+    tips: {
+      1: [13, 603],
+      2: [434, 338],
+      3: [836, 152],
+      4: [899, 699],
+      5: [1074, 688],
+    },
+  },
+  'RH_137 voicing.svg': {
+    hand: 'rh',
+    plays: [1, 2, 5],
+    tips: {
+      1: [25, 650],
+      2: [353, 328],
+      3: [612, 139],
+      4: [840, 211],
+      5: [1047, 538],
+    },
+  },
 };
 
 // ── Geometry ────────────────────────────────────────────────────────────
@@ -201,7 +693,10 @@ function loopsToPath(loops) {
   let at = [0, 0];
   for (const loop of loops) {
     if (loop.length < 3) continue;
-    const pts = loop.map(([x, y]) => [Math.round(x * 10) / 10, Math.round(y * 10) / 10]);
+    const pts = loop.map(([x, y]) => [
+      Math.round(x * 10) / 10,
+      Math.round(y * 10) / 10,
+    ]);
     d += `M${fmt(pts[0][0])} ${fmt(pts[0][1])}l`;
     let prev = pts[0];
     const steps = [];
@@ -244,13 +739,22 @@ function svgLoops(svg) {
           const c1 = [num() + tx, num() + ty];
           const c2 = [num() + tx, num() + ty];
           const p = [num() + tx, num() + ty];
-          const n = Math.max(2, Math.ceil((hypot(cur, c1) + hypot(c1, c2) + hypot(c2, p)) / 3));
+          const n = Math.max(
+            2,
+            Math.ceil((hypot(cur, c1) + hypot(c1, c2) + hypot(c2, p)) / 3),
+          );
           for (let s = 1; s <= n; s++) {
             const t = s / n;
             const u = 1 - t;
             loop.push([
-              u * u * u * cur[0] + 3 * u * u * t * c1[0] + 3 * u * t * t * c2[0] + t * t * t * p[0],
-              u * u * u * cur[1] + 3 * u * u * t * c1[1] + 3 * u * t * t * c2[1] + t * t * t * p[1],
+              u * u * u * cur[0] +
+                3 * u * u * t * c1[0] +
+                3 * u * t * t * c2[0] +
+                t * t * t * p[0],
+              u * u * u * cur[1] +
+                3 * u * u * t * c1[1] +
+                3 * u * t * t * c2[1] +
+                t * t * t * p[1],
             ]);
           }
           cur = p;
@@ -301,7 +805,12 @@ function dilate(mask, W, H, r) {
 const neighbours = (i, W, H) => {
   const x = i % W;
   const y = (i / W) | 0;
-  return [x > 0 ? i - 1 : -1, x < W - 1 ? i + 1 : -1, y > 0 ? i - W : -1, y < H - 1 ? i + W : -1];
+  return [
+    x > 0 ? i - 1 : -1,
+    x < W - 1 ? i + 1 : -1,
+    y > 0 ? i - W : -1,
+    y < H - 1 ? i + W : -1,
+  ];
 };
 
 /**
@@ -322,7 +831,8 @@ function silhouetteAt(ink, W, H, r) {
   mx /= mn;
   const lowest = (side) => {
     for (let y = H - 1; y >= 0; y--)
-      for (let x = 0; x < W; x++) if (ink[y * W + x] && (side < 0 ? x < mx : x > mx)) return [x, y];
+      for (let x = 0; x < W; x++)
+        if (ink[y * W + x] && (side < 0 ? x < mx : x > mx)) return [x, y];
     return null;
   };
   const a = lowest(-1);
@@ -353,7 +863,8 @@ function silhouetteAt(ink, W, H, r) {
     seed(y * W);
     seed(y * W + W - 1);
   }
-  while (stack.length) for (const j of neighbours(stack.pop(), W, H)) if (j >= 0) seed(j);
+  while (stack.length)
+    for (const j of neighbours(stack.pop(), W, H)) if (j >= 0) seed(j);
   const inkish = dilate(ink, W, H, 1);
   let front = [];
   for (let i = 0; i < W * H; i++) if (out[i]) front.push(i);
@@ -398,7 +909,8 @@ function largest(mask, W, H) {
     id++;
   }
   const out = new Uint8Array(W * H);
-  if (best >= 0) for (let i = 0; i < W * H; i++) out[i] = comp[i] === best ? 1 : 0;
+  if (best >= 0)
+    for (let i = 0; i < W * H; i++) out[i] = comp[i] === best ? 1 : 0;
   return { mask: out, area: bestN };
 }
 
@@ -432,7 +944,14 @@ function trace(mask, W, H) {
   for (let i = 0; i < W * H && start < 0; i++) if (mask[i]) start = i;
   if (start < 0) return [];
   const dirs = [
-    [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1],
+    [1, 0],
+    [1, 1],
+    [0, 1],
+    [-1, 1],
+    [-1, 0],
+    [-1, -1],
+    [0, -1],
+    [1, -1],
   ];
   const sx = start % W;
   const sy = (start / W) | 0;
@@ -499,7 +1018,8 @@ function measureFinger(near, img, sil, outline) {
       for (let s = 1; s < RASTER * 0.12; s++) {
         const x = ax - uy * s * sgn;
         const y = ay + ux * s * sgn;
-        if (!inside(x, y) || (s > 3 && ink[Math.round(y) * W + Math.round(x)])) return s;
+        if (!inside(x, y) || (s > 3 && ink[Math.round(y) * W + Math.round(x)]))
+          return s;
       }
       return RASTER * 0.12;
     };
@@ -509,7 +1029,13 @@ function measureFinger(near, img, sil, outline) {
   for (let f = 0.8; f <= 2.2; f += 0.2) widths.push(across(rho * f));
   widths.sort((a, b) => a - b);
   const width = widths[Math.floor(widths.length * 0.5)];
-  return { P, at, axis: [ux, uy], width, tip: [P[0] + (ux * width) / 2, P[1] + (uy * width) / 2] };
+  return {
+    P,
+    at,
+    axis: [ux, uy],
+    width,
+    tip: [P[0] + (ux * width) / 2, P[1] + (uy * width) / 2],
+  };
 }
 
 /**
@@ -555,7 +1081,8 @@ function washFinger(fp, img, sil, base) {
   };
   // Below the base, on the far side from the tip.
   const [b0, b1] = base;
-  const side = (x, y) => (b1[0] - b0[0]) * (y - b0[1]) - (b1[1] - b0[1]) * (x - b0[0]);
+  const side = (x, y) =>
+    (b1[0] - b0[0]) * (y - b0[1]) - (b1[1] - b0[1]) * (x - b0[0]);
   const tipSide = Math.sign(side(P[0], P[1]));
   const above = (x, y) => Math.sign(side(x, y)) === tipSide;
   const ok = (i) => {
@@ -630,7 +1157,12 @@ function baseOf(f, order, fingers, webs, least = 1.5) {
     ];
   }
   const webs2 = [vl, vr].filter(ok);
-  const d = webs2.length ? along(webs2[0]) : Math.min(width * 3.2, Math.max(width * least, ...[vl, vr].filter(Boolean).map(along)));
+  const d = webs2.length
+    ? along(webs2[0])
+    : Math.min(
+        width * 3.2,
+        Math.max(width * least, ...[vl, vr].filter(Boolean).map(along)),
+      );
   return across(d);
 }
 
@@ -640,26 +1172,39 @@ const files = readdirSync(dir).filter((f) => f.endsWith('.svg'));
 const missing = Object.keys(CATALOG).filter((f) => !files.includes(f));
 if (missing.length) throw new Error(`not in ${dir}: ${missing.join(', ')}`);
 const extra = files.filter((f) => !CATALOG[f]);
-if (extra.length) console.warn(`not in the catalog, skipped: ${extra.join(', ')}`);
+if (extra.length)
+  console.warn(`not in the catalog, skipped: ${extra.join(', ')}`);
 
 const built = [];
 for (const [file, entry] of Object.entries(CATALOG)) {
   const svg = readFileSync(join(dir, file), 'utf8');
-  const vb = /viewBox="([^"]+)"/.exec(svg)[1].split(/[\s,]+/).map(Number);
+  const vb = /viewBox="([^"]+)"/
+    .exec(svg)[1]
+    .split(/[\s,]+/)
+    .map(Number);
   const [, , vw, vh] = vb;
   const img = await raster(svg, vw, vh);
   const { mask: sil, r } = silhouette(img.ink, img.W, img.H);
   const outline = trace(sil, img.W, img.H);
   const fingers = {};
   for (const [f, at] of Object.entries(entry.tips))
-    fingers[f] = measureFinger([at[0] * img.k, at[1] * img.k], img, sil, outline);
+    fingers[f] = measureFinger(
+      [at[0] * img.k, at[1] * img.k],
+      img,
+      sil,
+      outline,
+    );
   for (const f of entry.plays)
-    if (!fingers[f]) throw new Error(`${file}: finger ${f} plays but has no tip`);
+    if (!fingers[f])
+      throw new Error(`${file}: finger ${f} plays but has no tip`);
   for (const use of entry.uses ?? [])
     for (const f of use)
-      if (!entry.plays.includes(f)) throw new Error(`${file}: uses ${f}, which it doesn't play`);
+      if (!entry.plays.includes(f))
+        throw new Error(`${file}: uses ${f}, which it doesn't play`);
   // Left to right as drawn, and the web between each pair.
-  const order = (entry.hand === 'lh' ? [5, 4, 3, 2, 1] : [1, 2, 3, 4, 5]).filter((f) => fingers[f]);
+  const order = (
+    entry.hand === 'lh' ? [5, 4, 3, 2, 1] : [1, 2, 3, 4, 5]
+  ).filter((f) => fingers[f]);
   const webs = new Map();
   for (let i = 0; i + 1 < order.length; i++)
     webs.set(
@@ -667,21 +1212,40 @@ for (const [file, entry] of Object.entries(CATALOG)) {
       valley(outline, fingers[order[i]].at, fingers[order[i + 1]].at),
     );
   for (const f of entry.plays) {
-    fingers[f].wash = washFinger(fingers[f], img, sil, baseOf(f, order, fingers, webs, entry.wash));
-    if (!fingers[f].wash.some(Boolean)) throw new Error(`${file}: finger ${f} has no inside`);
+    fingers[f].wash = washFinger(
+      fingers[f],
+      img,
+      sil,
+      baseOf(f, order, fingers, webs, entry.wash),
+    );
+    if (!fingers[f].wash.some(Boolean))
+      throw new Error(`${file}: finger ${f} has no inside`);
   }
   // Its size: across its knuckles, from the web of 2 and 3 to the web of 4
   // and 5; where a curled finger hides a web, its fingers' width.
   const w23 = webs.get(entry.hand === 'lh' ? '3|2' : '2|3');
   const w45 = webs.get(entry.hand === 'lh' ? '5|4' : '4|5');
   const knuckles = w23 && w45 ? hypot(w23, w45) / img.k : null;
-  const measured = entry.plays.filter((f) => f !== 1).map((f) => fingers[f].width);
+  const measured = entry.plays
+    .filter((f) => f !== 1)
+    .map((f) => fingers[f].width);
   const all = Object.entries(fingers)
     .filter(([f]) => f !== '1')
     .map(([, v]) => v.width);
   const ws = (measured.length ? measured : all).sort((x, y) => x - y);
   const fingerWidth = ws[Math.floor(ws.length / 2)] / img.k;
-  built.push({ file, entry, img, sil, r, outline, fingers, fingerWidth, knuckles, webs });
+  built.push({
+    file,
+    entry,
+    img,
+    sil,
+    r,
+    outline,
+    fingers,
+    fingerWidth,
+    knuckles,
+    webs,
+  });
 }
 
 // A white key in each drawing's units. The five-finger drawings' tips (2 to
@@ -695,7 +1259,8 @@ const SIZE = 0.92;
 /** How much bigger a drawing of a reach may be drawn to make it. */
 const REACH_GROWTH = 1.25;
 const neutral = built.filter((b) => b.entry.neutral);
-const keyOf = (b) => Math.abs(b.fingers[5].tip[0] - b.fingers[2].tip[0]) / b.img.k / 3;
+const keyOf = (b) =>
+  Math.abs(b.fingers[5].tip[0] - b.fingers[2].tip[0]) / b.img.k / 3;
 const mean = (xs) => xs.reduce((s, x) => s + x, 0) / xs.length;
 const perKnuckles = mean(neutral.map((b) => b.knuckles / keyOf(b))) * SIZE;
 const perFinger = mean(neutral.map((b) => b.fingerWidth / keyOf(b))) * SIZE;
@@ -708,7 +1273,9 @@ const poses = built.map((b) => {
   // be a giant's hand); times any correction the catalog gives.
   const bySize = knuckles ? knuckles / perKnuckles : fingerWidth / perFinger;
   const byReach = entry.span
-    ? Math.abs(fingers[entry.span[1]].tip[0] - fingers[entry.span[0]].tip[0]) / img.k / entry.span[2]
+    ? Math.abs(fingers[entry.span[1]].tip[0] - fingers[entry.span[0]].tip[0]) /
+      img.k /
+      entry.span[2]
     : bySize;
   const unit = Math.max(byReach, bySize / REACH_GROWTH) * (entry.scale ?? 1);
   const s = KEY / unit;
@@ -758,10 +1325,14 @@ const poses = built.map((b) => {
           if (on)
             end = Math.max(
               end,
-              ((i % img.W) - v.P[0]) * v.axis[0] + (((i / img.W) | 0) - v.P[1]) * v.axis[1],
+              ((i % img.W) - v.P[0]) * v.axis[0] +
+                (((i / img.W) | 0) - v.P[1]) * v.axis[1],
             );
         });
-        const [rx, ry] = px([v.P[0] + v.axis[0] * end, v.P[1] + v.axis[1] * end]);
+        const [rx, ry] = px([
+          v.P[0] + v.axis[0] * end,
+          v.P[1] + v.axis[1] * end,
+        ]);
         const r1 = (n) => Math.round(n * 10) / 10;
         return [
           f,
@@ -774,7 +1345,9 @@ const poses = built.map((b) => {
       }),
     ),
     // Every finger's tip, playing or not, for review.
-    allTips: Object.fromEntries(Object.entries(fingers).map(([f, v]) => [f, px(v.tip)])),
+    allTips: Object.fromEntries(
+      Object.entries(fingers).map(([f, v]) => [f, px(v.tip)]),
+    ),
     webs: Object.fromEntries([...b.webs].map(([k, v]) => [k, px(v)])),
   };
 });

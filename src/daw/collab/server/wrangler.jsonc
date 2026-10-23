@@ -8,45 +8,40 @@
 //   npx wrangler secret put <NAME> --config src/daw/collab/server/wrangler.jsonc
 // and, for `collab:dev`, in a git-ignored .dev.vars next to this file.
 {
-	"$schema": "../../../../node_modules/wrangler/config-schema.json",
-	"name": "music-atlas-collab",
-	"main": "index.ts",
-	"compatibility_date": "2026-10-01",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"durable_objects": {
-		"bindings": [
-			{
-				"name": "Main",
-				"class_name": "CollabServer"
-			},
-			{
-				"name": "ClassroomSession",
-				"class_name": "ClassroomSessionServer"
-			},
-		],
-	},
-	// Wrangler doesn't create Durable Object migrations: add an entry whenever a
-	// server class is added, renamed or removed.
-	"migrations": [
-		{
-			"tag": "v1",
-			"new_sqlite_classes": [
-				"CollabServer",
-				"ClassroomSessionServer"
-			],
-		},
-	],
-	"observability": {
-		"enabled": false
-	},
-	"dev": {
-		"port": 1999
-	},
-	"vars": {
-		"AUTH0_AUDIENCE": "https://api.musicatlas.io",
-		"AUTH0_DOMAIN": "dev-x2yqy4esrjckwanh.us.auth0.com",
-		"MUSIC_ATLAS_API_URL": "https://music-atlas-api.vercel.app"
-	},
+  "$schema": "../../../../node_modules/wrangler/config-schema.json",
+  "name": "music-atlas-collab",
+  "main": "index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "Main",
+        "class_name": "CollabServer",
+      },
+      {
+        "name": "ClassroomSession",
+        "class_name": "ClassroomSessionServer",
+      },
+    ],
+  },
+  // Wrangler doesn't create Durable Object migrations: add an entry whenever a
+  // server class is added, renamed or removed.
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["CollabServer", "ClassroomSessionServer"],
+    },
+  ],
+  "observability": {
+    "enabled": false,
+  },
+  "dev": {
+    "port": 1999,
+  },
+  "vars": {
+    "AUTH0_AUDIENCE": "https://api.musicatlas.io",
+    "AUTH0_DOMAIN": "dev-x2yqy4esrjckwanh.us.auth0.com",
+    "MUSIC_ATLAS_API_URL": "https://music-atlas-api.vercel.app",
+  },
 }

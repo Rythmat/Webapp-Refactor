@@ -14,19 +14,20 @@ export type NavItemProps = {
   activePaths?: string[];
   /** Lucide component icon; ignored when `iconSrc` is set. */
   icon?: LucideIcon;
-  /** Path to an SVG/PNG (e.g. `/icons/learn-icon.svg`). Takes precedence over `icon`. */
+  /**
+   * Path to a one-color SVG (e.g. `/icons/learn-icon.svg`). Takes precedence
+   * over `icon`. Drawn as a mask so it takes the row's text color.
+   */
   iconSrc?: string;
   label: string;
-  /** 'dim' fades the row (used for the sidebar's system group). */
+  /** 'dim' is the sidebar's bottom group: shorter rows, like Suno's. */
   variant?: 'default' | 'dim';
-  /** Wrap the icon in a subtle bordered chip (used for Search per the reference). */
-  chip?: boolean;
   /** Renders as an <a> instead of a <NavLink> — used for mailto:/https: targets. */
   external?: boolean;
   comingSoon?: boolean;
-  /** Reserved for the legacy admin sidebar; when true the item hides its label. */
+  /** Icons only (the default: the rail stays collapsed); false shows labels. */
   isCollapsed?: boolean;
-  /** Override the auto-computed icon glyph size (Tailwind classes, e.g. 'h-6 w-6'). */
+  /** Override the icon glyph size (Tailwind classes). */
   glyphClassName?: string;
   /**
    * Whether the item is the current one, decided by the caller rather than by
@@ -37,6 +38,14 @@ export type NavItemProps = {
   active?: boolean;
 };
 
+/** Suno's sidebar icon size; lucide glyphs fill it edge to edge. */
+export const SIDEBAR_GLYPH = 'size-[18px]';
+/**
+ * The /icons SVGs leave ~20% of their box empty, so they draw 2px larger to
+ * sit at the same optical size as the 18px lucide glyphs.
+ */
+const MASK_GLYPH = 'size-5';
+
 export const isRouteActive = (currentPath: string, targetPath: string) => {
   if (targetPath === '/') return currentPath === '/';
   return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
@@ -44,6 +53,8 @@ export const isRouteActive = (currentPath: string, targetPath: string) => {
 
 export function SidebarMainNavItem(props: NavItemProps) {
   const location = useLocation();
+  // The rail stays collapsed (icons, names in tooltips) unless told not to.
+  const collapsed = props.isCollapsed ?? true;
   const active =
     props.active ??
     (!props.external &&
@@ -51,68 +62,58 @@ export function SidebarMainNavItem(props: NavItemProps) {
         (props.activePaths?.some((p) => isRouteActive(location.pathname, p)) ??
           false)));
   const Icon = props.icon;
-  const dim = props.variant === 'dim';
-
-  const glyphSizeClass =
-    props.glyphClassName ??
-    (props.chip
-      ? props.isCollapsed
-        ? 'h-4 w-4'
-        : 'h-4 w-4 md:h-5 md:w-5'
-      : props.isCollapsed
-        ? 'h-5 w-5'
-        : 'h-5 w-5 md:h-6 md:w-6');
 
   const glyph = props.iconSrc ? (
-    <img
-      src={props.iconSrc}
-      alt=""
-      draggable={false}
-      className={glyphSizeClass}
+    <span
+      aria-hidden
+      className={cn('shrink-0 bg-current', props.glyphClassName ?? MASK_GLYPH)}
+      style={{
+        maskImage: `url(${props.iconSrc})`,
+        WebkitMaskImage: `url(${props.iconSrc})`,
+        maskSize: 'contain',
+        WebkitMaskSize: 'contain',
+        maskRepeat: 'no-repeat',
+        WebkitMaskRepeat: 'no-repeat',
+        maskPosition: 'center',
+        WebkitMaskPosition: 'center',
+      }}
     />
   ) : Icon ? (
-    <Icon className={glyphSizeClass} />
+    <Icon className={cn('shrink-0', props.glyphClassName ?? SIDEBAR_GLYPH)} />
   ) : null;
 
-  const iconEl = props.chip ? (
-    <span
-      className={cn(
-        'flex items-center justify-center rounded-md border border-white/15',
-        props.isCollapsed ? 'size-7' : 'size-7 md:size-8',
-      )}
-    >
-      {glyph}
-    </span>
-  ) : (
-    <span
-      className={cn(
-        'flex items-center justify-center',
-        props.isCollapsed ? 'size-7' : 'size-6 md:size-7',
-      )}
-    >
-      {glyph}
-    </span>
-  );
-
+  // Suno's rows: a full-width pill, 16px in, the 18px icon then the label 12px
+  // after it. The icon never moves when the sidebar collapses; the label just
+  // clips away with the width.
   const rowClasses = cn(
-    'group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4',
-    props.isCollapsed ? 'px-0' : 'px-3',
-    'focus-visible:ring-2 focus-visible:ring-white/40',
-    active ? 'bg-white/5 text-white' : dim ? 'text-white/60' : 'text-white/85',
-    !active && (dim ? 'hover:text-white/85' : 'hover:text-white'),
-    !active && 'hover:bg-white/5',
+    'flex items-center gap-3 overflow-hidden whitespace-nowrap rounded-full px-4 text-sm outline-none transition-colors duration-75',
+    props.variant === 'dim' ? 'h-10' : 'h-12',
+    'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/40',
+    active
+      ? 'bg-white/10 text-white'
+      : 'text-[#a3a3a3] hover:bg-white/[0.04] hover:text-white',
     props.comingSoon && 'pointer-events-none opacity-60',
-    props.isCollapsed && 'justify-center',
   );
 
-  const labelEl = !props.isCollapsed && (
-    <span className="truncate text-[15px] font-medium md:text-base">
+  const iconEl = (
+    <span className="flex size-[18px] shrink-0 items-center justify-center">
+      {glyph}
+    </span>
+  );
+  const labelEl = (
+    <span
+      aria-hidden={collapsed || undefined}
+      className={cn(
+        'truncate transition-opacity duration-200',
+        collapsed && 'opacity-0',
+      )}
+    >
       {props.label}
     </span>
   );
-  // Collapsed, the row shows only its icon (hidden from assistive tech) and
-  // a tooltip that is not tied to the link, so the link carries its name.
-  const name = props.isCollapsed ? props.label : undefined;
+  // Collapsed, the row shows only its icon and a tooltip that is not tied to
+  // the link, so the link carries its name.
+  const name = collapsed ? props.label : undefined;
 
   const link = props.external ? (
     <a
@@ -144,7 +145,7 @@ export function SidebarMainNavItem(props: NavItemProps) {
 
   return (
     <li>
-      {props.isCollapsed ? (
+      {collapsed ? (
         <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>{link}</TooltipTrigger>

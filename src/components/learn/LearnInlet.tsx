@@ -49,6 +49,7 @@ import { LearnHome } from './LearnHome';
 import { LearnTabBar } from './LearnTabBar';
 import { StartHere } from './StartHere';
 import { WorldHarmony } from './WorldHarmony';
+import { GENRE_COURSES } from './genreCourses';
 import {
   COMING_SOON_FOR_GUITAR,
   guitarLessonRoute,
@@ -362,120 +363,15 @@ function buildGenreLevels(genreSlug: string): ContentSubItem[] {
   }));
 }
 
-const COURSES_DATA: ContentItem[] = [
-  {
-    title: 'Pop',
-    route: CurriculumRoutes.genre({ genre: 'pop' }),
-    expandId: 'course:pop',
-    subItems: buildGenreLevels('pop'),
-    image: '/learn-tiles/pop.svg',
-    interactive: true,
-  },
-  {
-    title: 'Rock',
-    route: CurriculumRoutes.genre({ genre: 'rock' }),
-    expandId: 'course:rock',
-    subItems: buildGenreLevels('rock'),
-    image: '/learn-tiles/rock-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'Hip Hop',
-    route: CurriculumRoutes.genre({ genre: 'hip-hop' }),
-    expandId: 'course:hip hop',
-    subItems: buildGenreLevels('hip-hop'),
-    image: '/learn-tiles/hip-hop-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'R&B',
-    route: CurriculumRoutes.genre({ genre: 'rnb' }),
-    expandId: 'course:rnb',
-    subItems: buildGenreLevels('rnb'),
-    image: '/learn-tiles/r-and-b-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'Jazz',
-    route: CurriculumRoutes.genre({ genre: 'jazz' }),
-    expandId: 'course:jazz',
-    subItems: buildGenreLevels('jazz'),
-    image: '/learn-tiles/jazz-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'Blues',
-    route: CurriculumRoutes.genre({ genre: 'blues' }),
-    expandId: 'course:blues',
-    subItems: buildGenreLevels('blues'),
-    image: '/learn-tiles/blues-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'Folk',
-    route: CurriculumRoutes.genre({ genre: 'folk' }),
-    expandId: 'course:folk',
-    subItems: buildGenreLevels('folk'),
-    image: '/learn-tiles/folk-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'Funk',
-    route: CurriculumRoutes.genre({ genre: 'funk' }),
-    expandId: 'course:funk',
-    subItems: buildGenreLevels('funk'),
-    image: '/learn-tiles/funk-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'Neo Soul',
-    route: CurriculumRoutes.genre({ genre: 'neo-soul' }),
-    expandId: 'course:neo-soul',
-    subItems: buildGenreLevels('neo-soul'),
-    image: '/learn-tiles/neo-soul-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'Electronic',
-    route: CurriculumRoutes.genre({ genre: 'electronic' }),
-    expandId: 'course:electronic',
-    subItems: buildGenreLevels('electronic'),
-    image: '/learn-tiles/electronic-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'Latin',
-    route: CurriculumRoutes.genre({ genre: 'latin' }),
-    expandId: 'course:latin',
-    subItems: buildGenreLevels('latin'),
-    image: '/learn-tiles/latin-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'Reggae',
-    route: CurriculumRoutes.genre({ genre: 'reggae' }),
-    expandId: 'course:reggae',
-    subItems: buildGenreLevels('reggae'),
-    image: '/learn-tiles/reggae-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'Jam Band',
-    route: CurriculumRoutes.genre({ genre: 'jam-band' }),
-    expandId: 'course:jam-band',
-    subItems: buildGenreLevels('jam-band'),
-    image: '/learn-tiles/jam-band-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'African',
-    route: CurriculumRoutes.genre({ genre: 'african' }),
-    expandId: 'course:african',
-    subItems: buildGenreLevels('african'),
-    image: '/learn-tiles/african-hex.svg',
-    interactive: true,
-  },
-];
+// The genre courses: the list Home's Catalog shares (genreCourses.ts).
+const COURSES_DATA: ContentItem[] = GENRE_COURSES.map((course) => ({
+  title: course.title,
+  route: CurriculumRoutes.genre({ genre: course.slug }),
+  expandId: course.expandId,
+  subItems: buildGenreLevels(course.slug),
+  image: course.image,
+  interactive: true,
+}));
 
 const THEORY_DATA: ContentItem[] = [
   {

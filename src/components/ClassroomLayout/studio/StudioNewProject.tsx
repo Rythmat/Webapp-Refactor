@@ -43,6 +43,8 @@ export interface ContinueTarget {
   /** Where the tile goes: the plain editor, or `?draft=<id>`. */
   href: string;
   name: string;
+  /** When its draft was last written, when known (Home's activity rail). */
+  updatedAt?: number;
 }
 
 /** The legacy autosave's project name, when it holds a session. */
@@ -128,7 +130,11 @@ export async function findContinueTarget(
   try {
     if (live.draftId !== null && live.userKey === userKey) {
       const meta = await store.getMeta(live.draftId).catch(() => null);
-      return { href: editor, name: meta?.name?.trim() || UNTITLED };
+      return {
+        href: editor,
+        name: meta?.name?.trim() || UNTITLED,
+        updatedAt: meta?.updatedAt,
+      };
     }
     const [drafts, locked] = await Promise.all([
       store.list(userKey),
@@ -139,6 +145,7 @@ export async function findContinueTarget(
       return {
         href: `${editor}?draft=${encodeURIComponent(pick.draftId)}`,
         name: pick.name?.trim() || UNTITLED,
+        updatedAt: pick.updatedAt,
       };
     }
     if (drafts.length === 0) {

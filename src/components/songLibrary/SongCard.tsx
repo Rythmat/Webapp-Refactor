@@ -18,6 +18,9 @@ interface SongCardProps {
   /** When true, renders just the square artwork (no title/artist/actions row) —
    *  used by the compact, pinned Songs-tab marquee. Defaults to false. */
   compact?: boolean;
+  /** When false, no play button fades in over the image on hover (Home's
+   *  Songs row, owner 2026-10-23). Defaults to true. */
+  playOverlay?: boolean;
 }
 
 const ICON_SIZE = 20;
@@ -27,6 +30,7 @@ const SongCardImpl = ({
   hoverScrim = true,
   bleedOnHover = false,
   compact = false,
+  playOverlay = true,
 }: SongCardProps) => {
   const { openInLesson, openInStudio, openInGlobe, toggleSaved, isSaved } =
     useSongActions(song);
@@ -90,20 +94,28 @@ const SongCardImpl = ({
             </div>
           </>
         )}
-        <div
-          className={`absolute inset-0 flex items-center justify-center${
-            hoverScrim
-              ? ' bg-black/0 transition-colors group-hover:bg-black/30'
-              : ''
-          }`}
-        >
+        {hoverScrim || playOverlay ? (
           <div
-            className="rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"
-            style={{ width: 56, height: 56 }}
+            className={`absolute inset-0 flex items-center justify-center${
+              hoverScrim
+                ? ' bg-black/0 transition-colors group-hover:bg-black/30'
+                : ''
+            }`}
           >
-            <Play size={24} className="text-black ml-0.5" fill="currentColor" />
+            {playOverlay ? (
+              <div
+                className="rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"
+                style={{ width: 56, height: 56 }}
+              >
+                <Play
+                  size={24}
+                  className="text-black ml-0.5"
+                  fill="currentColor"
+                />
+              </div>
+            ) : null}
           </div>
-        </div>
+        ) : null}
       </div>
 
       {!compact && (

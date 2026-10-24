@@ -9,6 +9,8 @@ import { importMidiToTracks } from '@/daw/midi/importMidiToTracks';
 //   track when it fits there, else on a new track (addItem, with the song's
 //   key and tempo rules). Drag is the Library's second way in; + is the
 //   first.
+// - a Library stem or upload: a new Audio Track with it as one clip at the
+//   bar under the pointer (Suno: a song dropped on the timeline).
 // - a .mid file: a Synth track per track of the file, in one undo step, as
 //   Import MIDI file… does.
 // Nothing ever wrote the Library's drag data before 2.14, so the drop's old
@@ -53,6 +55,11 @@ export async function dropOnTimeline(
   e.preventDefault();
   const payload = payloadOf(e);
   if (payload) {
+    if (payload.kind === 'library-audio') {
+      const { addLibraryAudio } = await import('@/daw/library/addLibraryAudio');
+      await addLibraryAudio(payload.itemId, target.tick);
+      return;
+    }
     if (payload.kind !== 'library-item') return;
     // The Library's chunk is loaded: the drag started in it.
     const { dropLibraryItem } = await import(

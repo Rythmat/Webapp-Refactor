@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SongCard } from '@/components/songLibrary/SongCard';
 import { cn } from '@/components/utilities';
 import { getAllSongs, getSong } from '@/curriculum/data/songs';
@@ -33,14 +34,17 @@ const hasArtistPortrait = (song: Song): boolean =>
  * One song per unique artist (in the given list's order), keeping only artists
  * with an SVG portrait — the marquee's display requirement. Shared by both the
  * default shuffle-bag draw and the controlled (externally-filtered) mode.
+ * Artists match regardless of case and spacing ("Ace Of Base" and "Ace of
+ * Base" are one).
  */
 const dedupeByArtist = (songs: Song[]): Song[] => {
   const seen = new Set<string>();
   const out: Song[] = [];
   for (const song of songs) {
     if (!hasArtistPortrait(song)) continue;
-    if (seen.has(song.artist)) continue;
-    seen.add(song.artist);
+    const artist = song.artist.trim().replace(/\s+/g, ' ').toLowerCase();
+    if (seen.has(artist)) continue;
+    seen.add(artist);
     out.push(song);
   }
   return out;
@@ -117,10 +121,21 @@ interface SongsMarqueeProps {
    * (full cards, e.g. the Home dashboard section).
    */
   compact?: boolean;
+  /**
+   * Scrolled by hand instead of drifting (the Home page's Songs row): every
+   * artist with a portrait, one random song each (owner, 2026-10-23: no
+   * artist twice, no song without artwork), not a batch of 30, shuffled on
+   * each load, in a horizontal scroller with arrow buttons for a mouse
+   * without a sideways wheel, and no play button over a card on hover.
+   * Leaves the shuffle-bag alone. Defaults to false
+   * (the drifting ticker, e.g. Learn's Songs tab).
+   */
+  scrollable?: boolean;
 }
 
 /**
- * Shared songs marquee — a horizontal drifting carousel of SongCards.
+ * Shared songs marquee — a horizontal drifting carousel of SongCards, or with
+ * `scrollable` a strip the user scrolls by hand.
  * The parent owns the section header (icon + title + "View All" link, if any);
  * this component only renders the carousel body.
  */
@@ -128,6 +143,7 @@ export const SongsMarquee = ({
   bleed = true,
   songs: controlledSongs,
   compact = false,
+  scrollable = false,
 }: SongsMarqueeProps = {}) => {
   const isControlled = controlledSongs !== undefined;
 
@@ -135,23 +151,32 @@ export const SongsMarquee = ({
   // remainder so the next load continues through the roster (see
   // drawMarqueeBatch). Controlled mode derives its batch from the passed list
   // below and leaves the shared bag untouched.
-  const [{ batch, nextBag }] = useState(() =>
-    isControlled
-      ? { batch: [] as string[], nextBag: [] as string[] }
-      : drawMarqueeBatch(),
-  );
+  // Scrollable draws its own order: the whole library, shuffled per load.
+  const usesBag = !isControlled && !scrollable;
+  const [{ batch, nextBag }] = useState(() => {
+    if (usesBag) return drawMarqueeBatch();
+    // Shuffled before the artist dedupe, so each artist's song is a random
+    // one of theirs, and the order is new, on every load.
+    const batch =
+      scrollable && !isControlled
+        ? dedupeByArtist(shuffleInPlace([...getAllSongs()])).map((s) => s.id)
+        : [];
+    return { batch, nextBag: [] as string[] };
+  });
 
   useEffect(() => {
-    if (isControlled) return;
+    if (!usesBag) return;
     try {
       localStorage.setItem(BAG_STORAGE_KEY, JSON.stringify(nextBag));
     } catch {
       // localStorage unavailable — this load still shows a fresh random batch.
     }
-  }, [isControlled, nextBag]);
+  }, [usesBag, nextBag]);
 
   const songs = useMemo<Song[]>(() => {
     if (controlledSongs !== undefined) {
+      if (scrollable)
+        return dedupeByArtist(shuffleInPlace([...controlledSongs]));
       // Reflect the caller's filter: one card per eligible artist, random batch.
       return shuffleInPlace(dedupeByArtist(controlledSongs)).slice(
         0,
@@ -161,11 +186,13 @@ export const SongsMarquee = ({
     return batch
       .map((id) => getSong(id))
       .filter((song): song is Song => Boolean(song));
-  }, [controlledSongs, batch]);
+  }, [controlledSongs, batch, scrollable]);
 
   // Nothing to show (e.g. a filter that matches no SVG-portrait artists) →
   // render nothing so the strip collapses instead of leaving an empty bar.
   if (songs.length === 0) return null;
+
+  if (scrollable) return <ScrollableSongs songs={songs} compact={compact} />;
 
   // Doubled for the seamless-loop pattern — see songs-marquee.css.
   const marqueeSongs = [...songs, ...songs];
@@ -202,5 +229,126 @@ export const SongsMarquee = ({
         ))}
       </div>
     </div>
+  );
+};
+
+/** Whether the scroller has more to show on each side (2px of slack for
+ *  fractional scroll positions). */
+const scrollEdges = (el: HTMLElement) => ({
+  prev: el.scrollLeft > 2,
+  next: el.scrollLeft + el.clientWidth < el.scrollWidth - 2,
+});
+
+/**
+ * The hand-scrolled strip: a trackpad, a sideways wheel, a swipe or the arrow
+ * buttons move it, a card at a time snapping into place. It holds the whole
+ * library, so a card off screen skips its rendering (content-visibility). The edges fade where
+ * there's more to scroll, and each arrow shows only while its side has more.
+ */
+const ScrollableSongs = ({
+  songs,
+  compact,
+}: {
+  songs: Song[];
+  compact: boolean;
+}) => {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ prev: false, next: false });
+
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const update = () => setEdges(scrollEdges(el));
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    const observer =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    observer?.observe(el);
+    return () => {
+      el.removeEventListener('scroll', update);
+      observer?.disconnect();
+    };
+  }, [songs]);
+
+  // About a view's width a press, keeping a card of the last view in sight.
+  const page = useCallback((direction: 1 | -1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const reduce = window.matchMedia?.(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+    el.scrollBy({
+      left: direction * el.clientWidth * 0.8,
+      behavior: reduce ? 'auto' : 'smooth',
+    });
+  }, []);
+
+  const fade = (on: boolean) => (on ? '48px' : '0px');
+
+  return (
+    <div className="group/songs relative">
+      <div
+        ref={scrollerRef}
+        data-testid="songs-scroller"
+        className={cn(
+          'song-marquee-scroller -mx-2 flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-px-2 px-2',
+          compact ? 'gap-3 py-2' : 'gap-4 py-4 md:gap-5',
+        )}
+        style={{
+          maskImage: `linear-gradient(to right, transparent, #000 ${fade(edges.prev)}, #000 calc(100% - ${fade(edges.next)}), transparent)`,
+          WebkitMaskImage: `linear-gradient(to right, transparent, #000 ${fade(edges.prev)}, #000 calc(100% - ${fade(edges.next)}), transparent)`,
+        }}
+      >
+        {songs.map((song) => (
+          <div
+            key={song.id}
+            className={cn(
+              'flex-shrink-0 snap-start [content-visibility:auto] [contain-intrinsic-block-size:auto_360px]',
+              compact ? 'w-[120px] md:w-[132px]' : 'w-[260px] md:w-[300px]',
+            )}
+          >
+            <SongCard
+              song={song}
+              hoverScrim={false}
+              playOverlay={false}
+              bleedOnHover
+              compact={compact}
+            />
+          </div>
+        ))}
+      </div>
+      <ScrollArrow side="prev" shown={edges.prev} onClick={() => page(-1)} />
+      <ScrollArrow side="next" shown={edges.next} onClick={() => page(1)} />
+    </div>
+  );
+};
+
+const ScrollArrow = ({
+  side,
+  shown,
+  onClick,
+}: {
+  side: 'prev' | 'next';
+  shown: boolean;
+  onClick(): void;
+}) => {
+  const Icon = side === 'prev' ? ChevronLeft : ChevronRight;
+  return (
+    <button
+      type="button"
+      aria-label={side === 'prev' ? 'Scroll songs left' : 'Scroll songs right'}
+      onClick={onClick}
+      tabIndex={shown ? 0 : -1}
+      aria-hidden={!shown || undefined}
+      className={cn(
+        'absolute top-1/2 z-20 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/70 text-white backdrop-blur-sm transition-opacity duration-150 hover:bg-black/85 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50',
+        side === 'prev' ? 'left-2' : 'right-2',
+        shown
+          ? 'opacity-0 group-hover/songs:opacity-100 [@media(hover:none)]:opacity-100'
+          : 'pointer-events-none opacity-0',
+      )}
+    >
+      <Icon aria-hidden className="size-5" />
+    </button>
   );
 };

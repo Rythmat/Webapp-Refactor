@@ -149,6 +149,8 @@ describe('StudioNewProject: Continue last session', () => {
     expect(target).toEqual({
       href: '/studio/editor?draft=ok',
       name: 'Fine',
+      // When it was last written (Home's activity rail sorts by it).
+      updatedAt: expect.any(Number),
     });
   });
 

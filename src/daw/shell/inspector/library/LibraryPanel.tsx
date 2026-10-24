@@ -1,0 +1,479 @@
+import {
+  ArrowDownUp,
+  AudioLines,
+  AudioWaveform,
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  Heart,
+  Search,
+  Upload,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { cn } from '@/components/utilities';
+import { addLibraryAudio } from '@/daw/library/addLibraryAudio';
+import {
+  useLibraryAudio,
+  type LibraryAudioItem,
+} from '@/daw/library/audioLibrary';
+import { useLibraryProjects } from '@/daw/library/useLibraryProjects';
+import { openSession } from '@/daw/session/openSession';
+import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogStore';
+import type { ProjectRow } from '@/daw/shell/projects/projectRows';
+import { KEY_COLORS } from '@/daw/prism-engine/data/keyColors';
+import { useStore } from '@/daw/store';
+import { IconButton } from '@/daw/ui/IconButton';
+import {
+  Menu,
+  MenuContent,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuTrigger,
+} from '@/daw/ui/Menu';
+import { FOCUS_RING, TYPE_CLASS } from '@/daw/ui/styles';
+import { generateStudioTileSvg } from '@/lib/studioProjectTile';
+import { LibraryAudioRow } from './LibraryAudioRow';
+import { groupByDay, stopPreview, timeAgo } from './libraryHelpers';
+
+// ── The Studio Library (after Suno Studio's Library) ───────────────────────
+//
+// Home: four tiles (All audio, Favorites, Stems, Uploads) and the user's
+// Projects, newest first; a tile opens its list: filters (sort, ♡, This
+// song, and on All audio the kind), rows grouped by day, each one
+// previewable, draggable onto the timeline, or added with its menu.
+//
+// Stems are what Export › Stems rendered; uploads, audio files uploaded into
+// a project; both are kept on this device (daw/library/audioLibrary).
+
+type View = 'home' | 'all' | 'favorites' | 'stems' | 'uploads';
+type Sort = 'new' | 'old' | 'name';
+
+/** A key-center color (Music Atlas's palette) as CSS. */
+const key = (index: keyof typeof KEY_COLORS) =>
+  `rgb(${KEY_COLORS[index].join(', ')})`;
+
+const TILES: {
+  view: Exclude<View, 'home'>;
+  label: string;
+  icon: LucideIcon;
+  color: string;
+}[] = [
+  { view: 'all', label: 'All audio', icon: AudioLines, color: key(8) },
+  { view: 'favorites', label: 'Favorites', icon: Heart, color: key(10) },
+  { view: 'stems', label: 'Stems', icon: AudioWaveform, color: key(7) },
+  { view: 'uploads', label: 'Uploads', icon: Upload, color: key(12) },
+];
+
+const TITLE: Record<Exclude<View, 'home'>, string> = {
+  all: 'All audio',
+  favorites: 'Favorites',
+  stems: 'Stems',
+  uploads: 'Uploads',
+};
+
+const EMPTY: Record<Exclude<View, 'home'>, string> = {
+  all: 'Stems you export and audio you upload will appear here.',
+  favorites: 'Tap ♡ on a stem or upload to keep it here.',
+  stems: 'Export › Stems saves each stem here, ready to use in any song.',
+  uploads: 'Audio files you upload into a song will appear here.',
+};
+
+const SORT_LABEL: Record<Sort, string> = {
+  new: 'Newest',
+  old: 'Oldest',
+  name: 'Name',
+};
+
+/** Suno's filter chips: a quiet pill, white when on. */
+const chipClass = (on: boolean) =>
+  cn(
+    'flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 transition-colors',
+    TYPE_CLASS.label,
+    FOCUS_RING,
+    on
+      ? 'border-transparent bg-daw-primary text-daw-on-primary'
+      : 'border-daw-hairline bg-daw-bg text-daw-text hover:bg-daw-hover',
+  );
+
+const addToSong = (item: LibraryAudioItem) => void addLibraryAudio(item.id, 0);
+
+export function LibraryPanel() {
+  const [view, setView] = useState<View>('home');
+  // The preview stops when the panel goes.
+  useEffect(() => stopPreview, []);
+  return view === 'home' ? (
+    <LibraryHome onOpen={setView} />
+  ) : (
+    <LibraryList view={view} onBack={() => setView('home')} />
+  );
+}
+
+// ── Home ───────────────────────────────────────────────────────────────────
+
+function LibraryHome({ onOpen }: { onOpen: (view: View) => void }) {
+  const { rows, loading } = useLibraryProjects(true);
+  const openProjects = useProjectsDialogStore((s) => s.openDialog);
+  return (
+    <div
+      data-testid="library-home"
+      className="min-h-0 flex-1 overflow-y-auto p-2"
+      style={{ scrollbarWidth: 'thin' }}
+    >
+      <div className="grid grid-cols-2 gap-1.5">
+        {TILES.map(({ view, label, icon: Icon, color }) => (
+          <button
+            key={view}
+            type="button"
+            onClick={() => onOpen(view)}
+            data-testid={`library-tile-${view}`}
+            className={cn(
+              'flex h-[58px] min-w-0 items-center gap-2.5 rounded-[var(--daw-radius-md)] bg-white/[0.04] px-2 text-left transition-colors hover:bg-daw-hover',
+              FOCUS_RING,
+            )}
+          >
+            <span
+              className="flex size-10 shrink-0 items-center justify-center rounded-[var(--daw-radius-md)]"
+              style={{ background: color }}
+            >
+              <Icon aria-hidden className="size-5 text-daw-bg" />
+            </span>
+            <span
+              className={cn(
+                TYPE_CLASS.item,
+                'truncate font-bold text-daw-text',
+              )}
+            >
+              {label}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <div className="mb-1 mt-4 flex items-center justify-between px-1">
+        <h3 className={cn(TYPE_CLASS.label, 'text-daw-text-2')}>Projects</h3>
+        <button
+          type="button"
+          onClick={() => openProjects()}
+          className={cn(
+            TYPE_CLASS.label,
+            'rounded px-1 text-daw-text-3 transition-colors hover:text-daw-text',
+            FOCUS_RING,
+          )}
+        >
+          Manage
+        </button>
+      </div>
+      {rows.length === 0 ? (
+        <p className={cn(TYPE_CLASS.label, 'px-1 py-3 text-daw-text-3')}>
+          {loading
+            ? 'Loading your projects…'
+            : 'Projects you save or work on appear here.'}
+        </p>
+      ) : (
+        <ul className="flex flex-col">
+          {rows.map((row) => (
+            <ProjectItem key={row.key} row={row} />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/** A project, as Suno's Studio Projects: its tile, name and when. */
+function ProjectItem({ row }: { row: ProjectRow }) {
+  const tile = useMemo(
+    () =>
+      `data:image/svg+xml;utf8,${encodeURIComponent(generateStudioTileSvg(row.key))}`,
+    [row.key],
+  );
+  const open = () => {
+    if (row.openIntent && !row.isOpen) {
+      void openSession(row.openIntent, { source: 'library' });
+    }
+  };
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={open}
+        disabled={!row.canOpen && !row.isOpen}
+        aria-current={row.isOpen || undefined}
+        data-testid="library-project"
+        className={cn(
+          'flex h-16 w-full items-center gap-2.5 rounded-[var(--daw-radius-lg)] px-2 text-left transition-colors hover:bg-daw-hover disabled:opacity-40',
+          FOCUS_RING,
+        )}
+      >
+        <img
+          src={tile}
+          alt=""
+          draggable={false}
+          className="size-[46px] shrink-0 rounded-[var(--daw-radius-md)] object-cover"
+        />
+        <span className="min-w-0 flex-1">
+          <span
+            className={cn(
+              TYPE_CLASS.item,
+              'block truncate font-bold text-daw-text',
+            )}
+          >
+            {row.name}
+          </span>
+          <span
+            className={cn(TYPE_CLASS.label, 'block truncate text-daw-text-3')}
+          >
+            {row.isOpen ? 'Open now' : timeAgo(row.updatedAt)}
+          </span>
+        </span>
+      </button>
+    </li>
+  );
+}
+
+// ── Lists ──────────────────────────────────────────────────────────────────
+
+function LibraryList({
+  view,
+  onBack,
+}: {
+  view: Exclude<View, 'home'>;
+  onBack: () => void;
+}) {
+  const { items, loaded } = useLibraryAudio();
+  const project = useStore((s) => s.projectName);
+  const [sort, setSort] = useState<Sort>('new');
+  const [favoritesOnly, setFavoritesOnly] = useState(view === 'favorites');
+  const [thisSong, setThisSong] = useState(false);
+  const [kinds, setKinds] = useState<Set<LibraryAudioItem['kind']>>(new Set());
+  const [searching, setSearching] = useState(false);
+  const [query, setQuery] = useState('');
+  const [closed, setClosed] = useState<Set<string>>(new Set());
+
+  const shown = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const list = items.filter(
+      (i) =>
+        (view === 'stems' ? i.kind === 'stem' : true) &&
+        (view === 'uploads' ? i.kind === 'upload' : true) &&
+        (kinds.size === 0 || kinds.has(i.kind)) &&
+        (!favoritesOnly || i.favorite) &&
+        (!thisSong || i.project === project) &&
+        (!q || `${i.name} ${i.tag} ${i.project}`.toLowerCase().includes(q)),
+    );
+    if (sort === 'old') list.reverse();
+    if (sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
+    return list;
+  }, [items, view, kinds, favoritesOnly, thisSong, project, query, sort]);
+
+  const filtered =
+    kinds.size > 0 ||
+    (favoritesOnly && view !== 'favorites') ||
+    thisSong ||
+    query.trim() !== '';
+  const reset = () => {
+    setKinds(new Set());
+    setFavoritesOnly(view === 'favorites');
+    setThisSong(false);
+    setQuery('');
+  };
+  const toggleKind = (kind: LibraryAudioItem['kind']) =>
+    setKinds((prev) => {
+      const next = new Set(prev);
+      if (next.has(kind)) next.delete(kind);
+      else next.add(kind);
+      return next;
+    });
+
+  const groups =
+    sort === 'name'
+      ? [{ label: 'A–Z', items: shown }]
+      : groupByDay(shown, (i) => i.createdAt);
+
+  return (
+    <div
+      data-testid={`library-list-${view}`}
+      className="flex min-h-0 flex-1 flex-col"
+    >
+      <div className="flex h-10 shrink-0 items-center gap-1 px-1.5">
+        <IconButton
+          label="Back to the Library"
+          icon={<ChevronLeft />}
+          size="sm"
+          onClick={onBack}
+        />
+        {searching ? (
+          <input
+            autoFocus
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setQuery('');
+                setSearching(false);
+              }
+            }}
+            placeholder={`Search ${TITLE[view].toLowerCase()}`}
+            aria-label={`Search ${TITLE[view].toLowerCase()}`}
+            className={cn(
+              TYPE_CLASS.body,
+              'h-7 min-w-0 flex-1 rounded-full bg-white/[0.06] px-3 text-daw-text outline-none placeholder:text-daw-text-3 focus-visible:ring-1 focus-visible:ring-white/30',
+            )}
+          />
+        ) : (
+          <h3
+            className={cn(
+              TYPE_CLASS.title,
+              'min-w-0 flex-1 truncate text-daw-text',
+            )}
+          >
+            {TITLE[view]}
+          </h3>
+        )}
+        <IconButton
+          label={
+            searching ? 'Close search' : `Search ${TITLE[view].toLowerCase()}`
+          }
+          icon={searching ? <X /> : <Search />}
+          size="sm"
+          onClick={() => {
+            if (searching) setQuery('');
+            setSearching(!searching);
+          }}
+        />
+      </div>
+
+      <div
+        className="flex shrink-0 gap-1.5 overflow-x-auto px-2 pb-2 [scrollbar-width:none]"
+        role="toolbar"
+        aria-label="Filters"
+      >
+        <Menu>
+          <MenuTrigger asChild>
+            <button type="button" className={chipClass(false)}>
+              <ArrowDownUp aria-hidden className="size-3.5" />
+              {SORT_LABEL[sort]}
+              <ChevronDown aria-hidden className="size-3.5" />
+            </button>
+          </MenuTrigger>
+          <MenuContent align="start">
+            <MenuRadioGroup
+              value={sort}
+              onValueChange={(v) => setSort(v as Sort)}
+            >
+              {(Object.keys(SORT_LABEL) as Sort[]).map((s) => (
+                <MenuRadioItem key={s} value={s}>
+                  {SORT_LABEL[s]}
+                </MenuRadioItem>
+              ))}
+            </MenuRadioGroup>
+          </MenuContent>
+        </Menu>
+        {view !== 'favorites' && (
+          <button
+            type="button"
+            aria-pressed={favoritesOnly}
+            aria-label="Favorites only"
+            onClick={() => setFavoritesOnly(!favoritesOnly)}
+            className={chipClass(favoritesOnly)}
+          >
+            <Heart
+              aria-hidden
+              className={cn('size-3.5', favoritesOnly && 'fill-current')}
+            />
+          </button>
+        )}
+        <button
+          type="button"
+          aria-pressed={thisSong}
+          onClick={() => setThisSong(!thisSong)}
+          className={chipClass(thisSong)}
+        >
+          {thisSong && <Check aria-hidden className="size-3.5" />}
+          This song
+        </button>
+        {(view === 'all' || view === 'favorites') &&
+          (['stem', 'upload'] as const).map((kind) => (
+            <button
+              key={kind}
+              type="button"
+              aria-pressed={kinds.has(kind)}
+              onClick={() => toggleKind(kind)}
+              className={chipClass(kinds.has(kind))}
+            >
+              {kind === 'stem' ? 'Stems' : 'Uploads'}
+            </button>
+          ))}
+      </div>
+
+      <div
+        className="min-h-0 flex-1 overflow-y-auto px-2 pb-2"
+        style={{ scrollbarWidth: 'thin' }}
+      >
+        {!loaded ? null : shown.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 px-4 py-12 text-center">
+            <p className={cn(TYPE_CLASS.body, 'text-daw-text-3')}>
+              {filtered ? 'Nothing matches these filters.' : EMPTY[view]}
+            </p>
+            {filtered && (
+              <button
+                type="button"
+                onClick={reset}
+                className={chipClass(false)}
+              >
+                Reset filters
+              </button>
+            )}
+          </div>
+        ) : (
+          groups.map((group) => {
+            const isClosed = closed.has(group.label);
+            return (
+              <section key={group.label} aria-label={group.label}>
+                <button
+                  type="button"
+                  aria-expanded={!isClosed}
+                  onClick={() =>
+                    setClosed((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(group.label)) next.delete(group.label);
+                      else next.add(group.label);
+                      return next;
+                    })
+                  }
+                  className={cn(
+                    TYPE_CLASS.label,
+                    'flex items-center gap-1 rounded px-1 py-2 text-daw-text-2 hover:text-daw-text',
+                    FOCUS_RING,
+                  )}
+                >
+                  <ChevronDown
+                    aria-hidden
+                    className={cn(
+                      'size-3.5 transition-transform',
+                      isClosed && '-rotate-90',
+                    )}
+                  />
+                  {group.label}
+                </button>
+                {!isClosed && (
+                  <ul className="flex flex-col">
+                    {group.items.map((item) => (
+                      <LibraryAudioRow
+                        key={item.id}
+                        item={item}
+                        onAdd={addToSong}
+                      />
+                    ))}
+                  </ul>
+                )}
+              </section>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}

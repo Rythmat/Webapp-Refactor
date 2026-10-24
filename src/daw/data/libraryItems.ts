@@ -11,7 +11,9 @@ export type DragPayload =
   /** An effect in an FX list (what a click adds; never dragged). */
   | { kind: 'audio-effect'; effectType: EffectSlotType }
   /** A Library row (milestone 2.14): its item id (shell/inspector/browser). */
-  | { kind: 'library-item'; itemId: string };
+  | { kind: 'library-item'; itemId: string }
+  /** A stem or upload in the Studio Library (daw/library/audioLibrary). */
+  | { kind: 'library-audio'; itemId: string };
 
 /** The data type a drag from the Library carries. */
 export const DRAG_MIME = 'application/x-prism-library';

@@ -91,6 +91,15 @@ export interface StemsExportOptions {
   bitDepth?: WavBitDepth;
   /** The mastering chain on each stem's master bus (default true). */
   mastering?: boolean;
+  /**
+   * Each stem as it is encoded, with its track: the Studio Library keeps
+   * them (Export › Stems also saves them there).
+   */
+  onStem?: (stem: {
+    track: Track;
+    bytes: ArrayBuffer;
+    contentType: string;
+  }) => void;
 }
 
 const FORMAT_EXT: Record<AudioExportFormat, string> = {
@@ -282,6 +291,11 @@ export async function exportStems(
           })),
       signal,
     );
+    opts.onStem?.({
+      track,
+      bytes,
+      contentType: FORMAT_MIME[opts.format],
+    });
     zip.add({
       name: nameStem(trackName),
       data: new Blob([bytes], { type: FORMAT_MIME[opts.format] }),

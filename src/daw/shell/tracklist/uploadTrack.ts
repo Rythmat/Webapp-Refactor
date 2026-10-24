@@ -1,4 +1,5 @@
 import { setAudioBuffer, setOriginalAudio } from '@/daw/audio/AudioBufferStore';
+import { saveLibraryAudio } from '@/daw/library/audioLibrary';
 import { importMidiFileOrSay } from '@/daw/midi/importMidiToTracks';
 import { notice } from '@/daw/shell/notice';
 import { useStore } from '@/daw/store';
@@ -17,7 +18,8 @@ import { choiceOf } from './trackTemplates';
 // keeps a copy (pendingMedia) and Save uploads it (upload-pending).
 //
 // The caps are this build's until the owner sets S6's (where uploads are
-// stored, and for how long).
+// stored, and for how long). Each audio file uploaded is also kept in the
+// Studio Library's Uploads (daw/library/audioLibrary), apart from the song.
 
 /** The largest audio file Upload takes. */
 export const MAX_UPLOAD_BYTES = 100 * 1024 * 1024;
@@ -75,32 +77,80 @@ export async function uploadFileToNewTrack(file: File): Promise<string> {
     );
   }
 
+  const name = baseName(file);
+  const trackId = addAudioTrack({
+    name,
+    bytes,
+    contentType: file.type || 'application/octet-stream',
+    buffer,
+    startTick: 0,
+    undoLabel: 'Upload audio',
+  });
+  if (trackId) {
+    const s = useStore.getState();
+    void saveLibraryAudio({
+      kind: 'upload',
+      name,
+      tag: fileTypeLabel(file),
+      project: s.projectName,
+      color: s.tracks.find((t) => t.id === trackId)?.color ?? '',
+      contentType: file.type || 'application/octet-stream',
+      size: file.size,
+      durationSec: buffer.duration,
+      blob: file,
+    });
+  }
+  return trackId;
+}
+
+/** An upload's file type for its Library row: 'WAV', 'MP3'. */
+const fileTypeLabel = (file: File) =>
+  file.name.match(/\.([^.]+)$/)?.[1]?.toUpperCase() ?? 'Audio';
+
+export interface NewAudioTrack {
+  /** The track's name. */
+  name: string;
+  /** The audio's original bytes (kept for the draft and Save). */
+  bytes: ArrayBuffer;
+  contentType: string;
+  buffer: AudioBuffer;
+  /** Where the clip starts. */
+  startTick: number;
+  undoLabel: string;
+}
+
+/**
+ * A new Audio Track holding `buffer` as one clip at `startTick`, in one undo
+ * step, selected, with its dock on its effects: what an upload and a Library
+ * stem or upload become. Resolves to its id, '' when it could not be added
+ * (having said why).
+ */
+export function addAudioTrack(audioIn: NewAudioTrack): string {
   const state = useStore.getState();
   if (state.isRecording) {
-    return refuse('Not while recording', 'Stop recording to upload a file');
+    return refuse('Not while recording', 'Stop recording to add audio');
   }
   const audio = choiceOf('audio');
-  const name = baseName(file);
   const clipId = `clip-audio-${crypto.randomUUID().slice(0, 8)}`;
   const duration = Math.max(
     1,
-    Math.round((buffer.duration / 60) * state.bpm * PPQ),
+    Math.round((audioIn.buffer.duration / 60) * state.bpm * PPQ),
   );
 
-  const trackId = withTransaction('Upload audio', () => {
+  const trackId = withTransaction(audioIn.undoLabel, () => {
     const s = useStore.getState();
     // A plain audio track: the file plays through its effects, with no live
     // input (an Add Audio track's tuner and input aren't an upload's;
     // owner, 2026-10-22). Its dock is its effects.
-    const id = s.addTrack(audio.trackType, 'none', name);
+    const id = s.addTrack(audio.trackType, 'none', audioIn.name);
     if (!id) return '';
     // The clip's audio is in the store before the clip, so it plays (and
     // the draft captures it) from the moment it appears.
-    setAudioBuffer(clipId, buffer);
-    setOriginalAudio(clipId, bytes, file.type || 'application/octet-stream');
+    setAudioBuffer(clipId, audioIn.buffer);
+    setOriginalAudio(clipId, audioIn.bytes, audioIn.contentType);
     s.addAudioClip(id, {
       id: clipId,
-      startTick: 0,
+      startTick: audioIn.startTick,
       duration,
       fadeInTicks: 0,
       fadeOutTicks: 0,

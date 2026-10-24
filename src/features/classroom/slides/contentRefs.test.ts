@@ -63,7 +63,7 @@ describe('contentRefs — every builder round-trips through the resolver', () =>
         'studio',
         studioTutorialRef('studio-basics-record'),
       ),
-    ).toBe('/studio/editor?tutorial=studio-basics-record');
+    ).toBe('/studio?tutorial=studio-basics-record');
   });
 
   it('globePathwayRef → /atlas/globe?pathway=<id>', () => {

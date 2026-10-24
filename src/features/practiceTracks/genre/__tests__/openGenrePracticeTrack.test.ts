@@ -28,7 +28,7 @@ afterEach(() => {
 describe('resolvePracticeTrack', () => {
   it('reads the handed-over track and leaves it in the box', async () => {
     expect(hand()).toBe(
-      `/studio/editor?practiceGenre=${funkL2.genre}&practiceLevel=${funkL2.level}&practiceSection=A`,
+      `/studio?practiceGenre=${funkL2.genre}&practiceLevel=${funkL2.level}&practiceSection=A`,
     );
     const handed = peekPracticeTrack(funkL2.genre, funkL2.level, 'A')!;
 

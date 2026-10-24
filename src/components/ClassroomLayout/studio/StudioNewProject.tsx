@@ -167,7 +167,7 @@ const subscribeUser = (onChange: () => void) =>
 /**
  * "New Project" section of the Studio Dashboard: start a blank session, and —
  * when this user has work on this device — continue the last one. Both open
- * the DAW editor (`/studio/editor`).
+ * the DAW editor (`/studio`).
  */
 export const StudioNewProject = () => {
   const navigate = useNavigate();

@@ -18,7 +18,7 @@ function Where() {
 
 function renderLock(locked: boolean, label?: string) {
   return render(
-    <MemoryRouter initialEntries={['/studio/editor']}>
+    <MemoryRouter initialEntries={['/studio']}>
       <Routes>
         <Route
           path="*"

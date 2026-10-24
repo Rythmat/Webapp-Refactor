@@ -60,7 +60,7 @@ afterEach(() => {
 
 describe('useSessionBoot', () => {
   it('opens the link once under StrictMode, a tick after mount', async () => {
-    mount('/studio/editor?template=project-pop', (node) => (
+    mount('/studio?template=project-pop', (node) => (
       <StrictMode>{node}</StrictMode>
     ));
     expect(open).not.toHaveBeenCalled();
@@ -73,16 +73,16 @@ describe('useSessionBoot', () => {
   });
 
   it('resumes on a bare URL', async () => {
-    mount('/studio/editor');
+    mount('/studio');
     await tick();
     expect(open).toHaveBeenCalledWith({ kind: 'resume' }, { source: 'boot' });
   });
 
   it('opens a link that arrives while the editor is open', async () => {
-    mount('/studio/editor');
+    mount('/studio');
     await tick();
     open.mockClear();
-    act(() => navigateTo('/studio/editor?demo=demo-midnight-groove&msp=1'));
+    act(() => navigateTo('/studio?demo=demo-midnight-groove&msp=1'));
     await tick();
     expect(open).toHaveBeenCalledWith(
       { kind: 'demo', demoId: 'demo-midnight-groove' },
@@ -91,19 +91,19 @@ describe('useSessionBoot', () => {
   });
 
   it('ignores later navigations without a boot key', async () => {
-    mount('/studio/editor?new=1');
+    mount('/studio?new=1');
     await tick();
     open.mockClear();
     // openSession's strip (a replace) and other in-editor navigations.
-    act(() => navigateTo('/studio/editor?msp=1'));
+    act(() => navigateTo('/studio?msp=1'));
     await tick();
-    act(() => navigateTo('/studio/editor'));
+    act(() => navigateTo('/studio'));
     await tick();
     expect(open).not.toHaveBeenCalled();
   });
 
   it('opens the Projects dialog for ?projects=1 once the session is ready', async () => {
-    mount('/studio/editor?projects=1');
+    mount('/studio?projects=1');
     await tick();
     expect(open).toHaveBeenCalledWith({ kind: 'resume' }, { source: 'boot' });
     await tick();
@@ -113,9 +113,7 @@ describe('useSessionBoot', () => {
   it('a remount on a navigation that opened resumes instead of reopening its link', async () => {
     const first = render(
       <MemoryRouter
-        initialEntries={[
-          { pathname: '/studio/editor', search: '?new=1', key: 'k1' },
-        ]}
+        initialEntries={[{ pathname: '/studio', search: '?new=1', key: 'k1' }]}
       >
         <Editor />
       </MemoryRouter>,
@@ -125,9 +123,7 @@ describe('useSessionBoot', () => {
     open.mockClear();
     render(
       <MemoryRouter
-        initialEntries={[
-          { pathname: '/studio/editor', search: '?new=1', key: 'k1' },
-        ]}
+        initialEntries={[{ pathname: '/studio', search: '?new=1', key: 'k1' }]}
       >
         <Editor />
       </MemoryRouter>,

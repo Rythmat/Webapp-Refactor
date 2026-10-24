@@ -20,8 +20,8 @@ export interface SessionDeps {
   collab: CollabPort;
   drafts: DraftSessionPort;
   /**
-   * Replace or push the editor's search (on /studio/editor). A no-op unless
-   * the page is on /studio/editor.
+   * Replace or push the editor's search (on /studio). A no-op unless
+   * the page is on /studio.
    */
   navigate(search: string, opts: { replace: boolean }): void;
   openProjectsDialog(opts?: {

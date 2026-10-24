@@ -16,6 +16,7 @@ import {
   useCommentLaneShown,
 } from '../canvas/sections/CommentLaneSlot';
 import { SectionsLane } from '../canvas/sections/SectionsLane';
+import { PromptBar } from '../prompt/PromptBar';
 import { AddTrackMenu } from './AddTrackMenu';
 import { ChordRulerSettings } from './ChordRulerSettings';
 import { NowPlaying } from './NowPlaying';
@@ -103,6 +104,7 @@ export const TrackArea = memo(function TrackArea() {
       </div>
       <TimelineFooter />
       <MasterStrip />
+      <PromptBar />
     </div>
   );
 });

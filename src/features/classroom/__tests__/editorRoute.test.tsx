@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /**
- * The /studio/editor route (milestone 1.12a, bundle-load-06/-16): no content
+ * The /studio route (milestone 1.12a, bundle-load-06/-16): no content
  * gate, so the editor renders while the song library is still on its way;
  * the editor's own shape (DawSkeleton) while its chunk loads; and an editor
  * chunk that never arrives leaves the app's frame with a Reload, not the
@@ -55,13 +55,14 @@ afterEach(() => {
 /** The editor route's element, rendered as ClassroomDashboard renders it. */
 async function renderEditorRoute(): Promise<void> {
   const { studioPages } = await import('../ClassroomPages');
-  const route = studioPages().children.find((r) => r.path === 'editor');
+  // `/studio` itself, its index route, since 2026-10-24.
+  const route = studioPages().children.find((r) => 'index' in r && r.index);
   if (!route?.element) throw new Error('no editor route');
   render(
-    <MemoryRouter initialEntries={['/studio/editor?song=africa']}>
+    <MemoryRouter initialEntries={['/studio?song=africa']}>
       <Routes>
         <Route
-          path="/studio/editor"
+          path="/studio"
           element={
             <Suspense fallback={<DawSkeleton />}>
               {route.element as ReactElement}

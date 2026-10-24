@@ -340,6 +340,16 @@ export interface TracksSlice {
   toggleMute: (id: string) => void;
   toggleSolo: (id: string) => void;
   toggleRecordArm: (id: string) => void;
+  /**
+   * Sets a track's arm and monitoring (the record button's step, or a new
+   * MIDI track's). `exclusive`: when it arms a track that wasn't armed, every
+   * other track is disarmed and stops monitoring (Record arm exclusive).
+   */
+  setRecordArm: (
+    id: string,
+    next: Pick<Track, 'recordArmed' | 'monitoring'>,
+    exclusive: boolean,
+  ) => void;
   toggleMonitoring: (id: string) => void;
   addMidiClip: (trackId: string, clip: MidiClip) => void;
   removeMidiClip: (trackId: string, clipId: string) => void;
@@ -560,6 +570,24 @@ export const createTracksSlice: StateCreator<
           t.id === id ? { ...t, recordArmed: !t.recordArmed } : t,
         ),
       })),
+    ),
+
+  setRecordArm: (id, next, exclusive) =>
+    set(
+      guardTrack(id, (state) => {
+        const was = state.tracks.find((t) => t.id === id);
+        if (!was) return {};
+        const takeOver = exclusive && next.recordArmed && !was.recordArmed;
+        return {
+          tracks: state.tracks.map((t) =>
+            t.id === id
+              ? { ...t, ...next }
+              : takeOver && (t.recordArmed || t.monitoring)
+                ? { ...t, recordArmed: false, monitoring: false }
+                : t,
+          ),
+        };
+      }),
     ),
 
   toggleMonitoring: (id) =>

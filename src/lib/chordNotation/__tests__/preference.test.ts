@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  chooseChordNotation,
   getChordNotation,
   getChordNotationSwitcherEnabled,
   getSelectedChordNotation,
@@ -28,6 +29,25 @@ describe('chord notation preference', () => {
 
     setChordNotationSwitcherEnabled(false);
     expect(getChordNotation()).toBe('hybrid');
+  });
+
+  it('applies a lesson’s choice everywhere without showing the switcher', () => {
+    chooseChordNotation('jazz');
+    expect(getChordNotation()).toBe('jazz');
+    // The top rail stays as it was: only Settings shows the switcher.
+    expect(getChordNotationSwitcherEnabled()).toBe(false);
+
+    // Settings off goes back to hybrid, the lesson's choice included.
+    setChordNotationSwitcherEnabled(false);
+    expect(getChordNotation()).toBe('hybrid');
+  });
+
+  it('keeps a choice made before the switcher had its own key, hidden', () => {
+    // A lesson used to turn the switcher on in this key.
+    localStorage.setItem('musicAtlas:chordNotationSwitcher', '1');
+    localStorage.setItem('musicAtlas:chordNotation', 'jazz');
+    expect(getChordNotation()).toBe('jazz');
+    expect(getChordNotationSwitcherEnabled()).toBe(false);
   });
 
   it('ignores an unknown stored notation', () => {

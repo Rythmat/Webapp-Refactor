@@ -392,7 +392,7 @@ describe('a band’s track over the student’s chart', () => {
     const ref = bandRefFor('latin-band-1', 'l1-cumbia', dMinor);
     expect(url).toBe(practiceTrackUrl('latin', 1, 'A', ref));
     expect(url).toBe(
-      '/studio/editor?practiceGenre=latin&practiceLevel=1&practiceSection=A&practiceBand=latin-band-1&practiceVariation=l1-cumbia&practiceKey=D&practiceKeyMode=minor&practiceHarmony=triads&practiceChords=1-4-5-6',
+      '/studio?practiceGenre=latin&practiceLevel=1&practiceSection=A&practiceBand=latin-band-1&practiceVariation=l1-cumbia&practiceKey=D&practiceKeyMode=minor&practiceHarmony=triads&practiceChords=1-4-5-6',
     );
     // The box is the one asked for only with the same chart.
     expect(peekPracticeTrack('latin', 1, 'A', ref)).not.toBeNull();

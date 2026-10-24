@@ -1,4 +1,5 @@
 import type { InstrumentAdapter } from '../instruments/InstrumentAdapter';
+import type { NoteEventListener } from './noteEvents';
 import {
   EffectChain,
   PARAM_GLIDE_S,
@@ -9,21 +10,24 @@ import { createMeterTap } from './meterTap';
 export class TrackEngine {
   private ctx: AudioContext;
   private instrument: InstrumentAdapter | null = null;
+  private noteListener: NoteEventListener | null = null;
   private gainNode: GainNode;
   private pannerNode: StereoPannerNode;
   private effectChain: EffectChain;
-  // Mute/solo gate: post-FX, pre-pan, so it silences the main out, the aux
-  // sends and the meter together.
+  // Mute/solo gate: post-pan, so it silences the main out, the aux sends
+  // and the meters together, all but the fader's stereo meter (below).
   private audibleGain: GainNode;
   private analyserNode: AnalyserNode;
   // The meters' own tap (meterTap.ts); analyserNode is the post-fader tap a
   // ducker on another track takes as its key (it passes the sound through).
   private meterAnalyser: AnalyserNode;
-  // The track header's stereo meter (2026-10-21): the same post-pan signal
-  // split into its left and right channels, a tap each.
+  // The track header's stereo meter (2026-10-21): the post-pan signal split
+  // into its left and right channels, a tap each. It is taken ahead of the
+  // mute/solo gate (owner, 2026-10-23), so a muted track's fader still shows
+  // its signal, greyed.
   private meterSplitter: ChannelSplitterNode;
   private meterAnalysersLR: [AnalyserNode, AnalyserNode];
-  // Post-fader aux sends: pannerNode → sendGain → returnBus input, keyed by
+  // Post-fader aux sends: audibleGain → sendGain → returnBus input, keyed by
   // return id. `bus` is remembered so a return recreated with a new input node
   // gets rewired instead of silently feeding the stale one.
   private sends = new Map<string, { gain: GainNode; bus: AudioNode }>();
@@ -45,15 +49,17 @@ export class TrackEngine {
     this.meterSplitter = ctx.createChannelSplitter(2);
     this.meterAnalysersLR = [createMeterTap(ctx), createMeterTap(ctx)];
 
-    // Signal chain: instrument → gainNode → effectChain → audibleGain → pannerNode → destination
+    // Signal chain: instrument → gainNode → effectChain → pannerNode → audibleGain → destination
     this.gainNode.connect(this.effectChain.getInputNode());
-    this.effectChain.getOutputNode().connect(this.audibleGain);
-    this.audibleGain.connect(this.pannerNode);
-    this.pannerNode.connect(destination);
+    this.effectChain.getOutputNode().connect(this.pannerNode);
+    this.pannerNode.connect(this.audibleGain);
+    this.audibleGain.connect(destination);
 
-    // Parallel metering tap (dead-end branch — does not alter signal path)
-    this.pannerNode.connect(this.analyserNode);
-    this.pannerNode.connect(this.meterAnalyser);
+    // Parallel metering taps (dead-end branches — they do not alter the
+    // signal path): the meter and the ducker's key after the gate, the
+    // stereo meter ahead of it.
+    this.audibleGain.connect(this.analyserNode);
+    this.audibleGain.connect(this.meterAnalyser);
     this.pannerNode.connect(this.meterSplitter);
     this.meterSplitter.connect(this.meterAnalysersLR[0], 0);
     this.meterSplitter.connect(this.meterAnalysersLR[1], 1);
@@ -79,7 +85,8 @@ export class TrackEngine {
     return this.meterAnalyser;
   }
 
-  /** The track's left and right meter taps (the header's stereo meter). */
+  /** The track's left and right meter taps (the header's stereo meter),
+   *  ahead of the mute/solo gate. */
   getMeterAnalysersLR(): [AnalyserNode, AnalyserNode] {
     return this.meterAnalysersLR;
   }
@@ -96,12 +103,20 @@ export class TrackEngine {
     return this.instrument;
   }
 
+  /** Told of every note it plays and lets go, for the views that show what
+   *  plays (noteEvents). */
+  setNoteListener(listener: NoteEventListener | null): void {
+    this.noteListener = listener;
+  }
+
   noteOn(note: number, velocity: number, time?: number): void {
     this.instrument?.noteOn(note, velocity, time);
+    this.noteListener?.({ type: 'on', note, velocity, time });
   }
 
   noteOff(note: number, time?: number): void {
     this.instrument?.noteOff(note, time);
+    this.noteListener?.({ type: 'off', note, time });
   }
 
   cc(controller: number, value: number, time?: number): void {
@@ -114,10 +129,12 @@ export class TrackEngine {
 
   allNotesOff(time?: number): void {
     this.instrument?.allNotesOff(time);
+    this.noteListener?.({ type: 'allOff', time });
   }
 
   panic(time?: number): void {
     this.instrument?.panic(time);
+    this.noteListener?.({ type: 'allOff', time });
   }
 
   /** Sets a parameter: at once, or gliding for a change heard while it
@@ -212,9 +229,9 @@ export class TrackEngine {
     const entry = this.sends.get(returnId);
     if (!busInput) {
       if (entry) {
-        // Tear down BOTH edges (pannerNode→gain and gain→bus) so the gain node
-        // is fully detached and collectable, not just its output.
-        this.pannerNode.disconnect(entry.gain);
+        // Tear down BOTH edges (audibleGain→gain and gain→bus) so the gain
+        // node is fully detached and collectable, not just its output.
+        this.audibleGain.disconnect(entry.gain);
         entry.gain.disconnect();
         this.sends.delete(returnId);
       }
@@ -224,7 +241,7 @@ export class TrackEngine {
     if (!entry) {
       const gain = this.ctx.createGain();
       gain.gain.value = value;
-      this.pannerNode.connect(gain);
+      this.audibleGain.connect(gain);
       gain.connect(busInput);
       this.sends.set(returnId, { gain, bus: busInput });
       return;

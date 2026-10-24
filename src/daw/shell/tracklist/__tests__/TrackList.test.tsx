@@ -165,6 +165,48 @@ describe('the record button', () => {
     expect(arm()).toHaveAttribute('aria-pressed', 'false');
   });
 
+  it('disarms the others when it arms a track, with Record arm exclusive on', () => {
+    useStore.setState({ recordArmExclusive: true });
+    render(<TrackList />);
+    const arm = (i: number) => screen.getAllByTestId('track-arm')[i];
+    fireEvent.click(arm(0));
+    fireEvent.click(arm(1));
+    expect(s().tracks.map((t) => [t.recordArmed, t.monitoring])).toEqual([
+      [false, false],
+      [true, true],
+      [false, false],
+    ]);
+    // Stepping the armed track on (to quiet, then off) leaves the others be.
+    fireEvent.click(arm(2), { metaKey: true });
+    fireEvent.click(arm(1));
+    expect(s().tracks.map((t) => t.recordArmed)).toEqual([false, true, true]);
+  });
+
+  it('arms more than one with ⌘- or Ctrl-click', () => {
+    useStore.setState({ recordArmExclusive: true });
+    render(<TrackList />);
+    const arm = (i: number) => screen.getAllByTestId('track-arm')[i];
+    fireEvent.click(arm(0));
+    fireEvent.click(arm(1), { metaKey: true });
+    fireEvent.click(arm(2), { ctrlKey: true });
+    expect(s().tracks.every((t) => t.recordArmed && t.monitoring)).toBe(true);
+    // A plain click takes the arm back to one track.
+    fireEvent.click(arm(2)); // armed, quiet: still armed, the others kept
+    fireEvent.click(arm(2)); // off
+    fireEvent.click(arm(2)); // armed again: it takes the arm
+    expect(s().tracks.map((t) => t.recordArmed)).toEqual([false, false, true]);
+  });
+
+  it('arms tracks alongside each other with Record arm exclusive off', () => {
+    useStore.setState({ recordArmExclusive: false });
+    render(<TrackList />);
+    const arm = (i: number) => screen.getAllByTestId('track-arm')[i];
+    fireEvent.click(arm(0));
+    fireEvent.click(arm(1));
+    expect(s().tracks.map((t) => t.recordArmed)).toEqual([true, true, false]);
+    useStore.setState({ recordArmExclusive: true });
+  });
+
   it('arms a track already monitoring from the menu, and keeps it heard', () => {
     s().updateTrack(s().tracks[0].id, { monitoring: true });
     render(<TrackList />);
@@ -185,19 +227,24 @@ describe('a track row’s number and colour', () => {
     expect(screen.queryByTestId('track-instrument-button')).toBeNull();
   });
 
-  it('mutes a track from its number, with no mute icon (2026-10-22)', () => {
+  it('opens the track’s settings from its number; M mutes (2026-10-23)', () => {
     render(<TrackList />);
     const number = screen.getAllByTestId('track-number')[1];
-    expect(number).toHaveAccessibleName('Mute Drums');
-    expect(number).toHaveAttribute('aria-pressed', 'false');
-    fireEvent.click(number);
+    expect(number).toHaveAccessibleName('More for Drums');
+    fireEvent.keyDown(number, { key: 'Enter' });
+    expect(screen.getByTestId('track-menu').getAttribute('aria-label')).toBe(
+      'Drums menu',
+    );
+    expect(s().tracks[1].mute).toBe(false);
+
+    const mute = screen.getAllByTestId('track-mute')[1];
+    expect(mute).toHaveAccessibleName('Mute Drums');
+    expect(mute).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(mute);
     expect(s().tracks[1].mute).toBe(true);
-    expect(number).toHaveAttribute('aria-pressed', 'true');
-    expect(number).toHaveClass('bg-daw-pill-on');
-    // One mute control per row: the number.
-    expect(screen.getAllByRole('button', { name: /^Mute / })).toHaveLength(3);
-    expect(screen.queryByTestId('track-mute')).toBeNull();
-    fireEvent.click(number);
+    expect(mute).toHaveAttribute('aria-pressed', 'true');
+    expect(mute.textContent).toBe('M');
+    fireEvent.click(mute);
     expect(s().tracks[1].mute).toBe(false);
   });
 

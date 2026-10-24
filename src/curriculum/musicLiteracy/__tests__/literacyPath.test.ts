@@ -66,7 +66,7 @@ describe('the Music Literacy path', () => {
       '/curriculum/music-literacy/hear-it-with-your-band',
     );
     expect(LITERACY_PATH[3].route).toBe(
-      '/studio/editor?tutorial=studio-basics-your-tracks',
+      '/studio?tutorial=studio-basics-your-tracks',
     );
     expect(LITERACY_PATH[4].route).toBe('/arcade/echo');
     expect(startHereRoute()).toBe('/learn?tab=StartHere');
@@ -530,7 +530,7 @@ describe('Studio Basics on the path', () => {
       unit: 'lessons',
       passed: 0,
       next: { index: 0, title: 'Your Tracks' },
-      to: '/studio/editor?tutorial=studio-basics-your-tracks',
+      to: '/studio?tutorial=studio-basics-your-tracks',
       key: null,
     });
     expect(state.steps).toEqual(LESSONS.map(() => 'todo'));
@@ -543,7 +543,7 @@ describe('Studio Basics on the path', () => {
       status: 'started',
       passed: 3,
       next: { index: 2, title: 'Record' },
-      to: '/studio/editor?tutorial=studio-basics-record',
+      to: '/studio?tutorial=studio-basics-record',
     });
     expect(state.steps.slice(0, 4)).toEqual([
       'passed',
@@ -560,7 +560,7 @@ describe('Studio Basics on the path', () => {
       status: 'done',
       passed: 9,
       next: null,
-      to: '/studio/editor?tutorial=studio-basics-your-tracks',
+      to: '/studio?tutorial=studio-basics-your-tracks',
     });
     expect(stepsLine(state)).toBe('All 9 lessons done');
   });

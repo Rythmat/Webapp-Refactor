@@ -1,11 +1,13 @@
 import {
   Fragment,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type HTMLAttributes,
   type KeyboardEvent,
   type PointerEvent,
+  type MutableRefObject,
 } from 'react';
 import { cn } from '@/components/utilities';
 import { gainAtPosition, positionOfGain } from './faderTaper';
@@ -32,6 +34,10 @@ import { FOCUS_RING, TYPE_CLASS } from './styles';
 // bars from the meter bus, never through React: their width is never in
 // their React style, so a re-render (a hover) can't wipe a steady level the
 // bus has no new reading for.
+//
+// A signal the track has but you don't hear (a muted or solo-silenced
+// track's, or a live input it isn't monitoring: owner, 2026-10-23) is drawn
+// too, in grey, under the coloured level: its `ghosts`.
 //
 // Stood on end (orientation 'vertical', the Mix view's strips, 2026-10-21)
 // it is the same pill turned a quarter: 26 px across and `length` tall, the
@@ -63,6 +69,8 @@ export interface VolumePillProps
   resetValue: number;
   /** The level to draw; two channels, left then right. */
   meter?: MeterSource | null;
+  /** Signals it has but doesn't play, drawn grey under the meter. */
+  ghosts?: readonly MeterSource[];
   /** The track's colour, for the meter. */
   color: string;
   /** Its length when horizontal. */
@@ -81,6 +89,74 @@ export interface VolumePillProps
   dimmed?: boolean;
   /** Someone else's for now: it shows the level and can't be moved. */
   disabled?: boolean;
+}
+
+/** The grey of a level that isn't heard: a pale grey rising to the quiet text grey. */
+const GHOST_FROM = 'color-mix(in srgb, var(--daw-text-3) 45%, transparent)';
+const GHOST_TO = 'var(--daw-text-3)';
+
+const NO_GHOSTS: readonly MeterSource[] = [];
+
+/**
+ * Paints the loudest of `sources` onto a pair of bars and their trails, each
+ * channel falling back at FALL_PER_S and its trail holding TRAIL_HOLD_MS.
+ * `sources` must keep its identity while it means the same thing.
+ */
+function usePaintedLevel(
+  sources: readonly MeterSource[],
+  bars: MutableRefObject<(HTMLDivElement | null)[]>,
+  trails: MutableRefObject<(HTMLDivElement | null)[]>,
+  vertical: boolean,
+) {
+  useEffect(() => {
+    const shown = [0, 0];
+    const trail = [0, 0];
+    const trailAt = [0, 0];
+    // Each source's latest peak, per channel.
+    const peaks = sources.map(() => [0, 0]);
+    let last = 0;
+    const size = vertical ? 'height' : 'width';
+    const paint = () => {
+      for (let ch = 0; ch < 2; ch++) {
+        const bar = bars.current[ch];
+        const tail = trails.current[ch];
+        if (bar) bar.style[size] = `${shown[ch] * 100}%`;
+        if (tail) tail.style[size] = `${trail[ch] * 100}%`;
+      }
+    };
+    paint();
+    const stops = sources.map((source, i) =>
+      source.subscribe((levels) => {
+        for (let ch = 0; ch < 2; ch++) {
+          // A mono source fills both channels.
+          peaks[i][ch] = levels.peak[ch] ?? levels.peak[0] ?? 0;
+        }
+        const now = performance.now();
+        const dt = last ? (now - last) / 1000 : 0;
+        last = now;
+        for (let ch = 0; ch < 2; ch++) {
+          let peak = 0;
+          for (const p of peaks) peak = Math.max(peak, p[ch]);
+          const at = positionOfGain(peak);
+          shown[ch] =
+            at >= shown[ch] ? at : Math.max(at, shown[ch] - FALL_PER_S * dt);
+          if (at >= trail[ch]) {
+            trail[ch] = at;
+            trailAt[ch] = now;
+          } else if (now - trailAt[ch] > TRAIL_HOLD_MS) {
+            trail[ch] = Math.max(at, trail[ch] - FALL_PER_S * dt);
+          }
+        }
+        paint();
+      }),
+    );
+    return () => {
+      for (const stop of stops) stop();
+      shown.fill(0);
+      trail.fill(0);
+      paint();
+    };
+  }, [sources, bars, trails, vertical]);
 }
 
 /** The pill across its travel. */
@@ -102,6 +178,7 @@ export function VolumePill({
   onEnd,
   resetValue,
   meter = null,
+  ghosts = NO_GHOSTS,
   color,
   width = 172,
   orientation = 'horizontal',
@@ -127,48 +204,11 @@ export function VolumePill({
   // ── The meter, painted from the bus ──
   const bars = useRef<(HTMLDivElement | null)[]>([]);
   const trails = useRef<(HTMLDivElement | null)[]>([]);
-  useEffect(() => {
-    const shown = [0, 0];
-    const trail = [0, 0];
-    const trailAt = [0, 0];
-    let last = 0;
-    const size = vertical ? 'height' : 'width';
-    const paint = () => {
-      for (let ch = 0; ch < 2; ch++) {
-        const bar = bars.current[ch];
-        const tail = trails.current[ch];
-        if (bar) bar.style[size] = `${shown[ch] * 100}%`;
-        if (tail) tail.style[size] = `${trail[ch] * 100}%`;
-      }
-    };
-    paint();
-    if (!meter) return;
-    const stop = meter.subscribe((levels) => {
-      const now = performance.now();
-      const dt = last ? (now - last) / 1000 : 0;
-      last = now;
-      for (let ch = 0; ch < 2; ch++) {
-        // A mono source fills both channels.
-        const peak = levels.peak[ch] ?? levels.peak[0] ?? 0;
-        const at = positionOfGain(peak);
-        shown[ch] =
-          at >= shown[ch] ? at : Math.max(at, shown[ch] - FALL_PER_S * dt);
-        if (at >= trail[ch]) {
-          trail[ch] = at;
-          trailAt[ch] = now;
-        } else if (now - trailAt[ch] > TRAIL_HOLD_MS) {
-          trail[ch] = Math.max(at, trail[ch] - FALL_PER_S * dt);
-        }
-      }
-      paint();
-    });
-    return () => {
-      stop();
-      shown.fill(0);
-      trail.fill(0);
-      paint();
-    };
-  }, [meter, vertical]);
+  const ghostBars = useRef<(HTMLDivElement | null)[]>([]);
+  const ghostTrails = useRef<(HTMLDivElement | null)[]>([]);
+  const heard = useMemo(() => (meter ? [meter] : NO_GHOSTS), [meter]);
+  usePaintedLevel(heard, bars, trails, vertical);
+  usePaintedLevel(ghosts, ghostBars, ghostTrails, vertical);
 
   // ── The fader ──
   const set = (p: number) => onChange(gainAtPosition(p));
@@ -289,6 +329,34 @@ export function VolumePill({
               />
             ) : null}
             <div className="relative min-h-0 min-w-0 flex-1">
+              {/* The grey level of what isn't heard, under the colour. */}
+              <div
+                ref={(el) => {
+                  ghostTrails.current[ch] = el;
+                }}
+                className={cn(
+                  'absolute',
+                  vertical ? 'inset-x-0 bottom-0' : 'inset-y-0 left-0',
+                )}
+                style={{
+                  backgroundImage: `linear-gradient(${toward}, color-mix(in srgb, ${GHOST_TO} 30%, transparent), transparent)`,
+                }}
+              />
+              <div
+                ref={(el) => {
+                  ghostBars.current[ch] = el;
+                }}
+                data-ghost-channel={ch}
+                className={cn(
+                  'absolute',
+                  vertical ? 'inset-x-0 bottom-0' : 'inset-y-0 left-0',
+                )}
+                style={{
+                  backgroundImage: `linear-gradient(${toward}, ${GHOST_FROM}, ${GHOST_TO})`,
+                  maskImage: feather,
+                  WebkitMaskImage: feather,
+                }}
+              />
               <div
                 ref={(el) => {
                   trails.current[ch] = el;

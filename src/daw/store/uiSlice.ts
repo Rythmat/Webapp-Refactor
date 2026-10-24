@@ -385,6 +385,12 @@ export interface UiSlice {
   /** Per-user: the bottom rail says what the control under the pointer does. */
   hoverHints: boolean;
   setHoverHints: (on: boolean) => void;
+  /**
+   * Per-user: arming a track disarms the others (Ableton's Exclusive Arm);
+   * ⌘/Ctrl-click on a record button arms more than one (owner, 2026-10-23).
+   */
+  recordArmExclusive: boolean;
+  setRecordArmExclusive: (on: boolean) => void;
 
   // ── Clip color mode ──
   clipColorMode: 'track' | 'prism';
@@ -724,6 +730,8 @@ export const createUiSlice: StateCreator<
   setMuteAllSet: (ids) => set({ muteAllSet: ids }),
   hoverHints: true,
   setHoverHints: (on) => set({ hoverHints: on }),
+  recordArmExclusive: true,
+  setRecordArmExclusive: (on) => set({ recordArmExclusive: on }),
 
   // ── Clip color mode ──
   clipColorMode: 'track',

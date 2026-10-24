@@ -105,7 +105,7 @@ const SongCardImpl = ({
             {playOverlay ? (
               <div
                 className="rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"
-                style={{ width: 56, height: 56 }}
+                style={{ width: '3.5rem', height: '3.5rem' }}
               >
                 <Play
                   size={24}
@@ -133,7 +133,9 @@ const SongCardImpl = ({
             {song.artist}
           </p>
           <div className="mt-2 flex items-center justify-between">
-            <span style={{ fontSize: 15, color: 'var(--color-text-dim)' }}>
+            <span
+              style={{ fontSize: '0.9375rem', color: 'var(--color-text-dim)' }}
+            >
               Lvl. {song.difficulty}
             </span>
             <div className="flex items-center gap-3">

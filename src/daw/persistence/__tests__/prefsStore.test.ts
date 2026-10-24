@@ -65,6 +65,7 @@ const CHOSEN = {
   dockHeights: { fx: 0.5, 'piano-roll': 0.6 },
   readoutMode: 'time',
   hoverHints: false,
+  recordArmExclusive: false,
 } as const;
 
 const DEFAULTS = Object.fromEntries(

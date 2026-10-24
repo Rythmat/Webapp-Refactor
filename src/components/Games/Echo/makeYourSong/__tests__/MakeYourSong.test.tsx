@@ -420,7 +420,7 @@ describe('Make Your Song', () => {
       screen.getByRole('button', { name: 'Take Your Song To The Studio!' }),
     );
     const where = await screen.findByTestId('where');
-    expect(where.textContent).toMatch(/^\/studio\/editor\?echoSong=/);
+    expect(where.textContent).toMatch(/^\/studio\?echoSong=/);
     const ref = peekEchoSongRef()!;
     expect(ref).toMatchObject({ tonic: 'C', mode: 'major', level: '1' });
     const boxed = peekEchoSong(ref)!;

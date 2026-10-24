@@ -3,7 +3,6 @@ import {
   GraduationCap,
   Home,
   Laptop,
-  Search,
   Settings,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -17,7 +16,6 @@ import {
   LearnRoutes,
   OfficeRoutes,
   ProfileRoutes,
-  SearchRoutes,
   SettingsRoutes,
   StudioRoutes,
 } from '@/constants/routes';
@@ -86,7 +84,7 @@ export const ClassroomSidebar = ({
       style={{ width: RAIL_WIDTH }}
     >
       {/* 1. The logo, centred over the icons (Suno's 72px row). */}
-      <div className="flex h-[72px] shrink-0 items-center justify-center py-4">
+      <div className="flex h-[4.5rem] shrink-0 items-center justify-center py-4">
         <Link
           to={nav(ProfileRoutes.root()).to}
           aria-label="Music Atlas home"
@@ -128,11 +126,6 @@ export const ClassroomSidebar = ({
 
         {/* 3. Secondary nav */}
         <ul className="mt-4 flex flex-col gap-px px-3">
-          <SidebarMainNavItem
-            icon={Search}
-            label="Search"
-            {...nav(SearchRoutes.root())}
-          />
           <SidebarMainNavItem
             icon={Laptop}
             label="Classroom"

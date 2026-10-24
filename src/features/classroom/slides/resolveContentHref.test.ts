@@ -115,16 +115,16 @@ describe('resolveActivityRefHref — globe', () => {
 describe('resolveActivityRefHref — studio', () => {
   it('resolves template and song namespaces', () => {
     expect(resolveActivityRefHref('studio', 'studio:template:t1')).toBe(
-      '/studio/editor?template=t1',
+      '/studio?template=t1',
     );
     expect(resolveActivityRefHref('studio', 'studio:song:s1')).toBe(
-      '/studio/editor?song=s1',
+      '/studio?song=s1',
     );
   });
   it('opens a tutorial in the editor, and the project library', () => {
     expect(
       resolveActivityRefHref('studio', 'studio:tutorial:house-make-it-pump'),
-    ).toBe('/studio/editor?tutorial=house-make-it-pump');
+    ).toBe('/studio?tutorial=house-make-it-pump');
     expect(resolveActivityRefHref('studio', 'studio:library')).toBe(
       '/studio?tab=Library',
     );

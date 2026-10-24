@@ -295,6 +295,7 @@ export const LEVEL_WORDS: Readonly<Record<string, 1 | 2 | 3>> = {
   introductory: 1,
   basic: 1,
   simple: 1,
+  simpler: 1,
   novice: 1,
   l1: 1,
   'level 1': 1,
@@ -305,6 +306,8 @@ export const LEVEL_WORDS: Readonly<Record<string, 1 | 2 | 3>> = {
   l2: 2,
   'level 2': 2,
   advanced: 3,
+  busy: 3,
+  busier: 3,
   hard: 3,
   expert: 3,
   pro: 3,
@@ -555,11 +558,17 @@ function readKey(raw: string): KeyRead | null {
 const BPM_MIN = 40;
 const BPM_MAX = 220;
 
-/** "80 BPM", "at 92": a number of beats, never a decade ("80s"). */
+/**
+ * "80 BPM", "at 92", "tempo to 100", "tempo of 90": a number of beats,
+ * never a decade ("80s").
+ */
 function readBpm(text: string): { bpm: number; phrase: string } | null {
   const m =
     /\b(\d{2,3})\s*(?:bpm|beats per minute)\b/i.exec(text) ??
-    /\bat\s+(\d{2,3})\b(?!\s*(?:s\b|'s|%))/i.exec(text);
+    /\bat\s+(\d{2,3})\b(?!\s*(?:s\b|'s|%))/i.exec(text) ??
+    /\btempo\s+(?:to\s+|of\s+|at\s+|=\s*)?(\d{2,3})\b(?!\s*(?:s\b|'s|%))/i.exec(
+      text,
+    );
   if (!m) return null;
   const bpm = Math.min(BPM_MAX, Math.max(BPM_MIN, Number(m[1])));
   return { bpm, phrase: m[0] };

@@ -1,7 +1,7 @@
 /* eslint-disable import/order */
 /* eslint-disable no-duplicate-imports */
 import { lazy } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import {
   ClassroomRoutes,
   GameRoutes,
@@ -208,13 +208,22 @@ if (typeof window !== 'undefined' && isEditorPath(window.location.pathname)) {
   preloadDaw().catch(() => {});
 }
 
-const StudioInlet = lazy(() =>
-  import('@/components/ClassroomLayout/studio/StudioInlet').then(
-    ({ StudioInlet }) => ({
-      default: StudioInlet,
+const StudioProductionPage = lazy(() =>
+  import('@/components/ClassroomLayout/studio/StudioProductionPage').then(
+    ({ StudioProductionPage }) => ({
+      default: StudioProductionPage,
     }),
   ),
 );
+
+/**
+ * The editor's old address, `/studio/editor`, forwards to `/studio` with its
+ * query and hash: links, bookmarks, lessons and kept drafts still open.
+ */
+function LegacyEditorRedirect() {
+  const { search, hash } = useLocation();
+  return <Navigate to={`${StudioRoutes.editor()}${search}${hash}`} replace />;
+}
 
 const GlobeInlet = lazy(() =>
   import('@/components/ClassroomLayout/globe/GlobeInlet').then(
@@ -444,27 +453,25 @@ export const studioPages = () => {
       </AppContext>
     ),
     children: [
-      // `/studio` now lands on the Studio Dashboard; the DAW editor moves to
-      // `/studio/editor` (opened with ?project=/?new=1/?template=/?demo=/?collab=).
+      // `/studio` is the DAW editor (owner, 2026-10-24: the Studio Dashboard
+      // and its Templates / Demos tabs are gone), opened with
+      // ?project=/?new=1/?template=/?demo=/?collab=. No content gate: the
+      // editor paints at once, and a ?song= open waits for the song library
+      // itself (openSession's prepareSong).
       {
-        element: <StudioInlet />,
         index: true,
-      },
-      // The Production tab: the dashboard shell, showing the DAW lessons.
-      {
-        path: 'production',
-        element: <StudioInlet />,
-      },
-      {
-        path: 'editor',
-        // No content gate: the editor paints at once, and a ?song= open
-        // waits for the song library itself (openSession's prepareSong).
         element: (
           <EditorRouteBoundary>
             <DawApp />
           </EditorRouteBoundary>
         ),
       },
+      // The DAW lessons, which the tutorials start from.
+      {
+        path: 'production',
+        element: <StudioProductionPage />,
+      },
+      { path: 'editor/*', element: <LegacyEditorRedirect /> },
     ],
   };
 };

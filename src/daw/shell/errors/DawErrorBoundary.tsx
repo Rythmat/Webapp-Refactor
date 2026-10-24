@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 import { useNavigate } from 'react-router-dom';
-import { StudioRoutes } from '@/constants/routes';
+import { ProfileRoutes } from '@/constants/routes';
 import { flushLiveDraft } from '@/daw/persistence/drafts/autosave';
 import { reloadAfterSaving } from '@/lib/beforeReload';
 import { chunkReloadPending, isChunkLoadError } from '@/lib/chunkReload';
@@ -62,8 +62,8 @@ function EditorCrashed(_: FallbackProps) {
       actions={[
         { label: 'Reload editor', onClick: () => void reloadAfterSaving() },
         {
-          label: 'Back to Studio',
-          onClick: () => navigate(StudioRoutes.root.definition),
+          label: 'Back to Home',
+          onClick: () => navigate(ProfileRoutes.root()),
         },
       ]}
       testId="daw-error"

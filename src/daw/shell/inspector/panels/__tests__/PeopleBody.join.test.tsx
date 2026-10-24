@@ -97,7 +97,7 @@ describe('People ▸ Join with a code', () => {
   it('joins by the code a pasted session link carries', async () => {
     h.openSession.mockResolvedValue(ready);
     render(<PeopleBody />);
-    await join('https://app.musicatlas.io/studio/editor?collab=abc-123');
+    await join('https://app.musicatlas.io/studio?collab=abc-123');
 
     expect(h.openSession).toHaveBeenCalledWith(
       expect.objectContaining({ kind: 'collab', code: 'abc-123' }),

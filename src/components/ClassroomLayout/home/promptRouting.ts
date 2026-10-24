@@ -76,7 +76,7 @@ const search = (text: string) => `/search?q=${encodeURIComponent(text)}`;
 
 /** The Studio, building a song idea from the prompt. */
 export const promptSongRoute = (text: string) =>
-  `/studio/editor?prompt=${encodeURIComponent(text.trim().slice(0, PROMPT_TEXT_MAX))}`;
+  `/studio?prompt=${encodeURIComponent(text.trim().slice(0, PROMPT_TEXT_MAX))}`;
 
 /** A destination's way in when nothing matches the text. */
 function fallback(text: string, target: PromptTarget | null): string {

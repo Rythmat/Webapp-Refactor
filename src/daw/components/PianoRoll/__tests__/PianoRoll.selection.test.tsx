@@ -129,3 +129,39 @@ describe('PianoRoll selection', () => {
     expect(roll.onChange).toHaveBeenCalledWith([]);
   });
 });
+
+describe('Octave up and down (owner, 2026-10-24)', () => {
+  const button = (id: string) =>
+    document.querySelector<HTMLButtonElement>(`[data-testid="${id}"]`)!;
+
+  it('moves only the selected notes twelve semitones, one edit each', () => {
+    const roll = renderRoll('verse', [note(0), note(480, 64), note(960)]);
+    expect(button('octave-up').disabled).toBe(true);
+    roll.selectRow(60);
+    fireEvent.click(button('octave-up'));
+    expect(roll.onChange).toHaveBeenLastCalledWith([
+      note(0, 72),
+      note(480, 64),
+      note(960, 72),
+    ]);
+    fireEvent.click(button('octave-down'));
+    expect(roll.onChange).toHaveBeenLastCalledWith([
+      note(0, 48),
+      note(480, 64),
+      note(960, 48),
+    ]);
+  });
+
+  it('is off where a selected note would leave the MIDI range', () => {
+    renderRoll('verse', [note(0, 60), note(480, 120)]);
+    // ⌘A: every note, the one at 120 among them.
+    fireEvent.keyDown(document.querySelector('[tabindex="0"]')!, {
+      code: 'KeyA',
+      key: 'a',
+      metaKey: true,
+      ctrlKey: true,
+    });
+    expect(button('octave-up').disabled).toBe(true);
+    expect(button('octave-down').disabled).toBe(false);
+  });
+});

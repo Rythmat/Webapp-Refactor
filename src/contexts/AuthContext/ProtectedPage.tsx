@@ -46,7 +46,7 @@ export const ProtectedPage = ({
 
   if (!isAuth0Authenticated) {
     // The whole link comes back after sign-in, its query and hash included: a
-    // Studio link is all query (`/studio/editor?project=…`), and without it
+    // Studio link is all query (`/studio?project=…`), and without it
     // the student would land on a bare editor that resumes something else.
     return (
       <Navigate

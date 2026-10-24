@@ -374,6 +374,7 @@ const STORE_SPECS = {
   dockHeights: pref('view', () => ({})),
   readoutMode: pref('view', 'bars'),
   hoverHints: pref('view', true),
+  recordArmExclusive: pref('view', true),
   activeTool: session('view', 'cursor', 'project'),
   scoreNoteInput: session('view', false, 'project'),
   scoreHiddenTrackIds: session('view', () => [], 'project'),

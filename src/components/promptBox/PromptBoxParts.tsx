@@ -21,7 +21,7 @@ export const ROTATE_MS = 4500;
  * transparent. Sliding it right-to-left writes each suggestion in with the
  * rainbow and leaves it at placeholder white.
  */
-const RAINBOW_STOPS = KEY_RAINBOW_COLORS.map(
+export const RAINBOW_STOPS = KEY_RAINBOW_COLORS.map(
   (c, i) => `${c} ${37 + (i / (KEY_RAINBOW_COLORS.length - 1)) * 26}%`,
 ).join(', ');
 export const SETTLED = 'rgba(255, 255, 255, 0.42)';
@@ -54,7 +54,7 @@ const COMET_RUN = {
 
 /** The card: 20 px corners, a hairline edge, a soft shadow. */
 export const PROMPT_FRAME = cn(
-  'relative w-full rounded-[20px] border border-white/10',
+  'relative w-full rounded-[1.25rem] border border-white/10',
   'shadow-[0_8px_28px_rgba(0,0,0,0.36)] transition-colors',
   'focus-within:border-white/20',
 );
@@ -65,7 +65,7 @@ export const PROMPT_OPAQUE = 'bg-[#141416]';
 
 /** The input: one line that grows, the suggestion drawn over it while empty. */
 export const PROMPT_TEXTAREA = cn(
-  'block max-h-40 min-h-[28px] w-full resize-none bg-transparent text-base leading-7 text-white',
+  'block max-h-40 min-h-[1.75rem] w-full resize-none bg-transparent text-base leading-7 text-white',
   'outline-none placeholder:text-transparent',
 );
 
@@ -108,7 +108,7 @@ export function RotatingSuggestion({
           {text}
         </motion.span>
       </AnimatePresence>
-      <kbd className="hidden h-6 shrink-0 items-center rounded-[4px] border border-white/10 bg-white/[0.06] px-1.5 font-[inherit] text-xs text-white/50 sm:inline-flex">
+      <kbd className="hidden h-6 shrink-0 items-center rounded border border-white/10 bg-white/[0.06] px-1.5 font-[inherit] text-xs text-white/50 sm:inline-flex">
         Tab
       </kbd>
     </div>
@@ -131,7 +131,7 @@ export function DiceButton({
       title={label}
       className="flex size-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/70 outline-none transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
     >
-      <Dices className="size-[18px]" />
+      <Dices className="size-[1.125rem]" />
     </button>
   );
 }
@@ -142,6 +142,19 @@ export function DiceButton({
  * rainbow comet runs once around its outline with a soft glow behind it,
  * then fades (skipped under reduced motion).
  */
+/**
+ * The Go button's hairline pill: 36px, no fill, a hairline edge, 15px text,
+ * a faint wash on hover and press. Exported for the buttons that wear it
+ * elsewhere (Home: New project, Collaborate, Go to Lessons).
+ */
+export const GO_PILL = cn(
+  'relative isolate flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-white/10 px-4 text-[0.9375rem] font-medium leading-6 transition-colors duration-75',
+  'outline-none focus-visible:outline-2 focus-visible:outline-white/50',
+);
+/** GO_PILL's text and washes while it can be pressed. */
+export const GO_PILL_ENABLED =
+  'text-[#FCFBF9] hover:bg-white/[0.04] active:bg-white/[0.08]';
+
 export function GoButton({
   disabled,
   sweep,
@@ -165,11 +178,8 @@ export function GoButton({
       disabled={disabled}
       {...rest}
       className={cn(
-        'relative isolate flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-white/10 px-4 text-[15px] font-medium leading-6 transition-colors duration-75',
-        'outline-none focus-visible:outline-2 focus-visible:outline-white/50',
-        disabled
-          ? 'cursor-not-allowed text-white/40'
-          : 'text-[#FCFBF9] hover:bg-white/[0.04] active:bg-white/[0.08]',
+        GO_PILL,
+        disabled ? 'cursor-not-allowed text-white/40' : GO_PILL_ENABLED,
       )}
     >
       {sweeping && (
@@ -210,7 +220,7 @@ export function PromptPillButton({
       type="button"
       {...props}
       className={cn(
-        'flex h-8 shrink-0 items-center rounded-full px-3.5 text-[13px] font-medium outline-none transition-colors duration-75 focus-visible:ring-2 focus-visible:ring-white/40',
+        'flex h-8 shrink-0 items-center rounded-full px-3.5 text-[0.8125rem] font-medium outline-none transition-colors duration-75 focus-visible:ring-2 focus-visible:ring-white/40',
         variant === 'primary' &&
           'bg-white text-[#101012] hover:bg-[#E6E6E8] active:bg-[#D1D1D3]',
         variant === 'outline' &&
@@ -224,6 +234,6 @@ export function PromptPillButton({
 
 /** The card above the box (what it's doing, what it did): the box's frame. */
 export const PROMPT_CARD = cn(
-  'flex items-center gap-3 rounded-[20px] border border-white/10 px-4 py-3',
+  'flex items-center gap-3 rounded-[1.25rem] border border-white/10 px-4 py-3',
   'shadow-[0_8px_28px_rgba(0,0,0,0.36)]',
 );

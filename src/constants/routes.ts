@@ -760,8 +760,15 @@ export const StudioRoutes = {
 
   picker: createRouteDefinition('/', { prefix: studioPrefix }),
 
-  /** The DAW editor. The `/studio` index now shows the Studio Dashboard. */
-  editor: createRouteDefinition('/editor', { prefix: studioPrefix }),
+  /**
+   * The DAW editor: `/studio` itself (owner, 2026-10-24; the Studio Dashboard
+   * and its Templates / Demos tabs are gone). The old `/studio/editor`
+   * forwards here with its query, so links and bookmarks still open.
+   */
+  editor: createRouteDefinition(studioPrefix),
+
+  /** Where the editor used to live, kept only to forward old links. */
+  legacyEditor: createRouteDefinition('/editor', { prefix: studioPrefix }),
 
   /** The Production tab — step-by-step DAW lessons, each opening the editor. */
   production: createRouteDefinition('/production', { prefix: studioPrefix }),

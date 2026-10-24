@@ -262,4 +262,39 @@ describe('formatPan', () => {
     expect(formatPan(-0.4)).toBe('L40');
     expect(formatPan(1)).toBe('R100');
   });
+  it('draws what it has but does not play in grey, the loudest of its ghosts', () => {
+    const sends: ((levels: MeterLevels) => void)[] = [];
+    const source = () => ({
+      subscribe: (cb: (levels: MeterLevels) => void) => {
+        sends.push(cb);
+        return () => {};
+      },
+    });
+    const ghosts = [source(), source()];
+    render(
+      <VolumePill
+        label="Volume of Bass"
+        value={1}
+        onChange={() => {}}
+        resetValue={0.8}
+        color="#3b82f6"
+        meter={null}
+        ghosts={ghosts}
+        dimmed
+      />,
+    );
+    // A muted track's stereo level and its unmonitored input (mono).
+    act(() => sends[0]({ peak: [0.5, 0.25] }));
+    act(() => sends[1]({ peak: [1] }));
+    const [left, right] = document.querySelectorAll<HTMLElement>(
+      '[data-ghost-channel]',
+    );
+    expect(parseFloat(left.style.width)).toBeCloseTo(UNITY_AT * 100, 1);
+    expect(parseFloat(right.style.width)).toBeCloseTo(UNITY_AT * 100, 1);
+    // Nothing in the track's colour: none of it is heard.
+    const [heard] = document.querySelectorAll<HTMLElement>(
+      '[data-meter-channel]',
+    );
+    expect(parseFloat(heard.style.width || '0')).toBe(0);
+  });
 });

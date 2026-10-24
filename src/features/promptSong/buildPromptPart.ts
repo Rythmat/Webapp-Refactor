@@ -39,6 +39,12 @@ import {
   type GrooveLoader,
 } from './promptGroove';
 import { recipeFor } from './promptRecipes';
+import {
+  engineMode,
+  KEY_LABELS,
+  namedKey,
+  type PromptKey,
+} from './promptSettings';
 
 export {
   asksForMelody,
@@ -64,6 +70,12 @@ export interface PartContext {
   lengthTicks: number;
   /** The part the selected track plays, when it plays one of them. */
   trackPart: PromptPart | null;
+  /**
+   * The student highlighted bars on that track: a prompt that names no part
+   * writes its part, even one that names a section ("for the chorus" on
+   * the Drums is drums, not chords).
+   */
+  trackHighlighted?: boolean;
   /** The project's key; null when it has none yet. */
   tonicPc: number | null;
   mode: string | null;
@@ -114,9 +126,16 @@ export interface PromptPartResult {
    * part followed the lane's own.
    */
   chordRegions: ChordRegion[] | null;
-  /** The key the part is in, for a project that had none yet. */
+  /**
+   * The key the part is in, for the session to take: one the prompt names
+   * that isn't the session's (owner, 2026-10-24), or any for a project that
+   * had none yet.
+   */
   newKey: { tonicPc: number; mode: PromptMode } | null;
-  /** The tempo the part is at, for a blank project; null keeps the song's. */
+  /**
+   * The tempo the part is at, for the session to take: one the prompt names,
+   * or a blank project's; null keeps the song's.
+   */
   newBpm: number | null;
   /** The song section the prompt named ('bridge'), to mark the spot with. */
   section: string | null;
@@ -147,40 +166,6 @@ export class PromptPartRefusal extends Error {
 
 /** The longest spot a prompt fills: the engine writes sixteen bars. */
 export const MAX_PART_BARS = 16;
-
-/** Each tonic as the circle of fifths spells its key. */
-const KEY_LABELS = [
-  'C',
-  'Db',
-  'D',
-  'Eb',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'Ab',
-  'A',
-  'Bb',
-  'B',
-];
-
-const DIATONIC: readonly PromptMode[] = [
-  'ionian',
-  'dorian',
-  'phrygian',
-  'lydian',
-  'mixolydian',
-  'aeolian',
-];
-
-/** The project's mode as one the engine plays: a scale with a minor third
- *  is read as minor, any other as major. */
-function engineMode(mode: string | null): PromptMode {
-  if (mode && (DIATONIC as readonly string[]).includes(mode)) {
-    return mode as PromptMode;
-  }
-  return mode && /minor|locrian|phrygian/i.test(mode) ? 'aeolian' : 'ionian';
-}
 
 /** The symbol sounding at the start of each bar of the spot. */
 function chordPerBar(
@@ -258,24 +243,41 @@ export async function buildPromptPart(
       'Melodies aren’t ready yet. Try drums, a bass line or chords.',
     );
   }
-  // "Write a bridge": a section named with no part is its chords.
-  const parts =
+  // Bars highlighted on a track: its part. "Write a bridge": a section
+  // named with no part is its chords.
+  const onTrack = context.trackHighlighted ? context.trackPart : null;
+  const parts: PromptPart[] =
     asked ??
-    (named ? ['chords'] : context.trackPart ? [context.trackPart] : ORDER);
+    (onTrack
+      ? [onTrack]
+      : named
+        ? ['chords']
+        : context.trackPart
+          ? [context.trackPart]
+          : [...ORDER]);
   // Chords asked for, or a section, are new chords for the spot, whatever
   // the lane has there; drums or a bass line follow the lane's.
   const wantsChords =
-    (asked?.includes('chords') ?? false) || (!asked && !!named);
+    (asked?.includes('chords') ?? false) ||
+    (!asked && !!named && parts.includes('chords'));
   const role = named ?? context.sectionType ?? null;
 
-  // The style the prompt names, else the project's genre; the key the
-  // project is in, else the prompt's or the style's.
+  // The style the prompt names, else the project's genre. The key the prompt
+  // names, which the session then takes (owner, 2026-10-24: a key center
+  // asked for — a tonic alone keeps the session's mode — or a mode); else
+  // the project's, else the style's.
   const read = parseMusicPrompt(text);
   const session = context.sessionText
     ? parseMusicPrompt(context.sessionText)
     : null;
   const sessionStyled = !read.genre && !!session?.genre;
   const projectKey = context.tonicPc !== null;
+  const askedKey: PromptKey | null = namedKey(read, context);
+  const keyChanged =
+    askedKey !== null &&
+    (!projectKey ||
+      askedKey.tonicPc !== context.tonicPc ||
+      askedKey.mode !== engineMode(context.mode));
   const prompt: MusicPrompt = {
     ...read,
     genre:
@@ -286,9 +288,19 @@ export async function buildPromptPart(
         : null),
     flavor: read.flavor ?? (sessionStyled ? session!.flavor : null),
     vibes: read.vibes.length || !sessionStyled ? read.vibes : session!.vibes,
-    tonicPc: projectKey ? context.tonicPc : read.tonicPc,
-    tonicLabel: projectKey ? KEY_LABELS[context.tonicPc!] : read.tonicLabel,
-    mode: projectKey ? engineMode(context.mode) : read.mode,
+    ...(askedKey
+      ? {
+          tonicPc: askedKey.tonicPc,
+          tonicLabel: askedKey.label,
+          mode: askedKey.mode,
+        }
+      : {
+          tonicPc: projectKey ? context.tonicPc : read.tonicPc,
+          tonicLabel: projectKey
+            ? KEY_LABELS[context.tonicPc!]
+            : read.tonicLabel,
+          mode: projectKey ? engineMode(context.mode) : read.mode,
+        }),
   };
   const rng = echoRandom(seed);
   const plan = planPrompt(prompt, rng);
@@ -316,15 +328,20 @@ export async function buildPromptPart(
   // project the tempo is one the groove was written for, the style's and
   // the mood's pulling within that, unless the prompt names one; on a song
   // that has a tempo, the groove nearest it.
-  const wanted = context.blank
-    ? (read.bpm ?? tempoFor(plan, recipe))
-    : context.bpm;
+  // A tempo the prompt names is the session's from now on (owner,
+  // 2026-10-24).
+  const wanted =
+    read.bpm ?? (context.blank ? tempoFor(plan, recipe) : context.bpm);
   const groove = parts.includes('drums')
     ? drumsFor(text, plan.genre, plan.flavor, wanted, rng)
     : null;
-  const bpm = context.blank
-    ? (read.bpm ?? (groove ? tempoInGroove(groove, wanted) : wanted))
-    : context.bpm;
+  const bpm =
+    read.bpm ??
+    (context.blank
+      ? groove
+        ? tempoInGroove(groove, wanted)
+        : wanted
+      : context.bpm);
 
   const barTicks = 1920;
   const length = Math.min(
@@ -333,9 +350,10 @@ export async function buildPromptPart(
   );
   const bars = length / barTicks;
 
-  // The lane's chords where it has them and new ones weren't asked for;
-  // else a progression for the prompt, apart from the song's others.
-  const followsLane = context.chords.length > 0 && !wantsChords;
+  // The lane's chords where it has them and new ones weren't asked for (nor
+  // a new key, which they aren't in); else a progression for the prompt,
+  // apart from the song's others.
+  const followsLane = context.chords.length > 0 && !wantsChords && !keyChanged;
   const offBar = context.chords.some((c) => c.tick % barTicks !== 0);
   const chords = followsLane
     ? chordPerBar(context.chords, bars, barTicks)
@@ -430,8 +448,11 @@ export async function buildPromptPart(
     // Marked when its chords were written, or a new one was asked for ("a
     // bass line for a new chorus part"); "drop it here" names none.
     section: wantsChords || request?.isNew ? named : null,
-    newKey: projectKey ? null : { tonicPc: plan.tonicPc, mode: plan.mode },
-    newBpm: context.blank && bpm !== context.bpm ? bpm : null,
+    newKey:
+      projectKey && !keyChanged
+        ? null
+        : { tonicPc: plan.tonicPc, mode: plan.mode },
+    newBpm: bpm !== context.bpm ? bpm : null,
     track: built,
     seed,
     reading: {

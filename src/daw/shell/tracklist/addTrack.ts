@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { useStore } from '@/daw/store';
 import type { ChannelStripTabId } from '@/daw/store/uiSlice';
+import { armNewTrack } from './recordArm';
 import type { TrackChoice } from './trackTemplates';
 
 // ── Adding a track (milestones 2.6 and 2.14) ───────────────────────────────
@@ -8,7 +9,7 @@ import type { TrackChoice } from './trackTemplates';
 // The Add-track menu's open state, and the one way the menu adds a track:
 // add it with the sound it is for, select it, and open the dock on the tab
 // that plays it (the drum grid's Notes, the instrument, an audio track's
-// input). A running lesson opens
+// input). A new MIDI track starts armed and monitoring (recordArm.ts). A running lesson opens
 // what its steps need itself, so during one the dock is left as it is.
 
 interface AddTrackMenuState {
@@ -51,6 +52,7 @@ export function addTrackFrom(
     choice.init,
   );
   if (!id) return '';
+  if (choice.trackType === 'midi') armNewTrack(id);
   state.setSelectedTrackId(id);
   if (state.activeTutorialId === null) state.setChannelStripTab(tab);
   return id;

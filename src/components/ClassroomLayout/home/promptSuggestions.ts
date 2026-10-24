@@ -125,7 +125,7 @@ const studio = (
 ): PromptSuggestion => ({
   text,
   target: 'studio',
-  route: `/studio/editor?${query}`,
+  route: `/studio?${query}`,
   ...(needs && { needs }),
 });
 const learn = (

@@ -226,7 +226,13 @@ describe('the menu on a section', () => {
     expect(m.map((group) => group.map((e) => e.id))).toEqual([
       ['sectionPurpose'],
       ['renameSection', 'sectionType'],
-      ['duplicateSection', 'loopSection', 'insertBefore', 'insertAfter'],
+      [
+        'duplicateSection',
+        'prompt:section',
+        'loopSection',
+        'insertBefore',
+        'insertAfter',
+      ],
       ['deleteSection', 'learnSections'],
     ]);
     expect(m[0][0]).toEqual({
@@ -641,6 +647,7 @@ describe('the menu drawn for a section', () => {
       'renameSection',
       'sectionType',
       'duplicateSection',
+      'prompt:section',
       'loopSection',
       'insertBefore',
       'insertAfter',

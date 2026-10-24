@@ -2,7 +2,7 @@
 
 /**
  * The room code in what the student typed or pasted: the code itself, or a
- * session link that carries it (`…/studio/editor?collab=<code>`).
+ * session link that carries it (`…/studio?collab=<code>`).
  */
 export function joinCodeOf(typed: string): string {
   const text = typed.trim();

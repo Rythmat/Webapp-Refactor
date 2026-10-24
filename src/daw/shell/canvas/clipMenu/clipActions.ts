@@ -522,22 +522,3 @@ export function createClipAt(trackId: string, tick: number): string | null {
   state.setChannelStripTab('piano-roll');
   return id;
 }
-
-// ── Prism ──────────────────────────────────────────────────────────────────
-
-/** Opens Prism's chord suggestions from the bar at or before `tick`. */
-export function suggestChordsAt(tick: number, trackId: string): void {
-  const state = useStore.getState();
-  state.openPrismSuggestion(
-    barStartTick(Math.max(0, tick), timeSignatureOf(state)),
-    trackId,
-  );
-}
-
-/** Shows Prism in the dock for the clip's track. */
-export function openPrismFor(trackId: string): void {
-  const state = useStore.getState();
-  if (state.selectedTrackId !== trackId) state.setSelectedTrackId(trackId);
-  if (useStore.getState().selectedTrackId !== trackId) return;
-  state.setChannelStripTab('prism');
-}

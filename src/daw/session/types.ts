@@ -103,6 +103,17 @@ export type OpenIntent =
       kind: 'echoSong';
       song: EchoSongRef;
     }
+  | {
+      /**
+       * A song idea from a prompt typed on Home ("a sad lo-fi beat in D
+       * Dorian"): a band from the console plays a progression the library
+       * tags for it (features/promptSong). `seed` fixes every choice; left
+       * out, each open makes a new idea.
+       */
+      kind: 'prompt';
+      text: string;
+      seed: number | null;
+    }
   | { kind: 'jam' }
   | {
       kind: 'collab';

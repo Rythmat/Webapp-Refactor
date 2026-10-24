@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
  * The bottom rail's dock views (the floating frame, 2026-10-21): Instrument
- * · FX and Automation · Edit, icon toggles in two pills, in place of the
+ * · FX and Edit · Automation, icon toggles in two pills, in place of the
  * dock's tab bar. A press opens the view and a press on the open one shuts
  * it; a view that doesn't fit the track is off; Automation opens the
  * selected track's lane and follows the selection.
@@ -45,14 +45,14 @@ describe('the dock views', () => {
     s().setSelectedTrackId(keys);
     render(<DockViews />);
     const sound = screen.getByRole('group', { name: 'Instrument and effects' });
-    const edit = screen.getByRole('group', { name: 'Automation and editing' });
+    const edit = screen.getByRole('group', { name: 'Editing and automation' });
     expect(sound).toHaveClass('bg-daw-pill', 'rounded-full');
     expect(
       [...sound.querySelectorAll('button')].map((b) => b.ariaLabel),
     ).toEqual(['Instrument', 'FX']);
     expect(
       [...edit.querySelectorAll('button')].map((b) => b.ariaLabel),
-    ).toEqual(['Automation', 'Edit']);
+    ).toEqual(['Edit', 'Automation']);
     expect(
       [...document.querySelectorAll('[data-tutorial-id]')].map(
         (b) => (b as HTMLElement).dataset.tutorialId,

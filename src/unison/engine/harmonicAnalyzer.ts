@@ -185,14 +185,17 @@ function annotateModalInterchange(
       return { ...chord, isDiatonic: true, modalInterchange: null };
     }
 
-    // Non-diatonic: check secondary dominant first (higher priority when resolved)
+    // Non-diatonic: check secondary dominant first. A dominant 7th a fifth
+    // above a degree of the key is that degree's 5 even when it doesn't
+    // resolve there (D7 in C major is the 5 of 5, not borrowed from Lydian;
+    // owner, 2026-10-24); a leading-tone chord needs to resolve to count.
     const secDom = secDomResults[i];
-    if (secDom && secDom.resolved) {
+    if (secDom && (secDom.resolved || secDom.type === 'secondary-dominant')) {
       const annotation: ModalInterchangeAnnotation = {
         type: secDom.type,
         secondaryTarget: secDom.label,
         resolved: secDom.resolved,
-        confidence: 1.0,
+        confidence: secDom.resolved ? 1.0 : 0.85,
       };
       return { ...chord, isDiatonic: false, modalInterchange: annotation };
     }

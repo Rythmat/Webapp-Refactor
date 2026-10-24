@@ -15,7 +15,9 @@ export const HomeSongsRow = () => {
   return (
     <section
       aria-labelledby="home-songs-heading"
-      className="flex flex-col gap-2"
+      // No bold on Home: the shared SongCard's semibold titles (and bold
+      // initials) drop to regular here, and stay as they are elsewhere.
+      className="flex flex-col gap-2 [&_*]:font-normal"
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
@@ -34,7 +36,7 @@ export const HomeSongsRow = () => {
           <div className="min-w-0">
             <h2
               id="home-songs-heading"
-              className="text-base font-bold leading-6 text-white"
+              className="text-base leading-6 text-white"
             >
               Songs
             </h2>
@@ -51,7 +53,10 @@ export const HomeSongsRow = () => {
           />
         </Link>
       </div>
-      <ContentGate needs={['songs']} fallback={<div className="h-[340px]" />}>
+      <ContentGate
+        needs={['songs']}
+        fallback={<div className="h-[21.25rem]" />}
+      >
         <SongsMarquee scrollable bleed={false} />
       </ContentGate>
     </section>

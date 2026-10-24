@@ -1,5 +1,6 @@
 import { draftHasWork } from '@/lib/studio-projects/drafts/predicates';
 import { DEVICE_USER_KEY, type UserKey } from '@/lib/local-store/userScope';
+import type { PromptSongReading } from '@/features/promptSong/buildPromptSong';
 import type { DraftMeta } from '@/lib/studio-projects/drafts/types';
 import { showError, showNotice } from '@/util/toast';
 import { getSessionDeps } from './sessionDeps';
@@ -25,7 +26,7 @@ import type {
 // A toast's button opens through openSession while the editor is mounted,
 // and by URL once it isn't (the editor's boot opens it then).
 
-const EDITOR_PATH = '/studio/editor';
+const EDITOR_PATH = '/studio';
 
 /** sessionStorage: the drafts this tab already told the student about. */
 export const NOTICED_DRAFTS_KEY = 'musicAtlas:daw:noticedDrafts';
@@ -99,6 +100,29 @@ export function announceKept(
  */
 export function announceLessonResumed(stepIndex: number, steps: number): void {
   showNotice(`Lesson resumed at step ${stepIndex + 1} of ${steps}`);
+}
+
+/**
+ * What a Home prompt's song idea is: its style, key, tempo and chords. A
+ * prompt nothing was read in still opens an idea, and says so; a meter
+ * asked for that the idea doesn't play yet (it's in 4/4) is owned up to.
+ */
+export function announcePromptSong(
+  reading: PromptSongReading,
+  prompt: string,
+): void {
+  const chords = reading.chords.slice(0, 4).join(' – ');
+  const what = `${reading.styleName} in ${reading.keyName} at ${reading.bpm} BPM`;
+  if (reading.fallback) {
+    showNotice(`We didn’t catch a style in “${prompt.slice(0, 40)}”`, {
+      description: `Here’s a ${what} to start from · ${chords}`,
+    });
+    return;
+  }
+  const meter = reading.meterAsked
+    ? ` · It plays in 4/4 for now, not ${reading.meterAsked.join('/')}`
+    : '';
+  showNotice(`Made a ${what}`, { description: `${chords}${meter}` });
 }
 
 /** This tab opened a copy: the draft is open in another tab. */

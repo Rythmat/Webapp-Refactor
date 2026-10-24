@@ -93,30 +93,31 @@ function GenreCard({ course }: { course: GenreCourse }) {
     <Link
       to={CurriculumRoutes.genre({ genre: course.slug })}
       aria-label={`${course.title}: ${LEVELS} levels`}
-      className="group flex w-[200px] shrink-0 snap-start flex-col rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+      className="group flex w-[12.5rem] shrink-0 snap-start flex-col rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-white/60"
     >
       {/* The stack: three pages behind the cover, each 6 px higher and 12 px
           narrower than the one in front, dimmer the further back, with a
           dark edge so each reads as its own sheet. Hovering fans them up. */}
-      <span aria-hidden className="relative block h-[218px] w-[200px]">
+      <span aria-hidden className="relative block h-[13.625rem] w-[12.5rem]">
         {PAGES.map((p) => (
           <span
             key={p.top}
-            className="absolute rounded-[14px] shadow-[0_-1px_0_rgba(0,0,0,0.5)] transition-transform duration-300 ease-out motion-safe:group-hover:translate-y-[var(--fan)]"
+            className="absolute rounded-[0.875rem] shadow-[0_-1px_0_rgba(0,0,0,0.5)] transition-transform duration-300 ease-out motion-safe:group-hover:translate-y-[var(--fan)]"
             style={
               {
-                top: p.top,
-                left: p.inset,
-                width: 200 - 2 * p.inset,
-                height: 200 - 2 * p.inset,
+                // In rem (px / 16), so the stack grows with the app's scale.
+                top: `${p.top / 16}rem`,
+                left: `${p.inset / 16}rem`,
+                width: `${(200 - 2 * p.inset) / 16}rem`,
+                height: `${(200 - 2 * p.inset) / 16}rem`,
                 background: color,
                 opacity: p.opacity,
-                '--fan': `${-p.fan}px`,
+                '--fan': `${-p.fan / 16}rem`,
               } as React.CSSProperties
             }
           />
         ))}
-        <span className="absolute left-0 top-[18px] size-[200px] overflow-hidden rounded-2xl bg-[#151518] shadow-[0_-1px_0_rgba(0,0,0,0.55)]">
+        <span className="absolute left-0 top-[1.125rem] size-[12.5rem] overflow-hidden rounded-2xl bg-[#151518] shadow-[0_-1px_0_rgba(0,0,0,0.55)]">
           <img
             src={course.image}
             alt=""
@@ -140,7 +141,7 @@ function GenreCard({ course }: { course: GenreCourse }) {
 }
 
 const ARROW =
-  'absolute top-[122px] z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-[#1c1c1f]/90 text-white shadow-[0_4px_16px_rgba(0,0,0,0.4)] outline-none transition-opacity hover:bg-[#2a2a2e] focus-visible:ring-2 focus-visible:ring-white/50';
+  'absolute top-[7.625rem] z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-[#1c1c1f]/90 text-white shadow-[0_4px_16px_rgba(0,0,0,0.4)] outline-none transition-opacity hover:bg-[#2a2a2e] focus-visible:ring-2 focus-visible:ring-white/50';
 
 /**
  * Home's Catalog, under Songs: the genres Learn teaches, styled after Suno's
@@ -201,7 +202,7 @@ export const HomeCatalogRow = () => {
           />
           <h2
             id="home-catalog-heading"
-            className="text-base font-bold leading-6 text-white"
+            className="text-base leading-6 text-white"
           >
             Catalog
           </h2>

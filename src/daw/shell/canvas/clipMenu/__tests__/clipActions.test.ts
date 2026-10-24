@@ -55,6 +55,7 @@ import {
   toggleClipMute,
   transposeClip,
 } from '../clipActions';
+import { usePromptBarStore } from '@/daw/shell/prompt/promptBarStore';
 import { runCanvasMenuItem } from '../runCanvasMenuItem';
 
 const s = () => useStore.getState();
@@ -387,27 +388,35 @@ describe('rename', () => {
   });
 });
 
-describe('Prism', () => {
-  it('suggests chords from the bar a lane was clicked in, or a clip starts in', () => {
-    const open = vi.fn();
-    useStore.setState({ openPrismSuggestion: open });
-    runCanvasMenuItem(
-      { kind: 'lane', trackId: keys, tick: 4000 },
-      'prism:suggest',
-    );
-    expect(open).toHaveBeenLastCalledWith(3840, keys);
-    runCanvasMenuItem({ kind: 'clip', ...KEYS() }, 'prism:suggest');
-    expect(open).toHaveBeenLastCalledWith(1920, keys);
-    // A clip right-clicked further in suggests from the bar under the
-    // pointer.
-    runCanvasMenuItem({ kind: 'clip', ...KEYS(), tick: 4000 }, 'prism:suggest');
-    expect(open).toHaveBeenLastCalledWith(3840, keys);
+describe('Prism: the prompt bar on bars of the track', () => {
+  const bar = () => usePromptBarStore.getState();
+  beforeEach(() =>
+    usePromptBarStore.setState({
+      selection: null,
+      laneSpot: null,
+      collapsed: true,
+    }),
+  );
+
+  it('highlights four bars from the bar a lane or clip was right-clicked in', () => {
+    runCanvasMenuItem({ kind: 'lane', trackId: keys, tick: 4000 }, 'prism');
+    expect(bar().selection).toEqual({
+      startTick: 3840,
+      endTick: 3840 + 4 * 1920,
+      trackId: keys,
+    });
+    expect(bar().collapsed).toBe(false);
+    usePromptBarStore.setState({ selection: null });
+    // A clip right-clicked with no pointer tick: from where it starts.
+    runCanvasMenuItem({ kind: 'clip', ...KEYS() }, 'prism');
+    expect(bar().selection?.startTick).toBe(1920);
   });
 
-  it('opens Prism in the dock for the clip’s track', () => {
-    runCanvasMenuItem({ kind: 'clip', ...KEYS() }, 'prism:open');
-    expect(s().selectedTrackId).toBe(keys);
-    expect(s().channelStripTab).toBe('prism');
+  it('keeps bars already dragged out on the track that hold the click', () => {
+    const dragged = { startTick: 0, endTick: 6 * 1920, trackId: keys };
+    usePromptBarStore.setState({ selection: dragged });
+    runCanvasMenuItem({ kind: 'clip', ...KEYS(), tick: 4000 }, 'prism');
+    expect(bar().selection).toEqual(dragged);
   });
 });
 

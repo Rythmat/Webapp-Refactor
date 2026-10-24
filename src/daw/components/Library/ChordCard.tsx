@@ -1,5 +1,7 @@
+import { useReducedMotion } from 'framer-motion';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, ChevronDown } from 'lucide-react';
+import { ArrowUpRight, BookOpen, ChevronDown } from 'lucide-react';
 import { LearnRoutes } from '@/constants/routes';
 import { withStudioOrigin } from '@/lib/learn/lessonOrigin';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
@@ -14,26 +16,48 @@ import {
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { formatSecondaryLabel, useChordNotation } from '@/lib/chordNotation';
+import { cn } from '@/components/utilities';
+import {
+  Dot,
+  INK,
+  INK_DIM,
+  INSIGHT_DIM,
+  INSIGHT_GHOST,
+  INSIGHT_PILL_LINK,
+  INSIGHT_TEXT,
+  InsightBadge,
+  InsightCard,
+} from './InsightCard';
 import { chordCardLabels, keyContext } from './insightNotation';
 
 interface ChordCardProps {
   chord: ChordInsight;
-  keyLetter: string | null;
   rootNote: number | null;
   /** Session mode (ALL_MODES key), for spelling note names. */
   mode?: string;
   expanded: boolean;
   onToggleExpand: () => void;
+  /** The notes picked make this chord: the card lights and comes into view. */
+  highlighted?: boolean;
 }
 
 export function ChordCard({
   chord,
-  keyLetter,
   rootNote,
   mode,
   expanded,
   onToggleExpand,
+  highlighted = false,
 }: ChordCardProps) {
+  const ref = useRef<HTMLElement>(null);
+  const reduce = !!useReducedMotion();
+  useEffect(() => {
+    if (!highlighted) return;
+    ref.current?.scrollIntoView?.({
+      block: 'nearest',
+      behavior: reduce ? 'auto' : 'smooth',
+    });
+  }, [highlighted, reduce]);
   const notation = useChordNotation();
   const context = keyContext(rootNote, mode);
   // Hybrid: the hybrid number plus the letter name; jazz / Roman: one symbol.
@@ -44,86 +68,85 @@ export function ChordCard({
   const shownTarget =
     secondaryTarget === undefined ? undefined : formatTarget(secondaryTarget);
 
+  const description = getEnrichedDescription(chord, formatTarget);
+  const borrowed =
+    chord.modalInterchange?.type === 'borrowed' ||
+    chord.modalInterchange?.type === 'mode-mixture';
+  // The scale it's borrowed from, on the song's tonic: "C Aeolian", whose
+  // lesson the pill opens.
+  const sourceMode = chord.modalInterchange?.sourceMode ?? chord.sourceMode;
+  const fromSong = useFromSong(labels.title);
+  const borrowedFrom =
+    chord.modalInterchange?.type === 'borrowed' &&
+    sourceMode &&
+    rootNote !== null
+      ? (() => {
+          const tonic = displayAccidentals(
+            noteNameInKey(rootNote, rootNote, mode),
+          );
+          return {
+            scale: `${tonic} ${MODE_DISPLAY[sourceMode] ?? chord.modalInterchange?.sourceModeDisplay ?? sourceMode}`,
+            to: fromSong(
+              LearnRoutes.lesson({
+                mode: MODE_TO_SLUG[sourceMode] ?? sourceMode,
+                key: keyLabelToUrlParam(tonic),
+              }),
+            ),
+          };
+        })()
+      : null;
+
   return (
-    <div
-      className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-      style={{ borderColor: 'var(--daw-hairline)' }}
+    <InsightCard
+      ref={ref}
+      active={highlighted}
+      data-highlighted={highlighted || undefined}
+      className={cn(
+        'transition-[border-color,box-shadow] duration-300',
+        highlighted && 'ring-1 ring-white/25',
+      )}
     >
       {/* Title row */}
-      <div className="flex items-center gap-1.5">
-        <div
-          className="w-1.5 h-1.5 rounded-full shrink-0"
-          style={{ backgroundColor: chord.color }}
-        />
-        <span
-          className="text-[11px] font-semibold"
-          style={{ color: 'var(--daw-text)' }}
-        >
-          {labels.title}
-        </span>
+      <div className="flex items-center gap-2.5">
+        <Dot color={chord.color} />
+        <span className={cn(INSIGHT_TEXT, 'font-medium')}>{labels.title}</span>
         {labels.detail !== null && (
-          <span className="text-[10px]" style={{ color: 'var(--daw-text-3)' }}>
-            {labels.detail}
-          </span>
+          <span className={INSIGHT_DIM}>{labels.detail}</span>
         )}
       </div>
 
       {/* Diatonic / Borrowed indicator (UNISON enrichment) */}
       {chord.isDiatonic === false && chord.modalInterchange && (
-        <span
-          className="self-start text-[9px] font-medium px-1.5 py-0.5 rounded-full"
-          style={
-            chord.modalInterchange.type === 'borrowed' ||
-            chord.modalInterchange.type === 'mode-mixture'
-              ? {
-                  backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                  color: '#f59e0b',
-                }
-              : {
-                  backgroundColor: 'rgba(168, 85, 247, 0.15)',
-                  color: '#c084fc',
-                }
+        <InsightBadge
+          tone={borrowed ? 'amber' : 'purple'}
+          to={borrowedFrom?.to}
+          title={
+            borrowedFrom
+              ? `Open the ${borrowedFrom.scale} lesson: the scale this chord is borrowed from`
+              : undefined
           }
         >
           {chord.modalInterchange.type === 'borrowed'
-            ? `Borrowed from ${chord.modalInterchange.sourceModeDisplay ?? chord.sourceMode ?? ''}`
+            ? `Borrowed from ${borrowedFrom?.scale ?? chord.modalInterchange.sourceModeDisplay ?? chord.sourceMode ?? ''}`
             : chord.modalInterchange.type === 'secondary-dominant'
               ? (shownTarget ?? 'Secondary dom.')
               : chord.modalInterchange.type === 'secondary-leading-tone'
                 ? (shownTarget ?? 'Secondary LT')
                 : 'Mode mixture'}
-        </span>
+        </InsightBadge>
       )}
       {chord.isDiatonic === false &&
         !chord.modalInterchange &&
         chord.isDiatonic !== undefined && (
-          <span
-            className="self-start text-[9px] font-medium px-1.5 py-0.5 rounded-full"
-            style={{
-              backgroundColor: 'var(--daw-surface-2)',
-              color: 'var(--daw-text-3)',
-            }}
-          >
-            Chromatic
-          </span>
+          <InsightBadge>Chromatic</InsightBadge>
         )}
 
       <ChordTones intervals={chord.intervals} noteNames={chord.noteNames} />
 
       {/* Theory description (enriched when UNISON data available) */}
-      <div
-        className="text-[9px] leading-snug"
-        style={{ color: 'var(--daw-text-3)' }}
-      >
-        {getEnrichedDescription(chord, formatTarget)}
-      </div>
+      {description ? <p className={INSIGHT_DIM}>{description}</p> : null}
 
-      <ChordLessonLinks
-        chord={chord}
-        chordName={labels.title}
-        keyLetter={keyLetter}
-        mode={mode}
-      />
+      <ChordLessonLinks chord={chord} chordName={labels.title} />
 
       <ChordAlternatives
         rootLetter={chord.rootLetter}
@@ -135,7 +158,7 @@ export function ChordCard({
         expanded={expanded}
         onToggleExpand={onToggleExpand}
       />
-    </div>
+    </InsightCard>
   );
 }
 
@@ -152,7 +175,8 @@ function useFromSong(chordName: string) {
     withStudioOrigin(path, { song: projectName, chord: chordName });
 }
 
-/** The chord's intervals from its root, then its notes. */
+/** The chord's intervals from its root, then its notes, as two plain lines
+ * ("Intervals: 1, b3, 5" over "Notes: G, Bb, D"; owner, 2026-10-24). */
 export function ChordTones({
   intervals,
   noteNames,
@@ -160,29 +184,18 @@ export function ChordTones({
   intervals: string;
   noteNames: string[];
 }) {
+  // The root reads as 1, as the other degrees do.
+  const steps = intervals
+    .split(' ')
+    .filter(Boolean)
+    .map((step) => (step === 'R' ? '1' : step));
   return (
-    <>
-      {intervals && (
-        <div className="flex gap-1 flex-wrap">
-          {intervals.split(' ').map((interval, i) => (
-            <span
-              key={i}
-              className="text-[9px] px-1 py-0.5 rounded"
-              style={{
-                backgroundColor: 'var(--daw-surface-2)',
-                color:
-                  interval === 'R' ? 'var(--daw-accent)' : 'var(--daw-text-3)',
-              }}
-            >
-              {interval}
-            </span>
-          ))}
-        </div>
+    <div className="flex flex-col">
+      {steps.length > 0 && (
+        <div className={INSIGHT_DIM}>Intervals: {steps.join(', ')}</div>
       )}
-      <div className="text-[9px]" style={{ color: 'var(--daw-text-3)' }}>
-        Notes: {noteNames.join(' \u2013 ')}
-      </div>
-    </>
+      <div className={INSIGHT_DIM}>Notes: {noteNames.join(', ')}</div>
+    </div>
   );
 }
 
@@ -196,80 +209,77 @@ export interface ChordLessonFacts {
   isSessionParent: boolean;
 }
 
-/** The chord's own sound first, as the one clear next step, then the song's
- * key and the parent scale as plain labels. */
+/**
+ * The chord's lessons in two columns (owner, 2026-10-24): the mode the
+ * chord's root sounds — what "Learn this sound" used to open — and the
+ * parent scale it's drawn from, their names on top and the lessons under
+ * them ("Eb Lydian", "Bb Ionian"), laid out as the landing's bento row
+ * without its boxes. The parent box shows even when it's the song's
+ * own parent scale: it's where the mode comes from.
+ */
 export function ChordLessonLinks({
   chord,
   chordName,
-  keyLetter,
-  mode,
 }: {
   chord: ChordLessonFacts;
   /** The chord as the card titles it, for the lesson's way back. */
   chordName: string;
-  keyLetter: string | null;
-  mode?: string;
 }) {
   const fromSong = useFromSong(chordName);
-  const showKey =
-    chord.sessionMode &&
-    keyLetter &&
-    !(
-      chord.sessionMode === chord.chordRootMode &&
-      chord.rootLetter === keyLetter
+  const lesson = (mode: string, key: string) =>
+    fromSong(
+      LearnRoutes.lesson({
+        mode: MODE_TO_SLUG[mode] ?? mode,
+        key: keyLabelToUrlParam(key),
+      }),
     );
-  const showParent =
-    !chord.isSessionParent && chord.parentKeyLetter && chord.parentMode;
+  const boxes = [
+    {
+      label: 'Mode',
+      scale: `${chord.rootLetter} ${MODE_DISPLAY[chord.chordRootMode] ?? chord.chordRootMode}`,
+      to: lesson(chord.chordRootMode, chord.rootLetter),
+    },
+    ...(chord.parentKeyLetter && chord.parentMode
+      ? [
+          {
+            label: 'Parent scale',
+            scale: `${chord.parentKeyLetter} ${MODE_DISPLAY[chord.parentMode] ?? chord.parentMode}`,
+            to: lesson(chord.parentMode, chord.parentKeyLetter),
+          },
+        ]
+      : []),
+  ];
 
   return (
-    <>
-      <LessonLink
-        primary
-        to={fromSong(
-          LearnRoutes.lesson({
-            mode: MODE_TO_SLUG[chord.chordRootMode] ?? chord.chordRootMode,
-            key: keyLabelToUrlParam(chord.rootLetter),
-          }),
-        )}
-        scale={`${chord.rootLetter} ${MODE_DISPLAY[chord.chordRootMode] ?? chord.chordRootMode}`}
-      />
-      {(showKey || showParent) && (
-        <div className="flex flex-wrap items-center gap-1">
-          {showKey && chord.sessionMode && keyLetter && (
-            <LessonLink
-              to={fromSong(
-                LearnRoutes.lesson({
-                  mode: MODE_TO_SLUG[chord.sessionMode] ?? chord.sessionMode,
-                  key: keyLabelToUrlParam(keyLetter),
-                }),
-              )}
-              // Only the song's key when it really is the detected key; the
-              // card's session mode is read from the chord's own family.
-              label={
-                mode &&
-                (MODE_TO_SLUG[chord.sessionMode] ?? chord.sessionMode) ===
-                  (MODE_TO_SLUG[mode] ?? mode)
-                  ? 'Song’s key'
-                  : 'Also'
-              }
-              scale={`${keyLetter} ${MODE_DISPLAY[chord.sessionMode] ?? chord.sessionMode}`}
-            />
-          )}
-          {showParent && chord.parentKeyLetter && chord.parentMode && (
-            <LessonLink
-              to={fromSong(
-                LearnRoutes.lesson({
-                  mode: MODE_TO_SLUG[chord.parentMode] ?? chord.parentMode,
-                  key: keyLabelToUrlParam(chord.parentKeyLetter),
-                }),
-              )}
-              label="Parent scale"
-              scale={`${chord.parentKeyLetter} ${MODE_DISPLAY[chord.parentMode] ?? chord.parentMode}`}
-            />
-          )}
-        </div>
+    <nav
+      aria-label="Lessons for this chord"
+      className={cn(
+        'grid grid-flow-col grid-rows-[auto_auto] gap-x-4',
+        boxes.length === 2 ? 'grid-cols-2' : 'grid-cols-1',
       )}
-    </>
+    >
+      {boxes.map((box) => [
+        <span
+          key={`${box.label}-label`}
+          className={cn(INK_DIM, 'text-[12px] font-medium text-white/55')}
+        >
+          {box.label}
+        </span>,
+        <Link
+          key={`${box.label}-lesson`}
+          to={box.to}
+          title={`Open the ${box.scale} lesson`}
+          aria-label={`${box.label}: ${box.scale}. Open the lesson`}
+          className="group -mx-1 flex h-8 min-w-0 items-center gap-1 rounded-md px-1 text-[15px] font-medium text-white outline-none transition-colors hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/40"
+        >
+          <span className={cn(INK, 'min-w-0 truncate')}>{box.scale}</span>
+          <ArrowUpRight
+            aria-hidden
+            className="insight-mark size-4 shrink-0 text-white/40 transition-[color,transform] duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white/80"
+          />
+        </Link>,
+      ])}
+    </nav>
   );
 }
 
@@ -297,30 +307,24 @@ export function ChordAlternatives({
   const fromSong = useFromSong(chordName);
   if (alternatives.length === 0 || rootNote === null) return null;
   return (
-    <div className="flex flex-col gap-0.5 mt-0.5">
+    <div className="flex flex-col gap-1">
       <button
         type="button"
         onClick={onToggleExpand}
         aria-expanded={expanded}
-        className="flex items-center gap-1 text-[9px] font-medium"
-        style={{
-          color: 'var(--daw-text-3)',
-          background: 'none',
-          border: 'none',
-          padding: 0,
-          cursor: 'pointer',
-        }}
+        className={cn(INSIGHT_GHOST, '-ml-1.5 self-start')}
       >
         <ChevronDown
-          size={10}
-          strokeWidth={2}
-          style={{
-            transition: 'transform 150ms',
-            transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-          }}
+          aria-hidden
+          className={cn(
+            'insight-mark size-3.5 transition-transform duration-150',
+            expanded && 'rotate-180',
+          )}
         />
-        Also found in {alternatives.length} scale
-        {alternatives.length > 1 ? 's' : ''}
+        <span className={INK_DIM}>
+          Also found in {alternatives.length} scale
+          {alternatives.length > 1 ? 's' : ''}
+        </span>
       </button>
       {expanded &&
         alternatives.map((alt, i) => {
@@ -329,13 +333,12 @@ export function ChordAlternatives({
           return (
             <div
               key={i}
-              className="flex items-center gap-1.5 pl-3 text-[9px] leading-snug"
-              style={{
-                color: 'var(--daw-text-3)',
-                opacity: isDetectedSource ? 1 : 0.7,
-              }}
+              className={cn(
+                'flex items-center justify-between gap-2 text-[13px] leading-5',
+                isDetectedSource ? 'text-white/85' : 'text-white/55',
+              )}
             >
-              <span>
+              <span className="min-w-0">
                 {rootLetter}{' '}
                 {MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}
                 {' \u00B7 '}
@@ -348,10 +351,7 @@ export function ChordAlternatives({
                 )}{' '}
                 {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ?? alt.family}
                 {isDetectedSource && (
-                  <span
-                    className="ml-1 text-[8px] font-medium"
-                    style={{ color: 'var(--daw-accent)' }}
-                  >
+                  <span className="ml-1.5 text-[12px] font-medium text-white">
                     detected
                   </span>
                 )}
@@ -364,55 +364,14 @@ export function ChordAlternatives({
                   }),
                 )}
                 title={`Learn ${rootLetter} ${MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}`}
-                className="flex shrink-0 items-center gap-1 rounded bg-[var(--daw-surface-2)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--daw-accent)] transition-colors hover:bg-[rgba(255,255,255,0.15)]"
+                className={cn(INSIGHT_PILL_LINK, 'h-7 px-2.5')}
               >
-                <BookOpen size={10} strokeWidth={2} />
+                <BookOpen aria-hidden className="size-3.5" />
                 Learn
               </Link>
             </div>
           );
         })}
     </div>
-  );
-}
-
-interface LessonLinkProps {
-  to: string;
-  /** "D Dorian" */
-  scale: string;
-  /** What this scale is to the chord, e.g. "Song's key". */
-  label?: string;
-  /** The chord's own sound: a full-width button that says what it does. */
-  primary?: boolean;
-}
-
-function LessonLink({ to, scale, label, primary = false }: LessonLinkProps) {
-  if (primary) {
-    return (
-      <Link
-        to={to}
-        title={`Open the ${scale} lesson: the scale behind this chord`}
-        className="mt-1 flex w-full items-center gap-2 rounded-md border border-[rgba(255,255,255,0.35)] bg-[rgba(255,255,255,0.08)] px-2 py-1.5 text-[var(--daw-accent)] transition-colors hover:bg-[rgba(255,255,255,0.18)]"
-      >
-        <BookOpen size={14} strokeWidth={2} className="shrink-0" />
-        <span className="flex min-w-0 flex-col leading-tight">
-          <span className="text-xs font-semibold">Learn this sound</span>
-          <span className="text-[11px]" style={{ color: 'var(--daw-text)' }}>
-            {scale} &rarr;
-          </span>
-        </span>
-      </Link>
-    );
-  }
-  return (
-    <Link
-      to={to}
-      title={`Open the ${scale} lesson`}
-      className="flex items-center gap-1 rounded bg-[var(--daw-hover)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--daw-accent)] transition-colors hover:bg-[rgba(255,255,255,0.15)]"
-    >
-      <BookOpen size={11} strokeWidth={2} />
-      {label && <span style={{ color: 'var(--daw-text-3)' }}>{label}:</span>}
-      {scale}
-    </Link>
   );
 }

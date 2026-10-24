@@ -383,14 +383,19 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'load-groove',
       stage: 'STAGE 5 — GROOVE',
       instruction:
-        "Steal some feel — in **Grooves**, beside the kit, **Preview** one you like, then **Add** it. It'll drop in as a new clip.",
-      // The grooves live in the drums' Instrument tab, in its menu column
-      // (owner, 2026-10-22), not the old Grooves tab.
-      target: ['drum-grooves', 'chanstrip-tab-controls'],
-      requires: { channelStripTab: 'controls', soundsOpen: true },
-      check: (s, armed) =>
-        (selectedTrack(s)?.midiClips.length ?? 0) >
-        (armedSelectedTrack(s, armed)?.midiClips.length ?? 0),
+        'Steal some feel — in the **prompt box** under the timeline, ask for a beat (try “add a hip hop beat”) and press **Create**. A groove drops onto your drums.',
+      // The grooves moved into the prompt box's generation (owner,
+      // 2026-10-23): a prompt's drums are a groove from the library.
+      target: 'prompt-box',
+      // A clip the drums didn't have: the groove replaces any there.
+      check: (s, armed) => {
+        const before = new Set(
+          armedSelectedTrack(s, armed)?.midiClips.map((c) => c.id) ?? [],
+        );
+        return (
+          selectedTrack(s)?.midiClips.some((c) => !before.has(c.id)) ?? false
+        );
+      },
     },
     {
       id: 'pad-mix',

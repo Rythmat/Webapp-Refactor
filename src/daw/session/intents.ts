@@ -52,7 +52,9 @@ import {
   announceLessonResumed,
   announceOpenedProjectDraft,
   announceProjectDraftKept,
+  announcePromptSong,
 } from './sessionNotices';
+import { usePromptBarStore } from '@/daw/shell/prompt/promptBarStore';
 import type { SessionDeps } from './sessionDeps';
 import type {
   BootNotice,
@@ -167,6 +169,8 @@ export function intentLabel(intent: OpenIntent, name?: string | null): string {
       return 'Building your practice track…';
     case 'echoSong':
       return 'Opening your song…';
+    case 'prompt':
+      return 'Building your song idea…';
     case 'collab':
       if (intent.code === 'new') return 'Starting a session…';
       return intent.awaitHost
@@ -506,6 +510,8 @@ export async function prepareIntent(
       return preparePracticeGenre(intent, ctx);
     case 'echoSong':
       return prepareEchoSong(intent, ctx);
+    case 'prompt':
+      return preparePrompt(intent, ctx);
     case 'jam': {
       const jam = readPendingJam();
       if (!jam) throw new OpenRefusal(notFoundError(NOT_FOUND_MESSAGES.jam));
@@ -979,6 +985,68 @@ async function prepareEchoSong(
     },
   });
 }
+
+/**
+ * A song idea from a Home prompt (features/promptSong): a console band
+ * plays a progression the library tags for the prompt's moods and style, in
+ * its key and tempo. Loaded here, not at the top: it reaches the curriculum
+ * engines, which the Studio's start never needs. An idea is the student's
+ * to keep, kept as a draft until saved: nothing builds it again from its
+ * ref, and the next prompt makes another.
+ */
+async function preparePrompt(
+  intent: Extract<OpenIntent, { kind: 'prompt' }>,
+  ctx: PrepareContext,
+): Promise<PreparedOpen> {
+  const seedOf = () => crypto.getRandomValues(new Uint32Array(1))[0];
+  let loaded;
+  try {
+    const [build, apply] = await raceSignal(
+      Promise.all([
+        import('@/features/promptSong/buildPromptSong'),
+        import('@/features/promptSong/seedStudioFromPromptSong'),
+      ]),
+      ctx.signal,
+    );
+    const song = await raceSignal(
+      build.buildPromptSong(intent.text, { seed: intent.seed ?? seedOf() }),
+      ctx.signal,
+    );
+    loaded = { apply, song };
+  } catch (err) {
+    throwIfAborted(ctx.signal);
+    console.error('The prompt song failed to build', err);
+    const error = openErrorFromFailure(err, 'practice');
+    throw new OpenRefusal(error.surface === 'panel' ? error : promptError(err));
+  }
+  const { apply, song } = loaded;
+  if (!song) throw new OpenRefusal(promptError());
+  return seeded(await claimNew(ctx), {
+    name: song.projectName,
+    apply: () => {
+      apply.applyPromptSong(song);
+      seedComposer(ctx);
+      // The style the Studio's prompt bar suggests in.
+      usePromptBarStore.getState().setSessionPrompt(intent.text);
+    },
+    savedComplete: false,
+    baseline: {
+      source: 'prompt',
+      ref: `${song.genre}/${song.seed}`,
+      reopenable: false,
+    },
+    afterReady: ({ stillCurrent }) => {
+      if (stillCurrent()) announcePromptSong(song.reading, intent.text);
+    },
+  });
+}
+
+const promptError = (cause?: unknown) =>
+  openError(
+    'unknown',
+    'We couldn’t make a song from that prompt. Try different words.',
+    { cause, surface: 'toast', retryable: false },
+  );
 
 /**
  * How long a classroom partner waits for the pair's host. A teacher-made pair

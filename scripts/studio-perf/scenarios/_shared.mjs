@@ -830,8 +830,12 @@ export async function openSongInStudio(
   const state = await kit.waitForEditor(page, 180_000);
   page.off('framenavigated', onNav);
   const editorUrl =
-    urls.map((u) => new URL(u)).find((u) => u.pathname === '/studio/editor') ??
-    null;
+    // The editor: /studio, or /studio/editor on a build before 2026-10-24.
+    urls
+      .map((u) => new URL(u))
+      .find(
+        (u) => u.pathname === '/studio' || u.pathname === '/studio/editor',
+      ) ?? null;
   return {
     state,
     keyBefore,

@@ -70,26 +70,6 @@
   "src/daw/components/LeadSheet/LeadSheetStaff.tsx": {
     "hex": 1
   },
-  "src/daw/components/Library/ChordCard.tsx": {
-    "hex": 2,
-    "rgb": 7,
-    "smallText": 10
-  },
-  "src/daw/components/Library/ChordSymbolsSection.tsx": {
-    "hex": 1,
-    "rgb": 3,
-    "smallText": 10
-  },
-  "src/daw/components/Library/InsightContent.tsx": {
-    "hex": 1,
-    "rgb": 1,
-    "smallText": 4
-  },
-  "src/daw/components/Library/SelectionAnalysis.tsx": {
-    "hex": 2,
-    "rgb": 4,
-    "smallText": 16
-  },
   "src/daw/components/MeshGradientBg.tsx": {
     "zIndex": 1
   },

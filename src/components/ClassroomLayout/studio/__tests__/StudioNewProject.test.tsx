@@ -35,10 +35,10 @@ function Where() {
 
 function renderTile() {
   return render(
-    <MemoryRouter initialEntries={['/studio']}>
+    <MemoryRouter initialEntries={['/home']}>
       <Routes>
-        <Route path="/studio" element={<StudioNewProject />} />
-        <Route path="/studio/editor" element={<Where />} />
+        <Route path="/home" element={<StudioNewProject />} />
+        <Route path="/studio" element={<Where />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -103,12 +103,10 @@ describe('StudioNewProject: Continue last session', () => {
     renderTile();
     await waitFor(() => expect(tile()).toBeTruthy());
     expect(tile()?.textContent).toContain('Midnight Groove');
-    expect(tile()?.getAttribute('data-href')).toBe(
-      '/studio/editor?draft=newest',
-    );
+    expect(tile()?.getAttribute('data-href')).toBe('/studio?draft=newest');
     act(() => tile()?.click());
     expect(screen.getByTestId('where').textContent).toBe(
-      '/studio/editor?draft=newest',
+      '/studio?draft=newest',
     );
   });
 
@@ -120,7 +118,7 @@ describe('StudioNewProject: Continue last session', () => {
     useSessionStore.setState({ draftId: 'live', userKey: KEY_A });
     renderTile();
     await waitFor(() => expect(tile()?.textContent).toContain('Live one'));
-    expect(tile()?.getAttribute('data-href')).toBe('/studio/editor');
+    expect(tile()?.getAttribute('data-href')).toBe('/studio');
   });
 
   it('ignores a live draft that belongs to someone else', async () => {
@@ -129,9 +127,7 @@ describe('StudioNewProject: Continue last session', () => {
     useSessionStore.setState({ draftId: 'theirs', userKey: 'student-b' });
     renderTile();
     await waitFor(() =>
-      expect(tile()?.getAttribute('data-href')).toBe(
-        '/studio/editor?draft=mine',
-      ),
+      expect(tile()?.getAttribute('data-href')).toBe('/studio?draft=mine'),
     );
   });
 
@@ -147,7 +143,7 @@ describe('StudioNewProject: Continue last session', () => {
       userKey: null,
     });
     expect(target).toEqual({
-      href: '/studio/editor?draft=ok',
+      href: '/studio?draft=ok',
       name: 'Fine',
       // When it was last written (Home's activity rail sorts by it).
       updatedAt: expect.any(Number),
@@ -168,7 +164,7 @@ describe('StudioNewProject: Continue last session', () => {
     const none = { draftId: null, userKey: null };
     // 'saved' has work and stays; 'equal' (newest) holds content.
     expect((await findContinueTarget(KEY_A, none))?.href).toBe(
-      '/studio/editor?draft=equal',
+      '/studio?draft=equal',
     );
     await getDraftStore().remove('saved');
     await pause();
@@ -187,7 +183,7 @@ describe('StudioNewProject: Continue last session', () => {
       { draftId: null, userKey: null },
       { locks: locksHolding('held') },
     );
-    expect(target?.href).toBe('/studio/editor?draft=free');
+    expect(target?.href).toBe('/studio?draft=free');
     expect(
       await findContinueTarget(
         KEY_A,
@@ -206,11 +202,11 @@ describe('StudioNewProject: Continue last session', () => {
     await seed('rec', KEY_A, { origin: 'recovered', name: 'Recovered' });
     const none = { draftId: null, userKey: null };
     expect((await findContinueTarget(KEY_A, none))?.href).toBe(
-      '/studio/editor?draft=session',
+      '/studio?draft=session',
     );
     await getDraftStore().remove('session');
     expect((await findContinueTarget(KEY_A, none))?.href).toBe(
-      '/studio/editor?draft=rec',
+      '/studio?draft=rec',
     );
   });
 
@@ -232,7 +228,7 @@ describe('StudioNewProject: Continue last session', () => {
     );
     renderTile();
     await waitFor(() => expect(tile()?.textContent).toContain('Old song'));
-    expect(tile()?.getAttribute('data-href')).toBe('/studio/editor');
+    expect(tile()?.getAttribute('data-href')).toBe('/studio');
     // Read only: the key is never rewritten.
     expect(localStorage.getItem(LEGACY_AUTOSAVE_KEY)).toBe(
       JSON.stringify({ version: 2, data: { projectName: 'Old song' } }),

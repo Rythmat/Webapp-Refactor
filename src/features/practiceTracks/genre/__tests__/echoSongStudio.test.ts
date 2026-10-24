@@ -90,7 +90,7 @@ describe('the link', () => {
       chords: '1.0.1920_6.1920.1920',
     });
     const url = echoSongUrl(ref);
-    expect(url.startsWith('/studio/editor?echoSong=pop-band-1')).toBe(true);
+    expect(url.startsWith('/studio?echoSong=pop-band-1')).toBe(true);
 
     // The Studio's boot reads it as the echoSong intent.
     const parsed = parseBootIntent(new URLSearchParams(url.split('?')[1]));

@@ -1,4 +1,5 @@
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
+import { isEditorPath } from '@/daw/preload';
 import type { TourContext, TourPlace } from './types';
 
 // ── Where the tours go ─────────────────────────────────────────────────────
@@ -31,8 +32,7 @@ export const atCourseLesson = (place: TourPlace) =>
   new RegExp(`^/curriculum/${TOUR_GENRE_SLUG}/\\d+$`).test(place.pathname);
 export const atIonianLesson = (place: TourPlace) =>
   /^\/learn\/(guitar\/)?ionian\/[^/]+$/i.test(place.pathname);
-export const atStudio = (place: TourPlace) =>
-  place.pathname.startsWith('/studio/editor');
+export const atStudio = (place: TourPlace) => isEditorPath(place.pathname);
 
 const pathOf = (href: string) => href.split(/[?#]/)[0].toLowerCase();
 

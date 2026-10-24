@@ -118,9 +118,8 @@ describe('a clip’s menu', () => {
       disabled: 'Drums don’t change pitch',
     });
     expect(find(m, 'quantize')).toMatchObject({ disabled: undefined });
-    // Prism's suggestions, but not Prism in the dock, for a drum clip.
-    expect(menuItemIds(m)).toContain('prism:suggest');
-    expect(menuItemIds(m)).not.toContain('prism:open');
+    // Prism (the prompt bar) on a drum clip too: it writes drums there.
+    expect(find(m, 'prism')).toMatchObject({ type: 'item', label: 'Prism' });
   });
 
   it('splits only with the playhead inside the clip', () => {
@@ -208,6 +207,7 @@ describe('a clip’s menu', () => {
       'mute',
       'transpose',
       'quantize',
+      'prism',
     ]);
     expect(find(m, 'copy')?.disabled).toBeUndefined();
   });
@@ -221,13 +221,7 @@ describe('a clip’s menu', () => {
 describe('the other canvas menus', () => {
   it('an empty MIDI lane: Paste here, Create clip, comment, Prism', () => {
     const m = model({ kind: 'lane', trackId: keys, tick: 960 });
-    expect(menuItemIds(m)).toEqual([
-      'paste',
-      'createClip',
-      'comment',
-      'prism',
-      'prism:suggest',
-    ]);
+    expect(menuItemIds(m)).toEqual(['paste', 'createClip', 'comment', 'prism']);
   });
 
   it('an empty audio lane makes no MIDI clip', () => {

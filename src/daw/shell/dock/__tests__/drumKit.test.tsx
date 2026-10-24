@@ -22,10 +22,12 @@ import {
   DRUM_TYPING_OCTAVE,
   typingKeyFor,
 } from '@/daw/commands/musicalTypingMap';
+import { emitNoteEvent } from '@/daw/audio/noteEvents';
 import { DRUM_PADS } from '@/daw/instruments/drumKits';
 import { liveTargetsAreDrums } from '@/daw/midi/liveTarget';
 import { useStore } from '@/daw/store';
 import { DrumPadsView } from '../DrumPadsView';
+import { kitStyles } from '../drumKitStyles';
 import {
   badgePoint,
   KIT_BADGES,
@@ -120,6 +122,68 @@ describe('the drums’ Instrument tab', () => {
     expect(
       screen.getByRole('button', { name: 'Hi-Hat Closed (T)' }).dataset.lit,
     ).toBe('true');
+  });
+
+  it('lights the pads the timeline plays, when they’re heard, then lets them go', () => {
+    vi.useFakeTimers();
+    try {
+      render(<DrumPadsView trackId={drums} />);
+      const kick = screen.getByRole('button', { name: 'Kick (A)' });
+      const hat = screen.getByRole('button', { name: 'Hi-Hat Closed (T)' });
+      // A kick and a hat together: both light.
+      act(() => {
+        emitNoteEvent(drums, { type: 'on', note: 36, velocity: 100 });
+        emitNoteEvent(drums, { type: 'on', note: 42, velocity: 90 });
+      });
+      expect(kick.dataset.lit).toBe('true');
+      expect(hat.dataset.lit).toBe('true');
+      act(() => vi.advanceTimersByTime(200));
+      expect(kick.dataset.lit).toBeUndefined();
+      expect(hat.dataset.lit).toBeUndefined();
+      // Another track's notes, and a zero-velocity note, light nothing.
+      act(() => {
+        emitNoteEvent('other-track', { type: 'on', note: 36, velocity: 100 });
+        emitNoteEvent(drums, { type: 'on', note: 38, velocity: 0 });
+      });
+      expect(kick.dataset.lit).toBeUndefined();
+      expect(
+        screen.getByRole('button', { name: 'Snare (S)' }).dataset.lit,
+      ).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('lists the kits by style: the styles first, the picked style’s kits next, no grooves', () => {
+    render(<DrumPadsView trackId={drums} />);
+    const styles = screen.getByTestId('drum-style-list');
+    const kits = () =>
+      [
+        ...screen.getByTestId('drum-kit-list').querySelectorAll('[data-sound]'),
+      ].map((el) => el.getAttribute('data-sound'));
+    expect(
+      [...styles.querySelectorAll('[data-style]')].map((el) => el.textContent),
+    ).toEqual(
+      expect.arrayContaining(['Pop & Rock', 'Hip Hop & Trap', 'Latin', 'Jazz']),
+    );
+    // It opens on the kit's own style: Natural is Pop & Rock.
+    expect(kits()).toContain('natural');
+    fireEvent.click(screen.getByRole('button', { name: /Latin/ }));
+    expect(kits()).toContain('salsa_kit');
+    expect(kits()).not.toContain('natural');
+    expect(screen.queryByTestId('drum-groove-list')).toBeNull();
+  });
+
+  it('files a kit no style names under More', () => {
+    expect(
+      kitStyles([
+        { id: 'natural', label: 'Natural' },
+        { id: 'new_kit', label: 'New kit' },
+      ]).map((st) => [st.label, st.kits]),
+    ).toEqual([
+      ['Pop & Rock', ['natural']],
+      ['More', ['new_kit']],
+    ]);
   });
 
   it('keeps the kit menu’s lesson anchor', () => {

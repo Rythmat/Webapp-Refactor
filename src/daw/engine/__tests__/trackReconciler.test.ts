@@ -50,6 +50,7 @@ vi.mock('@/daw/audio/TrackEngine', () => ({
     setSend(id: string, level: number) {
       calls.log.push(`${this.id}:send ${id} ${level}`);
     }
+    setNoteListener() {}
     resolver: ((id: string) => unknown) | null = null;
     setKeySourceResolver(fn: (id: string) => unknown) {
       this.resolver = fn;

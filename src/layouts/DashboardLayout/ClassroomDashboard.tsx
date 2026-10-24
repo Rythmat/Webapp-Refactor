@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router';
 import { MobileChordNotationBar } from '@/components/ClassroomLayout/ChordNotationSwitcher';
 import { TopRail } from '@/components/ClassroomLayout/TopRail';
 import { cn } from '@/components/utilities';
+import { isEditorPath } from '@/daw/preload';
 import { DawSkeleton } from '@/daw/shell/DawSkeleton';
 import { LearnTourLayer } from '@/features/learnTour/LearnTourLayer';
 import { useProgressBootstrap } from '@/hooks/data';
@@ -20,12 +21,12 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   useStreakPing();
   useStampEarnedAwards();
 
-  // Only the DAW editor (`/studio/editor`) needs the full-viewport, no-scroll
-  // treatment; the `/studio` Studio Dashboard is a normal scrollable inlet.
+  // Only the DAW editor (`/studio`) needs the full-viewport, no-scroll
+  // treatment; `/studio/production`, the DAW lessons, is a normal inlet.
   // It is also in focus mode (owner decision 7): no sidebar, TopRail or
   // chord-notation bar, so a Chromebook gives the editor the whole window.
-  // Its own top bar has Back to Studio and an avatar menu with the stats.
-  const isStudioEditor = pathname.startsWith('/studio/editor');
+  // Its own top bar has Back to Home and an avatar menu with the stats.
+  const isStudioEditor = isEditorPath(pathname);
 
   return (
     <div className="dashboard-root flex h-screen w-full overflow-hidden">

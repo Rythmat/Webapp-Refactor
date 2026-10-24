@@ -740,6 +740,8 @@ describe('decision D5', () => {
         'dockHeights',
         'readoutMode',
         'hoverHints',
+        // Record arm exclusive (2026-10-23).
+        'recordArmExclusive',
         'inputDeviceId',
         'inputChannelCountOverride',
       ].sort(),

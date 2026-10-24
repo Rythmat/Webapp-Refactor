@@ -102,7 +102,7 @@ describe('Home’s Start here card', () => {
     expect(card.getByRole('img', { name: '0 of 9 lessons done' })).toBeTruthy();
     expect(
       hrefOf(card.getByRole('link', { name: 'Start Learn Studio Basics' })),
-    ).toBe('/studio/editor?tutorial=studio-basics-your-tracks');
+    ).toBe('/studio?tutorial=studio-basics-your-tracks');
   });
 
   it('continues Studio Basics at the first lesson not finished', () => {
@@ -121,7 +121,7 @@ describe('Home’s Start here card', () => {
     expect(card.getByText(/Next: Record/)).toBeTruthy();
     expect(
       hrefOf(card.getByRole('link', { name: 'Continue Learn Studio Basics' })),
-    ).toBe('/studio/editor?tutorial=studio-basics-record');
+    ).toBe('/studio?tutorial=studio-basics-record');
   });
 
   it('goes on to Echo in the Arcade once every Studio Basics lesson is done', () => {

@@ -405,8 +405,8 @@ describe('Modal Interchange Integration — analyzeHarmony Pass 2', () => {
     expect(result[0].isDiatonic).toBe(true);
     expect(result[1].isDiatonic).toBe(false);
     expect(result[1].modalInterchange!.type).toBe('borrowed');
-    // E major exists in harmonicMinor at degree 5
-    expect(result[1].sourceMode).toBeDefined();
+    // E major exists in harmonicMinor at degree 5: the minor key's own V.
+    expect(result[1].sourceMode).toBe('harmonicMinor');
   });
 
   // ── Color system consistency ───────────────────────────────────────────

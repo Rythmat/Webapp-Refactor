@@ -3,6 +3,7 @@ import { monitorsInput } from '@/daw/model/monitoring';
 import { useStore, type Track } from '@/daw/store';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { TrackEngine } from '@/daw/audio/TrackEngine';
+import { emitNoteEvent } from '@/daw/audio/noteEvents';
 import { duckerKeyLoops as loops } from '@/daw/audio/graph/duckerKeys';
 import type { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
 import { applyStoredPedalChain } from '@/daw/audio/applyPedalChain';
@@ -267,6 +268,8 @@ export function startTrackReconciler(
     // (the tap is a real audio edge now, and a loop of them would be a
     // cycle). The reconcile pass refreshes every key once engines change.
     const ownId = track.id;
+    // What it plays, for the views that show it (the dock's pads and keys).
+    trackEngine.setNoteListener((event) => emitNoteEvent(ownId, event));
     trackEngine.setKeySourceResolver((keyId) =>
       duckerKeyLoops(ownId, keyId)
         ? null

@@ -67,7 +67,7 @@ function renderPage() {
     <MemoryRouter initialEntries={[PAGE]}>
       <Routes>
         <Route path={PAGE} element={<HearItWithYourBand />} />
-        <Route path="/studio/editor" element={<Studio />} />
+        <Route path="/studio" element={<Studio />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -194,7 +194,7 @@ describe('Practice with a Band', () => {
     );
     const studio = await screen.findByTestId('studio');
     expect(studio.textContent).toBe(
-      '/studio/editor?practiceGenre=latin&practiceLevel=1&practiceSection=A&practiceBand=latin-band-1&practiceVariation=l1-cumbia&practiceKey=D&practiceKeyMode=minor&practiceHarmony=triads&practiceChords=1-4-5-6',
+      '/studio?practiceGenre=latin&practiceLevel=1&practiceSection=A&practiceBand=latin-band-1&practiceVariation=l1-cumbia&practiceKey=D&practiceKeyMode=minor&practiceHarmony=triads&practiceChords=1-4-5-6',
     );
     expect(readStopDone('hear-it-with-your-band')).toBe(true);
     const handed = peekPracticeTrack('latin', 1, 'A', {

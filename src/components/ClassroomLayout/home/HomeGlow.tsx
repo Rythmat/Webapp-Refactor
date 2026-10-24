@@ -3,8 +3,41 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { KEY_RAINBOW_COLORS } from '@/features/landing/rainbow';
 import './homeGlow.css';
 
-/** How long each pair holds before easing to the next (the ease is 5s). */
+/**
+ * How long the colors hold before one of them (the two sides take turns)
+ * eases to a new one; the ease is 5s.
+ */
 const STEP_MS = 7000;
+
+const KEYS = KEY_RAINBOW_COLORS.length;
+
+/** How far apart two keys are on the circle of fifths, 0 to 6. */
+const fifthsApart = (a: number, b: number) => {
+  const d = Math.abs(a - b) % KEYS;
+  return Math.min(d, KEYS - d);
+};
+
+/**
+ * A random key-center color for one side: not the one it has, and at least
+ * two keys around the circle from the other side's, so the two never read
+ * as one color. `random` is Math.random's shape.
+ */
+export const pickGlowKey = (
+  current: number,
+  other: number,
+  random: () => number = Math.random,
+) => {
+  const options = Array.from({ length: KEYS }, (_, k) => k).filter(
+    (k) => k !== current && fifthsApart(k, other) >= 2,
+  );
+  return options[Math.floor(random() * options.length)];
+};
+
+/** A random pair to start on, so each visit opens on its own colors. */
+const randomPair = (): [number, number] => {
+  const a = Math.floor(Math.random() * KEYS);
+  return [a, pickGlowKey(-1, a)];
+};
 
 /**
  * A slow wave sum: `[amplitude, period in s, phase]` triples. Periods with no
@@ -19,71 +52,66 @@ const wander = (waves: Waves, t: number) =>
   );
 
 /**
- * Each light's own path (fractions of its width / height), built from waves
- * the other light shares nothing with: different periods, phases, reach and
- * breathing, so the two move independently. Each keeps to its own side of
- * the section (`home`), and `MIN_GAP` holds them apart, so they meet only at
- * their soft edges.
+ * Each light's drift about its corner (fractions of its own width / height),
+ * built from waves the other light shares nothing with: different periods,
+ * phases, reach and breathing, so the two move independently. The reach is
+ * small, so each color holds its corner, as the album art's colors hold
+ * theirs on Suno's page.
  */
-const PATHS: readonly {
-  home: number;
-  x: Waves;
-  y: Waves;
-  breathe: Waves;
-}[] = [
+const PATHS: readonly { x: Waves; y: Waves; breathe: Waves }[] = [
   {
-    home: -0.32,
     x: [
-      [0.11, 43.7, 0.4],
-      [0.05, 17.3, 2.1],
-      [0.025, 7.9, 4.6],
+      [0.04, 43.7, 0.4],
+      [0.02, 17.3, 2.1],
     ],
     y: [
-      [0.13, 31.1, 1.3],
-      [0.06, 13.7, 5.2],
+      [0.05, 31.1, 1.3],
+      [0.02, 13.7, 5.2],
     ],
-    breathe: [[0.07, 19.3, 0.8]],
+    breathe: [[0.05, 19.3, 0.8]],
   },
   {
-    home: 0.32,
     x: [
-      [0.12, 59.3, 3.7],
-      [0.045, 23.9, 0.9],
-      [0.03, 11.1, 2.8],
+      [0.045, 59.3, 3.7],
+      [0.02, 23.9, 0.9],
     ],
     y: [
-      [0.15, 37.7, 4.4],
-      [0.05, 19.9, 1.6],
-      [0.03, 8.3, 3.1],
+      [0.06, 37.7, 4.4],
+      [0.02, 19.9, 1.6],
     ],
-    breathe: [[0.09, 27.1, 2.5]],
+    breathe: [[0.06, 27.1, 2.5]],
   },
 ];
 
-/** The closest the two centres come, in light widths. */
-const MIN_GAP = 0.36;
-
 /**
- * Home's hero glow, after Suno's: a soft, wide light behind the heading and
- * the prompt bar. Ours is two complementary key-center colors at a time — a
- * key and its tritone, opposite on the circle of fifths (C and F#, G and
- * C#, …) — stepping one key around the circle every few seconds, so the
- * colors slowly shift. Each light is a wide wash that wanders its own side
- * of the section on its own path, independent of the other; they meet only
- * at their soft edges, where they blend like light.
- * Under reduced motion they hold still on C and F#.
+ * Home's top glow, after Suno's album page (the cover art, blurred, washing
+ * the top of the page and fading out by half way down): ours is two
+ * key-center colors, one in each top corner, reaching past the top edge.
+ * Under them a wash runs from one color to the other across the width, and
+ * the corner lights reach well past the middle, so the two blend smoothly
+ * there at any width. The page opens on a random pair; every few seconds one
+ * side (they take turns) eases to another random color (pickGlowKey), so the
+ * pairing keeps changing. Each light drifts a little about its corner on its
+ * own path. A mask fades the whole to the page by the bottom of its box.
+ * Under reduced motion the colors and lights hold still.
  */
 export const HomeGlow = () => {
   const reduce = useReducedMotion();
-  const [key, setKey] = useState(0);
+  const [pair, setPair] = useState(randomPair);
   const lights = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     if (reduce) return;
-    const id = window.setInterval(
-      () => setKey((k) => (k + 1) % KEY_RAINBOW_COLORS.length),
-      STEP_MS,
-    );
+    let side = 0;
+    const id = window.setInterval(() => {
+      const turn = side;
+      side = 1 - side;
+      setPair((p) => {
+        const next: [number, number] = [p[0], p[1]];
+        next[turn] = pickGlowKey(p[turn], p[1 - turn]);
+        return next;
+      });
+    }, STEP_MS);
     return () => window.clearInterval(id);
   }, [reduce]);
 
@@ -93,17 +121,10 @@ export const HomeGlow = () => {
     const start = performance.now();
     const tick = (now: number) => {
       const t = (now - start) / 1000;
-      const xs = PATHS.map((p) => p.home + wander(p.x, t));
-      // Too close: each gives way by half the shortfall.
-      const short = MIN_GAP - (xs[1] - xs[0]);
-      if (short > 0) {
-        xs[0] -= short / 2;
-        xs[1] += short / 2;
-      }
       PATHS.forEach((p, i) => {
         const el = lights.current[i];
         if (!el) return;
-        const x = xs[i] * 100;
+        const x = wander(p.x, t) * 100;
         const y = wander(p.y, t) * 100;
         const s = 1 + wander(p.breathe, t);
         el.style.transform = `translate(${x}%, ${y}%) scale(${s})`;
@@ -115,26 +136,27 @@ export const HomeGlow = () => {
   }, [reduce]);
 
   const colors = {
-    '--home-glow-a': KEY_RAINBOW_COLORS[key],
-    '--home-glow-b': KEY_RAINBOW_COLORS[(key + 6) % 12],
+    '--home-glow-a': KEY_RAINBOW_COLORS[pair[0]],
+    '--home-glow-b': KEY_RAINBOW_COLORS[pair[1]],
   } as CSSProperties;
 
   return (
     <div
       aria-hidden
-      className="home-glow pointer-events-none absolute left-1/2 top-[-56px] h-[540px] w-[min(1280px,100%)] -translate-x-1/2"
+      // Full bleed: past the scroll area's 8px padding to the panel's edges.
+      className="home-glow pointer-events-none absolute -inset-x-2 -top-2 -z-10 h-[clamp(22.5rem,62vh,42.5rem)] overflow-hidden"
       style={colors}
     >
-      {/* Each light sits centred in the box; its path moves it to its side. */}
+      <div className="home-glow__wash absolute inset-0" />
+      {/* Each light is centred on its top corner and 1.6 times the box's
+        width, so it reaches well past the middle into the other's. */}
       <div
         ref={(el) => (lights.current[0] = el)}
-        className="home-glow__light home-glow__light--a left-[15%] top-[12%] h-[76%] w-[70%]"
-        style={{ transform: 'translate(-32%, 0)' }}
+        className="home-glow__light home-glow__light--a left-[-80%] -top-3/4 h-[150%] w-[160%]"
       />
       <div
         ref={(el) => (lights.current[1] = el)}
-        className="home-glow__light home-glow__light--b left-[15%] top-[12%] h-[76%] w-[70%]"
-        style={{ transform: 'translate(32%, 0)' }}
+        className="home-glow__light home-glow__light--b left-[20%] -top-3/4 h-[150%] w-[160%]"
       />
     </div>
   );

@@ -50,6 +50,7 @@ import { presetData } from './presetData';
 import { moveForSong, preparedEvents } from './partInSong';
 import { stopPreview } from './preview';
 import { songContextOf } from './songFit';
+import { armNewTrack } from '@/daw/shell/tracklist/recordArm';
 
 const BAR_ONE: DropTarget = { trackId: null, tick: 0 };
 
@@ -341,6 +342,7 @@ function commitAdd(
         defined(made.init),
       );
       if (!trackId) return false;
+      armNewTrack(trackId);
       if (made.synthPatch) {
         // Seeded before the instrument finishes loading, which applies it.
         setTrackSynthState(

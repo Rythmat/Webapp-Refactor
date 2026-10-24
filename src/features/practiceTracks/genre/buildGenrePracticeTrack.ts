@@ -249,6 +249,19 @@ export interface GenrePracticeTrackOptions {
    */
   band?: { id: string; variation: string };
   /**
+   * A band put together by the caller, every item it names live (a Studio
+   * prompt's genre with no band of its own: a groove and a bass line from
+   * the console's libraries, promptSong/promptRecipes.ts). It plays as a
+   * picked band does; `band` is ignored when this is given.
+   */
+  playableBand?: PlayableBand;
+  /**
+   * The swing to play at, as a percentage (50 straight), in place of the
+   * flow's. A borrowed groove keeps its own feel this way rather than take
+   * on its host flow's swing.
+   */
+  swing?: number;
+  /**
    * With `key`: the band's captured parts follow the chords, in that key
    * (band.ts RealizeContext.followChords), instead of playing as written.
    */
@@ -266,9 +279,26 @@ export interface GenrePracticeTrackOptions {
 /** A Practice Track's own key (`GenrePracticeTrackOptions.key`). */
 export interface PracticeTrackKey {
   tonicPc: number;
-  mode: 'ionian' | 'aeolian';
+  /** Major or natural minor, or another diatonic mode (a Studio prompt's
+   *  "D Dorian"); the scales lit are its family's, major or minor. */
+  mode: PracticeKeyMode;
   label?: string;
 }
+
+/** The diatonic modes a Practice Track's own key can be in. */
+export type PracticeKeyMode =
+  | 'ionian'
+  | 'dorian'
+  | 'phrygian'
+  | 'lydian'
+  | 'mixolydian'
+  | 'aeolian';
+
+/** A mode's family, for the scales a key lights: a minor third or a major. */
+const keyFamily = (mode: PracticeKeyMode): 'ionian' | 'aeolian' =>
+  mode === 'dorian' || mode === 'phrygian' || mode === 'aeolian'
+    ? 'aeolian'
+    : 'ionian';
 
 /** Each pitch class as the circle of fifths spells a key on it. */
 const KEY_LABELS = [
@@ -907,7 +937,7 @@ function planTrack(
 ): TrackPlan | null {
   const section = flow.sections.find((s) => s.id === sectionId);
   if (!section || !sectionHasContent(section)) return null;
-  const band = pickedBand(options.band);
+  const band = options.playableBand ?? pickedBand(options.band);
   if (band === null) return null;
 
   const sectionStep = sourceStep(section);
@@ -1037,9 +1067,10 @@ export function buildGenrePracticeTrack(
     [],
     flow.genre,
     0,
-    swingPercent(
-      flow.params.practiceTrack?.swing ?? step?.swing ?? flow.params.swing,
-    ),
+    options.swing ??
+      swingPercent(
+        flow.params.practiceTrack?.swing ?? step?.swing ?? flow.params.swing,
+      ),
     timeSignature,
     {
       ...(band ? { band } : {}),
@@ -1129,7 +1160,7 @@ export function buildGenrePracticeTrack(
     melodyFloor: melodyFloor(measured) ?? MELODY_FLOOR_FALLBACK,
     studentRange: studentRange(measured),
     scales: ownKey
-      ? keyPracticeScales(keyLabel, ownKey.mode)
+      ? keyPracticeScales(keyLabel, keyFamily(ownKey.mode))
       : flowPracticeScales(flow, style?.styleRefs),
     voicingSets: sets,
     bassFloor: bassFloor(measured, sectionId),

@@ -43,17 +43,15 @@ export const Sidebar = ({ className }: SidebarProps) => {
   const consoleSection = isConsoleRole(role) && (
     <>
       <hr
-        className="mx-2 mt-6 border-0 border-t border-white/15"
+        className="mx-6 mt-4 border-0 border-t border-white/15"
         role="separator"
       />
-      <ul className="mt-6 flex flex-col gap-1">
+      <ul className="mt-4 flex flex-col gap-px px-3">
         <SidebarMainNavItem
           icon={CortexIcon}
           label="Cortex"
           to={AdminRoutes.cortex()}
           active={isCortexSectionPath(pathname)}
-          isCollapsed
-          glyphClassName="h-5 w-5"
         />
         {isConsoleAdmin(role) && (
           <>
@@ -62,16 +60,12 @@ export const Sidebar = ({ className }: SidebarProps) => {
               label="Users"
               to={AdminRoutes.users()}
               active={isRouteActive(pathname, AdminRoutes.users())}
-              isCollapsed
-              glyphClassName="h-5 w-5"
             />
             <SidebarMainNavItem
               icon={Activity}
               label="Telemetry"
               to={AdminRoutes.telemetry()}
               active={isRouteActive(pathname, AdminRoutes.telemetry())}
-              isCollapsed
-              glyphClassName="h-5 w-5"
             />
           </>
         )}

@@ -1,0 +1,56 @@
+/*
+ * Home's hero glow (HomeGlow.tsx). The two colors are registered so a change
+ * eases from one key-center color to the next instead of snapping.
+ */
+@property --home-glow-a {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+@property --home-glow-b {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+
+.home-glow {
+  /* Its own stacking context, so the lights blend with each other and the
+     page behind, not with the hero's text. */
+  isolation: isolate;
+  transition:
+    --home-glow-a 5s ease-in-out,
+    --home-glow-b 5s ease-in-out;
+}
+
+/* Each light: the color at the core, falling off softly to nothing. Screen
+   blending makes the two mix like light where they overlap. */
+.home-glow__light {
+  position: absolute;
+  border-radius: 9999px;
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+.home-glow__light--a {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--home-glow-a) 22%, transparent) 0%,
+    color-mix(in oklab, var(--home-glow-a) 12%, transparent) 40%,
+    color-mix(in oklab, var(--home-glow-a) 4%, transparent) 72%,
+    transparent 100%
+  );
+}
+.home-glow__light--b {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--home-glow-b) 22%, transparent) 0%,
+    color-mix(in oklab, var(--home-glow-b) 12%, transparent) 40%,
+    color-mix(in oklab, var(--home-glow-b) 4%, transparent) 72%,
+    transparent 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-glow {
+    transition: none;
+  }
+}

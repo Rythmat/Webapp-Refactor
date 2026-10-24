@@ -18,6 +18,8 @@ import {
   planProjectMidi,
 } from '@/daw/commands/projectCommands';
 import { FX_LABEL } from '@/daw/data/libraryItems';
+import { instrumentLabel } from '@/daw/instruments/simpleInstruments';
+import { saveLibraryAudio } from '@/daw/library/audioLibrary';
 import { notice } from '@/daw/shell/notice';
 import { useStore, type Track } from '@/daw/store';
 import { Button } from '@/daw/ui/Button';
@@ -409,8 +411,23 @@ export function ExportDialog({
           overall: 0,
         },
       });
+      // Each stem is also kept in the Studio Library's Stems.
+      const project = useStore.getState().projectName;
       return exportStems(
-        base,
+        {
+          ...base,
+          onStem: ({ track, bytes, contentType }) =>
+            void saveLibraryAudio({
+              kind: 'stem',
+              name: `${project} (${track.name})`,
+              tag: instrumentLabel(track),
+              project,
+              color: track.color,
+              contentType,
+              size: bytes.byteLength,
+              blob: new Blob([bytes], { type: contentType }),
+            }),
+        },
         (p) => setProgress({ kind: 'stems', p }),
         controller.signal,
       );

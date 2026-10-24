@@ -71,6 +71,14 @@ export const EffectsPanelPart = lazyPart(
 );
 
 /** The side rail's Library: the browser (milestone 2.14). */
+export const LibraryPart = lazyPart(
+  () =>
+    import('@/daw/shell/inspector/library/LibraryPanel').then(
+      (m) => m.LibraryPanel,
+    ),
+  { name: 'Library', fallback: dock('Loading the Library') },
+);
+
 export const BrowserPart = lazyPart(
   () =>
     import('@/daw/shell/inspector/browser/BrowserPanel').then(

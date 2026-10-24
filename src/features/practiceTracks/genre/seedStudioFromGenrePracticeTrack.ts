@@ -28,7 +28,7 @@ import type {
  * The student's own part follows the instrument it is: a bass line plays on a
  * bass, and everything else on the Rhodes.
  */
-const BACKING_SOUNDS = {
+export const BACKING_SOUNDS = {
   drums: 'drum-machine',
   bass: 'bass-electric',
   chords: 'electric-piano',
@@ -56,6 +56,17 @@ function lessonSound(sound: string, track: GenrePracticeTrackResult): string {
   return sound;
 }
 
+/**
+ * The sound a backing part plays in, with the lesson's kit or bass voice: a
+ * Studio prompt's part takes the same (promptSong/applyPromptPart.ts).
+ */
+export function backingPartSound(
+  part: keyof typeof BACKING_SOUNDS,
+  track: GenrePracticeTrackResult,
+): string {
+  return lessonSound(BACKING_SOUNDS[part], track);
+}
+
 /** A new track playing `sound` (with the lesson's kit or bass voice). */
 function addSoundTrack(
   sound: string,
@@ -79,13 +90,13 @@ const BAND_MARK = ' (band)';
 const layerTrackName = (name: string) => `${name}${BAND_MARK}`;
 
 /** The style's band layers on tracks of their own, each on its sound and level. */
-function addLayerTracks(track: GenrePracticeTrackResult): void {
+function addLayerTracks(track: GenrePracticeTrackResult, mark = true): void {
   const store = useStore.getState();
   for (const layer of track.layerClips) {
     const trackId = store.addTrack(
       'midi',
       'soundfont',
-      layerTrackName(layer.name),
+      mark ? layerTrackName(layer.name) : layer.name,
     );
     const { settings, drumKit } = trackSound(trackId, layer.sound, track.bpm);
     store.updateTrack(trackId, { ...settings, volume: layer.volume });
@@ -106,6 +117,20 @@ function studentTrackName(
   return part === 'melody' ? 'Melody' : part === 'chords' ? 'Chords' : 'Bass';
 }
 
+/** How a caller other than a lesson's Practice Track names what it adds. */
+export interface ApplyPracticeTrackOptions {
+  /** The empty track's name, in place of the section's ('Melody'). */
+  studentTrackName?: string;
+  /** The empty track's sound (a sound string), in place of the section's. */
+  studentSound?: string;
+  /**
+   * Mark the band layers' tracks ' (band)' so the style switch can find them
+   * (`swapGenrePracticeBacking`). Default true; a project with no style
+   * switch (a Studio prompt's song) leaves the names plain.
+   */
+  markBandLayers?: boolean;
+}
+
 /**
  * Apply a built genre Practice Track to the project just reset. Resolves to
  * the id of the student's track — the one selected, armed and monitored.
@@ -120,6 +145,7 @@ export function applyGenrePracticeTrack(
   genreLabel: string,
   /** The project's name, when not the lesson's ("Funk L2 — Melody …"). */
   projectName?: string,
+  options: ApplyPracticeTrackOptions = {},
 ): string {
   const store = useStore.getState();
 
@@ -141,14 +167,16 @@ export function applyGenrePracticeTrack(
     store.addMidiClip(trackId, clip);
   }
 
-  addLayerTracks(track);
+  addLayerTracks(track, options.markBandLayers ?? true);
 
   // The student's part: an empty track, which is the whole invitation.
   const studentPart = track.studentParts[0];
   const onGuitar = !!track.guitar && studentPart !== 'bass';
   const studentTrackId = addSoundTrack(
-    onGuitar ? GUITAR_STUDENT_SOUND : STUDENT_SOUND[studentPart],
-    studentTrackName(track.studentParts, track.sectionName, !!track.guitar),
+    options.studentSound ??
+      (onGuitar ? GUITAR_STUDENT_SOUND : STUDENT_SOUND[studentPart]),
+    options.studentTrackName ??
+      studentTrackName(track.studentParts, track.sectionName, !!track.guitar),
     track,
   );
 

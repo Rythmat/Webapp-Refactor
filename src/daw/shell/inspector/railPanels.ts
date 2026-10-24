@@ -33,7 +33,7 @@ export const RAIL_PANELS: readonly RailPanel[] = [
   {
     id: 'library',
     title: 'Library',
-    hint: 'Library: parts, grooves, drum kits, sounds and templates',
+    hint: 'Library: your projects, stems and uploads',
     icon: Library,
   },
   {

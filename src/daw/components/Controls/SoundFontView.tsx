@@ -9,6 +9,7 @@ import {
 } from '@/daw/instruments/gmPrograms';
 import { DockKeyboard } from './DockKeyboard';
 import { useLiveChordColor } from '@/daw/hooks/useLiveChordColor';
+import { useSoundingNotes } from '@/daw/hooks/useSoundingNotes';
 import { SoundBrowser, type SoundCategory } from './SoundBrowser';
 
 /** The 128 GM programs by category, for the sound column. */
@@ -39,9 +40,11 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
   const updateTrack = useStore((s) => s.updateTrack);
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
   const hwActiveNotes = useStore((s) => s.hwActiveNotes);
+  // The keys hold down what the track sounds, the timeline's notes too.
+  const sounding = useSoundingNotes(trackId);
   const mergedNotes = useMemo(
-    () => new Set([...activeNotes, ...hwActiveNotes]),
-    [activeNotes, hwActiveNotes],
+    () => new Set([...activeNotes, ...hwActiveNotes, ...sounding]),
+    [activeNotes, hwActiveNotes, sounding],
   );
   const chordColor = useLiveChordColor(mergedNotes);
   const [loading, setLoading] = useState(true);

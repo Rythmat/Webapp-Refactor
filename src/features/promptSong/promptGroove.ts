@@ -60,11 +60,10 @@ export function grooveNamedIn(text: string): GrooveItem | null {
   );
 }
 
-/** The library's grooves of a style, nearest the tempo first, two at most. */
-function libraryNear(
+/** The library's grooves of a style: the first of its genres that has any. */
+function styleGrooves(
   genre: PromptGenre,
   flavor: PromptFlavor | null,
-  bpm: number,
 ): GrooveItem[] {
   for (const libraryGenre of grooveGenres(genre, flavor)) {
     let pool = GROOVES.filter((g) => g.genre === libraryGenre);
@@ -73,13 +72,20 @@ function libraryNear(
       const bossa = pool.filter((g) => /bossa/i.test(g.name));
       if (bossa.length) pool = bossa;
     }
-    if (pool.length) {
-      return [...pool]
-        .sort((a, b) => Math.abs(a.bpm - bpm) - Math.abs(b.bpm - bpm))
-        .slice(0, 2);
-    }
+    if (pool.length) return pool;
   }
   return [];
+}
+
+/** The library's grooves of a style, nearest the tempo first, two at most. */
+export function libraryNear(
+  genre: PromptGenre,
+  flavor: PromptFlavor | null,
+  bpm: number,
+): GrooveItem[] {
+  return [...styleGrooves(genre, flavor)]
+    .sort((a, b) => Math.abs(a.bpm - bpm) - Math.abs(b.bpm - bpm))
+    .slice(0, 2);
 }
 
 /**

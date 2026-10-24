@@ -60,8 +60,9 @@ export const TRACK_CHOICES: readonly TrackChoice[] = [
     trackName: 'Drums',
     trackType: 'midi',
     instrument: 'drum-machine',
-    // The drums' Notes tab is the step sequencer (milestone 2.9).
-    dockTab: 'piano-roll',
+    // Opens on its instrument, the kit (owner, 2026-10-23); its Notes tab,
+    // the step sequencer (milestone 2.9), is a click away.
+    dockTab: 'controls',
   },
   {
     id: 'synth',
@@ -86,8 +87,8 @@ export const TRACK_CHOICES: readonly TrackChoice[] = [
 ];
 
 /**
- * Add MIDI's submenu, in the owner's order (2026-10-21). Drums opens on the
- * step sequencer; its Grooves tab is a click away.
+ * Add MIDI's submenu, in the owner's order (2026-10-21). Drums opens on its
+ * instrument, the kit (2026-10-23); its step sequencer is a click away.
  */
 export const MIDI_MENU: readonly TrackChoiceId[] = [
   'instruments',

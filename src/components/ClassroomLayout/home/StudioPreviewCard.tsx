@@ -2,6 +2,12 @@ import { useReducedMotion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  GO_PILL,
+  PROMPT_FRAME,
+  PROMPT_WASH,
+} from '@/components/promptBox/PromptBoxParts';
+import { cn } from '@/components/utilities';
 import { StudioRoutes } from '@/constants/routes';
 import posterUrl from './media/studio-preview.jpg';
 import mp4Url from './media/studio-preview.mp4';
@@ -55,7 +61,13 @@ export const StudioPreviewCard = () => {
     <Link
       to={NEW_PROJECT_HREF}
       aria-label="Open a new blank Studio project"
-      className="group flex min-h-[466px] flex-col gap-5 rounded-2xl bg-white/[0.04] p-5 outline-none transition-colors duration-150 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/50"
+      // The prompt box's card (hairline edge, 20px corners, soft shadow,
+      // light wash), as the Projects card beside it.
+      className={cn(
+        PROMPT_FRAME,
+        PROMPT_WASH,
+        'group flex min-h-[29.125rem] flex-col gap-5 p-5 outline-none duration-150 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/50',
+      )}
     >
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
@@ -72,13 +84,18 @@ export const StudioPreviewCard = () => {
             }}
           />
           <div className="min-w-0">
-            <div className="text-base font-bold leading-6 text-white">
-              Studio
-            </div>
+            <div className="text-base leading-6 text-white">Studio</div>
           </div>
         </div>
-        <span className="flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-white px-4 text-sm font-bold text-[#101012] transition-colors group-hover:bg-[#E6E6E8]">
-          <Plus className="size-4" strokeWidth={2.5} />
+        {/* The prompt box's Go pill; the whole card is the link, so its
+          hover wash follows the card's. */}
+        <span
+          className={cn(
+            GO_PILL,
+            'text-[#FCFBF9] group-hover:bg-white/[0.04] group-active:bg-white/[0.08]',
+          )}
+        >
+          <Plus aria-hidden className="size-4" />
           New project
         </span>
       </div>

@@ -51,6 +51,7 @@ vi.mock('@/daw/audio/TrackEngine', () => ({
     updateEffects() {}
     setSend() {}
     setKeySourceResolver() {}
+    setNoteListener() {}
     refreshDuckerKey() {}
     setInstrument(instrument: unknown) {
       this.instrument = instrument;

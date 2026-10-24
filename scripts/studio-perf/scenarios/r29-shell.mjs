@@ -226,8 +226,9 @@ async function shellAt(kit, run, viewport) {
       await kit.settle(page, 'R29 reload');
       const reloaded = (await page.evaluate(frame)).dock?.h ?? 0;
 
-      // The dashboard keeps the app's chrome.
-      await kit.spaNavigate(page, '/studio');
+      // The rest of the app keeps its chrome: Home (/studio is the editor
+      // since 2026-10-24, the Studio Dashboard gone).
+      await kit.spaNavigate(page, '/home');
       await kit.sleep(1500);
       const dashboardTopRail = await page.evaluate(
         () => document.querySelector('.dashboard-root header') !== null,

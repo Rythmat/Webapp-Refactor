@@ -1,16 +1,15 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { useStore } from '@/daw/store';
 import { sessionToUnison } from '@/unison/converters/sessionToUnison';
 import type { UnisonDocument } from '@/unison/types/schema';
-import { KeySection } from '../KeySection';
 import { UnisonSections } from '../UnisonSections';
 
 // ── Insight's key and progression (2026-10-21) ─────────────────────────────
-// The key the student set is certain (no percentage, no other keys); a line
-// says when the notes clearly sound like another key. The progression shows
-// its best match first, and Vibes, Styles, Rhythm and Melody are gone.
+// The key the student set is certain (no percentage, no other keys); the
+// key card itself went from Insight (owner, 2026-10-24). The progression
+// shows its best match first, and Vibes, Styles, Rhythm and Melody are gone.
 
 const initial = useStore.getState();
 afterEach(() => {
@@ -67,43 +66,6 @@ describe('the key the student set', () => {
     expect(doc.analysis.key.confidence).toBe(1);
     expect(doc.analysis.key.alternateKeys).toEqual([]);
     expect(doc.analysis.key.fromNotes?.rootPc).toBe(0);
-  });
-
-  it('shows no percentage, and no hint when the notes agree', () => {
-    const doc = analyse(0, 'ionian', C_POP);
-    render(
-      <KeySection
-        keyLetter="C"
-        keyColor={[200, 60, 70]}
-        rootNote={0}
-        mode="ionian"
-        unisonDoc={doc}
-      />,
-    );
-    const key = screen.getByTestId('insight-key');
-    expect(key).toHaveTextContent('Key of C major');
-    expect(key.textContent).not.toMatch(/%/);
-    expect(screen.queryByTestId('insight-key-heard')).toBeNull();
-  });
-
-  it('says when the notes clearly sound like another key, and takes it', () => {
-    // The student set G; the music is plainly C major.
-    useStore.setState({ rootNote: 7, mode: 'ionian', rootLocked: false });
-    const doc = analyse(7, 'ionian', C_POP);
-    render(
-      <KeySection
-        keyLetter="G"
-        keyColor={[200, 60, 70]}
-        rootNote={7}
-        mode="ionian"
-        unisonDoc={doc}
-      />,
-    );
-    expect(screen.getByTestId('insight-key-heard')).toHaveTextContent(
-      'The notes sound like C major',
-    );
-    fireEvent.click(screen.getByRole('button', { name: 'Use it' }));
-    expect(useStore.getState().rootNote).toBe(0);
   });
 });
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { isEditorPath } from '@/daw/preload';
 import { useCustomCursorEnabled } from '@/hooks/useCustomCursorEnabled';
 import './custom-cursor.css';
 
@@ -11,9 +12,9 @@ const INTERACTIVE_SELECTOR =
 // Full-canvas experiences that own their pointer/contextual cursors, and the
 // auth pages, whose Google sign-in iframe swallows the pointer (the hexagon
 // would freeze at its edge).
-const EXCLUDED_PREFIXES = ['/studio/editor', '/atlas', '/arcade', '/auth'];
+const EXCLUDED_PREFIXES = ['/atlas', '/arcade', '/auth'];
 const isExcluded = (path: string) =>
-  EXCLUDED_PREFIXES.some((p) => path.startsWith(p));
+  isEditorPath(path) || EXCLUDED_PREFIXES.some((p) => path.startsWith(p));
 
 // Regular pointy-top hexagon in a 24×24 viewBox (centre 12,12).
 const HEX_POINTS = '12,1 21.53,6.5 21.53,17.5 12,23 2.47,17.5 2.47,6.5';

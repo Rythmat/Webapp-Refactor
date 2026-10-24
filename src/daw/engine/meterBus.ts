@@ -23,7 +23,8 @@ import { addFrameTask } from './engineClock';
 //
 // Consumers ask for a source by a logical key, never for an AnalyserNode:
 //   track:<id>             the track's post-fader level (mono)
-//   master                 the master bus (stereo, L and R)
+//   track-lr:<id>          its left and right, ahead of mute and solo (stereo)
+//   master                 the master bus, ahead of its mute (stereo, L and R)
 //   fx-pre:<id|master>     the effect chain before its compressor
 //   fx-post:<id|master>    the effect chain after its compressor
 //   gr:<id|master>         the compressor's gain reduction

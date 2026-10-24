@@ -5,7 +5,6 @@ import {
   FileDown,
   FilePlus,
   FileUp,
-  FolderOpen,
   Music,
   Save,
   SaveAll,
@@ -47,6 +46,7 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from '@/daw/ui/Menu';
+import { ProjectsIcon } from '@/daw/ui/icons/ProjectsIcon';
 import { TYPE_CLASS } from '@/daw/ui/styles';
 
 // ── The Project menu (milestone 2.5; File menu until then) ─────────────────
@@ -270,7 +270,7 @@ export function ProjectMenu() {
             New project
           </MenuItem>
           <MenuItem
-            icon={<FolderOpen />}
+            icon={<ProjectsIcon />}
             onSelect={handleOpen}
             disabled={inRoom}
           >

@@ -1,7 +1,6 @@
 import {
   CHORD_NOTATION_OPTIONS,
-  setChordNotation,
-  setChordNotationSwitcherEnabled,
+  chooseChordNotation,
   useChordNotation,
 } from '@/lib/chordNotation';
 
@@ -14,8 +13,9 @@ const OPTIONS = CHORD_NOTATION_OPTIONS.filter(
  * Hybrid | Jazz, beside a lesson's chords: how every chord name on the screen
  * is written — the title, the chords beside it, the symbols over the staff —
  * switched back and forth in place. It is the same preference as the top
- * rail's switch, and choosing here turns that switch on, so the choice holds
- * wherever chords are written.
+ * rail's switch, so the choice holds wherever chords are written, but it
+ * leaves that switch hidden until it's turned on in Settings (owner,
+ * 2026-10-24).
  */
 export function ChordNameSwitch() {
   const notation = useChordNotation();
@@ -37,10 +37,7 @@ export function ChordNameSwitch() {
               ? 'Hybrid chord names: A min9, D dom13'
               : 'Jazz chord symbols: A−9, D13'
           }
-          onClick={() => {
-            setChordNotationSwitcherEnabled(true);
-            setChordNotation(value);
-          }}
+          onClick={() => chooseChordNotation(value)}
           className={`inline-flex h-full items-center rounded-full px-3 text-xs font-normal transition-colors duration-150 ${
             notation === value
               ? 'bg-white text-[#101012]'

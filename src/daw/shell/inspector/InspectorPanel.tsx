@@ -1,7 +1,10 @@
 import { X } from 'lucide-react';
 import { memo, useEffect } from 'react';
 import { cn } from '@/components/utilities';
-import { InsightContent } from '@/daw/components/Library/InsightContent';
+import {
+  InsightContent,
+  InsightReanalyzeButton,
+} from '@/daw/components/Library/InsightContent';
 import { DevProfiler } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
@@ -41,6 +44,7 @@ export const InspectorPanel = memo(function InspectorPanel() {
         <h2 className={cn(TYPE_CLASS.title, 'flex-1 truncate text-daw-text')}>
           {title}
         </h2>
+        {panel === 'insight' ? <InsightReanalyzeButton /> : null}
         <IconButton
           label={`Close ${title}`}
           icon={<X />}
@@ -50,11 +54,7 @@ export const InspectorPanel = memo(function InspectorPanel() {
           onClick={close}
         />
       </div>
-      <div
-        key={panel}
-        className="flex min-h-0 flex-1 flex-col"
-        data-ds={panel === 'insight' ? 'legacy' : 'v2'}
-      >
+      <div key={panel} className="flex min-h-0 flex-1 flex-col" data-ds="v2">
         <DevProfiler id={`Inspector:${panel}`}>
           <Body panel={panel} />
         </DevProfiler>

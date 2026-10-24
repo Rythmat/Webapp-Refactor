@@ -81,7 +81,7 @@ export const ActivityRail = () => {
   return (
     <aside
       aria-label="Continue where you left off"
-      className="flex h-[72px] w-full shrink-0 items-center justify-between gap-4 border-t border-white/[0.06] bg-[#0c0c0e] px-4 md:px-5"
+      className="flex h-[4.5rem] w-full shrink-0 items-center justify-between gap-4 border-t border-white/[0.06] bg-[#0c0c0e] px-4 md:px-5"
       onMouseEnter={() => setHeld(true)}
       onMouseLeave={() => setHeld(false)}
       onFocus={() => setHeld(true)}
@@ -107,7 +107,7 @@ export const ActivityRail = () => {
               <Art item={item} />
             </span>
             <span className="min-w-0">
-              <span className="block truncate text-sm font-bold text-white group-hover:underline">
+              <span className="block truncate text-sm text-white group-hover:underline">
                 {item.title}
               </span>
               <span className="block truncate text-xs uppercase tracking-[0.06em] text-white/50">

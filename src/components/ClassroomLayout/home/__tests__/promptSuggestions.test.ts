@@ -103,7 +103,7 @@ function problem(route: string): string | null {
   const q = url.searchParams;
   const path = url.pathname;
 
-  if (path === '/studio/editor') {
+  if (path === '/studio') {
     const [key] = [...q.keys()];
     const value = q.get(key) ?? '';
     switch (key) {
@@ -245,19 +245,19 @@ describe('the Home prompt suggestions', () => {
   it('are checked by a checker that catches a broken route', () => {
     for (const route of [
       '/songs/let_it_be',
-      '/studio/editor?template=project-jazz',
-      '/studio/editor?tutorial=nope',
-      '/studio/editor?bpm=100',
+      '/studio?template=project-jazz',
+      '/studio?tutorial=nope',
+      '/studio?bpm=100',
       '/learn/chords',
       '/learn/dorian/h',
       '/curriculum/polka',
       '/atlas/globe?era=baroque',
       '/atlas/globe?tour=region-mars',
       '/atlas/globe?pathway=disco-moon',
-      '/studio/editor?practiceMode=dorian&practiceRoot=h',
+      '/studio?practiceMode=dorian&practiceRoot=h',
       '/arcade/tetris',
-      '/studio/editor?prompt=',
-      '/studio/editor?prompt=asdf%20qwerty',
+      '/studio?prompt=',
+      '/studio?prompt=asdf%20qwerty',
     ]) {
       expect(problem(route), route).not.toBeNull();
     }
@@ -283,7 +283,7 @@ describe('the Home prompt suggestions', () => {
 
   it('route each to its own destination', () => {
     const area: Record<string, RegExp> = {
-      studio: /^\/studio\//,
+      studio: /^\/studio\?/,
       learn: /^\/(learn|songs|curriculum)\b/,
       globe: /^\/atlas\/globe\b/,
       arcade: /^\/arcade\//,

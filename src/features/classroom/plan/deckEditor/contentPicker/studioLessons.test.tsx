@@ -32,7 +32,7 @@ describe('the Studio Basics lessons in the picker', () => {
     for (const item of items) {
       const id = item.ref.slice('studio:tutorial:'.length);
       expect(resolveActivityRefHref('studio', item.ref)).toBe(
-        `/studio/editor?tutorial=${id}`,
+        `/studio?tutorial=${id}`,
       );
       // The slide's launch matches the lesson's completion report.
       expect(item.ref).toBe(studioTutorialActivityRef(id));

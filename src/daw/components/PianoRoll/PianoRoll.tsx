@@ -8,8 +8,16 @@ import {
   type RefObject,
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp, ZoomIn, ZoomOut } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronsDown,
+  ChevronsUp,
+  ChevronUp,
+  ZoomIn,
+  ZoomOut,
+} from 'lucide-react';
 import { cn } from '@/components/utilities';
+import { IconButton } from '@/daw/ui/IconButton';
 import { Select } from '@/daw/ui/Select';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import {
@@ -1646,6 +1654,27 @@ export function PianoRoll({
     );
   }, [snapClipTick, onChange]);
 
+  // ── Octave up and down (owner, 2026-10-24) ──────────────────────────────
+  // The selected notes twelve semitones up or down, one edit; none moves
+  // when any of them would leave the MIDI range.
+  const octaveFits = (dir: 1 | -1, indices: readonly number[]) =>
+    indices.length > 0 &&
+    indices.every((i) => {
+      const note = eventsRef.current[i]?.note;
+      return (
+        note !== undefined && note + 12 * dir >= 0 && note + 12 * dir <= 127
+      );
+    });
+  const shiftOctave = (dir: 1 | -1) => {
+    const indices = [...selectedIndices];
+    if (!octaveFits(dir, indices)) return;
+    const next = [...eventsRef.current];
+    for (const i of indices)
+      next[i] = { ...next[i], note: next[i].note + 12 * dir };
+    onChange(next);
+    focusRoll();
+  };
+
   // ── Wheel zoom: Cmd/Ctrl = horizontal, Alt = vertical ──────────────
   useEffect(() => {
     const container = gridScrollRef.current;
@@ -2116,6 +2145,43 @@ export function PianoRoll({
         >
           Quantize
         </button>
+        <div
+          role="group"
+          aria-label="Octave"
+          className="flex h-6 items-center rounded-full bg-daw-pill px-0.5"
+        >
+          <IconButton
+            label={
+              selectedArr.length
+                ? 'Octave down'
+                : 'Octave down: select notes first'
+            }
+            icon={<ChevronsDown />}
+            variant="bare"
+            size="sm"
+            data-testid="octave-down"
+            disabled={!octaveFits(-1, selectedArr)}
+            onClick={() => shiftOctave(-1)}
+            className="rounded-full disabled:opacity-40"
+          />
+          <span
+            className={cn(TYPE_CLASS.label, 'px-1 font-bold text-daw-text-2')}
+          >
+            Octave
+          </span>
+          <IconButton
+            label={
+              selectedArr.length ? 'Octave up' : 'Octave up: select notes first'
+            }
+            icon={<ChevronsUp />}
+            variant="bare"
+            size="sm"
+            data-testid="octave-up"
+            disabled={!octaveFits(1, selectedArr)}
+            onClick={() => shiftOctave(1)}
+            className="rounded-full disabled:opacity-40"
+          />
+        </div>
         <label className="flex items-center gap-1.5">
           <span className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>
             Note velocity

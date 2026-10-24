@@ -125,13 +125,23 @@ function PedalIcon({
   };
   switch (type) {
     case 'pitch-correction':
+      // Its icon from public/icons, painted in `color`.
       return (
-        <svg {...props}>
-          <path d="M12,2 L12,22" />
-          <path d="M8,6 L12,2 L16,6" />
-          <circle cx="8" cy="16" r="3" />
-          <line x1="11" y1="16" x2="11" y2="8" />
-        </svg>
+        <span
+          aria-hidden
+          className="block shrink-0"
+          style={{
+            width: s,
+            height: s,
+            backgroundColor: color,
+            maskImage: 'url(/icons/pitch-correction-icon.svg)',
+            WebkitMaskImage: 'url(/icons/pitch-correction-icon.svg)',
+            maskSize: 'contain',
+            WebkitMaskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            WebkitMaskRepeat: 'no-repeat',
+          }}
+        />
       );
     case 'nam-amp': {
       const crystal = namModelId ? CRYSTAL_PATHS[namModelId] : undefined;
@@ -516,9 +526,10 @@ export function GuitarBassView({ trackId }: { trackId: string }) {
               namModelId={item.id}
             />
           ) : (
+            // Its art is inset in its frame: a size up, to sit with the gems.
             <PedalIcon
               type="pitch-correction"
-              size={44}
+              size={56}
               color={COLOR.text.value}
             />
           )

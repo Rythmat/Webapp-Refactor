@@ -60,7 +60,7 @@ describe('resolvePromptRoute', () => {
         accepted: studioPick,
         match: none,
       }),
-    ).toBe(`/studio/editor?prompt=${encodeURIComponent(text)}`);
+    ).toBe(`/studio?prompt=${encodeURIComponent(text)}`);
   });
 
   it('leaves an edited question to the matcher', () => {
@@ -88,12 +88,12 @@ describe('resolvePromptRoute', () => {
         match: () => [entry('/curriculum/funk')],
       });
     expect(go('make a funk beat')).toBe(
-      '/studio/editor?prompt=make%20a%20funk%20beat',
+      '/studio?prompt=make%20a%20funk%20beat',
     );
-    expect(go('funk in E at 100 bpm')).toMatch(/^\/studio\/editor\?prompt=/);
+    expect(go('funk in E at 100 bpm')).toMatch(/^\/studio\?prompt=/);
     expect(go('teach me funk')).toBe('/curriculum/funk');
     expect(go('teach me funk', 'studio')).toBe(
-      '/studio/editor?prompt=teach%20me%20funk',
+      '/studio?prompt=teach%20me%20funk',
     );
   });
 
@@ -117,7 +117,7 @@ describe('resolvePromptRoute', () => {
         accepted: null,
         match: none,
       });
-    expect(go('studio')).toBe('/studio/editor?prompt=polka%20%26%20yodel');
+    expect(go('studio')).toBe('/studio?prompt=polka%20%26%20yodel');
     expect(go('globe')).toBe('/atlas/globe?q=polka%20%26%20yodel');
     expect(go('arcade')).toBe('/arcade');
     expect(go('learn')).toBe('/search?q=polka%20%26%20yodel');
@@ -144,7 +144,7 @@ describe('a prompt’s first word', () => {
 
   it('“Make” makes a Studio project from the prompt', () => {
     expect(go('Make me a lofi beat in D minor')).toBe(
-      '/studio/editor?prompt=Make%20me%20a%20lofi%20beat%20in%20D%20minor',
+      '/studio?prompt=Make%20me%20a%20lofi%20beat%20in%20D%20minor',
     );
   });
 
@@ -184,7 +184,7 @@ describe('globeQuery', () => {
 
 describe('areaOf', () => {
   it('knows each destination’s paths', () => {
-    expect(areaOf('/studio/editor?new=1')).toBe('studio');
+    expect(areaOf('/studio?new=1')).toBe('studio');
     expect(areaOf('/songs/superstition')).toBe('learn');
     expect(areaOf('/curriculum/jazz')).toBe('learn');
     expect(areaOf('/atlas/globe?era=postwar')).toBe('globe');

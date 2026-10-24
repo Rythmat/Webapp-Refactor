@@ -26,7 +26,7 @@ import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgre
  * Production tab (`/studio/production`) — the step-by-step DAW lessons, from
  * their catalog (`tutorialCatalog.ts`: the tile copy without the steps, which
  * stay in the editor's chunk). A tile opens the editor on a fresh session
- * with that lesson running (`/studio/editor?tutorial=<id>`); finished lessons
+ * with that lesson running (`/studio?tutorial=<id>`); finished lessons
  * (tracked locally by `useTutorialProgressStore`) show as Completed and offer
  * a replay.
  *

@@ -3,7 +3,7 @@ import { useTrackColorOf } from '@/daw/harmony/trackColor';
 import { Check, Sparkles } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { trackRole, type ChordAnalysis } from '@/daw/utils/chordAnalysis';
-import { ChordSymbolChips, KeyLabel } from './ChordSymbolsSection';
+import { ChordSymbolChips, KeyLabel } from './ChordSymbolChips';
 import { plural } from './insightNotation';
 import { Button } from '@/daw/ui/Button';
 import { DawDialog } from '@/daw/ui/DawDialog';

@@ -147,6 +147,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   readoutMode: LAYOUT,
   hoverHints:
     'Whether the bottom rail says what the control under the pointer does: the student’s own choice on every project, kept per user by prefsStore (milestone 2.11).',
+  recordArmExclusive:
+    'Whether arming a track disarms the others: the student’s own choice on every project, kept per user by prefsStore (owner, 2026-10-23).',
   activeTool: 'The editing tool: every project opens with the cursor.',
   scoreNoteInput:
     'The Score’s note input mode, like the editing tool: every project opens selecting, not writing.',

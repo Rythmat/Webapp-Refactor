@@ -11,7 +11,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { readLessonOrigin } from '@/lib/learn/lessonOrigin';
 
 // The card is about live notes; the analysis sections below it aren't.
-vi.mock('../ChordSymbolsSection', () => ({ ChordSymbolsSection: () => null }));
 vi.mock('../SelectionAnalysis', () => ({ SelectionAnalysis: () => null }));
 vi.mock('../UnisonSections', () => ({ UnisonSections: () => null }));
 
@@ -50,7 +49,7 @@ describe('Now Playing', () => {
   it("links a played chord's lessons back to the song and chord", () => {
     renderInsight();
 
-    const learn = screen.getByRole('link', { name: /Learn this sound/ });
+    const learn = screen.getByRole('link', { name: /^Mode: D Dorian/ });
     expect(learn).toHaveTextContent('D Dorian');
     const [path, query] = learn.getAttribute('href')!.split('?');
     expect(path).toMatch(/dorian/);
@@ -63,18 +62,20 @@ describe('Now Playing', () => {
   it("shows the played chord's tones as a chord card does", () => {
     renderInsight();
 
-    expect(screen.getByText('Notes: D – F – A')).toBeInTheDocument();
-    expect(screen.getByText('R')).toBeInTheDocument();
-    // The parent-scale link: D Dorian's parent is C major, the song's key,
-    // so there is none.
-    expect(screen.queryByText('Parent scale:')).toBeNull();
+    expect(screen.getByText('Notes: D, F, A')).toBeInTheDocument();
+    expect(screen.getByText(/^Intervals: 1, /)).toBeInTheDocument();
+    // The parent scale shows even when it's the song's own: D Dorian's is
+    // C Ionian.
+    expect(
+      screen.getByRole('link', { name: /^Parent scale: C Ionian/ }),
+    ).toBeInTheDocument();
   });
 
   it('offers no lesson without a key, but still names the chord', () => {
     useStore.setState({ rootNote: null });
     renderInsight();
 
-    expect(screen.getByText('Notes: D – F – A')).toBeInTheDocument();
+    expect(screen.getByText('Notes: D, F, A')).toBeInTheDocument();
     expect(screen.queryByRole('link')).toBeNull();
   });
 });

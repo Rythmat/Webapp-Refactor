@@ -30,6 +30,7 @@ import { TransportControls } from '../bottombar/TransportControls';
 import { ClickMenuItem, TimeSignatureSub } from './FoldedMenuItems';
 import { UndoRedoButtons } from './UndoRedoButtons';
 import { folded, useToolbarOverflow } from './useToolbarOverflow';
+import { ADD_ARM_KEY } from '../tracklist/recordArm';
 
 // ── The editor's top bar (milestones 2.5, 2.7, B4a; the floating frame, S0) ─
 //
@@ -187,6 +188,7 @@ export const TopBar = memo(function TopBar({
 export const MORE_COPY = {
   typing: 'Letter keys play notes on the selected track',
   hoverHints: 'Say what each control does at the bottom',
+  recordArmExclusive: `Arming a track disarms the others; ${ADD_ARM_KEY}-click to arm more`,
 } as const;
 
 /**
@@ -207,6 +209,8 @@ function MoreMenu({
   const setSettingsOpen = useStore((s) => s.setSettingsOpen);
   const hoverHints = useStore((s) => s.hoverHints);
   const setHoverHints = useStore((s) => s.setHoverHints);
+  const armExclusive = useStore((s) => s.recordArmExclusive);
+  const setArmExclusive = useStore((s) => s.setRecordArmExclusive);
   const typing = useMusicalTypingStore((s) => s.enabled);
   const setTyping = useMusicalTypingStore((s) => s.setEnabled);
   // Metronome settings open as the menu closes, in place of its handing
@@ -251,6 +255,14 @@ function MoreMenu({
           data-testid="hover-hints-menu-item"
         >
           Hover hints
+        </MenuCheckboxItem>
+        <MenuCheckboxItem
+          checked={armExclusive}
+          onCheckedChange={setArmExclusive}
+          description={MORE_COPY.recordArmExclusive}
+          data-testid="record-arm-exclusive-menu-item"
+        >
+          Record arm exclusive
         </MenuCheckboxItem>
         <MenuItem
           icon={<Search />}

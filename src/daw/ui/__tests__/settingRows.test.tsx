@@ -272,7 +272,7 @@ describe('every setting explains itself', () => {
     ).toMatch(/Chord notation: Jazz/);
   });
 
-  it("in '⋯': the computer keyboard and hover hints", () => {
+  it("in '⋯': the computer keyboard, hover hints and Record arm exclusive", () => {
     render(
       <MemoryRouter>
         <TopBar />
@@ -280,11 +280,16 @@ describe('every setting explains itself', () => {
     );
     openMenu(screen.getByTestId('top-bar-overflow'));
     const { items } = expectEverySettingExplained();
-    expect(items).toBe(2);
+    expect(items).toBe(3);
     const hints = screen.getByTestId('hover-hints-menu-item');
     expect(hints).toHaveAttribute('aria-checked', 'true');
     fireEvent.click(hints);
     expect(useStore.getState().hoverHints).toBe(false);
+    openMenu(screen.getByTestId('top-bar-overflow'));
+    const exclusive = screen.getByTestId('record-arm-exclusive-menu-item');
+    expect(exclusive).toHaveAttribute('aria-checked', 'true');
+    fireEvent.click(exclusive);
+    expect(useStore.getState().recordArmExclusive).toBe(false);
   });
 
   it("in the avatar menu's chord notation", () => {

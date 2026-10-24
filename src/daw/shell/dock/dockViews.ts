@@ -31,12 +31,15 @@ export interface DockView {
   tab?: ChannelStripTabId;
 }
 
-/** The views in the rail's order: two pills, Instrument · FX and Automation · Edit. */
+/**
+ * The views in the rail's order: two pills, Instrument · FX and Edit ·
+ * Automation (Edit first since 2026-10-23, owner).
+ */
 export const DOCK_VIEWS: readonly DockView[] = [
   { id: 'instrument', label: 'Instrument', tab: 'controls' },
   { id: 'fx', label: 'FX', tab: 'fx' },
-  { id: 'automation', label: 'Automation' },
   { id: 'edit', label: 'Edit', tab: 'piano-roll' },
+  { id: 'automation', label: 'Automation' },
 ];
 
 /**

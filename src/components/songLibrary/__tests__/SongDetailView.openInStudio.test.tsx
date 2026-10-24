@@ -52,7 +52,7 @@ function renderSongPage(id: string) {
     <MemoryRouter initialEntries={[`/songs/${id}`]}>
       <Routes>
         <Route path="/songs/:songId" element={<SongDetailPage />} />
-        <Route path="/studio/editor" element={<EditorProbe />} />
+        <Route path="/studio" element={<EditorProbe />} />
       </Routes>
     </MemoryRouter>,
   );

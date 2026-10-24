@@ -6,14 +6,14 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
-import { memo, useRef } from 'react';
+import { memo } from 'react';
 import { cn } from '@/components/utilities';
 import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
 import {
   useListenMode,
   useStudioListenStore,
 } from '@/daw/collab/studioListenStore';
-import { meterSource } from '@/daw/engine/meterBus';
+import { useMasterFaderMeters } from '@/daw/hooks/useFaderMeters';
 import { useMasterVolumeControl } from '@/daw/hooks/useMixControls';
 import { hintText } from '@/daw/shell/help/hintSource';
 import { createShows } from '@/daw/shell/mix/rackTarget';
@@ -58,7 +58,7 @@ export const MasterRow = memo(function MasterRow({
   layout?: 'rail' | 'strip';
 }) {
   const volume = useMasterVolumeControl();
-  const source = useRef(meterSource('master'));
+  const levels = useMasterFaderMeters();
   const fxCount = useStore((s) => s.masteringFxChain.length);
   // Open where the student is: the dock's Master in Create, the master's
   // rack under the mixer in Mix (2.10).
@@ -168,7 +168,8 @@ export const MasterRow = memo(function MasterRow({
             onChange={(gain) => volume.change(Math.min(1, gain))}
             onEnd={volume.end}
             resetValue={0.8}
-            meter={source.current}
+            meter={levels.meter}
+            ghosts={levels.ghosts}
             color="var(--daw-text-2)"
             width={STRIP_PILL_PX}
             dimmed={muted}
@@ -190,11 +191,12 @@ export const MasterRow = memo(function MasterRow({
               'Master level',
               'How loud the whole mix is; click to clear the red light',
             )}
-            source={source.current}
+            // Muted, it still shows the mix, faded (owner, 2026-10-23).
+            source={levels.meter ?? levels.ghosts[0]}
             orientation="horizontal"
             length={faderPx}
             channels={1}
-            className="-mt-2.5"
+            className={cn('-mt-2.5', muted && 'opacity-40')}
           />
           <Fader
             label="Master volume"

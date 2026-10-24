@@ -10,12 +10,10 @@ import {
   deleteClipStep,
   duplicateClip,
   findClip,
-  openPrismFor,
   pasteClipboard,
   quantizeClip,
   renameClip,
   splitClipAtPlayhead,
-  suggestChordsAt,
   toggleClipFade,
   toggleClipMute,
   transposeClip,
@@ -30,6 +28,8 @@ import {
   renameSection,
 } from '../sections/sectionActions';
 import { addMarkerAt, deleteMarker, renameMarker } from '../markerActions';
+import { usePromptBarStore } from '../../prompt/promptBarStore';
+import { prismSelectionAt } from '../../prompt/promptSpot';
 import { deleteChords, editChord, insertChordAt } from '../chordActions';
 
 // ── What a canvas menu item does (milestone 2.12) ──────────────────────────
@@ -37,6 +37,20 @@ import { deleteChords, editChord, insertChordAt } from '../chordActions';
 // The ids clipMenuModel gives its items, each to its action, one undo step
 // each: a clip's are clipActions', a section's sectionActions' and a
 // marker's markerActions' (milestone 2.13).
+
+/**
+ * Prism (owner, 2026-10-24: the prompt bar is the new Prism): the bar open
+ * on bars of the track, highlighted on the timeline, from the bar
+ * right-clicked (prismSelectionAt) — its suggestions, and the part it
+ * writes into the track, that track's kind (Drums, Bass, Chords).
+ */
+function openPrismAt(tick: number, trackId: string): void {
+  const bar = usePromptBarStore.getState();
+  bar.select(
+    prismSelectionAt(useStore.getState(), tick, trackId, bar.selection),
+  );
+  bar.expand();
+}
 
 /** A section menu's item: its verb, and the kind for the sub-menus. */
 function runSectionItem(sectionId: string, id: string): boolean {
@@ -51,6 +65,19 @@ function runSectionItem(sectionId: string, id: string): boolean {
       return true;
     case 'duplicateSection':
       return duplicateSection(sectionId);
+    case 'prompt': {
+      // The prompt bar on the whole section, for its chords or a part.
+      const section = useStore
+        .getState()
+        .sections.find((s) => s.id === sectionId);
+      if (!section) return false;
+      usePromptBarStore.getState().askAt({
+        tick: section.startTick,
+        trackId: null,
+        lengthTicks: section.endTick - section.startTick,
+      });
+      return true;
+    }
     case 'loopSection':
       loopSection(sectionId);
       return true;
@@ -123,8 +150,8 @@ export function runCanvasMenuItem(
     if (id === 'createClip') {
       return createClipAt(target.trackId, target.tick) !== null;
     }
-    if (id === 'prism:suggest') {
-      suggestChordsAt(target.tick, target.trackId);
+    if (id === 'prism') {
+      openPrismAt(target.tick, target.trackId);
       return true;
     }
     return false;
@@ -164,14 +191,9 @@ export function runCanvasMenuItem(
     case 'fadeOut':
       return toggleClipFade(ref, 'out');
     case 'prism': {
-      if (arg === 'open') {
-        openPrismFor(ref.trackId);
-        return true;
-      }
-      if (arg !== 'suggest') return false;
       // Where the clip was right-clicked, else where it starts.
       const found = findClip(useStore.getState(), ref);
-      suggestChordsAt(
+      openPrismAt(
         target.tick ?? (found?.midi ?? found?.audio)?.startTick ?? 0,
         ref.trackId,
       );

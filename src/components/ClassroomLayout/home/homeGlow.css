@@ -17,9 +17,33 @@
   /* Its own stacking context, so the lights blend with each other and the
      page behind, not with the hero's text. */
   isolation: isolate;
+  /* Full color along the top, fading to the page by the bottom of the box
+     (Suno's scrim over the blurred art does the same). */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 22%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to bottom, #000 0%, #000 22%, transparent 100%);
   transition:
     --home-glow-a 5s ease-in-out,
     --home-glow-b 5s ease-in-out;
+}
+
+/* The wash: one color to the other across the width, so they meet in a
+   smooth blend rather than a seam. */
+.home-glow__wash {
+  background: linear-gradient(
+    to right,
+    color-mix(in oklab, var(--home-glow-a) 14%, transparent),
+    color-mix(in oklab, var(--home-glow-b) 14%, transparent)
+  );
+  background: linear-gradient(
+    to right in oklab,
+    color-mix(in oklab, var(--home-glow-a) 14%, transparent),
+    color-mix(in oklab, var(--home-glow-b) 14%, transparent)
+  );
 }
 
 /* Each light: the color at the core, falling off softly to nothing. Screen
@@ -33,18 +57,18 @@
 .home-glow__light--a {
   background: radial-gradient(
     closest-side,
-    color-mix(in oklab, var(--home-glow-a) 22%, transparent) 0%,
-    color-mix(in oklab, var(--home-glow-a) 12%, transparent) 40%,
-    color-mix(in oklab, var(--home-glow-a) 4%, transparent) 72%,
+    color-mix(in oklab, var(--home-glow-a) 28%, transparent) 0%,
+    color-mix(in oklab, var(--home-glow-a) 18%, transparent) 40%,
+    color-mix(in oklab, var(--home-glow-a) 6%, transparent) 75%,
     transparent 100%
   );
 }
 .home-glow__light--b {
   background: radial-gradient(
     closest-side,
-    color-mix(in oklab, var(--home-glow-b) 22%, transparent) 0%,
-    color-mix(in oklab, var(--home-glow-b) 12%, transparent) 40%,
-    color-mix(in oklab, var(--home-glow-b) 4%, transparent) 72%,
+    color-mix(in oklab, var(--home-glow-b) 28%, transparent) 0%,
+    color-mix(in oklab, var(--home-glow-b) 18%, transparent) 40%,
+    color-mix(in oklab, var(--home-glow-b) 6%, transparent) 75%,
     transparent 100%
   );
 }

@@ -9,6 +9,7 @@
  * remaining 24 rotational modes via interval analysis.
  */
 
+import { CHORDS } from '@/daw/prism-engine/data/chords';
 import {
   ALL_MODES,
   TRIADS,
@@ -181,22 +182,53 @@ export function getExpectedQualities(
 /**
  * Returns true if the given chord (rootPc + quality) is diatonic to key+mode.
  *
- * A chord is diatonic when:
- *   1. Its root pitch class falls on a scale degree of the key+mode
- *   2. Its quality matches the expected triad or tetrad at that degree
+ * A chord is diatonic when every one of its tones — and its bass, for a
+ * slash chord — belongs to the key's scale. Variations of the chord built on
+ * a degree are diatonic too when their notes stay in the key: in G minor,
+ * F sus4 (F, B♭, C) is the ♭7 chord with its 3rd lifted to the 4th, as
+ * diatonic as F major or F7 (owner, 2026-10-24). The same rule keeps
+ * altered chords out: G7♭9 in C major has an A♭, so it is not diatonic,
+ * though its base G7 is.
  *
- * Extended qualities (e.g., dominant9) are matched against their base form
- * (e.g., dominant7) for flexibility.
+ * A quality the chord table doesn't know falls back to matching the triad
+ * or tetrad expected at the degree (extended forms by their base 7th).
  */
 export function isDiatonic(
   chordRootPc: number,
   chordQuality: string,
   keyRootPc: number,
   mode: string,
+  /** The chord's lowest note (MIDI or pitch class), when it has one. */
+  bassNote?: number,
 ): boolean {
   const degree = getScaleDegree(chordRootPc, keyRootPc, mode);
   if (degree === null) return false;
 
+  const tones = chordTones(chordRootPc, chordQuality);
+  const scale = ALL_MODES[mode];
+  if (tones && scale) {
+    const inScale = (pc: number) =>
+      scale.includes((((pc - keyRootPc) % 12) + 12) % 12);
+    if (bassNote !== undefined && !inScale(bassNote)) return false;
+    return tones.every(inScale);
+  }
+
+  return matchesExpectedQuality(degree, chordQuality, mode);
+}
+
+/** The chord's tones as pitch classes, or null for a quality not in CHORDS. */
+function chordTones(rootPc: number, quality: string): number[] | null {
+  const intervals = CHORDS[quality] ?? CHORDS[normalizeQuality(quality)];
+  if (!intervals) return null;
+  return intervals.map((i) => (((rootPc + i) % 12) + 12) % 12);
+}
+
+/** The old test: the quality is the triad or tetrad built on the degree. */
+function matchesExpectedQuality(
+  degree: number,
+  chordQuality: string,
+  mode: string,
+): boolean {
   const expected = getExpectedQualities(degree, mode);
   const normalized = normalizeQuality(chordQuality);
 

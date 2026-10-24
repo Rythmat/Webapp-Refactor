@@ -53,10 +53,11 @@ export class AudioEngine {
       this.returnGains.set(id, gain);
     }
 
-    // Stereo master metering — parallel dead-end tap after the mute, so a
-    // muted Master's meter falls silent as a muted track's does
+    // Stereo master metering — parallel dead-end tap ahead of the mute, so
+    // a muted Master's fader still shows the mix, greyed, as a muted track's
+    // does (owner, 2026-10-23)
     const splitter = this.ctx.createChannelSplitter(2);
-    this.muteGain.connect(splitter);
+    this.masteringChain.getOutputNode().connect(splitter);
 
     // Meter taps (meterTap.ts): only the meters read them.
     this.analyserL = createMeterTap(this.ctx);

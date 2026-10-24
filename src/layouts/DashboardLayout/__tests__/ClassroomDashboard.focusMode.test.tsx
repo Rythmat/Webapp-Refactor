@@ -6,8 +6,8 @@ import { ClassroomDashboard } from '../ClassroomDashboard';
 
 // ── Focus mode (milestone 2.5, owner decision 7) ───────────────────────────
 // The Studio editor gets the whole window: no sidebar, no TopRail and no
-// chord-notation bar on /studio/editor. Every other page, the Studio
-// dashboard included, keeps them.
+// chord-notation bar on /studio. Every other page, the Studio's
+// Production lessons included, keeps them.
 //
 // Run: npx vitest run src/layouts/DashboardLayout/__tests__/ClassroomDashboard.focusMode.test.tsx
 
@@ -47,15 +47,15 @@ function at(path: string) {
 
 describe('focus mode', () => {
   it('hides the app chrome in the editor', () => {
-    at('/studio/editor');
+    at('/studio');
     expect(screen.getByTestId('page')).toBeInTheDocument();
     expect(screen.queryByTestId('sidebar')).toBeNull();
     expect(screen.queryByTestId('toprail')).toBeNull();
     expect(screen.queryByTestId('chord-bar')).toBeNull();
   });
 
-  it('keeps it on the Studio dashboard and elsewhere', () => {
-    for (const path of ['/studio', '/learn']) {
+  it('keeps it on the Studio lessons and elsewhere', () => {
+    for (const path of ['/studio/production', '/learn']) {
       at(path);
       expect(screen.getByTestId('sidebar')).toBeInTheDocument();
       expect(screen.getByTestId('toprail')).toBeInTheDocument();

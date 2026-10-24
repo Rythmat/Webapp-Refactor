@@ -97,6 +97,7 @@ const IS_VALID: {
   dockHeights: isDockHeights,
   readoutMode: isReadoutMode,
   hoverHints: isBoolean,
+  recordArmExclusive: isBoolean,
 };
 
 /**

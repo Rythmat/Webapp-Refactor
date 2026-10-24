@@ -47,8 +47,8 @@ describe('pairRoomCode', () => {
 describe('the pair links', () => {
   it('opens the host as owner and partners as joiners of the same room', () => {
     const code = pairRoomCode('sess-1', ['enr-a', 'enr-b']);
-    expect(pairHostHref(code)).toBe(`/studio/editor?collab=${code}&host=1`);
-    expect(pairPartnerHref(code)).toBe(`/studio/editor?collab=${code}&pair=1`);
-    expect(soloStudioHref()).toBe('/studio/editor?new=1');
+    expect(pairHostHref(code)).toBe(`/studio?collab=${code}&host=1`);
+    expect(pairPartnerHref(code)).toBe(`/studio?collab=${code}&pair=1`);
+    expect(soloStudioHref()).toBe('/studio?new=1');
   });
 });

@@ -2,11 +2,12 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type RefObject,
 } from 'react';
-import { Loader2, Play, Plus, Square } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { cn } from '@/components/utilities';
 import {
   LIST,
@@ -15,16 +16,11 @@ import {
   ROW_ON,
 } from '@/daw/components/Controls/SoundBrowser';
 import { auditionNote } from '@/daw/audio/auditionNote';
+import { subscribeHeardNotes } from '@/daw/audio/noteEvents';
 import {
   DRUM_TYPING_OCTAVE,
   typingKeyFor,
 } from '@/daw/commands/musicalTypingMap';
-import {
-  GROOVE_GENRES,
-  GROOVES,
-  type GrooveItem,
-} from '@/daw/data/groovesLibrary';
-import { addGrooveClip, grooveInPattern } from '@/daw/drums/addGrooveClip';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import {
   DRUM_KITS,
@@ -33,18 +29,10 @@ import {
 } from '@/daw/instruments/DrumMachineEngine';
 import { padLabel } from '@/daw/instruments/drumKits';
 import { liveMidiTargetIds } from '@/daw/midi/liveTarget';
-import { loadGrooveEvents } from '@/daw/midi/loadGrooveEvents';
-import { resolveEditorClip } from '@/daw/model/editorClip';
 import { useStore, type Track } from '@/daw/store';
-import { useBrowserStore } from '@/daw/shell/inspector/browser/browserStore';
-import {
-  fromEvents,
-  startNotesPreview,
-  stopPreview,
-} from '@/daw/shell/inspector/browser/preview';
-import { IconButton } from '@/daw/ui/IconButton';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { FoldableDockColumn } from './FoldableDockColumn';
+import { kitStyles, styleOfKit } from './drumKitStyles';
 import {
   badgePoint,
   KIT_BADGES,
@@ -61,24 +49,18 @@ import {
 // A is the kick), and the sidestick and the open and pedal hats as badges
 // on the rims of the drums they're played on. A click plays a pad. The
 // menu at the left is the drums' own (owner, 2026-10-22), in the look of
-// every MIDI instrument's (SoundBrowser): the kits in its first column
-// (Natural, 808, House…; the list keeps the lesson anchor
-// drum-kit-selector), the grooves in its second, by genre. A kit picked
-// plays the pads; a groove has Preview, to hear it first, and Add, to put
-// it on the timeline (addGrooveClip). The kit takes the rest of the tab: the track's
-// and the pads' volume and pan knobs went from it (owner, 2026-10-21; the
-// track's are its row's, the pads' the drum grid's). Our look, not
+// every MIDI instrument's (SoundBrowser): the styles in its first column
+// (Pop & Rock, Hip Hop & Trap, Latin…, drumKitStyles.ts), the kits of the
+// style picked in its second (owner, 2026-10-23: the grooves that were
+// there moved into the prompt box's generation; the kit list keeps the
+// lesson anchor drum-kit-selector). A kit picked plays the pads. A pad
+// lights as it's struck: a click,
+// a key, or the timeline's notes as they're heard (owner, 2026-10-23). The
+// kit takes the rest of the tab: the track's and the pads' volume and pan
+// knobs went from it (owner, 2026-10-21; the track's are its row's, the
+// pads' the drum grid's). Our look, not
 // Soundtrap's: neutral rings, the white key badges, Glacial and the 12 px
 // floor. The beat itself is edited on the drum grid in Notes.
-
-/** The grooves, by genre, in the Grooves tab's genre order. */
-const GROOVE_GROUPS: readonly { genre: string; grooves: GrooveItem[] }[] =
-  GROOVE_GENRES.filter((g) => g !== 'All')
-    .map((genre) => ({
-      genre,
-      grooves: GROOVES.filter((g) => g.genre === genre),
-    }))
-    .filter((group) => group.grooves.length > 0);
 
 const keyOf = (note: number) => typingKeyFor(note, DRUM_TYPING_OCTAVE);
 
@@ -99,22 +81,61 @@ function useBoxSize(ref: RefObject<HTMLElement>) {
   return size;
 }
 
+/** How long a struck pad stays lit, short enough that a groove's 16ths
+ *  flash apart. */
+const FLASH_MS = 110;
+
+const EMPTY = new Set<number>();
+
+/**
+ * The pads lit by hits on a track's engine (noteEvents): each one when it's
+ * heard, so the timeline's notes light as they sound, not a look-ahead
+ * early. `flash` lights one at once (a click, before its echo comes).
+ */
+function usePadFlashes(trackId: string) {
+  const [lit, setLit] = useState<ReadonlySet<number>>(EMPTY);
+  const ends = useRef(new Map<number, number>());
+  const flash = useCallback((note: number) => {
+    setLit((prev) => (prev.has(note) ? prev : new Set(prev).add(note)));
+    window.clearTimeout(ends.current.get(note));
+    ends.current.set(
+      note,
+      window.setTimeout(() => {
+        ends.current.delete(note);
+        setLit((prev) => {
+          const next = new Set(prev);
+          next.delete(note);
+          return next;
+        });
+      }, FLASH_MS),
+    );
+  }, []);
+  useEffect(() => {
+    const off = subscribeHeardNotes(trackId, (event) => {
+      if (event.type === 'on' && event.velocity > 0) flash(event.note);
+    });
+    const timers = ends.current;
+    return () => {
+      off();
+      for (const id of timers.values()) window.clearTimeout(id);
+      timers.clear();
+      setLit(EMPTY);
+    };
+  }, [trackId, flash]);
+  return { lit, flash };
+}
+
 export function DrumPadsView({ trackId }: { trackId: string }) {
   const track = useStore((s) => s.tracks.find((t) => t.id === trackId));
-  const [hit, setHit] = useState<number | null>(null);
+  const { lit: struck, flash } = usePadFlashes(trackId);
 
   const play = useCallback(
     (note: number) => {
       auditionNote(trackId, note, 100);
-      setHit(note);
+      flash(note);
     },
-    [trackId],
+    [trackId, flash],
   );
-  useEffect(() => {
-    if (hit === null) return;
-    const id = window.setTimeout(() => setHit(null), 160);
-    return () => window.clearTimeout(id);
-  }, [hit]);
 
   // The kits are the dock's sound column (SoundBrowser), as every MIDI
   // instrument's sounds are.
@@ -140,62 +161,14 @@ export function DrumPadsView({ trackId }: { trackId: string }) {
     }
   };
 
-  // The grooves: listen first, then add (owner, 2026-10-22). Preview plays
-  // one on this track's kit at the song's tempo (the Library's preview, one
-  // at a time across the Library and the dock); Add puts it on the timeline
-  // at the playhead's bar (addGrooveClip). The groove the drum grid shows
-  // is marked.
-  const patternName = useStore(
-    (s) => resolveEditorClip(s, trackId)?.name ?? undefined,
+  // The styles, then the kits of the one picked; it opens on the kit's own.
+  const styles = useMemo(() => kitStyles(DRUM_KITS), []);
+  const [styleId, setStyleId] = useState(
+    () => styleOfKit(styles, kit)?.id ?? styles[0]?.id,
   );
-  const inPattern = grooveInPattern(patternName, GROOVES);
-  const previewing = useBrowserStore((s) =>
-    s.preview?.itemId.startsWith(previewPrefix(trackId))
-      ? s.preview.itemId.slice(previewPrefix(trackId).length)
-      : null,
-  );
-  const togglePreview = (item: GrooveItem) => {
-    if (previewing === item.id) {
-      stopPreview();
-      return;
-    }
-    const entry = trackEngineRegistry.get(trackId);
-    if (!entry) return;
-    void startNotesPreview(
-      previewPrefix(trackId) + item.id,
-      entry.trackEngine,
-      async () => {
-        const events = await loadGrooveEvents(item.id);
-        return events ? fromEvents(events, useStore.getState().bpm) : [];
-      },
-    );
-  };
-  // A preview stops when the song plays or records, and when the tab goes.
-  useEffect(() => {
-    const stopMine = () => {
-      const id = useBrowserStore.getState().preview?.itemId;
-      if (id?.startsWith(previewPrefix(trackId))) stopPreview();
-    };
-    const off = useStore.subscribe(
-      (s) => s.isPlaying || s.isRecording,
-      (on) => {
-        if (on) stopMine();
-      },
-    );
-    return () => {
-      off();
-      stopMine();
-    };
-  }, [trackId]);
-  const [adding, setAdding] = useState<string | null>(null);
-  const addGroove = async (item: GrooveItem) => {
-    setAdding(item.id);
-    try {
-      await addGrooveClip(trackId, item);
-    } finally {
-      setAdding((g) => (g === item.id ? null : g));
-    }
-  };
+  const shown = styles.find((s) => s.id === styleId) ?? styles[0];
+  const labelOf = (id: string) =>
+    DRUM_KITS.find((k) => k.id === id)?.label ?? id;
 
   return (
     <div className="flex h-full min-h-0 flex-1">
@@ -208,68 +181,65 @@ export function DrumPadsView({ trackId }: { trackId: string }) {
       >
         <div data-ds="v2" className="flex min-h-0 flex-1">
           <ul
-            aria-label="Drum kits"
-            data-testid="drum-kit-list"
-            data-tutorial-id="drum-kit-selector"
+            aria-label="Drum styles"
+            data-testid="drum-style-list"
             className={cn(
               LIST,
-              'w-[128px] shrink-0 border-r border-daw-hairline',
+              'w-[140px] shrink-0 border-r border-daw-hairline',
             )}
             style={{ scrollbarWidth: 'thin' }}
           >
-            {DRUM_KITS.map((k) => {
-              const on = k.id === kit;
+            {styles.map((st) => {
+              const on = st.id === shown?.id;
               return (
-                <li key={k.id}>
+                <li key={st.id}>
                   <button
                     type="button"
                     aria-current={on || undefined}
-                    data-sound={k.id}
-                    onClick={() => void changeKit(k.id)}
+                    data-style={st.id}
+                    onClick={() => setStyleId(st.id)}
                     className={cn(ROW, on ? ROW_ON : ROW_OFF)}
                   >
-                    <span className="min-w-0 flex-1 truncate">{k.label}</span>
-                    {k.id === loadingKit ? <Spinner /> : null}
+                    <span className="min-w-0 flex-1 truncate">{st.label}</span>
+                    {st.kits.includes(kit) ? (
+                      <span
+                        aria-hidden
+                        className="size-1.5 shrink-0 rounded-full bg-daw-text-2"
+                      />
+                    ) : null}
                   </button>
                 </li>
               );
             })}
           </ul>
-          {/* Its right padding keeps each row's Add clear of the fold
-              handle on the column's edge. */}
+          {/* Its right padding keeps each row clear of the fold handle on
+              the column's edge. */}
           <ul
-            aria-label="Grooves"
-            data-testid="drum-groove-list"
-            data-tutorial-id="drum-grooves"
+            aria-label={`${shown?.label ?? ''} drum kits`}
+            data-testid="drum-kit-list"
+            data-tutorial-id="drum-kit-selector"
             className={cn(LIST, 'min-w-0 flex-1 pr-7')}
             style={{ scrollbarWidth: 'thin' }}
           >
-            {GROOVE_GROUPS.map((group) => (
-              <li key={group.genre}>
-                <p
-                  className={cn(
-                    TYPE_CLASS.label,
-                    'px-2 pb-1 pt-2 font-bold text-daw-text-3',
-                  )}
-                >
-                  {group.genre}
-                </p>
-                <ul className="m-0 list-none p-0">
-                  {group.grooves.map((item) => (
-                    <li key={item.id}>
-                      <GrooveRow
-                        groove={item}
-                        current={item.id === inPattern}
-                        playing={item.id === previewing}
-                        adding={item.id === adding}
-                        onPreview={() => togglePreview(item)}
-                        onAdd={() => void addGroove(item)}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
+            {(shown?.kits ?? []).map((id) => {
+              const on = id === kit;
+              return (
+                <li key={id}>
+                  <button
+                    type="button"
+                    aria-current={on || undefined}
+                    data-sound={id}
+                    onClick={() => void changeKit(id)}
+                    className={cn(ROW, on ? ROW_ON : ROW_OFF)}
+                  >
+                    <span className="min-w-0 flex-1 truncate">
+                      {labelOf(id)}
+                    </span>
+                    {id === loadingKit ? <Spinner /> : null}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </FoldableDockColumn>
@@ -279,68 +249,9 @@ export function DrumPadsView({ trackId }: { trackId: string }) {
           data-ds="v2"
           className="absolute inset-0 flex min-h-0 p-2"
         >
-          {track ? <Kit track={track} hit={hit} onPlay={play} /> : null}
+          {track ? <Kit track={track} struck={struck} onPlay={play} /> : null}
         </div>
       </div>
-    </div>
-  );
-}
-
-/** The shared preview's id for a groove played from this track's menu. */
-const previewPrefix = (trackId: string) => `dock-groove:${trackId}:`;
-
-/** A groove: its name and tempo, Preview and Add. */
-function GrooveRow({
-  groove,
-  current,
-  playing,
-  adding,
-  onPreview,
-  onAdd,
-}: {
-  groove: GrooveItem;
-  /** The groove the drum grid shows now. */
-  current: boolean;
-  playing: boolean;
-  adding: boolean;
-  onPreview(): void;
-  onAdd(): void;
-}) {
-  return (
-    <div
-      data-groove={groove.id}
-      aria-current={current || undefined}
-      className={cn(ROW, 'gap-1 pr-0.5', current || playing ? ROW_ON : ROW_OFF)}
-    >
-      <span className="min-w-0 flex-1 truncate">{groove.name}</span>
-      <span className="shrink-0 tabular-nums text-daw-text-3">
-        {groove.bpm} BPM
-      </span>
-      <IconButton
-        label={playing ? `Stop ${groove.name}` : `Preview ${groove.name}`}
-        icon={playing ? <Square /> : <Play />}
-        size="sm"
-        variant="ghost"
-        aria-pressed={playing}
-        data-testid="groove-preview"
-        data-hint={playing ? 'Stop the preview' : 'Preview: hear the groove'}
-        onClick={onPreview}
-      />
-      {adding ? (
-        <span className="flex size-6 shrink-0 items-center justify-center">
-          <Spinner />
-        </span>
-      ) : (
-        <IconButton
-          label={`Add ${groove.name} to the timeline`}
-          icon={<Plus />}
-          size="sm"
-          variant="ghost"
-          data-testid="groove-add"
-          data-hint="Add: put the groove on the timeline at the playhead"
-          onClick={onAdd}
-        />
-      )}
     </div>
   );
 }
@@ -356,15 +267,14 @@ function Spinner() {
 
 // ── The kit ─────────────────────────────────────────────────────────────────
 
-const EMPTY = new Set<number>();
-
 function Kit({
   track,
-  hit,
+  struck,
   onPlay,
 }: {
   track: Track;
-  hit: number | null;
+  /** The pads struck just now (usePadFlashes). */
+  struck: ReadonlySet<number>;
   onPlay(note: number): void;
 }) {
   const areaRef = useRef<HTMLDivElement>(null);
@@ -380,7 +290,7 @@ function Kit({
       : 0;
   const kit = track.drumKit ?? 'natural';
   const nameOf = (note: number) => padLabel(note, kit);
-  const lit = (note: number) => hit === note || held.has(note);
+  const lit = (note: number) => struck.has(note) || held.has(note);
 
   const press = (note: number) => (e: React.PointerEvent) => {
     if (e.button > 0) return;

@@ -19,6 +19,7 @@ import { composerNameOf } from '@/daw/model/composerName';
 import { useMe } from '@/hooks/data/auth/useMe';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { StudioRoutes } from '@/constants/routes';
+import { isEditorPath } from '@/daw/preload';
 import { useStudioCurrentProjectNote } from '@/daw/hooks/useStudioCurrentProjectNote';
 import { useStore } from '@/daw/store';
 import { useSynthStore } from '@/daw/oracle-synth/store';
@@ -224,7 +225,7 @@ function DawAppInner() {
       // Only while the student is still in the editor: an open that ends
       // after they left must not pull them back or rewrite another page.
       navigate: (search, { replace }) => {
-        if (window.location.pathname !== editorPath) return;
+        if (!isEditorPath(window.location.pathname)) return;
         navigateRef.current({ pathname: editorPath, search }, { replace });
       },
       openProjectsDialog: (opts) =>

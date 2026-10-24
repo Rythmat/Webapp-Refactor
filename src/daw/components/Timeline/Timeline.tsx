@@ -133,7 +133,10 @@ import {
   rowIndexAt,
   rowLayoutOf,
   TRACK_FOOT_PX,
+  TRACK_ROW_PX,
 } from '@/daw/shell/tracklist/rowLayout';
+import { usePromptBarStore } from '@/daw/shell/prompt/promptBarStore';
+import { selectionOfDrag } from '@/daw/shell/prompt/promptSpot';
 import { pauseFollow, useFollowPlayhead } from '@/daw/editor/follow';
 import { publishTimelineWidth, songLengthOf } from '@/daw/editor/viewport';
 import {
@@ -593,6 +596,38 @@ export function Timeline({ scrollRef }: TimelineProps) {
         new Set(s.noteIndices),
       ]),
     );
+  }, []);
+  // A drag across a MIDI clip's notes, below its title strip (the strip is
+  // what moves the clip; owner, 2026-10-24): the bars it crosses, lit up as
+  // it goes and kept for the prompt bar, on the clip's track. `moved` once
+  // past the drag threshold: a press without one just selects the clip.
+  const barDragRef = useRef<{
+    x0: number;
+    trackId: string;
+    moved: boolean;
+  } | null>(null);
+  const extendBarDrag = useCallback((x: number) => {
+    const drag = barDragRef.current;
+    if (!drag) return;
+    if (!drag.moved && Math.abs(x - drag.x0) < PAN_DRAG_THRESHOLD) return;
+    drag.moved = true;
+    pauseFollow();
+    const state = useStore.getState();
+    const zoom = state.timelineZoom;
+    const left = state.timelineScrollLeft;
+    usePromptBarStore
+      .getState()
+      .select(
+        selectionOfDrag(
+          pixelToTick(drag.x0, zoom, left),
+          pixelToTick(x, zoom, left),
+          ticksPerBar(
+            state.timeSignatureNumerator,
+            state.timeSignatureDenominator,
+          ),
+          drag.trackId,
+        ),
+      );
   }, []);
   // A pan with the middle button (2.12; a plain drag on empty canvas used to
   // pan and now draws the marquee). `seekTick`, when set, is applied on a
@@ -1493,6 +1528,32 @@ export function Timeline({ scrollRef }: TimelineProps) {
       // (Marker flags drawn below with sticky top ruler)
     }
 
+    // ── The prompt bar's selection: the bars dragged out, on their lane ──
+    const selected = usePromptBarStore.getState().selection;
+    if (selected) {
+      const sx = tickToPixel(
+        selected.startTick,
+        currentZoom,
+        currentScrollLeft,
+      );
+      const ex = tickToPixel(selected.endTick, currentZoom, currentScrollLeft);
+      const index = selected.trackId
+        ? tracks.findIndex((t) => t.id === selected.trackId)
+        : -1;
+      // Its lane, or the row a new track would take below the last.
+      const top =
+        (index >= 0 ? rows.tops[index] : rows.total) +
+        RULERS_HEIGHT +
+        CLIP_INSET;
+      const height =
+        (index >= 0 ? rows.heights[index] : TRACK_ROW_PX) - CLIP_INSET * 2;
+      ctx.fillStyle = palette.rangeFill;
+      ctx.fillRect(sx, top, ex - sx, height);
+      ctx.strokeStyle = palette.rangeEdge;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(sx + 0.5, top + 0.5, ex - sx - 1, height - 1);
+    }
+
     // ── Note marquee (⌘-drag) ──────────────────────────────────────────
     const marquee = noteMarqueeRef.current;
     if (marquee) {
@@ -1719,6 +1780,15 @@ export function Timeline({ scrollRef }: TimelineProps) {
       redrawFrameRef.current = 0;
     };
   }, [draw]);
+
+  // The prompt bar's selection drawn as it's made, cleared or replaced.
+  useEffect(
+    () =>
+      usePromptBarStore.subscribe((next, prev) => {
+        if (next.selection !== prev.selection) requestRedraw();
+      }),
+    [requestRedraw],
+  );
 
   // Store changes redraw only when they change what the canvas draws: a
   // fader, FX or automation move leaves it alone.
@@ -2085,6 +2155,12 @@ export function Timeline({ scrollRef }: TimelineProps) {
                 : 'move';
 
           const midiClip = hitTrack?.midiClips.find((c) => c.id === hit.clipId);
+          // A MIDI clip moves by its title strip; a drag across its notes
+          // highlights the bars it crosses on its track.
+          if (mode === 'move' && midiClip && y >= hit.y + CLIP_HEADER_PX) {
+            barDragRef.current = { x0: x, trackId: hit.trackId, moved: false };
+            return;
+          }
           const audioClip = hitTrack?.audioClips.find(
             (c) => c.id === hit.clipId,
           );
@@ -2495,6 +2571,13 @@ export function Timeline({ scrollRef }: TimelineProps) {
         return;
       }
 
+      // Bars being highlighted across a MIDI clip's notes
+      if (barDragRef.current) {
+        extendBarDrag(x);
+        canvas.style.cursor = 'crosshair';
+        return;
+      }
+
       // Note marquee in progress
       if (noteMarqueeRef.current) {
         extendNoteMarquee(x, y);
@@ -2683,7 +2766,13 @@ export function Timeline({ scrollRef }: TimelineProps) {
         } else if (zone === 'trim-left' || zone === 'trim-right') {
           canvas.style.cursor = 'col-resize';
         } else if (hit) {
-          canvas.style.cursor = 'grab';
+          // A MIDI clip is grabbed by its title strip; its notes take a
+          // drag that highlights bars.
+          const isMidi = state.tracks
+            .find((t) => t.id === hit.trackId)
+            ?.midiClips.some((c) => c.id === hit.clipId);
+          canvas.style.cursor =
+            isMidi && y >= hit.y + CLIP_HEADER_PX ? 'default' : 'grab';
         } else {
           // Empty space: a click seeks, a drag draws the marquee.
           canvas.style.cursor = 'default';
@@ -2709,6 +2798,12 @@ export function Timeline({ scrollRef }: TimelineProps) {
   // ── Mouse up ───────────────────────────────────────────────────────
 
   const handleCanvasMouseUp = useCallback(() => {
+    // Bars highlighted across a clip's notes stay the prompt bar's selection.
+    if (barDragRef.current) {
+      barDragRef.current = null;
+      if (canvasRef.current) canvasRef.current.style.cursor = 'default';
+      return;
+    }
     // Note marquee: select every note it touched. A ⌘-click without a drag
     // clears the note selection.
     if (noteMarqueeRef.current) {
@@ -2722,6 +2817,33 @@ export function Timeline({ scrollRef }: TimelineProps) {
       state.setSelectedNotes(
         dragged ? notesInMarquee(drawnNotesRef.current, m) : [],
       );
+      // A plain drag (not ⌘'s) also selects the bars it crossed for the
+      // prompt bar, on the lane it started in (below the last lane, a new
+      // track); a plain click clears that selection.
+      if (m.seekTick !== null) {
+        const bar = usePromptBarStore.getState();
+        if (Math.abs(m.x1 - m.x0) >= PAN_DRAG_THRESHOLD) {
+          const zoom = state.timelineZoom;
+          const left = state.timelineScrollLeft;
+          const row = rowIndexAt(
+            rowLayoutOf(state.tracks),
+            m.y0 - RULERS_HEIGHT,
+          );
+          bar.select(
+            selectionOfDrag(
+              pixelToTick(m.x0, zoom, left),
+              pixelToTick(m.x1, zoom, left),
+              ticksPerBar(
+                state.timeSignatureNumerator,
+                state.timeSignatureDenominator,
+              ),
+              state.tracks[row]?.id ?? null,
+            ),
+          );
+        } else {
+          bar.clearSelection();
+        }
+      }
       // A plain click on empty canvas seeks, as a click on the ruler does.
       if (!dragged && m.seekTick !== null) seekTo(m.seekTick);
       if (canvasRef.current) canvasRef.current.style.cursor = 'default';
@@ -2956,7 +3078,9 @@ export function Timeline({ scrollRef }: TimelineProps) {
   // fires second for a given event sees a zero delta.
   const handleWindowMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (noteMarqueeRef.current) {
+      if (barDragRef.current) {
+        extendBarDrag(getCanvasCoords(e).x);
+      } else if (noteMarqueeRef.current) {
         const { x, y } = getCanvasCoords(e);
         extendNoteMarquee(x, y);
         requestRedraw();

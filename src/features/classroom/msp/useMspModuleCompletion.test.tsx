@@ -35,7 +35,7 @@ beforeEach(() => {
   window.history.replaceState(
     {},
     '',
-    appendMspLaunchParams('/studio/editor?tutorial=make-first-track', LAUNCH),
+    appendMspLaunchParams('/studio?tutorial=make-first-track', LAUNCH),
   );
 });
 afterEach(cleanup);
@@ -87,7 +87,7 @@ describe('useMspModuleCompletion with an activity', () => {
   it('reports nothing from a later mount reading another lesson’s stash', () => {
     // The launch was stashed by an earlier mount; the URL has moved on.
     renderHook(() => useMspModuleCompletion()).unmount();
-    window.history.replaceState({}, '', '/studio/editor');
+    window.history.replaceState({}, '', '/studio');
     const { result } = renderHook(() => useMspModuleCompletion());
     result.current.reportCompletion(undefined, {
       module: 'studio',

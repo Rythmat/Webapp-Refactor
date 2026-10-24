@@ -7,7 +7,7 @@ import { MirrorBar } from './mirror/MirrorBar';
  * the records, Publishing — with one edit bar on top. The graph is not here
  * any more: it is Cortex's, in its own section (/console/cortex).
  *
- * The bar takes the app's XP/streak bar slot (TopRail, h-14), so the page
+ * The bar takes the app's XP/streak bar slot (TopRail, h-11), so the page
  * below it is the same size a student sees. The unsaved-changes guard sits
  * one level up (`GuardOutlet`, in AdminPages), above this area and Cortex
  * both, so leaving through the sidebar is caught everywhere.

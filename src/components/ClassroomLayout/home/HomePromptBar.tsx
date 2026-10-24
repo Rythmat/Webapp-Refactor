@@ -116,8 +116,10 @@ export const HomePromptBar = () => {
 
   return (
     <form
+      // Home's search keeps clear of it (HomeSearchPill's avoidId).
+      id="home-prompt"
       onSubmit={submit}
-      className={cn(PROMPT_FRAME, PROMPT_WASH, 'max-w-[680px]')}
+      className={cn(PROMPT_FRAME, PROMPT_WASH, 'max-w-[42.5rem]')}
     >
       <label htmlFor={inputId} className="sr-only">
         Describe what you want to make, learn, explore, or play
@@ -157,7 +159,7 @@ export const HomePromptBar = () => {
                 aria-checked={on}
                 onClick={() => setTarget(on ? null : t.id)}
                 className={cn(
-                  'flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[13px] transition-colors',
+                  'flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[0.8125rem] transition-colors',
                   'outline-none focus-visible:ring-2 focus-visible:ring-white/40',
                   on
                     ? 'border-white/20 bg-white/15 text-white'

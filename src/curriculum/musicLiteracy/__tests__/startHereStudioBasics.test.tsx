@@ -50,7 +50,7 @@ describe('Start Here’s Studio Basics stop', () => {
       card
         .getByRole('link', { name: 'Start Learn Studio Basics' })
         .getAttribute('href'),
-    ).toBe('/studio/editor?tutorial=studio-basics-your-tracks');
+    ).toBe('/studio?tutorial=studio-basics-your-tracks');
     expect(card.getByRole('img', { name: '0 of 9 lessons done' })).toBeTruthy();
     expect(card.getByText('9 lessons')).toBeTruthy();
     // No key to wear: the course isn't in one.
@@ -67,7 +67,7 @@ describe('Start Here’s Studio Basics stop', () => {
       card
         .getByRole('link', { name: 'Continue Learn Studio Basics' })
         .getAttribute('href'),
-    ).toBe('/studio/editor?tutorial=studio-basics-piano-roll');
+    ).toBe('/studio?tutorial=studio-basics-piano-roll');
     const marks = Array.from(
       stop().querySelectorAll('[data-step-mark]'),
       (el) => el.getAttribute('data-step-mark'),
@@ -89,7 +89,7 @@ describe('Start Here’s Studio Basics stop', () => {
       card
         .getByRole('link', { name: 'Play again Learn Studio Basics' })
         .getAttribute('href'),
-    ).toBe('/studio/editor?tutorial=studio-basics-your-tracks');
+    ).toBe('/studio?tutorial=studio-basics-your-tracks');
   });
 
   it('follows the student’s completions as they load', () => {

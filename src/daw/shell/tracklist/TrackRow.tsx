@@ -1,10 +1,9 @@
-import { Ear, EarOff, SlidersHorizontal } from 'lucide-react';
+import { Ear, EarOff } from 'lucide-react';
 import { useTrackColor } from '@/daw/harmony/trackColor';
 import {
   memo,
   useCallback,
   useEffect,
-  useRef,
   useState,
   type MouseEvent,
   type PointerEvent,
@@ -18,7 +17,7 @@ import {
   useStudioListenStore,
 } from '@/daw/collab/studioListenStore';
 import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
-import { meterSource } from '@/daw/engine/meterBus';
+import { useFaderMeters } from '@/daw/hooks/useFaderMeters';
 import {
   useTrackPanControl,
   useTrackVolumeControl,
@@ -33,7 +32,7 @@ import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Toggle } from '@/daw/ui/Toggle';
 import { VolumePill } from '@/daw/ui/VolumePill';
 import { selectTrackInList } from './useTrackListKeys';
-import { armHint, armLabel, armStateOf, nextArm } from './recordArm';
+import { armHint, armLabel, armStateOf, stepArm } from './recordArm';
 import { TRACK_ROW_PX } from './rowLayout';
 import { onTrackMenuRequest } from './trackMenuRequests';
 import { TrackMenuContent } from './TrackMenu';
@@ -42,13 +41,14 @@ import { useTrackRename } from './useTrackRename';
 // ── A track row (milestone 2.6; Suno's track header, 2026-10-21) ────────
 //
 // 86 px, two lines, after Suno's header:
-//   number · name · (⋯ on hover) · mute · solo · arm · input ▾
+//   number (opens the track's settings) · name · mute · solo · arm
 //   the volume pill (the fader over the track's stereo meter) · pan dial
 // The track's colour runs down the left edge (4 px), which is the grip
 // that drags the row up or down; the selected row is lifted white/4, and a
 // muted row fades. Everything else (the name, colour, role, duplicate,
-// monitor, test sound, automation, export, release, delete) is in the ⋯
-// menu, which a right-click on the row opens too, at the pointer (2.15),
+// monitor, test sound, automation, export, release, delete) is in the
+// track's menu, which its number opens (2026-10-23) and a right-click on
+// the row opens too, at the pointer (2.15),
 // and so is the track's input: its MIDI device, or its audio input and
 // channel (TrackInputSub; it was a ▾ on the header until 2026-10-22). Every control is named in full ('Mute Rhodes'),
 // shows its state by more than colour (pressed, filled), and is at least
@@ -86,7 +86,7 @@ export interface TrackRowProps {
   index: number;
   /** This row's selector takes the list's Tab stop. */
   tabStop: boolean;
-  /** This row's ⋯ is the lessons' 'track-menu-button'. */
+  /** This row's number (its menu) is the lessons' 'track-menu-button'. */
   menuAnchor: boolean;
   /** A grip press: the list drags the row from here. */
   onGripDown(event: PointerEvent<HTMLElement>, trackId: string): void;
@@ -148,9 +148,10 @@ const TrackRowBody = memo(function TrackRowBody({
   );
   const volume = useTrackVolumeControl(track);
   const pan = useTrackPanControl(track);
-  const meter = useRef(meterSource(`track-lr:${track.id}`));
+  const levels = useFaderMeters(track);
   const muted = track.mute;
   const arm = armStateOf(track);
+  const armExclusive = useStore((s) => s.recordArmExclusive);
 
   return (
     <li
@@ -200,35 +201,45 @@ const TrackRowBody = memo(function TrackRowBody({
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-1 pl-2 pr-3 pt-2">
-        {/* Row 1: number (the mute), name, ⋯ (on hover), solo, arm, input. */}
+        {/* Row 1: number (the settings), name, mute, solo, arm. */}
         <div className="flex h-8 min-w-0 items-center">
-          {/* The track's number is its mute (owner, 2026-10-22: the mute
-              icon went): a click silences the track, its number filled in
-              while it is muted. */}
-          <button
-            type="button"
-            data-testid="track-number"
-            aria-label={`Mute ${track.name}`}
-            aria-pressed={muted}
-            data-hint={hintText(
-              `Mute ${track.name}`,
-              muted
-                ? 'Muted: click the number to hear this track again'
-                : 'Click the number to silence this track',
-            )}
-            onClick={() => useStore.getState().toggleMute(track.id)}
-            className={cn(
-              TYPE_CLASS.label,
-              '-ml-1 flex size-6 shrink-0 items-center justify-center rounded-full font-bold tabular-nums',
-              muted
-                ? 'bg-daw-pill-on text-daw-text'
-                : 'text-daw-text-3 hover:bg-daw-hover hover:text-daw-text',
-              TRANSITION,
-              FOCUS_RING,
-            )}
-          >
-            {index + 1}
-          </button>
+          {/* The track's number opens its settings (owner, 2026-10-23: it
+              was the mute; the M is beside Solo now). */}
+          <div className="flex shrink-0" onClick={(e) => e.stopPropagation()}>
+            <Menu open={menuOpen} onOpenChange={setMenuOpen}>
+              <MenuTrigger asChild>
+                <button
+                  type="button"
+                  data-testid="track-number"
+                  aria-label={`More for ${track.name}`}
+                  data-tutorial-id={
+                    menuAnchor ? 'track-menu-button' : undefined
+                  }
+                  data-hint={hintText(
+                    `Track ${index + 1} settings`,
+                    'Rename, colour, input, duplicate, export or delete it',
+                  )}
+                  className={cn(
+                    TYPE_CLASS.label,
+                    '-ml-1 flex size-6 shrink-0 items-center justify-center rounded-full font-bold tabular-nums',
+                    'text-daw-text-3 hover:bg-daw-hover hover:text-daw-text data-[state=open]:bg-daw-pill-on data-[state=open]:text-daw-text',
+                    muted && 'opacity-50',
+                    TRANSITION,
+                    FOCUS_RING,
+                  )}
+                >
+                  {index + 1}
+                </button>
+              </MenuTrigger>
+              {menuOpen ? (
+                <TrackMenuContent
+                  track={track}
+                  locked={locked}
+                  isSelected={isSelected}
+                />
+              ) : null}
+            </Menu>
+          </div>
           {rename.editing ? (
             <input
               ref={rename.inputRef}
@@ -279,40 +290,30 @@ const TrackRowBody = memo(function TrackRowBody({
             className="flex shrink-0 items-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <Menu open={menuOpen} onOpenChange={setMenuOpen}>
-              <MenuTrigger asChild>
-                <button
-                  type="button"
-                  aria-label={`More for ${track.name}`}
-                  data-tutorial-id={
-                    menuAnchor ? 'track-menu-button' : undefined
-                  }
-                  data-hint={hintText(
-                    `More for ${track.name}`,
-                    'Rename, colour, duplicate, export or delete it',
-                  )}
-                  data-testid="track-menu-button"
-                  className={cn(
-                    HEADER_BUTTON,
-                    // Shown on hover, with the keyboard, or while open
-                    // (Suno's); its room stays, so nothing shifts.
-                    'opacity-0 focus-visible:opacity-100 group-hover/row:opacity-100 data-[state=open]:opacity-100',
-                  )}
-                >
-                  {/* Sliders, not '⋯': the chord ruler's settings are '⋯'
-                      (ChordRulerSettings), and the two sat one over the
-                      other (owner, 2026-10-22). */}
-                  <SlidersHorizontal aria-hidden />
-                </button>
-              </MenuTrigger>
-              {menuOpen ? (
-                <TrackMenuContent
-                  track={track}
-                  locked={locked}
-                  isSelected={isSelected}
-                />
-              ) : null}
-            </Menu>
+            <button
+              type="button"
+              aria-label={`Mute ${track.name}`}
+              aria-pressed={muted}
+              data-testid="track-mute"
+              data-hint={hintText(
+                `Mute ${track.name}`,
+                muted
+                  ? 'Muted: click to hear this track again'
+                  : 'Silence this track',
+              )}
+              className={HEADER_BUTTON}
+              onClick={() => useStore.getState().toggleMute(track.id)}
+            >
+              <span
+                className={cn(
+                  CIRCLE,
+                  TYPE_CLASS.label,
+                  muted && 'bg-daw-text font-bold text-daw-on-primary',
+                )}
+              >
+                M
+              </span>
+            </button>
             <button
               type="button"
               aria-label={`Solo ${track.name}`}
@@ -343,11 +344,14 @@ const TrackRowBody = memo(function TrackRowBody({
                   aria-pressed={track.recordArmed}
                   data-arm-state={arm}
                   data-testid="track-arm"
-                  data-hint={hintText(armLabel(track.name, arm), armHint(arm))}
+                  data-hint={hintText(
+                    armLabel(track.name, arm),
+                    armHint(arm, armExclusive),
+                  )}
                   className={HEADER_BUTTON}
-                  onClick={() =>
-                    useStore.getState().updateTrack(track.id, nextArm(track))
-                  }
+                  // ⌘/Ctrl-click arms it alongside the others (Record arm
+                  // exclusive, recordArm.ts).
+                  onClick={(e) => stepArm(track, e.metaKey || e.ctrlKey)}
                 >
                   {/* The record dot: grey when off, on a red disc when
                       armed, with a red halo while it hears its input. */}
@@ -426,9 +430,10 @@ const TrackRowBody = memo(function TrackRowBody({
                 onChange={volume.change}
                 onEnd={volume.end}
                 resetValue={0.8}
-                meter={meter.current}
+                meter={levels.meter}
+                ghosts={levels.ghosts}
                 color={trackColor}
-                dimmed={muted}
+                dimmed={!levels.audible}
                 width={TRACK_PILL_PX}
               />
               {/* The Mix strips' pan knob (owner, 2026-10-22). */}

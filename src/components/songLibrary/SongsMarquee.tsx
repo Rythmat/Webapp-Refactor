@@ -216,7 +216,9 @@ export const SongsMarquee = ({
             key={i}
             className={cn(
               'flex-shrink-0',
-              compact ? 'w-[120px] md:w-[132px]' : 'w-[260px] md:w-[300px]',
+              compact
+                ? 'w-[7.5rem] md:w-[8.25rem]'
+                : 'w-[16.25rem] md:w-[18.75rem]',
             )}
           >
             <SongCard
@@ -303,8 +305,10 @@ const ScrollableSongs = ({
           <div
             key={song.id}
             className={cn(
-              'flex-shrink-0 snap-start [content-visibility:auto] [contain-intrinsic-block-size:auto_360px]',
-              compact ? 'w-[120px] md:w-[132px]' : 'w-[260px] md:w-[300px]',
+              'flex-shrink-0 snap-start [content-visibility:auto] [contain-intrinsic-block-size:auto_22.5rem]',
+              compact
+                ? 'w-[7.5rem] md:w-[8.25rem]'
+                : 'w-[16.25rem] md:w-[18.75rem]',
             )}
           >
             <SongCard

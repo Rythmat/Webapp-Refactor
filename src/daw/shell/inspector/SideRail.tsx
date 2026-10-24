@@ -4,6 +4,7 @@ import { shortcutKeys } from '@/daw/commands/shortcuts';
 import { useStore } from '@/daw/store';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Tooltip } from '@/daw/ui/Tooltip';
+import { PromptRailButton } from '../prompt/PromptRailButton';
 import { RAIL_PANELS, type RailPanel } from './railPanels';
 
 // ── The side rail (B4a) ────────────────────────────────────────────────────
@@ -13,7 +14,8 @@ import { RAIL_PANELS, type RailPanel } from './railPanels';
 // shows its panel in the Inspector beside it; the open one has the white
 // tile, and a click on it closes the Inspector. I opens and closes the
 // Inspector on the panel it last showed. The rail replaced the top bar's
-// Inspector toggle and the session's People and Chat columns.
+// Inspector toggle and the session's People and Chat columns. The ∆ above
+// the panels opens and folds the prompt bar (PromptRailButton).
 
 const INSPECTOR_KEYS = shortcutKeys('view.inspector');
 
@@ -26,6 +28,8 @@ export const SideRail = memo(function SideRail() {
       data-testid="side-rail"
       className="flex h-full flex-col items-center gap-1 bg-daw-bg py-2"
     >
+      <PromptRailButton />
+      <div aria-hidden className="my-1 h-px w-6 bg-daw-outline" />
       {RAIL_PANELS.map((panel) => (
         <RailButton key={panel.id} panel={panel} />
       ))}

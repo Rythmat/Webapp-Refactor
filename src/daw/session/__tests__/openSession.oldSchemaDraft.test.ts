@@ -125,7 +125,7 @@ beforeEach(() => {
     collab: createFakeCollab(),
     drafts: port,
     navigate: (search) =>
-      window.history.replaceState(null, '', `/studio/editor${search}`),
+      window.history.replaceState(null, '', `/studio${search}`),
     openProjectsDialog: () => {},
   });
 });

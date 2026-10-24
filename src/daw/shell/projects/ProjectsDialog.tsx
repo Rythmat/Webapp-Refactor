@@ -8,6 +8,11 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import {
+  PROMPT_FRAME,
+  PROMPT_OPAQUE,
+  PromptPillButton,
+} from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
 import { SESSION_SCHEMA_VERSION } from '@/daw/persistence/projectDocument/codec';
 import { openSession } from '@/daw/session/openSession';
@@ -20,8 +25,10 @@ import { Chip } from '@/daw/ui/Chip';
 import { ConfirmDialog } from '@/daw/ui/ConfirmDialog';
 import { DawDialog } from '@/daw/ui/DawDialog';
 import { IconButton } from '@/daw/ui/IconButton';
-import { FOCUS_RING, TYPE_CLASS } from '@/daw/ui/styles';
+import { ProjectsIcon } from '@/daw/ui/icons/ProjectsIcon';
+import { FOCUS_RING } from '@/daw/ui/styles';
 import { DEVICE_USER_KEY, type UserKey } from '@/lib/local-store/userScope';
+import { generateStudioTileSvg } from '@/lib/studioProjectTile';
 import type {
   DraftMeta,
   QuarantineRecord,
@@ -46,6 +53,11 @@ import {
 // '~device' draft whose project is in the account list is claimed for this
 // user. In a shared session nothing opens: the room's project is the
 // session. No Duplicate or Rename until 1.5 / 2.3.
+//
+// It wears Home's Projects card (owner, 2026-10-24): the prompt box's card,
+// the projects icon beside the name, each row a project's seeded tile art
+// over its name and details (a saved project gets the same tile as on
+// Home), the whole row opening it, Open as the box's hairline pill.
 
 export interface ProjectsDialogProps {
   open: boolean;
@@ -86,6 +98,9 @@ const SHOWN_TAGS: readonly ProjectRowTag[] = [
   'newer-version',
   'other-tab',
 ];
+
+/** A line under a section: loading, nothing here, couldn't load. */
+const NOTE = 'px-2 py-2 text-[0.8125rem] leading-5 text-white/55';
 
 const pluralDrafts = (n: number) => (n === 1 ? '1 draft' : `${n} drafts`);
 
@@ -371,17 +386,30 @@ export function ProjectsDialog({
         open={open}
         onOpenChange={onOpenChange}
         title="Projects"
+        // Home's own header (below) shows it; the title stays for readers.
+        hideTitle
         initialFocus={searchRef}
-        className="h-[min(560px,calc(100dvh-64px))] max-w-[560px]"
+        className={cn(
+          // The prompt box's card: its corners, hairline edge and shadow.
+          // Its `relative w-full` gives way to the dialog's own placement.
+          PROMPT_FRAME,
+          PROMPT_OPAQUE,
+          'fixed w-[calc(100vw-32px)]',
+          'h-[min(560px,calc(100dvh-64px))] max-w-[560px]',
+        )}
       >
         <div
-          className="flex h-full min-h-0 flex-col gap-3"
+          className="flex h-full min-h-0 flex-col gap-4"
           data-testid="projects-dialog"
         >
+          <div aria-hidden className="-mt-2 flex items-center gap-3">
+            <ProjectsIcon className="size-6 shrink-0 text-white" />
+            <span className="text-base leading-6 text-white">Projects</span>
+          </div>
           <label className="relative block shrink-0">
             <Search
               aria-hidden
-              className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-daw-text-3"
+              className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-white/45"
             />
             <input
               ref={searchRef}
@@ -391,18 +419,14 @@ export function ProjectsDialog({
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               className={cn(
-                'h-7 w-full rounded-full border border-daw-outline bg-transparent pl-8 pr-3 text-daw-text placeholder:text-daw-text-3',
-                TYPE_CLASS.label,
+                'h-9 w-full rounded-full border border-white/10 bg-white/[0.04] pl-10 pr-4 text-sm text-white placeholder:text-white/45 transition-colors focus:bg-white/[0.06]',
                 FOCUS_RING,
               )}
             />
           </label>
 
           {inRoom ? (
-            <p
-              className={cn(TYPE_CLASS.label, 'shrink-0 text-daw-text-3')}
-              data-testid="projects-in-room"
-            >
+            <p className={cn(NOTE, 'shrink-0')} data-testid="projects-in-room">
               Leave the shared session to open another project.
             </p>
           ) : null}
@@ -412,18 +436,16 @@ export function ProjectsDialog({
             className="-mx-2 min-h-0 flex-1 overflow-y-auto px-2 pb-2"
           >
             {drafts.status === 'loading' ? (
-              <p className={cn(TYPE_CLASS.label, 'py-2 text-daw-text-3')}>
-                Loading…
-              </p>
+              <p className={NOTE}>Loading…</p>
             ) : null}
             {drafts.status === 'error' ? (
-              <p className={cn(TYPE_CLASS.label, 'py-2 text-daw-text-3')}>
+              <p className={NOTE}>
                 Work on this device couldn’t be listed.{' '}
                 <button
                   type="button"
                   onClick={drafts.reload}
                   className={cn(
-                    'min-h-6 text-daw-text underline underline-offset-2',
+                    'min-h-6 text-white underline underline-offset-2',
                     FOCUS_RING,
                   )}
                 >
@@ -455,8 +477,7 @@ export function ProjectsDialog({
               <div
                 data-testid="projects-quarantine"
                 className={cn(
-                  TYPE_CLASS.label,
-                  'mt-1 flex min-h-11 items-center justify-between gap-3 rounded-[var(--daw-radius-md)] px-2 text-daw-text-2',
+                  'mt-1 flex min-h-11 items-center justify-between gap-3 rounded-xl px-2 text-[0.8125rem] leading-5 text-white/70',
                 )}
               >
                 <span>
@@ -523,8 +544,8 @@ function SectionHeading({ children }: { children: string }) {
   return (
     <h3
       className={cn(
-        TYPE_CLASS.label,
-        'sticky top-0 z-[var(--daw-z-sticky)] bg-daw-popover pb-1 pt-3 font-bold text-daw-text-2',
+        PROMPT_OPAQUE,
+        'sticky top-0 z-[var(--daw-z-sticky)] px-2 pb-1.5 pt-3 text-[0.8125rem] leading-5 text-white/55',
       )}
     >
       {children}
@@ -550,9 +571,9 @@ function Section({
     <section aria-label={title}>
       <SectionHeading>{title}</SectionHeading>
       {rows.length === 0 ? (
-        <p className={cn(TYPE_CLASS.label, 'py-2 text-daw-text-3')}>{empty}</p>
+        <p className={NOTE}>{empty}</p>
       ) : (
-        <ul className="flex flex-col">
+        <ul className="flex flex-col gap-1">
           {rows.map((row) => (
             <ProjectRowItem
               key={row.key}
@@ -595,7 +616,7 @@ function AccountSection({
           type="button"
           onClick={onRetry}
           className={cn(
-            'min-h-6 text-daw-text underline underline-offset-2',
+            'min-h-6 text-white underline underline-offset-2',
             FOCUS_RING,
           )}
         >
@@ -617,7 +638,7 @@ function AccountSection({
     >
       <SectionHeading>Saved to your account</SectionHeading>
       {rows.length > 0 ? (
-        <ul className="flex flex-col">
+        <ul className="flex flex-col gap-1">
           {rows.map((row) => (
             <ProjectRowItem
               key={row.key}
@@ -629,14 +650,37 @@ function AccountSection({
         </ul>
       ) : null}
       {note ? (
-        <p
-          className={cn(TYPE_CLASS.label, 'py-2 text-daw-text-3')}
-          data-testid="projects-account-note"
-        >
+        <p className={NOTE} data-testid="projects-account-note">
           {note}
         </p>
       ) : null}
     </section>
+  );
+}
+
+/**
+ * The seed of a row's tile: a saved project's is its id, as on Home, so the
+ * same project shows the same art in both; a draft of one shares it.
+ */
+function tileSeed(row: ProjectRow): string {
+  const projectId = row.cloud?.id ?? (row.draft && draftProjectId(row.draft));
+  return projectId ? `project:${projectId}` : `draft:${row.key}`;
+}
+
+/** A project's tile: Home's seeded honeycomb art. */
+function ProjectTile({ seed }: { seed: string }) {
+  const src = useMemo(
+    () =>
+      `data:image/svg+xml;utf8,${encodeURIComponent(generateStudioTileSvg(seed))}`,
+    [seed],
+  );
+  return (
+    <img
+      src={src}
+      alt=""
+      draggable={false}
+      className="size-11 shrink-0 rounded-lg object-cover"
+    />
   );
 }
 
@@ -653,6 +697,7 @@ function ProjectRowItem({
   const chips = SHOWN_TAGS.filter((tag) => row.tags.includes(tag));
   const warning = (tag: ProjectRowTag) =>
     tag === 'not-in-account' || tag === 'newer-version';
+  const openable = !row.isOpen && row.canOpen && row.openIntent !== null;
   return (
     <li
       data-testid="projects-row"
@@ -666,55 +711,64 @@ function ProjectRowItem({
         : {})}
       {...(row.cloud ? { 'data-project-id': row.cloud.id } : {})}
       className={cn(
-        'flex min-h-11 items-center gap-3 rounded-[var(--daw-radius-md)] px-2 py-1',
-        row.isOpen ? 'bg-daw-selected' : 'hover:bg-daw-hover',
+        'flex min-h-[3.75rem] items-center gap-3 rounded-xl px-2 py-2 transition-colors duration-150',
+        row.isOpen ? 'bg-white/[0.08]' : 'hover:bg-white/[0.06]',
       )}
     >
-      <div className="min-w-0 flex-1">
-        <div className="flex min-w-0 items-center gap-1.5">
-          <span
-            id={nameId}
-            className={cn(TYPE_CLASS.body, 'min-w-0 truncate text-daw-text')}
-            title={row.name}
-          >
-            {row.name}
-          </span>
-          {chips.map((tag) => (
-            <Chip
-              key={tag}
-              tone={warning(tag) ? 'warning' : 'neutral'}
-              className="hidden sm:inline-flex"
+      {/* Home's row: the tile over the name and details, the whole of it
+          opening the project (Open, at the end, is the way by keyboard). */}
+      <div
+        className={cn(
+          'flex min-w-0 flex-1 items-center gap-3',
+          openable && 'cursor-pointer',
+        )}
+        onClick={openable ? () => onOpen(row.openIntent) : undefined}
+      >
+        <ProjectTile seed={tileSeed(row)} />
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <span
+              id={nameId}
+              className="min-w-0 truncate text-[0.9375rem] leading-5 text-white"
+              title={row.name}
             >
-              {TAG_LABEL[tag]}
-            </Chip>
-          ))}
-        </div>
-        {row.subtitle ? (
-          <div className={cn(TYPE_CLASS.label, 'truncate text-daw-text-3')}>
-            {row.subtitle}
+              {row.name}
+            </span>
+            {chips.map((tag) => (
+              <Chip
+                key={tag}
+                tone={warning(tag) ? 'warning' : 'neutral'}
+                className="hidden sm:inline-flex"
+              >
+                {TAG_LABEL[tag]}
+              </Chip>
+            ))}
           </div>
-        ) : null}
+          {row.subtitle ? (
+            <div className="truncate text-[0.8125rem] leading-5 text-white/55">
+              {row.subtitle}
+            </div>
+          ) : null}
+        </div>
       </div>
       <div className="flex shrink-0 items-center gap-1">
         {row.openSavedIntent ? (
-          <Button
-            size="sm"
-            variant="quiet"
+          <PromptPillButton
+            variant="ghost"
             onClick={() => onOpen(row.openSavedIntent)}
           >
             Open saved version
-          </Button>
+          </PromptPillButton>
         ) : null}
         {!row.isOpen ? (
-          <Button
-            size="sm"
-            variant="secondary"
+          <PromptPillButton
             disabled={!row.canOpen || row.openIntent === null}
             aria-describedby={nameId}
             onClick={() => onOpen(row.openIntent)}
+            className="disabled:pointer-events-none disabled:opacity-40"
           >
             Open
-          </Button>
+          </PromptPillButton>
         ) : null}
         {row.canDelete ? (
           <IconButton

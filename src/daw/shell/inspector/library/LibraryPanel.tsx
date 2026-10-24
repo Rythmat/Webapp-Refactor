@@ -5,13 +5,14 @@ import {
   Check,
   ChevronDown,
   ChevronLeft,
+  ChevronRight,
   Heart,
   Search,
   Upload,
   X,
   type LucideIcon,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ComponentType } from 'react';
 import { cn } from '@/components/utilities';
 import { addLibraryAudio } from '@/daw/library/addLibraryAudio';
 import {
@@ -25,6 +26,7 @@ import type { ProjectRow } from '@/daw/shell/projects/projectRows';
 import { KEY_COLORS } from '@/daw/prism-engine/data/keyColors';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
+import { ProjectsIcon } from '@/daw/ui/icons/ProjectsIcon';
 import {
   Menu,
   MenuContent,
@@ -39,10 +41,11 @@ import { groupByDay, stopPreview, timeAgo } from './libraryHelpers';
 
 // ── The Studio Library (after Suno Studio's Library) ───────────────────────
 //
-// Home: four tiles (All audio, Favorites, Stems, Uploads) and the user's
-// Projects, newest first; a tile opens its list: filters (sort, ♡, This
-// song, and on All audio the kind), rows grouped by day, each one
-// previewable, draggable onto the timeline, or added with its menu.
+// Home: five sections, in order — Audio, Favorites, Stems, Uploads and the
+// user's Projects — each its newest five, if any (owner, 2026-10-24). A
+// section's heading opens everything in it: its full list: filters (sort, ♡, This song, and on Audio the kind), rows
+// grouped by day, each one previewable, draggable onto the timeline, or
+// added with its menu; Projects' heading opens the Projects window.
 //
 // Stems are what Export › Stems rendered; uploads, audio files uploaded into
 // a project; both are kept on this device (daw/library/audioLibrary).
@@ -60,14 +63,14 @@ const TILES: {
   icon: LucideIcon;
   color: string;
 }[] = [
-  { view: 'all', label: 'All audio', icon: AudioLines, color: key(8) },
+  { view: 'all', label: 'Audio', icon: AudioLines, color: key(8) },
   { view: 'favorites', label: 'Favorites', icon: Heart, color: key(10) },
   { view: 'stems', label: 'Stems', icon: AudioWaveform, color: key(7) },
   { view: 'uploads', label: 'Uploads', icon: Upload, color: key(12) },
 ];
 
 const TITLE: Record<Exclude<View, 'home'>, string> = {
-  all: 'All audio',
+  all: 'Audio',
   favorites: 'Favorites',
   stems: 'Stems',
   uploads: 'Uploads',
@@ -78,6 +81,20 @@ const EMPTY: Record<Exclude<View, 'home'>, string> = {
   favorites: 'Tap ♡ on a stem or upload to keep it here.',
   stems: 'Export › Stems saves each stem here, ready to use in any song.',
   uploads: 'Audio files you upload into a song will appear here.',
+};
+
+/** How many of a section's items its home shows; its heading opens all. */
+const FIRST_SHOWN = 5;
+
+/** The items each home section lists, newest first (as they come). */
+const IN_SECTION: Record<
+  Exclude<View, 'home'>,
+  (item: LibraryAudioItem) => boolean
+> = {
+  all: () => true,
+  favorites: (i) => i.favorite,
+  stems: (i) => i.kind === 'stem',
+  uploads: (i) => i.kind === 'upload',
 };
 
 const SORT_LABEL: Record<Sort, string> = {
@@ -113,72 +130,119 @@ export function LibraryPanel() {
 // ── Home ───────────────────────────────────────────────────────────────────
 
 function LibraryHome({ onOpen }: { onOpen: (view: View) => void }) {
+  const { items, loaded } = useLibraryAudio();
   const { rows, loading } = useLibraryProjects(true);
   const openProjects = useProjectsDialogStore((s) => s.openDialog);
   return (
     <div
       data-testid="library-home"
-      className="min-h-0 flex-1 overflow-y-auto p-2"
+      className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-2"
       style={{ scrollbarWidth: 'thin' }}
     >
-      <div className="grid grid-cols-2 gap-1.5">
-        {TILES.map(({ view, label, icon: Icon, color }) => (
-          <button
-            key={view}
-            type="button"
-            onClick={() => onOpen(view)}
-            data-testid={`library-tile-${view}`}
-            className={cn(
-              'flex h-[58px] min-w-0 items-center gap-2.5 rounded-[var(--daw-radius-md)] bg-white/[0.04] px-2 text-left transition-colors hover:bg-daw-hover',
-              FOCUS_RING,
-            )}
-          >
-            <span
-              className="flex size-10 shrink-0 items-center justify-center rounded-[var(--daw-radius-md)]"
-              style={{ background: color }}
-            >
-              <Icon aria-hidden className="size-5 text-daw-bg" />
-            </span>
-            <span
-              className={cn(
-                TYPE_CLASS.item,
-                'truncate font-bold text-daw-text',
-              )}
-            >
-              {label}
-            </span>
-          </button>
-        ))}
-      </div>
+      {TILES.map(({ view, label, icon, color }) => (
+        <HomeSection
+          key={view}
+          id={view}
+          label={label}
+          icon={icon}
+          color={color}
+          headingLabel={`Open ${label}`}
+          onHeading={() => onOpen(view)}
+          items={loaded ? items.filter(IN_SECTION[view]) : null}
+          empty={EMPTY[view]}
+          render={(item) => (
+            <LibraryAudioRow key={item.id} item={item} onAdd={addToSong} />
+          )}
+        />
+      ))}
+      <HomeSection
+        id="projects"
+        label="Projects"
+        icon={ProjectsIcon}
+        color={key(3)}
+        headingLabel="Open the Projects window"
+        onHeading={() => openProjects()}
+        items={rows.length === 0 && loading ? null : rows}
+        empty="Projects you save or work on appear here."
+        render={(row) => <ProjectItem key={row.key} row={row} />}
+      />
+    </div>
+  );
+}
 
-      <div className="mb-1 mt-4 flex items-center justify-between px-1">
-        <h3 className={cn(TYPE_CLASS.label, 'text-daw-text-2')}>Projects</h3>
+/**
+ * One section of the Library's home: its heading, which opens all of it
+ * (the full list, or the Projects window), and its newest five items.
+ * Nothing listed while it loads; a line saying what will come here while
+ * it's empty.
+ */
+function HomeSection<T>({
+  id,
+  label,
+  icon: Icon,
+  color,
+  headingLabel,
+  onHeading,
+  items,
+  empty,
+  render,
+}: {
+  id: string;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+  color: string;
+  headingLabel: string;
+  onHeading: () => void;
+  /** Null while it loads. */
+  items: T[] | null;
+  empty: string;
+  render: (item: T) => React.ReactNode;
+}) {
+  const shown = items === null ? [] : items.slice(0, FIRST_SHOWN);
+  return (
+    <section
+      aria-labelledby={`library-${id}-heading`}
+      data-testid={`library-section-${id}`}
+    >
+      <h3 id={`library-${id}-heading`} className="mb-1">
         <button
           type="button"
-          onClick={() => openProjects()}
+          onClick={onHeading}
+          aria-label={headingLabel}
+          data-testid={`library-tile-${id}`}
           className={cn(
-            TYPE_CLASS.label,
-            'rounded px-1 text-daw-text-3 transition-colors hover:text-daw-text',
+            'group flex w-full items-center gap-2 rounded-[var(--daw-radius-md)] px-1 py-1 text-left transition-colors hover:bg-daw-hover',
             FOCUS_RING,
           )}
         >
-          Manage
+          <span
+            className="flex size-6 shrink-0 items-center justify-center rounded-[var(--daw-radius-sm)]"
+            style={{ background: color }}
+          >
+            <Icon aria-hidden className="size-3.5 text-daw-bg" />
+          </span>
+          <span className={cn(TYPE_CLASS.item, 'font-bold text-daw-text')}>
+            {label}
+          </span>
+          {items !== null && items.length > 0 ? (
+            <span className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>
+              {items.length}
+            </span>
+          ) : null}
+          <ChevronRight
+            aria-hidden
+            className="ml-auto size-4 text-daw-text-3 transition-colors group-hover:text-daw-text"
+          />
         </button>
-      </div>
-      {rows.length === 0 ? (
-        <p className={cn(TYPE_CLASS.label, 'px-1 py-3 text-daw-text-3')}>
-          {loading
-            ? 'Loading your projects…'
-            : 'Projects you save or work on appear here.'}
+      </h3>
+      {items === null ? null : items.length === 0 ? (
+        <p className={cn(TYPE_CLASS.label, 'px-1 py-1.5 text-daw-text-3')}>
+          {empty}
         </p>
       ) : (
-        <ul className="flex flex-col">
-          {rows.map((row) => (
-            <ProjectItem key={row.key} row={row} />
-          ))}
-        </ul>
+        <ul className="flex flex-col">{shown.map(render)}</ul>
       )}
-    </div>
+    </section>
   );
 }
 

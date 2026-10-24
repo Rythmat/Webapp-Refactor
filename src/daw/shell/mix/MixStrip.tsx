@@ -3,7 +3,7 @@ import { useTrackColor } from '@/daw/harmony/trackColor';
 import { useShallow } from 'zustand/react/shallow';
 import { cn } from '@/components/utilities';
 import { useTrackPresence } from '@/daw/collab/presence';
-import { meterSource } from '@/daw/engine/meterBus';
+import { useFaderMeters } from '@/daw/hooks/useFaderMeters';
 import {
   useTrackPanControl,
   useTrackSendControl,
@@ -280,7 +280,7 @@ function Volume({ track, disabled }: { track: Track; disabled: boolean }) {
   const volume = useTrackVolumeControl(track);
   const box = useRef<HTMLDivElement>(null);
   const length = useFaderLength(box, { reserve: VALUE_PX + 8 });
-  const source = useRef(meterSource(`track-lr:${track.id}`));
+  const levels = useFaderMeters(track);
   return (
     <div
       ref={box}
@@ -302,9 +302,10 @@ function Volume({ track, disabled }: { track: Track; disabled: boolean }) {
         onChange={volume.change}
         onEnd={volume.end}
         resetValue={0.8}
-        meter={source.current}
+        meter={levels.meter}
+        ghosts={levels.ghosts}
         color={trackColor}
-        dimmed={track.mute}
+        dimmed={!levels.audible}
         disabled={disabled}
         showChip={false}
       />

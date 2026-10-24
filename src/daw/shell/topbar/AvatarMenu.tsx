@@ -12,12 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTopRailStats } from '@/components/ClassroomLayout/useTopRailStats';
 import { UserAvatarPattern } from '@/components/ui/UserAvatarPattern';
 import { cn } from '@/components/utilities';
-import {
-  ProfileRoutes,
-  SettingsRoutes,
-  StudioRoutes,
-  UserRoutes,
-} from '@/constants/routes';
+import { ProfileRoutes, SettingsRoutes, UserRoutes } from '@/constants/routes';
 import {
   CHORD_NOTATION_OPTIONS,
   useChordNotationSwitcher,
@@ -149,7 +144,9 @@ export const AvatarMenu = memo(function AvatarMenu({
             ? `Notifications (${notificationCount})`
             : 'No notifications'}
         </MenuItem>
-        {notation.enabled ? (
+        {/* Wherever a notation is in effect, so a lesson's choice can be
+            undone in the Studio too. */}
+        {notation.chosen ? (
           <MenuSub>
             <MenuSubTrigger icon={<Music2 />}>Chord notation</MenuSubTrigger>
             <MenuSubContent>
@@ -182,9 +179,9 @@ export const AvatarMenu = memo(function AvatarMenu({
         <MenuSeparator />
         <MenuItem
           icon={<ArrowLeft />}
-          onSelect={() => navigate(StudioRoutes.root())}
+          onSelect={() => navigate(ProfileRoutes.root())}
         >
-          Back to Studio
+          Back to Home
         </MenuItem>
       </MenuContent>
     </Menu>

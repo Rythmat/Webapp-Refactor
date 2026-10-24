@@ -81,8 +81,9 @@ function buildArtists(): IndexEntry[] {
       category: 'artists',
       title: name,
       subtitle: 'Artist',
-      // Jump to the Song Library filtered to this artist (it reads `?q=`).
-      to: SongRoutes.root(undefined, { q: name }),
+      // Learn's Songs tab filtered to this artist (it reads `?q=`). Not
+      // /songs: that redirects to Learn and drops the query.
+      to: LearnRoutes.root(undefined, { tab: 'Songs', q: name }),
       icon,
       thumb: { src: image, avatarSeed: name, shape: 'circle' },
     },

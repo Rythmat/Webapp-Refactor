@@ -27,7 +27,7 @@ import {
 //   Cut · Copy · Paste · Delete · Duplicate
 //   Rename… · Split at playhead · Mute clip · Add comment
 //   Transpose ▸ · Quantize ▸ (MIDI) · Fade in · Fade out (audio)
-//   Prism ▸ (Premium)
+//   Prism (Premium): the prompt bar on bars of the track
 //
 // What can't act now stays in its place, off, with the reason as its hint,
 // so the menu reads the same every time. An empty lane, a marker, the ruler
@@ -116,12 +116,12 @@ const COMMENT: MenuItemModel = {
   disabled: 'Comments come in a later update',
 };
 
-/** Prism's sub-menu, or its locked item without Premium. */
-function prismEntry(
-  ctx: MenuContext,
-  items: MenuItemModel[],
-  locked?: string,
-): MenuEntry {
+/**
+ * Prism, or its locked item without Premium. The prompt bar is the new
+ * Prism (owner, 2026-10-24): it opens on bars of the track right-clicked,
+ * highlighted, its suggestions and the part it writes that track's.
+ */
+function prismEntry(ctx: MenuContext, locked?: string): MenuEntry {
   if (!ctx.premium) {
     return {
       type: 'item',
@@ -130,13 +130,7 @@ function prismEntry(
       premium: true,
     };
   }
-  return {
-    type: 'sub',
-    id: 'prism',
-    label: 'Prism',
-    disabled: locked,
-    items,
-  };
+  return { type: 'item', id: 'prism', label: 'Prism', disabled: locked };
 }
 
 const step = (
@@ -303,17 +297,7 @@ function clipMenu(
         },
       ];
 
-  const prismItems: MenuItemModel[] = [
-    { type: 'item', id: 'prism:suggest', label: 'Suggest chords here' },
-  ];
-  if (found.midi && !isDrumTrack(found.track)) {
-    prismItems.push({
-      type: 'item',
-      id: 'prism:open',
-      label: 'Open Prism for this track',
-    });
-  }
-  return [edit, clipItems, sound, [prismEntry(ctx, prismItems)]];
+  return [edit, clipItems, sound, [prismEntry(ctx, locked)]];
 }
 
 function laneMenu(
@@ -341,15 +325,7 @@ function laneMenu(
       disabled: locked,
     });
   }
-  return [
-    make,
-    [COMMENT],
-    [
-      prismEntry(ctx, [
-        { type: 'item', id: 'prism:suggest', label: 'Suggest chords here' },
-      ]),
-    ],
-  ];
+  return [make, [COMMENT], [prismEntry(ctx, locked)]];
 }
 
 /** The kinds as a section's sub-menu lists them, the current one checked. */
@@ -423,6 +399,11 @@ function sectionMenu(
         label: 'Duplicate with its clips',
         command: 'sections.duplicate',
         disabled: blocked,
+      },
+      {
+        type: 'item',
+        id: 'prompt:section',
+        label: 'Write chords for this section…',
       },
       {
         type: 'item',

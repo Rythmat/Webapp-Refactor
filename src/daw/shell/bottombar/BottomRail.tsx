@@ -12,7 +12,7 @@ import { TypingKeys } from './TypingKeys';
 //
 // 44 px, the window's full width, under every view, its zones in pills on
 // the page (owner, 2026-10-21): at the left, Create's dock views
-// (Instrument · FX and Automation · Edit, DockViews), Typing keys (the
+// (Instrument · FX and Edit · Automation, DockViews), Typing keys (the
 // computer keyboard's switch, in every view); the view tabs (Create, Mix,
 // Score) centred in the window; and the hover hint line (2.11) centred in
 // the space to their right (owner, 2026-10-22). Learn went from the right

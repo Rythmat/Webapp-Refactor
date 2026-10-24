@@ -1,5 +1,4 @@
-import { useRef } from 'react';
-import { meterSource } from '@/daw/engine/meterBus';
+import { useMasterFaderMeters } from '@/daw/hooks/useFaderMeters';
 import { useMasterVolumeControl } from '@/daw/hooks/useMixControls';
 import { hintText } from '@/daw/shell/help/hintSource';
 import { Readout } from '@/daw/ui/Readout';
@@ -26,7 +25,7 @@ export function MasterVolumePill({
   valueHeight?: number;
 }) {
   const volume = useMasterVolumeControl();
-  const source = useRef(meterSource('master'));
+  const levels = useMasterFaderMeters();
   return (
     <div className="flex flex-col items-center gap-1">
       <VolumePill
@@ -43,7 +42,9 @@ export function MasterVolumePill({
         onChange={(gain) => volume.change(Math.min(1, gain))}
         onEnd={volume.end}
         resetValue={0.8}
-        meter={source.current}
+        meter={levels.meter}
+        ghosts={levels.ghosts}
+        dimmed={!levels.audible}
         color="var(--daw-text-2)"
         showChip={false}
       />

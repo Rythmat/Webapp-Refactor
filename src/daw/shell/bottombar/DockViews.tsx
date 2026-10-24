@@ -28,7 +28,7 @@ import {
 
 // ── The dock's views (the bottom rail's left pills, 2026-10-21) ─────────────
 //
-// Instrument · FX and Automation · Edit, icon toggles in two pills, as the
+// Instrument · FX and Edit · Automation, icon toggles in two pills, as the
 // floating frame's bottom bar has them (dockViews.ts). A press opens the
 // view in the dock and a press on the open one shuts it. Automation opens
 // the selected track's lane in the dock (Master's while the dock shows
@@ -167,7 +167,7 @@ export const DockViews = memo(function DockViews() {
           .filter((view) => dockViewShown(view.id, kind, master))
           .map(toggle)}
       </PillGroup>
-      <PillGroup label="Automation and editing" data-testid="dock-views-edit">
+      <PillGroup label="Editing and automation" data-testid="dock-views-edit">
         {DOCK_VIEWS.slice(2).map(toggle)}
       </PillGroup>
     </>

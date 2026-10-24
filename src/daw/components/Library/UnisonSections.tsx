@@ -1,6 +1,14 @@
 import { useState } from 'react';
+import { cn } from '@/components/utilities';
 import { useStore } from '@/daw/store';
 import { formatProgression, useChordNotation } from '@/lib/chordNotation';
+import {
+  INSIGHT_DIM,
+  INSIGHT_GHOST,
+  INSIGHT_ROW,
+  INSIGHT_TEXT,
+  InsightCard,
+} from './InsightCard';
 import { keyContext } from './insightNotation';
 import type {
   ProgressionMatchResult,
@@ -43,33 +51,14 @@ export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
     formatProgression(m.progression, notation, context);
 
   return (
-    <div
-      data-testid="insight-progression"
-      className="flex flex-col gap-1.5 border-b px-3 py-2.5"
-      style={{ borderColor: 'var(--daw-hairline)' }}
-    >
-      <span
-        className="text-[11px] font-semibold uppercase tracking-wider"
-        style={{ color: 'var(--daw-text-3)' }}
-      >
-        Progression
-      </span>
+    <InsightCard data-testid="insight-progression" title="Progression">
       <div
         data-testid="insight-progression-best"
-        className="flex flex-col gap-0.5 rounded px-2 py-1.5"
-        style={{ backgroundColor: 'var(--daw-surface-2)' }}
+        className={cn(INSIGHT_ROW, 'flex flex-col gap-0.5')}
       >
         <div className="flex items-baseline justify-between gap-2">
-          <span
-            className="text-[12px] font-semibold"
-            style={{ color: 'var(--daw-text)' }}
-          >
-            {text(best)}
-          </span>
-          <span
-            className="shrink-0 text-[12px] font-semibold tabular-nums"
-            style={{ color: 'var(--daw-text)' }}
-          >
+          <span className={cn(INSIGHT_TEXT, 'font-medium')}>{text(best)}</span>
+          <span className="insight-ink shrink-0 text-[13px] font-medium tabular-nums text-white/85 [--sweep-to:color-mix(in_srgb,white_85%,transparent)]">
             {Math.round(best.score * 100)}%
           </span>
         </div>
@@ -78,26 +67,18 @@ export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
 
       {close.length > 0 ? (
         <>
-          <span className="text-[12px]" style={{ color: 'var(--daw-text-3)' }}>
-            Also close
-          </span>
+          <span className={INSIGHT_DIM}>Also close</span>
           {shown.map((m) => (
             <div
               key={m.libraryId}
               data-testid="insight-progression-close"
-              className="flex flex-col gap-0.5 px-2"
+              className="flex flex-col gap-0.5 px-3"
             >
               <div className="flex items-baseline justify-between gap-2">
-                <span
-                  className="text-[12px]"
-                  style={{ color: 'var(--daw-text-2)' }}
-                >
+                <span className="insight-ink text-[13px] leading-5 text-white/85 [--sweep-to:color-mix(in_srgb,white_85%,transparent)]">
                   {text(m)}
                 </span>
-                <span
-                  className="shrink-0 text-[12px] tabular-nums"
-                  style={{ color: 'var(--daw-text-3)' }}
-                >
+                <span className="insight-ink shrink-0 text-[13px] tabular-nums text-white/50 [--sweep-to:color-mix(in_srgb,white_50%,transparent)]">
                   {Math.round(m.score * 100)}%
                 </span>
               </div>
@@ -108,8 +89,7 @@ export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
             <button
               type="button"
               onClick={() => setShowAll((v) => !v)}
-              className="self-start text-[12px] font-medium"
-              style={{ color: 'var(--daw-text-2)' }}
+              className={cn(INSIGHT_GHOST, 'self-start')}
             >
               {showAll
                 ? 'Show fewer'
@@ -118,7 +98,7 @@ export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
           ) : null}
         </>
       ) : null}
-    </div>
+    </InsightCard>
   );
 }
 
@@ -126,7 +106,7 @@ export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
 function SongRef({ match }: { match: ProgressionMatchResult }) {
   if (!match.artist && !match.song) return null;
   return (
-    <span className="text-[12px]" style={{ color: 'var(--daw-text-3)' }}>
+    <span className={INSIGHT_DIM}>
       {[match.artist, match.song].filter(Boolean).join(' — ')}
     </span>
   );

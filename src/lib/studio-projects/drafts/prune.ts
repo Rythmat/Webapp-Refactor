@@ -19,7 +19,7 @@ import type { DraftMeta } from './types';
 // and the quarantine.
 //
 // 'boot' and 'switch' (the user's newest draft always stays: it is what a
-// plain /studio/editor in a new tab resumes, even when the cloud has it —
+// plain /studio in a new tab resumes, even when the cloud has it —
 // owner-visible choice, see the track report; sign-out and quota still
 // remove it):
 //   1. the user's drafts without work, except the user's newest draft;

@@ -92,6 +92,29 @@ describe('buildPromptPart', () => {
     expect(plain.reading.parts).toEqual(['drums']);
   });
 
+  it('writes a highlighted track’s part, even for a section named', async () => {
+    const drums = await buildPromptPart(
+      'something for the chorus',
+      context({ trackPart: 'drums', trackHighlighted: true, chords: lane }),
+      { seed: 2 },
+    );
+    expect(drums.reading.parts).toEqual(['drums']);
+    expect(drums.section).toBeNull();
+    const bass = await buildPromptPart(
+      'a busier one for the bridge',
+      context({ trackPart: 'bass', trackHighlighted: true, chords: lane }),
+      { seed: 2 },
+    );
+    expect(bass.reading.parts).toEqual(['bass']);
+    // Not highlighted, a section named is its chords.
+    const chords = await buildPromptPart(
+      'something for the chorus',
+      context({ trackPart: 'drums', chords: lane }),
+      { seed: 2 },
+    );
+    expect(chords.reading.parts).toEqual(['chords']);
+  });
+
   it('writes new chords when chords are asked for, apart from the song’s others', async () => {
     const result = await buildPromptPart(
       'write new chords here',
@@ -145,25 +168,60 @@ describe('buildPromptPart', () => {
     expect(own.reading.styleName).toBe('Funk');
   });
 
-  it('follows the chord ruler, whatever key the prompt names', async () => {
+  it('follows the chord ruler and key center where the prompt names no key', async () => {
     const result = await buildPromptPart(
-      'a bass line in F# minor',
+      'a bass line',
       context({ chords: lane }),
       { seed: 7 },
     );
     expect(result.reading.chords).toEqual(['Dm7', 'G7', 'Dm7', 'G7']);
     expect(result.newKey).toBeNull();
-  });
-
-  it('keeps to the key center where the ruler has no harmony', async () => {
-    const result = await buildPromptPart(
-      'chords in F# minor',
+    const chords = await buildPromptPart(
+      'new chords',
       context({ tonicPc: 2, mode: 'dorian' }),
       { seed: 7 },
     );
-    // D Dorian, not the prompt's F# minor: the loop starts on Dm.
-    expect(result.reading.keyName).toBe('D Dorian');
-    expect(result.reading.chords[0]).toMatch(/^Dm/);
+    expect(chords.reading.keyName).toBe('D Dorian');
+    expect(chords.reading.chords[0]).toMatch(/^Dm/);
+  });
+
+  it('writes in a key the prompt names, new chords over the ruler’s, and the session takes it', async () => {
+    const result = await buildPromptPart(
+      'a bass line in F# minor',
+      context({ chords: lane }),
+      { seed: 7 },
+    );
+    expect(result.newKey).toEqual({ tonicPc: 6, mode: 'aeolian' });
+    expect(result.reading.keyName).toBe('F# minor');
+    expect(result.reading.chords[0]).toMatch(/^F#m/);
+    expect(result.chordRegions?.length).toBeGreaterThan(0);
+    // A tonic alone keeps the session's mode: D Dorian → G Dorian.
+    const tonic = await buildPromptPart(
+      'chords in G',
+      context({ tonicPc: 2, mode: 'dorian' }),
+      { seed: 7 },
+    );
+    expect(tonic.newKey).toEqual({ tonicPc: 7, mode: 'dorian' });
+    // The session's own key named again changes nothing.
+    const same = await buildPromptPart(
+      'chords in D dorian',
+      context({ tonicPc: 2, mode: 'dorian' }),
+      { seed: 7 },
+    );
+    expect(same.newKey).toBeNull();
+  });
+
+  it('sets the session’s tempo to one the prompt names', async () => {
+    const named = await buildPromptPart(
+      'a bass line at 120 bpm',
+      context({ bpm: 96 }),
+      { seed: 3 },
+    );
+    expect(named.newBpm).toBe(120);
+    const unnamed = await buildPromptPart('a bass line', context({ bpm: 96 }), {
+      seed: 3,
+    });
+    expect(unnamed.newBpm).toBeNull();
   });
 
   it('sets a key for a song that has none', async () => {

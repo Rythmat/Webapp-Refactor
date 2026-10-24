@@ -268,7 +268,7 @@ describe('the top bar', () => {
       'Level 4 · 1,250 XP',
     );
     expect(
-      screen.getByRole('menuitem', { name: /Back to Studio/ }),
+      screen.getByRole('menuitem', { name: /Back to Home/ }),
     ).toBeInTheDocument();
   });
 });

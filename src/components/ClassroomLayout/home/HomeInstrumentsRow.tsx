@@ -11,10 +11,10 @@ import {
   GO_PILL,
   GO_PILL_ENABLED,
 } from '@/components/promptBox/PromptBoxParts';
-import { LearnRoutes } from '@/constants/routes';
 import { KEY_RAINBOW_COLORS } from '@/features/landing/rainbow';
 import {
   isGuitarLearnEnabled,
+  learnPageRoute,
   useInstrumentStore,
   useLearnInstrument,
   type LearnInstrument,
@@ -24,9 +24,6 @@ import './homeInstruments.css';
 
 /** How long the sweep takes (homeInstruments.css). */
 const SWEEP_MS = 1100;
-
-/** Learn's Theory tab, where both piano and guitar lessons start. */
-const THEORY_TAB_ROUTE = LearnRoutes.root(undefined, { tab: 'Theory' });
 
 /**
  * The Go to (instrument) sweep's strip (homeInstruments.css): white | the 12
@@ -85,9 +82,9 @@ const INSTRUMENTS: InstrumentCell[] = [
  * without lessons yet (and guitar while it's switched off) says "Coming
  * soon" where Go to would be, and choosing it leaves Learn's instrument as
  * it was, the pick kept on this row only. Native radios, so arrow keys move
- * the choice. The chosen cell's name gives way to "Go to Keyboard",
- * "Go to Guitar"… (owner, 2026-10-24; it said Go to Lessons) (Learn
- * → Theory on that instrument), a rainbow sweeping across its text.
+ * the choice. The chosen cell's name gives way to a "Keyboard →",
+ * "Guitar →"… button (owner, 2026-10-25; it said Go to Keyboard) (its Learn
+ * page, /learn/keyboard or /learn/guitar), a rainbow sweeping across its text.
  */
 export const HomeInstrumentsRow = () => {
   const selected = useLearnInstrument();
@@ -133,7 +130,7 @@ export const HomeInstrumentsRow = () => {
             id="home-instruments-heading"
             className="min-w-0 text-base leading-6 text-white"
           >
-            Instruments
+            Learn
           </h2>
         </div>
       </div>
@@ -226,13 +223,16 @@ export const HomeInstrumentsRow = () => {
                 )}
                 {checked && available && (
                   <Link
-                    to={THEORY_TAB_ROUTE}
+                    // That instrument's Learn page: /learn/keyboard,
+                    // /learn/guitar (owner, 2026-10-24).
+                    to={learnPageRoute(instrument)}
                     // The prompt box's Go pill, the text still swept.
                     className={cn(
                       GO_PILL,
                       GO_PILL_ENABLED,
-                      // A size down from the box's, to sit inside its tile.
-                      'home-lessons-button absolute bottom-3 left-1/2 h-8 -translate-x-1/2 gap-1 whitespace-nowrap px-2 text-[0.8125rem]',
+                      // The name's own size (text-lg), so it doesn't shrink as the
+                      // button takes its place (owner, 2026-10-25).
+                      'home-lessons-button absolute bottom-3 left-1/2 h-9 -translate-x-1/2 gap-1 whitespace-nowrap px-3 text-lg',
                     )}
                     onPointerEnter={sweepAgain}
                     onFocus={(event: FocusEvent<HTMLAnchorElement>) => {
@@ -250,9 +250,9 @@ export const HomeInstrumentsRow = () => {
                       className="home-lessons-sweep"
                       style={{ '--sweep': LESSONS_SWEEP } as CSSProperties}
                     >
-                      Go to {label}
+                      {label}
                     </span>
-                    <ArrowRight aria-hidden className="size-3.5" />
+                    <ArrowRight aria-hidden className="size-4" />
                   </Link>
                 )}
               </div>

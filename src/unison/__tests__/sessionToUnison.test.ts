@@ -178,6 +178,96 @@ describe('sessionToUnison', () => {
   });
 });
 
+// The progression Insight shows is matched on the analysis's chords, so
+// they must be the chords the chord cards show (laneDegreeKey): a chord
+// with only letter names, or written in another key, keeps its degree.
+describe('sessionToUnison — the lane read as the chord cards read it', () => {
+  type Region = SessionSnapshot['chordRegions'][number];
+  const region = (
+    i: number,
+    fields: Pick<Region, 'name' | 'noteName'> & Partial<Region>,
+  ): Region => ({
+    id: `r${i}`,
+    startTick: i * 1920,
+    endTick: (i + 1) * 1920,
+    color: [128, 128, 128],
+    ...fields,
+  });
+  const hybrids = (snapshot: Partial<SessionSnapshot>) =>
+    sessionToUnison(
+      makeSnapshot({ tracks: [], ...snapshot }),
+    ).analysis.chordTimeline.map((c) => c.hybridName);
+
+  it('places chords named by letter only in the song key', () => {
+    expect(
+      hybrids({
+        chordRegions: [
+          region(0, { name: 'C', noteName: 'C' }),
+          region(1, { name: 'G maj', noteName: 'G maj' }),
+          region(2, { name: 'Am', noteName: 'A min' }),
+          region(3, { name: 'F', noteName: 'F' }),
+        ],
+      }),
+    ).toEqual(['1 major', '5 major', '6 minor', '4 major']);
+  });
+
+  it('reads a chord from its identity', () => {
+    expect(
+      hybrids({
+        chordRegions: [
+          region(0, {
+            name: 'G',
+            noteName: 'G',
+            identity: {
+              rootPc: 7,
+              quality: 'dominant7',
+              bassPc: 7,
+              source: 'given',
+              label: 'G',
+            },
+          }),
+        ],
+      }),
+    ).toEqual(['5 dominant7']);
+  });
+
+  it('matches a minor song in its parent major, told in its own degrees', () => {
+    const doc = sessionToUnison(
+      makeSnapshot({
+        tracks: [],
+        rootNote: 9,
+        mode: 'aeolian',
+        chordRegions: [
+          region(0, { name: 'Am', noteName: 'A min' }),
+          region(1, { name: 'F', noteName: 'F' }),
+          region(2, { name: 'C', noteName: 'C' }),
+          region(3, { name: 'G', noteName: 'G' }),
+        ],
+      }),
+    );
+    expect(doc.analysis.chordTimeline.map((c) => c.hybridName)).toEqual([
+      '1 minor',
+      'b6 major',
+      'b3 major',
+      'b7 major',
+    ]);
+    const [best] = doc.analysis.progressionMatches;
+    expect(best.progression).toBe('1 minor - b6 major - b3 major - b7 major');
+    // The library has it as IV–I–V–vi: found mid-pattern, a touch less sure.
+    expect(best.score).toBeGreaterThan(0.95);
+  });
+
+  it("keeps the lane's degrees in the song's own key", () => {
+    expect(
+      hybrids({
+        chordRegions: [
+          region(0, { name: '4 maj', noteName: 'F maj', degreeKey: '4 major' }),
+        ],
+      }),
+    ).toEqual(['4 major']);
+  });
+});
+
 describe('sessionToUnison — drum track isolation', () => {
   function melodyTrack(notes: Array<[number, number, number]>) {
     return {

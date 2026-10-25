@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { LearnRoutes } from '@/constants/routes';
 import type { LessonInstrument } from '@/curriculum/types/activity.v2';
 
 // ── Learn instrument ───────────────────────────────────────────────────────
@@ -97,6 +98,13 @@ export const useInstrumentStore = create<InstrumentState>()(
     },
   ),
 );
+
+/** The Learn page for an instrument: /learn/keyboard or /learn/guitar. */
+export const learnPageRoute = (instrument: LearnInstrument) =>
+  instrument === 'guitar' ? LearnRoutes.guitar() : LearnRoutes.keyboard();
+
+/** The Learn page for the instrument chosen now (Home's row, the side rail). */
+export const useLearnPageRoute = () => learnPageRoute(useLearnInstrument());
 
 /**
  * The instrument Learn should show now: the stored choice, except that guitar

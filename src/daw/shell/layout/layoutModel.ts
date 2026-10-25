@@ -102,7 +102,6 @@ export const INSPECTOR_PANELS = [
   'library',
   'lessons',
   'people',
-  'chat',
 ] as const;
 export type InspectorPanelId = (typeof INSPECTOR_PANELS)[number];
 

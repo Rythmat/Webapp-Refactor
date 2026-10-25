@@ -25,11 +25,14 @@ const queryOf = (url: string): string => {
 };
 
 describe('appendMspLaunchParams', () => {
-  it('preserves an existing query such as ?activity=', () => {
-    const url = appendMspLaunchParams('/learn/ionian/c?activity=scale', PARAMS);
-    expect(url.split('?')[0]).toBe('/learn/ionian/c');
+  it('preserves an existing query such as ?section=', () => {
+    const url = appendMspLaunchParams(
+      '/learn/keyboard/ionian/c?section=A',
+      PARAMS,
+    );
+    expect(url.split('?')[0]).toBe('/learn/keyboard/ionian/c');
     const q = new URLSearchParams(queryOf(url));
-    expect(q.get('activity')).toBe('scale');
+    expect(q.get('section')).toBe('A');
     expect(q.get('msp')).toBe('tok-abc');
     expect(q.get('interactionId')).toBe('ix-1');
     expect(q.get('activityRef')).toBe('song:test:lesson');
@@ -38,7 +41,7 @@ describe('appendMspLaunchParams', () => {
   it('omits msp when launched tokenless (offline)', () => {
     const tokenless: MspLaunchParams = { ...PARAMS };
     delete tokenless.token;
-    const url = appendMspLaunchParams('/learn/ionian/c', tokenless);
+    const url = appendMspLaunchParams('/learn/keyboard/ionian/c', tokenless);
     expect(new URLSearchParams(queryOf(url)).get('msp')).toBeNull();
     expect(new URLSearchParams(queryOf(url)).get('enrollmentId')).toBe('en-1');
   });

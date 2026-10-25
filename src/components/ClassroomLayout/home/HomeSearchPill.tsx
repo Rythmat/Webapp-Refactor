@@ -26,7 +26,10 @@ const STOP_GAP = 12;
 const MIN_LIST = 64;
 /** The clearance kept from the element to the left (the prompt box). */
 const AVOID_GAP = 16;
-/** Less room than this beside the prompt box, and the list goes above it. */
+/**
+ * Less room than this beside the prompt box (a small window), and the pill
+ * and list may overlap it instead.
+ */
 const MIN_WIDTH = 200;
 
 interface Row extends SearchResult {
@@ -51,7 +54,7 @@ interface Row extends SearchResult {
  * element to its left that neither may cover (Home: the prompt box): the
  * expanded pill, and the list with it, are never wider than the room from
  * that element's right edge to the pill's own; where that room is too
- * narrow, the list ends above that element instead.
+ * narrow (a small window), they may overlap it, drawn over it.
  */
 export const HomeSearchPill = ({
   stopAtId,
@@ -93,8 +96,8 @@ export const HomeSearchPill = ({
   // Where the pill and list may reach (both scroll with the page, so this
   // changes only with the layout: measured on focus, on opening and on
   // resize). Beside the prompt box, when there's room: no wider than the
-  // room right of it, the list down to the columns. Too narrow for that:
-  // full width, the list stopping above the prompt box instead.
+  // room right of it. Too narrow for that: free to overlap it (owner,
+  // 2026-10-24). Either way the list reaches down to the columns.
   useLayoutEffect(() => {
     const measure = () => {
       const wrap = wrapRef.current;
@@ -109,10 +112,9 @@ export const HomeSearchPill = ({
       const beside = roomX >= MIN_WIDTH;
       setMaxWidth(beside && Number.isFinite(roomX) ? roomX : undefined);
       const panel = panelRef.current;
-      const floor = beside ? stop : avoid;
-      if (!panel || !floor) return;
+      if (!panel || !stop) return;
       const roomY =
-        floor.getBoundingClientRect().top -
+        stop.getBoundingClientRect().top -
         panel.getBoundingClientRect().top -
         STOP_GAP;
       setMaxHeight(Math.max(MIN_LIST, roomY));

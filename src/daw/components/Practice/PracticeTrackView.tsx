@@ -507,7 +507,7 @@ export function PracticeTrackView({
     const lesson =
       session.kind === 'genre'
         ? session.returnTo
-        : LearnRoutes.lesson({
+        : LearnRoutes.keyboardLesson({
             mode: session.mode,
             key: session.rootParam,
           });

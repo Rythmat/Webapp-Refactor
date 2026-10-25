@@ -4,8 +4,9 @@ import { SCREEN_SIZES } from '@/constants/theme';
 /**
  * How a set list reads on the stand: whole pages, or one long scroll.
  *
- * Page view is the default — it is what a player turns with a pedal, and what
- * a tablet swipes. Device-level, like the app's other view preferences.
+ * Scroll is the default (owner, 2026-10-25); Page is what a player turns with
+ * a pedal, and what a tablet swipes, kept once picked. Device-level, like the
+ * app's other view preferences.
  */
 
 export type SetViewMode = 'page' | 'scroll';
@@ -15,9 +16,9 @@ const EVENT = 'setlist-view-change';
 
 export function getSetViewMode(): SetViewMode {
   try {
-    return localStorage.getItem(KEY) === 'scroll' ? 'scroll' : 'page';
+    return localStorage.getItem(KEY) === 'page' ? 'page' : 'scroll';
   } catch {
-    return 'page';
+    return 'scroll';
   }
 }
 
@@ -46,7 +47,7 @@ export function useSetViewMode(): [SetViewMode, (mode: SetViewMode) => void] {
   const mode = useSyncExternalStore(
     subscribe,
     getSetViewMode,
-    () => 'page' as const,
+    () => 'scroll' as const,
   );
   return [mode, useCallback((next: SetViewMode) => setSetViewMode(next), [])];
 }

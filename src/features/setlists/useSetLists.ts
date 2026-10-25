@@ -57,6 +57,9 @@ export interface UseSetLists {
     moveShow: (showId: string, beforeShowId: string | null) => void;
     moveSetListOrder: (id: string, beforeId: string | null) => void;
     renameShow: (id: string, title: string) => void;
+    /** Files a set list by its card's Group and Date
+     *  (store.placeSetList). */
+    placeSetList: (id: string, place: { group: string; date: string }) => void;
     deleteShow: (id: string) => void;
     duplicateShow: (id: string) => string;
     createArtist: (title?: string) => string;
@@ -190,6 +193,8 @@ export function useSetLists(): UseSetLists {
         apply((b, now) => store.moveSetListOrder(b, id, beforeId, now)),
       renameShow: (id, title) =>
         apply((b, now) => store.renameShow(b, id, title, now)),
+      placeSetList: (id, place) =>
+        apply((b, now) => store.placeSetList(b, id, place, now)),
       deleteShow: (id) => apply((b, now) => store.deleteShow(b, id, now)),
       duplicateShow: (id) =>
         edit((b, now) => {

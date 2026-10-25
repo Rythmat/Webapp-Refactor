@@ -865,30 +865,44 @@ export const SettingsRoutes = {
 
 const learnPrefix = '/learn';
 
+/** A Theory lesson's chapter: O(verview) on keyboard, A Melody, B Chords,
+ *  D Practice Track (C is the genre flows', which guitar is built on). A
+ *  chapter the lesson lacks opens its first. */
+export type LearnSection = 'O' | 'A' | 'B' | 'C' | 'D';
+
 export const LearnRoutes = {
   root: createRouteDefinition(learnPrefix),
 
-  overview: createRouteDefinition<{
-    mode: string;
-  }>('/:mode', { prefix: learnPrefix }),
+  // The instrument is the first segment: /learn/keyboard/… and
+  // /learn/guitar/…. Theory tiles go by their slug ('ionian', 'ionian#5',
+  // encoded here). The tabs' pages (/learn/keyboard/songs…) are static, so
+  // they outrank '/:mode'; so do 'relative' and 'parallel'.
 
-  lesson: createRouteDefinition<{
-    mode: string;
-    key: string;
-  }>('/:mode/:key', { prefix: learnPrefix }),
+  /** The Learn page on keyboard (owner, 2026-10-24). */
+  keyboard: createRouteDefinition('/keyboard', { prefix: learnPrefix }),
 
+  /** A Theory tile's keyboard overview: the keys. */
+  keyboardOverview: createRouteDefinition<{
+    mode: string;
+  }>('/keyboard/:mode', { prefix: learnPrefix }),
+
+  /** A key's keyboard lesson; `?section=O|A|B` opens that chapter. */
+  keyboardLesson: createRouteDefinition<
+    { mode: string; key: string },
+    { section?: LearnSection }
+  >('/keyboard/:mode/:key', { prefix: learnPrefix }),
+
+  /** The seven diatonic modes of one major key, on keyboard. */
   relativeOverview: createRouteDefinition<{
     key: string;
-  }>('/relative/:key', { prefix: learnPrefix }),
+  }>('/keyboard/relative/:key', { prefix: learnPrefix }),
 
+  /** The seven diatonic modes on one tonic, on keyboard. */
   parallelOverview: createRouteDefinition<{
     key: string;
-  }>('/parallel/:key', { prefix: learnPrefix }),
+  }>('/keyboard/parallel/:key', { prefix: learnPrefix }),
 
-  // Guitar: Theory's tiles on guitar, by their slug ('ionian', 'ionian#5',
-  // encoded here). Static first segment, so these outrank '/:mode' and
-  // '/:mode/:key'.
-  /** Bare '/learn/guitar': not a page; sends the student to Theory. */
+  /** The Learn page on guitar (owner, 2026-10-24). */
   guitar: createRouteDefinition('/guitar', { prefix: learnPrefix }),
 
   /** A Theory tile's guitar overview: the keys, the scale box. */
@@ -897,10 +911,10 @@ export const LearnRoutes = {
   }>('/guitar/:mode', { prefix: learnPrefix }),
 
   /** A key's guitar lesson; `?section=A|B|D` opens that chapter. */
-  guitarLesson: createRouteDefinition<{
-    mode: string;
-    key: string;
-  }>('/guitar/:mode/:key', { prefix: learnPrefix }),
+  guitarLesson: createRouteDefinition<
+    { mode: string; key: string },
+    { section?: LearnSection }
+  >('/guitar/:mode/:key', { prefix: learnPrefix }),
 };
 
 const connectPrefix = '/connect';

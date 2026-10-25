@@ -1,6 +1,7 @@
 // ── A song's lesson ────────────────────────────────────────────────────────
 // Where "Open in Lesson" goes: the Theory lesson of the song's mode in its
-// key, on piano (/learn/:mode/:key) or on guitar (/learn/guitar/:mode/:key).
+// key, on keyboard (/learn/keyboard/:mode/:key) or on guitar
+// (/learn/guitar/:mode/:key).
 
 import { guitarLessonRoute } from '@/components/learn/guitarTheory';
 import { LearnRoutes } from '@/constants/routes';
@@ -18,7 +19,7 @@ export const normalizeLessonMode = (mode: SongMode): string => {
 const tonicOf = (song: Song): string => song.key.trim().split(/\s+/)[0] ?? '';
 
 /**
- * The piano Theory lesson (`/learn/:mode/:key`).
+ * The keyboard Theory lesson (`/learn/keyboard/:mode/:key`).
  *
  * `song.key` is a full label ('C major', 'B♭ minor'); the Lesson page parses
  * `:key` as a bare letter+accidental token (`urlParamToKeyLabel`), so it MUST
@@ -26,7 +27,7 @@ const tonicOf = (song: Song): string => song.key.trim().split(/\s+/)[0] ?? '';
  * to the wrong note (e.g. 'B♭ major' → 'B' natural).
  */
 export const songLessonRoute = (song: Song): string =>
-  LearnRoutes.lesson({
+  LearnRoutes.keyboardLesson({
     mode: normalizeLessonMode(song.mode),
     key: keyLabelToUrlParam(tonicOf(song)),
   });

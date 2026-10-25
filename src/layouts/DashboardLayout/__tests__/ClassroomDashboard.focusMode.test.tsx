@@ -5,8 +5,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ClassroomDashboard } from '../ClassroomDashboard';
 
 // ── Focus mode (milestone 2.5, owner decision 7) ───────────────────────────
-// The Studio editor gets the whole window: no sidebar, no TopRail and no
-// chord-notation bar on /studio. Every other page, the Studio's
+// The Studio editor gets the whole window: no sidebar or mobile tab bar, no
+// TopRail and no chord-notation bar on /studio. Every other page, the Studio's
 // Production lessons included, keeps them.
 //
 // Run: npx vitest run src/layouts/DashboardLayout/__tests__/ClassroomDashboard.focusMode.test.tsx
@@ -23,6 +23,9 @@ vi.mock('@/hooks/useChallengeWatcher', () => ({
 }));
 vi.mock('../ClassroomSidebar', () => ({
   ClassroomSidebar: () => <nav data-testid="sidebar" />,
+}));
+vi.mock('../MobileTabBar', () => ({
+  MobileTabBar: () => <nav data-testid="tabbar" />,
 }));
 vi.mock('@/components/ClassroomLayout/TopRail', () => ({
   TopRail: () => <header data-testid="toprail" />,
@@ -50,6 +53,7 @@ describe('focus mode', () => {
     at('/studio');
     expect(screen.getByTestId('page')).toBeInTheDocument();
     expect(screen.queryByTestId('sidebar')).toBeNull();
+    expect(screen.queryByTestId('tabbar')).toBeNull();
     expect(screen.queryByTestId('toprail')).toBeNull();
     expect(screen.queryByTestId('chord-bar')).toBeNull();
   });
@@ -58,6 +62,7 @@ describe('focus mode', () => {
     for (const path of ['/studio/production', '/learn']) {
       at(path);
       expect(screen.getByTestId('sidebar')).toBeInTheDocument();
+      expect(screen.getByTestId('tabbar')).toBeInTheDocument();
       expect(screen.getByTestId('toprail')).toBeInTheDocument();
       cleanup();
     }

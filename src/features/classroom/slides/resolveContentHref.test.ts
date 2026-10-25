@@ -41,16 +41,19 @@ describe('canonicalLessonKeyParam', () => {
 describe('resolveActivityRefHref — learn', () => {
   it('resolves mode/key with canonicalization', () => {
     expect(resolveActivityRefHref('learn', 'learn:ionian:c')).toBe(
-      '/learn/ionian/c',
+      '/learn/keyboard/ionian/c',
     );
     expect(resolveActivityRefHref('learn', 'learn:dorian:D minor')).toBe(
-      '/learn/dorian/d',
+      '/learn/keyboard/dorian/d',
     );
   });
-  it('honors an optional activity segment', () => {
+  it('honors an optional section segment', () => {
+    expect(resolveActivityRefHref('learn', 'learn:ionian:c:B')).toBe(
+      '/learn/keyboard/ionian/c?section=B',
+    );
     expect(
       resolveActivityRefHref('learn', 'learn:ionian:c:scale-degrees'),
-    ).toBe('/learn/ionian/c?activity=scale-degrees');
+    ).toBe('/learn/keyboard/ionian/c');
   });
   it('returns null when mode or key is missing', () => {
     expect(resolveActivityRefHref('learn', 'learn:ionian')).toBeNull();
@@ -141,7 +144,7 @@ describe('resolveActivityRefHref — song', () => {
     const getSong = () => songFixture({ key: 'B♭ major', mode: 'major' });
     expect(
       resolveActivityRefHref('learn', 'song:test_song:lesson', { getSong }),
-    ).toBe('/learn/ionian/bflat');
+    ).toBe('/learn/keyboard/ionian/bflat');
   });
   it('returns null for a lesson ref without getSong', () => {
     expect(resolveActivityRefHref('learn', 'song:test_song:lesson')).toBeNull();

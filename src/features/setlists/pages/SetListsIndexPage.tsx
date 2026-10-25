@@ -1,69 +1,50 @@
 import {
   ChevronLeft,
-  ChevronRight,
   Copy,
   ListMusic,
-  GripVertical,
   Plus,
-  Star,
+  Search,
   Trash2,
-  Users,
   X,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type FC } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { SearchInput } from '@/components/songLibrary/SearchInput';
-import { LearnRoutes, SongRoutes } from '@/constants/routes';
-import { getSong } from '@/curriculum/data/songs';
-import { SongPickerDialog } from '@/features/classroom/slides/wizard/SongPickerDialog';
 import {
-  claimDrop,
-  hasCardDrag,
-  hasShowDrag,
-  hasSongDrag,
-  readCardDrag,
-  readShowDrag,
-  readSongDrag,
-  setCardDrag,
-  setShowDrag,
-  setSongDrag,
-} from '../setListDnd';
-import { isFavorite, roleList } from '../setListsStore';
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+  type FC,
+  type KeyboardEvent,
+} from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { HomeGlow } from '@/components/ClassroomLayout/home/HomeGlow';
+import { LearnInstrumentPill } from '@/components/learn/LearnInstrumentPill';
+import { cn } from '@/components/utilities';
+import { SongRoutes } from '@/constants/routes';
+import { Button } from '@/daw/ui/Button';
+import { learnTabRoute } from '@/features/learn/learnPaths';
+import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
+import { GLASS_CARD, GLASS_PILL } from '../setListsLook';
+import { setListPlace } from '../setListsStore';
 import { setListSandboxActive } from '../storage/setListSandbox';
-import { attachTouchDrag } from '../touchDrag';
-import type { Artist, SetList, SetListParent, Show } from '../types';
+import type { SetList } from '../types';
 import { useSetLists } from '../useSetLists';
 
 /**
  * Set Lists.
  *
- * Three columns, and the order of them is the work: My Lead Sheets, the
- * charts a player performs; the set lists they build out of those charts; and
- * the bands and shows those sets get played at. Each column is a drop target
- * for the one on its left, so the page reads the way the job goes — a chart
- * into a set, a set into a show, a show into a band.
- *
- * Flat by default underneath all that. Every set is in the middle column
- * whether or not it has been filed anywhere, and filing is not a move: it is
- * a second way to find the same set, so nothing goes missing because it was
- * put somewhere. Nothing announces a hierarchy before one exists.
- *
- * My Lead Sheets is not a set list — you cannot file it or delete it — which
- * is why it sits outside the middle column with Favorites as a filter over
- * it rather than a list of its own.
- *
- * The drags are native HTML5 DnD, which is mouse-only; `../touchDrag` is what
- * makes the same handlers answer to a finger, because this page is used on a
- * tablet as much as a laptop.
+ * One card (owner, 2026-10-25): every set the player has, one under another,
+ * each saying where it is played (its Group, Show and the show's Date) and
+ * filed there as those are typed. Songs are added inside a set list, in its
+ * workspace. The bands and shows are still the store's (Artist, Show); the
+ * card is now the way to them.
  */
-
-const SONG_LIST_ROUTE = LearnRoutes.root(undefined, { tab: 'Songs' });
 
 export const SetListsIndexPage: FC = () => {
   const navigate = useNavigate();
-  const { blob, organiser, flat, status, saveState, actions } = useSetLists();
+  // Back to Songs on the chosen instrument.
+  const songsRoute = learnTabRoute(useLearnInstrument(), 'Songs');
+  const { flat, status, saveState, actions } = useSetLists();
   const [search, setSearch] = useState('');
-  const [repertoireOpen, setRepertoireOpen] = useState(true);
 
   const needle = search.trim().toLowerCase();
   const matches = (list: SetList) =>
@@ -73,131 +54,59 @@ export const SetListsIndexPage: FC = () => {
 
   const newSetList = () => {
     const id = actions.createSetList('New Set List');
-    // On a tour's practice copy the new list stays here, beside the lead
-    // sheets and shows the tour drags it between.
+    // On a tour's practice copy the new list stays here, for the tour to
+    // carry on with.
     if (id && !setListSandboxActive())
       navigate(SongRoutes.setList({ setListId: id }));
   };
 
-  const hasOrganiser =
-    organiser.artists.length > 0 || organiser.looseShows.length > 0;
-
-  // Touch drags for the whole three-column area. The drop handlers below are
-  // written once, for drag events; this is what makes a finger produce them.
-  const columnsRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const node = columnsRef.current;
-    return node ? attachTouchDrag(node) : undefined;
-  }, []);
-
   return (
-    <div
-      className="flex h-full flex-col overflow-hidden"
-      style={{ background: '#101012' }}
-    >
-      <header className="flex-shrink-0 px-6 pt-4 md:px-10">
-        <div className="flex flex-col items-start">
-          <a
-            href={SONG_LIST_ROUTE}
-            className="text-xs font-medium text-white/50 hover:text-white hover:underline"
-          >
-            Songs
-          </a>
-          <button
-            type="button"
-            onClick={() => navigate(SONG_LIST_ROUTE)}
-            aria-label="Back to Song Library"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/5 hover:text-white"
-          >
-            <ChevronLeft size={20} />
-          </button>
-        </div>
-
-        <div className="mt-1 flex flex-wrap items-center gap-3">
-          <h1
-            className="text-white"
-            style={{
-              fontFamily:
-                "'Glacial Indifference', 'Fraunces', system-ui, sans-serif",
-              fontSize: 'clamp(1.25rem, 2vw, 1.75rem)',
-              fontWeight: 600,
-            }}
-          >
-            Set Lists
-          </h1>
-          <button
-            type="button"
-            onClick={newSetList}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#7ecfcf] px-3 py-1.5 text-sm font-semibold text-[#191919] transition-opacity hover:opacity-90"
-          >
-            <Plus size={15} /> New Set List
-          </button>
-          {status === 'signedOut' && (
-            <span className="text-xs text-white/45">
-              Sign in to keep your set lists.
-            </span>
-          )}
-          {status !== 'signedOut' && saveState !== 'saved' && (
-            <span className="text-xs text-white/45">
-              {saveState === 'unsaved' ? 'Not saved' : 'Saving…'}
-            </span>
-          )}
-        </div>
-
-        <div className="mt-3 max-w-md">
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            onClear={() => setSearch('')}
-            placeholder="Search set lists"
-          />
+    // The Learn page's look (owner, 2026-10-25): Home's glow behind, the
+    // instrument switcher top right and the way back to Songs
+    // top left, where the Songs pages keep Set Lists. `isolate`, so the
+    // glow's -z-10 sits behind all of it.
+    <div className="relative isolate flex h-full flex-col overflow-hidden">
+      <HomeGlow />
+      {/* Only the pills (owner, 2026-10-25): the title is the Set Lists
+        card's heading. Their row's height: 8px padding + the 40px pill. */}
+      <header className="relative h-14 shrink-0 p-2">
+        <Link
+          to={songsRoute}
+          aria-label="Back to Songs"
+          className={cn(GLASS_PILL, 'absolute left-2 top-2 z-10 gap-1 pl-2.5')}
+        >
+          <ChevronLeft aria-hidden className="size-4" />
+          Songs
+        </Link>
+        <div className="absolute right-2 top-2 z-10">
+          <LearnInstrumentPill stay />
         </div>
       </header>
 
-      {/*
-        Three columns, and the order is the workflow: the charts you play, the
-        sets you build out of them, and the bands and shows those sets belong
-        to. Every column is a drop target for the one on its left, so the way
-        the work moves is the way the page reads.
-
-        Side by side from md up. Below that they stack in the same order —
-        a phone gets the same sequence, scrolled instead of scanned.
-      */}
-      <div
-        ref={columnsRef}
-        className="mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 pb-10 md:flex-row md:overflow-hidden md:px-10"
-      >
-        <Repertoire
-          open={repertoireOpen}
-          onToggle={() => setRepertoireOpen((v) => !v)}
-        />
-
+      {/* One card (owner, 2026-10-25): no Songs column (songs are added
+        inside a set list) and no bands and shows columns (each set list's
+        card says its Group, Show and Date). */}
+      <div className="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden px-6 pb-10 md:px-10">
         <SetListColumn
           lists={visible}
-          blob={blob}
+          search={search}
+          onSearch={setSearch}
           searching={needle.length > 0}
           onNew={newSetList}
+          note={
+            status === 'signedOut'
+              ? 'Sign in to keep your set lists.'
+              : saveState !== 'saved'
+                ? saveState === 'unsaved'
+                  ? 'Not saved'
+                  : 'Saving…'
+                : null
+          }
         />
-
-        <OrganiserColumn hasAny={hasOrganiser} organiser={organiser} />
       </div>
     </div>
   );
 };
-
-/** Where a set is filed, for the line on its card. */
-function filedLabel(
-  list: SetList,
-  blob: ReturnType<typeof useSetLists>['blob'],
-): string | undefined {
-  const parent = list.parent;
-  if (!parent) return undefined;
-  if (parent.kind === 'artist') return blob.artists[parent.id]?.title;
-  const show = blob.shows[parent.id];
-  if (!show) return undefined;
-  const band = show.artistId ? blob.artists[show.artistId]?.title : undefined;
-  return band ? `${band} ▸ ${show.title}` : show.title;
-}
 
 /* ── The set lists ────────────────────────────────────────────────────── */
 
@@ -211,747 +120,108 @@ function filedLabel(
  */
 const SetListColumn: FC<{
   lists: SetList[];
-  blob: ReturnType<typeof useSetLists>['blob'];
+  search: string;
+  onSearch: (search: string) => void;
   searching: boolean;
   onNew: () => void;
-}> = ({ lists, blob, searching, onNew }) => {
+  /** Whether the set lists are kept: signed out, unsaved, saving; null when
+   *  all's saved. */
+  note: string | null;
+}> = ({ lists, search, onSearch, searching, onNew, note }) => {
   const navigate = useNavigate();
   const { actions } = useSetLists();
 
   return (
     <section
       data-setlists-column="setlists"
-      className="flex min-h-0 min-w-0 flex-1 flex-col rounded-xl border border-white/10 bg-white/[0.02]"
+      className={cn(GLASS_CARD, 'flex min-h-0 min-w-0 flex-1 flex-col')}
     >
       <div className="flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2.5">
-        <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
-          Set Lists
-        </span>
-        <button
-          type="button"
-          data-setlists-new="setlist"
-          onClick={onNew}
-          className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/60 hover:border-white/30 hover:text-white"
+        {/* The page's title, at the Learn navigation's size (owner,
+            2026-10-25), with whether it's all kept beside it. */}
+        <div className="flex min-w-0 items-baseline gap-2">
+          <h1 className="text-xl font-medium text-white md:text-2xl">
+            Set Lists
+          </h1>
+          {note && (
+            <span className="truncate text-xs text-white/45">{note}</span>
+          )}
+        </div>
+        {/* Search, where New Set List was (owner, 2026-10-25). */}
+        <div
+          className={cn(
+            GLASS_PILL,
+            'h-9 w-56 min-w-0 shrink focus-within:border-white/20',
+          )}
         >
-          <Plus size={12} /> Set List
-        </button>
+          <Search aria-hidden className="size-4 shrink-0" />
+          <input
+            type="search"
+            aria-label="Search set lists"
+            placeholder="Search set lists"
+            value={search}
+            onChange={(e) => onSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') onSearch('');
+            }}
+            className="min-w-0 flex-1 border-none bg-transparent text-sm leading-6 text-white outline-none placeholder:text-white/50 [&::-webkit-search-cancel-button]:hidden"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => onSearch('')}
+              aria-label="Clear search"
+              className="rounded-full p-0.5 text-white/50 hover:text-white"
+            >
+              <X aria-hidden className="size-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-2 pb-2">
-        {lists.length > 0 ? (
+      {/* The set lists, then + Add Set List as the Studio's + Add track
+          (owner, 2026-10-25): in a slot under the last one, or in the
+          middle of an empty card. A search that finds nothing says so. */}
+      <div className="custom-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-2 pb-2">
+        {lists.length > 0 && (
           <div className="flex flex-col gap-2">
             {lists.map((list) => (
               <SetListCard
                 key={list.id}
                 list={list}
-                filedIn={filedLabel(list, blob)}
                 onOpen={() =>
                   navigate(SongRoutes.setList({ setListId: list.id }))
                 }
                 onDuplicate={() => actions.duplicateSetList(list.id)}
                 onDelete={() => actions.deleteSetList(list.id)}
-                onUnfile={
-                  list.parent
-                    ? () => actions.fileSetList(list.id, undefined)
-                    : undefined
-                }
               />
             ))}
           </div>
-        ) : (
-          <div className="rounded-xl border border-dashed border-white/15 px-4 py-8 text-center">
-            <ListMusic className="mx-auto mb-3 text-white/30" size={24} />
-            <p className="text-sm text-white/70">
-              {searching ? 'Nothing by that name.' : 'No set lists yet.'}
-            </p>
-            {!searching && (
-              <>
-                <p className="mt-1 text-xs leading-relaxed text-white/40">
-                  Make one, then drag lead sheets into it from the left.
-                </p>
-                <button
-                  type="button"
-                  onClick={onNew}
-                  className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#7ecfcf] px-3 py-1.5 text-sm font-semibold text-[#191919]"
-                >
-                  <Plus size={15} /> New Set List
-                </button>
-              </>
-            )}
-          </div>
         )}
-      </div>
-    </section>
-  );
-};
-
-/* ── The repertoire ───────────────────────────────────────────────────── */
-
-/**
- * My Lead Sheets: the master list of charts a player performs, with the
- * starred ones as a filter over it. It is not a set list and does not sit in
- * the grid — you cannot file it under a band or delete it.
- */
-const Repertoire: FC<{ open: boolean; onToggle: () => void }> = ({
-  open,
-  onToggle,
-}) => {
-  const navigate = useNavigate();
-  const { blob, actions } = useSetLists();
-  const [starredOnly, setStarredOnly] = useState(false);
-  const [picking, setPicking] = useState(false);
-  const inbox = roleList(blob, 'inbox');
-  const entries = inbox?.entries ?? [];
-
-  const songs = entries.flatMap((entry) => {
-    if (entry.kind === 'text') return [];
-    const songId = entry.kind === 'song' ? entry.songId : undefined;
-    const starred = songId ? isFavorite(blob, songId) : false;
-    if (starredOnly && !starred) return [];
-    const title =
-      entry.title ??
-      (songId ? (getSong(songId)?.title ?? songId) : 'Lead sheet');
-    return [{ id: entry.id, title, songId, starred }];
-  });
-
-  if (!open)
-    return (
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-label="Show My Lead Sheets"
-        className="flex w-full flex-shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-white/45 hover:text-white md:h-full md:w-9 md:flex-col md:px-0 md:py-3"
-      >
-        <ChevronRight size={15} />
-        <span className="text-[11px] font-medium tracking-wide md:[writing-mode:vertical-rl]">
-          My Lead Sheets
-        </span>
-      </button>
-    );
-
-  return (
-    <aside
-      data-setlists-column="leadsheets"
-      className="flex w-full flex-shrink-0 flex-col rounded-xl border border-white/10 bg-white/[0.02] md:w-56 lg:w-64"
-    >
-      <div className="flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2.5">
-        <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
-          My Lead Sheets
-        </span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setPicking(true)}
-            className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/60 hover:border-white/30 hover:text-white"
-          >
-            <Plus size={12} /> Song
-          </button>
-          <button
-            type="button"
-            onClick={onToggle}
-            aria-label="Hide My Lead Sheets"
-            className="rounded p-0.5 text-white/35 hover:text-white"
-          >
-            <ChevronLeft size={15} />
-          </button>
-        </div>
-      </div>
-
-      <div className="flex flex-shrink-0 gap-1 px-3 pb-2">
-        {(
-          [
-            ['All', false],
-            ['★ Favorites', true],
-          ] as const
-        ).map(([label, only]) => (
-          <button
-            key={label}
-            type="button"
-            onClick={() => setStarredOnly(only)}
-            aria-pressed={starredOnly === only}
-            className={`rounded-full px-2 py-0.5 text-[11px] transition-colors ${
-              starredOnly === only
-                ? 'bg-white text-black'
-                : 'text-white/50 hover:text-white'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      <div className="custom-scrollbar max-h-64 min-h-0 flex-1 overflow-y-auto px-2 pb-2 md:max-h-none">
-        {songs.length === 0 ? (
-          <p className="px-2 py-4 text-xs leading-relaxed text-white/35">
-            {starredOnly
-              ? 'Nothing starred yet.'
-              : 'Charts you save land here — it is your master list of what you play. Add one with ＋ Song.'}
+        {searching && lists.length === 0 ? (
+          <p className="px-4 py-8 text-center text-sm text-white/50">
+            Nothing by that name.
           </p>
         ) : (
-          songs.map((song) => (
-            <div
-              key={song.id}
-              // Only a library song can be dragged into a set: a set holds a
-              // reference by song id, so a chart with no id has nothing to
-              // hand over. Those stay click-to-open.
-              draggable={!!song.songId}
-              data-lead-sheet={song.songId}
-              onDragStart={(e) => {
-                if (!song.songId) return;
-                setSongDrag(e.dataTransfer, {
-                  songId: song.songId,
-                  title: song.title,
-                });
-              }}
-              className={`group flex items-center gap-1 rounded-lg px-2 py-1 hover:bg-white/5 ${
-                song.songId ? 'cursor-grab active:cursor-grabbing' : ''
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() =>
-                  inbox &&
-                  navigate(
-                    `${SongRoutes.setList({ setListId: inbox.id })}?entry=${song.id}`,
-                  )
-                }
-                className="min-w-0 flex-1 truncate text-left text-sm text-white/80 hover:text-white"
-              >
-                {song.title}
-              </button>
-              {song.songId && (
-                <button
-                  type="button"
-                  aria-label={song.starred ? 'Unstar' : 'Star'}
-                  onClick={() => actions.toggleFavorite(song.songId!)}
-                  className={
-                    song.starred
-                      ? 'text-[#7ecfcf]'
-                      : 'text-white/20 opacity-0 transition-opacity hover:text-white/60 group-hover:opacity-100'
-                  }
-                >
-                  <Star
-                    size={13}
-                    fill={song.starred ? 'currentColor' : 'none'}
-                  />
-                </button>
-              )}
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Adding to the repertoire from the page that shows it — the same
-          picker the set list workspace uses, pointed at the inbox list. */}
-      <SongPickerDialog
-        open={picking}
-        onOpenChange={setPicking}
-        onSelect={(song) => {
-          if (inbox) actions.addSong(inbox.id, song.id);
-          setPicking(false);
-        }}
-      />
-    </aside>
-  );
-};
-
-/* ── The organiser ────────────────────────────────────────────────────── */
-
-/**
- * What the three levels are, drawn rather than described.
- *
- * Shown only while the organiser is empty: it is there to teach the shape
- * once, then get out of the way.
- */
-const StructureDiagram: FC = () => (
-  <div className="rounded-xl border border-dashed border-white/10 px-4 py-5">
-    <div className="flex flex-wrap items-start gap-x-8 gap-y-5">
-      <figure className="min-w-60">
-        <div className="flex items-center gap-2">
-          <Users size={14} className="text-white/40" />
-          <span className="text-sm font-semibold text-white/80">Band</span>
-          <span className="text-[11px] text-white/30">The Quartet</span>
-        </div>
-
-        <div className="ml-[7px] border-l border-white/15 pl-4 pt-1.5">
-          <div className="flex items-center gap-2">
-            <span aria-hidden className="ml-[-17px] h-px w-[9px] bg-white/15" />
-            <ListMusic size={13} className="text-white/35" />
-            <span className="text-sm text-white/70">Show / Tour</span>
-            <span className="text-[11px] text-white/30">Summer Tour</span>
-          </div>
-
-          <div className="ml-[6px] border-l border-white/15 pl-4 pt-1.5">
-            <Leaf label="Night 1" />
-            <Leaf label="Night 2" />
-          </div>
-
-          <div className="pt-2">
-            <Leaf label="Rehearsal" note="straight under the band" />
-          </div>
-        </div>
-      </figure>
-
-      <figure className="min-w-52 pt-0.5">
-        <div className="flex items-center gap-2">
-          <ListMusic size={13} className="text-white/35" />
-          <span className="text-sm text-white/70">Show / Tour</span>
-          <span className="text-[11px] text-white/30">Jazz Fest</span>
-        </div>
-        <div className="ml-[6px] border-l border-white/15 pl-4 pt-1.5">
-          <Leaf label="Festival set" note="a show with no band" />
-        </div>
-      </figure>
-    </div>
-
-    <p className="mt-4 max-w-2xl text-xs leading-relaxed text-white/40">
-      A band does not need a show, and a show does not need a band — but a show
-      belongs to the band it was made in and stays there; to use it elsewhere,
-      duplicate it. Drag a set list in from the column on the left. It stays in
-      that column wherever you file it: this is a second way to find a set, not
-      a move.
-    </p>
-  </div>
-);
-
-const Leaf: FC<{ label: string; note?: string }> = ({ label, note }) => (
-  <div className="flex items-center gap-2 py-0.5">
-    <span aria-hidden className="ml-[-17px] h-px w-[9px] bg-white/15" />
-    <span className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-xs text-white/70">
-      <ListMusic size={10} className="text-white/35" />
-      {label}
-    </span>
-    {note && <span className="text-[11px] text-white/25">{note}</span>}
-  </div>
-);
-
-/**
- * The right column: Bands over Shows, because that is the order they contain
- * each other in — a show belongs to a band, a set list belongs to either.
- *
- * They were one section under the grid, which put the last step of the
- * workflow below the middle of it. Stacked in their own column, the page
- * reads lead sheet → set list → where it is played.
- */
-const OrganiserColumn: FC<{
-  hasAny: boolean;
-  organiser: ReturnType<typeof useSetLists>['organiser'];
-}> = ({ hasAny, organiser }) => (
-  <div className="flex w-full min-w-0 flex-shrink-0 flex-col gap-4 md:w-72 lg:w-80 xl:w-96">
-    <BandsPanel artists={organiser.artists} showDiagram={!hasAny} />
-    <ShowsPanel shows={organiser.looseShows} />
-  </div>
-);
-
-/** Bands, each holding its shows and whatever has been filed straight on it. */
-const BandsPanel: FC<{
-  artists: ReturnType<typeof useSetLists>['organiser']['artists'];
-  showDiagram: boolean;
-}> = ({ artists, showDiagram }) => {
-  const { actions } = useSetLists();
-
-  return (
-    <section
-      data-setlists-column="bands"
-      className="flex min-h-0 flex-[3] flex-col rounded-xl border border-white/10 bg-white/[0.02]"
-    >
-      <div className="flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2.5">
-        <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
-          Bands &amp; Artists
-        </span>
-        <button
-          type="button"
-          data-setlists-new="band"
-          onClick={() => actions.createArtist()}
-          className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/60 hover:border-white/30 hover:text-white"
-        >
-          <Plus size={12} /> Band
-        </button>
-      </div>
-
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-2 pb-2">
-        {artists.length > 0 ? (
-          <div className="space-y-3">
-            {artists.map(({ artist, shows, setLists }) => (
-              <ArtistBox
-                key={artist.id}
-                artist={artist}
-                shows={shows}
-                setLists={setLists}
-              />
-            ))}
-          </div>
-        ) : showDiagram ? (
-          <StructureDiagram />
-        ) : (
-          <p className="px-2 py-4 text-xs leading-relaxed text-white/35">
-            No bands yet. Make one, then drag shows and set lists onto it.
-          </p>
-        )}
-      </div>
-    </section>
-  );
-};
-
-/**
- * Shows in no band, under the bands they can be dragged into. Dropping a show
- * here is how it comes back out of one.
- */
-const ShowsPanel: FC<{
-  shows: { show: Show; setLists: SetList[] }[];
-}> = ({ shows }) => {
-  const { actions } = useSetLists();
-
-  return (
-    <section
-      data-setlists-column="shows"
-      className="flex min-h-0 flex-[2] flex-col rounded-xl border border-white/10 bg-white/[0.02]"
-    >
-      <div className="flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2.5">
-        <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
-          Shows &amp; Concerts
-        </span>
-        <button
-          type="button"
-          data-setlists-new="show"
-          onClick={() => actions.createShow(undefined)}
-          className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/60 hover:border-white/30 hover:text-white"
-        >
-          <Plus size={12} /> Show
-        </button>
-      </div>
-
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-2 pb-2">
-        <LooseShows shows={shows} />
-      </div>
-    </section>
-  );
-};
-
-/** Shows in no band. Dropping one here takes it out of the band it was in. */
-const LooseShows: FC<{ shows: { show: Show; setLists: SetList[] }[] }> = ({
-  shows,
-}) => {
-  const { actions } = useSetLists();
-  const [over, setOver] = useState(false);
-  return (
-    <div
-      onDragOver={(e) => {
-        if (!hasShowDrag(e.dataTransfer)) return;
-        e.preventDefault();
-        setOver(true);
-      }}
-      onDragLeave={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(false);
-      }}
-      onDrop={(e) => {
-        setOver(false);
-        const item = claimDrop(e, readShowDrag);
-        if (item) actions.fileShowAt(item.showId, undefined, null);
-      }}
-      className={`min-h-full rounded-xl border border-dashed p-2 transition-colors ${
-        over ? 'border-[#7ecfcf] bg-[#7ecfcf]/[0.06]' : 'border-transparent'
-      }`}
-    >
-      <p className="mb-1.5 text-[11px] leading-relaxed text-white/30">
-        {shows.length === 0
-          ? 'Shows with no band. Drop one here to take it out of a band.'
-          : 'Shows with no band — drag one onto a band to put it there.'}
-      </p>
-      {shows.map(({ show, setLists }) => (
-        <div key={show.id}>
-          <InsertLine before={show.id} />
-          <ShowBox show={show} setLists={setLists} loose />
-        </div>
-      ))}
-      <InsertLine before={null} />
-    </div>
-  );
-};
-
-/**
- * A band. One drop target for shows: anywhere on it, and the show joins.
- *
- * There is deliberately no second target inside it — a show is not dropped
- * "into" another show. Ordering is done by the thin lines between them, which
- * only appear while a show is being dragged, so at any moment there is exactly
- * one thing a drop can mean.
- */
-const ArtistBox: FC<{
-  artist: Artist;
-  shows: { show: Show; setLists: SetList[] }[];
-  setLists: SetList[];
-}> = ({ artist, shows, setLists }) => {
-  const { actions } = useSetLists();
-  const [over, setOver] = useState(false);
-
-  return (
-    <div
-      data-band={artist.id}
-      onDragOver={(e) => {
-        if (!hasShowDrag(e.dataTransfer)) return;
-        e.preventDefault();
-        setOver(true);
-      }}
-      onDragLeave={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(false);
-      }}
-      onDrop={(e) => {
-        setOver(false);
-        const item = claimDrop(e, readShowDrag);
-        if (item) actions.fileShowAt(item.showId, artist.id, null);
-      }}
-      className={`rounded-xl border bg-white/[0.02] p-3 transition-colors ${
-        over ? 'border-[#7ecfcf] bg-[#7ecfcf]/[0.06]' : 'border-white/10'
-      }`}
-    >
-      <NodeHeader
-        icon={<Users size={14} className="text-white/35" />}
-        title={artist.title}
-        onRename={(t) => actions.renameArtist(artist.id, t)}
-        onDuplicate={() => actions.duplicateArtist(artist.id)}
-        onDelete={() => actions.deleteArtist(artist.id)}
-        alwaysOn={
-          <button
-            type="button"
-            onClick={() => actions.createShow(artist.id)}
-            className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/55 hover:border-white/30 hover:text-white"
-          >
-            <Plus size={11} /> Show
-          </button>
-        }
-      />
-
-      <DropZone parent={{ kind: 'artist', id: artist.id }} lists={setLists} />
-
-      <div
-        data-band-shows={artist.id}
-        className="ml-1.5 mt-2 border-l border-white/10 pl-3"
-      >
-        {shows.map(({ show, setLists: showLists }) => (
-          <div key={show.id}>
-            <InsertLine artistId={artist.id} before={show.id} />
-            <ShowBox show={show} setLists={showLists} />
-          </div>
-        ))}
-        <InsertLine artistId={artist.id} before={null} />
-        {shows.length === 0 && (
-          <p className="py-1 text-[11px] text-white/25">
-            No shows yet — add one, or drag a show onto this band.
-          </p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-/**
- * The gap between two shows. Invisible until a show is in the air, then it is
- * the only thing in the band that will take the drop — so "put it here" and
- * "put it in this band" can never be the same gesture.
- */
-const InsertLine: FC<{ artistId?: string; before: string | null }> = ({
-  artistId,
-  before,
-}) => {
-  const { actions } = useSetLists();
-  const [over, setOver] = useState(false);
-  return (
-    <div
-      onDragOver={(e) => {
-        if (!hasShowDrag(e.dataTransfer)) return;
-        e.preventDefault();
-        e.stopPropagation();
-        setOver(true);
-      }}
-      onDragLeave={() => setOver(false)}
-      onDrop={(e) => {
-        setOver(false);
-        const item = claimDrop(e, readShowDrag);
-        if (!item || item.showId === before) return;
-        // Any show, from anywhere: the gap says where, the band says whose.
-        actions.fileShowAt(item.showId, artistId, before);
-      }}
-      aria-hidden
-      className="group/line -my-1 py-1"
-    >
-      <div
-        className={`h-0.5 rounded-full transition-colors ${
-          over ? 'bg-[#7ecfcf]' : 'bg-transparent'
-        }`}
-      />
-    </div>
-  );
-};
-
-/** A show. It carries its set lists; it is not itself a target for shows. */
-const ShowBox: FC<{ show: Show; setLists: SetList[]; loose?: boolean }> = ({
-  show,
-  setLists,
-  loose,
-}) => {
-  const { actions } = useSetLists();
-  return (
-    <div
-      data-show={show.id}
-      draggable
-      onDragStart={(e) => {
-        e.stopPropagation();
-        setShowDrag(e.dataTransfer, {
-          showId: show.id,
-          artistId: show.artistId,
-        });
-      }}
-      className={`rounded-lg px-2.5 py-2 ${
-        loose ? 'border border-white/10 bg-white/[0.02]' : ''
-      }`}
-    >
-      <NodeHeader
-        icon={<GripVertical size={13} className="cursor-grab text-white/25" />}
-        title={show.title}
-        small
-        onRename={(t) => actions.renameShow(show.id, t)}
-        onDuplicate={() => actions.duplicateShow(show.id)}
-        onDelete={() => actions.deleteShow(show.id)}
-        alwaysOn={
-          show.artistId ? (
-            <button
-              type="button"
-              onClick={() => actions.fileShow(show.id, undefined)}
-              className="rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/45 hover:border-white/30 hover:text-white"
-              title="Take this show out of the band"
-            >
-              Out of band
-            </button>
-          ) : undefined
-        }
-      />
-      <DropZone parent={{ kind: 'show', id: show.id }} lists={setLists} />
-    </div>
-  );
-};
-
-const NodeHeader: FC<{
-  icon: React.ReactNode;
-  title: string;
-  small?: boolean;
-  /** Shown whether or not the row is hovered — a way in, not a tidy-up. */
-  alwaysOn?: React.ReactNode;
-  onRename: (title: string) => void;
-  onDuplicate: () => void;
-  onDelete: () => void;
-}> = ({ icon, title, small, alwaysOn, onRename, onDuplicate, onDelete }) => (
-  <div className="group flex items-center gap-1.5">
-    {icon}
-    <InlineTitle
-      value={title}
-      onCommit={onRename}
-      className={
-        small ? 'text-sm text-white/70' : 'text-sm font-semibold text-white/90'
-      }
-    />
-    <span className="ml-auto flex items-center gap-1">
-      {alwaysOn}
-      <span className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-        <button
-          type="button"
-          aria-label={`Duplicate ${title}`}
-          onClick={onDuplicate}
-          className="rounded p-1 text-white/30 hover:text-white"
-        >
-          <Copy size={13} />
-        </button>
-        <button
-          type="button"
-          aria-label={`Delete ${title}`}
-          onClick={onDelete}
-          className="rounded p-1 text-white/30 hover:text-red-400"
-        >
-          <Trash2 size={13} />
-        </button>
-      </span>
-    </span>
-  </div>
-);
-
-/** Set lists filed here, stacked, and the place to drop another. */
-const DropZone: FC<{ parent: SetListParent; lists: SetList[] }> = ({
-  parent,
-  lists,
-}) => {
-  const navigate = useNavigate();
-  const { actions } = useSetLists();
-  const [over, setOver] = useState<string | null>(null);
-
-  const drop = (e: React.DragEvent, beforeId: string | null) => {
-    setOver(null);
-    // A show dragged onto this strip is meant for the band around it.
-    const item = claimDrop(e, readCardDrag);
-    if (item) actions.fileSetListAt(item.setListId, parent, beforeId);
-  };
-
-  return (
-    <div
-      data-set-list-drop
-      onDragOver={(e) => {
-        if (!hasCardDrag(e.dataTransfer)) return;
-        e.preventDefault();
-        e.stopPropagation();
-        setOver('end');
-      }}
-      onDragLeave={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(null);
-      }}
-      onDrop={(e) => drop(e, null)}
-      className={`mt-1.5 flex min-h-9 flex-col gap-1 rounded-lg border border-dashed px-2 py-1.5 transition-colors ${
-        over ? 'border-[#7ecfcf] bg-[#7ecfcf]/10' : 'border-white/10'
-      }`}
-    >
-      {lists.length === 0 ? (
-        <span className="text-[11px] text-white/25">Drag a set list here</span>
-      ) : (
-        lists.map((list) => (
           <div
-            key={list.id}
-            draggable
-            onDragStart={(e) => {
-              e.stopPropagation();
-              setCardDrag(e.dataTransfer, { setListId: list.id });
-            }}
-            onDragOver={(e) => {
-              if (!hasCardDrag(e.dataTransfer)) return;
-              e.preventDefault();
-              e.stopPropagation();
-              setOver(list.id);
-            }}
-            onDrop={(e) => drop(e, list.id)}
-            className={`flex items-center gap-1.5 rounded-md px-1.5 py-1 ${
-              over === list.id ? 'bg-[#7ecfcf]/20' : 'hover:bg-white/5'
-            }`}
+            className={cn(
+              'flex shrink-0 items-center justify-center px-2',
+              lists.length === 0 ? 'flex-1' : 'min-h-16',
+            )}
           >
-            <GripVertical size={12} className="cursor-grab text-white/20" />
-            <button
-              type="button"
-              onClick={() =>
-                navigate(SongRoutes.setList({ setListId: list.id }))
-              }
-              className="min-w-0 flex-1 truncate text-left text-xs text-white/80 hover:text-white"
+            <Button
+              size="sm"
+              variant="quiet"
+              data-setlists-new="setlist"
+              onClick={onNew}
             >
-              {list.title}
-            </button>
-            <button
-              type="button"
-              aria-label={`Take ${list.title} out`}
-              onClick={() => actions.fileSetList(list.id, undefined)}
-              className="rounded p-0.5 text-white/25 hover:text-white"
-              title="Take out"
-            >
-              <X size={12} />
-            </button>
+              <Plus aria-hidden />
+              Add Set List
+            </Button>
           </div>
-        ))
-      )}
-    </div>
+        )}
+      </div>
+    </section>
   );
 };
 
@@ -959,99 +229,147 @@ const DropZone: FC<{ parent: SetListParent; lists: SetList[] }> = ({
 
 const SetListCard: FC<{
   list: SetList;
-  filedIn?: string;
   onOpen: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
-  onUnfile?: () => void;
-}> = ({ list, filedIn, onOpen, onDuplicate, onDelete, onUnfile }) => {
-  const { actions } = useSetLists();
-  const [over, setOver] = useState(false);
+}> = ({ list, onOpen, onDuplicate, onDelete }) => {
   const songs = list.entries.filter((e) => e.kind !== 'text').length;
   const texts = list.entries.length - songs;
   return (
     <div
       role="button"
       tabIndex={0}
-      draggable
       data-set-list={list.id}
-      onDragStart={(e) => setCardDrag(e.dataTransfer, { setListId: list.id })}
-      // A chart dragged in from My Lead Sheets lands at the end of the set.
-      onDragOver={(e) => {
-        if (!hasSongDrag(e.dataTransfer)) return;
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
-        setOver(true);
-      }}
-      onDragLeave={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(false);
-      }}
-      onDrop={(e) => {
-        setOver(false);
-        const item = claimDrop(e, readSongDrag);
-        if (item) actions.addSong(list.id, item.songId);
-      }}
       onClick={onOpen}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') onOpen();
+        if (e.key === 'Enter' && e.target === e.currentTarget) onOpen();
       }}
-      className={`group flex cursor-pointer items-center justify-between rounded-xl border bg-white/[0.03] px-4 py-3 transition-colors ${
-        over
-          ? 'border-[#7ecfcf] bg-[#7ecfcf]/[0.08]'
-          : 'border-white/10 hover:border-white/25'
-      }`}
+      className="group cursor-pointer rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 transition-colors hover:border-white/25"
     >
-      <div className="min-w-0">
-        <div className="flex items-center gap-1.5">
-          <ListMusic size={14} className="flex-shrink-0 text-white/40" />
-          <span className="truncate font-medium text-white/90">
-            {list.title}
-          </span>
+      {/* One row (owner, 2026-10-25): the title, which is the show, then
+          its Group and Date, then the card's actions. */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <ListMusic size={14} className="flex-shrink-0 text-white/40" />
+            <span className="truncate font-medium text-white/90">
+              {list.title}
+            </span>
+          </div>
+          <p className="mt-0.5 truncate text-xs text-white/40">
+            {songs} {songs === 1 ? 'chart' : 'charts'}
+            {texts > 0 && ` · ${texts} note${texts === 1 ? '' : 's'}`}
+          </p>
         </div>
-        <p className="mt-0.5 truncate text-xs text-white/40">
-          {songs} {songs === 1 ? 'chart' : 'charts'}
-          {texts > 0 && ` · ${texts} note${texts === 1 ? '' : 's'}`}
-          {filedIn && ` · ${filedIn}`}
-        </p>
-      </div>
-      <span className="flex flex-shrink-0 items-center opacity-0 transition-opacity group-hover:opacity-100">
-        {onUnfile && (
+        <PlaceFields setListId={list.id} />
+        <span className="flex flex-shrink-0 items-center opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
           <button
             type="button"
-            aria-label={`Take ${list.title} out of ${filedIn}`}
+            aria-label={`Duplicate ${list.title}`}
             onClick={(e) => {
               e.stopPropagation();
-              onUnfile();
+              onDuplicate();
             }}
             className="rounded p-1 text-white/30 hover:text-white"
-            title="Unfile"
           >
-            <ChevronLeft size={15} />
+            <Copy size={15} />
           </button>
-        )}
-        <button
-          type="button"
-          aria-label={`Duplicate ${list.title}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onDuplicate();
-          }}
-          className="rounded p-1 text-white/30 hover:text-white"
-        >
-          <Copy size={15} />
-        </button>
-        <button
-          type="button"
-          aria-label={`Delete ${list.title}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="rounded p-1 text-white/30 hover:text-red-400"
-        >
-          <Trash2 size={15} />
-        </button>
-      </span>
+          <button
+            type="button"
+            aria-label={`Delete ${list.title}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="rounded p-1 text-white/30 hover:text-red-400"
+          >
+            <Trash2 size={15} />
+          </button>
+        </span>
+      </div>
+    </div>
+  );
+};
+
+/** A field on the card: a small glass pill, as the page's search is. */
+const PLACE_FIELD =
+  'h-8 min-w-0 rounded-full border border-white/10 bg-white/[0.04] px-3 text-xs text-white outline-none transition-colors placeholder:text-white/35 hover:border-white/20 focus:border-white/30 [color-scheme:dark]';
+
+/**
+ * Where the set is played, beside its title (owner, 2026-10-25: in place of
+ * the bands and shows columns; the title is the show): its Group and Date.
+ * Typing a group files the set under it, finding or making it by name
+ * (store.placeSetList), and saves on Enter or on leaving the field, offering
+ * the groups there are. The date is the set's own and saves as it is picked.
+ */
+export const PlaceFields: FC<{
+  setListId: string;
+  /** Share the row's width, each field growing to fill it (the set list
+   *  editor's narrow rail). */
+  fill?: boolean;
+}> = ({ setListId, fill = false }) => {
+  const { blob, actions } = useSetLists();
+  const saved = useMemo(() => setListPlace(blob, setListId), [blob, setListId]);
+  const [draft, setDraft] = useState(saved);
+  useEffect(() => setDraft(saved), [saved]);
+  const groupsId = useId();
+  const groups = blob.order.artists
+    .map((id) => blob.artists[id]?.title)
+    .filter((t): t is string => !!t);
+
+  const commit = (next = draft) => {
+    if (next.group === saved.group && next.date === saved.date) return;
+    actions.placeSetList(setListId, next);
+  };
+  // The fields sit on a card that opens on a click: keep their clicks and
+  // keys to themselves.
+  const own = {
+    onClick: (e: { stopPropagation: () => void }) => e.stopPropagation(),
+    onKeyDown: (e: KeyboardEvent<HTMLInputElement>) => {
+      e.stopPropagation();
+      if (e.key === 'Enter') e.currentTarget.blur();
+      if (e.key === 'Escape') {
+        setDraft(saved);
+        e.currentTarget.blur();
+      }
+    },
+  };
+
+  return (
+    <div
+      className={cn(
+        'flex items-center gap-2',
+        fill ? 'min-w-0 w-full' : 'flex-shrink-0',
+      )}
+    >
+      <input
+        {...own}
+        aria-label="Group"
+        placeholder="Group"
+        list={groupsId}
+        value={draft.group}
+        onChange={(e) => setDraft({ ...draft, group: e.target.value })}
+        onBlur={() => commit()}
+        className={cn(PLACE_FIELD, fill ? 'flex-1' : 'w-40')}
+      />
+      <input
+        {...own}
+        type="date"
+        aria-label="Date"
+        title="When it’s played"
+        value={draft.date}
+        onChange={(e) => {
+          const next = { ...draft, date: e.target.value };
+          setDraft(next);
+          commit(next);
+        }}
+        className={cn(PLACE_FIELD, fill ? 'w-[8.5rem] shrink-0' : 'w-36')}
+      />
+      <datalist id={groupsId}>
+        {groups.map((title) => (
+          <option key={title} value={title} />
+        ))}
+      </datalist>
     </div>
   );
 };

@@ -276,7 +276,7 @@ describe('Learn → Theory on guitar', () => {
     openTile('Red');
     expect(screen.getByRole('heading', { name: 'Modes' })).toBeInTheDocument();
     fireEvent.click(screen.getByText('D Dorian'));
-    expect(location()).toBe('/learn/dorian/d');
+    expect(location()).toBe('/learn/keyboard/dorian/d');
   });
 
   it("opens Ionian (Major) on the book's key centers and their chapters", async () => {
@@ -443,7 +443,7 @@ describe('Learn → Theory on piano (unchanged)', () => {
     expect(guitarTheoryChapters).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByText('Chords'));
-    expect(location()).toBe('/learn/ionian/c?activity=triad-1-arp-pa');
+    expect(location()).toBe('/learn/keyboard/ionian/c?section=B');
   });
 
   it('opens Dorian on piano', () => {

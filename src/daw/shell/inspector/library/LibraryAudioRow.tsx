@@ -10,6 +10,10 @@ import {
   Trash2,
 } from 'lucide-react';
 import { cn } from '@/components/utilities';
+import {
+  INSIGHT_DIM,
+  INSIGHT_TEXT,
+} from '@/daw/components/Library/InsightCard';
 import { DRAG_MIME, type DragPayload } from '@/daw/data/libraryItems';
 import {
   deleteLibraryAudio,
@@ -26,7 +30,7 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from '@/daw/ui/Menu';
-import { FOCUS_RING, TYPE_CLASS } from '@/daw/ui/styles';
+import { FOCUS_RING } from '@/daw/ui/styles';
 import { downloadFile } from '@/daw/utils/exportFiles';
 import {
   clock,
@@ -48,7 +52,7 @@ function Art({ item }: { item: LibraryAudioItem }) {
       onClick={() => void togglePreview(item.id)}
       aria-label={playing ? `Stop ${item.name}` : `Play ${item.name}`}
       className={cn(
-        'group/art relative flex size-[46px] shrink-0 items-center justify-center overflow-hidden rounded-[var(--daw-radius-md)]',
+        'group/art relative flex size-[46px] shrink-0 items-center justify-center overflow-hidden rounded-[12px]',
         FOCUS_RING,
       )}
       style={{
@@ -118,31 +122,22 @@ export function LibraryAudioRow({
       draggable
       onDragStart={onDragStart}
       data-testid="library-audio-row"
-      className="group flex h-16 cursor-grab items-center gap-2.5 rounded-[var(--daw-radius-lg)] px-2 transition-colors hover:bg-daw-hover active:cursor-grabbing"
+      className="group flex h-16 cursor-grab items-center gap-2.5 rounded-[14px] px-2 transition-colors hover:bg-white/[0.06] active:cursor-grabbing"
     >
       <Art item={item} />
       <div className="min-w-0 flex-1">
-        <div
-          className={cn(TYPE_CLASS.item, 'truncate font-bold text-daw-text')}
-        >
+        <div className={cn(INSIGHT_TEXT, 'truncate font-medium')}>
           {item.name}
         </div>
-        <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-daw-text-3">
+        <div className={cn(INSIGHT_DIM, 'flex min-w-0 items-center gap-1.5')}>
           {item.tag && (
-            <span
-              className={cn(
-                TYPE_CLASS.label,
-                'max-w-[60%] truncate rounded-[var(--daw-radius-xs)] bg-white/10 px-1 text-daw-text',
-              )}
-            >
+            <span className="max-w-[60%] truncate rounded-full bg-white/[0.06] px-2 text-[12px] font-medium text-white/70">
               {item.tag}
             </span>
           )}
-          <span className={cn(TYPE_CLASS.micro, 'shrink-0')}>
-            {TYPE_LABEL[item.kind]}
-          </span>
+          <span className="shrink-0">{TYPE_LABEL[item.kind]}</span>
           {item.durationSec !== null && (
-            <span className={cn(TYPE_CLASS.label, 'shrink-0 tabular-nums')}>
+            <span className="shrink-0 tabular-nums">
               {clock(item.durationSec)}
             </span>
           )}

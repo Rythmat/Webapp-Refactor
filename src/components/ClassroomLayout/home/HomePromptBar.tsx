@@ -6,24 +6,29 @@ import {
   useRef,
   useState,
   type FormEvent,
+  type ReactNode,
   type KeyboardEvent,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  DiceButton,
   GoButton,
   PROMPT_FRAME,
+  PROMPT_PILL,
+  PROMPT_PILL_OFF,
+  PROMPT_PILL_ON,
   PROMPT_TEXTAREA,
   PROMPT_WASH,
   ROTATE_MS,
   RotatingSuggestion,
 } from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
+import type { LearnInstrument } from '@/features/learn/useInstrumentStore';
 import { useAssistantMatcher } from '../dashboard/assistant/useAssistantMatcher';
 import { areaOf, resolvePromptRoute } from './promptRouting';
 import {
   PROMPT_TARGETS,
   rotationFor,
+  rotationOf,
   type PromptSuggestion,
   type PromptTarget,
 } from './promptSuggestions';
@@ -33,8 +38,34 @@ import {
  * student pick a destination, and on Go opens the place in the app the prompt
  * asks for (promptRouting.ts). The prompt rides along in the route's state
  * (`homePrompt`) for the page, or the prompt agent, to read later.
+ *
+ * `suggestions` gives the bar its own list to rotate (the Learn page: the
+ * keyboard's); `showTargets={false}` drops the Studio / Learn / Globe /
+ * Arcade picker, so Go goes wherever the prompt asks, and makes the bar one
+ * row: Go beside the text; or, given `pills`, keeps the two rows with them
+ * in the picker's place (the Learn page, owner 2026-10-24/25). `instrument`
+ * sends its Theory prompts to that instrument's lessons (resolvePromptRoute).
  */
-export const HomePromptBar = () => {
+export const HomePromptBar = ({
+  suggestions,
+  showTargets = true,
+  instrument,
+  pills,
+  ordered = false,
+}: {
+  suggestions?: readonly PromptSuggestion[];
+  showTargets?: boolean;
+  /** The instrument the bar is on: its Theory prompts open on it. */
+  instrument?: LearnInstrument;
+  /**
+   * With `showTargets={false}`: the bar's own pills in its bottom row, Go
+   * beside them (the Learn page's kinds or the Songs filters).
+   */
+  pills?: ReactNode;
+  /** `suggestions` already in the order to rotate them (the Learn page's
+   *  mixed list): not shuffled again. */
+  ordered?: boolean;
+} = {}) => {
   const reduce = useReducedMotion();
   const inputId = useId();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -42,17 +73,25 @@ export const HomePromptBar = () => {
   const [target, setTarget] = useState<PromptTarget | null>(null);
   const navigate = useNavigate();
   const { match } = useAssistantMatcher();
-  /** The suggestion the student accepted (Tab / dice). */
+  /** The suggestion the student accepted (Tab). */
   const [accepted, setAccepted] = useState<PromptSuggestion | null>(null);
   const [index, setIndex] = useState(0);
   /**
    * Counts Tab accepts, so each one replays Go's rainbow sweep; 0 once the
-   * text changes (typing, the dice), which stops a sweep mid-run.
+   * text changes (typing), which stops a sweep mid-run.
    */
   const [sweep, setSweep] = useState(0);
 
   // A new random order for each visit and each target picked.
-  const pool = useMemo(() => rotationFor(target), [target]);
+  const pool = useMemo(
+    () =>
+      suggestions
+        ? ordered
+          ? [...suggestions]
+          : rotationOf(suggestions)
+        : rotationFor(target),
+    [suggestions, ordered, target],
+  );
   const suggestion = pool[index % pool.length];
   const empty = value.trim().length === 0;
 
@@ -78,12 +117,6 @@ export const HomePromptBar = () => {
     textareaRef.current?.focus();
   };
 
-  const roll = () => {
-    setSweep(0);
-    const options = pool.filter((s) => s.text !== value);
-    accept(options[Math.floor(Math.random() * options.length)] ?? pool[0]);
-  };
-
   // Where Go will open, worked out as the student types, so its label can
   // name the area: Studio, Learn, Globe or Arcade; plain "Go" for anywhere
   // else (the app search) or an empty bar.
@@ -91,8 +124,15 @@ export const HomePromptBar = () => {
     () =>
       empty
         ? null
-        : resolvePromptRoute({ text: value, target, accepted, match }),
-    [empty, value, target, accepted, match],
+        : resolvePromptRoute({
+            text: value,
+            target,
+            accepted,
+            match,
+            suggestions,
+            instrument,
+          }),
+    [empty, value, target, accepted, match, suggestions, instrument],
   );
   const area = route ? areaOf(route) : null;
   const goLabel = PROMPT_TARGETS.find((t) => t.id === area)?.label ?? 'Go';
@@ -114,6 +154,32 @@ export const HomePromptBar = () => {
     }
   };
 
+  const field = (
+    <>
+      <textarea
+        ref={textareaRef}
+        id={inputId}
+        rows={1}
+        value={value}
+        onChange={(e) => {
+          setValue(e.target.value);
+          setSweep(0);
+          if (e.target.value === '') setAccepted(null);
+        }}
+        onKeyDown={onKeyDown}
+        className={PROMPT_TEXTAREA}
+      />
+      {empty && suggestion && (
+        <RotatingSuggestion text={suggestion.text} reduce={!!reduce} />
+      )}
+    </>
+  );
+  const go = (
+    <GoButton disabled={empty} sweep={sweep} reduce={!!reduce}>
+      {goLabel}
+    </GoButton>
+  );
+
   return (
     <form
       // Home's search keeps clear of it (HomeSearchPill's avoidId).
@@ -124,65 +190,64 @@ export const HomePromptBar = () => {
       <label htmlFor={inputId} className="sr-only">
         Describe what you want to make, learn, explore, or play
       </label>
-      <div className="relative px-5 pt-4">
-        <textarea
-          ref={textareaRef}
-          id={inputId}
-          rows={1}
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value);
-            setSweep(0);
-            if (e.target.value === '') setAccepted(null);
-          }}
-          onKeyDown={onKeyDown}
-          className={PROMPT_TEXTAREA}
-        />
-        {empty && suggestion && (
-          <RotatingSuggestion text={suggestion.text} reduce={!!reduce} />
-        )}
-      </div>
+      {showTargets ? (
+        <>
+          <div className="relative px-5 pt-4">{field}</div>
+          <div className="flex items-center gap-2 px-3 pt-3 pb-3">
+            <div
+              role="radiogroup"
+              aria-label="Send to"
+              className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {PROMPT_TARGETS.map((t) => {
+                const on = target === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => setTarget(on ? null : t.id)}
+                    className={cn(
+                      PROMPT_PILL,
+                      on ? PROMPT_PILL_ON : PROMPT_PILL_OFF,
+                    )}
+                  >
+                    <img
+                      src={t.iconSrc}
+                      alt=""
+                      draggable={false}
+                      className={cn(
+                        'size-4',
+                        on ? 'opacity-100' : 'opacity-60',
+                      )}
+                    />
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
 
-      <div className="flex items-center gap-2 px-3 pt-3 pb-3">
-        <div
-          role="radiogroup"
-          aria-label="Send to"
-          className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {PROMPT_TARGETS.map((t) => {
-            const on = target === t.id;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                role="radio"
-                aria-checked={on}
-                onClick={() => setTarget(on ? null : t.id)}
-                className={cn(
-                  'flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[0.8125rem] transition-colors',
-                  'outline-none focus-visible:ring-2 focus-visible:ring-white/40',
-                  on
-                    ? 'border-white/20 bg-white/15 text-white'
-                    : 'border-white/10 bg-white/[0.03] text-white/60 hover:bg-white/[0.07] hover:text-white/85',
-                )}
-              >
-                <img
-                  src={t.iconSrc}
-                  alt=""
-                  draggable={false}
-                  className={cn('size-4', on ? 'opacity-100' : 'opacity-60')}
-                />
-                {t.label}
-              </button>
-            );
-          })}
+            {go}
+          </div>
+        </>
+      ) : pills ? (
+        <>
+          <div className="relative px-5 pt-4">{field}</div>
+          <div className="flex items-center gap-2 px-3 pt-3 pb-3">
+            <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {pills}
+            </div>
+            {go}
+          </div>
+        </>
+      ) : (
+        // No picker: one row, Go beside the text.
+        <div className="flex items-center pr-3">
+          <div className="relative min-w-0 flex-1 px-5 py-4">{field}</div>
+          {go}
         </div>
-
-        <DiceButton onClick={roll} />
-        <GoButton disabled={empty} sweep={sweep} reduce={!!reduce}>
-          {goLabel}
-        </GoButton>
-      </div>
+      )}
     </form>
   );
 };

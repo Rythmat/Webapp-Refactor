@@ -17,7 +17,6 @@ import { chordMatchKey, selectionChordInsights } from './buildChordInsights';
 import { ChordCard } from './ChordCard';
 import { INSIGHT_DIM, INSIGHT_ROW, InsightCard } from './InsightCard';
 import { analyzedChordSpec, keyContext, plural } from './insightNotation';
-import { UnisonSections } from './UnisonSections';
 
 /**
  * Insight for a selection — chords picked in the timeline's chord lane, or
@@ -133,7 +132,6 @@ export function SelectionAnalysis({
           }
         />
       ))}
-      <UnisonSections unisonDoc={doc} />
     </div>
   );
 }

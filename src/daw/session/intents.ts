@@ -1102,7 +1102,7 @@ async function prepareCollab(
     afterReady: ({ stillCurrent, draftWritten }) => {
       if (!stillCurrent()) return;
       if (code === 'new') {
-        // Surface the room code: CollabToolbar owns the Invite modal.
+        // Surface the room code: InviteHost opens the People panel.
         useStore.getState()._setInviteRequested(true);
       }
       if (jam && draftWritten) clearJamSession();

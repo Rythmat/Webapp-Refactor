@@ -53,7 +53,10 @@ export const useRecentLessons = (minCompleted = 1): ActivityItem[] => {
           subtitle: `${l.completedCount}/${l.totalCount ?? '—'} activities`,
           accentColor: colorForKeyMode(rootLabel, mode),
           image: getTheoryTileImage(mode),
-          route: LearnRoutes.lesson({ mode, key: keyLabelToUrlParam(l.root) }),
+          route: LearnRoutes.keyboardLesson({
+            mode,
+            key: keyLabelToUrlParam(l.root),
+          }),
           touchedAt: timeFromIso(l.updatedAt),
         };
       }

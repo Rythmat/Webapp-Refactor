@@ -1,3 +1,5 @@
+import type { LearnInstrument } from '@/features/learn/useInstrumentStore';
+
 /**
  * Where a Home prompt goes. Placeholder for now: the bar only records the
  * target; routing into Studio / Learn / Globe / Arcade comes later, and each
@@ -228,7 +230,7 @@ const STUDIO_SUGGESTIONS: PromptSuggestion[] = [
 
 const LEARN_SUGGESTIONS: PromptSuggestion[] = [
   learn('Teach me the chords to a Beatles song', '/songs/come_together'),
-  learn('Teach me the Aeolian mode', '/learn/aeolian'),
+  learn('Teach me the Aeolian mode', '/learn/keyboard/aeolian'),
   learn('Teach me a C major scale on guitar', '/learn/guitar/ionian/c'),
   learn('Teach me Here Comes the Sun', '/songs/here_comes_the_sun'),
   learn('Teach me the chords to Lean On Me', '/songs/lean_on_me'),
@@ -238,15 +240,21 @@ const LEARN_SUGGESTIONS: PromptSuggestion[] = [
   learn('Teach me Dreams by Fleetwood Mac', '/songs/dreams'),
   learn('Teach me a Taylor Swift song', '/songs/shake_it_off'),
   learn('Teach me Let’s Stay Together', '/songs/lets_stay_together'),
-  learn('Teach me why Dorian sounds so cool', '/learn/dorian'),
-  learn('Teach me the Mixolydian mode', '/learn/mixolydian'),
-  learn('Teach me the minor pentatonic scale', '/learn/minorpentatonic'),
-  learn('Teach me the blues scale', '/learn/minorblues'),
-  learn('Teach me the Lydian mode in G', '/learn/lydian/g'),
-  learn('Teach me how harmonic minor sounds', '/learn/harmonicminor'),
-  learn('Teach me the Phrygian dominant scale', '/learn/phrygiandominant'),
-  learn('Teach me relative major and minor', '/learn/relative/c'),
-  learn('Teach me about parallel keys', '/learn/parallel/c'),
+  learn('Teach me why Dorian sounds so cool', '/learn/keyboard/dorian'),
+  learn('Teach me the Mixolydian mode', '/learn/keyboard/mixolydian'),
+  learn(
+    'Teach me the minor pentatonic scale',
+    '/learn/keyboard/minorpentatonic',
+  ),
+  learn('Teach me the blues scale', '/learn/keyboard/minorblues'),
+  learn('Teach me the Lydian mode in G', '/learn/keyboard/lydian/g'),
+  learn('Teach me how harmonic minor sounds', '/learn/keyboard/harmonicminor'),
+  learn(
+    'Teach me the Phrygian dominant scale',
+    '/learn/keyboard/phrygiandominant',
+  ),
+  learn('Teach me relative major and minor', '/learn/keyboard/relative/c'),
+  learn('Teach me about parallel keys', '/learn/keyboard/parallel/c'),
   learn('Teach me to read music', '/curriculum/music-literacy'),
   learn('Teach me how to play funk guitar', '/curriculum/funk'),
   learn('Teach me reggae rhythms', '/curriculum/reggae'),
@@ -271,14 +279,17 @@ const LEARN_SUGGESTIONS: PromptSuggestion[] = [
   learn('Teach me Don’t Stop Believin’', '/songs/dont_stop_believin'),
   learn('Teach me Killing Me Softly', '/songs/killing_me_softly_flack'),
   learn('Teach me I Will Survive', '/songs/i_will_survive'),
-  learn('Teach me the major scale', '/learn/ionian'),
-  learn('Teach me the Phrygian mode', '/learn/phrygian'),
-  learn('Teach me the Locrian mode', '/learn/locrian'),
-  learn('Teach me the major pentatonic scale', '/learn/majorpentatonic'),
-  learn('Teach me the melodic minor scale', '/learn/melodicminor'),
-  learn('Teach me the major blues scale', '/learn/majorblues'),
-  learn('Teach me Dorian in D', '/learn/dorian/d'),
-  learn('Teach me relative keys in G', '/learn/relative/g'),
+  learn('Teach me the major scale', '/learn/keyboard/ionian'),
+  learn('Teach me the Phrygian mode', '/learn/keyboard/phrygian'),
+  learn('Teach me the Locrian mode', '/learn/keyboard/locrian'),
+  learn(
+    'Teach me the major pentatonic scale',
+    '/learn/keyboard/majorpentatonic',
+  ),
+  learn('Teach me the melodic minor scale', '/learn/keyboard/melodicminor'),
+  learn('Teach me the major blues scale', '/learn/keyboard/majorblues'),
+  learn('Teach me Dorian in D', '/learn/keyboard/dorian/d'),
+  learn('Teach me relative keys in G', '/learn/keyboard/relative/g'),
   learn('Teach me a G major scale on guitar', '/learn/guitar/ionian/g'),
   learn(
     'Teach me an E minor pentatonic on guitar',
@@ -461,3 +472,159 @@ export const rotationFor = (target: PromptTarget | null) =>
   target
     ? shuffled(suggestionsFor(target))
     : interleave(PROMPT_TARGETS.map((t) => shuffled(suggestionsFor(t.id))));
+
+/**
+ * The Learn page's bar, on keyboard (owner, 2026-10-24): only keyboard
+ * prompts, each naming the piano or keyboard. Theory lessons, piano songs,
+ * the courses taught at the keys, a piano song idea and the keyboard games;
+ * no `/learn?tab=` routes, since those land on the Learn page itself.
+ */
+export const KEYBOARD_SUGGESTIONS: PromptSuggestion[] = [
+  learn('Teach me the C major scale on piano', '/learn/keyboard/ionian/c'),
+  learn('Teach me a G major scale on the keyboard', '/learn/keyboard/ionian/g'),
+  learn('Teach me the Dorian mode on piano', '/learn/keyboard/dorian'),
+  learn('Teach me D Dorian on the keyboard', '/learn/keyboard/dorian/d'),
+  learn('Teach me the Mixolydian mode on piano', '/learn/keyboard/mixolydian'),
+  learn('Teach me the Lydian mode in G on piano', '/learn/keyboard/lydian/g'),
+  learn('Teach me the Aeolian mode on the keyboard', '/learn/keyboard/aeolian'),
+  learn('Teach me the Phrygian mode on piano', '/learn/keyboard/phrygian'),
+  learn('Teach me the Locrian mode on the keyboard', '/learn/keyboard/locrian'),
+  learn(
+    'Teach me the minor pentatonic on piano',
+    '/learn/keyboard/minorpentatonic',
+  ),
+  learn(
+    'Teach me the major pentatonic on the keyboard',
+    '/learn/keyboard/majorpentatonic',
+  ),
+  learn('Teach me the blues scale on piano', '/learn/keyboard/minorblues'),
+  learn(
+    'Teach me the major blues scale on piano',
+    '/learn/keyboard/majorblues',
+  ),
+  learn(
+    'Teach me harmonic minor on the keyboard',
+    '/learn/keyboard/harmonicminor',
+  ),
+  learn('Teach me melodic minor on piano', '/learn/keyboard/melodicminor'),
+  learn(
+    'Teach me the Phrygian dominant scale on piano',
+    '/learn/keyboard/phrygiandominant',
+  ),
+  learn(
+    'Teach me relative major and minor on piano',
+    '/learn/keyboard/relative/c',
+  ),
+  learn('Teach me parallel keys on the keyboard', '/learn/keyboard/parallel/c'),
+  learn('Teach me to read music at the piano', '/curriculum/music-literacy'),
+  learn('Teach me Three Little Birds on piano', '/songs/three_little_birds'),
+  learn('Teach me Lean On Me on piano', '/songs/lean_on_me'),
+  learn('Teach me Isn’t She Lovely on the keyboard', '/songs/isnt_she_lovely'),
+  learn('Teach me Just the Two of Us on piano', '/songs/just_the_two_of_us'),
+  learn('Teach me Tiny Dancer on piano', '/songs/tiny_dancer'),
+  learn('Teach me All of Me on piano', '/songs/all_of_me'),
+  learn('Teach me Stand By Me on the keyboard', '/songs/stand_by_me'),
+  learn('Teach me Superstition on the keyboard', '/songs/superstition'),
+  learn('Teach me Hit the Road Jack on piano', '/songs/hit_the_road_jack'),
+  learn('Teach me Ordinary People on piano', '/songs/ordinary_people'),
+  learn('Teach me Hey Jude on piano', '/songs/hey_jude'),
+  learn(
+    'Teach me Can’t Help Falling in Love on piano',
+    '/songs/cant_help_falling_in_love',
+  ),
+  learn(
+    'Teach me Killing Me Softly on the keyboard',
+    '/songs/killing_me_softly_flack',
+  ),
+  learn('Teach me jazz piano', '/curriculum/jazz'),
+  learn('Teach me blues piano', '/curriculum/blues'),
+  learn('Teach me neo-soul keys', '/curriculum/neo-soul'),
+  learn('Teach me R&B keyboard', '/curriculum/rnb'),
+  songIdea('Make a sad piano ballad in C minor'),
+  arcade('Play a scale-finding game on the piano', 'major-arcanum'),
+  arcade('Play a mode-matching game on the keyboard', 'major-arcanum'),
+  arcade(
+    'Play chord voicings on the keyboard against the clock',
+    'chord-press',
+  ),
+];
+
+/** A Theory lesson on guitar, and a song's chart taught on guitar. */
+const guitarTheory = (text: string, mode: string, key?: string) =>
+  learn(text, `/learn/guitar/${mode}${key ? `/${key}` : ''}`);
+const guitarSong = (title: string, id: string) =>
+  learn(`Teach me ${title} on guitar`, `/songs/${id}`);
+
+/**
+ * The Learn page's bar, on guitar (owner, 2026-10-24): only guitar prompts,
+ * each naming the guitar. Theory on guitar (/learn/guitar/…), songs (their
+ * chord charts draw guitar grips when guitar is chosen) and a guitar band in
+ * the Studio. No genre courses: they teach at the keyboard.
+ */
+export const GUITAR_SUGGESTIONS: PromptSuggestion[] = [
+  guitarTheory('Teach me a C major scale on guitar', 'ionian', 'c'),
+  guitarTheory('Teach me a G major scale on guitar', 'ionian', 'g'),
+  guitarTheory(
+    'Teach me the E minor pentatonic on guitar',
+    'minorpentatonic',
+    'e',
+  ),
+  guitarTheory(
+    'Teach me the A minor pentatonic on guitar',
+    'minorpentatonic',
+    'a',
+  ),
+  guitarTheory(
+    'Teach me the G major pentatonic on guitar',
+    'majorpentatonic',
+    'g',
+  ),
+  guitarTheory('Teach me the A blues scale on guitar', 'minorblues', 'a'),
+  guitarTheory('Teach me the major blues scale on guitar', 'majorblues'),
+  guitarTheory('Teach me the Dorian mode on guitar', 'dorian'),
+  guitarTheory('Teach me D Dorian on guitar', 'dorian', 'd'),
+  guitarTheory('Teach me the Mixolydian mode on guitar', 'mixolydian'),
+  guitarTheory('Teach me G Mixolydian on guitar', 'mixolydian', 'g'),
+  guitarTheory('Teach me the Phrygian mode on guitar', 'phrygian'),
+  guitarTheory('Teach me E Phrygian on guitar', 'phrygian', 'e'),
+  guitarTheory('Teach me the Lydian mode on guitar', 'lydian'),
+  guitarTheory('Teach me A Aeolian on guitar', 'aeolian', 'a'),
+  guitarTheory('Teach me the Locrian mode on guitar', 'locrian'),
+  guitarTheory('Teach me harmonic minor on guitar', 'harmonicminor'),
+  guitarTheory('Teach me melodic minor on guitar', 'melodicminor'),
+  guitarTheory(
+    'Teach me the Phrygian dominant scale on guitar',
+    'phrygiandominant',
+  ),
+  guitarSong('Wonderwall', 'wonderwall'),
+  guitarSong('Free Fallin’', 'free_fallin'),
+  guitarSong('Brown Eyed Girl', 'brown_eyed_girl'),
+  guitarSong('I’m Yours', 'im_yours'),
+  guitarSong('Wish You Were Here', 'wish_you_were_here'),
+  guitarSong('Sweet Home Alabama', 'sweet_home_alabama'),
+  guitarSong('Wagon Wheel', 'wagon_wheel'),
+  guitarSong('Country Roads', 'take_me_home_country_roads'),
+  guitarSong('Blackbird', 'blackbird'),
+  guitarSong('Here Comes the Sun', 'here_comes_the_sun'),
+  guitarSong('Seven Nation Army', 'seven_nation_army'),
+  guitarSong('Sweet Child O’ Mine', 'sweet_child_o_mine'),
+  guitarSong('Jolene', 'jolene'),
+  guitarSong('Stand By Me', 'stand_by_me'),
+  guitarSong('Three Little Birds', 'three_little_birds'),
+  guitarSong('Creep', 'creep'),
+  guitarSong('Landslide', 'landslide'),
+  guitarSong('Come Together', 'come_together'),
+  guitarSong('Ring of Fire', 'ring_of_fire'),
+  studio(
+    'Make a rock song with drums, bass and guitar',
+    'template=project-rock',
+  ),
+];
+
+/** The Learn page bar's suggestions for an instrument. */
+export const learnSuggestionsFor = (instrument: LearnInstrument) =>
+  instrument === 'guitar' ? GUITAR_SUGGESTIONS : KEYBOARD_SUGGESTIONS;
+
+/** A list's suggestions in a fresh random order, for a bar given its own. */
+export const rotationOf = (suggestions: readonly PromptSuggestion[]) =>
+  shuffled(suggestions);

@@ -1,12 +1,9 @@
-import { ArrowRight, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  GENRE_COURSES,
-  type GenreCourse,
-} from '@/components/learn/genreCourses';
 import { cn } from '@/components/utilities';
-import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
+import { CurriculumRoutes } from '@/constants/routes';
+import { GENRE_COURSES, type GenreCourse } from './genreCourses';
 
 /** Learn's genre levels per course (buildGenreLevels in LearnInlet). */
 const LEVELS = 3;
@@ -144,11 +141,12 @@ const ARROW =
   'absolute top-[7.625rem] z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-[#1c1c1f]/90 text-white shadow-[0_4px_16px_rgba(0,0,0,0.4)] outline-none transition-opacity hover:bg-[#2a2a2e] focus-visible:ring-2 focus-visible:ring-white/50';
 
 /**
- * Home's Catalog, under Songs: the genres Learn teaches, styled after Suno's
- * Curated Collections — a row of stacked covers that scrolls sideways, with
- * arrows at its ends and a fade where there's more.
+ * The Genre page's Catalog, above its course tiles (moved from Home, owner
+ * 2026-10-25): the genres Learn teaches, styled after Suno's Curated
+ * Collections — a row of stacked covers that scrolls sideways, with arrows
+ * at its ends and a fade where there's more.
  */
-export const HomeCatalogRow = () => {
+export const GenreCatalogRow = () => {
   const strip = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ start: true, end: false });
 
@@ -183,40 +181,28 @@ export const HomeCatalogRow = () => {
 
   return (
     <section
-      aria-labelledby="home-catalog-heading"
+      aria-labelledby="genre-catalog-heading"
       className="flex flex-col gap-2"
     >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <span
-            aria-hidden
-            className="size-6 shrink-0 bg-white"
-            style={{
-              maskImage: 'url(/icons/genre-icon.svg)',
-              WebkitMaskImage: 'url(/icons/genre-icon.svg)',
-              maskSize: 'contain',
-              WebkitMaskSize: 'contain',
-              maskRepeat: 'no-repeat',
-              WebkitMaskRepeat: 'no-repeat',
-            }}
-          />
-          <h2
-            id="home-catalog-heading"
-            className="text-base leading-6 text-white"
-          >
-            Catalog
-          </h2>
-        </div>
-        <Link
-          to={`${LearnRoutes.root()}?tab=Genre`}
-          className="group flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm text-white/70 outline-none transition-colors duration-150 hover:bg-white/[0.06] hover:text-white focus-visible:ring-2 focus-visible:ring-white/50"
+      <div className="flex min-w-0 items-center gap-3">
+        <span
+          aria-hidden
+          className="size-6 shrink-0 bg-white"
+          style={{
+            maskImage: 'url(/icons/genre-icon.svg)',
+            WebkitMaskImage: 'url(/icons/genre-icon.svg)',
+            maskSize: 'contain',
+            WebkitMaskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            WebkitMaskRepeat: 'no-repeat',
+          }}
+        />
+        <h2
+          id="genre-catalog-heading"
+          className="text-base leading-6 text-white"
         >
-          View all
-          <ArrowRight
-            aria-hidden
-            className="size-4 transition-transform duration-150 motion-safe:group-hover:translate-x-0.5"
-          />
-        </Link>
+          Catalog
+        </h2>
       </div>
 
       <div className="relative">

@@ -1,3 +1,6 @@
+import { LearnRoutes } from '@/constants/routes';
+import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
+import type { LearnInstrument } from '@/features/learn/useInstrumentStore';
 import {
   looksLikeMusicPrompt,
   PROMPT_TEXT_MAX,
@@ -27,6 +30,30 @@ import {
 //   5. else the destination's own way in: the Globe searches the text, Learn
 //      and no destination search the app, the Arcade its games.
 // Steps 4 and 5 stand in for the prompt agent that will read free text.
+//
+// A bar with its own list (the Learn page's) matches typed-out text against
+// that list in step 2. On guitar, a Theory lesson any step lands on opens on
+// guitar (/learn/keyboard/dorian → /learn/guitar/dorian) when guitar has it.
+
+/**
+ * The route on an instrument: on guitar, a Theory lesson's overview or key
+ * (/learn/keyboard/:mode, /learn/keyboard/:mode/:key) opens its guitar
+ * lesson, where guitar teaches that tile; anything else stays as it is.
+ */
+export function onInstrument(
+  route: string,
+  instrument: LearnInstrument | undefined,
+): string {
+  if (instrument !== 'guitar') return route;
+  const [path, query = ''] = route.split('?');
+  const m = path.match(/^\/learn\/keyboard\/([^/]+)(?:\/([^/]+))?$/);
+  if (!m || !isGuitarTheorySlug(decodeURIComponent(m[1]))) return route;
+  const mode = decodeURIComponent(m[1]);
+  const guitar = m[2]
+    ? LearnRoutes.guitarLesson({ mode, key: decodeURIComponent(m[2]) })
+    : LearnRoutes.guitarOverview({ mode });
+  return query ? `${guitar}?${query}` : guitar;
+}
 
 /** The area of the app a route is in. */
 export function areaOf(route: string): PromptTarget | null {
@@ -93,11 +120,21 @@ function fallback(text: string, target: PromptTarget | null): string {
   }
 }
 
-export function resolvePromptRoute({
+export function resolvePromptRoute(
+  args: Parameters<typeof resolveRoute>[0] & {
+    /** The instrument the bar is on (the Learn page's); Home has none. */
+    instrument?: LearnInstrument;
+  },
+): string {
+  return onInstrument(resolveRoute(args), args.instrument);
+}
+
+function resolveRoute({
   text,
   target,
   accepted,
   match,
+  suggestions = PROMPT_SUGGESTIONS,
 }: {
   text: string;
   /** The destination picked under the bar, if any. */
@@ -106,6 +143,8 @@ export function resolvePromptRoute({
   accepted: PromptSuggestion | null;
   /** The assistant's keyword matcher (useAssistantMatcher). */
   match: (text: string) => MatchResult[];
+  /** The bar's own suggestions, when it has them; else Home's. */
+  suggestions?: readonly PromptSuggestion[];
 }): string {
   const typed = text.trim();
   // The chip under the bar, else the prompt's first word.
@@ -115,7 +154,7 @@ export function resolvePromptRoute({
   if (accepted && accepted.text === typed && fits(accepted.route)) {
     return accepted.route;
   }
-  const same = PROMPT_SUGGESTIONS.find(
+  const same = suggestions.find(
     (s) => s.text.toLowerCase() === typed.toLowerCase() && fits(s.route),
   );
   if (same) return same.route;

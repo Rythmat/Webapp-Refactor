@@ -63,6 +63,18 @@ export const PROMPT_FRAME = cn(
 export const PROMPT_WASH = 'bg-white/[0.04] focus-within:bg-white/[0.06]';
 export const PROMPT_OPAQUE = 'bg-[#141416]';
 
+/**
+ * A pill under the input: Home's destinations (Studio, Learn…), the Learn
+ * page's kinds and filters. Chosen, it lights up.
+ */
+export const PROMPT_PILL = cn(
+  'flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[0.8125rem] transition-colors',
+  'outline-none focus-visible:ring-2 focus-visible:ring-white/40',
+);
+export const PROMPT_PILL_ON = 'border-white/20 bg-white/15 text-white';
+export const PROMPT_PILL_OFF =
+  'border-white/10 bg-white/[0.03] text-white/60 hover:bg-white/[0.07] hover:text-white/85';
+
 /** The input: one line that grows, the suggestion drawn over it while empty. */
 export const PROMPT_TEXTAREA = cn(
   'block max-h-40 min-h-[1.75rem] w-full resize-none bg-transparent text-base leading-7 text-white',

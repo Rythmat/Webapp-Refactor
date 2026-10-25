@@ -1,6 +1,6 @@
 /**
  * The genre courses Learn teaches (its Genre tab), in Learn's order: shared
- * by Learn's course tiles and Home's Catalog, so the two never drift apart.
+ * by Learn's course tiles and the Genre page's Catalog, so the two never drift apart.
  * Small on purpose: Home imports it without loading Learn.
  */
 export interface GenreCourse {

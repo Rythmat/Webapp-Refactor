@@ -235,13 +235,13 @@ describe('ModeOverview on piano (unchanged)', () => {
     renderPiano();
     const c = keyTiles().find((tile) => tileKey(tile) === 'C')!;
     fireEvent.click(c);
-    expect(navigate).toHaveBeenCalledWith('/learn/ionian/c');
+    expect(navigate).toHaveBeenCalledWith('/learn/keyboard/ionian/c');
   });
 
   it('still offers to resume a piano lesson', () => {
     renderPiano();
     expect(screen.getByText('Continue lesson')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    expect(navigate).toHaveBeenCalledWith('/learn/ionian/d');
+    expect(navigate).toHaveBeenCalledWith('/learn/keyboard/ionian/d');
   });
 });

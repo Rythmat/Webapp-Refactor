@@ -4,16 +4,16 @@
  * ClassroomDashboard. The previous sections (AnnouncementsRow, WelcomeHeader,
  * QuickStartSection, RecentActivitySection, ChallengesCard, PathwaysSection,
  * SongsSection, GlobeSection, DashboardFooter) are still in ./dashboard/ —
- * unmounted, not deleted.
+ * unmounted, not deleted. So is ./home/HomeSongsRow; the Catalog moved to
+ * Learn's Genre page (learn/GenreCatalogRow, owner 2026-10-25).
  */
 import { ActivityRail } from './home/ActivityRail';
-import { HomeCatalogRow } from './home/HomeCatalogRow';
+import { HomeGlobeCard } from './home/HomeGlobeCard';
 import { HomeGlow } from './home/HomeGlow';
 import { HomeInstrumentsRow } from './home/HomeInstrumentsRow';
 import { HomeProjectsCard } from './home/HomeProjectsCard';
 import { HomePromptBar } from './home/HomePromptBar';
 import { HomeSearchPill } from './home/HomeSearchPill';
-import { HomeSongsRow } from './home/HomeSongsRow';
 import { StudioPreviewCard } from './home/StudioPreviewCard';
 
 export const HomeInlet = () => {
@@ -49,7 +49,10 @@ export const HomeInlet = () => {
             <div className="@2xl:col-span-2">
               <StudioPreviewCard />
             </div>
-            <HomeProjectsCard />
+            {/* The Projects card fills this cell and no more (see the card). */}
+            <div className="relative">
+              <HomeProjectsCard />
+            </div>
           </div>
         </div>
 
@@ -59,15 +62,10 @@ export const HomeInlet = () => {
           <HomeInstrumentsRow />
         </div>
 
-        {/* Under the instruments: the songs, scrolled by hand. */}
+        {/* Under the instruments: the Globe preview, a featured event's
+          influence paths on a spinning globe (owner, 2026-10-25). */}
         <div className="mt-12 w-full max-w-[66.5rem]">
-          <HomeSongsRow />
-        </div>
-
-        {/* Under the songs: the Catalog, the genres Learn teaches, styled
-          after Suno's Curated Collections. */}
-        <div className="mt-12 w-full max-w-[66.5rem]">
-          <HomeCatalogRow />
+          <HomeGlobeCard />
         </div>
       </div>
       {/* Pinned to the bottom, like Suno's player bar: where you left off,

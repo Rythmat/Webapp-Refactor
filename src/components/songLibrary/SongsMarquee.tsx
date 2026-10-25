@@ -126,11 +126,21 @@ interface SongsMarqueeProps {
    * artist with a portrait, one random song each (owner, 2026-10-23: no
    * artist twice, no song without artwork), not a batch of 30, shuffled on
    * each load, in a horizontal scroller with arrow buttons for a mouse
-   * without a sideways wheel, and no play button over a card on hover.
+   * without a sideways wheel, no play button over a card on hover, and no
+   * Lvl. / actions row under its title and artist.
    * Leaves the shuffle-bag alone. Defaults to false
    * (the drifting ticker, e.g. Learn's Songs tab).
    */
   scrollable?: boolean;
+  /**
+   * Scrollable only: classes for each card's box and for the gap between
+   * them, over the fixed defaults (Home sizes its cards to its instrument
+   * tiles), replacing the default widths. Percentages are of the strip's width. A card off screen skips
+   * rendering and holds `contain-intrinsic-block-size` (22.5rem by
+   * default) instead, so a caller that changes the width sets that too.
+   */
+  cardClassName?: string;
+  gapClassName?: string;
 }
 
 /**
@@ -144,6 +154,8 @@ export const SongsMarquee = ({
   songs: controlledSongs,
   compact = false,
   scrollable = false,
+  cardClassName,
+  gapClassName,
 }: SongsMarqueeProps = {}) => {
   const isControlled = controlledSongs !== undefined;
 
@@ -192,7 +204,15 @@ export const SongsMarquee = ({
   // render nothing so the strip collapses instead of leaving an empty bar.
   if (songs.length === 0) return null;
 
-  if (scrollable) return <ScrollableSongs songs={songs} compact={compact} />;
+  if (scrollable)
+    return (
+      <ScrollableSongs
+        songs={songs}
+        compact={compact}
+        cardClassName={cardClassName}
+        gapClassName={gapClassName}
+      />
+    );
 
   // Doubled for the seamless-loop pattern — see songs-marquee.css.
   const marqueeSongs = [...songs, ...songs];
@@ -250,9 +270,13 @@ const scrollEdges = (el: HTMLElement) => ({
 const ScrollableSongs = ({
   songs,
   compact,
+  cardClassName,
+  gapClassName,
 }: {
   songs: Song[];
   compact: boolean;
+  cardClassName?: string;
+  gapClassName?: string;
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ prev: false, next: false });
@@ -294,7 +318,10 @@ const ScrollableSongs = ({
         data-testid="songs-scroller"
         className={cn(
           'song-marquee-scroller -mx-2 flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-px-2 px-2',
-          compact ? 'gap-3 py-2' : 'gap-4 py-4 md:gap-5',
+          // Room above for the artwork's hover bleed; below, just the focus
+          // ring's, so the next section sits at its usual gap.
+          compact ? 'py-2' : 'pb-1 pt-4',
+          gapClassName ?? (compact ? 'gap-3' : 'gap-4 md:gap-5'),
         )}
         style={{
           maskImage: `linear-gradient(to right, transparent, #000 ${fade(edges.prev)}, #000 calc(100% - ${fade(edges.next)}), transparent)`,
@@ -306,23 +333,37 @@ const ScrollableSongs = ({
             key={song.id}
             className={cn(
               'flex-shrink-0 snap-start [content-visibility:auto] [contain-intrinsic-block-size:auto_22.5rem]',
-              compact
-                ? 'w-[7.5rem] md:w-[8.25rem]'
-                : 'w-[16.25rem] md:w-[18.75rem]',
+              // A caller's classes replace the default widths outright
+              // (merging would keep their md: step).
+              cardClassName ??
+                (compact
+                  ? 'w-[7.5rem] md:w-[8.25rem]'
+                  : 'w-[16.25rem] md:w-[18.75rem]'),
             )}
           >
             <SongCard
               song={song}
               hoverScrim={false}
               playOverlay={false}
+              actions={false}
               bleedOnHover
               compact={compact}
             />
           </div>
         ))}
       </div>
-      <ScrollArrow side="prev" shown={edges.prev} onClick={() => page(-1)} />
-      <ScrollArrow side="next" shown={edges.next} onClick={() => page(1)} />
+      <ScrollArrow
+        side="prev"
+        shown={edges.prev}
+        compact={compact}
+        onClick={() => page(-1)}
+      />
+      <ScrollArrow
+        side="next"
+        shown={edges.next}
+        compact={compact}
+        onClick={() => page(1)}
+      />
     </div>
   );
 };
@@ -330,10 +371,12 @@ const ScrollableSongs = ({
 const ScrollArrow = ({
   side,
   shown,
+  compact,
   onClick,
 }: {
   side: 'prev' | 'next';
   shown: boolean;
+  compact: boolean;
   onClick(): void;
 }) => {
   const Icon = side === 'prev' ? ChevronLeft : ChevronRight;
@@ -345,8 +388,12 @@ const ScrollArrow = ({
       tabIndex={shown ? 0 : -1}
       aria-hidden={!shown || undefined}
       className={cn(
-        'absolute top-1/2 z-20 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/70 text-white backdrop-blur-sm transition-opacity duration-150 hover:bg-black/85 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50',
+        'absolute z-20 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/70 text-white backdrop-blur-sm transition-opacity duration-150 hover:bg-black/85 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50',
         side === 'prev' ? 'left-2' : 'right-2',
+        // Centred on the artwork: a full card has 3.75rem of title and
+        // artist under it, and the strip 0.75rem more padding above than
+        // below, so the artwork's middle is 1.5rem above the strip's.
+        compact ? 'top-1/2' : 'top-[calc(50%-1.5rem)]',
         shown
           ? 'opacity-0 group-hover/songs:opacity-100 [@media(hover:none)]:opacity-100'
           : 'pointer-events-none opacity-0',

@@ -16,7 +16,8 @@ import '@/components/learn/learn.css';
 type LessonContainerProps = {
   modeSlug: PrismModeSlug;
   rootKey?: string;
-  startAtActivityKey?: string;
+  /** The chapter (`?section=`) to open at; unset resumes. */
+  startAtSection?: string;
 };
 
 type KeyOption = { label: string; midi: number };
@@ -64,7 +65,7 @@ export const LessonContainer = (props: LessonContainerProps) => {
 const LessonContainerInner = ({
   modeSlug,
   rootKey,
-  startAtActivityKey,
+  startAtSection,
 }: LessonContainerProps) => {
   const [searchParams] = useSearchParams();
   const origin = useMemo(() => readLessonOrigin(searchParams), [searchParams]);
@@ -102,7 +103,7 @@ const LessonContainerInner = ({
           rootKey={keyOption.label}
           rootMidi={keyOption.midi}
           scaleMidis={scaleMidis}
-          startAtActivityKey={startAtActivityKey}
+          startAtSection={startAtSection}
           onComplete={reportCompletion}
           origin={origin}
         />

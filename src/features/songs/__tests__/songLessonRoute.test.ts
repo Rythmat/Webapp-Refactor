@@ -8,11 +8,15 @@ const song = (key: string, mode: Song['mode']) => ({ key, mode }) as Song;
 describe('a song’s lesson', () => {
   it('opens the piano lesson in the song’s key', () => {
     expect(songLessonRoute(song('B♭ major', 'major'))).toBe(
-      '/learn/ionian/bflat',
+      '/learn/keyboard/ionian/bflat',
     );
     // C stays the free lesson ('c', never 'c major').
-    expect(songLessonRoute(song('C major', 'major'))).toBe('/learn/ionian/c');
-    expect(songLessonRoute(song('A minor', 'minor'))).toBe('/learn/aeolian/a');
+    expect(songLessonRoute(song('C major', 'major'))).toBe(
+      '/learn/keyboard/ionian/c',
+    );
+    expect(songLessonRoute(song('A minor', 'minor'))).toBe(
+      '/learn/keyboard/aeolian/a',
+    );
   });
 
   it('opens the guitar lesson on guitar', () => {

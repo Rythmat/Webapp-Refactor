@@ -142,7 +142,8 @@ type ActivityFlowProps = {
   rootKey: string;
   rootMidi: number;
   mode?: PrismModeSlug;
-  startAtActivityKey?: string;
+  /** The chapter to open at (`?section=O|A|B`); unset resumes. */
+  startAtSection?: string;
   /** Set when the lesson was opened from a song in the Studio. */
   origin?: LessonOrigin | null;
 };
@@ -298,7 +299,7 @@ export const ActivityFlow = ({
   rootKey,
   rootMidi,
   mode,
-  startAtActivityKey,
+  startAtSection,
   origin = null,
 }: ActivityFlowProps) => {
   const navigate = useNavigate();
@@ -874,7 +875,7 @@ export const ActivityFlow = ({
 
   const continueCurriculum = useCallback(() => {
     navigate(
-      LearnRoutes.lesson({
+      LearnRoutes.keyboardLesson({
         mode: modeLabel,
         key: keyLabelToUrlParam(nextCurriculumKey),
       }),
@@ -944,23 +945,29 @@ export const ActivityFlow = ({
     const introChordHoldCompleted =
       introChordHoldProgress?.status === 'COMPLETED';
 
-    const explicitStartIndex = startAtActivityKey
+    // Not the Chords placeholder: the chapter starts at its first real step.
+    const sectionStartIndex = startAtSection
       ? flowDefinitions.findIndex(
           (activity) =>
-            activity.activityDefId === startAtActivityKey ||
-            activity.key === startAtActivityKey,
+            activity.section === startAtSection &&
+            activity.activityDefId !== 'chords-loading',
         )
       : -1;
 
-    const explicitStartScopeKey = startAtActivityKey
-      ? `${lessonProgressScope}:${startAtActivityKey}`
-      : null;
-
     // Chord activities only exist once the mode's chord data loads, so a deep
     // link into Chords waits for it instead of falling through to resume.
-    if (startAtActivityKey && explicitStartIndex < 0 && chordsPending) {
+    if (startAtSection && sectionStartIndex < 0 && chordsPending) {
       return;
     }
+
+    // A chapter the lesson lacks opens its first.
+    const explicitStartIndex = startAtSection
+      ? Math.max(sectionStartIndex, 0)
+      : -1;
+
+    const explicitStartScopeKey = startAtSection
+      ? `${lessonProgressScope}:${startAtSection}`
+      : null;
 
     if (
       explicitStartIndex >= 0 &&
@@ -1007,7 +1014,7 @@ export const ActivityFlow = ({
     flowDefinitions,
     lessonProgressQuery.data,
     lessonProgressScope,
-    startAtActivityKey,
+    startAtSection,
   ]);
 
   useEffect(() => {
@@ -1956,7 +1963,7 @@ export const ActivityFlow = ({
                   type="button"
                   onClick={() =>
                     navigate(
-                      LearnRoutes.lesson({
+                      LearnRoutes.keyboardLesson({
                         mode: modeLabel,
                         key: keyLabelToUrlParam(nextKeyChoice),
                       }),
@@ -2213,7 +2220,8 @@ export const ActivityFlow = ({
           },
           {
             label: modeTitle,
-            onClick: () => navigate(LearnRoutes.overview({ mode: modeLabel })),
+            onClick: () =>
+              navigate(LearnRoutes.keyboardOverview({ mode: modeLabel })),
           },
         ],
         keyLabel: `${rootKey} ${modeTitle}`,

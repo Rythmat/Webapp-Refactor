@@ -5,7 +5,7 @@ import { YouTubePlayer } from '@/components/YouTubePlayer';
 import { useProgressSummary } from '@/hooks/data/progress';
 import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
-import { LearnRoutes } from '@/constants/routes';
+import { LearnRoutes, type LearnSection } from '@/constants/routes';
 import { useNavigate } from 'react-router';
 import { HeaderBar } from '@/components/ClassroomLayout/HeaderBar';
 import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
@@ -107,7 +107,6 @@ const chromaticSharpInterval = [
 
 const BASE_C4 = 60;
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
-const START_OVER_ACTIVITY_DEF_ID = 'lesson-overview';
 
 const CHROMATIC_KEYS: KeyStep[] = [
   { label: 'C', semitone: 0 },
@@ -362,15 +361,15 @@ export function ModeOverview({ mode, variant }: ModeOverviewProps) {
     return map;
   }, [mode, progressSummary?.lessons, variant]);
 
-  const lessonRouteFor = (keyLabel: string, activityDefId?: string) =>
+  const lessonRouteFor = (keyLabel: string, section?: LearnSection) =>
     variant
       ? variant.lessonRoute(keyLabel)
-      : LearnRoutes.lesson(
+      : LearnRoutes.keyboardLesson(
           {
             mode,
             key: keyLabelToUrlParam(keyLabel),
           },
-          activityDefId ? { activity: activityDefId } : undefined,
+          section ? { section } : undefined,
         );
 
   return (
@@ -562,11 +561,7 @@ export function ModeOverview({ mode, variant }: ModeOverviewProps) {
                 <div className="mt-3 flex gap-2">
                   <button
                     type="button"
-                    onClick={() =>
-                      navigate(
-                        lessonRouteFor(tile.label, START_OVER_ACTIVITY_DEF_ID),
-                      )
-                    }
+                    onClick={() => navigate(lessonRouteFor(tile.label, 'O'))}
                     className="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors duration-150"
                     style={{
                       border: '1px solid var(--color-border)',

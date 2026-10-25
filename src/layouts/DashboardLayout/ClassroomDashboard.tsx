@@ -11,6 +11,7 @@ import { useStampEarnedAwards } from '@/hooks/data/useAwards';
 import { useStreakPing } from '@/hooks/data/useStreak';
 import { useChallengeWatcher } from '@/hooks/useChallengeWatcher';
 import { ClassroomSidebar } from './ClassroomSidebar';
+import { MobileTabBar } from './MobileTabBar';
 import '@/components/ClassroomLayout/dashboard/dashboard.css';
 
 export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
@@ -41,6 +42,8 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
         {isStudioEditor ? null : (
           <>
             <TopRail />
+            {/* Below `md` the rail is hidden: the tab bar stands in. */}
+            <MobileTabBar className="md:hidden" />
             <MobileChordNotationBar />
           </>
         )}

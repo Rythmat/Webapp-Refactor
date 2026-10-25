@@ -21,6 +21,10 @@ interface SongCardProps {
   /** When false, no play button fades in over the image on hover (Home's
    *  Songs row, owner 2026-10-23). Defaults to true. */
   playOverlay?: boolean;
+  /** When false, no Lvl. / Lesson, Studio, Globe and save row under the
+   *  title and artist (Home's Songs row, owner 2026-10-24). Defaults to
+   *  true. */
+  actions?: boolean;
 }
 
 const ICON_SIZE = 20;
@@ -31,6 +35,7 @@ const SongCardImpl = ({
   bleedOnHover = false,
   compact = false,
   playOverlay = true,
+  actions = true,
 }: SongCardProps) => {
   const { openInLesson, openInStudio, openInGlobe, toggleSaved, isSaved } =
     useSongActions(song);
@@ -132,75 +137,82 @@ const SongCardImpl = ({
           >
             {song.artist}
           </p>
-          <div className="mt-2 flex items-center justify-between">
-            <span
-              style={{ fontSize: '0.9375rem', color: 'var(--color-text-dim)' }}
-            >
-              Lvl. {song.difficulty}
-            </span>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={openInLesson}
-                aria-label="Open in Lesson"
-                title="Open in Lesson"
-                className="opacity-70 transition-opacity hover:opacity-100"
+          {actions && (
+            <div className="mt-2 flex items-center justify-between">
+              <span
+                style={{
+                  fontSize: '0.9375rem',
+                  color: 'var(--color-text-dim)',
+                }}
               >
-                <img
-                  src="/icons/learn-icon.svg"
-                  alt=""
-                  draggable={false}
-                  width={ICON_SIZE}
-                  height={ICON_SIZE}
-                />
-              </button>
-              <button
-                type="button"
-                onClick={openInStudio}
-                aria-label="Open in Studio"
-                title="Open in Studio"
-                className="opacity-70 transition-opacity hover:opacity-100"
-              >
-                <img
-                  src="/icons/studio-icon.svg"
-                  alt=""
-                  draggable={false}
-                  width={ICON_SIZE}
-                  height={ICON_SIZE}
-                />
-              </button>
-              <button
-                type="button"
-                onClick={openInGlobe}
-                aria-label="Open in Globe"
-                title="Open in Globe"
-                className="opacity-70 transition-opacity hover:opacity-100"
-              >
-                <img
-                  src="/icons/globe-icon.svg"
-                  alt=""
-                  draggable={false}
-                  width={ICON_SIZE}
-                  height={ICON_SIZE}
-                />
-              </button>
-              <button
-                type="button"
-                onClick={toggleSaved}
-                aria-label={isSaved ? 'Remove from saved' : 'Save song'}
-                aria-pressed={isSaved}
-                title={isSaved ? 'Remove from saved' : 'Save song'}
-                className="transition-colors hover:text-white"
-                style={{ color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.4)' }}
-              >
-                <Heart
-                  width={ICON_SIZE}
-                  height={ICON_SIZE}
-                  fill={isSaved ? 'currentColor' : 'none'}
-                />
-              </button>
+                Lvl. {song.difficulty}
+              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={openInLesson}
+                  aria-label="Open in Lesson"
+                  title="Open in Lesson"
+                  className="opacity-70 transition-opacity hover:opacity-100"
+                >
+                  <img
+                    src="/icons/learn-icon.svg"
+                    alt=""
+                    draggable={false}
+                    width={ICON_SIZE}
+                    height={ICON_SIZE}
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={openInStudio}
+                  aria-label="Open in Studio"
+                  title="Open in Studio"
+                  className="opacity-70 transition-opacity hover:opacity-100"
+                >
+                  <img
+                    src="/icons/studio-icon.svg"
+                    alt=""
+                    draggable={false}
+                    width={ICON_SIZE}
+                    height={ICON_SIZE}
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={openInGlobe}
+                  aria-label="Open in Globe"
+                  title="Open in Globe"
+                  className="opacity-70 transition-opacity hover:opacity-100"
+                >
+                  <img
+                    src="/icons/globe-icon.svg"
+                    alt=""
+                    draggable={false}
+                    width={ICON_SIZE}
+                    height={ICON_SIZE}
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleSaved}
+                  aria-label={isSaved ? 'Remove from saved' : 'Save song'}
+                  aria-pressed={isSaved}
+                  title={isSaved ? 'Remove from saved' : 'Save song'}
+                  className="transition-colors hover:text-white"
+                  style={{
+                    color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.4)',
+                  }}
+                >
+                  <Heart
+                    width={ICON_SIZE}
+                    height={ICON_SIZE}
+                    fill={isSaved ? 'currentColor' : 'none'}
+                  />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </Link>

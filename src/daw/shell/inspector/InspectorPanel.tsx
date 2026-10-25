@@ -9,7 +9,6 @@ import { DevProfiler } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
 import { TYPE_CLASS } from '@/daw/ui/styles';
-import { ChatBody } from './panels/ChatBody';
 import { LessonsBody } from './panels/LessonsBody';
 import { LibraryBody } from './panels/LibraryBody';
 import { PeopleBody } from './panels/PeopleBody';
@@ -71,8 +70,6 @@ function Body({ panel }: { panel: string }) {
       return <LessonsBody />;
     case 'people':
       return <PeopleBody />;
-    case 'chat':
-      return <ChatBody />;
     default:
       return (
         <div

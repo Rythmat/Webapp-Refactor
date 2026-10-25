@@ -5,7 +5,8 @@
  * through openSession, off while a room is joined (E15). The code the
  * student typed is cleared only once the session opened, so a refused join
  * leaves it there to fix; a pasted session link joins by the code it
- * carries. In a session the panel offers Invite and Leave.
+ * carries. Start a session needs no dialog: in the session its button is
+ * the session's code, which a click copies; the panel offers Leave.
  *
  * Run: npx vitest run src/daw/shell/inspector/panels/__tests__/PeopleBody.join.test.tsx
  */
@@ -21,11 +22,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const h = vi.hoisted(() => ({
   openSession: vi.fn(),
   createAndJoinRoom: vi.fn(),
+  sendChatMessage: vi.fn(),
 }));
 
 vi.mock('@/daw/session/openSession', () => ({ openSession: h.openSession }));
 vi.mock('@/daw/collab/CollabProvider', () => ({
-  useCollab: () => ({ createAndJoinRoom: h.createAndJoinRoom }),
+  useCollab: () => ({
+    createAndJoinRoom: h.createAndJoinRoom,
+    sendChatMessage: h.sendChatMessage,
+  }),
+}));
+vi.mock('@/contexts/AuthContext/hooks/useAuthContext', () => ({
+  useAuthContext: () => ({ userId: 'me' }),
 }));
 vi.mock('@/daw/collab/presence', () => ({ useRemoteUsers: () => [] }));
 
@@ -62,6 +70,7 @@ beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
   h.openSession.mockReset();
   h.createAndJoinRoom.mockReset();
+  h.sendChatMessage.mockReset();
 });
 
 afterEach(() => cleanup());
@@ -113,21 +122,62 @@ describe('People ▸ Join with a code', () => {
     expect(screen.getByRole('button', { name: 'Join' })).toBeDisabled();
   });
 
-  it('starts a session and asks for the invite dialog', () => {
+  it('starts a session with no invite dialog', () => {
     render(<PeopleBody />);
     fireEvent.click(screen.getByTestId('people-start-session'));
     expect(h.createAndJoinRoom).toHaveBeenCalledOnce();
-    expect(useStore.getState().inviteRequested).toBe(true);
+    expect(useStore.getState().inviteRequested).toBe(false);
   });
 });
 
 describe('People in a session', () => {
-  it('offers Invite and Leave', () => {
+  it("shows the session's code in Start a session's place; a click copies it", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+    useStore.setState({ isCollabActive: true, roomCode: 'abcd1234' });
+    render(<PeopleBody />);
+
+    expect(screen.queryByTestId('people-start-session')).toBeNull();
+    const code = screen.getByTestId('people-invite-code');
+    expect(code).toHaveTextContent('abcd1234');
+    await act(async () => {
+      fireEvent.click(code);
+    });
+    expect(writeText).toHaveBeenCalledWith('abcd1234');
+    expect(code).toHaveAccessibleName('Invite code copied');
+  });
+
+  it('offers Leave', () => {
     useStore.setState({ isCollabActive: true, roomCode: 'ABCD' });
     render(<PeopleBody />);
-    fireEvent.click(screen.getByTestId('people-invite'));
-    expect(useStore.getState().inviteRequested).toBe(true);
     fireEvent.click(screen.getByTestId('people-leave'));
     expect(useStore.getState().leavePromptPending).toBe(true);
+  });
+
+  it("holds the session's chat, read once it shows", () => {
+    useStore.setState({
+      isCollabActive: true,
+      roomCode: 'ABCD',
+      unreadChatCount: 2,
+      chatMessages: [
+        { id: 'm1', userId: 'ana', userName: 'Ana', text: 'Hi!', timestamp: 0 },
+      ],
+    });
+    render(<PeopleBody />);
+    expect(screen.getByRole('log', { name: 'Messages' })).toHaveTextContent(
+      'Hi!',
+    );
+    expect(useStore.getState().unreadChatCount).toBe(0);
+
+    fireEvent.change(screen.getByTestId('chat-input'), {
+      target: { value: ' Hello ' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
+    expect(h.sendChatMessage).toHaveBeenCalledWith('Hello');
+  });
+
+  it('has no chat out of a session', () => {
+    render(<PeopleBody />);
+    expect(screen.queryByTestId('people-chat')).toBeNull();
   });
 });

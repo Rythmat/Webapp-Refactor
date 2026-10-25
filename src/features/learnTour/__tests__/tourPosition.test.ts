@@ -43,7 +43,7 @@ describe('where a tour picks up', () => {
     expect(resumeIndex(navigateTour, idx(navigateTour, 'key-wheel'))).toBe(
       idx(navigateTour, 'key'),
     );
-    expect(resumeIndex(navigateTour, idx(navigateTour, 'show-into-band'))).toBe(
+    expect(resumeIndex(navigateTour, idx(navigateTour, 'place-the-list'))).toBe(
       idx(navigateTour, 'set-lists'),
     );
     expect(resumeIndex(lessonTour, idx(lessonTour, 'record'))).toBe(
@@ -60,9 +60,12 @@ describe('where a tour picks up', () => {
   it('knows a Learn tab from another on the same path', () => {
     expect(sameStop('/learn?tab=Songs&q=close', '/learn?tab=Songs')).toBe(true);
     expect(sameStop('/learn?tab=Theory', '/learn?tab=Songs')).toBe(false);
-    expect(sameStop('/learn/ionian/C', '/learn/ionian/c?activity=x')).toBe(
-      true,
-    );
+    expect(
+      sameStop(
+        '/learn/keyboard/ionian/C',
+        '/learn/keyboard/ionian/c?section=A',
+      ),
+    ).toBe(true);
   });
 });
 
@@ -161,7 +164,7 @@ describe('never losing a tour', () => {
   it('a finished tour starts afresh next time', async () => {
     const { useLearnTourStore } = openApp('/learn');
     const store = useLearnTourStore.getState;
-    store().start('lesson', { returnTo: '/learn/ionian/c' });
+    store().start('lesson', { returnTo: '/learn/keyboard/ionian/c' });
     store().goTo(5);
     store().goTo(lessonTour.steps.length);
     expect(store().finale).toBe('lesson');

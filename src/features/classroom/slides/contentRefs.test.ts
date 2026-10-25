@@ -30,14 +30,14 @@ describe('contentRefs — every builder round-trips through the resolver', () =>
       getSong,
     });
     expect(href).not.toBeNull();
-    expect(href).toBe('/learn/dorian/c');
+    expect(href).toBe('/learn/keyboard/dorian/c');
   });
 
   it('learnRef canonicalizes the key and resolves', () => {
     expect(learnRef('dorian', 'B♭ minor')).toBe('learn:dorian:bflat');
     expect(learnRef('lydian', 'F#')).toBe('learn:lydian:fsharp');
     expect(resolveActivityRefHref('learn', learnRef('dorian', 'bflat'))).toBe(
-      '/learn/dorian/bflat',
+      '/learn/keyboard/dorian/bflat',
     );
   });
 

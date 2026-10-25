@@ -12,6 +12,7 @@ import { HISTORICAL_MODULES } from '@/components/atlas/data/historicalModules';
 import { MUSICAL_ERAS } from '@/components/atlas/data/musicalEras';
 import { REGIONS } from '@/components/atlas/data/regions';
 import { GameRoutes } from '@/constants/routes';
+import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { TUTORIAL_CATALOG } from '@/daw/components/Tutorial/tutorialCatalog';
 import { DEMO_PROJECTS } from '@/daw/data/demoProjects';
 import { PROJECT_TEMPLATES } from '@/daw/data/projectTemplates';
@@ -20,10 +21,14 @@ import {
   PROMPT_TEXT_MAX,
 } from '@/features/promptSong/parseMusicPrompt';
 import {
+  GUITAR_SUGGESTIONS,
+  KEYBOARD_SUGGESTIONS,
+  learnSuggestionsFor,
   PROMPT_NEEDS,
   PROMPT_SUGGESTIONS,
   PROMPT_TARGETS,
   rotationFor,
+  rotationOf,
   suggestionsFor,
 } from '../promptSuggestions';
 
@@ -156,9 +161,9 @@ function problem(route: string): string | null {
     const tab = q.get('tab') ?? '';
     return LEARN_TABS.has(tab) ? null : `no Learn tab ${tab}`;
   }
-  m = path.match(/^\/learn\/(relative|parallel)\/([^/]+)$/);
+  m = path.match(/^\/learn\/keyboard\/(relative|parallel)\/([^/]+)$/);
   if (m) return KEYS.has(m[2]) ? null : `no key ${m[2]}`;
-  m = path.match(/^\/learn\/(?:guitar\/)?([^/]+)(?:\/([^/]+))?$/);
+  m = path.match(/^\/learn\/(?:keyboard|guitar)\/([^/]+)(?:\/([^/]+))?$/);
   if (m) {
     if (!THEORY_MODES.has(m[1])) return `no Theory lesson ${m[1]}`;
     return m[2] === undefined || KEYS.has(m[2]) ? null : `no key ${m[2]}`;
@@ -248,8 +253,8 @@ describe('the Home prompt suggestions', () => {
       '/studio?template=project-jazz',
       '/studio?tutorial=nope',
       '/studio?bpm=100',
-      '/learn/chords',
-      '/learn/dorian/h',
+      '/learn/keyboard/chords',
+      '/learn/keyboard/dorian/h',
       '/curriculum/polka',
       '/atlas/globe?era=baroque',
       '/atlas/globe?tour=region-mars',
@@ -304,5 +309,72 @@ describe('the Home prompt suggestions', () => {
       Array.from({ length: 8 }, () => rotationFor('learn')[0].text),
     );
     expect(firsts.size).toBeGreaterThan(1);
+  });
+});
+
+describe('the Learn page’s keyboard suggestions', () => {
+  it('each name the piano or keyboard', () => {
+    const off = KEYBOARD_SUGGESTIONS.filter(
+      (s) => !/\b(piano|keyboard|keys)\b/i.test(s.text),
+    );
+    expect(off.map((s) => s.text)).toEqual([]);
+  });
+
+  it('never repeat a suggestion', () => {
+    const texts = KEYBOARD_SUGGESTIONS.map((s) => s.text.toLowerCase());
+    expect(new Set(texts).size).toBe(texts.length);
+  });
+
+  it('each route to a real place in the app, never back to the Learn page', () => {
+    const broken = KEYBOARD_SUGGESTIONS.map((s) => ({
+      text: s.text,
+      why: s.route.startsWith('/learn?') ? 'the Learn page' : problem(s.route),
+    })).filter((s) => s.why !== null);
+    expect(broken).toEqual([]);
+  });
+
+  it('rotate in a fresh order, every suggestion still there', () => {
+    const all = rotationOf(KEYBOARD_SUGGESTIONS);
+    expect(new Set(all)).toEqual(new Set(KEYBOARD_SUGGESTIONS));
+  });
+});
+
+describe('the Learn page’s guitar suggestions', () => {
+  it('each name the guitar', () => {
+    const off = GUITAR_SUGGESTIONS.filter((s) => !/\bguitar\b/i.test(s.text));
+    expect(off.map((s) => s.text)).toEqual([]);
+  });
+
+  it('never repeat a suggestion', () => {
+    const texts = GUITAR_SUGGESTIONS.map((s) => s.text.toLowerCase());
+    expect(new Set(texts).size).toBe(texts.length);
+  });
+
+  it('each route to a real place, Theory on guitar, no keyboard courses', () => {
+    const broken = GUITAR_SUGGESTIONS.map((s) => {
+      const theory = s.route.match(/^\/learn\/([^/?]+)/);
+      const why = s.route.startsWith('/learn?')
+        ? 'the Learn page'
+        : s.route.startsWith('/curriculum/')
+          ? 'a keyboard course'
+          : theory && theory[1] !== 'guitar'
+            ? 'a Theory lesson off guitar'
+            : problem(s.route);
+      return { text: s.text, why };
+    }).filter((s) => s.why !== null);
+    expect(broken).toEqual([]);
+  });
+
+  it('open only Theory tiles guitar teaches', () => {
+    const slugs = GUITAR_SUGGESTIONS.flatMap(
+      (s) => s.route.match(/^\/learn\/guitar\/([^/]+)/)?.[1] ?? [],
+    );
+    expect(slugs.length).toBeGreaterThan(10);
+    expect(slugs.filter((slug) => !isGuitarTheorySlug(slug))).toEqual([]);
+  });
+
+  it('are the Learn page’s list on guitar, the keyboard’s on piano', () => {
+    expect(learnSuggestionsFor('guitar')).toBe(GUITAR_SUGGESTIONS);
+    expect(learnSuggestionsFor('piano')).toBe(KEYBOARD_SUGGESTIONS);
   });
 });

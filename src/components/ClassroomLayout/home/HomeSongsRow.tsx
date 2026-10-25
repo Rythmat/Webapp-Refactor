@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SongsMarquee } from '@/components/songLibrary/SongsMarquee';
+import { cn } from '@/components/utilities';
 import { SongRoutes } from '@/constants/routes';
 import { ContentGate } from '@/content/ContentGate';
 
@@ -53,12 +54,24 @@ export const HomeSongsRow = () => {
           />
         </Link>
       </div>
-      <ContentGate
-        needs={['songs']}
-        fallback={<div className="h-[21.25rem]" />}
-      >
-        <SongsMarquee scrollable bleed={false} />
-      </ContentGate>
+      {/* Each card is an instrument tile's size (HomeInstrumentsRow): five
+        across the frame, two under 42rem, on the same container query. A
+        card is its square artwork plus 3.75rem of title and artist, which
+        is what one off screen holds (cqw: the strip is this container; not
+        `auto`, which would keep a size from before a resize). */}
+      <div className="@container">
+        <ContentGate needs={['songs']} fallback={<div className="h-72" />}>
+          <SongsMarquee
+            scrollable
+            bleed={false}
+            gapClassName="gap-4"
+            cardClassName={cn(
+              'w-[calc((100%-1rem)/2)] [contain-intrinsic-block-size:calc((100cqw-1rem)/2+3.75rem)]',
+              '@2xl:w-[calc((100%-4rem)/5)] @2xl:[contain-intrinsic-block-size:calc((100cqw-4rem)/5+3.75rem)]',
+            )}
+          />
+        </ContentGate>
+      </div>
     </section>
   );
 };

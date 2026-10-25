@@ -36,7 +36,7 @@ const ProjectTile = ({ seed }: { seed: string }) => {
 const ProjectRow = ({ project }: { project: ActivityItem }) => (
   <Link
     to={project.route}
-    className="flex min-w-0 items-center gap-3 rounded-xl px-2 py-2 outline-none transition-colors duration-150 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/50"
+    className="flex min-w-0 items-center gap-3 rounded-xl px-2 py-2 outline-none transition-colors duration-150 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/50"
   >
     <ProjectTile seed={project.id} />
     <span className="min-w-0">
@@ -63,11 +63,16 @@ export const HomeProjectsCard = () => {
     <section
       aria-labelledby="home-projects-heading"
       // The prompt box's card (hairline edge, 20px corners, soft shadow,
-      // light wash), as the Studio card beside it.
+      // light wash), as the Studio card beside it. Side by side it fills its
+      // grid cell (absolute, so its list never makes the row taller): the
+      // row is the Studio card's height, which follows its video, and the
+      // list scrolls when it has more than fits. Stacked, it has its own.
       className={cn(
         PROMPT_FRAME,
         PROMPT_WASH,
         'flex min-h-[29.125rem] flex-col gap-5 p-5',
+        '@2xl:absolute @2xl:inset-0 @2xl:min-h-0',
+        '@container/projects',
       )}
     >
       <div className="flex items-center justify-between gap-3">
@@ -97,9 +102,11 @@ export const HomeProjectsCard = () => {
           // Every project, in the editor's Projects dialog (the Studio
           // Dashboard's list went, owner 2026-10-24).
           to={`${StudioRoutes.editor()}?projects=1`}
+          aria-label="View all projects"
           className="group flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm text-white/70 outline-none transition-colors duration-150 hover:bg-white/[0.06] hover:text-white focus-visible:ring-2 focus-visible:ring-white/50"
         >
-          View all
+          {/* Just the arrow on a narrow card, so it never meets the heading. */}
+          <span className="hidden @[13.5rem]/projects:inline">View all</span>
           <ArrowRight
             aria-hidden
             className="size-4 transition-transform duration-150 motion-safe:group-hover:translate-x-0.5"
@@ -107,7 +114,7 @@ export const HomeProjectsCard = () => {
         </Link>
       </div>
 
-      <div className="-mx-2 flex flex-1 flex-col gap-1">
+      <div className="-mx-2 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
         {projects === null ? (
           [0, 1, 2, 3].map((i) => (
             <div key={i} className="flex items-center gap-3 px-2 py-2">

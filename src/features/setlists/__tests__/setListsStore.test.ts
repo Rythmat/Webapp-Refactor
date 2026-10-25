@@ -5,12 +5,18 @@ import {
   addSongEntry,
   chartFingerprint,
   addTextEntry,
+  createArtist,
   createSetList,
+  createShow,
   deleteSetList,
   duplicateEntry,
+  duplicateSetList,
   emptyBlob,
   ensureDefaults,
+  placeSetList,
+  setListPlace,
   estimateBlobBytes,
+  fileSetList,
   isFavorite,
   flatSetLists,
   organiser,
@@ -781,5 +787,108 @@ describe('chart corrections', () => {
     expect(
       entry.kind === 'project' && entry.chart.sections[0].bars.length,
     ).toBe(LIMITS.chartBars);
+  });
+});
+
+describe('placeSetList: a set filed by its card’s Group and Date', () => {
+  const withList = () => {
+    const made = createSetList(start(), { title: 'Friday' }, 1);
+    return { blob: made.blob, id: made.setListId };
+  };
+
+  it('makes the group it names, files the set under it, and dates the set', () => {
+    const { blob, id } = withList();
+    const next = placeSetList(
+      blob,
+      id,
+      { group: 'The Atlas', date: '2026-11-02' },
+      2,
+    );
+    expect(setListPlace(next, id)).toEqual({
+      group: 'The Atlas',
+      date: '2026-11-02',
+    });
+    expect(next.setLists[id].parent?.kind).toBe('artist');
+    expect(next.setLists[id].date).toBe('2026-11-02');
+  });
+
+  it('finds an existing group by name, whatever the case, and keeps each set’s own date', () => {
+    const { blob, id } = withList();
+    const first = placeSetList(
+      blob,
+      id,
+      { group: 'The Atlas', date: '2026-11-02' },
+      2,
+    );
+    const second = createSetList(first, { title: 'Saturday' }, 3);
+    const next = placeSetList(
+      second.blob,
+      second.setListId,
+      { group: 'the atlas', date: '' },
+      4,
+    );
+    expect(next.order.artists).toHaveLength(first.order.artists.length);
+    expect(next.setLists[second.setListId].parent).toEqual(
+      next.setLists[id].parent,
+    );
+    // The second set's blank date leaves the first's alone.
+    expect(setListPlace(next, id).date).toBe('2026-11-02');
+    expect(setListPlace(next, second.setListId).date).toBe('');
+  });
+
+  it('unfiles the set when the group is blank, keeping its date', () => {
+    const { blob, id } = withList();
+    const grouped = placeSetList(
+      blob,
+      id,
+      { group: 'Duo', date: '2026-01-01' },
+      2,
+    );
+    const bare = placeSetList(
+      grouped,
+      id,
+      { group: '', date: '2026-01-01' },
+      3,
+    );
+    expect(bare.setLists[id].parent).toBeUndefined();
+    expect(setListPlace(bare, id)).toEqual({ group: '', date: '2026-01-01' });
+  });
+
+  it('reads an older set filed under a show as that show’s band and date', () => {
+    const base = withList();
+    const band = createArtist(base.blob, 'Old Band', 2);
+    const show = createShow(band.blob, band.artistId, 'Old Show', 3);
+    const dated = {
+      ...show.blob,
+      shows: {
+        ...show.blob.shows,
+        [show.showId]: { ...show.blob.shows[show.showId], date: '2025-05-05' },
+      },
+    };
+    const filed = fileSetList(
+      dated,
+      base.id,
+      { kind: 'show', id: show.showId },
+      4,
+    );
+    expect(setListPlace(filed, base.id)).toEqual({
+      group: 'Old Band',
+      date: '2025-05-05',
+    });
+  });
+
+  it('leaves the inbox alone', () => {
+    const blob = start();
+    const inbox = Object.values(blob.setLists).find((l) => l.role === 'inbox')!;
+    expect(placeSetList(blob, inbox.id, { group: 'X', date: '' }, 2)).toBe(
+      blob,
+    );
+  });
+
+  it('copies a set’s date with it', () => {
+    const { blob, id } = withList();
+    const dated = placeSetList(blob, id, { group: '', date: '2026-03-03' }, 2);
+    const copy = duplicateSetList(dated, id, undefined, 3);
+    expect(copy.blob.setLists[copy.setListId].date).toBe('2026-03-03');
   });
 });

@@ -63,11 +63,13 @@ export const StudioPreviewCard = () => {
       to={NEW_PROJECT_HREF}
       aria-label="Open a new blank Studio project"
       // The prompt box's card (hairline edge, 20px corners, soft shadow,
-      // light wash), as the Projects card beside it.
+      // light wash), as the Projects card beside it. No set height: it is
+      // its header and the video, so it scales with the video, and the
+      // Projects card takes its height from it.
       className={cn(
         PROMPT_FRAME,
         PROMPT_WASH,
-        'group flex min-h-[29.125rem] flex-col gap-5 p-5 outline-none duration-150 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/50',
+        'group flex flex-col gap-5 p-5 outline-none duration-150 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/50',
       )}
     >
       <div className="flex items-center justify-between gap-4">

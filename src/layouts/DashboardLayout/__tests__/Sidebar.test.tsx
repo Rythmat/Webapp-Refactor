@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Sidebar } from '../Sidebar';
-import { SIDEBAR_GLYPH } from '../SidebarMainNavItem';
+import { RAIL_GLYPH } from '../SidebarMainNavItem';
 
 /**
  * The console's sidebar: the app's own, pointed at the console, plus Cortex
@@ -94,8 +94,8 @@ describe('the console sidebar', () => {
     expect(icon.getAttribute('aria-hidden')).toBe('true');
     // At the same size as Users and Telemetry below it.
     const users = container.querySelector('a[href="/console/users"] svg')!;
-    expect(icon.getAttribute('class')).toContain(SIDEBAR_GLYPH);
-    expect(users.getAttribute('class')).toContain(SIDEBAR_GLYPH);
+    expect(icon.getAttribute('class')).toContain(RAIL_GLYPH);
+    expect(users.getAttribute('class')).toContain(RAIL_GLYPH);
   });
 
   it('keeps Users and Telemetry for admins beside Cortex', () => {

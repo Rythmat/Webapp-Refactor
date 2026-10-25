@@ -1,14 +1,17 @@
 import { ArrowRight, Check } from 'lucide-react';
-import type { CSSProperties } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FocusEvent,
+} from 'react';
 import { Link } from 'react-router-dom';
 import {
   GO_PILL,
   GO_PILL_ENABLED,
-  PROMPT_FRAME,
-  PROMPT_WASH,
 } from '@/components/promptBox/PromptBoxParts';
 import { LearnRoutes } from '@/constants/routes';
-import { SpotlightCard } from '@/features/landing/motion/SpotlightCard';
 import { KEY_RAINBOW_COLORS } from '@/features/landing/rainbow';
 import {
   isGuitarLearnEnabled,
@@ -19,11 +22,14 @@ import {
 import { cn } from '@/lib/utils';
 import './homeInstruments.css';
 
+/** How long the sweep takes (homeInstruments.css). */
+const SWEEP_MS = 1100;
+
 /** Learn's Theory tab, where both piano and guitar lessons start. */
 const THEORY_TAB_ROUTE = LearnRoutes.root(undefined, { tab: 'Theory' });
 
 /**
- * The Go to Lessons sweep's strip (homeInstruments.css): white | the 12
+ * The Go to (instrument) sweep's strip (homeInstruments.css): white | the 12
  * key-center colors | white, the rainbow kept inside the middle third so the
  * first and last frames are white.
  */
@@ -70,20 +76,39 @@ const INSTRUMENTS: InstrumentCell[] = [
 ];
 
 /**
- * Home's instrument picker, above the Songs row: a hairline bento of the
- * instruments, in the landing page's style (ModuleBentoRow: flat cells with
- * the pointer-tracking spotlight). The choice is stored on this device
+ * Home's instrument picker, above the Songs row: the instruments in a row,
+ * each a tile of its own — no card around them, no hairlines between them
+ * (owner, 2026-10-24: the bento box went). The choice is stored on this device
  * (useInstrumentStore, the same store as Learn's instrument picker) and sets
  * which instrument Learn's lessons and the Songs chord charts show.
- * Instruments without lessons yet (and guitar while its rollout flag is off)
- * are tagged "Coming soon" and can't be chosen. Native radios, so arrow keys
- * move the choice. The chosen cell's name gives way to Go to Lessons (Learn
+ * Every instrument looks and chooses the same (owner, 2026-10-24); one
+ * without lessons yet (and guitar while it's switched off) says "Coming
+ * soon" where Go to would be, and choosing it leaves Learn's instrument as
+ * it was, the pick kept on this row only. Native radios, so arrow keys move
+ * the choice. The chosen cell's name gives way to "Go to Keyboard",
+ * "Go to Guitar"… (owner, 2026-10-24; it said Go to Lessons) (Learn
  * → Theory on that instrument), a rainbow sweeping across its text.
  */
 export const HomeInstrumentsRow = () => {
   const selected = useLearnInstrument();
   const setInstrument = useInstrumentStore((s) => s.setInstrument);
   const guitarEnabled = isGuitarLearnEnabled();
+  // An instrument without lessons, picked here: shown as chosen, Learn's own
+  // instrument untouched.
+  const [soonPick, setSoonPick] = useState<string | null>(null);
+  // Go to (instrument)'s rainbow: it plays when the button appears (an
+  // instrument chosen), and each time the pointer comes onto it. Not while
+  // that first sweep is still playing: a button that appears under a
+  // resting pointer would start it over at once.
+  const [sweeps, setSweeps] = useState(0);
+  const shownAt = useRef(0);
+  useEffect(() => {
+    shownAt.current = performance.now();
+  }, [selected, soonPick]);
+  const sweepAgain = () => {
+    if (performance.now() - shownAt.current < SWEEP_MS) return;
+    setSweeps((n) => n + 1);
+  };
 
   return (
     <section
@@ -115,45 +140,36 @@ export const HomeInstrumentsRow = () => {
 
       {/* Stacks to two columns when the content area is under 42rem
           (container query, so the sidebar's width counts); the odd last
-          cell then spans the row, as on the landing page. The card is the
-          prompt box's (hairline edge, 20px corners, soft shadow, light
-          wash), as the Studio and Projects cards above. */}
+          tile then spans the row. */}
       <div className="@container">
         <div
           role="radiogroup"
           aria-labelledby="home-instruments-heading"
-          className={cn(
-            PROMPT_FRAME,
-            PROMPT_WASH,
-            'spotlight-scope grid grid-cols-2 overflow-hidden @2xl:grid-cols-5',
-          )}
+          className="grid grid-cols-2 gap-2 @2xl:grid-cols-5"
         >
           {INSTRUMENTS.map(({ label, icon, instrument }, i) => {
             const available =
               instrument === 'piano' ||
               (instrument === 'guitar' && guitarEnabled);
-            const checked = available && instrument === selected;
+            const checked =
+              soonPick !== null
+                ? label === soonPick
+                : available && instrument === selected;
             return (
               // The cell holds the radio's label and, once chosen, the
-              // Go to Lessons link, a sibling: a label can't hold a link.
+              // Go to link, a sibling: a label can't hold a link.
               <div
                 key={label}
                 className={cn(
-                  'relative transition-colors duration-300',
-                  // The hairlines between cells: each cell's right and
-                  // bottom edge, in the card's border color; the card clips
-                  // the ones along its own edge, where its border is.
-                  'shadow-[1px_0_0_rgba(255,255,255,0.1),0_1px_0_rgba(255,255,255,0.1)]',
-                  // The chosen cell's lift is on the cell: spotlight-flat
-                  // keeps the card itself transparent.
-                  checked && 'bg-white/[0.04]',
+                  // No fill behind a tile (owner, 2026-10-24): the check
+                  // and Go to (instrument) say which is chosen.
+                  'relative rounded-[1.25rem]',
                   i === INSTRUMENTS.length - 1 && 'col-span-2 @2xl:col-span-1',
                 )}
               >
                 <label
                   className={cn(
-                    'group block h-full has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-inset has-[:focus-visible]:ring-white/60',
-                    available ? 'cursor-pointer' : 'cursor-default',
+                    'group block h-full cursor-pointer rounded-[1.25rem] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-inset has-[:focus-visible]:ring-white/60',
                   )}
                 >
                   <input
@@ -162,62 +178,81 @@ export const HomeInstrumentsRow = () => {
                     aria-label={label}
                     className="sr-only"
                     checked={checked}
-                    disabled={!available}
-                    onChange={() => instrument && setInstrument(instrument)}
+                    onChange={() => {
+                      if (available && instrument) {
+                        setSoonPick(null);
+                        setInstrument(instrument);
+                      } else {
+                        setSoonPick(label);
+                      }
+                    }}
                   />
                   {/* After Spitfire Audio's instrument tiles: the icon fills
                     the cell, its name under it. The chosen cell wears a
-                    check, one without lessons a "Coming soon" tag. */}
-                  <SpotlightCard className="spotlight-flat relative flex h-full flex-col items-center p-3 pb-4">
+                    check. */}
+                  <div className="relative flex h-full flex-col items-center p-3 pb-4">
                     {checked && (
-                      <span className="absolute right-3 top-3 flex size-6 items-center justify-center rounded-full bg-white text-[#101012]">
+                      <span className="absolute right-3 top-3 z-10 flex size-6 items-center justify-center rounded-full bg-white text-[#101012]">
                         <Check aria-hidden className="size-4" strokeWidth={3} />
-                      </span>
-                    )}
-                    {!available && (
-                      <span className="absolute left-3 top-3 z-10 rounded-full bg-[#26262A] px-2 py-0.5 text-[0.6875rem] text-white/70">
-                        Coming soon
                       </span>
                     )}
                     <InstrumentIcon
                       src={icon}
-                      className={cn(
-                        'aspect-square w-full max-w-48 transition-transform duration-300',
-                        available
-                          ? 'text-white motion-safe:group-hover:-translate-y-1'
-                          : 'text-white/30',
-                      )}
+                      className="aspect-square w-full max-w-48 text-white transition-transform duration-300 motion-safe:group-hover:-translate-y-1"
                     />
                     {/* Chosen, the name keeps its room under the link. */}
                     <span
                       aria-hidden
                       className={cn(
-                        'mt-1 text-lg',
+                        'mt-1 text-lg text-white',
                         checked && 'invisible',
-                        available ? 'text-white' : 'text-white/40',
                       )}
                     >
                       {label}
                     </span>
-                  </SpotlightCard>
+                  </div>
                 </label>
-                {checked && (
+                {checked && !available && (
+                  // Where Go to would be: no lessons for it yet.
+                  <span
+                    data-testid="home-instrument-soon"
+                    className={cn(
+                      GO_PILL,
+                      'absolute bottom-3 left-1/2 h-8 -translate-x-1/2 cursor-default whitespace-nowrap px-3 text-[0.8125rem] text-white/70',
+                    )}
+                  >
+                    Coming soon
+                  </span>
+                )}
+                {checked && available && (
                   <Link
                     to={THEORY_TAB_ROUTE}
                     // The prompt box's Go pill, the text still swept.
                     className={cn(
                       GO_PILL,
                       GO_PILL_ENABLED,
-                      'home-lessons-button absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap',
+                      // A size down from the box's, to sit inside its tile.
+                      'home-lessons-button absolute bottom-3 left-1/2 h-8 -translate-x-1/2 gap-1 whitespace-nowrap px-2 text-[0.8125rem]',
                     )}
+                    onPointerEnter={sweepAgain}
+                    onFocus={(event: FocusEvent<HTMLAnchorElement>) => {
+                      // Keyboard focus only: a click's focus follows the
+                      // hover that already played it.
+                      if (event.currentTarget.matches(':focus-visible'))
+                        sweepAgain();
+                    }}
                   >
                     <span
+                      // A new key each time the pointer comes onto the
+                      // button (or keyboard focus does): the sweep plays
+                      // again then, and never as the pointer leaves.
+                      key={sweeps}
                       className="home-lessons-sweep"
                       style={{ '--sweep': LESSONS_SWEEP } as CSSProperties}
                     >
-                      Go to Lessons
+                      Go to {label}
                     </span>
-                    <ArrowRight aria-hidden className="size-4" />
+                    <ArrowRight aria-hidden className="size-3.5" />
                   </Link>
                 )}
               </div>

@@ -16,10 +16,11 @@ import mp4Url from './media/studio-preview.mp4';
 const NEW_PROJECT_HREF = `${StudioRoutes.editor.definition}?new=1`;
 
 /**
- * The real Studio playing the "Midnight Groove" demo on the Create page, then
- * the Mix page. Recorded by scripts/home/recordStudioPreview.mjs; rerun it
- * when the Studio's look changes. Imported, so each recording gets a new
- * hashed URL and no browser keeps (or range-requests into) an old one.
+ * The real Studio playing sixteen bars its own prompt box wrote: the drums'
+ * Instrument dock, the chords', then the Mix view, a seamless 2560×1440 loop
+ * (owner, 2026-10-24). Recorded by scripts/home/recordStudioPreview.mjs;
+ * rerun it when the Studio's look changes. Imported, so each recording gets
+ * a new hashed URL and no browser keeps (or range-requests into) an old one.
  */
 const VIDEO = { mp4: mp4Url, poster: posterUrl };
 

@@ -1,6 +1,8 @@
+// @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   instrumentOptions,
+  isGuitarLearnEnabled,
   mergeStoredInstrument,
   useInstrumentStore,
 } from '@/features/learn/useInstrumentStore';
@@ -48,5 +50,24 @@ describe('useInstrumentStore', () => {
     expect(options.find((o) => o.id === 'piano')?.available).toBe(true);
     expect(options.find((o) => o.id === 'bass')?.available).toBe(false);
     expect(options.find((o) => o.id === 'ukulele')?.available).toBe(false);
+  });
+
+  // Guitar used to show only in development, or with a flag set, so the
+  // live site said "Coming soon" (owner, 2026-10-24).
+  it('offers guitar to everyone, unless this browser switches it off', () => {
+    localStorage.removeItem('learn-guitar');
+    expect(isGuitarLearnEnabled()).toBe(true);
+    expect(instrumentOptions().find((o) => o.id === 'guitar')?.available).toBe(
+      true,
+    );
+
+    localStorage.setItem('learn-guitar', 'false');
+    expect(isGuitarLearnEnabled()).toBe(false);
+    expect(instrumentOptions().find((o) => o.id === 'guitar')?.available).toBe(
+      false,
+    );
+
+    localStorage.removeItem('learn-guitar');
+    expect(isGuitarLearnEnabled()).toBe(true);
   });
 });

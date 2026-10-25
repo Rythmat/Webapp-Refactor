@@ -1,17 +1,25 @@
 /* eslint-env node */
 /**
- * Records the Home dashboard's Studio preview loop: the real Studio editor,
- * playing the "Midnight Groove" demo, worked by a visible cursor and filmed
- * by a virtual camera that tilts and pushes in on each feature as it is used
- * (studioPreviewDirector.mjs):
+ * Records the Home dashboard's Studio preview: sixteen bars of a song the
+ * Studio's own prompt box writes, playing on a loop, filmed still and in
+ * high resolution, cut so the video loops perfectly (owner, 2026-10-24).
  *
- *   transport and arrange → Keys: add an EQ, shape two bands → Drums: the kit
- *   lighting up with the MIDI → Lead: edit Oscillator 1 in the Synth → a new
- *   audio track: pick an amp, turn its knobs → Master: draw volume
- *   automation → Mix: the meters, the effects and sends
+ * Before the camera rolls (none of it is filmed): a blank project, the loop
+ * set on bars 1–16 (the prompt box writes its part over the loop), the
+ * prompt box asked for a band on the Indie 2 groove at 100 BPM (drums, bass
+ * and chords), the prompt box folded away, the dock opened, the pointer
+ * parked off the page. Then it plays, cued by the playhead (SCENES): bars
+ * 1–4 on the drums' Instrument dock, bars 5–8 on the chords', bars 9–16 in
+ * the Mix view, and back to the drums as the loop comes round. The prompt
+ * box stays folded the whole take. The first loop plays off camera, while
+ * the sounds and panels settle; the next one is filmed.
  *
- * as a short muted loop for
- * src/components/ClassroomLayout/home/StudioPreviewCard.tsx.
+ * The perfect loop: every captured frame is matched to the playhead tick it
+ * was drawn at (the editor's playhead, read each animation frame), and
+ * the video is built from one settled loop, a frame for each 1/30 s of the
+ * sixteen bars, from the downbeat of bar 1 to the frame before it comes round
+ * again. Its last frame leads into its first as the Studio's own next frame
+ * would, so there's no crossfade and no seam.
  *
  *   node scripts/home/recordStudioPreview.mjs [--reuse=http://localhost:5263]
  *
@@ -19,15 +27,15 @@
  * it is. Takes the studio-perf harness options (--reuse, --port, --gpu,
  * --headed); audio goes to Chrome's fake output unless --fake-audio=false, so
  * a recording never plays through the speakers. A reused server must run
- * with VITE_DEV_AUTH_BYPASS=1.
+ * with VITE_DEV_AUTH_BYPASS=1. --debug keeps a screenshot of the shot.
  *
- * Frames come from the DevTools screencast (sharper than Playwright's
- * recordVideo), are stitched at their real timing and encoded to
- * src/components/ClassroomLayout/home/media/studio-preview.mp4 (H.264) plus
- * a .jpg poster, which the card imports.
+ * Frames come from the DevTools screencast, captured at 2x, and are encoded
+ * to src/components/ClassroomLayout/home/media/studio-preview.mp4 (H.264,
+ * 2560×1440) plus a .jpg poster (a second in), which the card
+ * imports.
  */
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -37,33 +45,50 @@ import {
   startAudio,
   withStudio,
 } from '../studio-perf/harness.mjs';
-import { director } from './studioPreviewDirector.mjs';
 
-const DEMO = 'demo-midnight-groove';
 /**
- * The card's preview is 16:9. Captured at 2x (2560×1440 frames), so text
- * stays sharp through the camera's push-ins (the page re-renders at each
- * zoom; the capture scale is what limits sharpness), and delivered at
- * 1280×720, about 1:1 with the card on a retina screen and ~6 MB a minute
- * and a quarter, light enough for school Wi-Fi.
+ * What the prompt box is asked for: the band the loop plays. A groove it
+ * names is the one the drums play (promptGroove); a tempo it names is the
+ * song's, and 100 BPM makes 16 bars 38.4 s, a whole 1152 frames at 30 fps.
+ * The key and chords are the prompt box's pick, new each take.
  */
-const VIEWPORT = { width: 1280, height: 720 };
+const PROMPT =
+  'Start the song with Pop drums, bass and chords on Indie 2 at 100 BPM';
+/** The loop: bars 1–16, at the editor's 480 ticks a quarter, in 4/4. */
+const PPQ = 480;
+const BARS = 16;
+const LOOP_TICKS = BARS * 4 * PPQ;
+/**
+ * A 16:9 page, captured at 2x (2880×1620 frames) and delivered at
+ * 2560×1440: sharp on a retina screen at any size the card is shown.
+ */
+const VIEWPORT = { width: 1440, height: 810 };
 const SCALE = 2;
-const OUT_WIDTH = 1280;
-/** --debug: a screenshot at each scene in FRAMES/debug, to tune the take. */
+const OUT = { width: 2560, height: 1440 };
+const FPS = 30;
+/**
+ * What the shot shows, by the bar it starts on (bars count from 1 in the
+ * Studio, from 0 here): the drums, the chords, then the mixer (owner,
+ * 2026-10-24).
+ */
+const SCENES = [
+  // Bars 1–4: the drums' Instrument dock (the kit lights up with the beat).
+  { from: 0, view: 'arrange', track: 0 },
+  // Bars 5–8: the chords' Instrument dock.
+  { from: 4, view: 'arrange', track: 2 },
+  // Bars 9–16: the Mix view (its id is 'studio'; 'Mix' is its label).
+  { from: 8, view: 'studio' },
+];
+
+/** Filming starts this long before the first loop comes round. */
+const LEAD_IN_S = 2;
 const DEBUG = process.argv.includes('--debug');
-/** --dry: runs the take (scene timings, --debug shots) without capturing. */
-const DRY = process.argv.includes('--dry');
-/** The loop's seam: the tail crossfades into the head. */
-const XFADE_S = 0.6;
 
 // Imported by the card, so Vite gives every recording a hashed URL.
 const OUT_DIR = join(ROOT, 'src/components/ClassroomLayout/home/media');
 const FRAMES = join(tmpdir(), 'ma-home-studio-preview');
 
-const argv = process.argv
-  .slice(2)
-  .filter((a) => a !== '--debug' && a !== '--dry');
+const argv = process.argv.slice(2).filter((a) => a !== '--debug');
 if (!argv.some((a) => a.startsWith('--fake-audio'))) {
   argv.push('--fake-audio=true');
 }
@@ -91,62 +116,124 @@ await withStudio(
     // (a closed one makes Vite's client poll the server and reload).
     await context.routeWebSocket(/\/\?token=/, () => {});
     const page = await context.newPage();
-    await openEditor(page, base, `?demo=${DEMO}`);
+    await openEditor(page, base, '?new=1');
     // Toasts (unsaved-work notices and the like) are not part of the Studio.
     await page.addStyleTag({
       content: '[data-sonner-toaster]{display:none!important}',
     });
     await startAudio(page);
-    // The arrange view alone, so every track fits the 16:9 frame.
-    const closeDock = async () => {
-      const dock = page.getByTestId('dock-toggle');
-      if ((await dock.getAttribute('aria-label')) === 'Close the dock') {
-        await dock.click();
-      }
-    };
-    // Keys starts the take with an EQ already on its channel, and its
-    // SoundFont loaded (a first open can fail; it opens on a retry).
-    await page
-      .getByRole('button', { name: 'Keys, track 1', exact: true })
-      .click();
-    await page.getByTestId('dock-tab-fx').click();
-    await page.getByTestId('fx-add-slot').first().click();
-    await page
-      .getByRole('dialog')
-      .getByPlaceholder('Search effects')
-      .fill('EQ');
-    await page
-      .getByRole('dialog')
-      .getByRole('button', { name: 'Add EQ', exact: true })
-      .click();
-    await page.getByText('+12').first().waitFor();
-    await page.getByTestId('dock-tab-controls').click();
-    const piano = page.getByRole('button', {
-      name: 'Electric Piano 1',
-      exact: true,
-    });
-    for (let i = 0; i < 4; i++) {
-      if (await piano.isVisible()) break;
-      const retry = page.getByRole('button', {
-        name: 'Try again',
-        exact: true,
-      });
-      if (await retry.isVisible()) await retry.click();
-      await page.waitForTimeout(2500);
-    }
-    await piano.waitFor({ timeout: 20_000 });
-    await closeDock();
-    await page.getByRole('button', { name: 'Loop', exact: true }).click();
-    await page.mouse.move(VIEWPORT.width / 2, VIEWPORT.height + 40);
 
-    // Camera moves run 1.5x their written length: slow, unhurried zooms.
-    const d = director(page, VIEWPORT, { pace: 1.5 });
-    await d.install();
-    const { width: VW, height: VH } = VIEWPORT;
-    /** The opening and closing shot: wide, the screen tilted in space. */
-    const WIDE = { cx: VW / 2, cy: VH / 2, s: 0.9, rx: 5, ry: -8 };
-    const FLAT = { cx: VW / 2, cy: VH / 2, s: 1 };
-    await d.set(WIDE);
+    // ── Before the camera: the prompt box writes the band ──────────────
+    // Over the loop: the prompt box's part fills the loop while it's on.
+    await page.evaluate((end) => {
+      const s = window.__MA_STORE__.getState();
+      s.setLoopRange(0, end);
+      s.setLoopEnabled(true);
+    }, LOOP_TICKS);
+    const input = page.getByTestId('prompt-input');
+    await input.fill(PROMPT);
+    await input.press('Enter');
+    await page.waitForFunction(
+      () =>
+        window.__MA_STORE__.getState().tracks.length >= 3 &&
+        !document.querySelector('[role="status"][data-testid^="prompt-"]'),
+      null,
+      { timeout: 60_000 },
+    );
+    const song = await page.evaluate(() => {
+      const s = window.__MA_STORE__.getState();
+      return {
+        bpm: s.bpm,
+        tracks: s.tracks.map((t) => t.name),
+        chords: s.chordRegions.map((r) => r.noteName),
+      };
+    });
+    console.log(
+      `prompt box: ${song.tracks.join(', ')} at ${song.bpm} BPM, chords ${song.chords.join(' ')}`,
+    );
+
+    if (song.bpm !== 100) {
+      console.warn(`the prompt box set ${song.bpm} BPM, not 100`);
+    }
+    // The shot: the loop on bars 1–16, the prompt box folded away (its
+    // suggestions turn on their own clock, not the song's), the dock open
+    // on the drums, the pointer off the page, nothing focused.
+    await page.evaluate((end) => {
+      const s = window.__MA_STORE__.getState();
+      s.setLoopRange(0, end);
+      s.setLoopEnabled(true);
+      s.setPosition(0);
+      s.setLibraryOpen?.(false);
+    }, LOOP_TICKS);
+    await page
+      .getByRole('button', { name: 'Fold the prompt box away' })
+      .click();
+    const drums = page.getByRole('button', { name: /, track 1$/ }).first();
+    await drums.click();
+    const dock = page.getByTestId('dock-toggle');
+    if ((await dock.getAttribute('aria-label')) !== 'Close the dock') {
+      await dock.click();
+    }
+    // The Instrument tab: the drums' kit, then the chords' instrument.
+    const instrumentTab = page.getByTestId('dock-tab-controls');
+    if ((await instrumentTab.getAttribute('aria-pressed')) !== 'true') {
+      await instrumentTab.click();
+    }
+    await page.getByTestId('drum-kit').waitFor({ timeout: 20_000 });
+    await showChordsOctaves(page);
+    // All sixteen bars across the window, so the playhead never leaves it
+    // (and the view never pages).
+    await page
+      .getByRole('button', { name: 'Fit the song', exact: true })
+      .first()
+      .click();
+    await page.mouse.move(VIEWPORT.width / 2, VIEWPORT.height + 40);
+    await page.evaluate(() => {
+      document.activeElement?.blur?.();
+    });
+    // Every sound loaded before it plays (a SoundFont's first load is slow).
+    await page.waitForTimeout(3000);
+
+    // ── The playhead's tick for every frame the page paints, and the ────
+    // scenes it cues (SCENES): the drums' dock, the chords', then Mix; as
+    // the loop comes round, back to the drums, so the end leads into the
+    // start. Cued by the playhead, so every loop plays them the same.
+    await page.evaluate(
+      async ({ bar, scenes }) => {
+        // The editor's own playhead (DawApp exposes its playheadClock in
+        // dev): an import of the module from here would be a copy of its
+        // own, never started, reading the parked playhead.
+        const playhead = window.__MA_PLAYHEAD__;
+        const store = window.__MA_STORE__;
+        const trackIds = store.getState().tracks.map((t) => t.id);
+        const sceneAt = (tick) =>
+          scenes.findLast((scene) => tick >= scene.from * bar) ?? scenes[0];
+        let shown = null;
+        const show = (scene) => {
+          if (scene === shown) return;
+          const s = store.getState();
+          if (s.currentView !== scene.view) {
+            s.setCurrentView(scene.view);
+            // Each view opens the Inspector as it was last there: shut.
+            store.getState().setLibraryOpen(false);
+          }
+          if (scene.track !== undefined) {
+            store.getState().setSelectedTrackId(trackIds[scene.track]);
+          }
+          shown = scene;
+        };
+        const log = [];
+        window.__PREVIEW_TICKS__ = log;
+        const each = () => {
+          const tick = playhead.tick();
+          log.push([performance.timeOrigin + performance.now(), tick]);
+          show(sceneAt(tick));
+          window.__PREVIEW_RAF__ = requestAnimationFrame(each);
+        };
+        each();
+      },
+      { bar: 4 * PPQ, scenes: SCENES },
+    );
 
     // ── Capture ─────────────────────────────────────────────────────────
     rmSync(join(FRAMES, 'frames'), { recursive: true, force: true });
@@ -160,433 +247,169 @@ await withStudio(
         `${String(frames.length).padStart(5, '0')}.jpg`,
       );
       writeFileSync(file, Buffer.from(data, 'base64'));
-      frames.push({ file, t: metadata.timestamp });
+      // The swap time, in ms since the epoch (the page's clock).
+      frames.push({ file, t: metadata.timestamp * 1000 });
       cdp.send('Page.screencastFrameAck', { sessionId }).catch(() => {});
     });
-    // Space plays (the editor's shortcut). Playing first keeps the
-    // screencast's frames flowing (it only sends one when the page changes)
-    // before the take starts.
+    // Space plays (the editor's shortcut). The first loop plays off camera,
+    // while the sounds settle; filming starts just before it comes round
+    // and stops just after the next one has.
+    const loopSeconds = (BARS * 4 * 60) / song.bpm;
     await page.keyboard.press('Space');
-    if (!DRY)
-      await cdp.send('Page.startScreencast', {
-        format: 'jpeg',
-        quality: 97,
-        maxWidth: VIEWPORT.width * SCALE,
-        maxHeight: VIEWPORT.height * SCALE,
-      });
-    for (let i = 0; i < 60 && !DRY && frames.length < 10; i++) {
-      await page.waitForTimeout(50);
-    }
-    const t0 = Date.now() / 1000;
-    try {
-      await film(page, d, { WIDE, FLAT });
-    } catch (error) {
-      // What the take saw when a scene failed.
-      await page.screenshot({ path: join(FRAMES, 'failed.png') });
-      console.error(`take failed; screen at ${join(FRAMES, 'failed.png')}`);
-      throw error;
-    }
-    const endT = Date.now() / 1000;
-    if (DRY) return;
+    await page.waitForTimeout((loopSeconds - LEAD_IN_S) * 1000);
+    await cdp.send('Page.startScreencast', {
+      format: 'jpeg',
+      quality: 92,
+      maxWidth: VIEWPORT.width * SCALE,
+      maxHeight: VIEWPORT.height * SCALE,
+    });
+    await page.waitForTimeout((loopSeconds + 2 * LEAD_IN_S) * 1000);
     await cdp.send('Page.stopScreencast');
+    if (DEBUG) {
+      await page.screenshot({ path: join(FRAMES, 'shot.png') });
+      console.log(`debug: the shot at ${join(FRAMES, 'shot.png')}`);
+    }
+    const ticks = await page.evaluate(() => {
+      cancelAnimationFrame(window.__PREVIEW_RAF__);
+      return window.__PREVIEW_TICKS__;
+    });
     await page.keyboard.press('Space');
     await context.close();
 
-    if (frames.length < 60) {
-      throw new Error(`only ${frames.length} frames were captured`);
+    // ── One settled loop, a frame for each 1/30 s of it ─────────────────
+    // A frame shows the tick of the last animation frame before its swap.
+    let j = 0;
+    const timed = frames
+      .map((f) => {
+        while (j + 1 < ticks.length && ticks[j + 1][0] <= f.t) j++;
+        return ticks[j][0] <= f.t ? { ...f, tick: ticks[j][1] } : null;
+      })
+      .filter(Boolean);
+    // The loop comes round where the tick falls back.
+    const wraps = [];
+    for (let i = 1; i < timed.length; i++) {
+      if (timed[i].tick < timed[i - 1].tick - LOOP_TICKS / 2) wraps.push(i);
+    }
+    if (wraps.length < 2) {
+      throw new Error(
+        `only ${wraps.length} loop wraps were seen in ${timed.length} frames`,
+      );
+    }
+    // The loop filmed: from one wrap to the next.
+    const from = wraps[0];
+    const to = wraps[1];
+    const loop = timed.slice(from, to);
+    const rate = loop.length / ((loop.at(-1).t - loop[0].t) / 1000);
+    console.log(
+      `captured ${frames.length} frames (${rate.toFixed(1)} fps in the loop used), ${wraps.length} wraps`,
+    );
+    const count = Math.round(loopSeconds * FPS);
+    rmSync(join(FRAMES, 'loop'), { recursive: true, force: true });
+    mkdirSync(join(FRAMES, 'loop'), { recursive: true });
+    let k0 = 0;
+    for (let k = 0; k < count; k++) {
+      const want = (k / count) * LOOP_TICKS;
+      // The nearest frame to that tick, searched forward (ticks rise).
+      while (
+        k0 + 1 < loop.length &&
+        Math.abs(loop[k0 + 1].tick - want) <= Math.abs(loop[k0].tick - want)
+      ) {
+        k0++;
+      }
+      copyFileSync(
+        loop[k0].file,
+        join(FRAMES, 'loop', `${String(k).padStart(5, '0')}.jpg`),
+      );
     }
 
-    // ── Stitch at real timing, then encode ─────────────────────────────
-    // From the camera's start; the frame showing then opens the video.
-    const firstIn = frames.findIndex((f) => f.t >= t0);
-    const kept = frames.slice(Math.max(0, firstIn - 1));
-    kept[0] = { ...kept[0], t: t0 };
-    const lastT = Math.max(
-      kept.at(-1).t + 1 / 30,
-      Math.min(endT, kept.at(-1).t + 0.5),
-    );
-    const list = kept
-      .map((f, i) => {
-        const next = i + 1 < kept.length ? kept[i + 1].t : lastT;
-        return `file '${f.file}'\nduration ${Math.max(next - f.t, 1 / 120).toFixed(4)}`;
-      })
-      .join('\n');
-    const listFile = join(FRAMES, 'frames.txt');
-    // The concat demuxer needs the last file repeated to honor its duration.
-    writeFileSync(listFile, `${list}\nfile '${kept.at(-1).file}'\n`);
-
+    // ── Encode ──────────────────────────────────────────────────────────
     mkdirSync(OUT_DIR, { recursive: true });
-    // 1. The take at 30 fps, near-lossless.
-    const raw = join(FRAMES, 'raw.mp4');
+    const mp4 = join(OUT_DIR, 'studio-preview.mp4');
     ffmpeg([
-      ...['-f', 'concat', '-safe', '0', '-i', listFile],
+      ...['-framerate', String(count / loopSeconds)],
+      ...['-i', join(FRAMES, 'loop', '%05d.jpg')],
       '-vf',
-      `fps=30,scale=${OUT_WIDTH}:-2:flags=lanczos,format=yuv420p`,
+      `scale=${OUT.width}:${OUT.height}:flags=lanczos,format=yuv420p`,
       '-an',
-      ...['-c:v', 'libx264', '-preset', 'fast', '-crf', '8'],
-      raw,
-    ]);
-    // 2. The loop: the tail crossfades into the head, so the end flows into
-    // the start. H.264 only: it plays in every browser the app supports, and
-    // Chrome's decoder rejected the VP9 WebM this produced.
-    const len = Number(
-      execFileSync('ffprobe', [
-        ...['-v', 'error', '-show_entries', 'format=duration'],
-        ...['-of', 'default=nw=1:nk=1', raw],
-      ]),
-    );
-    const x = XFADE_S;
-    ffmpeg([
-      '-i',
-      raw,
-      '-filter_complex',
-      [
-        '[0]split=3[a][b][c]',
-        `[a]trim=${x}:${len - x},setpts=PTS-STARTPTS[mid]`,
-        `[b]trim=${len - x}:${len},setpts=PTS-STARTPTS[tail]`,
-        `[c]trim=0:${x},setpts=PTS-STARTPTS[head]`,
-        `[tail][head]xfade=transition=fade:duration=${x}:offset=0[seam]`,
-        '[mid][seam]concat=n=2:v=1[out]',
-      ].join(';'),
-      ...['-map', '[out]', '-an'],
-      // A keyframe every 2 s: clean loops and seeks.
-      ...['-g', '60', '-c:v', 'libx264', '-preset', 'slow', '-crf', '23'],
+      ...['-c:v', 'libx264', '-preset', 'slow', '-crf', '20'],
       ...['-profile:v', 'high', '-pix_fmt', 'yuv420p'],
+      // A keyframe each second: clean loops and seeks.
+      ...['-g', String(FPS)],
       ...['-movflags', '+faststart'],
-      join(OUT_DIR, 'studio-preview.mp4'),
+      mp4,
     ]);
-    // The poster: a frame a few seconds in, inside the arrange view.
+    // The poster: a second in, the drums' kit settled (the dock fades its
+    // panel in as the loop comes round to it).
     ffmpeg([
-      '-ss',
-      '4',
-      '-i',
-      join(OUT_DIR, 'studio-preview.mp4'),
-      '-frames:v',
-      '1',
-      '-q:v',
-      '3',
+      ...['-i', join(FRAMES, 'loop', `${String(FPS).padStart(5, '0')}.jpg`)],
+      ...['-vf', `scale=${OUT.width}:${OUT.height}:flags=lanczos`],
+      ...['-q:v', '3'],
       join(OUT_DIR, 'studio-preview.jpg'),
     ]);
-    const span = (lastT - t0).toFixed(1);
     console.log(
-      `studio preview: ${kept.length} frames over ${span} s → src/components/ClassroomLayout/home/media/studio-preview.{mp4,jpg}`,
+      `studio preview: ${count} frames, ${loopSeconds.toFixed(2)} s (${BARS} bars at ${song.bpm} BPM) → src/components/ClassroomLayout/home/media/studio-preview.{mp4,jpg}`,
     );
   },
   argv,
 );
 
 /**
- * The take. Each scene frames a feature while the cursor travels to it (the
- * camera and the hand move together), then works it with real clicks, typing
- * and drags. Clicks land with the camera level, so the pointer hits where it
- * is drawn. The camera is restrained: moves ease in and out and swing
- * through a slight tilt (a few degrees) on the way, hands-off shots hold a
- * gentle angle and keep drifting slowly in the direction they lean, and the
- * zoom stays under about 2x.
+ * The chords' dock piano on the octaves the chords play (owner,
+ * 2026-10-24). The dock's piano shows the computer keyboard's octave (C3
+ * up), and the prompt box voices its chords lower (C2–D3, say), so most of
+ * them would light off the left edge. Off camera: the chords' dock, its
+ * Octave stepped until the piano starts on the C at or under the lowest
+ * chord note, then back to the drums.
  */
-async function film(page, d, { WIDE, FLAT }) {
-  let shot = 0;
-  const began = Date.now();
-  let last = began;
-  /** Logs each scene's length; --debug also screenshots the camera's view. */
-  const mark = async (label) => {
-    const now = Date.now();
-    console.log(
-      `scene ${label}: ${((now - last) / 1000).toFixed(1)} s (at ${((now - began) / 1000).toFixed(1)} s)`,
+async function showChordsOctaves(page) {
+  const chords = SCENES.find((scene) => scene.track > 0)?.track ?? 2;
+  const notes = await page.evaluate((index) => {
+    const tracks = window.__MA_STORE__.getState().tracks;
+    const pitches = tracks[index].midiClips.flatMap((c) =>
+      c.events.map((e) => e.note),
     );
-    last = now;
-    if (!DEBUG) return;
-    mkdirSync(join(FRAMES, 'debug'), { recursive: true });
-    const name = `${String(++shot).padStart(2, '0')}-${label}.jpg`;
-    await page.screenshot({ path: join(FRAMES, 'debug', name), quality: 70 });
-  };
-  const track = (name, n) =>
-    page.getByRole('button', { name: `${name}, track ${n}`, exact: true });
-  const tab = (testId) => page.getByTestId(testId);
-  /**
-   * Opens a dock tab (already on screen) unless it is the one showing:
-   * clicking the showing tab closes the dock.
-   */
-  const openTab = async (testId) => {
-    const pressed = (await tab(testId).getAttribute('aria-pressed')) === 'true';
-    const dockOpen =
-      (await page.getByTestId('dock-toggle').getAttribute('aria-label')) ===
-      'Close the dock';
-    if (pressed && dockOpen) return;
-    await d.click(tab(testId), { ms: 450 });
-  };
-  // Centred in the track list: the pinned Master section can cover a row
-  // that the browser still counts as visible.
-  const centre = (locator) =>
-    locator.evaluate((el) => el.scrollIntoView({ block: 'center' }));
-  /** The left column: a track's header down to the dock's tabs. */
-  const LEFT = { pad: 40, maxZoom: 1.6 };
-  /**
-   * A hands-off hold: the shot keeps breathing, a slow push of `zoom` that
-   * leans a little further the way it already leans, never a freeze.
-   */
-  const drift = async (ms, { zoom = 1.025, rx = 0, ry = 0 } = {}) => {
-    const p = await d.pose();
-    await d.to({ ...p, s: p.s * zoom, rx: p.rx + rx, ry: p.ry + ry }, ms, {
-      paced: false,
+    return {
+      id: tracks[index].id,
+      drums: tracks[0].id,
+      low: Math.min(...pitches),
+      high: Math.max(...pitches),
+    };
+  }, chords);
+  const select = (id) =>
+    page.evaluate(
+      (id) => window.__MA_STORE__.getState().setSelectedTrackId(id),
+      id,
+    );
+  await select(notes.id);
+  const keyboard = page.getByTestId('dock-keyboard');
+  await keyboard.waitFor({ timeout: 20_000 });
+  /** The piano's first and last notes, read from its C labels ("C3"). */
+  const range = () =>
+    keyboard.evaluate((el) => {
+      const octaves = [...el.querySelectorAll('*')]
+        .filter((n) => n.children.length === 0)
+        .map((n) => /^C(-?\d+)$/.exec(n.textContent?.trim() ?? '')?.[1])
+        .filter((o) => o !== undefined)
+        .map(Number);
+      const first = (Math.min(...octaves) + 1) * 12;
+      const last = (Math.max(...octaves) + 1) * 12;
+      return { first, last };
     });
-  };
-
-  // 1. Establish: wide → the whole Create page, the song playing.
-  await d.to(FLAT, 1500);
-  // 2. The transport, then across the arrange view with the playhead.
-  // Play reads "Pause" while playing: it goes by its test id.
-  const transport = [
-    ...['Back to start', 'Record', 'Loop'].map((name) =>
-      page.getByRole('button', { name, exact: true }),
-    ),
-    page.getByTestId('transport-play'),
-  ];
-  await d.frame(transport, { pad: 80, maxZoom: 1.9 }, 1300, { rx: 2, ry: 4 });
-  await drift(900, { ry: 1 });
-  await d.frame(
-    page.locator('canvas').first(),
-    { cropX: [0, 0.62], cropY: [0, 0.78], pad: 10 },
-    1200,
-    { rx: -2, ry: -4 },
-  );
-  await drift(1300, { zoom: 1.03, ry: -1 });
-  await mark('arrange');
-
-  // 3. Keys: change its sound in the Instrument dock, then shape the EQ
-  // already on its channel: band 3 down, band 6 up.
-  const keys = track('Keys', 1);
-  await centre(keys);
-  await d.go([keys, tab('dock-tab-controls')], LEFT, keys, {
-    ms: 1100,
-    swing: { rx: 2, ry: 3 },
-  });
-  await d.wait(250);
-  await openTab('dock-tab-controls');
-  await d.wait(500);
-  const sound = (name) => page.getByRole('button', { name, exact: true });
-  await d.go(
-    [
-      sound('Piano'),
-      sound('Organ'),
-      sound('Electric Piano 1'),
-      tab('dock-tab-fx'),
-    ],
-    { pad: 30, maxZoom: 1.8 },
-    sound('Organ'),
-    { ms: 1000 },
-  );
-  await d.wait(450);
-  await d.click(sound('Drawbar Organ'), { ms: 500 });
-  await d.wait(900);
-  await openTab('dock-tab-fx');
-  await d.wait(450);
-  const eqGraph = page.locator('svg').filter({ hasText: '+12' }).first();
-  // A band's number label: its group's text grows a readout on hover.
-  const band = (n) =>
-    page
-      .locator('svg g:has(circle) text')
-      .filter({ hasText: new RegExp(`^${n}$`) })
-      .first();
-  await d.go(eqGraph, { pad: 24, maxZoom: 1.9 }, band(3), {
-    ms: 1000,
-    press: false,
-  });
-  const graph = await eqGraph.boundingBox();
-  const b3 = await d.center(band(3));
-  await d.drag(
-    b3,
-    { x: b3.x + graph.width * 0.03, y: b3.y + graph.height * 0.24 },
-    900,
-  );
-  const b6 = await d.center(band(6));
-  await d.drag(
-    b6,
-    { x: b6.x + graph.width * 0.04, y: b6.y - graph.height * 0.3 },
-    900,
-  );
-  await d.wait(500);
-  await mark('eq');
-
-  // 4. Drums: the kit lighting up with the MIDI.
-  const drums = track('Drums', 4);
-  await centre(drums);
-  await d.go([drums, tab('dock-tab-controls')], LEFT, drums, {
-    ms: 1100,
-    swing: { rx: -2, ry: -3 },
-  });
-  await d.wait(250);
-  await openTab('dock-tab-controls');
-  await d.wait(300);
-  await Promise.all([
-    d.frame(
-      page.getByTestId('drum-kit'),
-      { pad: 30, maxZoom: 1.9, free: true },
-      1200,
-      { rx: 3, ry: -6 },
-    ),
-    d.away(700),
-  ]);
-  if (DEBUG) {
-    // How many pad flashes the shot catches (each is lit for 110 ms).
-    const lit = await page.evaluate(async () => {
-      let seen = 0;
-      for (let i = 0; i < 40; i++) {
-        seen += document.querySelectorAll('[data-lit]').length;
-        await new Promise((r) => setTimeout(r, 50));
-      }
-      return seen;
-    });
-    console.log(`debug: ${lit} lit pads seen over 2 s`);
+  for (let i = 0; i < 8; i++) {
+    const { first } = await range();
+    if (first > notes.low) {
+      await keyboard.getByRole('button', { name: 'Show lower keys' }).click();
+    } else if (first + 12 <= notes.low) {
+      await keyboard.getByRole('button', { name: 'Show higher keys' }).click();
+    } else break;
   }
-  const kitShot = await d.pose();
-  await drift(2400, { zoom: 1.04, rx: 1, ry: -2 });
-  await mark('drums');
-
-  // 5. Lead: Oscillator 1 in the Synth to Pwm, then sweep its Position.
-  const lead = track('Lead', 3);
-  await centre(lead);
-  await d.go([lead, tab('dock-tab-controls')], LEFT, lead, {
-    ms: 1100,
-    swing: { rx: 2, ry: 3 },
-  });
-  await d.wait(300);
-  await openTab('dock-tab-controls');
-  const position = page.getByRole('slider', { name: 'Position' }).first();
-  const warp = page.getByRole('slider', { name: 'Warp' }).first();
-  const wavetable = page.getByRole('combobox', {
-    name: 'Oscillator 1 wavetable',
-    exact: true,
-  });
-  const osc1 = [
-    page.getByText('Oscillator 1', { exact: true }),
-    warp,
-    wavetable,
-  ];
-  const OSC = { pad: 40, maxZoom: 1.9 };
-  await d.go(osc1, OSC, wavetable, { ms: 1000, press: false });
-  await d.wait(500);
-  // The camera stays on Oscillator 1: its list opens beside it while zoomed.
-  await d.press();
-  await d.wait(600);
-  await d.click(page.getByRole('option', { name: 'Pwm', exact: true }), {
-    ms: 500,
-  });
-  await d.wait(400);
-  const pos = await d.center(position);
-  await d.drag(pos, { x: pos.x, y: pos.y - 100 }, 1500);
-  await d.wait(600);
-  await mark('synth');
-
-  // 6. A new audio track: pick an amp, turn it up. The Add track menu only
-  // opens with the camera flat (it never appears under the zoom).
-  const addTrack = page.getByTestId('add-track-button');
-  await centre(addTrack);
-  await d.go(FLAT, null, addTrack, { ms: 1100, swing: { rx: -2, ry: -3 } });
-  await d.wait(350);
-  await d.click(page.locator('[data-tutorial-id="add-track-audio"]'), {
-    ms: 450,
-  });
-  await d.wait(550);
-  const ampSlot = page.getByText('Add amp or pitch correction');
-  await d.go(ampSlot, { pad: 110, maxZoom: 1.8 }, ampSlot, { ms: 900 });
-  await d.wait(450);
-  const amps = page.getByRole('dialog');
-  await d.go(
-    amps,
-    { pad: 16, maxZoom: 1.4 },
-    amps.getByRole('button', { name: /Amber/ }).first(),
-    { ms: 1000 },
+  const { first, last } = await range();
+  console.log(
+    `chords' piano: MIDI ${first}–${last}, the chords ${notes.low}–${notes.high}`,
   );
-  await d.wait(500);
-  // The amp's knobs have no roles: each sits 30 px above its label.
-  const amp = page.getByTestId('audio-fx-card-nam-amp');
-  const ampLabel = (name) => amp.getByText(name, { exact: true });
-  const ampShot = await d.frameOf(amp, { pad: 24, maxZoom: 1.9 });
-  const firstKnob = await d.aim(ampLabel('Input'), ampShot);
-  await Promise.all([
-    d.to(ampShot, 1000),
-    d.glide(firstKnob.x, firstKnob.y - 30 * ampShot.s, 1500),
-  ]);
-  const knob = async (name) => {
-    const label = await d.center(ampLabel(name));
-    return { x: label.x, y: label.y - 30 * ampShot.s };
-  };
-  const inp = await knob('Input');
-  await d.drag(inp, { x: inp.x, y: inp.y - 70 }, 1000);
-  const tr = await knob('Treble');
-  await d.drag(tr, { x: tr.x, y: tr.y - 60 }, 900);
-  await d.wait(400);
-  await mark('amp');
-
-  // 7. Master: draw its volume automation.
-  const master = page.getByRole('button', { name: 'Master', exact: true });
-  await d.go([master, tab('dock-view-automation')], LEFT, master, {
-    ms: 1000,
-    swing: { rx: 2, ry: 3 },
-  });
-  await d.wait(250);
-  await openTab('dock-view-automation');
-  await d.wait(400);
-  // The lane reads clicks in unzoomed pixels, so it is drawn on with the
-  // camera at 1x; the camera pushes in on the finished curve after.
-  const lane = page.locator('canvas').last();
-  const points = [
-    [0.05, 0.3],
-    [0.2, 0.78],
-    [0.36, 0.36],
-    [0.52, 0.66],
-  ];
-  await d.go(FLAT, null, lane, {
-    ms: 900,
-    fx: points[0][0],
-    fy: points[0][1],
-  });
-  const l = await lane.boundingBox();
-  const at = (fx, fy) => ({ x: l.x + l.width * fx, y: l.y + l.height * fy });
-  for (const [fx, fy] of points.slice(1)) {
-    await d.wait(120);
-    const p = at(fx, fy);
-    await d.clickAt(p.x, p.y, 380);
+  if (first > notes.low || last < notes.high) {
+    console.warn("the chords' piano doesn't show every chord note");
   }
-  await d.wait(150);
-  await d.drag(at(0.2, 0.78), at(0.22, 0.5), 800);
-  await d.wait(250);
-  await Promise.all([
-    d.frame(lane, { cropX: [0, 0.62], pad: 16, maxZoom: 1.9 }, 1300, {
-      rx: 2,
-      ry: -5,
-    }),
-    d.away(700),
-  ]);
-  await drift(1100, { ry: -1 });
-  await mark('automation');
-
-  // 8. Mix: the meters, then the effects and sends.
-  await Promise.all([d.to({ ...WIDE, rx: 4, ry: 6 }, 1400), d.away(600)]);
-  await d.go(FLAT, null, page.getByRole('tab', { name: 'Mix', exact: true }), {
-    ms: 800,
-  });
-  await d.wait(350);
-  const strip = (name) => page.getByText(name, { exact: true }).first();
-  await Promise.all([
-    d.frame(
-      ['Keys', 'Bass', 'Lead', 'Drums'].map(strip),
-      { pad: 40, toBottom: 0.97, fit: 'width', focusY: 0.62, maxZoom: 1.8 },
-      1200,
-      { rx: 2, ry: -5 },
-    ),
-    d.away(500),
-  ]);
-  await drift(1500, { zoom: 1.03, ry: -1 });
-  await d.frame(
-    [strip('Keys'), strip('Drums'), page.getByText('Compressor').first()],
-    { pad: 36, extraBottom: 150, maxZoom: 1.9 },
-    1400,
-    { rx: 2, ry: 5 },
-  );
-  await drift(1100, { ry: 1 });
-  // Back out to the opening shot: the loop's seam.
-  await d.to(WIDE, 1700);
-  await mark('mix');
+  await select(notes.drums);
+  await page.getByTestId('drum-kit').waitFor({ timeout: 20_000 });
 }

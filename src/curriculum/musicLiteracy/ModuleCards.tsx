@@ -1,5 +1,6 @@
 import { Sparkles, Trophy, X } from 'lucide-react';
 import { useId } from 'react';
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
 import type { LiteracyRound } from '@/content/musicLiteracy/schemas';
 import { titleCase } from '@/content/musicLiteracy/titleCase';
@@ -114,7 +115,9 @@ export function LessonIntroCard({
       aria-labelledby={headingId}
       data-literacy-intro
       className={cn(
-        'flex min-h-[280px] flex-1 flex-col items-center justify-center gap-6 rounded-xl border border-white/[0.08] bg-white/[0.03] text-center',
+        PROMPT_SURFACE,
+
+        'flex min-h-[280px] flex-1 flex-col items-center justify-center gap-6 text-center',
         stacked ? 'p-6' : 'p-10',
       )}
     >
@@ -213,7 +216,10 @@ export function ModuleDoneCard({
       aria-labelledby={headingId}
       data-literacy-module-done={module.title}
       data-round={round}
-      className="my-auto flex max-h-full min-h-0 flex-col gap-4 overflow-y-auto rounded-xl border border-white/[0.08] bg-[#151518] p-5"
+      className={cn(
+        PROMPT_SURFACE,
+        'my-auto flex max-h-full min-h-0 flex-col gap-4 overflow-y-auto p-5',
+      )}
     >
       {!whole && (
         <p className="text-xs uppercase tracking-[0.14em] text-white/45">

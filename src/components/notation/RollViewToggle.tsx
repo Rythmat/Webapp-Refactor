@@ -1,8 +1,4 @@
-import { ChartNoAxesGantt, Hand, Music, type LucideIcon } from 'lucide-react';
-import {
-  useFingeringDisplay,
-  usePianoDisplaySettings,
-} from '@/features/learn/usePianoDisplaySettings';
+import { ChartNoAxesGantt, Music, type LucideIcon } from 'lucide-react';
 import { useRollView, type RollView } from '@/lib/notation';
 
 /**
@@ -74,9 +70,10 @@ export function RollViewToggle({
 }
 
 /**
- * The same switch at a lesson's nav-row size, beside the section pills and
- * ♪ Practice Track: an icon and a word per view, the choice a white pill, on
- * the device's saved Learn view (so the roll it drives follows).
+ * The same switch at a sheet row's size (Echo's settings): an icon and a word
+ * per view, the choice a white pill, on the device's saved Learn view (so the
+ * roll it drives follows). Lessons have it on their tool rail
+ * (LessonToolRail).
  */
 export function SavedRollViewSwitch() {
   const [view, setView] = useRollView('learn');
@@ -124,34 +121,5 @@ export function SavedRollViewSwitch() {
         </button>
       ))}
     </div>
-  );
-}
-
-/**
- * The book's hands over the keys, on or off: one pill beside the note-view
- * switch, at its size. `lessonDefault` is what the lesson shows before the
- * student has chosen (on in Piano Fundamentals).
- */
-export function SavedHandsSwitch({
-  lessonDefault = false,
-}: {
-  lessonDefault?: boolean;
-}) {
-  const { hands } = useFingeringDisplay({ hands: lessonDefault });
-  const setShowHands = usePianoDisplaySettings((s) => s.setShowHands);
-  return (
-    <button
-      type="button"
-      aria-pressed={hands}
-      data-hands-switch
-      title={hands ? 'Hide the hands' : 'Show the hands on the keys'}
-      onClick={() => setShowHands(!hands)}
-      className={`inline-flex h-9 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-normal ring-1 ring-inset ring-white/10 transition-colors duration-150 max-[639px]:h-11 ${
-        hands ? 'bg-white text-[#101012]' : 'text-white/55 hover:text-[#e8e8f0]'
-      }`}
-    >
-      <Hand aria-hidden className="size-4 shrink-0" />
-      Hands
-    </button>
   );
 }

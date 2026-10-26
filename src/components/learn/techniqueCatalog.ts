@@ -8,6 +8,8 @@ export interface TechniqueItem {
   route: string;
   image: string;
   interactive: boolean;
+  /** The interval its tile draws (a Lissajous figure, owner 2026-10-26). */
+  ratio: readonly [number, number];
 }
 
 export const PIANO_TECHNIQUE_DATA: readonly TechniqueItem[] = [
@@ -16,12 +18,16 @@ export const PIANO_TECHNIQUE_DATA: readonly TechniqueItem[] = [
     route: CurriculumRoutes.genre({ genre: 'piano-fundamentals' }),
     image: '/learn-tiles/beginner-hex.svg',
     interactive: true,
+    // The octave: where the keyboard starts.
+    ratio: [1, 2],
   },
   {
     title: 'Applied Theory Fundamentals',
     route: CurriculumRoutes.appliedTheoryFundamentals(),
     image: '/learn-tiles/beginner-hex.svg',
     interactive: true,
+    // The fifth: the logo's own curve.
+    ratio: [2, 3],
   },
   // Music Literacy is not a Technique tile: it is a path across Learn, the
   // Studio and the Arcade, Learn → Start Here (musicLiteracy/literacyPath.ts).

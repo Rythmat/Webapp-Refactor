@@ -10,6 +10,9 @@ import { useHomeActivity } from './useHomeActivity';
 /** How long each activity shows before the rail moves to the next. */
 const CYCLE_S = 20;
 
+/** Labels the rail leaves out: the art and title already say what it is. */
+const HIDDEN_LABELS = new Set(['Song', 'Saved Song', 'On this device']);
+
 const KIND_ICON = {
   lesson: BookOpen,
   project: SlidersHorizontal,
@@ -76,7 +79,9 @@ export const ActivityRail = () => {
 
   if (count === 0) return null;
   const item = items[i];
-  const label = `${item.category} · ${item.subtitle}`;
+  const label = [item.category, item.subtitle]
+    .filter((part) => part && !HIDDEN_LABELS.has(part))
+    .join(' · ');
 
   return (
     <aside
@@ -103,7 +108,7 @@ export const ActivityRail = () => {
             to={item.route}
             className="group flex min-w-0 items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
-            <span className="relative size-11 shrink-0 overflow-hidden rounded-md bg-white/[0.06]">
+            <span className="relative size-11 shrink-0 overflow-hidden rounded-md">
               <Art item={item} />
             </span>
             <span className="min-w-0">

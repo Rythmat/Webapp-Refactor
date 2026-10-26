@@ -2,6 +2,8 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import { X } from 'lucide-react';
 import {
+  createContext,
+  useContext,
   useId,
   useRef,
   type KeyboardEvent,
@@ -9,6 +11,10 @@ import {
   type ReactNode,
   type Ref,
 } from 'react';
+import {
+  PROMPT_FRAME,
+  PROMPT_WASH,
+} from '@/components/promptBox/PromptBoxParts';
 import {
   Sheet,
   SheetClose,
@@ -19,6 +25,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/components/utilities';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useLessonSheetDock } from './LessonToolRail';
 
 // ── Guitar lesson sheets: the shared parts ─────────────────────────────────
 // The side sheet both guitar sheets are built on (right on a wide screen,
@@ -99,6 +106,10 @@ export function GuitarSheet({
   children,
 }: GuitarSheetProps) {
   const side = useMediaQuery(SHEET_SIDE_QUERY) ? 'right' : 'bottom';
+  // In a lesson, from the right it opens beside the tool rail, in the
+  // lesson's column (LessonToolRail), as the Studio's panels do.
+  const dock = useLessonSheetDock();
+  const docked = side === 'right' && dock ? dock : null;
   const titleRef = useRef<HTMLHeadingElement>(null);
   // The lesson opens the sheet from its own button, outside the sheet's
   // Radix root, so the sheet keeps what had focus to return it there, and
@@ -109,7 +120,7 @@ export function GuitarSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={modal}>
-      <SheetPortal>
+      <SheetPortal container={docked ?? undefined}>
         {modal && (
           <SheetOverlay className="bg-black/60 data-[state=closed]:duration-150 data-[state=open]:duration-200" />
         )}
@@ -146,24 +157,47 @@ export function GuitarSheet({
             if (!modal) leftOutside.current = true;
           }}
           className={cn(
-            'fixed z-50 flex flex-col bg-[#151518] text-[#e8e8f0] shadow-2xl outline-none',
+            docked ? 'absolute' : 'fixed',
+            'z-50 flex flex-col bg-[#151518] text-[#e8e8f0] shadow-2xl outline-none',
             'data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:duration-150 data-[state=open]:duration-200',
-            side === 'right'
-              ? cn(
-                  'inset-y-0 right-0 h-full w-full border-l border-white/[0.08] motion-safe:data-[state=closed]:slide-out-to-right motion-safe:data-[state=open]:slide-in-from-right',
-                  width === 440 ? 'max-w-[440px]' : 'max-w-[400px]',
-                )
-              : 'inset-x-0 bottom-0 max-h-[85dvh] rounded-t-2xl border-t border-white/[0.08] motion-safe:data-[state=closed]:slide-out-to-bottom motion-safe:data-[state=open]:slide-in-from-bottom',
+            // In a lesson: About this step's Insight panel (LessonInsightPanel),
+            // a 300px card over the lesson's edge beside the tool rail.
+            docked
+              ? 'inset-y-2 right-0 w-[300px] overflow-hidden rounded-xl border border-white/[0.06]'
+              : side === 'right'
+                ? cn(
+                    'inset-y-0 right-0 h-full w-full border-l border-white/[0.08] motion-safe:data-[state=closed]:slide-out-to-right motion-safe:data-[state=open]:slide-in-from-right',
+                    width === 440 ? 'max-w-[440px]' : 'max-w-[400px]',
+                  )
+                : 'inset-x-0 bottom-0 max-h-[85dvh] rounded-t-2xl border-t border-white/[0.08] motion-safe:data-[state=closed]:slide-out-to-bottom motion-safe:data-[state=open]:slide-in-from-bottom',
           )}
         >
-          <header className="flex min-h-16 shrink-0 items-center justify-between gap-3 border-b border-white/[0.08] py-2 pl-6 pr-3 max-sm:pl-4">
+          <header
+            className={cn(
+              'flex shrink-0 items-center justify-between',
+              docked
+                ? 'h-10 gap-2 border-b border-white/[0.06] pl-3 pr-1.5'
+                : 'min-h-16 gap-3 border-b border-white/[0.08] py-2 pl-6 pr-3 max-sm:pl-4',
+            )}
+          >
             <SheetTitle
               ref={titleRef}
               tabIndex={-1}
-              className="min-w-0 text-xl font-normal leading-7 text-[#e8e8f0] outline-none"
+              className={cn(
+                'min-w-0 outline-none',
+                docked
+                  ? 'truncate text-sm font-medium text-white'
+                  : 'text-xl font-normal leading-7 text-[#e8e8f0]',
+              )}
             >
               {eyebrow && (
-                <span className="block text-xs uppercase leading-4 tracking-[0.14em] text-white/45">
+                <span
+                  className={cn(
+                    docked
+                      ? 'sr-only'
+                      : 'block text-xs uppercase leading-4 tracking-[0.14em] text-white/45',
+                  )}
+                >
                   {eyebrow}
                   <span className="sr-only">: </span>
                 </span>
@@ -172,7 +206,10 @@ export function GuitarSheet({
             </SheetTitle>
             <SheetClose
               className={cn(
-                'flex size-9 shrink-0 items-center justify-center rounded-full text-white/55 transition-colors hover:bg-white/[0.06] hover:text-[#e8e8f0] max-sm:size-11',
+                'flex shrink-0 items-center justify-center text-white/55 transition-colors hover:bg-white/[0.06] hover:text-[#e8e8f0]',
+                docked
+                  ? 'size-7 rounded-md text-white/60 hover:text-white'
+                  : 'size-9 rounded-full max-sm:size-11',
                 FOCUS_RING,
               )}
             >
@@ -180,8 +217,20 @@ export function GuitarSheet({
               <span className="sr-only">Close</span>
             </SheetClose>
           </header>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5 max-sm:px-4 max-sm:pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-            {children}
+          <div
+            className={cn(
+              'min-h-0 flex-1 overflow-y-auto overscroll-contain',
+              // The panel: Insight's cards, 8px apart, each its own padding
+              // (the sheet's dividers and spacing between groups go).
+              docked
+                ? 'flex flex-col gap-2 p-2 [&>div]:flex [&>div]:flex-col [&>div]:gap-2 [&>div]:divide-y-0 [&_[data-settings-group]]:py-3'
+                : 'px-6 py-5 max-sm:px-4 max-sm:pb-[max(1.25rem,env(safe-area-inset-bottom))]',
+            )}
+            style={docked ? { scrollbarWidth: 'thin' } : undefined}
+          >
+            <SheetLookContext.Provider value={docked ? 'panel' : 'sheet'}>
+              {children}
+            </SheetLookContext.Provider>
           </div>
         </DialogPrimitive.Content>
       </SheetPortal>
@@ -190,6 +239,15 @@ export function GuitarSheet({
 }
 
 // ── Groups and rows ────────────────────────────────────────────────────────
+
+/**
+ * How the sheet is drawn: in a lesson (from the right), the Studio's Insight
+ * panel, its groups Insight's cards; else the sheet, its groups plain.
+ */
+const SheetLookContext = createContext<'panel' | 'sheet'>('sheet');
+
+/** In the lesson's Insight-style panel (rows that need room can stack). */
+export const useSettingsPanel = () => useContext(SheetLookContext) === 'panel';
 
 export interface SettingsSectionProps {
   label: string;
@@ -207,11 +265,17 @@ export function SettingsSection({
   className,
 }: SettingsSectionProps) {
   const headingId = useId();
+  const panel = useContext(SheetLookContext) === 'panel';
   return (
     <section
       data-settings-group={label.toLowerCase()}
       aria-labelledby={headingId}
-      className={cn('flex flex-col', className)}
+      className={cn(
+        'flex flex-col',
+        // Insight's card (InsightCard): the prompt box's.
+        panel && cn(PROMPT_FRAME, PROMPT_WASH, 'px-4 py-3'),
+        className,
+      )}
     >
       <SettingsGroupLabel id={headingId} headingRef={headingRef}>
         {label}
@@ -231,12 +295,18 @@ export function SettingsGroupLabel({
   headingRef?: Ref<HTMLHeadingElement>;
   children: ReactNode;
 }) {
+  const panel = useContext(SheetLookContext) === 'panel';
   return (
     <h3
       id={id}
       ref={headingRef}
       tabIndex={-1}
-      className="scroll-mt-4 pb-1 text-xs uppercase leading-4 tracking-[0.14em] text-white/45 outline-none"
+      className={cn(
+        'scroll-mt-4 outline-none',
+        panel
+          ? 'pb-1 text-[13px] font-medium leading-6 text-white/55'
+          : 'pb-1 text-xs uppercase leading-4 tracking-[0.14em] text-white/45',
+      )}
     >
       {children}
     </h3>

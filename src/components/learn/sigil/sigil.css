@@ -1,0 +1,140 @@
+/*
+ * Learn's tile sigils (owner, 2026-10-26): white line geometry drawn from
+ * the music, after the "Sacred Geometry" poster and the interval
+ * harmonograph chart. One weight of line, no fills, colour (the tile's
+ * accent) only on the notes that matter. Hovering the card (`.sigil-host`)
+ * draws the figure, lights its notes in order and warms the line toward the
+ * accent; under reduced motion it stays still.
+ */
+
+.sigil {
+  --sigil-line: rgb(255 255 255 / 0.82);
+  --sigil-faint: rgb(255 255 255 / 0.26);
+  --sigil-bg: #151518;
+  display: block;
+  overflow: visible;
+}
+
+/* Line weights in the figure's own units (100 across): about a pixel at a
+   tile's size. Not non-scaling strokes: Chrome mis-measures a dash drawn on
+   one, and the draw-on is dashes. */
+.sigil-line,
+.sigil-faint {
+  fill: none;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.sigil-line {
+  stroke: var(--sigil-line);
+  stroke-width: 0.6;
+  transition: stroke 600ms ease;
+}
+.sigil-faint {
+  stroke: var(--sigil-faint);
+  stroke-width: 0.45;
+}
+.sigil-tick {
+  fill: rgb(255 255 255 / 0.3);
+}
+
+/* A note: a small circle over the lines (Metatron's nodes). */
+.sigil-node {
+  fill: var(--sigil-bg);
+  stroke: var(--sigil-line);
+  stroke-width: 0.6;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: stroke 600ms ease;
+}
+.sigil-node--accent {
+  fill: var(--sigil-accent);
+  stroke: var(--sigil-accent);
+}
+.sigil-label {
+  fill: var(--sigil-accent);
+  font-size: 5.5px;
+  letter-spacing: 0.04em;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+/* The groove's playhead: shown only while it sweeps. */
+.sigil-playhead {
+  stroke: var(--sigil-accent);
+  stroke-width: 0.5;
+  opacity: 0;
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+/* ── Hover: the figure draws itself, its notes light in order ──────── */
+
+.sigil-host:is(:hover, :focus-within) .sigil-line {
+  stroke: color-mix(in oklab, var(--sigil-accent) 55%, white);
+}
+.sigil-host:is(:hover, :focus-within) .sigil-node {
+  stroke: color-mix(in oklab, var(--sigil-accent) 55%, white);
+}
+.sigil-host:is(:hover, :focus-within) .sigil-draw {
+  stroke-dasharray: 1;
+  animation: sigil-draw 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.sigil-host:is(:hover, :focus-within) .sigil-pop {
+  animation: sigil-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: calc(var(--i, 0) * 80ms + 180ms);
+}
+/* A groove's hits flash as the playhead passes, round and round. */
+.sigil-host:is(:hover, :focus-within) .sigil-playhead {
+  opacity: 0.7;
+  animation: sigil-sweep var(--bar, 2.4s) linear infinite;
+}
+.sigil-host:is(:hover, :focus-within) .sigil-hit {
+  animation: sigil-hit var(--bar, 2.4s) linear infinite;
+  animation-delay: calc(var(--t, 0) * var(--bar, 2.4s));
+}
+
+@keyframes sigil-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes sigil-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.7);
+  }
+}
+@keyframes sigil-sweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes sigil-hit {
+  0% {
+    transform: scale(1.8);
+    fill: var(--sigil-accent);
+    stroke: var(--sigil-accent);
+  }
+  14%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sigil-host .sigil * {
+    animation: none !important;
+  }
+  .sigil-host .sigil-playhead {
+    opacity: 0 !important;
+  }
+}

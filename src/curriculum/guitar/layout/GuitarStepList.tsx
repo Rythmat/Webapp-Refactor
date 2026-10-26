@@ -30,7 +30,8 @@ export function stepAccessibleName(step: NavStep): string {
   const passes = markedPasses(step)
     .map((pass) => `; ${pass.label}${STATUS_WORDS[pass.status]}`)
     .join('');
-  return `${step.code}: ${step.title}${STATUS_WORDS[step.status]}${passes}`;
+  const code = step.code ? `${step.code}: ` : '';
+  return `${code}${step.title}${STATUS_WORDS[step.status]}${passes}`;
 }
 
 export function StepStatusMark({
@@ -95,6 +96,8 @@ export interface GuitarStepListProps {
   onPick: (index: number) => void;
   /** A group's header button, by its subsection (StepNavModel's). */
   groupAction?: ((subsection: string) => NavGroupAction | null) | null;
+  /** Narrower code column and gaps, for the lesson rail. */
+  dense?: boolean;
 }
 
 export function GuitarStepList({
@@ -102,6 +105,7 @@ export function GuitarStepList({
   index,
   onPick,
   groupAction,
+  dense = false,
 }: GuitarStepListProps) {
   const baseId = useId();
   return (
@@ -110,32 +114,38 @@ export function GuitarStepList({
         const headingId = `${baseId}-${g}`;
         const action = groupAction?.(group.subsection) ?? null;
         return (
-          <section key={headingId} aria-labelledby={headingId}>
-            <div className="flex items-end gap-2 px-2 pb-1 pt-2">
-              <h3
-                id={headingId}
-                className="min-w-0 flex-1 text-xs font-normal uppercase tracking-[0.14em] text-white/45"
-              >
-                {group.subsection}
-              </h3>
-              {action && (
-                <button
-                  type="button"
-                  data-group-action={group.subsection}
-                  data-group-action-status={action.status ?? 'todo'}
-                  aria-label={`${action.label}: ${group.subsection}${STATUS_WORDS[action.status ?? 'todo']}`}
-                  onClick={action.onPick}
-                  className="-my-1 inline-flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs font-normal text-[#e8e8f0] ring-1 ring-inset ring-white/15 transition-colors duration-150 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-white/60 max-[639px]:h-9"
+          <section
+            key={headingId}
+            aria-labelledby={group.subsection ? headingId : undefined}
+          >
+            {/* A group without a name (the Overview's tabs) has no heading. */}
+            {group.subsection && (
+              <div className="flex items-end gap-2 px-2 pb-1 pt-2">
+                <h3
+                  id={headingId}
+                  className="min-w-0 flex-1 text-xs font-normal uppercase tracking-[0.14em] text-white/45"
                 >
-                  {action.label}
-                  {action.status === 'passed' ? (
-                    <StepStatusMark status="passed" className="size-3.5" />
-                  ) : (
-                    <ChevronRight aria-hidden className="size-3.5" />
-                  )}
-                </button>
-              )}
-            </div>
+                  {group.subsection}
+                </h3>
+                {action && (
+                  <button
+                    type="button"
+                    data-group-action={group.subsection}
+                    data-group-action-status={action.status ?? 'todo'}
+                    aria-label={`${action.label}: ${group.subsection}${STATUS_WORDS[action.status ?? 'todo']}`}
+                    onClick={action.onPick}
+                    className="-my-1 inline-flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs font-normal text-[#e8e8f0] ring-1 ring-inset ring-white/15 transition-colors duration-150 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-white/60 max-[639px]:h-9"
+                  >
+                    {action.label}
+                    {action.status === 'passed' ? (
+                      <StepStatusMark status="passed" className="size-3.5" />
+                    ) : (
+                      <ChevronRight aria-hidden className="size-3.5" />
+                    )}
+                  </button>
+                )}
+              </div>
+            )}
             <ul className="flex flex-col">
               {group.rows.map(({ step, index: i }) => (
                 <li key={i}>
@@ -146,7 +156,8 @@ export function GuitarStepList({
                     data-step-status={step.status}
                     onClick={() => onPick(i)}
                     className={cn(
-                      'flex min-h-9 w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left text-sm font-normal transition-colors duration-150 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-white/60 max-[639px]:min-h-11',
+                      'flex min-h-9 w-full items-center rounded-lg px-2 py-1.5 text-left text-sm font-normal transition-colors duration-150 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-white/60 max-[639px]:min-h-11',
+                      dense ? 'gap-2' : 'gap-3',
                       i === index
                         ? 'bg-white/[0.08] text-[#e8e8f0]'
                         : 'text-white/55',
@@ -163,9 +174,17 @@ export function GuitarStepList({
                         />
                       )}
                     </span>
-                    <span className="w-12 shrink-0 text-xs text-white/45">
-                      {step.code}
-                    </span>
+                    {/* No code (Theory's numbered groups), no column. */}
+                    {step.code && (
+                      <span
+                        className={cn(
+                          'shrink-0 text-xs text-white/45',
+                          dense ? 'w-9' : 'w-12',
+                        )}
+                      >
+                        {step.code}
+                      </span>
+                    )}
                     <span className="min-w-0 flex-1">{step.title}</span>
                     {markedPasses(step).map((pass) => (
                       <span

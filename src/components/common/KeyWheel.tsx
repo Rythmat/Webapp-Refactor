@@ -18,6 +18,8 @@ import {
  */
 
 const DEFAULT_SIZE = 180;
+/** A wedge outside a lit scale. */
+const OUT_OF_SCALE = '#2e2e34';
 const SLICE_ANGLE = (2 * Math.PI) / 12;
 const START_OFFSET = -Math.PI / 2 - SLICE_ANGLE / 2; // C sits at the top
 
@@ -55,6 +57,21 @@ export interface KeyWheelProps {
   size?: number;
   /** Omit to render a picture rather than a control. */
   onSelectPc?: (pc: number) => void;
+  /** A scale's notes lit on the wheel: these pitch classes in colour
+   *  (`scaleColor`, the mode's, or else each wedge's own), the rest grey. */
+  inScalePcs?: readonly number[];
+  /** The one colour a lit scale's wedges take (C Lydian's orange). */
+  scaleColor?: string;
+  /** The wedges' order: round the circle of fifths (the default, C G D …)
+   *  or chromatically, a semitone a wedge (C D♭ D …), as the mode page's
+   *  star turns from one to the other. */
+  order?: 'fifths' | 'chromatic';
+  /** In chromatic order, the note kept on its circle-of-fifths wedge (the
+   *  chosen key); the rest are lettered a semitone a wedge round from it.
+   *  C by default: plain chromatic, C at the top. */
+  chromaticAnchor?: number;
+  /** The key under the pointer or the keyboard focus, null as it leaves. */
+  onHoverPc?: (pc: number | null) => void;
   /** Rendered under the wheel: the Studio's mode menu, or a fixed label. */
   footer?: ReactNode;
   ariaLabel?: string;
@@ -65,6 +82,11 @@ export function KeyWheel({
   mode,
   size = DEFAULT_SIZE,
   onSelectPc,
+  onHoverPc,
+  inScalePcs,
+  scaleColor,
+  order = 'fifths',
+  chromaticAnchor = 0,
   footer,
   ariaLabel = 'Key',
 }: KeyWheelProps) {
@@ -81,8 +103,6 @@ export function KeyWheel({
       selectedPc === null ? null : wheelScaleInfo(selectedPc, mode)?.spellings,
     [selectedPc, mode],
   );
-  const selectedIndex =
-    selectedPc === null ? null : (SEMITONE_TO_CIRCLE_INDEX[selectedPc] ?? null);
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -95,17 +115,34 @@ export function KeyWheel({
         aria-label={ariaLabel}
       >
         {Array.from({ length: 12 }, (_, i) => {
-          const index = i + 1;
-          const semitone = CIRCLE_SEMITONES[index];
-          const isSelected = index === selectedIndex;
+          // Wedge i (clockwise from the top) holds a fifth more than the
+          // last, or in chromatic order a semitone more, round from the
+          // anchor on its own fifths wedge.
+          const semitone =
+            order === 'chromatic'
+              ? (((chromaticAnchor +
+                  i -
+                  (SEMITONE_TO_CIRCLE_INDEX[chromaticAnchor] - 1)) %
+                  12) +
+                  12) %
+                12
+              : CIRCLE_SEMITONES[i + 1];
+          const index = SEMITONE_TO_CIRCLE_INDEX[semitone];
+          const isSelected = semitone === selectedPc;
 
           // Every wedge always wears the colour that key would be in this
           // mode, so picking a new tonic reads as a colour change: C to F is
           // red to pink in Ionian, and pink to red from C to G in Mixolydian.
           // The keys never move; only the colours shift with the mode.
           const [r, g, b] = wedgeColorRgb(semitone, mode);
-          const fill = `rgb(${r}, ${g}, ${b})`;
-          const opacity = isSelected ? 1 : 0.8;
+          const inScale = !inScalePcs || inScalePcs.includes(semitone);
+          // A lit scale: its notes in the mode's colour, the rest grey.
+          const fill = !inScale
+            ? OUT_OF_SCALE
+            : inScalePcs && scaleColor
+              ? scaleColor
+              : `rgb(${r}, ${g}, ${b})`;
+          const opacity = isSelected || inScalePcs ? 1 : 0.8;
 
           const startAngle = START_OFFSET + i * SLICE_ANGLE;
           const endAngle = startAngle + SLICE_ANGLE;
@@ -116,12 +153,19 @@ export function KeyWheel({
 
           return (
             <g
-              key={index}
+              key={i}
               onClick={onSelectPc ? () => onSelectPc(semitone) : undefined}
+              onPointerEnter={onHoverPc ? () => onHoverPc(semitone) : undefined}
+              onPointerLeave={onHoverPc ? () => onHoverPc(null) : undefined}
+              onFocus={onHoverPc ? () => onHoverPc(semitone) : undefined}
+              onBlur={onHoverPc ? () => onHoverPc(null) : undefined}
               role={onSelectPc ? 'radio' : undefined}
               aria-checked={onSelectPc ? isSelected : undefined}
               aria-label={onSelectPc ? label : undefined}
               tabIndex={onSelectPc ? 0 : undefined}
+              // The focused wedge is outlined by the highlight it gets (the
+              // selection's white edge), not the browser's box.
+              className="outline-none"
               onKeyDown={
                 onSelectPc
                   ? (e) => {
@@ -136,17 +180,28 @@ export function KeyWheel({
             >
               <path
                 d={arcPath(cx, cy, innerR, outerR, startAngle, endAngle)}
-                fill={fill}
+                data-scale={inScalePcs ? (inScale ? 'in' : 'out') : undefined}
                 stroke={isSelected ? '#fff' : 'rgba(0,0,0,0.3)'}
                 strokeWidth={isSelected ? 2.5 : 0.5}
-                opacity={opacity}
+                // Eased, as a scale lights or the wheel steps back.
+                style={{
+                  fill,
+                  opacity,
+                  transition: 'fill 500ms ease, opacity 400ms ease',
+                }}
               />
               <text
                 x={cx + labelR * Math.cos(midAngle)}
                 y={cy + labelR * Math.sin(midAngle)}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fill={isSelected ? '#fff' : 'rgba(255,255,255,0.85)'}
+                fill={
+                  isSelected
+                    ? '#fff'
+                    : inScale
+                      ? 'rgba(255,255,255,0.85)'
+                      : 'rgba(255,255,255,0.4)'
+                }
                 fontSize={(index === 7 ? 9 : 10) * scale}
                 fontWeight={isSelected ? 700 : 500}
                 style={{ pointerEvents: 'none' }}

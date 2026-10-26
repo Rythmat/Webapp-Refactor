@@ -252,7 +252,6 @@ function EchoClassStudentScreen({
                 : undefined
             }
             isRight={lights ? isRight : undefined}
-            keyboardMaxHeight={130}
             enabled={!disabled && ready && status !== 'paused'}
             className={input === 'pads' ? 'min-h-[180px] pt-6' : undefined}
           />

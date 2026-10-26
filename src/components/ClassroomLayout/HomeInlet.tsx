@@ -4,9 +4,11 @@
  * ClassroomDashboard. The previous sections (AnnouncementsRow, WelcomeHeader,
  * QuickStartSection, RecentActivitySection, ChallengesCard, PathwaysSection,
  * SongsSection, GlobeSection, DashboardFooter) are still in ./dashboard/ —
- * unmounted, not deleted. So is ./home/HomeSongsRow; the Catalog moved to
- * Learn's Genre page (learn/GenreCatalogRow, owner 2026-10-25).
+ * unmounted, not deleted. So is ./home/HomeSongsRow; the Catalog
+ * (learn/GenreCatalogRow) moved to Learn's Genre page, then came off it too
+ * (owner 2026-10-26).
  */
+import { PerStudent } from '@/components/ui/PerStudent';
 import { ActivityRail } from './home/ActivityRail';
 import { HomeGlobeCard } from './home/HomeGlobeCard';
 import { HomeGlow } from './home/HomeGlow';
@@ -51,7 +53,9 @@ export const HomeInlet = () => {
             </div>
             {/* The Projects card fills this cell and no more (see the card). */}
             <div className="relative">
-              <HomeProjectsCard />
+              <PerStudent label="Projects" className="h-full">
+                <HomeProjectsCard />
+              </PerStudent>
             </div>
           </div>
         </div>
@@ -73,7 +77,13 @@ export const HomeInlet = () => {
         -8px stick take it to the panel's edges, past the scroll area's
         8px padding. */}
       <div className="sticky -bottom-2 z-20 -mx-2 -mb-2 mt-auto">
-        <ActivityRail />
+        <PerStudent
+          label="Recent activity"
+          minHeight={72}
+          className="rounded-none bg-[#0c0c0e]"
+        >
+          <ActivityRail />
+        </PerStudent>
       </div>
     </div>
   );

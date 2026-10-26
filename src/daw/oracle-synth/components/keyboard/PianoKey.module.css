@@ -102,3 +102,13 @@
   color: var(--daw-key-ink);
   pointer-events: none;
 }
+
+/* A picture of the keys (a lesson's that can't be played by pointer). */
+.whiteKey.still,
+.blackKey.still {
+  cursor: default;
+}
+.whiteKey.still:hover,
+.blackKey.still:hover {
+  filter: none;
+}

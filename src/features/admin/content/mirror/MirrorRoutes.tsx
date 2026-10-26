@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { lazy, useMemo } from 'react';
 import {
   Navigate,
   type RouteObject,
@@ -16,7 +16,6 @@ import {
 import { searchPages } from '@/features/search/routes';
 import { NotMirroredYet } from './NotMirroredYet';
 import { ClassroomMirror } from './segments/ClassroomMirror';
-import { HomeMirror } from './segments/HomeMirror';
 import { LearnMirror } from './segments/LearnMirror';
 import { SongMirrorPage } from './segments/SongMirrorPage';
 import { TeachMirror } from './segments/TeachMirror';
@@ -31,6 +30,13 @@ import { TeachMirror } from './segments/TeachMirror';
  * in the console without anyone remembering to add it. Only the exceptions
  * are listed: pages that show a student's own data rather than content.
  */
+
+/** The app's Home, as students see it (their own parts as placeholders). */
+const HomeInlet = lazy(() =>
+  import('@/components/ClassroomLayout/HomeInlet').then((m) => ({
+    default: m.HomeInlet,
+  })),
+);
 
 type Factory = () => { path?: string; children?: RouteObject[] };
 
@@ -56,9 +62,9 @@ const notMirrored = (child: RouteObject): RouteObject => ({
 });
 
 const buildRoutes = (): RouteObject[] => [
-  { path: '/', element: <HomeMirror /> },
+  { path: '/', element: <HomeInlet /> },
   // Home: the dashboard only; awards and the plan page are per-student.
-  { path: '/home', element: <HomeMirror /> },
+  { path: '/home', element: <HomeInlet /> },
   // Learn, always on a tab (LearnMirror explains why).
   segment(learnPages, (child) =>
     child.index ? { ...child, element: <LearnMirror /> } : child,

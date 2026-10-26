@@ -1,8 +1,7 @@
 import { Play } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import * as Tone from 'tone';
 import { startEpSampler, triggerEpAttackRelease } from '@/audio/epSampler';
-import { PianoKeyboard } from '@/components/PianoKeyboard';
 import {
   buildTriads,
   buildSevenths,
@@ -16,14 +15,26 @@ import {
   getNoteSpelling,
 } from '@/components/learn/noteSpellingLookup';
 import {
+  PROMPT_FRAME,
+  PROMPT_PILL,
+  PROMPT_PILL_OFF,
+  PROMPT_PILL_ON,
+  PROMPT_SURFACE,
+  PROMPT_WASH,
+  PromptPillButton,
+} from '@/components/promptBox/PromptBoxParts';
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { cn } from '@/components/utilities';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
 import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
+import { KeyboardDiagram } from '@/learn/components/KeyboardDiagram';
+import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import {
   formatChord,
   useChordNotation,
@@ -40,6 +51,8 @@ type LessonOverviewProps = {
   rootMidi: number;
   rootKey?: string;
   activeTab?: 'scale' | 'triads' | 'sevenths' | 'inversions';
+  /** Its "C Lydian" heading; off in a lesson, whose header names it. */
+  showTitle?: boolean;
 };
 
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
@@ -88,90 +101,8 @@ const normalizeSteps = (steps?: number[]) => {
   return Array.from(unique).sort((a, b) => a - b);
 };
 
-/**
- * PianoKeyboard octaves (N = MIDI N·12 … N·12+11) for a chord card: C3–B6,
- * widened when a voicing reaches past it — a high key's 7 chord an octave up
- * tops out near F7, and every note shown has to be on the keys.
- */
-const octavesFor = (notes: readonly { midi: number }[]) => {
-  const midis = notes.map((n) => n.midi);
-  return {
-    startC: Math.min(4, ...midis.map((m) => Math.floor(m / 12))),
-    endC: Math.max(7, ...midis.map((m) => Math.floor(m / 12))),
-  };
-};
-
 const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
   normalizeSteps(steps).map((interval) => rootMidi + interval);
-
-function midiToPlaybackEvents(
-  midis: number[],
-  prefix: string,
-): PlaybackEvent[] {
-  return midis.map((midi, i) => ({
-    id: `${prefix}-${midi}-${i}`,
-    type: 'note',
-    midi,
-    time: Date.now(),
-    duration: 0,
-    velocity: 1,
-  }));
-}
-
-function ScaledPiano({
-  children,
-  pointerEventsNone,
-}: {
-  children: React.ReactNode;
-  pointerEventsNone?: boolean;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
-  const [innerHeight, setInnerHeight] = useState<number | undefined>(undefined);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    const inner = innerRef.current;
-    if (!container || !inner) return;
-    let prevWidth = 0;
-    const update = () => {
-      const cw = container.clientWidth;
-      if (cw === prevWidth) return;
-      prevWidth = cw;
-      const iw = inner.scrollWidth;
-      const ih = inner.scrollHeight;
-      if (iw > 0) {
-        const s = cw / iw;
-        setScale(s);
-        setInnerHeight(ih);
-      }
-    };
-    const observer = new ResizeObserver(update);
-    observer.observe(container);
-    update();
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={containerRef}
-      className={`w-full overflow-hidden${pointerEventsNone ? ' pointer-events-none' : ''}`}
-      style={{ height: innerHeight ? `${innerHeight * scale}px` : undefined }}
-    >
-      <div
-        ref={innerRef}
-        style={{
-          width: 'fit-content',
-          transform: `scale(${scale})`,
-          transformOrigin: 'top left',
-        }}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
 
 async function playChord(midis: number[]) {
   await startEpSampler();
@@ -208,10 +139,6 @@ function ChordDetailDialog({
   noteNames: string[];
   activeKeyColor: string;
 }) {
-  const playingNotes = useMemo(
-    () => midiToPlaybackEvents(midis, `detail-${title}`),
-    [midis, title],
-  );
   const intervals = useMemo(() => chordIntervalLabels(midis), [midis]);
 
   const handlePlay = () => {
@@ -220,13 +147,8 @@ function ChordDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="glass-panel max-w-4xl rounded-2xl"
-        style={{
-          background: 'rgba(255,255,255,0.20)',
-          border: '1px solid var(--color-border)',
-        }}
-      >
+      {/* The prompt box's card, opaque over the page. */}
+      <DialogContent className={cn(PROMPT_SURFACE, 'max-w-4xl bg-[#141416]')}>
         <DialogHeader className="text-left">
           <DialogTitle
             className="text-lg"
@@ -236,17 +158,7 @@ function ChordDetailDialog({
           </DialogTitle>
           <DialogDescription />
         </DialogHeader>
-        <ScaledPiano>
-          <PianoKeyboard
-            activeBlackKeyColor={activeKeyColor}
-            activeWhiteKeyColor={activeKeyColor}
-            enableClick={false}
-            endC={octavesFor(playingNotes).endC}
-            playingNotes={playingNotes}
-            startC={octavesFor(playingNotes).startC}
-            useContextNotes={false}
-          />
-        </ScaledPiano>
+        <KeyboardDiagram notes={midis} color={activeKeyColor} />
         <p
           className="text-left text-base font-medium"
           style={{ color: '#ffffff' }}
@@ -260,18 +172,14 @@ function ChordDetailDialog({
           >
             Intervals: {intervals.join(', ')}
           </p>
-          <button
-            type="button"
+          <PromptPillButton
+            variant="primary"
             onClick={handlePlay}
-            className="flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors duration-150"
-            style={{
-              background: 'var(--color-accent)',
-              color: '#ffffff',
-            }}
+            className="gap-2"
           >
-            <Play size={16} fill="currentColor" />
+            <Play size={14} fill="currentColor" />
             Play
-          </button>
+          </PromptPillButton>
         </div>
       </DialogContent>
     </Dialog>
@@ -346,23 +254,15 @@ function ChordCard({
   const voicings = useMemo(() => buildInversions(chord), [chord]);
   const current = voicings[inversionIndex] ?? voicings[0];
 
-  const playingNotes = useMemo(
-    () =>
-      midiToPlaybackEvents(
-        current.midis,
-        `chord-${chord.degreeNumber}-inv${inversionIndex}`,
-      ),
-    [current.midis, chord.degreeNumber, inversionIndex],
-  );
-
   return (
     <>
       <div
-        className="glass-panel-sm relative flex cursor-pointer flex-col items-start gap-2 rounded-xl p-3 transition-colors duration-150 hover:brightness-110"
-        style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid var(--color-border)',
-        }}
+        // The prompt box's card, as Home's and Learn's.
+        className={cn(
+          PROMPT_FRAME,
+          PROMPT_WASH,
+          'flex cursor-pointer flex-col items-start gap-2 p-3 hover:bg-white/[0.06]',
+        )}
         onClick={() => setDetailOpen(true)}
       >
         <button
@@ -371,8 +271,7 @@ function ChordCard({
             e.stopPropagation();
             playChord(current.midis);
           }}
-          className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full transition-colors duration-150 hover:bg-white/10"
-          style={{ color: 'var(--color-accent)' }}
+          className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-full text-white/70 transition-colors duration-150 hover:bg-white/10 hover:text-white"
           aria-label="Play chord"
         >
           <Play size={16} fill="currentColor" />
@@ -383,17 +282,7 @@ function ChordCard({
         >
           {label}
         </p>
-        <ScaledPiano pointerEventsNone>
-          <PianoKeyboard
-            activeBlackKeyColor={activeKeyColor}
-            activeWhiteKeyColor={activeKeyColor}
-            enableClick={false}
-            endC={octavesFor(playingNotes).endC}
-            playingNotes={playingNotes}
-            startC={octavesFor(playingNotes).startC}
-            useContextNotes={false}
-          />
-        </ScaledPiano>
+        <KeyboardDiagram notes={current.midis} color={activeKeyColor} />
       </div>
       <ChordDetailDialog
         open={detailOpen}
@@ -463,7 +352,7 @@ function ChordGrid({
           <span style={{ fontSize: '18px' }}>&#x203A;</span>
         </button>
       </div>
-      <div className="grid w-full max-w-7xl grid-cols-2 gap-4">
+      <div className="grid w-full max-w-7xl grid-cols-1 gap-4">
         {displayChords.map((chord) => (
           <ChordCard
             key={chord.degreeNumber}
@@ -483,28 +372,22 @@ function InversionCard({
   midis,
   noteNames,
   activeKeyColor,
-  prefix,
 }: {
   label: string;
   midis: number[];
   noteNames: string[];
   activeKeyColor: string;
-  prefix: string;
 }) {
   const [detailOpen, setDetailOpen] = useState(false);
-  const playingNotes = useMemo(
-    () => midiToPlaybackEvents(midis, prefix),
-    [midis, prefix],
-  );
 
   return (
     <>
       <div
-        className="glass-panel-sm relative flex cursor-pointer flex-col items-center gap-2 rounded-xl p-3 transition-colors duration-150 hover:brightness-110"
-        style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid var(--color-border)',
-        }}
+        className={cn(
+          PROMPT_FRAME,
+          PROMPT_WASH,
+          'flex cursor-pointer flex-col items-center gap-2 p-3 hover:bg-white/[0.06]',
+        )}
         onClick={() => setDetailOpen(true)}
       >
         <button
@@ -513,8 +396,7 @@ function InversionCard({
             e.stopPropagation();
             playChord(midis);
           }}
-          className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full transition-colors duration-150 hover:bg-white/10"
-          style={{ color: 'var(--color-accent)' }}
+          className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-full text-white/70 transition-colors duration-150 hover:bg-white/10 hover:text-white"
           aria-label="Play chord"
         >
           <Play size={16} fill="currentColor" />
@@ -522,17 +404,7 @@ function InversionCard({
         <p className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
           {label}
         </p>
-        <ScaledPiano pointerEventsNone>
-          <PianoKeyboard
-            activeBlackKeyColor={activeKeyColor}
-            activeWhiteKeyColor={activeKeyColor}
-            enableClick={false}
-            endC={octavesFor(playingNotes).endC}
-            playingNotes={playingNotes}
-            startC={octavesFor(playingNotes).startC}
-            useContextNotes={false}
-          />
-        </ScaledPiano>
+        <KeyboardDiagram notes={midis} color={activeKeyColor} />
       </div>
       <ChordDetailDialog
         open={detailOpen}
@@ -574,18 +446,11 @@ function InversionsTab({
               key={t}
               type="button"
               onClick={() => setInvType(t)}
-              className="rounded-lg px-3 py-1 text-xs font-medium transition-colors duration-150"
-              style={{
-                background: isActive
-                  ? 'rgba(126, 207, 207, 0.12)'
-                  : 'rgba(255,255,255,0.03)',
-                border: isActive
-                  ? '1px solid var(--color-accent)'
-                  : '1px solid var(--color-border)',
-                color: isActive
-                  ? 'var(--color-accent)'
-                  : 'var(--color-text-dim)',
-              }}
+              aria-pressed={isActive}
+              className={cn(
+                PROMPT_PILL,
+                isActive ? PROMPT_PILL_ON : PROMPT_PILL_OFF,
+              )}
             >
               {label}
             </button>
@@ -615,7 +480,7 @@ function InversionsTab({
             >
               {diatonicChordLabel(chord, notation, keyRootPc)}
             </p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               {voicings.map((v) => (
                 <InversionCard
                   key={v.inversionIndex}
@@ -623,7 +488,6 @@ function InversionsTab({
                   label={v.inversionLabel}
                   midis={v.midis}
                   noteNames={chord.noteNames}
-                  prefix={`inv-${chord.degreeNumber}-${v.inversionIndex}`}
                 />
               ))}
             </div>
@@ -643,6 +507,7 @@ export function LessonOverview({
   rootMidi,
   rootKey,
   activeTab = 'scale',
+  showTitle = true,
 }: LessonOverviewProps) {
   const tab = activeTab;
   const { data: modeDetail, isPending: isModePending } = usePrismMode(mode);
@@ -764,25 +629,16 @@ export function LessonOverview({
     }, scaleMidis.length * 600);
   }, [scaleMidis]);
 
-  const { scaleStartC, scaleEndC } = useMemo(() => {
-    const midCenter = (scaleMidis[0] + scaleMidis[scaleMidis.length - 1]) / 2;
-    const centerOctave = Math.round(midCenter / 12) - 1;
-    return {
-      scaleStartC: Math.max(0, centerOctave - 2),
-      scaleEndC: centerOctave + 2,
-    };
-  }, [scaleMidis]);
-
   if (isUnknownMode) {
     return (
       <div
-        className="glass-panel-sm m-4 flex flex-col gap-2 rounded-xl p-4 text-left"
+        className={cn(
+          PROMPT_FRAME,
+          PROMPT_WASH,
+          'm-4 flex w-auto flex-col gap-2 p-5 text-left',
+        )}
         data-mode={mode}
         data-unknown-mode="true"
-        style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid var(--color-border)',
-        }}
       >
         <p className="text-base" style={{ color: 'var(--color-text)' }}>
           We don&rsquo;t have a scale named &ldquo;{mode}&rdquo;.
@@ -797,43 +653,36 @@ export function LessonOverview({
 
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
-      <h2
-        className="px-4 text-left text-2xl font-semibold md:text-3xl"
-        style={{ color: 'var(--color-text)' }}
-      >
-        {`${scaleNoteLabels[0] ?? PITCH_CLASS_NAMES[rootPitchClass]} ${modeName}`}
-      </h2>
+      {showTitle && (
+        <h2 className="px-4 text-left text-2xl font-normal leading-tight -tracking-wide text-white md:text-3xl">
+          {`${scaleNoteLabels[0] ?? PITCH_CLASS_NAMES[rootPitchClass]} ${modeName}`}
+        </h2>
+      )}
 
       {/* Scale tab */}
       {tab === 'scale' && (
         <div className="flex flex-col gap-3">
-          <ScaledPiano>
-            <PianoKeyboard
-              activeBlackKeyColor={activeKeyColor}
-              activeWhiteKeyColor={activeKeyColor}
-              enableClick={false}
-              endC={scaleEndC}
-              playingNotes={
-                animatingNotes.length > 0 ? animatingNotes : activeNotes
-              }
-              startC={scaleStartC}
-              useContextNotes={false}
-            />
-          </ScaledPiano>
+          {/* Every lesson's keyboard, docked on the bar (LessonKeyboard). */}
+          <LessonKeyboard
+            activeBlackKeyColor={activeKeyColor}
+            activeWhiteKeyColor={activeKeyColor}
+            enableClick={false}
+            playingNotes={
+              animatingNotes.length > 0 ? animatingNotes : activeNotes
+            }
+            targetMidis={scaleMidis}
+            useContextNotes={false}
+          />
+          {/* The prompt box's card, as Home's and Learn's. */}
           <div
-            className="glass-panel-sm flex flex-col gap-2 rounded-xl p-4 text-left"
-            style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid var(--color-border)',
-            }}
+            className={cn(
+              PROMPT_FRAME,
+              PROMPT_WASH,
+              'flex flex-col gap-2 p-5 text-left',
+            )}
           >
             {character && (
-              <p
-                className="text-lg font-medium"
-                style={{ color: 'var(--color-accent)' }}
-              >
-                {character}.
-              </p>
+              <p className="text-lg leading-7 text-white">{character}.</p>
             )}
             {/* A pentatonic or blues scale is not a key, so it has no key
                 signature to describe. */}
@@ -850,14 +699,13 @@ export function LessonOverview({
               The notes of the scale are:{' '}
               {scaleNoteLabels.slice(0, 7).join(', ')}
             </p>
-            <button
-              type="button"
+            <PromptPillButton
+              variant="primary"
               onClick={handlePlayScale}
-              className="mt-1 flex items-center gap-2 self-start rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-150"
-              style={{ background: 'var(--color-accent)', color: '#ffffff' }}
+              className="mt-2 gap-2 self-start"
             >
-              <Play size={16} fill="currentColor" /> Play Scale
-            </button>
+              <Play size={14} fill="currentColor" /> Play Scale
+            </PromptPillButton>
           </div>
         </div>
       )}

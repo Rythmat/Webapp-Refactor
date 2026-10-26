@@ -26,6 +26,7 @@ import {
   SettingsSection,
   SettingsSlider,
   SettingsSwitchRow,
+  useSettingsPanel,
 } from './settingsControls';
 import type { InputModel, TheoryModel } from './types';
 
@@ -290,15 +291,19 @@ export function MetronomeRow() {
 export function VolumeRow() {
   const { volume, setVolume } = useLessonVolume();
   const percent = Math.round(volume * 100);
+  // In the 300px panel the slider goes under its words, the row's width.
+  const panel = useSettingsPanel();
   return (
     <SettingsRow
       label="Volume"
       helper="Metronome and playback."
       forControl={false}
+      stacked={panel}
     >
       {({ labelId, helperId }) => (
-        <div className="flex items-center gap-3">
+        <div className={cn('flex items-center gap-3', panel && 'w-full')}>
           <SettingsSlider
+            className={panel ? 'w-auto flex-1' : undefined}
             value={percent}
             onValueChange={(next) => setVolume(next / 100)}
             labelledBy={labelId}

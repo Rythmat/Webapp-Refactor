@@ -1,5 +1,6 @@
 import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { CircleOfFifthsSvg } from '@/components/common/CircleOfFifthsSvg';
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
 import {
   degreeLabel,
@@ -187,7 +188,7 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
     <section
       aria-label="The call"
       data-literacy-call
-      className="flex min-h-0 min-w-0 flex-col gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] p-4"
+      className={cn(PROMPT_SURFACE, 'flex min-h-0 min-w-0 flex-col gap-2 p-4')}
     >
       {keyCaption}
       {compact ? (

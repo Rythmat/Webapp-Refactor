@@ -136,10 +136,8 @@ export const ClassroomSidebar = ({
             label="Arcade"
             {...nav(GameRoutes.root())}
           />
-        </ul>
-
-        {/* 3. Secondary nav */}
-        <ul className="mt-4 flex flex-col gap-px px-3">
+          {/* Classroom and Office in the same list, at the same spacing
+            (owner, 2026-10-26). */}
           <SidebarMainNavItem
             icon={Laptop}
             label="Classroom"
@@ -156,7 +154,7 @@ export const ClassroomSidebar = ({
 
         {extraSection}
 
-        {/* 4. Flex spacer + system nav (Suno's bottom group: 40px rows) */}
+        {/* 3. Flex spacer + system nav (Suno's bottom group: 40px rows) */}
         <ul className="mt-auto flex flex-col gap-px px-3 pt-6 pb-3">
           <SidebarMainNavItem
             external

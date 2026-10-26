@@ -1,4 +1,6 @@
 import { ArrowRight } from 'lucide-react';
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
+import { cn } from '@/components/utilities';
 import {
   circleOfFifths,
   type MissingChoice,
@@ -66,7 +68,10 @@ export function ChoiceGate({ missing, chords, onGo }: ChoiceGateProps) {
     <section
       aria-label={copy.heading}
       data-literacy-gate={missing.choice}
-      className="flex min-h-[280px] flex-1 flex-col items-center justify-center gap-4 rounded-xl border border-white/[0.08] bg-white/[0.03] p-8 text-center"
+      className={cn(
+        PROMPT_SURFACE,
+        'flex min-h-[280px] flex-1 flex-col items-center justify-center gap-4 p-8 text-center',
+      )}
     >
       <span
         aria-hidden

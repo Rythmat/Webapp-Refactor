@@ -61,6 +61,15 @@ export const PROMPT_FRAME = cn(
 
 /** Home's wash on the page; the Studio's card is opaque over the lanes. */
 export const PROMPT_WASH = 'bg-white/[0.04] focus-within:bg-white/[0.06]';
+
+/**
+ * The card's look without its size or place: corners, edge, shadow and wash.
+ * For panels that bring their own layout (a lesson's cards).
+ */
+export const PROMPT_SURFACE = cn(
+  'rounded-[1.25rem] border border-white/10 bg-white/[0.04]',
+  'shadow-[0_8px_28px_rgba(0,0,0,0.36)]',
+);
 export const PROMPT_OPAQUE = 'bg-[#141416]';
 
 /**
@@ -243,6 +252,16 @@ export function PromptPillButton({
     />
   );
 }
+
+/**
+ * The frosted pill in a page's top corners: Home's search, Learn's
+ * instrument switcher and Set Lists, a lesson's About and settings. Add the
+ * padding (px-4) or a width.
+ */
+export const GLASS_PILL = cn(
+  'flex h-10 items-center rounded-full border border-white/10 bg-white/10 text-white backdrop-blur-md transition-colors duration-150 hover:bg-white/[0.14]',
+  'outline-none focus-visible:ring-2 focus-visible:ring-white/40',
+);
 
 /** The card above the box (what it's doing, what it did): the box's frame. */
 export const PROMPT_CARD = cn(

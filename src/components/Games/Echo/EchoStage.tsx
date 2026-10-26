@@ -427,7 +427,6 @@ export function EchoStage({
             lit={running ? run.view.lit : []}
             targets={placed ? placed.notes.call.map((n) => n.midi) : undefined}
             isRight={isRight}
-            keyboardMaxHeight={130}
             enabled={!paused && !judging}
             className={input === 'pads' ? 'min-h-[180px] pt-6' : undefined}
           />

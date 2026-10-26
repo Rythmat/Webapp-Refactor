@@ -1,5 +1,5 @@
 import { Lock, LockOpen } from 'lucide-react';
-import { type FC, type ReactNode, useState } from 'react';
+import { Fragment, type FC, type ReactNode, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProfileRoutes } from '@/constants/routes';
 
@@ -50,16 +50,23 @@ export const LockedFeatureOverlay: FC<LockedFeatureOverlayProps> = ({
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
 
+  // Keyed apart, so unlocking (premium arrives after the first render)
+  // mounts the content afresh. Unkeyed, React would reuse the locked
+  // wrapper's divs for the content's own, and the `inert` set on one (not a
+  // prop, so React never clears it) would leave the unlocked tile deaf to
+  // clicks.
   if (!locked) {
     return className ? (
-      <div className={className}>{children}</div>
+      <div key="open" className={className}>
+        {children}
+      </div>
     ) : (
-      <>{children}</>
+      <Fragment key="open">{children}</Fragment>
     );
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div key="locked" className={`relative ${className}`}>
       {/* Greyed-out content — inert, and pointer-events disabled so clicks
           fall through to the overlay */}
       <div

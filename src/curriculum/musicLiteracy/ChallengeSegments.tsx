@@ -1,3 +1,5 @@
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
+import { cn } from '@/components/utilities';
 import type { LiteracyChallengeResult } from '@/curriculum/engine/musicLiteracy/grading';
 import type { RunSegment } from '@/curriculum/engine/musicLiteracy/run';
 
@@ -26,7 +28,7 @@ export function ChallengeSegments({ segments, best }: ChallengeSegmentsProps) {
     <section
       aria-label="The challenge, part by part"
       data-literacy-challenge-segments
-      className="flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-[#151518] p-5"
+      className={cn(PROMPT_SURFACE, 'flex flex-col gap-3 p-5')}
     >
       <h3 className="text-xs uppercase tracking-[0.14em] text-white/55">
         The challenge

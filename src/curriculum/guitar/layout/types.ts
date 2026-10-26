@@ -89,6 +89,23 @@ export interface NavGroupAction {
   onPick: () => void;
 }
 
+/**
+ * One section of a lesson's whole outline, for the lesson rail (Theory's,
+ * owner 2026-10-26: every section open in one list).
+ */
+export interface NavOutlineSection {
+  id: ActivitySectionId;
+  name: string;
+  active: boolean;
+  done: boolean;
+  /** Its items (grouped by `subsection`; an empty one has no heading). */
+  steps: NavStep[];
+  /** The current item's index, or -1. */
+  index: number;
+  /** Opens the item: a step, an Overview tab, the Practice Track. */
+  onPick: (index: number) => void;
+}
+
 export interface StepNavModel {
   sections: NavSection[];
   onSection: (id: ActivitySectionId) => void;
@@ -98,10 +115,25 @@ export interface StepNavModel {
   goToStep: (index: number) => void;
   /** A group's header button, by its subsection; left out, none. */
   groupAction?: (subsection: string) => NavGroupAction | null;
+  /**
+   * The ‹ 3 / 12 › pager, its step list and the step line under them; false
+   * when the lesson's tab row pages its steps instead (Theory's Melody and
+   * Chords; the lesson rail still lists them). Shown by default.
+   */
+  pager?: boolean;
+  /**
+   * The lesson's whole outline: the rail lists every section's items at
+   * once instead of the current section's steps. Left out, it does that.
+   */
+  outline?: NavOutlineSection[];
   /** The ♪ Practice Track button, exactly as today; null when not offered. */
   practiceTrack: { onOpen: () => void } | null;
-  /** Beside ♪ Practice Track: piano's roll / notation / falling switch. */
-  extra?: ReactNode;
+  /**
+   * On the tool rail (owner, 2026-10-26): piano's note views (Roll /
+   * Notation / Falling) and, with `hands`, the book's hands over the keys.
+   * Left out, none.
+   */
+  noteViews?: { hands?: boolean };
 }
 
 // ── Running the step ───────────────────────────────────────────────────────

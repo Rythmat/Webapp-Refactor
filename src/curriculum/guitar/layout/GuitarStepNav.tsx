@@ -2,8 +2,15 @@ import * as Popover from '@radix-ui/react-popover';
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { FixedDigits } from '@/components/common/FixedDigits';
+import {
+  PROMPT_PILL,
+  PROMPT_PILL_OFF,
+  PROMPT_PILL_ON,
+  PromptPillButton,
+} from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
 import { GuitarStepList, StepStatusMark } from './GuitarStepList';
+import { useSectionsInRail } from './LessonRail';
 import type { GuitarStepStatus, StepNavModel } from './types';
 
 // ── Sections and steps ─────────────────────────────────────────────────────
@@ -27,9 +34,6 @@ const SEGMENT_CLASS: Record<GuitarStepStatus, string> = {
   todo: 'bg-white/[0.08]',
 };
 
-const secondaryPill =
-  'inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 text-sm font-normal text-[#e8e8f0] transition-colors duration-150 hover:bg-white/[0.08] max-[639px]:h-11';
-
 const pagerButton =
   'inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[#e8e8f0] transition-colors duration-150 hover:bg-white/[0.08] disabled:opacity-40 disabled:hover:bg-transparent max-[639px]:size-11';
 
@@ -45,16 +49,26 @@ export function GuitarStepNav({ nav, keyColor }: GuitarStepNavProps) {
   const count = steps.length;
   const current = steps[index];
   const activeSection = sections.find((section) => section.active);
+  // The lesson rail lists the sections, when it's in the page and open.
+  const sectionsInRail = useSectionsInRail();
+
+  // Nothing to show (the sections on the rail, no Practice Track, a tab row
+  // paging the steps): no row, and no gap where it was.
+  const showSections = sections.length > 0 && !sectionsInRail;
+  const showSteps = count > 1 && nav.pager !== false;
+  if (!showSections && !practiceTrack && !showSteps) return null;
 
   return (
     <div data-guitar-nav className="flex shrink-0 flex-col gap-3">
-      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-3">
+      {/* Empty (sections and steps on the rail, no Practice Track), it goes. */}
+      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-3 empty:hidden">
         {/* Piano Fundamentals has one section per page: no pill. */}
-        {sections.length > 0 && (
+        {sections.length > 0 && !sectionsInRail && (
+          // Learn's pills (the prompt box's), one per section.
           <div
             role="group"
             aria-label="Sections"
-            className="flex h-9 shrink-0 items-center rounded-full ring-1 ring-inset ring-white/10 max-[639px]:h-11 max-[639px]:w-full"
+            className="flex shrink-0 items-center gap-2 max-[639px]:w-full"
           >
             {sections.map((section) => (
               <button
@@ -67,10 +81,9 @@ export function GuitarStepNav({ nav, keyColor }: GuitarStepNavProps) {
                 data-section={section.id}
                 onClick={() => nav.onSection(section.id)}
                 className={cn(
-                  'inline-flex h-full items-center justify-center gap-1.5 rounded-full px-4 text-sm font-normal transition-colors duration-150 max-[639px]:flex-1 max-[639px]:px-2',
-                  section.active
-                    ? 'bg-white text-[#101012]'
-                    : 'text-white/55 hover:text-[#e8e8f0]',
+                  PROMPT_PILL,
+                  'justify-center max-[639px]:h-11 max-[639px]:flex-1 max-[639px]:px-2',
+                  section.active ? PROMPT_PILL_ON : PROMPT_PILL_OFF,
                 )}
               >
                 {section.name}
@@ -83,24 +96,23 @@ export function GuitarStepNav({ nav, keyColor }: GuitarStepNavProps) {
         )}
 
         {practiceTrack && (
-          <button
-            type="button"
+          <PromptPillButton
             onClick={practiceTrack.onOpen}
             title={
               activeSection
                 ? `Play over the ${activeSection.name} groove`
                 : undefined
             }
-            className={secondaryPill}
+            className="max-[639px]:h-11"
           >
             &#9834; Practice Track
-          </button>
+          </PromptPillButton>
         )}
 
-        {nav.extra}
-
-        {/* A section of one step (Theory's Overview) has nothing to page. */}
-        {count > 1 && (
+        {/* A section of one step (Theory's Overview) has nothing to page; a
+            lesson whose tab row pages its steps (Theory's) has no pager
+            (owner, 2026-10-26), and the arrow keys still step. */}
+        {count > 1 && nav.pager !== false && (
           <div
             role="group"
             aria-label="Steps"
@@ -200,7 +212,9 @@ export function GuitarStepNav({ nav, keyColor }: GuitarStepNavProps) {
         )}
       </div>
 
-      {count > 1 && (
+      {/* The step line goes with the pager: a tab row pages instead
+          (owner, 2026-10-26). */}
+      {count > 1 && nav.pager !== false && (
         <div
           aria-hidden
           data-guitar-progress

@@ -12,16 +12,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FilterDropdown } from '@/components/songLibrary/FilterDropdown';
 import { SearchInput } from '@/components/songLibrary/SearchInput';
 import { type ViewMode } from '@/components/songLibrary/SongLibraryPage';
-import {
-  LearnRoutes,
-  type LearnSection,
-  CurriculumRoutes,
-  StudioRoutes,
-} from '@/constants/routes';
+import { LearnRoutes, CurriculumRoutes } from '@/constants/routes';
 import { SLUG_TO_CURRICULUM_GENRE } from '@/curriculum/bridge/genreIdMap';
-import { getActivityFlow } from '@/curriculum/data/activityFlows';
-import { getGenreProfile } from '@/curriculum/data/genreProfiles';
-import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgress';
 import { START_HERE_TAB } from '@/curriculum/musicLiteracy/literacyPath';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
@@ -34,20 +26,14 @@ import type { PrismModeSlug } from '@/hooks/data';
 import { useProgressSummary } from '@/hooks/data/progress/useProgressSummary';
 import { useIsPremium } from '@/hooks/useIsPremium';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
-import {
-  SCALE_LESSON_SLUGS,
-  SCALE_LESSONS,
-  isScaleLesson,
-} from '@/lib/learn/scaleLessons';
+import { SCALE_LESSON_SLUGS, SCALE_LESSONS } from '@/lib/learn/scaleLessons';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { ProgressSummaryResponse } from '@/lib/progress/types';
 import { SongLibraryBody } from '../songLibrary/SongLibraryPage';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
-import { HexWaveBackground } from '../ui/hex-wave-background';
 import { cn } from '../utilities';
-import { GenreCatalogRow } from './GenreCatalogRow';
 import { LearnHome } from './LearnHome';
 import { LearnTabBar } from './LearnTabBar';
 import { StartHere } from './StartHere';
@@ -56,7 +42,6 @@ import { GENRE_COURSES } from './genreCourses';
 import {
   COMING_SOON_FOR_GUITAR,
   guitarLessonRoute,
-  guitarTheoryChapters,
   isTheoryItemOnGuitar,
 } from './guitarTheory';
 import {
@@ -75,6 +60,8 @@ import {
   type TechniqueSort,
   type TheorySort,
 } from './learnFilterOptions';
+import { SigilCard } from './sigil/SigilCard';
+import { sigilFor, type SigilSpec } from './sigil/sigilSpec';
 import { techniqueDataFor } from './techniqueCatalog';
 import './learn.css';
 
@@ -185,6 +172,8 @@ interface ContentSubItem {
 interface ContentItem {
   title: string;
   mode?: string;
+  /** A Technique tile's interval (techniqueCatalog), drawn as its figure. */
+  ratio?: readonly [number, number];
   route?: string;
   expandId?: string;
   subItems?: ContentSubItem[];
@@ -195,34 +184,6 @@ interface ContentItem {
   /** Set when the tile has no lessons on the chosen instrument yet: it is
    *  shown dimmed and disabled, labelled with this text. */
   comingSoon?: string;
-}
-
-interface SelectedSubItem {
-  label: string;
-  route: string;
-  completionPct: number;
-  sections: { id: string; name: string; stepCount?: number; route?: string }[];
-}
-
-function getLessonCompletion(
-  summary: ProgressSummaryResponse | undefined,
-  lessonIdPrefix: string,
-  mode?: string,
-  root?: string,
-): number {
-  if (!summary) return 0;
-  const lesson = summary.lessons.find((l) => {
-    if (mode && root) {
-      return (
-        l.lessonId.startsWith(lessonIdPrefix) &&
-        l.mode?.toLowerCase() === mode.toLowerCase() &&
-        l.root?.toLowerCase() === root.toLowerCase()
-      );
-    }
-    return l.lessonId === lessonIdPrefix;
-  });
-  if (!lesson || !lesson.totalCount) return 0;
-  return Math.round((lesson.completedCount / lesson.totalCount) * 100);
 }
 
 function getTileCompletion(
@@ -262,15 +223,6 @@ function getTileCompletion(
 
   return 0;
 }
-
-// Each chapter opens the lesson at its start (`?section=`). Practice Track
-// hands off to Studio instead.
-const THEORY_SECTIONS: { id: LearnSection; name: string }[] = [
-  { id: 'O', name: 'Overview' },
-  { id: 'A', name: 'Melody' },
-  { id: 'B', name: 'Chords' },
-  { id: 'D', name: 'Practice Track' },
-];
 
 const DIATONIC_MODES = [
   { title: 'Lydian', slug: 'lydian' },
@@ -364,7 +316,7 @@ function buildGenreLevels(genreSlug: string): ContentSubItem[] {
   }));
 }
 
-// The genre courses: the list the Genre page's Catalog shares (genreCourses.ts).
+// The genre courses (genreCourses.ts).
 const COURSES_DATA: ContentItem[] = GENRE_COURSES.map((course) => ({
   title: course.title,
   route: CurriculumRoutes.genre({ genre: course.slug }),
@@ -842,21 +794,6 @@ const DOUBLE_HARMONIC_DATA: ContentItem[] = [
   },
 ];
 
-const KEY_LABELS = [
-  'C',
-  'G',
-  'D',
-  'A',
-  'E',
-  'B',
-  'F#',
-  'D♭',
-  'A♭',
-  'E♭',
-  'B♭',
-  'F',
-];
-
 // interface FilterCheckboxProps {
 //   label: string;
 //   checked?: boolean;
@@ -959,6 +896,9 @@ function isLearnItemFree(item: ContentItem, tab: string): boolean {
 interface CardItemProps {
   title: string;
   mode?: string;
+  expandId?: string;
+  /** A Technique tile's interval, drawn as its figure. */
+  ratio?: readonly [number, number];
   subItems?: ContentSubItem[];
   onSelect?: () => void;
   highlighted?: boolean;
@@ -977,18 +917,26 @@ interface CardItemProps {
   comingSoon?: string;
 }
 
+/** A tile with nothing to draw: the unison, a circle. */
+const SIGIL_FALLBACK: SigilSpec = {
+  kind: 'interval',
+  ratio: [1, 1],
+  stats: '',
+  strip: [],
+};
+
 const CardItem: React.FC<CardItemProps> = ({
   title,
   mode,
+  expandId,
+  ratio,
   subItems,
   onSelect,
   highlighted,
   highlightRef,
   expanded,
   imageSize,
-  onToggleExpand,
   image,
-  interactive,
   progressPct,
   locked,
   savedKind,
@@ -997,8 +945,12 @@ const CardItem: React.FC<CardItemProps> = ({
 }) => {
   const unavailable = !!comingSoon;
   const hasExpansion = !!(mode || subItems) && !unavailable;
-  // A tile that can't be opened doesn't zoom on hover either.
-  const hoverZoom = unavailable ? '' : ' group-hover:scale-105';
+  // The tile's music, drawn (owner, 2026-10-26); a plain circle for one
+  // with nothing to draw.
+  const sigil = useMemo(
+    () => sigilFor({ mode, expandId, image, ratio }) ?? SIGIL_FALLBACK,
+    [mode, expandId, image, ratio],
+  );
   const isSaved = useSavedItemsStore((s) =>
     savedKind && savedId ? Boolean(s.saved[`${savedKind}:${savedId}`]) : false,
   );
@@ -1013,52 +965,29 @@ const CardItem: React.FC<CardItemProps> = ({
         aria-disabled={unavailable || undefined}
         className={`group flex ${unavailable ? 'cursor-not-allowed' : 'cursor-pointer'} flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
       >
-        <div
-          className={`glass-panel relative ${imageSize ? '' : interactive ? 'aspect-[3/4]' : 'aspect-square'} overflow-hidden rounded-2xl transition-colors duration-150`}
-          style={{
-            ...(imageSize ? { width: imageSize, height: imageSize } : {}),
-            background: 'rgba(255,255,255,0.03)',
-            border: expanded
-              ? '2px solid var(--color-accent)'
-              : highlighted
-                ? '2px solid var(--color-accent)'
-                : '1px solid var(--color-border)',
-          }}
+        <SigilCard
+          spec={sigil}
+          label={title}
+          interactive={!unavailable}
+          className={cn(
+            'relative',
+            highlighted &&
+              'rounded-[1.25rem] ring-2 ring-[var(--color-accent)]',
+          )}
+          style={
+            imageSize ? { width: imageSize, height: imageSize } : undefined
+          }
           onClick={unavailable ? undefined : onSelect}
           data-learn-tile={title}
         >
-          {image && interactive ? (
-            <HexWaveBackground
-              src={image}
-              drain={false}
-              ambient
-              className={`pointer-events-none absolute inset-0 transition-transform duration-500${hoverZoom}`}
-              backgroundColor="#0D0B08"
-              colorThreshold={0.05}
-              brushRadius={70}
-            />
-          ) : image ? (
-            <img
-              src={image}
-              alt={title}
-              className={`absolute inset-0 size-full object-cover transition-transform duration-500${hoverZoom}`}
-            />
-          ) : (
-            <HexAvatarSVG
-              config={defaultAvatarConfig(title)}
-              circular={false}
-              className={`absolute left-0 top-0 size-[120%] transition-transform duration-500${hoverZoom}`}
-            />
-          )}
-          {unavailable ? (
-            // Dimmed art with the reason on top, in words, not colour alone.
+          {unavailable && (
+            // The figure veiled, the reason on top, in words, not colour
+            // alone.
             <div className="absolute inset-0 flex items-end bg-black/60 p-3">
               <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/80">
                 {comingSoon}
               </span>
             </div>
-          ) : (
-            <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
           )}
           {savedKind && savedId && !unavailable && (
             <button
@@ -1069,29 +998,34 @@ const CardItem: React.FC<CardItemProps> = ({
               }}
               aria-label={isSaved ? 'Remove from saved' : 'Save'}
               aria-pressed={isSaved}
-              className="absolute top-2 right-2 z-10 rounded-full p-1.5 bg-black/30 hover:bg-black/50 transition-colors"
+              className="absolute right-2.5 top-2.5 z-10 rounded-full p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
             >
               <Heart
                 size={16}
                 fill={isSaved ? 'currentColor' : 'none'}
-                style={{
-                  color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.85)',
-                }}
+                style={isSaved ? { color: '#ffffff' } : undefined}
               />
             </button>
           )}
-        </div>
-        <div className="flex items-start justify-between px-1">
-          <h3
-            className="text-lg font-semibold"
-            style={{
-              color: unavailable
-                ? 'var(--color-text-dim)'
-                : 'var(--color-text)',
-            }}
-          >
-            {title}
-          </h3>
+        </SigilCard>
+        <div className="flex items-start justify-between gap-2 px-1">
+          <div className="min-w-0">
+            <h3
+              className="text-lg"
+              style={{
+                color: unavailable
+                  ? 'var(--color-text-dim)'
+                  : 'var(--color-text)',
+              }}
+            >
+              {title}
+            </h3>
+            {sigil.character && (
+              <p className="truncate text-sm text-white/55">
+                {sigil.character}
+              </p>
+            )}
+          </div>
           {progressPct != null && progressPct > 0 && (
             <span
               className="text-xs"
@@ -1104,9 +1038,10 @@ const CardItem: React.FC<CardItemProps> = ({
             <button
               type="button"
               className="flex items-center justify-center rounded p-1 transition-colors hover:bg-white/10"
+              aria-label={`Open ${title}`}
               onClick={(e) => {
                 e.stopPropagation();
-                onToggleExpand?.();
+                onSelect?.();
               }}
             >
               <ChevronRight
@@ -1294,30 +1229,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     genreParam,
   );
   const highlightRef = useRef<HTMLDivElement>(null);
-  const [expandedMode, setExpandedMode] = useState<string | null>(null);
-  const [selectedSubItem, setSelectedSubItem] =
-    useState<SelectedSubItem | null>(null);
-  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(
-    null,
-  );
-  // Guitar chapters load with the book; only the latest key's may land.
-  const guitarChaptersRequest = useRef(0);
-  // Responsive column count of the tile grid (grid-cols-2 → md:grid-cols-4);
-  // used to span the inline expansion panel across a row's remaining columns.
-  const [gridCols, setGridCols] = useState(() =>
-    typeof window !== 'undefined' &&
-    window.matchMedia('(min-width: 768px)').matches
-      ? 4
-      : 2,
-  );
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)');
-    const onChange = () => setGridCols(mq.matches ? 4 : 2);
-    onChange();
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, []);
-
   const [theoryFilters, setTheoryFilters] = useState<TheoryFilters>({
     family: 'all',
     sort: 'brightness',
@@ -1457,147 +1368,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const navigate = useNavigate();
   const { data: progressSummary } = useProgressSummary();
 
-  const handleLevelSelect = async (sub: ContentSubItem) => {
-    if (sub.genre && sub.level) {
-      const flow = await getActivityFlow(sub.genre, sub.level);
-      if (flow) {
-        const genreId = SLUG_TO_CURRICULUM_GENRE[sub.genre];
-        const levelId = `L${sub.level}` as 'L1' | 'L2' | 'L3';
-        const lessonId = genreId
-          ? buildCurriculumLessonId(genreId, levelId)
-          : '';
-        const flowSections = flow.sections.map((s) => ({
-          id: s.id,
-          name: s.name,
-          stepCount: s.steps.length,
-          route: CurriculumRoutes.genreLevel(
-            { genre: sub.genre!, level: String(sub.level) },
-            { section: s.id },
-          ),
-        }));
-        const hasProfile = !!getGenreProfile(sub.genre);
-        setSelectedSubItem({
-          label: `Level ${sub.level}`,
-          route: sub.route,
-          completionPct: getLessonCompletion(progressSummary, lessonId),
-          sections: hasProfile
-            ? [
-                {
-                  id: 'O',
-                  name: 'Overview',
-                  route: CurriculumRoutes.genre({ genre: sub.genre }),
-                },
-                ...flowSections,
-              ]
-            : flowSections,
-        });
-        return;
-      }
-    }
-    navigate(sub.route);
-  };
-
-  const handleKeySelect = (
-    mode: string,
-    keyLabel: string,
-    modeTitle: string,
-  ) => {
-    // Guitar: the key's Guitar Atlas lesson. Its chapters come from the book,
-    // loaded on demand; if keys are clicked quickly, the last one wins. No
-    // percentages: the server's progress is the piano lessons'.
-    if (onGuitar && isGuitarTheorySlug(mode)) {
-      const request = ++guitarChaptersRequest.current;
-      const label = `${keyLabel} ${modeTitle}`;
-      const route = guitarLessonRoute(mode, keyLabel);
-      setSelectedSubItem({ label, route, completionPct: 0, sections: [] });
-      guitarTheoryChapters(mode, keyLabel)
-        .then((sections) => {
-          if (request !== guitarChaptersRequest.current) return;
-          setSelectedSubItem({ label, route, completionPct: 0, sections });
-        })
-        .catch(() => {
-          // The book didn't load (offline?): the key stays selected with no
-          // chapters, and choosing it again retries.
-        });
-      return;
-    }
-    const pct = getLessonCompletion(
-      progressSummary,
-      'mode-lesson-flow',
-      mode,
-      keyLabelToUrlParam(keyLabel),
-    );
-    // Practice Track is offered for the 7 diatonic modes (DIATONIC_MODES
-    // above enumerates exactly those slugs) and the pentatonic and blues
-    // scales.
-    const isDiatonicMode = DIATONIC_MODES.some((m) => m.slug === mode);
-    const isScale = isScaleLesson(mode);
-    const keyParam = keyLabelToUrlParam(keyLabel);
-    const sections = THEORY_SECTIONS.filter(
-      (section) => isDiatonicMode || isScale || section.id !== 'D',
-    ).map((section) => ({
-      ...section,
-      route:
-        section.id === 'D'
-          ? `${StudioRoutes.editor.definition}?practiceMode=${mode}&practiceRoot=${keyParam}&practiceOpen=melody`
-          : LearnRoutes.keyboardLesson(
-              { mode, key: keyParam },
-              { section: section.id },
-            ),
-    }));
-    setSelectedSubItem({
-      label: `${keyLabel} ${modeTitle}`,
-      route: LearnRoutes.keyboardLesson({ mode, key: keyParam }),
-      completionPct: pct,
-      sections,
-    });
-  };
-
-  // Auto-select the first key/level when a tile is expanded
-  useEffect(() => {
-    if (!expandedMode) return;
-    // Every guitar Theory tile opens on its first key (the others can't open).
-    const theoryData = onGuitar
-      ? [
-          ...THEORY_DATA,
-          ...PENTATONIC_BLUES_DATA,
-          ...HARMONIC_MINOR_DATA,
-          ...MELODIC_MINOR_DATA,
-          ...HARMONIC_MAJOR_DATA,
-          ...DOUBLE_HARMONIC_DATA,
-        ]
-      : [...THEORY_DATA, ...PENTATONIC_BLUES_DATA];
-    const data =
-      subTab === 'Genre'
-        ? COURSES_DATA
-        : subTab === 'Theory'
-          ? theoryData
-          : techniqueData;
-    const item = data.find((d) => (d.expandId ?? d.mode) === expandedMode);
-    if (item?.mode) {
-      handleKeySelect(item.mode, KEY_LABELS[0], item.title);
-    } else if (item?.subItems?.[0]) {
-      handleLevelSelect(item.subItems[0]);
-    }
-  }, [expandedMode]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Switching instrument closes the open tile: its keys and chapters, and
-  // whether it has lessons at all, depend on the instrument.
-  useEffect(() => {
-    guitarChaptersRequest.current += 1;
-    setExpandedMode(null);
-    setSelectedSubItem(null);
-  }, [learnInstrument]);
-
-  // Auto-select the first chapter when a key/level is selected
-  useEffect(() => {
-    if (selectedSubItem?.sections?.[0]) {
-      setSelectedChapterId(selectedSubItem.sections[0].id);
-    } else {
-      setSelectedChapterId(null);
-    }
-  }, [selectedSubItem]);
-
   // Auto-select tab from ?tab= param (and reset to Songs when param is cleared)
   useEffect(() => {
     if (fixedTab) return;
@@ -1677,224 +1447,21 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     const tileProgress = (item: ContentItem) =>
       guitarTheory ? 0 : getTileCompletion(progressSummary, item);
 
-    // Click a tile: toggle its inline expansion (modes/genres) or navigate.
-    const toggleExpand = (item: ContentItem) => {
+    // A tile opens its page (owner, 2026-10-26): a mode or scale its art and
+    // key wheel, a genre its course, a Relative / Parallel key its overview.
+    // No menus open in the grid.
+    const openItem = (item: ContentItem) => {
       if (item.comingSoon) return;
-      const key = item.expandId ?? item.mode;
-      if (item.mode || item.subItems) {
-        guitarChaptersRequest.current += 1;
-        setSelectedSubItem(null);
-        setExpandedMode(key === expandedMode ? null : (key ?? null));
-      } else if (item.route) {
-        navigate(item.route);
+      if (item.mode) {
+        navigate(
+          onGuitar
+            ? LearnRoutes.guitarOverview({ mode: item.mode })
+            : LearnRoutes.keyboardOverview({ mode: item.mode }),
+        );
+        return;
       }
+      if (item.route) navigate(item.route);
     };
-
-    // Keys/Levels + Chapter detail panels — shown inline beside the expanded
-    // tile (width-fluid so they fit the row's remaining columns).
-    const renderPanels = (expandedItem: ContentItem) => (
-      <div className="flex flex-wrap gap-4">
-        <div
-          data-learn-panel="levels"
-          className="glass-panel-sm flex w-64 max-w-full flex-col gap-0.5 rounded-xl p-4"
-          style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          <h4
-            className="mb-2 text-xs font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
-            {expandedItem.mode
-              ? 'Keys'
-              : /^(relative|parallel):/.test(expandedItem.expandId ?? '')
-                ? 'Modes'
-                : 'Levels'}
-          </h4>
-          {(() => {
-            const items: React.ReactNode[] = [];
-            if (expandedItem.mode && !expandedItem.subItems) {
-              KEY_LABELS.forEach((keyLabel) => {
-                const keyColor = colorForKeyMode(
-                  keyLabel,
-                  expandedItem.mode as PrismModeSlug,
-                );
-                const isSelected =
-                  selectedSubItem?.label ===
-                  `${keyLabel} ${expandedItem.title}`;
-                const keyPct = guitarTheory
-                  ? 0
-                  : getLessonCompletion(
-                      progressSummary,
-                      'mode-lesson-flow',
-                      expandedItem.mode,
-                      keyLabelToUrlParam(keyLabel),
-                    );
-                items.push(
-                  <div
-                    key={keyLabel}
-                    className="flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
-                    style={{
-                      color: keyColor,
-                      ...(isSelected
-                        ? { background: 'rgba(255,255,255,0.06)' }
-                        : {}),
-                    }}
-                    onClick={() =>
-                      handleKeySelect(
-                        expandedItem.mode!,
-                        keyLabel,
-                        expandedItem.title,
-                      )
-                    }
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background =
-                        'rgba(255,255,255,0.04)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = isSelected
-                        ? 'rgba(255,255,255,0.06)'
-                        : 'transparent';
-                    }}
-                  >
-                    <span>
-                      {keyLabel} {expandedItem.title}
-                    </span>
-                    {keyPct > 0 && (
-                      <span
-                        className="text-xs"
-                        style={{ color: 'var(--color-text-dim)' }}
-                      >
-                        {keyPct}%
-                      </span>
-                    )}
-                  </div>,
-                );
-              });
-            }
-            if (expandedItem.subItems) {
-              expandedItem.subItems.forEach((sub) => {
-                let levelPct = 0;
-                if (sub.genre && sub.level) {
-                  const gId = SLUG_TO_CURRICULUM_GENRE[sub.genre];
-                  const lId = `L${sub.level}` as 'L1' | 'L2' | 'L3';
-                  const lsnId = gId ? buildCurriculumLessonId(gId, lId) : '';
-                  if (lsnId)
-                    levelPct = getLessonCompletion(progressSummary, lsnId);
-                }
-                const isLevelSelected =
-                  selectedSubItem?.label === `Level ${sub.level}`;
-                items.push(
-                  <div
-                    key={sub.label}
-                    className="flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
-                    style={{
-                      color: sub.color,
-                      ...(isLevelSelected
-                        ? { background: 'rgba(255,255,255,0.06)' }
-                        : {}),
-                    }}
-                    onClick={() => {
-                      if (sub.genre && sub.level) {
-                        handleLevelSelect(sub);
-                      } else {
-                        navigate(sub.route);
-                      }
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background =
-                        'rgba(255,255,255,0.04)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = isLevelSelected
-                        ? 'rgba(255,255,255,0.06)'
-                        : 'transparent';
-                    }}
-                  >
-                    <span>{sub.label}</span>
-                    {levelPct > 0 && (
-                      <span
-                        className="text-xs"
-                        style={{ color: 'var(--color-text-dim)' }}
-                      >
-                        {levelPct}%
-                      </span>
-                    )}
-                  </div>,
-                );
-              });
-            }
-            return items;
-          })()}
-        </div>
-        {selectedSubItem && (
-          <div
-            data-learn-panel="chapters"
-            className="glass-panel-sm flex w-64 max-w-full flex-col gap-1 self-start rounded-xl p-4"
-            style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid var(--color-border)',
-            }}
-          >
-            <h4
-              className="mb-2 text-xs font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
-              {selectedSubItem.label} Chapters
-              {selectedSubItem.completionPct > 0 && (
-                <span
-                  className="ml-2 normal-case tracking-normal"
-                  style={{ color: 'var(--color-accent)' }}
-                >
-                  — {selectedSubItem.completionPct}%
-                </span>
-              )}
-            </h4>
-            {selectedSubItem.sections.map((section) => {
-              const isChapterSelected = selectedChapterId === section.id;
-              return (
-                <div
-                  key={section.id}
-                  data-learn-chapter={section.name}
-                  className="cursor-pointer rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
-                  style={{
-                    color: isChapterSelected
-                      ? 'var(--color-accent)'
-                      : 'var(--color-text)',
-                    background: isChapterSelected
-                      ? 'rgba(255,255,255,0.06)'
-                      : 'transparent',
-                  }}
-                  onClick={() => {
-                    setSelectedChapterId(section.id);
-                    navigate(section.route ?? selectedSubItem.route);
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = isChapterSelected
-                      ? 'rgba(255,255,255,0.06)'
-                      : 'transparent';
-                  }}
-                >
-                  {section.name}
-                  {section.stepCount != null && (
-                    <span
-                      className="ml-2 text-xs"
-                      style={{ color: 'var(--color-text-dim)' }}
-                    >
-                      {section.stepCount} steps
-                    </span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
 
     if (learnViewMode === 'list') {
       return (
@@ -1906,57 +1473,19 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               {...savedPropsFor(item)}
               progressPct={tileProgress(item)}
               locked={!isPremium && !isLearnItemFree(item, tab)}
-              onSelect={() => toggleExpand(item)}
+              onSelect={() => openItem(item)}
             />
           ))}
         </div>
       );
     }
 
-    const expandedIndex =
-      expandedMode != null
-        ? data.findIndex((it) => (it.expandId ?? it.mode) === expandedMode)
-        : -1;
-
-    // Expanding moves the tile to the far-left of its row and fills the rest of
-    // that row with the panel; every other tile in the row (left and right)
-    // drops to the next row. Reorder the render list to reflect that — stable
-    // keys let framer-motion animate the tiles to their new positions.
-    const slots: { item: ContentItem; panel?: boolean }[] = [];
-    if (expandedIndex >= 0) {
-      const rowStart = Math.floor(expandedIndex / gridCols) * gridCols;
-      const rowEnd = Math.min(rowStart + gridCols, data.length);
-      data.slice(0, rowStart).forEach((it) => slots.push({ item: it }));
-      slots.push({ item: data[expandedIndex] });
-      slots.push({ item: data[expandedIndex], panel: true });
-      data.slice(rowStart, rowEnd).forEach((it, k) => {
-        if (rowStart + k !== expandedIndex) slots.push({ item: it });
-      });
-      data.slice(rowEnd).forEach((it) => slots.push({ item: it }));
-    } else {
-      data.forEach((it) => slots.push({ item: it }));
-    }
-
     return (
       <div className={gridClassName}>
-        {slots.map(({ item, panel }) => {
+        {data.map((item) => {
           const itemKey = item.expandId ?? item.mode ?? item.title;
-          if (panel) {
-            return (
-              <div
-                key={`${itemKey}__panel`}
-                className="min-w-0"
-                style={{ gridColumn: `span ${Math.max(gridCols - 1, 1)}` }}
-              >
-                {renderPanels(item)}
-              </div>
-            );
-          }
-          const key = item.expandId ?? item.mode;
-          const isExpanded = !!key && key === expandedMode;
           const isHighlighted =
             highlightedGenre !== null && item.title === highlightedGenre;
-          const hasExpansion = !!(item.mode || item.subItems);
           return (
             <motion.div layout="position" key={itemKey}>
               <CardItem
@@ -1964,13 +1493,9 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                 {...savedPropsFor(item)}
                 highlighted={isHighlighted}
                 highlightRef={isHighlighted ? highlightRef : undefined}
-                expanded={isExpanded}
                 progressPct={tileProgress(item)}
                 locked={!isPremium && !isLearnItemFree(item, tab)}
-                onToggleExpand={
-                  hasExpansion ? () => toggleExpand(item) : undefined
-                }
-                onSelect={() => toggleExpand(item)}
+                onSelect={() => openItem(item)}
               />
             </motion.div>
           );
@@ -2282,13 +1807,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                           placeholder="Search courses"
                         />
                       </LearnFilterRow>
-                    </div>
-                  )}
-                  {/* The Learn page's Genre page: the Catalog above the
-                      tiles (moved from Home, owner 2026-10-25). */}
-                  {bare && (
-                    <div className="pr-6 md:pr-10">
-                      <GenreCatalogRow />
                     </div>
                   )}
                   {filteredCourses.length === 0 ? (

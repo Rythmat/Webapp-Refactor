@@ -26,10 +26,6 @@ import {
 } from '@/audio/pianoSampler';
 import { ClefToggle } from '@/components/notation/ClefToggle';
 import { SavedGuitarViewToggle } from '@/components/notation/GuitarViewToggle';
-import {
-  SavedHandsSwitch,
-  SavedRollViewSwitch,
-} from '@/components/notation/RollViewToggle';
 import type { StaffLayout } from '@/components/notation/StaffView';
 import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
 import { useUserRole } from '@/contexts/AuthContext/hooks/useUserRole';
@@ -2738,14 +2734,9 @@ function GenreLessonContainerV2Inner({
         practiceTrack: sectionHasContent(currentSection)
           ? { onOpen: () => enterPracticeTrack(activeSection) }
           : null,
-        // Roll / Notation / Falling, big, beside Practice Track (the roll's
-        // own corner icons are off).
-        extra: (
-          <>
-            <SavedRollViewSwitch />
-            <SavedHandsSwitch />
-          </>
-        ),
+        // Roll / Notation / Falling and the hands, on the tool rail (the
+        // roll's own corner icons are off).
+        noteViews: { hands: true },
       }}
       run={{
         state: activityState,

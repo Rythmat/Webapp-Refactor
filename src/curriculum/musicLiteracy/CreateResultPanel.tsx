@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
 import type { NoteEvent } from '@/curriculum/components/GenrePianoRoll';
 import { LearnNotationView } from '@/curriculum/components/LearnNotationView';
@@ -80,7 +81,10 @@ export function CreateResultPanel({
       data-guitar-result
       data-literacy-create-result
       data-passed={passed}
-      className="my-auto flex max-h-full min-h-0 flex-col gap-3 overflow-y-auto rounded-xl border border-white/[0.08] bg-[#151518] p-5"
+      className={cn(
+        PROMPT_SURFACE,
+        'my-auto flex max-h-full min-h-0 flex-col gap-3 overflow-y-auto p-5',
+      )}
     >
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
         <h2

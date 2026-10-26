@@ -1,5 +1,6 @@
 import { useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { cn } from '@/components/utilities';
 import { KEY_RAINBOW_COLORS } from '@/features/landing/rainbow';
 import './homeGlow.css';
 
@@ -94,14 +95,25 @@ const PATHS: readonly { x: Waves; y: Waves; breathe: Waves }[] = [
  * pairing keeps changing. Each light drifts a little about its corner on its
  * own path. A mask fades the whole to the page by the bottom of its box.
  * Under reduced motion the colors and lights hold still.
+ *
+ * `colors` pins the two (a lesson's key color, say): they hold, and only the
+ * lights drift. `className` adds to (and can override) the box's place,
+ * which by default bleeds past the panel's 8px padding.
  */
-export const HomeGlow = () => {
+export const HomeGlow = ({
+  colors: pinned,
+  className,
+}: {
+  colors?: readonly [string, string];
+  className?: string;
+} = {}) => {
   const reduce = useReducedMotion();
   const [pair, setPair] = useState(randomPair);
   const lights = useRef<(HTMLDivElement | null)[]>([]);
+  const isPinned = !!pinned;
 
   useEffect(() => {
-    if (reduce) return;
+    if (reduce || isPinned) return;
     let side = 0;
     const id = window.setInterval(() => {
       const turn = side;
@@ -113,7 +125,7 @@ export const HomeGlow = () => {
       });
     }, STEP_MS);
     return () => window.clearInterval(id);
-  }, [reduce]);
+  }, [reduce, isPinned]);
 
   useEffect(() => {
     if (reduce) return;
@@ -136,15 +148,18 @@ export const HomeGlow = () => {
   }, [reduce]);
 
   const colors = {
-    '--home-glow-a': KEY_RAINBOW_COLORS[pair[0]],
-    '--home-glow-b': KEY_RAINBOW_COLORS[pair[1]],
+    '--home-glow-a': pinned?.[0] ?? KEY_RAINBOW_COLORS[pair[0]],
+    '--home-glow-b': pinned?.[1] ?? KEY_RAINBOW_COLORS[pair[1]],
   } as CSSProperties;
 
   return (
     <div
       aria-hidden
       // Full bleed: past the scroll area's 8px padding to the panel's edges.
-      className="home-glow pointer-events-none absolute -inset-x-2 -top-2 -z-10 h-[clamp(22.5rem,62vh,42.5rem)] overflow-hidden"
+      className={cn(
+        'home-glow pointer-events-none absolute -inset-x-2 -top-2 -z-10 h-[clamp(22.5rem,62vh,42.5rem)] overflow-hidden',
+        className,
+      )}
       style={colors}
     >
       <div className="home-glow__wash absolute inset-0" />

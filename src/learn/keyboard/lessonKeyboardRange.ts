@@ -7,10 +7,26 @@
 // that reaches past their range widens the keyboard (`includeTargets`), and a
 // mapped player is told to use their octave buttons (`outOfRangeDirection`).
 
+import {
+  BLACK_KEY_NUDGE,
+  BLACK_KEY_WIDTH,
+} from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
+
 export interface KeyRange {
   low: number;
   high: number;
 }
+
+/**
+ * Every lesson's keyboard (owner, 2026-10-26): 49 keys, C3–C7, the Studio
+ * dock's keys, one size everywhere. It slides by whole octaves to reach a
+ * lesson's notes (`slideToTargets`) or a note played (`followPlayedNote`),
+ * and never grows.
+ */
+export const LESSON_KEY_RANGE: KeyRange = { low: 48, high: 96 };
+
+/** Its height, as classes: the docked keyboard's and every diagram's. */
+export const LESSON_KEYBOARD_HEIGHT = 'h-[9rem] max-[639px]:h-[7rem]';
 
 /** 73 keys, E1–E7 — the Nord / Yamaha 73 layout. */
 export const DEFAULT_LESSON_KEY_RANGE: KeyRange = { low: 28, high: 100 };
@@ -95,6 +111,33 @@ export function includeTargets(
     : normalizeKeyRange({ low, high });
 }
 
+/**
+ * `range` slid by whole octaves, as little as it takes, to show every
+ * target note (plus a couple of keys' margin), keeping its size. Only notes
+ * spanning more keys than it has widen it (includeTargets).
+ */
+export function slideToTargets(
+  range: KeyRange,
+  targetMidis: Iterable<number>,
+): KeyRange {
+  let low = Infinity;
+  let high = -Infinity;
+  for (const m of targetMidis) {
+    low = Math.min(low, m - TARGET_MARGIN);
+    high = Math.max(high, m + TARGET_MARGIN);
+  }
+  if (low === Infinity) return range;
+  if (low >= range.low && high <= range.high) return range;
+  const shift =
+    high > range.high
+      ? 12 * Math.ceil((high - range.high) / 12)
+      : -12 * Math.ceil((range.low - low) / 12);
+  const slid = shiftKeyRange(range, shift);
+  return low >= slid.low && high <= slid.high
+    ? slid
+    : includeTargets(range, targetMidis);
+}
+
 /** Which way the lesson's notes leave the window, if they do. */
 export function outOfRangeDirection(
   view: KeyRange,
@@ -121,13 +164,14 @@ export function whiteKeysIn(range: KeyRange): number[] {
   return keys;
 }
 
-/** A black key's width as a share of a white key's. */
-export const BLACK_KEY_WIDTH_SHARE = 0.58;
+/** A black key's width as a share of a white key's (the dock's keys). */
+export const BLACK_KEY_WIDTH_SHARE = BLACK_KEY_WIDTH;
 
 /**
  * Where a key sits across the keyboard, as fractions of its full width —
- * the geometry the fill-mode PianoKeyboard draws with, so anything drawn
- * above it (the cascade) lines up key for key. Null outside the range.
+ * the geometry the dock's PianoKeyboard draws with (its black keys' width
+ * and nudges), so anything drawn above it (the cascade, the hands) lines up
+ * key for key. Null outside the range.
  */
 export function keyBox(
   range: KeyRange,
@@ -143,5 +187,6 @@ export function keyBox(
   // A black key straddles the line between the white key below it and the next.
   const column = whites.indexOf(midi - 1) + 1;
   const width = BLACK_KEY_WIDTH_SHARE / n;
-  return { left: column / n - width / 2, width, black: true };
+  const nudge = (BLACK_KEY_NUDGE[((midi % 12) + 12) % 12] ?? 0) / n;
+  return { left: column / n - width / 2 + nudge, width, black: true };
 }

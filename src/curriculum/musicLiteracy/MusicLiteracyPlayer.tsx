@@ -13,7 +13,7 @@ import {
   triggerPianoAttack,
   triggerPianoRelease,
 } from '@/audio/pianoSampler';
-import { SavedRollViewSwitch } from '@/components/notation/RollViewToggle';
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
 import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
 import {
@@ -276,16 +276,6 @@ import { useLiteracyProgress, withTry } from './useLiteracyProgress';
 // When a step counts as done is one rule, in stepDone.ts.
 
 export { LOWER_KEY_RANGE, UPPER_KEY_RANGE };
-
-/** White-key length ÷ width: a real key is about 6.4, this a touch shorter. */
-const KEY_ASPECT = 6;
-
-/** The keyboard's height, between these, by the room the panel has. */
-const KEYBOARD_MIN_HEIGHT = 110;
-const KEYBOARD_MAX_HEIGHT = 190;
-
-/** The chord chooser's keys, which light the chords as they're heard. */
-const CHOOSER_KEYBOARD_HEIGHT = 130;
 
 /** The roll's timeline header (GenrePianoRoll draws it 40px tall). */
 const ROLL_HEADER = 40;
@@ -1166,7 +1156,6 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const rollRef = useRef<HTMLDivElement>(null);
   const rollBox = useElementSize(rollRef);
   const responseRef = useRef<HTMLElement>(null);
-  const responseBox = useElementSize(responseRef);
   const rowHeight = Math.max(100, Math.round(rollBox.height) - ROLL_HEADER);
   const running = status === 'running';
   const countIn = timeline.countIn.length;
@@ -1536,12 +1525,6 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         velocity: 80,
       })),
     [view.lit],
-  );
-
-  // The keyboard takes about a third of the panel's height.
-  const keyboardMax = Math.max(
-    KEYBOARD_MIN_HEIGHT,
-    Math.min(KEYBOARD_MAX_HEIGHT, Math.round(responseBox.height * 0.34)),
   );
 
   const answerLetters = (onCreate ? [] : notes.response)
@@ -2040,12 +2023,10 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     };
   }, [step, notes.key.tonic, mode, keyName, goal]);
 
-  /** The keys, as tall as `maxHeight` allows at their real proportions. */
-  const keyboardOf = (maxHeight: number) => (
+  /** The keys: every lesson's keyboard, docked on the bar (LessonKeyboard). */
+  const keyboard = (
     <>
       <LessonKeyboard
-        range={keyRange}
-        natural={{ aspect: KEY_ASPECT, maxHeight }}
         activeWhiteKeyColor={keyColor}
         activeBlackKeyColor={keyColor}
         hintNotes={kind === 'echo' || isReplay ? hintNotes : undefined}
@@ -2064,7 +2045,6 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       )}
     </>
   );
-  const keyboard = keyboardOf(keyboardMax);
 
   // Part 2's full-width screens: the choices, and a step waiting for one.
   const fullScreen = (stacked: boolean): ReactNode => {
@@ -2145,7 +2125,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
           onSave={saveChords}
           keyboard={
             <div data-literacy-keyboard className="pt-2">
-              {keyboardOf(CHOOSER_KEYBOARD_HEIGHT)}
+              {keyboard}
             </div>
           }
           stacked={stacked}
@@ -2186,7 +2166,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
             data-guitar-result
             data-literacy-empty-call
             data-passed={false}
-            className="my-auto flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-[#151518] p-5"
+            className={cn(PROMPT_SURFACE, 'my-auto flex flex-col gap-3 p-5')}
           >
             <h2 className="text-2xl font-normal leading-8 text-[#e8e8f0]">
               Try Again
@@ -2276,7 +2256,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         goToStep: (n) => goToStep(navIndices[n] ?? stepIndex),
         groupAction,
         practiceTrack: null,
-        extra: !hasFull ? <SavedRollViewSwitch /> : undefined,
+        noteViews: !hasFull ? {} : undefined,
       }}
       banner={
         inRound && roundModule && roundKind ? (

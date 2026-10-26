@@ -12,13 +12,17 @@ import {
   sectionBCardBarreCare,
   stepTheoryNotes,
 } from '@/curriculum/components/guitar/theory/theoryUi';
+import {
+  INSIGHT_TEXT,
+  InsightCard,
+} from '@/daw/components/Library/InsightCard';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
-import { GuitarSheet } from './settingsControls';
+import { LessonInsightPanel } from './LessonInsightPanel';
 import type { TheoryModel } from './types';
 
 // ── GuitarAboutStepSheet ───────────────────────────────────────────────────
-// "About this step": everything the lesson explains about the step, on
-// request only. In order: the full instruction; on Section B steps, "Chords
+// "About this step", in the Studio's Insight panel and cards: everything
+// the lesson explains about the step, on request only. In order: the full instruction; on Section B steps, "Chords
 // come from the scale" (open while it is new for the key); the step's intro
 // notes, open; "More notes"; the practice tips while practising; "Same
 // root, four kinds" on B7; and "About {key} major". Opening the sheet marks
@@ -50,14 +54,12 @@ export function GuitarAboutStepSheet({
   instruction,
 }: GuitarAboutStepSheetProps) {
   return (
-    <GuitarSheet
+    // The Studio's Insight (owner, 2026-10-26): its panel and its cards.
+    <LessonInsightPanel
       open={open}
-      onOpenChange={onOpenChange}
-      modal
+      onClose={() => onOpenChange(false)}
       name="about"
-      eyebrow="About this step"
-      title={stepTitle(theory.step.activity)}
-      width={440}
+      title="About this step"
     >
       {/* Mounted while open only: a new step, or a new opening, starts over */}
       <AboutStep
@@ -65,7 +67,7 @@ export function GuitarAboutStepSheet({
         theory={theory}
         instruction={instruction}
       />
-    </GuitarSheet>
+    </LessonInsightPanel>
   );
 }
 
@@ -123,14 +125,16 @@ function AboutStep({
   }, []);
 
   return (
-    <div className="flex flex-col divide-y divide-white/[0.08] text-left [&>*:first-child]:pt-0 [&>*:last-child]:pb-0 [&>*]:py-5">
-      {instruction && (
-        <p data-about-instruction className="text-[15px] leading-6">
-          {instruction}
-        </p>
-      )}
+    <>
+      <InsightCard title={stepTitle(step.activity)} data-about-step>
+        {instruction && (
+          <p data-about-instruction className={INSIGHT_TEXT}>
+            {instruction}
+          </p>
+        )}
+      </InsightCard>
       {onSectionB && (
-        <div>
+        <InsightCard>
           <GuitarSectionBCard
             variant="section"
             defaultOpen={cardWasDue}
@@ -139,21 +143,23 @@ function AboutStep({
             keyCenter={keyCenter}
             keyColor={INK}
           />
-        </div>
+        </InsightCard>
       )}
-      <GuitarStepNotes
-        flow={flow}
-        step={step}
-        keyCenter={keyCenter}
-        practising={theory.practising}
-        onHearShape={theory.onHearShape}
-        keyColor={INK}
-        exclude={heldByCard ? [heldByCard] : undefined}
-      />
-      <div>
+      <InsightCard>
+        <GuitarStepNotes
+          flow={flow}
+          step={step}
+          keyCenter={keyCenter}
+          practising={theory.practising}
+          onHearShape={theory.onHearShape}
+          keyColor={INK}
+          exclude={heldByCard ? [heldByCard] : undefined}
+        />
+      </InsightCard>
+      <InsightCard>
         <GuitarKeyNotes keyCenter={keyCenter} keyColor={INK} />
-      </div>
-    </div>
+      </InsightCard>
+    </>
   );
 }
 

@@ -7,6 +7,7 @@ import {
 } from '@/curriculum/guitar/layout/GuitarResultPanel';
 import { GuitarSectionCompletePanel } from '@/curriculum/guitar/layout/GuitarSectionCompletePanel';
 import { GuitarStepNav } from '@/curriculum/guitar/layout/GuitarStepNav';
+import { LessonFrame } from '@/curriculum/guitar/layout/LessonFrame';
 import { deriveBarState } from '@/curriculum/guitar/layout/deriveBarState';
 import type {
   HeaderModel,
@@ -107,10 +108,22 @@ export function PianoLessonLayout({
     ) : null;
 
   return (
-    <div
+    <LessonFrame
+      header={header}
+      nav={nav}
+      tools={{
+        about: {
+          open: aboutOpen,
+          onToggle: () => setAboutOpen(!aboutOpen),
+        },
+        // Settings is not modal, so its button stays in reach and toggles.
+        settings: {
+          open: settingsOpen,
+          onToggle: () => setSettingsOpen(!settingsOpen),
+        },
+      }}
       data-piano-layout
       data-bar-state={barState}
-      className="flex h-full min-h-0 flex-col bg-[#101012] text-[#e8e8f0]"
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
         <div
@@ -119,11 +132,7 @@ export function PianoLessonLayout({
         >
           <GuitarLessonHeader
             header={header}
-            aboutHasNews={false}
-            aboutOpen={aboutOpen}
-            onOpenAbout={() => setAboutOpen(true)}
-            settingsOpen={settingsOpen}
-            onOpenSettings={() => setSettingsOpen((open) => !open)}
+            section={nav.sections.find((s) => s.active)?.name}
             titleAside={
               chords.length > 0 ? (
                 <span
@@ -189,6 +198,6 @@ export function PianoLessonLayout({
         onOpenChange={setAboutOpen}
         about={about}
       />
-    </div>
+    </LessonFrame>
   );
 }

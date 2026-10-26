@@ -58,17 +58,12 @@ export interface EchoInputSurfaceProps {
   targets?: readonly number[];
   /** Keyboard: whether a held key is right (its color) or not (gray). */
   isRight?: (midi: number) => boolean;
-  /** Keyboard: the keys are at most this tall (px). */
-  keyboardMaxHeight?: number;
   /** Off: dimmed, and nothing is heard (default on). */
   enabled?: boolean;
   /** Sound each note on the lesson piano (default on). */
   sound?: boolean;
   className?: string;
 }
-
-/** White-key length ÷ width, as Music Literacy's keys. */
-const KEY_ASPECT = 6;
 
 /** The house gray for a key held that isn't asked for. */
 const WRONG_KEY = '#e8e8f0';
@@ -82,7 +77,6 @@ export function EchoInputSurface({
   lit = [],
   targets,
   isRight,
-  keyboardMaxHeight = 150,
   enabled = true,
   sound = true,
   className,
@@ -189,7 +183,6 @@ export function EchoInputSurface({
       lit={lit}
       held={input$.held}
       isRight={isRight}
-      maxHeight={keyboardMaxHeight}
       typingOctave={input$.typingOctave}
       onKeyPointerDown={input$.onKeyPointerDown}
       enabled={enabled}
@@ -208,7 +201,6 @@ function EchoKeys({
   lit,
   held,
   isRight,
-  maxHeight,
   typingOctave,
   onKeyPointerDown,
   enabled,
@@ -222,7 +214,6 @@ function EchoKeys({
   lit: readonly number[];
   held: ReadonlySet<number>;
   isRight?: (midi: number) => boolean;
-  maxHeight: number;
   typingOctave: number;
   onKeyPointerDown: ReturnType<typeof useEchoInput>['onKeyPointerDown'];
   enabled: boolean;
@@ -277,8 +268,6 @@ function EchoKeys({
       )}
     >
       <LessonKeyboard
-        range={range}
-        natural={{ aspect: KEY_ASPECT, maxHeight }}
         activeWhiteKeyColor={keyColor}
         activeBlackKeyColor={keyColor}
         keyLabels={keyLabels}

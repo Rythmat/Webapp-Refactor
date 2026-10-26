@@ -94,10 +94,10 @@ const LessonContainerInner = ({
     // The lesson draws its own header (TheoryLessonLayout: Theory › mode ›
     // key, the step's name), so no "Lesson" bar over it.
     <div
-      className="learn-root flex min-h-screen w-full flex-col"
+      className="learn-root flex h-full w-full flex-col"
       style={{ backgroundColor: '#101012', color: 'var(--color-text)' }}
     >
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col">
         <ActivityFlow
           mode={modeSlug}
           rootKey={keyOption.label}

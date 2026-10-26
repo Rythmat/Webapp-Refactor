@@ -1,9 +1,11 @@
 import { Suspense } from 'react';
+import { PerStudentPreviewContext } from '@/components/ui/PerStudent';
 import { ContentGate } from '@/content/ContentGate';
 import { PremiumPreviewContext } from '@/hooks/PremiumPreviewContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { MirrorRouter } from './MirrorRouter';
 import { MirrorRoutes } from './MirrorRoutes';
+import { PerStudentPlaceholder } from './segments/PerStudentPlaceholder';
 
 /**
  * The mirrored app's page area: the app's rounded content panel, running the
@@ -23,13 +25,17 @@ export const ConsoleMirrorShell = () => (
     <MirrorRouter>
       {/* The admin previews as a premium student, so gated pages show. */}
       <PremiumPreviewContext.Provider value={true}>
-        <div className="relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden rounded-xl bg-[#101012] p-2">
-          <Suspense fallback={<DashboardContentSkeleton />}>
-            <ContentGate needs={['songs', 'events']}>
-              <MirrorRoutes />
-            </ContentGate>
-          </Suspense>
-        </div>
+        {/* A student's own parts (their projects, their recent activity)
+          stand as placeholders: not content, and per-user APIs. */}
+        <PerStudentPreviewContext.Provider value={PerStudentPlaceholder}>
+          <div className="relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden rounded-xl bg-[#101012] p-2">
+            <Suspense fallback={<DashboardContentSkeleton />}>
+              <ContentGate needs={['songs', 'events']}>
+                <MirrorRoutes />
+              </ContentGate>
+            </Suspense>
+          </div>
+        </PerStudentPreviewContext.Provider>
       </PremiumPreviewContext.Provider>
     </MirrorRouter>
   </div>

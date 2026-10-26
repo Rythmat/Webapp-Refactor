@@ -1,5 +1,6 @@
 import { Check, Headphones } from 'lucide-react';
 import { useRef, type ReactNode } from 'react';
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
 import type {
   LiteracyMode,
@@ -53,7 +54,9 @@ export function ChoosePanel({
       aria-label={heading}
       data-literacy-choose={kind}
       className={cn(
-        'grid min-h-0 gap-6 rounded-xl border border-white/[0.08] bg-white/[0.03] p-6 max-[639px]:p-4',
+        PROMPT_SURFACE,
+
+        'grid min-h-0 gap-6 p-6 max-[639px]:p-4',
         stacked
           ? 'grid-cols-[minmax(0,1fr)] content-start'
           : 'flex-1 grid-cols-[minmax(0,6fr)_minmax(0,5fr)] grid-rows-[minmax(0,1fr)] items-center',
@@ -168,7 +171,7 @@ export function ChooseKeyPanel({
         chosen && tonic ? (
           <div
             data-literacy-key-card
-            className="flex flex-col gap-4 rounded-xl border border-white/[0.08] bg-[#151518] p-5"
+            className={cn(PROMPT_SURFACE, 'flex flex-col gap-4 p-5')}
           >
             <div className="flex items-center gap-4">
               <span
@@ -233,7 +236,10 @@ export function ChooseModePanel({
     <section
       aria-label={heading}
       data-literacy-choose="mode"
-      className="flex min-h-0 flex-1 flex-col gap-5 rounded-xl border border-white/[0.08] bg-white/[0.03] p-6 max-[639px]:p-4"
+      className={cn(
+        PROMPT_SURFACE,
+        'flex min-h-0 flex-1 flex-col gap-5 p-6 max-[639px]:p-4',
+      )}
     >
       <div className="flex flex-col gap-1.5">
         <h2 className="text-[28px] font-normal leading-9 text-[#e8e8f0] max-[639px]:text-2xl">

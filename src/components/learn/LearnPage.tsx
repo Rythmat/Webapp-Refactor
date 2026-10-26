@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { ActivityRail } from '@/components/ClassroomLayout/home/ActivityRail';
 import { HomeGlow } from '@/components/ClassroomLayout/home/HomeGlow';
 import { HomePromptBar } from '@/components/ClassroomLayout/home/HomePromptBar';
 import {
   filterSongs,
   type SavedFilter,
 } from '@/components/songLibrary/SongLibraryPage';
+import { PerStudent } from '@/components/ui/PerStudent';
 import { cn } from '@/components/utilities';
 import { SongRoutes } from '@/constants/routes';
 import { getAllSongs } from '@/curriculum/data/songs';
@@ -50,7 +52,8 @@ const NAV_TABS = ['Songs', 'Genre', 'Theory', 'Technique'] as const;
  * one chosen turning the suggestions to that section of every course. On a tab's
  * page, the old Learn tab's content under it (LearnInlet, without its own
  * tab bar), on the instrument: Songs' chord charts, Theory's tiles and
- * Technique's are its. Home's glow behind.
+ * Technique's are its. Home's glow behind, and Home's activity rail
+ * (ActivityRail) pinned to the bottom.
  */
 export const LearnPage = ({ tab }: { tab?: LearnTab }) => {
   const instrument = useLearnInstrument();
@@ -166,6 +169,19 @@ export const LearnPage = ({ tab }: { tab?: LearnTab }) => {
           <LearnInlet tab={tab} bare />
         </div>
       )}
+      {/* Pinned to the bottom, as on Home: where you left off, cycling
+        through your recent activity. The negative margins and the -8px
+        stick take it to the panel's edges, past the scroll area's 8px
+        padding. */}
+      <div className="sticky -bottom-2 z-20 -mx-2 -mb-2 mt-auto shrink-0">
+        <PerStudent
+          label="Recent activity"
+          minHeight={72}
+          className="rounded-none bg-[#0c0c0e]"
+        >
+          <ActivityRail />
+        </PerStudent>
+      </div>
     </div>
   );
 };

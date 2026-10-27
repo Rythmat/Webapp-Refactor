@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ChevronDown, ChevronRight, Heart } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import React, {
   useEffect,
   useMemo,
@@ -9,6 +9,7 @@ import React, {
   type ReactNode,
 } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { HeartIcon } from '@/components/icons/HeartIcon';
 import { FilterDropdown } from '@/components/songLibrary/FilterDropdown';
 import { SearchInput } from '@/components/songLibrary/SearchInput';
 import { type ViewMode } from '@/components/songLibrary/SongLibraryPage';
@@ -1005,9 +1006,9 @@ const CardItem: React.FC<CardItemProps> = ({
               aria-pressed={isSaved}
               className="absolute right-2.5 top-2.5 z-10 rounded-full p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
             >
-              <Heart
+              <HeartIcon
                 size={16}
-                fill={isSaved ? 'currentColor' : 'none'}
+                filled={isSaved}
                 style={isSaved ? { color: '#ffffff' } : undefined}
               />
             </button>
@@ -1156,9 +1157,9 @@ const ListItem: React.FC<CardItemProps> = ({
             aria-pressed={isSaved}
             className="flex-shrink-0 rounded-full p-1.5 transition-colors hover:bg-white/10"
           >
-            <Heart
+            <HeartIcon
               size={16}
-              fill={isSaved ? 'currentColor' : 'none'}
+              filled={isSaved}
               style={{
                 color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.55)',
               }}

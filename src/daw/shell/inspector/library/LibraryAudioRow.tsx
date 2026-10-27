@@ -1,8 +1,8 @@
+import { HeartIcon } from '@/components/icons/HeartIcon';
 import {
   AudioWaveform,
   Download,
   FileAudio,
-  Heart,
   MoreVertical,
   Pause,
   Play,
@@ -153,8 +153,9 @@ export function LibraryAudioRow({
         <IconButton
           label={item.favorite ? 'Remove from Favorites' : 'Add to Favorites'}
           icon={
-            <Heart
-              className={cn(item.favorite && 'fill-current text-daw-text')}
+            <HeartIcon
+              filled={item.favorite}
+              className={cn(item.favorite && 'text-daw-text')}
             />
           }
           size="sm"

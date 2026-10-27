@@ -1,5 +1,5 @@
-import { Heart } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { HeartIcon } from '@/components/icons/HeartIcon';
 import { cn } from '@/components/utilities';
 import { BOSS_GOOD_TO_WIN } from '@/curriculum/engine/echo';
 import { BOSS_AVATAR } from './bossArt';
@@ -56,14 +56,14 @@ export function BossHealthBar({
       <span className="flex items-center gap-1.5 text-xs uppercase tracking-[0.14em] text-white/55">
         Echo Boss
         {Array.from({ length: max }, (_, i) => (
-          <Heart
+          <HeartIcon
             key={i}
-            aria-hidden
+            filled={i < health}
             className={cn(
               'size-3.5 transition-opacity',
               i < health ? 'opacity-100' : 'opacity-25',
             )}
-            style={{ color, fill: i < health ? color : 'transparent' }}
+            style={{ color }}
           />
         ))}
       </span>

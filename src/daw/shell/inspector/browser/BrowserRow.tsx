@@ -1,8 +1,8 @@
+import { HeartIcon } from '@/components/icons/HeartIcon';
 import {
   AudioWaveform,
   Disc3,
   Drum,
-  Heart,
   LayoutTemplate,
   Loader2,
   Music,
@@ -164,7 +164,7 @@ export const BrowserRow = memo(function BrowserRow({
         aria-pressed={favourite}
         label={`Favorite ${item.name}`}
         title={favourite ? 'Remove from favorites' : 'Add to favorites'}
-        icon={<Heart fill={favourite ? 'currentColor' : 'none'} />}
+        icon={<HeartIcon filled={favourite} />}
         className={favourite ? 'text-daw-text' : 'text-daw-text-3'}
         onClick={() => toggleFavourite(item.id)}
       />

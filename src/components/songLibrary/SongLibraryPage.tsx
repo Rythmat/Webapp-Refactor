@@ -1,4 +1,5 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
+import { HeartIcon } from '@/components/icons/HeartIcon';
 import {
   useMemo,
   useState,
@@ -10,7 +11,6 @@ import {
 } from 'react';
 import {
   ArrowRight,
-  Heart,
   LayoutGrid,
   List,
   ListMusic,
@@ -498,7 +498,7 @@ const LIST_CELL_PAD = '10px 14px';
 // The learn/studio/globe glyphs only fill ~62–80% of their 375×375 viewBox, so
 // they need a larger box to read well.
 const LIST_LINK_ICON_SIZE = 35;
-// The Saved-column Heart nearly fills its own viewBox, so a smaller box reads at
+// The Saved-column heart nearly fills its own viewBox, so a smaller box reads at
 // a comparable visual size to the link icons.
 const LIST_HEART_ICON_SIZE = 29;
 
@@ -625,11 +625,7 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
           className="transition-colors hover:text-white"
           style={{ color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.3)' }}
         >
-          <Heart
-            width={LIST_HEART_ICON_SIZE}
-            height={LIST_HEART_ICON_SIZE}
-            fill={isSaved ? 'currentColor' : 'none'}
-          />
+          <HeartIcon size={LIST_HEART_ICON_SIZE} filled={isSaved} />
         </button>
       </td>
       <td style={{ padding: LIST_CELL_PAD }}>

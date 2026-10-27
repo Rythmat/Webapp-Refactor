@@ -31,6 +31,7 @@ import { NodeTapCapture } from '@/daw/audio/NodeTapCapture';
 import {
   GUITAR_PITCH_PROFILE,
   orchestratorOptionsFor,
+  type PitchDetectProfile,
 } from '@/daw/audio/instrumentPitchProfiles';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { OnsetStream } from '@/learn/audio/v2/OnsetStream';
@@ -124,22 +125,29 @@ function loadAmpRig() {
   return ampRigModule;
 }
 
-const DEFAULT_DEPS: GuitarEngineDeps = {
-  // The rig is shared with the guitar voice; its last release tears it down.
-  acquireRig: () => loadAmpRig().then((m) => m.acquireGuitarAmpRig()),
-  releaseRig: () => {
-    void loadAmpRig().then((m) => m.releaseGuitarAmpRig());
-  },
-  createNoteTracker: (capture) =>
-    new ProbabilisticOrchestrator(
-      capture,
-      'monophonic',
-      orchestratorOptionsFor(GUITAR_PITCH_PROFILE, 'monophonic'),
-    ),
-  createChordFrames: (analyser, onFrame) =>
-    new ChordAnalysisStream(analyser, onFrame),
-  createOnsetDetector: () => new OnsetStream(GUITAR_PITCH_PROFILE.onsetFftSize),
-};
+/**
+ * The production seams for an instrument's pitch range: guitar's, or the
+ * bass's (BASS_PITCH_PROFILE: down to 28 Hz, larger FFTs), which re-fires a
+ * repeated root on each fresh pluck.
+ */
+function defaultDeps(profile: PitchDetectProfile): GuitarEngineDeps {
+  return {
+    // The rig is shared with the guitar voice; its last release tears it down.
+    acquireRig: () => loadAmpRig().then((m) => m.acquireGuitarAmpRig()),
+    releaseRig: () => {
+      void loadAmpRig().then((m) => m.releaseGuitarAmpRig());
+    },
+    createNoteTracker: (capture) =>
+      new ProbabilisticOrchestrator(
+        capture,
+        'monophonic',
+        orchestratorOptionsFor(profile, 'monophonic'),
+      ),
+    createChordFrames: (analyser, onFrame) =>
+      new ChordAnalysisStream(analyser, onFrame),
+    createOnsetDetector: () => new OnsetStream(profile.onsetFftSize),
+  };
+}
 
 /** The input as it runs; null while stopped. */
 interface Live {
@@ -198,9 +206,20 @@ export class GuitarLearnInputEngine {
   private lastChroma: Float64Array | null = null;
   private calibrationSamples: number[] | null = null;
 
-  constructor(prefs: GuitarInputPrefs, deps: Partial<GuitarEngineDeps> = {}) {
+  private readonly profile: PitchDetectProfile;
+
+  /**
+   * @param profile - The instrument's pitch range: guitar's by default, a
+   *   bass lesson passes BASS_PITCH_PROFILE.
+   */
+  constructor(
+    prefs: GuitarInputPrefs,
+    deps: Partial<GuitarEngineDeps> = {},
+    profile: PitchDetectProfile = GUITAR_PITCH_PROFILE,
+  ) {
     this.prefs = prefs;
-    this.deps = { ...DEFAULT_DEPS, ...deps };
+    this.profile = profile;
+    this.deps = { ...defaultDeps(profile), ...deps };
   }
 
   get isListening(): boolean {
@@ -394,7 +413,7 @@ export class GuitarLearnInputEngine {
       throw namedError('NotFoundError', 'No guitar input found');
     }
 
-    const capture = new NodeTapCapture(source, GUITAR_PITCH_PROFILE);
+    const capture = new NodeTapCapture(source, this.profile);
     const notes = this.deps.createNoteTracker(capture);
     notes.setCallbacks({
       onNoteOn: (e) => this.handleNoteOn(e),

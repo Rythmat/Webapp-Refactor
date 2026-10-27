@@ -28,7 +28,8 @@ describe('bass fretboard maths', () => {
   });
 
   it('has no strings 5 and 6', () => {
-    expect(() => midiAt(5, 0, BASS)).toThrow(/no string 5/);
+    expect(midiAt(5, 0, BASS)).toBeNaN();
+    expect(() => openMidi(5, BASS)).toThrow(/no string 5/);
     expect(isOnInstrument({ string: 6, fret: 1 }, BASS)).toBe(false);
     expect(isOnInstrument({ string: 6, fret: 1 }, GUITAR)).toBe(true);
   });

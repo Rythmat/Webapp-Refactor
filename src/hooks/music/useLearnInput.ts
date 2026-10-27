@@ -19,6 +19,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { audioContextOwner } from '@/audio/core/AudioContextOwner';
 import type { LessonInstrument } from '@/curriculum/types/activity.v2';
+import {
+  BASS_PITCH_PROFILE,
+  GUITAR_PITCH_PROFILE,
+} from '@/daw/audio/instrumentPitchProfiles';
 import { isV2Enabled } from '@/learn/audio/AudioSystemSelector';
 import {
   AudioToMidiAdapter,
@@ -208,14 +212,24 @@ export function useLearnInput(
   const chordSubscribersRef = useRef<Set<(event: GuitarChordEvent) => void>>(
     new Set(),
   );
+  // A bass shares the guitar's input set-up (the same interface or mic) and
+  // engine, tuned to its range (BASS_PITCH_PROFILE); it plays no chords.
   const [guitarPrefs, setGuitarPrefs] = useState<GuitarInputPrefs | null>(() =>
-    instrument === 'guitar' ? loadGuitarInputPrefs() : null,
+    instrument === 'guitar' || instrument === 'bass'
+      ? loadGuitarInputPrefs()
+      : null,
   );
   const [guitarEngine] = useState(() =>
-    guitarPrefs ? new GuitarLearnInputEngine(guitarPrefs) : null,
+    guitarPrefs
+      ? new GuitarLearnInputEngine(
+          guitarPrefs,
+          {},
+          instrument === 'bass' ? BASS_PITCH_PROFILE : GUITAR_PITCH_PROFILE,
+        )
+      : null,
   );
   const [midiChords] = useState(() =>
-    guitarPrefs
+    guitarPrefs && instrument === 'guitar'
       ? new MidiGuitarChordAggregator((event) => {
           for (const cb of chordSubscribersRef.current) cb(event);
         })

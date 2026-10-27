@@ -31,7 +31,9 @@ export function midiAt(
   fret: number,
   inst: FrettedInstrument = GUITAR,
 ): number {
-  return openMidi(string, inst) + fret;
+  // NaN, not an error, for a string the instrument lacks: callers filter
+  // bad positions out by their pitch (stringVoice's strum).
+  return (inst.tuning[string] ?? NaN) + fret;
 }
 
 export function fretToMidi(

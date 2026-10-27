@@ -36,6 +36,14 @@ const BASS_STRINGS = [
   { note: 'G', octave: 2, freq: 98.0 },
 ];
 
+/** Ukulele, re-entrant G C E A, in the order the strings sit (G first). */
+const UKULELE_STRINGS = [
+  { note: 'G', octave: 4, freq: 392.0 },
+  { note: 'C', octave: 4, freq: 261.63 },
+  { note: 'E', octave: 4, freq: 329.63 },
+  { note: 'A', octave: 4, freq: 440.0 },
+];
+
 // ── LED Bar (SVG) ────────────────────────────────────────────────────────
 
 function LedBar({
@@ -176,7 +184,7 @@ function noteToSemitone(note: string): number {
 
 interface TunerDisplayProps {
   deviceId: string | null;
-  instrumentType?: 'guitar' | 'bass';
+  instrumentType?: 'guitar' | 'bass' | 'ukulele';
   onActiveChange?: (active: boolean) => void;
   /** Optional AnalyserNode from the DAW audio graph. When provided, reuses the
    *  existing AudioContext instead of creating a separate one. */
@@ -207,7 +215,12 @@ export const TunerDisplay = memo(function TunerDisplay({
   const inTune = hasNote && Math.abs(cents) < IN_TUNE_THRESHOLD;
   const color = !hasNote ? 'var(--daw-hover)' : inTune ? GREEN : YELLOW;
 
-  const strings = instrumentType === 'bass' ? BASS_STRINGS : GUITAR_STRINGS;
+  const strings =
+    instrumentType === 'bass'
+      ? BASS_STRINGS
+      : instrumentType === 'ukulele'
+        ? UKULELE_STRINGS
+        : GUITAR_STRINGS;
 
   // Phase 10: error state overrides normal status
   const statusText = error

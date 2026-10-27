@@ -30,6 +30,7 @@ import {
 import * as Tone from 'tone';
 import { startTone } from '@/audio/core/toneBridge';
 import { ChordBox } from '@/components/guitar';
+import { FrettedInstrumentContext } from '@/components/guitar/frettedInstrumentContext';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -58,6 +59,7 @@ import type {
   GuitarInputSource,
 } from '@/learn/audio/guitar/types';
 import { playClick } from '@/learn/audio/metronomeClick';
+import { GUITAR, UKULELE } from '@/lib/guitar/instrument';
 import type { GuitarShapeDiagram } from '@/lib/guitar/types';
 import { InputLevelMeter } from './GuitarInputChip';
 
@@ -107,6 +109,17 @@ const BASS_STEPS: Record<GuitarInputSource, GuitarSetupStep[]> = {
   audio: ['source', 'mic', 'level', 'quiet', 'tuner', 'done'],
   midi: STEPS.midi,
 };
+
+/**
+ * A ukulele has no low E string to find and strums C instead of E minor;
+ * the rest is the guitar's.
+ */
+const UKULELE_STEPS: Record<GuitarInputSource, GuitarSetupStep[]> = {
+  audio: STEPS.audio.filter((step) => step !== 'strings'),
+  midi: STEPS.midi,
+};
+
+export type SetupInstrument = 'guitar' | 'bass' | 'ukulele';
 
 const STEP_TITLES: Record<GuitarSetupStep, string> = {
   source: 'How does your guitar connect?',
@@ -165,6 +178,28 @@ const E_MINOR_SHAPE: GuitarShapeDiagram = {
     { finger: 3, string: 4, fret: 2 },
   ],
 };
+/** The ukulele's test chord: The Ukulele Atlas's first box, open C. */
+const UKULELE_C_SHAPE: GuitarShapeDiagram = {
+  frets: '0-0-0-3',
+  diagramStartFret: 1,
+  fingering: [{ finger: 3, string: 1, fret: 3 }],
+};
+
+/** The chord each instrument's chord check asks for. */
+const TEST_CHORD = {
+  guitar: {
+    target: E_MINOR,
+    shape: E_MINOR_SHAPE,
+    name: 'E minor',
+    how: 'Put fingers 2 and 3 on the 2nd fret of strings 5 and 4. Let all six strings ring.',
+  },
+  ukulele: {
+    target: C_MAJOR,
+    shape: UKULELE_C_SHAPE,
+    name: 'C major',
+    how: 'Put finger 3 on the 3rd fret of the A string. Let all four strings ring.',
+  },
+} as const;
 /** No key in setup, so no key colour. */
 const NEUTRAL_COLOR = '#9a9aab';
 /**
@@ -761,7 +796,7 @@ function TunerStep({
   instrument,
 }: {
   analyser: AnalyserNode;
-  instrument: 'guitar' | 'bass';
+  instrument: SetupInstrument;
 }) {
   return (
     <div className="flex flex-col gap-3 text-sm text-[#e8e8f0]">
@@ -895,15 +930,18 @@ function StringsStep({
   );
 }
 
-// ── f) E minor ───────────────────────────────────────────────────────────
+// ── f) The test chord (E minor; C on a ukulele) ──────────────────────────
 
 function ChordStep({
   subscribeChord,
   onPassed,
+  instrument,
 }: {
   subscribeChord: GuitarInputSetupProps['subscribeChord'];
   onPassed: () => void;
+  instrument: SetupInstrument;
 }) {
+  const test = TEST_CHORD[instrument === 'ukulele' ? 'ukulele' : 'guitar'];
   const [result, setResult] = useState<
     'waiting' | 'passed' | 'wrong' | 'unclear'
   >('waiting');
@@ -912,13 +950,14 @@ function ChordStep({
   const passed = result === 'passed';
 
   // Judged by the notes heard, not the name: any E G B strum is E minor.
+  const target = test.target;
   useEffect(() => {
     if (passed) return;
     return subscribeChord((event) => {
       if (event.source !== 'audio' || event.phase === 'off') return;
       if (event.unclear || event.pcs.length === 0) {
         setResult('unclear');
-      } else if (chordIdentityScore(E_MINOR, event) === 1) {
+      } else if (chordIdentityScore(target, event) === 1) {
         setResult('passed');
         onPassed();
       } else {
@@ -926,29 +965,30 @@ function ChordStep({
         setResult('wrong');
       }
     });
-  }, [subscribeChord, passed]);
+  }, [subscribeChord, passed, target]);
 
   return (
     <div className="flex flex-col gap-3 text-sm text-[#e8e8f0]">
       <div className="flex items-start gap-4">
-        <ChordBox
-          shape={E_MINOR_SHAPE}
-          name="E minor"
-          rootPc={E_MINOR.rootPc}
-          keyColor={NEUTRAL_COLOR}
-          size="sm"
-          mirrored={leftHanded}
-        />
+        <FrettedInstrumentContext.Provider
+          value={instrument === 'ukulele' ? UKULELE : GUITAR}
+        >
+          <ChordBox
+            shape={test.shape}
+            name={test.name}
+            rootPc={test.target.rootPc}
+            keyColor={NEUTRAL_COLOR}
+            size="sm"
+            mirrored={leftHanded}
+          />
+        </FrettedInstrumentContext.Provider>
         <div className="flex flex-col gap-2">
-          <p>Strum E minor.</p>
-          <p>
-            Put fingers 2 and 3 on the 2nd fret of strings 5 and 4. Let all six
-            strings ring.
-          </p>
+          <p>Strum {test.name}.</p>
+          <p>{test.how}</p>
         </div>
       </div>
       <Status>
-        {result === 'passed' && <Passed>That's E minor. Nice.</Passed>}
+        {result === 'passed' && <Passed>That's {test.name}. Nice.</Passed>}
         {result === 'wrong' && (
           <Note icon={<TriangleAlert className="size-4" />}>
             <span>
@@ -1238,8 +1278,11 @@ export interface GuitarInputSetupProps {
   outputLatencySec?: number;
   /** Open at this step (e.g. the tuner, from the troubleshooting list). */
   initialStep?: GuitarSetupStep;
-  /** A bass lesson's set-up: a bass tuner, and no chord checks. */
-  instrument?: 'guitar' | 'bass';
+  /**
+   * A bass lesson's set-up: a bass tuner, and no chord checks. A ukulele's:
+   * a ukulele tuner, no low-string check, and C as the test chord.
+   */
+  instrument?: SetupInstrument;
 }
 
 export function GuitarInputSetup({
@@ -1280,7 +1323,12 @@ function SetupFlow({
   instrument = 'guitar',
   onClose,
 }: Omit<GuitarInputSetupProps, 'open'>) {
-  const STEP_LISTS = instrument === 'bass' ? BASS_STEPS : STEPS;
+  const STEP_LISTS =
+    instrument === 'bass'
+      ? BASS_STEPS
+      : instrument === 'ukulele'
+        ? UKULELE_STEPS
+        : STEPS;
   const handleRef = useRef(handle);
   handleRef.current = handle;
 
@@ -1405,7 +1453,11 @@ function SetupFlow({
         break;
       case 'chord':
         body = (
-          <ChordStep subscribeChord={subscribeChord} onPassed={passCurrent} />
+          <ChordStep
+            subscribeChord={subscribeChord}
+            onPassed={passCurrent}
+            instrument={instrument}
+          />
         );
         break;
       case 'bleed':
@@ -1460,9 +1512,9 @@ function SetupFlow({
           tabIndex={-1}
           className="text-xl font-normal leading-7 text-[#e8e8f0] outline-none"
         >
-          {instrument === 'bass'
-            ? STEP_TITLES[step].replace('guitar', 'bass')
-            : STEP_TITLES[step]}
+          {instrument === 'guitar'
+            ? STEP_TITLES[step]
+            : STEP_TITLES[step].replace('guitar', instrument)}
         </DialogTitle>
         {/* A segment per step. Thickness tells the current one apart, not
             brightness alone. */}

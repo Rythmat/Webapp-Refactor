@@ -497,6 +497,26 @@ describe('GuitarInputSetup: string and chord checks', () => {
   });
 });
 
+describe('GuitarInputSetup on a ukulele', () => {
+  it('skips the low-string check and strums C, on a four-string box', () => {
+    const { handle, input } = renderSetup({
+      handle: makeHandle({ status: 'listening', level: 0.1 }),
+      initialStep: 'chord',
+      instrument: 'ukulele',
+    });
+    expect(lastMode(handle)).toBe('chords');
+    expect(
+      screen.getByRole('img', { name: /C major: 0 0 0 3/ }),
+    ).toBeInTheDocument();
+    input.chord({ rootPc: 4, quality: 'minor', pcs: [4, 7, 11] });
+    expect(announced(/Not quite/)).not.toBeNull();
+    input.chord({ rootPc: 0, quality: 'major', pcs: [0, 4, 7] });
+    expect(announced(/That's C major/)).not.toBeNull();
+    // Guitar's ten audio steps less the low-string check.
+    expect(screen.getByText(/Step \d+ of 9/)).toBeInTheDocument();
+  });
+});
+
 describe('GuitarInputSetup: speaker echo and timing', () => {
   const listening = (prefs: Partial<GuitarInputPrefs> = {}) =>
     makeHandle({ status: 'listening' }, prefs);

@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   instrumentOptions,
+  isBassLearnEnabled,
   isGuitarLearnEnabled,
   mergeStoredInstrument,
   useInstrumentStore,
@@ -39,7 +40,7 @@ describe('useInstrumentStore', () => {
     expect(merge(undefined, current)).toMatchObject({ instrument: 'piano' });
   });
 
-  it('lists piano and guitar; bass and ukulele are not available yet', () => {
+  it('lists piano, guitar and bass (in development); ukulele is not available yet', () => {
     const options = instrumentOptions();
     expect(options.map((o) => o.id)).toEqual([
       'piano',
@@ -48,8 +49,26 @@ describe('useInstrumentStore', () => {
       'ukulele',
     ]);
     expect(options.find((o) => o.id === 'piano')?.available).toBe(true);
-    expect(options.find((o) => o.id === 'bass')?.available).toBe(false);
+    expect(options.find((o) => o.id === 'bass')?.available).toBe(true);
     expect(options.find((o) => o.id === 'ukulele')?.available).toBe(false);
+  });
+
+  // Bass waits behind a flag outside development until the owner has played
+  // it through (2026-10-27).
+  it('offers bass outside development only to a browser that switches it on', () => {
+    vi.stubEnv('DEV', false);
+    try {
+      localStorage.removeItem('learn-bass');
+      expect(isBassLearnEnabled()).toBe(false);
+      localStorage.setItem('learn-bass', 'true');
+      expect(isBassLearnEnabled()).toBe(true);
+      expect(instrumentOptions().find((o) => o.id === 'bass')?.available).toBe(
+        true,
+      );
+    } finally {
+      localStorage.removeItem('learn-bass');
+      vi.unstubAllEnvs();
+    }
   });
 
   // Guitar used to show only in development, or with a flag set, so the

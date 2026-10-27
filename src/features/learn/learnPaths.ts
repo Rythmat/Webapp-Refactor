@@ -33,7 +33,7 @@ export const learnTabRoute = (instrument: LearnInstrument, tab: LearnTab) =>
 /** The tab whose page a path is (/learn/guitar/genre → Genre), if any. */
 export function learnTabOfPath(pathname: string): LearnTab | null {
   const segment = pathname.match(
-    /^\/learn\/(?:keyboard|guitar)\/([^/]+)\/?$/,
+    /^\/learn\/(?:keyboard|guitar|bass)\/([^/]+)\/?$/,
   )?.[1];
   return LEARN_TABS.find((t) => LEARN_TAB_SEGMENTS[t] === segment) ?? null;
 }

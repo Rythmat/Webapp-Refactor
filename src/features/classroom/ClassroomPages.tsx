@@ -31,12 +31,13 @@ import {
   type LearnTab,
 } from '@/features/learn/learnPaths';
 import {
-  isGuitarLearnEnabled,
+  isLearnInstrumentEnabled,
   useInstrumentStore,
   useLearnInstrument,
   useLearnPageRoute,
   type LearnInstrument,
 } from '@/features/learn/useInstrumentStore';
+import { isBassTheorySlug } from '@/curriculum/data/bass/theoryCatalog';
 import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
@@ -87,6 +88,10 @@ import { ParallelModesOverview } from '@/components/learn/ParallelModesOverview'
 const GuitarModeOverview = lazy(
   () => import('@/components/learn/GuitarModeOverview'),
 );
+const BassModeOverview = lazy(
+  () => import('@/components/learn/BassModeOverview'),
+);
+const BassModeLesson = lazy(() => import('@/curriculum/pages/BassModeLesson'));
 const GuitarModeLesson = lazy(
   () => import('@/curriculum/pages/GuitarModeLesson'),
 );
@@ -621,6 +626,27 @@ const GuitarLessonRoute = () => {
   return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
 };
 
+// Bass teaches every Theory tile its catalog has live, from The Bass Atlas;
+// as on guitar, C Ionian is free and the rest Premium.
+const BassOverviewRoute = () => {
+  const { mode } = useParams<{ mode: string }>();
+  if (!isBassTheorySlug(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  const inner = <BassModeOverview />;
+  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
+const BassLessonRoute = () => {
+  const { mode, key: keyParam } = useParams<{ mode: string; key: string }>();
+  if (!isBassTheorySlug(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
+  const inner = <BassModeLesson />;
+  return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
 /**
  * Bare /learn: the Learn page for the chosen instrument; an old ?tab= link
  * its tab's page there (/learn?tab=Songs → /learn/keyboard/songs).
@@ -654,7 +680,7 @@ const LearnInstrumentRoute = ({
   const { search } = useLocation();
   const current = useLearnInstrument();
   const setInstrument = useInstrumentStore((s) => s.setInstrument);
-  const available = instrument === 'piano' || isGuitarLearnEnabled();
+  const available = isLearnInstrumentEnabled(instrument);
   useLayoutEffect(() => {
     if (available && current !== instrument) setInstrument(instrument);
   }, [available, current, instrument, setInstrument]);
@@ -668,16 +694,21 @@ const LearnInstrumentRoute = ({
   }
   const tabLink = learnTabRedirect(instrument, search);
   if (tabLink) return <Navigate replace to={tabLink} />;
+  // Bass teaches Theory alone so far: its page is the Theory tab.
+  if (instrument === 'bass' && tab !== 'Theory') {
+    return <Navigate replace to={learnTabRoute('bass', 'Theory')} />;
+  }
   return <LearnPage tab={tab} />;
 };
 
 /** Each tab's page on each instrument. Static paths, so /learn/guitar/songs
  *  outranks the guitar lessons' '/learn/guitar/:mode'. */
-const learnTabPages = (['piano', 'guitar'] as const).flatMap((instrument) =>
-  LEARN_TABS.map((tab) => ({
-    path: learnTabRoute(instrument, tab),
-    element: <LearnInstrumentRoute instrument={instrument} tab={tab} />,
-  })),
+const learnTabPages = (['piano', 'guitar', 'bass'] as const).flatMap(
+  (instrument) =>
+    LEARN_TABS.map((tab) => ({
+      path: learnTabRoute(instrument, tab),
+      element: <LearnInstrumentRoute instrument={instrument} tab={tab} />,
+    })),
 );
 
 export const learnPages = () => {
@@ -740,6 +771,20 @@ export const learnPages = () => {
       {
         path: LearnRoutes.guitarLesson.definition,
         element: <GuitarLessonRoute />,
+      },
+      // Bass: Theory, from The Bass Atlas. Static 'bass' segment, so these
+      // outrank '/:mode' and '/:mode/:key'.
+      {
+        path: LearnRoutes.bass.definition,
+        element: <LearnInstrumentRoute instrument="bass" />,
+      },
+      {
+        path: LearnRoutes.bassOverview.definition,
+        element: <BassOverviewRoute />,
+      },
+      {
+        path: LearnRoutes.bassLesson.definition,
+        element: <BassLessonRoute />,
       },
     ],
   };

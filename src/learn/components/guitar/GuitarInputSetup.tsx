@@ -99,6 +99,15 @@ const STEPS: Record<GuitarInputSource, GuitarSetupStep[]> = {
   midi: ['source', 'midi-check', 'done'],
 };
 
+/**
+ * A bass plays no chords, so its set-up stops after tuning: the string,
+ * chord, echo and timing checks all listen for strums.
+ */
+const BASS_STEPS: Record<GuitarInputSource, GuitarSetupStep[]> = {
+  audio: ['source', 'mic', 'level', 'quiet', 'tuner', 'done'],
+  midi: STEPS.midi,
+};
+
 const STEP_TITLES: Record<GuitarSetupStep, string> = {
   source: 'How does your guitar connect?',
   mic: 'Turn the microphone on',
@@ -747,7 +756,13 @@ function QuietStep({
 
 // ── d) Tuner ─────────────────────────────────────────────────────────────
 
-function TunerStep({ analyser }: { analyser: AnalyserNode }) {
+function TunerStep({
+  analyser,
+  instrument,
+}: {
+  analyser: AnalyserNode;
+  instrument: 'guitar' | 'bass';
+}) {
   return (
     <div className="flex flex-col gap-3 text-sm text-[#e8e8f0]">
       <p>Tune first. Strings out of tune sound like wrong notes.</p>
@@ -759,7 +774,7 @@ function TunerStep({ analyser }: { analyser: AnalyserNode }) {
         <TunerDisplay
           deviceId={null}
           externalAnalyser={analyser}
-          instrumentType="guitar"
+          instrumentType={instrument}
         />
       </Suspense>
     </div>
@@ -1223,6 +1238,8 @@ export interface GuitarInputSetupProps {
   outputLatencySec?: number;
   /** Open at this step (e.g. the tuner, from the troubleshooting list). */
   initialStep?: GuitarSetupStep;
+  /** A bass lesson's set-up: a bass tuner, and no chord checks. */
+  instrument?: 'guitar' | 'bass';
 }
 
 export function GuitarInputSetup({
@@ -1260,8 +1277,10 @@ function SetupFlow({
   onPlayTestChord,
   outputLatencySec = 0,
   initialStep,
+  instrument = 'guitar',
   onClose,
 }: Omit<GuitarInputSetupProps, 'open'>) {
+  const STEP_LISTS = instrument === 'bass' ? BASS_STEPS : STEPS;
   const handleRef = useRef(handle);
   handleRef.current = handle;
 
@@ -1271,14 +1290,14 @@ function SetupFlow({
     listening || (audio && handle.status === 'requesting-permission');
   const [source, setSource] = useState(handle.prefs.source);
   const [step, setStep] = useState<GuitarSetupStep>(() => {
-    const steps = STEPS[handle.prefs.source];
+    const steps = STEP_LISTS[handle.prefs.source];
     if (!initialStep || !steps.includes(initialStep)) return 'source';
     // A check that needs the mic starts where the mic gets turned on.
     return NEEDS_MIC.has(initialStep) && !micOn ? 'mic' : initialStep;
   });
   const [passed, setPassed] = useState<ReadonlySet<GuitarSetupStep>>(new Set());
 
-  const steps = STEPS[source];
+  const steps = STEP_LISTS[source];
   const index = steps.indexOf(step);
   // With the mic off, its checks are passed over rather than skipped one by one.
   const reachable = (s: GuitarSetupStep) => micOn || !NEEDS_MIC.has(s);
@@ -1370,7 +1389,7 @@ function SetupFlow({
       case 'tuner': {
         const analyser = handle.getTunerAnalyser();
         body = analyser ? (
-          <TunerStep analyser={analyser} />
+          <TunerStep analyser={analyser} instrument={instrument} />
         ) : (
           <MicOffNotice onTurnOn={() => setStep('mic')} />
         );
@@ -1441,7 +1460,9 @@ function SetupFlow({
           tabIndex={-1}
           className="text-xl font-normal leading-7 text-[#e8e8f0] outline-none"
         >
-          {STEP_TITLES[step]}
+          {instrument === 'bass'
+            ? STEP_TITLES[step].replace('guitar', 'bass')
+            : STEP_TITLES[step]}
         </DialogTitle>
         {/* A segment per step. Thickness tells the current one apart, not
             brightness alone. */}

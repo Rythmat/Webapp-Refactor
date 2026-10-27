@@ -1,4 +1,5 @@
 import {
+  BASS_SUGGESTIONS,
   GUITAR_SUGGESTIONS,
   KEYBOARD_SUGGESTIONS,
   learnSuggestionsFor,
@@ -134,7 +135,7 @@ const theorySuggestions = (list: readonly PromptSuggestion[]) =>
 const THEORY_SUGGESTIONS: Record<LearnInstrument, PromptSuggestion[]> = {
   piano: theorySuggestions(KEYBOARD_SUGGESTIONS),
   guitar: theorySuggestions(GUITAR_SUGGESTIONS),
-  bass: [],
+  bass: theorySuggestions(BASS_SUGGESTIONS),
 };
 
 /** Technique: its tiles (none on guitar yet, so its bar suggests nothing),

@@ -39,7 +39,8 @@ function play(
     Tone.Frequency(midi, 'midi').toNote(),
     durationSeconds,
     time ?? Tone.now(),
-    velocity,
+    // Lessons speak MIDI velocity (80); a Sampler takes 0-1.
+    velocity > 1 ? velocity / 127 : velocity,
   );
 }
 

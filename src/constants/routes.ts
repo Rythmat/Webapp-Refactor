@@ -915,6 +915,20 @@ export const LearnRoutes = {
     { mode: string; key: string },
     { section?: LearnSection }
   >('/guitar/:mode/:key', { prefix: learnPrefix }),
+
+  /** The Learn page on bass: Theory, from The Bass Atlas (2026-10-27). */
+  bass: createRouteDefinition('/bass', { prefix: learnPrefix }),
+
+  /** A Theory tile's bass overview: the keys. */
+  bassOverview: createRouteDefinition<{
+    mode: string;
+  }>('/bass/:mode', { prefix: learnPrefix }),
+
+  /** A key's bass lesson; `?section=A|B|D` opens that chapter. */
+  bassLesson: createRouteDefinition<
+    { mode: string; key: string },
+    { section?: LearnSection }
+  >('/bass/:mode/:key', { prefix: learnPrefix }),
 };
 
 const connectPrefix = '/connect';

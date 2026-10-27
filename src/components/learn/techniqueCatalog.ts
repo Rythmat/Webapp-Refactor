@@ -41,5 +41,6 @@ const GUITAR_TECHNIQUE_DATA: readonly TechniqueItem[] = [];
 export function techniqueDataFor(
   instrument: LearnInstrument,
 ): readonly TechniqueItem[] {
+  if (instrument === 'bass') return []; // none yet: bass is Theory only
   return instrument === 'guitar' ? GUITAR_TECHNIQUE_DATA : PIANO_TECHNIQUE_DATA;
 }

@@ -155,7 +155,7 @@ export const LearnPage = ({ tab }: { tab?: LearnTab }) => {
                   section={genreSection}
                   onChange={setGenreSection}
                 />
-              ) : (
+              ) : instrument === 'bass' ? null : ( // Bass suggests its Theory lessons alone: nothing to narrow.
                 <LearnKindPills kind={kind} onChange={setKind} />
               )
             }

@@ -38,6 +38,11 @@ import { LearnHome } from './LearnHome';
 import { LearnTabBar } from './LearnTabBar';
 import { StartHere } from './StartHere';
 import { WorldHarmony } from './WorldHarmony';
+import {
+  COMING_SOON_FOR_BASS,
+  bassLessonRoute,
+  isTheoryItemOnBass,
+} from './bassTheory';
 import { GENRE_COURSES } from './genreCourses';
 import {
   COMING_SOON_FOR_GUITAR,
@@ -1218,6 +1223,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   // Technique tiles, so its Technique tab is hidden and opens Theory instead.
   const learnInstrument = useLearnInstrument();
   const onGuitar = learnInstrument === 'guitar';
+  const onBass = learnInstrument === 'bass';
   const subTab =
     fixedTab ??
     (onGuitar && selectedTab === 'Technique' ? 'Theory' : selectedTab);
@@ -1258,17 +1264,30 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     // the rest say so. A Relative / Parallel tile's modes open their guitar
     // lessons.
     const forInstrument = (items: ContentItem[]): ContentItem[] =>
-      onGuitar
+      onGuitar || onBass
         ? items.map((item) => {
-            if (!isTheoryItemOnGuitar(item)) {
-              return { ...item, comingSoon: COMING_SOON_FOR_GUITAR };
+            if (
+              onBass ? !isTheoryItemOnBass(item) : !isTheoryItemOnGuitar(item)
+            ) {
+              return {
+                ...item,
+                comingSoon: onBass
+                  ? COMING_SOON_FOR_BASS
+                  : COMING_SOON_FOR_GUITAR,
+              };
             }
             if (item.mode || !item.subItems) return item;
             return {
               ...item,
               subItems: item.subItems.map((sub) =>
                 sub.mode && sub.keyLabel
-                  ? { ...sub, route: guitarLessonRoute(sub.mode, sub.keyLabel) }
+                  ? {
+                      ...sub,
+                      route: (onBass ? bassLessonRoute : guitarLessonRoute)(
+                        sub.mode,
+                        sub.keyLabel,
+                      ),
+                    }
                   : sub,
               ),
             };
@@ -1341,7 +1360,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         ),
       }))
       .filter((s) => s.items.length > 0);
-  }, [theoryFilters, savedLearnItems, onGuitar]);
+  }, [theoryFilters, savedLearnItems, onGuitar, onBass]);
 
   const filteredTechnique = useMemo(() => {
     const searched = applySearch(techniqueData, techniqueFilters.search);
@@ -1443,7 +1462,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     };
 
     // Guitar has no server progress; the piano lessons' would mislead.
-    const guitarTheory = onGuitar && tab === 'Theory';
+    const guitarTheory = (onGuitar || onBass) && tab === 'Theory';
     const tileProgress = (item: ContentItem) =>
       guitarTheory ? 0 : getTileCompletion(progressSummary, item);
 
@@ -1454,9 +1473,11 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       if (item.comingSoon) return;
       if (item.mode) {
         navigate(
-          onGuitar
-            ? LearnRoutes.guitarOverview({ mode: item.mode })
-            : LearnRoutes.keyboardOverview({ mode: item.mode }),
+          onBass
+            ? LearnRoutes.bassOverview({ mode: item.mode })
+            : onGuitar
+              ? LearnRoutes.guitarOverview({ mode: item.mode })
+              : LearnRoutes.keyboardOverview({ mode: item.mode }),
         );
         return;
       }

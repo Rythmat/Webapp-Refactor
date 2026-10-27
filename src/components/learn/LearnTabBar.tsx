@@ -125,20 +125,23 @@ export const LearnTabBar = ({
       </div>
 
       {/* Sub-tabs — plain text links at the same size as the "Learn" heading. */}
-      {tabs.map(({ slug, label }) => (
-        <Link
-          key={slug}
-          to={tabTo(slug)}
-          aria-label={`Open ${label}`}
-          aria-current={active === slug ? 'page' : undefined}
-          className={cn(
-            'text-xl font-medium transition-colors md:text-2xl',
-            active === slug ? 'text-white' : 'text-white/55 hover:text-white',
-          )}
-        >
-          {label}
-        </Link>
-      ))}
+      {/* Bass teaches Theory alone so far (The Bass Atlas). */}
+      {tabs
+        .filter((t) => instrument !== 'bass' || t.slug === 'Theory')
+        .map(({ slug, label }) => (
+          <Link
+            key={slug}
+            to={tabTo(slug)}
+            aria-label={`Open ${label}`}
+            aria-current={active === slug ? 'page' : undefined}
+            className={cn(
+              'text-xl font-medium transition-colors md:text-2xl',
+              active === slug ? 'text-white' : 'text-white/55 hover:text-white',
+            )}
+          >
+            {label}
+          </Link>
+        ))}
 
       {/* The tour of the page it's on (the whole of Learn on the dashboard). */}
       {extras && <CompassTourButton />}

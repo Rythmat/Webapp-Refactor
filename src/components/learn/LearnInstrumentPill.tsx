@@ -9,7 +9,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/components/utilities';
 import { learnTabOfPath, learnTabRoute } from '@/features/learn/learnPaths';
 import {
-  isGuitarLearnEnabled,
+  isLearnInstrumentEnabled,
   learnPageRoute,
   useInstrumentStore,
   useLearnInstrument,
@@ -21,7 +21,7 @@ import {
 const INSTRUMENTS: { label: string; id: LearnInstrument | null }[] = [
   { label: 'Keyboard', id: 'piano' },
   { label: 'Guitar', id: 'guitar' },
-  { label: 'Bass', id: null },
+  { label: 'Bass', id: 'bass' },
   { label: 'Ukulele', id: null },
   { label: 'Drums', id: null },
 ];
@@ -100,9 +100,7 @@ export const LearnInstrumentPill = ({
             >
               {INSTRUMENTS.filter((i) => i.id !== instrument).map(
                 ({ label, id }) => {
-                  const available =
-                    id === 'piano' ||
-                    (id === 'guitar' && isGuitarLearnEnabled());
+                  const available = id !== null && isLearnInstrumentEnabled(id);
                   return (
                     <button
                       key={label}

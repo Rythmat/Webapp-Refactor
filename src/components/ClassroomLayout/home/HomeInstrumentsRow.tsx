@@ -13,7 +13,7 @@ import {
 } from '@/components/promptBox/PromptBoxParts';
 import { KEY_RAINBOW_COLORS } from '@/features/landing/rainbow';
 import {
-  isGuitarLearnEnabled,
+  isLearnInstrumentEnabled,
   learnPageRoute,
   useInstrumentStore,
   useLearnInstrument,
@@ -67,7 +67,7 @@ interface InstrumentCell {
 const INSTRUMENTS: InstrumentCell[] = [
   { label: 'Keyboard', icon: '/icons/keyboard-icon.svg', instrument: 'piano' },
   { label: 'Guitar', icon: '/icons/guitar-icon.svg', instrument: 'guitar' },
-  { label: 'Bass', icon: '/icons/bass-icon.svg', instrument: null },
+  { label: 'Bass', icon: '/icons/bass-icon.svg', instrument: 'bass' },
   { label: 'Ukulele', icon: '/icons/ukulele-icon.svg', instrument: null },
   { label: 'Drums', icon: '/icons/drum-icon.svg', instrument: null },
 ];
@@ -89,7 +89,6 @@ const INSTRUMENTS: InstrumentCell[] = [
 export const HomeInstrumentsRow = () => {
   const selected = useLearnInstrument();
   const setInstrument = useInstrumentStore((s) => s.setInstrument);
-  const guitarEnabled = isGuitarLearnEnabled();
   // An instrument without lessons, picked here: shown as chosen, Learn's own
   // instrument untouched.
   const [soonPick, setSoonPick] = useState<string | null>(null);
@@ -146,8 +145,7 @@ export const HomeInstrumentsRow = () => {
         >
           {INSTRUMENTS.map(({ label, icon, instrument }, i) => {
             const available =
-              instrument === 'piano' ||
-              (instrument === 'guitar' && guitarEnabled);
+              instrument !== null && isLearnInstrumentEnabled(instrument);
             const checked =
               soonPick !== null
                 ? label === soonPick

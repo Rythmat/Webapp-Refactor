@@ -60,9 +60,9 @@ describe('InstrumentSelector', () => {
     expect(onChange).toHaveBeenCalledWith('guitar');
   });
 
-  it('lists Bass and Ukulele as coming soon', () => {
+  it('lists Ukulele as coming soon', () => {
     render(<InstrumentSelector />);
-    for (const name of ['Bass', 'Ukulele']) {
+    for (const name of ['Ukulele']) {
       const item = screen.getByRole('menuitem', { name: new RegExp(name) });
       expect(item).toHaveAttribute('aria-disabled', 'true');
       expect(item).toHaveTextContent('Coming soon');

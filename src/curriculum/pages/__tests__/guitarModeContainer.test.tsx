@@ -213,9 +213,14 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
     expect(document.querySelector('[data-lesson-rail]')).toHaveTextContent(
       'Theory · Guitar · Ionian (Major)',
     );
+    // As the keyboard's (2026-10-27): no pager; the tab row's first
+    // exercise group is open, numbered.
     expect(
-      screen.getByRole('button', { name: /^Step 1 of \d+$/ }),
-    ).toBeInTheDocument();
+      screen.queryByRole('button', { name: /^Step 1 of \d+$/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '1. Arpeggiate Chords (Triads)' }),
+    ).toHaveAttribute('aria-current', 'true');
     expect(screen.queryByText(/Level 1/)).toBeNull();
     expect(screen.queryByRole('button', { name: 'Courses' })).toBeNull();
 

@@ -124,6 +124,11 @@ import {
   hasMarkedMistakes,
 } from '../guitar/GuitarResultExtras';
 import { GuitarLessonLayout, type NavStep } from '../guitar/layout';
+import {
+  SectionGroupTabs,
+  groupNavOutline,
+  type GroupNavSection,
+} from '../guitar/layout/sectionGroupNav';
 import { useGuitarLessonEvaluation } from '../guitar/useGuitarLessonEvaluation';
 import { BACKING_LEAD_SEC, useBackingTrack } from '../hooks/useBackingTrack';
 import { useDemoPlayback } from '../hooks/useDemoPlayback';
@@ -2473,6 +2478,34 @@ function GenreLessonContainerV2Inner({
     };
   });
 
+  // Guitar's screen (guitar and bass) navigates as the keyboard lessons do:
+  // each section paged by a tab row of its exercise groups, the rail listing
+  // every section's steps, no ‹ 3 / 20 › pager (sectionGroupNav).
+  const groupSections: GroupNavSection[] = flow.sections.map((section) => ({
+    id: section.id,
+    name: section.name,
+    done: getSectionProgress(section.id).percentage === 100,
+    steps: section.steps.map((step) => {
+      const saved = progress.completedSteps[step.tag];
+      const own = (step as ActivityStepV2).chordSymbols ?? [];
+      return {
+        subsection: step.subsection,
+        title: splitActivity(chordText(step.activity, own)).title,
+        status: !saved
+          ? 'todo'
+          : !saved.score.passed
+            ? 'attempted'
+            : saved.score.selfReported
+              ? 'selfReported'
+              : 'passed',
+      };
+    }),
+  }));
+  const openSectionStep = (sectionId: ActivitySectionId, index: number) => {
+    if (sectionId !== activeSection) handleSectionChange(sectionId);
+    goToStep(index);
+  };
+
   if (isFretted) {
     const practising = isPracticing || restartingPass;
     const offerSection = practiceOffer;
@@ -2509,11 +2542,32 @@ function GenreLessonContainerV2Inner({
             steps: navSteps,
             index: stepIndex,
             goToStep,
-            // The active section's Practice Track, as on piano.
-            practiceTrack: sectionHasContent(currentSection)
-              ? { onOpen: () => enterPracticeTrack(activeSection) }
-              : null,
+            // The tab row pages the steps and ends with the Practice Track.
+            practiceTrack: null,
+            pager: false,
+            outline: groupNavOutline(
+              groupSections,
+              activeSection,
+              stepIndex,
+              openSectionStep,
+            ),
           }}
+          subNav={
+            <SectionGroupTabs
+              section={
+                groupSections.find((s) => s.id === activeSection) ??
+                groupSections[0]
+              }
+              stepIndex={stepIndex}
+              keyColor={keyColor}
+              goToStep={goToStep}
+              onPracticeTrack={
+                sectionHasContent(currentSection)
+                  ? () => enterPracticeTrack(activeSection)
+                  : null
+              }
+            />
+          }
           run={{
             state: activityState,
             restartingPass,

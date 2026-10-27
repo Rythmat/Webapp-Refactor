@@ -260,10 +260,20 @@ async function settle(ms = 600) {
 const barState = () =>
   document.querySelector('[data-guitar-bar]')?.getAttribute('data-guitar-bar');
 const stage = () => document.querySelector<HTMLElement>('[data-guitar-stage]');
-const stepCount = () =>
-  screen
-    .getByRole('button', { name: /^Step \d+ of \d+/ })
-    .getAttribute('aria-label');
+/**
+ * Where the lesson is, as the pager used to say it: the current segment of
+ * the tab row's step line ("Step 2 of 20"), now that the keyboard lessons'
+ * navigation pages the steps (2026-10-27).
+ */
+const stepCount = () => {
+  const segments = [
+    ...document.querySelectorAll('[data-lesson-tab-steps] button'),
+  ];
+  const at = segments.findIndex(
+    (s) => s.getAttribute('aria-current') === 'step',
+  );
+  return `Step ${at + 1} of ${segments.length}`;
+};
 const button = (name: string | RegExp) => screen.getByRole('button', { name });
 const aboutButton = () => button(/^About this step/);
 const gear = () => button('Lesson settings');
@@ -425,7 +435,10 @@ describe('nothing opens by itself', () => {
     arrow('ArrowRight');
     expect(stepCount()).toMatch(/^Step 2 of/);
     expectNothingOpen();
-    fireEvent.click(button('Next step'));
+    // The step line's next segment (the tab row pages the steps).
+    fireEvent.click(
+      document.querySelectorAll('[data-lesson-tab-steps] button')[2],
+    );
     expect(stepCount()).toMatch(/^Step 3 of/);
     expectNothingOpen();
 

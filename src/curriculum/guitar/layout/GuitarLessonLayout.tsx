@@ -38,6 +38,7 @@ export function GuitarLessonLayout({
   result,
   offer,
   theory,
+  subNav,
   slots,
 }: GuitarLessonLayoutProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -128,6 +129,7 @@ export function GuitarLessonLayout({
           />
 
           <GuitarStepNav nav={nav} keyColor={header.keyColor} />
+          {subNav}
 
           {/* Above the TAB in the markup as on screen, so focus and reading
               order follow what the student sees. */}

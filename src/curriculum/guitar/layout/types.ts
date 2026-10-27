@@ -287,6 +287,11 @@ export interface GuitarLessonLayoutProps {
   /** The section-complete offer (wins over the result). */
   offer: SectionCompleteModel | null;
   theory: TheoryModel;
+  /**
+   * The tab row under the nav: the section's exercise groups and its
+   * Practice Track, as the keyboard lessons have it. Left out, none.
+   */
+  subNav?: ReactNode;
   slots: LayoutSlots;
 }
 

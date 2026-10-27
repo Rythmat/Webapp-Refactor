@@ -4,7 +4,11 @@ import { AtlasRoutes } from '@/constants/routes';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
 import { useUISound } from '@/hooks/useUISound';
-import { songGuitarLessonRoute, songLessonRoute } from './songLessonRoute';
+import {
+  songGuitarLessonRoute,
+  songLessonRoute,
+  songUkuleleLessonRoute,
+} from './songLessonRoute';
 import { studioSongUrl } from './studioSongUrl';
 import { useSavedSongsStore } from './useSavedSongsStore';
 
@@ -40,16 +44,22 @@ export function useSongActions(
   const { play } = useUISound();
   const isSaved = useSavedSongsStore((s) => Boolean(s.savedIds[song.id]));
   const toggleSavedInStore = useSavedSongsStore((s) => s.toggleSaved);
-  const onGuitar = useLearnInstrument() === 'guitar';
+  const learnInstrument = useLearnInstrument();
 
   const openInLesson = useCallback<SongActions['openInLesson']>(
     (e) => {
       stopAndPrevent(e);
       play('click');
       // The lesson on the student's instrument, in the song's key.
-      navigate(onGuitar ? songGuitarLessonRoute(song) : songLessonRoute(song));
+      navigate(
+        learnInstrument === 'guitar'
+          ? songGuitarLessonRoute(song)
+          : learnInstrument === 'ukulele'
+            ? songUkuleleLessonRoute(song)
+            : songLessonRoute(song),
+      );
     },
-    [navigate, play, onGuitar, song],
+    [navigate, play, learnInstrument, song],
   );
 
   // The editor opens the song itself (openSession's 'song' intent): it keeps

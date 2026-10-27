@@ -171,11 +171,21 @@ export const MAX_UKULELE_GRIP_FRET = 12;
  * strings ring for free; fretted notes span at most four frets, take at most
  * four fingers, and the fingers rise with the frets.
  */
-export function ukuleleHandProblems(shape: GuitarShapeDiagram): string[] {
+export function ukuleleHandProblems(
+  shape: GuitarShapeDiagram,
+  /**
+   * Strings that may be muted (X): the outer G (4) and A (1) strings, which
+   * a hand can damp; the book's scale boxes mark the G string so.
+   */
+  { allowMuted = [] }: { allowMuted?: readonly (1 | 4)[] } = {},
+): string[] {
   const problems: string[] = [];
   const parsed = parseShape(shape.frets, UKULELE);
   if (parsed.every((f) => f === null)) return ['sounds nothing'];
-  if (parsed.some((f) => f === null)) problems.push('muted string');
+  const muted = UKULELE.stringsLowToHigh.filter((_, i) => parsed[i] === null);
+  if (muted.some((string) => !(allowMuted as number[]).includes(string))) {
+    problems.push('muted string');
+  }
   const fretted = UKULELE.stringsLowToHigh.flatMap((string, i) => {
     const fret = parsed[i];
     return fret !== null && fret > 0 ? [{ string, fret }] : [];

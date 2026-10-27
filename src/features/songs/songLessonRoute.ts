@@ -1,9 +1,10 @@
 // ── A song's lesson ────────────────────────────────────────────────────────
 // Where "Open in Lesson" goes: the Theory lesson of the song's mode in its
-// key, on keyboard (/learn/keyboard/:mode/:key) or on guitar
-// (/learn/guitar/:mode/:key).
+// key, on keyboard (/learn/keyboard/:mode/:key), on guitar
+// (/learn/guitar/:mode/:key) or on ukulele (/learn/ukulele/:mode/:key).
 
 import { guitarLessonRoute } from '@/components/learn/guitarTheory';
+import { ukuleleLessonRoute } from '@/components/learn/ukuleleTheory';
 import { LearnRoutes } from '@/constants/routes';
 import type { Song, SongMode } from '@/curriculum/types/songLibrary';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
@@ -35,3 +36,7 @@ export const songLessonRoute = (song: Song): string =>
 /** The guitar Theory lesson (`/learn/guitar/:mode/:key`). */
 export const songGuitarLessonRoute = (song: Song): string =>
   guitarLessonRoute(normalizeLessonMode(song.mode), tonicOf(song));
+
+/** The ukulele Theory lesson (`/learn/ukulele/:mode/:key`). */
+export const songUkuleleLessonRoute = (song: Song): string =>
+  ukuleleLessonRoute(normalizeLessonMode(song.mode), tonicOf(song));

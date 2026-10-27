@@ -298,17 +298,25 @@ export function degreeLabelsBySemitone(
 // Stable ids a lesson step can carry: '<center>/triad/1', '<center>/seventh/8',
 // '<center>/map/4/2' (example 4, bar 2). Book One's are 'C/triad/1' etc.
 
+// A ukulele center's ids start 'ukulele:' ('ukulele:C/triad/1'), so a
+// guitar lookup can never hand back a guitar shape for a ukulele step.
+
+const UKULELE_PREFIX = 'ukulele:';
+
+const shapeIdBase = (center: GuitarCenter) =>
+  center.instrument === 'ukulele' ? `${UKULELE_PREFIX}${center.id}` : center.id;
+
 export function triadShapeId(center: GuitarCenter, index: number): string {
-  return `${center.id}/triad/${index}`;
+  return `${shapeIdBase(center)}/triad/${index}`;
 }
 
 export function seventhShapeId(center: GuitarCenter, index: number): string {
-  return `${center.id}/seventh/${index}`;
+  return `${shapeIdBase(center)}/seventh/${index}`;
 }
 
 /** A pentatonic/blues center's progression chord. */
 export function chordShapeId(center: GuitarCenter, index: number): string {
-  return `${center.id}/chord/${index}`;
+  return `${shapeIdBase(center)}/chord/${index}`;
 }
 
 export function mapBarShapeId(
@@ -316,12 +324,30 @@ export function mapBarShapeId(
   example: number,
   bar: number,
 ): string {
-  return `${center.id}/map/${example}/${bar}`;
+  return `${shapeIdBase(center)}/map/${example}/${bar}`;
+}
+
+let ukuleleCenterLookup: ((id: GuitarCenterId) => GuitarCenter) | null = null;
+
+/**
+ * data/ukulele registers its center builder here when it loads (it builds
+ * on this module, so this one can't import it).
+ */
+export function registerUkuleleCenters(
+  lookup: (id: GuitarCenterId) => GuitarCenter,
+): void {
+  ukuleleCenterLookup = lookup;
 }
 
 /** The center a shape id belongs to, or undefined. */
 export function centerOfShapeId(id: string): GuitarCenter | undefined {
   const centerPart = id.split('/')[0];
+  if (centerPart.startsWith(UKULELE_PREFIX)) {
+    const ukuleleId = centerPart.slice(UKULELE_PREFIX.length);
+    return ukuleleCenterLookup && isGuitarCenterId(ukuleleId)
+      ? ukuleleCenterLookup(ukuleleId)
+      : undefined;
+  }
   return isGuitarCenterId(centerPart) ? getGuitarCenter(centerPart) : undefined;
 }
 

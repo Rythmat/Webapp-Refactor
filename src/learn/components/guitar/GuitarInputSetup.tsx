@@ -399,10 +399,13 @@ const SOURCES = [
 function SourceStep({
   source,
   onChange,
+  instrument,
 }: {
   source: GuitarInputSource;
   onChange: (source: GuitarInputSource) => void;
+  instrument: SetupInstrument;
 }) {
+  const onUkulele = instrument === 'ukulele';
   return (
     <div className="flex flex-col gap-4">
       <fieldset className="flex flex-col gap-2">
@@ -427,13 +430,29 @@ function SourceStep({
             />
             <Icon aria-hidden className="size-5 shrink-0" />
             <span className="flex flex-col">
-              <span className="text-sm text-[#e8e8f0]">{label}</span>
-              <span className="text-xs text-white/55">{hint}</span>
+              <span className="text-sm text-[#e8e8f0]">
+                {onUkulele && id === 'midi' ? 'MIDI controller' : label}
+              </span>
+              <span className="text-xs text-white/55">
+                {onUkulele && id === 'midi'
+                  ? 'A ukulele, pickup or controller that sends MIDI.'
+                  : hint}
+              </span>
             </span>
           </label>
         ))}
       </fieldset>
-      {source === 'audio' && (
+      {source === 'audio' && onUkulele && (
+        <ul className="flex list-disc flex-col gap-1 pl-5 text-sm text-white/55">
+          <li>
+            Put the device 30 to 60 cm (1 to 2 feet) away. Prop it up so the mic
+            faces the sound hole.
+          </li>
+          <li>Electric ukulele: plug into an audio interface.</li>
+          <li>Wear headphones whenever a backing track plays.</li>
+        </ul>
+      )}
+      {source === 'audio' && !onUkulele && (
         <ul className="flex list-disc flex-col gap-1 pl-5 text-sm text-white/55">
           <li>
             Acoustic guitar: put the device 30 to 60 cm (1 to 2 feet) away. Prop
@@ -1416,7 +1435,13 @@ function SetupFlow({
   } else {
     switch (step) {
       case 'source':
-        body = <SourceStep source={source} onChange={setSource} />;
+        body = (
+          <SourceStep
+            source={source}
+            onChange={setSource}
+            instrument={instrument}
+          />
+        );
         break;
       case 'mic':
         body = (

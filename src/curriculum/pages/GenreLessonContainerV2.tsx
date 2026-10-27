@@ -2346,19 +2346,24 @@ function GenreLessonContainerV2Inner({
       <>
         <TabTheoryOverlay layout={layout} {...tabTheoryLayers} />
         {/* The map's chips span its bars: not over a looped slice, and not
-            under a take's mistake marks, which sit where the chips do */}
-        {musicMap && musicMapMeta && !loopSlice && !takeHasMarks && (
-          <MusicMapOverlay
-            layout={layout}
-            keyCenter={guitarKey}
-            map={musicMap}
-            passes={musicMapMeta.passes}
-            countInOffset={isIT ? COUNT_IN_OFFSET : 0}
-            keyColor={keyColor}
-            showChordJobs={showChordJobs}
-            showRomanNumerals={canShowRomanNumerals && showRomanNumerals}
-          />
-        )}
+            under a take's mistake marks, which sit where the chips do. Its
+            chord jobs read guitar voicings: none on a ukulele. */}
+        {musicMap &&
+          musicMapMeta &&
+          !isUkulele &&
+          !loopSlice &&
+          !takeHasMarks && (
+            <MusicMapOverlay
+              layout={layout}
+              keyCenter={guitarKey}
+              map={musicMap}
+              passes={musicMapMeta.passes}
+              countInOffset={isIT ? COUNT_IN_OFFSET : 0}
+              keyColor={keyColor}
+              showChordJobs={showChordJobs}
+              showRomanNumerals={canShowRomanNumerals && showRomanNumerals}
+            />
+          )}
         {activityState === 'practice' && !loopSlice && (
           <LoopSelectionOverlay
             layout={layout}
@@ -2390,6 +2395,7 @@ function GenreLessonContainerV2Inner({
       tabTheoryLayers,
       musicMap,
       musicMapMeta,
+      isUkulele,
       guitarKey,
       showChordJobs,
       canShowRomanNumerals,

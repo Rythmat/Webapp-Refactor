@@ -314,8 +314,15 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
   );
   const chordTargets = step.chordTargets;
   const groups = useMemo(
-    () => noteGroups(events, chordTargets ?? [], countInOffset, model.tonicPc),
-    [events, chordTargets, countInOffset, model.tonicPc],
+    () =>
+      noteGroups(
+        events,
+        chordTargets ?? [],
+        countInOffset,
+        model.tonicPc,
+        inst,
+      ),
+    [events, chordTargets, countInOffset, model.tonicPc, inst],
   );
 
   // Where the student is: at the playhead in time, at the first note not yet
@@ -386,8 +393,10 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
         practiceMidis: practiceHighlightMidis,
         targetMidiSet,
         labelOf,
+        inst,
       }),
     [
+      inst,
       groups,
       cursor,
       completedIds,

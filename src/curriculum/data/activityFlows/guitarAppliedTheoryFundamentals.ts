@@ -39,6 +39,7 @@ import {
   shapeNotes,
   shapePitchClasses,
 } from '@/lib/guitar/fretboard';
+import { GUITAR, type FrettedInstrument } from '@/lib/guitar/instrument';
 import type { FretPosition } from '@/lib/guitar/types';
 import {
   SCALE_LESSONS,
@@ -71,6 +72,7 @@ import { guitarScaleEntry } from '../guitar/theoryCatalog';
 import type {
   BookChordQuality,
   GuitarCenter,
+  GuitarCenterId,
   GuitarMode,
   GuitarPentatonicScale,
   GuitarScaleKey,
@@ -107,7 +109,50 @@ export function guitarModeGenre(mode: GuitarMode): string {
     ? GUITAR_APPLIED_THEORY_GENRE
     : `guitar-mode-${mode}`;
 }
-const MODULE = 'applied_theory_guitar_l1';
+// ── The instrument a flow is built for ────────────────────────────────────
+// The ukulele lessons are this lesson on a ukulele center (data/ukulele):
+// the same steps, words and timing, with ukulele frets, pitches, ids and
+// progress. A build sets the target for its duration (builds are
+// synchronous), so every helper below reads it instead of taking it.
+
+export interface FrettedFlowTarget {
+  instrument: 'guitar' | 'ukulele';
+  inst: FrettedInstrument;
+  getCenter: (id: GuitarCenterId) => GuitarCenter;
+  module: string;
+  /** Tag prefix and family: 'guitar_fund' / 'applied_theory_guitar'. */
+  tagPrefix: string;
+  tagFamily: string;
+  modeGenre: (mode: GuitarMode) => string;
+  scaleGenre: (scale: GuitarScaleKey) => string;
+  /** What titles say after the dash: 'Guitar'. */
+  label: string;
+}
+
+export const GUITAR_FLOW_TARGET: FrettedFlowTarget = {
+  instrument: 'guitar',
+  inst: GUITAR,
+  getCenter: getGuitarCenter,
+  module: 'applied_theory_guitar_l1',
+  tagPrefix: 'guitar_fund',
+  tagFamily: 'applied_theory_guitar',
+  modeGenre: guitarModeGenre,
+  scaleGenre: (scale) => guitarScaleEntry(scale).genre,
+  label: 'Guitar',
+};
+
+let target: FrettedFlowTarget = GUITAR_FLOW_TARGET;
+
+function withTarget<T>(next: FrettedFlowTarget, build: () => T): T {
+  const previous = target;
+  target = next;
+  try {
+    return build();
+  } finally {
+    target = previous;
+  }
+}
+
 const OOT_SPACING = 960; // out-of-time chord spacing, as piano's B2.1/B4.1
 /** Music Maps are played twice: the book prints repeat signs around them. */
 export const MUSIC_MAP_PASSES = 2;
@@ -134,7 +179,7 @@ const ENGINE_QUALITY: Record<BookChordQuality, DetectorChordQuality> = {
 type Assessment = ActivityStepV2['assessment'];
 
 function tag(suffix: string): string {
-  return `guitar_fund:${suffix} | applied_theory_guitar`;
+  return `${target.tagPrefix}:${suffix} | ${target.tagFamily}`;
 }
 
 // ── Chords ────────────────────────────────────────────────────────────────
@@ -178,11 +223,11 @@ function chordTarget(
   durationTicks: number,
   attack: ChordTarget['attack'],
 ): ChordTarget {
-  const notes = shapeNotes(chord.frets);
+  const notes = shapeNotes(chord.frets, target.inst);
   return {
     rootPc: chordRootPc(center, chord.degree),
     quality: ENGINE_QUALITY[chord.quality],
-    pitchClasses: shapePitchClasses(chord.frets),
+    pitchClasses: shapePitchClasses(chord.frets, target.inst),
     bassPc: Math.min(...notes.map((n) => n.midi)) % 12,
     onsetTick,
     durationTicks,
@@ -198,7 +243,7 @@ function note(
   duration: number,
 ): TargetNote {
   return {
-    midi: fretToMidi(position),
+    midi: fretToMidi(position, target.inst),
     onset,
     duration,
     fretPosition: position,
@@ -207,7 +252,9 @@ function note(
 
 /** Every string of a shape at once — a strum. */
 function strumNotes(chord: GuitarChord, onset: number, duration: number) {
-  return shapeNotes(chord.frets).map((n) => note(n.position, onset, duration));
+  return shapeNotes(chord.frets, target.inst).map((n) =>
+    note(n.position, onset, duration),
+  );
 }
 
 /**
@@ -236,7 +283,7 @@ function chordSequence(
 
 /** Pick a shape string by string, lowest first, one note per beat. */
 function arpeggio(center: GuitarCenter, chord: GuitarChord) {
-  const notes = shapeNotes(chord.frets);
+  const notes = shapeNotes(chord.frets, target.inst);
   const targetNotes = notes.map((n, i) =>
     note(n.position, i * TICKS_PER_BEAT, NORMAL_DURATION),
   );
@@ -354,7 +401,7 @@ function createStepFactory() {
   let stepNumber = 0;
   return (input: StepInput): ActivityStepV2 => ({
     stepNumber: ++stepNumber,
-    module: MODULE,
+    module: target.module,
     section: input.section,
     subsection: input.subsection,
     activity: input.activity,
@@ -1130,8 +1177,21 @@ export function buildGuitarModeFlow(
   keyName: string,
   mode: GuitarMode,
 ): ActivityFlowV2 {
+  return buildFrettedModeFlow(GUITAR_FLOW_TARGET, keyName, mode);
+}
+
+/** buildGuitarModeFlow for any fretted target (the ukulele's). */
+export function buildFrettedModeFlow(
+  flowTarget: FrettedFlowTarget,
+  keyName: string,
+  mode: GuitarMode,
+): ActivityFlowV2 {
+  return withTarget(flowTarget, () => modeFlow(keyName, mode));
+}
+
+function modeFlow(keyName: string, mode: GuitarMode): ActivityFlowV2 {
   const key = toBookKey(keyName) ?? 'C';
-  const center = getGuitarCenter(centerId(key, mode));
+  const center = target.getCenter(centerId(key, mode));
   const ionian = mode === 'ionian';
   const step = createStepFactory();
 
@@ -1156,12 +1216,12 @@ export function buildGuitarModeFlow(
   };
 
   return {
-    genre: guitarModeGenre(mode),
+    genre: target.modeGenre(mode),
     level: 1,
     version: 'v2',
     title: ionian
-      ? 'Ionian (Major) — Guitar'
-      : `${GUITAR_MODE_NAME[mode]} — Guitar`,
+      ? `Ionian (Major) — ${target.label}`
+      : `${GUITAR_MODE_NAME[mode]} — ${target.label}`,
     params: {
       defaultKey: ionian
         ? `${key} Major (Ionian)`
@@ -1171,7 +1231,7 @@ export function buildGuitarModeFlow(
       tempoRange: [60, 100],
       swing: 0,
       grooves: [],
-      instrument: 'guitar',
+      instrument: target.instrument,
     },
     sections: [sectionA, sectionB, sectionD],
   };
@@ -1361,9 +1421,22 @@ export function buildGuitarScaleFlow(
   keyName: string,
   scale: GuitarScaleKey,
 ): ActivityFlowV2 {
-  if (isGuitarMode(scale)) return buildGuitarModeFlow(keyName, scale);
+  return buildFrettedScaleFlow(GUITAR_FLOW_TARGET, keyName, scale);
+}
+
+/** buildGuitarScaleFlow for any fretted target (the ukulele's). */
+export function buildFrettedScaleFlow(
+  flowTarget: FrettedFlowTarget,
+  keyName: string,
+  scale: GuitarScaleKey,
+): ActivityFlowV2 {
+  return withTarget(flowTarget, () => scaleFlow(keyName, scale));
+}
+
+function scaleFlow(keyName: string, scale: GuitarScaleKey): ActivityFlowV2 {
+  if (isGuitarMode(scale)) return modeFlow(keyName, scale);
   const key = toBookKey(keyName) ?? 'C';
-  const center = getGuitarCenter(centerId(key, scale));
+  const center = target.getCenter(centerId(key, scale));
   const entry = guitarScaleEntry(scale);
   const step = createStepFactory();
   const melody = [
@@ -1398,10 +1471,10 @@ export function buildGuitarScaleFlow(
   }
 
   return {
-    genre: entry.genre,
+    genre: target.scaleGenre(scale),
     level: 1,
     version: 'v2',
-    title: `${entry.title} — Guitar`,
+    title: `${entry.title} — ${target.label}`,
     params: {
       defaultKey: `${key} ${entry.name}`,
       defaultScale: [...center.steps],
@@ -1409,7 +1482,7 @@ export function buildGuitarScaleFlow(
       tempoRange: [60, 100],
       swing: 0,
       grooves: [],
-      instrument: 'guitar',
+      instrument: target.instrument,
       practiceTrack: { chords: practiceChords },
     },
     sections,

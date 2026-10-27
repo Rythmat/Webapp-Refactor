@@ -2,6 +2,7 @@ import {
   BASS_SUGGESTIONS,
   GUITAR_SUGGESTIONS,
   KEYBOARD_SUGGESTIONS,
+  UKULELE_SUGGESTIONS,
   learnSuggestionsFor,
   rotationOf,
   type PromptSuggestion,
@@ -33,6 +34,7 @@ const ON: Record<LearnInstrument, string> = {
   piano: 'on piano',
   guitar: 'on guitar',
   bass: 'on bass',
+  ukulele: 'on ukulele',
 };
 
 /** Songs: the songs the page lists (all of them, or as its filters leave
@@ -136,6 +138,7 @@ const THEORY_SUGGESTIONS: Record<LearnInstrument, PromptSuggestion[]> = {
   piano: theorySuggestions(KEYBOARD_SUGGESTIONS),
   guitar: theorySuggestions(GUITAR_SUGGESTIONS),
   bass: theorySuggestions(BASS_SUGGESTIONS),
+  ukulele: theorySuggestions(UKULELE_SUGGESTIONS),
 };
 
 /** Technique: its tiles (none on guitar yet, so its bar suggests nothing),

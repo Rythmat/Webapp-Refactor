@@ -637,13 +637,34 @@ export const BASS_SUGGESTIONS: PromptSuggestion[] = [
   bassTheory('Teach me harmonic minor on bass', 'harmonicminor'),
 ];
 
+const ukuleleTheory = (text: string, mode: string, key?: string) =>
+  learn(text, `/learn/ukulele/${mode}${key ? `/${key}` : ''}`);
+
+/** The Learn page's bar on ukulele: its Theory lessons (The Ukulele Atlas). */
+export const UKULELE_SUGGESTIONS: PromptSuggestion[] = [
+  ukuleleTheory('Teach me a C major scale on ukulele', 'ionian', 'c'),
+  ukuleleTheory('Teach me the chords in G major on ukulele', 'ionian', 'g'),
+  ukuleleTheory('Teach me the F major chords on ukulele', 'ionian', 'f'),
+  ukuleleTheory(
+    'Teach me the A minor pentatonic on ukulele',
+    'minorpentatonic',
+    'a',
+  ),
+  ukuleleTheory('Teach me the C blues scale on ukulele', 'minorblues', 'c'),
+  ukuleleTheory('Teach me D Dorian on ukulele', 'dorian', 'd'),
+  ukuleleTheory('Teach me G Mixolydian on ukulele', 'mixolydian', 'g'),
+  ukuleleTheory('Teach me A Aeolian on ukulele', 'aeolian', 'a'),
+];
+
 /** The Learn page bar's suggestions for an instrument. */
 export const learnSuggestionsFor = (instrument: LearnInstrument) =>
   instrument === 'guitar'
     ? GUITAR_SUGGESTIONS
     : instrument === 'bass'
       ? BASS_SUGGESTIONS
-      : KEYBOARD_SUGGESTIONS;
+      : instrument === 'ukulele'
+        ? UKULELE_SUGGESTIONS
+        : KEYBOARD_SUGGESTIONS;
 
 /** A list's suggestions in a fresh random order, for a bar given its own. */
 export const rotationOf = (suggestions: readonly PromptSuggestion[]) =>

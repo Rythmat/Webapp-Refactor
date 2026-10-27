@@ -12,7 +12,7 @@ import type {
 } from './activity';
 
 /** The instrument a flow is played on. A flow without one is piano. */
-export type LessonInstrument = 'piano' | 'guitar' | 'bass';
+export type LessonInstrument = 'piano' | 'guitar' | 'bass' | 'ukulele';
 
 // Hand configuration options for Performance section (Section D)
 export type HandConfig =

@@ -929,6 +929,20 @@ export const LearnRoutes = {
     { mode: string; key: string },
     { section?: LearnSection }
   >('/bass/:mode/:key', { prefix: learnPrefix }),
+
+  /** The Learn page on ukulele: Theory, from The Ukulele Atlas (2026-10-27). */
+  ukulele: createRouteDefinition('/ukulele', { prefix: learnPrefix }),
+
+  /** A Theory tile's ukulele overview: the keys. */
+  ukuleleOverview: createRouteDefinition<{
+    mode: string;
+  }>('/ukulele/:mode', { prefix: learnPrefix }),
+
+  /** A key's ukulele lesson; `?section=A|B|D` opens that chapter. */
+  ukuleleLesson: createRouteDefinition<
+    { mode: string; key: string },
+    { section?: LearnSection }
+  >('/ukulele/:mode/:key', { prefix: learnPrefix }),
 };
 
 const connectPrefix = '/connect';

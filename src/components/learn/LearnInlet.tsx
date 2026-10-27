@@ -69,6 +69,11 @@ import {
 import { SigilCard } from './sigil/SigilCard';
 import { sigilFor, type SigilSpec } from './sigil/sigilSpec';
 import { techniqueDataFor } from './techniqueCatalog';
+import {
+  COMING_SOON_FOR_UKULELE,
+  isTheoryItemOnUkulele,
+  ukuleleLessonRoute,
+} from './ukuleleTheory';
 import './learn.css';
 
 /* ── Filter row + helpers ─────────────────────────────────────────── */
@@ -1225,6 +1230,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const learnInstrument = useLearnInstrument();
   const onGuitar = learnInstrument === 'guitar';
   const onBass = learnInstrument === 'bass';
+  const onUkulele = learnInstrument === 'ukulele';
   const subTab =
     fixedTab ??
     (onGuitar && selectedTab === 'Technique' ? 'Theory' : selectedTab);
@@ -1264,17 +1270,27 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     // On guitar, the families the guitar catalog has live have lessons and
     // the rest say so. A Relative / Parallel tile's modes open their guitar
     // lessons.
+    const isOn = onBass
+      ? isTheoryItemOnBass
+      : onUkulele
+        ? isTheoryItemOnUkulele
+        : isTheoryItemOnGuitar;
+    const lessonRoute = onBass
+      ? bassLessonRoute
+      : onUkulele
+        ? ukuleleLessonRoute
+        : guitarLessonRoute;
     const forInstrument = (items: ContentItem[]): ContentItem[] =>
-      onGuitar || onBass
+      onGuitar || onBass || onUkulele
         ? items.map((item) => {
-            if (
-              onBass ? !isTheoryItemOnBass(item) : !isTheoryItemOnGuitar(item)
-            ) {
+            if (!isOn(item)) {
               return {
                 ...item,
                 comingSoon: onBass
                   ? COMING_SOON_FOR_BASS
-                  : COMING_SOON_FOR_GUITAR,
+                  : onUkulele
+                    ? COMING_SOON_FOR_UKULELE
+                    : COMING_SOON_FOR_GUITAR,
               };
             }
             if (item.mode || !item.subItems) return item;
@@ -1284,10 +1300,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                 sub.mode && sub.keyLabel
                   ? {
                       ...sub,
-                      route: (onBass ? bassLessonRoute : guitarLessonRoute)(
-                        sub.mode,
-                        sub.keyLabel,
-                      ),
+                      route: lessonRoute(sub.mode, sub.keyLabel),
                     }
                   : sub,
               ),
@@ -1361,7 +1374,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         ),
       }))
       .filter((s) => s.items.length > 0);
-  }, [theoryFilters, savedLearnItems, onGuitar, onBass]);
+  }, [theoryFilters, savedLearnItems, onGuitar, onBass, onUkulele]);
 
   const filteredTechnique = useMemo(() => {
     const searched = applySearch(techniqueData, techniqueFilters.search);
@@ -1463,7 +1476,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     };
 
     // Guitar has no server progress; the piano lessons' would mislead.
-    const guitarTheory = (onGuitar || onBass) && tab === 'Theory';
+    const guitarTheory = (onGuitar || onBass || onUkulele) && tab === 'Theory';
     const tileProgress = (item: ContentItem) =>
       guitarTheory ? 0 : getTileCompletion(progressSummary, item);
 
@@ -1476,9 +1489,11 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         navigate(
           onBass
             ? LearnRoutes.bassOverview({ mode: item.mode })
-            : onGuitar
-              ? LearnRoutes.guitarOverview({ mode: item.mode })
-              : LearnRoutes.keyboardOverview({ mode: item.mode }),
+            : onUkulele
+              ? LearnRoutes.ukuleleOverview({ mode: item.mode })
+              : onGuitar
+                ? LearnRoutes.guitarOverview({ mode: item.mode })
+                : LearnRoutes.keyboardOverview({ mode: item.mode }),
         );
         return;
       }

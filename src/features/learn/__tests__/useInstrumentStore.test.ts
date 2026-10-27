@@ -4,6 +4,8 @@ import {
   instrumentOptions,
   isBassLearnEnabled,
   isGuitarLearnEnabled,
+  isUkuleleLearnEnabled,
+  learnPageRoute,
   mergeStoredInstrument,
   useInstrumentStore,
 } from '@/features/learn/useInstrumentStore';
@@ -38,9 +40,12 @@ describe('useInstrumentStore', () => {
       merge({ instrument: 'guitar', leftHanded: true }, current),
     ).toMatchObject({ instrument: 'guitar', leftHanded: true });
     expect(merge(undefined, current)).toMatchObject({ instrument: 'piano' });
+    expect(merge({ instrument: 'ukulele' }, current)).toMatchObject({
+      instrument: 'ukulele',
+    });
   });
 
-  it('lists piano, guitar and bass (in development); ukulele is not available yet', () => {
+  it('lists piano, guitar, bass and ukulele (in development)', () => {
     const options = instrumentOptions();
     expect(options.map((o) => o.id)).toEqual([
       'piano',
@@ -50,7 +55,26 @@ describe('useInstrumentStore', () => {
     ]);
     expect(options.find((o) => o.id === 'piano')?.available).toBe(true);
     expect(options.find((o) => o.id === 'bass')?.available).toBe(true);
-    expect(options.find((o) => o.id === 'ukulele')?.available).toBe(false);
+    expect(options.find((o) => o.id === 'ukulele')?.available).toBe(true);
+  });
+
+  // Ukulele waits behind a flag outside development until the owner has
+  // played it through (2026-10-27), as bass does.
+  it('offers ukulele outside development only to a browser that switches it on', () => {
+    vi.stubEnv('DEV', false);
+    try {
+      localStorage.removeItem('learn-ukulele');
+      expect(isUkuleleLearnEnabled()).toBe(false);
+      expect(
+        instrumentOptions().find((o) => o.id === 'ukulele')?.available,
+      ).toBe(false);
+      localStorage.setItem('learn-ukulele', 'true');
+      expect(isUkuleleLearnEnabled()).toBe(true);
+      expect(learnPageRoute('ukulele')).toBe('/learn/ukulele');
+    } finally {
+      localStorage.removeItem('learn-ukulele');
+      vi.unstubAllEnvs();
+    }
   });
 
   // Bass waits behind a flag outside development until the owner has played

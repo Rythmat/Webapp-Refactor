@@ -5,8 +5,9 @@ import {
   type ChordDiagnostics,
   type DiagramVariant,
 } from '@/components/guitar';
+import { useFrettedInstrument } from '@/components/guitar/frettedInstrumentContext';
 import {
-  getGuitarCenter,
+  getFrettedCenter,
   seventhShapeId,
 } from '@/curriculum/data/guitar/centers';
 import {
@@ -102,8 +103,20 @@ export function chordStripCues(
   keyCenter: GuitarCenterId,
   prefix: GuitarSubsectionPrefix | null,
   map: GuitarMusicMap | undefined,
+  instrument: 'guitar' | 'ukulele' = 'guitar',
 ): BoxCue[] {
-  const center = getGuitarCenter(keyCenter);
+  const center = getFrettedCenter(keyCenter, instrument);
+  // The change and top-line cues read guitar voicings (common tones on six
+  // strings); a ukulele's boxes keep their Roman numerals only.
+  if (instrument === 'ukulele') {
+    return chords.map((chord) => ({
+      roman: romanNumeral(center, chord.shape.degree, chord.shape.quality),
+      change: null,
+      topLine: null,
+      topNote: null,
+      octaveNote: null,
+    }));
+  }
   const settings = { accidentals: 'unicode' as const };
   const n = chords.length;
 
@@ -345,10 +358,14 @@ export const GuitarChordStrip = memo(function GuitarChordStrip({
     [chords, onHearShape],
   );
 
+  const instrument =
+    useFrettedInstrument().id === 'ukulele' ? 'ukulele' : 'guitar';
   const cues = useMemo(
     () =>
-      keyCenter ? chordStripCues(chords, keyCenter, stepPrefix, map) : null,
-    [chords, keyCenter, stepPrefix, map],
+      keyCenter
+        ? chordStripCues(chords, keyCenter, stepPrefix, map, instrument)
+        : null,
+    [chords, keyCenter, stepPrefix, map, instrument],
   );
 
   useEffect(() => {

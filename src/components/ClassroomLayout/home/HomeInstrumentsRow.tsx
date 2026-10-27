@@ -68,7 +68,11 @@ const INSTRUMENTS: InstrumentCell[] = [
   { label: 'Keyboard', icon: '/icons/keyboard-icon.svg', instrument: 'piano' },
   { label: 'Guitar', icon: '/icons/guitar-icon.svg', instrument: 'guitar' },
   { label: 'Bass', icon: '/icons/bass-icon.svg', instrument: 'bass' },
-  { label: 'Ukulele', icon: '/icons/ukulele-icon.svg', instrument: null },
+  {
+    label: 'Ukulele',
+    icon: '/icons/ukulele-icon.svg',
+    instrument: 'ukulele',
+  },
   { label: 'Drums', icon: '/icons/drum-icon.svg', instrument: null },
 ];
 

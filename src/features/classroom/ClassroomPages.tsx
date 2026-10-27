@@ -38,6 +38,7 @@ import {
   type LearnInstrument,
 } from '@/features/learn/useInstrumentStore';
 import { isBassTheorySlug } from '@/curriculum/data/bass/theoryCatalog';
+import { isUkuleleTheorySlug } from '@/curriculum/data/ukulele/theoryCatalog';
 import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
@@ -92,6 +93,12 @@ const BassModeOverview = lazy(
   () => import('@/components/learn/BassModeOverview'),
 );
 const BassModeLesson = lazy(() => import('@/curriculum/pages/BassModeLesson'));
+const UkuleleModeOverview = lazy(
+  () => import('@/components/learn/UkuleleModeOverview'),
+);
+const UkuleleModeLesson = lazy(
+  () => import('@/curriculum/pages/UkuleleModeLesson'),
+);
 const GuitarModeLesson = lazy(
   () => import('@/curriculum/pages/GuitarModeLesson'),
 );
@@ -647,6 +654,27 @@ const BassLessonRoute = () => {
   return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
 };
 
+// Ukulele teaches every Theory tile its catalog has live, from The Ukulele
+// Atlas; as on guitar, C Ionian is free and the rest Premium.
+const UkuleleOverviewRoute = () => {
+  const { mode } = useParams<{ mode: string }>();
+  if (!isUkuleleTheorySlug(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  const inner = <UkuleleModeOverview />;
+  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
+const UkuleleLessonRoute = () => {
+  const { mode, key: keyParam } = useParams<{ mode: string; key: string }>();
+  if (!isUkuleleTheorySlug(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
+  const inner = <UkuleleModeLesson />;
+  return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
 /**
  * Bare /learn: the Learn page for the chosen instrument; an old ?tab= link
  * its tab's page there (/learn?tab=Songs → /learn/keyboard/songs).
@@ -698,12 +726,16 @@ const LearnInstrumentRoute = ({
   if (instrument === 'bass' && tab !== 'Theory') {
     return <Navigate replace to={learnTabRoute('bass', 'Theory')} />;
   }
+  // Ukulele teaches Theory, and Songs show its chord boxes.
+  if (instrument === 'ukulele' && tab !== 'Theory' && tab !== 'Songs') {
+    return <Navigate replace to={learnTabRoute('ukulele', 'Theory')} />;
+  }
   return <LearnPage tab={tab} />;
 };
 
 /** Each tab's page on each instrument. Static paths, so /learn/guitar/songs
  *  outranks the guitar lessons' '/learn/guitar/:mode'. */
-const learnTabPages = (['piano', 'guitar', 'bass'] as const).flatMap(
+const learnTabPages = (['piano', 'guitar', 'bass', 'ukulele'] as const).flatMap(
   (instrument) =>
     LEARN_TABS.map((tab) => ({
       path: learnTabRoute(instrument, tab),
@@ -785,6 +817,19 @@ export const learnPages = () => {
       {
         path: LearnRoutes.bassLesson.definition,
         element: <BassLessonRoute />,
+      },
+      // Ukulele: Theory, from The Ukulele Atlas, as bass's.
+      {
+        path: LearnRoutes.ukulele.definition,
+        element: <LearnInstrumentRoute instrument="ukulele" />,
+      },
+      {
+        path: LearnRoutes.ukuleleOverview.definition,
+        element: <UkuleleOverviewRoute />,
+      },
+      {
+        path: LearnRoutes.ukuleleLesson.definition,
+        element: <UkuleleLessonRoute />,
       },
     ],
   };

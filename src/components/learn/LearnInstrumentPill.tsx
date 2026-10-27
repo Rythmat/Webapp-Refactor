@@ -22,7 +22,7 @@ const INSTRUMENTS: { label: string; id: LearnInstrument | null }[] = [
   { label: 'Keyboard', id: 'piano' },
   { label: 'Guitar', id: 'guitar' },
   { label: 'Bass', id: 'bass' },
-  { label: 'Ukulele', id: null },
+  { label: 'Ukulele', id: 'ukulele' },
   { label: 'Drums', id: null },
 ];
 

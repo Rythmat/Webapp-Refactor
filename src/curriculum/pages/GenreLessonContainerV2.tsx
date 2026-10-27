@@ -48,6 +48,10 @@ import {
 } from '@/curriculum/data/guitar/centers';
 import { guitarScaleEntry } from '@/curriculum/data/guitar/theoryCatalog';
 import {
+  flowUkuleleCenterId,
+  getUkuleleCenter,
+} from '@/curriculum/data/ukulele/centers';
+import {
   currentEventForMidi,
   nextEventForMidi,
 } from '@/curriculum/engine/noteGate';
@@ -83,6 +87,12 @@ import {
   GUIDE_VELOCITY_SCALE,
   playGuideNote,
 } from '@/learn/audio/practiceGuide';
+import {
+  loadUkuleleVoice,
+  stopUkuleleVoice,
+  strumUkuleleChord,
+  ukuleleLessonVoice,
+} from '@/learn/audio/ukulele/ukuleleVoice';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
 import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
@@ -100,7 +110,7 @@ import {
   type ChordNotation,
 } from '@/lib/chordNotation';
 import { shapeNotes } from '@/lib/guitar/fretboard';
-import { BASS, GUITAR } from '@/lib/guitar/instrument';
+import { BASS, GUITAR, UKULELE } from '@/lib/guitar/instrument';
 import type { FretPosition } from '@/lib/guitar/types';
 import { describeKey, modeFromKeyName } from '@/lib/learn/keyDescription';
 import { buildFingeringTimeline } from '@/lib/learn/pianoFingering';
@@ -433,17 +443,27 @@ function GenreLessonContainerV2Inner({
   // instrument only changes the views, the sound and how input is heard.
   // Bass flows (The Bass Atlas) run on guitar's screen too — a fretted neck
   // over TAB — heard one note at a time: isFretted covers both, isGuitar
-  // what only a guitar has (chord boxes, strums, its theory layers).
+  // what only a guitar has (its amp and theory layers). Ukulele flows (The
+  // Ukulele Atlas) are guitar's lesson on a four-string neck: chord boxes
+  // and strums too, on ukulele centers, with the ukulele's own voice.
   const lessonInstrument = flowInstrument(flow);
   const isBass = lessonInstrument === 'bass';
   const isGuitar = lessonInstrument === 'guitar';
-  const isFretted = isGuitar || isBass;
+  const isUkulele = lessonInstrument === 'ukulele';
+  const isFretted = isGuitar || isBass || isUkulele;
   // The key center the flow plays: 'C' (Book One) or a mode, 'D:dorian'.
   const guitarKey = useMemo(
-    () => (isBass ? flowBassCenterId(flow) : flowGuitarCenterId(flow)),
-    [flow, isBass],
+    () =>
+      isBass
+        ? flowBassCenterId(flow)
+        : isUkulele
+          ? flowUkuleleCenterId(flow)
+          : flowGuitarCenterId(flow),
+    [flow, isBass, isUkulele],
   );
-  const guitarCenter = getGuitarCenter(guitarKey);
+  const guitarCenter = isUkulele
+    ? getUkuleleCenter(guitarKey)
+    : getGuitarCenter(guitarKey);
 
   // Key from flow params — no GCM dependency. A step in another key than its
   // flow names it (Latin L1's Mariachi steps: key 'G major').
@@ -496,7 +516,13 @@ function GenreLessonContainerV2Inner({
     useDemoPlayback(
       keyRoot,
       tempo,
-      isBass ? bassLessonVoice : isFretted ? guitarLessonVoice : undefined,
+      isBass
+        ? bassLessonVoice
+        : isUkulele
+          ? ukuleleLessonVoice
+          : isFretted
+            ? guitarLessonVoice
+            : undefined,
     );
 
   // "Hear it" on a bass arpeggio: its notes one after another, low to high.
@@ -509,19 +535,34 @@ function GenreLessonContainerV2Inner({
     });
   }, []);
 
-  // "Hear it" on a chord box: the exact voicing, strummed, on the guitar voice.
-  const handleHearShape = useCallback((frets: string) => {
-    const notes = shapeNotes(frets);
-    void loadGuitarVoice().then(() =>
-      strumGuitarChord(
-        notes.map((n) => n.midi),
-        1.6,
-        90,
-        undefined,
-        notes.map((n) => n.position),
-      ),
-    );
-  }, []);
+  // "Hear it" on a chord box: the exact voicing, strummed, on the guitar voice
+  // (a ukulele's on the ukulele, G string first).
+  const handleHearShape = useCallback(
+    (frets: string) => {
+      if (isUkulele) {
+        const notes = shapeNotes(frets, UKULELE);
+        void loadUkuleleVoice().then(() =>
+          strumUkuleleChord(
+            notes.map((n) => n.midi),
+            1.6,
+            90,
+          ),
+        );
+        return;
+      }
+      const notes = shapeNotes(frets);
+      void loadGuitarVoice().then(() =>
+        strumGuitarChord(
+          notes.map((n) => n.midi),
+          1.6,
+          90,
+          undefined,
+          notes.map((n) => n.position),
+        ),
+      );
+    },
+    [isUkulele],
+  );
 
   // Progress hook — needed here for variant rotation before targetNotes
   const { assess } = useGenreAssessment();
@@ -1830,10 +1871,12 @@ function GenreLessonContainerV2Inner({
   useEffect(() => {
     if (!isFretted || activityState === 'practice') return;
     if (isBass) stopBassVoice();
+    else if (isUkulele) stopUkuleleVoice();
     else cancelScheduledGuitarNotes();
   }, [
     isFretted,
     isBass,
+    isUkulele,
     activityState,
     activityInstanceId,
     stepIndex,
@@ -1849,9 +1892,13 @@ function GenreLessonContainerV2Inner({
       void loadBassVoice();
       return stopBassVoice;
     }
+    if (isUkulele) {
+      void loadUkuleleVoice();
+      return stopUkuleleVoice;
+    }
     void loadGuitarVoice();
     return releaseGuitarVoice;
-  }, [isFretted, isBass]);
+  }, [isFretted, isBass, isUkulele]);
 
   // ── Practice mode handlers ──────────────────────────────────────────────
 
@@ -1864,6 +1911,7 @@ function GenreLessonContainerV2Inner({
 
     await startTone();
     if (isBass) await loadBassVoice();
+    else if (isUkulele) await loadUkuleleVoice();
     else if (isFretted) await loadGuitarVoice();
     else await startPianoSampler();
 
@@ -1957,8 +2005,8 @@ function GenreLessonContainerV2Inner({
         ) => {
           if (!isFretted) {
             playGuideNote(value.midis[0], value.durationSec, 80, time);
-          } else if (isBass) {
-            bassLessonVoice.attackRelease(
+          } else if (isBass || isUkulele) {
+            (isBass ? bassLessonVoice : ukuleleLessonVoice).attackRelease(
               value.midis.length > 1 ? value.midis : value.midis[0],
               value.durationSec,
               80 * GUIDE_VELOCITY_SCALE,
@@ -2167,6 +2215,17 @@ function GenreLessonContainerV2Inner({
   }, [guitar]);
 
   const playGuitarTestChord = useCallback(async () => {
+    if (isUkulele) {
+      await loadUkuleleVoice();
+      // Open C, The Ukulele Atlas's first box.
+      strumUkuleleChord(
+        shapeNotes('0-0-0-3', UKULELE).map((n) => n.midi),
+        1.5,
+        90,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      return;
+    }
     await loadGuitarVoice();
     const notes = shapeNotes('X-3-2-0-1-0'); // open C
     strumGuitarChord(
@@ -2177,7 +2236,7 @@ function GenreLessonContainerV2Inner({
       notes.map((n) => n.position),
     );
     await new Promise((resolve) => setTimeout(resolve, 1500));
-  }, []);
+  }, [isUkulele]);
 
   /** Loop bars and practise them now (a mistake marker, a next step). */
   const practiceLoop = useCallback(
@@ -2511,7 +2570,9 @@ function GenreLessonContainerV2Inner({
     const offerSection = practiceOffer;
 
     return (
-      <FrettedInstrumentContext.Provider value={isBass ? BASS : GUITAR}>
+      <FrettedInstrumentContext.Provider
+        value={isBass ? BASS : isUkulele ? UKULELE : GUITAR}
+      >
         <GuitarLessonLayout
           header={{
             crumbs: [
@@ -2720,7 +2781,7 @@ function GenreLessonContainerV2Inner({
                 </div>
                 <GenrePianoRoll
                   key={`roll-${activityInstanceId}`}
-                  instrument={isBass ? 'bass' : 'guitar'}
+                  instrument={lessonInstrument}
                   guitarViewToggle={false}
                   // The preview opens a paged TAB on the music; a loop between
                   // passes keeps the count-in bar in view for the next count.
@@ -2818,7 +2879,9 @@ function GenreLessonContainerV2Inner({
                     subscribeChord={subscribeChord}
                     onPlayTestChord={playGuitarTestChord}
                     outputLatencySec={outputLatencySecNow()}
-                    instrument={isBass ? 'bass' : 'guitar'}
+                    instrument={
+                      isBass ? 'bass' : isUkulele ? 'ukulele' : 'guitar'
+                    }
                   />
                 </Suspense>
               ) : null,

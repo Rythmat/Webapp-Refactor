@@ -19,7 +19,8 @@ import {
   FRETBOARD_HEIGHT_UNITS,
   fretboardWidthUnits,
 } from '@/components/guitar/Fretboard';
-import { getGuitarCenter } from '@/curriculum/data/guitar/centers';
+import { useFrettedInstrument } from '@/components/guitar/frettedInstrumentContext';
+import { getFrettedCenter } from '@/curriculum/data/guitar/centers';
 import { theoryString } from '@/curriculum/data/guitar/theoryNotes';
 import type { GuitarCenterId } from '@/curriculum/data/guitar/types';
 import type { LessonNoteEvent } from '@/curriculum/engine/genreGeneration/resolveStepContent';
@@ -295,9 +296,10 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
   const showSteps = useGuitarDisplaySettings((s) => s.showSteps);
   const setShowSteps = useGuitarDisplaySettings((s) => s.setShowSteps);
 
+  const inst = useFrettedInstrument();
   const model = useMemo(
-    () => guitarVisualModel(step, keyCenter),
-    [step, keyCenter],
+    () => guitarVisualModel(step, keyCenter, inst),
+    [step, keyCenter, inst],
   );
   const lessonSize =
     diagramsHeight >=
@@ -423,7 +425,8 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
       : -1;
 
   const map = step.guitar?.musicMap
-    ? getGuitarCenter(keyCenter).musicMaps[step.guitar.musicMap.example - 1]
+    ? getFrettedCenter(keyCenter, inst.id === 'ukulele' ? 'ukulele' : 'guitar')
+        .musicMaps[step.guitar.musicMap.example - 1]
     : undefined;
 
   if (lesson) {

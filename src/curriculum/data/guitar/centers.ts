@@ -339,6 +339,23 @@ export function registerUkuleleCenters(
   ukuleleCenterLookup = lookup;
 }
 
+/**
+ * The center a lesson on `instrument` plays for an id: the ukulele's own
+ * (data/ukulele, once loaded) or the guitar's. Bass has its own centers.
+ */
+export function getFrettedCenter(
+  id: GuitarCenterId,
+  instrument: 'guitar' | 'bass' | 'ukulele',
+): GuitarCenter {
+  if (instrument === 'ukulele') {
+    if (!ukuleleCenterLookup) {
+      throw new Error('data/ukulele is not loaded');
+    }
+    return ukuleleCenterLookup(id);
+  }
+  return getGuitarCenter(id);
+}
+
 /** The center a shape id belongs to, or undefined. */
 export function centerOfShapeId(id: string): GuitarCenter | undefined {
   const centerPart = id.split('/')[0];

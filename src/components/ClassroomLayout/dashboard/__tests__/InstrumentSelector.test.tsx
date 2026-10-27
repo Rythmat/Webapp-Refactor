@@ -60,14 +60,9 @@ describe('InstrumentSelector', () => {
     expect(onChange).toHaveBeenCalledWith('guitar');
   });
 
-  it('lists Ukulele as coming soon', () => {
+  it('stores Ukulele when picked (in development; a flag elsewhere)', () => {
     render(<InstrumentSelector />);
-    for (const name of ['Ukulele']) {
-      const item = screen.getByRole('menuitem', { name: new RegExp(name) });
-      expect(item).toHaveAttribute('aria-disabled', 'true');
-      expect(item).toHaveTextContent('Coming soon');
-      fireEvent.click(item);
-    }
-    expect(useInstrumentStore.getState().instrument).toBe('piano');
+    fireEvent.click(screen.getByRole('menuitem', { name: /Ukulele/ }));
+    expect(useInstrumentStore.getState().instrument).toBe('ukulele');
   });
 });

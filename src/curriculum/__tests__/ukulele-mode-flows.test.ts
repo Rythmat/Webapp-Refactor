@@ -52,7 +52,8 @@ describe('ukulele Theory flows', () => {
         }
       }
     }
-  });
+    // Every catalog scale in 12 keys: hundreds of flows.
+  }, 60_000);
 
   it('keeps the guitar lesson’s shape: same sections, steps and suffixes', () => {
     for (const slug of ['ionian', 'dorian', 'harmonicminor', 'minorblues']) {

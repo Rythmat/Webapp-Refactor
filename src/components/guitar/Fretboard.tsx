@@ -16,8 +16,10 @@
 import { memo, useEffect, useRef } from 'react';
 import { WRONG_NOTE_KEY_COLOR } from '@/components/Games/PianoRollPlay';
 import type { FretWindow } from '@/lib/guitar/fretboard';
+import { GUITAR, type FrettedInstrument } from '@/lib/guitar/instrument';
 import type { GuitarStringNumber } from '@/lib/guitar/types';
 import { DIAGRAM_INK, DIAGRAM_INK_DARK, MarkShape } from './FretDiagram';
+import { useFrettedInstrument } from './frettedInstrumentContext';
 import type {
   FretboardProps,
   FretBracket,
@@ -32,11 +34,18 @@ const STRING_GAP = 22;
 const OPEN_W = 28;
 const PAD_X = 12;
 const PAD_TOP = 13;
-const NECK_H = STRING_GAP * 5;
-const LABEL_Y = PAD_TOP + NECK_H + 20;
-const HEIGHT = LABEL_Y + 8;
-/** The neck's height in drawing units: a board drawn `h` px tall is h / this px a unit. */
-export const FRETBOARD_HEIGHT_UNITS = HEIGHT;
+/** The neck's vertical geometry for an instrument's string count. */
+function neckGeometry(stringCount: number) {
+  const neckH = STRING_GAP * (stringCount - 1);
+  const labelY = PAD_TOP + neckH + 20;
+  return { neckH, labelY, height: labelY + 8 };
+}
+/** A neck's height in drawing units: a board drawn `h` px tall is h / this px a unit. */
+export function fretboardHeightUnits(inst: FrettedInstrument = GUITAR): number {
+  return neckGeometry(inst.stringCount).height;
+}
+/** The guitar neck's height in drawing units (see fretboardHeightUnits). */
+export const FRETBOARD_HEIGHT_UNITS = fretboardHeightUnits(GUITAR);
 const MARK_R = 8.5;
 const CROSS = 5;
 /** A bracket's rail sits this far from its string, clear of the markers. */
@@ -374,6 +383,9 @@ export const Fretboard = memo(function Fretboard({
   scrollable?: boolean;
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const inst = useFrettedInstrument();
+  const n = inst.stringCount;
+  const { neckH: NECK_H, labelY: LABEL_Y, height: HEIGHT } = neckGeometry(n);
   const hasNut = min === 0;
   const firstFret = Math.max(1, min);
   const frets = Array.from(
@@ -461,9 +473,12 @@ export const Fretboard = memo(function Fretboard({
         const x = fretX(fret);
         const ys =
           fret === DOUBLE_INLAY
-            ? [PAD_TOP + STRING_GAP * 1.5, PAD_TOP + STRING_GAP * 3.5]
+            ? [
+                PAD_TOP + STRING_GAP * (n / 2 - 1.5),
+                PAD_TOP + STRING_GAP * (n / 2 + 0.5),
+              ]
             : SINGLE_INLAYS.has(fret)
-              ? [PAD_TOP + STRING_GAP * 2.5]
+              ? [PAD_TOP + (STRING_GAP * (n - 1)) / 2]
               : [];
         return ys.map((y) => (
           <circle
@@ -496,7 +511,7 @@ export const Fretboard = memo(function Fretboard({
         stroke={hasNut ? NUT : lesson ? LESSON_WIRE : WIRE}
         strokeWidth={hasNut ? 5 : 1.5}
       />
-      {([1, 2, 3, 4, 5, 6] as const).map((string) => (
+      {[...inst.stringsLowToHigh].reverse().map((string) => (
         <line
           key={`s${string}`}
           x1={mx(PAD_X)}
@@ -504,8 +519,12 @@ export const Fretboard = memo(function Fretboard({
           y1={stringY(string)}
           y2={stringY(string)}
           stroke={lesson ? LESSON_STRING : STRING}
-          // Thicker toward the low strings, as on a guitar.
-          strokeWidth={0.8 + (string - 1) * 0.25}
+          // Thicker toward the low strings, heavier still on a bass.
+          strokeWidth={
+            inst.id === 'bass'
+              ? 1.3 + (string - 1) * 0.35
+              : 0.8 + (string - 1) * 0.25
+          }
         />
       ))}
       {shownBrackets.map((bracket) => (

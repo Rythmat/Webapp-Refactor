@@ -3,34 +3,42 @@
 // sounds; everything here is the sounding MIDI a microphone hears and a MIDI
 // guitar sends, which is what lessons score against.
 
+// The tuning-dependent functions take the instrument last (see
+// ./instrument): guitar by default, and bass code always passes BASS.
+
+import {
+  GUITAR,
+  GUITAR_TUNING,
+  openMidi,
+  type FrettedInstrument,
+} from './instrument';
 import type { FretPosition, GuitarStringNumber, ShapeFret } from './types';
 
 /** Open-string MIDI notes, keyed by string number (1 = high E). */
 export const GUITAR_STANDARD_TUNING: Readonly<
   Record<GuitarStringNumber, number>
-> = {
-  1: 64, // E4
-  2: 59, // B3
-  3: 55, // G3
-  4: 50, // D3
-  5: 45, // A2
-  6: 40, // E2
-};
+> = GUITAR_TUNING;
 
 /** Strings in the order shape strings are written: low E first. */
-export const GUITAR_STRINGS_LOW_TO_HIGH: readonly GuitarStringNumber[] = [
-  6, 5, 4, 3, 2, 1,
-];
+export const GUITAR_STRINGS_LOW_TO_HIGH: readonly GuitarStringNumber[] =
+  GUITAR.stringsLowToHigh;
 
 /** The highest fret the lesson views draw. */
-export const GUITAR_MAX_FRET = 22;
+export const GUITAR_MAX_FRET = GUITAR.maxFret;
 
-export function midiAt(string: GuitarStringNumber, fret: number): number {
-  return GUITAR_STANDARD_TUNING[string] + fret;
+export function midiAt(
+  string: GuitarStringNumber,
+  fret: number,
+  inst: FrettedInstrument = GUITAR,
+): number {
+  return openMidi(string, inst) + fret;
 }
 
-export function fretToMidi(position: FretPosition): number {
-  return midiAt(position.string, position.fret);
+export function fretToMidi(
+  position: FretPosition,
+  inst: FrettedInstrument = GUITAR,
+): number {
+  return midiAt(position.string, position.fret, inst);
 }
 
 export function isGuitarStringNumber(n: number): n is GuitarStringNumber {
@@ -121,12 +129,14 @@ export function defaultDiagramStart(frets: string): number {
 /** Every place a pitch can be played, low string first. */
 export function positionsFor(
   midi: number,
-  maxFret = GUITAR_MAX_FRET,
+  maxFret?: number,
+  inst: FrettedInstrument = GUITAR,
 ): FretPosition[] {
+  const top = maxFret ?? inst.maxFret;
   const positions: FretPosition[] = [];
-  for (const string of GUITAR_STRINGS_LOW_TO_HIGH) {
-    const fret = midi - GUITAR_STANDARD_TUNING[string];
-    if (fret >= 0 && fret <= maxFret) positions.push({ string, fret });
+  for (const string of inst.stringsLowToHigh) {
+    const fret = midi - openMidi(string, inst);
+    if (fret >= 0 && fret <= top) positions.push({ string, fret });
   }
   return positions;
 }
@@ -144,8 +154,9 @@ export interface FretWindow {
 export function nearestPosition(
   midi: number,
   window: FretWindow,
+  inst: FrettedInstrument = GUITAR,
 ): FretPosition | null {
-  const candidates = positionsFor(midi);
+  const candidates = positionsFor(midi, undefined, inst);
   if (candidates.length === 0) return null;
   const centre = (window.min + window.max) / 2;
   let best = candidates[0];

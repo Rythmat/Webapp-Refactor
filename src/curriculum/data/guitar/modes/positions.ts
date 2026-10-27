@@ -7,52 +7,57 @@
 //   being its first note's fret (0-11).
 // A note stays on its string while it fits the window, else moves up one.
 
-import { GUITAR_STRINGS_LOW_TO_HIGH } from '@/lib/guitar/fretboard';
+// The layout rules take the instrument last (guitar by default); the Bass
+// Atlas lays its positions out with the same rules on BASS.
+
+import {
+  GUITAR,
+  openMidi,
+  type FrettedInstrument,
+} from '@/lib/guitar/instrument';
 import { suggestedFingers } from '@/lib/guitar/theory/scaleTheory';
 import type { FretPosition, GuitarStringNumber } from '@/lib/guitar/types';
 import type { GuitarScalePosition, GuitarScaleSlot } from '../types';
 
-const OPEN_MIDI: Readonly<Record<GuitarStringNumber, number>> = {
-  6: 40,
-  5: 45,
-  4: 50,
-  3: 55,
-  2: 59,
-  1: 64,
-};
+const OPEN_MIDI = (string: GuitarStringNumber) => openMidi(string, GUITAR);
 
 const mod12 = (n: number) => ((n % 12) + 12) % 12;
 
 /** Lay ascending notes on strings from `lowest` up, each fret ≤ `lastFret`. */
-function layOut(
+export function layOut(
   midis: readonly number[],
   lowest: GuitarStringNumber,
   lastFret: number,
+  inst: FrettedInstrument = GUITAR,
 ): FretPosition[] {
   let string = lowest;
   return midis.map((midi) => {
-    while (midi - OPEN_MIDI[string] > lastFret) {
+    while (midi - openMidi(string, inst) > lastFret) {
       if (string === 1) throw new Error(`No string for MIDI ${midi}`);
       string = (string - 1) as GuitarStringNumber;
     }
-    return { string, fret: midi - OPEN_MIDI[string] };
+    return { string, fret: midi - openMidi(string, inst) };
   });
 }
 
-function position(
+/** A position record: its five-fret window and the strings it leaves out. */
+export function positionOf(
   id: GuitarScaleSlot,
   playOrder: FretPosition[],
   fretStart: number,
+  inst: FrettedInstrument = GUITAR,
 ): GuitarScalePosition {
   const used = new Set(playOrder.map((p) => p.string));
   return {
     id,
     fretStart,
     fretEnd: fretStart + 4,
-    unusedStrings: GUITAR_STRINGS_LOW_TO_HIGH.filter((s) => !used.has(s)),
+    unusedStrings: inst.stringsLowToHigh.filter((s) => !used.has(s)),
     playOrder,
   };
 }
+
+const position = positionOf;
 
 /** A 7-note scale, tonic to tonic, from string 6. */
 export function scalePosition(
@@ -60,7 +65,7 @@ export function scalePosition(
   steps: readonly number[],
 ): GuitarScalePosition {
   const r = mod12(tonicPc - 4) || 12;
-  const midis = [...steps, 12].map((s) => OPEN_MIDI[6] + r + s);
+  const midis = [...steps, 12].map((s) => OPEN_MIDI(6) + r + s);
   return position('major', layOut(midis, 6, r + 3), Math.max(1, r - 1));
 }
 
@@ -79,7 +84,7 @@ export function pentatonicPosition(
   const above = degrees
     .map((d) => mod12(steps[d - 1] - first))
     .sort((a, b) => a - b);
-  const midis = [...above, 12].map((s) => OPEN_MIDI[3] + t + s);
+  const midis = [...above, 12].map((s) => OPEN_MIDI(3) + t + s);
   return position(id, layOut(midis, 3, t + 3), t <= 2 ? 1 : t);
 }
 
@@ -118,6 +123,7 @@ export function isComfortablePosition(position: GuitarScalePosition): boolean {
 function layouts(
   midis: readonly number[],
   first: GuitarStringNumber,
+  inst: FrettedInstrument,
 ): FretPosition[][] {
   const out: FretPosition[][] = [];
   const walk = (i: number, string: GuitarStringNumber, acc: FretPosition[]) => {
@@ -126,7 +132,7 @@ function layouts(
       return;
     }
     for (let s = string; s >= 1; s--) {
-      const fret = midis[i] - OPEN_MIDI[s as GuitarStringNumber];
+      const fret = midis[i] - openMidi(s as GuitarStringNumber, inst);
       if (fret < 1) break; // higher strings only go lower
       if (fret > MAX_POSITION_FRET) continue;
       walk(i + 1, s as GuitarStringNumber, [
@@ -135,7 +141,7 @@ function layouts(
       ]);
     }
   };
-  const fret = midis[0] - OPEN_MIDI[first];
+  const fret = midis[0] - openMidi(first, inst);
   if (fret >= 1 && fret <= MAX_POSITION_FRET) {
     walk(1, first, [{ string: first, fret }]);
   }
@@ -167,20 +173,23 @@ function lexLess(a: readonly number[], b: readonly number[]): boolean {
 }
 
 /** The most compact comfortable layout of the tonic-to-tonic octave, or null. */
-function searchPosition(
+export function searchPosition(
   tonicPc: number,
   steps: readonly number[],
   first: GuitarStringNumber,
   near: number,
+  inst: FrettedInstrument = GUITAR,
 ): GuitarScalePosition | null {
   let best: { position: GuitarScalePosition; cost: number[] } | null = null;
-  const base = mod12(tonicPc - OPEN_MIDI[first]);
+  const base = mod12(tonicPc - openMidi(first, inst));
   for (const tonicFret of [base, base + 12]) {
     if (tonicFret < 1 || tonicFret > MAX_POSITION_FRET) continue;
-    const midis = [...steps, 12].map((s) => OPEN_MIDI[first] + tonicFret + s);
-    for (const playOrder of layouts(midis, first)) {
+    const midis = [...steps, 12].map(
+      (s) => openMidi(first, inst) + tonicFret + s,
+    );
+    for (const playOrder of layouts(midis, first, inst)) {
       const lo = Math.min(...playOrder.map((p) => p.fret));
-      const candidate = position('major', playOrder, lo);
+      const candidate = position('major', playOrder, lo, inst);
       if (!isComfortablePosition(candidate)) continue;
       const cost = layoutCost(playOrder, near);
       if (!best || lexLess(cost, best.cost))

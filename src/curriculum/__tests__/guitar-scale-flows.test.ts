@@ -114,7 +114,7 @@ describe('the rest of Theory: key centers', () => {
         // The scale position: one octave, tonic to tonic, in the scale.
         const position = center.majorScale;
         expect(isComfortablePosition(position), label).toBe(true);
-        const midis = position.playOrder.map(fretToMidi);
+        const midis = position.playOrder.map((p) => fretToMidi(p));
         expect(midis).toEqual([...midis].sort((a, b) => a - b));
         expect(midis[midis.length - 1] - midis[0]).toBe(12);
         expect(mod12(midis[0])).toBe(center.tonicPc);

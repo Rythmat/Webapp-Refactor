@@ -45,7 +45,9 @@ const LINE_GAP = 13;
  */
 const HEADROOM_LINES = 1;
 const TOP_LINE_DROP = HEADROOM_LINES * LINE_GAP;
-const BOTTOM_LINE_DROP = TOP_LINE_DROP + 5 * LINE_GAP;
+/** The bottom string's drop below the stave's y, for a line count. */
+const bottomLineDrop = (lineCount: number) =>
+  TOP_LINE_DROP + (lineCount - 1) * LINE_GAP;
 /**
  * The `topLineDrop` reported to overlays. ChordSymbolOverlay stands a symbol
  * 6px + one 16px line above the line this names; -2 keeps TAB's symbols where
@@ -59,7 +61,8 @@ const SYSTEM_TOP = 28;
 /** Stems, beams and rhythm dots hang below the bottom string. */
 const STEM_ROOM = 50;
 const SYSTEM_GAP = 12;
-const SYSTEM_HEIGHT = SYSTEM_TOP + BOTTOM_LINE_DROP + STEM_ROOM + SYSTEM_GAP;
+const systemHeight = (lineCount: number) =>
+  SYSTEM_TOP + bottomLineDrop(lineCount) + STEM_ROOM + SYSTEM_GAP;
 /** The string names' column, left of every system. */
 const NAME_WIDTH = 14;
 const RIGHT = 6;
@@ -82,8 +85,8 @@ const MIN_SCALE = 0.85;
 const MAX_SCALE = 2;
 const PAGE_SCALE = 1;
 const SCALE_STEP = 0.05;
-/** Top line to bottom: string 1 (high e) to string 6. */
-const STRING_NAMES = ['e', 'B', 'G', 'D', 'A', 'E'];
+/** Top line to bottom: string 1 (high e) to string 6. A bass passes its own. */
+const GUITAR_STRING_NAMES: readonly string[] = ['e', 'B', 'G', 'D', 'A', 'E'];
 /**
  * String names and bar numbers: the app's type, 10 drawing units (px at
  * scale 1) but never under 12px on screen.
@@ -258,6 +261,8 @@ export interface TabRenderOptions {
    * 1, page a line at a time instead (see chooseTabScale).
    */
   fitHeight: boolean;
+  /** The TAB's lines, top first; one per string. Guitar's six by default. */
+  stringNames?: readonly string[];
 }
 
 /** The scales tried, largest first, in SCALE_STEP steps. */
@@ -382,6 +387,10 @@ export function renderTabSystem(
   options: TabRenderOptions,
 ): TabRendered {
   host.innerHTML = '';
+  const STRING_NAMES = options.stringNames ?? GUITAR_STRING_NAMES;
+  const lineCount = STRING_NAMES.length;
+  const BOTTOM_LINE_DROP = bottomLineDrop(lineCount);
+  const SYSTEM_HEIGHT = systemHeight(lineCount);
   const measureCount = score.measures.length;
   const barNeed = Math.max(
     MIN_BAR_WIDTH,
@@ -436,7 +445,7 @@ export function renderTabSystem(
     notes: [],
     rests: [],
     playheadTop: SYSTEM_TOP + TOP_LINE_DROP - 8,
-    playheadHeight: 5 * LINE_GAP + 16,
+    playheadHeight: (lineCount - 1) * LINE_GAP + 16,
     systems: [],
     groups: new Map(),
     digits: new Map(),
@@ -476,6 +485,7 @@ export function renderTabSystem(
 
       const stave = new vf.TabStave(x, staveY, staveWidth, {
         spaceAboveStaffLn: HEADROOM_LINES,
+        numLines: lineCount,
       });
       if (first) {
         stave.addClef('tab');
@@ -512,7 +522,7 @@ export function renderTabSystem(
             tick: item.startTick,
             durationTicks: item.durationTicks,
             x: note.getAbsoluteX() * scale,
-            y: (topLine + 2.5 * LINE_GAP) * scale,
+            y: (topLine + ((lineCount - 1) / 2) * LINE_GAP) * scale,
           });
           continue;
         }
@@ -547,7 +557,7 @@ export function renderTabSystem(
             octave: position.octave,
             alteration: position.alteration,
             // Bottom line 0, as on a staff: string 6 is 0, string 1 is 5.
-            line: 6 - position.string,
+            line: lineCount - position.string,
           });
         });
       }
@@ -625,6 +635,8 @@ export interface TabStaffViewProps {
   focusTick?: number | null;
   /** Scale so every system fits the height when possible. */
   fitHeight?: boolean;
+  /** The TAB's lines, top first (a bass's G D A E); guitar's by default. */
+  stringNames?: readonly string[];
   /** Called with the drawn layout, for positioning an overlay. */
   onLayout?: (layout: StaffLayout | null) => void;
   /** Drawn over the TAB, scrolling with it — chord symbols, markers. */
@@ -639,6 +651,7 @@ export function TabStaffView({
   playheadTick,
   focusTick,
   fitHeight = false,
+  stringNames,
   onLayout,
   overlay,
   className,
@@ -685,6 +698,7 @@ export function TabStaffView({
       setRendered(
         renderTabSystem(vf, host, score, size.width, layoutHeight, {
           fitHeight,
+          stringNames,
         }),
       );
     } catch (err) {
@@ -693,7 +707,7 @@ export function TabStaffView({
       }
       setError(true);
     }
-  }, [vf, score, size.width, layoutHeight, fitHeight]);
+  }, [vf, score, size.width, layoutHeight, fitHeight, stringNames]);
 
   useEffect(() => {
     onLayout?.(

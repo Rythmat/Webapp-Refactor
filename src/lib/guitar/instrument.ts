@@ -2,24 +2,30 @@
 // What a fret on a string sounds like depends on the instrument. Guitar and
 // bass share every fretted primitive (FretPosition, the diagrams, the TAB);
 // this is the one place they differ. Strings are numbered the way VexFlow
-// numbers TAB lines: 1 is the highest-pitched string, the lowest is
-// `stringCount`. So a bass position (1-4) is a valid GuitarStringNumber.
+// numbers TAB lines: 1 is the top line, the last is `stringCount`. So a bass
+// or ukulele position (1-4) is a valid GuitarStringNumber. On guitar and bass
+// string 1 is also the highest pitch; a ukulele's string 4 (G4) is re-entrant,
+// pitched between strings 2 and 1, so never assume string order is pitch
+// order.
 //
 // Functions that turn a position into a pitch take the instrument as a
 // trailing argument that defaults to GUITAR, so guitar code reads as it
-// always did. Bass code must always pass BASS: a defaulted call on a bass
-// position sounds the wrong note without any error.
+// always did. Bass and ukulele code must always pass BASS / UKULELE: a
+// defaulted call sounds the wrong note without any error.
 
 import type { FretPosition, GuitarStringNumber } from './types';
 
-export type FrettedInstrumentId = 'guitar' | 'bass';
+export type FrettedInstrumentId = 'guitar' | 'bass' | 'ukulele';
 
 export interface FrettedInstrument {
   id: FrettedInstrumentId;
   stringCount: number;
   /** Open-string sounding MIDI, keyed by string number (1 = highest). */
   tuning: Readonly<Partial<Record<GuitarStringNumber, number>>>;
-  /** Strings in the order shapes are written: lowest-pitched first. */
+  /**
+   * Strings in the order shapes are written: the bottom TAB line first. That
+   * is lowest pitch first on guitar and bass, but G C E A on a ukulele.
+   */
   stringsLowToHigh: readonly GuitarStringNumber[];
   /** TAB line labels, top line (string 1) first. */
   stringNames: readonly string[];
@@ -61,6 +67,25 @@ export const BASS: FrettedInstrument = {
   maxFret: 20,
 };
 
+/**
+ * Ukulele in standard re-entrant (high-G) tuning, G C E A, written and
+ * sounding at pitch. Shapes are written G-C-E-A, as The Ukulele Atlas prints
+ * them: C major is '0-0-0-3'.
+ */
+export const UKULELE: FrettedInstrument = {
+  id: 'ukulele',
+  stringCount: 4,
+  tuning: {
+    1: 69, // A4
+    2: 64, // E4
+    3: 60, // C4
+    4: 67, // G4 (re-entrant)
+  },
+  stringsLowToHigh: [4, 3, 2, 1],
+  stringNames: ['A', 'E', 'C', 'G'],
+  maxFret: 15,
+};
+
 /** The open string's sounding MIDI; throws for a string the instrument lacks. */
 export function openMidi(
   string: GuitarStringNumber,
@@ -82,5 +107,19 @@ export function isOnInstrument(
 }
 
 export function frettedInstrument(id: FrettedInstrumentId): FrettedInstrument {
-  return id === 'bass' ? BASS : GUITAR;
+  if (id === 'bass') return BASS;
+  if (id === 'ukulele') return UKULELE;
+  return GUITAR;
+}
+
+/**
+ * The instrument's strings from lowest to highest sounding pitch. Equal to
+ * `stringsLowToHigh` except on a re-entrant ukulele (C E G A).
+ */
+export function stringsByPitch(
+  inst: FrettedInstrument,
+): readonly GuitarStringNumber[] {
+  return [...inst.stringsLowToHigh].sort(
+    (a, b) => openMidi(a, inst) - openMidi(b, inst),
+  );
 }

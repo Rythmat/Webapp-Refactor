@@ -49,12 +49,16 @@ export function isGuitarStringNumber(n: number): n is GuitarStringNumber {
 
 /**
  * Parse a book shape string (`'X-3-2-0-1-0'`, string 6 first) into one entry
- * per string, index 0 = string 6. `X` is muted (null), digits are frets.
+ * per string, index 0 = the instrument's first-written string (guitar's low
+ * E; ukulele's G, as in `'0-0-0-3'`). `X` is muted (null), digits are frets.
  */
-export function parseShape(frets: string): ShapeFret[] {
+export function parseShape(
+  frets: string,
+  inst: FrettedInstrument = GUITAR,
+): ShapeFret[] {
   const parts = frets.split('-');
-  if (parts.length !== 6) {
-    throw new Error(`Shape "${frets}" must have 6 strings`);
+  if (parts.length !== inst.stringCount) {
+    throw new Error(`Shape "${frets}" must have ${inst.stringCount} strings`);
   }
   return parts.map((part) => {
     if (part === 'X' || part === 'x') return null;
@@ -71,43 +75,62 @@ export function formatShape(frets: readonly ShapeFret[]): string {
   return frets.map((fret) => (fret === null ? 'X' : String(fret))).join('-');
 }
 
-/** The sounding strings of a shape, from the low E up. */
-export function shapePositions(frets: string): FretPosition[] {
-  const parsed = parseShape(frets);
+/**
+ * The sounding strings of a shape, in the order it is written (guitar: from
+ * the low E up; ukulele: G C E A, so not pitch order — the G is re-entrant).
+ */
+export function shapePositions(
+  frets: string,
+  inst: FrettedInstrument = GUITAR,
+): FretPosition[] {
+  const parsed = parseShape(frets, inst);
   const positions: FretPosition[] = [];
   parsed.forEach((fret, i) => {
     if (fret !== null) {
-      positions.push({ string: GUITAR_STRINGS_LOW_TO_HIGH[i], fret });
+      positions.push({ string: inst.stringsLowToHigh[i], fret });
     }
   });
   return positions;
 }
 
-/** The notes a shape sounds, low to high, with where each is played. */
+/**
+ * The notes a shape sounds, in written (strum) order, with where each is
+ * played. On guitar that is low to high.
+ */
 export function shapeNotes(
   frets: string,
+  inst: FrettedInstrument = GUITAR,
 ): { midi: number; position: FretPosition }[] {
-  return shapePositions(frets).map((position) => ({
-    midi: fretToMidi(position),
+  return shapePositions(frets, inst).map((position) => ({
+    midi: fretToMidi(position, inst),
     position,
   }));
 }
 
 /** The distinct pitch classes a shape sounds, ascending. */
-export function shapePitchClasses(frets: string): number[] {
-  const pcs = new Set(shapeNotes(frets).map((n) => n.midi % 12));
+export function shapePitchClasses(
+  frets: string,
+  inst: FrettedInstrument = GUITAR,
+): number[] {
+  const pcs = new Set(shapeNotes(frets, inst).map((n) => n.midi % 12));
   return [...pcs].sort((a, b) => a - b);
 }
 
-export function shapeLowestMidi(frets: string): number {
-  const notes = shapeNotes(frets);
+export function shapeLowestMidi(
+  frets: string,
+  inst: FrettedInstrument = GUITAR,
+): number {
+  const notes = shapeNotes(frets, inst);
   if (notes.length === 0) throw new Error(`Shape "${frets}" sounds nothing`);
   return Math.min(...notes.map((n) => n.midi));
 }
 
 /** Distance between the lowest and highest fretted (non-open) frets. */
-export function fretSpan(frets: string): number {
-  const fretted = parseShape(frets).filter(
+export function fretSpan(
+  frets: string,
+  inst: FrettedInstrument = GUITAR,
+): number {
+  const fretted = parseShape(frets, inst).filter(
     (fret): fret is number => fret !== null && fret > 0,
   );
   if (fretted.length === 0) return 0;
@@ -119,8 +142,11 @@ export function fretSpan(frets: string): number {
  * for: first position when everything fits in frets 1-5, otherwise one fret
  * above the lowest fretted note (the book's own habit).
  */
-export function defaultDiagramStart(frets: string): number {
-  const fretted = parseShape(frets).filter(
+export function defaultDiagramStart(
+  frets: string,
+  inst: FrettedInstrument = GUITAR,
+): number {
+  const fretted = parseShape(frets, inst).filter(
     (fret): fret is number => fret !== null && fret > 0,
   );
   if (fretted.length === 0) return 1;

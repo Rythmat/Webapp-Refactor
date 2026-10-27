@@ -16,7 +16,11 @@
 import { memo, useEffect, useRef } from 'react';
 import { WRONG_NOTE_KEY_COLOR } from '@/components/Games/PianoRollPlay';
 import type { FretWindow } from '@/lib/guitar/fretboard';
-import { GUITAR, type FrettedInstrument } from '@/lib/guitar/instrument';
+import {
+  GUITAR,
+  openMidi,
+  type FrettedInstrument,
+} from '@/lib/guitar/instrument';
 import type { GuitarStringNumber } from '@/lib/guitar/types';
 import { DIAGRAM_INK, DIAGRAM_INK_DARK, MarkShape } from './FretDiagram';
 import { useFrettedInstrument } from './frettedInstrumentContext';
@@ -519,11 +523,14 @@ export const Fretboard = memo(function Fretboard({
           y1={stringY(string)}
           y2={stringY(string)}
           stroke={lesson ? LESSON_STRING : STRING}
-          // Thicker toward the low strings, heavier still on a bass.
+          // Thicker toward the low strings, heavier still on a bass. A
+          // ukulele's thickest string is its lowest pitch, C (string 3).
           strokeWidth={
             inst.id === 'bass'
               ? 1.3 + (string - 1) * 0.35
-              : 0.8 + (string - 1) * 0.25
+              : inst.id === 'ukulele'
+                ? 0.8 + (inst.tuning[1]! - openMidi(string, inst)) * 0.05
+                : 0.8 + (string - 1) * 0.25
           }
         />
       ))}

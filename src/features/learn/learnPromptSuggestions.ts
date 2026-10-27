@@ -31,6 +31,7 @@ const teach = (text: string, route: string): PromptSuggestion => ({
 const ON: Record<LearnInstrument, string> = {
   piano: 'on piano',
   guitar: 'on guitar',
+  bass: 'on bass',
 };
 
 /** Songs: the songs the page lists (all of them, or as its filters leave
@@ -133,6 +134,7 @@ const theorySuggestions = (list: readonly PromptSuggestion[]) =>
 const THEORY_SUGGESTIONS: Record<LearnInstrument, PromptSuggestion[]> = {
   piano: theorySuggestions(KEYBOARD_SUGGESTIONS),
   guitar: theorySuggestions(GUITAR_SUGGESTIONS),
+  bass: [],
 };
 
 /** Technique: its tiles (none on guitar yet, so its bar suggests nothing),

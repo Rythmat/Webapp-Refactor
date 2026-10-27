@@ -29,6 +29,7 @@ interface Tab {
 const INSTRUMENT_HEADINGS: Record<LearnInstrument, string> = {
   piano: 'Keyboard',
   guitar: 'Guitar',
+  bass: 'Bass',
 };
 
 const TABS: Tab[] = [

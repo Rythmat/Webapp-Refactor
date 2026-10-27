@@ -12,7 +12,7 @@ import type {
 } from './activity';
 
 /** The instrument a flow is played on. A flow without one is piano. */
-export type LessonInstrument = 'piano' | 'guitar';
+export type LessonInstrument = 'piano' | 'guitar' | 'bass';
 
 // Hand configuration options for Performance section (Section D)
 export type HandConfig =
@@ -95,7 +95,7 @@ export interface PracticeVoicingSource {
 export interface ActivityFlowParamsV2 extends ActivityFlowParams {
   defaultScale: number[]; // scale intervals for this level e.g. [0,3,5,7,10]
   defaultScaleId: string; // human-readable e.g. 'minor_pentatonic'
-  /** Omitted for piano; 'guitar' switches the lesson to guitar input and views. */
+  /** Omitted for piano; 'guitar' or 'bass' switches the lesson to that instrument's input and views. */
   instrument?: LessonInstrument;
   /** Optional authored backing for this level's Practice Tracks. */
   practiceTrack?: PracticeTrackParams;
@@ -176,6 +176,17 @@ export interface GuitarStepMeta {
   musicMap?: { example: 1 | 2 | 3 | 4 | 5; passes: number };
 }
 
+/**
+ * Bass only: the Bass Atlas material this step plays. Centers share guitar's
+ * ids (data/bass/centers); arpeggio ids are 'C/triad/1', 'C/map/4/2'.
+ */
+export interface BassStepMeta {
+  keyCenter: GuitarCenterId;
+  scalePosition?: GuitarScaleSlot;
+  arpeggioIds?: string[];
+  musicMap?: { example: 1 | 2 | 3 | 4 | 5; passes: number };
+}
+
 export interface ActivityVariant {
   variantId: string;
   description: string;
@@ -228,6 +239,8 @@ export interface ActivityStepV2 extends ActivityStep {
   chordTargets?: ChordTarget[];
   /** Guitar only: the book material this step plays. */
   guitar?: GuitarStepMeta;
+  /** Bass only: the Bass Atlas material this step plays. */
+  bass?: BassStepMeta;
 }
 
 /**

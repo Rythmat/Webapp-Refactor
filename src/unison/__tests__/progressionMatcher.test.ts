@@ -181,3 +181,14 @@ describe('matchProgressions', () => {
     });
   });
 });
+
+describe('matchProgressions — told as the song runs', () => {
+  it('starts every match on the chord the song starts on', () => {
+    const song = ['1 major', '6 minor', '4 major', '5 major'];
+    const matches = matchProgressions(song.map(chord));
+    expect(matches.length).toBeGreaterThan(0);
+    for (const m of matches.filter((m) => m.score >= 0.95)) {
+      expect(m.progression.split(' - ')[0]).toBe('1 major');
+    }
+  });
+});

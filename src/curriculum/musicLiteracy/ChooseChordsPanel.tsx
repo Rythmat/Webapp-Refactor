@@ -1,5 +1,6 @@
 import { Check, Headphones, RotateCcw } from 'lucide-react';
 import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
 import type {
   LiteracyChooseChordsStep,
@@ -201,7 +202,9 @@ export function ChooseChordsPanel({
       aria-label={heading}
       data-literacy-choose="chords"
       className={cn(
-        'grid min-h-0 gap-6 rounded-xl border border-white/[0.08] bg-white/[0.03] p-6 max-[639px]:p-4',
+        PROMPT_SURFACE,
+
+        'grid min-h-0 gap-6 p-6 max-[639px]:p-4',
         stacked
           ? 'grid-cols-[minmax(0,1fr)] content-start'
           : 'flex-1 grid-cols-[minmax(0,5fr)_minmax(0,6fr)] grid-rows-[minmax(0,1fr)] items-center',

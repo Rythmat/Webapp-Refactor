@@ -10,7 +10,7 @@
  *
  * activityRef conventions (namespaced, colon-delimited):
  *   song:<id>:lesson | song:<id>:chart
- *   learn:<mode>:<key>[:activity]
+ *   learn:<mode>:<key>[:O|A|B]
  *   curriculum:<GENRE>:<L#>[:A|B|C|D]
  *   globe:event:<id> | globe:pathway:<id> | globe:mindmap
  *   studio:song:<id> | studio:template:<id> | studio:tutorial:<id>
@@ -77,6 +77,12 @@ const isSection = (
 ): segment is 'A' | 'B' | 'C' | 'D' =>
   segment === 'A' || segment === 'B' || segment === 'C' || segment === 'D';
 
+/** A Theory lesson's keyboard chapter: O | A | B. */
+const isLearnSection = (
+  segment: string | undefined,
+): segment is 'O' | 'A' | 'B' =>
+  segment === 'O' || segment === 'A' || segment === 'B';
+
 /**
  * Resolve a `{ module, activityRef }` pair (atlas Interaction OR LaunchTile) to
  * an in-SPA href, or null when unresolvable (caller falls back).
@@ -111,11 +117,11 @@ export const resolveActivityRefHref = (
     case 'learn': {
       const mode = parts[1];
       const key = parts[2];
-      const activity = parts[3];
+      const section = parts[3];
       if (!mode || !key) return null;
-      return LearnRoutes.lesson(
+      return LearnRoutes.keyboardLesson(
         { mode, key: canonicalLessonKeyParam(key) },
-        activity ? { activity } : undefined,
+        isLearnSection(section) ? { section } : undefined,
       );
     }
     case 'curriculum': {
@@ -181,7 +187,7 @@ export const resolveContentRefHref = (ref: ContentRef): string | null => {
       const mode = ref.topicId?.startsWith('modes_')
         ? ref.topicId.slice('modes_'.length)
         : undefined;
-      return mode ? LearnRoutes.overview({ mode }) : null;
+      return mode ? LearnRoutes.keyboardOverview({ mode }) : null;
     }
     case 'genre': {
       if (!ref.genre) return null;

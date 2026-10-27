@@ -1,6 +1,7 @@
 import { useReducedMotion } from 'framer-motion';
 import {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -13,36 +14,28 @@ import {
   RAINBOW_STOPS,
 } from '@/components/promptBox/PromptBoxParts';
 import { useShallow } from 'zustand/react/shallow';
-import { cn } from '@/components/utilities';
-import { chordLabels } from '@/daw/harmony/chordLabels';
 import { useEffectiveKey } from '@/daw/harmony/effectiveKey';
 import { keyFrame } from '@/daw/harmony/keyFrame';
+import { laneDegreeKey } from '@/daw/harmony/laneDegree';
 import { useStore, type AllSlices } from '@/daw/store';
 import { KEY_RAINBOW_COLORS } from '@/features/landing/rainbow';
 import { ionianToModeLabel } from '@prism/engine';
-import { useChordNotation } from '@/lib/chordNotation';
-import { keyContext, liveChordLabels } from './insightNotation';
 import {
   buildChordInsights,
-  buildLiveChord,
   chordMatchKey,
   selectionChordInsights,
   unisonChordLookup,
 } from './buildChordInsights';
-import {
-  ChordAlternatives,
-  ChordCard,
-  ChordLessonLinks,
-  ChordTones,
-} from './ChordCard';
-import { INSIGHT_DIM, INSIGHT_TEXT, InsightCard } from './InsightCard';
+import { ChordCard } from './ChordCard';
+import { INSIGHT_DIM, InsightCard } from './InsightCard';
 import { SelectionAnalysis } from './SelectionAnalysis';
-import { UnisonSections } from './UnisonSections';
 import './insight.css';
 
 // ── The rainbow sweep (insight.css) ───────────────────────────────────────
 // The prompt box's rainbow writes Insight's text in each time the panel opens
 // and on each Re-analyze, as it reads the song again (owner, 2026-10-24).
+// While it's open, it writes in only the chord cards that are new or changed
+// (owner, 2026-10-25), not the whole panel on every edit.
 
 /** What the sweep runs through: text, colour dots, arrows, pills. */
 const SWEPT = '.insight-ink, .insight-mark, .insight-dot, .insight-pill';
@@ -58,11 +51,19 @@ const LINE_MS = 1100;
 const STEP_MS = 55;
 /** The lines out of view below wait no longer than this. */
 const MAX_DELAY_MS = 2400;
-const sweepListeners = new Set<() => void>();
+const sweepListeners = new Set<(cards?: readonly string[]) => void>();
 
-/** Run the sweep over the open Insight panel. */
-function sweepInsight() {
-  sweepListeners.forEach((run) => run());
+/**
+ * Run the sweep over the open Insight panel, or, given their chord cards'
+ * keys (data-chord-card), over just those cards.
+ */
+function sweepInsight(cards?: readonly string[]) {
+  sweepListeners.forEach((run) => run(cards));
+}
+
+/** What makes a chord card new or changed: its chord, read in its key. */
+function cardSignature(degreeName: string, root: number, mode: string) {
+  return `${degreeName}@${root}:${mode}`;
 }
 
 /**
@@ -70,8 +71,9 @@ function sweepInsight() {
  * name and its chord, then Intervals, Notes, the Mode and Parent scale
  * labels, their lessons, "Also found in", then the next card.
  */
-function stagger(el: HTMLElement): number {
-  const lines = [...el.querySelectorAll<HTMLElement>(SWEPT)]
+function stagger(parts: readonly HTMLElement[]): number {
+  const lines = parts
+    .flatMap((part) => [...part.querySelectorAll<HTMLElement>(SWEPT)])
     .map((line) => {
       const box = line.getBoundingClientRect();
       // Rows by their middles, so a dot or an arrow shares its text's row.
@@ -109,7 +111,7 @@ function reanalyzeInsight() {
   const s = useStore.getState();
   if (hasMusic(s)) s.analyzeSession();
   s.clearSelectionAnalysis();
-  requestAnimationFrame(() => requestAnimationFrame(sweepInsight));
+  requestAnimationFrame(() => requestAnimationFrame(() => sweepInsight()));
 }
 
 /** The sweep on the element `ref` holds, when sweepInsight asks. */
@@ -121,16 +123,25 @@ function useInsightSweep(ref: RefObject<HTMLElement>) {
     let timer = 0;
     const settle = () => {
       el.classList.remove('insight-sweep');
+      el.querySelectorAll<HTMLElement>('.insight-sweep').forEach((part) => {
+        part.classList.remove('insight-sweep');
+      });
       el.querySelectorAll<HTMLElement>(SWEPT).forEach((line) => {
         line.style.animationDelay = '';
       });
     };
-    const run = () => {
+    const run = (cards?: readonly string[]) => {
+      const parts = cards
+        ? [...el.querySelectorAll<HTMLElement>('[data-chord-card]')].filter(
+            (card) => cards.includes(card.dataset.chordCard ?? ''),
+          )
+        : [el];
+      if (parts.length === 0) return;
       // Off, a reflow, on: the animation starts over each time.
       settle();
-      const last = stagger(el);
+      const last = stagger(parts);
       void el.offsetWidth;
-      el.classList.add('insight-sweep');
+      parts.forEach((part) => part.classList.add('insight-sweep'));
       window.clearTimeout(timer);
       // Then the text goes back to its own colours.
       timer = window.setTimeout(settle, last + LINE_MS + 200);
@@ -172,15 +183,6 @@ export function InsightContent() {
   const stringSeq = useStore((s) => s.stringSeq);
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
-  const notation = useChordNotation();
-  const hwActiveNotes = useStore((s) => s.hwActiveNotes);
-  const audioActiveNotes = useStore((s) => s.audioActiveNotes);
-
-  // Use audio-detected notes when available, else MIDI hardware notes
-  const activeNotes = useMemo(() => {
-    if (audioActiveNotes.length > 0) return new Set(audioActiveNotes);
-    return hwActiveNotes;
-  }, [audioActiveNotes, hwActiveNotes]);
 
   // UNISON analysis state
   const unisonDoc = useStore((s) => s.unisonDoc);
@@ -226,7 +228,6 @@ export function InsightContent() {
     return () => clearTimeout(timer);
   }, [canAnalyze, chordRegions, rootNote, mode, midiNotes, analyzeSession]);
 
-  const [showLiveAlts, setShowLiveAlts] = useState(false);
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   // ── UNISON chord lookup map ──
@@ -235,20 +236,6 @@ export function InsightContent() {
     () => unisonChordLookup(unisonDoc),
     [unisonDoc],
   );
-
-  // ── Live chord detection (audio or MIDI) ──
-  // Built by the same code as the chord cards below, so a chord gets the same
-  // colour, lesson links and alternatives whether it's played or written.
-
-  const liveChord = useMemo(
-    () => buildLiveChord(activeNotes, rootNote, mode),
-    [activeNotes, rootNote, mode],
-  );
-
-  // The live chord's label in the chosen notation (hybrid: as above).
-  const liveLabels =
-    liveChord &&
-    liveChordLabels(liveChord, notation, keyContext(rootNote, mode));
 
   // ── Progression insights (with UNISON enrichment) ──
 
@@ -274,13 +261,11 @@ export function InsightContent() {
     // (the prompt box's chords, written before the song had a key), or a
     // song with no key of its own, is placed in the key from its identity,
     // so every chord in the lane gets its card.
+    // The analysis reads the lane the same way (laneDegreeKey), so the
+    // progression it finds is made of these cards' chords.
     const frame = keyFrame(cardRoot, cardMode);
     const fromLane = chordRegions
-      .map(
-        (r) =>
-          (lanesKey ? r.degreeKey : undefined) ??
-          (r.identity ? chordLabels(r.identity, frame).degreeKey : undefined),
-      )
+      .map((r) => laneDegreeKey(r, frame, lanesKey))
       .filter((k): k is string => k != null);
     // stringSeq counts from the parent major; the cards count from the
     // key's tonic, like chord regions.
@@ -312,6 +297,28 @@ export function InsightContent() {
     [selectionDoc],
   );
 
+  // While Insight is open, a chord card that's new, or whose chord or key
+  // changed, gets the rainbow on its own. The cards it opened on take the
+  // open's sweep.
+  const seenCards = useRef<Set<string> | null>(null);
+  useLayoutEffect(() => {
+    const shown = new Map(
+      cardRoot === null
+        ? []
+        : insights.map((chord) => [
+            cardSignature(chord.degreeName, cardRoot, cardMode),
+            chord.degreeName,
+          ]),
+    );
+    const seen = seenCards.current;
+    seenCards.current = new Set(shown.keys());
+    if (!seen) return;
+    const fresh = [...shown]
+      .filter(([signature]) => !seen.has(signature))
+      .map(([, degreeName]) => degreeName);
+    if (fresh.length > 0) sweepInsight(fresh);
+  }, [insights, cardRoot, cardMode]);
+
   const hasProgression = insights.length > 0;
 
   return (
@@ -320,48 +327,6 @@ export function InsightContent() {
       className="flex flex-col gap-2 p-2"
       style={RAINBOW_VARS}
     >
-      {/* The held chord's details (tones, lessons, alternatives) while one
-          is held: Now Playing itself lives over the track list, in the
-          track column's corner (NowPlaying, 2026-10-21). */}
-      {liveChord ? (
-        <InsightCard
-          active
-          title="Now playing"
-          dot={liveChord.color ?? undefined}
-        >
-          <div className="flex items-baseline gap-2">
-            <span className={cn(INSIGHT_TEXT, 'font-medium')}>
-              {liveLabels?.title}
-            </span>
-            {liveLabels?.detail && (
-              <span className={INSIGHT_DIM}>{liveLabels.detail}</span>
-            )}
-          </div>
-          <ChordTones
-            intervals={liveChord.intervals}
-            noteNames={liveChord.noteNames}
-          />
-          {liveChord.chordRootMode && (
-            <ChordLessonLinks
-              chord={{
-                ...liveChord,
-                chordRootMode: liveChord.chordRootMode,
-              }}
-              chordName={liveLabels?.title ?? liveChord.chordLabel}
-            />
-          )}
-          <ChordAlternatives
-            rootLetter={liveChord.rootLetter}
-            alternatives={liveChord.alternatives}
-            chordName={liveLabels?.title ?? liveChord.chordLabel}
-            rootNote={rootNote}
-            mode={mode}
-            expanded={showLiveAlts}
-            onToggleExpand={() => setShowLiveAlts((v) => !v)}
-          />
-        </InsightCard>
-      ) : null}
-
       {/* Chords selected in the timeline's chord lane */}
       <SelectionAnalysis shownElsewhere={songChords} />
 
@@ -401,7 +366,8 @@ export function InsightContent() {
         </InsightCard>
       )}
 
-      {/* UNISON Analysis Sections */}
+      {/* The analysis's error. Its Progression card went (owner,
+          2026-10-25): the chord cards are the song's harmony. */}
       {unisonError && (
         <div
           role="alert"
@@ -410,8 +376,6 @@ export function InsightContent() {
           {unisonError}
         </div>
       )}
-
-      {unisonDoc && <UnisonSections unisonDoc={unisonDoc} />}
     </div>
   );
 }

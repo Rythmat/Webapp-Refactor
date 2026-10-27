@@ -87,7 +87,7 @@ export function ChordCard({
           return {
             scale: `${tonic} ${MODE_DISPLAY[sourceMode] ?? chord.modalInterchange?.sourceModeDisplay ?? sourceMode}`,
             to: fromSong(
-              LearnRoutes.lesson({
+              LearnRoutes.keyboardLesson({
                 mode: MODE_TO_SLUG[sourceMode] ?? sourceMode,
                 key: keyLabelToUrlParam(tonic),
               }),
@@ -101,6 +101,7 @@ export function ChordCard({
       ref={ref}
       active={highlighted}
       data-highlighted={highlighted || undefined}
+      data-chord-card={chord.degreeName}
       className={cn(
         'transition-[border-color,box-shadow] duration-300',
         highlighted && 'ring-1 ring-white/25',
@@ -228,7 +229,7 @@ export function ChordLessonLinks({
   const fromSong = useFromSong(chordName);
   const lesson = (mode: string, key: string) =>
     fromSong(
-      LearnRoutes.lesson({
+      LearnRoutes.keyboardLesson({
         mode: MODE_TO_SLUG[mode] ?? mode,
         key: keyLabelToUrlParam(key),
       }),
@@ -358,7 +359,7 @@ export function ChordAlternatives({
               </span>
               <Link
                 to={fromSong(
-                  LearnRoutes.lesson({
+                  LearnRoutes.keyboardLesson({
                     mode: MODE_TO_SLUG[alt.chordRootMode] ?? alt.chordRootMode,
                     key: keyLabelToUrlParam(rootLetter),
                   }),

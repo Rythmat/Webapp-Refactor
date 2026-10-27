@@ -1,15 +1,23 @@
 import { useMemo, useState, type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  GO_PILL,
+  GO_PILL_ENABLED,
+  PROMPT_PILL,
+  PROMPT_PILL_OFF,
+} from '@/components/promptBox/PromptBoxParts';
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { cn } from '@/components/utilities';
 import { showSuccess } from '@/components/utils/toast';
 import { SongRoutes } from '@/constants/routes';
 import { transposeSong } from '@/curriculum/songLibrary/transpose';
 import type { Song } from '@/curriculum/types/songLibrary';
+import { GLASS_DIALOG, GLASS_FIELD } from './setListsLook';
 import { roleList, setListOptions } from './setListsStore';
 import { useSetLists } from './useSetLists';
 
@@ -79,7 +87,8 @@ export const SaveVersionDialog: FC<SaveVersionDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md border-white/10 bg-[#161618] text-white">
+      {/* The Learn page's look (owner, 2026-10-25): the prompt box's glass. */}
+      <DialogContent className={cn('max-w-md', GLASS_DIALOG)}>
         <DialogHeader>
           <DialogTitle className="text-base font-medium">
             Save this version as…
@@ -93,7 +102,7 @@ export const SaveVersionDialog: FC<SaveVersionDialogProps> = ({
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-white/15 bg-transparent px-3 py-1.5 text-sm outline-none focus:border-white/35"
+              className={cn(GLASS_FIELD, 'mt-1')}
             />
           </label>
 
@@ -118,7 +127,7 @@ export const SaveVersionDialog: FC<SaveVersionDialogProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="count in 4 · cut last chorus"
-              className="mt-1 w-full rounded-lg border border-white/15 bg-transparent px-3 py-1.5 text-sm outline-none placeholder:text-white/25 focus:border-white/35"
+              className={cn(GLASS_FIELD, 'mt-1')}
             />
           </label>
 
@@ -127,7 +136,7 @@ export const SaveVersionDialog: FC<SaveVersionDialogProps> = ({
             <select
               value={chosen}
               onChange={(e) => setDestination(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-white/15 bg-[#161618] px-3 py-1.5 text-sm outline-none focus:border-white/35"
+              className={cn(GLASS_FIELD, 'mt-1 [&>option]:bg-[#161618]')}
             >
               {options.map((o) => (
                 <option key={o.id} value={o.id}>
@@ -143,7 +152,7 @@ export const SaveVersionDialog: FC<SaveVersionDialogProps> = ({
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="Name the new set list"
-              className="w-full rounded-lg border border-white/15 bg-transparent px-3 py-1.5 text-sm outline-none placeholder:text-white/25 focus:border-white/35"
+              className={GLASS_FIELD}
             />
           )}
 
@@ -158,14 +167,14 @@ export const SaveVersionDialog: FC<SaveVersionDialogProps> = ({
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="rounded-full border border-white/15 px-3 py-1.5 text-sm text-white/70 hover:border-white/30"
+            className={cn(PROMPT_PILL, PROMPT_PILL_OFF, 'h-9 px-4 text-sm')}
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={save}
-            className="rounded-full bg-[#7ecfcf] px-4 py-1.5 text-sm font-semibold text-[#191919]"
+            className={cn(GO_PILL, GO_PILL_ENABLED, 'bg-white/10')}
           >
             Save
           </button>

@@ -1,36 +1,26 @@
-import { MessageSquare, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { PromptPillButton } from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import {
+  INSIGHT_DIM,
+  INSIGHT_ROW,
+  InsightCard,
+} from '@/daw/components/Library/InsightCard';
 import { useCollab } from '@/daw/collab/CollabProvider';
 import type { ChatMessage } from '@/daw/collab/types';
 import { useStore } from '@/daw/store';
-import { EmptyState } from '@/daw/ui/EmptyState';
-import { IconButton } from '@/daw/ui/IconButton';
-import { TYPE_CLASS } from '@/daw/ui/styles';
 
-// ── The Chat panel (B4a; the collab ChatPanel column until then) ───────────
+// ── The session's chat (B4a; its own rail panel until 2026-10-25) ──────────
 //
-// The session's chat: messages live in the room's shared Yjs array, so they
-// last across reconnects. Showing the panel marks them read (the rail's
-// badge counts the rest). Out of a session there is no one to talk to, so
-// it says how to start one.
+// A card in the People panel, under who is in the session (owner,
+// 2026-10-25: Chat and People are one panel), in Insight's design. Messages
+// live in the room's shared Yjs array, so they last across reconnects.
+// Showing the card marks them read (the rail's People badge counts the
+// rest). It shows only in a session: out of one there is no one to talk to.
 
-export function ChatBody() {
-  const active = useStore((s) => s.isCollabActive);
-  if (!active) {
-    return (
-      <EmptyState
-        icon={<MessageSquare />}
-        title="No session yet"
-        description="Chat opens when you share this project: start a session from People or Share."
-      />
-    );
-  }
-  return <SessionChat />;
-}
-
-function SessionChat() {
+export function ChatCard() {
   const messages = useStore((s) => s.chatMessages);
   const markRead = useStore((s) => s.markChatRead);
   const { sendChatMessage } = useCollab();
@@ -38,7 +28,7 @@ function SessionChat() {
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Showing the panel reads what's there, and what arrives while it shows.
+  // Showing the card reads what's there, and what arrives while it shows.
   useEffect(() => {
     markRead();
     const el = scrollRef.current;
@@ -55,20 +45,16 @@ function SessionChat() {
   }, [input, sendChatMessage]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <InsightCard title="Chat" data-testid="people-chat">
       <div
         ref={scrollRef}
         role="log"
         aria-label="Messages"
-        className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3"
+        className="-mx-1 flex max-h-80 flex-col gap-1.5 overflow-y-auto px-1"
         style={{ scrollbarWidth: 'thin' }}
       >
         {messages.length === 0 ? (
-          <p
-            className={cn(TYPE_CLASS.body, 'py-4 text-center text-daw-text-3')}
-          >
-            No messages yet
-          </p>
+          <p className={INSIGHT_DIM}>No messages yet.</p>
         ) : null}
         {messages.map((msg) => (
           <Message
@@ -79,7 +65,7 @@ function SessionChat() {
         ))}
       </div>
       <form
-        className="flex shrink-0 items-center gap-1 border-t border-daw-hairline p-2"
+        className="flex items-center gap-2"
         onSubmit={(e) => {
           e.preventDefault();
           send();
@@ -91,37 +77,43 @@ function SessionChat() {
           aria-label="Message"
           placeholder="Message…"
           data-testid="chat-input"
-          className={cn(
-            TYPE_CLASS.body,
-            'h-8 min-w-0 flex-1 rounded-[var(--daw-radius-sm)] border border-daw-outline bg-daw-surface-2 px-2 text-daw-text outline-none placeholder:text-daw-text-3 focus:border-daw-text-2',
-          )}
+          className="h-8 min-w-0 flex-1 rounded-full border border-white/10 bg-transparent px-3.5 text-[13px] text-white outline-none transition-colors placeholder:text-white/40 hover:border-white/20 focus-visible:border-white/25 focus-visible:ring-2 focus-visible:ring-white/40"
         />
-        <IconButton
+        <PromptPillButton
           type="submit"
-          label="Send"
-          icon={<Send />}
+          variant="primary"
+          aria-label="Send"
           disabled={!input.trim()}
-          tooltipSide="left"
-        />
+          className="size-8 justify-center px-0 disabled:pointer-events-none disabled:opacity-40"
+        >
+          <Send aria-hidden className="size-3.5" />
+        </PromptPillButton>
       </form>
-    </div>
+    </InsightCard>
   );
 }
 
+/** A message: who and when, quiet, over what they said; yours to the right. */
 function Message({ message, self }: { message: ChatMessage; self: boolean }) {
   const time = new Date(message.timestamp).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
   });
   return (
-    <div className="flex flex-col gap-0.5">
-      <div className="flex items-baseline gap-2">
-        <span className={cn(TYPE_CLASS.label, 'font-bold text-daw-text')}>
+    <div
+      className={cn(
+        INSIGHT_ROW,
+        'flex flex-col gap-0.5',
+        self ? 'ml-6 bg-white/[0.08]' : 'mr-6',
+      )}
+    >
+      <div className="flex items-baseline gap-2 text-[13px] leading-5">
+        <span className="font-medium text-white/55">
           {self ? 'You' : message.userName}
         </span>
-        <span className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>{time}</span>
+        <span className="text-white/40">{time}</span>
       </div>
-      <p className={cn(TYPE_CLASS.body, 'break-words text-daw-text')}>
+      <p className="break-words text-[15px] leading-6 text-white">
         {message.text}
       </p>
     </div>

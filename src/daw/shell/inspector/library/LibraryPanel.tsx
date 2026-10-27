@@ -14,6 +14,11 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type ComponentType } from 'react';
 import { cn } from '@/components/utilities';
+import {
+  INSIGHT_DIM,
+  INSIGHT_TEXT,
+  InsightCard,
+} from '@/daw/components/Library/InsightCard';
 import { addLibraryAudio } from '@/daw/library/addLibraryAudio';
 import {
   useLibraryAudio,
@@ -34,7 +39,6 @@ import {
   MenuRadioItem,
   MenuTrigger,
 } from '@/daw/ui/Menu';
-import { FOCUS_RING, TYPE_CLASS } from '@/daw/ui/styles';
 import { generateStudioTileSvg } from '@/lib/studioProjectTile';
 import { LibraryAudioRow } from './LibraryAudioRow';
 import { groupByDay, stopPreview, timeAgo } from './libraryHelpers';
@@ -49,6 +53,10 @@ import { groupByDay, stopPreview, timeAgo } from './libraryHelpers';
 //
 // Stems are what Export › Stems rendered; uploads, audio files uploaded into
 // a project; both are kept on this device (daw/library/audioLibrary).
+//
+// It wears Insight's design (owner, 2026-10-25; InsightCard): each section
+// and each day of a list is the prompt box's card, names in 15 px white,
+// the rest in quieter 13 px, and the box's round pills for filters.
 
 type View = 'home' | 'all' | 'favorites' | 'stems' | 'uploads';
 type Sort = 'new' | 'old' | 'name';
@@ -103,16 +111,18 @@ const SORT_LABEL: Record<Sort, string> = {
   name: 'Name',
 };
 
-/** Suno's filter chips: a quiet pill, white when on. */
+/** A filter: the prompt box's hairline pill, white when on. */
 const chipClass = (on: boolean) =>
   cn(
-    'flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 transition-colors',
-    TYPE_CLASS.label,
-    FOCUS_RING,
+    'flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[13px] font-medium outline-none transition-colors duration-75 focus-visible:ring-2 focus-visible:ring-white/40',
     on
-      ? 'border-transparent bg-daw-primary text-daw-on-primary'
-      : 'border-daw-hairline bg-daw-bg text-daw-text hover:bg-daw-hover',
+      ? 'border-transparent bg-daw-primary text-daw-on-primary hover:bg-daw-primary-hover'
+      : 'border-white/10 text-white/85 hover:bg-white/[0.06] hover:text-white',
   );
+
+/** A row in a card: a project, a stem, an upload. */
+export const LIBRARY_ROW =
+  'flex h-16 w-full items-center gap-2.5 rounded-[14px] px-2 text-left transition-colors hover:bg-white/[0.06]';
 
 const addToSong = (item: LibraryAudioItem) => void addLibraryAudio(item.id, 0);
 
@@ -136,7 +146,7 @@ function LibraryHome({ onOpen }: { onOpen: (view: View) => void }) {
   return (
     <div
       data-testid="library-home"
-      className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-2"
+      className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2"
       style={{ scrollbarWidth: 'thin' }}
     >
       {TILES.map(({ view, label, icon, color }) => (
@@ -200,49 +210,42 @@ function HomeSection<T>({
 }) {
   const shown = items === null ? [] : items.slice(0, FIRST_SHOWN);
   return (
-    <section
+    <InsightCard
       aria-labelledby={`library-${id}-heading`}
       data-testid={`library-section-${id}`}
     >
-      <h3 id={`library-${id}-heading`} className="mb-1">
+      <h3 id={`library-${id}-heading`} className="-mx-2 -my-1">
         <button
           type="button"
           onClick={onHeading}
           aria-label={headingLabel}
           data-testid={`library-tile-${id}`}
-          className={cn(
-            'group flex w-full items-center gap-2 rounded-[var(--daw-radius-md)] px-1 py-1 text-left transition-colors hover:bg-daw-hover',
-            FOCUS_RING,
-          )}
+          className="group flex w-full items-center gap-2.5 rounded-[14px] px-2 py-1 text-left outline-none transition-colors hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/40"
         >
           <span
-            className="flex size-6 shrink-0 items-center justify-center rounded-[var(--daw-radius-sm)]"
+            className="flex size-6 shrink-0 items-center justify-center rounded-full"
             style={{ background: color }}
           >
             <Icon aria-hidden className="size-3.5 text-daw-bg" />
           </span>
-          <span className={cn(TYPE_CLASS.item, 'font-bold text-daw-text')}>
-            {label}
-          </span>
+          <span className={cn(INSIGHT_TEXT, 'font-medium')}>{label}</span>
           {items !== null && items.length > 0 ? (
-            <span className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>
+            <span className="text-[13px] tabular-nums text-white/40">
               {items.length}
             </span>
           ) : null}
           <ChevronRight
             aria-hidden
-            className="ml-auto size-4 text-daw-text-3 transition-colors group-hover:text-daw-text"
+            className="ml-auto size-4 text-white/40 transition-colors group-hover:text-white"
           />
         </button>
       </h3>
       {items === null ? null : items.length === 0 ? (
-        <p className={cn(TYPE_CLASS.label, 'px-1 py-1.5 text-daw-text-3')}>
-          {empty}
-        </p>
+        <p className={INSIGHT_DIM}>{empty}</p>
       ) : (
-        <ul className="flex flex-col">{shown.map(render)}</ul>
+        <ul className="-mx-2 flex flex-col">{shown.map(render)}</ul>
       )}
-    </section>
+    </InsightCard>
   );
 }
 
@@ -267,28 +270,21 @@ function ProjectItem({ row }: { row: ProjectRow }) {
         aria-current={row.isOpen || undefined}
         data-testid="library-project"
         className={cn(
-          'flex h-16 w-full items-center gap-2.5 rounded-[var(--daw-radius-lg)] px-2 text-left transition-colors hover:bg-daw-hover disabled:opacity-40',
-          FOCUS_RING,
+          LIBRARY_ROW,
+          'outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:opacity-40',
         )}
       >
         <img
           src={tile}
           alt=""
           draggable={false}
-          className="size-[46px] shrink-0 rounded-[var(--daw-radius-md)] object-cover"
+          className="size-[46px] shrink-0 rounded-[12px] object-cover"
         />
         <span className="min-w-0 flex-1">
-          <span
-            className={cn(
-              TYPE_CLASS.item,
-              'block truncate font-bold text-daw-text',
-            )}
-          >
+          <span className={cn(INSIGHT_TEXT, 'block truncate font-medium')}>
             {row.name}
           </span>
-          <span
-            className={cn(TYPE_CLASS.label, 'block truncate text-daw-text-3')}
-          >
+          <span className={cn(INSIGHT_DIM, 'block truncate')}>
             {row.isOpen ? 'Open now' : timeAgo(row.updatedAt)}
           </span>
         </span>
@@ -381,17 +377,11 @@ function LibraryList({
             }}
             placeholder={`Search ${TITLE[view].toLowerCase()}`}
             aria-label={`Search ${TITLE[view].toLowerCase()}`}
-            className={cn(
-              TYPE_CLASS.body,
-              'h-7 min-w-0 flex-1 rounded-full bg-white/[0.06] px-3 text-daw-text outline-none placeholder:text-daw-text-3 focus-visible:ring-1 focus-visible:ring-white/30',
-            )}
+            className="h-8 min-w-0 flex-1 rounded-full border border-white/10 bg-transparent px-3.5 text-[13px] text-white outline-none transition-colors placeholder:text-white/40 hover:border-white/20 focus-visible:border-white/25 focus-visible:ring-2 focus-visible:ring-white/40"
           />
         ) : (
           <h3
-            className={cn(
-              TYPE_CLASS.title,
-              'min-w-0 flex-1 truncate text-daw-text',
-            )}
+            className={cn(INSIGHT_TEXT, 'min-w-0 flex-1 truncate font-medium')}
           >
             {TITLE[view]}
           </h3>
@@ -473,12 +463,12 @@ function LibraryList({
       </div>
 
       <div
-        className="min-h-0 flex-1 overflow-y-auto px-2 pb-2"
+        className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2 pb-2"
         style={{ scrollbarWidth: 'thin' }}
       >
         {!loaded ? null : shown.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 px-4 py-12 text-center">
-            <p className={cn(TYPE_CLASS.body, 'text-daw-text-3')}>
+          <InsightCard className="items-center px-6 py-8 text-center">
+            <p className={INSIGHT_DIM}>
               {filtered ? 'Nothing matches these filters.' : EMPTY[view]}
             </p>
             {filtered && (
@@ -490,12 +480,16 @@ function LibraryList({
                 Reset filters
               </button>
             )}
-          </div>
+          </InsightCard>
         ) : (
           groups.map((group) => {
             const isClosed = closed.has(group.label);
             return (
-              <section key={group.label} aria-label={group.label}>
+              <InsightCard
+                key={group.label}
+                aria-label={group.label}
+                className="gap-1.5"
+              >
                 <button
                   type="button"
                   aria-expanded={!isClosed}
@@ -507,11 +501,7 @@ function LibraryList({
                       return next;
                     })
                   }
-                  className={cn(
-                    TYPE_CLASS.label,
-                    'flex items-center gap-1 rounded px-1 py-2 text-daw-text-2 hover:text-daw-text',
-                    FOCUS_RING,
-                  )}
+                  className="-mx-1 flex items-center gap-1 self-start rounded-full px-1 text-[13px] font-medium text-white/55 outline-none transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
                 >
                   <ChevronDown
                     aria-hidden
@@ -523,7 +513,7 @@ function LibraryList({
                   {group.label}
                 </button>
                 {!isClosed && (
-                  <ul className="flex flex-col">
+                  <ul className="-mx-2 flex flex-col">
                     {group.items.map((item) => (
                       <LibraryAudioRow
                         key={item.id}
@@ -533,7 +523,7 @@ function LibraryList({
                     ))}
                   </ul>
                 )}
-              </section>
+              </InsightCard>
             );
           })
         )}

@@ -172,11 +172,12 @@ const shuffle = <T,>(arr: T[]): T[] => {
 };
 
 /**
- * Globe preview — a lightweight cobe teaser for the full Atlas globe. A featured
- * event advances once per full globe rotation; the globe draws that event's real
- * influence flight paths (matching the main globe). Home dashboard only.
+ * The Globe preview's state: a featured event that advances once per full
+ * globe rotation, and the globe data for it (that event's real influence
+ * flight paths, matching the main globe). Shared by this section and Home's
+ * HomeGlobeCard; render it inside <ContentGate> (see GlobeSection below).
  */
-const GlobeSectionInner = () => {
+export const useGlobePreview = () => {
   // Shuffle once per page load so the events (and their order) vary each visit.
   const [events] = useState(() => shuffle(featuredEvents()));
   const [index, setIndex] = useState(0);
@@ -196,6 +197,16 @@ const GlobeSectionInner = () => {
         : { markers: [], arcs: [], arcHeight: 0.28 },
     [event],
   );
+
+  return { event, markers, arcs, arcHeight, advance };
+};
+
+/**
+ * Globe preview — a lightweight cobe teaser for the full Atlas globe, in the
+ * old dashboard's look (the console's Home mirror shows it).
+ */
+const GlobeSectionInner = () => {
+  const { event, markers, arcs, arcHeight, advance } = useGlobePreview();
 
   if (!event) return null;
 

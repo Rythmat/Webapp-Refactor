@@ -89,7 +89,8 @@ const counter = () =>
   document
     .querySelector('[data-guitar-step-count]')
     ?.getAttribute('aria-label');
-const title = () => document.querySelector('[data-guitar-title]')?.textContent;
+// The step's name, in the lesson's subtitle (its title is the key, "C Major").
+const title = () => document.querySelector('[data-subtitle-step]')?.textContent;
 
 let fedTo = -1;
 function feedTo(tick: number) {

@@ -273,8 +273,13 @@ function useStageGeometry(
     const measure = () => {
       const box = boxEl.getBoundingClientRect();
       const keys = keysEl?.getBoundingClientRect();
+      // Keys not under the box (docked on a lesson's bar under a side
+      // panel, as Music Literacy's): the box lays the same keys across its
+      // own width, so every note still shows, in its place among them.
+      const under =
+        keys && keys.left >= box.left - 4 && keys.right <= box.right + 4;
       // clientHeight: inside the border, where the notes are drawn.
-      const next = keys
+      const next = under
         ? {
             offset: keys.left - box.left - boxEl.clientLeft,
             width: keys.width,

@@ -1,12 +1,12 @@
-import { ArrowRight, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  GENRE_COURSES,
-  type GenreCourse,
-} from '@/components/learn/genreCourses';
 import { cn } from '@/components/utilities';
-import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
+import { CurriculumRoutes } from '@/constants/routes';
+import { useArtAccent } from '@/hooks/useArtAccent';
+import { GENRE_COURSES, type GenreCourse } from './genreCourses';
+import { SigilCard } from './sigil/SigilCard';
+import { grooveSpec } from './sigil/sigilSpec';
 
 /** Learn's genre levels per course (buildGenreLevels in LearnInlet). */
 const LEVELS = 3;
@@ -18,69 +18,9 @@ const PAGES = [
   { top: 12, inset: 6, opacity: 0.8, fan: 1 },
 ] as const;
 
-// ── Each cover's own color, for the stack behind it ────────────────────────
-
-const colorCache = new Map<string, string>();
-const FALLBACK = 'rgb(70, 70, 82)';
-
-/**
- * The cover's main color: its pixels averaged, the vivid ones weighted up
- * (as Suno's stacks take the art's dominant hue), from a small draw.
- */
-function useCoverColor(src: string): string {
-  const [color, setColor] = useState(() => colorCache.get(src) ?? FALLBACK);
-  useEffect(() => {
-    if (colorCache.has(src)) return;
-    let live = true;
-    const img = new Image();
-    img.onload = () => {
-      try {
-        const size = 24;
-        const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        // The square the cover shows: the art's centre.
-        const side = Math.min(img.width, img.height);
-        ctx.drawImage(
-          img,
-          (img.width - side) / 2,
-          (img.height - side) / 2,
-          side,
-          side,
-          0,
-          0,
-          size,
-          size,
-        );
-        const px = ctx.getImageData(0, 0, size, size).data;
-        let r = 0;
-        let g = 0;
-        let b = 0;
-        let w = 0;
-        for (let i = 0; i < px.length; i += 4) {
-          const max = Math.max(px[i], px[i + 1], px[i + 2]);
-          const min = Math.min(px[i], px[i + 1], px[i + 2]);
-          const weight = 0.15 + (max - min) / 255;
-          r += px[i] * weight;
-          g += px[i + 1] * weight;
-          b += px[i + 2] * weight;
-          w += weight;
-        }
-        const found = `rgb(${Math.round(r / w)}, ${Math.round(g / w)}, ${Math.round(b / w)})`;
-        colorCache.set(src, found);
-        if (live) setColor(found);
-      } catch {
-        // A tainted or undrawable image keeps the neutral stack.
-      }
-    };
-    img.src = src;
-    return () => {
-      live = false;
-    };
-  }, [src]);
-  return color;
-}
+// The stack behind a cover: its art's accent (useArtAccent), or a
+// neutral one until that's read.
+const STACK_FALLBACK = 'rgb(70, 70, 82)';
 
 /**
  * A genre, as Suno's Curated Collections show one: the cover over three
@@ -88,7 +28,8 @@ function useCoverColor(src: string): string {
  * hover a play button. It opens the genre's course.
  */
 function GenreCard({ course }: { course: GenreCourse }) {
-  const color = useCoverColor(course.image);
+  const color = useArtAccent(course.image) ?? STACK_FALLBACK;
+  const spec = grooveSpec(course.slug, course.image);
   return (
     <Link
       to={CurriculumRoutes.genre({ genre: course.slug })}
@@ -98,7 +39,7 @@ function GenreCard({ course }: { course: GenreCourse }) {
       {/* The stack: three pages behind the cover, each 6 px higher and 12 px
           narrower than the one in front, dimmer the further back, with a
           dark edge so each reads as its own sheet. Hovering fans them up. */}
-      <span aria-hidden className="relative block h-[13.625rem] w-[12.5rem]">
+      <div aria-hidden className="relative h-[13.625rem] w-[12.5rem]">
         {PAGES.map((p) => (
           <span
             key={p.top}
@@ -117,19 +58,21 @@ function GenreCard({ course }: { course: GenreCourse }) {
             }
           />
         ))}
-        <span className="absolute left-0 top-[1.125rem] size-[12.5rem] overflow-hidden rounded-2xl bg-[#151518] shadow-[0_-1px_0_rgba(0,0,0,0.55)]">
-          <img
-            src={course.image}
-            alt=""
-            draggable={false}
-            loading="lazy"
-            className="size-full object-cover transition-transform duration-300 ease-out motion-safe:group-hover:scale-[1.03]"
-          />
-          <span className="absolute bottom-3 right-3 flex size-10 items-center justify-center rounded-full bg-black/45 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
-            <Play className="ml-0.5 size-4 fill-current" />
-          </span>
-        </span>
-      </span>
+        {/* The cover: the Learn tiles' card, the genre's groove drawn in
+            it (owner, 2026-10-26); opaque, over the stack. */}
+        {spec && (
+          <SigilCard
+            spec={spec}
+            label={course.title}
+            interactive={false}
+            className="absolute left-0 top-[1.125rem] size-[12.5rem]"
+          >
+            <span className="absolute right-3 top-3 flex size-9 items-center justify-center rounded-full bg-black/45 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+              <Play className="ml-0.5 size-4 fill-current" />
+            </span>
+          </SigilCard>
+        )}
+      </div>
       <span className="mt-3 truncate px-0.5 text-base font-medium leading-6 text-white">
         {course.title}
       </span>
@@ -144,11 +87,12 @@ const ARROW =
   'absolute top-[7.625rem] z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-[#1c1c1f]/90 text-white shadow-[0_4px_16px_rgba(0,0,0,0.4)] outline-none transition-opacity hover:bg-[#2a2a2e] focus-visible:ring-2 focus-visible:ring-white/50';
 
 /**
- * Home's Catalog, under Songs: the genres Learn teaches, styled after Suno's
- * Curated Collections — a row of stacked covers that scrolls sideways, with
- * arrows at its ends and a fade where there's more.
+ * The Genre page's Catalog, above its course tiles (moved from Home, owner
+ * 2026-10-25): the genres Learn teaches, styled after Suno's Curated
+ * Collections — a row of stacked covers that scrolls sideways, with arrows
+ * at its ends and a fade where there's more.
  */
-export const HomeCatalogRow = () => {
+export const GenreCatalogRow = () => {
   const strip = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ start: true, end: false });
 
@@ -183,40 +127,28 @@ export const HomeCatalogRow = () => {
 
   return (
     <section
-      aria-labelledby="home-catalog-heading"
+      aria-labelledby="genre-catalog-heading"
       className="flex flex-col gap-2"
     >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <span
-            aria-hidden
-            className="size-6 shrink-0 bg-white"
-            style={{
-              maskImage: 'url(/icons/genre-icon.svg)',
-              WebkitMaskImage: 'url(/icons/genre-icon.svg)',
-              maskSize: 'contain',
-              WebkitMaskSize: 'contain',
-              maskRepeat: 'no-repeat',
-              WebkitMaskRepeat: 'no-repeat',
-            }}
-          />
-          <h2
-            id="home-catalog-heading"
-            className="text-base leading-6 text-white"
-          >
-            Catalog
-          </h2>
-        </div>
-        <Link
-          to={`${LearnRoutes.root()}?tab=Genre`}
-          className="group flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm text-white/70 outline-none transition-colors duration-150 hover:bg-white/[0.06] hover:text-white focus-visible:ring-2 focus-visible:ring-white/50"
+      <div className="flex min-w-0 items-center gap-3">
+        <span
+          aria-hidden
+          className="size-6 shrink-0 bg-white"
+          style={{
+            maskImage: 'url(/icons/genre-icon.svg)',
+            WebkitMaskImage: 'url(/icons/genre-icon.svg)',
+            maskSize: 'contain',
+            WebkitMaskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            WebkitMaskRepeat: 'no-repeat',
+          }}
+        />
+        <h2
+          id="genre-catalog-heading"
+          className="text-base leading-6 text-white"
         >
-          View all
-          <ArrowRight
-            aria-hidden
-            className="size-4 transition-transform duration-150 motion-safe:group-hover:translate-x-0.5"
-          />
-        </Link>
+          Catalog
+        </h2>
       </div>
 
       <div className="relative">

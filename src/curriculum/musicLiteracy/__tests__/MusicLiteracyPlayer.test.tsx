@@ -107,7 +107,8 @@ const hub = () => document.querySelector('[data-literacy-hub]')!;
 /** The hub's headline: the cue, or whose turn it is. */
 const headline = () =>
   document.querySelector('[data-literacy-turn]')?.textContent;
-const title = () => document.querySelector('[data-guitar-title]')?.textContent;
+// The step's name, in the lesson's subtitle (its title is the key, "C Major").
+const title = () => document.querySelector('[data-subtitle-step]')?.textContent;
 const stepIndex = () => lesson.steps.findIndex((s) => s.title === title());
 
 /** Every cue of the current step's run up to `tick`, not yet handed over. */
@@ -337,9 +338,8 @@ describe('a Music Literacy step', () => {
     ]);
     const cue = () => hub().getAttribute('data-cue');
     const shinyKeys = () =>
-      document.querySelectorAll(
-        '[data-testid="piano-keyboard-fill"] .motion-safe\\:animate-key-sheen',
-      ).length;
+      document.querySelectorAll('[data-lesson-keyboard] [data-played="shine"]')
+        .length;
 
     await press('Play');
     expect(cue()).toBeNull();

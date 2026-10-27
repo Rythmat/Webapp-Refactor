@@ -9,9 +9,10 @@ import {
   areaOf,
   globeQuery,
   intentOf,
+  onInstrument,
   resolvePromptRoute,
 } from '../promptRouting';
-import { PROMPT_SUGGESTIONS } from '../promptSuggestions';
+import { GUITAR_SUGGESTIONS, PROMPT_SUGGESTIONS } from '../promptSuggestions';
 
 const entry = (route: string): MatchResult => ({
   entry: {
@@ -190,5 +191,53 @@ describe('areaOf', () => {
     expect(areaOf('/atlas/globe?era=postwar')).toBe('globe');
     expect(areaOf('/arcade/foli')).toBe('arcade');
     expect(areaOf('/search?q=x')).toBeNull();
+  });
+});
+
+describe('the Learn page’s bar, on an instrument', () => {
+  it('opens one of its own suggestions typed out', () => {
+    const song = GUITAR_SUGGESTIONS.find(
+      (s) => s.route === '/songs/wonderwall',
+    )!;
+    expect(
+      resolvePromptRoute({
+        text: song.text.toUpperCase(),
+        target: null,
+        accepted: null,
+        match: none,
+        suggestions: GUITAR_SUGGESTIONS,
+        instrument: 'guitar',
+      }),
+    ).toBe('/songs/wonderwall');
+  });
+
+  it('on guitar, opens a Theory lesson the matcher finds on guitar', () => {
+    const route = (instrument?: 'piano' | 'guitar') =>
+      resolvePromptRoute({
+        text: 'Teach me dorian',
+        target: null,
+        accepted: null,
+        match: () => [entry('/learn/keyboard/dorian')],
+        instrument,
+      });
+    expect(route('guitar')).toBe('/learn/guitar/dorian');
+    expect(route('piano')).toBe('/learn/keyboard/dorian');
+    expect(route()).toBe('/learn/keyboard/dorian');
+  });
+
+  it('moves only Theory lessons guitar teaches', () => {
+    expect(onInstrument('/learn/keyboard/ionian/g', 'guitar')).toBe(
+      '/learn/guitar/ionian/g',
+    );
+    expect(onInstrument('/learn/keyboard/relative/c', 'guitar')).toBe(
+      '/learn/keyboard/relative/c',
+    );
+    expect(onInstrument('/learn/guitar/dorian', 'guitar')).toBe(
+      '/learn/guitar/dorian',
+    );
+    expect(onInstrument('/songs/jolene', 'guitar')).toBe('/songs/jolene');
+    expect(onInstrument('/learn/keyboard/dorian', 'piano')).toBe(
+      '/learn/keyboard/dorian',
+    );
   });
 });

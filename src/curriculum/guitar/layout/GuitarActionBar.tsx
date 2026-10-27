@@ -8,10 +8,10 @@ import {
   type FocusEvent,
   type ReactNode,
 } from 'react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/components/utilities';
 import { SpeedTrainerControl } from '@/curriculum/practice';
 import type { GuitarInputHandle } from '@/learn/audio/guitar/types';
+import { useLessonKeyboardSlot } from '@/learn/keyboard/lessonKeyboardSlot';
 import { GuitarLoopStatus, GuitarPracticeNotes } from '../GuitarLoopStatus';
 import { TempoStepper } from './TempoStepper';
 import type {
@@ -42,13 +42,15 @@ import type {
 // On a phone the bar stacks: the words, then the tempo, then the buttons in
 // equal columns, 44px tall.
 
+// The prompt box's pills (PromptPillButton), a size up for the bar: the
+// hairline one, and the white one for the step to take.
 const SECONDARY_PILL =
-  'inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-white/15 bg-white/[0.04] px-4 text-sm font-normal text-[#e8e8f0] transition-colors duration-150 hover:bg-white/[0.08] disabled:opacity-40 disabled:hover:bg-white/[0.04] max-[639px]:h-11 max-[639px]:w-full max-[639px]:px-2 [&_svg]:size-4 [&_svg]:shrink-0';
+  'inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-white/10 px-4 text-sm font-normal text-white/85 transition-colors duration-150 hover:bg-white/[0.06] hover:text-white disabled:opacity-40 disabled:hover:bg-transparent max-[639px]:h-11 max-[639px]:w-full max-[639px]:px-2 [&_svg]:size-4 [&_svg]:shrink-0';
 
-// The shared button's 1px ring hugs the white pill and all but vanishes; a
-// dark gap and a 2px ring make keyboard focus plain to see.
+// A dark gap and a 2px ring make keyboard focus on the white pill plain to
+// see.
 const PRIMARY_PILL =
-  'h-10 px-5 font-normal shadow-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101012] disabled:bg-white disabled:text-grey-darkest disabled:opacity-40 max-[639px]:h-11 max-[639px]:w-full max-[639px]:px-2';
+  'inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 text-sm font-normal text-[#101012] outline-none hover:bg-[#E6E6E8] active:bg-[#D1D1D3] [&_svg]:size-4 [&_svg]:shrink-0 transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c0c0e] disabled:bg-white disabled:text-grey-darkest disabled:opacity-40 max-[639px]:h-11 max-[639px]:w-full max-[639px]:px-2';
 
 const TEXT_BUTTON =
   'inline-flex h-9 shrink-0 items-center rounded-full text-[15px] font-normal text-[#e8e8f0] underline decoration-white/30 underline-offset-4 transition-colors duration-150 hover:decoration-white/70 max-[639px]:h-11';
@@ -67,7 +69,7 @@ export function Primary({
   children: ReactNode;
 }) {
   return (
-    <Button
+    <button
       type="button"
       onClick={onClick}
       disabled={disabled}
@@ -75,7 +77,7 @@ export function Primary({
       className={PRIMARY_PILL}
     >
       {children}
-    </Button>
+    </button>
   );
 }
 
@@ -523,6 +525,22 @@ function useBarFocus(state: BarState) {
   };
 }
 
+/**
+ * The lesson's keyboard, docked on the bar over its buttons (LessonKeyboard
+ * renders into it), the same place in every lesson. Empty, it takes no room.
+ */
+function KeyboardSlot() {
+  const slot = useLessonKeyboardSlot();
+  if (!slot) return null;
+  return (
+    <div
+      ref={slot.setEl}
+      data-lesson-keyboard-slot
+      className="mx-auto w-full max-w-[1184px] px-6 pt-3 empty:hidden max-[639px]:px-4"
+    />
+  );
+}
+
 export function GuitarActionBar(props: GuitarActionBarProps) {
   const { lead, meta, actions, corner } = props.custom ?? zonesFor(props);
   const focus = useBarFocus(props.state);
@@ -539,8 +557,9 @@ export function GuitarActionBar(props: GuitarActionBarProps) {
         aria-label="Lesson controls"
         data-guitar-bar={props.state}
         data-bar-variant="centered"
-        className="sticky bottom-0 z-10 shrink-0 border-t border-white/[0.08] bg-[#101012] pb-[env(safe-area-inset-bottom)]"
+        className="sticky bottom-0 z-10 shrink-0 border-t border-white/[0.06] bg-[#0c0c0e] pb-[env(safe-area-inset-bottom)]"
       >
+        <KeyboardSlot />
         <div className="relative mx-auto flex min-h-[80px] w-full max-w-[1184px] flex-wrap items-center justify-center gap-x-4 gap-y-2 px-6 py-4 max-[639px]:px-4">
           {lead && (
             <div data-bar-lead className="min-w-0 text-center">
@@ -581,8 +600,9 @@ export function GuitarActionBar(props: GuitarActionBarProps) {
       role="region"
       aria-label="Lesson controls"
       data-guitar-bar={props.state}
-      className="sticky bottom-0 z-10 shrink-0 border-t border-white/[0.08] bg-[#101012] pb-[env(safe-area-inset-bottom)]"
+      className="sticky bottom-0 z-10 shrink-0 border-t border-white/[0.06] bg-[#0c0c0e] pb-[env(safe-area-inset-bottom)]"
     >
+      <KeyboardSlot />
       <div className="mx-auto flex min-h-[72px] w-full max-w-[1184px] items-center gap-4 px-6 py-3 max-[639px]:flex-col max-[639px]:items-stretch max-[639px]:gap-2 max-[639px]:px-4">
         {/* Empty, it still pushes the buttons right; on a phone it goes. */}
         <div data-bar-lead className="min-w-0 flex-1 max-[639px]:empty:hidden">

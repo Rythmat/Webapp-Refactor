@@ -97,14 +97,23 @@ function useKeysBox(stageEl: HTMLElement | null) {
     const clip = clippingAncestor(stageEl);
     const bar = lessonBar(stageEl);
     const measure = () => {
-      const keys = stageEl.querySelector('[data-testid="piano-keyboard-fill"]');
+      // The lesson keyboard's keys (the Studio dock's), or the old fill one.
+      const keys = stageEl.querySelector(
+        '[data-piano-keys], [data-testid="piano-keyboard-fill"]',
+      );
       if (!keys) return;
       const s = stageEl.getBoundingClientRect();
       const k = keys.getBoundingClientRect();
       const barTop = bar?.getBoundingClientRect().top;
+      // Docked on the bar (lessonKeyboardSlot), the bar's buttons sit just
+      // under the keys: the palms fade out before them.
+      const buttonsTop = stageEl
+        .closest('[data-lesson-keyboard-slot]')
+        ?.nextElementSibling?.getBoundingClientRect().top;
       const floor = Math.min(
         clip ? clip.getBoundingClientRect().bottom : window.innerHeight,
         barTop !== undefined && barTop > k.top ? barTop : Infinity,
+        buttonsTop !== undefined && buttonsTop > k.top ? buttonsTop : Infinity,
       );
       setBox((prev) => {
         const next = {

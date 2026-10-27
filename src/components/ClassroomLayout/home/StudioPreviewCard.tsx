@@ -16,10 +16,11 @@ import mp4Url from './media/studio-preview.mp4';
 const NEW_PROJECT_HREF = `${StudioRoutes.editor.definition}?new=1`;
 
 /**
- * The real Studio playing the "Midnight Groove" demo on the Create page, then
- * the Mix page. Recorded by scripts/home/recordStudioPreview.mjs; rerun it
- * when the Studio's look changes. Imported, so each recording gets a new
- * hashed URL and no browser keeps (or range-requests into) an old one.
+ * The real Studio playing sixteen bars its own prompt box wrote: the drums'
+ * Instrument dock, the chords', then the Mix view, a seamless 2560×1440 loop
+ * (owner, 2026-10-24). Recorded by scripts/home/recordStudioPreview.mjs;
+ * rerun it when the Studio's look changes. Imported, so each recording gets
+ * a new hashed URL and no browser keeps (or range-requests into) an old one.
  */
 const VIDEO = { mp4: mp4Url, poster: posterUrl };
 
@@ -62,11 +63,13 @@ export const StudioPreviewCard = () => {
       to={NEW_PROJECT_HREF}
       aria-label="Open a new blank Studio project"
       // The prompt box's card (hairline edge, 20px corners, soft shadow,
-      // light wash), as the Projects card beside it.
+      // light wash), as the Projects card beside it. No set height: it is
+      // its header and the video, so it scales with the video, and the
+      // Projects card takes its height from it.
       className={cn(
         PROMPT_FRAME,
         PROMPT_WASH,
-        'group flex min-h-[29.125rem] flex-col gap-5 p-5 outline-none duration-150 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/50',
+        'group flex flex-col gap-5 p-5 outline-none duration-150 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/50',
       )}
     >
       <div className="flex items-center justify-between gap-4">

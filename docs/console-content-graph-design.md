@@ -205,8 +205,9 @@ plan that sequences it is summarised in §5; the API half is
   `gamesPages`) rather than listing pages, so new app routes appear in the
   mirror automatically. Exceptions: Learn index → `LearnMirror` (settles a
   tab, never mounts Learn Home); set lists, the Studio editor and every game
-  → `NotMirroredYet`; Home → `HomeMirror` (real content sections,
-  `PerStudentPlaceholder` for per-student ones); `/teach` → `TeachMirror`
+  → `NotMirroredYet`; Home → the app's own `HomeInlet`, its per-student
+  parts wrapped in `PerStudent` (the shell's `PerStudentPreviewContext`
+  draws a `PerStudentPlaceholder` instead); `/teach` → `TeachMirror`
   (canonical year → `seededDayFromStub` → the real `DeckPreview`).
 - `ConsoleMirrorShell` renders the real `ClassroomSidebar` and a TopRail
   placeholder inside a `.console-mirror` frame; `console.css`'s Glacial rule

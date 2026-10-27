@@ -8,7 +8,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { triggerPianoAttack, triggerPianoRelease } from '@/audio/pianoSampler';
-import { SavedRollViewSwitch } from '@/components/notation/RollViewToggle';
 import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
 import { usePlayNote } from '@/contexts/PianoContext';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
@@ -687,10 +686,8 @@ function FundamentalsLessonContainerInner({
       )}
 
       <LessonKeyboard
-        minHeight={238}
         targetMidis={keyboardTargets}
         enableClick
-        enableMidiInterface={false}
         onKeyClick={handleKeyClick}
         playingNotes={
           // Every target only while the step waits; then just the notes in
@@ -713,7 +710,7 @@ function FundamentalsLessonContainerInner({
 
   return (
     <div
-      className="learn-root flex min-h-screen w-full flex-col"
+      className="learn-root flex h-full w-full flex-col"
       style={{ backgroundColor: '#101012', color: 'var(--color-text)' }}
     >
       <TheoryLessonLayout
@@ -733,8 +730,7 @@ function FundamentalsLessonContainerInner({
           index: currentStepIndex,
           goToStep,
           practiceTrack: null,
-          extra:
-            pianoRollEvents.length > 0 ? <SavedRollViewSwitch /> : undefined,
+          noteViews: pianoRollEvents.length > 0 ? {} : undefined,
         }}
         content={content}
         panel={result ? <TheoryResultPanel {...result} /> : null}

@@ -1,4 +1,9 @@
 import { useId } from 'react';
+import {
+  PROMPT_FRAME,
+  PROMPT_WASH,
+} from '@/components/promptBox/PromptBoxParts';
+import { cn } from '@/components/utilities';
 import type { SectionCompleteModel } from './types';
 
 // ── Section complete ───────────────────────────────────────────────────────
@@ -19,7 +24,12 @@ export function GuitarSectionCompletePanel({
     <section
       aria-labelledby={headingId}
       data-guitar-section-complete
-      className="my-auto flex max-h-full min-h-0 flex-col justify-center gap-2 overflow-y-auto rounded-xl border border-white/[0.08] bg-[#151518] p-5"
+      // The prompt box's card, as Home's and Learn's.
+      className={cn(
+        PROMPT_FRAME,
+        PROMPT_WASH,
+        'my-auto flex max-h-full min-h-0 flex-col justify-center gap-2 overflow-y-auto p-5',
+      )}
     >
       <h2
         id={headingId}

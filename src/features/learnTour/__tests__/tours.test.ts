@@ -175,12 +175,21 @@ describe('the lesson tour', () => {
   });
 
   it('comes back to the lesson it started in, whatever the case of its key', () => {
-    const lesson = { returnTo: '/learn/ionian/C?activity=asc', premium: false };
+    const lesson = {
+      returnTo: '/learn/keyboard/ionian/C?section=A',
+      premium: false,
+    };
     expect(
-      atReturnLesson({ pathname: '/learn/ionian/c', search: '' }, lesson),
+      atReturnLesson(
+        { pathname: '/learn/keyboard/ionian/c', search: '' },
+        lesson,
+      ),
     ).toBe(true);
     expect(
-      atReturnLesson({ pathname: '/learn/dorian/c', search: '' }, lesson),
+      atReturnLesson(
+        { pathname: '/learn/keyboard/dorian/c', search: '' },
+        lesson,
+      ),
     ).toBe(false);
   });
 });
@@ -189,14 +198,14 @@ describe('where the lesson tour is offered', () => {
   it.each([
     ['/curriculum/hip-hop/1', true],
     ['/curriculum/funk/3', true],
-    ['/learn/ionian/c', true],
+    ['/learn/keyboard/ionian/c', true],
     ['/learn/guitar/ionian/C', true],
     ['/curriculum/hip-hop', false],
     ['/curriculum/piano-fundamentals/6', false],
     ['/curriculum/music-literacy/music-literacy-part-1', false],
-    ['/learn/ionian', false],
+    ['/learn/keyboard/ionian', false],
     ['/learn/guitar/ionian', false],
-    ['/learn/relative/c', false],
+    ['/learn/keyboard/relative/c', false],
     ['/learn', false],
   ])('%s: %s', (path, offered) => {
     expect(isLessonPath(path)).toBe(offered);

@@ -5,9 +5,10 @@
  * (data/guitar/modes), the rest of Theory on generated grips
  * (data/guitar/scales). `:mode` is the tile's slug ('ionian#5').
  *
- * The guitar counterpart of the piano mode lessons at /learn/:mode/:key. A
- * tile with no guitar content goes back to Theory. The premium gate (C Ionian
- * free, the rest Premium) is the route's, as for piano (ClassroomPages).
+ * The guitar counterpart of the keyboard mode lessons at
+ * /learn/keyboard/:mode/:key. A tile with no guitar content goes back to
+ * Theory. The premium gate (C Ionian free, the rest Premium) is the route's,
+ * as for piano (ClassroomPages).
  * Opening it (from the overview or a shared link) makes guitar this device's
  * Learn instrument, so Theory shows guitar on return.
  *

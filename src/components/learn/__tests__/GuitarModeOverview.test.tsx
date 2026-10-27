@@ -1,9 +1,8 @@
 // @vitest-environment jsdom
 /**
- * The Ionian (Major) overview on guitar, and the piano overview it shares a
- * page with. Guitar shows the book's scale box where piano shows the
- * keyboard, and its key tiles open the guitar lessons; piano must render and
- * route exactly as before, resume cards included.
+ * A mode's page (owner, 2026-10-26): its art filling the page and the key
+ * wheel over it. On guitar the wheel's keys open the guitar lessons; on
+ * piano the piano lessons, with Continue chips for saved progress.
  */
 
 import {
@@ -19,16 +18,11 @@ import GuitarModeOverview from '@/components/learn/GuitarModeOverview';
 import { ModeOverview } from '@/components/learn/ModeOverview';
 import { LearnRoutes } from '@/constants/routes';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
-import { colorForKeyMode } from '@/lib/modeColorShift';
 
 const navigate = vi.fn();
 vi.mock('react-router', async (importOriginal) => ({
   ...(await importOriginal<typeof import('react-router')>()),
   useNavigate: () => navigate,
-}));
-
-vi.mock('@/components/PianoKeyboard', () => ({
-  PianoKeyboard: () => <div data-testid="piano-keyboard" />,
 }));
 
 vi.mock('@/hooks/data/prism', async (importOriginal) => ({
@@ -60,21 +54,6 @@ vi.mock('@/hooks/data/progress', async (importOriginal) => ({
   useProgressSummary: progress.useProgressSummary,
 }));
 
-const BOOK_ORDER = [
-  'C',
-  'G',
-  'D',
-  'A',
-  'E',
-  'B',
-  'F♯',
-  'D♭',
-  'A♭',
-  'E♭',
-  'B♭',
-  'F',
-];
-
 const LocationProbe = () => {
   const { pathname, search } = useLocation();
   return <output data-testid="location">{`${pathname}${search}`}</output>;
@@ -94,15 +73,19 @@ function renderGuitarAt(url: string) {
   );
 }
 
-/** The key tiles, in page order ("C Ionian" + the note spelling). */
-const keyTiles = () =>
-  screen
-    .getAllByRole('button')
-    .filter((b) => / Ionian/.test(b.textContent ?? ''));
-const tileKey = (tile: HTMLElement) => tile.textContent?.split(' Ionian')[0];
-
-/** The scale box (the fret diagram's image, named for its scale). */
-const scaleBox = () => screen.getByRole('img', { name: /Major Scale/ });
+/** The wheel's wedges, clockwise from C at the top. */
+const wedges = () => screen.getAllByRole('radio');
+/** Past the page's opening morph, or a key's round trip: in fifths. */
+const settle = () => act(() => vi.advanceTimersByTime(1500));
+/** The star in the wheel. */
+const art = () => document.querySelector('[data-mode-art] svg');
+/** Each wedge lit ('in'), grey ('out') or neither (null). */
+const scaleState = () =>
+  wedges().map(
+    (w) => w.querySelector('path')?.getAttribute('data-scale') ?? null,
+  );
+/** The button that opens the chosen key's lesson. */
+const start = () => screen.getByRole('button', { name: /^Start / });
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -116,66 +99,56 @@ afterEach(() => {
   progress.useProgressSummary.mockClear();
 });
 
+const GUITAR_ROUTES = [
+  'c',
+  'g',
+  'd',
+  'a',
+  'e',
+  'b',
+  'fsharp',
+  'dflat',
+  'aflat',
+  'eflat',
+  'bflat',
+  'f',
+];
+
 describe('GuitarModeOverview', () => {
-  it('shows the book scale box in place of the keyboard', () => {
+  it("shows the mode's art and the key wheel, with the book's line", () => {
     renderGuitarAt('/learn/guitar/ionian');
     expect(screen.getByRole('heading', { name: 'Ionian' })).toBeInTheDocument();
     expect(
       screen.getByText('Guitar · The Guitar Atlas, Book One'),
     ).toBeInTheDocument();
-    expect(screen.queryByTestId('piano-keyboard')).toBeNull();
-    // C first, ringing its tonic: string 6, fret 8 in the book.
-    expect(scaleBox()).toHaveAccessibleName(
-      /^C Major Scale: 8 notes, frets 7 to 11, next: string 6 fret 8/,
-    );
+    expect(document.querySelector('[data-mode-art]')).not.toBeNull();
+    expect(
+      screen.getByRole('radiogroup', { name: 'Ionian: choose a key center' }),
+    ).toBeInTheDocument();
   });
 
-  it('follows the note and the key the overview is playing, in its colour', () => {
+  it('chooses each key from its wedge, and Start opens its guitar lesson', () => {
     renderGuitarAt('/learn/guitar/ionian');
-    expect(scaleBox().innerHTML).toContain(colorForKeyMode('C', 'ionian'));
-    act(() => vi.advanceTimersByTime(600));
-    expect(scaleBox()).toHaveAccessibleName(/next: string 6 fret 10/);
-    // Eight notes a key, then on to G.
-    act(() => vi.advanceTimersByTime(600 * 7));
-    expect(scaleBox()).toHaveAccessibleName(/^G Major Scale/);
-    expect(scaleBox().innerHTML).toContain(colorForKeyMode('G', 'ionian'));
-  });
-
-  it('mirrors the box for a left-hander', () => {
-    const { unmount } = renderGuitarAt('/learn/guitar/ionian');
-    const rightHanded = scaleBox().innerHTML;
-    unmount();
-    useInstrumentStore.setState({ leftHanded: true });
-    renderGuitarAt('/learn/guitar/ionian');
-    expect(scaleBox().innerHTML).not.toBe(rightHanded);
-  });
-
-  it('lists the twelve keys in book order, each opening its guitar lesson', () => {
-    renderGuitarAt('/learn/guitar/ionian');
-    const tiles = keyTiles();
-    expect(tiles.map(tileKey)).toEqual(BOOK_ORDER);
-    for (const tile of tiles) fireEvent.click(tile);
+    settle();
+    expect(wedges()).toHaveLength(12);
+    // Round the fifths from C (already chosen: choosing it again would turn
+    // the wheel chromatic).
+    wedges().forEach((_, i) => {
+      if (i > 0) {
+        fireEvent.click(wedges()[i]);
+        settle();
+      }
+      // Choosing doesn't leave the page; Start does.
+      fireEvent.click(start());
+    });
     expect(navigate.mock.calls.map(([to]) => to)).toEqual(
-      [
-        'c',
-        'g',
-        'd',
-        'a',
-        'e',
-        'b',
-        'fsharp',
-        'dflat',
-        'aflat',
-        'eflat',
-        'bflat',
-        'f',
-      ].map((key) => `/learn/guitar/ionian/${key}`),
+      GUITAR_ROUTES.map((key) => `/learn/guitar/ionian/${key}`),
     );
   });
 
   it("doesn't resume from piano progress", () => {
     renderGuitarAt('/learn/guitar/ionian');
-    expect(screen.queryByText('Continue lesson')).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Continue/ })).toBeNull();
     expect(progress.useProgressSummary).toHaveBeenCalledWith(false);
   });
 
@@ -184,23 +157,16 @@ describe('GuitarModeOverview', () => {
     expect(useInstrumentStore.getState().instrument).toBe('guitar');
   });
 
-  it("shows a mode's own scale box, and its tiles open its lessons", () => {
+  it("opens a mode's own lessons", () => {
     renderGuitarAt('/learn/guitar/dorian');
     expect(screen.getByRole('heading', { name: 'Dorian' })).toBeInTheDocument();
     expect(
       screen.getByText('Guitar · Shapes from The Guitar Atlas, Book One'),
     ).toBeInTheDocument();
-    // C Dorian from string 6, fret 8.
-    expect(
-      screen.getByRole('img', { name: /^C Dorian Scale/ }),
-    ).toHaveAccessibleName(/frets 7 to 11, next: string 6 fret 8/);
-    const tiles = screen
-      .getAllByRole('button')
-      .filter((b) => / Dorian/.test(b.textContent ?? ''));
-    expect(tiles.map((t) => t.textContent?.split(' Dorian')[0])).toEqual(
-      BOOK_ORDER,
-    );
-    fireEvent.click(tiles[6]);
+    settle();
+    fireEvent.click(wedges()[6]);
+    expect(navigate).not.toHaveBeenCalled();
+    fireEvent.click(start());
     expect(navigate).toHaveBeenCalledWith('/learn/guitar/dorian/fsharp');
     expect(useInstrumentStore.getState().instrument).toBe('guitar');
   });
@@ -214,7 +180,7 @@ describe('GuitarModeOverview', () => {
   });
 });
 
-describe('ModeOverview on piano (unchanged)', () => {
+describe('ModeOverview on piano', () => {
   function renderPiano() {
     render(
       <MemoryRouter>
@@ -223,25 +189,105 @@ describe('ModeOverview on piano (unchanged)', () => {
     );
   }
 
-  it('shows the keyboard, not a scale box', () => {
+  it('shows the art and the wheel, and reads piano progress', () => {
     renderPiano();
-    expect(screen.getByTestId('piano-keyboard')).toBeInTheDocument();
-    expect(screen.queryByRole('img', { name: /Major Scale/ })).toBeNull();
+    expect(document.querySelector('[data-mode-art]')).not.toBeNull();
+    expect(wedges()).toHaveLength(12);
     expect(screen.queryByText(/Guitar Atlas/)).toBeNull();
     expect(progress.useProgressSummary).toHaveBeenCalledWith(true);
   });
 
-  it('opens the piano lesson from a key tile', () => {
+  it('starts on C, and opens its piano lesson', () => {
     renderPiano();
-    const c = keyTiles().find((tile) => tileKey(tile) === 'C')!;
-    fireEvent.click(c);
-    expect(navigate).toHaveBeenCalledWith('/learn/ionian/c');
+    expect(start()).toHaveAccessibleName('Start C Ionian');
+    fireEvent.click(start());
+    expect(navigate).toHaveBeenCalledWith('/learn/keyboard/ionian/c');
   });
 
-  it('still offers to resume a piano lesson', () => {
+  it('opens chromatic, then morphs wheel and star into fifths, the scale lit in the mode colour', () => {
     renderPiano();
-    expect(screen.getByText('Continue lesson')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    expect(navigate).toHaveBeenCalledWith('/learn/ionian/d');
+    const order = () => wedges().map((w) => w.getAttribute('aria-label'));
+    // Chromatic: the wedges a semitone apart, the star's notes with them.
+    expect(art()).toHaveAttribute('data-order', 'chromatic');
+    expect(order().slice(0, 4)).toEqual(['C', 'D♭', 'D', 'E♭']);
+    // C major's seven lit in either order, the rest grey.
+    expect(scaleState().filter((st) => st === 'in')).toHaveLength(7);
+    // No names lettered inside the star.
+    expect(document.querySelector('.sigil-name')).toBeNull();
+    // A beat later, fifths: the wedges round the circle of fifths.
+    settle();
+    expect(art()).toHaveAttribute('data-order', 'fifths');
+    expect(order().slice(0, 4)).toEqual(['C', 'G', 'D', 'A']);
+    expect(scaleState().filter((st) => st === 'in')).toHaveLength(7);
+    expect(scaleState().filter((st) => st === 'out')).toHaveLength(5);
+    // No toggle on the page.
+    expect(screen.queryByRole('button', { name: 'Chromatic' })).toBeNull();
+  });
+
+  it('turns chromatic round a key chosen, keeping it on its wedge, then back to fifths', () => {
+    renderPiano();
+    settle();
+    const letters = () => wedges().map((w) => w.getAttribute('aria-label'));
+    expect(letters().slice(0, 4)).toEqual(['C', 'G', 'D', 'A']);
+    // D: chromatic round D, which keeps its wedge (the third); the others
+    // close round it a semitone a step.
+    fireEvent.click(screen.getByRole('radio', { name: 'D' }));
+    expect(art()).toHaveAttribute('data-order', 'chromatic');
+    expect(letters().slice(1, 4)).toEqual(['C♯', 'D', 'E♭']);
+    expect(wedges()[2]).toHaveAttribute('aria-checked', 'true');
+    // Then back to fifths, D still on its wedge.
+    settle();
+    expect(art()).toHaveAttribute('data-order', 'fifths');
+    expect(letters().slice(0, 4)).toEqual(['C', 'G', 'D', 'A']);
+    expect(start()).toHaveAccessibleName('Start D Ionian');
+    // The chosen key again: the same round trip.
+    fireEvent.click(screen.getByRole('radio', { name: 'D' }));
+    expect(art()).toHaveAttribute('data-order', 'chromatic');
+    settle();
+    expect(art()).toHaveAttribute('data-order', 'fifths');
+  });
+
+  it('moves the star to the key chosen', () => {
+    renderPiano();
+    settle();
+    const tonic = () =>
+      document
+        .querySelector('[data-mode-art] [data-degree="0"]')
+        ?.getAttribute('data-angle');
+    expect(tonic()).toBe('0');
+    fireEvent.click(wedges()[1]);
+    expect(start()).toHaveAccessibleName('Start G Ionian');
+  });
+
+  it('dots the root and the parent key: C and G for C Lydian', () => {
+    render(
+      <MemoryRouter>
+        <ModeOverview mode="lydian" />
+      </MemoryRouter>,
+    );
+    const dotted = [
+      ...document.querySelectorAll('[data-mode-art] .sigil-node--accent'),
+    ].map((n) => n.getAttribute('data-degree'));
+    // C (the 1st degree) and G (the 5th); not the ♯4.
+    expect(dotted).toEqual(['0', '4']);
+    expect(document.body.textContent).toContain('4th mode of G major');
+  });
+
+  it('names the key chosen under the wheel: a click changes it, a hover does not', () => {
+    renderPiano();
+    settle();
+    const named = () => document.querySelector('[data-wheel-center]');
+    expect(named()?.textContent).toContain('C Ionian');
+    fireEvent.pointerEnter(wedges()[2]);
+    expect(named()?.textContent).toContain('C Ionian');
+    fireEvent.pointerLeave(wedges()[2]);
+    fireEvent.click(wedges()[2]);
+    expect(named()?.textContent).toContain('D Ionian');
+  });
+
+  it('offers to continue a piano lesson', () => {
+    renderPiano();
+    fireEvent.click(screen.getByRole('button', { name: /Continue D Ionian/ }));
+    expect(navigate).toHaveBeenCalledWith('/learn/keyboard/ionian/d');
   });
 });

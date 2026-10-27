@@ -135,13 +135,21 @@ const practiceReturn = () =>
   ).returnTo;
 
 afterEach(() => {
+  vi.unstubAllGlobals();
   cleanup();
   vi.clearAllMocks();
   localStorage.clear();
 });
 
 describe('GenreLessonContainerV2 header and Practice Track return', () => {
-  it('piano: Courses, the step count and the genre level route', () => {
+  it('piano: the step count, the way back to the course and the genre level route', () => {
+    // A wide window: the lesson rail, where the way back lives.
+    vi.stubGlobal('matchMedia', (media: string) => ({
+      matches: true,
+      media,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
     const flow = buildAppliedTheoryFundamentalsFlow('C');
     render(
       <MemoryRouter>
@@ -159,8 +167,7 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
       screen.getByRole('button', { name: /^Step 1 of \d+$/ }),
     ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Courses' }));
-    expect(navigate).toHaveBeenLastCalledWith('/learn');
+    // The rail's way back: the course's overview.
     fireEvent.click(
       screen.getByRole('button', { name: 'Applied Theory Fundamentals' }),
     );
@@ -174,7 +181,14 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
     );
   });
 
-  it('guitar: Theory, the key, and back to its own lesson section', () => {
+  it('guitar: titled for its key, the way back, and back to its own lesson section', () => {
+    // A wide window: the lesson rail, where the way back lives.
+    vi.stubGlobal('matchMedia', (media: string) => ({
+      matches: true,
+      media,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
     const flow = buildGuitarAppliedTheoryFundamentalsFlow('F#');
     const practiceReturnTo = (section: ActivitySectionId) =>
       `/learn/guitar/ionian/fsharp?section=${section}`;
@@ -192,10 +206,12 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
         />
       </MemoryRouter>,
     );
-    // The trail names the key and the subsection; the pager, the step.
-    const trail = screen.getByRole('navigation', { name: 'Breadcrumb' });
-    expect(trail).toHaveTextContent(
-      /Theory›Guitar · Ionian \(Major\)›F♯ major›B1 Arpeggiate Chords/,
+    // Titled for its key; the rail names the way here; the pager, the step.
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'F♯ major' }),
+    ).toBeInTheDocument();
+    expect(document.querySelector('[data-lesson-rail]')).toHaveTextContent(
+      'Theory · Guitar · Ionian (Major)',
     );
     expect(
       screen.getByRole('button', { name: /^Step 1 of \d+$/ }),
@@ -203,8 +219,6 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
     expect(screen.queryByText(/Level 1/)).toBeNull();
     expect(screen.queryByRole('button', { name: 'Courses' })).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Theory' }));
-    expect(navigate).toHaveBeenLastCalledWith('/learn?tab=Theory');
     fireEvent.click(
       screen.getByRole('button', { name: 'Guitar · Ionian (Major)' }),
     );
@@ -231,10 +245,13 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
         </MemoryRouter>,
       );
       const first = flow.sections.find((s) => s.id === section)!.steps[0];
-      const subsection = first.subsection.replace(':', '');
-      const trail = screen.getByRole('navigation', { name: 'Breadcrumb' });
-      expect(trail).toHaveTextContent(
-        `Theory›Guitar · Locrian›D♭ Locrian›${subsection}`,
+      // Titled for its key and mode; the subtitle, the step.
+      expect(
+        screen.getByRole('heading', { level: 1, name: 'D♭ Locrian' }),
+      ).toBeInTheDocument();
+      expect(document.querySelector('[data-guitar-subtitle]')).toHaveAttribute(
+        'title',
+        first.activity,
       );
     },
   );

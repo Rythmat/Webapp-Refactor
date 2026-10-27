@@ -183,9 +183,9 @@ describe('GenreLessonContainerV2 on piano and guitar', () => {
     expect(container.querySelector('[data-piano-layout]')).not.toBeNull();
     expect(container.querySelector('[data-guitar-visuals]')).toBeNull();
     expect(container.querySelector('[data-guitar-theory]')).toBeNull();
-    // The roll / notation / falling switch sits in the nav row, big.
+    // The roll / notation / falling switch sits on the tool rail.
     expect(
-      container.querySelector('[data-guitar-nav] [data-roll-view-switch]'),
+      container.querySelector('[data-lesson-tools] [data-roll-view-switch]'),
     ).not.toBeNull();
     expect(screen.getByRole('radio', { name: 'Roll' })).toBeTruthy();
 
@@ -261,7 +261,9 @@ describe('GenreLessonContainerV2 on piano and guitar', () => {
     expect(
       within(sheet).getByRole('region', { name: 'Chords come from the scale' }),
     ).toBeTruthy();
-    fireEvent.click(within(sheet).getByRole('button', { name: 'Close' }));
+    fireEvent.click(
+      within(sheet).getByRole('button', { name: 'Close About this step' }),
+    );
     expect(screen.queryByRole('dialog')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: /^A Melody/ }));
     fireEvent.click(screen.getByRole('button', { name: /^B Chords/ }));
@@ -271,9 +273,14 @@ describe('GenreLessonContainerV2 on piano and guitar', () => {
     for (let i = 0; i < 8; i++) {
       fireEvent.keyDown(window, { key: 'ArrowRight' });
     }
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'Play Chords 1,2,3,4' }),
-    ).toHaveAttribute('title', 'B2.1: Play Chords 1,2,3,4 (Out of Time)');
+    const subtitle = document.querySelector('[data-guitar-subtitle]')!;
+    expect(subtitle.querySelector('[data-subtitle-step]')?.textContent).toBe(
+      'Play Chords 1,2,3,4',
+    );
+    expect(subtitle).toHaveAttribute(
+      'title',
+      'B2.1: Play Chords 1,2,3,4 (Out of Time)',
+    );
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
     });

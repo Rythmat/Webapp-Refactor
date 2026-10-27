@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { LearnRoutes } from '@/constants/routes';
 import type { LessonInstrument } from '@/curriculum/types/activity.v2';
 
 // ── Learn instrument ───────────────────────────────────────────────────────
@@ -23,18 +24,18 @@ export interface InstrumentOption {
 const GUITAR_FLAG_KEY = 'learn-guitar';
 
 /**
- * Guitar is rolled out behind a flag until audio evaluation ships:
- *   localStorage.setItem('learn-guitar', 'true')  → show Guitar in the picker
- *   localStorage.removeItem('learn-guitar')       → hide it again
- * Always on in development. The guitar routes work either way; the flag only
- * hides the way in.
+ * Guitar is on for everyone (owner, 2026-10-24): it used to wait behind a
+ * flag outside development, so the live site said "Coming soon". The flag
+ * stays as an off switch for one browser:
+ *   localStorage.setItem('learn-guitar', 'false') → hide Guitar's ways in
+ *   localStorage.removeItem('learn-guitar')       → show them again
+ * The guitar routes work either way; the flag only hides the way in.
  */
 export function isGuitarLearnEnabled(): boolean {
-  if (import.meta.env.DEV) return true;
   try {
-    return localStorage.getItem(GUITAR_FLAG_KEY) === 'true';
+    return localStorage.getItem(GUITAR_FLAG_KEY) !== 'false';
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -97,6 +98,13 @@ export const useInstrumentStore = create<InstrumentState>()(
     },
   ),
 );
+
+/** The Learn page for an instrument: /learn/keyboard or /learn/guitar. */
+export const learnPageRoute = (instrument: LearnInstrument) =>
+  instrument === 'guitar' ? LearnRoutes.guitar() : LearnRoutes.keyboard();
+
+/** The Learn page for the instrument chosen now (Home's row, the side rail). */
+export const useLearnPageRoute = () => learnPageRoute(useLearnInstrument());
 
 /**
  * The instrument Learn should show now: the stored choice, except that guitar

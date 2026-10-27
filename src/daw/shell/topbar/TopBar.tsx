@@ -47,7 +47,7 @@ import { ADD_ARM_KEY } from '../tracklist/recordArm';
 //   Settings (a gear, the menu once called '⋯', owner 2026-10-21) in the
 //   next; Export, its icon only, and the avatar. Sessions (Share, Invite, Join, Leave) are the side rail's
 //   People panel's alone since 2026-10-21 (owner: "this already is in the
-//   side rail"); the invite dialog's one instance mounts here (InviteHost).
+//   side rail"); an invite asked for elsewhere opens that panel (InviteHost).
 // The view tabs (Create, Mix, Score) moved to the bottom rail's centre.
 // When the zones don't fit, the bar folds (useToolbarOverflow). Each
 // control subscribes to its own state, so playback and edits re-render

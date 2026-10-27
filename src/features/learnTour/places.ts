@@ -31,7 +31,7 @@ export const atCourse = (place: TourPlace) =>
 export const atCourseLesson = (place: TourPlace) =>
   new RegExp(`^/curriculum/${TOUR_GENRE_SLUG}/\\d+$`).test(place.pathname);
 export const atIonianLesson = (place: TourPlace) =>
-  /^\/learn\/(guitar\/)?ionian\/[^/]+$/i.test(place.pathname);
+  /^\/learn\/(?:keyboard|guitar)\/ionian\/[^/]+$/i.test(place.pathname);
 export const atStudio = (place: TourPlace) => isEditorPath(place.pathname);
 
 const pathOf = (href: string) => href.split(/[?#]/)[0].toLowerCase();
@@ -48,6 +48,8 @@ export const atReturnLesson = (place: TourPlace, ctx: TourContext) =>
 export function isLessonPath(pathname: string): boolean {
   const genre = pathname.match(/^\/curriculum\/([^/]+)\/\d+$/);
   if (genre) return !!getGenreProfile(genre[1]);
-  const theory = pathname.match(/^\/learn\/(?:guitar\/)?([^/]+)\/[^/]+$/);
-  return !!theory && !['relative', 'parallel', 'guitar'].includes(theory[1]);
+  const theory = pathname.match(
+    /^\/learn\/(?:keyboard|guitar)\/([^/]+)\/[^/]+$/,
+  );
+  return !!theory && !['relative', 'parallel'].includes(theory[1]);
 }

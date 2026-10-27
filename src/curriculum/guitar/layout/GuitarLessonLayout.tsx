@@ -7,6 +7,7 @@ import { GuitarResultPanel, resultSummary } from './GuitarResultPanel';
 import { GuitarSectionCompletePanel } from './GuitarSectionCompletePanel';
 import { GuitarSettingsSheet, type SettingsGroup } from './GuitarSettingsSheet';
 import { GuitarStepNav } from './GuitarStepNav';
+import { LessonFrame } from './LessonFrame';
 import { deriveBarState } from './deriveBarState';
 import type { GuitarLessonLayoutProps } from './types';
 import { useGuitarStepKeys } from './useGuitarStepKeys';
@@ -85,10 +86,24 @@ export function GuitarLessonLayout({
     ) : null;
 
   return (
-    <div
+    <LessonFrame
+      header={header}
+      nav={nav}
+      tools={{
+        about: {
+          open: aboutOpen,
+          hasNews: aboutHasNews,
+          onToggle: () => setAboutOpen(!aboutOpen),
+        },
+        // Settings is not modal, so its button stays in reach and toggles.
+        settings: {
+          open: settingsOpen,
+          onToggle: () =>
+            settingsOpen ? setSettingsOpen(false) : openSettings(),
+        },
+      }}
       data-guitar-layout
       data-bar-state={barState}
-      className="flex h-full min-h-0 flex-col bg-[#101012] text-[#e8e8f0]"
     >
       {/* Scrolls only when the window is too short (or on a phone). */}
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
@@ -102,14 +117,7 @@ export function GuitarLessonLayout({
         >
           <GuitarLessonHeader
             header={header}
-            aboutHasNews={aboutHasNews}
-            aboutOpen={aboutOpen}
-            onOpenAbout={() => setAboutOpen(true)}
-            settingsOpen={settingsOpen}
-            // The gear toggles: Settings is not modal, so it stays in reach.
-            onOpenSettings={() =>
-              settingsOpen ? setSettingsOpen(false) : openSettings()
-            }
+            section={nav.sections.find((s) => s.active)?.name}
             inputIndicator={
               <GuitarInputIndicator
                 handle={input.handle}
@@ -183,6 +191,6 @@ export function GuitarLessonLayout({
         instruction={run.instruction}
       />
       {slots.setupModal}
-    </div>
+    </LessonFrame>
   );
 }

@@ -154,7 +154,7 @@ function buildTheory(): IndexEntry[] {
       subtitle: 'Scale & Mode',
       // Theory's slugs are lowercase ('melodicminor'); the ids keep their
       // old spelling.
-      to: LearnRoutes.overview({ mode: m.slug.toLowerCase() }),
+      to: LearnRoutes.keyboardOverview({ mode: m.slug.toLowerCase() }),
       icon,
       thumb: { src: getTheoryTileImage(m.slug.toLowerCase()), shape: 'hex' },
     },

@@ -454,7 +454,9 @@ describe('nothing opens by itself', () => {
       within(sheet).getByRole('region', { name: 'Chords come from the scale' }),
     ).toBeTruthy();
     // Reading it clears the dot.
-    fireEvent.click(within(sheet).getByRole('button', { name: 'Close' }));
+    fireEvent.click(
+      within(sheet).getByRole('button', { name: 'Close About this step' }),
+    );
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(aboutButton()).not.toHaveAttribute('data-unseen');
   });
@@ -627,9 +629,12 @@ describe('the action bar follows the take', () => {
     const wholeNotes = chords.findIndex((s) => s.activity.startsWith('B2.2'));
     renderLesson(guitarC(), 'B');
     for (let i = 0; i < wholeNotes; i++) arrow('ArrowRight');
-    expect(
-      screen.getByRole('heading', { level: 1, name: /^Play Chords 1,2,3,4/ }),
-    ).toHaveAttribute('title', expect.stringMatching(/^B2\.2:/));
+    // The step's name, in the subtitle (the title is the key).
+    const subtitle = document.querySelector('[data-guitar-subtitle]')!;
+    expect(subtitle.querySelector('[data-subtitle-step]')?.textContent).toMatch(
+      /^Play Chords 1,2,3,4/,
+    );
+    expect(subtitle).toHaveAttribute('title', expect.stringMatching(/^B2\.2:/));
     expect(button('Practice')).not.toHaveAttribute('aria-haspopup');
   });
 
@@ -830,7 +835,9 @@ describe('arrow keys', () => {
     arrow('ArrowRight');
     arrow('ArrowRight', about);
     // The modal sheet hides the lesson from the accessibility tree.
-    fireEvent.click(within(about).getByRole('button', { name: 'Close' }));
+    fireEvent.click(
+      within(about).getByRole('button', { name: 'Close About this step' }),
+    );
     expect(stepCount()).toMatch(/^Step 1 of/);
   });
 
@@ -858,7 +865,14 @@ describe('settings', () => {
     expect(navigate).toHaveBeenLastCalledWith(`${SettingsRoutes.root()}/audio`);
   });
 
-  it('the crumbs go to Theory and the lesson overview', () => {
+  it('the lesson rail names the way here and leads back to the overview', () => {
+    // A wide window: the lesson rail, where the way back lives.
+    vi.stubGlobal('matchMedia', (media: string) => ({
+      matches: true,
+      media,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
     const flow = guitarC();
     render(
       <MemoryRouter>
@@ -872,9 +886,10 @@ describe('settings', () => {
         />
       </MemoryRouter>,
     );
-    fireEvent.click(button('Theory'));
-    expect(navigate).toHaveBeenLastCalledWith('/learn?tab=Theory');
+    const rail = document.querySelector<HTMLElement>('[data-lesson-rail]')!;
+    expect(rail).toHaveTextContent('Theory · Guitar · Ionian (Major)');
     fireEvent.click(button('Guitar · Ionian (Major)'));
     expect(navigate).toHaveBeenLastCalledWith('/learn/guitar/ionian');
+    vi.unstubAllGlobals();
   });
 });

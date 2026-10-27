@@ -51,15 +51,6 @@ export function FallbackInput({
           })),
     [kind, key],
   );
-  const lowest = Math.min(...pads.flatMap((p) => p.midis));
-  const highest = Math.max(...pads.flatMap((p) => p.midis));
-  const range = useMemo(
-    () => ({
-      low: lowest - (lowest % 12),
-      high: highest - (highest % 12) + 12,
-    }),
-    [lowest, highest],
-  );
 
   const handlers = useRef({ noteOn, noteOff });
   handlers.current = { noteOn, noteOff };
@@ -157,12 +148,9 @@ export function FallbackInput({
       {input === 'keyboard' && (
         <div className="w-full max-w-[880px]">
           <LessonKeyboard
-            range={range}
-            natural={{ aspect: 6, maxHeight: 120 }}
             enableClick={false}
             useContextNotes={false}
             showOctaveStart={false}
-            minHeight={80}
             onKeyPointerDown={onKeyPointerDown}
           />
         </div>

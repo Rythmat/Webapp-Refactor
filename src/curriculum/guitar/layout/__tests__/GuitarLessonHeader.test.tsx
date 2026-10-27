@@ -1,24 +1,19 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
   GuitarLessonHeader,
   eyebrowSubsection,
   lessonTitle,
   type GuitarLessonHeaderProps,
 } from '../GuitarLessonHeader';
-import { KEY_COLOR, makeLayoutProps } from './fixtures';
+import { makeLayoutProps } from './fixtures';
 
 afterEach(cleanup);
 
 function setup(overrides: Partial<GuitarLessonHeaderProps> = {}) {
   const props: GuitarLessonHeaderProps = {
     header: makeLayoutProps().header,
-    aboutHasNews: false,
-    aboutOpen: false,
-    onOpenAbout: vi.fn(),
-    settingsOpen: false,
-    onOpenSettings: vi.fn(),
     ...overrides,
   };
   const view = render(<GuitarLessonHeader {...props} />);
@@ -68,94 +63,47 @@ describe('eyebrowSubsection', () => {
 });
 
 describe('GuitarLessonHeader', () => {
-  it('titles the step without its code or its timing', () => {
+  it('titles the lesson for its key, the step in the subtitle without its code or timing', () => {
     setup();
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Major Scale Descending' }),
+      screen.getByRole('heading', { level: 1, name: 'C major' }),
     ).toBeInTheDocument();
+    expect(document.querySelector('[data-subtitle-step]')?.textContent).toBe(
+      'Major Scale Descending',
+    );
     expect(screen.queryByText(/A1\.3:/)).toBeNull();
     expect(screen.queryByText(/Out of Time/)).toBeNull();
   });
 
-  it('crumbs are buttons that go where they say', () => {
-    const { props } = setup();
-    fireEvent.click(screen.getByRole('button', { name: 'Theory' }));
-    expect(props.header.crumbs[0].onClick).toHaveBeenCalled();
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Guitar · Ionian (Major)' }),
+  it('leads the subtitle with the section, or without one the subsection', () => {
+    setup({ section: 'Melody' });
+    expect(document.querySelector('[data-guitar-subtitle]')?.textContent).toBe(
+      'Melody: Major Scale Descending',
     );
-    expect(props.header.crumbs[1].onClick).toHaveBeenCalled();
-    const trail = screen.getByRole('navigation', { name: 'Breadcrumb' });
-    expect(trail).toHaveTextContent(
-      /Theory›Guitar · Ionian \(Major\)›C major›A1 Major Scale/,
+    cleanup();
+    setup();
+    expect(document.querySelector('[data-guitar-subtitle]')?.textContent).toBe(
+      'A1 Major Scale: Major Scale Descending',
     );
   });
 
-  it('leaves Theory and the subsection out of a phone’s trail, so the key is never cut off', () => {
+  it('has no trail (the lesson rail leads back) and no colour of its own', () => {
     const { container } = setup();
-    const subsection = container.querySelector<HTMLElement>(
-      '[data-crumb-subsection]',
-    )!;
-    expect(subsection).toHaveTextContent('A1 Major Scale');
-    expect(subsection.className).toMatch(/(^| )max-\[639px\]:hidden( |$)/);
-    // Its separator goes with it.
-    expect(
-      (subsection.previousElementSibling as HTMLElement).className,
-    ).toMatch(/(^| )max-\[639px\]:hidden( |$)/);
-    // Theory and its separator go; the mode's crumb (back to the mode, and
-    // from there to Theory) and the key stay.
-    const theory = screen.getByRole('button', { name: 'Theory' })
-      .parentElement as HTMLElement;
-    expect(theory.className).toMatch(/(^| )max-\[639px\]:hidden( |$)/);
-    expect((theory.nextElementSibling as HTMLElement).className).toMatch(
-      /(^| )max-\[639px\]:hidden( |$)/,
-    );
-    const mode = screen.getByRole('button', { name: 'Guitar · Ionian (Major)' })
-      .parentElement as HTMLElement;
-    expect(mode.className).not.toMatch(/hidden/);
-    const key = container.querySelector('[data-guitar-key-dot]')!
-      .parentElement as HTMLElement;
-    expect(key.className).not.toMatch(/hidden/);
-  });
-
-  it('the key dot is the header’s only colour', () => {
-    const { container } = setup();
-    const dot = container.querySelector<HTMLElement>('[data-guitar-key-dot]')!;
-    expect(dot.style.backgroundColor).toBe('rgb(210, 64, 74)');
+    expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).toBeNull();
     const coloured = [...container.querySelectorAll<HTMLElement>('*')].filter(
       (el) => el.style.color || el.style.backgroundColor,
     );
-    expect(coloured).toEqual([dot]);
-    expect(KEY_COLOR).toBe('#D2404A');
+    expect(coloured).toEqual([]);
   });
 
-  it('About this step and the gear open their sheets', () => {
-    const { props } = setup();
-    fireEvent.click(screen.getByRole('button', { name: 'About this step' }));
-    expect(props.onOpenAbout).toHaveBeenCalledTimes(1);
-    fireEvent.click(screen.getByRole('button', { name: 'Lesson settings' }));
-    expect(props.onOpenSettings).toHaveBeenCalledTimes(1);
-  });
-
-  it('say whether their sheets are open', () => {
-    setup({ aboutOpen: true });
+  it('leaves About this step and the settings to the tool rail', () => {
+    setup();
     expect(
-      screen.getByRole('button', { name: 'About this step' }),
-    ).toHaveAttribute('aria-expanded', 'true');
+      screen.queryByRole('button', { name: 'About this step' }),
+    ).toBeNull();
     expect(
-      screen.getByRole('button', { name: 'Lesson settings' }),
-    ).toHaveAttribute('aria-expanded', 'false');
-  });
-
-  it('marks About this step when the step has unseen notes', () => {
-    const { rerender, props, container } = setup();
-    const about = () => screen.getByRole('button', { name: 'About this step' });
-    expect(container.querySelector('[data-guitar-about-dot]')).toBeNull();
-    expect(about()).not.toHaveAccessibleDescription();
-
-    rerender(<GuitarLessonHeader {...props} aboutHasNews />);
-    expect(container.querySelector('[data-guitar-about-dot]')).not.toBeNull();
-    expect(about()).toHaveAccessibleDescription('New notes for this step');
+      screen.queryByRole('button', { name: 'Lesson settings' }),
+    ).toBeNull();
   });
 
   it('shows the input indicator it is given', () => {

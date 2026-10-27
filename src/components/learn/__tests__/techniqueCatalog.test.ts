@@ -12,12 +12,14 @@ describe('techniqueCatalog', () => {
         route: '/curriculum/piano-fundamentals',
         image: '/learn-tiles/beginner-hex.svg',
         interactive: true,
+        ratio: [1, 2],
       },
       {
         title: 'Applied Theory Fundamentals',
         route: '/curriculum/applied-theory-fundamentals',
         image: '/learn-tiles/beginner-hex.svg',
         interactive: true,
+        ratio: [2, 3],
       },
     ]);
     expect(techniqueDataFor('piano')).toBe(PIANO_TECHNIQUE_DATA);

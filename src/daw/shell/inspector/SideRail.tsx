@@ -14,7 +14,8 @@ import { RAIL_PANELS, type RailPanel } from './railPanels';
 // shows its panel in the Inspector beside it; the open one has the white
 // tile, and a click on it closes the Inspector. I opens and closes the
 // Inspector on the panel it last showed. The rail replaced the top bar's
-// Inspector toggle and the session's People and Chat columns. The ∆ above
+// Inspector toggle and the session's People and Chat columns; People holds
+// the chat, and its icon the unread count (2026-10-25). The ∆ above
 // the panels opens and folds the prompt bar (PromptRailButton).
 
 const INSPECTOR_KEYS = shortcutKeys('view.inspector');
@@ -42,7 +43,7 @@ function RailButton({ panel }: { panel: RailPanel }) {
     (s) => s.libraryOpen && s.inspectorPanel === panel.id,
   );
   const unread = useStore((s) =>
-    panel.id === 'chat' && s.isCollabActive ? s.unreadChatCount : 0,
+    panel.id === 'people' && s.isCollabActive ? s.unreadChatCount : 0,
   );
   const toggle = useStore((s) => s.toggleInspectorPanel);
   const Icon = panel.icon;

@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode, type RefObject } from 'react';
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
 import {
   GuitarActionBar,
@@ -6,6 +7,7 @@ import {
 } from '@/curriculum/guitar/layout/GuitarActionBar';
 import { GuitarLessonHeader } from '@/curriculum/guitar/layout/GuitarLessonHeader';
 import { GuitarStepNav } from '@/curriculum/guitar/layout/GuitarStepNav';
+import { LessonFrame } from '@/curriculum/guitar/layout/LessonFrame';
 import { TempoStepper } from '@/curriculum/guitar/layout/TempoStepper';
 import { SettingsSection } from '@/curriculum/guitar/layout/settingsControls';
 import type {
@@ -101,11 +103,23 @@ export function MusicLiteracyLayout({
   });
 
   return (
-    <div
+    <LessonFrame
+      header={header}
+      nav={nav}
+      tools={{
+        about: {
+          open: aboutOpen,
+          onToggle: () => setAboutOpen(!aboutOpen),
+        },
+        // Settings is not modal, so its button stays in reach and toggles.
+        settings: {
+          open: settingsOpen,
+          onToggle: () => setSettingsOpen(!settingsOpen),
+        },
+      }}
       data-piano-layout
       data-literacy-layout
       data-bar-state={bar.state}
-      className="flex h-full min-h-0 flex-col bg-[#101012] text-[#e8e8f0]"
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
         <div
@@ -114,11 +128,7 @@ export function MusicLiteracyLayout({
         >
           <GuitarLessonHeader
             header={header}
-            aboutHasNews={false}
-            aboutOpen={aboutOpen}
-            onOpenAbout={() => setAboutOpen(true)}
-            settingsOpen={settingsOpen}
-            onOpenSettings={() => setSettingsOpen((open) => !open)}
+            section={nav.sections.find((s) => s.active)?.name}
           />
           {banner}
           <GuitarStepNav nav={nav} keyColor={header.keyColor} />
@@ -155,7 +165,10 @@ export function MusicLiteracyLayout({
                 ref={slots.responseRef}
                 aria-label="Your answer"
                 data-literacy-response
-                className="flex min-h-0 min-w-0 flex-col gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3"
+                className={cn(
+                  PROMPT_SURFACE,
+                  'flex min-h-0 min-w-0 flex-col gap-3 p-3',
+                )}
               >
                 <div
                   data-literacy-roll-slot
@@ -221,6 +234,6 @@ export function MusicLiteracyLayout({
         onOpenChange={setAboutOpen}
         about={about}
       />
-    </div>
+    </LessonFrame>
   );
 }

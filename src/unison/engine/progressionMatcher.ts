@@ -14,8 +14,14 @@
  *      (2026-10-21: short windows scored 100% and crowded the list)
  *   5. Return the top matches above the threshold, one per progression,
  *      with inherited vibes/styles
+ *
+ * The library counts every progression from a major key's tonic. A song in a
+ * minor or modal key is matched in its parent major (A aeolian's
+ * '1 minor - b6 major' is '6 minor - 4 major') and the matches are told back
+ * in the song's own degrees, as its chord cards are (owner, 2026-10-25: a
+ * minor song matched nothing, its '1 minor' never being a library chord).
  */
-
+import { ionianToModeLabel, modeToIonianLabel } from '@prism/engine';
 import CHORD_PROGRESSION_LIBRARY, {
   type ChordProgressionEntry,
 } from '@/curriculum/data/chordProgressionLibrary';
@@ -40,11 +46,15 @@ const ROTATION_PENALTY = 0.02;
  */
 export function matchProgressions(
   regions: UnisonChordRegion[],
+  mode = 'ionian',
 ): ProgressionMatchResult[] {
   if (regions.length === 0) return [];
 
-  const detected = collapseRepeats(regions.map((r) => r.hybridName));
-  // One entry per progression: the library lists some under several songs.
+  const detected = collapseRepeats(
+    regions.map((r) => modeToIonianLabel(r.hybridName, mode)),
+  );
+  // One entry per progression as the song reads it: the library lists some
+  // under several songs, and some as rotations of each other.
   const byProgression = new Map<string, ProgressionMatchResult>();
 
   for (const entry of CHORD_PROGRESSION_LIBRARY) {
@@ -59,7 +69,22 @@ export function matchProgressions(
   // Sort by score descending, then by match length descending
   const results = [...byProgression.values()];
   results.sort((a, b) => b.score - a.score || b.matchLength - a.matchLength);
-  return results.slice(0, MAX_RESULTS);
+  return results.slice(0, MAX_RESULTS).map((match) => inMode(match, mode));
+}
+
+/** A match told in the song's own degrees, from its parent major's. */
+function inMode(
+  match: ProgressionMatchResult,
+  mode: string,
+): ProgressionMatchResult {
+  const toMode = (label: string) => ionianToModeLabel(label, mode);
+  const progression = match.progression.split(' - ').map(toMode).join(' - ');
+  if (progression === match.progression) return match;
+  return {
+    ...match,
+    progression,
+    matchedChords: match.matchedChords.map(toMode),
+  };
 }
 
 // ── Matching ──────────────────────────────────────────────────────────────────
@@ -80,6 +105,7 @@ function bestMatch(
   let bestStartIndex = 0;
   let bestMatchLength = 0;
   let bestMatchedChords: string[] = [];
+  let bestRotation = 0;
 
   // What a window must cover to be sure: the whole pattern, and the song's
   // loop (a song that plays I–V–vi–IV twice is a 4-chord loop).
@@ -120,6 +146,7 @@ function bestMatch(
       if (normalizedScore > bestScore) {
         bestScore = normalizedScore;
         bestStartIndex = start;
+        bestRotation = rotation;
         bestMatchLength = windowLen;
         bestMatchedChords = matched;
       }
@@ -130,7 +157,7 @@ function bestMatch(
 
   return {
     libraryId: entry.id,
-    progression: entry.progression,
+    progression: alignedProgression(entry, bestRotation, bestStartIndex),
     matchedChords: bestMatchedChords,
     matchStartIndex: bestStartIndex,
     matchLength: bestMatchLength,
@@ -141,6 +168,23 @@ function bestMatch(
     artist: entry.artist,
     song: entry.song,
   };
+}
+
+/**
+ * The pattern told from the chord the song starts on, as its chord cards
+ * run (owner, 2026-10-25): a match found mid-pattern (the song's I–V–vi–IV
+ * against a library vi–IV–I–V) reads I–V–vi–IV, not the library's order.
+ */
+function alignedProgression(
+  entry: ChordProgressionEntry,
+  rotation: number,
+  start: number,
+): string {
+  const len = entry.chords.length;
+  const turn = (((rotation - start) % len) + len) % len;
+  return turn === 0
+    ? entry.progression
+    : rotateArray(entry.chords, turn).join(' - ');
 }
 
 // ── Chord Comparison ──────────────────────────────────────────────────────────

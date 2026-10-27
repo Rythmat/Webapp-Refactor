@@ -97,15 +97,15 @@ function Ae(e) {
 var { PI: Z, sin: le, cos: _e } = Math,
   Be = 'attribute vec2 a;void main(){gl_Position=vec4(a,0,1);}',
   Ce =
-    'precision highp float;uniform vec2 t,v,s;uniform vec3 F,w;uniform vec4 n;uniform float k,x,y,Uc;uniform sampler2D z;float u;mat3 A(float a,float b){float c=cos(a),d=cos(b),e=sin(a),f=sin(b);return mat3(d,f*e,-f*c,0,c,e,f,d*-e,d*c);}vec3 B(vec3 c,out float G){c=c.xzy;float q=max(2.,floor(log2(2.236068*k*3.141593*(1.-c.z*c.z))*.72021));vec2 g=floor(pow(1.618034,q)/2.236068*vec2(1,1.618034)+.5),d=fract((g+1.)*.618034)*6.283185-3.883222,e=-2.*g,f=vec2(atan(c.y,c.x),c.z-1.),r=floor(vec2(e.y*f.x-d.y*(f.y*k+1.),-e.x*f.x+d.x*(f.y*k+1.))/(d.x*e.y-e.x*d.y));float o=3.141593;vec3 C;for(float h=0.;h<4.;h+=1.){vec2 D=vec2(mod(h,2.),floor(h*.5));float j=dot(g,r+D);if(j>k)continue;float a=j,b=0.;a>=16384.?(a-=16384.,b+=.868872):0.,a>=8192.?(a-=8192.,b+=.934436):0.,a>=4096.?(a-=4096.,b+=.467218):0.,a>=2048.?(a-=2048.,b+=.733609):0.,a>=1024.?(a-=1024.,b+=.866804):0.,a>=512.?(a-=512.,b+=.433402):0.,a>=256.?(a-=256.,b+=.216701):0.,a>=128.?(a-=128.,b+=.108351):0.,a>=64.?(a-=64.,b+=.554175):0.,a>=32.?(a-=32.,b+=.777088):0.,a>=16.?(a-=16.,b+=.888544):0.,a>=8.?(a-=8.,b+=.944272):0.,a>=4.?(a-=4.,b+=.472136):0.,a>=2.?(a-=2.,b+=.236068):0.,a>=1.?(a-=1.,b+=.618034):0.;float l=fract(b)*6.283185,i=1.-2.*j*u,m=sqrt(1.-i*i);vec3 p=vec3(cos(l)*m,sin(l)*m,i);float E=length(c-p);if(E<o)o=E,C=p;}G=o;return C.xzy;}void main(){u=1./k;vec2 c=1./t,b=(gl_FragCoord.xy*c*2.-1.)/x-v*vec2(1,-1)*c;b.x*=t.x*c.y;float a=dot(b,b),f=0.;vec4 l=vec4(0);if(a<=.64){float g;vec4 m=vec4(0);vec3 h=normalize(vec3(b,sqrt(.64-a)));mat3 o=A(s.y,s.x);float i=h.z;vec3 d=B(h*o,g);float j=asin(d.y),e=acos(-d.x/cos(j));e=d.z<0.?-e:e;vec4 tc=texture2D(z,vec2(e*.5/3.141593,-(j/3.141593+.5)));float p=max(mix(tc.x,tc.w,Uc),y),q=p*smoothstep(8e-3,0.,g)*pow(i,n.y)*n.x;vec3 ld=mix(F,tc.xyz,Uc);m+=vec4(ld*(mix((1.-q)*pow(i,.4),q,n.z)+.1)+pow(1.-i,4.)*w,1),l+=m*(1.+n.w)*.5,f=(1.-a)*(1.-a)*smoothstep(0.,1.,.2/(a-.64));}else{float r=sqrt(.2/(a-.64));f=smoothstep(.5,1.,r/(r+1.));}gl_FragColor=l+vec4(f*w,f);}',
+    'precision highp float;uniform vec2 t,v,s;uniform vec3 F,w;uniform vec4 n;uniform float k,x,y,Uc,Us;uniform sampler2D z;float u;mat3 A(float a,float b){float c=cos(a),d=cos(b),e=sin(a),f=sin(b);return mat3(d,f*e,-f*c,0,c,e,f,d*-e,d*c);}vec3 B(vec3 c,out float G){c=c.xzy;float q=max(2.,floor(log2(2.236068*k*3.141593*(1.-c.z*c.z))*.72021));vec2 g=floor(pow(1.618034,q)/2.236068*vec2(1,1.618034)+.5),d=fract((g+1.)*.618034)*6.283185-3.883222,e=-2.*g,f=vec2(atan(c.y,c.x),c.z-1.),r=floor(vec2(e.y*f.x-d.y*(f.y*k+1.),-e.x*f.x+d.x*(f.y*k+1.))/(d.x*e.y-e.x*d.y));float o=3.141593;vec3 C;for(float h=0.;h<4.;h+=1.){vec2 D=vec2(mod(h,2.),floor(h*.5));float j=dot(g,r+D);if(j>k)continue;float a=j,b=0.;a>=16384.?(a-=16384.,b+=.868872):0.,a>=8192.?(a-=8192.,b+=.934436):0.,a>=4096.?(a-=4096.,b+=.467218):0.,a>=2048.?(a-=2048.,b+=.733609):0.,a>=1024.?(a-=1024.,b+=.866804):0.,a>=512.?(a-=512.,b+=.433402):0.,a>=256.?(a-=256.,b+=.216701):0.,a>=128.?(a-=128.,b+=.108351):0.,a>=64.?(a-=64.,b+=.554175):0.,a>=32.?(a-=32.,b+=.777088):0.,a>=16.?(a-=16.,b+=.888544):0.,a>=8.?(a-=8.,b+=.944272):0.,a>=4.?(a-=4.,b+=.472136):0.,a>=2.?(a-=2.,b+=.236068):0.,a>=1.?(a-=1.,b+=.618034):0.;float l=fract(b)*6.283185,i=1.-2.*j*u,m=sqrt(1.-i*i);vec3 p=vec3(cos(l)*m,sin(l)*m,i);float E=length(c-p);if(E<o)o=E,C=p;}G=o;return C.xzy;}void main(){u=1./k;vec2 c=1./t,b=(gl_FragCoord.xy*c*2.-1.)/x-v*vec2(1,-1)*c;b.x*=t.x*c.y;float a=dot(b,b),f=0.;vec4 l=vec4(0);if(a<=.64){float g;vec4 m=vec4(0);vec3 h=normalize(vec3(b,sqrt(.64-a)));mat3 o=A(s.y,s.x);float i=h.z;if(Us>.5){vec3 d=h*o;float j=asin(clamp(d.y,-1.,1.)),e=acos(clamp(-d.x/max(cos(j),1e-4),-1.,1.));e=d.z<0.?-e:e;vec4 tc=texture2D(z,vec2(e*.5/3.141593,.5-j/3.141593));float sh=.4+.6*pow(i,n.y);vec3 lc=tc.xyz/max(tc.w,1e-3);m=vec4(mix(F,lc*n.x,tc.w)*sh+pow(1.-i,4.)*w,1);l+=m*(1.+n.w)*.5;f=(1.-a)*(1.-a)*smoothstep(0.,1.,.2/(a-.64));}else{vec3 d=B(h*o,g);float j=asin(d.y),e=acos(-d.x/cos(j));e=d.z<0.?-e:e;vec4 tc=texture2D(z,vec2(e*.5/3.141593,-(j/3.141593+.5)));float p=max(mix(tc.x,tc.w,Uc),y),q=p*smoothstep(8e-3,0.,g)*pow(i,n.y)*n.x;vec3 ld=mix(F,tc.xyz,Uc);m+=vec4(ld*(mix((1.-q)*pow(i,.4),q,n.z)+.1)+pow(1.-i,4.)*w,1),l+=m*(1.+n.w)*.5,f=(1.-a)*(1.-a)*smoothstep(0.,1.,.2/(a-.64));}}else{float r=sqrt(.2/(a-.64));f=smoothstep(.5,1.,r/(r+1.));}gl_FragColor=l+vec4(f*w,f);}',
   be =
     'varying vec2 m;varying vec3 g;varying float h;attribute vec2 n;attribute vec3 p,w;attribute float q,x;uniform vec2 b,r;uniform float i,j,k,s;void main(){float c=cos(j),d=sin(j),e=cos(i),f=sin(i);vec3 a=p*(.8+s),l=vec3(e*a.x+f*a.z,f*d*a.x+c*a.y-e*d*a.z,-f*c*a.x+d*a.y+e*c*a.z);if(l.z<0.&&length(l.xy)<.8){gl_Position=vec4(2,2,0,1);return;}float t=b.y/b.x;vec2 y=(l.xy+n*q*2.)*vec2(t,1)*k+r*vec2(1,-1)*k/b;gl_Position=vec4(y,0,1),m=n,g=w,h=x;}',
   ge =
     'precision highp float;varying vec2 m;varying vec3 g;varying float h;uniform vec3 v;void main(){if(length(m)>.25)discard;vec3 a=h>.5?g:v;gl_FragColor=vec4(a,1);}',
   Fe =
-    'varying vec3 i;varying float j,s,t;attribute vec2 k;attribute vec3 l,m,N;attribute float v,w,O;uniform vec2 g,x;uniform float y,z,h,A;mat3 B(float a,float b){float c=cos(a),d=cos(b),e=sin(a),f=sin(b);return mat3(d,f*e,-f*c,0,c,e,f,d*-e,d*c);}vec3 C(vec3 c,vec3 d,vec3 e,float a){float b=1.-a;return b*b*c+2.*b*a*d+a*a*e;}vec3 D(vec3 c,vec3 b,vec3 d,float a){float e=1.-a;return 2.*e*(b-c)+2.*a*(d-b);}void main(){mat3 b=B(z,y);float c=.8+A;vec3 d=l*c,e=m*c,f=l+m;float n=length(f);vec3 E=n>1e-3?f/n:vec3(0,1,0),o=E*(.8+v);float p=k.x;vec3 F=C(d,o,e,p),q=b*F,G=D(d,o,e,p),H=b*G;vec2 a=H.xy;float r=length(a);vec2 I=r>1e-3?vec2(-a.y,a.x)/r:vec2(1,0);float J=g.x/g.y;vec2 K=q.xy*vec2(1./J,1)*h+x*vec2(1,-1)*h/g,P=K+I*w*k.y*h;gl_Position=vec4(P,0,1),i=N,j=O,s=q.z,t=length(q.xy);}',
+    'varying vec3 i;varying float j,s,t,Up;attribute vec2 k;attribute vec3 l,m,N;attribute float v,w,O;uniform vec2 g,x;uniform float y,z,h,A;mat3 B(float a,float b){float c=cos(a),d=cos(b),e=sin(a),f=sin(b);return mat3(d,f*e,-f*c,0,c,e,f,d*-e,d*c);}vec3 C(vec3 c,vec3 d,vec3 e,float a){float b=1.-a;return b*b*c+2.*b*a*d+a*a*e;}vec3 D(vec3 c,vec3 b,vec3 d,float a){float e=1.-a;return 2.*e*(b-c)+2.*a*(d-b);}void main(){mat3 b=B(z,y);float c=.8+A;vec3 d=l*c,e=m*c,f=l+m;float n=length(f);vec3 E=n>1e-3?f/n:vec3(0,1,0),o=E*(.8+v);float p=k.x;vec3 F=C(d,o,e,p),q=b*F,G=D(d,o,e,p),H=b*G;vec2 a=H.xy;float r=length(a);vec2 I=r>1e-3?vec2(-a.y,a.x)/r:vec2(1,0);float J=g.x/g.y;vec2 K=q.xy*vec2(1./J,1)*h+x*vec2(1,-1)*h/g,P=K+I*w*k.y*h;gl_Position=vec4(P,0,1),i=N,j=O,s=q.z,t=length(q.xy),Up=p;}',
   Le =
-    'precision highp float;varying vec3 i;varying float j,s,t;uniform vec3 M;void main(){if(s<0.&&t<.8)discard;vec3 a=j>.5?i:M;gl_FragColor=vec4(a,1);}',
+    'precision highp float;varying vec3 i;varying float j,s,t,Up;uniform vec3 M;uniform float Ap,Ar,An;uniform vec3 Ak[12];void main(){if(s<0.&&t<.8)discard;if(Up>Ap)discard;vec3 a=j>.5?i:M;if(Ar>0.){float d=(Ap-Up)/Ar;if(d<1.){float f=d*(An-1.),b=floor(f),c=min(b+1.,An-1.);vec3 e=Ak[0],g=Ak[0];for(int q=0;q<12;q++){float o=float(q);if(o==b)e=Ak[q];if(o==c)g=Ak[q];}a=mix(mix(e,g,fract(f)),a,smoothstep(.55,1.,d));}}gl_FragColor=vec4(a,1);}',
   ee = 0.8;
 function U([e, t]) {
   let r = (e * Z) / 180,
@@ -149,10 +149,29 @@ var Pe = (e, t) => {
     B = t.scale || 1,
     p = t.markerElevation ?? 0.05,
     mt = t.mapTexture,
+    // Local patch: solid land. With `mapSolid` (and a `mapTexture`), the land
+    // is filled straight from the texture (smooth, linear-filtered) instead
+    // of sampled as dots: `baseColor` is the ocean, `mapBrightness` scales
+    // the land's colours, `diffuse` its shading.
+    us_ = t.mapSolid && mt ? 1 : 0,
+    // Local patch: arc draw-on. `arcProgress` is how far along each arc is
+    // drawn (0 = nothing, 1 = all of it; past 1 the head has arrived);
+    // `arcRainbow` (up to 12 RGB colours) runs behind the head over the last
+    // `arcRainbowTail` of progress, settling on the arc's own colour.
+    ap_ = t.arcProgress ?? 1e3,
+    ar_ = t.arcRainbowTail ?? 0,
+    an_ = 1,
+    ak_ = new Float32Array(36),
+    setRainbow_ = (e) => {
+      ak_.fill(0);
+      e.slice(0, 12).forEach((c, r) => ak_.set(c, 3 * r));
+      an_ = Math.max(1, Math.min(12, e.length));
+    },
     w = Y(a, Be, Ce),
     C = Y(a, be, ge),
     F = Y(a, Fe, Le);
   if (!w) return { destroy: () => {}, update: () => {} };
+  t.arcRainbow && setRainbow_(t.arcRainbow);
   let D = a.createBuffer();
   a.bindBuffer(a.ARRAY_BUFFER, D),
     a.bufferData(
@@ -170,10 +189,10 @@ var Pe = (e, t) => {
   a.bufferData(a.ARRAY_BUFFER, new Float32Array(N), a.STATIC_DRAW);
   let k = a.createBuffer(),
     S = a.createBuffer(),
-    I = H(a, w, ['t', 's', 'k', 'x', 'v', 'F', 'w', 'n', 'y', 'z', 'Uc']),
+    I = H(a, w, ['t', 's', 'k', 'x', 'v', 'F', 'w', 'n', 'y', 'z', 'Uc', 'Us']),
     P = H(a, C, ['i', 'j', 'b', 'k', 'r', 'v', 's']),
     L = Q(a, C, ['n', 'p', 'q', 'w', 'x']),
-    z = H(a, F, ['y', 'z', 'g', 'h', 'x', 'M', 'A']),
+    z = H(a, F, ['y', 'z', 'g', 'h', 'x', 'M', 'A', 'Ap', 'Ar', 'An', 'Ak']),
     G = Q(a, F, ['k', 'l', 'm', 'v', 'w', 'N', 'O']),
     M = a.getAttribLocation(w, 'a'),
     V = a.createTexture();
@@ -194,8 +213,18 @@ var Pe = (e, t) => {
   if (mt) {
     a.bindTexture(a.TEXTURE_2D, V),
       a.texImage2D(a.TEXTURE_2D, 0, a.RGBA, a.RGBA, a.UNSIGNED_BYTE, mt),
-      a.texParameteri(a.TEXTURE_2D, a.TEXTURE_MIN_FILTER, a.NEAREST),
-      a.texParameteri(a.TEXTURE_2D, a.TEXTURE_MAG_FILTER, a.NEAREST),
+      a.texParameteri(
+        a.TEXTURE_2D,
+        a.TEXTURE_MIN_FILTER,
+        us_ ? a.LINEAR : a.NEAREST,
+      ),
+      a.texParameteri(
+        a.TEXTURE_2D,
+        a.TEXTURE_MAG_FILTER,
+        us_ ? a.LINEAR : a.NEAREST,
+      ),
+      // Solid: no bleed between the poles' rows (Antarctica into the Arctic).
+      us_ && a.texParameteri(a.TEXTURE_2D, a.TEXTURE_WRAP_T, a.CLAMP_TO_EDGE),
       a.activeTexture(a.TEXTURE0),
       a.bindTexture(a.TEXTURE_2D, V);
   }
@@ -314,6 +343,9 @@ var Pe = (e, t) => {
       t.offset != q && (T = t.offset),
       t.scale != q && (B = t.scale),
       t.markerElevation != q && (p = t.markerElevation),
+      t.arcProgress != q && (ap_ = t.arcProgress),
+      t.arcRainbowTail != q && (ar_ = t.arcRainbowTail),
+      t.arcRainbow && setRainbow_(t.arcRainbow),
       $.m(c, W),
       $.a(s, X),
       $.s(),
@@ -337,6 +369,7 @@ var Pe = (e, t) => {
       a.uniform4f(I.n, v, b, x, y),
       a.uniform1f(I.y, d),
       a.uniform1f(I.Uc, mt ? 1 : 0),
+      a.uniform1f(I.Us, us_),
       a.uniform1i(I.z, 0),
       a.activeTexture(a.TEXTURE0),
       a.bindTexture(a.TEXTURE_2D, V),
@@ -367,6 +400,10 @@ var Pe = (e, t) => {
         a.uniform2f(z.x, T[0] * n, T[1] * n),
         a.uniform3fv(z.M, h),
         a.uniform1f(z.A, p),
+        a.uniform1f(z.Ap, ap_),
+        a.uniform1f(z.Ar, ar_),
+        a.uniform1f(z.An, an_),
+        a.uniform3fv(z.Ak, ak_),
         o)
       )
         a.drawArraysInstanced(a.TRIANGLE_STRIP, 0, 66, J);

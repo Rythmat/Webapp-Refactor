@@ -43,6 +43,19 @@ export interface COBEOptions {
   // colour from this texture's RGB (and land mask from its alpha) instead of
   // the single `baseColor`. See src/lib/cobe/index.js.
   mapTexture?: TexImageSource;
+  /**
+   * Local patch: fill the land solid from `mapTexture` instead of as dots
+   * (`baseColor` is then the ocean). See src/lib/cobe/index.js.
+   */
+  mapSolid?: boolean;
+
+  // Local patch: arc draw-on with a rainbow head (see index.js). How far
+  // along each arc is drawn (0–1; past 1 the head has arrived; default: all).
+  arcProgress?: number;
+  /** Up to 12 RGB colours (0–1) run behind the head. */
+  arcRainbow?: [number, number, number][];
+  /** How much of the progress the rainbow trails the head by (0 = none). */
+  arcRainbowTail?: number;
 }
 
 export interface Globe {

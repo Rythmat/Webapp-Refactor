@@ -48,7 +48,15 @@ function traceRing(ctx: CanvasRenderingContext2D, ring: Ring): void {
   }
 }
 
-function drawFeature(ctx: CanvasRenderingContext2D, feat: Feature): void {
+/** The solid globe's country borders: thin, in its ocean's dark. */
+const BORDER = 'rgb(17, 17, 20)';
+const BORDER_WIDTH = 1.25;
+
+function drawFeature(
+  ctx: CanvasRenderingContext2D,
+  feat: Feature,
+  borders: boolean,
+): void {
   const geom = feat.geometry;
   if (!geom) return;
   const iso = resolveIso(feat.properties);
@@ -64,13 +72,21 @@ function drawFeature(ctx: CanvasRenderingContext2D, feat: Feature): void {
   ctx.beginPath();
   for (const poly of polygons) for (const ring of poly) traceRing(ctx, ring);
   ctx.fill('evenodd'); // evenodd cuts holes (lakes) correctly
+  if (borders) ctx.stroke();
 }
 
-let cache: Promise<HTMLCanvasElement> | null = null;
+const caches = new Map<boolean, Promise<HTMLCanvasElement>>();
 
-export function buildCountryTexture(): Promise<HTMLCanvasElement> {
-  if (cache) return cache;
-  cache = (async () => {
+/**
+ * `borders`: outline each country (the solid globe, where they'd otherwise
+ * run together); the dot globes leave them off.
+ */
+export function buildCountryTexture({
+  borders = false,
+}: { borders?: boolean } = {}): Promise<HTMLCanvasElement> {
+  const cached = caches.get(borders);
+  if (cached) return cached;
+  const cache = (async () => {
     const features = (await loadCountries()) as unknown as Feature[];
 
     const canvas = document.createElement('canvas');
@@ -79,13 +95,17 @@ export function buildCountryTexture(): Promise<HTMLCanvasElement> {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('2D context unavailable');
     ctx.clearRect(0, 0, TEX_W, TEX_H); // transparent ocean
+    ctx.strokeStyle = BORDER;
+    ctx.lineWidth = BORDER_WIDTH;
+    ctx.lineJoin = 'round';
 
-    for (const feat of features) drawFeature(ctx, feat);
+    for (const feat of features) drawFeature(ctx, feat, borders);
     return canvas;
   })();
+  caches.set(borders, cache);
   // Allow a later mount to retry if this attempt failed.
   cache.catch(() => {
-    cache = null;
+    caches.delete(borders);
   });
   return cache;
 }

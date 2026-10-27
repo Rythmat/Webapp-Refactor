@@ -321,10 +321,10 @@ export const MODE_DISPLAY: Record<string, string> = {
  * Insight mode key → the slug the Theory/Learn lesson route expects.
  *
  * The values MUST be the Prism API's mode vocabulary (`PrismModeSlug`), because
- * `/learn/:mode/:key` feeds this straight to `usePrismMode`, `getLocalModeSteps`
- * and `getChordScales` — all three key off the API spelling. An unrecognized
- * slug used to fall through to the major scale, so every non-diatonic Insight
- * link silently taught the wrong notes.
+ * `/learn/keyboard/:mode/:key` feeds this straight to `usePrismMode`,
+ * `getLocalModeSteps` and `getChordScales` — all three key off the API
+ * spelling. An unrecognized slug used to fall through to the major scale, so
+ * every non-diatonic Insight link silently taught the wrong notes.
  *
  * Two entries differ from their Insight names by more than punctuation, so do
  * NOT regenerate this table by transforming the keys:

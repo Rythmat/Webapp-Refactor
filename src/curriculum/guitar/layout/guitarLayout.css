@@ -11,20 +11,20 @@
    height, then the TAB at 208px, with the bar pinned under them.
    ──────────────────────────────────────────────────────────────────────── */
 
-/* Header: the trail over the title on the left, the buttons beside both.
+/* Header: the subtitle over the title on the left, the input indicator beside.
    Piano's lesson screen (data-piano-layout) shares the header. */
 :is([data-guitar-layout], [data-piano-layout]) [data-guitar-header] {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
-    'crumbs indicator about settings'
-    'title indicator about settings';
+    'subtitle indicator'
+    'title indicator';
   align-items: center;
   column-gap: 8px;
 }
 
-[data-guitar-header] > [data-area='crumbs'] {
-  grid-area: crumbs;
+[data-guitar-header] > [data-area='subtitle'] {
+  grid-area: subtitle;
 }
 
 [data-guitar-header] > [data-area='title'] {
@@ -33,14 +33,6 @@
 
 [data-guitar-header] > [data-area='indicator'] {
   grid-area: indicator;
-}
-
-[data-guitar-header] > [data-area='about'] {
-  grid-area: about;
-}
-
-[data-guitar-header] > [data-area='settings'] {
-  grid-area: settings;
 }
 
 /* The grid row gives the visuals (or the result that takes their place) a
@@ -71,12 +63,12 @@
 }
 
 @media (max-width: 639px) {
-  /* The trail gets the full width; the icon buttons sit by the title. */
+  /* One column: the subtitle, the title, then the input indicator. */
   :is([data-guitar-layout], [data-piano-layout]) [data-guitar-header] {
     grid-template-areas:
-      'crumbs crumbs crumbs crumbs'
-      'title title about settings'
-      'indicator indicator indicator indicator';
+      'subtitle'
+      'title'
+      'indicator';
   }
 
   /* The visuals at their own height (the diagrams over the neck), then the

@@ -6,7 +6,7 @@ import {
   Settings,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/components/utilities';
 import {
@@ -20,6 +20,7 @@ import {
   StudioRoutes,
 } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import { useLearnPageRoute } from '@/features/learn/useInstrumentStore';
 import { isRouteActive, SidebarMainNavItem } from './SidebarMainNavItem';
 
 interface SidebarProps {
@@ -46,7 +47,7 @@ const RAIL_WIDTH = '4.625rem';
  * Persistent left rail for the classroom dashboard: Suno's collapsed sidebar,
  * 4.625rem of icons with their names in tooltips, the logo centred on top.
  * It stays collapsed (owner, 2026-10-23: no expand button). The layout
- * hides it below `md`.
+ * hides it below `md`, where MobileTabBar carries the same nav.
  */
 export const ClassroomSidebar = ({
   className,
@@ -62,6 +63,10 @@ export const ClassroomSidebar = ({
   // bounce. There is no dual admin+teacher account: `UserRole` is scalar.
   // The console shows it to everyone: there Office is the curriculum.
   const canManage = role === 'teacher' || !!showAllSections;
+  // Learn opens on the instrument chosen on Home (owner, 2026-10-24), and
+  // stays current anywhere under /learn. The console's copy keeps /learn.
+  const learnPage = useLearnPageRoute();
+  const { pathname } = useLocation();
   /** An item's link: the app path as it is, or the console's copy of it. */
   const nav = (appTo: string, activePaths?: string[]) =>
     lens
@@ -105,7 +110,12 @@ export const ClassroomSidebar = ({
           <SidebarMainNavItem
             iconSrc="/icons/learn-icon.svg"
             label="Learn"
-            {...nav(LearnRoutes.root())}
+            {...(lens
+              ? nav(LearnRoutes.root())
+              : {
+                  to: learnPage,
+                  active: isRouteActive(pathname, LearnRoutes.root()),
+                })}
           />
           <SidebarMainNavItem
             iconSrc="/icons/studio-icon.svg"
@@ -114,18 +124,20 @@ export const ClassroomSidebar = ({
           />
           <SidebarMainNavItem
             iconSrc="/icons/globe-icon.svg"
+            // Globe and Arcade draw small in their boxes: 24px (owner,
+            // 2026-10-25).
+            glyphClassName="size-[24px]"
             label="Globe"
             {...nav(AtlasRoutes.root())}
           />
           <SidebarMainNavItem
             iconSrc="/icons/arcade-icon.svg"
+            glyphClassName="size-[24px]"
             label="Arcade"
             {...nav(GameRoutes.root())}
           />
-        </ul>
-
-        {/* 3. Secondary nav */}
-        <ul className="mt-4 flex flex-col gap-px px-3">
+          {/* Classroom and Office in the same list, at the same spacing
+            (owner, 2026-10-26). */}
           <SidebarMainNavItem
             icon={Laptop}
             label="Classroom"
@@ -142,7 +154,7 @@ export const ClassroomSidebar = ({
 
         {extraSection}
 
-        {/* 4. Flex spacer + system nav (Suno's bottom group: 40px rows) */}
+        {/* 3. Flex spacer + system nav (Suno's bottom group: 40px rows) */}
         <ul className="mt-auto flex flex-col gap-px px-3 pt-6 pb-3">
           <SidebarMainNavItem
             external

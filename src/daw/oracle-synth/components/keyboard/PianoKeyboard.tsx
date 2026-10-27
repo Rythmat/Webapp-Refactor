@@ -1,5 +1,7 @@
 import React, { useCallback } from 'react';
-import { PianoKey } from './PianoKey';
+import { PianoKey, type PlayedKey } from './PianoKey';
+
+export type { PlayedKey } from './PianoKey';
 import styles from './PianoKeyboard.module.css';
 
 interface PianoKeyboardProps {
@@ -13,6 +15,20 @@ interface PianoKeyboardProps {
   keyLabel?: (note: number) => string | null;
   /** Name every C ('C3', 'C4') on its key. */
   octaveLabels?: boolean;
+  // ── For lessons (the Studio's dock uses none of these) ──
+  /** Notes lit, each in its own colour (a demo, the step's notes). */
+  litNotes?: ReadonlyMap<number, string>;
+  /** Notes tinted in a colour: what the lesson asks for next. */
+  hintNotes?: ReadonlyMap<number, string>;
+  /** Keys the player is holding, right or wrong. */
+  playedNotes?: ReadonlyMap<number, PlayedKey>;
+  /** A key pressed, with its pointer event (for keys that sound until let
+   *  go); called along with onNoteOn. */
+  onKeyPointerDown?: (note: number, event: React.PointerEvent) => void;
+  /** False: a picture of the keys, not played by pointer. */
+  interactive?: boolean;
+  /** Keys that shrink with a small box (no minimum width). */
+  compact?: boolean;
 }
 
 // Semitone pattern: which notes in an octave are black keys
@@ -33,9 +49,10 @@ const BLACK_KEY_PATTERN = [
 
 // A black key is this much of a white key's width (Soundtrap's, 2026-10-22;
 // it was 0.39), centred on the line between its two white keys, nudged as a
-// piano's are: C# and F# a little left, D# and A# a little right.
-const BLACK_KEY_WIDTH = 0.6;
-const BLACK_KEY_NUDGE: Record<number, number> = {
+// piano's are: C# and F# a little left, D# and A# a little right. Exported:
+// a lesson's falling notes and hands line up with the keys by them.
+export const BLACK_KEY_WIDTH = 0.6;
+export const BLACK_KEY_NUDGE: Record<number, number> = {
   1: -0.08, // C#
   3: 0.08, // D#
   6: -0.1, // F#
@@ -56,12 +73,19 @@ export const PianoKeyboard: React.FC<PianoKeyboardProps> = ({
   onNoteOff,
   keyLabel,
   octaveLabels = false,
+  litNotes,
+  hintNotes,
+  playedNotes,
+  onKeyPointerDown,
+  interactive = true,
+  compact = false,
 }) => {
   const handleNoteOn = useCallback(
-    (note: number) => {
+    (note: number, event: React.PointerEvent) => {
+      onKeyPointerDown?.(note, event);
       onNoteOn(note, 0.8);
     },
-    [onNoteOn],
+    [onNoteOn, onKeyPointerDown],
   );
 
   const handleNoteOff = useCallback(
@@ -94,7 +118,13 @@ export const PianoKeyboard: React.FC<PianoKeyboardProps> = ({
   const whiteKeyWidth = 100 / whiteKeys.length;
 
   return (
-    <div className={styles.keyboard}>
+    <div
+      // The keys' box, which a lesson's hands are drawn over (FingeringHands).
+      data-piano-keys
+      className={
+        compact ? `${styles.keyboard} ${styles.compact}` : styles.keyboard
+      }
+    >
       {/* White keys */}
       {whiteKeys.map((note) => (
         <PianoKey
@@ -106,6 +136,10 @@ export const PianoKeyboard: React.FC<PianoKeyboardProps> = ({
           onNoteOn={handleNoteOn}
           onNoteOff={handleNoteOff}
           label={keyLabel?.(note)}
+          litColor={litNotes?.get(note)}
+          hintColor={hintNotes?.get(note)}
+          played={playedNotes?.get(note)}
+          interactive={interactive}
           octaveName={
             octaveLabels && note % 12 === 0
               ? `C${Math.floor(note / 12) - 1}`
@@ -138,6 +172,10 @@ export const PianoKeyboard: React.FC<PianoKeyboardProps> = ({
               onNoteOn={handleNoteOn}
               onNoteOff={handleNoteOff}
               label={keyLabel?.(note)}
+              litColor={litNotes?.get(note)}
+              hintColor={hintNotes?.get(note)}
+              played={playedNotes?.get(note)}
+              interactive={interactive}
             />
           </div>
         );

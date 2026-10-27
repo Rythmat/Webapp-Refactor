@@ -130,7 +130,8 @@ function renderPlayer(tag?: string, l: MusicLiteracyLesson = lesson) {
   );
 }
 
-const title = () => document.querySelector('[data-guitar-title]')?.textContent;
+// The step's name, in the lesson's subtitle (its title is the key, "C Major").
+const title = () => document.querySelector('[data-subtitle-step]')?.textContent;
 const headline = () =>
   document.querySelector('[data-literacy-turn]')?.textContent;
 const bar = () => document.querySelector('[data-guitar-bar]')!;
@@ -238,8 +239,11 @@ describe('the lesson’s goal', () => {
 describe('the gate', () => {
   /** The fixture opening on a gate, under the same storage keys. */
   const gated: MusicLiteracyLesson = { ...PART2_GATED_FIXTURE, id: lesson.id };
+  /** The module the step is in: the subtitle's lead ("Choose a Color: …"). */
   const crumb = () =>
-    document.querySelector('[data-crumb-subsection]')?.textContent;
+    document
+      .querySelector('[data-subtitle-where]')
+      ?.textContent?.replace(/: $/, '');
 
   it('opens a first run on the goal, then the gate: the key, major or minor, then Create a Melody', async () => {
     renderPlayer(undefined, gated);
@@ -1047,47 +1051,42 @@ describe('the keyboard', () => {
   };
   const withStep = { ...lesson, steps: [...lesson.steps, fiveSixFive] };
   const whiteKeys = () =>
-    document.querySelectorAll(
-      '[data-literacy-keyboard] [data-testid="piano-keyboard-fill"] > div.flex-1',
-    ).length;
+    document.querySelectorAll('[data-lesson-keyboard] [data-key="white"]')
+      .length;
 
-  /** Which white key, from the left, carries a degree's label. */
-  const whiteKeyOf = (label: string) => {
-    const keys = [
-      ...document.querySelectorAll(
-        '[data-literacy-keyboard] [data-testid="piano-keyboard-fill"] > div.flex-1',
-      ),
-    ];
-    const key = document.querySelector(
-      `[data-literacy-keyboard] [data-key-label="${label}"]`,
-    )?.parentElement;
-    return key ? keys.indexOf(key) : -1;
-  };
+  /** The key (MIDI) carrying a degree's label, the lowest if several. */
+  const noteOf = (label: string) =>
+    Number(
+      document
+        .querySelector(`[data-lesson-keyboard] [data-key-label="${label}"]`)
+        ?.closest('[data-note]')
+        ?.getAttribute('data-note') ?? -1,
+    );
 
-  it('shows the two octaves holding the step’s notes: C4–C6 for most, melodies and chords alike', () => {
+  it('shows every lesson’s 49 keys, C3–C7, the step’s degrees on their keys, melodies and chords alike', () => {
     saveChoices(cMajor);
     renderPlayer('five-six-five', withStep);
-    expect(whiteKeys()).toBe(15);
-    // G4, the 5, is the fifth white key from C4.
-    expect(whiteKeyOf('5')).toBe(4);
+    expect(whiteKeys()).toBe(29);
+    // G4, the 5.
+    expect(noteOf('5')).toBe(67);
     cleanup();
     // F major's 5-6-5 is placed with the fewest ledger lines: C5, D5, C5,
-    // its 6 the ninth white key.
+    // its 6 on D5.
     saveChoices(withMode(withTonic(emptyChoices(), 'F'), 'major'));
     renderPlayer('five-six-five', withStep);
-    expect(whiteKeys()).toBe(15);
-    expect(whiteKeyOf('6')).toBe(8);
+    expect(whiteKeys()).toBe(29);
+    expect(noteOf('6')).toBe(74);
     cleanup();
-    // C's 1 chord, C4 E4 G4, then F4 A4 C5: C4–C6, its C4 the first key.
+    // C's 1 chord, C4 E4 G4, then F4 A4 C5: its 1 on C4.
     saveChoices(cMajor);
     renderPlayer('the-1-chord', withStep);
-    expect(whiteKeys()).toBe(15);
-    expect(whiteKeyOf('1')).toBe(0);
+    expect(whiteKeys()).toBe(29);
+    expect(noteOf('1')).toBe(60);
     cleanup();
-    // B's, B3 D♯4 F♯4, then E4 G♯4 B4: all on C3–C5, B3 its seventh key.
+    // B's, B3 D♯4 F♯4, then E4 G♯4 B4: its 1 on B3.
     saveChoices(withMode(withTonic(emptyChoices(), 'B'), 'major'));
     renderPlayer('the-1-chord', withStep);
-    expect(whiteKeys()).toBe(15);
-    expect(whiteKeyOf('1')).toBe(6);
+    expect(whiteKeys()).toBe(29);
+    expect(noteOf('1')).toBe(59);
   });
 });

@@ -15,6 +15,7 @@ import {
   List,
   ListMusic,
   Music,
+  X,
 } from 'lucide-react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { SongRoutes } from '@/constants/routes';
@@ -36,11 +37,11 @@ type SortMode =
   | 'difficulty_asc'
   | 'difficulty_desc';
 
-type SavedFilter = 'all' | 'saved' | 'unsaved';
+export type SavedFilter = 'all' | 'saved' | 'unsaved';
 
 export type ViewMode = 'grid' | 'list';
 
-interface Filters {
+export interface Filters {
   search: string;
   genre: string; // 'all' | genre slug
   difficulty: string; // 'all' | '1' | '2' | '3'
@@ -54,7 +55,7 @@ function stripThe(s: string): string {
   return s.replace(/^the\s+/i, '');
 }
 
-function filterSongs(
+export function filterSongs(
   songs: Song[],
   f: Filters,
   savedIds: Record<string, true>,
@@ -98,14 +99,14 @@ function sortSongs(songs: Song[], mode: SortMode): Song[] {
   }
 }
 
-const DIFFICULTY_OPTIONS = [
+export const DIFFICULTY_OPTIONS = [
   { value: 'all', label: 'All levels' },
   { value: '1', label: 'Lvl. 1' },
   { value: '2', label: 'Lvl. 2' },
   { value: '3', label: 'Lvl. 3' },
 ];
 
-const SAVED_OPTIONS: { value: SavedFilter; label: string }[] = [
+export const SAVED_OPTIONS: { value: SavedFilter; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'saved', label: 'Saved only' },
   { value: 'unsaved', label: 'Unsaved only' },
@@ -122,7 +123,7 @@ const SORT_OPTIONS: { value: SortMode; label: string }[] = [
 // Canonical 14-genre list, matching the Courses section. Source of truth for
 // both the dropdown and the `song.genreTags` values produced by
 // scripts/normalize-song-genres.mjs.
-const GENRE_OPTIONS = [
+export const GENRE_OPTIONS = [
   { value: 'all', label: 'All Genres' },
   { value: 'pop', label: 'Pop' },
   { value: 'rock', label: 'Rock' },
@@ -148,10 +149,31 @@ const GENRE_LABELS: Record<string, string> = Object.fromEntries(
 
 /* ── SongLibraryBody (used inside Learn) ─────────────────────────────── */
 
+/**
+ * Pinned rows with no fill of their own (`clear`): the page shows through
+ * them at rest, and a song row scrolling under them blurs out rather than
+ * colliding with their text.
+ */
+const CLEAR_PINNED = {
+  backdropFilter: 'blur(24px)',
+  WebkitBackdropFilter: 'blur(24px)',
+} as const;
+
 export const SongLibraryBody: FC<{
   /** Given the filtered song set, render the marquee so it reflects the filter. */
   marqueeSlot?: (songs: Song[]) => ReactNode;
-}> = ({ marqueeSlot }) => {
+  /**
+   * The Learn page's Songs pages (owner, 2026-10-25): no background behind
+   * the list, its pinned filter row or column headers, over the page's glow;
+   * and no search box. A search that arrives in ?q= (global search's artist
+   * results) shows as a chip that clears it. Its Difficulty, Genre and Saved
+   * filters live in the page's prompt bar instead (SongFilterPills), which
+   * sets them in the URL; the list follows the URL. No Sort (the list stays
+   * by title) and no Set Lists here: the page has its own (owner,
+   * 2026-10-25).
+   */
+  clear?: boolean;
+}> = ({ marqueeSlot, clear = false }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const allSongs = useMemo(() => getAllSongs(), []);
   const savedIds = useSavedSongsStore((s) => s.savedIds);
@@ -161,7 +183,8 @@ export const SongLibraryBody: FC<{
     genre: searchParams.get('genre') ?? 'all',
     difficulty: searchParams.get('difficulty') ?? 'all',
     saved: (searchParams.get('saved') as SavedFilter) || 'all',
-    sort: (searchParams.get('sort') as SortMode) || 'title',
+    // Clear (no Sort control): always by title, whatever ?sort= says.
+    sort: clear ? 'title' : (searchParams.get('sort') as SortMode) || 'title',
   }));
 
   useEffect(() => {
@@ -182,6 +205,27 @@ export const SongLibraryBody: FC<{
     setSearchParams(params, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
+
+  // The Learn page's prompt bar sets Difficulty, Genre and Saved in the URL:
+  // follow it.
+  const urlGenre = searchParams.get('genre') ?? 'all';
+  const urlDifficulty = searchParams.get('difficulty') ?? 'all';
+  const urlSaved = (searchParams.get('saved') as SavedFilter) || 'all';
+  useEffect(() => {
+    if (!clear) return;
+    setFilters((prev) =>
+      prev.genre === urlGenre &&
+      prev.difficulty === urlDifficulty &&
+      prev.saved === urlSaved
+        ? prev
+        : {
+            ...prev,
+            genre: urlGenre,
+            difficulty: urlDifficulty,
+            saved: urlSaved,
+          },
+    );
+  }, [clear, urlGenre, urlDifficulty, urlSaved]);
 
   const updateFilter = useCallback(
     <K extends keyof Filters>(key: K, value: Filters[K]) => {
@@ -241,68 +285,102 @@ export const SongLibraryBody: FC<{
           visible instead of scrolling under (and being covered by) the filter. */}
       <div
         ref={headerRef}
-        className="sticky top-0 z-10 pt-1 pb-3"
-        style={{ background: '#101012' }}
+        // Clear with no search chip, it holds nothing: no padding, so the
+        // column headers sit right at the top.
+        className={
+          clear && !filters.search
+            ? 'sticky top-0 z-10'
+            : 'sticky top-0 z-10 pt-1 pb-3'
+        }
+        style={clear ? CLEAR_PINNED : { background: '#101012' }}
       >
-        {/* ── Filter row ── */}
-        <div
-          className="flex items-center flex-wrap"
-          style={{ gap: 10, marginBottom: 16 }}
-        >
-          {/* The way into a player's own sets. It sits with the filters
+        {/* ── Filter row ── (clear: only a search's chip, when there is
+            one; the filters are the prompt bar's, Set Lists the page's) */}
+        {(!clear || filters.search) && (
+          <div
+            className="flex items-center flex-wrap"
+            style={{ gap: 10, marginBottom: 16 }}
+          >
+            {/* The way into a player's own sets. It sits with the filters
               because Set Lists belongs to Songs, but it is a link out rather
               than a filter, so it wears its own colour and an arrow. */}
-          <Link
-            to={SongRoutes.setLists()}
-            aria-label="Open Set Lists"
-            className="inline-flex items-center rounded-md outline-none transition-colors hover:bg-[#7ecfcf]/15 focus-visible:ring-1 focus-visible:ring-white/40"
-            style={{
-              height: 32,
-              padding: '0 12px',
-              gap: 6,
-              background: 'rgba(126,207,207,0.08)',
-              border: '1px solid rgba(126,207,207,0.35)',
-              color: '#7ecfcf',
-              fontSize: 12,
-            }}
-          >
-            <ListMusic size={13} />
-            Set Lists
-            <ArrowRight size={12} />
-          </Link>
-          <FilterDropdown
-            label="Difficulty"
-            value={filters.difficulty}
-            options={DIFFICULTY_OPTIONS}
-            onChange={(v) => updateFilter('difficulty', v)}
-          />
-          <FilterDropdown
-            label="Genre"
-            value={filters.genre}
-            options={GENRE_OPTIONS}
-            onChange={(v) => updateFilter('genre', v)}
-          />
-          <FilterDropdown
-            label="Saved"
-            value={filters.saved}
-            options={SAVED_OPTIONS}
-            onChange={(v) => updateFilter('saved', v as SavedFilter)}
-          />
-          <FilterDropdown
-            label="Sort"
-            value={filters.sort}
-            options={SORT_OPTIONS}
-            onChange={(v) => updateFilter('sort', v as SortMode)}
-          />
-          <SearchInput
-            value={searchInput}
-            onChange={setSearchInput}
-            onClear={() => {
-              setSearchInput('');
-              updateFilter('search', '');
-            }}
-          />
-        </div>
+            {!clear && (
+              <Link
+                to={SongRoutes.setLists()}
+                aria-label="Open Set Lists"
+                className="inline-flex items-center rounded-md outline-none transition-colors hover:bg-[#7ecfcf]/15 focus-visible:ring-1 focus-visible:ring-white/40"
+                style={{
+                  height: 32,
+                  padding: '0 12px',
+                  gap: 6,
+                  background: 'rgba(126,207,207,0.08)',
+                  border: '1px solid rgba(126,207,207,0.35)',
+                  color: '#7ecfcf',
+                  fontSize: 12,
+                }}
+              >
+                <ListMusic size={13} />
+                Set Lists
+                <ArrowRight size={12} />
+              </Link>
+            )}
+            {!clear && (
+              <>
+                <FilterDropdown
+                  label="Difficulty"
+                  value={filters.difficulty}
+                  options={DIFFICULTY_OPTIONS}
+                  onChange={(v) => updateFilter('difficulty', v)}
+                />
+                <FilterDropdown
+                  label="Genre"
+                  value={filters.genre}
+                  options={GENRE_OPTIONS}
+                  onChange={(v) => updateFilter('genre', v)}
+                />
+                <FilterDropdown
+                  label="Saved"
+                  value={filters.saved}
+                  options={SAVED_OPTIONS}
+                  onChange={(v) => updateFilter('saved', v as SavedFilter)}
+                />
+              </>
+            )}
+            {!clear && (
+              <FilterDropdown
+                label="Sort"
+                value={filters.sort}
+                options={SORT_OPTIONS}
+                onChange={(v) => updateFilter('sort', v as SortMode)}
+              />
+            )}
+            {clear ? (
+              filters.search && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchInput('');
+                    updateFilter('search', '');
+                  }}
+                  aria-label={`Clear search “${filters.search}”`}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 text-xs text-white/80 outline-none transition-colors hover:bg-white/10 focus-visible:ring-1 focus-visible:ring-white/40"
+                >
+                  “{filters.search}”
+                  <X aria-hidden className="size-3.5" />
+                </button>
+              )
+            ) : (
+              <SearchInput
+                value={searchInput}
+                onChange={setSearchInput}
+                onClear={() => {
+                  setSearchInput('');
+                  updateFilter('search', '');
+                }}
+              />
+            )}
+          </div>
+        )}
         {/* Marquee pins together with the filter (edge-to-edge via its own
             `-mx-6 md:-mx-10` bleed); nothing scrolls under it, so no black bar.
             Fed the filtered set so it narrows in step with the list. */}
@@ -325,7 +403,7 @@ export const SongLibraryBody: FC<{
           </p>
         </div>
       ) : (
-        <SongListTable songs={results} stickyTop={headerHeight} />
+        <SongListTable songs={results} stickyTop={headerHeight} clear={clear} />
       )}
     </div>
   );
@@ -428,9 +506,15 @@ interface SongListTableProps {
   songs: Song[];
   /** Height (px) of the pinned filter row above; the header sticks below it. */
   stickyTop: number;
+  /** Column headers with no fill (SongLibraryBody's `clear`). */
+  clear?: boolean;
 }
 
-const SongListTable: FC<SongListTableProps> = ({ songs, stickyTop }) => {
+const SongListTable: FC<SongListTableProps> = ({
+  songs,
+  stickyTop,
+  clear = false,
+}) => {
   return (
     <table
       className="w-full"
@@ -454,7 +538,7 @@ const SongListTable: FC<SongListTableProps> = ({ songs, stickyTop }) => {
                   position: 'sticky',
                   top: stickyTop > 0 ? stickyTop - 1 : 0,
                   zIndex: 9,
-                  background: '#101012',
+                  ...(clear ? CLEAR_PINNED : { background: '#101012' }),
                 }}
               >
                 {col}

@@ -61,7 +61,7 @@ describe('the compass in the Learn menu', () => {
 
 describe('Lesson Settings: Show the tutorial again', () => {
   it('closes the sheet and starts the lesson tour on this lesson', () => {
-    window.history.pushState({}, '', '/learn/ionian/c?activity=asc-nh');
+    window.history.pushState({}, '', '/learn/keyboard/ionian/c?section=A');
     const onClose = vi.fn();
     render(<ShowTourAgainRow onClose={onClose} />);
     fireEvent.click(
@@ -70,7 +70,7 @@ describe('Lesson Settings: Show the tutorial again', () => {
     expect(onClose).toHaveBeenCalled();
     expect(useLearnTourStore.getState().tour).toBe('lesson');
     expect(useLearnTourStore.getState().ctx.returnTo).toBe(
-      '/learn/ionian/c?activity=asc-nh',
+      '/learn/keyboard/ionian/c?section=A',
     );
   });
 

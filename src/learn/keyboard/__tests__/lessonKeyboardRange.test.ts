@@ -3,6 +3,8 @@ import {
   DEFAULT_LESSON_KEY_RANGE,
   followPlayedNote,
   includeTargets,
+  LESSON_KEY_RANGE,
+  slideToTargets,
   keyBox,
   normalizeKeyRange,
   outOfRangeDirection,
@@ -63,11 +65,23 @@ describe('lessonKeyboardRange', () => {
       width: 1 / 8,
       black: false,
     });
-    // C♯ straddles the C|D line.
+    // C♯ straddles the C|D line, nudged a little left as the dock's are.
     const cs = keyBox(c4c5, 61)!;
     expect(cs.black).toBe(true);
-    expect(cs.left + cs.width / 2).toBeCloseTo(1 / 8);
+    expect(cs.width).toBeCloseTo(0.6 / 8);
+    expect(cs.left + cs.width / 2).toBeCloseTo((1 - 0.08) / 8);
     expect(keyBox(c4c5, 73)).toBeNull();
+  });
+
+  it('slides by whole octaves to show the targets, keeping its size', () => {
+    const c3c7 = LESSON_KEY_RANGE;
+    expect(slideToTargets(c3c7, [60, 72])).toBe(c3c7);
+    // Up to C8 (108): an octave up, still 49 keys.
+    expect(slideToTargets(c3c7, [100])).toEqual({ low: 60, high: 108 });
+    // Down to G2 (43), two keys' margin: an octave down.
+    expect(slideToTargets(c3c7, [43, 60])).toEqual({ low: 36, high: 84 });
+    // Wider than 49 keys: only then it grows.
+    expect(slideToTargets(c3c7, [36, 100])).toEqual({ low: 33, high: 103 });
   });
 
   it('widens to show every target note, with a margin', () => {

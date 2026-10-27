@@ -16,9 +16,9 @@ afterEach(() => {
 
 describe('the running tour', () => {
   it('starts at its first step, from where the player is', () => {
-    store().start('lesson', { returnTo: '/learn/ionian/c' });
+    store().start('lesson', { returnTo: '/learn/keyboard/ionian/c' });
     expect(store()).toMatchObject({ tour: 'lesson', index: 0, finale: null });
-    expect(store().ctx.returnTo).toBe('/learn/ionian/c');
+    expect(store().ctx.returnTo).toBe('/learn/keyboard/ionian/c');
   });
 
   it('turns the practice copy and the preview on for their steps and off after', () => {
@@ -26,7 +26,7 @@ describe('the running tour', () => {
     expect(sandboxOn()).toBe(false);
     store().goTo(indexOf('save-version'));
     expect(sandboxOn()).toBe(true);
-    store().goTo(indexOf('new-show'));
+    store().goTo(indexOf('place-the-list'));
     expect(sandboxOn()).toBe(true);
     store().goTo(indexOf('open-genre'));
     expect(sandboxOn()).toBe(false);
@@ -43,7 +43,7 @@ describe('the running tour', () => {
     expect(previewOn()).toBe(false);
     expect(store()).toMatchObject({ tour: null, finale: null });
     store().start('navigate');
-    store().goTo(indexOf('new-band'));
+    store().goTo(indexOf('place-the-list'));
     store().quit();
     expect(sandboxOn()).toBe(false);
   });

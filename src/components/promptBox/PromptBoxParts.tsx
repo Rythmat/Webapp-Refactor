@@ -61,7 +61,28 @@ export const PROMPT_FRAME = cn(
 
 /** Home's wash on the page; the Studio's card is opaque over the lanes. */
 export const PROMPT_WASH = 'bg-white/[0.04] focus-within:bg-white/[0.06]';
+
+/**
+ * The card's look without its size or place: corners, edge, shadow and wash.
+ * For panels that bring their own layout (a lesson's cards).
+ */
+export const PROMPT_SURFACE = cn(
+  'rounded-[1.25rem] border border-white/10 bg-white/[0.04]',
+  'shadow-[0_8px_28px_rgba(0,0,0,0.36)]',
+);
 export const PROMPT_OPAQUE = 'bg-[#141416]';
+
+/**
+ * A pill under the input: Home's destinations (Studio, Learn…), the Learn
+ * page's kinds and filters. Chosen, it lights up.
+ */
+export const PROMPT_PILL = cn(
+  'flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[0.8125rem] transition-colors',
+  'outline-none focus-visible:ring-2 focus-visible:ring-white/40',
+);
+export const PROMPT_PILL_ON = 'border-white/20 bg-white/15 text-white';
+export const PROMPT_PILL_OFF =
+  'border-white/10 bg-white/[0.03] text-white/60 hover:bg-white/[0.07] hover:text-white/85';
 
 /** The input: one line that grows, the suggestion drawn over it while empty. */
 export const PROMPT_TEXTAREA = cn(
@@ -231,6 +252,16 @@ export function PromptPillButton({
     />
   );
 }
+
+/**
+ * The frosted pill in a page's top corners: Home's search, Learn's
+ * instrument switcher and Set Lists, a lesson's About and settings. Add the
+ * padding (px-4) or a width.
+ */
+export const GLASS_PILL = cn(
+  'flex h-10 items-center rounded-full border border-white/10 bg-white/10 text-white backdrop-blur-md transition-colors duration-150 hover:bg-white/[0.14]',
+  'outline-none focus-visible:ring-2 focus-visible:ring-white/40',
+);
 
 /** The card above the box (what it's doing, what it did): the box's frame. */
 export const PROMPT_CARD = cn(

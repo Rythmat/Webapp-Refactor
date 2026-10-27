@@ -7,25 +7,25 @@ const read = (url: string) =>
 
 describe('lesson origin', () => {
   it('round-trips a song and chord through the URL', () => {
-    const url = withStudioOrigin('/learn/dorian/d', {
+    const url = withStudioOrigin('/learn/keyboard/dorian/d', {
       song: 'Midnight Groove',
       chord: '2 min9',
     });
     expect(url).toBe(
-      '/learn/dorian/d?from=studio&song=Midnight+Groove&chord=2+min9',
+      '/learn/keyboard/dorian/d?from=studio&song=Midnight+Groove&chord=2+min9',
     );
     expect(read(url)).toEqual({ song: 'Midnight Groove', chord: '2 min9' });
   });
 
   it('appends to an existing query', () => {
-    expect(withStudioOrigin('/l?activity=asc-nh', { song: 'A' })).toBe(
-      '/l?activity=asc-nh&from=studio&song=A',
+    expect(withStudioOrigin('/l?section=A', { song: 'A' })).toBe(
+      '/l?section=A&from=studio&song=A',
     );
   });
 
   it('ignores links that did not come from the Studio', () => {
-    expect(read('/learn/ionian/c')).toBeNull();
-    expect(read('/learn/ionian/c?from=studio')).toBeNull();
+    expect(read('/learn/keyboard/ionian/c')).toBeNull();
+    expect(read('/learn/keyboard/ionian/c?from=studio')).toBeNull();
   });
 });
 

@@ -1,14 +1,11 @@
-import { getSong } from '@/curriculum/data/songs';
+import { LearnRoutes } from '@/constants/routes';
 import {
   addSongEntry,
   ensureDefaults,
-  fileSetListAt,
-  fileShowAt,
   roleList,
 } from '@/features/setlists/setListsStore';
 import {
   sandboxAdditions,
-  updateSetListSandbox,
   useSetListSandbox,
 } from '@/features/setlists/storage/setListSandbox';
 import type { SetListsBlob } from '@/features/setlists/types';
@@ -27,7 +24,7 @@ import {
   TOUR_SONG_HREF,
   TOUR_SONG_ID,
 } from '../places';
-import { ghostDrag, pressEscape, typeInto, type TargetSpec } from '../targets';
+import { pressEscape, typeInto, type TargetSpec } from '../targets';
 import type {
   LearnSectionTourId,
   TourApi,
@@ -136,7 +133,7 @@ function withPracticeLeadSheet(blob: SetListsBlob): SetListsBlob {
         .blob;
 }
 
-/** The last set list, show and band made on the copy. */
+/** The last set list made on the copy (and show and band, by the card). */
 function made() {
   const added = sandboxAdditions();
   const blob = useSetListSandbox.getState().blob;
@@ -149,23 +146,13 @@ function made() {
   };
 }
 
-const listCard = (id: string | undefined): TargetSpec => ({
-  css: `[data-set-list="${id}"]`,
+/** A field on a set list's card: its Group or Date. */
+const placeField = (
+  id: string | undefined,
+  field: 'Group' | 'Date',
+): TargetSpec => ({
+  css: `[data-set-list="${id}"] input[aria-label="${field}"]`,
 });
-
-/** Carries a chip from one control to another, then makes the move. */
-async function dragThen(
-  api: TourApi,
-  from: TargetSpec,
-  to: TargetSpec,
-  label: string,
-  move: () => void,
-) {
-  const [a] = api.find(from);
-  const [b] = api.find(to);
-  if (a && b) await ghostDrag(a, b, label, api.reducedMotion);
-  move();
-}
 
 // ── Genre ──────────────────────────────────────────────────────────────────
 
@@ -203,7 +190,8 @@ const theory = chapter('Theory', {
 
 const ionian = chapter('Theory', {
   at: atIonianLesson,
-  href: () => '/learn/ionian/c?activity=lesson-overview',
+  href: () =>
+    LearnRoutes.keyboardLesson({ mode: 'ionian', key: 'c' }, { section: 'O' }),
 });
 
 const overviewTab = (label: RegExp): TargetSpec => ({
@@ -416,148 +404,32 @@ export const navigateTour: TourDefinition = {
       text: '**Set Lists** is where you plan what you’ll play. On the tour this page is a practice copy: nothing you make here is saved.',
     }),
     setLists({
-      id: 'lead-sheets',
-      resumeFrom: 'set-lists',
-      target: { css: '[data-setlists-column="leadsheets"]' },
-      text: `**My Lead Sheets** holds the charts you’ve saved. We’ve put *${SONG_TITLE}* here to practice with.`,
-    }),
-    setLists({
       id: 'new-set-list',
       resumeFrom: 'set-lists',
       target: { css: '[data-setlists-new="setlist"]' },
-      text: 'Click **+ Set List** to make a set list.',
+      text: 'Click **+ Add Set List** to make a set list.',
       next: 'click',
       doneWhen: () => !!made().listId,
     }),
     setLists({
-      id: 'song-into-list',
+      id: 'place-the-list',
       resumeFrom: 'set-lists',
-      target: () => [
-        { css: `[data-lead-sheet="${TOUR_SONG_ID}"]` },
-        listCard(made().listId),
-      ],
-      text: `Drag *${SONG_TITLE}* onto your new set list.`,
-      next: (api) => {
+      target: () => {
         const { listId } = made();
-        return dragThen(
-          api,
-          { css: `[data-lead-sheet="${TOUR_SONG_ID}"]` },
-          listCard(listId),
-          getSong(TOUR_SONG_ID)?.title ?? SONG_TITLE,
-          () =>
-            listId &&
-            updateSetListSandbox(
-              (b) =>
-                addSongEntry(
-                  b,
-                  listId,
-                  { songId: TOUR_SONG_ID },
-                  undefined,
-                  Date.now(),
-                ).blob,
-            ),
-        );
+        return [placeField(listId, 'Group'), placeField(listId, 'Date')];
       },
-      doneWhen: () => {
-        const { blob, listId } = made();
-        return !!listId && (blob?.setLists[listId]?.entries.length ?? 0) > 0;
-      },
-    }),
-    setLists({
-      id: 'new-show',
-      resumeFrom: 'set-lists',
-      target: { css: '[data-setlists-new="show"]' },
-      text: 'Now a show: click **+ Show**.',
-      next: 'click',
-      doneWhen: () => !!made().showId,
-    }),
-    setLists({
-      id: 'list-into-show',
-      resumeFrom: 'set-lists',
-      target: () => {
-        const { listId, showId } = made();
-        return [
-          listCard(listId),
-          { css: `[data-show="${showId}"] [data-set-list-drop]` },
-        ];
-      },
-      text: 'Drag your set list into the show.',
-      next: (api) => {
-        const { listId, showId } = made();
-        return dragThen(
-          api,
-          listCard(listId),
-          { css: `[data-show="${showId}"] [data-set-list-drop]` },
-          'New Set List',
-          () =>
-            listId &&
-            showId &&
-            updateSetListSandbox((b) =>
-              fileSetListAt(
-                b,
-                listId,
-                { kind: 'show', id: showId },
-                null,
-                Date.now(),
-              ),
-            ),
-        );
-      },
-      doneWhen: () => {
-        const { blob, listId, showId } = made();
-        const parent = listId ? blob?.setLists[listId]?.parent : undefined;
-        return parent?.kind === 'show' && parent.id === showId;
-      },
-    }),
-    setLists({
-      id: 'new-band',
-      resumeFrom: 'set-lists',
-      target: { css: '[data-setlists-new="band"]' },
-      text: 'And a band: click **+ Band**.',
-      next: 'click',
-      doneWhen: () => !!made().bandId,
-    }),
-    setLists({
-      id: 'show-into-band',
-      resumeFrom: 'set-lists',
-      target: () => {
-        const { showId, bandId } = made();
-        return [
-          { css: `[data-show="${showId}"]` },
-          { css: `[data-band="${bandId}"]` },
-        ];
-      },
-      text: 'Drag the show onto your band.',
-      next: (api) => {
-        const { showId, bandId } = made();
-        return dragThen(
-          api,
-          { css: `[data-show="${showId}"]` },
-          { css: `[data-band="${bandId}"]` },
-          'New Show',
-          () =>
-            showId &&
-            bandId &&
-            updateSetListSandbox((b) =>
-              fileShowAt(b, showId, bandId, null, Date.now()),
-            ),
-        );
-      },
-      doneWhen: () => {
-        const { blob, showId, bandId } = made();
-        return !!showId && !!bandId && blob?.shows[showId]?.artistId === bandId;
-      },
+      text: 'A set list’s name is its show. Beside it, type its **Group** and pick its **Date**.',
     }),
     setLists({
       id: 'the-shape',
       resumeFrom: 'set-lists',
-      target: { css: '[data-setlists-column="bands"]' },
-      text: 'That’s how it fits together: **songs** go in **set lists**, set lists in **shows**, and shows in **bands**.',
+      target: { css: '[data-setlists-column="setlists"]' },
+      text: 'That’s how it fits together: **songs** go in **set lists**, and each set list knows its **group** and **date**.',
     }),
     setLists({
       id: 'back-from-set-lists',
       resumeFrom: 'set-lists',
-      target: { css: 'button[aria-label="Back to Song Library"]' },
+      target: { css: 'a[aria-label="Back to Songs"]' },
       text: 'Your practice set lists go away now. Let’s head back to **Songs**.',
       next: 'click',
       doneWhen: (api) => atLearnTab('Songs')(api.place),

@@ -1,15 +1,18 @@
 /* eslint-disable import/order, no-duplicate-imports, react-hooks/exhaustive-deps, react-hooks/rules-of-hooks, sonarjs/no-collapsible-if, react/jsx-sort-props, tailwindcss/classnames-order */
+import {
+  PROMPT_PILL,
+  PROMPT_PILL_OFF,
+  PROMPT_PILL_ON,
+} from '@/components/promptBox/PromptBoxParts';
+import { cn } from '@/components/utilities';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { usePrismStartContours } from '@/hooks/data/prism/usePrismStartContours';
 import { NoteHold } from './NoteHold';
 import { PlayAlong } from './PlayAlong';
 import { PLAY_ALONG_PASS_RATIO, type PlayAlongResult } from './playAlongGrade';
+import { LessonTabStrip } from '@/curriculum/guitar/layout/LessonTabStrip';
 import { TheoryLessonLayout, TheoryResultPanel } from './TheoryLessonLayout';
-import {
-  SavedHandsSwitch,
-  SavedRollViewSwitch,
-} from '@/components/notation/RollViewToggle';
 import {
   Primary,
   Secondary,
@@ -18,6 +21,7 @@ import {
 import { GuitarSectionCompletePanel } from '@/curriculum/guitar/layout/GuitarSectionCompletePanel';
 import type {
   BarState,
+  NavOutlineSection,
   NavStep,
   SectionCompleteModel,
 } from '@/curriculum/guitar/layout/types';
@@ -142,7 +146,8 @@ type ActivityFlowProps = {
   rootKey: string;
   rootMidi: number;
   mode?: PrismModeSlug;
-  startAtActivityKey?: string;
+  /** The chapter to open at (`?section=O|A|B`); unset resumes. */
+  startAtSection?: string;
   /** Set when the lesson was opened from a song in the Studio. */
   origin?: LessonOrigin | null;
 };
@@ -291,6 +296,14 @@ const extractContours = (value: unknown): number[][] => {
   return results;
 };
 
+/** The Overview's tabs, as their pills and the lesson's subtitle name them. */
+const OVERVIEW_TAB_LABELS = {
+  scale: 'Scale',
+  triads: 'Triads',
+  sevenths: '7th Chords',
+  inversions: 'Inversions',
+} as const;
+
 export const ActivityFlow = ({
   scaleMidis,
   onComplete,
@@ -298,7 +311,7 @@ export const ActivityFlow = ({
   rootKey,
   rootMidi,
   mode,
-  startAtActivityKey,
+  startAtSection,
   origin = null,
 }: ActivityFlowProps) => {
   const navigate = useNavigate();
@@ -351,17 +364,38 @@ export const ActivityFlow = ({
   const chordsPending = !scaleLesson && chordsQuery.isPending;
   const chordResponse = chordsQuery.data;
   // const modeChords: PrismModeChordDataMap | undefined = chordResponse?.chords;
+  // The scale's own chords, stacked in thirds from each degree: Chords
+  // shows from these while the API's are loading, or if it never sends any
+  // (owner, 2026-10-26: Chords must always be there). Not for a scale
+  // lesson, which teaches no chords.
+  const localChords = useMemo(() => {
+    const seven = (scaleMidis ?? []).slice(0, 7);
+    if (scaleLesson || seven.length < 7) return { triads: [], tetrads: [] };
+    const stack = (size: number) =>
+      seven.map((_, degree) =>
+        Array.from({ length: size }, (_, k) => {
+          const step = degree + 2 * k;
+          return seven[step % 7] + 12 * Math.floor(step / 7);
+        }),
+      );
+    return { triads: stack(3), tetrads: stack(4) };
+  }, [scaleMidis, scaleLesson]);
+
   const triads = useMemo(() => {
     const raw = chordResponse?.chords?.triads;
-    if (!raw || !Array.isArray(raw)) return [];
+    if (!raw || !Array.isArray(raw) || raw.length === 0) {
+      return localChords.triads;
+    }
     return raw.map((arr) => arr.map((i) => i + rootMidi));
-  }, [chordResponse, rootMidi]);
+  }, [chordResponse, rootMidi, localChords]);
 
   const tetrads = useMemo(() => {
     const raw = chordResponse?.chords?.tetrads;
-    if (!raw || !Array.isArray(raw)) return [];
+    if (!raw || !Array.isArray(raw) || raw.length === 0) {
+      return localChords.tetrads;
+    }
     return raw.map((arr) => arr.map((i) => i + rootMidi));
-  }, [chordResponse, rootMidi]);
+  }, [chordResponse, rootMidi, localChords]);
 
   // Chord symbols for the staff. The mode's chord-scale table already names
   // every degree the way the formatter reads it ("1 maj", "6 min"), so the
@@ -412,6 +446,7 @@ export const ActivityFlow = ({
       Component: () => (
         <LessonOverview
           activeTab={overviewTabRef.current}
+          showTitle={false}
           mode={mode as PrismModeSlug}
           rootKey={rootKey}
           rootMidi={rootMidi}
@@ -874,7 +909,7 @@ export const ActivityFlow = ({
 
   const continueCurriculum = useCallback(() => {
     navigate(
-      LearnRoutes.lesson({
+      LearnRoutes.keyboardLesson({
         mode: modeLabel,
         key: keyLabelToUrlParam(nextCurriculumKey),
       }),
@@ -944,23 +979,29 @@ export const ActivityFlow = ({
     const introChordHoldCompleted =
       introChordHoldProgress?.status === 'COMPLETED';
 
-    const explicitStartIndex = startAtActivityKey
+    // Not the Chords placeholder: the chapter starts at its first real step.
+    const sectionStartIndex = startAtSection
       ? flowDefinitions.findIndex(
           (activity) =>
-            activity.activityDefId === startAtActivityKey ||
-            activity.key === startAtActivityKey,
+            activity.section === startAtSection &&
+            activity.activityDefId !== 'chords-loading',
         )
       : -1;
 
-    const explicitStartScopeKey = startAtActivityKey
-      ? `${lessonProgressScope}:${startAtActivityKey}`
-      : null;
-
     // Chord activities only exist once the mode's chord data loads, so a deep
     // link into Chords waits for it instead of falling through to resume.
-    if (startAtActivityKey && explicitStartIndex < 0 && chordsPending) {
+    if (startAtSection && sectionStartIndex < 0 && chordsPending) {
       return;
     }
+
+    // A chapter the lesson lacks opens its first.
+    const explicitStartIndex = startAtSection
+      ? Math.max(sectionStartIndex, 0)
+      : -1;
+
+    const explicitStartScopeKey = startAtSection
+      ? `${lessonProgressScope}:${startAtSection}`
+      : null;
 
     if (
       explicitStartIndex >= 0 &&
@@ -1007,7 +1048,7 @@ export const ActivityFlow = ({
     flowDefinitions,
     lessonProgressQuery.data,
     lessonProgressScope,
-    startAtActivityKey,
+    startAtSection,
   ]);
 
   useEffect(() => {
@@ -1956,7 +1997,7 @@ export const ActivityFlow = ({
                   type="button"
                   onClick={() =>
                     navigate(
-                      LearnRoutes.lesson({
+                      LearnRoutes.keyboardLesson({
                         mode: modeLabel,
                         key: keyLabelToUrlParam(nextKeyChoice),
                       }),
@@ -2012,15 +2053,59 @@ export const ActivityFlow = ({
 
   // The step list behind ‹ 3 / 12 ›: grouped by exercise ("Ascend"), each
   // row the exercise and how it's played ("Ascend • Hold").
-  const navSteps: NavStep[] = sectionActivities.map((activity, i) => {
-    const title = stepTitle(activity.label);
-    return {
-      code: activity.section === 'O' ? '' : `${activity.section}${i + 1}`,
-      title,
-      subsection: title.split(' • ')[0],
-      status: isDone(activity) ? 'passed' : 'todo',
-    };
-  });
+  // A step's exercise group: Melody's by its exercise ("Ascend"), Chords'
+  // by the kind of chord work (Triads, Triad Progressions, 7th Chords, 7th
+  // Progressions). The tab row and the rail's step list both group by it.
+  const exerciseGroup = (activity: ActivityDefinition) => {
+    const chord = /(triad|seventh)-(progression|\d)/.exec(activity.key);
+    if (chord) {
+      const triad = chord[1] === 'triad';
+      if (chord[2] === 'progression') {
+        return triad ? 'Triad Progressions' : '7th Progressions';
+      }
+      return triad ? 'Triads' : '7th Chords';
+    }
+    return stepTitle(activity.label).split(' • ')[0];
+  };
+
+  // A section's exercise groups, in order. Melody and Chords number them
+  // (owner, 2026-10-26): the rail's "1. Ascend" over its steps ("Ascend
+  // Hold", "Ascend Play Along"), the tab row's "1".
+  const groupsOf = (activities: ActivityDefinition[]) => [
+    ...new Set(activities.map(exerciseGroup)),
+  ];
+  const stepsOf = (
+    activities: ActivityDefinition[],
+    sectionId: SectionId,
+  ): NavStep[] => {
+    const groups = groupsOf(activities);
+    return activities.map((activity, i) => {
+      const title = stepTitle(activity.label);
+      const group = exerciseGroup(activity);
+      if (sectionId !== 'O') {
+        return {
+          // No step numbers (owner, 2026-10-26: "1.1." read as confusing);
+          // the group's heading keeps its number, as its tab.
+          code: '',
+          title: title.replace(/\s*•\s*/g, ' '),
+          subsection: `${groups.indexOf(group) + 1}. ${group}`,
+          status: isDone(activity) ? 'passed' : 'todo',
+        };
+      }
+      return {
+        code: activity.section === 'O' ? '' : `${activity.section}${i + 1}`,
+        title,
+        subsection: group,
+        status: isDone(activity) ? 'passed' : 'todo',
+      };
+    });
+  };
+
+  const exerciseGroups = groupsOf(sectionActivities);
+  const numbered = currentSectionId !== 'O';
+  const groupLabel = (group: string) =>
+    numbered ? `${exerciseGroups.indexOf(group) + 1}. ${group}` : group;
+  const navSteps = stepsOf(sectionActivities, currentSectionId);
 
   const passMarkPct = Math.round(PLAY_ALONG_PASS_RATIO * 100);
   const barState: BarState = showMelodySectionCompleteInterstitial
@@ -2166,39 +2251,186 @@ export const ActivityFlow = ({
       ? [result.heading, result.status].filter(Boolean).join('. ')
       : '';
 
+  // The Overview's tabs, after Pickup Music's over their video (owner,
+  // 2026-10-26): Scale, Chords (its triads, 7ths and inversions under it)
+  // and the Practice Track, which opens in the Studio.
+  const chordTabs = ['triads', 'sevenths', 'inversions'] as const;
+  const onChords = overviewTab !== 'scale';
   const overviewTabs =
     currentSectionId === 'O' ? (
-      <div
-        role="group"
-        aria-label="Overview"
-        className="flex h-9 w-fit shrink-0 items-center rounded-full ring-1 ring-inset ring-white/10 max-[639px]:h-11"
-      >
-        {(scaleLesson
-          ? (['scale'] as const)
-          : (['scale', 'triads', 'sevenths', 'inversions'] as const)
-        ).map((t) => (
-          <button
-            key={t}
-            type="button"
-            aria-pressed={overviewTab === t}
-            onClick={() => setOverviewTab(t)}
-            className={`inline-flex h-full items-center rounded-full px-4 text-sm font-normal transition-colors duration-150 ${
-              overviewTab === t
-                ? 'bg-white text-[#101012]'
-                : 'text-white/55 hover:text-[#e8e8f0]'
-            }`}
+      <div className="flex shrink-0 flex-col gap-4">
+        <LessonTabStrip
+          label="Overview"
+          keyColor={activityColor}
+          tabs={[
+            {
+              id: 'scale',
+              label: 'Scale',
+              active: !onChords,
+              onSelect: () => setOverviewTab('scale'),
+            },
+            ...(scaleLesson
+              ? []
+              : [
+                  {
+                    id: 'chords',
+                    label: 'Chords',
+                    active: onChords,
+                    onSelect: () => {
+                      if (!onChords) setOverviewTab('triads');
+                    },
+                  },
+                ]),
+            ...(hasPracticeTrack
+              ? [
+                  {
+                    id: 'practice-track',
+                    label: 'Practice Track',
+                    active: false,
+                    onSelect: openMelodyPracticeTrack,
+                  },
+                ]
+              : []),
+          ]}
+        />
+        {/* Chords: which ones, in Learn's pills (the prompt box's). */}
+        {onChords && (
+          <div
+            role="group"
+            aria-label="Chords"
+            className="flex w-fit shrink-0 flex-wrap items-center gap-2"
           >
-            {t === 'scale'
-              ? 'Scale'
-              : t === 'triads'
-                ? 'Triads'
-                : t === 'sevenths'
-                  ? '7th Chords'
-                  : 'Inversions'}
-          </button>
-        ))}
+            {chordTabs.map((t) => (
+              <button
+                key={t}
+                type="button"
+                aria-pressed={overviewTab === t}
+                onClick={() => setOverviewTab(t)}
+                className={cn(
+                  PROMPT_PILL,
+                  'max-[639px]:h-11',
+                  overviewTab === t ? PROMPT_PILL_ON : PROMPT_PILL_OFF,
+                )}
+              >
+                {OVERVIEW_TAB_LABELS[t]}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     ) : null;
+
+  // Melody's and Chords' tabs, as the Overview's (owner, 2026-10-26): the
+  // section's exercise groups, each opening its first step, then its
+  // Practice Track (in the Studio). The pager pages the group's steps.
+  const practiceTrackTab = hasPracticeTrack
+    ? [
+        {
+          id: 'practice-track',
+          label: 'Practice Track',
+          active: false,
+          onSelect:
+            currentSectionId === 'B' && !scaleLesson
+              ? openChordsPracticeTrack
+              : openMelodyPracticeTrack,
+        },
+      ]
+    : [];
+  const currentGroup = exerciseGroup(currentActivity);
+  const sectionTabs =
+    currentSectionId === 'O' ? null : (
+      <LessonTabStrip
+        label={SECTION_LABELS[currentSectionId] ?? 'Steps'}
+        keyColor={activityColor}
+        tabs={[
+          ...exerciseGroups.map((group) => ({
+            id: group,
+            // Just its number on the tab (owner, 2026-10-26); its name for
+            // assistive tech and the tooltip.
+            label: numbered ? String(exerciseGroups.indexOf(group) + 1) : group,
+            name: numbered ? groupLabel(group) : undefined,
+            // The step line under the tab: a segment per step of the group.
+            steps: sectionActivities
+              .filter((activity) => exerciseGroup(activity) === group)
+              .map((activity) => {
+                const done = isDone(activity);
+                const title = stepTitle(activity.label).replace(
+                  /\s*•\s*/g,
+                  ' ',
+                );
+                return {
+                  status: done ? ('passed' as const) : ('todo' as const),
+                  current: activity.key === currentActivity.key,
+                  label: done ? `${title}, passed` : title,
+                  onSelect: () => goToStepInSection(activity),
+                };
+              }),
+            active: group === currentGroup,
+            onSelect: () => {
+              const first = sectionActivities.find(
+                (activity) => exerciseGroup(activity) === group,
+              );
+              if (first && group !== currentGroup) goToStepInSection(first);
+            },
+          })),
+          ...practiceTrackTab,
+        ]}
+      />
+    );
+
+  // The rail's whole outline (owner, 2026-10-26): the Overview's tabs, then
+  // every Melody and Chords step, all open in one list.
+  const openStep = (activity: ActivityDefinition) => {
+    setCurrentSectionId(activity.section);
+    goToStepInSection(activity);
+  };
+  const overviewItems = [
+    { id: 'scale', title: 'Scale' },
+    ...(scaleLesson ? [] : [{ id: 'chords', title: 'Chords' }]),
+    ...(hasPracticeTrack
+      ? [{ id: 'practice-track', title: 'Practice Track' }]
+      : []),
+  ];
+  const outline: NavOutlineSection[] = sectionIds.map((sId) => {
+    const defs = flowDefinitions.filter((d) => d.section === sId);
+    const active = sId === currentSectionId;
+    const base = {
+      id: sId as unknown as ActivitySectionId,
+      name: SECTION_LABELS[sId] ?? sId,
+      active,
+      done: defs.length > 0 && defs.every(isDone),
+    };
+    if (sId === 'O') {
+      return {
+        ...base,
+        steps: overviewItems.map(({ title }) => ({
+          code: '',
+          title,
+          subsection: '',
+          status: 'todo' as const,
+        })),
+        index: active ? (overviewTab === 'scale' ? 0 : 1) : -1,
+        onPick: (i: number) => {
+          const item = overviewItems[i]?.id;
+          if (item === 'practice-track') {
+            openMelodyPracticeTrack();
+            return;
+          }
+          if (!active) goToSection('O');
+          setOverviewTab(item === 'chords' ? 'triads' : 'scale');
+        },
+      };
+    }
+    return {
+      ...base,
+      steps: stepsOf(defs, sId),
+      index: active ? defs.findIndex((d) => d.key === currentActivity.key) : -1,
+      onPick: (i: number) => {
+        const activity = defs[i];
+        if (activity) openStep(activity);
+      },
+    };
+  });
 
   const effectiveBpm = resolveTempo(THEORY_ACTIVITY_BPM);
 
@@ -2213,13 +2445,17 @@ export const ActivityFlow = ({
           },
           {
             label: modeTitle,
-            onClick: () => navigate(LearnRoutes.overview({ mode: modeLabel })),
+            onClick: () =>
+              navigate(LearnRoutes.keyboardOverview({ mode: modeLabel })),
           },
         ],
         keyLabel: `${rootKey} ${modeTitle}`,
         keyColor: activityColor,
         subsection: SECTION_LABELS[currentSectionId] ?? '',
-        activity: isOverview ? 'Overview' : stepTitle(currentActivity.label),
+        // The Overview's tab ("Overview: Scale"), else the step's name.
+        activity: isOverview
+          ? OVERVIEW_TAB_LABELS[overviewTab]
+          : stepTitle(currentActivity.label),
         chordNames:
           !isOverview && (currentActivity.chordSymbols?.length ?? 0) > 0,
       }}
@@ -2235,29 +2471,23 @@ export const ActivityFlow = ({
           };
         }),
         onSection: (id) => goToSection(id as unknown as SectionId),
+        outline,
         steps: navSteps,
         index: Math.max(0, currentStepInSection),
         goToStep: (i) => {
           const activity = sectionActivities[i];
           if (activity) goToStepInSection(activity);
         },
-        practiceTrack: hasPracticeTrack
-          ? {
-              onOpen:
-                currentSectionId === 'B' && !scaleLesson
-                  ? openChordsPracticeTrack
-                  : openMelodyPracticeTrack,
-            }
-          : null,
-        // Roll / Notation / Falling, beside Practice Track.
-        extra: usesActivityStartOverlay ? (
-          <>
-            <SavedRollViewSwitch />
-            <SavedHandsSwitch />
-          </>
-        ) : undefined,
+        // The Overview's Practice Track is one of its tabs.
+        // Every section's Practice Track is the last of its tabs, and the
+        // tabs page the steps: no pager.
+        practiceTrack: null,
+        pager: false,
+        // Roll / Notation / Falling and the hands, on the tool rail, on every
+        // step, the Overview's too (owner, 2026-10-26).
+        noteViews: { hands: true },
       }}
-      subNav={overviewTabs}
+      subNav={overviewTabs ?? sectionTabs}
       content={
         <Component
           key={`${currentActivity.key}-${activityInstanceId}`}

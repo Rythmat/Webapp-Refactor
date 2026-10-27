@@ -45,11 +45,53 @@ export const SIDEBAR_GLYPH = 'size-[18px]';
  * sit at the same optical size as the 18px lucide glyphs.
  */
 const MASK_GLYPH = 'size-5';
+/**
+ * The rail draws its glyphs 10% over those sizes (owner, 2026-10-25), in
+ * the same 18px slot so the rail and its rows keep their size. The tab bar
+ * keeps the plain sizes.
+ */
+export const RAIL_GLYPH = 'size-[19.8px]';
+const RAIL_MASK_GLYPH = 'size-[22px]';
 
 export const isRouteActive = (currentPath: string, targetPath: string) => {
   if (targetPath === '/') return currentPath === '/';
   return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
 };
+
+/**
+ * A nav item's icon: a one-color /icons SVG drawn as a mask (so it takes the
+ * text color), or a lucide glyph. The sidebar and the mobile tab bar share it.
+ */
+export function NavGlyph({
+  icon: Icon,
+  iconSrc,
+  className,
+}: {
+  icon?: LucideIcon;
+  iconSrc?: string;
+  className?: string;
+}) {
+  if (iconSrc)
+    return (
+      <span
+        aria-hidden
+        className={cn('shrink-0 bg-current', className ?? MASK_GLYPH)}
+        style={{
+          maskImage: `url(${iconSrc})`,
+          WebkitMaskImage: `url(${iconSrc})`,
+          maskSize: 'contain',
+          WebkitMaskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          WebkitMaskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          WebkitMaskPosition: 'center',
+        }}
+      />
+    );
+  return Icon ? (
+    <Icon className={cn('shrink-0', className ?? SIDEBAR_GLYPH)} />
+  ) : null;
+}
 
 export function SidebarMainNavItem(props: NavItemProps) {
   const location = useLocation();
@@ -61,26 +103,15 @@ export function SidebarMainNavItem(props: NavItemProps) {
       (isRouteActive(location.pathname, props.to) ||
         (props.activePaths?.some((p) => isRouteActive(location.pathname, p)) ??
           false)));
-  const Icon = props.icon;
-
-  const glyph = props.iconSrc ? (
-    <span
-      aria-hidden
-      className={cn('shrink-0 bg-current', props.glyphClassName ?? MASK_GLYPH)}
-      style={{
-        maskImage: `url(${props.iconSrc})`,
-        WebkitMaskImage: `url(${props.iconSrc})`,
-        maskSize: 'contain',
-        WebkitMaskSize: 'contain',
-        maskRepeat: 'no-repeat',
-        WebkitMaskRepeat: 'no-repeat',
-        maskPosition: 'center',
-        WebkitMaskPosition: 'center',
-      }}
+  const glyph = (
+    <NavGlyph
+      icon={props.icon}
+      iconSrc={props.iconSrc}
+      className={
+        props.glyphClassName ?? (props.iconSrc ? RAIL_MASK_GLYPH : RAIL_GLYPH)
+      }
     />
-  ) : Icon ? (
-    <Icon className={cn('shrink-0', props.glyphClassName ?? SIDEBAR_GLYPH)} />
-  ) : null;
+  );
 
   // Suno's rows: a full-width pill, 16px in, the 18px icon then the label 12px
   // after it. The icon never moves when the sidebar collapses; the label just

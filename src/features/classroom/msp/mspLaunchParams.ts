@@ -22,7 +22,7 @@ export interface MspLaunchParams {
 const STASH_KEY = 'msp:launch:v1';
 const isBrowser = typeof window !== 'undefined';
 
-/** Append the launch handshake params to an in-SPA href, preserving existing query (e.g. `?activity=`). */
+/** Append the launch handshake params to an in-SPA href, preserving existing query (e.g. `?section=`). */
 export const appendMspLaunchParams = (
   href: string,
   p: MspLaunchParams,

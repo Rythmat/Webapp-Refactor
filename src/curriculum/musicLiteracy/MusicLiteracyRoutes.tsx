@@ -1,4 +1,6 @@
 import { Link, Navigate, useParams } from 'react-router-dom';
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
+import { cn } from '@/components/utilities';
 import { CurriculumRoutes } from '@/constants/routes';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
 import { useUserRole } from '@/contexts/AuthContext/hooks/useUserRole';
@@ -64,7 +66,10 @@ export const MusicLiteracyIndexRoute = () => {
             <li key={lesson.id}>
               <Link
                 to={lessonRoute(lesson)}
-                className="flex flex-col gap-1 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 transition-colors hover:bg-white/[0.06]"
+                className={cn(
+                  PROMPT_SURFACE,
+                  'flex flex-col gap-1 px-4 py-3 transition-colors hover:bg-white/[0.06]',
+                )}
               >
                 <span className="text-base">
                   {lesson.name}

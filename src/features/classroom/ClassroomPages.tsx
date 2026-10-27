@@ -1,6 +1,6 @@
 /* eslint-disable import/order */
 /* eslint-disable no-duplicate-imports */
-import { lazy } from 'react';
+import { lazy, useLayoutEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import {
   ClassroomRoutes,
@@ -23,7 +23,20 @@ import { EditorRouteBoundary } from '@/daw/shell/errors/EditorRouteBoundary';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { LibraryInlet } from '@/components/Library/libraryInlet';
-import { LearnInlet } from '@/components/learn/LearnInlet';
+import { LearnPage } from '@/components/learn/LearnPage';
+import {
+  LEARN_TABS,
+  learnTabRedirect,
+  learnTabRoute,
+  type LearnTab,
+} from '@/features/learn/learnPaths';
+import {
+  isGuitarLearnEnabled,
+  useInstrumentStore,
+  useLearnInstrument,
+  useLearnPageRoute,
+  type LearnInstrument,
+} from '@/features/learn/useInstrumentStore';
 import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
@@ -554,7 +567,8 @@ const LessonRoute = () => {
     key: string;
   }>();
   const [searchParams] = useSearchParams();
-  const startActivity = searchParams.get('activity') ?? undefined;
+  // ?section=O|A|B opens that chapter; none resumes where the student was.
+  const section = searchParams.get('section') ?? undefined;
 
   // Free users can access C Ionian only
   const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
@@ -562,7 +576,7 @@ const LessonRoute = () => {
     <LessonContainer
       modeSlug={mode ?? 'ionian'}
       rootKey={keyParam}
-      startAtActivityKey={startActivity}
+      startAtSection={section}
     />
   );
 
@@ -607,6 +621,65 @@ const GuitarLessonRoute = () => {
   return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
 };
 
+/**
+ * Bare /learn: the Learn page for the chosen instrument; an old ?tab= link
+ * its tab's page there (/learn?tab=Songs → /learn/keyboard/songs).
+ */
+const LearnIndexRoute = () => {
+  const instrument = useLearnInstrument();
+  const to = useLearnPageRoute();
+  const { search } = useLocation();
+  return (
+    <Navigate
+      replace
+      to={learnTabRedirect(instrument, search) ?? `${to}${search}`}
+    />
+  );
+};
+
+/**
+ * /learn/keyboard and /learn/guitar, and their tabs' pages
+ * (/learn/keyboard/songs…): the Learn page on that instrument. The address
+ * chooses it, so a shared link opens on its instrument; guitar sends to
+ * keyboard while its rollout flag is off. A ?tab= left on one (a link
+ * written for the old hub) opens that tab's page.
+ */
+const LearnInstrumentRoute = ({
+  instrument,
+  tab,
+}: {
+  instrument: LearnInstrument;
+  tab?: LearnTab;
+}) => {
+  const { search } = useLocation();
+  const current = useLearnInstrument();
+  const setInstrument = useInstrumentStore((s) => s.setInstrument);
+  const available = instrument === 'piano' || isGuitarLearnEnabled();
+  useLayoutEffect(() => {
+    if (available && current !== instrument) setInstrument(instrument);
+  }, [available, current, instrument, setInstrument]);
+  if (!available) {
+    return (
+      <Navigate
+        replace
+        to={tab ? learnTabRoute('piano', tab) : LearnRoutes.keyboard()}
+      />
+    );
+  }
+  const tabLink = learnTabRedirect(instrument, search);
+  if (tabLink) return <Navigate replace to={tabLink} />;
+  return <LearnPage tab={tab} />;
+};
+
+/** Each tab's page on each instrument. Static paths, so /learn/guitar/songs
+ *  outranks the guitar lessons' '/learn/guitar/:mode'. */
+const learnTabPages = (['piano', 'guitar'] as const).flatMap((instrument) =>
+  LEARN_TABS.map((tab) => ({
+    path: learnTabRoute(instrument, tab),
+    element: <LearnInstrumentRoute instrument={instrument} tab={tab} />,
+  })),
+);
+
 export const learnPages = () => {
   return {
     path: LearnRoutes.root.definition,
@@ -623,14 +696,19 @@ export const learnPages = () => {
     children: [
       {
         index: true,
-        element: <LearnInlet />,
+        element: <LearnIndexRoute />,
       },
       {
-        path: LearnRoutes.overview.definition,
+        path: LearnRoutes.keyboard.definition,
+        element: <LearnInstrumentRoute instrument="piano" />,
+      },
+      ...learnTabPages,
+      {
+        path: LearnRoutes.keyboardOverview.definition,
         element: <OverviewRoute />,
       },
       {
-        path: LearnRoutes.lesson.definition,
+        path: LearnRoutes.keyboardLesson.definition,
         element: <LessonRoute />,
       },
       {
@@ -653,7 +731,7 @@ export const learnPages = () => {
       // these outrank '/:mode' and '/:mode/:key'.
       {
         path: LearnRoutes.guitar.definition,
-        element: <Navigate replace to={THEORY_TAB_ROUTE} />,
+        element: <LearnInstrumentRoute instrument="guitar" />,
       },
       {
         path: LearnRoutes.guitarOverview.definition,

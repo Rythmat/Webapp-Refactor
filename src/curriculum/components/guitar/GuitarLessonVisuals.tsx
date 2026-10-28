@@ -440,6 +440,40 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
 
   if (lesson) {
     const isChordStep = model.chords.length > 0;
+    const neck = (
+      <Fretboard
+        window={model.window}
+        markers={markers}
+        keyColor={keyColor}
+        height={lessonNeckHeight(boardCell, model.window)}
+        mirrored={leftHanded}
+        labelShape={labelOf && labelMode === 'keyNumbers' ? 'chip' : 'dot'}
+        brackets={stepsOn ? model.scale?.halfSteps : undefined}
+        scrollable
+        variant="lesson"
+      />
+    );
+    // A scale step is the neck alone, across the whole area (owner,
+    // 2026-10-28): the small scale box beside it took the width the neck
+    // needs to show the scale's whole window without scrolling. The neck
+    // already marks every note of the position and the next one to play.
+    if (!isChordStep) {
+      return (
+        <div
+          data-guitar-visuals
+          data-variant="lesson"
+          className="flex h-full min-w-0 flex-col"
+        >
+          <div
+            ref={boardRef}
+            data-fretboard-cell
+            className="flex h-[150px] min-w-0 shrink-0 items-center sm:h-full sm:min-h-0"
+          >
+            <div className="w-full min-w-0">{neck}</div>
+          </div>
+        </div>
+      );
+    }
     // The row is the area's height, never its content's: the cells are
     // measured to size what they draw, so a row that grew to fit its content
     // would feed back — a short area would keep the larger diagrams, and a
@@ -448,60 +482,28 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
       <div
         data-guitar-visuals
         data-variant="lesson"
-        className={
-          isChordStep
-            ? 'flex h-full min-w-0 flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] sm:grid-rows-[minmax(0,1fr)] sm:gap-6'
-            : 'flex h-full min-w-0 flex-col gap-4 sm:grid sm:grid-cols-[auto_minmax(0,1fr)] sm:grid-rows-[minmax(0,1fr)] sm:gap-6'
-        }
+        className="flex h-full min-w-0 flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] sm:grid-rows-[minmax(0,1fr)] sm:gap-6"
       >
         <div
           ref={diagramsRef}
-          // The strip centres its own boxes; the scale box is centred here,
-          // safely (in a shorter cell its title stays at the top).
-          className={
-            isChordStep
-              ? 'h-[208px] min-w-0 shrink-0 sm:h-full sm:min-h-0'
-              : 'flex h-[208px] min-w-0 shrink-0 [align-items:safe_center] sm:h-full sm:min-h-0'
-          }
+          // The strip centres its own boxes.
+          className="h-[208px] min-w-0 shrink-0 sm:h-full sm:min-h-0"
         >
-          {isChordStep ? (
-            <GuitarChordStrip
-              chords={model.chords}
-              currentIndex={chordIndex}
-              keyColor={keyColor}
-              heard={heardChord?.matchesCurrent ?? false}
-              diagnostics={diagnostics ?? undefined}
-              mirrored={leftHanded}
-              onHearShape={onHearShape}
-              keyCenter={keyCenter}
-              stepPrefix={model.prefix}
-              map={map}
-              showRomanNumerals={showRomanNumerals}
-              variant="lesson"
-              size={lessonSize}
-            />
-          ) : (
-            model.scale && (
-              <ScaleBox
-                playOrder={model.scale.position.playOrder}
-                fretStart={model.scale.position.fretStart}
-                fretEnd={model.scale.position.fretEnd}
-                unusedStrings={model.scale.position.unusedStrings}
-                name={model.scale.name}
-                tonicPc={model.tonicPc}
-                keyColor={keyColor}
-                activeIndex={scaleIndex >= 0 ? scaleIndex : undefined}
-                size={lessonSize}
-                mirrored={leftHanded}
-                labelMode={scaleMode}
-                keyNumberLabels={model.keyNumberLabels}
-                showOctave={model.showOctave}
-                ghosts={model.scale.ghosts}
-                about={model.scaleAbout}
-                variant="lesson"
-              />
-            )
-          )}
+          <GuitarChordStrip
+            chords={model.chords}
+            currentIndex={chordIndex}
+            keyColor={keyColor}
+            heard={heardChord?.matchesCurrent ?? false}
+            diagnostics={diagnostics ?? undefined}
+            mirrored={leftHanded}
+            onHearShape={onHearShape}
+            keyCenter={keyCenter}
+            stepPrefix={model.prefix}
+            map={map}
+            showRomanNumerals={showRomanNumerals}
+            variant="lesson"
+            size={lessonSize}
+          />
         </div>
         <div
           ref={boardRef}
@@ -510,21 +512,7 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
         >
           {/* The neck draws centred in the full width (the SVG keeps its
               aspect ratio). */}
-          <div className="w-full min-w-0">
-            <Fretboard
-              window={model.window}
-              markers={markers}
-              keyColor={keyColor}
-              height={lessonNeckHeight(boardCell, model.window)}
-              mirrored={leftHanded}
-              labelShape={
-                labelOf && labelMode === 'keyNumbers' ? 'chip' : 'dot'
-              }
-              brackets={stepsOn ? model.scale?.halfSteps : undefined}
-              scrollable
-              variant="lesson"
-            />
-          </div>
+          <div className="w-full min-w-0">{neck}</div>
         </div>
       </div>
     );

@@ -587,34 +587,18 @@ describe('GuitarLessonVisuals without controls (the lesson layout)', () => {
     expect(container.querySelectorAll('[data-bracket="H"]')).toHaveLength(2);
   });
 
-  it('sets a scale step’s box beside the fretboard, each centred, in the lesson look', () => {
+  it('draws a scale step as the neck alone, across the whole area, in the lesson look', () => {
+    // Owner, 2026-10-28: no scale box beside it, so the neck has the width
+    // to show the whole window without scrolling.
     const { container } = renderVisuals('major_scale_ascending_oot', {
       controls: false,
     });
     const root = container.querySelector('[data-guitar-visuals]')!;
     expect(root.getAttribute('data-variant')).toBe('lesson');
-    expect(root.className).toContain('sm:grid-cols-[auto_minmax(0,1fr)]');
-    const box = container.querySelector('[data-scale-box]')!;
-    expect(box.getAttribute('data-variant')).toBe('lesson');
-    // Centred up and down in the tall area — safely, so in a cell shorter
-    // than the box its title stays in view.
-    const boxCell = box.parentElement!.className.split(/\s+/);
-    expect(boxCell).toEqual(
-      expect.arrayContaining(['flex', '[align-items:safe_center]']),
-    );
-    expect(boxCell).not.toContain('items-center');
-    expect(box.querySelector('[data-title]')?.textContent).toBe(
-      'C major scale',
-    );
-    expect(box.querySelector('[data-position]')?.textContent).toBe(
-      'Position 7 · finger 1 on fret 7',
-    );
-    // Still rings the note to play next, and marks it on the neck.
-    expect(
-      screen
-        .getByRole('img', { name: /^C Major Scale: 8 notes/ })
-        .getAttribute('aria-label'),
-    ).toContain('next: string 6 fret 8');
+    expect(root.className).not.toMatch(/grid-cols/);
+    expect(container.querySelector('[data-scale-box]')).toBeNull();
+    expect(root.children).toHaveLength(1);
+    // The neck still marks the note to play next.
     expect(fretboardRoles(container)).toContain('target 6:8');
     const board = container.querySelector('svg[aria-label^="Fretboard"]')!;
     expect(board.getAttribute('data-variant')).toBe('lesson');
@@ -713,11 +697,6 @@ describe('GuitarLessonVisuals without controls (the lesson layout)', () => {
     expect(chordBox(207)).toBeCloseTo(12);
     expect(chordBox(208)).toBeCloseTo(10);
     expect(chordBox(361)).toBeCloseTo(10);
-    // The scale box (199px) isn't clipped: it keeps the larger size from 196.
-    const scaleBox = (height: number) =>
-      fretUnits('major_scale_ascending_oot', '[data-scale-box]', height);
-    expect(scaleBox(195)).toBeCloseTo(12);
-    expect(scaleBox(200)).toBeCloseTo(10);
   });
 
   describe('draws the neck as large as its cell allows, the whole window in view', () => {
@@ -779,7 +758,9 @@ describe('GuitarLessonVisuals without controls (the lesson layout)', () => {
     for (const step of ['play_chords_oot', 'major_scale_ascending_oot']) {
       const { container } = renderVisuals(step, { controls: false });
       const root = container.querySelector('[data-guitar-visuals]')!;
-      expect(root.className).toContain('sm:grid-rows-[minmax(0,1fr)]');
+      if (step === 'play_chords_oot') {
+        expect(root.className).toContain('sm:grid-rows-[minmax(0,1fr)]');
+      }
       for (const cell of root.children) {
         expect(cell.className).toContain('sm:h-full');
         expect(cell.className).toContain('sm:min-h-0');
@@ -799,13 +780,6 @@ describe('GuitarLessonVisuals without controls (the lesson layout)', () => {
       controls: false,
     });
     expect(container.querySelector('svg[data-mirrored]')).toBeTruthy();
-    const lowString = container.querySelector(
-      '[data-scale-box] [data-dot][data-string="6"][data-fret="8"]',
-    );
-    const highString = container.querySelector(
-      '[data-scale-box] [data-dot][data-string="4"][data-fret="7"]',
-    );
-    expect(xOf(lowString)).toBeGreaterThan(xOf(highString));
     expect(fretMarker(container, 6, 8)?.textContent).toBe('1');
   });
 });

@@ -299,6 +299,42 @@ export const BassLessonVisuals = memo(function BassLessonVisuals({
   // The step's chords in order, each once (a map's repeat isn't listed twice).
   const chipArps = arps.filter((a, i) => arps.findIndex((b) => b === a) === i);
 
+  const neck = (
+    <div
+      ref={boardRef}
+      data-fretboard-cell
+      className="flex h-[150px] min-w-0 shrink-0 items-center sm:h-full sm:min-h-0"
+    >
+      <div className="w-full min-w-0">
+        <Fretboard
+          window={window}
+          markers={markers}
+          keyColor={keyColor}
+          height={neckHeight}
+          mirrored={leftHanded}
+          scrollable
+          variant="lesson"
+        />
+      </div>
+    </div>
+  );
+
+  // A scale step is the neck alone, across the whole area (owner,
+  // 2026-10-28): the box beside it took the width the neck needs to show
+  // the whole position without scrolling. Arpeggio steps keep their column
+  // (the chord chips, the box, Hear).
+  if (!arp) {
+    return (
+      <div
+        data-bass-visuals
+        data-variant="lesson"
+        className="flex h-full min-w-0 flex-col"
+      >
+        {neck}
+      </div>
+    );
+  }
+
   return (
     <div
       data-bass-visuals
@@ -358,23 +394,7 @@ export const BassLessonVisuals = memo(function BassLessonVisuals({
           </button>
         )}
       </div>
-      <div
-        ref={boardRef}
-        data-fretboard-cell
-        className="flex h-[150px] min-w-0 shrink-0 items-center sm:h-full sm:min-h-0"
-      >
-        <div className="w-full min-w-0">
-          <Fretboard
-            window={window}
-            markers={markers}
-            keyColor={keyColor}
-            height={neckHeight}
-            mirrored={leftHanded}
-            scrollable
-            variant="lesson"
-          />
-        </div>
-      </div>
+      {neck}
     </div>
   );
 });

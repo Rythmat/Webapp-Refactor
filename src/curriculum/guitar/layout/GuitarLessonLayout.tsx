@@ -40,6 +40,8 @@ export function GuitarLessonLayout({
   theory,
   subNav,
   slots,
+  overview,
+  barCustom,
 }: GuitarLessonLayoutProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   /** Where Settings opens: the top from the gear, Input from the indicator. */
@@ -63,7 +65,11 @@ export function GuitarLessonLayout({
 
   useGuitarStepKeys({
     enabled:
-      barState === 'preview' && !settingsOpen && !aboutOpen && !setupOpen,
+      barState === 'preview' &&
+      !overview &&
+      !settingsOpen &&
+      !aboutOpen &&
+      !setupOpen,
     index: nav.index,
     count: nav.steps.length,
     goToStep: nav.goToStep,
@@ -79,12 +85,13 @@ export function GuitarLessonLayout({
         ? resultSummary(result, run.listen.passMarkPct)
         : '';
 
-  const slotTakenBy =
-    barState === 'result' && result ? (
-      <GuitarResultPanel result={result} passMarkPct={run.listen.passMarkPct} />
-    ) : barState === 'sectionComplete' && offer ? (
-      <GuitarSectionCompletePanel offer={offer} />
-    ) : null;
+  const slotTakenBy = overview ? (
+    <div data-guitar-overview>{overview}</div>
+  ) : barState === 'result' && result ? (
+    <GuitarResultPanel result={result} passMarkPct={run.listen.passMarkPct} />
+  ) : barState === 'sectionComplete' && offer ? (
+    <GuitarSectionCompletePanel offer={offer} />
+  ) : null;
 
   return (
     <LessonFrame
@@ -146,6 +153,9 @@ export function GuitarLessonLayout({
           <div
             ref={slots.tabViewportRef}
             data-guitar-stage
+            // Hidden, never unmounted, on the Overview: the container
+            // measures this box.
+            hidden={overview != null}
             // No border of its own: the TAB (or notation) face draws the one
             // hairline, 1px inside this box would read as a double line.
             className="relative overflow-y-auto overflow-x-hidden rounded-xl bg-[#151518]"
@@ -177,6 +187,7 @@ export function GuitarLessonLayout({
         input={input}
         result={result}
         offer={offer}
+        custom={overview ? barCustom : undefined}
       />
 
       <GuitarSettingsSheet

@@ -1,4 +1,4 @@
-import { CurriculumRoutes } from '@/constants/routes';
+import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
 import type { LearnInstrument } from '@/features/learn/useInstrumentStore';
 
 // ── Learn → Technique tiles, per instrument ────────────────────────────────
@@ -15,7 +15,7 @@ export interface TechniqueItem {
 export const PIANO_TECHNIQUE_DATA: readonly TechniqueItem[] = [
   {
     title: 'Piano Fundamentals',
-    route: CurriculumRoutes.genre({ genre: 'piano-fundamentals' }),
+    route: CurriculumRoutes.pianoFundamentals(),
     image: '/learn-tiles/beginner-hex.svg',
     interactive: true,
     // The octave: where the keyboard starts.
@@ -33,10 +33,18 @@ export const PIANO_TECHNIQUE_DATA: readonly TechniqueItem[] = [
   // Studio and the Arcade, Learn → Start Here (musicLiteracy/literacyPath.ts).
 ];
 
-// Guitar has no Technique lessons yet: its lessons are in Theory (The
-// Guitar Atlas's key centers are Ionian (Major)), and the Technique tab is
-// hidden there.
-const GUITAR_TECHNIQUE_DATA: readonly TechniqueItem[] = [];
+// Guitar's key centers are in Theory (The Guitar Atlas's are Ionian
+// (Major)); its Technique is the playing itself.
+export const GUITAR_TECHNIQUE_DATA: readonly TechniqueItem[] = [
+  {
+    title: 'Guitar Harmonics',
+    route: LearnRoutes.guitarHarmonics(),
+    image: '/learn-tiles/beginner-hex.svg',
+    interactive: true,
+    // The perfect 4th: the 5th-fret harmonic's node, a quarter of the string.
+    ratio: [3, 4],
+  },
+];
 
 export function techniqueDataFor(
   instrument: LearnInstrument,

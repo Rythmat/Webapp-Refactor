@@ -237,6 +237,7 @@ export function nodeIdForRow(table: TableId, row: string): string | null {
  *
  * Null for a page no table holds. The curriculum is one: lessons are not a
  * category, so its content stays under the content area's "Other records".
+ * The genre courses are curriculum, though they are Learn pages.
  */
 export function tableForAppPage(
   appPath: string,
@@ -244,6 +245,7 @@ export function tableForAppPage(
 ): TableTarget | null {
   const song = /^\/songs\/([^/]+)$/.exec(appPath);
   if (song && song[1] !== 'setlists') return { table: 'songs', row: song[1] };
+  if (/^\/learn\/keyboard\/genre\/[^/]/.test(appPath)) return null;
   if (/^\/(learn|songs)(\/|$)/.test(appPath)) return { table: 'songs' };
   if (!/^\/atlas(\/|$)/.test(appPath)) return null;
 

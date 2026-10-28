@@ -11,7 +11,10 @@ import {
 } from '../tours/navigateTour';
 import type { TourContext, TourDefinition } from '../types';
 
-const ctx: TourContext = { returnTo: '/curriculum/hip-hop/1', premium: true };
+const ctx: TourContext = {
+  returnTo: '/learn/keyboard/genre/hip-hop/1',
+  premium: true,
+};
 
 const placeOf = (href: string) => {
   const [pathname, query = ''] = href.split('?');
@@ -196,11 +199,11 @@ describe('the lesson tour', () => {
 
 describe('where the lesson tour is offered', () => {
   it.each([
-    ['/curriculum/hip-hop/1', true],
-    ['/curriculum/funk/3', true],
+    ['/learn/keyboard/genre/hip-hop/1', true],
+    ['/learn/keyboard/genre/funk/3', true],
     ['/learn/keyboard/ionian/c', true],
     ['/learn/guitar/ionian/C', true],
-    ['/curriculum/hip-hop', false],
+    ['/learn/keyboard/genre/hip-hop', false],
     ['/curriculum/piano-fundamentals/6', false],
     ['/curriculum/music-literacy/music-literacy-part-1', false],
     ['/learn/keyboard/ionian', false],

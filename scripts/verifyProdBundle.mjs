@@ -133,6 +133,15 @@ const FORBIDDEN = [
     marker: '__atlasGraphDebug',
     why: "Cortex's dev-only graph hook (map/GraphCanvas.tsx installDebugHook)",
   },
+  // The redesign's art contact sheet (DEV only, as the Studio gallery).
+  {
+    marker: 'art-contact-sheet',
+    why: 'art contact sheet page (src/components/art/__gallery__/ArtContactSheet.tsx)',
+  },
+  {
+    marker: '/dev/art/contact-sheet',
+    why: 'art contact sheet route (App.tsx)',
+  },
   // The Studio UI gallery (src/daw/ui/__gallery__): its route and its lazy
   // import sit behind a literal DEV guard in App.tsx, so neither the route
   // nor the page's chunk may ship.

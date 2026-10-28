@@ -27,7 +27,7 @@ const PATHWAY_TILES: PathwayTile[] = [
   {
     key: 'pop',
     title: 'Pop',
-    route: CurriculumRoutes.genre({ genre: 'pop' }),
+    route: LearnRoutes.genreCourse({ genre: 'pop' }),
     seed: 'pop-hex',
     paletteIndex: 17,
     image: '/learn-tiles/pop.svg',
@@ -36,7 +36,7 @@ const PATHWAY_TILES: PathwayTile[] = [
   {
     key: 'funk',
     title: 'Funk',
-    route: CurriculumRoutes.genre({ genre: 'funk' }),
+    route: LearnRoutes.genreCourse({ genre: 'funk' }),
     seed: 'funk-hex',
     paletteIndex: 42,
     image: '/learn-tiles/funk-hex.svg',
@@ -45,7 +45,7 @@ const PATHWAY_TILES: PathwayTile[] = [
   {
     key: 'rock',
     title: 'Rock',
-    route: CurriculumRoutes.genre({ genre: 'rock' }),
+    route: LearnRoutes.genreCourse({ genre: 'rock' }),
     seed: 'rock-hex',
     paletteIndex: 91,
     image: '/learn-tiles/rock-hex.svg',

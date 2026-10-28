@@ -1,5 +1,5 @@
 import { getChordScales } from '@/components/learn/chordScaleData';
-import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
+import { LearnRoutes } from '@/constants/routes';
 import {
   CURRICULUM_GENRE_SLUGS,
   curriculumToEngineGenre,
@@ -77,7 +77,7 @@ export const useRecentLessons = (minCompleted = 1): ActivityItem[] => {
           subtitle: `${l.completedCount}/${l.totalCount ?? '—'} activities`,
           accentColor: getGenreProfile(slug)?.accentColor,
           image: getGenreTileImage(slug),
-          route: CurriculumRoutes.genreLevel({ genre: slug, level }),
+          route: LearnRoutes.genreLesson({ genre: slug, level }),
           touchedAt: timeFromIso(l.updatedAt),
         };
       }

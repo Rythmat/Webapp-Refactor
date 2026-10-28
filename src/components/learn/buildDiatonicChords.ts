@@ -68,7 +68,7 @@ function buildChords(
   rootMidi: number,
   noteSpelling: string[],
   qualities: ChordScaleEntry[],
-  stackSize: 3 | 4,
+  stackSize: 3 | 4 | 5,
 ): ChordInfo[] {
   const steps = scaleSteps.slice(0, 7);
   if (steps.length < 7 || noteSpelling.length < 7) return [];
@@ -120,6 +120,15 @@ export function buildSevenths(
   return buildChords(scaleSteps, rootMidi, noteSpelling, qualities, 4);
 }
 
+export function buildNinths(
+  scaleSteps: number[],
+  rootMidi: number,
+  noteSpelling: string[],
+  qualities: ChordScaleEntry[],
+): ChordInfo[] {
+  return buildChords(scaleSteps, rootMidi, noteSpelling, qualities, 5);
+}
+
 export type ChordVoicing = {
   inversionIndex: number;
   inversionLabel: string;
@@ -148,11 +157,15 @@ const INTERVAL_NAMES: Record<number, string> = {
   11: '7',
 };
 
+const NINTH_NAMES: Record<number, string> = { 1: '♭9', 2: '9', 3: '♯9' };
+
 export function chordIntervalLabels(midis: number[]): string[] {
   if (midis.length === 0) return [];
   const root = midis[0];
   return midis.map((m) => {
     const semitones = (((m - root) % 12) + 12) % 12;
+    // A 9th above the octave is a 9th, not a 2nd.
+    if (m - root > 12 && NINTH_NAMES[semitones]) return NINTH_NAMES[semitones];
     return INTERVAL_NAMES[semitones] ?? String(semitones);
   });
 }

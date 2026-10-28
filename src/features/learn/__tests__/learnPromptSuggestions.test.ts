@@ -52,11 +52,14 @@ describe('learnPageSuggestions', () => {
       const list = routes(
         learnPageSuggestions(instrument, 'Genre', { genreReady: ready }),
       );
-      expect(list.slice(0, 2)).toEqual(['/curriculum/pop', '/curriculum/funk']);
+      expect(list.slice(0, 2)).toEqual([
+        '/learn/keyboard/genre/pop',
+        '/learn/keyboard/genre/funk',
+      ]);
       // Funk's 12 lessons (4 sections × 3 levels) and Pop's one.
       expect(list.slice(2)).toHaveLength(13);
-      expect(list).toContain('/curriculum/pop/2?section=C');
-      expect(list).toContain('/curriculum/funk/3?section=D');
+      expect(list).toContain('/learn/keyboard/genre/pop/2?section=C');
+      expect(list).toContain('/learn/keyboard/genre/funk/3?section=D');
       expect(learnPageSuggestions(instrument, 'Genre')).toEqual([]);
     },
   );
@@ -73,8 +76,10 @@ describe('learnPageSuggestions', () => {
         genreReady: ready,
       });
       const expected = [
-        ...(id === 'C' ? ['/curriculum/pop/2?section=C'] : []),
-        ...[1, 2, 3].map((level) => `/curriculum/funk/${level}?section=${id}`),
+        ...(id === 'C' ? ['/learn/keyboard/genre/pop/2?section=C'] : []),
+        ...[1, 2, 3].map(
+          (level) => `/learn/keyboard/genre/funk/${level}?section=${id}`,
+        ),
       ];
       expect(routes(list)).toEqual(expected);
       expect(list.filter((s) => !s.text.includes(word))).toEqual([]);
@@ -123,11 +128,17 @@ describe('learnPageSuggestions', () => {
     ).toEqual([]);
   });
 
-  it('Technique: its tiles on keyboard, nothing on guitar yet', () => {
+  it('Technique: each instrument’s own tiles', () => {
     expect(routes(learnPageSuggestions('piano', 'Technique'))).toEqual(
       techniqueDataFor('piano').map((item) => item.route),
     );
-    expect(learnPageSuggestions('guitar', 'Technique')).toEqual([]);
+    expect(learnPageSuggestions('guitar', 'Technique')).toEqual([
+      {
+        text: 'Teach me Guitar Harmonics',
+        target: 'learn',
+        route: '/learn/guitar/technique/harmonics',
+      },
+    ]);
   });
 
   it.each(['piano', 'guitar'] as const)(
@@ -152,7 +163,7 @@ describe('learnPageSuggestions', () => {
       }
       // The instrument's own extras, but no genre course that isn't built.
       for (const s of learnSuggestionsFor(instrument)) {
-        const slug = s.route.match(/^\/curriculum\/([^/?]+)$/)?.[1];
+        const slug = s.route.match(/^\/learn\/keyboard\/genre\/([^/?]+)$/)?.[1];
         const course = GENRE_COURSES.find((c) => c.slug === slug);
         const built = course ? ready.course(course.slug) : true;
         expect(all.has(s.route), s.route).toBe(built);

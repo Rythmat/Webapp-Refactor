@@ -635,11 +635,12 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
             onClick={openInLesson}
             aria-label="Open in Lesson"
             title="Open in Lesson"
-            className="opacity-70 transition-opacity hover:opacity-100"
+            className="shrink-0 opacity-70 transition-opacity hover:opacity-100"
           >
             <img
               src="/icons/learn-icon.svg"
               alt=""
+              className="max-w-none"
               draggable={false}
               width={LIST_LINK_ICON_SIZE}
               height={LIST_LINK_ICON_SIZE}
@@ -650,11 +651,12 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
             onClick={openInStudio}
             aria-label="Open in Studio"
             title="Open in Studio"
-            className="opacity-70 transition-opacity hover:opacity-100"
+            className="shrink-0 opacity-70 transition-opacity hover:opacity-100"
           >
             <img
               src="/icons/studio-icon.svg"
               alt=""
+              className="max-w-none"
               draggable={false}
               width={LIST_LINK_ICON_SIZE}
               height={LIST_LINK_ICON_SIZE}
@@ -665,11 +667,12 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
             onClick={openInGlobe}
             aria-label="Open in Globe"
             title="Open in Globe"
-            className="opacity-70 transition-opacity hover:opacity-100"
+            className="shrink-0 opacity-70 transition-opacity hover:opacity-100"
           >
             <img
               src="/icons/globe-icon.svg"
               alt=""
+              className="max-w-none"
               draggable={false}
               width={LIST_LINK_ICON_SIZE}
               height={LIST_LINK_ICON_SIZE}

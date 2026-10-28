@@ -20,7 +20,6 @@
  */
 import {
   AtlasRoutes,
-  CurriculumRoutes,
   LearnRoutes,
   SongRoutes,
   StudioRoutes,
@@ -130,7 +129,7 @@ export const resolveActivityRefHref = (
       if (!genreId || !level) return null;
       const slug = CURRICULUM_GENRE_SLUGS[genreId];
       const section = parts[3];
-      return CurriculumRoutes.genreLevel(
+      return LearnRoutes.genreLesson(
         { genre: slug, level },
         isSection(section) ? { section } : undefined,
       );
@@ -196,8 +195,8 @@ export const resolveContentRefHref = (ref: ContentRef): string | null => {
       const slug = CURRICULUM_GENRE_SLUGS[genreId];
       const level = ref.level ? String(ref.level).replace(/^L/i, '') : null;
       return level
-        ? CurriculumRoutes.genreLevel({ genre: slug, level })
-        : CurriculumRoutes.genre({ genre: slug });
+        ? LearnRoutes.genreLesson({ genre: slug, level })
+        : LearnRoutes.genreCourse({ genre: slug });
     }
     case 'globe':
       // Origin strings are not event ids — land on the globe without a param.

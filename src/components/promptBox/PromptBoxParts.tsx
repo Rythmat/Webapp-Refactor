@@ -1,6 +1,11 @@
 import { AnimatePresence, motion, type MotionProps } from 'framer-motion';
 import { ArrowUp, Dices } from 'lucide-react';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type {
+  ButtonHTMLAttributes,
+  FocusEventHandler,
+  MouseEventHandler,
+  ReactNode,
+} from 'react';
 import { cn } from '@/components/utilities';
 import { KEY_RAINBOW_COLORS } from '@/features/landing/rainbow';
 
@@ -25,7 +30,16 @@ export const RAINBOW_STOPS = KEY_RAINBOW_COLORS.map(
   (c, i) => `${c} ${37 + (i / (KEY_RAINBOW_COLORS.length - 1)) * 26}%`,
 ).join(', ');
 export const SETTLED = 'rgba(255, 255, 255, 0.42)';
-const SUGGESTION_SWEEP = `linear-gradient(90deg, ${SETTLED} 0%, ${SETTLED} 33.4%, ${RAINBOW_STOPS}, rgba(255, 255, 255, 0) 66.6%, rgba(255, 255, 255, 0) 100%)`;
+
+/**
+ * The write-in strip, settling to `settled`: slide it from 100% to 0% (at
+ * 300% size, clipped to the text) and the words are written in with the
+ * rainbow. The suggestion settles to dim white; a title (kit's
+ * RainbowWriteIn) to white.
+ */
+export const rainbowSweep = (settled: string): string =>
+  `linear-gradient(90deg, ${settled} 0%, ${settled} 33.4%, ${RAINBOW_STOPS}, rgba(255, 255, 255, 0) 66.6%, rgba(255, 255, 255, 0) 100%)`;
+const SUGGESTION_SWEEP = rainbowSweep(SETTLED);
 
 /** Cuts a filled box down to a 1px ring (its padding), for the rainbow border. */
 const RING_MASK =
@@ -191,6 +205,11 @@ export function GoButton({
   children: ReactNode;
   'data-testid'?: string;
   'aria-label'?: string;
+  /** A Go outside a form (the Arcade's featured card): a plain button. */
+  type?: 'submit' | 'button';
+  onClick?: MouseEventHandler<HTMLButtonElement>;
+  onFocus?: FocusEventHandler<HTMLButtonElement>;
+  className?: string;
 }) {
   const sweeping = sweep > 0 && !disabled && !reduce;
   return (
@@ -201,6 +220,7 @@ export function GoButton({
       className={cn(
         GO_PILL,
         disabled ? 'cursor-not-allowed text-white/40' : GO_PILL_ENABLED,
+        rest.className,
       )}
     >
       {sweeping && (

@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
-import { CurriculumRoutes } from '@/constants/routes';
+import { LearnRoutes } from '@/constants/routes';
 import {
   SLUG_TO_CURRICULUM_GENRE,
   CURRICULUM_TO_ENGINE_GENRE,
@@ -366,7 +366,7 @@ export function GenreOverview({ genreSlug }: GenreOverviewProps) {
                 key={lvl.id}
                 onClick={() =>
                   navigate(
-                    CurriculumRoutes.genreLevel({
+                    LearnRoutes.genreLesson({
                       genre: genreSlug,
                       level: String(lvl.num),
                     }),

@@ -233,7 +233,7 @@ function FundamentalsLessonContainerInner({
 
   // Back to overview
   const handleBackToOverview = useCallback(() => {
-    navigate(CurriculumRoutes.genre({ genre: 'piano-fundamentals' }));
+    navigate(CurriculumRoutes.pianoFundamentals());
   }, [navigate]);
 
   // Compute keyboard range from midiEval

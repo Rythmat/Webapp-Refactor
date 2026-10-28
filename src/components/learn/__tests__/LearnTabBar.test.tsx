@@ -86,13 +86,14 @@ describe('LearnTabBar', () => {
     ).toBe('/learn?tab=StartHere');
   });
 
-  it('hides Technique on guitar, and keeps Start Here first', () => {
+  it('shows Technique on guitar too (Harmonics), Start Here first', () => {
     renderAt('/learn?tab=Theory', 'guitar');
     expect(tabNames()).toEqual([
       'Start Here',
       'Songs',
       'Genre',
       'Theory',
+      'Technique',
       'World Harmony',
     ]);
   });
@@ -115,13 +116,15 @@ describe('LearnTabBar', () => {
     expect(location()).toBe('/learn?tab=StartHere');
   });
 
-  it('opens Theory when switching to guitar', () => {
+  it('stays on Technique when switching instrument either way', () => {
     renderAt('/learn?tab=Technique', 'piano');
     pick('Guitar');
-    expect(location()).toBe('/learn?tab=Theory');
+    expect(location()).toBe('/learn?tab=Technique');
     expect(
-      screen.queryByRole('link', { name: 'Open Technique' }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('link', { name: 'Open Technique' }),
+    ).toBeInTheDocument();
+    pick('Piano');
+    expect(location()).toBe('/learn?tab=Technique');
   });
 
   it('opens Theory when switching to guitar from another tab', () => {

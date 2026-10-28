@@ -1,5 +1,8 @@
 import { useState, type ReactNode, type RefObject } from 'react';
-import { GuitarActionBar } from '@/curriculum/guitar/layout/GuitarActionBar';
+import {
+  GuitarActionBar,
+  type Zones,
+} from '@/curriculum/guitar/layout/GuitarActionBar';
 import { GuitarLessonHeader } from '@/curriculum/guitar/layout/GuitarLessonHeader';
 import {
   GuitarResultPanel,
@@ -34,6 +37,10 @@ import './pianoLayout.css';
 //
 //   header    eyebrow crumbs, the step's name and chords, About, settings
 //   nav       sections, ♪ Practice Track, ‹ 3 / 20 ›, the progress line
+//             (or, with the lesson's tab row, just the narrow-screen sections)
+//   subNav    the tab row: the Overview's tabs, or a section's exercise
+//             groups and its Practice Track (as Theory's)
+//   overview  the lesson's Overview, in place of the roll and keyboard
 //   roll      the piano roll / notation / cascade, taking what's left; the
 //             result or the section-complete offer take its place
 //   keyboard  the full-width lesson keyboard with the target notes
@@ -56,6 +63,15 @@ export interface PianoLessonLayoutProps {
   offer: SectionCompleteModel | null;
   about: PianoAboutModel;
   audio: { outputLatencyMs: number; openAudioTiming: () => void };
+  /** The tab row under the nav (Theory's): left out, none. */
+  subNav?: ReactNode;
+  /**
+   * The lesson's Overview: set, it takes the roll's and keyboard's place
+   * (it docks its own keyboard on the bar) and `barCustom` the bar's.
+   */
+  overview?: ReactNode;
+  /** The bar's words and buttons instead of its state's own. */
+  barCustom?: Zones | null;
   slots: {
     /** The roll's box: the container measures it; never remount it. */
     rollViewportRef: RefObject<HTMLDivElement>;
@@ -74,6 +90,9 @@ export function PianoLessonLayout({
   offer,
   about,
   audio,
+  subNav,
+  overview,
+  barCustom,
   slots,
 }: PianoLessonLayoutProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -87,7 +106,7 @@ export function PianoLessonLayout({
   });
 
   useGuitarStepKeys({
-    enabled: barState === 'preview' && !settingsOpen && !aboutOpen,
+    enabled: barState === 'preview' && !overview && !settingsOpen && !aboutOpen,
     index: nav.index,
     count: nav.steps.length,
     goToStep: nav.goToStep,
@@ -100,12 +119,13 @@ export function PianoLessonLayout({
         ? resultSummary(result, run.listen.passMarkPct)
         : '';
 
-  const slotTakenBy =
-    barState === 'result' && result ? (
-      <GuitarResultPanel result={result} passMarkPct={run.listen.passMarkPct} />
-    ) : barState === 'sectionComplete' && offer ? (
-      <GuitarSectionCompletePanel offer={offer} />
-    ) : null;
+  const slotTakenBy = overview ? (
+    <div data-piano-overview>{overview}</div>
+  ) : barState === 'result' && result ? (
+    <GuitarResultPanel result={result} passMarkPct={run.listen.passMarkPct} />
+  ) : barState === 'sectionComplete' && offer ? (
+    <GuitarSectionCompletePanel offer={offer} />
+  ) : null;
 
   return (
     <LessonFrame
@@ -147,6 +167,7 @@ export function PianoLessonLayout({
           />
 
           <GuitarStepNav nav={nav} keyColor={header.keyColor} />
+          {subNav}
 
           <div data-piano-roll-slot className="min-w-0">
             {/* Kept mounted (and measured) under the result: no display
@@ -162,9 +183,11 @@ export function PianoLessonLayout({
             {slotTakenBy}
           </div>
 
-          <div data-piano-keyboard className="shrink-0">
-            {slots.keyboard}
-          </div>
+          {!overview && (
+            <div data-piano-keyboard className="shrink-0">
+              {slots.keyboard}
+            </div>
+          )}
         </div>
       </div>
 
@@ -185,6 +208,7 @@ export function PianoLessonLayout({
         practice={{ presets: [] }}
         result={result}
         offer={offer}
+        custom={barCustom}
       />
 
       <PianoSettingsSheet

@@ -40,6 +40,7 @@ import {
 import { isBassTheorySlug } from '@/curriculum/data/bass/theoryCatalog';
 import { isUkuleleTheorySlug } from '@/curriculum/data/ukulele/theoryCatalog';
 import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
+import { GenreLessonRoute, GenreOverviewRoute } from '@/curriculum/routes';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
 import { SettingsHub } from '@/features/settings/SettingsHub';
@@ -101,6 +102,12 @@ const UkuleleModeLesson = lazy(
 );
 const GuitarModeLesson = lazy(
   () => import('@/curriculum/pages/GuitarModeLesson'),
+);
+const GuitarHarmonicsPage = lazy(
+  () => import('@/curriculum/guitar/harmonics/GuitarHarmonicsPage'),
+);
+const GuitarRelativeModesOverview = lazy(
+  () => import('@/components/learn/GuitarRelativeModesOverview'),
 );
 
 const ClassroomPickerPage = lazy(() =>
@@ -774,6 +781,16 @@ export const learnPages = () => {
         path: LearnRoutes.keyboardLesson.definition,
         element: <LessonRoute />,
       },
+      // The genre courses: static 'genre' segment, so these outrank
+      // '/:mode' and '/:mode/:key'.
+      {
+        path: LearnRoutes.genreCourse.definition,
+        element: <GenreOverviewRoute />,
+      },
+      {
+        path: LearnRoutes.genreLesson.definition,
+        element: <GenreLessonRoute />,
+      },
       {
         path: LearnRoutes.relativeOverview.definition,
         element: (
@@ -795,6 +812,22 @@ export const learnPages = () => {
       {
         path: LearnRoutes.guitar.definition,
         element: <LearnInstrumentRoute instrument="guitar" />,
+      },
+      // Technique → Guitar Harmonics. Free on purpose (every Technique tile
+      // shows unlocked); static, so it outranks '/guitar/:mode/:key'.
+      {
+        path: LearnRoutes.guitarHarmonics.definition,
+        element: <GuitarHarmonicsPage />,
+      },
+      // Theory → Relative Modes on guitar: a key's seven positions. Premium,
+      // as on keyboard; static 'relative', so it outranks '/guitar/:mode/:key'.
+      {
+        path: LearnRoutes.guitarRelativeOverview.definition,
+        element: (
+          <RequirePremium>
+            <GuitarRelativeModesOverview />
+          </RequirePremium>
+        ),
       },
       {
         path: LearnRoutes.guitarOverview.definition,

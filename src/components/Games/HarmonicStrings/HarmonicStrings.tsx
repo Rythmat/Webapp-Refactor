@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { createBus, resumeAudio } from '@/audio/engine/AudioBus';
+import { HarmonicTone } from '@/audio/harmonics/HarmonicTone';
+import { StandingWave } from '@/components/harmonics/StandingWave';
 import {
-  createBus,
-  getAudioContext,
-  resumeAudio,
-} from '@/audio/engine/AudioBus';
+  centsFromET,
+  partialHz,
+  partialInterval,
+} from '@/lib/music/harmonicSeries';
 import { ArcadeGameHeader } from '../ArcadeGameHeader';
 import { VolumeDial } from '../VolumeDial';
 
@@ -19,34 +22,18 @@ interface HarmonicInfo {
   cents: number; // deviation from equal temperament
 }
 
+// The series' maths and names are shared (lib/music/harmonicSeries) with the
+// guitar Harmonics activity; the game shows its cents rounded to whole ones.
 const HARMONIC_DATA: HarmonicInfo[] = Array.from(
   { length: HARMONICS_COUNT },
   (_, i) => {
     const n = i + 1;
-    const freq = FUNDAMENTAL_FREQ * n;
-    const intervals = [
-      'Unison',
-      'Octave',
-      'P5 (+oct)',
-      'Octave 2',
-      'M3 (+2oct)',
-      'P5 (+2oct)',
-      'm7 (+2oct)',
-      'Octave 3',
-      'M2 (+3oct)',
-      'M3 (+3oct)',
-      'Tritone (+3oct)',
-      'P5 (+3oct)',
-      'm6 (+3oct)',
-      'm7 (+3oct)',
-      'M7 (+3oct)',
-      'Octave 4',
-    ];
-    // Cents deviation from equal temperament
-    const etCents = 1200 * Math.log2(n);
-    const nearestSemitone = Math.round(etCents / 100) * 100;
-    const cents = Math.round(etCents - nearestSemitone);
-    return { number: n, frequency: freq, interval: intervals[i], cents };
+    return {
+      number: n,
+      frequency: partialHz(FUNDAMENTAL_FREQ, n),
+      interval: partialInterval(n).short,
+      cents: Math.round(centsFromET(n)),
+    };
   },
 );
 
@@ -73,42 +60,20 @@ type GameMode = 'explore' | 'quiz';
 
 // --- Audio Engine ---
 
+/** The game's harmonics on C3, as held sines on its own bus. */
 class HarmonicEngine {
-  private ctx: AudioContext;
-  private master: GainNode;
-  private activeOsc: OscillatorNode | null = null;
-  private activeGain: GainNode | null = null;
-
-  constructor() {
+  private tone = new HarmonicTone({
     // Shared context + this game's own bus, rather than a context per game.
-    this.ctx = getAudioContext();
-    this.master = createBus(0.3);
-  }
-
-  resume() {
-    resumeAudio();
-  }
+    output: createBus(0.3),
+    resume: resumeAudio,
+  });
 
   setVolume(v: number) {
-    this.master.gain.setTargetAtTime(v, this.ctx.currentTime, 0.01);
+    this.tone.setVolume(v);
   }
 
   playHarmonic(harmonicNumber: number) {
-    this.stop();
-    this.resume();
-    const freq = FUNDAMENTAL_FREQ * harmonicNumber;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0, this.ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.4, this.ctx.currentTime + 0.05);
-    gain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 0.5);
-    osc.connect(gain);
-    gain.connect(this.master);
-    osc.start();
-    this.activeOsc = osc;
-    this.activeGain = gain;
+    this.tone.play(partialHz(FUNDAMENTAL_FREQ, harmonicNumber), 'sine');
   }
 
   playFundamental() {
@@ -116,174 +81,13 @@ class HarmonicEngine {
   }
 
   stop() {
-    if (this.activeOsc && this.activeGain) {
-      this.activeGain.gain.linearRampToValueAtTime(
-        0,
-        this.ctx.currentTime + 0.05,
-      );
-      const osc = this.activeOsc;
-      setTimeout(() => {
-        try {
-          osc.stop();
-        } catch {
-          /* ok */
-        }
-      }, 60);
-      this.activeOsc = null;
-      this.activeGain = null;
-    }
+    this.tone.stop();
   }
 
   /** Release this engine's nodes. The context is shared — never close it. */
   close() {
-    this.stop();
-    this.master.disconnect();
+    this.tone.close();
   }
-}
-
-// --- SVG String Visualization ---
-
-interface StringVisualizationProps {
-  harmonic: number;
-  width: number;
-  height: number;
-  isAnimating: boolean;
-  onNodeClick?: (nodePosition: number) => void;
-  showNodes?: boolean;
-}
-
-function StringVisualization({
-  harmonic,
-  width,
-  height,
-  isAnimating,
-  onNodeClick,
-  showNodes = true,
-}: StringVisualizationProps) {
-  const animRef = useRef<number>();
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    if (!isAnimating) {
-      setPhase(0);
-      return;
-    }
-    let p = 0;
-    const animate = () => {
-      p += 0.04;
-      setPhase(p);
-      animRef.current = requestAnimationFrame(animate);
-    };
-    animRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
-  }, [isAnimating]);
-
-  const padding = 40;
-  const stringWidth = width - padding * 2;
-  const midY = height / 2;
-  const amplitude = isAnimating ? 30 : 0;
-  const color = HARMONIC_COLORS[(harmonic - 1) % HARMONIC_COLORS.length];
-
-  // Generate standing wave path
-  const points: string[] = [];
-  const resolution = 200;
-  for (let i = 0; i <= resolution; i++) {
-    const t = i / resolution;
-    const x = padding + t * stringWidth;
-    const y =
-      midY + amplitude * Math.sin(harmonic * Math.PI * t) * Math.sin(phase * 3);
-    points.push(`${x},${y}`);
-  }
-  const pathD = 'M ' + points.join(' L ');
-
-  // Node positions (where the string doesn't move)
-  const nodes: number[] = [];
-  for (let i = 0; i <= harmonic; i++) {
-    nodes.push(padding + (i / harmonic) * stringWidth);
-  }
-
-  return (
-    <svg width={width} height={height} className="block">
-      {/* Bridge ends */}
-      <rect
-        x={padding - 4}
-        y={midY - 15}
-        width={8}
-        height={30}
-        rx={2}
-        fill="#3f3f46"
-      />
-      <rect
-        x={padding + stringWidth - 4}
-        y={midY - 15}
-        width={8}
-        height={30}
-        rx={2}
-        fill="#3f3f46"
-      />
-
-      {/* Standing wave / string */}
-      <path
-        d={pathD}
-        fill="none"
-        stroke={isAnimating ? color : '#71717a'}
-        strokeWidth={isAnimating ? 2.5 : 1.5}
-        style={
-          isAnimating ? { filter: `drop-shadow(0 0 6px ${color})` } : undefined
-        }
-      />
-
-      {/* Nodes */}
-      {showNodes &&
-        nodes.map((x, i) => (
-          <g key={i}>
-            <circle
-              cx={x}
-              cy={midY}
-              r={6}
-              fill={isAnimating ? color : '#27272a'}
-              stroke={isAnimating ? '#fff' : '#52525b'}
-              strokeWidth={1.5}
-              style={{ cursor: onNodeClick ? 'pointer' : 'default' }}
-              onClick={() => onNodeClick?.(i)}
-            />
-            {isAnimating && (
-              <circle
-                cx={x}
-                cy={midY}
-                r={10}
-                fill="none"
-                stroke={color}
-                strokeWidth={0.5}
-                opacity={0.4}
-              />
-            )}
-          </g>
-        ))}
-
-      {/* Antinode labels */}
-      {isAnimating &&
-        harmonic <= 8 &&
-        Array.from({ length: harmonic }, (_, i) => {
-          const x = padding + ((i + 0.5) / harmonic) * stringWidth;
-          return (
-            <text
-              key={i}
-              x={x}
-              y={midY + 50}
-              textAnchor="middle"
-              fill="#71717a"
-              fontSize={10}
-              fontFamily="'Glacial Indifference', system-ui, sans-serif"
-            >
-              {i + 1}
-            </text>
-          );
-        })}
-    </svg>
-  );
 }
 
 // --- Main Component ---
@@ -467,11 +271,14 @@ export default function HarmonicStrings({ onComplete }: HarmonicStringsProps) {
         <div className="flex-1 flex flex-col justify-center min-h-0">
           {/* String visualization */}
           <div ref={svgContainerRef} className="px-4 pt-6 pb-2">
-            <StringVisualization
+            <StandingWave
               harmonic={selectedHarmonic}
               width={svgWidth}
               height={120}
               isAnimating={isPlaying}
+              color={
+                HARMONIC_COLORS[(selectedHarmonic - 1) % HARMONIC_COLORS.length]
+              }
               showNodes={true}
             />
           </div>

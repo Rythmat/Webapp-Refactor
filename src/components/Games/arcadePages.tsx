@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-sort-props */
 import { lazy, Suspense, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SpectrumBar } from '@/components/art/light/SpectrumLight';
 import TubesCursor from '@/components/ui/tubes-cursor';
 import { GameRoutes } from '@/constants/routes';
 import { useAwardArcadeExperience } from '@/hooks/data/experience/useAwardExperience';
@@ -291,7 +292,13 @@ export function EchoPage() {
   return (
     <LearnInputProvider detectionMode="polyphonic" instrument="piano">
       <GameShell>
-        <Suspense fallback={<div className="flex-1" />}>
+        <Suspense
+          fallback={
+            <div className="grid flex-1 place-items-center">
+              <SpectrumBar label="Loading Echo" />
+            </div>
+          }
+        >
           <EchoGame />
         </Suspense>
       </GameShell>

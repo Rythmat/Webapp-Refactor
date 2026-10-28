@@ -1,0 +1,106 @@
+/* ── ArtCover motion ─────────────────────────────────────────────────────
+   Transforms only, so the compositor does the work and nothing repaints.
+   A drifting flow cover is drawn two frames wide and slides one frame
+   along, forever; other drifting covers sway; a hover cover breathes while
+   its .art-host is hovered or focused. Reduced motion: all still. */
+
+.art-cover {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  contain: paint;
+}
+
+.art-drift {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+}
+
+.art-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.art-cover[data-flow] > .art-drift {
+  width: 200%;
+  animation: art-flow 64s linear infinite;
+  will-change: transform;
+}
+
+.art-cover[data-motion='drift']:not([data-flow]) > .art-drift {
+  inset: -8%;
+  animation: art-sway 12s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.art-host:is(:hover, :focus-visible, :focus-within)
+  .art-cover[data-motion='hover']
+  > .art-drift {
+  animation: art-breathe 7s ease-in-out infinite alternate;
+}
+
+/* A hover palette: the same lines in it, crossfading over the still ones
+   while the host is hovered or focused. */
+.art-hover,
+.art-base {
+  transition: opacity 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.art-hover {
+  opacity: 0;
+}
+
+.art-host:is(:hover, :focus-visible, :focus-within) .art-hover {
+  opacity: 1;
+}
+
+.art-host:is(:hover, :focus-visible, :focus-within) .art-hover ~ .art-base,
+.art-host:is(:hover, :focus-visible, :focus-within)
+  .art-base:has(~ .art-hover) {
+  opacity: 0;
+}
+
+.art-cover[data-paused] > .art-drift {
+  animation-play-state: paused;
+}
+
+@keyframes art-flow {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes art-sway {
+  from {
+    transform: rotate(-3deg) scale(1);
+  }
+  to {
+    /* ±3° at most: a wide card's -8% overscan just covers it. */
+    transform: rotate(3deg) scale(1.08);
+  }
+}
+
+@keyframes art-breathe {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08) rotate(1.5deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art-drift {
+    animation: none !important;
+  }
+}
+
+/* The contact sheet's "reduced motion" switch, without the OS setting. */
+[data-art-reduced-motion] .art-drift {
+  animation: none !important;
+}

@@ -3,7 +3,9 @@
  * Piano's lesson screen, pinned: these file snapshots hold the piano
  * container's DOM in the states a student meets. Re-recorded on 2026-10-16,
  * when piano took guitar's screen (piano/layout: one page, no start card, the
- * buttons in the bar). Never update them with `-u` as part of other work — a
+ * buttons in the bar), and on 2026-10-27, when it took Theory's navigation
+ * (the tab row of exercise groups, the whole outline in the rail, no pager)
+ * and a genre level its Overview. Never update them with `-u` as part of other work — a
  * diff here means piano changed.
  *
  * Audio, the transport and the input provider are faked as in the
@@ -22,6 +24,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildAppliedTheoryFundamentalsFlow } from '@/curriculum/data/activityFlows/appliedTheoryFundamentals';
 import { funkL1 } from '@/curriculum/data/activityFlows/funk_v2';
+import type { ActivitySectionId } from '@/curriculum/types/activity';
 import type { ActivityFlowV2 } from '@/curriculum/types/activity.v2';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 
@@ -136,10 +139,19 @@ const SNAP_DIR = './__snapshots__/pianoDom';
 /** One tag per line, so a diff points at the element that changed. */
 const html = (host: HTMLElement) => host.innerHTML.replace(/></g, '>\n<');
 
-function renderLesson(flow: ActivityFlowV2, level = 1) {
+function renderLesson(
+  flow: ActivityFlowV2,
+  level = 1,
+  initialSection?: ActivitySectionId,
+) {
   return render(
     <MemoryRouter>
-      <GenreLessonContainerV2 flow={flow} genre={flow.genre} level={level} />
+      <GenreLessonContainerV2
+        flow={flow}
+        genre={flow.genre}
+        level={level}
+        initialSection={initialSection}
+      />
     </MemoryRouter>,
   );
 }
@@ -252,9 +264,16 @@ describe('piano lesson DOM (pinned on its own screen)', () => {
   });
 
   it('a genre course (Funk L1): header, tabs and preview', async () => {
-    const { container } = renderLesson(funkL1, 1);
+    const { container } = renderLesson(funkL1, 1, 'A');
     await expect(html(container)).toMatchFileSnapshot(
       `${SNAP_DIR}/funk-preview.html`,
+    );
+  });
+
+  it('a genre course (Funk L1): its Overview', async () => {
+    const { container } = renderLesson(funkL1, 1);
+    await expect(html(container)).toMatchFileSnapshot(
+      `${SNAP_DIR}/funk-overview.html`,
     );
   });
 });

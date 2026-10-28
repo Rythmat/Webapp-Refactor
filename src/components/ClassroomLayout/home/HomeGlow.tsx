@@ -102,9 +102,16 @@ const PATHS: readonly { x: Waves; y: Waves; breathe: Waves }[] = [
  */
 export const HomeGlow = ({
   colors: pinned,
+  onColors,
+  ease,
   className,
 }: {
   colors?: readonly [string, string];
+  /** Told the two colours each time they change (the Arcade's featured
+   *  card wears them). */
+  onColors?: (colors: readonly [string, string]) => void;
+  /** How long a change of colour eases (CSS time; 5s by default). */
+  ease?: string;
   className?: string;
 } = {}) => {
   const reduce = useReducedMotion();
@@ -147,9 +154,16 @@ export const HomeGlow = ({
     return () => cancelAnimationFrame(frame);
   }, [reduce]);
 
+  const glowA = pinned?.[0] ?? KEY_RAINBOW_COLORS[pair[0]];
+  const glowB = pinned?.[1] ?? KEY_RAINBOW_COLORS[pair[1]];
+  useEffect(() => {
+    onColors?.([glowA, glowB]);
+  }, [glowA, glowB, onColors]);
+
   const colors = {
-    '--home-glow-a': pinned?.[0] ?? KEY_RAINBOW_COLORS[pair[0]],
-    '--home-glow-b': pinned?.[1] ?? KEY_RAINBOW_COLORS[pair[1]],
+    '--home-glow-a': glowA,
+    '--home-glow-b': glowB,
+    ...(ease ? { '--home-glow-ease': ease } : {}),
   } as CSSProperties;
 
   return (

@@ -25,10 +25,14 @@ import {
   startPianoSampler,
 } from '@/audio/pianoSampler';
 import { FrettedInstrumentContext } from '@/components/guitar/frettedInstrumentContext';
+import {
+  ModePositionsOverview,
+  positionTabs,
+} from '@/components/guitar/positions/ModePositionsOverview';
 import { ClefToggle } from '@/components/notation/ClefToggle';
 import { SavedGuitarViewToggle } from '@/components/notation/GuitarViewToggle';
 import type { StaffLayout } from '@/components/notation/StaffView';
-import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
+import { LearnRoutes, SettingsRoutes } from '@/constants/routes';
 import { useUserRole } from '@/contexts/AuthContext/hooks/useUserRole';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import DualStaffPianoRoll from '@/curriculum/components/DualStaffPianoRoll';
@@ -40,6 +44,7 @@ import { useGuitarTabLayers } from '@/curriculum/components/guitar/GuitarLessonV
 import { MusicMapOverlay } from '@/curriculum/components/guitar/theory';
 import { createTransportClock } from '@/curriculum/components/transportClock';
 import { flowBassCenterId } from '@/curriculum/data/bass/centers';
+import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import {
   centerTitle,
   flowGuitarCenterId,
@@ -64,6 +69,7 @@ import {
 } from '@/curriculum/notation/lessonChordSymbols';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
+import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
 import { useFingeringDisplay } from '@/features/learn/usePianoDisplaySettings';
 import { sectionHasContent } from '@/features/practiceTracks/genre/buildGenrePracticeTrack';
 import { openGenrePracticeTrack } from '@/features/practiceTracks/genre/openGenrePracticeTrack';
@@ -134,11 +140,14 @@ import {
   hasMarkedMistakes,
 } from '../guitar/GuitarResultExtras';
 import { GuitarLessonLayout, type NavStep } from '../guitar/layout';
+import { Primary, type Zones } from '../guitar/layout/GuitarActionBar';
+import { LessonTabStrip } from '../guitar/layout/LessonTabStrip';
 import {
   SectionGroupTabs,
   groupNavOutline,
   type GroupNavSection,
 } from '../guitar/layout/sectionGroupNav';
+import type { NavOutlineSection } from '../guitar/layout/types';
 import { useGuitarLessonEvaluation } from '../guitar/useGuitarLessonEvaluation';
 import { BACKING_LEAD_SEC, useBackingTrack } from '../hooks/useBackingTrack';
 import { useDemoPlayback } from '../hooks/useDemoPlayback';
@@ -177,6 +186,11 @@ import type {
 import { flowInstrument } from '../utils/flowInstrument';
 import { scaleColorMode, stepMode } from '../utils/flowKey';
 import { formatAccidentalsForDisplay } from '../utils/formatAccidentals';
+import {
+  GENRE_OVERVIEW_TABS,
+  GenreOverview,
+  type GenreOverviewTab,
+} from './genreOverview/GenreOverview';
 
 // The guitar input setup (tuner, checks) loads when first opened.
 const GuitarInputSetup = lazy(() =>
@@ -200,8 +214,14 @@ interface GenreLessonContainerV2Props {
   genre: string;
   level: number;
   initialSection?: ActivitySectionId;
+  /**
+   * Guitar's diatonic lessons: open on the Overview (the scale's seven
+   * positions on the neck) instead of `initialSection`, which the Overview's
+   * "Start" still opens.
+   */
+  openOnOverview?: boolean;
   // Overrides for non-genre flows (e.g. Applied Theory Fundamentals) that
-  // don't have a real entry in CurriculumRoutes.genre's overview/registry —
+  // don't have a real entry in LearnRoutes.genreCourse's overview/registry —
   // default behavior (derived from `genre`) is unchanged when omitted.
   overviewRoute?: string;
   displayName?: string;
@@ -327,6 +347,7 @@ function GenreLessonContainerV2Inner({
   genre,
   level,
   initialSection,
+  openOnOverview = false,
   overviewRoute,
   displayName,
   rootCrumb = DEFAULT_ROOT_CRUMB,
@@ -355,6 +376,19 @@ function GenreLessonContainerV2Inner({
   const [activeSection, setActiveSection] = useState<ActivitySectionId>(
     initialSection ?? 'A',
   );
+  // The lesson's Overview (owner, 2026-10-27): a genre's piano level opens
+  // on it, as Theory's lessons do, unless the link names a section. Its tabs
+  // were the course page's. Flows without a genre profile have none.
+  const genreProfile =
+    flowInstrument(flow) === 'guitar' ? undefined : getGenreProfile(genre);
+  const overviewLevel = genreProfile?.levels[level as 1 | 2 | 3];
+  const [overviewTab, setOverviewTab] = useState<GenreOverviewTab | null>(
+    overviewLevel && !initialSection ? 'about' : null,
+  );
+  // Guitar's diatonic Overview: the scale's seven positions, one lit.
+  const [positionsOpen, setPositionsOpen] = useState(openOnOverview);
+  const [positionIndex, setPositionIndex] = useState(0);
+  const leftHanded = useInstrumentStore((s) => s.leftHanded);
   const [stepIndex, setStepIndex] = useState(0);
   const [_activityState, _setActivityState] =
     useState<ActivityState>('preview');
@@ -464,6 +498,18 @@ function GenreLessonContainerV2Inner({
   const guitarCenter = isUkulele
     ? getUkuleleCenter(guitarKey)
     : getGuitarCenter(guitarKey);
+  // The seven positions of a diatonic guitar lesson's scale (its Overview).
+  const positionsScale = useMemo(
+    () =>
+      isGuitar && guitarCenter.family === 'diatonic'
+        ? {
+            tonicPc: guitarCenter.tonicPc,
+            mode: guitarCenter.mode,
+            spelling: guitarCenter.spelling,
+          }
+        : null,
+    [isGuitar, guitarCenter],
+  );
 
   // Key from flow params — no GCM dependency. A step in another key than its
   // flow names it (Latin L1's Mariachi steps: key 'G major').
@@ -1605,7 +1651,7 @@ function GenreLessonContainerV2Inner({
         genreLabel: genreDisplayName,
         returnTo: practiceReturnTo
           ? practiceReturnTo(sectionId)
-          : `${CurriculumRoutes.genreLevel({ genre, level: String(level) })}?section=${sectionId}`,
+          : `${LearnRoutes.genreLesson({ genre, level: String(level) })}?section=${sectionId}`,
         bpm: tempo,
       });
       if (url) navigate(url);
@@ -1711,6 +1757,8 @@ function GenreLessonContainerV2Inner({
         itTimerRef.current = null;
       }
       stopTickCounter();
+      setOverviewTab(null);
+      setPositionsOpen(false);
       setActiveSection(sectionId);
       setStepIndex(0);
       setActivityState('preview');
@@ -1792,6 +1840,8 @@ function GenreLessonContainerV2Inner({
         itTimerRef.current = null;
       }
       stopTickCounter();
+      setOverviewTab(null);
+      setPositionsOpen(false);
       setStepIndex(next);
       setActivityState('preview');
       setUserNotes([]);
@@ -1856,6 +1906,8 @@ function GenreLessonContainerV2Inner({
 
   useEffect(() => {
     setActiveSection(initialSection ?? 'A');
+    setPositionsOpen(openOnOverview);
+    setPositionIndex(0);
     setStepIndex(0);
     setActivityState('preview');
     setUserNotes([]);
@@ -2575,6 +2627,53 @@ function GenreLessonContainerV2Inner({
     const practising = isPracticing || restartingPass;
     const offerSection = practiceOffer;
 
+    // A diatonic guitar lesson's Overview, section 'O' (as Theory's on
+    // keyboard): the scale's seven positions on the neck, one lit.
+    const FRETTED_OVERVIEW_ID = 'O' as unknown as ActivitySectionId;
+    const onPositions = positionsScale !== null && positionsOpen;
+    const openPositions = (index: number) => {
+      if (!positionsOpen) {
+        stopDemo();
+        stopBacking();
+        stopTransport();
+        Tone.getTransport().cancel();
+        stopTickCounter();
+        setActivityState('preview');
+        setLastResult(null);
+        setPracticeOffer(null);
+        setPositionsOpen(true);
+      }
+      setPositionIndex(index);
+    };
+    const positionTabRow = positionsScale
+      ? positionTabs({
+          mode: positionsScale.mode,
+          labels: 'position',
+          index: positionIndex,
+          onSelect: openPositions,
+          narrow: false,
+        })
+      : [];
+    const firstSection = flow.sections[0];
+    const positionsBar: Zones | null =
+      onPositions && firstSection
+        ? {
+            lead: null,
+            meta: null,
+            actions: (
+              <Primary onClick={() => openSectionStep(firstSection.id, 0)}>
+                Start {firstSection.name}
+              </Primary>
+            ),
+          }
+        : null;
+    const sectionOutline = groupNavOutline(
+      groupSections,
+      activeSection,
+      stepIndex,
+      openSectionStep,
+    );
+
     return (
       <FrettedInstrumentContext.Provider
         value={isBass ? BASS : isUkulele ? UKULELE : GUITAR}
@@ -2589,51 +2688,103 @@ function GenreLessonContainerV2Inner({
               {
                 label: genreDisplayName,
                 onClick: () =>
-                  navigate(overviewRoute ?? CurriculumRoutes.genre({ genre })),
+                  navigate(overviewRoute ?? LearnRoutes.genreCourse({ genre })),
               },
             ],
             keyLabel: centerTitle(guitarCenter),
             keyColor,
-            subsection: stepSubsection,
-            activity: stepActivity,
-            chordNames: stepWritesChords,
+            subsection: onPositions ? 'Overview' : stepSubsection,
+            activity: onPositions
+              ? (positionTabRow[positionIndex]?.name ?? '')
+              : stepActivity,
+            chordNames: !onPositions && stepWritesChords,
           }}
           nav={{
-            sections: flow.sections.map((section) => ({
-              id: section.id,
-              name: section.name,
-              active: section.id === activeSection,
-              done: getSectionProgress(section.id).percentage === 100,
-            })),
-            onSection: handleSectionChange,
+            sections: [
+              ...(positionsScale
+                ? [
+                    {
+                      id: FRETTED_OVERVIEW_ID,
+                      name: 'Overview',
+                      active: onPositions,
+                      done: false,
+                    },
+                  ]
+                : []),
+              ...flow.sections.map((section) => ({
+                id: section.id,
+                name: section.name,
+                active: !onPositions && section.id === activeSection,
+                done: getSectionProgress(section.id).percentage === 100,
+              })),
+            ],
+            onSection: (id) =>
+              id === FRETTED_OVERVIEW_ID
+                ? openPositions(positionIndex)
+                : handleSectionChange(id),
             steps: navSteps,
             index: stepIndex,
             goToStep,
             // The tab row pages the steps and ends with the Practice Track.
             practiceTrack: null,
             pager: false,
-            outline: groupNavOutline(
-              groupSections,
-              activeSection,
-              stepIndex,
-              openSectionStep,
-            ),
+            outline: [
+              ...(positionsScale
+                ? [
+                    {
+                      id: FRETTED_OVERVIEW_ID,
+                      name: 'Overview',
+                      active: onPositions,
+                      done: false,
+                      steps: positionTabRow.map((tab) => ({
+                        code: '',
+                        title: tab.name ?? tab.label,
+                        subsection: '',
+                        status: 'todo' as const,
+                      })),
+                      index: onPositions ? positionIndex : -1,
+                      onPick: openPositions,
+                    },
+                  ]
+                : []),
+              ...sectionOutline.map((section) =>
+                onPositions
+                  ? { ...section, active: false, index: -1 }
+                  : section,
+              ),
+            ],
           }}
+          overview={
+            onPositions && positionsScale ? (
+              <ModePositionsOverview
+                scale={positionsScale}
+                index={positionIndex}
+                labels="position"
+                keyColor={keyColor}
+                mirrored={leftHanded}
+                onIndexChange={openPositions}
+              />
+            ) : undefined
+          }
+          barCustom={positionsBar}
+          // On the Overview the positions are chosen on the neck itself.
           subNav={
-            <SectionGroupTabs
-              section={
-                groupSections.find((s) => s.id === activeSection) ??
-                groupSections[0]
-              }
-              stepIndex={stepIndex}
-              keyColor={keyColor}
-              goToStep={goToStep}
-              onPracticeTrack={
-                sectionHasContent(currentSection)
-                  ? () => enterPracticeTrack(activeSection)
-                  : null
-              }
-            />
+            onPositions ? undefined : (
+              <SectionGroupTabs
+                section={
+                  groupSections.find((s) => s.id === activeSection) ??
+                  groupSections[0]
+                }
+                stepIndex={stepIndex}
+                keyColor={keyColor}
+                goToStep={goToStep}
+                onPracticeTrack={
+                  sectionHasContent(currentSection)
+                    ? () => enterPracticeTrack(activeSection)
+                    : null
+                }
+              />
+            )
           }
           run={{
             state: activityState,
@@ -2907,6 +3058,175 @@ function GenreLessonContainerV2Inner({
   );
   const pianoPractising = isPracticing || restartingPass;
 
+  // ── Theory's navigation (owner, 2026-10-27) ──────────────────────────────
+  // The Overview first, then each section paged by a tab row of its exercise
+  // groups (its steps' subsections, numbered), the step line under each tab
+  // and its Practice Track last; the rail lists every section's steps at
+  // once, and there's no ‹ 3 / 20 › pager.
+  const onOverview = overviewTab !== null && !!overviewLevel && !!genreProfile;
+  type FlowSection = ActivityFlowV2['sections'][number];
+  const groupName = (subsection: string) =>
+    chordText(subsection).replace(/^[A-Z]\d+[a-z]?:\s*/, '');
+  const groupsIn = (section: FlowSection) => [
+    ...new Set(section.steps.map((step) => step.subsection)),
+  ];
+  const stepStatus = (step: ActivityStepV2): NavStep['status'] => {
+    const saved = progress.completedSteps[step.tag];
+    return !saved
+      ? 'todo'
+      : !saved.score.passed
+        ? 'attempted'
+        : saved.score.selfReported
+          ? 'selfReported'
+          : 'passed';
+  };
+  const stepTitle = (step: ActivityStepV2) =>
+    splitActivity(chordText(step.activity, step.chordSymbols ?? [])).title;
+  /** A section's steps for the rail: no codes, under numbered groups. */
+  const pianoStepsOf = (section: FlowSection): NavStep[] => {
+    const groups = groupsIn(section);
+    return section.steps.map((step) => ({
+      code: '',
+      title: stepTitle(step as ActivityStepV2),
+      subsection: `${groups.indexOf(step.subsection) + 1}. ${groupName(step.subsection)}`,
+      status: stepStatus(step as ActivityStepV2),
+    }));
+  };
+  const openOverview = (tab: GenreOverviewTab) => {
+    if (overviewTab === null) {
+      stopDemo();
+      stopBacking();
+      stopTransport();
+      Tone.getTransport().cancel();
+      stopTickCounter();
+      setActivityState('preview');
+      setLastResult(null);
+      setPracticeOffer(null);
+    }
+    setOverviewTab(tab);
+  };
+  const openStep = (sectionId: ActivitySectionId, index: number) => {
+    if (sectionId !== activeSection) handleSectionChange(sectionId);
+    goToStep(index);
+  };
+  // Theory's Overview is section 'O'; the nav only shows its name.
+  const OVERVIEW_ID = 'O' as unknown as ActivitySectionId;
+  const sectionDone = (id: ActivitySectionId) =>
+    getSectionProgress(id).percentage === 100;
+
+  const outline: NavOutlineSection[] = [
+    ...(overviewLevel
+      ? [
+          {
+            id: OVERVIEW_ID,
+            name: 'Overview',
+            active: onOverview,
+            done: false,
+            steps: GENRE_OVERVIEW_TABS.map(({ label }) => ({
+              code: '',
+              title: label,
+              subsection: '',
+              status: 'todo' as const,
+            })),
+            index: onOverview
+              ? GENRE_OVERVIEW_TABS.findIndex((t) => t.id === overviewTab)
+              : -1,
+            onPick: (i: number) =>
+              openOverview(GENRE_OVERVIEW_TABS[i]?.id ?? 'about'),
+          },
+        ]
+      : []),
+    ...flow.sections.map((section) => {
+      const active = !onOverview && section.id === activeSection;
+      return {
+        id: section.id,
+        name: section.name,
+        active,
+        done: sectionDone(section.id),
+        steps: pianoStepsOf(section),
+        index: active ? stepIndex : -1,
+        onPick: (i: number) => openStep(section.id, i),
+      };
+    }),
+  ];
+
+  const currentGroup = currentStep.subsection;
+  const sectionGroups = groupsIn(currentSection);
+  const subNav = onOverview ? (
+    <LessonTabStrip
+      label="Overview"
+      keyColor={keyColor}
+      tabs={GENRE_OVERVIEW_TABS.map(({ id, label }) => ({
+        id,
+        label,
+        active: overviewTab === id,
+        onSelect: () => openOverview(id),
+      }))}
+    />
+  ) : (
+    <LessonTabStrip
+      label={currentSection.name}
+      keyColor={keyColor}
+      tabs={[
+        ...sectionGroups.map((group, g) => ({
+          id: group,
+          // Just its number on the tab; its name for assistive tech and the
+          // tooltip (as Theory's).
+          label: String(g + 1),
+          name: `${g + 1}. ${groupName(group)}`,
+          steps: currentSection.steps.flatMap((step, i) => {
+            if (step.subsection !== group) return [];
+            const status = stepStatus(step as ActivityStepV2);
+            const title = stepTitle(step as ActivityStepV2);
+            return [
+              {
+                status,
+                current: i === stepIndex,
+                label: status === 'passed' ? `${title}, passed` : title,
+                onSelect: () => goToStep(i),
+              },
+            ];
+          }),
+          active: group === currentGroup,
+          onSelect: () => {
+            const first = currentSection.steps.findIndex(
+              (step) => step.subsection === group,
+            );
+            if (first >= 0 && group !== currentGroup) goToStep(first);
+          },
+        })),
+        ...(sectionHasContent(currentSection)
+          ? [
+              {
+                id: 'practice-track',
+                label: 'Practice Track',
+                active: false,
+                onSelect: () => enterPracticeTrack(activeSection),
+              },
+            ]
+          : []),
+      ]}
+    />
+  );
+
+  // The Overview's bar: on into the first section (as Theory's "Start
+  // Melody").
+  const firstSection = flow.sections[0];
+  const overviewBar: Zones | null = onOverview
+    ? {
+        lead: null,
+        meta: null,
+        actions: firstSection ? (
+          <Primary onClick={() => openStep(firstSection.id, 0)}>
+            Start {firstSection.name}
+          </Primary>
+        ) : null,
+      }
+    : null;
+  const overviewLabel = onOverview
+    ? (GENRE_OVERVIEW_TABS.find((t) => t.id === overviewTab)?.label ?? '')
+    : '';
+
   return (
     <PianoLessonLayout
       header={{
@@ -2918,34 +3238,49 @@ function GenreLessonContainerV2Inner({
           {
             label: genreDisplayName,
             onClick: () =>
-              navigate(overviewRoute ?? CurriculumRoutes.genre({ genre })),
+              navigate(overviewRoute ?? LearnRoutes.genreCourse({ genre })),
           },
         ],
         keyLabel: formatAccidentalsForDisplay(ownKey ?? flow.params.defaultKey),
         keyColor,
-        subsection: stepSubsection,
-        activity: stepActivity,
-        chordNames: stepWritesChords,
+        subsection: onOverview ? 'Overview' : stepSubsection,
+        activity: onOverview ? overviewLabel : stepActivity,
+        chordNames: !onOverview && stepWritesChords,
       }}
-      chords={pianoChords}
+      chords={onOverview ? [] : pianoChords}
       nav={{
-        sections: flow.sections.map((section) => ({
-          id: section.id,
-          name: section.name,
-          active: section.id === activeSection,
-          done: getSectionProgress(section.id).percentage === 100,
+        sections: outline.map(({ id, name, active, done }) => ({
+          id,
+          name,
+          active,
+          done,
         })),
-        onSection: handleSectionChange,
+        onSection: (id) =>
+          id === OVERVIEW_ID ? openOverview('about') : openStep(id, 0),
+        outline,
         steps: navSteps,
         index: stepIndex,
         goToStep,
-        practiceTrack: sectionHasContent(currentSection)
-          ? { onOpen: () => enterPracticeTrack(activeSection) }
-          : null,
+        // The tab row pages the steps and ends with the Practice Track.
+        practiceTrack: null,
+        pager: false,
         // Roll / Notation / Falling and the hands, on the tool rail (the
         // roll's own corner icons are off).
         noteViews: { hands: true },
       }}
+      subNav={subNav}
+      overview={
+        onOverview && genreProfile && overviewLevel && overviewTab ? (
+          <GenreOverview
+            tab={overviewTab}
+            profile={genreProfile}
+            level={overviewLevel}
+            keyColor={keyColor}
+            onOpenSection={(id) => openStep(id, 0)}
+          />
+        ) : undefined
+      }
+      barCustom={overviewBar}
       run={{
         state: activityState,
         restartingPass,

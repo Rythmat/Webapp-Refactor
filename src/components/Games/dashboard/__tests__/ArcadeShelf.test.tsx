@@ -12,8 +12,7 @@ import { ArcadeShelf } from '../ArcadeShelf';
  * the card's own Play.
  */
 
-// The cover art draws on a canvas, which jsdom lacks; the card's own button
-// is all that matters here.
+// Only the card's own button matters here, not its cover.
 vi.mock('../GameCard', () => ({
   GameCard: ({ game }: { game: ArcadeGame }) => (
     <button type="button">Play {game.title}</button>

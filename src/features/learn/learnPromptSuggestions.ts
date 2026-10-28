@@ -9,7 +9,7 @@ import {
 } from '@/components/ClassroomLayout/home/promptSuggestions';
 import { GENRE_COURSES } from '@/components/learn/genreCourses';
 import { techniqueDataFor } from '@/components/learn/techniqueCatalog';
-import { CurriculumRoutes, SongRoutes } from '@/constants/routes';
+import { LearnRoutes, SongRoutes } from '@/constants/routes';
 import { getAllSongs } from '@/curriculum/data/songs';
 import type { Song } from '@/curriculum/types/songLibrary';
 import type { GenreReadiness } from '@/features/learn/genreReadiness';
@@ -52,7 +52,7 @@ const songSuggestions = (instrument: LearnInstrument, songs: readonly Song[]) =>
 const GENRE_SUGGESTIONS: PromptSuggestion[] = GENRE_COURSES.map((course) =>
   teach(
     `Teach me ${course.title}`,
-    CurriculumRoutes.genre({ genre: course.slug }),
+    LearnRoutes.genreCourse({ genre: course.slug }),
   ),
 );
 
@@ -94,7 +94,7 @@ const genreSectionSuggestions = (id: GenreSectionId, ready: GenreReadiness) => {
     ).map(({ level, name }) =>
       teach(
         `Teach me ${section.ask(`${name} ${course.title}`)}`,
-        `${CurriculumRoutes.genreLevel({ genre: course.slug, level })}?section=${id}`,
+        `${LearnRoutes.genreLesson({ genre: course.slug, level })}?section=${id}`,
       ),
     ),
   );
@@ -103,7 +103,7 @@ const genreSectionSuggestions = (id: GenreSectionId, ready: GenreReadiness) => {
 /** A genre course's own route (/curriculum/funk): its slug, else null. */
 const courseOf = (route: string) =>
   GENRE_COURSES.find(
-    (course) => route === CurriculumRoutes.genre({ genre: course.slug }),
+    (course) => route === LearnRoutes.genreCourse({ genre: course.slug }),
   )?.slug ?? null;
 
 /**

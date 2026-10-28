@@ -876,7 +876,8 @@ export const LearnRoutes = {
   // The instrument is the first segment: /learn/keyboard/… and
   // /learn/guitar/…. Theory tiles go by their slug ('ionian', 'ionian#5',
   // encoded here). The tabs' pages (/learn/keyboard/songs…) are static, so
-  // they outrank '/:mode'; so do 'relative' and 'parallel'.
+  // they outrank '/:mode'; so do 'relative', 'parallel' and 'genre' (the
+  // genre courses, /learn/keyboard/genre/pop).
 
   /** The Learn page on keyboard (owner, 2026-10-24). */
   keyboard: createRouteDefinition('/keyboard', { prefix: learnPrefix }),
@@ -892,6 +893,17 @@ export const LearnRoutes = {
     { section?: LearnSection }
   >('/keyboard/:mode/:key', { prefix: learnPrefix }),
 
+  /** A genre course's overview, on keyboard (was /curriculum/:genre). */
+  genreCourse: createRouteDefinition<{
+    genre: string;
+  }>('/keyboard/genre/:genre', { prefix: learnPrefix }),
+
+  /** A genre course's level; `?section=A|B|C|D` opens that chapter. */
+  genreLesson: createRouteDefinition<
+    { genre: string; level: string },
+    { section?: LearnSection }
+  >('/keyboard/genre/:genre/:level', { prefix: learnPrefix }),
+
   /** The seven diatonic modes of one major key, on keyboard. */
   relativeOverview: createRouteDefinition<{
     key: string;
@@ -905,12 +917,33 @@ export const LearnRoutes = {
   /** The Learn page on guitar (owner, 2026-10-24). */
   guitar: createRouteDefinition('/guitar', { prefix: learnPrefix }),
 
+  /**
+   * Technique → Guitar Harmonics; `?tab=ratios|geometry|play` opens that
+   * activity. Static, so it outranks the lessons' '/guitar/:mode/:key'.
+   */
+  guitarHarmonics: createRouteDefinition<
+    void,
+    { tab?: 'ratios' | 'geometry' | 'play' }
+  >('/guitar/technique/harmonics', { prefix: learnPrefix }),
+
+  /**
+   * The seven modes of one major key on guitar: its seven positions on the
+   * neck, named Ionian … Locrian. Static 'relative', so it outranks
+   * '/guitar/:mode/:key'.
+   */
+  guitarRelativeOverview: createRouteDefinition<{
+    key: string;
+  }>('/guitar/relative/:key', { prefix: learnPrefix }),
+
   /** A Theory tile's guitar overview: the keys, the scale box. */
   guitarOverview: createRouteDefinition<{
     mode: string;
   }>('/guitar/:mode', { prefix: learnPrefix }),
 
-  /** A key's guitar lesson; `?section=A|B|D` opens that chapter. */
+  /**
+   * A key's guitar lesson; `?section=A|B|D` opens that chapter, `O` (a
+   * diatonic mode's default) its Overview.
+   */
   guitarLesson: createRouteDefinition<
     { mode: string; key: string },
     { section?: LearnSection }
@@ -1002,7 +1035,8 @@ const curriculumPrefix = '/curriculum';
 export const CurriculumRoutes = {
   root: createRouteDefinition(curriculumPrefix),
 
-  genre: createRouteDefinition<{ genre: string }>('/:genre', {
+  /** Piano Fundamentals' overview (Learn → Technique). */
+  pianoFundamentals: createRouteDefinition('/piano-fundamentals', {
     prefix: curriculumPrefix,
   }),
 
@@ -1024,7 +1058,7 @@ export const CurriculumRoutes = {
   // Legacy: guitar lived here as a twin of Applied Theory Fundamentals. It is
   // now Learn → Theory → Ionian (Major) on guitar (LearnRoutes.guitarOverview /
   // guitarLesson); these paths only redirect there, so old links keep
-  // working. Static segments, so they rank above '/:genre/:level'.
+  // working.
   guitarAppliedTheoryFundamentals: createRouteDefinition(
     '/guitar/applied-theory-fundamentals',
     { prefix: curriculumPrefix },
@@ -1037,7 +1071,7 @@ export const CurriculumRoutes = {
   }),
 
   // Music Literacy: call-and-response lessons on scale degrees (Learn →
-  // Start Here). Static segments, so they rank above '/:genre/:level'.
+  // Start Here).
   musicLiteracy: createRouteDefinition('/music-literacy', {
     prefix: curriculumPrefix,
   }),
@@ -1054,11 +1088,6 @@ export const CurriculumRoutes = {
   /** A lesson; `?step=<tag>` opens it on that step (Continue). */
   musicLiteracyLesson: createRouteDefinition<{ id: string }, { step?: string }>(
     '/music-literacy/:id',
-    { prefix: curriculumPrefix },
-  ),
-
-  genreLevel: createRouteDefinition<{ genre: string; level: string }>(
-    '/:genre/:level',
     { prefix: curriculumPrefix },
   ),
 };

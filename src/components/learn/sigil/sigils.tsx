@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { at, points, R } from './sigilGeometry';
-import { lissajousPath } from './sigilSpec';
+import { lissajousPath, rotaryPath } from './sigilSpec';
 import './sigil.css';
 
 // ── The sigils: a tile's music as line geometry (owner, 2026-10-26) ───────
 // On the circle of sigilGeometry: the twelve notes (C at the top, as the
-// Studio's key wheel) for a scale, the steps of a bar for a groove, a
-// Lissajous figure for an interval.
+// Studio's key wheel) for a scale, the steps of a bar for a groove (kept
+// for the Drum lessons), a Lissajous figure for an interval, a rotary
+// harmonograph's for a genre.
 
 function Frame({
   accent,
@@ -46,7 +47,8 @@ const Ticks = ({ n }: { n: number }) => (
  * A scale on the twelve-note circle: its notes as nodes (the tonic ringed),
  * the scale in order as a faint polygon, its notes in thirds (how its
  * chords stack) as the star, and the notes that set it apart from major in
- * the accent, named. `layers` are more stars, faint (a Parallel tile's seven
+ * the accent. Every note is named round it by its degree (`degrees`; owner,
+ * 2026-10-28), else only the altered ones. `layers` are more stars, faint (a Parallel tile's seven
  * modes); `weights` grow a node with how many of them hold it.
  */
 export function ScaleSigil({
@@ -54,6 +56,7 @@ export function ScaleSigil({
   tonic,
   stars,
   altered = [],
+  degrees,
   layers = [],
   weights,
   accent,
@@ -63,12 +66,17 @@ export function ScaleSigil({
   tonic: number;
   stars: readonly (readonly number[])[];
   altered?: readonly { pc: number; label: string }[];
+  degrees?: readonly { pc: number; label: string }[];
   layers?: readonly (readonly number[])[];
   weights?: Readonly<Record<number, number>>;
   accent: string;
   label: string;
 }) {
   const alteredAt = new Map(altered.map((a) => [a.pc, a.label]));
+  // The accent on the notes that set the scale apart, or, with none
+  // (major, a key, a tonic's modes), on the tonic.
+  const isAccented = (pc: number) =>
+    altered.length ? alteredAt.has(pc) : pc === tonic;
   // Nodes light in scale order from the tonic.
   const order = [...pcs].sort(
     (a, b) => ((a - tonic + 12) % 12) - ((b - tonic + 12) % 12),
@@ -101,9 +109,7 @@ export function ScaleSigil({
       ))}
       {order.map((pc, i) => {
         const [x, y] = at(pc, 12);
-        // The accent on the notes that set the scale apart, or, with none
-        // (major, a key, a tonic's modes), on the tonic.
-        const accented = altered.length ? alteredAt.has(pc) : pc === tonic;
+        const accented = isAccented(pc);
         const r = weights ? 1.2 + (weights[pc] ?? 0) * 0.32 : 2.3;
         return (
           <g key={pc}>
@@ -120,10 +126,15 @@ export function ScaleSigil({
           </g>
         );
       })}
-      {altered.map(({ pc, label: name }) => {
+      {(degrees ?? altered).map(({ pc, label: name }) => {
         const [x, y] = at(pc, 12, R + 8.5);
         return (
-          <text key={pc} x={x} y={y} className="sigil-label">
+          <text
+            key={pc}
+            x={x}
+            y={y}
+            className={`sigil-label${isAccented(pc) ? '' : ' sigil-label--plain'}`}
+          >
             {name}
           </text>
         );
@@ -236,6 +247,34 @@ export function IntervalSigil({
   return (
     <Frame accent={accent} label={label}>
       <path d={d} className="sigil-line" />
+      <circle r={1.6} className="sigil-node sigil-node--accent" />
+    </Frame>
+  );
+}
+
+/**
+ * A genre as the harmonograph chart's "rotary concurrent" column draws its
+ * signature interval: two equal voices turning the same way at its ratio,
+ * nested loops round the middle. Hovering draws it on and turns it slowly,
+ * as the pendulums' phase drifts (which only turns the figure).
+ */
+export function RotarySigil({
+  ratio,
+  accent,
+  label,
+}: {
+  ratio: readonly [number, number];
+  accent: string;
+  label: string;
+}) {
+  // Out to the circle, as a scale's notes and an interval's loops reach
+  // (owner, 2026-10-28).
+  const d = useMemo(() => rotaryPath(ratio, R * 0.92), [ratio]);
+  return (
+    <Frame accent={accent} label={label}>
+      <g className="sigil-turn">
+        <path d={d} className="sigil-line sigil-draw" pathLength={1} />
+      </g>
       <circle r={1.6} className="sigil-node sigil-node--accent" />
     </Frame>
   );

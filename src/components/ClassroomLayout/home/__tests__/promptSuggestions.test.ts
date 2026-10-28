@@ -69,7 +69,7 @@ const KEYS = new Set([
   'bflat',
   'f',
 ]);
-/** CurriculumRoutes.genre's genres. */
+/** LearnRoutes.genreCourse's genres. */
 const CURRICULUM_GENRES = new Set([
   'pop',
   'rock',
@@ -150,12 +150,10 @@ function problem(route: string): string | null {
   let m = path.match(/^\/songs\/([^/]+)$/);
   if (m) return SONG_IDS.has(m[1]) ? null : `no song ${m[1]}`;
 
-  m = path.match(/^\/curriculum\/([^/]+)$/);
-  if (m) {
-    return CURRICULUM_GENRES.has(m[1]) || m[1] === 'music-literacy'
-      ? null
-      : `no course ${m[1]}`;
-  }
+  m = path.match(/^\/learn\/keyboard\/genre\/([^/]+)$/);
+  if (m) return CURRICULUM_GENRES.has(m[1]) ? null : `no course ${m[1]}`;
+
+  if (path === '/curriculum/music-literacy') return null;
 
   if (path === '/learn') {
     const tab = q.get('tab') ?? '';
@@ -255,7 +253,7 @@ describe('the Home prompt suggestions', () => {
       '/studio?bpm=100',
       '/learn/keyboard/chords',
       '/learn/keyboard/dorian/h',
-      '/curriculum/polka',
+      '/learn/keyboard/genre/polka',
       '/atlas/globe?era=baroque',
       '/atlas/globe?tour=region-mars',
       '/atlas/globe?pathway=disco-moon',
@@ -355,7 +353,7 @@ describe('the Learn page’s guitar suggestions', () => {
       const theory = s.route.match(/^\/learn\/([^/?]+)/);
       const why = s.route.startsWith('/learn?')
         ? 'the Learn page'
-        : s.route.startsWith('/curriculum/')
+        : s.route.startsWith('/learn/keyboard/genre/')
           ? 'a keyboard course'
           : theory && theory[1] !== 'guitar'
             ? 'a Theory lesson off guitar'

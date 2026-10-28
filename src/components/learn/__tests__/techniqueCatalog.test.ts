@@ -32,7 +32,12 @@ describe('techniqueCatalog', () => {
     ).toBe(false);
   });
 
-  it('has no guitar Technique tiles: guitar lives in Theory → Ionian (Major)', () => {
-    expect(techniqueDataFor('guitar')).toEqual([]);
+  it('gives guitar its own Technique tile: Guitar Harmonics', () => {
+    expect(techniqueDataFor('guitar').map((tile) => tile.title)).toEqual([
+      'Guitar Harmonics',
+    ]);
+    expect(techniqueDataFor('guitar')[0].route).toBe(
+      '/learn/guitar/technique/harmonics',
+    );
   });
 });

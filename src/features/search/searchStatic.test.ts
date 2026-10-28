@@ -89,9 +89,11 @@ describe('searchStatic', () => {
     expect(theory!.results[0].to).toBe('/learn/keyboard/dorian');
   });
 
-  it('finds a course and links to /curriculum/<slug>', () => {
+  it('finds a course and links to /learn/keyboard/genre/<slug>', () => {
     const course = searchStatic('jazz').find((g) => g.category === 'courses');
-    expect(course?.results.some((r) => r.to === '/curriculum/jazz')).toBe(true);
+    expect(
+      course?.results.some((r) => r.to === '/learn/keyboard/genre/jazz'),
+    ).toBe(true);
   });
 
   it('finds guitar under Theory → Ionian (Major) (rollout flag on in dev and tests)', () => {

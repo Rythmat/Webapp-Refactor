@@ -17,7 +17,7 @@ Disallow: /auth
 Disallow: /studio
 Disallow: /arcade
 Disallow: /learn
-Disallow: /atlas
+Disallow: /globe
 Disallow: /classrooms
 Disallow: /teacher
 Disallow: /console
@@ -38,7 +38,7 @@ Disallow: /auth
 Disallow: /studio
 Disallow: /arcade
 Disallow: /learn
-Disallow: /atlas
+Disallow: /globe
 Disallow: /classrooms
 Disallow: /teacher
 Disallow: /console
@@ -59,7 +59,7 @@ Disallow: /auth
 Disallow: /studio
 Disallow: /arcade
 Disallow: /learn
-Disallow: /atlas
+Disallow: /globe
 Disallow: /classrooms
 Disallow: /teacher
 Disallow: /console

@@ -143,7 +143,7 @@ const learn = (
 const globe = (text: string, query: string): PromptSuggestion => ({
   text,
   target: 'globe',
-  route: `/atlas/globe?${query}`,
+  route: `/globe?${query}`,
 });
 const arcade = (
   text: string,

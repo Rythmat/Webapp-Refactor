@@ -5,8 +5,10 @@
  * when piano took guitar's screen (piano/layout: one page, no start card, the
  * buttons in the bar), and on 2026-10-27, when it took Theory's navigation
  * (the tab row of exercise groups, the whole outline in the rail, no pager)
- * and a genre level its Overview. Never update them with `-u` as part of other work — a
- * diff here means piano changed.
+ * and a genre level its Overview. The Funk Overview's six "on the Globe"
+ * links were re-recorded alone on 2026-10-29, when the Globe moved to /globe.
+ * Never update them with `-u` as part of other work — a diff here means
+ * piano changed.
  *
  * Audio, the transport and the input provider are faked as in the
  * instruments test; VexFlow never loads (jsdom has no layout).

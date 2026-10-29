@@ -23,7 +23,7 @@ export const atLearnTab = (tab: string) => (place: TourPlace) =>
   atLearn(place) && tabOf(place) === tab;
 export const atSong = (place: TourPlace) => place.pathname === TOUR_SONG_HREF;
 export const atGlobe = (place: TourPlace) =>
-  place.pathname.startsWith('/atlas/globe');
+  place.pathname === '/globe' || place.pathname.startsWith('/globe/');
 export const atSetLists = (place: TourPlace) =>
   place.pathname === '/songs/setlists';
 export const atCourse = (place: TourPlace) =>

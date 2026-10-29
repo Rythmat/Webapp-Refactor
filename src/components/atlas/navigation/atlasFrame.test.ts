@@ -122,7 +122,7 @@ describe('sections', () => {
 
 describe('atlasHref', () => {
   it('links to the bare globe', () => {
-    expect(atlasHref()).toBe('/atlas/globe');
+    expect(atlasHref()).toBe('/globe');
   });
 
   it('links a stop through a frame', () => {
@@ -131,9 +131,9 @@ describe('atlasHref', () => {
         kind: 'pathway',
         pathwayId: 'blues-to-rock',
       }),
-    ).toBe('/atlas/globe?pathway=blues-to-rock&view=timeline&lens=pathways');
+    ).toBe('/globe?pathway=blues-to-rock&view=timeline&lens=pathways');
     expect(
       atlasHref({ ...sectionFrame('eras'), window: { from: 1946, to: 1979 } }),
-    ).toBe('/atlas/globe?view=timeline&from=1946&to=1979');
+    ).toBe('/globe?view=timeline&from=1946&to=1979');
   });
 });

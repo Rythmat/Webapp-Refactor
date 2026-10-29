@@ -20,7 +20,7 @@ const marketingPrefix = '/features';
 
 /**
  * Public marketing pages (renders for logged-out and logged-in visitors). Module
- * pages live under `/features/*` because `/studio`, `/learn`, `/arcade`, `/atlas`
+ * pages live under `/features/*` because `/studio`, `/learn`, `/arcade`, `/globe`
  * are taken by the authenticated app.
  */
 export const MarketingRoutes = {
@@ -990,13 +990,20 @@ export const LibraryRoutes = {
   root: createRouteDefinition(libraryPrefix),
 };
 
-const atlasPrefix = '/atlas';
+const globePrefix = '/globe';
 
+/**
+ * The Globe: the interactive map and its timeline, one full-window page
+ * (owner, 2026-10-29; the /atlas dashboard and its addresses are gone).
+ */
+export const GlobeRoutes = {
+  root: createRouteDefinition(globePrefix),
+};
+
+/** @deprecated The old name, until its callers move to GlobeRoutes. */
 export const AtlasRoutes = {
-  root: createRouteDefinition(atlasPrefix),
-
-  /** The full interactive 3D globe. The `/atlas` index now shows the Globe Dashboard. */
-  globe: createRouteDefinition('/globe', { prefix: atlasPrefix }),
+  root: GlobeRoutes.root,
+  globe: GlobeRoutes.root,
 };
 
 const songsPrefix = '/songs';

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { AtlasRoutes } from '@/constants/routes';
+import { GlobeRoutes } from '@/constants/routes';
 
 /**
  * The globe deep link must target `/atlas/globe`, never `/atlas`.
@@ -31,9 +31,8 @@ function* walk(dir: string): Generator<string> {
 }
 
 describe('globe deep links', () => {
-  it('resolves the globe to /atlas/globe', () => {
-    expect(AtlasRoutes.globe()).toBe('/atlas/globe');
-    expect(AtlasRoutes.root()).toBe('/atlas');
+  it('resolves the globe to /globe', () => {
+    expect(GlobeRoutes.root()).toBe('/globe');
   });
 
   it('never points an ?event= link at the dashboard', () => {

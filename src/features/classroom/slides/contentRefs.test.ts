@@ -66,10 +66,10 @@ describe('contentRefs — every builder round-trips through the resolver', () =>
     ).toBe('/studio?tutorial=studio-basics-record');
   });
 
-  it('globePathwayRef → /atlas/globe?pathway=<id>', () => {
+  it('globePathwayRef → /globe?pathway=<id>', () => {
     expect(
       resolveActivityRefHref('globe', globePathwayRef('blues-to-rock')),
-    ).toBe('/atlas/globe?pathway=blues-to-rock');
+    ).toBe('/globe?pathway=blues-to-rock');
   });
 
   it('moduleForKind maps kinds to a valid LaunchTile module', () => {

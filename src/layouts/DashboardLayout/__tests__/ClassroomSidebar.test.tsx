@@ -105,8 +105,8 @@ describe('the app sidebar, through the console', () => {
     expect(current(renderConsole('/learn', 'admin'))).toEqual([
       '/console/content/learn',
     ]);
-    expect(current(renderConsole('/atlas/globe', 'admin'))).toEqual([
-      '/console/content/atlas',
+    expect(current(renderConsole('/globe', 'admin'))).toEqual([
+      '/console/content/globe',
     ]);
     expect(current(renderConsole(null, 'admin'))).toEqual([]);
   });

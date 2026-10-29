@@ -167,7 +167,7 @@ function problem(route: string): string | null {
     return m[2] === undefined || KEYS.has(m[2]) ? null : `no key ${m[2]}`;
   }
 
-  if (path === '/atlas/globe') {
+  if (path === '/globe') {
     for (const [key, value] of q) {
       const list = value.split(',');
       switch (key) {
@@ -254,9 +254,9 @@ describe('the Home prompt suggestions', () => {
       '/learn/keyboard/chords',
       '/learn/keyboard/dorian/h',
       '/learn/keyboard/genre/polka',
-      '/atlas/globe?era=baroque',
-      '/atlas/globe?tour=region-mars',
-      '/atlas/globe?pathway=disco-moon',
+      '/globe?era=baroque',
+      '/globe?tour=region-mars',
+      '/globe?pathway=disco-moon',
       '/studio?practiceMode=dorian&practiceRoot=h',
       '/arcade/tetris',
       '/studio?prompt=',
@@ -288,7 +288,7 @@ describe('the Home prompt suggestions', () => {
     const area: Record<string, RegExp> = {
       studio: /^\/studio\?/,
       learn: /^\/(learn|songs|curriculum)\b/,
-      globe: /^\/atlas\/globe\b/,
+      globe: /^\/globe\b/,
       arcade: /^\/arcade\//,
     };
     for (const s of PROMPT_SUGGESTIONS) {

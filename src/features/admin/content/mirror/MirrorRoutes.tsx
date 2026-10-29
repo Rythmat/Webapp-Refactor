@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 import { curriculumPages } from '@/curriculum/routes';
 import {
-  atlasPages,
+  globePages,
   gamesPages,
   learnPages,
   songsPages,
@@ -79,7 +79,7 @@ const buildRoutes = (): RouteObject[] => [
         : child,
   ),
   segment(curriculumPages),
-  segment(atlasPages),
+  segment(globePages),
   // Studio: the dashboard and its Production lessons; the editor opens a
   // student's own project.
   segment(studioPages, (child) =>

@@ -84,33 +84,33 @@ describe('resolveActivityRefHref — curriculum', () => {
 });
 
 describe('resolveActivityRefHref — globe', () => {
-  it('resolves event and pathway namespaces to /atlas/globe', () => {
+  it('resolves event and pathway namespaces to /globe', () => {
     expect(resolveActivityRefHref('globe', 'globe:event:evt-x')).toBe(
-      '/atlas/globe?event=evt-x',
+      '/globe?event=evt-x',
     );
     expect(resolveActivityRefHref('globe', 'globe:pathway:p1')).toBe(
-      '/atlas/globe?pathway=p1',
+      '/globe?pathway=p1',
     );
   });
   it('resolves region/city to their guided tours and era to the timeline', () => {
     expect(resolveActivityRefHref('globe', 'globe:region:west-africa')).toBe(
-      '/atlas/globe?tour=region-west-africa',
+      '/globe?tour=region-west-africa',
     );
     expect(resolveActivityRefHref('globe', 'globe:city:new-orleans')).toBe(
-      '/atlas/globe?tour=city-new-orleans',
+      '/globe?tour=city-new-orleans',
     );
     expect(resolveActivityRefHref('globe', 'globe:era:postwar')).toBe(
-      '/atlas/globe?era=postwar',
+      '/globe?era=postwar',
     );
   });
   it("opens the Globe's mind map for a Promoter", () => {
     expect(resolveActivityRefHref('globe', 'globe:mindmap')).toBe(
-      '/atlas/globe?mindmap=1',
+      '/globe?mindmap=1',
     );
   });
   it('treats a legacy bare globe ref as an event id', () => {
     expect(resolveActivityRefHref('globe', 'evt-funk-la-1975')).toBe(
-      '/atlas/globe?event=evt-funk-la-1975',
+      '/globe?event=evt-funk-la-1975',
     );
   });
 });

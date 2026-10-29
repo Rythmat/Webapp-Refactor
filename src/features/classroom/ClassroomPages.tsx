@@ -10,7 +10,7 @@ import {
   LearnRoutes,
   ConnectRoutes,
   LibraryRoutes,
-  AtlasRoutes,
+  GlobeRoutes,
   SongRoutes,
   UserRoutes,
   SettingsRoutes,
@@ -57,9 +57,8 @@ import { RequirePremium } from '@/components/ui/RequirePremium';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
 import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
-// Lazy on purpose. This was a static import while its sibling GlobeInlet was
-// already lazy(), which put the whole atlas chunk on the eager boot graph for
-// every user on every route.
+// Lazy on purpose: a static import put the whole atlas chunk on the eager
+// boot graph for every user on every route.
 const Atlas = lazy(() => import('@/components/atlas/atlas'));
 const SongDetailPage = lazy(() =>
   import('@/components/songLibrary/SongDetailPage').then((m) => ({
@@ -256,14 +255,6 @@ function LegacyEditorRedirect() {
   const { search, hash } = useLocation();
   return <Navigate to={`${StudioRoutes.editor()}${search}${hash}`} replace />;
 }
-
-const GlobeInlet = lazy(() =>
-  import('@/components/ClassroomLayout/globe/GlobeInlet').then(
-    ({ GlobeInlet }) => ({
-      default: GlobeInlet,
-    }),
-  ),
-);
 
 const HomeInlet = lazy(() =>
   import('@/components/ClassroomLayout/HomeInlet').then(({ HomeInlet }) => ({
@@ -906,9 +897,9 @@ export const libraryPages = () => {
   };
 };
 
-export const atlasPages = () => {
+export const globePages = () => {
   return {
-    path: AtlasRoutes.root.definition,
+    path: GlobeRoutes.root.definition,
     element: (
       <AppContext>
         <ProtectedPage>
@@ -917,20 +908,12 @@ export const atlasPages = () => {
       </AppContext>
     ),
     children: [
-      // `/atlas` now lands on the Globe Dashboard; the full interactive globe
-      // moves to `/atlas/globe` (opened from the dashboard's Explore tab).
-      // Both children read MUSIC_HISTORY, which is hydrated from the published
-      // CDN bundle — ContentGate holds the render until it has landed.
+      // The Globe, one full-window page (owner, 2026-10-29: the /atlas
+      // dashboard and its addresses are gone). It reads MUSIC_HISTORY, which
+      // is hydrated from the published CDN bundle — ContentGate holds the
+      // render until it has landed.
       {
         index: true,
-        element: (
-          <ContentGate>
-            <GlobeInlet />
-          </ContentGate>
-        ),
-      },
-      {
-        path: 'globe',
         element: (
           <ContentGate>
             <Atlas />

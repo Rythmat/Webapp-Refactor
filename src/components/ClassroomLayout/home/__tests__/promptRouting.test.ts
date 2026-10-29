@@ -125,7 +125,7 @@ describe('resolvePromptRoute', () => {
         match: none,
       });
     expect(go('studio')).toBe('/studio?prompt=polka%20%26%20yodel');
-    expect(go('globe')).toBe('/atlas/globe?q=polka%20%26%20yodel');
+    expect(go('globe')).toBe('/globe?q=polka%20%26%20yodel');
     expect(go('arcade')).toBe('/arcade');
     expect(go('learn')).toBe('/search?q=polka%20%26%20yodel');
     expect(go(null)).toBe('/search?q=polka%20%26%20yodel');
@@ -167,9 +167,9 @@ describe('a prompt’s first word', () => {
 
   it('“Show” and “How” search the Globe for the topic', () => {
     expect(go('Show me the history of bossa nova')).toBe(
-      '/atlas/globe?q=bossa%20nova',
+      '/globe?q=bossa%20nova',
     );
-    expect(go('How did reggae start?')).toBe('/atlas/globe?q=reggae');
+    expect(go('How did reggae start?')).toBe('/globe?q=reggae');
   });
 
   it('“Play” opens the game the matcher finds, else the Arcade', () => {
@@ -197,7 +197,7 @@ describe('areaOf', () => {
     expect(areaOf('/studio?new=1')).toBe('studio');
     expect(areaOf('/songs/superstition')).toBe('learn');
     expect(areaOf('/learn/keyboard/genre/jazz')).toBe('learn');
-    expect(areaOf('/atlas/globe?era=postwar')).toBe('globe');
+    expect(areaOf('/globe?era=postwar')).toBe('globe');
     expect(areaOf('/arcade/foli')).toBe('arcade');
     expect(areaOf('/search?q=x')).toBeNull();
   });

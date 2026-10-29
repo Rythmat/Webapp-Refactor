@@ -124,7 +124,7 @@ function contextActions(appPath: string, search: URLSearchParams): Action[] {
       },
     ];
   }
-  const event = appPath === '/atlas/globe' ? search.get('event') : null;
+  const event = appPath === '/globe' ? search.get('event') : null;
   if (event) {
     const song = songIdForEvent(event);
     return song
@@ -141,7 +141,7 @@ function graphFocusFor(
 ): string | null {
   const song = /^\/songs\/([^/]+)$/.exec(appPath);
   if (song && song[1] !== 'setlists') return `song:${song[1]}`;
-  if (appPath === '/atlas/globe') {
+  if (appPath === '/globe') {
     const event = search.get('event');
     if (event) return `event:${event}`;
     const artist = search.get('artist');

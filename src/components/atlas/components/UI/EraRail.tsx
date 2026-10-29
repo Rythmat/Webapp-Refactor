@@ -6,7 +6,6 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react';
-import { SPECTRUM_LINE } from '@/components/art/light/SpectrumLight';
 import {
   MUSICAL_ERAS,
   eraWindow,
@@ -28,6 +27,8 @@ import {
   type TimeWindow,
 } from '@/components/atlas/timeline/timeWindow';
 import { MUSIC_HISTORY, contentGeneration } from '@/content/contentStore';
+import { KEY_RAINBOW } from '@/features/landing/rainbow';
+import { HORIZON_STREAKS } from '@/features/landing/sections/RainbowHorizon';
 import { cn } from '@/lib/utils';
 
 const eraIndexOf = (year: number) =>
@@ -49,12 +50,27 @@ type Drag =
   | { kind: 'from' | 'to' }
   | { kind: 'pan'; startX: number; start: TimeWindow };
 
+/** The streaks rising off the rim, fading upward. */
+const STREAKS = {
+  backgroundImage: HORIZON_STREAKS,
+  maskImage: 'linear-gradient(to top, black, transparent)',
+  WebkitMaskImage: 'linear-gradient(to top, black, transparent)',
+};
+const RAINBOW = { backgroundImage: KEY_RAINBOW };
+
+/** Shown, or grown, while the pointer or focus is on the rail. */
+const OPEN =
+  'group-focus-within/rail:opacity-100 group-hover/rail:opacity-100 group-data-[dragging=true]/rail:opacity-100';
+
 /**
- * The years along the bottom, after Dorot's range bar: a thin strip of the
- * app's rainbow across the page (owner, 2026-10-29: the spectrum of its
- * working line and lights, art/light, not the eras' colours), the years in
- * view lit between two handles. It grows to show the eras' names, and ticks
- * at their bounds, while the pointer or focus is on it.
+ * The years along the bottom, after Dorot's range bar, drawn as the landing
+ * page's horizon (owner, 2026-10-29: "the arc on the marketing landing page",
+ * sections/HeroArc and RainbowHorizon) laid straight along the stage's foot:
+ * a crisp rim in the landing's rainbow, its bloom clipped by the stage's
+ * edge, and light streaks rising off it. The years in view are lit between
+ * two handles, the rest dimmed. While the pointer or focus is on it the
+ * streaks rise and brighten, the eras' names show, and ticks mark their
+ * bounds.
  * Drag a handle to move one end, drag between them to slide the window,
  * pick an era to fly there.
  *
@@ -94,7 +110,9 @@ export function EraRail() {
       const a = yearToRail(w.from, segments) * 100;
       const b = yearToRail(w.to, segments) * 100;
       if (brushRef.current) {
-        brushRef.current.style.clipPath = `inset(0 ${100 - b}% 0 ${a}%)`;
+        // Open upward, so the rim's bloom fades out instead of stopping
+        // at the rail's top edge.
+        brushRef.current.style.clipPath = `inset(-4rem ${100 - b}% 0 ${a}%)`;
       }
       for (const [el, year, pct] of [
         [fromRef.current, w.from, a],
@@ -194,8 +212,22 @@ export function EraRail() {
     );
   };
 
-  const stripe = (
-    <div className="h-full w-full" style={{ background: SPECTRUM_LINE }} />
+  // The horizon: streaks, bloom and rim, from the top of the rail down.
+  const horizon = (
+    <>
+      <div
+        className={cn(
+          'absolute inset-x-0 bottom-[5px] h-11 origin-bottom scale-y-[0.4] opacity-60 transition-[transform,opacity] duration-200 [transition-timing-function:var(--ease-out)] group-focus-within/rail:scale-y-100 group-hover/rail:scale-y-100 group-data-[dragging=true]/rail:scale-y-100',
+          OPEN,
+        )}
+        style={STREAKS}
+      />
+      <div
+        className="absolute inset-x-0 -bottom-3 h-8 opacity-50 blur-2xl"
+        style={RAINBOW}
+      />
+      <div className="absolute inset-x-0 bottom-[5px] h-0.5" style={RAINBOW} />
+    </>
   );
 
   const handle =
@@ -211,27 +243,38 @@ export function EraRail() {
       )}
       data-dragging={dragging}
     >
-      <div
-        ref={railRef}
-        aria-hidden
-        className="absolute inset-x-0 bottom-0 h-11 origin-bottom scale-y-[0.22] cursor-pointer transition-transform duration-200 [transition-timing-function:var(--ease-out)] group-focus-within/rail:scale-y-100 group-hover/rail:scale-y-100 group-data-[dragging=true]/rail:scale-y-100"
-        onPointerDown={onTrackDown}
-      >
-        <div className="absolute inset-0 opacity-25">{stripe}</div>
+      {/* What it looks like: the horizon, dimmed, and lit over the years in
+          view (clipped to them as the camera moves). */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 opacity-25">{horizon}</div>
         <div ref={brushRef} className="absolute inset-0">
-          {stripe}
+          {horizon}
         </div>
-        {/* Where one era gives way to the next, shown with the rail grown. */}
-        <div className="absolute inset-0 opacity-0 transition-opacity duration-200 [transition-timing-function:var(--ease-out)] group-focus-within/rail:opacity-100 group-hover/rail:opacity-100 group-data-[dragging=true]/rail:opacity-100">
+        {/* Where one era gives way to the next, rising off the rim while
+            the rail is open. */}
+        <div
+          className={cn(
+            'absolute inset-x-0 bottom-[5px] h-8 opacity-0 transition-opacity duration-200 [transition-timing-function:var(--ease-out)]',
+            OPEN,
+          )}
+        >
           {segments.slice(1).map((s) => (
             <div
               key={s.era.id}
-              className="absolute inset-y-0 w-px bg-atlas-page/70"
+              className="absolute inset-y-0 w-px bg-gradient-to-t from-white/50 to-transparent"
               style={{ left: `${s.x0 * 100}%` }}
             />
           ))}
         </div>
       </div>
+      {/* Where it takes the pointer: a thin band along the rim, the rail's
+          height while it is open. */}
+      <div
+        ref={railRef}
+        aria-hidden
+        className="absolute inset-x-0 bottom-0 h-11 origin-bottom scale-y-[0.22] cursor-pointer transition-transform duration-200 [transition-timing-function:var(--ease-out)] group-focus-within/rail:scale-y-100 group-hover/rail:scale-y-100 group-data-[dragging=true]/rail:scale-y-100"
+        onPointerDown={onTrackDown}
+      />
 
       {/* The eras' names, shown with the rail grown. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-11 opacity-0 transition-opacity duration-200 [transition-timing-function:var(--ease-out)] group-focus-within/rail:pointer-events-auto group-focus-within/rail:opacity-100 group-hover/rail:pointer-events-auto group-hover/rail:opacity-100">

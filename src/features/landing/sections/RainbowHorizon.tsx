@@ -1,10 +1,16 @@
 import { cn } from '@/components/utilities';
 import { KEY_RAINBOW } from '../rainbow';
 
-/** The hero horizon's light streaks: 1px lines 7px apart, fading off the rim. */
+/**
+ * The hero horizon's light streaks: 1px lines 7px apart (HeroArc's pattern),
+ * as a CSS background. The Globe's era rail raises them off its rim too.
+ */
+export const HORIZON_STREAKS =
+  'repeating-linear-gradient(to right, rgba(255,255,255,0.09) 0 1px, transparent 1px 7px)';
+
+/** The streaks, fading off the rim. */
 const STREAKS = {
-  backgroundImage:
-    'repeating-linear-gradient(to right, rgba(255,255,255,0.09) 0 1px, transparent 1px 7px)',
+  backgroundImage: HORIZON_STREAKS,
   maskImage: 'linear-gradient(to bottom, #000, transparent)',
   WebkitMaskImage: 'linear-gradient(to bottom, #000, transparent)',
 };

@@ -56,7 +56,7 @@ describe('legend', () => {
       artistShown: true,
       arcDirections: new Set(['upstream', 'downstream']),
       layers: {
-        countryColors: true,
+        landColor: 'music',
         states: false,
         cities: false,
         artistPoints: false,
@@ -66,8 +66,21 @@ describe('legend', () => {
     expect(ids(everything)).toEqual(['countries']);
   });
 
+  it('reads the land lit by music as a range, from unlit to the most', () => {
+    expect(entry(HOME, 'countries')).toMatchObject({
+      label: 'Music',
+      swatch: {
+        shape: 'ramp',
+        colors: [ATLAS_SCENE.landPlain, ...ATLAS_SCENE.landLit],
+      },
+    });
+  });
+
   it("samples the continent palette from the globe's own colours", () => {
-    const swatch = entry(HOME, 'countries')?.swatch;
+    const swatch = entry(
+      { ...HOME, layers: { ...DEFAULT_LAYERS, landColor: 'continent' } },
+      'countries',
+    )?.swatch;
     expect(swatch?.shape).toBe('continents');
     if (swatch?.shape !== 'continents') return;
     expect(swatch.continents.map((c) => c.label)).toEqual([
@@ -82,10 +95,10 @@ describe('legend', () => {
     expect(swatch.continents[0].colors[0]).toBe(getCountryColor('CAN'));
   });
 
-  it('shows plain land with country colours off', () => {
-    const ctx = {
+  it('shows plain land when Layers asks for it', () => {
+    const ctx: LegendContext = {
       ...HOME,
-      layers: { ...DEFAULT_LAYERS, countryColors: false },
+      layers: { ...DEFAULT_LAYERS, landColor: 'plain' },
     };
     expect(entry(ctx, 'countries')?.swatch).toEqual({
       shape: 'fill',
@@ -147,7 +160,7 @@ describe('legend', () => {
     });
     expect(entry(names, 'selected-city')).toMatchObject({
       detail: 'Its name turns warm.',
-      swatch: { shape: 'label', color: ATLAS_SCENE.strokeSelected },
+      swatch: { shape: 'label', color: ATLAS_SCENE.labelHot },
     });
   });
 });

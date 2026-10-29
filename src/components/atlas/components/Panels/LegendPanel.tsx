@@ -25,6 +25,15 @@ function Swatch({ swatch }: { swatch: LegendSwatch }) {
           style={{ backgroundColor: swatch.color }}
         />
       );
+    case 'ramp':
+      return (
+        <span
+          className="block h-2 w-8 rounded-full"
+          style={{
+            backgroundImage: `linear-gradient(to right, ${swatch.colors.join(', ')})`,
+          }}
+        />
+      );
     case 'continents':
       // Drawn as a row of chips under the entry instead (see below).
       return (

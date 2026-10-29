@@ -9,7 +9,7 @@ import { NO_INSETS } from './mapFraming';
 import { useProvideMapHandle } from './mapHandle';
 import { useArcLayers } from './useArcLayers';
 import { useGlobeClicks, useGlobeScene } from './useGlobeScene';
-import { useLandLayers } from './useLandLayers';
+import { useLandLayers, useLandMusic } from './useLandLayers';
 import { useMapFlights } from './useMapFlights';
 import { useMapInstance } from './useMapInstance';
 import { useMapPointer } from './useMapPointer';
@@ -42,7 +42,13 @@ export default function MapLibreGlobe() {
   // The overlays' padding (MapPadding, below), for flights to land clear of it.
   const paddingRef = useRef<MapInsets>(NO_INSETS);
 
-  useLandLayers(map, geo, scene.layers, scene.selectedLocation);
+  const countryData = useLandLayers(
+    map,
+    geo,
+    scene.layers,
+    scene.selectedLocation,
+  );
+  useLandMusic(map, countryData, scene.layers.landColor);
   usePlaceLayers(map, scene);
   useArcLayers(map, scene.influenceArcs, gate, reducedMotion);
   useMapPointer(map, clicks);
@@ -54,7 +60,7 @@ export default function MapLibreGlobe() {
   const failure = mapError ?? geo.error;
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-atlas-canvas">
+    <div className="atlas-map-ground absolute inset-0 overflow-hidden">
       {map && <MapPadding map={map} paddingRef={paddingRef} />}
       {map && <MapCovered coveredRef={gate.covered} map={map} />}
       {/* Sized, not positioned: maplibre-gl.css makes the map position:

@@ -52,7 +52,6 @@ export function useGlobeScene() {
   );
 
   // City data — all cities, or only the focus set during a sequence.
-  const countryColors = layers.countryColors;
   // Every selectable city: the music cities and the towns events make cities
   // of (Aspen, Colorado Springs).
   const allCityPoints: CityPoint[] = useMemo(() => {
@@ -65,9 +64,9 @@ export function useGlobeScene() {
       id: city.id,
       name: city.name,
       town: towns.has(city),
-      color: cityBaseColor(CITY_COUNTRY_TO_ISO[city.country], countryColors),
+      color: cityBaseColor(CITY_COUNTRY_TO_ISO[city.country]),
     }));
-  }, [focusCities, countryColors]);
+  }, [focusCities]);
   const cityPoints = useMemo(
     () => visibleCityPoints(layers, allCityPoints),
     [layers, allCityPoints],

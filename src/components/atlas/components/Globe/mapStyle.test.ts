@@ -1,6 +1,7 @@
 import type { LayerSpecification } from 'maplibre-gl';
 import { describe, expect, it } from 'vitest';
 import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
+import { landPaint } from './landLayers';
 import { MAP_FONT } from './mapFonts';
 import { CLICK_LAYERS, LAYER, buildStyle } from './mapStyle';
 
@@ -11,14 +12,23 @@ const ids = (layers: LayerSpecification[]) => layers.map((l) => l.id);
 describe('the style', () => {
   const style = buildStyle({ origin: ORIGIN });
 
-  it('is a globe of the Globe’s own countries on a plain sea', () => {
+  it('is a globe of the Globe’s own countries on a dark sea, lit by music', () => {
     expect(style.projection).toEqual({ type: 'globe' });
     expect(style.layers[0]).toMatchObject({
       type: 'background',
       paint: { 'background-color': ATLAS_SCENE.ocean },
     });
     const fill = style.layers.find((l) => l.id === LAYER.countriesFill);
-    expect(fill?.paint).toMatchObject({ 'fill-opacity': 0.86 });
+    expect(fill?.paint).toEqual(landPaint('music'));
+    // Clear round the globe, so the page's ground shows there.
+    expect(style.sky?.['sky-color']).toBe('rgba(0, 0, 0, 0)');
+  });
+
+  it('starts the land in the colour it is asked for', () => {
+    const plain = buildStyle({ origin: ORIGIN, land: 'plain' });
+    expect(
+      plain.layers.find((l) => l.id === LAYER.countriesFill)?.paint,
+    ).toEqual(landPaint('plain'));
   });
 
   it('draws its labels in the app’s font, from this site alone', () => {
@@ -50,21 +60,30 @@ describe('the style', () => {
     expect(names?.type).toBe('symbol');
     const paint = JSON.stringify(names?.paint);
     expect(paint).toContain('feature-state');
-    expect(paint).toContain(ATLAS_SCENE.strokeSelected);
+    expect(paint).toContain(ATLAS_SCENE.labelHot);
   });
 
-  it('fades the atmosphere out by zoom 7', () => {
+  it('keeps a faint atmosphere from orbit, gone by zoom 4.5', () => {
     expect(style.sky?.['atmosphere-blend']).toEqual([
       'interpolate',
       ['linear'],
       ['zoom'],
       0,
-      1,
-      5,
-      1,
-      7,
+      0.3,
+      3,
+      0.15,
+      4.5,
       0,
     ]);
+  });
+
+  it('names the regions from orbit, then the countries, over the land', () => {
+    const order = ids(style.layers);
+    expect(order.indexOf(LAYER.regionLabels)).toBeGreaterThan(
+      order.indexOf(LAYER.countriesLine),
+    );
+    expect(order).toContain('atlas-country-labels-1');
+    expect(order.indexOf(LAYER.cityLabels)).toBe(order.length - 1);
   });
 
   it('has every Globe layer, and every layer a click can land on', () => {

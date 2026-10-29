@@ -134,33 +134,50 @@ export const ATLAS_TAILWIND_COLORS = Object.fromEntries(
 ) as Readonly<Record<AtlasColorName, string>>;
 
 /**
- * What the globe draws in a fixed colour. Country colours come from the data
- * (flagColors, continentColors) and are not here.
+ * What the map draws in a fixed colour: a dark map that the music lights
+ * (owner, 2026-10-29). Country colours come from the data
+ * (continentColors) and era colours from musicalEras.ts; they are not here.
  */
 export const ATLAS_SCENE = {
   /** An artist's event points. */
   highlight: '#ffffff',
-  /** The halo around the globe. */
-  atmosphere: '#ffffff',
+  /** The faint halo at the globe's limb (the rainbow rim is the page's). */
+  atmosphere: '#c9d2ff',
   /** A city with no country colour. */
   fallback: '#ffffff',
-  /** Antarctica and Greenland, painted as ice (the MapLibre engine). */
+  /** Antarctica and Greenland, as ice, in continent colours. */
   ice: '#ffffff',
-  /** The sea (the earlier three.js globe's ocean glow). */
-  ocean: '#33d6ff',
+  /** The sea: near-black, a touch of blue. */
+  ocean: '#090b11',
   /** Space around the planet (the `canvas` token, as WebGL needs it). */
   space: '#000005',
-  /** The dark rim round a city's circle or an artist's point on the map. */
-  pointRim: 'rgba(10, 10, 14, 0.85)',
+  /** The land with no music in the years shown, and plain land. */
+  landPlain: '#171a22',
+  /**
+   * The land lit by music: at a little (the floor, landLevel 0.12), some,
+   * much, and the most (1). Cool, so the halos' era colours and the links'
+   * key colours read on it.
+   */
+  landLit: ['#1e2231', '#283049', '#3a456c', '#5a68a3'],
+  /** Continent colours sit this far over the sea, muted to the dark map. */
+  continentOpacity: 0.55,
+  /** The dark rim round an artist's point. */
+  pointRim: 'rgba(9, 11, 17, 0.85)',
   /** City names on the map, and the halo that keeps them legible. */
   label: '#e8e8f0',
-  labelHalo: 'rgba(16, 16, 18, 0.9)',
-  /** The land with country colours switched off in Layers. */
-  landPlain: '#6b6b74',
+  labelHalo: 'rgba(9, 11, 17, 0.9)',
+  /** Names of countries, and of the world's regions from orbit. */
+  countryLabel: 'rgba(255, 255, 255, 0.34)',
+  regionLabel: 'rgba(255, 255, 255, 0.26)',
   /** The downstream ("influenced") arc, head to tail. */
   arcDownstream: ['#ffffffe6', '#ffffff66'],
-  /** Country and state outlines; the selected region's is warm and bright. */
-  strokeSelected: 'rgba(255, 210, 140, 0.95)',
-  strokeState: 'rgba(130, 110, 80, 0.6)',
-  strokeCountry: 'rgba(90, 78, 58, 0.85)',
+  /** Borders: hairlines, brighter hovered, white selected, with a soft glow. */
+  strokeCountry: 'rgba(255, 255, 255, 0.16)',
+  strokeState: 'rgba(255, 255, 255, 0.08)',
+  strokeHover: 'rgba(255, 255, 255, 0.55)',
+  strokeSelected: 'rgba(255, 255, 255, 0.95)',
+  /** The glow round a hovered or selected place: warm white, not yellow. */
+  regionGlow: 'rgba(255, 228, 200, 0.45)',
+  /** A city's name while it is hovered, selected or holds the pinned event. */
+  labelHot: 'rgba(255, 236, 214, 1)',
 } as const;

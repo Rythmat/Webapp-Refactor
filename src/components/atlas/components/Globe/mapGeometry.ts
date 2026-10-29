@@ -207,7 +207,7 @@ export interface RegionProps {
   ISO_A3?: string;
   iso_a3?: string;
   iso_a2?: string;
-  /** The fill colour (regionColor). */
+  /** Its continent colour (regionColor), for Continent mode. */
   color: string;
   /** The whole outline's centroid; a clicked feature is clipped to a tile. */
   clat: number | null;
@@ -222,7 +222,6 @@ export interface RegionProps {
 export function regionCollection(
   features: readonly Feature[],
   layer: RegionProps['_layer'],
-  countryColors: boolean,
 ): FeatureCollection<Feature['geometry'], RegionProps> {
   return {
     type: 'FeatureCollection',
@@ -241,7 +240,7 @@ export function regionCollection(
           ISO_A3: p.ISO_A3,
           iso_a3: p.iso_a3,
           iso_a2: p.iso_a2,
-          color: regionColor(tagged, countryColors),
+          color: regionColor(tagged),
           clat: centroid?.lat ?? null,
           clng: centroid?.lng ?? null,
         },

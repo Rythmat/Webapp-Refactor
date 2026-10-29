@@ -16,6 +16,8 @@ import { ARTIST_POINT, arcColors, cityBaseColor } from './globeLayers';
 export type LegendSwatch =
   | { shape: 'continents'; continents: ContinentSwatch[] }
   | { shape: 'fill'; color: string }
+  /** A range from least to most, left to right (the land lit by music). */
+  | { shape: 'ramp'; colors: string[] }
   | { shape: 'point'; color: string }
   /** A sample of a city's name, in the colour the map writes it. */
   | { shape: 'label'; color: string }
@@ -65,27 +67,38 @@ export function legendEntries(ctx: LegendContext): LegendEntry[] {
   const entries: LegendEntry[] = [];
 
   entries.push(
-    layers.countryColors
+    layers.landColor === 'music'
       ? {
           id: 'countries',
-          label: 'Countries by continent',
+          label: 'Music',
           detail:
-            'Each continent has its own hue, shading from light to dark across it.',
-          swatch: { shape: 'continents', continents: getContinentSwatches() },
+            'A country lights up the more music happened there in the years shown.',
+          swatch: {
+            shape: 'ramp',
+            colors: [ATLAS_SCENE.landPlain, ...ATLAS_SCENE.landLit],
+          },
         }
-      : {
-          id: 'countries',
-          label: 'Countries',
-          detail: 'One plain color: country colors are off in Layers.',
-          swatch: { shape: 'fill', color: ATLAS_SCENE.landPlain },
-        },
+      : layers.landColor === 'continent'
+        ? {
+            id: 'countries',
+            label: 'Countries by continent',
+            detail:
+              'Each continent has its own hue, shading from light to dark across it.',
+            swatch: { shape: 'continents', continents: getContinentSwatches() },
+          }
+        : {
+            id: 'countries',
+            label: 'Countries',
+            detail: 'One plain color, chosen in Layers.',
+            swatch: { shape: 'fill', color: ATLAS_SCENE.landPlain },
+          },
   );
 
   if (ctx.regionSelected) {
     entries.push({
       id: 'selected-region',
       label: 'Selected country or state',
-      detail: 'Outlined in a bright, warm line.',
+      detail: 'Outlined in white, with a soft glow.',
       swatch: { shape: 'outline', color: ATLAS_SCENE.strokeSelected },
     });
   }
@@ -112,7 +125,7 @@ export function legendEntries(ctx: LegendContext): LegendEntry[] {
         id: 'selected-city',
         label: 'Selected city',
         detail: 'Its name turns warm.',
-        swatch: { shape: 'label', color: ATLAS_SCENE.strokeSelected },
+        swatch: { shape: 'label', color: ATLAS_SCENE.labelHot },
       });
     }
   }
@@ -136,7 +149,7 @@ export function legendEntries(ctx: LegendContext): LegendEntry[] {
         shape: 'arc',
         colors: arcColors({
           direction: 'upstream',
-          color: cityBaseColor(SAMPLE_COUNTRY, true),
+          color: cityBaseColor(SAMPLE_COUNTRY),
         }),
       },
     });

@@ -59,14 +59,6 @@ export const isCityHighlighted = (
 
 /* ── Colours ─────────────────────────────────────────────────────────────── */
 
-/**
- * The colour a piece of land is painted: its country's, from the continent
- * palette, or one plain grey with country colours off.
- */
-export function landColor(iso: string, countryColors: boolean): string {
-  return countryColors ? getCountryColor(iso) : ATLAS_SCENE.landPlain;
-}
-
 /** Antarctica and Greenland are painted as ice, not in a continent's hue. */
 export const ICE_COUNTRIES = new Set(['ATA', 'GRL']);
 
@@ -85,29 +77,20 @@ export function resolveIso(feat: Pick<Feature, 'properties'>): string {
 }
 
 /**
- * The colour a country or a US/Canada state is filled with: a state takes
- * its country's, the ice caps are white.
+ * A country's or a US/Canada state's continent colour, for the land in
+ * Continent mode (Layers): a state takes its country's, the ice caps are
+ * white. The other modes paint over it (landLayers.ts).
  */
-export function regionColor(
-  feat: Pick<Feature, 'properties'>,
-  countryColors: boolean,
-): string {
+export function regionColor(feat: Pick<Feature, 'properties'>): string {
   if (feat.properties?._layer === 'state') {
-    const parentIso = feat.properties?.iso_a2 === 'CA' ? 'CAN' : 'USA';
-    return landColor(parentIso, countryColors);
+    return getCountryColor(feat.properties?.iso_a2 === 'CA' ? 'CAN' : 'USA');
   }
   const iso = resolveIso(feat);
-  return countryColors && ICE_COUNTRIES.has(iso)
-    ? ATLAS_SCENE.ice
-    : landColor(iso, countryColors);
+  return ICE_COUNTRIES.has(iso) ? ATLAS_SCENE.ice : getCountryColor(iso);
 }
 
-/** A city's base colour: its country's (or the plain land's). */
-export function cityBaseColor(
-  iso: string | undefined,
-  countryColors: boolean,
-): string {
-  if (!countryColors) return ATLAS_SCENE.landPlain;
+/** A city's country colour. */
+export function cityBaseColor(iso: string | undefined): string {
   return iso ? getCountryColor(iso) : ATLAS_SCENE.fallback;
 }
 

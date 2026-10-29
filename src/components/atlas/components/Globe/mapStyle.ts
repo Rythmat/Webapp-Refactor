@@ -5,8 +5,15 @@ import type {
   StyleSpecification,
 } from 'maplibre-gl';
 import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
+import type { LandColor } from '@/components/atlas/types';
+import {
+  LAND_LAYER,
+  LAND_SOURCE,
+  landLabelLayers,
+  landLayers,
+  landSources,
+} from './landLayers';
 import { MAP_FONT, mapFontFaces } from './mapFonts';
-import { STATES_MIN_ZOOM } from './mapGeometry';
 
 /**
  * The map's style, built in code: the Globe's own layers (the coloured
@@ -18,18 +25,23 @@ import { STATES_MIN_ZOOM } from './mapGeometry';
 /* ── Ids ─────────────────────────────────────────────────────────────────── */
 
 export const SOURCE = {
-  countries: 'atlas-countries',
-  states: 'atlas-states',
+  countries: LAND_SOURCE.countries,
+  states: LAND_SOURCE.states,
+  countryLabels: LAND_SOURCE.countryLabels,
+  regionLabels: LAND_SOURCE.regionLabels,
   cityPoints: 'atlas-city-points',
   artistPoints: 'atlas-artist-points',
   arcs: 'atlas-arcs',
 } as const;
 
 export const LAYER = {
-  countriesFill: 'atlas-countries-fill',
-  countriesLine: 'atlas-countries-line',
-  statesFill: 'atlas-states-fill',
-  statesLine: 'atlas-states-line',
+  countriesFill: LAND_LAYER.countriesFill,
+  countriesGlow: LAND_LAYER.countriesGlow,
+  countriesLine: LAND_LAYER.countriesLine,
+  statesFill: LAND_LAYER.statesFill,
+  statesGlow: LAND_LAYER.statesGlow,
+  statesLine: LAND_LAYER.statesLine,
+  regionLabels: LAND_LAYER.regionLabels,
   arcsCasing: 'atlas-arcs-casing',
   arcsTrace: 'atlas-arcs-trace',
   arcsDash: 'atlas-arcs-dash',
@@ -62,12 +74,6 @@ const zoomRamp = (
     ...stops.flat(),
   ] as unknown as ExpressionSpecification;
 
-const selected: ExpressionSpecification = [
-  'boolean',
-  ['feature-state', 'selected'],
-  false,
-];
-
 const emptyCollection = (): SourceSpecification => ({
   type: 'geojson',
   data: { type: 'FeatureCollection', features: [] },
@@ -76,8 +82,7 @@ const emptyCollection = (): SourceSpecification => ({
 /** The Globe's sources, empty until MapLibreGlobe feeds them. */
 export function overlaySources(): Record<string, SourceSpecification> {
   return {
-    [SOURCE.countries]: emptyCollection(),
-    [SOURCE.states]: emptyCollection(),
+    ...landSources(),
     // Ids by city, for the hover feature-state on a city's name.
     [SOURCE.cityPoints]: {
       ...emptyCollection(),
@@ -88,59 +93,9 @@ export function overlaySources(): Record<string, SourceSpecification> {
   };
 }
 
-/** The countries, in their continent colours. */
-export function countryFillLayer(): LayerSpecification {
-  return {
-    id: LAYER.countriesFill,
-    type: 'fill',
-    source: SOURCE.countries,
-    paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0.86 },
-  };
-}
-
-/**
- * The layers between the countries and the city names: outlines, arcs and
- * an artist's points.
- */
+/** The links and points over the land: an event's arcs and an artist's points. */
 export function overlayLayersBelowLabels(): LayerSpecification[] {
   return [
-    {
-      // Clicks only: the states keep their country's colour, as before.
-      id: LAYER.statesFill,
-      type: 'fill',
-      source: SOURCE.states,
-      minzoom: STATES_MIN_ZOOM,
-      paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0 },
-    },
-    {
-      id: LAYER.statesLine,
-      type: 'line',
-      source: SOURCE.states,
-      minzoom: STATES_MIN_ZOOM,
-      paint: {
-        'line-color': [
-          'case',
-          selected,
-          ATLAS_SCENE.strokeSelected,
-          ATLAS_SCENE.strokeState,
-        ],
-        'line-width': ['case', selected, 2, 0.75],
-      },
-    },
-    {
-      id: LAYER.countriesLine,
-      type: 'line',
-      source: SOURCE.countries,
-      paint: {
-        'line-color': [
-          'case',
-          selected,
-          ATLAS_SCENE.strokeSelected,
-          ATLAS_SCENE.strokeCountry,
-        ],
-        'line-width': ['case', selected, 2.25, 0.75],
-      },
-    },
     {
       // A dark edge, so a white arc still reads on the palest land.
       id: LAYER.arcsCasing,
@@ -245,7 +200,7 @@ export function overlayLayersOnTop(): LayerSpecification[] {
         'text-color': [
           'case',
           highlight,
-          ATLAS_SCENE.strokeSelected,
+          ATLAS_SCENE.labelHot,
           ATLAS_SCENE.label,
         ],
         'text-halo-color': ATLAS_SCENE.labelHalo,
@@ -260,19 +215,28 @@ export function overlayLayersOnTop(): LayerSpecification[] {
 export interface StyleOptions {
   /** The page's origin, which serves the map's font files (mapFonts.ts). */
   origin: string;
+  /** How the land is coloured to start with (Layers; the map follows it). */
+  land?: LandColor;
+  /** The page's rem over 16 px, so the map's text keeps the app's scale. */
+  textScale?: number;
 }
 
-export function buildStyle({ origin }: StyleOptions): StyleSpecification {
+export function buildStyle({
+  origin,
+  land = 'music',
+  textScale = 1,
+}: StyleOptions): StyleSpecification {
   return {
     version: 8,
     projection: { type: 'globe' },
-    // The halo around the planet, gone once the camera is in close (by
-    // zoom 7).
+    // Outside the globe the canvas stays clear, so the page's ground (its
+    // dot grid) shows; a faint halo at the limb from orbit, gone by zoom
+    // 4.5.
     sky: {
-      'sky-color': ATLAS_SCENE.space,
+      'sky-color': 'rgba(0, 0, 0, 0)',
       'horizon-color': ATLAS_SCENE.atmosphere,
       'fog-color': ATLAS_SCENE.atmosphere,
-      'atmosphere-blend': zoomRamp([0, 1], [5, 1], [7, 0]) as never,
+      'atmosphere-blend': zoomRamp([0, 0.3], [3, 0.15], [4.5, 0]) as never,
     },
     'font-faces': mapFontFaces(origin),
     sources: overlaySources(),
@@ -282,8 +246,9 @@ export function buildStyle({ origin }: StyleOptions): StyleSpecification {
         type: 'background',
         paint: { 'background-color': ATLAS_SCENE.ocean },
       },
-      countryFillLayer(),
+      ...landLayers(land),
       ...overlayLayersBelowLabels(),
+      ...landLabelLayers(textScale),
       ...overlayLayersOnTop(),
     ],
   };

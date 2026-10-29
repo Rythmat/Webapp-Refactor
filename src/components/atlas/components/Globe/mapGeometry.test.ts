@@ -1,7 +1,6 @@
 import type { Feature } from 'geojson';
 import { describe, expect, it } from 'vitest';
 import type { ArcDatum } from '@/components/atlas/data';
-import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import { regionColor, type CityPoint } from './globeLayers';
 import {
   altitudeToMapZoom,
@@ -185,7 +184,7 @@ describe('sources', () => {
         ],
       },
     };
-    const [feature] = regionCollection([square], 'country', true).features;
+    const [feature] = regionCollection([square], 'country').features;
     expect(feature.id).toBe(0);
     expect(feature.properties).toMatchObject({
       _layer: 'country',
@@ -193,10 +192,8 @@ describe('sources', () => {
       ISO_A3: 'USA',
       clat: 5,
       clng: 5,
-      color: regionColor(square, true),
+      color: regionColor(square),
     });
-    const plain = regionCollection([square], 'country', false).features[0];
-    expect(plain.properties.color).toBe(ATLAS_SCENE.landPlain);
   });
 
   it('gives a state its country’s colour', () => {
@@ -205,9 +202,9 @@ describe('sources', () => {
       properties: { name: 'Ontario', iso_a2: 'CA' },
       geometry: { type: 'Point', coordinates: [-85, 50] },
     };
-    const [state] = regionCollection([ontario], 'state', true).features;
+    const [state] = regionCollection([ontario], 'state').features;
     expect(state.properties.color).toBe(
-      regionColor({ properties: { ISO_A3: 'CAN' } }, true),
+      regionColor({ properties: { ISO_A3: 'CAN' } }),
     );
   });
 

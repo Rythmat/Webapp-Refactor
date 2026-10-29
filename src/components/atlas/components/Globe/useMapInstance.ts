@@ -38,7 +38,13 @@ export function useMapInstance() {
     try {
       created = new MapLibreMap({
         container,
-        style: buildStyle({ origin: window.location.origin }),
+        style: buildStyle({
+          origin: window.location.origin,
+          // The page's rem (the app is set at 110%) over 16 px.
+          textScale:
+            parseFloat(getComputedStyle(document.documentElement).fontSize) /
+              16 || 1,
+        }),
         center: [MAP_START.lng, MAP_START.lat],
         zoom: altitudeToMapZoom(MAP_START.altitude, height, MAP_START.lat),
         maxZoom: MAP_MAX_ZOOM,

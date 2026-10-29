@@ -15,6 +15,7 @@ import {
   createAtlasStore,
   type AtlasStore,
 } from '@/components/atlas/state/atlasStore';
+import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
 import type { PickedFeature } from './mapPicking';
 import { LAYER } from './mapStyle';
 
@@ -30,6 +31,7 @@ const fake = vi.hoisted(() => {
     easeTo = vi.fn();
     setFeatureState = vi.fn();
     removeFeatureState = vi.fn();
+    getFeatureState = vi.fn(() => ({}));
     setPaintProperty = vi.fn();
     remove = vi.fn();
     touchZoomRotate = { disableRotation: vi.fn() };
@@ -184,7 +186,9 @@ function setup(store: AtlasStore = createAtlasStore(), reduceMotion = false) {
     <MemoryRouter initialEntries={['/globe']}>
       <AtlasStoreProvider store={store}>
         <AtlasNavigationProvider>
-          <MapLibreGlobe />
+          <TimeCameraProvider>
+            <MapLibreGlobe />
+          </TimeCameraProvider>
         </AtlasNavigationProvider>
       </AtlasStoreProvider>
       <Where />

@@ -61,7 +61,7 @@ export const NEARBY_PART_DEG = 3;
 
 /* ── Outlines ────────────────────────────────────────────────────────────── */
 
-type Ring = Position[];
+export type Ring = Position[];
 
 /** The outer ring of each polygon in a geometry. */
 export function outerRings(geometry: Geometry | null | undefined): Ring[] {
@@ -91,7 +91,8 @@ function ringBounds(ring: Ring): Bounds {
 }
 
 /** A ring's area, in square degrees narrowed by latitude: enough to rank. */
-function ringArea(ring: Ring): number {
+/** A ring's area, in square degrees narrowed by the cosine of its latitude. */
+export function ringArea(ring: Ring): number {
   let twice = 0;
   for (let i = 0; i < ring.length; i++) {
     const [x1, y1] = ring[i];

@@ -10,9 +10,9 @@ import { CLICK_LAYERS, LAYER, SOURCE } from './mapStyle';
 import type { useGlobeClicks } from './useGlobeScene';
 
 /**
- * What the pointer is on: a hover label, the city name under it warm
- * (feature-state 'hover'), the pointer cursor over anything that opens; and
- * what a click opens.
+ * What the pointer is on: a hover label, the city name or the country or
+ * state under it lit (feature-state 'hover'), the pointer cursor over
+ * anything that opens; and what a click opens.
  */
 export function useMapPointer(
   map: MapLibreMap | null,
@@ -33,6 +33,15 @@ export function useMapPointer(
         layers: [...layersHere],
       }) as unknown as PickedFeature[];
       return topFeature(features);
+    };
+    // The country or state under the pointer: its border brightens and
+    // glows (landLayers.ts).
+    let region: { source: string; id: string | number } | null = null;
+    const hoverRegion = (next: typeof region) => {
+      if (region?.source === next?.source && region?.id === next?.id) return;
+      if (region) map.setFeatureState(region, { hover: false });
+      if (next) map.setFeatureState(next, { hover: true });
+      region = next;
     };
     let hovered: string | null = null;
     const hover = (cityId: string | null) => {
@@ -62,6 +71,19 @@ export function useMapPointer(
           ? target.cityId
           : null,
       );
+      hoverRegion(
+        feature?.id !== undefined &&
+          (feature.layer.id === LAYER.countriesFill ||
+            feature.layer.id === LAYER.statesFill)
+          ? {
+              source:
+                feature.layer.id === LAYER.statesFill
+                  ? SOURCE.states
+                  : SOURCE.countries,
+              id: feature.id,
+            }
+          : null,
+      );
       const label = labelOf(feature);
       map.getCanvas().style.cursor = target ? 'pointer' : '';
       if (!label) {
@@ -74,6 +96,7 @@ export function useMapPointer(
     const onLeave = () => {
       popup.remove();
       hover(null);
+      hoverRegion(null);
       map.getCanvas().style.cursor = '';
     };
     const onClick = (e: { point: { x: number; y: number } }) => {
@@ -93,6 +116,7 @@ export function useMapPointer(
       map.off('click', onClick);
       popup.remove();
       hover(null);
+      hoverRegion(null);
     };
   }, [map, clicks]);
 }

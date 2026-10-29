@@ -16,6 +16,8 @@ import { CLICK_LAYERS, LAYER } from './mapStyle';
 
 /** A feature as queryRenderedFeatures gives it: only what we read. */
 export interface PickedFeature {
+  /** The source's feature id (countries and states are numbered). */
+  id?: string | number;
   layer: { id: string };
   properties: Record<string, unknown> | null;
 }

@@ -140,18 +140,26 @@ export interface CardPrefs {
   legendOpen: boolean;
 }
 
+/**
+ * What colours the land: how much music each country holds in the years
+ * shown (lit from dark), its continent's colour, or one plain dark.
+ */
+export type LandColor = 'music' | 'continent' | 'plain';
+
 export interface GlobeLayers {
-  /** Countries in their continent's colours; off, the land is one plain grey. */
-  countryColors: boolean;
+  landColor: LandColor;
   /** US and Canada state outlines, once the camera is close enough. */
   states: boolean;
-  /** A column on each music city. */
+  /** The music cities. */
   cities: boolean;
   /** An artist's moments, as points, while their panel is open. */
   artistPoints: boolean;
   /** A pinned event's influence arcs (directions as visibleArcDirections). */
   arcs: boolean;
 }
+
+/** The layers a switch turns on and off (all but the land's colour). */
+export type LayerSwitch = Exclude<keyof GlobeLayers, 'landColor'>;
 
 // --- App State ---
 export interface AppState {
@@ -209,7 +217,8 @@ export type AppAction =
   | { type: 'SET_WINDOW'; payload: TimeWindow | null }
   | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' }
   | { type: 'OPEN_INFLUENCE_ARCS' }
-  | { type: 'SET_LAYER'; payload: { layer: keyof GlobeLayers; on: boolean } }
+  | { type: 'SET_LAYER'; payload: { layer: LayerSwitch; on: boolean } }
+  | { type: 'SET_LAND_COLOR'; payload: LandColor }
   | { type: 'SET_CARD_PREFS'; payload: Partial<CardPrefs> }
   | { type: 'SET_STATES_IN_VIEW'; payload: boolean }
   | {

@@ -10,7 +10,6 @@ import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import type { GlobeLayers } from '@/components/atlas/types';
 import {
   cityBaseColor,
-  landColor,
   visibleArcs,
   visibleArtistPoints,
   visibleCityPoints,
@@ -65,10 +64,8 @@ describe('globe layers', () => {
     );
   });
 
-  it('paints the land plain with country colours off', () => {
-    expect(landColor('FRA', true)).toBe(getCountryColor('FRA'));
-    expect(landColor('FRA', false)).toBe(ATLAS_SCENE.landPlain);
-    expect(cityBaseColor('FRA', false)).toBe(ATLAS_SCENE.landPlain);
-    expect(cityBaseColor(undefined, true)).toBe(ATLAS_SCENE.fallback);
+  it('gives a city its country’s colour', () => {
+    expect(cityBaseColor('FRA')).toBe(getCountryColor('FRA'));
+    expect(cityBaseColor(undefined)).toBe(ATLAS_SCENE.fallback);
   });
 });

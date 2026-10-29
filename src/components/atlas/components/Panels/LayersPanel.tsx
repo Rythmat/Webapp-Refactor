@@ -3,6 +3,8 @@ import { X } from 'lucide-react';
 import { useId } from 'react';
 import {
   ATLAS_FOCUS,
+  ATLAS_PILL_ZONE,
+  ATLAS_SEGMENT,
   ATLAS_TRANSITION,
   AtlasIconButton,
   AtlasPanel,
@@ -12,20 +14,34 @@ import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
-import type { GlobeLayers } from '@/components/atlas/types';
+import type { LandColor, LayerSwitch } from '@/components/atlas/types';
 import { cn } from '@/lib/utils';
 
-/** The Layers panel's switches, in the order the globe stacks them. */
-export const LAYER_OPTIONS: {
-  layer: keyof GlobeLayers;
+/** The ways to colour the land, and what each says. */
+export const LAND_OPTIONS: {
+  value: LandColor;
   label: string;
   detail: string;
 }[] = [
   {
-    layer: 'countryColors',
-    label: 'Country colors',
-    detail: 'Each country in its continent’s colors; off, plain land.',
+    value: 'music',
+    label: 'Music',
+    detail: 'Lit by how much music happened there in the years shown.',
   },
+  {
+    value: 'continent',
+    label: 'Continent',
+    detail: 'Each country in its continent’s colors.',
+  },
+  { value: 'plain', label: 'Plain', detail: 'One plain color.' },
+];
+
+/** The Layers panel's switches, in the order the globe stacks them. */
+export const LAYER_OPTIONS: {
+  layer: LayerSwitch;
+  label: string;
+  detail: string;
+}[] = [
   {
     layer: 'states',
     label: 'US & Canada states',
@@ -52,6 +68,70 @@ const ARC_DIRECTIONS = [
   { direction: 'upstream', label: 'Influenced by' },
   { direction: 'downstream', label: 'Influenced' },
 ] as const;
+
+/**
+ * How the land is coloured: three choices in a pill, one of them on (a radio
+ * group, so arrow keys move between them).
+ */
+function LandColorChoice() {
+  const value = useAtlasSelector((s) => s.layers.landColor);
+  const dispatch = useAtlasDispatch();
+  const id = useId();
+  const pick = (next: LandColor) =>
+    dispatch({ type: 'SET_LAND_COLOR', payload: next });
+  const detail = LAND_OPTIONS.find((o) => o.value === value)?.detail;
+  return (
+    <div className="py-2">
+      <p className="text-sm text-atlas-text" id={`${id}-label`}>
+        Color the land by
+      </p>
+      <div
+        aria-describedby={`${id}-detail`}
+        aria-labelledby={`${id}-label`}
+        className={cn(ATLAS_PILL_ZONE, 'mt-2')}
+        role="radiogroup"
+        onKeyDown={(e) => {
+          if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          e.preventDefault();
+          const i = LAND_OPTIONS.findIndex((o) => o.value === value);
+          const step = e.key === 'ArrowRight' ? 1 : -1;
+          const next =
+            LAND_OPTIONS[
+              (i + step + LAND_OPTIONS.length) % LAND_OPTIONS.length
+            ];
+          pick(next.value);
+          (
+            e.currentTarget.querySelector(
+              `[data-value="${next.value}"]`,
+            ) as HTMLElement | null
+          )?.focus();
+        }}
+      >
+        {LAND_OPTIONS.map((option) => {
+          const on = option.value === value;
+          return (
+            <button
+              key={option.value}
+              aria-checked={on}
+              aria-current={on ? 'page' : undefined}
+              className={ATLAS_SEGMENT}
+              data-value={option.value}
+              role="radio"
+              tabIndex={on ? 0 : -1}
+              type="button"
+              onClick={() => pick(option.value)}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-1.5 text-xs text-atlas-text-2" id={`${id}-detail`}>
+        {detail}
+      </p>
+    </div>
+  );
+}
 
 /**
  * A labelled switch. The thumb's side says on or off as well as its colour,
@@ -135,7 +215,8 @@ export default function LayersPanel({ onClose }: { onClose: () => void }) {
       title="Layers"
     >
       <AtlasPanelBody className="px-4 pb-4">
-        <ul className="divide-y divide-atlas-panel-border">
+        <LandColorChoice />
+        <ul className="divide-y divide-atlas-panel-border border-t border-atlas-panel-border">
           {LAYER_OPTIONS.map(({ layer, label, detail }) => (
             <LayerSwitch
               key={layer}

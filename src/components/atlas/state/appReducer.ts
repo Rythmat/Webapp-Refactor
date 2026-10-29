@@ -10,9 +10,9 @@ import type {
 } from '@/components/atlas/types';
 import { DEFAULT_CARD_PREFS } from './cardsStorage';
 
-/** Every layer on: the globe as it has always looked. */
+/** Every layer on, the land lit by music. */
 export const DEFAULT_LAYERS: GlobeLayers = {
-  countryColors: true,
+  landColor: 'music',
   states: true,
   cities: true,
   artistPoints: true,
@@ -130,6 +130,10 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ? state
         : { ...state, layers: { ...state.layers, [layer]: on } };
     }
+    case 'SET_LAND_COLOR':
+      return state.layers.landColor === action.payload
+        ? state
+        : { ...state, layers: { ...state.layers, landColor: action.payload } };
     case 'SET_STATES_IN_VIEW':
       return state.statesInView === action.payload
         ? state

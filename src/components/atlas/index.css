@@ -39,6 +39,24 @@
   --atlas-focus: var(--daw-focus);
 }
 
+/* The ground under the globe: space, with a faint dot grid and a vignette,
+   as the network-graph reference's backdrop. The map's canvas is clear
+   outside the globe (mapStyle.ts sky), so this shows round it. Static. */
+.atlas-root .atlas-map-ground {
+  background-color: rgb(var(--atlas-canvas));
+  background-image:
+    radial-gradient(
+      ellipse at center,
+      transparent 0%,
+      transparent 40%,
+      rgb(0 0 5 / 0.9) 100%
+    ),
+    radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1.4px);
+  background-size:
+    100% 100%,
+    1.25rem 1.25rem;
+}
+
 /* Respect reduced-motion for the page's own animations. */
 @media (prefers-reduced-motion: reduce) {
   .atlas-root *,

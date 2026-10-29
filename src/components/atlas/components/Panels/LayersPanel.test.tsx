@@ -4,7 +4,13 @@
  * choice the store and the viewer's browser keep, and a legend that drops
  * what Layers hides.
  */
-import { act, cleanup, render, screen } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AtlasNavigationProvider } from '@/components/atlas/navigation/useAtlasNavigate';
@@ -46,7 +52,8 @@ describe('the Layers panel', () => {
     expect(
       legend().querySelector('[data-legend-entry="cities"]'),
     ).toBeInTheDocument();
-    expect(screen.getByText('Countries by continent')).toBeInTheDocument();
+    // The land starts lit by music.
+    expect(screen.getByText('Music', { selector: 'p' })).toBeInTheDocument();
 
     const cities = screen.getByRole('switch', { name: 'Music cities' });
     expect(cities).toHaveAttribute('aria-checked', 'true');
@@ -80,6 +87,23 @@ describe('the Layers panel', () => {
     expect(
       screen.getByRole('switch', { name: 'Influence arcs' }),
     ).toHaveAttribute('aria-checked', 'false');
+  });
+
+  it('colours the land as the viewer picks, and the legend follows', () => {
+    const store = createAtlasStore();
+    setup(store);
+    const group = screen.getByRole('radiogroup', { name: 'Color the land by' });
+    const music = screen.getByRole('radio', { name: 'Music' });
+    expect(music).toHaveAttribute('aria-checked', 'true');
+    act(() => screen.getByRole('radio', { name: 'Continent' }).click());
+    expect(store.api.getState().layers.landColor).toBe('continent');
+    expect(screen.getByText('Countries by continent')).toBeInTheDocument();
+    // Arrow keys move along the choices.
+    act(() => {
+      fireEvent.keyDown(group, { key: 'ArrowRight' });
+    });
+    expect(store.api.getState().layers.landColor).toBe('plain');
+    expect(screen.getByRole('radio', { name: 'Plain' })).toHaveFocus();
   });
 
   it('closes from its own button', () => {

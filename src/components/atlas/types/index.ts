@@ -132,6 +132,14 @@ export interface TourProgress {
 
 // --- Globe layers (the Layers control) ---
 /** What the globe draws; each one the viewer can switch off. */
+/** The viewer's choices for the floating cards (state/cardsStorage.ts). */
+export interface CardPrefs {
+  /** Every floating card hidden, the Legend's too (the bottom rail's Cards pill). */
+  hidden: boolean;
+  /** The Legend card open rather than folded to its title. */
+  legendOpen: boolean;
+}
+
 export interface GlobeLayers {
   /** Countries in their continent's colours; off, the land is one plain grey. */
   countryColors: boolean;
@@ -167,6 +175,8 @@ export interface AppState {
   globeRotating: boolean;
   /** Which of the globe's layers are drawn. Per viewer, kept in localStorage. */
   layers: GlobeLayers;
+  /** The floating cards' state. Per viewer, kept in localStorage. */
+  cards: CardPrefs;
   /**
    * True while the camera is close enough for state outlines
    * (STATES_MIN_ZOOM), so the legend lists them only when they can show.
@@ -200,6 +210,7 @@ export type AppAction =
   | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' }
   | { type: 'OPEN_INFLUENCE_ARCS' }
   | { type: 'SET_LAYER'; payload: { layer: keyof GlobeLayers; on: boolean } }
+  | { type: 'SET_CARD_PREFS'; payload: Partial<CardPrefs> }
   | { type: 'SET_STATES_IN_VIEW'; payload: boolean }
   | {
       type: 'SET_ZONE_INSETS';

@@ -8,6 +8,7 @@ import type {
   AppAction,
   GlobeLayers,
 } from '@/components/atlas/types';
+import { DEFAULT_CARD_PREFS } from './cardsStorage';
 
 /** Every layer on: the globe as it has always looked. */
 export const DEFAULT_LAYERS: GlobeLayers = {
@@ -29,6 +30,7 @@ export const initialAppState: AppState = {
   globeRotating: false,
   layers: DEFAULT_LAYERS,
   statesInView: false,
+  cards: DEFAULT_CARD_PREFS,
   zoneInsets: {},
   mapInsets: NO_MAP_INSETS,
 };
@@ -132,6 +134,13 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return state.statesInView === action.payload
         ? state
         : { ...state, statesInView: action.payload };
+    case 'SET_CARD_PREFS': {
+      const next = { ...state.cards, ...action.payload };
+      return next.hidden === state.cards.hidden &&
+        next.legendOpen === state.cards.legendOpen
+        ? state
+        : { ...state, cards: next };
+    }
     case 'SET_ZONE_INSETS': {
       const { zone, insets } = action.payload;
       const was = state.zoneInsets[zone];

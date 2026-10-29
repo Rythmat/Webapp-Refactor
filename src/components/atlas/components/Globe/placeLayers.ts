@@ -4,6 +4,7 @@ import { ERA_HEX, MUSICAL_ERAS } from '@/components/atlas/data/musicalEras';
 import type { MusicWeights } from '@/components/atlas/stats/musicWeights';
 import { HALO } from '@/components/atlas/theme/marks';
 import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
+import { normCountry } from '@/components/atlas/utils/country';
 import type { CityPoint } from './globeLayers';
 import { CHIP } from './mapChips';
 import { MAP_FONT } from './mapFonts';
@@ -264,6 +265,37 @@ const shortName = (name: string) =>
 
 const eventsLine = (n: number) =>
   n === 0 ? 'No events in these years' : n === 1 ? '1 event' : `${n} events`;
+
+/**
+ * The places the stop is about, named whatever their rank: a country's or
+ * a state's places, an artist's.
+ */
+export function stopPlaces(
+  points: readonly CityPoint[],
+  stop: {
+    country?: string | null;
+    state?: { name: string; country: string } | null;
+    cityIds?: Iterable<string>;
+  },
+  placeOf: (
+    id: string,
+  ) => { country: string; subdivision?: string } | undefined,
+): Set<string> {
+  const ids = new Set<string>(stop.cityIds ?? []);
+  if (!stop.country && !stop.state) return ids;
+  for (const point of points) {
+    const place = placeOf(point.id);
+    if (!place) continue;
+    const inCountry =
+      !!stop.country && normCountry(place.country) === stop.country;
+    const inState =
+      !!stop.state &&
+      place.subdivision === stop.state.name &&
+      normCountry(place.country) === normCountry(stop.state.country);
+    if (inCountry || inState) ids.add(point.id);
+  }
+  return ids;
+}
 
 /**
  * The places as the map's source: each with its name and events in the

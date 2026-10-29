@@ -1,15 +1,19 @@
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import { useEffect, useMemo } from 'react';
+import { getCityById } from '@/components/atlas/data/lookups';
 import { MUSICAL_ERAS } from '@/components/atlas/data/musicalEras';
+import { getTimelineEvent } from '@/components/atlas/data/timelineIndex';
 import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
 import { haloLevel, musicWeights } from '@/components/atlas/stats/musicWeights';
 import { useTimeCamera } from '@/components/atlas/timeline/TimeCamera';
+import type { SelectedLocation } from '@/components/atlas/types';
+import { countryKey } from '@/components/atlas/utils/country';
 import type { ArtistPoint, CityPoint } from './globeLayers';
 import { addChipImages } from './mapChips';
 import { feed } from './mapFeed';
 import { artistPointCollection } from './mapGeometry';
 import { SOURCE } from './mapStyle';
-import { placeCollection } from './placeLayers';
+import { placeCollection, stopPlaces } from './placeLayers';
 
 const ERA_INDEX = new Map(MUSICAL_ERAS.map((era, i) => [era.id, i]));
 
@@ -26,11 +30,13 @@ export function usePlaceLayers(
     artistPoints,
     selectedCityId,
     pinnedCityId,
+    selectedLocation,
   }: {
     cityPoints: CityPoint[];
     artistPoints: ArtistPoint[];
     selectedCityId: string | null;
     pinnedCityId: string | null;
+    selectedLocation: SelectedLocation | null;
   },
 ) {
   // The chips' images, before any label asks for them.
@@ -41,6 +47,32 @@ export function usePlaceLayers(
   // The names and events lines, for the years the store holds (the rail's
   // settled window; all of time without one).
   const committed = useAtlasSelector((s) => s.timeWindow);
+  // The places the stop is about: named first, like the selected one.
+  const named = useMemo(
+    () =>
+      stopPlaces(
+        cityPoints,
+        {
+          country:
+            selectedLocation?.type === 'country'
+              ? countryKey(selectedLocation.name)
+              : null,
+          state:
+            selectedLocation?.type === 'state'
+              ? {
+                  name: selectedLocation.name,
+                  country: selectedLocation.country ?? 'United States',
+                }
+              : null,
+          cityIds: artistPoints.flatMap((p) => {
+            const cityId = getTimelineEvent(p.eventId)?.cityId;
+            return cityId ? [cityId] : [];
+          }),
+        },
+        getCityById,
+      ),
+    [cityPoints, selectedLocation, artistPoints],
+  );
   const places = useMemo(
     () =>
       placeCollection(
@@ -48,8 +80,9 @@ export function usePlaceLayers(
         musicWeights(committed),
         selectedCityId,
         pinnedCityId,
+        named,
       ),
-    [cityPoints, committed, selectedCityId, pinnedCityId],
+    [cityPoints, committed, selectedCityId, pinnedCityId, named],
   );
   useEffect(() => {
     if (map) feed(map, SOURCE.cityPoints, places);

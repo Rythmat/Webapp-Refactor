@@ -9,6 +9,7 @@ import {
   namedFrom,
   placeCollection,
   placeLayers,
+  stopPlaces,
 } from './placeLayers';
 
 const point = (id: string, town = false): CityPoint => ({
@@ -116,5 +117,50 @@ describe('the places on the map', () => {
       (halo?.paint as Record<string, unknown>)['circle-color'],
     );
     for (const era of MUSICAL_ERAS) expect(color).toContain(ERA_HEX[era.id]);
+  });
+});
+
+describe('the places a stop is about', () => {
+  const points = [
+    point('rio'),
+    point('salvador'),
+    point('lagos'),
+    point('memphis'),
+  ];
+  const places: Record<string, { country: string; subdivision?: string }> = {
+    rio: { country: 'Brazil' },
+    salvador: { country: 'Brazil' },
+    lagos: { country: 'Nigeria' },
+    memphis: { country: 'US', subdivision: 'Tennessee' },
+  };
+  const placeOf = (id: string) => places[id];
+
+  it('are a country’s places, a state’s, or an artist’s', () => {
+    expect([...stopPlaces(points, { country: 'brazil' }, placeOf)]).toEqual([
+      'rio',
+      'salvador',
+    ]);
+    expect([
+      ...stopPlaces(
+        points,
+        { state: { name: 'Tennessee', country: 'United States' } },
+        placeOf,
+      ),
+    ]).toEqual(['memphis']);
+    expect([...stopPlaces(points, { cityIds: ['lagos'] }, placeOf)]).toEqual([
+      'lagos',
+    ]);
+  });
+
+  it('are named from orbit, whatever their rank', () => {
+    const { features } = placeCollection(
+      points,
+      weights({ rio: 1, salvador: 1, lagos: 9, memphis: 9 }),
+      null,
+      null,
+      new Set(['rio']),
+    );
+    const rio = features.find((f) => f.properties.cityId === 'rio');
+    expect(rio?.properties).toMatchObject({ priority: 2, minzoom: 0 });
   });
 });

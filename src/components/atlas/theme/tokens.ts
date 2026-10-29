@@ -158,7 +158,7 @@ export const ATLAS_SCENE = {
    * much, and the most (1). Cool, so the halos' era colours and the links'
    * key colours read on it.
    */
-  landLit: ['#1e2231', '#283049', '#3a456c', '#5a68a3'],
+  landLit: ['#1c1f2c', '#242a3d', '#2f3754', '#3f4a70'],
   /** Continent colours sit this far over the sea, muted to the dark map. */
   continentOpacity: 0.55,
   /** The dark rim round an artist's point. */
@@ -180,4 +180,18 @@ export const ATLAS_SCENE = {
   regionGlow: 'rgba(255, 228, 200, 0.45)',
   /** A city's name while it is hovered, selected or holds the pinned event. */
   labelHot: 'rgba(255, 236, 214, 1)',
+  /** A place's second line (its events in the years shown). */
+  labelSub: 'rgba(255, 255, 255, 0.62)',
+  /** A place: its white dot, its dark rim, its ring when selected. */
+  dot: '#ffffff',
+  dotRim: 'rgba(9, 11, 17, 0.85)',
+  dotRing: 'rgba(255, 255, 255, 0.6)',
+  /**
+   * A place's name chip, as [r, g, b, a] (drawn into an image, mapChips.ts):
+   * its fill and border, and brighter for the selected or pinned place.
+   */
+  chip: [20, 20, 24, 0.92],
+  chipBorder: [255, 255, 255, 0.12],
+  chipOn: [34, 34, 40, 0.96],
+  chipOnBorder: [255, 255, 255, 0.55],
 } as const;

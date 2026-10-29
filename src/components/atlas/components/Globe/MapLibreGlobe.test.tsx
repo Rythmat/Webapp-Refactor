@@ -32,6 +32,8 @@ const fake = vi.hoisted(() => {
     setFeatureState = vi.fn();
     removeFeatureState = vi.fn();
     getFeatureState = vi.fn(() => ({}));
+    hasImage = vi.fn(() => false);
+    addImage = vi.fn();
     setPaintProperty = vi.fn();
     remove = vi.fn();
     touchZoomRotate = { disableRotation: vi.fn() };

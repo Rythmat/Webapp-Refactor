@@ -82,25 +82,42 @@ export function landPaint(mode: LandColor): {
     return { 'fill-color': ATLAS_SCENE.landPlain, 'fill-opacity': 1 };
   }
   const [little, some, much, most] = ATLAS_SCENE.landLit;
+  const ramp = (level: ExpressionSpecification): ExpressionSpecification => [
+    'interpolate',
+    ['linear'],
+    level,
+    0,
+    ATLAS_SCENE.landPlain,
+    0.12,
+    little,
+    0.4,
+    some,
+    0.7,
+    much,
+    1,
+    most,
+  ];
+  // Close in, one country fills the view: its light dims, so the places'
+  // halos and names carry what is there.
   return {
     'fill-color': [
       'interpolate',
       ['linear'],
-      music,
-      0,
-      ATLAS_SCENE.landPlain,
-      0.12,
-      little,
-      0.4,
-      some,
-      0.7,
-      much,
-      1,
-      most,
+      ['zoom'],
+      LAND_LIGHT_FULL_UNTIL,
+      ramp(music),
+      LAND_LIGHT_DIM_FROM,
+      ramp(['*', LAND_LIGHT_DIMMED, music]),
     ],
     'fill-opacity': 1,
   };
 }
+
+/** The land's light is whole until this zoom, and dimmed from this one. */
+export const LAND_LIGHT_FULL_UNTIL = 4;
+export const LAND_LIGHT_DIM_FROM = 6.5;
+/** How much of its light a country keeps, close in. */
+export const LAND_LIGHT_DIMMED = 0.45;
 
 const emptyCollection = (): SourceSpecification => ({
   type: 'geojson',

@@ -2,6 +2,7 @@ import type { LayerSpecification } from 'maplibre-gl';
 import { describe, expect, it } from 'vitest';
 import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import { landPaint } from './landLayers';
+import { CHIP } from './mapChips';
 import { MAP_FONT } from './mapFonts';
 import { CLICK_LAYERS, LAYER, buildStyle } from './mapStyle';
 
@@ -55,12 +56,15 @@ describe('the style', () => {
     expect(at(LAYER.cityLabels)).toBe(order.length - 1);
   });
 
-  it('marks a city by its name: warm while hovered or selected', () => {
+  it('marks each place with a dot and a halo, and names it on a chip', () => {
+    const order = ids(style.layers);
+    expect(order.indexOf(LAYER.placeHalo)).toBeLessThan(
+      order.indexOf(LAYER.placeDot),
+    );
     const names = style.layers.find((l) => l.id === LAYER.cityLabels);
     expect(names?.type).toBe('symbol');
-    const paint = JSON.stringify(names?.paint);
-    expect(paint).toContain('feature-state');
-    expect(paint).toContain(ATLAS_SCENE.labelHot);
+    expect(JSON.stringify(names?.layout)).toContain(CHIP.on);
+    expect(JSON.stringify(names?.paint)).toContain(ATLAS_SCENE.labelHot);
   });
 
   it('keeps a faint atmosphere from orbit, gone by zoom 4.5', () => {

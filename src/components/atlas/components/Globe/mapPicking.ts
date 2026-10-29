@@ -67,7 +67,8 @@ export function targetOf(feature: PickedFeature | null): MapTarget | null {
       const eventId = str(p.eventId);
       return eventId ? { kind: 'event', eventId } : null;
     }
-    case LAYER.cityLabels: {
+    case LAYER.cityLabels:
+    case LAYER.placeHit: {
       const cityId = str(p.cityId);
       return cityId ? { kind: 'city', cityId } : null;
     }
@@ -98,8 +99,9 @@ export function labelOf(feature: PickedFeature | null): string | null {
       });
     case LAYER.artistPoints:
       return pointLabel(str(p.name) ?? '');
-    // A city is its name, already on the map and warm when hovered.
+    // A place's name is on its chip, or its hover card says it.
     case LAYER.cityLabels:
+    case LAYER.placeHit:
       return null;
     case LAYER.statesFill:
     case LAYER.countriesFill:

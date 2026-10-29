@@ -38,10 +38,12 @@ const box = (
 
 describe('the land', () => {
   it('lights a country by its music level, from unlit land up', () => {
-    const fill = landPaint('music')['fill-color'];
-    expect(JSON.stringify(fill)).toContain('"feature-state","music"');
+    const fill = JSON.stringify(landPaint('music')['fill-color']);
+    expect(fill).toContain('"feature-state","music"');
     expect(fill).toContain(ATLAS_SCENE.landPlain);
     expect(fill).toContain(ATLAS_SCENE.landLit[3]);
+    // Dimmed close in, where one country fills the view.
+    expect(fill).toMatch(/^\["interpolate",\["linear"\],\["zoom"\]/);
     expect(landPaint('continent')).toEqual({
       'fill-color': ['get', 'color'],
       'fill-opacity': ATLAS_SCENE.continentOpacity,

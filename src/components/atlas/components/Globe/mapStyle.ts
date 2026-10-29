@@ -13,7 +13,8 @@ import {
   landLayers,
   landSources,
 } from './landLayers';
-import { MAP_FONT, mapFontFaces } from './mapFonts';
+import { mapFontFaces } from './mapFonts';
+import { PLACE_LAYER, placeLayers } from './placeLayers';
 
 /**
  * The map's style, built in code: the Globe's own layers (the coloured
@@ -46,7 +47,10 @@ export const LAYER = {
   arcsTrace: 'atlas-arcs-trace',
   arcsDash: 'atlas-arcs-dash',
   arcsHit: 'atlas-arcs-hit',
-  cityLabels: 'atlas-city-labels',
+  placeHalo: PLACE_LAYER.halo,
+  placeDot: PLACE_LAYER.dot,
+  placeHit: PLACE_LAYER.hit,
+  cityLabels: PLACE_LAYER.labels,
   artistPoints: 'atlas-artist-points',
 } as const;
 
@@ -55,14 +59,12 @@ export const CLICK_LAYERS = [
   LAYER.arcsHit,
   LAYER.artistPoints,
   LAYER.cityLabels,
+  LAYER.placeHit,
   LAYER.statesFill,
   LAYER.countriesFill,
 ] as const;
 
 /* ── The Globe's own layers ──────────────────────────────────────────────── */
-
-/** Where the towns events make cities of get their names on the map. */
-export const TOWN_NAMES_FROM = 5;
 
 const zoomRamp = (
   ...stops: (readonly [number, number])[]
@@ -157,59 +159,6 @@ export function overlayLayersBelowLabels(): LayerSpecification[] {
   ];
 }
 
-/**
- * The cities, as their names: no dot, the name is the city, and it is what
- * a click selects. Over everything, in the app's font (mapFonts.ts). A name
- * turns warm while hovered, and while its city is selected or holds the
- * pinned event. Where names crowd, the selected city's wins, then the music
- * cities', then the towns events make cities of, which appear only from
- * TOWN_NAMES_FROM.
- */
-export function overlayLayersOnTop(): LayerSpecification[] {
-  const highlight: ExpressionSpecification = [
-    'any',
-    ['boolean', ['get', 'highlight'], false],
-    ['boolean', ['feature-state', 'hover'], false],
-  ];
-  return [
-    {
-      id: LAYER.cityLabels,
-      type: 'symbol',
-      source: SOURCE.cityPoints,
-      filter: [
-        'any',
-        ['!', ['boolean', ['get', 'town'], false]],
-        ['boolean', ['get', 'highlight'], false],
-        ['>=', ['zoom'], TOWN_NAMES_FROM],
-      ],
-      layout: {
-        'text-field': ['get', 'name'],
-        'text-font': [MAP_FONT.bold],
-        'text-size': zoomRamp([2, 12], [8, 14], [12, 16]),
-        'symbol-sort-key': [
-          'case',
-          ['boolean', ['get', 'highlight'], false],
-          0,
-          ['boolean', ['get', 'town'], false],
-          2,
-          1,
-        ],
-        'text-padding': 4,
-      },
-      paint: {
-        'text-color': [
-          'case',
-          highlight,
-          ATLAS_SCENE.labelHot,
-          ATLAS_SCENE.label,
-        ],
-        'text-halo-color': ATLAS_SCENE.labelHalo,
-        'text-halo-width': ['case', highlight, 2, 1.5],
-      },
-    },
-  ];
-}
-
 /* ── The style ───────────────────────────────────────────────────────────── */
 
 export interface StyleOptions {
@@ -249,7 +198,7 @@ export function buildStyle({
       ...landLayers(land),
       ...overlayLayersBelowLabels(),
       ...landLabelLayers(textScale),
-      ...overlayLayersOnTop(),
+      ...placeLayers(SOURCE.cityPoints, textScale),
     ],
   };
 }

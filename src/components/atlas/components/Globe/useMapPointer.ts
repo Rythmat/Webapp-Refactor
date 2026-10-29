@@ -67,7 +67,9 @@ export function useMapPointer(
       const feature = pick(e.point);
       const target = targetOf(feature);
       hover(
-        feature?.layer.id === LAYER.cityLabels && target?.kind === 'city'
+        (feature?.layer.id === LAYER.cityLabels ||
+          feature?.layer.id === LAYER.placeHit) &&
+          target?.kind === 'city'
           ? target.cityId
           : null,
       );

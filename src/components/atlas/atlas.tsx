@@ -17,6 +17,7 @@ import {
 } from '@/components/atlas/components/Frame/StageDock';
 import { TopRail } from '@/components/atlas/components/Frame/TopRail';
 import { AtlasGlobe } from '@/components/atlas/components/Globe';
+import { AtlasMapProvider } from '@/components/atlas/components/Globe/mapHandle';
 import {
   ATLAS_HEADING,
   ATLAS_SURFACE,
@@ -281,7 +282,9 @@ export default function App() {
       <AtlasStoreProvider>
         <AtlasNavigationProvider>
           <TimeCameraProvider>
-            <AppLayout />
+            <AtlasMapProvider>
+              <AppLayout />
+            </AtlasMapProvider>
           </TimeCameraProvider>
         </AtlasNavigationProvider>
       </AtlasStoreProvider>

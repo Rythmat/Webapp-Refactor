@@ -30,6 +30,7 @@ import { MUSIC_HISTORY, contentGeneration } from '@/content/contentStore';
 import { KEY_RAINBOW } from '@/features/landing/rainbow';
 import { HORIZON_STREAKS } from '@/features/landing/sections/RainbowHorizon';
 import { cn } from '@/lib/utils';
+import { RailEvents } from './RailEvents';
 
 const eraIndexOf = (year: number) =>
   MUSICAL_ERAS.findIndex((e) => year >= e.yearStart && year <= e.yearEnd);
@@ -68,9 +69,10 @@ const OPEN =
  * sections/HeroArc and RainbowHorizon) laid straight along the stage's foot:
  * a crisp rim in the landing's rainbow, its bloom clipped by the stage's
  * edge, and light streaks rising off it. The years in view are lit between
- * two handles, the rest dimmed. While the pointer or focus is on it the
- * streaks rise and brighten, the eras' names show, and ticks mark their
- * bounds.
+ * two handles, the rest dimmed. The stop's events stand on its rim
+ * (RailEvents: the place's, or an artist's career), so the years and the
+ * events are one timeline. While the pointer or focus is on it the streaks
+ * rise and brighten, the eras' names show, and ticks mark their bounds.
  * Drag a handle to move one end, drag between them to slide the window,
  * pick an era to fly there.
  *
@@ -231,14 +233,16 @@ export function EraRail() {
   );
 
   const handle =
-    'absolute bottom-0 flex h-5 w-7 -translate-x-1/2 translate-y-[3px] cursor-ew-resize items-center justify-center gap-0.5 rounded-full bg-white shadow-lg ring-2 ring-atlas-page transition-[scale] duration-150 [transition-timing-function:var(--ease-out)] hover:scale-110 focus-visible:outline-none focus-visible:ring-atlas-focus';
+    'pointer-events-auto absolute bottom-0 flex h-5 w-7 -translate-x-1/2 translate-y-[3px] cursor-ew-resize items-center justify-center gap-0.5 rounded-full bg-white shadow-lg ring-2 ring-atlas-page transition-[scale] duration-150 [transition-timing-function:var(--ease-out)] hover:scale-110 focus-visible:outline-none focus-visible:ring-atlas-focus';
   const grip = <span className="h-2.5 w-px bg-atlas-page" />;
 
   return (
     <div
       className={cn(
-        // Inset, so a handle at either end is never cut off.
-        'group/rail absolute inset-x-4 bottom-0 h-11 touch-none select-none',
+        // Inset, so a handle at either end is never cut off. Only its
+        // parts take the pointer, so its open height never covers the map
+        // or a panel above the rim.
+        'group/rail pointer-events-none absolute inset-x-4 bottom-0 h-11 touch-none select-none',
         ATLAS_Z.bars,
       )}
       data-dragging={dragging}
@@ -272,16 +276,18 @@ export function EraRail() {
       <div
         ref={railRef}
         aria-hidden
-        className="absolute inset-x-0 bottom-0 h-11 origin-bottom scale-y-[0.22] cursor-pointer transition-transform duration-200 [transition-timing-function:var(--ease-out)] group-focus-within/rail:scale-y-100 group-hover/rail:scale-y-100 group-data-[dragging=true]/rail:scale-y-100"
+        className="pointer-events-auto absolute inset-x-0 bottom-0 h-11 origin-bottom scale-y-[0.22] cursor-pointer transition-transform duration-200 [transition-timing-function:var(--ease-out)] group-focus-within/rail:scale-y-100 group-hover/rail:scale-y-100 group-data-[dragging=true]/rail:scale-y-100"
         onPointerDown={onTrackDown}
       />
 
       {/* The eras' names, shown with the rail grown. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-11 opacity-0 transition-opacity duration-200 [transition-timing-function:var(--ease-out)] group-focus-within/rail:pointer-events-auto group-focus-within/rail:opacity-100 group-hover/rail:pointer-events-auto group-hover/rail:opacity-100">
+      {/* Above the events on the rim; the names alone take the pointer, so
+          the strip between them still pans the window. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-11 opacity-0 transition-opacity duration-200 [transition-timing-function:var(--ease-out)] group-focus-within/rail:opacity-100 group-hover/rail:opacity-100">
         {segments.map((s) => (
           <button
             key={s.era.id}
-            className="absolute bottom-2.5 -translate-x-1/2 truncate rounded-full px-1.5 text-xs font-bold text-white drop-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="absolute bottom-6 -translate-x-1/2 truncate rounded-full px-1.5 text-xs font-bold text-white drop-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white group-focus-within/rail:pointer-events-auto group-hover/rail:pointer-events-auto"
             style={{
               left: `${((s.x0 + s.x1) / 2) * 100}%`,
               maxWidth: `${(s.x1 - s.x0) * 100}%`,
@@ -294,6 +300,10 @@ export function EraRail() {
           </button>
         ))}
       </div>
+
+      {/* The map's stop's events, on the rim (not on the timeline, whose
+          river shows them). */}
+      {!timeline && <RailEvents segments={segments} />}
 
       {(['from', 'to'] as const).map((end) => (
         <button

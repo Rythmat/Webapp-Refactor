@@ -202,13 +202,11 @@ function MapStage({ children }: { children: ReactNode }) {
 }
 
 /**
- * The era rail along the stage's foot: everywhere but a phone's map, whose
- * sheet holds the bottom.
+ * The event timeline along the stage's foot (UI/EraRail: the years, and the
+ * stop's events on them), on every screen: below the map, so a phone's
+ * sheet never covers it.
  */
 function StageFoot() {
-  const timeline = useTimelineView();
-  const isPhone = useIsPhone();
-  if (isPhone && !timeline) return null;
   return (
     <div className="relative h-3 shrink-0">
       <Suspense fallback={null}>

@@ -204,7 +204,9 @@ export function InspectorView({ slot }: { slot: InspectorSlot | null }) {
       aria-label={slot?.title}
       className={cn(
         ATLAS_SURFACE,
-        'absolute bottom-2 right-2 top-2 min-h-0 max-w-[calc(100%-1rem)] flex-col overflow-hidden',
+        // Its foot clears the event timeline's open height (UI/EraRail),
+        // whose era names rise over the map's bottom edge.
+        'absolute bottom-10 right-2 top-2 min-h-0 max-w-[calc(100%-1rem)] flex-col overflow-hidden',
         ATLAS_Z.panels,
         slot ? 'flex' : 'hidden',
       )}

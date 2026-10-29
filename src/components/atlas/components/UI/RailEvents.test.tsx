@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 /**
- * Dense timeline dots become numbered clusters, and every event stays
- * reachable: a cluster that zooming can pull apart zooms in, and one that it
- * cannot (all one year) opens as a list.
+ * The stop's events on the era rail: each a mark on the rim at its year,
+ * crowded ones a numbered mark that opens their list, a click on one opens
+ * it, and a lone event in the years shown is pinned.
  */
 import {
   act,
@@ -12,7 +12,7 @@ import {
   screen,
 } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import {
   afterAll,
   afterEach,
@@ -22,15 +22,17 @@ import {
   expect,
   it,
 } from 'vitest';
+import { MUSICAL_ERAS } from '@/components/atlas/data/musicalEras';
 import { AtlasNavigationProvider } from '@/components/atlas/navigation/useAtlasNavigate';
 import { initialAppState } from '@/components/atlas/state/appReducer';
 import {
   AtlasStoreProvider,
   createAtlasStore,
 } from '@/components/atlas/state/atlasStore';
+import { railSegments } from '@/components/atlas/timeline/timeWindow';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { MUSIC_HISTORY } from '@/content/contentStore';
-import { RegionTimeline } from './RegionTimeline';
+import { RailEvents } from './RailEvents';
 
 const COUNTRY = 'Testland';
 
@@ -44,8 +46,9 @@ const event = (id: string, year: number): HistoricalEvent => ({
   tags: [],
 });
 
-// A 600 px track: 1900–2000 puts a year at 6 px, so dots within 5 years of
-// each other overlap.
+// Every era the same share of a 600 px rail.
+const SEGMENTS = railSegments(MUSICAL_ERAS.map(() => 1));
+
 let restore: () => void;
 beforeAll(() => {
   const rect = Element.prototype.getBoundingClientRect;
@@ -66,73 +69,70 @@ afterEach(() => {
   MUSIC_HISTORY.length = 0;
 });
 
-function renderTimeline(events: HistoricalEvent[]) {
+function renderRail(events: HistoricalEvent[], path = '/globe') {
   MUSIC_HISTORY.push(...events);
   const store = createAtlasStore({
     ...initialAppState,
     selectedLocation: { type: 'country', name: COUNTRY, iso: 'TST' },
   });
+  const where = { search: '' };
+  const Where = () => {
+    where.search = useLocation().search;
+    return null;
+  };
   const wrap = ({ children }: { children: ReactNode }) => (
-    <MemoryRouter initialEntries={['/globe']}>
+    <MemoryRouter initialEntries={[path]}>
       <AtlasNavigationProvider>
-        <AtlasStoreProvider store={store}>{children}</AtlasStoreProvider>
+        <AtlasStoreProvider store={store}>
+          {children}
+          <Where />
+        </AtlasStoreProvider>
       </AtlasNavigationProvider>
     </MemoryRouter>
   );
-  return render(<RegionTimeline />, { wrapper: wrap });
+  const view = render(<RailEvents segments={SEGMENTS} />, { wrapper: wrap });
+  return { ...view, store, where };
 }
 
 const clusters = (container: HTMLElement) =>
   Array.from(container.querySelectorAll<HTMLElement>('[data-cluster-size]'));
 
-describe('RegionTimeline clusters', () => {
-  it('draws one numbered cluster where dots crowd, and plain dots elsewhere', () => {
-    const { container } = renderTimeline([
+describe('the events on the era rail', () => {
+  it('stands each event on the rim, and numbers a crowd', () => {
+    const { container } = renderRail([
       event('a', 1900),
       event('b', 1950),
       event('c', 1951),
       event('d', 1952),
-      event('e', 2000),
+      event('e', 2010),
     ]);
+    expect(screen.getByRole('group', { name: '5 events' })).toBeTruthy();
     const [cluster] = clusters(container);
     expect(clusters(container)).toHaveLength(1);
     expect(cluster.dataset.clusterSize).toBe('3');
     expect(cluster.textContent).toBe('3');
-    expect(cluster.getAttribute('aria-label')).toBe(
-      '3 events, 1950–1952 — zoom in',
-    );
+    expect(cluster.getAttribute('aria-label')).toBe('3 events, 1950–1952');
     expect(
       screen.getByRole('button', { name: 'Moment a (1900)' }),
     ).toBeTruthy();
     expect(
-      screen.getByRole('button', { name: 'Moment e (2000)' }),
+      screen.getByRole('button', { name: 'Moment e (2010)' }),
     ).toBeTruthy();
   });
 
-  it('zooms in on a cluster until its events are separate dots', () => {
-    const { container } = renderTimeline([
-      event('a', 1900),
-      event('b', 1950),
-      event('c', 1951),
-      event('d', 1952),
-      event('e', 2000),
-    ]);
-    act(() => clusters(container)[0].click());
-    expect(clusters(container)).toHaveLength(0);
-    for (const id of ['b', 'c', 'd']) {
-      expect(
-        screen.getByRole('button', { name: new RegExp(`Moment ${id} `) }),
-      ).toBeTruthy();
-    }
+  it('opens an event from its mark', () => {
+    const { where } = renderRail([event('a', 1900), event('e', 2010)]);
+    act(() => screen.getByRole('button', { name: 'Moment a (1900)' }).click());
+    expect(where.search).toBe('?event=a');
   });
 
-  it('lists a same-year cluster, since zooming cannot separate it', () => {
-    const { container } = renderTimeline([
+  it("lists a crowd's events, and gives focus back on Escape", () => {
+    const { container } = renderRail([
       event('a', 1900),
       event('b', 1964),
       event('c', 1964),
       event('d', 1964),
-      event('e', 2000),
+      event('e', 2010),
     ]);
     const [cluster] = clusters(container);
     expect(cluster.getAttribute('aria-label')).toBe('3 events, 1964');
@@ -146,5 +146,15 @@ describe('RegionTimeline clusters', () => {
     fireEvent.keyDown(list, { key: 'Escape' });
     expect(screen.queryByRole('list', { name: '3 events' })).toBeNull();
     expect(document.activeElement).toBe(clusters(container)[0]);
+  });
+
+  it('pins a lone event in the years shown', () => {
+    const { store } = renderRail([event('a', 1900)]);
+    expect(store.api.getState().pinnedEvent?.id).toBe('a');
+  });
+
+  it('leaves the timeline view to the river', () => {
+    renderRail([event('a', 1900), event('e', 2010)], '/globe?view=timeline');
+    expect(screen.queryByRole('button', { name: /Moment/ })).toBeNull();
   });
 });

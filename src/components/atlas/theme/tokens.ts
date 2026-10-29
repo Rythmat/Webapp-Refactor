@@ -146,10 +146,7 @@ export const ATLAS_SCENE = {
   fallback: '#ffffff',
   /** Antarctica and Greenland, painted as ice (the MapLibre engine). */
   ice: '#ffffff',
-  /**
-   * The sea seen from orbit (the earlier three.js globe's ocean glow), which
-   * the map paints until the street basemap takes over.
-   */
+  /** The sea (the earlier three.js globe's ocean glow). */
   ocean: '#33d6ff',
   /** Space around the planet (the `canvas` token, as WebGL needs it). */
   space: '#000005',
@@ -166,45 +163,4 @@ export const ATLAS_SCENE = {
   strokeSelected: 'rgba(255, 210, 140, 0.95)',
   strokeState: 'rgba(130, 110, 80, 0.6)',
   strokeCountry: 'rgba(90, 78, 58, 0.85)',
-} as const;
-
-/**
- * The Atlas flavor: the street basemap's colours where they differ from
- * Protomaps' `dark` flavor (the MapLibre engine, components/Globe/mapStyle.ts).
- * The country colours tint its land at every zoom, so its own land is the
- * plain grey they are drawn over (and that shows with them off in Layers);
- * its sea is the globe's cyan; and its labels are light with dark halos, so
- * they read on any country's colour. Keys are @protomaps/basemaps Flavor keys.
- */
-const LABEL_HALO = 'rgba(16, 16, 18, 0.85)';
-export const ATLAS_BASEMAP = {
-  background: ATLAS_SCENE.ocean,
-  earth: ATLAS_SCENE.landPlain,
-  water: ATLAS_SCENE.ocean,
-  ocean_label: '#0b4f5f',
-  country_label: '#f2f2f6',
-  state_label: '#e2e2ea',
-  state_label_halo: LABEL_HALO,
-  city_label: '#f2f2f6',
-  city_label_halo: LABEL_HALO,
-  subplace_label: '#d6d6de',
-  subplace_label_halo: LABEL_HALO,
-  roads_label_major: '#e2e2ea',
-  roads_label_major_halo: LABEL_HALO,
-  roads_label_minor: '#d0d0d8',
-  roads_label_minor_halo: LABEL_HALO,
-  address_label: '#d0d0d8',
-  address_label_halo: LABEL_HALO,
-  // Places of interest, in light versions of Protomaps' hues so they read
-  // on tinted land.
-  pois: {
-    blue: '#a9d8ec',
-    green: '#a8ecc6',
-    lapis: '#b9c8ff',
-    pink: '#ffc4ea',
-    red: '#ffbccb',
-    slategray: '#d6d6de',
-    tangerine: '#ffd2bb',
-    turquoise: '#a6f0f6',
-  },
 } as const;

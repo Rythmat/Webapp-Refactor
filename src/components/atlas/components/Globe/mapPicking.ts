@@ -6,7 +6,6 @@ import {
   pointLabel,
   regionLabel,
 } from './globeLabels';
-import { REGION_CLICK_MAX_ZOOM } from './mapGeometry';
 import { CLICK_LAYERS, LAYER } from './mapStyle';
 
 /**
@@ -36,25 +35,15 @@ const priority = (layerId: string): number => {
 };
 
 /**
- * Countries and states answer clicks from orbit down to the country level
- * (REGION_CLICK_MAX_ZOOM). With a street basemap, a click among the streets
- * should not open the country it lands in; without one, the outlines are
- * the whole map and always answer.
+ * The feature a click means: the most specific layer's (CLICK_LAYERS).
+ * Countries and states answer at every zoom: they are the whole map.
  */
-export const regionsClickable = (zoom: number, withBasemap: boolean): boolean =>
-  !withBasemap || zoom < REGION_CLICK_MAX_ZOOM;
-
-/** The feature a click means: the most specific layer's (CLICK_LAYERS). */
 export function topFeature(
   features: readonly PickedFeature[],
-  regions: boolean,
 ): PickedFeature | null {
   let best: PickedFeature | null = null;
   for (const feature of features) {
     const id = feature.layer.id;
-    if (!regions && (id === LAYER.countriesFill || id === LAYER.statesFill)) {
-      continue;
-    }
     if (priority(id) === Infinity) continue;
     if (!best || priority(id) < priority(best.layer.id)) best = feature;
   }

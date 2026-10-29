@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   labelOf,
-  regionsClickable,
   targetOf,
   topFeature,
   type PickedFeature,
@@ -40,21 +39,13 @@ const arc = at(LAYER.arcsHit, {
 
 describe('what a click lands on', () => {
   it('takes the most specific layer, whatever the order found', () => {
-    expect(topFeature([brazil, nola, point], true)).toBe(point);
-    expect(topFeature([brazil, nola, arc], true)).toBe(arc);
-    expect(topFeature([brazil, texas], true)).toBe(texas);
+    expect(topFeature([brazil, nola, point])).toBe(point);
+    expect(topFeature([brazil, nola, arc])).toBe(arc);
+    expect(topFeature([brazil, texas])).toBe(texas);
   });
 
   it('ignores layers that are not the Globe’s', () => {
-    expect(topFeature([at('water', {})], true)).toBeNull();
-  });
-
-  it('leaves countries alone among the streets', () => {
-    expect(regionsClickable(5.9, true)).toBe(true);
-    expect(regionsClickable(6, true)).toBe(false);
-    expect(regionsClickable(12, false)).toBe(true);
-    expect(topFeature([brazil, texas], false)).toBeNull();
-    expect(topFeature([brazil, nola], false)).toBe(nola);
+    expect(topFeature([at('water', {})])).toBeNull();
   });
 });
 

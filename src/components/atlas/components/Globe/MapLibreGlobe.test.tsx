@@ -132,16 +132,10 @@ const fake = vi.hoisted(() => {
 vi.mock('maplibre-gl', () => ({
   Map: fake.FakeMap,
   Popup: fake.FakePopup,
-  addProtocol: vi.fn(),
   setWorkerUrl: vi.fn(),
 }));
 vi.mock('maplibre-gl/dist/maplibre-gl-worker.mjs?url', () => ({
   default: '/maplibre-gl-worker.mjs',
-}));
-vi.mock('pmtiles', () => ({
-  Protocol: class {
-    tile = vi.fn();
-  },
 }));
 vi.mock('@/components/atlas/data/geoLoader', () => ({
   loadCountries: () => Promise.resolve([fake.brazil]),

@@ -33,11 +33,9 @@
  *
  * THE GLOBE STAYS LAZY, AND WITHIN ITS BUDGET
  *
- * The Globe page (/globe) draws with MapLibre GL over a
- * Protomaps basemap (maplibre-gl, pmtiles, @protomaps/basemaps), together
- * well over a megabyte. Every one of them gets the same lazy-only rule as
- * Cortex, one marker string each (see LAZY_ONLY). The page's own code has a
- * size budget measured
+ * The Globe page (/globe) draws with MapLibre GL (maplibre-gl), well over a
+ * megabyte. It gets the same lazy-only rule as Cortex (see LAZY_ONLY). The
+ * page's own code has a size budget measured
  * from the Globe UI plan's baseline (docs/globe-ui/BASELINE.md): the atlas
  * route chunk
  * (`assets/atlas-*.js`) and everything it imports statically beyond the
@@ -157,6 +155,23 @@ const FORBIDDEN = [
     marker: '__atlasGlobeDebug',
     why: "the Globe page's dev-only measuring hook (Globe/MapLibreGlobe.tsx)",
   },
+  // The Globe's map asks no third-party map host for anything: its land is
+  // Natural Earth's and its labels are drawn from the app's own font files
+  // (docs/globe-ui/ENGINE.md). Hosts, not names: MapLibre's own bundle
+  // mentions other map sites in its messages.
+  {
+    marker: 'api.protomaps.com',
+    why: "Protomaps' hosted tile API (removed 2026-10-29)",
+  },
+  {
+    marker: 'protomaps.github.io',
+    why: "Protomaps' glyph and sprite host (removed 2026-10-29)",
+  },
+  {
+    marker: 'build.protomaps.com',
+    why: "Protomaps' daily planet builds (removed 2026-10-29)",
+  },
+  { marker: 'pmtiles://', why: 'the pmtiles protocol (removed 2026-10-29)' },
 ];
 
 /**
@@ -176,18 +191,6 @@ const LAZY_ONLY = [
     // MapLibre's name for its shared worker pool (maplibre-gl.mjs).
     marker: 'maplibre_preloaded_worker_pool',
     name: 'maplibre-gl',
-    loadsWith: 'the Atlas Globe page (the MapLibre engine)',
-  },
-  {
-    // The error pmtiles throws on a file that is not an archive.
-    marker: 'Wrong magic number for PMTiles archive',
-    name: 'pmtiles',
-    loadsWith: 'the Atlas Globe page (the MapLibre engine)',
-  },
-  {
-    // A Protomaps basemap layer id (@protomaps/basemaps).
-    marker: 'water_label_ocean',
-    name: '@protomaps/basemaps',
     loadsWith: 'the Atlas Globe page (the MapLibre engine)',
   },
 ];
@@ -458,11 +461,11 @@ if (hits.length > 0) {
       "that every import of repo mode code is guarded the same way. Cortex's\n" +
       'graph (its renderer and its dev hook) must load only through the\n' +
       'lazy Cortex page, and the map engine only through the lazy Globe\n' +
-      'page.\n',
+      'page, which asks no third-party map host for anything.\n',
   );
   process.exit(1);
 }
 
 console.log(
-  `verify:prod OK — scanned ${files.length} file(s) in ${DIST}/, no DEV-bypass, content-mock, repo-mode or graph-debug markers shipped; lazy-only code (${lazyHomes.join(', ')} chunk(s)) is in none of the ${entries.length} entry chunk(s); ${globeSizes}.`,
+  `verify:prod OK — scanned ${files.length} file(s) in ${DIST}/, no DEV-bypass, content-mock, repo-mode, graph-debug or third-party map markers shipped; lazy-only code (${lazyHomes.join(', ')} chunk(s)) is in none of the ${entries.length} entry chunk(s); ${globeSizes}.`,
 );

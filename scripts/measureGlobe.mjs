@@ -9,10 +9,6 @@
  *                                 [--cpu=4] [--gpu=metal|swiftshader]
  *                                 [--headed] [--out=file.json]
  *
- * The map (docs/globe-ui/ENGINE.md) draws its street map only with a tile
- * source in the environment (VITE_BASEMAP_PMTILES_URL or
- * VITE_PROTOMAPS_API_KEY), which the dev server and the build inherit.
- *
  * Two parts, each skippable:
  *
  * BROWSER (`--skip-browser` to leave out). Starts a dev server of its own on
@@ -23,9 +19,10 @@
  *
  * - first globe frame: from navigation start to the first animation frame
  *   after the map's `atlas:globe-ready` mark (MapLibre's first complete
- *   frame, basemap tiles included);
- * - map bytes: what the page downloads that is not code — tiles, fonts,
- *   icons, outlines — until 2 s after that mark, by kind;
+ *   frame);
+ * - map bytes: what the page downloads that is not code — the label fonts
+ *   and the country and state outlines — until 2 s after that mark, by
+ *   kind;
  * - frame rate with Spin on: frames from requestAnimationFrame over 10 s,
  *   after a 1 s ramp, with the gap between frames (median, p95, max);
  * - JS heap 30 s after navigation start (CDP JSHeapUsedSize, before and
@@ -322,17 +319,12 @@ async function openGlobe(browser, base) {
 }
 
 /**
- * What a request is, if it is the map's data rather than code: basemap
- * tiles, fonts and icons, or the country and state outlines.
+ * What a request is, if it is the map's data rather than code: the label
+ * fonts, or the country and state outlines.
  */
 function mapKind(url) {
-  const { hostname, pathname } = new URL(url);
-  if (/\.pmtiles$/.test(pathname) || hostname === 'api.protomaps.com') {
-    return 'tiles';
-  }
-  if (/\.pbf$/.test(pathname) || /\/sprites\//.test(pathname)) {
-    return 'fontsAndIcons';
-  }
+  const { pathname } = new URL(url);
+  if (/\/fonts\/.+\.(otf|ttf|woff2?)$/.test(pathname)) return 'fonts';
   if (/\/geo\/.*\.json$/.test(pathname) || /naturalearth|geojson/i.test(url)) {
     return 'outlines';
   }
@@ -378,7 +370,7 @@ async function runOnce(browser, base, index) {
       performance.getEntriesByName('atlas:globe-ready')[0].startTime,
   );
   await page.waitForTimeout(2000);
-  result.mapKB = { tiles: 0, fontsAndIcons: 0, outlines: 0 };
+  result.mapKB = { fonts: 0, outlines: 0 };
   for (const { kind, at, bytes } of mapBytes) {
     if (at <= readyWall + 2000) result.mapKB[kind] += bytes / 1e3;
   }
@@ -593,8 +585,7 @@ function summarizeRuns(runs) {
     youtubePlayerRequests: pick((r) => r.youtube?.playerRequests),
     youtubeThumbRequests: pick((r) => r.youtube?.thumbRequests),
     youtubeThumbKB: pick((r) => r.youtube?.thumbKB),
-    mapTilesKB: pick((r) => r.mapKB?.tiles),
-    mapFontsAndIconsKB: pick((r) => r.mapKB?.fontsAndIcons),
+    mapFontsKB: pick((r) => r.mapKB?.fonts),
     mapOutlinesKB: pick((r) => r.mapKB?.outlines),
   };
 }
@@ -694,7 +685,7 @@ function staticClosure(manifest, key, seen = new Set()) {
 }
 
 /** Packages whose code marks the map's renderer, for "where is MapLibre". */
-const RENDERER_PACKAGES = ['maplibre-gl', 'pmtiles', '@protomaps/basemaps'];
+const RENDERER_PACKAGES = ['maplibre-gl'];
 
 /** The modules that load with the first render: the map engine. */
 const FIRST_RENDER = /components\/Globe\/MapLibreGlobe\.tsx/;

@@ -3,12 +3,10 @@ import type { FeatureCollection } from 'geojson';
 import {
   Map as MapLibreMap,
   Popup,
-  addProtocol,
   setWorkerUrl,
   type GeoJSONSource,
 } from 'maplibre-gl';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
-import { Protocol } from 'pmtiles';
 import {
   useEffect,
   useMemo,
@@ -21,7 +19,6 @@ import {
   cityOutline,
   loadCityOutline,
 } from '@/components/atlas/data/cityOutlines';
-import { selectableCities } from '@/components/atlas/data/lookups';
 import { useGeoData } from '@/components/atlas/hooks/useGeoData';
 import {
   useIsPhone,
@@ -58,20 +55,11 @@ import {
 } from './mapGeometry';
 import {
   labelOf,
-  regionsClickable,
   targetOf,
   topFeature,
   type PickedFeature,
 } from './mapPicking';
-import {
-  CLICK_LAYERS,
-  LAYER,
-  SOURCE,
-  assetsUrlFromEnv,
-  basemapFromEnv,
-  basemapLang,
-  buildStyle,
-} from './mapStyle';
+import { CLICK_LAYERS, LAYER, SOURCE, buildStyle } from './mapStyle';
 import { useGlobeClicks, useGlobeScene } from './useGlobeScene';
 
 /**
@@ -106,14 +94,13 @@ const CITY_OUTLINE_WAIT_MS = 800;
 const DASH_STEP_MS = 60;
 
 let mapLibreSetUp = false;
-/** One-off, process-wide: where the worker is, and the pmtiles:// protocol. */
+/** One-off, process-wide: where the worker is. */
 function setUpMapLibre() {
   if (mapLibreSetUp) return;
   mapLibreSetUp = true;
   // Bundled, MapLibre would look for its worker beside the chunk it ended up
   // in; Vite emits the worker as its own file and hands us that file's URL.
   setWorkerUrl(workerUrl);
-  addProtocol('pmtiles', new Protocol().tile);
 }
 
 const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] };
@@ -219,11 +206,6 @@ export default function MapLibreGlobe() {
   // Read when a flight starts; a change of setting alone flies nowhere.
   const reducedMotionRef = useRef(reducedMotion);
   reducedMotionRef.current = reducedMotion;
-  const basemap = useMemo(
-    () => basemapFromEnv(import.meta.env, window.location.href),
-    [],
-  );
-
   // Make the map, once.
   useEffect(() => {
     const container = containerRef.current;
@@ -234,13 +216,7 @@ export default function MapLibreGlobe() {
     try {
       created = new MapLibreMap({
         container,
-        style: buildStyle({
-          basemap,
-          lang: basemapLang(document.documentElement.lang),
-          assetsUrl: assetsUrlFromEnv(import.meta.env),
-          // The basemap leaves these names to the Globe, which shows them.
-          cityNames: selectableCities().map((c) => c.name),
-        }),
+        style: buildStyle({ origin: window.location.origin }),
         center: [START.lng, START.lat],
         zoom: altitudeToMapZoom(START.altitude, height, START.lat),
         maxZoom: MAP_MAX_ZOOM,
@@ -261,13 +237,13 @@ export default function MapLibreGlobe() {
     }
     created.touchZoomRotate.disableRotation();
     created.keyboard.disableRotation();
-    // The map takes our data as soon as its style is parsed. 'load' waits
-    // for every source, the basemap's too, and never comes if its tiles
-    // cannot be reached; the globe must not wait on them.
+    // The map takes our data as soon as its style is parsed; 'load' waits
+    // for every source as well.
     created.once('style.load', () => setMap(created));
     // scripts/measureGlobe.mjs times the first globe frame from this mark.
     created.once('load', () => performance.mark('atlas:globe-ready'));
-    // A tile or a font that fails to load is not the page failing.
+    // A font that fails to load is not the page failing: its labels fall
+    // back to the browser's own font.
     created.on('error', (event) => {
       if (import.meta.env.DEV) console.warn('[atlas map]', event.error);
     });
@@ -275,7 +251,7 @@ export default function MapLibreGlobe() {
       created.remove();
       setMap(null);
     };
-  }, [basemap]);
+  }, []);
 
   /* ── Sources ─────────────────────────────────────────────────────────── */
 
@@ -352,13 +328,12 @@ export default function MapLibreGlobe() {
       offset: 12,
       maxWidth: '280px',
     });
-    const withBasemap = basemap !== null;
     const pick = (point: { x: number; y: number }) => {
       const layersHere = CLICK_LAYERS.filter((id) => map.getLayer(id));
       const features = map.queryRenderedFeatures([point.x, point.y], {
         layers: [...layersHere],
       }) as unknown as PickedFeature[];
-      return topFeature(features, regionsClickable(map.getZoom(), withBasemap));
+      return topFeature(features);
     };
     // The city name under the pointer turns warm (feature-state 'hover').
     let hovered: string | null = null;
@@ -421,7 +396,7 @@ export default function MapLibreGlobe() {
       popup.remove();
       hover(null);
     };
-  }, [map, basemap, clicks]);
+  }, [map, clicks]);
 
   /* ── Camera ──────────────────────────────────────────────────────────── */
 
@@ -689,9 +664,8 @@ export default function MapLibreGlobe() {
     };
   }, [map]);
 
-  // Without a basemap the country outlines are the map; losing them is the
-  // page failing. With one, the streets and places still show.
-  const failure = mapError ?? (basemap === null ? error : null);
+  // The country outlines are the map: losing them is the page failing.
+  const failure = mapError ?? error;
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-atlas-canvas">
@@ -703,7 +677,7 @@ export default function MapLibreGlobe() {
       {failure ? (
         <GlobeStatus error={failure} />
       ) : (
-        (!map || (loading && basemap === null)) && <GlobeStatus />
+        (!map || loading) && <GlobeStatus />
       )}
     </div>
   );

@@ -17,7 +17,6 @@ import {
 } from '@/components/atlas/components/Frame/StageDock';
 import { TopRail } from '@/components/atlas/components/Frame/TopRail';
 import { AtlasGlobe } from '@/components/atlas/components/Globe';
-import { SHOWS_OSM_DATA } from '@/components/atlas/components/Globe/basemapConfig';
 import { MapCredit } from '@/components/atlas/components/UI/MapCredit';
 import {
   ATLAS_HEADING,
@@ -110,7 +109,7 @@ function AtlasUrlSync() {
 }
 
 /** The map's OpenStreetMap credit, when it draws OpenStreetMap's data. */
-const CREDIT = SHOWS_OSM_DATA ? <MapCredit /> : null;
+const CREDIT = <MapCredit />;
 
 /**
  * A phone's map: the Inspector's panel in a bottom sheet, and the bar under

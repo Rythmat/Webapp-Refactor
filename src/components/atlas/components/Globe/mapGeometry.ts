@@ -111,24 +111,6 @@ export function statesInViewAt(zoom: number, wasInView: boolean): boolean {
   return wasInView ? zoom >= STATES_LEAVE_ZOOM : zoom >= STATES_MIN_ZOOM;
 }
 
-/**
- * How strongly the country colours tint the street basemap's land, by zoom:
- * as the three.js globe painted them from orbit, lighter among the streets
- * so parks, roads and buildings read through.
- */
-export const COUNTRY_TINT: readonly (readonly [number, number])[] = [
-  [0, 0.86],
-  [5, 0.86],
-  [9, 0.62],
-  [14, 0.45],
-];
-
-/**
- * Countries and states answer clicks below this zoom. Further in, a click
- * among the streets should not open the country it lands in.
- */
-export const REGION_CLICK_MAX_ZOOM = 6;
-
 /* ── Geometry ────────────────────────────────────────────────────────────── */
 
 const toRad = (deg: number) => (deg * Math.PI) / 180;

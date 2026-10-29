@@ -1,6 +1,6 @@
-// ── Curated spotlights for the Globe dashboard's Explore tab ──────────────
-// Hand-authored first-pass content (easily expanded). FEATURED_CITY_IDS point
-// into `src/components/atlas/data/cities.ts`; the shelf filters to existing ids.
+// ── Curated spotlights (from the retired Globe dashboard) ────────────────
+// Hand-authored first-pass content. FEATURED_CITY_IDS point into
+// `src/components/atlas/data/cities.ts` and lead regionCities()' lists.
 
 export interface FeaturedTraditionEntry {
   id: string;

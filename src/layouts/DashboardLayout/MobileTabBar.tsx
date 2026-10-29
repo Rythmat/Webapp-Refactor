@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/sheet';
 import { cn } from '@/components/utilities';
 import {
-  AtlasRoutes,
+  GlobeRoutes,
   ClassroomRoutes,
   GameRoutes,
   LearnRoutes,
@@ -53,7 +53,7 @@ const TABS: Tab[] = [
     label: 'Studio',
     iconSrc: '/icons/studio-icon.svg',
   },
-  { to: AtlasRoutes.root(), label: 'Globe', iconSrc: '/icons/globe-icon.svg' },
+  { to: GlobeRoutes.root(), label: 'Globe', iconSrc: '/icons/globe-icon.svg' },
   {
     to: GameRoutes.root(),
     label: 'Arcade',

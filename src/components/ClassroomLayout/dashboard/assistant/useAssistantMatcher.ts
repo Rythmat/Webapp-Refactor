@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import {
-  AtlasRoutes,
+  GlobeRoutes,
   CurriculumRoutes,
   GameRoutes,
   LearnRoutes,
@@ -301,7 +301,7 @@ const ACTIVITY_CATALOG: ActivityEntry[] = [
   {
     label: 'Music Atlas',
     description: 'History & Geography',
-    route: AtlasRoutes.root.definition,
+    route: GlobeRoutes.root.definition,
     keywords: [
       'atlas',
       'globe',

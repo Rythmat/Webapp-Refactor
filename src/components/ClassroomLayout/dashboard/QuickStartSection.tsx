@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { HexWaveBackground } from '@/components/ui/hex-wave-background';
 import {
-  AtlasRoutes,
+  GlobeRoutes,
   GameRoutes,
   LearnRoutes,
   StudioRoutes,
@@ -33,7 +33,7 @@ const TILES: Tile[] = [
     key: 'globe',
     label: 'Globe',
     iconSrc: '/icons/globe-icon.svg',
-    to: AtlasRoutes.root(),
+    to: GlobeRoutes.root(),
   },
   {
     key: 'arcade',

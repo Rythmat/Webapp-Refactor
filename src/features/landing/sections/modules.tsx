@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode } from 'react';
 import {
-  AtlasRoutes,
+  GlobeRoutes,
   ClassroomRoutes,
   GameRoutes,
   LearnRoutes,
@@ -79,7 +79,7 @@ export const LANDING_MODULES: LandingModule[] = [
     id: 'globe',
     label: 'Globe',
     icon: MODULE_ICONS.globe,
-    app: AtlasRoutes.root(),
+    app: GlobeRoutes.root(),
     statement: {
       lead: 'Hear where music came from.',
       rest: 'Follow it city to city.',

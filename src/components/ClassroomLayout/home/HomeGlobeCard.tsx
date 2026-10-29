@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/cobe-globe-cdn';
 import { rgb } from '@/components/ui/globeMath';
 import { cn } from '@/components/utilities';
-import { AtlasRoutes } from '@/constants/routes';
+import { GlobeRoutes } from '@/constants/routes';
 import { ContentGate } from '@/content/ContentGate';
 import '@/daw/components/Library/insight.css';
 import { KEY_RAINBOW_COLORS } from '@/features/landing/rainbow';
@@ -188,7 +188,7 @@ const HomeGlobeCardInner = () => {
           </h2>
         </div>
         <Link
-          to={`${AtlasRoutes.root()}?tab=Pathways`}
+          to={`${GlobeRoutes.root()}?panel=pathways`}
           className="group flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm text-white/70 outline-none transition-colors duration-150 hover:bg-white/[0.06] hover:text-white focus-visible:ring-2 focus-visible:ring-white/50"
         >
           View Pathways
@@ -268,7 +268,7 @@ const HomeGlobeCardInner = () => {
           {/* The card's one action: the prompt box's Go pill, like the
             Studio card's New project. */}
           <Link
-            to={`${AtlasRoutes.globe()}?event=${encodeURIComponent(event.id)}`}
+            to={`${GlobeRoutes.root()}?event=${encodeURIComponent(event.id)}`}
             className={cn(
               GO_PILL,
               GO_PILL_ENABLED,

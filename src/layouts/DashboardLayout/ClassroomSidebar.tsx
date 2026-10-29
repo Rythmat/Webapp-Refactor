@@ -10,7 +10,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/components/utilities';
 import {
-  AtlasRoutes,
+  GlobeRoutes,
   ClassroomRoutes,
   GameRoutes,
   LearnRoutes,
@@ -128,7 +128,7 @@ export const ClassroomSidebar = ({
             // 2026-10-25).
             glyphClassName="size-[24px]"
             label="Globe"
-            {...nav(AtlasRoutes.root())}
+            {...nav(GlobeRoutes.root())}
           />
           <SidebarMainNavItem
             iconSrc="/icons/arcade-icon.svg"

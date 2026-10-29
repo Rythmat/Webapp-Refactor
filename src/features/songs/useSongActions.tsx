@@ -1,6 +1,6 @@
 import { useCallback, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AtlasRoutes } from '@/constants/routes';
+import { GlobeRoutes } from '@/constants/routes';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
 import { useUISound } from '@/hooks/useUISound';
@@ -81,12 +81,9 @@ export function useSongActions(
     (e) => {
       stopAndPrevent(e);
       play('click');
-      // `/atlas` is the Globe Dashboard and ignores `?event=`; the full globe
-      // lives at `/atlas/globe` and is what consumes the param and flies to
-      // the pin. Hardcoding `/atlas` here is what made this open the
-      // dashboard instead of the song — see songDeepLinks.songGlobeRoute,
-      // which was extracted from this function and got it right.
-      navigate(`${AtlasRoutes.globe()}?event=song-${song.id}`);
+      // The Globe reads `?event=` and flies to the pin (as
+      // songDeepLinks.songGlobeRoute, which was extracted from this).
+      navigate(`${GlobeRoutes.root()}?event=song-${song.id}`);
     },
     [navigate, play, song.id],
   );

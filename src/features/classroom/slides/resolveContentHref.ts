@@ -19,7 +19,7 @@
  * (e.g. an annual-plan globe LaunchTile whose activityRef is a bare event id).
  */
 import {
-  AtlasRoutes,
+  GlobeRoutes,
   LearnRoutes,
   SongRoutes,
   StudioRoutes,
@@ -100,7 +100,7 @@ export const resolveActivityRefHref = (
   // Legacy / bare refs: no recognized namespace → interpret via module.
   if (!KNOWN_NAMESPACES.has(ns) || parts.length < 2) {
     if (module === 'globe')
-      return `${AtlasRoutes.globe()}?event=${encodeURIComponent(ref)}`;
+      return `${GlobeRoutes.root()}?event=${encodeURIComponent(ref)}`;
     return null;
   }
 
@@ -138,23 +138,23 @@ export const resolveActivityRefHref = (
       const sub = parts[1];
       const id = parts.slice(2).join(':');
       if (sub === 'pathway' && id)
-        return `${AtlasRoutes.globe()}?pathway=${encodeURIComponent(id)}`;
+        return `${GlobeRoutes.root()}?pathway=${encodeURIComponent(id)}`;
       if (sub === 'event' && id)
-        return `${AtlasRoutes.globe()}?event=${encodeURIComponent(id)}`;
+        return `${GlobeRoutes.root()}?event=${encodeURIComponent(id)}`;
       // Regions & cities deep-link via guided tours. The atlas reads the FULL
       // tour id (`region-<id>` / `city-<id>`); synthesize the prefix inline so
       // this resolver stays pure (no `guidedTours`/`cities` import). A city
       // without a curated tour gracefully no-ops to the bare globe.
       if (sub === 'region' && id)
-        return `${AtlasRoutes.globe()}?tour=${encodeURIComponent(`region-${id}`)}`;
+        return `${GlobeRoutes.root()}?tour=${encodeURIComponent(`region-${id}`)}`;
       if (sub === 'city' && id)
-        return `${AtlasRoutes.globe()}?tour=${encodeURIComponent(`city-${id}`)}`;
+        return `${GlobeRoutes.root()}?tour=${encodeURIComponent(`city-${id}`)}`;
       if (sub === 'era' && id)
-        return `${AtlasRoutes.globe()}?era=${encodeURIComponent(id)}`;
+        return `${GlobeRoutes.root()}?era=${encodeURIComponent(id)}`;
       // A Cortex lesson's Promoter: the Globe with the mind-map panel open.
       // The board itself is handed over separately (msp/mindMapHandoff).
-      if (sub === 'mindmap') return `${AtlasRoutes.globe()}?mindmap=1`;
-      return AtlasRoutes.globe();
+      if (sub === 'mindmap') return `${GlobeRoutes.root()}?mindmap=1`;
+      return GlobeRoutes.root();
     }
     case 'studio': {
       const sub = parts[1];
@@ -200,7 +200,7 @@ export const resolveContentRefHref = (ref: ContentRef): string | null => {
     }
     case 'globe':
       // Origin strings are not event ids — land on the globe without a param.
-      return AtlasRoutes.globe();
+      return GlobeRoutes.root();
     case 'studio':
       return ref.studioPreset
         ? `${StudioRoutes.editor()}?template=${encodeURIComponent(ref.studioPreset)}`

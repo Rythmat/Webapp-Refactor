@@ -1,6 +1,6 @@
 import { COURSES_GENRE_OPTIONS } from '@/components/learn/learnFilterOptions';
 import {
-  AtlasRoutes,
+  GlobeRoutes,
   ClassroomRoutes,
   GameRoutes,
   LearnRoutes,
@@ -249,7 +249,7 @@ function buildGlobe(): IndexEntry[] {
         ? `${e.year} · ${e.location.city}`
         : String(e.year),
       // atlas.tsx resolves `?event=<id>` against MUSIC_HISTORY by exact id.
-      to: AtlasRoutes.root(undefined, { event: e.id }),
+      to: GlobeRoutes.root(undefined, { event: e.id }),
       icon,
       thumb: e.videoId
         ? {
@@ -401,7 +401,7 @@ const PAGES: { id: string; label: string; to: string; keywords: string[] }[] = [
   {
     id: 'globe',
     label: 'Globe',
-    to: AtlasRoutes.root(),
+    to: GlobeRoutes.root(),
     keywords: ['globe', 'atlas', 'world', 'map', 'history'],
   },
   {

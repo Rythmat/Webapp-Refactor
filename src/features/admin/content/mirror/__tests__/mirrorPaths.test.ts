@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import * as AppRoutes from '@/constants/routes';
 import {
   AdminRoutes,
-  AtlasRoutes,
+  GlobeRoutes,
   ClassroomRoutes,
   CurriculumRoutes,
   GameRoutes,
@@ -140,7 +140,7 @@ describe('the mirror namespace', () => {
         SongRoutes.root(),
         CurriculumRoutes.root(),
         StudioRoutes.root(),
-        AtlasRoutes.root(),
+        GlobeRoutes.root(),
         GameRoutes.root(),
         SearchRoutes.root(),
         ClassroomRoutes.root(),

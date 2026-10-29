@@ -1000,12 +1000,6 @@ export const GlobeRoutes = {
   root: createRouteDefinition(globePrefix),
 };
 
-/** @deprecated The old name, until its callers move to GlobeRoutes. */
-export const AtlasRoutes = {
-  root: GlobeRoutes.root,
-  globe: GlobeRoutes.root,
-};
-
 const songsPrefix = '/songs';
 
 export const SongRoutes = {

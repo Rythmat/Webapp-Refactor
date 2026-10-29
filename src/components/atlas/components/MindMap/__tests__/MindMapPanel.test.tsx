@@ -52,7 +52,7 @@ const BOARD: MindMapBoard = {
 };
 
 const launchUrl = (stop: string) =>
-  appendMspLaunchParams(`/atlas/globe?mindmap=1&${stop}`, {
+  appendMspLaunchParams(`/globe?mindmap=1&${stop}`, {
     interactionId: 'ix-1',
     enrollmentId: 'enr-1',
     module: 'globe',

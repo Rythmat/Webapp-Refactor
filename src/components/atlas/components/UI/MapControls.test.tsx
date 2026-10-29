@@ -33,7 +33,7 @@ afterEach(() => {
 
 function setup(store?: AtlasStore) {
   render(
-    <MemoryRouter initialEntries={['/atlas/globe']}>
+    <MemoryRouter initialEntries={['/globe']}>
       <AtlasStoreProvider store={store}>
         <AtlasNavigationProvider>
           <MapControls />

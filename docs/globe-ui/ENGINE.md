@@ -1,6 +1,6 @@
 # The Globe's map engine
 
-The Atlas Globe page (`/atlas/globe`) can draw its map with either of two
+The Globe page (`/globe`) can draw its map with either of two
 engines, chosen when the app is built:
 
 | `VITE_ATLAS_ENGINE`  | Engine                                                                     | Zooms to                                            |

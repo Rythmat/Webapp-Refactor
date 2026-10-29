@@ -33,13 +33,13 @@
  *
  * THE GLOBE STAYS LAZY, AND WITHIN ITS BUDGET
  *
- * The Atlas Globe page (/atlas/globe) draws with MapLibre GL over a
+ * The Globe page (/globe) draws with MapLibre GL over a
  * Protomaps basemap (maplibre-gl, pmtiles, @protomaps/basemaps), or, built
  * with VITE_ATLAS_ENGINE=three, with three.js through react-globe.gl; each
  * well over a megabyte. Every one of them gets the same lazy-only rule as
  * Cortex, one marker string each (see LAZY_ONLY); three.js and
- * react-globe.gl are still in a default build through the classroom's
- * decorative HeroGlobe. The page's own code has a size budget measured
+ * react-globe.gl are still in a default build through the app's idle
+ * warm-up of react-globe.gl (src/contexts/AppContext/AppContext.tsx). The page's own code has a size budget measured
  * from the Globe UI plan's baseline (docs/globe-ui/BASELINE.md): the atlas
  * route chunk
  * (`assets/atlas-*.js`) and everything it imports statically beyond the

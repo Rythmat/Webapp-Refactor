@@ -23,7 +23,7 @@ function Sync() {
   return null;
 }
 
-function setup(path = '/atlas/globe?view=timeline') {
+function setup(path = '/globe?view=timeline') {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <AtlasStoreProvider>
@@ -73,7 +73,7 @@ describe('EraRail', () => {
   });
 
   it('lets all of time back in on the globe', () => {
-    setup('/atlas/globe?from=1946&to=1979');
+    setup('/globe?from=1946&to=1979');
     fireEvent.click(screen.getByRole('button', { name: 'Show all years' }));
     expect(screen.queryByRole('button', { name: 'Show all years' })).toBeNull();
   });

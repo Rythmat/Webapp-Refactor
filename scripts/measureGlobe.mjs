@@ -20,7 +20,7 @@
  *
  * BROWSER (`--skip-browser` to leave out). Starts a dev server of its own on
  * `--port` (or reuses the one at `--base`, which must run with
- * VITE_DEV_AUTH_BYPASS=1), opens /atlas/globe signed in through the dev
+ * VITE_DEV_AUTH_BYPASS=1), opens /globe signed in through the dev
  * bypass (src/auth/devBypass.ts) in headless Chrome via playwright-core, and
  * per run, in a fresh browser context:
  *
@@ -324,7 +324,7 @@ async function openGlobe(browser, base) {
       youtube.player += 1;
     }
   });
-  await page.goto(`${base}/atlas/globe`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${base}/globe`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(
     () => performance.getEntriesByName('atlas:globe-ready').length > 0,
     null,

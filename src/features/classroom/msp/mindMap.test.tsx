@@ -69,7 +69,7 @@ describe('a submitted mind map', () => {
     window.history.replaceState(
       {},
       '',
-      appendMspLaunchParams('/atlas/globe?mindmap=1', {
+      appendMspLaunchParams('/globe?mindmap=1', {
         interactionId: 'ix-1',
         enrollmentId: 'enr-1',
         module: 'globe',
@@ -102,7 +102,7 @@ describe('a submitted mind map', () => {
     window.history.replaceState(
       {},
       '',
-      appendMspLaunchParams('/atlas/globe?mindmap=1', {
+      appendMspLaunchParams('/globe?mindmap=1', {
         interactionId: 'ix-9',
         enrollmentId: 'enr-1',
         module: 'globe',

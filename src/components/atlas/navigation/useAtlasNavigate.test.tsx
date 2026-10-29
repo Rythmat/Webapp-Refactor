@@ -17,7 +17,7 @@ import {
 
 afterEach(cleanup);
 
-function setup(initial = '/atlas/globe?era=jazz-age') {
+function setup(initial = '/globe?era=jazz-age') {
   const renders = { navigator: 0, artist: 0, stop: 0 };
   const navigates: AtlasNavigate[] = [];
   let search = '';
@@ -88,7 +88,7 @@ describe('useAtlasNavigate', () => {
   });
 
   it('changes the frame in place, keeping the stop', () => {
-    const { navigate, search } = setup('/atlas/globe?event=evt-1');
+    const { navigate, search } = setup('/globe?event=evt-1');
     act(() => navigate().toSection('regions'));
     expect(search()).toBe(
       '?event=evt-1&view=timeline&open=americas%2Ceurope%2Cafrica-me%2Casia-pacific',
@@ -104,7 +104,7 @@ describe('useAtlasNavigate', () => {
   });
 
   it('goes to a stop and a frame in one step', () => {
-    const { navigate, search } = setup('/atlas/globe');
+    const { navigate, search } = setup('/globe');
     act(() =>
       navigate().go(
         { kind: 'place', place: { type: 'city', id: 'memphis' } },

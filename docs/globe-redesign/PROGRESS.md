@@ -1,7 +1,7 @@
 # Globe "Time River" redesign — progress
 
 The Globe section rebuilt after Dorot (dorot.tali.org.il/en): one immersive
-page at `/atlas/globe` where Explore is the map, Eras the timeline ("river"),
+page (at `/atlas/globe` until 2026-10-29, now `/globe`) where Explore is the map, Eras the timeline ("river"),
 and Regions & Cities, Pathways and Instruments are lenses that regroup the
 river's lanes. Owner decisions of 2026-10-14: one immersive Atlas; YouTube
 posters now, a curated image field later; built in phases with screenshot
@@ -208,3 +208,21 @@ four marker shapes mixed in one row, and two tabs that changed nothing.
 - Budget: route chunk 113,165 B, static imports 323,145 B; TimeRiver
   47.8 kB lazy.
 - Screens: `docs/globe-ui/screens/tr-p4b-*`.
+
+## 2026-10-29 — the Globe at /globe, in the Studio's frame (owner)
+
+The owner removed the `/atlas` dashboard and every `/atlas` address (no
+redirects) and asked for the Globe to take the Studio editor's frame: full
+window, a top rail, a right side rail with an Inspector, a bottom rail.
+Plan: `~/.claude/plans/the-globe-section-needs-squishy-mango.md`.
+
+- Phase 1 (route): the Globe is `GlobeRoutes.root` = `/globe`; the dashboard
+  (GlobeInlet, the tab bar, the three.js hero, shelves, marquee, Regions,
+  Eras and Instruments views) is deleted. The console mirrors it at
+  `/console/content/globe`. `globeDeepLink.test.ts` fails on any old address.
+- Pathways and Instruments become Inspector panels (later phases), so the
+  P6 lenses for them stay to come.
+- Budget: HEAD was already 340 B over the route-chunk limit before this work
+  (116,089 / 115,749, shared code); after the dashboard went, 116,409 B
+  (static imports 325,741 B). The budget is set once, from measured sizes,
+  when the frame lands.

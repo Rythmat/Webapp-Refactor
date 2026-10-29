@@ -88,7 +88,7 @@ function renderCard(events: HistoricalEvent[]) {
     selectedLocation: { type: 'country', name: COUNTRY, iso: 'TST' },
   });
   const wrap = ({ children }: { children: ReactNode }) => (
-    <MemoryRouter initialEntries={['/atlas/globe']}>
+    <MemoryRouter initialEntries={['/globe']}>
       <AtlasNavigationProvider>
         <AtlasStoreProvider store={store}>{children}</AtlasStoreProvider>
       </AtlasNavigationProvider>

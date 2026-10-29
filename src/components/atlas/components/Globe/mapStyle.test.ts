@@ -33,7 +33,7 @@ describe('where the basemap comes from', () => {
     expect(
       basemapFromEnv(
         { VITE_BASEMAP_PMTILES_URL: '/__protomaps/latest.pmtiles' },
-        'http://localhost:5179/atlas/globe?place=city:new-orleans',
+        'http://localhost:5179/globe?place=city:new-orleans',
       ),
     ).toEqual({
       kind: 'pmtiles',

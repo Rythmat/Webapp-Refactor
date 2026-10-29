@@ -36,7 +36,7 @@ function setup() {
     return null;
   };
   render(
-    <MemoryRouter initialEntries={['/atlas/globe']}>
+    <MemoryRouter initialEntries={['/globe']}>
       <AtlasStoreProvider store={store}>
         <AtlasNavigationProvider>
           <AtlasToolbar />

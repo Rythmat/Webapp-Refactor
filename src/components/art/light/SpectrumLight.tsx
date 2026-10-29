@@ -29,6 +29,12 @@ const COMET = KEY_RAINBOW_COLORS.map(
 /** One seamless lap along a line (the bar's shimmer slides it). */
 const LAP = spread([...KEY_RAINBOW_COLORS, KEY_RAINBOW_COLORS[0]]);
 
+/**
+ * The spectrum along a line, end to end and still: a strip that is the app's
+ * rainbow (the Globe's timeline, under its era names).
+ */
+export const SPECTRUM_LINE = `linear-gradient(90deg, ${spread(KEY_RAINBOW_COLORS)})`;
+
 /** The spectrum fading in and out at the ends (a horizon). */
 const FADE = `transparent 0%, ${spread(KEY_RAINBOW_COLORS, 12, 88)}, transparent 100%`;
 

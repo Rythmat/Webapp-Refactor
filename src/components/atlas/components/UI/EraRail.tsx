@@ -6,6 +6,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react';
+import { SPECTRUM_LINE } from '@/components/art/light/SpectrumLight';
 import {
   MUSICAL_ERAS,
   eraWindow,
@@ -50,8 +51,10 @@ type Drag =
 
 /**
  * The years along the bottom, after Dorot's range bar: a thin strip of the
- * eras' colours across the page, the years in view lit between two handles.
- * It grows to show the eras' names while the pointer or focus is on it.
+ * app's rainbow across the page (owner, 2026-10-29: the spectrum of its
+ * working line and lights, art/light, not the eras' colours), the years in
+ * view lit between two handles. It grows to show the eras' names, and ticks
+ * at their bounds, while the pointer or focus is on it.
  * Drag a handle to move one end, drag between them to slide the window,
  * pick an era to fly there.
  *
@@ -192,18 +195,7 @@ export function EraRail() {
   };
 
   const stripe = (
-    <div className="flex h-full w-full">
-      {segments.map((s) => (
-        <div
-          key={s.era.id}
-          className="h-full"
-          style={{
-            width: `${(s.x1 - s.x0) * 100}%`,
-            background: s.era.color,
-          }}
-        />
-      ))}
-    </div>
+    <div className="h-full w-full" style={{ background: SPECTRUM_LINE }} />
   );
 
   const handle =
@@ -228,6 +220,16 @@ export function EraRail() {
         <div className="absolute inset-0 opacity-25">{stripe}</div>
         <div ref={brushRef} className="absolute inset-0">
           {stripe}
+        </div>
+        {/* Where one era gives way to the next, shown with the rail grown. */}
+        <div className="absolute inset-0 opacity-0 transition-opacity duration-200 [transition-timing-function:var(--ease-out)] group-focus-within/rail:opacity-100 group-hover/rail:opacity-100 group-data-[dragging=true]/rail:opacity-100">
+          {segments.slice(1).map((s) => (
+            <div
+              key={s.era.id}
+              className="absolute inset-y-0 w-px bg-atlas-page/70"
+              style={{ left: `${s.x0 * 100}%` }}
+            />
+          ))}
         </div>
       </div>
 

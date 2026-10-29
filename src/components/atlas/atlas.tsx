@@ -30,6 +30,7 @@ import {
   InspectorProvider,
   useInspectorState,
 } from '@/components/atlas/layout/useInspector';
+import { isTimelineView } from '@/components/atlas/navigation/atlasFrame';
 import {
   AtlasNavigationProvider,
   useAtlasFrame,
@@ -60,8 +61,7 @@ const EraRail = lazy(() =>
 );
 
 /** Whether the page is showing the timeline rather than the globe. */
-const useTimelineView = () =>
-  useAtlasFrame((frame) => frame.view === 'timeline');
+const useTimelineView = () => useAtlasFrame(isTimelineView);
 
 class ErrorBoundary extends Component<
   { children: ReactNode },

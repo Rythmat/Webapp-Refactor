@@ -11,7 +11,11 @@ import { PanelLoading } from '@/components/atlas/components/Panels/PanelLoading'
 import { ArtistPanel } from '@/components/atlas/components/UI/ArtistPanel';
 import { DetailsCard } from '@/components/atlas/components/UI/DetailsCard';
 import { SearchResultsPanel } from '@/components/atlas/components/UI/SearchResultsPanel';
-import type { InspectorPanelId } from '@/components/atlas/navigation/atlasFrame';
+import {
+  isMapView,
+  isTimelineView,
+  type InspectorPanelId,
+} from '@/components/atlas/navigation/atlasFrame';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import {
   useAtlasFrame,
@@ -51,7 +55,7 @@ export interface InspectorSlot extends PanelZoneSlot {
  */
 function useDetails(): { key: string; node: ReactNode } | null {
   const stop = useAtlasStop();
-  const timeline = useAtlasFrame((frame) => frame.view === 'timeline');
+  const timeline = useAtlasFrame(isTimelineView);
   const place = useAtlasSelector((s) =>
     s.selectedLocation !== null &&
     (s.activeTour === null || s.pinnedEvent !== null)
@@ -88,10 +92,10 @@ const MAP_PANELS: ReadonlySet<InspectorPanelId> = new Set(['layers', 'legend']);
 
 function useInspector(): InspectorState {
   const navigate = useAtlasNavigate();
-  // A map panel chosen on the map stands down while the timeline shows (it
-  // comes back with the map).
+  // A map panel chosen on the map stands down off the map (it comes back
+  // with the map).
   const choice = useAtlasFrame((frame) =>
-    frame.view === 'timeline' &&
+    !isMapView(frame) &&
     frame.panel !== null &&
     frame.panel !== 'none' &&
     MAP_PANELS.has(frame.panel)

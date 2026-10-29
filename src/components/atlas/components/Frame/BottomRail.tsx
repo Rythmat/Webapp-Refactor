@@ -9,6 +9,10 @@ import {
 import { useIsPhone } from '@/components/atlas/hooks/useMediaQuery';
 import { RAIL_PANELS } from '@/components/atlas/layout/railPanels';
 import {
+  isMapView,
+  isTimelineView,
+} from '@/components/atlas/navigation/atlasFrame';
+import {
   ATLAS_SECTIONS,
   sectionOf,
   type AtlasSectionId,
@@ -167,7 +171,8 @@ function PanelLaunchers({ spin: withSpin }: { spin: boolean }) {
  */
 export function BottomRail() {
   const isPhone = useIsPhone();
-  const timeline = useAtlasFrame((frame) => frame.view === 'timeline');
+  const onMap = useAtlasFrame(isMapView);
+  const river = useAtlasFrame(isTimelineView);
   if (isPhone) {
     // One row: the panels (and the spin) at the left, the views in the rest.
     return (
@@ -176,7 +181,7 @@ export function BottomRail() {
         data-testid="globe-bottom-rail"
         style={{ gridTemplateColumns: 'auto minmax(0, 1fr)' }}
       >
-        <PanelLaunchers spin={!timeline} />
+        <PanelLaunchers spin={onMap} />
         <div className="flex min-w-0 justify-center">
           <ViewTabs short />
         </div>
@@ -190,8 +195,8 @@ export function BottomRail() {
       style={{ gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)' }}
     >
       <div className="flex min-w-0 items-center gap-2" data-zone="map">
-        {!timeline && <SpinToggle />}
-        {!timeline && <AllYears />}
+        {onMap && <SpinToggle />}
+        {!river && <AllYears />}
       </div>
       <ViewTabs short={false} />
       <div className="flex min-w-0 items-center justify-end" data-zone="end" />

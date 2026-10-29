@@ -11,6 +11,7 @@ import {
   AtlasZoneContext,
   type AtlasZone,
 } from '@/components/atlas/layout/zoneContext';
+import { isMapView } from '@/components/atlas/navigation/atlasFrame';
 import { useAtlasFrame } from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
 
@@ -34,8 +35,8 @@ const TOUR: BottomBarSlot = {
 export function useBottomBar(): BottomBarSlot | null {
   const inModule = useAtlasSelector((s) => s.activeModule !== null);
   const inTour = useAtlasSelector((s) => s.activeTour !== null);
-  const timeline = useAtlasFrame((frame) => frame.view === 'timeline');
-  if (timeline) return null;
+  const onMap = useAtlasFrame(isMapView);
+  if (!onMap) return null;
   return inTour ? TOUR : inModule ? PATHWAY : null;
 }
 

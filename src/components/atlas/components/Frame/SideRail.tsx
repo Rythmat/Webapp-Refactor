@@ -7,7 +7,10 @@ import {
   type RailPanel,
 } from '@/components/atlas/layout/railPanels';
 import { useInspectorState } from '@/components/atlas/layout/useInspector';
-import type { InspectorPanelId } from '@/components/atlas/navigation/atlasFrame';
+import {
+  isMapView,
+  type InspectorPanelId,
+} from '@/components/atlas/navigation/atlasFrame';
 import {
   useAtlasFrame,
   useAtlasNavigate,
@@ -23,13 +26,13 @@ import { cn } from '@/lib/utils';
  */
 export function usePanelAvailability() {
   const { hasDetails } = useInspectorState();
-  const timeline = useAtlasFrame((frame) => frame.view === 'timeline');
+  const offMap = useAtlasFrame((frame) => !isMapView(frame));
   const mindmap = useAtlasParams((params) => params.get('mindmap') === '1');
   return {
     shown: (panel: RailPanel) => panel.id !== 'mindmap' || mindmap,
     disabled: (id: InspectorPanelId) =>
       (id === 'details' && !hasDetails) ||
-      ((id === 'layers' || id === 'legend') && timeline),
+      ((id === 'layers' || id === 'legend') && offMap),
   };
 }
 

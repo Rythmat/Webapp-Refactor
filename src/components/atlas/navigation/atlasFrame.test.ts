@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DEFAULT_FRAME,
   applyFrameToSearchParams,
+  DEFAULT_FRAME,
   frameFromSearchParams,
+  isMapView,
+  isTimelineView,
   windowFromSearchParams,
 } from './atlasFrame';
 import { atlasHref } from './atlasHref';
@@ -91,6 +93,15 @@ describe('the frame on the URL', () => {
     expect(applyFrameToSearchParams(next, { open: [] }).has('open')).toBe(
       false,
     );
+  });
+});
+
+describe('views', () => {
+  it('tells the map from the timeline', () => {
+    expect(isMapView({ view: 'map' })).toBe(true);
+    expect(isTimelineView({ view: 'map' })).toBe(false);
+    expect(isMapView({ view: 'timeline' })).toBe(false);
+    expect(isTimelineView({ view: 'timeline' })).toBe(true);
   });
 });
 

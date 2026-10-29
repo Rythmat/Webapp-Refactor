@@ -20,6 +20,7 @@ import {
   usePrefersReducedMotion,
 } from '@/components/atlas/hooks/useMediaQuery';
 import { readInspectorWidth } from '@/components/atlas/layout/inspectorWidth';
+import { isMapView } from '@/components/atlas/navigation/atlasFrame';
 import { useAtlasFrame } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
   useAtlasDispatch,
@@ -164,7 +165,7 @@ function MapCovered({
   map: MapLibreMap;
   coveredRef: MutableRefObject<boolean>;
 }) {
-  const covered = useAtlasFrame((frame) => frame.view === 'timeline');
+  const covered = useAtlasFrame((frame) => !isMapView(frame));
   useEffect(() => {
     const uncovered = coveredRef.current && !covered;
     coveredRef.current = covered;

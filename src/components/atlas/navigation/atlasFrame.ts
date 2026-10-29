@@ -72,6 +72,14 @@ export interface AtlasFrame {
   panel: AtlasPanelChoice;
 }
 
+/** The map's view: the stage shows the globe (Explore). */
+export const isMapView = (frame: Pick<AtlasFrame, 'view'>): boolean =>
+  frame.view === 'map';
+
+/** The timeline's view: the river (Eras, Regions & Cities). */
+export const isTimelineView = (frame: Pick<AtlasFrame, 'view'>): boolean =>
+  frame.view === 'timeline';
+
 export const DEFAULT_FRAME: AtlasFrame = {
   view: 'map',
   lens: 'places',

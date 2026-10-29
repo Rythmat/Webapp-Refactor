@@ -12,6 +12,7 @@ import {
   type MusicalEra,
 } from '@/components/atlas/data/musicalEras';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
+import { isTimelineView } from '@/components/atlas/navigation/atlasFrame';
 import { useAtlasFrame } from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
 import { ATLAS_Z } from '@/components/atlas/theme/layers';
@@ -84,7 +85,7 @@ const OPEN =
 export function EraRail() {
   const camera = useTimeCamera();
   const reducedMotion = usePrefersReducedMotion();
-  const timeline = useAtlasFrame((f) => f.view === 'timeline');
+  const timeline = useAtlasFrame(isTimelineView);
   const filtered = useAtlasSelector((s) => s.timeWindow !== null);
   const segments = useMemo(
     () => railSegments(eraCounts()),

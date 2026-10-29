@@ -8,6 +8,7 @@ import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
 import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
+import { isTimelineView } from '@/components/atlas/navigation/atlasFrame';
 import {
   useAtlasFrame,
   useAtlasNavigate,
@@ -41,7 +42,7 @@ const CLUSTER_PX = 18;
  * which load on demand.
  */
 function useStopEvents(): HistoricalEvent[] {
-  const timeline = useAtlasFrame((frame) => frame.view === 'timeline');
+  const timeline = useAtlasFrame(isTimelineView);
   const inJourney = useAtlasSelector(
     (s) => s.activeTour !== null || s.activeModule !== null,
   );

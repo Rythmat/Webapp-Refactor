@@ -8,7 +8,7 @@ import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
-import { frameFromSearchParams } from './atlasFrame';
+import { frameFromSearchParams, isTimelineView } from './atlasFrame';
 import { stopFromSearchParams, stopKey } from './atlasStop';
 import { consumeFlown, flyToFit, focusEvent } from './focusEvent';
 import { cancelPendingNavigation } from './pendingNavigation';
@@ -54,7 +54,7 @@ export function useAtlasUrlSync(): void {
   // An event opened on the timeline shows on its stage there; the hidden
   // map waits, and goes to it only once it is shown ("Show on the globe"),
   // rather than being left zoomed in on a moment the user never saw on it.
-  const onTimeline = frameFromSearchParams(params).view === 'timeline';
+  const onTimeline = isTimelineView(frameFromSearchParams(params));
   const runKey = stop.kind === 'event' && onTimeline ? `${key}|timeline` : key;
 
   useEffect(() => {

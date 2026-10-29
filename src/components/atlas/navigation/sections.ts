@@ -1,4 +1,4 @@
-import type { AtlasFrame } from './atlasFrame';
+import { isMapView, type AtlasFrame } from './atlasFrame';
 
 /**
  * The Globe's three views, and the frame each one is (navigation/
@@ -53,6 +53,6 @@ export function sectionFrame(
 export function sectionOf(
   frame: Pick<AtlasFrame, 'view' | 'open'>,
 ): AtlasSectionId {
-  if (frame.view === 'map') return 'explore';
+  if (isMapView(frame)) return 'explore';
   return frame.open.length ? 'regions' : 'eras';
 }

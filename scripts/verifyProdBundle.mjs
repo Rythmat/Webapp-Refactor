@@ -34,12 +34,10 @@
  * THE GLOBE STAYS LAZY, AND WITHIN ITS BUDGET
  *
  * The Globe page (/globe) draws with MapLibre GL over a
- * Protomaps basemap (maplibre-gl, pmtiles, @protomaps/basemaps), or, built
- * with VITE_ATLAS_ENGINE=three, with three.js through react-globe.gl; each
+ * Protomaps basemap (maplibre-gl, pmtiles, @protomaps/basemaps), together
  * well over a megabyte. Every one of them gets the same lazy-only rule as
- * Cortex, one marker string each (see LAZY_ONLY); three.js and
- * react-globe.gl are still in a default build through the app's idle
- * warm-up of react-globe.gl (src/contexts/AppContext/AppContext.tsx). The page's own code has a size budget measured
+ * Cortex, one marker string each (see LAZY_ONLY). The page's own code has a
+ * size budget measured
  * from the Globe UI plan's baseline (docs/globe-ui/BASELINE.md): the atlas
  * route chunk
  * (`assets/atlas-*.js`) and everything it imports statically beyond the
@@ -154,10 +152,10 @@ const FORBIDDEN = [
     why: 'Studio UI gallery route (App.tsx)',
   },
   // The Globe page's measuring hook (scripts/measureGlobe.mjs): installed in
-  // BaseGlobe.tsx behind a literal DEV guard.
+  // MapLibreGlobe.tsx behind a literal DEV guard.
   {
     marker: '__atlasGlobeDebug',
-    why: "the Globe page's dev-only measuring hook (Globe/BaseGlobe.tsx)",
+    why: "the Globe page's dev-only measuring hook (Globe/MapLibreGlobe.tsx)",
   },
 ];
 
@@ -173,19 +171,6 @@ const LAZY_ONLY = [
     marker: 'u_atlasNodePositions',
     name: "Cortex's WebGL renderer",
     loadsWith: 'the Cortex page',
-  },
-  {
-    // three.js's WebGL build (three.module.js) logs under this name.
-    marker: 'THREE.WebGLRenderer',
-    name: 'three.js',
-    loadsWith: 'the Atlas Globe page',
-  },
-  {
-    // The container class three-render-objects gives the globe's canvas
-    // (react-globe.gl → globe.gl → three-render-objects).
-    marker: 'scene-container',
-    name: 'react-globe.gl',
-    loadsWith: 'the Atlas Globe page',
   },
   {
     // MapLibre's name for its shared worker pool (maplibre-gl.mjs).
@@ -472,8 +457,8 @@ if (hits.length > 0) {
       'a literal `import.meta.env.DEV` that Vite can statically replace, and\n' +
       "that every import of repo mode code is guarded the same way. Cortex's\n" +
       'graph (its renderer and its dev hook) must load only through the\n' +
-      'lazy Cortex page, and three.js and react-globe.gl only through the\n' +
-      'lazy Globe page.\n',
+      'lazy Cortex page, and the map engine only through the lazy Globe\n' +
+      'page.\n',
   );
   process.exit(1);
 }

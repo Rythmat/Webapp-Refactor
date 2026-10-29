@@ -1,7 +1,6 @@
 import * as Switch from '@radix-ui/react-switch';
 import { X } from 'lucide-react';
 import { useId } from 'react';
-import { CITY_MARK } from '@/components/atlas/components/Globe/engine';
 import {
   ATLAS_FOCUS,
   ATLAS_TRANSITION,
@@ -35,10 +34,7 @@ export const LAYER_OPTIONS: {
   {
     layer: 'cities',
     label: 'Music cities',
-    detail:
-      CITY_MARK === 'name'
-        ? 'Each city with music history, by its name.'
-        : 'A column on each city with music history.',
+    detail: 'Each city with music history, by its name.',
   },
   {
     layer: 'artistPoints',

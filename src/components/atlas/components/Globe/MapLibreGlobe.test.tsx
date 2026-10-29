@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 /**
- * The MapLibre engine against a stand-in map: each kind of click goes where
- * the three.js globe sent it, a flight follows the motion setting, and the
- * details card turns into map padding. The map itself (WebGL, tiles) is
+ * The map against a stand-in for MapLibre: each kind of click goes where it
+ * should, a flight follows the motion setting, and the details card turns
+ * into map padding. The map itself (WebGL, tiles) is
  * mocked; what it draws is covered by the pure tests beside this one.
  */
 import { act, cleanup, render, waitFor } from '@testing-library/react';

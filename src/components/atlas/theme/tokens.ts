@@ -138,10 +138,8 @@ export const ATLAS_TAILWIND_COLORS = Object.fromEntries(
  * (flagColors, continentColors) and are not here.
  */
 export const ATLAS_SCENE = {
-  /** The selected city's column and an artist's event points. */
+  /** An artist's event points. */
   highlight: '#ffffff',
-  /** The selected city's column sides. */
-  highlightSide: 'rgba(255, 255, 255, 0.8)',
   /** The halo around the globe. */
   atmosphere: '#ffffff',
   /** A city with no country colour. */
@@ -149,8 +147,8 @@ export const ATLAS_SCENE = {
   /** Antarctica and Greenland, painted as ice (the MapLibre engine). */
   ice: '#ffffff',
   /**
-   * The sea seen from orbit: the three.js globe's ocean glow (globeVisuals),
-   * which the MapLibre engine paints until the street basemap takes over.
+   * The sea seen from orbit (the earlier three.js globe's ocean glow), which
+   * the map paints until the street basemap takes over.
    */
   ocean: '#33d6ff',
   /** Space around the planet (the `canvas` token, as WebGL needs it). */

@@ -1,6 +1,5 @@
 import { X } from 'lucide-react';
 import { useId, useMemo } from 'react';
-import { CITY_MARK } from '@/components/atlas/components/Globe/engine';
 import {
   legendEntries,
   type LegendSwatch,
@@ -37,13 +36,6 @@ function Swatch({ swatch }: { swatch: LegendSwatch }) {
               .join(', ')})`,
           }}
         />
-      );
-    case 'column':
-      return (
-        <svg className="size-5" viewBox="0 0 20 20">
-          <rect fill={swatch.side} height="11" width="10" x="5" y="7" />
-          <ellipse cx="10" cy="7" fill={swatch.top} rx="5" ry="2.5" />
-        </svg>
       );
     case 'point':
       return (
@@ -123,7 +115,6 @@ export default function LegendPanel({ onClose }: { onClose: () => void }) {
     () =>
       legendEntries({
         layers,
-        cityMark: CITY_MARK,
         statesInView,
         regionSelected,
         cityHighlighted,

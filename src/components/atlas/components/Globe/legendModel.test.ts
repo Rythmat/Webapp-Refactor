@@ -13,8 +13,6 @@ import { legendEntries, type LegendContext } from './legendModel';
 
 const HOME: LegendContext = {
   layers: DEFAULT_LAYERS,
-  // The three.js globe's columns; the MapLibre map's dots are tested below.
-  cityMark: 'column',
   statesInView: false,
   regionSelected: false,
   cityHighlighted: false,
@@ -93,9 +91,6 @@ describe('legend', () => {
       shape: 'fill',
       color: ATLAS_SCENE.landPlain,
     });
-    expect(entry(ctx, 'cities')?.swatch).toMatchObject({
-      top: getContrastColor(ATLAS_SCENE.landPlain),
-    });
   });
 
   it("matches the globe's constants mark by mark", () => {
@@ -114,14 +109,6 @@ describe('legend', () => {
     expect(entry(all, 'selected-region')?.swatch).toEqual({
       shape: 'outline',
       color: ATLAS_SCENE.strokeSelected,
-    });
-    expect(entry(all, 'cities')?.swatch).toMatchObject({
-      top: getContrastColor(getCountryColor('USA')),
-    });
-    expect(entry(all, 'selected-city')?.swatch).toEqual({
-      shape: 'column',
-      top: ATLAS_SCENE.highlight,
-      side: ATLAS_SCENE.highlightSide,
     });
     expect(entry(all, 'artist-points')?.swatch).toEqual({
       shape: 'point',
@@ -152,12 +139,8 @@ describe('legend', () => {
     }
   });
 
-  it('describes names where the map marks cities by name', () => {
-    const names: LegendContext = {
-      ...HOME,
-      cityMark: 'name',
-      cityHighlighted: true,
-    };
+  it('describes cities by their names', () => {
+    const names: LegendContext = { ...HOME, cityHighlighted: true };
     expect(entry(names, 'cities')).toMatchObject({
       detail: expect.stringContaining('select a name to open the city'),
       swatch: { shape: 'label', color: ATLAS_SCENE.label },

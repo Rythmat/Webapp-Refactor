@@ -4,9 +4,8 @@ import { atlasVar } from '@/components/atlas/theme/tokens';
 import type { SelectedLocation } from '@/components/atlas/types';
 
 /**
- * What both globe engines say about what is under the pointer, and what a
- * click on a country or state means. BaseGlobe (three.js) and MapLibreGlobe
- * share these, so a hover label or a place reads the same on either.
+ * What the map says about what is under the pointer, and what a click on a
+ * country or state means, as plain functions the map and its tests share.
  */
 
 /** Event titles carry quotes and ampersands; the labels are set as HTML. */
@@ -37,11 +36,6 @@ export function regionLabel(name: string, isState: boolean): string {
     return `<span style="${LABEL_QUIET}">${escapeHtml(name)}</span>`;
   }
   return `<span style="${LABEL_STRONG};font-size:13px">${escapeHtml(name)}</span>`;
-}
-
-/** The cities in one column, comma-separated. */
-export function citiesLabel(names: readonly string[]): string {
-  return `<span style="${LABEL_STRONG}">${escapeHtml(names.join(', '))}</span>`;
 }
 
 /** An artist's event point. */

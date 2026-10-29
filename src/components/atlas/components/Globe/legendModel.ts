@@ -4,13 +4,7 @@ import {
 } from '@/components/atlas/data/continentColors';
 import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import type { GlobeLayers } from '@/components/atlas/types';
-import type { CityMark } from './engine';
-import {
-  ARTIST_POINT,
-  arcColors,
-  cityBaseColor,
-  cityColumnColors,
-} from './globeLayers';
+import { ARTIST_POINT, arcColors, cityBaseColor } from './globeLayers';
 
 /**
  * The legend's rows: one per kind of mark on the globe right now, each with
@@ -22,7 +16,6 @@ import {
 export type LegendSwatch =
   | { shape: 'continents'; continents: ContinentSwatch[] }
   | { shape: 'fill'; color: string }
-  | { shape: 'column'; top: string; side: string }
   | { shape: 'point'; color: string }
   /** A sample of a city's name, in the colour the map writes it. */
   | { shape: 'label'; color: string }
@@ -49,8 +42,6 @@ export interface LegendEntry {
 /** What is on the globe, as far as the legend needs to know. */
 export interface LegendContext {
   layers: GlobeLayers;
-  /** How cities are marked by this build's engine: a dot or a column. */
-  cityMark: CityMark;
   /** The camera is close enough for state outlines. */
   statesInView: boolean;
   /** A country or state is selected (its outline is bright). */
@@ -109,33 +100,19 @@ export function legendEntries(ctx: LegendContext): LegendEntry[] {
   }
 
   if (layers.cities) {
-    const sample = cityColumnColors(
-      cityBaseColor(SAMPLE_COUNTRY, layers.countryColors),
-    );
-    const selected = cityColumnColors('', true);
-    const names = ctx.cityMark === 'name';
     entries.push({
       id: 'cities',
       label: 'Music cities',
-      detail: names
-        ? 'Each city by its name: select a name to open the city. Towns with events are named too, closer in.'
-        : layers.countryColors
-          ? 'A column on each city, in a shade of its country’s color.'
-          : 'A column on each city.',
-      swatch: names
-        ? { shape: 'label', color: ATLAS_SCENE.label }
-        : { shape: 'column', ...sample },
+      detail:
+        'Each city by its name: select a name to open the city. Towns with events are named too, closer in.',
+      swatch: { shape: 'label', color: ATLAS_SCENE.label },
     });
     if (ctx.cityHighlighted) {
       entries.push({
         id: 'selected-city',
         label: 'Selected city',
-        detail: names
-          ? 'Its name turns warm, and its boundary is outlined.'
-          : 'Its column turns white.',
-        swatch: names
-          ? { shape: 'label', color: ATLAS_SCENE.strokeSelected }
-          : { shape: 'column', ...selected },
+        detail: 'Its name turns warm, and its boundary is outlined.',
+        swatch: { shape: 'label', color: ATLAS_SCENE.strokeSelected },
       });
     }
   }

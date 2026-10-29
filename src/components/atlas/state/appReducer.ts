@@ -21,8 +21,6 @@ export const initialAppState: AppState = {
   timeWindow: null,
   searchFlyTarget: null,
   visibleArcDirections: new Set(),
-  inspectorWidth: null,
-  sheetOcclusion: null,
   globeRotating: false,
   layers: DEFAULT_LAYERS,
   statesInView: false,
@@ -38,14 +36,6 @@ export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'SELECT_LOCATION':
       return { ...state, selectedLocation: action.payload, pinnedEvent: null };
-    case 'SET_INSPECTOR_WIDTH':
-      return state.inspectorWidth === action.payload
-        ? state
-        : { ...state, inspectorWidth: action.payload };
-    case 'SET_SHEET_OCCLUSION':
-      return state.sheetOcclusion === action.payload
-        ? state
-        : { ...state, sheetOcclusion: action.payload };
     case 'SET_GLOBE_ROTATING':
       return state.globeRotating === action.payload
         ? state

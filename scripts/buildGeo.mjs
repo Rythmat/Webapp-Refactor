@@ -85,7 +85,7 @@ const QUANTIZATION = 1e5;
  */
 const STATE_MIN_WEIGHT = 1e-7;
 
-/** The properties the code reads (BaseGlobe, globeVisuals, the thumbnails). */
+/** The properties the code reads (the Globe's map, Home's globe, the thumbnails). */
 const COUNTRY_PROPS = ['NAME', 'ISO_A3', 'ISO_A3_EH', 'ADM0_A3'];
 const STATE_PROPS = ['name', 'iso_a2', 'adm0_a3'];
 

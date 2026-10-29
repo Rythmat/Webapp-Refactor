@@ -81,10 +81,9 @@ export interface MapInsets {
 
 // --- Search fly target ---
 /**
- * What a flight frames, for an engine that can fit it exactly: the MapLibre
- * engine fits a country's or a state's outline, centres a city at a street-map
- * zoom, and fits a set of points (components/Globe/mapFraming.ts). The
- * three.js globe flies to the target's lat/lng/zoom and ignores this.
+ * What a flight frames: the map fits a country's or a state's outline,
+ * centres a city at a street-map zoom, and fits a set of points
+ * (components/Globe/mapFraming.ts).
  */
 export type FlyFrame =
   /** A country's or a US/Canada state's outline. */
@@ -155,17 +154,6 @@ export interface AppState {
   /** Which influence arc directions are visible on the globe */
   visibleArcDirections: Set<'upstream' | 'downstream'>;
   /**
-   * What the Inspector covers of the map's right edge (px) while it is open,
-   * or null. The three.js globe shifts left by half of this so the region
-   * clears it (MapLibre takes it as padding instead, mapInsets).
-   */
-  inspectorWidth: number | null;
-  /**
-   * Height (px) of the phone bottom sheet over the globe's lower part, or
-   * null. The globe shifts up by half of this so the region clears the sheet.
-   */
-  sheetOcclusion: number | null;
-  /**
    * True while the globe is spinning. Only ever set by the user, from the spin
    * control on the globe page — nothing starts it automatically.
    */
@@ -173,8 +161,8 @@ export interface AppState {
   /** Which of the globe's layers are drawn. Per viewer, kept in localStorage. */
   layers: GlobeLayers;
   /**
-   * True while the camera is close enough for state outlines (BaseGlobe's
-   * altitude band), so the legend lists them only when they can show.
+   * True while the camera is close enough for state outlines
+   * (STATES_MIN_ZOOM), so the legend lists them only when they can show.
    */
   statesInView: boolean;
   /**
@@ -203,8 +191,6 @@ export type AppAction =
   | { type: 'TOUR_STEP'; payload: number }
   | { type: 'EXIT_TOUR' }
   | { type: 'SET_WINDOW'; payload: TimeWindow | null }
-  | { type: 'SET_INSPECTOR_WIDTH'; payload: number | null }
-  | { type: 'SET_SHEET_OCCLUSION'; payload: number | null }
   | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' }
   | { type: 'OPEN_INFLUENCE_ARCS' }
   | { type: 'SET_LAYER'; payload: { layer: keyof GlobeLayers; on: boolean } }

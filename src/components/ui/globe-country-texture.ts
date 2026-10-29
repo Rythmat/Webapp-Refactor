@@ -7,7 +7,7 @@ import { loadCountries } from '@/components/atlas/data/geoLoader';
  * transparent). Fed to the patched cobe (`mapTexture`) so the globe's land dots
  * render the same per-country palette as the main Atlas globe.
  *
- * Reuses the same Natural Earth GeoJSON + ISO→colour logic as `BaseGlobe`.
+ * Reuses the same Natural Earth GeoJSON + ISO→colour logic as the Globe page.
  */
 
 // 2048×1024 = power-of-two (required for WebGL1 REPEAT wrap), equirectangular.
@@ -23,7 +23,7 @@ interface Feature {
   geometry?: { type: string; coordinates: unknown } | null;
 }
 
-/** Same precedence as BaseGlobe.resolveIso (ISO_A3 → ISO_A3_EH → ADM0_A3). */
+/** Same precedence as the Globe's resolveIso (ISO_A3 → ISO_A3_EH → ADM0_A3). */
 function resolveIso(props: Record<string, unknown> | null | undefined): string {
   const p = props ?? {};
   const a3 = (p.ISO_A3 ?? p.iso_a3 ?? '') as string;

@@ -121,11 +121,6 @@ function PhoneOverlays() {
   const { slot } = useInspectorState();
   const bottom = useBottomBar();
   const timeline = useTimelineView();
-  const onSheetOcclusion = useCallback(
-    (px: number | null) =>
-      dispatch({ type: 'SET_SHEET_OCCLUSION', payload: px }),
-    [dispatch],
-  );
   // What the overlays cover of the map, for the MapLibre engine's padding
   // and framing (MapPadding, mapFraming.ts).
   const onInsets = useCallback(
@@ -140,7 +135,6 @@ function PhoneOverlays() {
         credit={timeline ? null : CREDIT}
         inspector={slot}
         onInsets={onInsets}
-        onSheetOcclusion={onSheetOcclusion}
       />
     </div>
   );

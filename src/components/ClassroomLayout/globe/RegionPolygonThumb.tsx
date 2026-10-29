@@ -27,7 +27,7 @@ export const useCountryFeatures = (): Feature[] | null =>
   useFeatures(loadCountryFeatures);
 
 // Natural Earth uses -99 for some countries; prefer ISO_A3, then ISO_A3_EH,
-// then ADM0_A3 (matches BaseGlobe.resolveIso so colours line up with the globe).
+// then ADM0_A3 (matches the Globe's resolveIso so colours line up with the map).
 function resolveIso(feat: Feature): string {
   const p = feat.properties as Record<string, string> | null;
   const a3 = p?.ISO_A3 ?? p?.iso_a3 ?? '';

@@ -74,49 +74,6 @@ describe('atlas reducer — globe rotation', () => {
   });
 });
 
-describe('atlas reducer — details panel width', () => {
-  it('records the width the card reports', () => {
-    const next = appReducer(initialAppState, {
-      type: 'SET_INSPECTOR_WIDTH',
-      payload: 480,
-    });
-    expect(next.inspectorWidth).toBe(480);
-  });
-
-  /**
-   * The card's ResizeObserver reports on every layout, and the store notifies
-   * subscribers only when the state object changes — so an unchanged width
-   * must hand back the same state, or the globe's offset re-renders for
-   * nothing.
-   */
-  it('does not churn state identity when the width is unchanged', () => {
-    const wide = appReducer(initialAppState, {
-      type: 'SET_INSPECTOR_WIDTH',
-      payload: 480,
-    });
-    expect(
-      appReducer(wide, { type: 'SET_INSPECTOR_WIDTH', payload: 480 }),
-    ).toBe(wide);
-  });
-});
-
-describe('atlas reducer — phone sheet occlusion', () => {
-  it('records how much of the globe the sheet covers, and clears it', () => {
-    const covered = appReducer(initialAppState, {
-      type: 'SET_SHEET_OCCLUSION',
-      payload: 406,
-    });
-    expect(covered.sheetOcclusion).toBe(406);
-    expect(
-      appReducer(covered, { type: 'SET_SHEET_OCCLUSION', payload: 406 }),
-    ).toBe(covered);
-    expect(
-      appReducer(covered, { type: 'SET_SHEET_OCCLUSION', payload: null })
-        .sheetOcclusion,
-    ).toBeNull();
-  });
-});
-
 describe('atlas reducer — the time window', () => {
   it('starts on all of time', () => {
     expect(initialAppState.timeWindow).toBeNull();

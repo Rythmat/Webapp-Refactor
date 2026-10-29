@@ -5,7 +5,7 @@
    source and a test holds this block to it. The surfaces and text alias the
    app's --ui-* tokens (src/styles/appTheme.css), the secondary text, pills,
    menus and focus the Studio's --daw-* ones; the entity kinds are Cortex's
-   colours. The globe's per-country colours are unaffected (BaseGlobe). */
+   colours. The map's own colours are ATLAS_SCENE's (theme/tokens.ts). */
 
 .atlas-root {
   /* Channels (hsl or rgb), so Tailwind's opacity modifier works on them. */
@@ -37,21 +37,6 @@
   --atlas-pill-text: var(--daw-pill-text);
   --atlas-pill-on: var(--daw-pill-on);
   --atlas-focus: var(--daw-focus);
-}
-
-/* The globe's hover labels (float-tooltip, under react-globe.gl): the
-   Studio's tooltip (src/daw/ui/Tooltip.tsx) instead of the library's grey
-   box. */
-.atlas-root .float-tooltip-kap {
-  padding: 0.375rem 0.625rem;
-  border: 0;
-  border-radius: var(--daw-radius-md);
-  background: var(--daw-float);
-  box-shadow: var(--daw-shadow-menu);
-  color: hsl(var(--atlas-text));
-  font: inherit;
-  font-size: 0.75rem;
-  line-height: 1.35;
 }
 
 /* Respect reduced-motion for the page's own animations. */

@@ -95,7 +95,7 @@ export function targetOf(feature: PickedFeature | null): MapTarget | null {
   }
 }
 
-/** The hover label for `feature`, in the same words as the three.js globe's. */
+/** The hover label for `feature`. */
 export function labelOf(feature: PickedFeature | null): string | null {
   if (!feature) return null;
   const p = feature.properties ?? {};

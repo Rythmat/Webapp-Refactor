@@ -88,7 +88,7 @@ describe('what it opens', () => {
 });
 
 describe('hover labels', () => {
-  it('say what the three.js globe said, escaped', () => {
+  it('say what is under the pointer, escaped', () => {
     expect(labelOf(arc)).toContain('Bebop &amp; &quot;cool&quot; →');
     // A city's name is on the map already: no hover label.
     expect(labelOf(nola)).toBeNull();

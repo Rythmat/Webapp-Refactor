@@ -77,11 +77,9 @@ import { useGlobeClicks, useGlobeScene } from './useGlobeScene';
 /**
  * The Globe page's map on MapLibre GL (docs/globe-ui/ENGINE.md): a 3-D globe
  * that zooms from the whole planet down to street level over a Protomaps
- * basemap, drawing what BaseGlobe (three.js) drew — coloured countries, the
- * US/Canada states, the music cities (as dots, where three.js raised
- * columns), an artist's points and influence arcs —
- * from the same state (useGlobeScene) and answering clicks the same way
- * (useGlobeClicks).
+ * basemap, drawing coloured countries, the US/Canada states, the music
+ * cities, an artist's points and influence arcs from the page's state
+ * (useGlobeScene), and answering clicks (useGlobeClicks).
  *
  * The map is made once. Everything after that reaches it through setData,
  * feature-state and the camera, never a new map, so a selection or a layer
@@ -91,7 +89,7 @@ import { useGlobeClicks, useGlobeScene } from './useGlobeScene';
 /** Full device pixel ratio on a full-viewport canvas is 2-3x the pixels we need. */
 const MAX_PIXEL_RATIO = 1.5;
 
-/** The camera before any fly: the three.js globe's default, altitude 2.5. */
+/** The camera before any fly: altitude 2.5 (the earlier three.js globe's start). */
 const START = { lat: 20, lng: 0, altitude: 2.5 };
 
 /** How long a framed flight waits for the panel it opens to be measured. */
@@ -123,8 +121,7 @@ const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] };
 /**
  * The page's overlays cover the map's edges (the left panel, the controls,
  * the timeline, the phone's sheet; MapInsets, measured by the layout); the
- * map's padding keeps its centre in what is left, as the three.js globe's
- * lens shift did. Flights land with the same padding (mapFraming.ts), so
+ * map's padding keeps its centre in what is left. Flights land with the same padding (mapFraming.ts), so
  * once a panel they opened is measured, nothing moves. A component of its
  * own, subscribed to the insets alone, so dragging the card's edge
  * re-renders this and not the map's owner (the measuring script counts
@@ -624,7 +621,7 @@ export default function MapLibreGlobe() {
   }, []);
 
   /**
-   * Spin: the centre drifts west at the three.js globe's pace while nothing
+   * Spin: the centre drifts west at the earlier globe's pace while nothing
    * else moves the map. A drag, a zoom or a flight pauses it (MapLibre is
    * moving), and it carries on from wherever that left the globe. Only the
    * Spin control starts it; it starts off for everyone.
@@ -665,8 +662,7 @@ export default function MapLibreGlobe() {
   }, [map, hasArcs, reducedMotion]);
 
   // Dev server only: lets scripts/measureGlobe.mjs aim the camera and find a
-  // city on screen, the same hook the three.js engine installs. The literal
-  // DEV guard folds it out of production builds (verifyProdBundle.mjs checks).
+  // city on screen. The literal DEV guard folds it out of production builds (verifyProdBundle.mjs checks).
   useEffect(() => {
     if (!import.meta.env.DEV || !map) return;
     const w = window as unknown as { __atlasGlobeDebug?: unknown };

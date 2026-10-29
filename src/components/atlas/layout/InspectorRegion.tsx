@@ -127,8 +127,7 @@ function InspectorResizer({
  * its width and its focus survive one panel giving way to another.
  *
  * The map makes room for it through its padding (SET_MAP_INSETS, MapLibre's
- * `padding`), so the canvas never resizes while it is dragged; the
- * three.js engine shifts its globe instead (SET_INSPECTOR_WIDTH).
+ * `padding`), so the canvas never resizes while it is dragged.
  */
 export function InspectorRegion() {
   return <InspectorView slot={useInspectorState().slot} />;
@@ -164,16 +163,10 @@ export function InspectorView({ slot }: { slot: InspectorSlot | null }) {
     return () => ro.disconnect();
   }, [ref]);
 
-  // What it covers of the map, for the map's padding and framing; its width,
-  // for the three.js engine's offset.
+  // What it covers of the map, for the map's padding and framing.
   const onInsets = useCallback(
-    (insets: { top: number; right: number; bottom: number; left: number }) => {
-      dispatch({ type: 'SET_MAP_INSETS', payload: insets });
-      dispatch({
-        type: 'SET_INSPECTOR_WIDTH',
-        payload: insets.right > 0 ? insets.right : null,
-      });
-    },
+    (insets: { top: number; right: number; bottom: number; left: number }) =>
+      dispatch({ type: 'SET_MAP_INSETS', payload: insets }),
     [dispatch],
   );
   useReportInsets(

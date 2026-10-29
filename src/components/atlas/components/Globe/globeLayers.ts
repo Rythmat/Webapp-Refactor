@@ -8,14 +8,14 @@ import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import type { GlobeLayers } from '@/components/atlas/types';
 
 /**
- * What the globe draws, and in which colours, as plain functions: BaseGlobe
+ * What the map draws, and in which colours, as plain functions: the map
  * draws from them and the legend (legendModel.ts) explains them from the
  * same values, so the two cannot drift apart.
  *
- * The Layers control switches a layer off by handing the globe no data for
- * it, never by remounting the globe. Each function gives back the very array
+ * The Layers control switches a layer off by handing the map no data for
+ * it, never by remounting the map. Each function gives back the very array
  * it was handed (or one shared empty array), so a layer that did not change
- * keeps its identity and react-globe.gl leaves it alone.
+ * keeps its identity and its source is left alone.
  */
 
 /** One shared empty layer, so "off" is the same array every time. */
@@ -48,7 +48,7 @@ export interface ArtistPoint {
   eventId: string;
 }
 
-/** Whether a city column holding `points` is drawn white. */
+/** Whether a city holding `points` is highlighted. */
 export const isCityHighlighted = (
   points: readonly Pick<CityPoint, 'id' | 'name'>[],
   selectedCityId: string | null,
@@ -85,9 +85,8 @@ export function resolveIso(feat: Pick<Feature, 'properties'>): string {
 }
 
 /**
- * The colour a country or a US/Canada state is filled with (MapLibre's
- * engine; the three.js globe's materials in globeVisuals.ts agree): a state
- * takes its country's, the ice caps are white.
+ * The colour a country or a US/Canada state is filled with: a state takes
+ * its country's, the ice caps are white.
  */
 export function regionColor(
   feat: Pick<Feature, 'properties'>,
@@ -103,28 +102,13 @@ export function regionColor(
     : landColor(iso, countryColors);
 }
 
-/** A city column's base: its country's colour (or the plain land's). */
+/** A city's base colour: its country's (or the plain land's). */
 export function cityBaseColor(
   iso: string | undefined,
   countryColors: boolean,
 ): string {
   if (!countryColors) return ATLAS_SCENE.landPlain;
   return iso ? getCountryColor(iso) : ATLAS_SCENE.fallback;
-}
-
-/**
- * A city column stands out from its own land: a lighter shade on dark land,
- * a darker one on light land. The selected city is white.
- */
-export function cityColumnColors(
-  base: string,
-  highlighted = false,
-): { top: string; side: string } {
-  if (highlighted) {
-    return { top: ATLAS_SCENE.highlight, side: ATLAS_SCENE.highlightSide };
-  }
-  const shade = getContrastColor(base);
-  return { top: shade, side: `${shade}cc` };
 }
 
 /** An artist's moments: small white points. */
@@ -147,19 +131,7 @@ export function arcColors(
 
 /* ── Layers ──────────────────────────────────────────────────────────────── */
 
-/** Country polygons, with the state outlines added while they are in view. */
-export function visiblePolygons<F>(
-  layers: GlobeLayers,
-  countries: F[],
-  states: F[],
-  statesInView: boolean,
-): F[] {
-  return layers.states && statesInView && states.length > 0
-    ? [...countries, ...states]
-    : countries;
-}
-
-/** The city columns, or none. */
+/** The music cities, or none. */
 export function visibleCityPoints<P>(layers: GlobeLayers, points: P[]): P[] {
   return layers.cities ? points : none<P>();
 }

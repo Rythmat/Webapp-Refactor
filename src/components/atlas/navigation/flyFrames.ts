@@ -1,8 +1,8 @@
 import type { FlyFrame, SelectedLocation } from '@/components/atlas/types';
 
 /**
- * The frames navigation asks the MapLibre engine for (FlyFrame). Each flight
- * also keeps the lat/lng/zoom the three.js globe flies to.
+ * The frames navigation asks the map for (FlyFrame). Each flight also keeps
+ * a lat/lng/zoom, which the map uses when a frame can't be fitted.
  */
 
 /**

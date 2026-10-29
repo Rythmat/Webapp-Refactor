@@ -9,6 +9,7 @@ import {
   cityPointCollection,
   cssColor,
   distanceKm,
+  flightDuration,
   flyZoom,
   greatCircle,
   mapZoomToAltitude,
@@ -19,6 +20,13 @@ import {
 
 /** A laptop's map area, under the app bar and the Globe's top bar. */
 const H = 775;
+
+describe('camera flights', () => {
+  it('cut under reduced motion, and fly for 1.5 s otherwise', () => {
+    expect(flightDuration(true)).toBe(0);
+    expect(flightDuration(false)).toBe(1500);
+  });
+});
 
 describe('zoom mapping', () => {
   it('keeps the three.js altitudes for the page zooms', () => {

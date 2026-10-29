@@ -7,13 +7,10 @@
  *                                 [--base=http://localhost:5266]
  *                                 [--skip-bundle] [--skip-browser]
  *                                 [--cpu=4] [--gpu=metal|swiftshader]
- *                                 [--engine=maplibre|three]
  *                                 [--headed] [--out=file.json]
  *
- * `--engine` picks the Globe's map engine (docs/globe-ui/ENGINE.md) for the
- * dev server and the build it starts; a reused server (`--base`) runs
- * whichever it was started with. The MapLibre engine draws its street map
- * only with a tile source in the environment (VITE_BASEMAP_PMTILES_URL or
+ * The map (docs/globe-ui/ENGINE.md) draws its street map only with a tile
+ * source in the environment (VITE_BASEMAP_PMTILES_URL or
  * VITE_PROTOMAPS_API_KEY), which the dev server and the build inherit.
  *
  * Two parts, each skippable:
@@ -25,8 +22,8 @@
  * per run, in a fresh browser context:
  *
  * - first globe frame: from navigation start to the first animation frame
- *   after the engine's `atlas:globe-ready` mark (react-globe.gl initialised,
- *   or MapLibre's first complete frame, basemap tiles included);
+ *   after the map's `atlas:globe-ready` mark (MapLibre's first complete
+ *   frame, basemap tiles included);
  * - map bytes: what the page downloads that is not code — tiles, fonts,
  *   icons, outlines — until 2 s after that mark, by kind;
  * - frame rate with Spin on: frames from requestAnimationFrame over 10 s,
@@ -53,7 +50,7 @@
  * times (4 by default, the studio-perf Chromebook profile's rate;
  * `--cpu=1` turns it off): unthrottled, a fast laptop shows no long tasks
  * at all, and the baseline could not show later work improving anything.
- * The same three windows also count React commits and BaseGlobe renders
+ * The same three windows also count React commits and MapLibreGlobe renders
  * (through a minimal React DevTools hook the page sees as DevTools), which
  * is how "the globe re-renders while the card is dragged" is measured.
  *
@@ -68,8 +65,8 @@
  * raw data, reporting the atlas route chunk and every chunk the page loads
  * (raw and gzip level 9): the entry's (index.html and its preloads), the
  * route's (atlas.tsx and its static imports), and the chunks it imports
- * dynamically, react-globe.gl on first render and the rest on demand. It
- * names the chunks that hold three.js and react-globe.gl.
+ * dynamically, the map engine on first render and the rest on demand. It
+ * names the chunks that hold the map's renderer packages.
  *
  * Output: docs/globe-ui/runs/latest.json (git-ignored) unless --out, and,
  * with --baseline, docs/globe-ui/baseline.json. A run prints its numbers
@@ -109,8 +106,6 @@ const HEADED = args.headed === 'true';
 /** CPU slow-down for the interaction steps (card, drag, search); 1 = none. */
 const CPU = Number(args.cpu ?? 4);
 const OUT = resolve(args.out ?? join(DOCS, 'runs/latest.json'));
-/** The Globe's map engine for the server and the build this script starts. */
-const ENGINE = args.engine === 'three' ? 'three' : 'maplibre';
 
 if (PORT === OWNER_PORT) {
   console.error(
@@ -127,8 +122,6 @@ const CITY = {
   lng: -90.0715,
   altitude: 1.4,
 };
-/** BaseGlobe's hexAltitude: the top of a city's column. */
-const HEX_ALTITUDE = 0.018;
 const SEARCH_TEXT = 'louis armstrong';
 
 /* ── Shared ──────────────────────────────────────────────────────────── */
@@ -232,19 +225,14 @@ async function openGlobe(browser, base) {
   await context.addInitScript(() => {
     window.__measure = { longTasks: [], frames: [], commits: [], globe: [] };
     // A minimal React DevTools hook: React reports every commit to it. A
-    // commit counts as a BaseGlobe render when the globe's fiber is a new
+    // commit counts as a map render when the map's fiber is a new
     // object that did work (PerformedWork, flag 1) in that commit.
     let lastGlobeFiber = null;
     const findGlobe = (fiber) => {
       const stack = [fiber];
       while (stack.length) {
         const node = stack.pop();
-        if (
-          node.type?.name === 'BaseGlobe' ||
-          node.type?.name === 'MapLibreGlobe'
-        ) {
-          return node;
-        }
+        if (node.type?.name === 'MapLibreGlobe') return node;
         if (node.sibling) stack.push(node.sibling);
         if (node.child) stack.push(node.child);
       }
@@ -353,7 +341,7 @@ function mapKind(url) {
 
 const tasksNow = (page) =>
   page.evaluate(() => window.__measure.longTasks.slice());
-/** React commits and BaseGlobe renders within `[from, to]`. */
+/** React commits and MapLibreGlobe renders within `[from, to]`. */
 const rendersIn = (page, from, to) =>
   page.evaluate(
     ([a, b]) => ({
@@ -425,7 +413,7 @@ async function runOnce(browser, base, index) {
     usedAfterGcMB: +(heapAfterGcBytes / 1e6).toFixed(1),
   };
 
-  // 4. Click New Orleans' hex; time to its card. From here on the CPU runs
+  // 4. Click New Orleans' name; time to its card. From here on the CPU runs
   // slowed down (--cpu), so the main-thread cost of each step shows.
   if (CPU > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: CPU });
   await page.evaluate(
@@ -435,15 +423,15 @@ async function runOnce(browser, base, index) {
   );
   await page.waitForTimeout(1500);
   const spot = await page.evaluate(
-    ({ lat, lng, alt }) => window.__atlasGlobeDebug.screenOf(lat, lng, alt),
-    { lat: CITY.lat, lng: CITY.lng, alt: HEX_ALTITUDE },
+    ({ lat, lng }) => window.__atlasGlobeDebug.screenOf(lat, lng),
+    { lat: CITY.lat, lng: CITY.lng },
   );
   // The globe's canvas starts below the toolbar; screenOf is in its pixels.
   const canvasBox = await page.locator('canvas').first().boundingBox();
   const x = canvasBox.x + spot.x;
   const y = canvasBox.y + spot.y;
   await page.mouse.move(x, y);
-  // globe.gl picks the hovered object in its render loop; clicks use it.
+  // Let the map register the pointer before the click.
   await page.waitForTimeout(400);
   await page.evaluate((name) => {
     window.__measure.card = new Promise((done) => {
@@ -622,7 +610,6 @@ async function measureBrowser() {
       env: {
         ...PLACEHOLDER_ENV,
         VITE_DEV_AUTH_BYPASS: '1',
-        VITE_ATLAS_ENGINE: ENGINE,
         // Its own dep cache, so it never re-optimizes under the owner's server.
         VITE_CACHE_DIR: join(ROOT, 'node_modules/.vite-measure-globe'),
       },
@@ -648,7 +635,6 @@ async function measureBrowser() {
     }
     return {
       server: args.base ? `reused ${args.base}` : `vite dev on ${PORT}`,
-      engine: args.base ? 'as the reused server runs' : ENGINE,
       browser: `Chrome ${browser.version()}${HEADED ? ' (headed)' : ' (headless)'}`,
       gpu: { mode: GPU, renderer: gpu, ...SCREEN },
       cpuThrottle: CPU,
@@ -670,7 +656,6 @@ function build(tmp) {
   const env = {
     ...process.env,
     ...PLACEHOLDER_ENV,
-    VITE_ATLAS_ENGINE: ENGINE,
     ANALYZE: '1',
     ANALYZE_JSON: join(tmp, 'bundle-raw.json'),
     ANALYZE_OUT: join(tmp, 'bundle.html'),
@@ -708,26 +693,11 @@ function staticClosure(manifest, key, seen = new Set()) {
   return seen;
 }
 
-/** Packages whose code marks the globe's renderer, for "where is three.js". */
-const RENDERER_PACKAGES = [
-  'three',
-  'react-globe.gl',
-  'globe.gl',
-  'three-globe',
-  'maplibre-gl',
-  'pmtiles',
-  '@protomaps/basemaps',
-];
+/** Packages whose code marks the map's renderer, for "where is MapLibre". */
+const RENDERER_PACKAGES = ['maplibre-gl', 'pmtiles', '@protomaps/basemaps'];
 
-/**
- * The modules that load with the first render: the build's engine and its
- * renderer. The bundler keeps the other engine as a lazy chunk too, but
- * only this one is ever loaded.
- */
-const FIRST_RENDER =
-  ENGINE === 'three'
-    ? /node_modules\/react-globe\.gl|components\/Globe\/BaseGlobe\.tsx/
-    : /components\/Globe\/MapLibreGlobe\.tsx/;
+/** The modules that load with the first render: the map engine. */
+const FIRST_RENDER = /components\/Globe\/MapLibreGlobe\.tsx/;
 
 async function measureBundle() {
   const tmp = mkdtempSync(join(tmpdir(), 'measure-globe-'));
@@ -776,8 +746,8 @@ async function measureBundle() {
         if (!loaded.has(next)) dynamicKeys.add(next);
       }
     }
-    // The engine loads on the first render and loads its renderer in turn
-    // (BaseGlobe → react-globe.gl): that is first render too.
+    // The engine loads on the first render, and whatever it loads in turn
+    // with it: that is first render too.
     for (const key of [...dynamicKeys]) {
       if (!FIRST_RENDER.test(key)) continue;
       for (const next of manifest[key].dynamicImports ?? []) {
@@ -789,12 +759,10 @@ async function measureBundle() {
         (k) => !loaded.has(k),
       );
       const when = FIRST_RENDER.test(key)
-        ? `first render (${ENGINE} engine)`
-        : /components\/Globe\/(BaseGlobe|MapLibreGlobe)\.tsx/.test(key)
-          ? 'never (the other engine)'
-          : key.includes('MindMap')
-            ? 'only with ?mindmap=1'
-            : 'on demand';
+        ? 'first render (the map engine)'
+        : key.includes('MindMap')
+          ? 'only with ?mindmap=1'
+          : 'on demand';
       return { key, when, adds };
     });
 
@@ -850,7 +818,6 @@ async function measureBundle() {
       RENDERER_PACKAGES.map((pkg) => [pkg, Object.keys(homes[pkg])]),
     );
     return {
-      engine: ENGINE,
       routeChunk: {
         file: routeChunk.file,
         rawBytes: routeChunk.rawBytes,

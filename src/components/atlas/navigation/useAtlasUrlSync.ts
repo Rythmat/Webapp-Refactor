@@ -2,8 +2,6 @@ import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { MUSIC_HISTORY } from '@/components/atlas/data';
 import { getEventsForArtist } from '@/components/atlas/data/artists';
-// Each hook by its own file: the hooks barrel also carries three.js's
-// lighting hook, which would then load with the route.
 import { useStartPathway } from '@/components/atlas/hooks/useStartPathway';
 import { useStartTour } from '@/components/atlas/hooks/useStartTour';
 import {
@@ -85,7 +83,7 @@ export function useAtlasUrlSync(): void {
 
       case 'artist': {
         // The artist panel replaces the details card, so clear the region; the
-        // artist's own pins are drawn by BaseGlobe from the same URL.
+        // artist's own points are drawn by the map from the same URL.
         dispatch({ type: 'SELECT_LOCATION', payload: null });
         const fly = flyToFit(
           getEventsForArtist(stop.artist).map((e) => e.location),

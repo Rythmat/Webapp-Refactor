@@ -1,26 +1,23 @@
 # The Globe's map engine
 
-The Globe page (`/globe`) can draw its map with either of two
-engines, chosen when the app is built:
+The Globe page (`/globe`) draws its map with MapLibre GL 6 in globe
+projection, over a Protomaps vector basemap: from the whole planet down to
+street level, with real place, road and park labels.
 
-| `VITE_ATLAS_ENGINE`  | Engine                                                                     | Zooms to                                            |
-| -------------------- | -------------------------------------------------------------------------- | --------------------------------------------------- |
-| `maplibre` (default) | MapLibre GL 6 in globe projection, over a Protomaps vector basemap         | street level, with real place, road and park labels |
-| `three`              | the earlier three.js globe (react-globe.gl), with raised arcs and lighting | country outlines only (Natural Earth, 1:110m)       |
+It draws continent-coloured countries, US/Canada state outlines, a mark on
+each music city (white when selected), an artist's event points and a pinned
+event's influence arcs. The code is in
+`src/components/atlas/components/Globe/`: `AtlasGlobe.tsx` loads the engine,
+`MapLibreGlobe.tsx` is the engine, and `useGlobeScene.ts` and
+`globeLabels.ts` hold what it draws from.
 
-Both draw the same things from the same state: continent-coloured countries,
-US/Canada state outlines, a mark on each music city (white when selected),
-an artist's event points and a pinned event's influence arcs. The MapLibre
-engine marks a city with a dot; the three.js engine raises a column. Both
-answer clicks the same way and keep every URL and deep link. The code is in
-`src/components/atlas/components/Globe/`: `engine.ts` reads the flag,
-`AtlasGlobe.tsx` loads the engine, `MapLibreGlobe.tsx` and `BaseGlobe.tsx`
-are the two engines, and `useGlobeScene.ts` and `globeLabels.ts` hold what
-they share.
+The engine loads only with the Globe page. `scripts/verifyProdBundle.mjs`
+fails the build check if maplibre-gl, pmtiles or @protomaps/basemaps appear
+in an entry chunk.
 
-Either engine loads only with the Globe page. `scripts/verifyProdBundle.mjs`
-fails the build check if maplibre-gl, pmtiles, @protomaps/basemaps, three.js
-or react-globe.gl appear in an entry chunk.
+The earlier three.js globe (react-globe.gl), kept until 2026-10-29 as a
+rollback behind `VITE_ATLAS_ENGINE=three`, is retired. Its code is in git:
+`git log -- src/components/atlas/components/Globe/BaseGlobe.tsx`.
 
 ## What the MapLibre engine draws
 
@@ -112,14 +109,11 @@ zooms states and cities are seen from, and gives continent-sized countries
 a little extra room. MapLibre's own `cameraForBounds` sized a region's
 height a third too small under the globe projection, so it isn't used.
 
-The three.js engine keeps its own camera: it flies to each target's
-lat/lng/zoom and ignores the frame.
-
 ## Tiles
 
 Without a tile source, the MapLibre engine still works: it draws the Globe's
-own country outlines on the cyan sea at every zoom, like the three.js globe,
-with no streets or labels. To get the street map, set **one** of these at build time. Neither is
+own country outlines on the cyan sea at every zoom, with no streets or
+labels. To get the street map, set **one** of these at build time. Neither is
 a secret. A self-hosted file wins if both are set.
 
 ### Option A: a self-hosted `.pmtiles` file (`VITE_BASEMAP_PMTILES_URL`)
@@ -247,20 +241,11 @@ with `es`, and in English otherwise. The app has no global language setting
 yet, only per-classroom teacher settings. When it gets one, pass it to
 `basemapLang` in `MapLibreGlobe.tsx`.
 
-## Switching back to the three.js globe
+## Measuring
 
-Set `VITE_ATLAS_ENGINE=three` in Vercel's environment variables and
-redeploy. That is the whole rollback: the build then carries the three.js
-engine instead, with no code change and no change to URLs. Unset it, or set
-it to `maplibre`, to switch back. Locally:
-
-```sh
-VITE_ATLAS_ENGINE=three VITE_DEV_AUTH_BYPASS=1 npx vite
-```
-
-To measure either engine, run `node scripts/measureGlobe.mjs --engine=three`
-or `--engine=maplibre`. Set a tile variable in the environment to include
-the basemap. See [BASELINE.md](BASELINE.md).
+`node scripts/measureGlobe.mjs` measures the page (see
+[BASELINE.md](BASELINE.md)). Set a tile variable in the environment to
+include the basemap.
 
 ## Seeing the street map on this machine
 

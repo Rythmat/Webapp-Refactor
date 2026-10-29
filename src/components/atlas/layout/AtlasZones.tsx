@@ -35,11 +35,6 @@ export interface PhoneZonesProps {
   credit?: ReactNode | null;
   /** What the zones cover of the map, whenever it changes (MapInsets). */
   onInsets?: (insets: MapInsets) => void;
-  /**
-   * How much of the globe the sheet covers (px), so the globe can rise clear
-   * of it: its height at peek and half, nothing at full or closed.
-   */
-  onSheetOcclusion?: (px: number | null) => void;
 }
 
 /** What each zone tells a test or a screenshot script it is. */
@@ -101,7 +96,6 @@ export function PhoneZones({
   bottom,
   credit,
   onInsets,
-  onSheetOcclusion,
 }: PhoneZonesProps) {
   const sheetRef = usePanelZone<HTMLDivElement>(inspector);
   const [snap, setSnap] = useState<SheetSnap>('half');
@@ -125,12 +119,6 @@ export function PhoneZones({
   // A full sheet covers the map, and the credit with it.
   const showCredit = !!credit && !(open && snap === 'full');
   const stackBottom = !open ? 8 : bar ? SHEET_PEEK_PX + 16 : sheetPx + 8;
-
-  // Closed, the sheet covers nothing.
-  useEffect(() => {
-    if (!open) onSheetOcclusion?.(null);
-  }, [open]);
-  useEffect(() => () => onSheetOcclusion?.(null), []);
 
   // What covers the map: along the bottom the bar (with the credit) or the
   // sheet, which at full covers it all and leaves nothing to frame.
@@ -183,7 +171,6 @@ export function PhoneZones({
             label={inspector.title}
             snap={snap}
             onHeight={(px) => {
-              onSheetOcclusion?.(snap === 'full' ? null : px);
               if (credit) setSheetPx(px);
             }}
             onSnap={setSnap}

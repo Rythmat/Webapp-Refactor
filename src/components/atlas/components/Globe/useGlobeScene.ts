@@ -30,11 +30,10 @@ import {
 } from './globeLayers';
 
 /**
- * What the globe shows, whichever engine draws it (three.js in BaseGlobe,
- * MapLibre in MapLibreGlobe): the cities, an artist's points, a pinned
- * event's arcs, and what is selected. Each value keeps its identity until
- * what it depends on changes, which react-globe.gl relies on (a new array
- * rebuilds a layer) and MapLibre's sources are spared a needless setData.
+ * What the map shows (MapLibreGlobe): the cities, an artist's points, a
+ * pinned event's arcs, and what is selected. Each value keeps its identity
+ * until what it depends on changes, so MapLibre's sources are spared a
+ * needless setData.
  */
 
 export function useGlobeScene() {

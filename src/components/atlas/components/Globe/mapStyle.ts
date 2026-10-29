@@ -14,7 +14,7 @@ import {
   landSources,
 } from './landLayers';
 import { mapFontFaces } from './mapFonts';
-import { PLACE_LAYER, placeLayers } from './placeLayers';
+import { PLACE_LAYER, SUN_SOURCE, placeLayers } from './placeLayers';
 
 /**
  * The map's style, built in code: the Globe's own layers (the coloured
@@ -92,6 +92,7 @@ export function overlaySources(): Record<string, SourceSpecification> {
     } as SourceSpecification,
     [SOURCE.artistPoints]: emptyCollection(),
     [SOURCE.arcs]: emptyCollection(),
+    [SUN_SOURCE]: emptyCollection(),
   };
 }
 

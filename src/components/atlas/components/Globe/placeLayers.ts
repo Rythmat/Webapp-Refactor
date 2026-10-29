@@ -20,6 +20,8 @@ export const PLACE_LAYER = {
   halo: 'atlas-place-halo',
   dot: 'atlas-place-dot',
   hit: 'atlas-place-hit',
+  sunBloom: 'atlas-sun-bloom',
+  sunCore: 'atlas-sun-core',
   /** The chips: the city names' layer, as it always was. */
   labels: 'atlas-city-labels',
 } as const;
@@ -82,7 +84,14 @@ const townFilter: ExpressionSpecification = [
   ['>=', ['zoom'], TOWNS_FROM],
 ];
 
-/** The places' layers: halos, dots, the hit areas, then the chips on top. */
+/** The selected place's light: one point, where the stop is. */
+export const SUN_SOURCE = 'atlas-sun';
+
+/**
+ * The places' layers: halos, dots, the hit areas, the selected place's
+ * light (its "sun": a bloom and a white core, still; its burst and pulse are
+ * the page's, SunFx), then the chips on top.
+ */
 export function placeLayers(
   source: string,
   textScale = 1,
@@ -136,6 +145,29 @@ export function placeLayers(
       source,
       filter: townFilter,
       paint: { 'circle-radius': 12, 'circle-opacity': 0 },
+    },
+    {
+      id: PLACE_LAYER.sunBloom,
+      type: 'circle',
+      source: SUN_SOURCE,
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 18, 6, 30],
+        'circle-color': ATLAS_SCENE.sunBloom,
+        'circle-blur': 1,
+        'circle-pitch-alignment': 'map',
+      },
+    },
+    {
+      id: PLACE_LAYER.sunCore,
+      type: 'circle',
+      source: SUN_SOURCE,
+      paint: {
+        'circle-radius': 5,
+        'circle-color': ATLAS_SCENE.sunCore,
+        'circle-stroke-width': 2,
+        'circle-stroke-color': ATLAS_SCENE.dotRing,
+        'circle-pitch-alignment': 'map',
+      },
     },
     {
       id: PLACE_LAYER.labels,

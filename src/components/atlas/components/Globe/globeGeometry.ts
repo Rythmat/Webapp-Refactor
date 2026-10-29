@@ -12,13 +12,15 @@ const MAX_LAT = 85.051129;
 
 /**
  * The globe's radius in px (MapLibre's getGlobeRadiusPixels): the world's
- * width at this zoom over 2π, scaled as Mercator scales the centre's
- * latitude.
+ * width at this zoom over 2π, over the cosine of the centre's latitude (a
+ * zoom names the same scale at the centre as Mercator's would, so the globe
+ * is drawn bigger looking toward the poles).
  */
 export function globeRadiusPx(zoom: number, centerLat: number): number {
   const worldSize = 512 * 2 ** zoom;
   return (
-    (worldSize / (2 * Math.PI)) *
+    worldSize /
+    (2 * Math.PI) /
     Math.cos(rad(Math.min(Math.abs(centerLat), MAX_LAT)))
   );
 }
@@ -85,4 +87,17 @@ export function globeDisc(view: {
     cy: padding.top + (height - padding.top - padding.bottom) / 2,
     r: d / Math.sqrt(D * D - 1),
   };
+}
+
+/**
+ * How visible the globe's rim is: whole while the globe fits well inside
+ * the view, gone once it fills the view's diagonal (there is no limb left
+ * to draw a rim on).
+ */
+export function rimOpacity(r: number, width: number, height: number): number {
+  const full = 0.55 * Math.min(width, height);
+  const gone = 0.5 * Math.hypot(width, height);
+  if (r <= full) return 1;
+  if (r >= gone) return 0;
+  return 1 - (r - full) / (gone - full);
 }

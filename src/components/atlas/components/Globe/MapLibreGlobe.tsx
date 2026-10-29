@@ -2,9 +2,12 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useRef } from 'react';
 import { useGeoData } from '@/components/atlas/hooks/useGeoData';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
+import { useStageSignals } from '@/components/atlas/state/stageSignals';
 import type { MapInsets } from '@/components/atlas/types';
+import { GlobeRim } from './GlobeRim';
 import { GlobeStatus } from './GlobeStatus';
 import { MapCovered, MapPadding } from './MapPadding';
+import { SunFx } from './SunFx';
 import { NO_INSETS } from './mapFraming';
 import { useProvideMapHandle } from './mapHandle';
 import { useArcLayers } from './useArcLayers';
@@ -16,6 +19,7 @@ import { useMapPointer } from './useMapPointer';
 import { useMotionGate } from './useMotionGate';
 import { usePlaceLayers } from './usePlaceLayers';
 import { useSpin } from './useSpin';
+import { useSun } from './useSun';
 
 /**
  * The Globe page's map on MapLibre GL (docs/globe-ui/ENGINE.md): a 3-D globe
@@ -51,9 +55,11 @@ export default function MapLibreGlobe() {
   useLandMusic(map, countryData, scene.layers.landColor);
   usePlaceLayers(map, scene);
   useArcLayers(map, scene.influenceArcs, gate, reducedMotion);
-  useMapPointer(map, clicks);
+  const signals = useStageSignals();
+  useMapPointer(map, clicks, signals);
   useMapFlights(map, geo, paddingRef, reducedMotionRef);
   useSpin(map, gate);
+  const sun = useSun(map, scene.selectedCityId);
   useProvideMapHandle(map);
 
   // The country outlines are the map: losing them is the page failing.
@@ -63,9 +69,15 @@ export default function MapLibreGlobe() {
     <div className="atlas-map-ground absolute inset-0 overflow-hidden">
       {map && <MapPadding map={map} paddingRef={paddingRef} />}
       {map && <MapCovered coveredRef={gate.covered} map={map} />}
+      {/* The rim sits under the map's canvas, which is clear round the
+          globe. */}
+      {map && <GlobeRim map={map} />}
       {/* Sized, not positioned: maplibre-gl.css makes the map position:
           relative, which would collapse an inset-0 box to no height. */}
       <div ref={containerRef} className="h-full w-full" />
+      {map && sun && (
+        <SunFx key={sun.key} lat={sun.lat} lng={sun.lng} map={map} />
+      )}
       {failure ? (
         <GlobeStatus error={failure} />
       ) : (

@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  labelOf,
-  targetOf,
-  topFeature,
-  type PickedFeature,
-} from './mapPicking';
+import { targetOf, topFeature, type PickedFeature } from './mapPicking';
 import { LAYER } from './mapStyle';
 
 const at = (
@@ -75,16 +70,5 @@ describe('what it opens', () => {
   it('opens nothing it cannot name', () => {
     expect(targetOf(null)).toBeNull();
     expect(targetOf(at(LAYER.artistPoints, {}))).toBeNull();
-  });
-});
-
-describe('hover labels', () => {
-  it('say what is under the pointer, escaped', () => {
-    expect(labelOf(arc)).toContain('Bebop &amp; &quot;cool&quot; →');
-    // A city's name is on the map already: no hover label.
-    expect(labelOf(nola)).toBeNull();
-    expect(labelOf(brazil)).toContain('Brazil');
-    expect(labelOf(texas)).toContain('Texas');
-    expect(labelOf(null)).toBeNull();
   });
 });

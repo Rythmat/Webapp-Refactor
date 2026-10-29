@@ -18,6 +18,7 @@ import {
 import { TopRail } from '@/components/atlas/components/Frame/TopRail';
 import { AtlasGlobe } from '@/components/atlas/components/Globe';
 import { AtlasMapProvider } from '@/components/atlas/components/Globe/mapHandle';
+import { HoverLayer } from '@/components/atlas/components/Hover/HoverLayer';
 import {
   ATLAS_HEADING,
   ATLAS_SURFACE,
@@ -41,6 +42,7 @@ import {
   AtlasStoreProvider,
   useAtlasDispatch,
 } from '@/components/atlas/state/atlasStore';
+import { StageSignalsProvider } from '@/components/atlas/state/stageSignals';
 import { RIVER } from '@/components/atlas/theme/river';
 import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
 import type { MapInsets } from '@/components/atlas/types';
@@ -257,6 +259,7 @@ function AppLayout() {
               </MapStage>
               <RiverView />
               {isPhone ? <PhoneOverlays /> : <InspectorRegion />}
+              <HoverLayer />
             </div>
             {!isPhone && <StageDock />}
             <StageFoot />
@@ -283,7 +286,9 @@ export default function App() {
         <AtlasNavigationProvider>
           <TimeCameraProvider>
             <AtlasMapProvider>
-              <AppLayout />
+              <StageSignalsProvider>
+                <AppLayout />
+              </StageSignalsProvider>
             </AtlasMapProvider>
           </TimeCameraProvider>
         </AtlasNavigationProvider>

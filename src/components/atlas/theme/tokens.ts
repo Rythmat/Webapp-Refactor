@@ -186,6 +186,9 @@ export const ATLAS_SCENE = {
   dot: '#ffffff',
   dotRim: 'rgba(9, 11, 17, 0.85)',
   dotRing: 'rgba(255, 255, 255, 0.6)',
+  /** The selected place's light: its bloom and its core. */
+  sunBloom: 'rgba(255, 236, 214, 0.38)',
+  sunCore: '#ffffff',
   /**
    * A place's name chip, as [r, g, b, a] (drawn into an image, mapChips.ts):
    * its fill and border, and brighter for the selected or pinned place.

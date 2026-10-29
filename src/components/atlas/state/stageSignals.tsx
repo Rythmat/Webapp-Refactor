@@ -44,7 +44,8 @@ export function createChannel<T>(
 /** What the pointer is on, over the map or the ring. */
 export type HoverTarget =
   | { kind: 'place'; id: string }
-  | { kind: 'region'; place: SelectedLocation; key: string }
+  | { kind: 'region'; place: SelectedLocation }
+  | { kind: 'event'; eventId: string }
   | { kind: 'link'; id: string };
 
 export interface PlaceHover {

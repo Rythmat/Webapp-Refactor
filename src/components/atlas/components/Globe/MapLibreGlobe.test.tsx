@@ -89,6 +89,9 @@ const fake = vi.hoisted(() => {
     getPadding() {
       return { top: 0, right: 0, bottom: 0, left: 0 };
     }
+    getVerticalFieldOfView() {
+      return 36.87;
+    }
     isMoving() {
       return false;
     }
@@ -152,6 +155,9 @@ const originalMatchMedia = window.matchMedia;
 
 beforeEach(() => {
   fake.FakeMap.all = [];
+  // jsdom draws no canvas: the rim has nothing to draw on, and says so.
+  HTMLCanvasElement.prototype.getContext = (() =>
+    null) as unknown as HTMLCanvasElement['getContext'];
   globalThis.IntersectionObserver ??= class {
     observe() {}
     unobserve() {}

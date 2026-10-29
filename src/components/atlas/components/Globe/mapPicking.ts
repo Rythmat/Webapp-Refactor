@@ -1,11 +1,5 @@
 import type { SelectedLocation } from '@/components/atlas/types';
-import {
-  arcLabel,
-  featureName,
-  placeOfRegion,
-  pointLabel,
-  regionLabel,
-} from './globeLabels';
+import { placeOfRegion } from './globeLabels';
 import { CLICK_LAYERS, LAYER } from './mapStyle';
 
 /**
@@ -18,6 +12,8 @@ import { CLICK_LAYERS, LAYER } from './mapStyle';
 export interface PickedFeature {
   /** The source's feature id (countries and states are numbered). */
   id?: string | number;
+  /** A place's point, where its hover card hangs. */
+  geometry?: { type: string; coordinates?: unknown };
   layer: { id: string };
   properties: Record<string, unknown> | null;
 }
@@ -82,30 +78,6 @@ export function targetOf(feature: PickedFeature | null): MapTarget | null {
         centroid: lat !== null && lng !== null ? { lat, lng } : null,
       };
     }
-    default:
-      return null;
-  }
-}
-
-/** The hover label for `feature`. */
-export function labelOf(feature: PickedFeature | null): string | null {
-  if (!feature) return null;
-  const p = feature.properties ?? {};
-  switch (feature.layer.id) {
-    case LAYER.arcsHit:
-      return arcLabel({
-        label: str(p.label) ?? '',
-        direction: p.direction === 'upstream' ? 'upstream' : 'downstream',
-      });
-    case LAYER.artistPoints:
-      return pointLabel(str(p.name) ?? '');
-    // A place's name is on its chip, or its hover card says it.
-    case LAYER.cityLabels:
-    case LAYER.placeHit:
-      return null;
-    case LAYER.statesFill:
-    case LAYER.countriesFill:
-      return regionLabel(featureName({ properties: p }), p._layer === 'state');
     default:
       return null;
   }

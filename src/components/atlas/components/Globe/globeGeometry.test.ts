@@ -5,6 +5,7 @@ import {
   facing,
   globeDisc,
   globeRadiusPx,
+  rimOpacity,
 } from './globeGeometry';
 
 /** MapLibre's default vertical field of view. */
@@ -15,7 +16,7 @@ describe('the globe on screen', () => {
     // 512 px world at zoom 0: radius 512 / 2π at the equator.
     expect(globeRadiusPx(0, 0)).toBeCloseTo(81.487, 2);
     expect(globeRadiusPx(2, 0)).toBeCloseTo(325.95, 1);
-    expect(globeRadiusPx(2, 60)).toBeCloseTo(325.95 / 2, 1);
+    expect(globeRadiusPx(2, 60)).toBeCloseTo(325.95 * 2, 1);
     // The camera at an 800 px tall view.
     expect(cameraToCenterPx(800, FOV)).toBeCloseTo(1200, 0);
   });
@@ -43,5 +44,15 @@ describe('the globe on screen', () => {
     const limbDeg = (Math.acos(1 / D) * 180) / Math.PI;
     expect(facing(center, { lat: 0, lng: limbDeg - 1 }, D)).toBeGreaterThan(0);
     expect(facing(center, { lat: 0, lng: limbDeg + 1 }, D)).toBeLessThan(0);
+  });
+});
+
+describe('the rainbow rim', () => {
+  it('shows whole round a globe that fits, and fades as it fills the view', () => {
+    expect(rimOpacity(300, 1200, 800)).toBe(1);
+    expect(rimOpacity(800, 1200, 800)).toBe(0);
+    const mid = rimOpacity(600, 1200, 800);
+    expect(mid).toBeGreaterThan(0);
+    expect(mid).toBeLessThan(1);
   });
 });

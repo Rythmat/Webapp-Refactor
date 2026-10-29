@@ -4,10 +4,13 @@
  *
  * Every token is a `--atlas-<name>` custom property, declared on `.atlas-root`
  * in `../index.css` (a test holds that file to this one), and a Tailwind
- * colour `atlas-<name>`: `bg-atlas-panel/95`, `text-atlas-text-2`,
- * `ring-atlas-focus`. The surfaces and text are aliases of the app's `--ui-*`
- * tokens (src/styles/appTheme.css), the same ones the mind map, Cortex and
- * the Studio read, so the Globe follows any re-skin of the app. The four
+ * colour `atlas-<name>`: `bg-atlas-panel`, `text-atlas-text-2`,
+ * `bg-atlas-pill`. The surfaces and text are aliases of the app's `--ui-*`
+ * tokens (src/styles/appTheme.css), and the secondary text, the pills, the
+ * menus and the focus ring the Studio's `--daw-*` ones (src/daw/ui/tokens.ts),
+ * so the Globe wears the Studio's frame and follows any re-skin of the app
+ * (owner, 2026-10-29). There is no accent: selection and actions are white,
+ * and colour means something (an era, a kind of thing, a country). The four
  * entity kinds take Cortex's colours (src/content/graph/cortexPalette.ts).
  *
  * WebGL cannot read var(), so what the globe itself draws in a fixed colour
@@ -46,6 +49,12 @@ const rgb = (hex: string): AtlasColorToken => ({
   css: rgbChannels(hex),
   value: hex,
 });
+/** One of the Studio's `--daw-*` colours, resolving to `value`. */
+const daw = (name: string, value: string): AtlasColorToken => ({
+  space: 'color',
+  css: `var(--daw-${name})`,
+  value,
+});
 const whiteAt = (alpha: number): AtlasColorToken => ({
   space: 'color',
   css: `rgb(255 255 255 / ${alpha})`,
@@ -58,24 +67,26 @@ const tokens = <T extends Record<string, AtlasColorToken>>(t: T): T => t;
 export const ATLAS_COLOR = tokens({
   /** The page behind everything. */
   page: ui('background', '#101012'),
-  /** Every panel and bar, at 95% (`bg-atlas-panel/95`); popovers opaque. */
+  /** The stage card and the Inspector's panels; the Studio's surface 1. */
   panel: ui('card', '#151518'),
   /** A panel's hairline edge and its inner dividers. */
   'panel-border': whiteAt(0.08),
   /** Body text and headings. */
   text: ui('foreground', '#e8e8f0'),
   /** Secondary text: subtitles, metadata. */
-  'text-2': whiteAt(0.55),
-  /** Eyebrows (bold, uppercase) and placeholders; not for running text. */
-  'text-3': whiteAt(0.45),
-  /** The Globe tab's accent: links, the pinned event, progress. */
-  accent: rgb('#60a5fa'),
-  /** The accent where it has to stand out on the accent: a pinned dot's rim. */
-  'accent-strong': rgb('#93c5fd'),
-  /** Keyboard focus rings. */
-  focus: rgb('#60a5fa'),
-  /** Guided tours, so a tour never reads as a pathway. */
-  tour: rgb('#7ecfcf'),
+  'text-2': daw('text-2', 'rgba(255, 255, 255, 0.7)'),
+  /** Micro labels (bold, uppercase) and placeholders; not for running text. */
+  'text-3': daw('text-3', '#8e8ea3'),
+  /** Popovers and menus: the Studio's menu surface. */
+  menu: daw('menu', '#252529'),
+  /** The rails' pills: a zone of controls on the page (the Studio's pill). */
+  pill: daw('pill', '#141417'),
+  /** A control's label inside a pill. */
+  'pill-text': daw('pill-text', 'rgba(255, 255, 255, 0.5)'),
+  /** A pill's control that is on: a view tab, a pressed toggle. */
+  'pill-on': daw('pill-on', 'rgba(255, 255, 255, 0.2)'),
+  /** Keyboard focus outlines: the Studio's grey. */
+  focus: daw('focus', '#9f9fa0'),
   /** Errors. */
   danger: rgb('#f26255'),
   /** The space behind the globe. */

@@ -48,12 +48,11 @@ const MAX_ZOOM = 16;
  */
 const CLUSTER_PX = 30;
 
-/** The pinned event's dot: the accent, ringed, with a soft glow. */
+/** The pinned event's dot: solid white, ringed. */
 const PINNED_DOT =
-  'border-atlas-accent-strong bg-atlas-accent shadow-[0_0_8px_rgb(var(--atlas-accent)/0.6)]';
-/** Any other dot: white, turning to the accent on hover. */
-const DOT =
-  'border-white/30 bg-white/80 hover:border-atlas-accent-strong hover:bg-atlas-accent';
+  'border-white bg-white ring-2 ring-white/40 ring-offset-2 ring-offset-atlas-panel';
+/** Any other dot: dimmer white, full white on hover. */
+const DOT = 'border-white/30 bg-white/55 hover:border-white hover:bg-white';
 
 function filterByWindow(
   events: HistoricalEvent[],
@@ -455,7 +454,7 @@ export function RegionTimeline() {
                       <button
                         className={`flex w-full items-baseline gap-2 rounded-2xl px-2 py-1.5 text-left text-sm transition-colors hover:bg-white/[0.06] ${ATLAS_FOCUS} ${
                           e.id === pinnedEvent?.id
-                            ? 'font-bold text-atlas-accent-strong'
+                            ? 'font-bold text-white'
                             : 'text-atlas-text'
                         }`}
                         type="button"

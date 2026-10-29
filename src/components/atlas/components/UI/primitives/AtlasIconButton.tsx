@@ -1,20 +1,26 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react';
-import { ATLAS_FOCUS } from '@/components/atlas/components/UI/primitives/styles';
+import {
+  ATLAS_FOCUS,
+  ATLAS_TRANSITION,
+} from '@/components/atlas/components/UI/primitives/styles';
 import { cn } from '@/lib/utils';
 
 const VARIANT = {
   /** Bare until hovered: the controls in a panel's header or a bar. */
   ghost:
-    'border-transparent text-atlas-text-2 hover:bg-white/[0.08] hover:text-atlas-text',
+    'border-transparent text-atlas-text-2 hover:bg-white/[0.06] hover:text-atlas-text',
   /** Ringed: an icon button standing on its own. */
   outline:
-    'border-white/15 bg-white/[0.04] text-atlas-text hover:border-white/25 hover:bg-white/[0.08]',
+    'border-white/10 bg-atlas-pill text-atlas-text hover:bg-white/[0.06]',
+  /** Inside a rail's pill zone: lit while pressed. */
+  pill: 'border-transparent text-atlas-pill-text hover:bg-white/[0.08] hover:text-atlas-text aria-pressed:bg-atlas-pill-on aria-pressed:text-atlas-text',
 } as const;
 
 const SIZE = {
   xs: 'size-6',
   sm: 'size-7',
   md: 'size-8',
+  lg: 'size-9',
 } as const;
 
 /**
@@ -44,7 +50,8 @@ export const AtlasIconButton = forwardRef<
     <button
       ref={ref}
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-full border transition-colors disabled:cursor-not-allowed disabled:border-dashed disabled:border-white/25 disabled:bg-transparent disabled:opacity-40',
+        'inline-flex shrink-0 items-center justify-center rounded-full border disabled:cursor-not-allowed disabled:border-dashed disabled:border-white/25 disabled:bg-transparent disabled:opacity-40',
+        ATLAS_TRANSITION,
         ATLAS_FOCUS,
         VARIANT[variant],
         SIZE[size],

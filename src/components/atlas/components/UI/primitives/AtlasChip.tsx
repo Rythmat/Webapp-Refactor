@@ -1,9 +1,13 @@
 import type { MouseEventHandler, ReactNode } from 'react';
-import { ATLAS_FOCUS } from '@/components/atlas/components/UI/primitives/styles';
+import {
+  ATLAS_FOCUS,
+  ATLAS_TRANSITION,
+} from '@/components/atlas/components/UI/primitives/styles';
 import { cn } from '@/lib/utils';
 
+// Home's genre pills (HomeGlobeCard): a hairline, a breath of white.
 const BASE =
-  'inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/[0.04] px-2 py-0.5 text-xs text-atlas-text';
+  'inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[0.8125rem] leading-5 text-atlas-text-2';
 
 /**
  * A small pill: a genre, an artist, a "Song" badge. With `onClick` it is a
@@ -46,7 +50,8 @@ export function AtlasChip({
     <button
       className={cn(
         BASE,
-        'transition-colors hover:border-white/25 hover:bg-white/[0.08]',
+        'hover:bg-white/[0.08] hover:text-atlas-text',
+        ATLAS_TRANSITION,
         ATLAS_FOCUS,
         className,
       )}

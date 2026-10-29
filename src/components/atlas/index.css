@@ -1,20 +1,17 @@
 /* Atlas Globe local styles.
    Tailwind utilities come from the main app pipeline; this file declares the
    page's colour tokens, which the overlays read as `atlas-*` Tailwind colours
-   (bg-atlas-panel/95, text-atlas-text-2). theme/tokens.ts is their source and
-   a test holds this block to it. The surfaces and text alias the app's --ui-*
-   tokens (src/styles/appTheme.css); the entity kinds are Cortex's colours.
-   The globe's per-country colours are unaffected (handled in BaseGlobe). */
+   (bg-atlas-panel, text-atlas-text-2, bg-atlas-pill). theme/tokens.ts is their
+   source and a test holds this block to it. The surfaces and text alias the
+   app's --ui-* tokens (src/styles/appTheme.css), the secondary text, pills,
+   menus and focus the Studio's --daw-* ones; the entity kinds are Cortex's
+   colours. The globe's per-country colours are unaffected (BaseGlobe). */
 
 .atlas-root {
   /* Channels (hsl or rgb), so Tailwind's opacity modifier works on them. */
   --atlas-page: var(--ui-background);
   --atlas-panel: var(--ui-card);
   --atlas-text: var(--ui-foreground);
-  --atlas-accent: 96 165 250;
-  --atlas-accent-strong: 147 197 253;
-  --atlas-focus: 96 165 250;
-  --atlas-tour: 126 207 207;
   --atlas-danger: 242 98 85;
   --atlas-canvas: 0 0 5;
   --atlas-artist: 10 147 150;
@@ -31,22 +28,29 @@
   /* Motion curves (theme/motion.ts): entering and leaving; moving. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  /* Whole colours, already translucent. */
+  /* Whole colours: translucent, or the Studio's. */
   --atlas-panel-border: rgb(255 255 255 / 0.08);
-  --atlas-text-2: rgb(255 255 255 / 0.55);
-  --atlas-text-3: rgb(255 255 255 / 0.45);
+  --atlas-text-2: var(--daw-text-2);
+  --atlas-text-3: var(--daw-text-3);
+  --atlas-menu: var(--daw-menu);
+  --atlas-pill: var(--daw-pill);
+  --atlas-pill-text: var(--daw-pill-text);
+  --atlas-pill-on: var(--daw-pill-on);
+  --atlas-focus: var(--daw-focus);
 }
 
-/* The globe's hover labels (float-tooltip, under react-globe.gl): a small
-   panel in the page's look instead of the library's grey box. */
+/* The globe's hover labels (float-tooltip, under react-globe.gl): the
+   Studio's tooltip (src/daw/ui/Tooltip.tsx) instead of the library's grey
+   box. */
 .atlas-root .float-tooltip-kap {
-  padding: 6px 10px;
-  border: 1px solid var(--atlas-panel-border);
-  border-radius: 1rem;
-  background: hsl(var(--atlas-panel) / 0.95);
+  padding: 0.375rem 0.625rem;
+  border: 0;
+  border-radius: var(--daw-radius-md);
+  background: var(--daw-float);
+  box-shadow: var(--daw-shadow-menu);
   color: hsl(var(--atlas-text));
   font: inherit;
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1.35;
 }
 
@@ -61,16 +65,16 @@
   }
 }
 
-/* The MapLibre engine's hover labels: the same small panel as above. */
+/* The MapLibre engine's hover labels: the same tooltip as above. */
 .atlas-root .atlas-map-label .maplibregl-popup-content {
-  padding: 6px 10px;
-  border: 1px solid var(--atlas-panel-border);
-  border-radius: 1rem;
-  background: hsl(var(--atlas-panel) / 0.95);
-  box-shadow: none;
+  padding: 0.375rem 0.625rem;
+  border: 0;
+  border-radius: var(--daw-radius-md);
+  background: var(--daw-float);
+  box-shadow: var(--daw-shadow-menu);
   color: hsl(var(--atlas-text));
   font: inherit;
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1.35;
   pointer-events: none;
 }

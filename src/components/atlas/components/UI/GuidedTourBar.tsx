@@ -78,7 +78,7 @@ export function GuidedTourBar() {
       <div className={`px-4 py-3 ${ATLAS_SURFACE}`}>
         {/* Header row: tour title + step info + exit */}
         <div className="mb-2 flex items-center justify-between gap-3">
-          <AtlasEyebrow className="min-w-0 text-atlas-tour">
+          <AtlasEyebrow className="min-w-0">
             <MapPin aria-hidden className="size-3.5 shrink-0" />
             <span className="truncate">
               {tour.title}
@@ -130,12 +130,12 @@ export function GuidedTourBar() {
             <button
               key={i}
               aria-label={`Go to stop ${i + 1}: ${stop.title}`}
-              // Current: larger and glowing. Visited: filled. Ahead: hollow.
+              // Current: larger and ringed. Visited: filled. Ahead: hollow.
               className={`rounded-full transition-all ${ATLAS_FOCUS} ${
                 i === currentStep
-                  ? 'size-2.5 bg-atlas-tour shadow-[0_0_6px_rgb(var(--atlas-tour)/0.5)]'
+                  ? 'size-2.5 bg-white ring-2 ring-white/30'
                   : i < currentStep
-                    ? 'size-2 bg-atlas-tour/70 hover:bg-atlas-tour'
+                    ? 'size-2 bg-white/60 hover:bg-white'
                     : 'size-2 border border-white/40 hover:border-white/70'
               }`}
               title={stop.title}

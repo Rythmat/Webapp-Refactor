@@ -224,7 +224,7 @@ function EventList({
               }
               className={`group relative isolate w-full rounded-2xl border text-left transition-colors ${focused ? 'p-4' : 'p-2.5'} ${
                 isExpanded
-                  ? 'border-atlas-accent/40 bg-atlas-accent/10'
+                  ? 'border-white/30 bg-white/[0.06]'
                   : 'border-atlas-panel-border bg-white/[0.03] hover:bg-white/[0.06]'
               }`}
             >

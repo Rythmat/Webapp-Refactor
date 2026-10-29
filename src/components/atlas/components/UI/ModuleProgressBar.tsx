@@ -60,7 +60,7 @@ export function ModuleProgressBar() {
       <div className={`px-4 py-3 ${ATLAS_SURFACE}`}>
         {/* Header row: module title + step info + exit */}
         <div className="mb-2 flex items-center justify-between gap-3">
-          <AtlasEyebrow className="min-w-0 text-atlas-accent">
+          <AtlasEyebrow className="min-w-0">
             <span aria-hidden className="text-sm leading-none">
               {mod.emoji}
             </span>
@@ -109,12 +109,12 @@ export function ModuleProgressBar() {
             <button
               key={i}
               aria-label={`Go to stop ${i + 1}: ${events[i]?.title ?? ''}`}
-              // Current: larger and glowing. Visited: filled. Ahead: hollow.
+              // Current: larger and ringed. Visited: filled. Ahead: hollow.
               className={`rounded-full transition-all ${ATLAS_FOCUS} ${
                 i === currentStep
-                  ? 'size-2.5 bg-atlas-accent shadow-[0_0_6px_rgb(var(--atlas-accent)/0.5)]'
+                  ? 'size-2.5 bg-white ring-2 ring-white/30'
                   : i < currentStep
-                    ? 'size-2 bg-atlas-accent/70 hover:bg-atlas-accent'
+                    ? 'size-2 bg-white/60 hover:bg-white'
                     : 'size-2 border border-white/40 hover:border-white/70'
               }`}
               title={events[i]?.title}

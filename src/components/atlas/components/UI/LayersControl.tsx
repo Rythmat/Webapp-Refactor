@@ -104,14 +104,14 @@ function LayerSwitch({
         aria-describedby={detail ? `${id}-detail` : undefined}
         checked={checked}
         className={cn(
-          'relative mt-0.5 inline-flex h-6 w-10 shrink-0 items-center rounded-full border border-white/15 bg-white/[0.08] transition-colors data-[state=checked]:border-transparent data-[state=checked]:bg-atlas-accent disabled:cursor-not-allowed disabled:border-dashed disabled:opacity-40',
+          'relative mt-0.5 inline-flex h-6 w-10 shrink-0 items-center rounded-full border border-white/15 bg-white/[0.08] transition-colors data-[state=checked]:border-transparent data-[state=checked]:bg-white disabled:cursor-not-allowed disabled:border-dashed disabled:opacity-40',
           ATLAS_FOCUS,
         )}
         disabled={disabled}
         id={id}
         onCheckedChange={onChange}
       >
-        <Switch.Thumb className="block size-4 translate-x-1 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-5" />
+        <Switch.Thumb className="block size-4 translate-x-1 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-5 data-[state=checked]:bg-atlas-page" />
       </Switch.Root>
     </li>
   );

@@ -74,18 +74,17 @@ describe('atlas tokens', () => {
     expect(ATLAS_TAILWIND_COLORS.panel).toBe(
       'hsl(var(--atlas-panel) / <alpha-value>)',
     );
-    expect(ATLAS_TAILWIND_COLORS.accent).toBe(
-      'rgb(var(--atlas-accent) / <alpha-value>)',
+    expect(ATLAS_TAILWIND_COLORS.danger).toBe(
+      'rgb(var(--atlas-danger) / <alpha-value>)',
     );
     expect(ATLAS_TAILWIND_COLORS['text-2']).toBe('var(--atlas-text-2)');
   });
 
-  // The panel is 95% opaque, so the worst case is the brightest globe behind
-  // it: white (the ice caps, a highlighted city).
+  // A panel over the globe at 95%, at worst over its brightest: white (the
+  // ice caps, a highlighted city).
   it.each([
     ['text', 'text'],
     ['text-2', 'secondary text'],
-    ['accent', 'links'],
   ] as const)(
     '%s (%s) reads at 4.5:1 on a panel over anything',
     (name, _use) => {
@@ -106,6 +105,25 @@ describe('atlas tokens', () => {
     expect(
       contrast(over(ATLAS_COLOR['text-3'].value, panel), panel),
     ).toBeGreaterThanOrEqual(4.5);
+  });
+
+  // The Studio's colours, where the Globe sets text on them.
+  it.each([
+    ['pill-text', 'pill', 'a pill’s labels'],
+    ['text-3', 'menu', 'a menu’s eyebrows'],
+    ['text-2', 'menu', 'a menu’s secondary text'],
+  ] as const)('%s reads at 4.5:1 on %s (%s)', (fg, bg, _use) => {
+    const ground = over(ATLAS_COLOR[bg].value, [0, 0, 0]);
+    expect(
+      contrast(over(ATLAS_COLOR[fg].value, ground), ground),
+    ).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('draws the focus outline at 3:1 against the panel', () => {
+    const panel = over(ATLAS_COLOR.panel.value, [0, 0, 0]);
+    expect(
+      contrast(over(ATLAS_COLOR.focus.value, panel), panel),
+    ).toBeGreaterThanOrEqual(3);
   });
 });
 
@@ -154,6 +172,20 @@ describe("the Globe's overlays keep to the tokens", () => {
   it('spells each layer class as its number', () => {
     for (const [name, z] of Object.entries(ATLAS_LAYER)) {
       expect(ATLAS_Z[name as keyof typeof ATLAS_Z]).toBe(`z-${z}`);
+    }
+  });
+
+  // Tailwind drops a class it has no colour for without a word, so a token
+  // removed (the old blue accent, the teal) would leave its users unstyled.
+  it('names only tokens that exist in its atlas-* classes', () => {
+    const utility =
+      /(?<![\w-])(?:bg|text|border(?:-[trblxy])?|ring(?:-offset)?|outline|fill|stroke|from|via|to|decoration|divide|placeholder|caret|shadow)-atlas-([a-z][\w-]*?)(?=\/|[^\w-]|$)/g;
+    const names = new Set(Object.keys(ATLAS_COLOR));
+    for (const [path, text] of files) {
+      const code = text.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');
+      for (const [, name] of code.matchAll(utility)) {
+        expect(names.has(name), `${path}: atlas-${name}`).toBe(true);
+      }
     }
   });
 

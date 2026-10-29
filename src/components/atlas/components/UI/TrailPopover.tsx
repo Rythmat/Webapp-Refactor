@@ -48,7 +48,7 @@ function TrailStep({
       className={cn(
         'flex w-full items-center gap-3 rounded-xl border p-1.5 text-left transition',
         state === 'current'
-          ? 'border-atlas-accent bg-atlas-accent/20'
+          ? 'border-white/40 bg-white/[0.08]'
           : state === 'future'
             ? // Steps ahead, after Back: dimmed, and dashed so the state
               // does not rest on the dimming alone.

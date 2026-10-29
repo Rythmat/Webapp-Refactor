@@ -90,7 +90,9 @@ export const AtlasPanel = forwardRef<
                 </h3>
               )}
               {subtitle && (
-                <p className="mt-1 text-sm text-atlas-text-2">{subtitle}</p>
+                <p className="mt-1 text-[0.8125rem] text-atlas-text-2">
+                  {subtitle}
+                </p>
               )}
             </div>
             {actions && (

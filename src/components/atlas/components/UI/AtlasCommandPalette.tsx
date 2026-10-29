@@ -149,7 +149,9 @@ function PaletteRow({
         <span
           className={cn(
             'block truncate text-sm',
-            item.type === 'see-all' ? 'text-atlas-accent' : 'text-atlas-text',
+            item.type === 'see-all'
+              ? 'font-bold text-atlas-text'
+              : 'text-atlas-text',
           )}
         >
           {title}

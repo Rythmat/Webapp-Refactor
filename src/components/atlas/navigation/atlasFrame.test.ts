@@ -6,7 +6,7 @@ import {
   windowFromSearchParams,
 } from './atlasFrame';
 import { atlasHref } from './atlasHref';
-import { LEGACY_TABS, sectionFrame, sectionOf } from './sections';
+import { sectionFrame, sectionOf } from './sections';
 
 const p = (query: string) => new URLSearchParams(query);
 const THIS_YEAR = new Date().getFullYear();
@@ -117,11 +117,6 @@ describe('sections', () => {
     expect(
       sectionOf({ view: 'timeline', lens: 'places', open: ['americas'] }),
     ).toBe('regions');
-  });
-
-  it('knows the dashboard’s old tabs', () => {
-    expect(LEGACY_TABS.Regions).toBe('regions');
-    expect(LEGACY_TABS.Eras).toBe('eras');
   });
 });
 

@@ -7,8 +7,7 @@ import type { AtlasFrame } from './atlasFrame';
  * timeline opened into regions (and, a click further, cities); Pathways and
  * Instruments regroup the timeline's lanes.
  *
- * The /atlas dashboard's tab bar and the Globe page's own read this list, so
- * the two never disagree about the order or the names.
+ * The Globe page's tabs read this list, in this order and with these names.
  */
 export type AtlasSectionId =
   | 'explore'
@@ -71,23 +70,3 @@ export function sectionOf(
   if (frame.view === 'map') return 'explore';
   return frame.open.length ? 'regions' : 'eras';
 }
-
-/**
- * Sections whose lens is still to come: until it lands, their tab opens the
- * /atlas dashboard's own view of them (`?tab=`), which works today, rather
- * than a timeline that would look no different from Eras.
- */
-export const DASHBOARD_TABS: Readonly<Partial<Record<AtlasSectionId, string>>> =
-  {
-    pathways: 'Pathways',
-    instruments: 'Instruments',
-  };
-
-/** The dashboard's old `?tab=` values, and the section each one is now. */
-export const LEGACY_TABS: Readonly<Record<string, AtlasSectionId>> = {
-  Explore: 'explore',
-  Regions: 'regions',
-  Pathways: 'pathways',
-  Eras: 'eras',
-  Instruments: 'instruments',
-};

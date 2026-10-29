@@ -6,7 +6,8 @@ import { ClassroomDashboard } from '../ClassroomDashboard';
 
 // ── Focus mode (milestone 2.5, owner decision 7) ───────────────────────────
 // The Studio editor gets the whole window: no sidebar or mobile tab bar, no
-// TopRail and no chord-notation bar on /studio. Every other page, the Studio's
+// TopRail and no chord-notation bar on /studio. So does the Globe, in the
+// Studio's frame (owner, 2026-10-29). Every other page, the Studio's
 // Production lessons included, keeps them.
 //
 // Run: npx vitest run src/layouts/DashboardLayout/__tests__/ClassroomDashboard.focusMode.test.tsx
@@ -58,8 +59,20 @@ describe('focus mode', () => {
     expect(screen.queryByTestId('chord-bar')).toBeNull();
   });
 
+  it('hides the app chrome on the Globe', () => {
+    for (const path of ['/globe', '/globe?pathway=blues-to-rock']) {
+      at(path);
+      expect(screen.getByTestId('page')).toBeInTheDocument();
+      expect(screen.queryByTestId('sidebar')).toBeNull();
+      expect(screen.queryByTestId('tabbar')).toBeNull();
+      expect(screen.queryByTestId('toprail')).toBeNull();
+      expect(screen.queryByTestId('chord-bar')).toBeNull();
+      cleanup();
+    }
+  });
+
   it('keeps it on the Studio lessons and elsewhere', () => {
-    for (const path of ['/studio/production', '/learn']) {
+    for (const path of ['/studio/production', '/learn', '/globes']) {
       at(path);
       expect(screen.getByTestId('sidebar')).toBeInTheDocument();
       expect(screen.getByTestId('tabbar')).toBeInTheDocument();

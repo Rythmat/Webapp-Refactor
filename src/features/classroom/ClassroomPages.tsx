@@ -22,6 +22,7 @@ import { isEditorPath, preloadDaw } from '@/daw/preload';
 import { EditorRouteBoundary } from '@/daw/shell/errors/EditorRouteBoundary';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
+import { GlobeSkeleton } from '@/layouts/DashboardLayout/GlobeSkeleton';
 import { LibraryInlet } from '@/components/Library/libraryInlet';
 import { LearnPage } from '@/components/learn/LearnPage';
 import {
@@ -915,7 +916,7 @@ export const globePages = () => {
       {
         index: true,
         element: (
-          <ContentGate>
+          <ContentGate fallback={<GlobeSkeleton />}>
             <Atlas />
           </ContentGate>
         ),

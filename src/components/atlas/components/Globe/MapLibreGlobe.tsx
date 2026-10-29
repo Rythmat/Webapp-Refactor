@@ -19,6 +19,7 @@ import {
   useIsPhone,
   usePrefersReducedMotion,
 } from '@/components/atlas/hooks/useMediaQuery';
+import { readInspectorWidth } from '@/components/atlas/layout/inspectorWidth';
 import { useAtlasFrame } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
   useAtlasDispatch,
@@ -425,6 +426,7 @@ export default function MapLibreGlobe() {
         phone: isPhoneRef.current,
         width: container.clientWidth,
         height: container.clientHeight,
+        inspectorPx: readInspectorWidth(),
       };
       const padding = landingInsets(paddingRef.current, view, !!frame);
       const camera = frameCamera(

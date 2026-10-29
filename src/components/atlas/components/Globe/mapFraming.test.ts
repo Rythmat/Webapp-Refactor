@@ -148,17 +148,25 @@ describe('pointsBounds', () => {
 
 describe('landingInsets', () => {
   const measured = { top: 64, right: 0, bottom: 140, left: 0 };
-  const desktop = { phone: false, width: 1360, height: 780 };
+  const desktop = { phone: false, width: 1360, height: 780, inspectorPx: 400 };
 
-  it('assumes the details card a framed flight opens, until it is measured', () => {
-    expect(landingInsets(measured, desktop, true).left).toBe(496);
-    expect(landingInsets({ ...measured, left: 380 }, desktop, true).left).toBe(
-      380,
-    );
+  it('assumes the Inspector a framed flight opens, until it is measured', () => {
+    // At its right, past the stage's gutter, at the width it was left at.
+    expect(landingInsets(measured, desktop, true)).toEqual({
+      ...measured,
+      right: 408,
+    });
+    expect(
+      landingInsets({ ...measured, right: 380 }, desktop, true).right,
+    ).toBe(380);
+    // No wider than it can be over a narrow map.
+    expect(
+      landingInsets(measured, { ...desktop, width: 480 }, true).right,
+    ).toBe(8 + 336);
   });
 
   it('assumes the phone’s sheet at half', () => {
-    const phone = { phone: true, width: 375, height: 700 };
+    const phone = { phone: true, width: 375, height: 700, inspectorPx: 400 };
     expect(landingInsets(measured, phone, true)).toEqual({
       ...measured,
       bottom: 350,

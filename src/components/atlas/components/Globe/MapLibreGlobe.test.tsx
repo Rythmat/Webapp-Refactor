@@ -241,16 +241,16 @@ describe('clicks on the MapLibre globe', () => {
       }),
     );
     expect(search()).toContain('place=country:Brazil:BRA');
-    // Fitted to the outline, clear of the details card about to open.
+    // Fitted to the outline, clear of the Inspector about to open.
     await waitFor(() => expect(map.flyTo).toHaveBeenCalled());
     const flight = map.flyTo.mock.calls.at(-1)![0];
     expect(flight).toMatchObject({
       essential: false,
-      padding: expect.objectContaining({ left: 496 }),
+      padding: expect.objectContaining({ left: 0, right: 408 }),
     });
     expect(flight.center[0]).toBeCloseTo(-54);
     expect(flight.center[1]).toBeLessThan(-14);
-    expect(flight.zoom).toBeLessThanOrEqual(7);
+    expect(flight.zoom).toBeLessThanOrEqual(6);
   });
 
   it('open a state with its country', () => {
@@ -332,8 +332,8 @@ describe('the MapLibre camera', () => {
         expect.objectContaining({
           center: [-90.07, 29.95],
           zoom: 7,
-          // The card is not measured yet: its width is assumed.
-          padding: expect.objectContaining({ left: 496 }),
+          // The Inspector is not measured yet: its width is assumed.
+          padding: expect.objectContaining({ left: 0, right: 408 }),
         }),
       ),
     );

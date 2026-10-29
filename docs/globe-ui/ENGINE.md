@@ -92,13 +92,12 @@ Navigation says what a flight frames (`FlyTarget.frame`,
 
 Every flight lands in the part of the map the page leaves clear. The layout
 measures what its overlays cover (`MapInsets`, `layout/mapInsets.ts`): the
-left panel, the map controls, the timeline row, the mind map or an open
-legend on the right, and the phone's sheet. The map's padding follows it,
+Inspector on the right, and the phone's sheet. The map's padding follows it,
 so its centre is always the middle of what you can see. A place has a
 32 px margin inside that area. A flight opens a panel that may not be on
-the page yet, so it lands as if the card (desktop) or the half-height
-sheet (phone) were already there. When the panel arrives and is measured,
-nothing moves.
+the page yet, so it lands as if the Inspector (desktop, at its right, at
+the width the viewer last left it) or the half-height sheet (phone) were
+already there. When the panel arrives and is measured, nothing moves.
 
 The fit is computed in Web Mercator, which matches MapLibre's globe at the
 zooms states and cities are seen from, and gives continent-sized countries

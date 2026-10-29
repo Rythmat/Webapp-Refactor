@@ -1,5 +1,9 @@
 import type { Feature, Geometry, Position } from 'geojson';
 import { CITIES, CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
+import {
+  FRAME_PX,
+  clampInspectorPx,
+} from '@/components/atlas/layout/frameGeometry';
 import { sheetHeights } from '@/components/atlas/layout/sheetSnap';
 import type {
   FlyTarget,
@@ -54,10 +58,6 @@ export function capFrameZoom(zoom: number): number {
  * do; Alaska, Hawaii, Svalbard and the Canaries don't.
  */
 export const NEARBY_PART_DEG = 3;
-/** The desktop details card's width (DetailsCard), before it is measured. */
-const CARD_WIDTH_PX = 480;
-/** The left zone's padding (AtlasZones, p-4). */
-const ZONE_GAP_PX = 16;
 
 /* ── Outlines ────────────────────────────────────────────────────────────── */
 
@@ -260,13 +260,14 @@ export function findRegion(
 /**
  * The insets a flight lands with. A framed flight is a place, an event, an
  * artist or a tour stop opening, and its panel may not be on the page yet
- * when the flight sets off: on a desktop the details card's width is
- * assumed, on a phone the sheet at half. Once the panel is there and
- * measured, the map's padding (MapPadding) already matches, so nothing slides.
+ * when the flight sets off: on a desktop the Inspector is assumed at its
+ * right, at the width the viewer last left it (`inspectorPx`), on a phone
+ * the sheet at half. Once the panel is there and measured, the map's
+ * padding (MapPadding) already matches, so nothing slides.
  */
 export function landingInsets(
   measured: Insets,
-  view: { phone: boolean; width: number; height: number },
+  view: { phone: boolean; width: number; height: number; inspectorPx: number },
   framed: boolean,
 ): Insets {
   if (!framed) return measured;
@@ -278,9 +279,9 @@ export function landingInsets(
   }
   return {
     ...measured,
-    left:
-      measured.left ||
-      ZONE_GAP_PX + Math.min(CARD_WIDTH_PX, view.width - 2 * ZONE_GAP_PX),
+    right:
+      measured.right ||
+      FRAME_PX.gutter + clampInspectorPx(view.inspectorPx, view.width),
   };
 }
 

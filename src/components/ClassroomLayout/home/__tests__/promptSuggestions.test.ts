@@ -191,9 +191,9 @@ function problem(route: string): string | null {
           if (!REGION_IDS.has(value.replace(/^region-/, '')))
             return `no tour ${value}`;
           break;
-        case 'lens':
-          if (!['places', 'pathways', 'instruments'].includes(value))
-            return `no lens ${value}`;
+        case 'panel':
+          if (!['pathways', 'instruments', 'layers', 'legend'].includes(value))
+            return `no panel ${value}`;
           break;
         case 'view':
           if (value !== 'timeline') return `no view ${value}`;

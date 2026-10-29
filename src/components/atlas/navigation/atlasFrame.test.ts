@@ -20,7 +20,7 @@ describe('the frame on the URL', () => {
     expect(
       frameFromSearchParams(
         p(
-          'view=timeline&lens=pathways&open=americas,north-america,americas&from=1946&to=1979&genres=blues-jazz,polka',
+          'view=timeline&lens=pathways&open=americas,north-america,americas&from=1946&to=1979&genres=blues-jazz,polka&panel=layers',
         ),
       ),
     ).toEqual({
@@ -29,12 +29,15 @@ describe('the frame on the URL', () => {
       open: ['americas', 'north-america'],
       window: { from: 1946, to: 1979 },
       genres: ['blues-jazz'],
+      panel: 'layers',
     });
   });
 
   it('ignores what it cannot read', () => {
     const frame = frameFromSearchParams(
-      p('view=3d&lens=songs&open=Atlantis!&from=x&to=1900&genres=polka'),
+      p(
+        'view=3d&lens=songs&open=Atlantis!&from=x&to=1900&genres=polka&panel=chat',
+      ),
     );
     expect(frame).toEqual(DEFAULT_FRAME);
   });
@@ -92,31 +95,34 @@ describe('the frame on the URL', () => {
 });
 
 describe('sections', () => {
-  it('maps each section to a frame and back', () => {
-    for (const id of [
-      'explore',
-      'eras',
-      'regions',
-      'pathways',
-      'instruments',
-    ] as const) {
+  it('maps each view to a frame and back', () => {
+    for (const id of ['explore', 'eras', 'regions'] as const) {
       expect(sectionOf({ ...DEFAULT_FRAME, ...sectionFrame(id) })).toBe(id);
     }
   });
 
-  it('tells the sections apart by view, lens and opened places', () => {
-    expect(sectionOf({ view: 'map', lens: 'pathways', open: [] })).toBe(
-      'pathways',
-    );
-    expect(sectionOf({ view: 'map', lens: 'places', open: [] })).toBe(
-      'explore',
-    );
-    expect(sectionOf({ view: 'timeline', lens: 'places', open: [] })).toBe(
-      'eras',
-    );
+  it('tells the views apart by view and opened places', () => {
+    expect(sectionOf({ view: 'map', open: [] })).toBe('explore');
+    expect(sectionOf({ view: 'timeline', open: [] })).toBe('eras');
+    expect(sectionOf({ view: 'timeline', open: ['americas'] })).toBe('regions');
+  });
+
+  it('writes and clears the Inspector’s panel', () => {
     expect(
-      sectionOf({ view: 'timeline', lens: 'places', open: ['americas'] }),
-    ).toBe('regions');
+      applyFrameToSearchParams(p('event=evt-1'), {
+        panel: 'pathways',
+      }).toString(),
+    ).toBe('event=evt-1&panel=pathways');
+    expect(
+      applyFrameToSearchParams(p('panel=pathways'), {
+        panel: 'none',
+      }).toString(),
+    ).toBe('panel=none');
+    expect(
+      applyFrameToSearchParams(p('panel=pathways&view=timeline'), {
+        panel: null,
+      }).toString(),
+    ).toBe('view=timeline');
   });
 });
 
@@ -127,11 +133,16 @@ describe('atlasHref', () => {
 
   it('links a stop through a frame', () => {
     expect(
-      atlasHref(sectionFrame('pathways'), {
+      atlasHref(sectionFrame('regions'), {
         kind: 'pathway',
         pathwayId: 'blues-to-rock',
       }),
-    ).toBe('/globe?pathway=blues-to-rock&view=timeline&lens=pathways');
+    ).toBe(
+      '/globe?pathway=blues-to-rock&view=timeline&open=americas%2Ceurope%2Cafrica-me%2Casia-pacific',
+    );
+    expect(atlasHref({ panel: 'instruments' })).toBe(
+      '/globe?panel=instruments',
+    );
     expect(
       atlasHref({ ...sectionFrame('eras'), window: { from: 1946, to: 1979 } }),
     ).toBe('/globe?view=timeline&from=1946&to=1979');

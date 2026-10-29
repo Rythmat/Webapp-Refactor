@@ -1,3 +1,8 @@
+import {
+  NO_MAP_INSETS,
+  combineInsets,
+  sameInsets,
+} from '@/components/atlas/layout/mapInsets';
 import type {
   AppState,
   AppAction,
@@ -24,7 +29,8 @@ export const initialAppState: AppState = {
   globeRotating: false,
   layers: DEFAULT_LAYERS,
   statesInView: false,
-  mapInsets: { top: 0, right: 0, bottom: 0, left: 0 },
+  zoneInsets: {},
+  mapInsets: NO_MAP_INSETS,
 };
 
 /**
@@ -126,16 +132,30 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return state.statesInView === action.payload
         ? state
         : { ...state, statesInView: action.payload };
-    case 'SET_MAP_INSETS': {
-      const was = state.mapInsets;
-      const now = action.payload;
-      return was.top === now.top &&
-        was.right === now.right &&
-        was.bottom === now.bottom &&
-        was.left === now.left
-        ? state
-        : { ...state, mapInsets: now };
+    case 'SET_ZONE_INSETS': {
+      const { zone, insets } = action.payload;
+      const was = state.zoneInsets[zone];
+      if (
+        insets === null ? was === undefined : was && sameInsets(was, insets)
+      ) {
+        return state;
+      }
+      const zoneInsets = { ...state.zoneInsets };
+      if (insets === null) delete zoneInsets[zone];
+      else zoneInsets[zone] = insets;
+      const combined = combineInsets(Object.values(zoneInsets));
+      return {
+        ...state,
+        zoneInsets,
+        mapInsets: sameInsets(combined, state.mapInsets)
+          ? state.mapInsets
+          : combined,
+      };
     }
+    case 'SET_MAP_INSETS':
+      return sameInsets(state.mapInsets, action.payload)
+        ? state
+        : { ...state, mapInsets: action.payload };
     default:
       return state;
   }

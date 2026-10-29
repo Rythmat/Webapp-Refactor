@@ -1,6 +1,7 @@
 import { GripVertical } from 'lucide-react';
 import {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -126,7 +127,7 @@ function InspectorResizer({
  * the rail or the stop asks for (layout/useInspector.tsx). Always mounted, so
  * its width and its focus survive one panel giving way to another.
  *
- * The map makes room for it through its padding (SET_MAP_INSETS, MapLibre's
+ * The map makes room for it through its padding (SET_ZONE_INSETS, MapLibre's
  * `padding`), so the canvas never resizes while it is dragged.
  */
 export function InspectorRegion() {
@@ -163,10 +164,22 @@ export function InspectorView({ slot }: { slot: InspectorSlot | null }) {
     return () => ro.disconnect();
   }, [ref]);
 
-  // What it covers of the map, for the map's padding and framing.
+  // What it covers of the map, for the map's padding and framing; nothing
+  // once it is gone.
   const onInsets = useCallback(
     (insets: { top: number; right: number; bottom: number; left: number }) =>
-      dispatch({ type: 'SET_MAP_INSETS', payload: insets }),
+      dispatch({
+        type: 'SET_ZONE_INSETS',
+        payload: { zone: 'inspector', insets },
+      }),
+    [dispatch],
+  );
+  useEffect(
+    () => () =>
+      dispatch({
+        type: 'SET_ZONE_INSETS',
+        payload: { zone: 'inspector', insets: null },
+      }),
     [dispatch],
   );
   useReportInsets(

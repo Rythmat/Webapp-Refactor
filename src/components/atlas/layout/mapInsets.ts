@@ -52,6 +52,37 @@ export function insetsFrom(
   };
 }
 
+/** No zone over the map. */
+export const NO_MAP_INSETS: MapInsets = {
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+};
+
+export const sameInsets = (a: MapInsets, b: MapInsets): boolean =>
+  a.top === b.top &&
+  a.right === b.right &&
+  a.bottom === b.bottom &&
+  a.left === b.left;
+
+/**
+ * What several zones cover together: on each edge, the deepest. The cards
+ * at the left and the Inspector at the right each keep their own side; a
+ * bar and a sheet along the bottom don't add up, the taller one counts.
+ */
+export function combineInsets(zones: readonly MapInsets[]): MapInsets {
+  return zones.reduce<MapInsets>(
+    (all, z) => ({
+      top: Math.max(all.top, z.top),
+      right: Math.max(all.right, z.right),
+      bottom: Math.max(all.bottom, z.bottom),
+      left: Math.max(all.left, z.left),
+    }),
+    NO_MAP_INSETS,
+  );
+}
+
 /**
  * Report the insets whenever a zone changes size, and whenever `layoutKey`
  * says a zone came or went. `measure` reads the boxes; `observe` lists the

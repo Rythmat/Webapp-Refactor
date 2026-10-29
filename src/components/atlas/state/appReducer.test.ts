@@ -108,3 +108,50 @@ describe('atlas reducer — the time window', () => {
     ).toBe(initialAppState);
   });
 });
+
+describe('atlas reducer — what covers the map', () => {
+  const inspector = { top: 0, right: 408, bottom: 0, left: 0 };
+  const cards = { top: 0, right: 0, bottom: 0, left: 307 };
+
+  it('combines each zone’s insets, and forgets a zone that goes', () => {
+    let state = appReducer(initialAppState, {
+      type: 'SET_ZONE_INSETS',
+      payload: { zone: 'inspector', insets: inspector },
+    });
+    state = appReducer(state, {
+      type: 'SET_ZONE_INSETS',
+      payload: { zone: 'cards', insets: cards },
+    });
+    expect(state.mapInsets).toEqual({
+      top: 0,
+      right: 408,
+      bottom: 0,
+      left: 307,
+    });
+    state = appReducer(state, {
+      type: 'SET_ZONE_INSETS',
+      payload: { zone: 'inspector', insets: null },
+    });
+    expect(state.mapInsets).toEqual(cards);
+    expect(state.zoneInsets).toEqual({ cards });
+  });
+
+  it('hands back the same state when nothing changed', () => {
+    const once = appReducer(initialAppState, {
+      type: 'SET_ZONE_INSETS',
+      payload: { zone: 'cards', insets: cards },
+    });
+    expect(
+      appReducer(once, {
+        type: 'SET_ZONE_INSETS',
+        payload: { zone: 'cards', insets: { ...cards } },
+      }),
+    ).toBe(once);
+    expect(
+      appReducer(initialAppState, {
+        type: 'SET_ZONE_INSETS',
+        payload: { zone: 'phone', insets: null },
+      }),
+    ).toBe(initialAppState);
+  });
+});

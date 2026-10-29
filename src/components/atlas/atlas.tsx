@@ -116,10 +116,18 @@ function PhoneOverlays() {
   const { slot } = useInspectorState();
   const bottom = useBottomBar();
   // What the overlays cover of the map, for the MapLibre engine's padding
-  // and framing (MapPadding, mapFraming.ts).
+  // and framing (MapPadding, mapFraming.ts); nothing once they are gone.
   const onInsets = useCallback(
     (insets: MapInsets) =>
-      dispatch({ type: 'SET_MAP_INSETS', payload: insets }),
+      dispatch({ type: 'SET_ZONE_INSETS', payload: { zone: 'phone', insets } }),
+    [dispatch],
+  );
+  useEffect(
+    () => () =>
+      dispatch({
+        type: 'SET_ZONE_INSETS',
+        payload: { zone: 'phone', insets: null },
+      }),
     [dispatch],
   );
   return (

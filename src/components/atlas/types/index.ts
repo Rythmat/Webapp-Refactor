@@ -79,6 +79,12 @@ export interface MapInsets {
   left: number;
 }
 
+/**
+ * The zones that stand over the map, each reporting what it covers: the
+ * Inspector, the floating cards and, on a phone, the sheet and its bar.
+ */
+export type MapZone = 'inspector' | 'cards' | 'phone';
+
 // --- Search fly target ---
 /**
  * What a flight frames: the map fits a country's or a state's outline,
@@ -166,7 +172,12 @@ export interface AppState {
    * (STATES_MIN_ZOOM), so the legend lists them only when they can show.
    */
   statesInView: boolean;
-  /** What the page's overlays cover of the map (MapInsets). */
+  /** What each zone covers of the map, as it last reported (SET_ZONE_INSETS). */
+  zoneInsets: Partial<Record<MapZone, MapInsets>>;
+  /**
+   * What the page's overlays cover of the map: the zones' insets combined,
+   * the deepest on each edge (combineInsets).
+   */
   mapInsets: MapInsets;
 }
 
@@ -190,4 +201,9 @@ export type AppAction =
   | { type: 'OPEN_INFLUENCE_ARCS' }
   | { type: 'SET_LAYER'; payload: { layer: keyof GlobeLayers; on: boolean } }
   | { type: 'SET_STATES_IN_VIEW'; payload: boolean }
+  | {
+      type: 'SET_ZONE_INSETS';
+      payload: { zone: MapZone; insets: MapInsets | null };
+    }
+  /** The combined insets at once, skipping the zones (tests). */
   | { type: 'SET_MAP_INSETS'; payload: MapInsets };

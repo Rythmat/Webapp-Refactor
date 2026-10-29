@@ -1,8 +1,7 @@
 // @vitest-environment jsdom
 /**
- * The Globe's zones: opening a panel moves focus to its heading, Escape closes
- * the topmost thing open, closing gives focus back to the opener, and on a
- * phone the panel is a bottom sheet with buttons for its heights.
+ * The phone's zones: the Inspector's panel is a bottom sheet with buttons for
+ * its heights, and the bar under the map and the map's credit rest on it.
  */
 import {
   act,
@@ -15,7 +14,8 @@ import { useState, type ReactNode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { SidePanel } from '@/components/atlas/components/UI/SidePanel';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
-import { DesktopZones, PhoneZones, type LeftPanelSlot } from './AtlasZones';
+import { PhoneZones } from './AtlasZones';
+import type { InspectorSlot } from './useInspector';
 
 afterEach(cleanup);
 
@@ -33,23 +33,17 @@ function Popover() {
   );
 }
 
-function Harness({
-  phone = false,
-  credit = null,
-}: {
-  phone?: boolean;
-  credit?: ReactNode;
-}) {
+function Harness({ credit = null }: { credit?: ReactNode }) {
   const [panel, setPanel] = useState<'a' | 'b' | null>(null);
   const close = () => setPanel(null);
-  const left: LeftPanelSlot | null = panel && {
+  const inspector: InspectorSlot | null = panel && {
+    panel: 'details',
+    title: 'Details',
     key: panel,
     onClose: close,
     node: (
       <SidePanel title={`Panel ${panel.toUpperCase()}`} onClose={close}>
         {panel === 'a' ? (
-          // Like an artist link in an event card: it opens other content
-          // and unmounts itself.
           <button type="button" onClick={() => setPanel('b')}>
             Go to B
           </button>
@@ -59,23 +53,15 @@ function Harness({
       </SidePanel>
     ),
   };
-  const Zones = phone ? PhoneZones : DesktopZones;
   return (
     <>
-      <div data-atlas-keep-focus>
-        <button type="button" onClick={() => setPanel('a')}>
-          Back
-        </button>
-      </div>
       <button type="button" onClick={() => setPanel('a')}>
         Open
       </button>
-      <Zones
+      <PhoneZones
         bottom={{ label: 'timeline', maxWidth: 800, node: <p>Timeline</p> }}
-        controls={null}
         credit={credit}
-        left={left}
-        right={null}
+        inspector={inspector}
       />
     </>
   );
@@ -89,101 +75,9 @@ const press = (el: HTMLElement) => {
 
 const escape = () => fireEvent.keyDown(window, { key: 'Escape' });
 
-describe('the left panel zone', () => {
-  it('moves focus to the heading on open, and Escape returns it to the opener', () => {
-    render(<Harness />);
-    const opener = screen.getByRole('button', { name: 'Open' });
-    press(opener);
-    const heading = screen.getByRole('heading', { name: 'Panel A' });
-    expect(document.activeElement).toBe(heading);
-
-    escape();
-    expect(screen.queryByRole('heading', { name: 'Panel A' })).toBeNull();
-    expect(document.activeElement).toBe(opener);
-  });
-
-  it('returns focus to the opener from the Close button', () => {
-    render(<Harness />);
-    const opener = screen.getByRole('button', { name: 'Open' });
-    press(opener);
-    press(screen.getByRole('button', { name: 'Close' }));
-    expect(screen.queryByRole('heading', { name: 'Panel A' })).toBeNull();
-    expect(document.activeElement).toBe(opener);
-  });
-
-  it('leaves focus on Back and Forward while the trail is walked', () => {
-    render(<Harness />);
-    const back = screen.getByRole('button', { name: 'Back' });
-    press(back);
-    expect(screen.getByRole('heading', { name: 'Panel A' })).toBeTruthy();
-    expect(document.activeElement).toBe(back);
-  });
-
-  it('takes no focus when nothing had it (a deep link, a click on the globe)', () => {
-    render(<Harness />);
-    fireEvent.click(screen.getByRole('button', { name: 'Open' }));
-    expect(screen.getByRole('heading', { name: 'Panel A' })).toBeTruthy();
-    expect(document.activeElement).toBe(document.body);
-  });
-
-  it('catches focus on the new heading when the old content took it down', () => {
-    render(<Harness />);
-    press(screen.getByRole('button', { name: 'Open' }));
-    press(screen.getByRole('button', { name: 'Go to B' }));
-    expect(document.activeElement).toBe(
-      screen.getByRole('heading', { name: 'Panel B' }),
-    );
-  });
-
-  it('closes the topmost thing first: a popover, then the panel', () => {
-    render(<Harness />);
-    const opener = screen.getByRole('button', { name: 'Open' });
-    press(opener);
-    press(screen.getByRole('button', { name: 'Go to B' }));
-    press(screen.getByRole('button', { name: 'Open popover' }));
-    expect(screen.getByText('Popover')).toBeTruthy();
-
-    escape();
-    expect(screen.queryByText('Popover')).toBeNull();
-    expect(screen.getByRole('heading', { name: 'Panel B' })).toBeTruthy();
-
-    escape();
-    expect(screen.queryByRole('heading', { name: 'Panel B' })).toBeNull();
-    expect(document.activeElement).toBe(opener);
-  });
-
-  it('puts the map credit in the bottom-right corner, beside the bar', () => {
-    render(<Harness credit={<p>Map credit</p>} />);
-    const zone = screen
-      .getByText('Map credit')
-      .closest('[data-atlas-zone-item="map-credit"]')!;
-    // Its own cell, the last of the bottom row; the bar has the middle one.
-    expect(zone.textContent).not.toContain('Timeline');
-    const row = zone.parentElement!;
-    expect(row.textContent).toContain('Timeline');
-    expect(row.lastElementChild).toBe(zone);
-    expect(zone.className).toContain('justify-end');
-  });
-
-  it('shows no credit when the map has nothing to credit', () => {
-    render(<Harness />);
-    expect(
-      document.querySelector('[data-atlas-zone-item="map-credit"]'),
-    ).toBeNull();
-  });
-
-  it('collapses the bottom bar to a handle and back', () => {
-    render(<Harness />);
-    press(screen.getByRole('button', { name: 'Hide the timeline' }));
-    expect(screen.queryByText('Timeline')).toBeNull();
-    press(screen.getByRole('button', { name: 'Show timeline' }));
-    expect(screen.getByText('Timeline')).toBeTruthy();
-  });
-});
-
 describe('the phone bottom sheet', () => {
   it('opens at half, steps with its buttons, and moves the bar aside above peek', () => {
-    render(<Harness phone />);
+    render(<Harness />);
     expect(screen.getByText('Timeline')).toBeTruthy();
     press(screen.getByRole('button', { name: 'Open' }));
 
@@ -210,7 +104,7 @@ describe('the phone bottom sheet', () => {
   });
 
   it('keeps the map credit in view until a full sheet covers the map', () => {
-    render(<Harness phone credit={<p>Map credit</p>} />);
+    render(<Harness credit={<p>Map credit</p>} />);
     const credit = () => screen.queryByText('Map credit');
     // Above the timeline, in the same stack, so the bar never covers it.
     const stack = credit()!.closest(
@@ -230,7 +124,7 @@ describe('the phone bottom sheet', () => {
   });
 
   it('is non-modal and closes on Escape', () => {
-    render(<Harness phone />);
+    render(<Harness />);
     const opener = screen.getByRole('button', { name: 'Open' });
     press(opener);
     const sheet = screen.getByRole('region', { name: 'Details' });

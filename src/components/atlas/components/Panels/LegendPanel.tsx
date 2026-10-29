@@ -6,13 +6,12 @@ import {
   type LegendSwatch,
 } from '@/components/atlas/components/Globe/legendModel';
 import {
-  ATLAS_SURFACE,
-  AtlasEyebrow,
   AtlasIconButton,
+  AtlasPanel,
+  AtlasPanelBody,
 } from '@/components/atlas/components/UI/primitives';
 import { useAtlasStopSelector } from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
-import { cn } from '@/lib/utils';
 
 const NO_ARCS: ReadonlySet<'upstream' | 'downstream'> = new Set();
 
@@ -98,19 +97,14 @@ function Swatch({ swatch }: { swatch: LegendSwatch }) {
 }
 
 /**
- * The legend: what each mark on the globe means, for the marks on the globe
- * right now (state lines only once zoomed in, arcs only while an event's are
- * open). Every row names its mark in words, so nothing rests on colour, and
- * every swatch is drawn from the values the globe paints with
+ * The legend, in the Inspector (owner, 2026-10-29: the Globe in the Studio's
+ * frame): what each mark on the map means, for the marks on it right now
+ * (state lines only once zoomed in, arcs only while an event's are open).
+ * Every row names its mark in words, so nothing rests on colour, and every
+ * swatch is drawn from the values the map paints with
  * (Globe/legendModel.ts), so the two cannot drift.
  */
-export function GlobeLegend({
-  id,
-  onClose,
-}: {
-  id: string;
-  onClose: () => void;
-}) {
+export default function LegendPanel({ onClose }: { onClose: () => void }) {
   const layers = useAtlasSelector((s) => s.layers);
   const statesInView = useAtlasSelector((s) => s.statesInView);
   const regionSelected = useAtlasSelector(
@@ -147,65 +141,58 @@ export function GlobeLegend({
   );
 
   return (
-    <aside
-      aria-label="Legend"
-      className={cn(
-        ATLAS_SURFACE,
-        'flex max-h-[min(60vh,440px)] w-[min(16rem,calc(100vw-1rem))] flex-col',
-      )}
-      id={id}
-    >
-      <header className="flex shrink-0 items-center justify-between py-2 pl-4 pr-2">
-        <AtlasEyebrow as="h2">Legend</AtlasEyebrow>
-        <AtlasIconButton
-          aria-label="Hide the legend"
-          size="sm"
-          onClick={onClose}
-        >
+    <AtlasPanel
+      actions={
+        <AtlasIconButton aria-label="Close" size="sm" onClick={onClose}>
           <X aria-hidden className="size-4" />
         </AtlasIconButton>
-      </header>
-      <ul className="min-h-0 space-y-3 overflow-y-auto border-t border-atlas-panel-border px-4 py-3">
-        {entries.map((entry) => (
-          <li
-            key={entry.id}
-            className="flex gap-3"
-            data-legend-entry={entry.id}
-          >
-            <span
-              aria-hidden
-              className="mt-0.5 flex size-5 shrink-0 items-center justify-center"
+      }
+      subtitle="What the marks on the map mean."
+      title="Legend"
+    >
+      <AtlasPanelBody>
+        <ul className="space-y-3 px-4 py-3">
+          {entries.map((entry) => (
+            <li
+              key={entry.id}
+              className="flex gap-3"
+              data-legend-entry={entry.id}
             >
-              <Swatch swatch={entry.swatch} />
-            </span>
-            <div className="min-w-0">
-              <p className="text-sm font-medium leading-snug text-atlas-text">
-                {entry.label}
-              </p>
-              <p className="text-xs text-atlas-text-2">{entry.detail}</p>
-              {entry.swatch.shape === 'continents' && (
-                <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1">
-                  {entry.swatch.continents.map((c) => (
-                    <li
-                      key={c.id}
-                      className="flex items-center gap-1.5 text-xs text-atlas-text-2"
-                    >
-                      <span
-                        aria-hidden
-                        className="h-2.5 w-5 shrink-0 rounded-full"
-                        style={{
-                          background: `linear-gradient(90deg, ${c.colors.join(', ')})`,
-                        }}
-                      />
-                      {c.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </aside>
+              <span
+                aria-hidden
+                className="mt-0.5 flex size-5 shrink-0 items-center justify-center"
+              >
+                <Swatch swatch={entry.swatch} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-medium leading-snug text-atlas-text">
+                  {entry.label}
+                </p>
+                <p className="text-xs text-atlas-text-2">{entry.detail}</p>
+                {entry.swatch.shape === 'continents' && (
+                  <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1">
+                    {entry.swatch.continents.map((c) => (
+                      <li
+                        key={c.id}
+                        className="flex items-center gap-1.5 text-xs text-atlas-text-2"
+                      >
+                        <span
+                          aria-hidden
+                          className="h-2.5 w-5 shrink-0 rounded-full"
+                          style={{
+                            background: `linear-gradient(90deg, ${c.colors.join(', ')})`,
+                          }}
+                        />
+                        {c.label}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </AtlasPanelBody>
+    </AtlasPanel>
   );
 }

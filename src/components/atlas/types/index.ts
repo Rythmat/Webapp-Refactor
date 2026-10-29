@@ -155,10 +155,11 @@ export interface AppState {
   /** Which influence arc directions are visible on the globe */
   visibleArcDirections: Set<'upstream' | 'downstream'>;
   /**
-   * Rendered width (px) of the DetailsCard while it shows an expanded event, or
-   * null. The globe shifts right by half of this so the region clears the card.
+   * What the Inspector covers of the map's right edge (px) while it is open,
+   * or null. The three.js globe shifts left by half of this so the region
+   * clears it (MapLibre takes it as padding instead, mapInsets).
    */
-  detailsPanelWidth: number | null;
+  inspectorWidth: number | null;
   /**
    * Height (px) of the phone bottom sheet over the globe's lower part, or
    * null. The globe shifts up by half of this so the region clears the sheet.
@@ -176,10 +177,6 @@ export interface AppState {
    * altitude band), so the legend lists them only when they can show.
    */
   statesInView: boolean;
-  /** Whether the legend card is open: closed until the viewer opens it. */
-  legendOpen: boolean;
-  /** Whether the Layers popover is open. */
-  layersOpen: boolean;
   /**
    * True once the viewer has first pressed, scrolled or keyed on the map
    * itself: the map's credit (MapCredit), open when the map first appears,
@@ -206,13 +203,11 @@ export type AppAction =
   | { type: 'TOUR_STEP'; payload: number }
   | { type: 'EXIT_TOUR' }
   | { type: 'SET_WINDOW'; payload: TimeWindow | null }
-  | { type: 'SET_DETAILS_PANEL_WIDTH'; payload: number | null }
+  | { type: 'SET_INSPECTOR_WIDTH'; payload: number | null }
   | { type: 'SET_SHEET_OCCLUSION'; payload: number | null }
   | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' }
   | { type: 'OPEN_INFLUENCE_ARCS' }
   | { type: 'SET_LAYER'; payload: { layer: keyof GlobeLayers; on: boolean } }
   | { type: 'SET_STATES_IN_VIEW'; payload: boolean }
-  | { type: 'SET_LEGEND_OPEN'; payload: boolean }
-  | { type: 'SET_LAYERS_OPEN'; payload: boolean }
   | { type: 'MAP_TOUCHED' }
   | { type: 'SET_MAP_INSETS'; payload: MapInsets };

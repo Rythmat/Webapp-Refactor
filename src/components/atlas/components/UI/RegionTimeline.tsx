@@ -18,6 +18,7 @@ import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import { getCityById, getCityByName } from '@/components/atlas/data/lookups';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
 import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
+import { useAtlasZone } from '@/components/atlas/layout/zoneContext';
 import {
   useAtlasNavigate,
   useAtlasStopSelector,
@@ -326,10 +327,12 @@ export function RegionTimeline() {
 
   const handleSelect = (event: HistoricalEvent) => navigate.toEvent(event);
 
+  // In the stage's dock the stage card is the surface (StageDock).
+  const docked = useAtlasZone().kind === 'dock';
   return (
     // The bottom zone places it (layout/AtlasZones.tsx).
     <div className="w-full">
-      <div className={`px-4 py-4 sm:px-6 ${ATLAS_SURFACE}`}>
+      <div className={docked ? 'pt-1' : `px-4 py-4 sm:px-6 ${ATLAS_SURFACE}`}>
         {/* Region header */}
         <div className="mb-2 text-center">
           <h3 className="text-sm font-bold text-atlas-text">{country}</h3>

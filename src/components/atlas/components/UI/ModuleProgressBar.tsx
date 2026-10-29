@@ -10,6 +10,7 @@ import {
 import { guidesData } from '@/components/atlas/data/loaders';
 import { getEventById } from '@/components/atlas/data/lookups';
 import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
+import { useAtlasZone } from '@/components/atlas/layout/zoneContext';
 import { focusEvent } from '@/components/atlas/navigation/focusEvent';
 import {
   useAtlasDispatch,
@@ -19,6 +20,8 @@ import type { HistoricalEvent } from '@/components/atlas/types';
 import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 
 export function ModuleProgressBar() {
+  // In the stage's dock the stage card is the surface (StageDock).
+  const docked = useAtlasZone().kind === 'dock';
   const activeModule = useAtlasSelector((s) => s.activeModule);
   const dispatch = useAtlasDispatch();
 
@@ -57,7 +60,7 @@ export function ModuleProgressBar() {
   return (
     // The bottom zone places it (layout/AtlasZones.tsx).
     <div className="w-full">
-      <div className={`px-4 py-3 ${ATLAS_SURFACE}`}>
+      <div className={docked ? 'pt-1' : `px-4 py-3 ${ATLAS_SURFACE}`}>
         {/* Header row: module title + step info + exit */}
         <div className="mb-2 flex items-center justify-between gap-3">
           <AtlasEyebrow className="min-w-0">

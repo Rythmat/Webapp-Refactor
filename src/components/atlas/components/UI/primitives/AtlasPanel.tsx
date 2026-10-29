@@ -5,7 +5,10 @@ import {
   ATLAS_HEADING,
   ATLAS_SURFACE,
 } from '@/components/atlas/components/UI/primitives/styles';
-import { useAtlasZone } from '@/components/atlas/layout/zoneContext';
+import {
+  useAtlasZone,
+  zoneIsSurface,
+} from '@/components/atlas/layout/zoneContext';
 import { cn } from '@/lib/utils';
 
 /**
@@ -57,7 +60,10 @@ export const AtlasPanel = forwardRef<
   ref,
 ) {
   const titleId = useId();
-  const inSheet = useAtlasZone().kind === 'sheet';
+  const zone = useAtlasZone();
+  const inSheet = zone.kind === 'sheet';
+  // In the Inspector or the phone's sheet, the zone is the surface.
+  const fills = zoneIsSurface(zone);
   const hasHeader = eyebrow || title || subtitle || actions || header;
   return (
     <Tag
@@ -65,13 +71,13 @@ export const AtlasPanel = forwardRef<
       aria-label={ariaLabel}
       aria-labelledby={!ariaLabel && title ? titleId : undefined}
       className={
-        inSheet
+        fills
           ? 'flex min-h-0 flex-1 flex-col text-atlas-text'
           : cn(ATLAS_SURFACE, 'flex min-h-0 max-w-full flex-col', className)
       }
-      style={inSheet ? undefined : style}
+      style={fills ? undefined : style}
     >
-      {!inSheet && edge}
+      {!fills && edge}
       {hasHeader && (
         <header className={cn('shrink-0', inSheet ? 'px-4 pb-3 pt-1' : 'p-4')}>
           <div className="flex items-start gap-3">

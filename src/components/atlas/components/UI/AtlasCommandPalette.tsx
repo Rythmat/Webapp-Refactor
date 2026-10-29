@@ -187,7 +187,7 @@ function PaletteRow({
  * cmdk 1.0 sets the field's aria-activedescendant once and never updates it,
  * so a screen reader would not hear the arrow keys move.
  *
- * Loaded on first use (AtlasToolbar), so cmdk is not in the page's first
+ * Loaded on first use (Frame/TopRail), so cmdk is not in the page's first
  * download.
  */
 export default function AtlasCommandPalette({
@@ -304,8 +304,8 @@ export default function AtlasCommandPalette({
     'stop-spin': () => dispatch({ type: 'SET_GLOBE_ROTATING', payload: false }),
     'copy-link': onCopyLink,
     'clear-trail': trail.clear,
-    legend: () => dispatch({ type: 'SET_LEGEND_OPEN', payload: true }),
-    layers: () => dispatch({ type: 'SET_LAYERS_OPEN', payload: true }),
+    legend: () => navigate.setFrame({ panel: 'legend' }),
+    layers: () => navigate.setFrame({ panel: 'layers' }),
   };
 
   const choose = (item: PaletteItem) => {

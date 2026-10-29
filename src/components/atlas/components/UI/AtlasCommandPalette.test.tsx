@@ -19,7 +19,7 @@ import {
   AtlasStoreProvider,
   createAtlasStore,
 } from '@/components/atlas/state/atlasStore';
-import { AtlasToolbar } from './AtlasToolbar';
+import { TopRail } from '../Frame/TopRail';
 
 afterEach(cleanup);
 
@@ -39,7 +39,7 @@ function setup() {
     <MemoryRouter initialEntries={['/globe']}>
       <AtlasStoreProvider store={store}>
         <AtlasNavigationProvider>
-          <AtlasToolbar />
+          <TopRail />
           <Where />
         </AtlasNavigationProvider>
       </AtlasStoreProvider>
@@ -142,12 +142,12 @@ describe('command palette', () => {
     expect(button).toHaveFocus();
   });
 
-  it('opens Layers from the palette', async () => {
-    const { store } = setup();
+  it('opens Layers from the palette, in the Inspector', async () => {
+    const { where } = setup();
     pressCtrlK();
     await screen.findByRole('dialog');
     fireEvent.change(field(), { target: { value: 'layers' } });
     fireEvent.click(await screen.findByRole('option', { name: /Open Layers/ }));
-    await waitFor(() => expect(store.api.getState().layersOpen).toBe(true));
+    await waitFor(() => expect(where.search).toContain('panel=layers'));
   });
 });

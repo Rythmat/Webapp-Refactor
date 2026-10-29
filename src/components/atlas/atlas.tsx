@@ -5,60 +5,50 @@ import {
   lazy,
   useCallback,
   useEffect,
-  useMemo,
   useState,
+  type CSSProperties,
   type ReactNode,
 } from 'react';
+import { BottomRail } from '@/components/atlas/components/Frame/BottomRail';
+import { SideRail } from '@/components/atlas/components/Frame/SideRail';
+import {
+  StageDock,
+  useBottomBar,
+} from '@/components/atlas/components/Frame/StageDock';
+import { TopRail } from '@/components/atlas/components/Frame/TopRail';
 import { AtlasGlobe } from '@/components/atlas/components/Globe';
 import { SHOWS_OSM_DATA } from '@/components/atlas/components/Globe/basemapConfig';
-import { ArtistPanel } from '@/components/atlas/components/UI/ArtistPanel';
-import { AtlasToolbar } from '@/components/atlas/components/UI/AtlasToolbar';
-import { DetailsCard } from '@/components/atlas/components/UI/DetailsCard';
-import { GuidedTourBar } from '@/components/atlas/components/UI/GuidedTourBar';
-import { MapControls } from '@/components/atlas/components/UI/MapControls';
 import { MapCredit } from '@/components/atlas/components/UI/MapCredit';
-import { ModuleProgressBar } from '@/components/atlas/components/UI/ModuleProgressBar';
-import { RegionTimeline } from '@/components/atlas/components/UI/RegionTimeline';
-import { SearchResultsPanel } from '@/components/atlas/components/UI/SearchResultsPanel';
 import {
   ATLAS_HEADING,
   ATLAS_SURFACE,
 } from '@/components/atlas/components/UI/primitives';
 import { useIsPhone } from '@/components/atlas/hooks/useMediaQuery';
-import {
-  DesktopZones,
-  PhoneZones,
-  type BottomBarSlot,
-  type LeftPanelSlot,
-} from '@/components/atlas/layout/AtlasZones';
+import { PhoneZones } from '@/components/atlas/layout/AtlasZones';
+import { InspectorRegion } from '@/components/atlas/layout/InspectorRegion';
+import { FRAME_PX } from '@/components/atlas/layout/frameGeometry';
 import { AtlasPortalContext } from '@/components/atlas/layout/portalRoot';
-import { stopKey } from '@/components/atlas/navigation/atlasStop';
+import {
+  InspectorProvider,
+  useInspectorState,
+} from '@/components/atlas/layout/useInspector';
 import {
   AtlasNavigationProvider,
   useAtlasFrame,
-  useAtlasNavigate,
-  useAtlasParams,
-  useAtlasStop,
 } from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasUrlSync } from '@/components/atlas/navigation/useAtlasUrlSync';
 import {
   AtlasStoreProvider,
   useAtlasDispatch,
-  useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
 import { RIVER } from '@/components/atlas/theme/river';
 import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
 import type { MapInsets } from '@/components/atlas/types';
 import { cn } from '@/lib/utils';
 
-// A Cortex lesson's Promoter mind map (`?mindmap=1`), loaded only when asked.
-const MindMapPanel = lazy(
-  () => import('@/components/atlas/components/MindMap/MindMapPanel'),
-);
-
-// The timeline (the Eras section and every lens's timeline view): its own
-// chunk, fetched the first time the page shows it — or sooner, when the
-// pointer heads for the switch (ViewSwitch.prefetchRiver).
+// The timeline (the Eras and Regions & Cities views): its own chunk,
+// fetched the first time the page shows it — or sooner, when the pointer
+// heads for its view tab (River/prefetchRiver).
 const TimeRiver = lazy(
   () => import('@/components/atlas/components/River/TimeRiver'),
 );
@@ -87,17 +77,17 @@ class ErrorBoundary extends Component<
     if (this.state.error) {
       return (
         // atlas-root for the tokens: this replaces the page that carries them.
-        <div className="atlas-root flex h-screen w-screen items-center justify-center bg-atlas-page p-8 text-atlas-text">
-          <div
-            className={cn(ATLAS_SURFACE, 'max-w-lg border-atlas-danger/40 p-6')}
-          >
+        <div className="atlas-root flex min-h-0 w-full flex-1 items-center justify-center bg-atlas-page p-8 text-atlas-text">
+          <div className={cn(ATLAS_SURFACE, 'max-w-lg p-6')}>
             <h1 className={`mb-3 ${ATLAS_HEADING}`}>Something went wrong</h1>
             <pre className="whitespace-pre-wrap text-sm text-atlas-danger">
               {this.state.error.message}
             </pre>
-            <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap text-xs text-atlas-text-2">
-              {this.state.error.stack}
-            </pre>
+            {import.meta.env.DEV && (
+              <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap text-xs text-atlas-text-2">
+                {this.state.error.stack}
+              </pre>
+            )}
           </div>
         </div>
       );
@@ -119,100 +109,18 @@ function AtlasUrlSync() {
   return null;
 }
 
-/**
- * The left panel follows the stop: an artist or a search has its own panel;
- * otherwise the selected region's details card.
- */
-function useLeftPanel(): LeftPanelSlot | null {
-  const navigate = useAtlasNavigate();
-  const stop = useAtlasStop();
-  const timeline = useTimelineView();
-  const place = useAtlasSelector((s) =>
-    s.selectedLocation !== null &&
-    (s.activeTour === null || s.pinnedEvent !== null)
-      ? s.selectedLocation
-      : null,
-  );
-  return useMemo(() => {
-    const onClose = navigate.home;
-    if (stop.kind === 'artist') {
-      return {
-        key: stopKey(stop),
-        node: <ArtistPanel name={stop.artist} />,
-        onClose,
-      };
-    }
-    if (stop.kind === 'search') {
-      return {
-        key: stopKey(stop),
-        node: <SearchResultsPanel query={stop.query} />,
-        onClose,
-      };
-    }
-    // The timeline shows a place's events itself.
-    if (!place || timeline) return null;
-    return {
-      key: stopKey({ kind: 'place', place }),
-      node: <DetailsCard />,
-      onClose,
-    };
-  }, [navigate, stop, place, timeline]);
-}
-
-/** A Cortex lesson's mind map, when the URL asks for it. */
-function useMindMap(): ReactNode | null {
-  // Not a stop param, so it stays on the URL however the student explores.
-  const open = useAtlasParams((params) => params.get('mindmap') === '1');
-  return useMemo(
-    () =>
-      open ? (
-        <Suspense fallback={null}>
-          <MindMapPanel />
-        </Suspense>
-      ) : null,
-    [open],
-  );
-}
-
-const TIMELINE: BottomBarSlot = {
-  label: 'timeline',
-  maxWidth: 800,
-  node: <RegionTimeline />,
-};
-const PATHWAY: BottomBarSlot = {
-  label: 'pathway',
-  maxWidth: 640,
-  node: <ModuleProgressBar />,
-};
-const TOUR: BottomBarSlot = {
-  label: 'tour',
-  maxWidth: 640,
-  node: <GuidedTourBar />,
-};
-
-/**
- * The bottom bar: a pathway's or a tour's progress, else the place's
- * timeline — on the globe; the timeline view is a timeline already.
- */
-function useBottomBar(): BottomBarSlot | null {
-  const inModule = useAtlasSelector((s) => s.activeModule !== null);
-  const inTour = useAtlasSelector((s) => s.activeTour !== null);
-  const timeline = useTimelineView();
-  if (timeline) return null;
-  return inTour ? TOUR : inModule ? PATHWAY : TIMELINE;
-}
-
-const CONTROLS = <MapControls />;
 /** The map's OpenStreetMap credit, when it draws OpenStreetMap's data. */
 const CREDIT = SHOWS_OSM_DATA ? <MapCredit /> : null;
 
 /**
- * Everything over the globe, placed in its zone (layout/AtlasZones.tsx): a
- * grid on desktop, a bottom sheet on phones.
+ * A phone's map: the Inspector's panel in a bottom sheet, and the bar under
+ * the map resting on it (layout/AtlasZones.tsx).
  */
-function AtlasOverlays() {
-  const isPhone = useIsPhone();
+function PhoneOverlays() {
   const dispatch = useAtlasDispatch();
+  const { slot } = useInspectorState();
+  const bottom = useBottomBar();
+  const timeline = useTimelineView();
   const onSheetOcclusion = useCallback(
     (px: number | null) =>
       dispatch({ type: 'SET_SHEET_OCCLUSION', payload: px }),
@@ -225,20 +133,16 @@ function AtlasOverlays() {
       dispatch({ type: 'SET_MAP_INSETS', payload: insets }),
     [dispatch],
   );
-  // The map's own controls and credit leave with the map.
-  const timeline = useTimelineView();
-  const zones = {
-    left: useLeftPanel(),
-    right: useMindMap(),
-    controls: timeline ? null : CONTROLS,
-    bottom: useBottomBar(),
-    credit: timeline ? null : CREDIT,
-    onInsets,
-  };
-  return isPhone ? (
-    <PhoneZones {...zones} onSheetOcclusion={onSheetOcclusion} />
-  ) : (
-    <DesktopZones {...zones} />
+  return (
+    <div className="pointer-events-none absolute inset-0">
+      <PhoneZones
+        bottom={bottom}
+        credit={timeline ? null : CREDIT}
+        inspector={slot}
+        onInsets={onInsets}
+        onSheetOcclusion={onSheetOcclusion}
+      />
+    </div>
   );
 }
 
@@ -297,46 +201,85 @@ function MapStage({ children }: { children: ReactNode }) {
   );
 }
 
-/** The era rail: everywhere but a phone's map, whose sheet holds the bottom. */
-function BottomRail() {
+/**
+ * The era rail along the stage's foot: everywhere but a phone's map, whose
+ * sheet holds the bottom.
+ */
+function StageFoot() {
   const timeline = useTimelineView();
   const isPhone = useIsPhone();
   if (isPhone && !timeline) return null;
   return (
-    <Suspense fallback={null}>
-      <EraRail />
-    </Suspense>
+    <div className="relative h-3 shrink-0">
+      <Suspense fallback={null}>
+        <EraRail />
+      </Suspense>
+    </div>
   );
 }
 
+const DESKTOP_GRID: CSSProperties = {
+  gridTemplateAreas: '"top top" "stage rail" "bottom bottom"',
+  gridTemplateRows: `${FRAME_PX.top}px minmax(0, 1fr) ${FRAME_PX.bottom}px`,
+  gridTemplateColumns: `minmax(0, 1fr) ${FRAME_PX.rail}px`,
+};
+const PHONE_GRID: CSSProperties = {
+  gridTemplateAreas: '"top" "stage" "bottom"',
+  gridTemplateRows: `${FRAME_PX.top}px minmax(0, 1fr) ${FRAME_PX.bottom}px`,
+  gridTemplateColumns: 'minmax(0, 1fr)',
+};
+
 /**
- * The page's frame. It subscribes to nothing, so a dispatch or a URL change
- * re-renders only the pieces that read it — the globe in particular.
+ * The page's frame, the Studio's (owner, 2026-10-29): the top rail; the stage
+ * card holding the map or the timeline, the Inspector over its right edge,
+ * the dock under it and the era rail at its foot; the side rail of panels;
+ * the bottom rail. It subscribes to nothing but the screen's size, so a
+ * dispatch or a URL change re-renders only the pieces that read it — the
+ * globe in particular.
  */
 function AppLayout() {
   // The root, for the palette's and the popovers' portals (layout/portalRoot).
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
+  const isPhone = useIsPhone();
   return (
     <div
       ref={setRoot}
       // isolate: the page's z-index layers (theme/layers.ts) order its own
       // pieces and never compete with the app around it.
-      className="atlas-root isolate flex h-full w-full flex-col overflow-hidden bg-atlas-page text-atlas-text"
+      className="atlas-root relative isolate grid h-full min-h-0 w-full flex-1 overflow-hidden bg-atlas-page text-atlas-text"
       data-tab="globe"
+      style={isPhone ? PHONE_GRID : DESKTOP_GRID}
     >
       <AtlasPortalContext.Provider value={root}>
-        <AtlasToolbar />
-        <div className="relative flex-1">
-          <MapStage>
-            <AtlasGlobe />
-          </MapStage>
-          <RiverView />
-          {/* The zones end above the era rail's strip. */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-3 top-0">
-            <AtlasOverlays />
+        <InspectorProvider>
+          <h1 className="sr-only">Globe</h1>
+          <div className="min-w-0" style={{ gridArea: 'top' }}>
+            <TopRail />
           </div>
-          <BottomRail />
-        </div>
+          <main
+            aria-label="Map and timeline"
+            className="relative mx-2 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl bg-atlas-panel"
+            style={{ gridArea: 'stage' }}
+          >
+            <div className="relative min-h-0 flex-1">
+              <MapStage>
+                <AtlasGlobe />
+              </MapStage>
+              <RiverView />
+              {isPhone ? <PhoneOverlays /> : <InspectorRegion />}
+            </div>
+            {!isPhone && <StageDock />}
+            <StageFoot />
+          </main>
+          {!isPhone && (
+            <div className="min-h-0" style={{ gridArea: 'rail' }}>
+              <SideRail />
+            </div>
+          )}
+          <div className="min-w-0" style={{ gridArea: 'bottom' }}>
+            <BottomRail credit={CREDIT} />
+          </div>
+        </InspectorProvider>
         <AtlasUrlSync />
       </AtlasPortalContext.Provider>
     </div>

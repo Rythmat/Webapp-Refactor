@@ -21,13 +21,11 @@ export const initialAppState: AppState = {
   timeWindow: null,
   searchFlyTarget: null,
   visibleArcDirections: new Set(),
-  detailsPanelWidth: null,
+  inspectorWidth: null,
   sheetOcclusion: null,
   globeRotating: false,
   layers: DEFAULT_LAYERS,
   statesInView: false,
-  legendOpen: false,
-  layersOpen: false,
   mapTouched: false,
   mapInsets: { top: 0, right: 0, bottom: 0, left: 0 },
 };
@@ -40,10 +38,10 @@ export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'SELECT_LOCATION':
       return { ...state, selectedLocation: action.payload, pinnedEvent: null };
-    case 'SET_DETAILS_PANEL_WIDTH':
-      return state.detailsPanelWidth === action.payload
+    case 'SET_INSPECTOR_WIDTH':
+      return state.inspectorWidth === action.payload
         ? state
-        : { ...state, detailsPanelWidth: action.payload };
+        : { ...state, inspectorWidth: action.payload };
     case 'SET_SHEET_OCCLUSION':
       return state.sheetOcclusion === action.payload
         ? state
@@ -139,14 +137,6 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return state.statesInView === action.payload
         ? state
         : { ...state, statesInView: action.payload };
-    case 'SET_LEGEND_OPEN':
-      return state.legendOpen === action.payload
-        ? state
-        : { ...state, legendOpen: action.payload };
-    case 'SET_LAYERS_OPEN':
-      return state.layersOpen === action.payload
-        ? state
-        : { ...state, layersOpen: action.payload };
     case 'MAP_TOUCHED':
       return state.mapTouched ? state : { ...state, mapTouched: true };
     case 'SET_MAP_INSETS': {

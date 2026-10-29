@@ -17,14 +17,15 @@ const LINK = cn(
 );
 
 /**
- * The street map's credit, in the map's bottom-right corner: its data is
+ * The street map's credit, at the right of the bottom rail (on a phone, over
+ * the map's bottom-right corner): its data is
  * © OpenStreetMap contributors (ODbL), drawn as Protomaps' tiles. It reads
  * "Protomaps © OpenStreetMap", with a link to each, when the map first
  * appears, and folds up behind its ⓘ button at the viewer's first press,
  * scroll or key on the map (`mapTouched`), as MapLibre's own credit does.
- * The ⓘ opens and closes it after that, and the viewer's choice stands. The
- * page places it in a zone of its own (AtlasZones), so no panel, bar or
- * sheet covers it. Shown whenever the map draws OpenStreetMap's data
+ * The ⓘ opens and closes it after that, and the viewer's choice stands. It
+ * has a place of its own (the bottom rail; AtlasZones on a phone), so no
+ * panel, bar or sheet covers it. Shown whenever the map draws OpenStreetMap's data
  * (SHOWS_OSM_DATA): the street map, or a city's outline. Without the street
  * map it reads "© OpenStreetMap" alone.
  */
@@ -40,7 +41,7 @@ export function MapCredit({
   const open = chosen ?? !touched;
   const id = useId();
   return (
-    <div className="flex items-center gap-1 rounded-full border border-atlas-panel-border bg-atlas-panel/95 p-0.5 text-xs leading-5 text-atlas-text-2 shadow-2xl">
+    <div className="flex items-center gap-1 rounded-full bg-atlas-pill p-0.5 text-xs leading-5 text-atlas-pill-text [box-shadow:var(--daw-shadow-float)]">
       {open && (
         <p className="whitespace-nowrap pl-2" id={id}>
           {streetMap && (
@@ -70,7 +71,8 @@ export function MapCredit({
         aria-controls={open ? id : undefined}
         aria-expanded={open}
         aria-label="Map credits"
-        size="xs"
+        size="sm"
+        variant="pill"
         title={open ? 'Hide the map credits' : 'Map data © OpenStreetMap'}
         onClick={() => setChosen(!open)}
       >

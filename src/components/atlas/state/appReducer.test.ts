@@ -77,10 +77,10 @@ describe('atlas reducer — globe rotation', () => {
 describe('atlas reducer — details panel width', () => {
   it('records the width the card reports', () => {
     const next = appReducer(initialAppState, {
-      type: 'SET_DETAILS_PANEL_WIDTH',
+      type: 'SET_INSPECTOR_WIDTH',
       payload: 480,
     });
-    expect(next.detailsPanelWidth).toBe(480);
+    expect(next.inspectorWidth).toBe(480);
   });
 
   /**
@@ -91,11 +91,11 @@ describe('atlas reducer — details panel width', () => {
    */
   it('does not churn state identity when the width is unchanged', () => {
     const wide = appReducer(initialAppState, {
-      type: 'SET_DETAILS_PANEL_WIDTH',
+      type: 'SET_INSPECTOR_WIDTH',
       payload: 480,
     });
     expect(
-      appReducer(wide, { type: 'SET_DETAILS_PANEL_WIDTH', payload: 480 }),
+      appReducer(wide, { type: 'SET_INSPECTOR_WIDTH', payload: 480 }),
     ).toBe(wide);
   });
 });

@@ -37,7 +37,7 @@ function setup() {
   };
   const Width = () => {
     renders.width += 1;
-    const width = useAtlasSelector((s) => s.detailsPanelWidth);
+    const width = useAtlasSelector((s) => s.inspectorWidth);
     return <span data-testid="width">{width ?? 'none'}</span>;
   };
   // Selects a derived object; the equality keeps it from re-rendering when
@@ -66,9 +66,7 @@ describe('atlas store', () => {
     const { store, renders } = setup();
     expect(renders).toEqual({ spin: 1, width: 1, pin: 1 });
 
-    act(() =>
-      store.dispatch({ type: 'SET_DETAILS_PANEL_WIDTH', payload: 512 }),
-    );
+    act(() => store.dispatch({ type: 'SET_INSPECTOR_WIDTH', payload: 512 }));
     expect(screen.getByTestId('width')).toHaveTextContent('512');
     expect(renders).toEqual({ spin: 1, width: 2, pin: 1 });
 

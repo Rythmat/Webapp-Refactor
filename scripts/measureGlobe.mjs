@@ -490,8 +490,9 @@ async function runOnce(browser, base, index) {
     // Click the row's date line, clear of the links and buttons in it.
     await page.locator('[data-event-id]').first().locator('svg').last().click();
     await page.waitForTimeout(1500);
-    // The card is the handle's parent; hover reveals the handle.
-    const handle = page.locator('.cursor-ew-resize').first();
+    // The Inspector is the handle's parent (its left edge); hover reveals
+    // the handle.
+    const handle = page.locator('[data-atlas-inspector-resizer]').first();
     const box = await handle.boundingBox();
     if (box) {
       const hx = box.x + box.width / 2;
@@ -518,7 +519,8 @@ async function runOnce(browser, base, index) {
         // Out 160 px and back again, once a second.
         const phase = ((Date.now() - started) % 1000) / 1000;
         const dx = 160 * (phase < 0.5 ? phase * 2 : 2 - phase * 2);
-        await page.mouse.move(hx + dx, hy);
+        // Leftward: the handle is on the Inspector's left edge, so left widens.
+        await page.mouse.move(hx - dx, hy);
         step++;
       }
       await page.mouse.up();

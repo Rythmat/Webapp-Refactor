@@ -97,20 +97,26 @@ export function TrailPopover({ trail }: { trail: Trail }) {
   };
   useEffect(scrollToCurrent, [current]);
 
-  if (steps < 2) return null;
+  // In the top rail from the start, so nothing shifts as the path grows; it
+  // opens once there is a step to go back to.
+  const empty = steps < 2;
   return (
     <Popover.Root
       onOpenChange={(open) => open && requestAnimationFrame(scrollToCurrent)}
     >
       <Popover.Trigger asChild>
         <AtlasPillButton
-          aria-label={`Your path: ${steps} steps`}
+          aria-label={empty ? 'Your path' : `Your path: ${steps} steps`}
           data-atlas-keep-focus
-          size="sm"
+          disabled={empty}
           title="Your path through the globe"
+          variant="pill"
         >
-          <History aria-hidden className="size-3.5" />
-          <span aria-hidden>{steps}</span>
+          <History aria-hidden className="size-4" />
+          {!empty && <span aria-hidden>{steps}</span>}
+          <span aria-hidden className="hidden lg:inline">
+            History
+          </span>
         </AtlasPillButton>
       </Popover.Trigger>
       <Popover.Portal container={portal}>

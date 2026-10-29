@@ -13,10 +13,7 @@ import {
 } from '@/components/atlas/data/musicalEras';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
 import { useAtlasFrame } from '@/components/atlas/navigation/useAtlasNavigate';
-import {
-  useAtlasDispatch,
-  useAtlasSelector,
-} from '@/components/atlas/state/atlasStore';
+import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
 import { ATLAS_Z } from '@/components/atlas/theme/layers';
 import { RIVER } from '@/components/atlas/theme/river';
 import { useTimeCamera } from '@/components/atlas/timeline/TimeCamera';
@@ -65,7 +62,6 @@ type Drag =
  */
 export function EraRail() {
   const camera = useTimeCamera();
-  const dispatch = useAtlasDispatch();
   const reducedMotion = usePrefersReducedMotion();
   const timeline = useAtlasFrame((f) => f.view === 'timeline');
   const filtered = useAtlasSelector((s) => s.timeWindow !== null);
@@ -253,18 +249,6 @@ export function EraRail() {
           </button>
         ))}
       </div>
-
-      {/* On the globe, chosen years filter the map; this lets all of time
-          back in. */}
-      {!timeline && filtered && (
-        <button
-          className="absolute bottom-12 left-3 rounded-full border border-white/15 bg-atlas-panel px-3 py-1 text-xs font-bold text-atlas-text shadow-lg hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus"
-          type="button"
-          onClick={() => dispatch({ type: 'SET_WINDOW', payload: null })}
-        >
-          Show all years
-        </button>
-      )}
 
       {(['from', 'to'] as const).map((end) => (
         <button

@@ -86,6 +86,3 @@ export function useReportInsets(
     };
   }, [rootRef, onInsets, layoutKey]);
 }
-
-/** The map-control buttons, inside the controls zone (MapControls). */
-export const CONTROLS_ROW = '[data-atlas-controls-row]';

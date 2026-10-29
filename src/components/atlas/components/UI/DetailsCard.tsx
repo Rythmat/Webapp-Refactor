@@ -2,12 +2,10 @@ import {
   X,
   ChevronDown,
   FileMusic,
-  ChevronRight,
   Calendar,
   MapPin,
   Maximize2,
   Minimize2,
-  GripVertical,
 } from 'lucide-react';
 import {
   useCallback,
@@ -16,8 +14,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type KeyboardEvent,
-  type PointerEvent,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -59,18 +55,6 @@ import type { HistoricalEvent } from '@/components/atlas/types';
 import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
 import { SongRoutes } from '@/constants/routes';
-
-/** The card's width to start with, and its limits when resized. */
-const DEFAULT_WIDTH = 480;
-const MIN_WIDTH = 280;
-/** One Arrow-key step of the resize handle; Shift takes four. */
-const RESIZE_STEP = 16;
-const maxWidth = () =>
-  typeof window === 'undefined'
-    ? DEFAULT_WIDTH
-    : Math.max(MIN_WIDTH, Math.round(window.innerWidth * 0.72));
-const clampWidth = (w: number) =>
-  Math.round(Math.min(Math.max(w, MIN_WIDTH), maxWidth()));
 
 /**
  * Back to the chart this event was made from.
@@ -325,68 +309,18 @@ export function DetailsCard() {
   const dispatch = useAtlasDispatch();
   const navigate = useAtlasNavigate();
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
-  const [collapsed, setCollapsed] = useState(false);
-  const [enlarged, setEnlarged] = useState(false);
-  const [width, setWidth] = useState(DEFAULT_WIDTH);
-  const cardRef = useRef<HTMLDivElement>(null);
   const zone = useAtlasZone();
-  const inSheet = zone.kind === 'sheet';
+  // In the Inspector, Enlarge widens the Inspector itself (InspectorRegion);
+  // elsewhere the card keeps it.
+  const [ownEnlarged, setOwnEnlarged] = useState(false);
+  const enlarged = zone.kind === 'inspector' ? zone.enlarged : ownEnlarged;
+  const setEnlarged =
+    zone.kind === 'inspector' ? zone.setEnlarged : setOwnEnlarged;
+  const cardRef = useRef<HTMLDivElement>(null);
   const reducedMotion = usePrefersReducedMotion();
 
-  // While dragging, the width is written straight to the card's style and
-  // React hears about it once, on release: re-rendering the card and its event
-  // list on every move is what made the drag stutter. The globe still
-  // follows along, through the ResizeObserver below. Pointer events, so a
-  // finger or a pen drags it as well as a mouse.
-  //
-  // Listened for on the window, not with setPointerCapture on the handle:
-  // with capture the drag ran at 12 fps instead of 17, and the slowed page
-  // kept twice the long tasks afterwards (measureGlobe, 4x CPU). Touch and
-  // pen pointers are captured to the handle by the browser anyway.
-  const onDragStart = useCallback((e: PointerEvent<HTMLDivElement>) => {
-    if (e.button > 0) return;
-    e.preventDefault();
-    const card = cardRef.current;
-    if (!card) return;
-    const startX = e.clientX;
-    const startWidth = card.getBoundingClientRect().width;
-    let next = startWidth;
-    const onMove = (mv: globalThis.PointerEvent) => {
-      next = clampWidth(startWidth + mv.clientX - startX);
-      card.style.width = `${next}px`;
-    };
-    const onUp = () => {
-      setWidth(Math.round(next));
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      window.removeEventListener('pointercancel', onUp);
-    };
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
-    window.addEventListener('pointercancel', onUp);
-  }, []);
-
-  // The same handle from the keyboard: Arrow keys step it, Shift steps
-  // further, Home and End go to the narrowest and widest.
-  const onResizeKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    const step = e.shiftKey ? RESIZE_STEP * 4 : RESIZE_STEP;
-    const next =
-      e.key === 'ArrowLeft'
-        ? width - step
-        : e.key === 'ArrowRight'
-          ? width + step
-          : e.key === 'Home'
-            ? MIN_WIDTH
-            : e.key === 'End'
-              ? maxWidth()
-              : null;
-    if (next === null) return;
-    e.preventDefault();
-    setWidth(clampWidth(next));
-  };
-
-  // Escape leaves Enlarge first; the next one closes the card (the left
-  // zone's layer, under this one).
+  // Escape leaves Enlarge first; the next one closes the card (the
+  // Inspector's layer, under this one).
   useEscapeLayer(enlarged, () => setEnlarged(false));
 
   // The pinned event is always in the list. resolveEventRegion.test.ts proves
@@ -431,11 +365,10 @@ export function DetailsCard() {
   }, [selectedLocation, listed]);
 
   // Expand only the pinned event (timeline click / deep-link / sequence step),
-  // un-collapse the card, and scroll that event into view so it reads fully.
+  // and scroll that event into view so it reads fully.
   useEffect(() => {
     if (!pinnedEvent) return;
     setExpandedEvents(new Set([pinnedEvent.id]));
-    setCollapsed(false);
     const id = pinnedEvent.id;
     const raf = requestAnimationFrame(() => {
       cardRef.current
@@ -447,32 +380,6 @@ export function DetailsCard() {
     });
     return () => cancelAnimationFrame(raf);
   }, [pinnedEvent]);
-
-  // Report the card's occluding width to the globe while an event is expanded so
-  // it can shift the region clear of the card. The ResizeObserver tracks drag-
-  // resize + enlarge, and delivers at most once per frame; only the globe's
-  // offset subscribes to the width, so a report re-renders nothing else.
-  // Cleanup clears it (unmount / nothing pinned). In the phone's bottom sheet
-  // the card covers no side of the globe, so it reports nothing.
-  useEffect(() => {
-    const el = cardRef.current;
-    if (!el || !pinnedEvent || inSheet) {
-      dispatch({ type: 'SET_DETAILS_PANEL_WIDTH', payload: null });
-      return;
-    }
-    const report = () =>
-      dispatch({
-        type: 'SET_DETAILS_PANEL_WIDTH',
-        payload: el.getBoundingClientRect().width,
-      });
-    report();
-    const ro = new ResizeObserver(report);
-    ro.observe(el);
-    return () => {
-      ro.disconnect();
-      dispatch({ type: 'SET_DETAILS_PANEL_WIDTH', payload: null });
-    };
-  }, [dispatch, pinnedEvent, selectedLocation, inSheet]);
 
   if (!selectedLocation) return null;
 
@@ -527,47 +434,11 @@ export function DetailsCard() {
     <AtlasPanel
       ref={cardRef}
       actions={
-        <>
-          {/* In the phone sheet, the sheet's own heights do this. */}
-          {!enlarged && !inSheet && (
-            <AtlasIconButton
-              aria-label={collapsed ? 'Expand details' : 'Collapse details'}
-              size="sm"
-              title={collapsed ? 'Expand' : 'Collapse'}
-              onClick={() => setCollapsed((c) => !c)}
-            >
-              <ChevronRight
-                aria-hidden
-                className={`size-4 transition-transform ${collapsed ? 'rotate-0' : 'rotate-90'}`}
-              />
-            </AtlasIconButton>
-          )}
-          <AtlasIconButton aria-label="Close details" size="sm" onClick={close}>
-            <X aria-hidden className="size-4" />
-          </AtlasIconButton>
-        </>
+        <AtlasIconButton aria-label="Close details" size="sm" onClick={close}>
+          <X aria-hidden className="size-4" />
+        </AtlasIconButton>
       }
       as="div"
-      edge={
-        // Resize handle on the right edge (not while enlarged): drag it, or
-        // focus it and use the Arrow keys.
-        !enlarged && (
-          <div
-            aria-label="Resize the details panel"
-            aria-orientation="vertical"
-            aria-valuemax={maxWidth()}
-            aria-valuemin={MIN_WIDTH}
-            aria-valuenow={width}
-            className={`absolute right-0 top-0 z-10 flex h-full w-3 cursor-ew-resize touch-none items-center justify-center rounded-r-2xl opacity-0 transition-opacity hover:opacity-100 focus-visible:opacity-100 active:opacity-100 ${ATLAS_FOCUS}`}
-            role="separator"
-            tabIndex={0}
-            onKeyDown={onResizeKey}
-            onPointerDown={onDragStart}
-          >
-            <GripVertical aria-hidden className="size-3 text-atlas-text-2" />
-          </div>
-        )
-      }
       header={
         city &&
         !enlarged && (
@@ -589,15 +460,14 @@ export function DetailsCard() {
           </>
         )
       }
-      // The zone caps the height (above the bottom bar) and the width (what
-      // the right column leaves).
-      style={{
-        width: enlarged ? 'min(66vw, 900px)' : `min(${width}px, 100vw - 2rem)`,
-      }}
+      // On its own (no zone to fill), Enlarge widens the card itself.
+      style={
+        enlarged ? { width: 'min(66vw, 900px)' } : { width: 'min(30rem, 100%)' }
+      }
       subtitle={heading.subtitle}
       title={heading.title}
     >
-      {!collapsed && awaitingOutlines && (
+      {awaitingOutlines && (
         <div className="border-t border-atlas-panel-border px-4 py-3">
           {outlines.status === 'error' ? (
             <p className="text-sm text-atlas-text-2" role="alert">
@@ -617,7 +487,7 @@ export function DetailsCard() {
           )}
         </div>
       )}
-      {!collapsed && !awaitingOutlines && (
+      {!awaitingOutlines && (
         <EventList
           events={events}
           expandedEvents={expandedEvents}

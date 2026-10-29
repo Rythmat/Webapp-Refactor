@@ -71,10 +71,4 @@ describe('EraRail', () => {
       expect(from.getAttribute('aria-valuenow')).toBe('1910'),
     );
   });
-
-  it('lets all of time back in on the globe', () => {
-    setup('/globe?from=1946&to=1979');
-    fireEvent.click(screen.getByRole('button', { name: 'Show all years' }));
-    expect(screen.queryByRole('button', { name: 'Show all years' })).toBeNull();
-  });
 });

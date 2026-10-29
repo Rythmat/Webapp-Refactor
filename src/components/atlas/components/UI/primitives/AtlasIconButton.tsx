@@ -12,8 +12,8 @@ const VARIANT = {
   /** Ringed: an icon button standing on its own. */
   outline:
     'border-white/10 bg-atlas-pill text-atlas-text hover:bg-white/[0.06]',
-  /** Inside a rail's pill zone: lit while pressed. */
-  pill: 'border-transparent text-atlas-pill-text hover:bg-white/[0.08] hover:text-atlas-text aria-pressed:bg-atlas-pill-on aria-pressed:text-atlas-text',
+  /** Inside a rail's pill zone: lit while pressed; dimmed when disabled. */
+  pill: 'border-transparent text-atlas-pill-text hover:bg-white/[0.08] hover:text-atlas-text aria-pressed:bg-atlas-pill-on aria-pressed:text-atlas-text disabled:border-transparent',
 } as const;
 
 const SIZE = {

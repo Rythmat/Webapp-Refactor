@@ -52,16 +52,18 @@ import { useMspModuleCompletion } from '@/features/classroom/msp/useMspModuleCom
 import { cn } from '@/lib/utils';
 
 /**
- * The zone places the panel (layout/AtlasZones.tsx): the right column on
- * desktop, under the map controls; on a phone, the bottom sheet it shares
- * with the left panel, which is then the surface.
+ * The zone places the panel: the Inspector on desktop, the bottom sheet on a
+ * phone, each then the surface; on its own (tests), a card of its own.
  */
+const FILLS = 'flex min-h-0 flex-1 flex-col overflow-hidden text-atlas-text';
 const PANEL = {
   column: cn(
     ATLAS_SURFACE,
     'flex min-h-0 w-[360px] max-w-full flex-col overflow-hidden',
   ),
-  sheet: 'flex min-h-0 flex-1 flex-col overflow-hidden text-atlas-text',
+  sheet: FILLS,
+  inspector: FILLS,
+  dock: FILLS,
 } as const;
 
 /** Leads shown at once: enough to choose from, not a list to copy down. */

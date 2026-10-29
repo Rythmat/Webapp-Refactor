@@ -106,13 +106,13 @@ type AnimatableGlobe = GlobeMethods & {
 type GlobeComponent = typeof import('react-globe.gl').default;
 
 /**
- * react-globe.gl with its `globeOffset` following the details card.
+ * react-globe.gl with its `globeOffset` following the Inspector.
  *
- * When an event card is expanded it overlays the left, so the globe slides
- * right by half the card's occluding width and the centred region clears it.
+ * While the Inspector is open it overlays the right, so the globe slides
+ * left by half of what it covers and the centred region clears it.
  * On a phone the bottom sheet covers the bottom instead, and the globe rises
  * by half the sheet's height.
- * This lives in its own component, subscribed to the card's width alone, so a
+ * This lives in its own component, subscribed to that width alone, so a
  * resize — and every frame of the ~500 ms tween after it — re-renders only
  * this wrapper. react-kapsule then forwards just the one prop that changed;
  * BaseGlobe and every layer accessor are left alone.
@@ -125,11 +125,12 @@ function OffsetGlobe({
   Globe: GlobeComponent;
   globeRef: React.MutableRefObject<GlobeMethods | undefined>;
 }) {
-  const detailsPanelWidth = useAtlasSelector((s) => s.detailsPanelWidth);
+  const inspectorWidth = useAtlasSelector((s) => s.inspectorWidth);
   const sheetOcclusion = useAtlasSelector((s) => s.sheetOcclusion);
   const reducedMotion = usePrefersReducedMotion();
-  const targetShiftX = detailsPanelWidth
-    ? Math.round((16 + detailsPanelWidth) / 2)
+  // The Inspector covers the map's right edge: shift left by half of it.
+  const targetShiftX = inspectorWidth
+    ? -Math.round((16 + inspectorWidth) / 2)
     : 0;
   // A phone's bottom sheet covers the bottom: lift the globe by half of it.
   const targetShiftY = sheetOcclusion ? -Math.round(sheetOcclusion / 2) : 0;

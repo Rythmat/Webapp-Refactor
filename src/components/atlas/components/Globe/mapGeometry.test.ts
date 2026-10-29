@@ -12,6 +12,7 @@ import {
   flightDuration,
   flyZoom,
   greatCircle,
+  MAP_MAX_ZOOM,
   mapZoomToAltitude,
   regionCollection,
   statesInViewAt,
@@ -82,7 +83,7 @@ describe('zoom mapping', () => {
 
   it('stays within the map’s zoom range', () => {
     expect(altitudeToMapZoom(1e6, H)).toBe(0);
-    expect(altitudeToMapZoom(1e-9, H)).toBe(18);
+    expect(altitudeToMapZoom(1e-9, H)).toBe(MAP_MAX_ZOOM);
   });
 
   it('shows the states from zoom 3 and hides them below 2.8', () => {

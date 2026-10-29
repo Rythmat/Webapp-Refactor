@@ -10,15 +10,10 @@ import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import {
   useEffect,
   useMemo,
-  useReducer,
   useRef,
   useState,
   type MutableRefObject,
 } from 'react';
-import {
-  cityOutline,
-  loadCityOutline,
-} from '@/components/atlas/data/cityOutlines';
 import { useGeoData } from '@/components/atlas/hooks/useGeoData';
 import {
   useIsPhone,
@@ -84,11 +79,6 @@ const START = { lat: 20, lng: 0, altitude: 2.5 };
 const SETTLE_MS = 80;
 /** How long a country or state flight waits for its outlines before going anyway. */
 const OUTLINE_WAIT_MS = 2500;
-/**
- * How long a city flight waits for the city's outline (one small file)
- * before going to its centre anyway; the outline is drawn when it comes.
- */
-const CITY_OUTLINE_WAIT_MS = 800;
 
 /** How often the arcs' dashes step along (MapLibre's line-animation example). */
 const DASH_STEP_MS = 60;
@@ -221,9 +211,8 @@ export default function MapLibreGlobe() {
         zoom: altitudeToMapZoom(START.altitude, height, START.lat),
         maxZoom: MAP_MAX_ZOOM,
         pixelRatio: Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO),
-        // The page draws the OpenStreetMap credit itself (MapCredit), in a
-        // zone nothing covers; MapLibre's corner control sat under the
-        // timeline and the phone's sheet.
+        // The map's data is Natural Earth's (public domain) and our own:
+        // nothing to credit, so no corner control.
         attributionControl: false,
         // A globe turns by being dragged; tilting and twisting it only
         // disorients, so those gestures are off.
@@ -417,48 +406,17 @@ export default function MapLibreGlobe() {
   const flightTimer = useRef<number | undefined>(undefined);
   const waitingSince = useRef<{ target: object; at: number } | null>(null);
 
-  // A city's outline loads when the city is selected or flown to: drawn
-  // round the selected city, and fitted by a flight to it. Each arrival
-  // bumps the version, which the effects below read the outlines by.
-  const [outlinesVersion, outlineArrived] = useReducer((n: number) => n + 1, 0);
-  const flyCityId =
-    searchFlyTarget?.frame?.kind === 'city'
-      ? searchFlyTarget.frame.cityId
-      : undefined;
-  useEffect(() => {
-    for (const id of [selectedCityId, flyCityId]) {
-      if (id && cityOutline(id) === undefined) {
-        void loadCityOutline(id).then(outlineArrived);
-      }
-    }
-  }, [selectedCityId, flyCityId]);
-  useEffect(() => {
-    if (!map) return;
-    const outline = selectedCityId ? cityOutline(selectedCityId) : null;
-    feed(
-      map,
-      SOURCE.cityOutline,
-      outline ? { type: 'FeatureCollection', features: [outline] } : EMPTY,
-    );
-  }, [map, selectedCityId, outlinesVersion]);
-
   useEffect(() => {
     if (!map || !searchFlyTarget) return;
     const target = searchFlyTarget;
     const outlines: Outlines = {
       countries: countries?.features ?? null,
       states: adminRegions?.features ?? null,
-      city: cityOutline,
     };
     const frame = target.frame;
-    const cityWait =
-      frame?.kind === 'city' &&
-      !!frame.cityId &&
-      cityOutline(frame.cityId) === undefined;
     const loading =
-      cityWait ||
-      (frame?.kind === 'region' &&
-        findRegion(frame.place, outlines) === 'loading');
+      frame?.kind === 'region' &&
+      findRegion(frame.place, outlines) === 'loading';
 
     const fly = () => {
       waitingSince.current = null;
@@ -506,8 +464,7 @@ export default function MapLibreGlobe() {
       if (waitingSince.current?.target !== target) {
         waitingSince.current = { target, at: Date.now() };
       }
-      const wait = cityWait ? CITY_OUTLINE_WAIT_MS : OUTLINE_WAIT_MS;
-      const left = wait - (Date.now() - waitingSince.current.at);
+      const left = OUTLINE_WAIT_MS - (Date.now() - waitingSince.current.at);
       flightTimer.current = window.setTimeout(
         () => {
           dispatch({ type: 'CLEAR_FLY_TARGET' });
@@ -521,33 +478,8 @@ export default function MapLibreGlobe() {
     // A framed flight opens a panel; give it a moment to be on the page and
     // measured, so the flight lands clear of it (landingInsets).
     flightTimer.current = window.setTimeout(fly, frame ? SETTLE_MS : 0);
-  }, [
-    map,
-    searchFlyTarget,
-    countries,
-    adminRegions,
-    outlinesVersion,
-    dispatch,
-  ]);
+  }, [map, searchFlyTarget, countries, adminRegions, dispatch]);
   useEffect(() => () => window.clearTimeout(flightTimer.current), []);
-
-  // The viewer's first press, scroll or key on the map itself, which folds
-  // the map's credit (MapCredit) away. Flights and Spin are not the viewer.
-  useEffect(() => {
-    if (!map) return;
-    const target = map.getCanvasContainer();
-    const kinds = ['pointerdown', 'wheel', 'keydown'] as const;
-    const touched = () => {
-      for (const kind of kinds) target.removeEventListener(kind, touched);
-      dispatch({ type: 'MAP_TOUCHED' });
-    };
-    for (const kind of kinds) {
-      target.addEventListener(kind, touched, { passive: true });
-    }
-    return () => {
-      for (const kind of kinds) target.removeEventListener(kind, touched);
-    };
-  }, [map, dispatch]);
 
   // State outlines in view, for the legend: from STATES_MIN_ZOOM, with
   // hysteresis. 'zoom' fires every frame of a flight; only a change is sent.

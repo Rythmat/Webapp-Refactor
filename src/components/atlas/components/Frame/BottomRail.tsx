@@ -1,5 +1,4 @@
 import { Pause, Play } from 'lucide-react';
-import type { ReactNode } from 'react';
 import { prefetchRiver } from '@/components/atlas/components/River/prefetchRiver';
 import {
   ATLAS_PILL_ZONE,
@@ -163,10 +162,10 @@ function PanelLaunchers({ spin: withSpin }: { spin: boolean }) {
  * The Globe's bottom rail, as the Studio's (owner, 2026-10-29): 44 px, the
  * window's full width, its zones in pills on the page. At the left, what
  * the map does (its spin, the years it shows); the views centred in the
- * window; at the right, the map's credit (`credit`, which must stay in view:
- * OpenStreetMap's licence). On a phone, the panels' icons join the left.
+ * window; the right is kept, so the views stay centred. On a phone, the
+ * panels' icons join the left.
  */
-export function BottomRail({ credit }: { credit: ReactNode }) {
+export function BottomRail() {
   const isPhone = useIsPhone();
   const timeline = useAtlasFrame((frame) => frame.view === 'timeline');
   if (isPhone) {
@@ -195,9 +194,7 @@ export function BottomRail({ credit }: { credit: ReactNode }) {
         {!timeline && <AllYears />}
       </div>
       <ViewTabs short={false} />
-      <div className="flex min-w-0 items-center justify-end" data-zone="credit">
-        {!timeline && credit}
-      </div>
+      <div className="flex min-w-0 items-center justify-end" data-zone="end" />
     </div>
   );
 }

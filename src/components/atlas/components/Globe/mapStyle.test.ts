@@ -53,16 +53,6 @@ describe('the style', () => {
     expect(paint).toContain(ATLAS_SCENE.strokeSelected);
   });
 
-  it('outlines the selected city in the selected region’s line', () => {
-    const outline = style.layers.find((l) => l.id === LAYER.cityOutline);
-    expect(outline?.paint).toMatchObject({
-      'line-color': ATLAS_SCENE.strokeSelected,
-    });
-    expect(ids(style.layers).indexOf(LAYER.cityOutline)).toBeGreaterThan(
-      ids(style.layers).indexOf(LAYER.countriesLine),
-    );
-  });
-
   it('fades the atmosphere out by zoom 7', () => {
     expect(style.sky?.['atmosphere-blend']).toEqual([
       'interpolate',

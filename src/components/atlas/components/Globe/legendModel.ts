@@ -111,7 +111,7 @@ export function legendEntries(ctx: LegendContext): LegendEntry[] {
       entries.push({
         id: 'selected-city',
         label: 'Selected city',
-        detail: 'Its name turns warm, and its boundary is outlined.',
+        detail: 'Its name turns warm.',
         swatch: { shape: 'label', color: ATLAS_SCENE.strokeSelected },
       });
     }

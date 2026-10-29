@@ -17,7 +17,6 @@ import {
 } from '@/components/atlas/components/Frame/StageDock';
 import { TopRail } from '@/components/atlas/components/Frame/TopRail';
 import { AtlasGlobe } from '@/components/atlas/components/Globe';
-import { MapCredit } from '@/components/atlas/components/UI/MapCredit';
 import {
   ATLAS_HEADING,
   ATLAS_SURFACE,
@@ -108,9 +107,6 @@ function AtlasUrlSync() {
   return null;
 }
 
-/** The map's OpenStreetMap credit, when it draws OpenStreetMap's data. */
-const CREDIT = <MapCredit />;
-
 /**
  * A phone's map: the Inspector's panel in a bottom sheet, and the bar under
  * the map resting on it (layout/AtlasZones.tsx).
@@ -119,7 +115,6 @@ function PhoneOverlays() {
   const dispatch = useAtlasDispatch();
   const { slot } = useInspectorState();
   const bottom = useBottomBar();
-  const timeline = useTimelineView();
   // What the overlays cover of the map, for the MapLibre engine's padding
   // and framing (MapPadding, mapFraming.ts).
   const onInsets = useCallback(
@@ -129,12 +124,7 @@ function PhoneOverlays() {
   );
   return (
     <div className="pointer-events-none absolute inset-0">
-      <PhoneZones
-        bottom={bottom}
-        credit={timeline ? null : CREDIT}
-        inspector={slot}
-        onInsets={onInsets}
-      />
+      <PhoneZones bottom={bottom} inspector={slot} onInsets={onInsets} />
     </div>
   );
 }
@@ -268,7 +258,7 @@ function AppLayout() {
             </div>
           )}
           <div className="min-w-0" style={{ gridArea: 'bottom' }}>
-            <BottomRail credit={CREDIT} />
+            <BottomRail />
           </div>
         </InspectorProvider>
         <AtlasUrlSync />

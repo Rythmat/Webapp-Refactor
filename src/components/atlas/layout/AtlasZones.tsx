@@ -28,11 +28,6 @@ export interface PhoneZonesProps {
   /** The Inspector's panel, shown in the sheet (layout/useInspector.tsx). */
   inspector: InspectorSlot | null;
   bottom: BottomBarSlot | null;
-  /**
-   * The map's data credit (MapCredit), when the map draws OpenStreetMap's
-   * data. It sits above the bar or the sheet, so nothing covers it.
-   */
-  credit?: ReactNode | null;
   /** What the zones cover of the map, whenever it changes (MapInsets). */
   onInsets?: (insets: MapInsets) => void;
 }
@@ -91,12 +86,7 @@ function BottomBarFrame({ bar }: { bar: BottomBarSlot }) {
  * rail). Once the sheet is raised past peek the bar steps aside, and it comes
  * back when the sheet drops or closes.
  */
-export function PhoneZones({
-  inspector,
-  bottom,
-  credit,
-  onInsets,
-}: PhoneZonesProps) {
+export function PhoneZones({ inspector, bottom, onInsets }: PhoneZonesProps) {
   const sheetRef = usePanelZone<HTMLDivElement>(inspector);
   const [snap, setSnap] = useState<SheetSnap>('half');
   const open = inspector !== null;
@@ -113,15 +103,11 @@ export function PhoneZones({
     [snap],
   );
   const barHidden = open && snap !== 'peek';
-  // The sheet's height, for the credit to sit on when the bar steps aside.
-  const [sheetPx, setSheetPx] = useState(SHEET_PEEK_PX);
   const bar = bottom && !barHidden ? bottom : null;
-  // A full sheet covers the map, and the credit with it.
-  const showCredit = !!credit && !(open && snap === 'full');
-  const stackBottom = !open ? 8 : bar ? SHEET_PEEK_PX + 16 : sheetPx + 8;
+  const stackBottom = !open ? 8 : SHEET_PEEK_PX + 16;
 
-  // What covers the map: along the bottom the bar (with the credit) or the
-  // sheet, which at full covers it all and leaves nothing to frame.
+  // What covers the map: along the bottom the bar or the sheet, which at
+  // full covers it all and leaves nothing to frame.
   const rootRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
   useReportInsets(
@@ -138,12 +124,12 @@ export function PhoneZones({
       });
     },
     onInsets,
-    `${open} ${snap} ${bar !== null} ${showCredit}`,
+    `${open} ${snap} ${bar !== null}`,
   );
 
   return (
     <div ref={rootRef} className="pointer-events-none absolute inset-0">
-      {(bar || showCredit) && (
+      {bar && (
         <div
           ref={stackRef}
           className={cn(
@@ -153,15 +139,7 @@ export function PhoneZones({
           )}
           style={{ bottom: stackBottom }}
         >
-          {showCredit && (
-            <div
-              {...zoneItem('map-credit')}
-              className="self-end *:pointer-events-auto"
-            >
-              {credit}
-            </div>
-          )}
-          {bar && <BottomBarFrame bar={bar} />}
+          <BottomBarFrame bar={bar} />
         </div>
       )}
       {inspector && (
@@ -170,9 +148,6 @@ export function PhoneZones({
             ref={sheetRef}
             label={inspector.title}
             snap={snap}
-            onHeight={(px) => {
-              if (credit) setSheetPx(px);
-            }}
             onSnap={setSnap}
           >
             {inspector.node}

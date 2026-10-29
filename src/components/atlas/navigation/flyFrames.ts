@@ -6,9 +6,9 @@ import type { FlyFrame, SelectedLocation } from '@/components/atlas/types';
  */
 
 /**
- * A city's card frames the city itself: fitted to its outline, or failing
- * one at this street-map zoom, its centre and its suburbs. Tours pass their
- * own zoom and no city, wider for a stop with regional context
+ * A city's card frames the city: its centre at this street-map zoom, which
+ * the map compresses to its own (capFrameZoom in mapFraming.ts). Tours pass
+ * their own zoom and no city, wider for a stop with regional context
  * (guidedTours.ts).
  */
 export const CITY_MAP_ZOOM = 10;

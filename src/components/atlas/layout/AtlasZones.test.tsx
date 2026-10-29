@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
  * The phone's zones: the Inspector's panel is a bottom sheet with buttons for
- * its heights, and the bar under the map and the map's credit rest on it.
+ * its heights, and the bar under the map rests on it.
  */
 import {
   act,
@@ -10,7 +10,7 @@ import {
   render,
   screen,
 } from '@testing-library/react';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { SidePanel } from '@/components/atlas/components/UI/SidePanel';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
@@ -33,7 +33,7 @@ function Popover() {
   );
 }
 
-function Harness({ credit = null }: { credit?: ReactNode }) {
+function Harness() {
   const [panel, setPanel] = useState<'a' | 'b' | null>(null);
   const close = () => setPanel(null);
   const inspector: InspectorSlot | null = panel && {
@@ -60,7 +60,6 @@ function Harness({ credit = null }: { credit?: ReactNode }) {
       </button>
       <PhoneZones
         bottom={{ label: 'timeline', maxWidth: 800, node: <p>Timeline</p> }}
-        credit={credit}
         inspector={inspector}
       />
     </>
@@ -101,26 +100,6 @@ describe('the phone bottom sheet', () => {
     expect((collapse as HTMLButtonElement).disabled).toBe(true);
     // At peek it rests on the sheet again.
     expect(screen.getByText('Timeline')).toBeTruthy();
-  });
-
-  it('keeps the map credit in view until a full sheet covers the map', () => {
-    render(<Harness credit={<p>Map credit</p>} />);
-    const credit = () => screen.queryByText('Map credit');
-    // Above the timeline, in the same stack, so the bar never covers it.
-    const stack = credit()!.closest(
-      '[data-atlas-zone-item="map-credit"]',
-    )!.parentElement!;
-    expect(stack.textContent).toContain('Timeline');
-    expect(stack.style.bottom).toBe('8px');
-
-    press(screen.getByRole('button', { name: 'Open' }));
-    // At half the bar steps aside; the credit stays, on the sheet.
-    expect(screen.queryByText('Timeline')).toBeNull();
-    expect(credit()).toBeTruthy();
-    press(screen.getByRole('button', { name: 'Expand sheet' }));
-    expect(credit()).toBeNull();
-    press(screen.getByRole('button', { name: 'Collapse sheet' }));
-    expect(credit()).toBeTruthy();
   });
 
   it('is non-modal and closes on Escape', () => {

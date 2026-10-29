@@ -10,6 +10,7 @@ import {
   COUNTRY_MAX_ZOOM,
   POINTS_MAX_ZOOM,
   STATE_MAX_ZOOM,
+  capFrameZoom,
   findRegion,
   fitCamera,
   frameCamera,
@@ -211,51 +212,28 @@ describe('frameCamera', () => {
     expect(fit).toHaveBeenLastCalledWith(expect.anything(), POINTS_MAX_ZOOM);
   });
 
-  it('fits a city to its outline, no closer than its cap', () => {
-    const vienna = {
-      type: 'Feature' as const,
-      properties: {},
-      geometry: {
-        type: 'Polygon' as const,
-        coordinates: [
-          [
-            [16.18, 48.12],
-            [16.58, 48.12],
-            [16.58, 48.32],
-            [16.18, 48.32],
-            [16.18, 48.12],
-          ],
-        ],
-      },
-    };
-    const camera = frameCamera(
-      {
-        lat: 48.21,
-        lng: 16.37,
-        zoom: 10,
-        frame: { kind: 'city', zoom: 10, cityId: 'vienna' },
-      },
-      { ...OUTLINES, city: (id) => (id === 'vienna' ? vienna : null) },
-      fit,
-      800,
-    );
-    expect(fit).toHaveBeenLastCalledWith(
-      [
-        [16.18, 48.12],
-        [16.58, 48.32],
-      ],
-      CITY_MAX_ZOOM,
-    );
-    expect(camera.zoom).toBe(CITY_MAX_ZOOM);
-  });
-
-  it('centres a city at its own zoom', () => {
+  it('centres a city with the region around it', () => {
+    const unused = vi.fn(() => null);
     expect(
-      frameCamera(at({ kind: 'city', zoom: 10 }), OUTLINES, fit, 800),
+      frameCamera(at({ kind: 'city', zoom: 10 }), OUTLINES, unused, 800),
     ).toEqual({
       center: [20, 10],
-      zoom: 10,
+      zoom: CITY_MAX_ZOOM,
     });
+    expect(unused).not.toHaveBeenCalled();
+  });
+
+  it('keeps a closer stop closer, below the city cap', () => {
+    // A tour's stops, from a region's to a street corner's (guidedTours.ts).
+    const zooms = [5, 7, 7.5, 8.1, 8.7, 9.3, 10, 14].map(capFrameZoom);
+    expect(zooms[0]).toBe(5);
+    for (let i = 1; i < zooms.length - 1; i++) {
+      expect(zooms[i]).toBeGreaterThan(zooms[i - 1]);
+    }
+    expect(capFrameZoom(7)).toBeCloseTo(6.03, 2);
+    expect(capFrameZoom(9.3)).toBeCloseTo(6.83, 2);
+    expect(capFrameZoom(10)).toBe(CITY_MAX_ZOOM);
+    expect(capFrameZoom(14)).toBe(CITY_MAX_ZOOM);
   });
 
   it('falls back to the target itself for a place it cannot find', () => {

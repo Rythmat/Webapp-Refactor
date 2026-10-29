@@ -82,15 +82,16 @@ export interface MapInsets {
 // --- Search fly target ---
 /**
  * What a flight frames: the map fits a country's or a state's outline,
- * centres a city at a street-map zoom, and fits a set of points
+ * centres a city with the region around it, and fits a set of points
  * (components/Globe/mapFraming.ts).
  */
 export type FlyFrame =
   /** A country's or a US/Canada state's outline. */
   | { kind: 'region'; place: SelectedLocation }
   /**
-   * A city: fitted to its outline when it has one (`cityId`), else at a
-   * street-map zoom (navigation/flyFrames.ts).
+   * A city (`cityId` when it is one of the map's), centred at a street-map
+   * zoom, which the map compresses to its own (capFrameZoom;
+   * navigation/flyFrames.ts).
    */
   | { kind: 'city'; zoom: number; cityId?: string }
   /** Every one of these points: an artist's events. */
@@ -165,12 +166,6 @@ export interface AppState {
    * (STATES_MIN_ZOOM), so the legend lists them only when they can show.
    */
   statesInView: boolean;
-  /**
-   * True once the viewer has first pressed, scrolled or keyed on the map
-   * itself: the map's credit (MapCredit), open when the map first appears,
-   * folds up then.
-   */
-  mapTouched: boolean;
   /** What the page's overlays cover of the map (MapInsets). */
   mapInsets: MapInsets;
 }
@@ -195,5 +190,4 @@ export type AppAction =
   | { type: 'OPEN_INFLUENCE_ARCS' }
   | { type: 'SET_LAYER'; payload: { layer: keyof GlobeLayers; on: boolean } }
   | { type: 'SET_STATES_IN_VIEW'; payload: boolean }
-  | { type: 'MAP_TOUCHED' }
   | { type: 'SET_MAP_INSETS'; payload: MapInsets };

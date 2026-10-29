@@ -41,8 +41,6 @@ rollback behind `VITE_ATLAS_ENGINE=three`, is retired. Its code is in git:
   events', and it appears as soon as published content places an event
   there. US and Canadian events still open their state's card first, as
   before; the town's name highlights while the event is pinned.
-- **A selected city is outlined** by its boundary, in the same bright, warm
-  line as a selected country or state (see "City outlines" below).
 - **Influence arcs** are dashed great circles on the surface with a slowly
   moving dash and a dark edge. With reduced motion turned on, the dash
   holds still and camera flights cut instead of flying.
@@ -79,14 +77,16 @@ Navigation says what a flight frames (`FlyTarget.frame`,
   Svalbard, the Canaries, the Galápagos). The main landmass is the part
   holding the most of the place's music cities, so Malaysia frames the
   peninsula with Kuala Lumpur, not the larger Malaysian Borneo. Countries
-  come no closer than zoom 7, and states no closer than zoom 8.
-- **A city** is fitted to its outline, no closer than zoom 12, so the
-  whole city shows. A city with no outline is centred at zoom 10. A city
-  flight waits up to 0.8 s for the city's outline file before it sets off
-  anyway. A guided tour's city stops use the tour's own zoom, wider where a
-  stop shows the region around the city.
+  come no closer than zoom 6, and states no closer than zoom 6.5.
+- **A city** is centred with the region around it, at zoom 7. A guided
+  tour's city stops use the tour's own zoom, wider where a stop shows the
+  region around the city. Navigation asks in street-map zooms (10 for a
+  city, 7 to 9.3 for tour stops); `capFrameZoom` compresses those past 5.5
+  into what is left below 7, so a closer stop still lands closer.
 - **An artist** is fitted to the places their events happened, no closer
-  than zoom 9.
+  than zoom 6.5.
+- **The map stops at zoom 8.** There are no streets to see, and Natural
+  Earth's 1:110m coasts turn to blobs much past zoom 7.
 - **Anything else** (a tour's overview stop) flies to its centre, at the
   zoom the three.js globe used for it.
 
@@ -105,53 +105,16 @@ zooms states and cities are seen from, and gives continent-sized countries
 a little extra room. MapLibre's own `cameraForBounds` sized a region's
 height a third too small under the globe projection, so it isn't used.
 
-## Attribution
+## Data and credit
 
-The country and state outlines are Natural Earth's, which is public
-domain. The city outlines are OpenStreetMap's data (© OpenStreetMap
-contributors, ODbL), which requires a visible credit. The page draws it
-itself (`components/UI/MapCredit.tsx`), at the right of the bottom rail:
-
-- when the map first appears, it reads "© OpenStreetMap", linked;
-- at the viewer's first press, scroll or key on the map itself, it folds up
-  behind an ⓘ button. Camera flights and Spin don't count; the map reports
-  the touch as `mapTouched` in the store;
-- the ⓘ opens and closes it after that, and the viewer's choice stands.
-
-MapLibre's own corner control is switched off, because it sat under the
-timeline and the phone's sheet.
-
-## City outlines
-
-Each city's boundary, music city or town, comes from OpenStreetMap through
-Nominatim's search, and is built once by `scripts/buildCityOutlines.mjs`.
-It runs under `tsx`, which reads the app's TypeScript, so it can work out
-the towns from the bundled events:
-
-```sh
-npx tsx scripts/buildCityOutlines.mjs                    # build from the cache
-npx tsx scripts/buildCityOutlines.mjs --refresh          # ask OpenStreetMap again
-npx tsx scripts/buildCityOutlines.mjs --only=aspen-us    # try a few, write nothing
-```
-
-The script follows Nominatim's usage policy: one request a second, an
-identifying user agent, and every answer cached in
-`node_modules/.cache/build-city-outlines`, so nothing is asked twice. A
-boundary is kept only if it contains the city's own coordinates
-(`cities.ts`), and the part containing them is city-sized (under
-20,000 km²), so a search that answers with a whole state is refused. Far
-parts of a city (Tokyo's Pacific islands) are dropped. A city that
-OpenStreetMap maps only as a point, or whose coordinates sit outside its
-boundary (Kingston, Jamaica), gets no outline and keeps just its dot.
-
-It writes one small GeoJSON file per city to `public/geo/cities/`, with a
-content hash in the name, and the list of them to
-`src/components/atlas/data/cityOutlineFiles.ts`. Commit both. The page
-fetches a city's file only when that city is selected or flown to
-(`data/cityOutlines.ts`). Re-run the script after adding cities to
-`cities.ts`, or when the bundled events place events in new towns. A town
-only the published content places has no outline until then; selecting it
-still works, at zoom 10.
+The country and state outlines are Natural Earth's (public domain), and
+everything else the map draws is the app's own: no credit is required, so
+the map shows none, and MapLibre's corner control is off. Natural Earth is
+the only map data the Globe uses: the city outlines, which came from
+OpenStreetMap (ODbL) through Nominatim, were removed with the street map
+on 2026-10-29. A selected city is marked by its name, not a boundary.
+`scripts/verifyProdBundle.mjs` fails a build that names an OpenStreetMap or
+Protomaps host.
 
 ## Measuring
 

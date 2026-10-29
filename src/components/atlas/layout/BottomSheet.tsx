@@ -1,7 +1,6 @@
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import {
   forwardRef,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -46,12 +45,10 @@ export const BottomSheet = forwardRef<
     tabs?: readonly SheetTab[];
     activeTab?: string;
     onTab?: (id: string) => void;
-    /** The height it settles at, after each snap and resize. */
-    onHeight?: (px: number) => void;
     children: ReactNode;
   }
 >(function BottomSheet(
-  { snap, onSnap, label, tabs, activeTab, onTab, onHeight, children },
+  { snap, onSnap, label, tabs, activeTab, onTab, children },
   ref,
 ) {
   const sheetRef = useRef<HTMLDivElement | null>(null);
@@ -71,10 +68,6 @@ export const BottomSheet = forwardRef<
 
   const heights = sheetHeights(containerPx);
   const height = heights[snap];
-
-  useEffect(() => {
-    if (containerPx) onHeight?.(height);
-  }, [height, containerPx, snap]);
 
   // A drag writes the height straight to the element, and React hears once,
   // on release, which height it landed on.

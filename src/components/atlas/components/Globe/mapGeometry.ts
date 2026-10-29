@@ -43,9 +43,13 @@ const EARTH_RADIUS_M = 6_371_008.8;
 const TILE_SIZE = 512;
 /** three.js's default camera, which globe.gl keeps: 50° vertically. */
 const THREE_FOV_RAD = (50 * Math.PI) / 180;
-/** MapLibre's zoom range on this page: the whole planet to street level. */
+/**
+ * MapLibre's zoom range on this page: the whole planet to a region around a
+ * city. There are no streets to see (no basemap), and Natural Earth's
+ * 1:110m coasts turn to blobs much past zoom 7.
+ */
 export const MAP_MIN_ZOOM = 0;
-export const MAP_MAX_ZOOM = 18;
+export const MAP_MAX_ZOOM = 8;
 
 const clampZoom = (z: number) =>
   Math.min(MAP_MAX_ZOOM, Math.max(MAP_MIN_ZOOM, z));

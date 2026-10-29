@@ -13,8 +13,8 @@ import { flyZoom } from './mapGeometry';
 /**
  * Where the MapLibre engine puts the camera for a flight (FlyTarget.frame),
  * as pure functions: a country or a state fitted to its outline, a city
- * centred at a street-map zoom, an artist's events fitted together, all
- * inside the part of the map the page leaves clear (Insets).
+ * centred with the region around it, an artist's events fitted together,
+ * all inside the part of the map the page leaves clear (Insets).
  */
 
 /** [[west, south], [east, north]], in degrees. */
@@ -28,12 +28,26 @@ export const NO_INSETS: Insets = { top: 0, right: 0, bottom: 0, left: 0 };
 /** Space kept between a framed place and the overlays around it. */
 export const FRAME_MARGIN_PX = 32;
 /** How close a fit may come: a small country or state still shows context. */
-export const COUNTRY_MAX_ZOOM = 7;
-export const STATE_MAX_ZOOM = 8;
-/** An artist whose events are all in one city sees the city. */
-export const POINTS_MAX_ZOOM = 9;
-/** A small city's outline is still seen with its streets around it. */
-export const CITY_MAX_ZOOM = 12;
+export const COUNTRY_MAX_ZOOM = 6;
+export const STATE_MAX_ZOOM = 6.5;
+/** An artist whose events are all in one city sees the city's region. */
+export const POINTS_MAX_ZOOM = 6.5;
+/** A city is seen with the region around it: there are no streets to see. */
+export const CITY_MAX_ZOOM = 7;
+
+/**
+ * A city flight's zoom on a map with no streets. Navigation still asks in
+ * street-map zooms (10 for a city, 7–9.3 for a tour's stops, wider where a
+ * stop shows its region): up to 5.5 they stand, past it they are compressed
+ * into what is left below CITY_MAX_ZOOM, so a closer stop still lands
+ * closer (10 → 7; a tour's 7 → 6.0, 9.3 → 6.8).
+ */
+export function capFrameZoom(zoom: number): number {
+  return Math.min(
+    CITY_MAX_ZOOM,
+    zoom <= 5.5 ? zoom : 5.5 + (zoom - 5.5) * 0.35,
+  );
+}
 /**
  * A part of a country or state joins its main landmass when it lies within
  * this many degrees of what is framed so far: Sicily, Hokkaido and Tasmania
@@ -188,11 +202,6 @@ export function pointsBounds(
 export interface Outlines {
   countries: readonly Feature[] | null;
   states: readonly Feature[] | null;
-  /**
-   * A city's outline (data/cityOutlines.ts): the outline, null when it has
-   * none, undefined while it is on its way.
-   */
-  city?: (cityId: string) => Feature | null | undefined;
 }
 
 /**
@@ -353,15 +362,8 @@ export function frameCamera(
   const frame = target.frame;
   if (!frame) return fallback;
   if (frame.kind === 'city') {
-    // The whole city, by its outline; else its centre at the frame's zoom.
-    const outline = frame.cityId ? outlines.city?.(frame.cityId) : null;
-    const bounds = outline && regionBounds(outline.geometry, [target]);
-    return (
-      (bounds && fit(bounds, CITY_MAX_ZOOM)) ?? {
-        center: [target.lng, target.lat],
-        zoom: frame.zoom,
-      }
-    );
+    // The city at its centre, with the region around it.
+    return { center: [target.lng, target.lat], zoom: capFrameZoom(frame.zoom) };
   }
   if (frame.kind === 'points') {
     const bounds = pointsBounds(frame.points);

@@ -172,6 +172,18 @@ const FORBIDDEN = [
     why: "Protomaps' daily planet builds (removed 2026-10-29)",
   },
   { marker: 'pmtiles://', why: 'the pmtiles protocol (removed 2026-10-29)' },
+  {
+    marker: 'nominatim.openstreetmap.org',
+    why: "OpenStreetMap's geocoder, which the city outlines came from (removed 2026-10-29)",
+  },
+  {
+    marker: 'tile.openstreetmap.org',
+    why: "OpenStreetMap's tile servers",
+  },
+  {
+    marker: 'openstreetmap.org/copyright',
+    why: "the OpenStreetMap credit's link (the map draws no OpenStreetMap data since 2026-10-29)",
+  },
 ];
 
 /**

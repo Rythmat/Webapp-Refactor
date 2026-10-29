@@ -275,30 +275,8 @@ describe('clicks on the MapLibre globe', () => {
   });
 });
 
-describe('the first touch on the map', () => {
-  it('is reported once, for the credit to fold away', () => {
-    const { map, store } = setup();
-    expect(store.api.getState().mapTouched).toBe(false);
-    act(() => {
-      map.canvasContainer.dispatchEvent(new Event('pointerdown'));
-    });
-    expect(store.api.getState().mapTouched).toBe(true);
-  });
-
-  it('is the viewer’s: a flight to a deep link is not a touch', () => {
-    const { store } = setup(
-      createAtlasStore({
-        ...initialAppState,
-        searchFlyTarget: { lat: 6.5, lng: 3.4, zoom: 8 },
-      }),
-    );
-    expect(store.api.getState().searchFlyTarget).toBeNull();
-    expect(store.api.getState().mapTouched).toBe(false);
-  });
-});
-
-describe('the OpenStreetMap credit', () => {
-  it('is the page’s (MapCredit), not a control in the map’s corner', () => {
+describe('the map’s corners', () => {
+  it('carry no credit control: the map draws only public-domain data', () => {
     const { map } = setup();
     expect(map.options).toMatchObject({ attributionControl: false });
   });
@@ -337,7 +315,7 @@ describe('the MapLibre camera', () => {
     );
   });
 
-  it('centres a city at a street-map zoom, clear of the card it opens', async () => {
+  it('centres a city with its region, clear of the card it opens', async () => {
     const { map } = setup(
       createAtlasStore({
         ...initialAppState,
@@ -353,7 +331,7 @@ describe('the MapLibre camera', () => {
       expect(map.flyTo).toHaveBeenCalledWith(
         expect.objectContaining({
           center: [-90.07, 29.95],
-          zoom: 10,
+          zoom: 7,
           // The card is not measured yet: its width is assumed.
           padding: expect.objectContaining({ left: 496 }),
         }),

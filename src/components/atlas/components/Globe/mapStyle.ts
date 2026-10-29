@@ -21,8 +21,6 @@ export const SOURCE = {
   countries: 'atlas-countries',
   states: 'atlas-states',
   cityPoints: 'atlas-city-points',
-  /** The selected city's outline (data/cityOutlines.ts), or nothing. */
-  cityOutline: 'atlas-city-outline',
   artistPoints: 'atlas-artist-points',
   arcs: 'atlas-arcs',
 } as const;
@@ -32,7 +30,6 @@ export const LAYER = {
   countriesLine: 'atlas-countries-line',
   statesFill: 'atlas-states-fill',
   statesLine: 'atlas-states-line',
-  cityOutline: 'atlas-city-outline',
   arcsCasing: 'atlas-arcs-casing',
   arcsTrace: 'atlas-arcs-trace',
   arcsDash: 'atlas-arcs-dash',
@@ -86,7 +83,6 @@ export function overlaySources(): Record<string, SourceSpecification> {
       ...emptyCollection(),
       promoteId: 'cityId',
     } as SourceSpecification,
-    [SOURCE.cityOutline]: emptyCollection(),
     [SOURCE.artistPoints]: emptyCollection(),
     [SOURCE.arcs]: emptyCollection(),
   };
@@ -143,18 +139,6 @@ export function overlayLayersBelowLabels(): LayerSpecification[] {
           ATLAS_SCENE.strokeCountry,
         ],
         'line-width': ['case', selected, 2.25, 0.75],
-      },
-    },
-    {
-      // The selected city's boundary, in the selected country's or state's
-      // bright, warm line.
-      id: LAYER.cityOutline,
-      type: 'line',
-      source: SOURCE.cityOutline,
-      layout: { 'line-join': 'round' },
-      paint: {
-        'line-color': ATLAS_SCENE.strokeSelected,
-        'line-width': 2.25,
       },
     },
     {

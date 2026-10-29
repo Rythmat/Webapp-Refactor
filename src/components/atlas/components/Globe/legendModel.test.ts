@@ -146,7 +146,7 @@ describe('legend', () => {
       swatch: { shape: 'label', color: ATLAS_SCENE.label },
     });
     expect(entry(names, 'selected-city')).toMatchObject({
-      detail: 'Its name turns warm, and its boundary is outlined.',
+      detail: 'Its name turns warm.',
       swatch: { shape: 'label', color: ATLAS_SCENE.strokeSelected },
     });
   });

@@ -32,7 +32,7 @@ function setup(path = '/globe') {
     <MemoryRouter initialEntries={[path]}>
       <AtlasStoreProvider store={store}>
         <AtlasNavigationProvider>
-          <BottomRail credit={<p>Map credit</p>} />
+          <BottomRail />
           <UrlSync />
           <Where />
         </AtlasNavigationProvider>
@@ -75,13 +75,11 @@ describe('the bottom rail', () => {
     expect(screen.queryByRole('button', { name: 'Show all years' })).toBeNull();
   });
 
-  it('keeps the map’s credit at its right, and only on the map', () => {
+  it('keeps the map’s controls to the map', () => {
     setup();
-    const credit = screen.getByText('Map credit');
-    expect(credit.closest('[data-zone="credit"]')).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'Spin the globe' })).toBeTruthy();
     cleanup();
     setup('/globe?view=timeline');
-    expect(screen.queryByText('Map credit')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Spin the globe' })).toBeNull();
   });
 });

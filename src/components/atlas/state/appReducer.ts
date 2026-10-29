@@ -24,7 +24,6 @@ export const initialAppState: AppState = {
   globeRotating: false,
   layers: DEFAULT_LAYERS,
   statesInView: false,
-  mapTouched: false,
   mapInsets: { top: 0, right: 0, bottom: 0, left: 0 },
 };
 
@@ -127,8 +126,6 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return state.statesInView === action.payload
         ? state
         : { ...state, statesInView: action.payload };
-    case 'MAP_TOUCHED':
-      return state.mapTouched ? state : { ...state, mapTouched: true };
     case 'SET_MAP_INSETS': {
       const was = state.mapInsets;
       const now = action.payload;

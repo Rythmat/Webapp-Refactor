@@ -1,19 +1,11 @@
 import type { Feature, Position } from 'geojson';
 import { useEffect, useMemo, useState, type FC } from 'react';
 import { getCountryColor } from '@/components/atlas/data/continentColors';
-import {
-  loadAdmin1UsCa,
-  loadCountries,
-} from '@/components/atlas/data/geoLoader';
-import './city-locator.css';
+import { loadCountries } from '@/components/atlas/data/geoLoader';
 
-// Countries (110m) is the full-coverage base for every cap; the admin-1 states
-// file only carries subdivisions for a handful of countries, so it's an overlay
-// on top of the country base (see CityPolygonThumb). Both come from the shared
-// module-level loader in atlas/data/geoLoader.ts, so the thumbnails reuse the
-// same download (and Cache Storage entry) as the Main Globe rather than issuing
-// their own for the same files.
-const loadStates = () => loadAdmin1UsCa().catch(() => []);
+// Countries (110m) come from the shared module-level loader in
+// atlas/data/geoLoader.ts, so the thumbnails reuse the same download (and
+// Cache Storage entry) as the Main Globe rather than issuing their own.
 const loadCountryFeatures = () => loadCountries().catch(() => []);
 
 function useFeatures(load: () => Promise<Feature[]>): Feature[] | null {
@@ -34,9 +26,6 @@ function useFeatures(load: () => Promise<Feature[]>): Feature[] | null {
 export const useCountryFeatures = (): Feature[] | null =>
   useFeatures(loadCountryFeatures);
 
-/** The world states/provinces (admin-1) GeoJSON features (null while loading). */
-export const useStateFeatures = (): Feature[] | null => useFeatures(loadStates);
-
 // Natural Earth uses -99 for some countries; prefer ISO_A3, then ISO_A3_EH,
 // then ADM0_A3 (matches BaseGlobe.resolveIso so colours line up with the globe).
 function resolveIso(feat: Feature): string {
@@ -47,30 +36,16 @@ function resolveIso(feat: Feature): string {
   return eh && eh !== '-99' ? eh : (p?.ADM0_A3 ?? '');
 }
 
-// Country polygons carry their own ISO; admin-1 states carry the parent
-// country's A3 as `adm0_a3`. Both colour through the same palette as the globe,
-// so a country and its states share a hue (state borders show via the strokes).
+// Country polygons carry their own ISO and colour through the same palette as
+// the globe.
 const countryColorOf = (feat: Feature): string =>
   getCountryColor(resolveIso(feat));
-const stateColorOf = (feat: Feature): string =>
-  getCountryColor(
-    (feat.properties as Record<string, string> | null)?.adm0_a3 ?? '',
-  );
 
 const VB = 200; // square viewBox; the tile crops it (slice)
 const D2R = Math.PI / 180;
 const R2D = 180 / Math.PI;
 const OCEAN = '#0d1b2a';
 const SPACE = '#070b12';
-const CITY_ZOOM = 16; // city caps zoom past the region zooms (3–5) to the state
-
-// Pointy-top hexagon points centred at (cx, cy) with circumradius r — the house
-// hex orientation (cf. CustomCursor / SignalFlow). Used for the city locator.
-const HEX_HALF_W = Math.sqrt(3) / 2; // 0.866
-const hexPoints = (cx: number, cy: number, r: number): string => {
-  const w = r * HEX_HALF_W;
-  return `${cx},${cy - r} ${cx + w},${cy - r / 2} ${cx + w},${cy + r / 2} ${cx},${cy + r} ${cx - w},${cy + r / 2} ${cx - w},${cy - r / 2}`;
-};
 
 interface Projected {
   d: string;
@@ -216,12 +191,10 @@ function buildPaths(
 interface CapSvgProps {
   paths: Projected[] | null;
   zoom: number;
-  /** Draw a marker dot at the cap centre (used for the city point). */
-  marker?: boolean;
 }
 
 /** Shared orthographic globe-cap SVG: space + ocean disc + projected paths. */
-const CapSvg: FC<CapSvgProps> = ({ paths, zoom, marker }) => {
+const CapSvg: FC<CapSvgProps> = ({ paths, zoom }) => {
   // Ocean-disc placeholder while the GeoJSON loads (or if it failed).
   if (!paths) {
     return (
@@ -256,22 +229,6 @@ const CapSvg: FC<CapSvgProps> = ({ paths, zoom, marker }) => {
           fillRule="evenodd"
         />
       ))}
-      {marker && (
-        <g className="city-locator">
-          <polygon
-            className="city-locator__ping"
-            points={hexPoints(VB / 2, VB / 2, 6.5)}
-          />
-          <polygon
-            className="city-locator__ping city-locator__ping--2"
-            points={hexPoints(VB / 2, VB / 2, 6.5)}
-          />
-          <polygon
-            className="city-locator__core"
-            points={hexPoints(VB / 2, VB / 2, 4.5)}
-          />
-        </g>
-      )}
     </svg>
   );
 };
@@ -298,39 +255,4 @@ export const RegionPolygonThumb: FC<RegionPolygonThumbProps> = ({
     [features, center, zoom],
   );
   return <CapSvg paths={paths} zoom={zoom} />;
-};
-
-interface CityPolygonThumbProps {
-  /** Global country outlines — the base layer, so every city sits on its land. */
-  countries?: Feature[] | null;
-  /** Admin-1 states/provinces — an overlay, drawn on top where the data has them. */
-  states?: Feature[] | null;
-  center: [number, number];
-  zoom?: number;
-}
-
-/**
- * A per-city globe thumbnail — the same projection as the region thumb, zoomed to
- * the city. Draws country outlines as a base (full global coverage) with admin-1
- * states composited on top where available (the states data only covers a few
- * countries), so every city is correctly located and shows state detail where the
- * data has it — mirroring the Main Globe's country + state layers.
- */
-export const CityPolygonThumb: FC<CityPolygonThumbProps> = ({
-  countries,
-  states,
-  center,
-  zoom = CITY_ZOOM,
-}) => {
-  const paths = useMemo(() => {
-    if (!countries && !states) return null;
-    const base = countries
-      ? buildPaths(countries, center, zoom, countryColorOf)
-      : [];
-    const overlay = states
-      ? buildPaths(states, center, zoom, stateColorOf)
-      : [];
-    return [...base, ...overlay];
-  }, [countries, states, center, zoom]);
-  return <CapSvg paths={paths} zoom={zoom} marker />;
 };

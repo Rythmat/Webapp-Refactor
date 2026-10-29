@@ -4,17 +4,16 @@ import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import { ICE_COUNTRIES, landColor, resolveIso } from './globeLayers';
 
 // Shared visual building blocks for the globe (ocean material, country-polygon
-// materials, atmosphere) so BaseGlobe and the decorative HeroGlobe render the
-// same planet. Materials are per-instance and disposed by their owner — these
+// materials, atmosphere), kept apart from BaseGlobe so they stay pure. Materials are per-instance and disposed by their owner — these
 // are factories/pure functions, never shared singletons.
 
-// Atmosphere halo settings used by both globes.
+// Atmosphere halo settings.
 export const ATMOSPHERE = {
   color: ATLAS_SCENE.atmosphere,
   altitude: 0.18,
 } as const;
 
-// Re-exported for HeroGlobe and the geo tests, which import them from here.
+// Re-exported for the geo tests, which import them from here.
 export { ICE_COUNTRIES, resolveIso };
 
 // Ocean material — matte black so continents float on a dark sphere. One

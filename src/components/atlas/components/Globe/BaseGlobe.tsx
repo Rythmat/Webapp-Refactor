@@ -382,7 +382,7 @@ export function BaseGlobe() {
   }, [globeMaterial]);
 
   // Polygon cap/side materials (light-responsive for day/night shading), bound
-  // to the per-instance caches above and shared with HeroGlobe via globeVisuals.
+  // to the per-instance caches above (factories in globeVisuals).
   // Country colours switched off in Layers: new accessors, so the polygon
   // layer re-paints in place.
   const { polygonCapMaterial, polygonSideMaterial } = useMemo(

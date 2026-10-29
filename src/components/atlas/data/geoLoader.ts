@@ -9,9 +9,9 @@ import { GEOJSON_URLS } from './menuItems';
  * The one place the globe's country and state outlines are fetched.
  *
  * There used to be four independent loaders — `useGeoData` (mounted twice, by
- * BaseGlobe and HeroGlobe), `globe-country-texture.ts` and the module-level
- * pair in `RegionPolygonThumb.tsx` — so opening /atlas fetched and parsed the
- * same countries file more than once. These loads are module-scoped and
+ * BaseGlobe and the old dashboard's hero globe), `globe-country-texture.ts`
+ * and the module-level pair in `RegionPolygonThumb.tsx` — so opening the
+ * Globe fetched and parsed the same countries file more than once. These loads are module-scoped and
  * shared, and the two files are independent: a surface that only needs
  * countries is never made to wait for the states.
  *

@@ -1,6 +1,6 @@
 // ── Guided Tours — place-based, hand-authored globe tours ──────────────────
-// Each region/city tile on the Globe dashboard deep-links into one of these
-// tours (see GlobeRegionsCities). A tour is an ordered list of stops; the
+// A region or city opens one of these tours (`?tour=`, from a slide, a prompt
+// or the palette). A tour is an ordered list of stops; the
 // GuidedTourBar flies the camera to each stop and shows its blurb.
 //
 // Region tours open on a wide "region overview" stop and then step through the

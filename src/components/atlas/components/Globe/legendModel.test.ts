@@ -3,11 +3,14 @@
  * globe paints them: its swatches come from the globe's own constants.
  */
 import { describe, expect, it } from 'vitest';
-import {
-  getContrastColor,
-  getCountryColor,
-} from '@/components/atlas/data/continentColors';
+import { getCountryColor } from '@/components/atlas/data/continentColors';
+import { ERA_HEX } from '@/components/atlas/data/musicalEras';
 import { DEFAULT_LAYERS } from '@/components/atlas/state/appReducer';
+import {
+  ROOTS_RAMP,
+  ROUTES_RAMP,
+  SUN_WHITE,
+} from '@/components/atlas/theme/marks';
 import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import { legendEntries, type LegendContext } from './legendModel';
 
@@ -18,6 +21,7 @@ const HOME: LegendContext = {
   cityHighlighted: false,
   artistShown: false,
   arcDirections: new Set(),
+  links: null,
 };
 
 const ids = (ctx: LegendContext) => legendEntries(ctx).map((e) => e.id);
@@ -27,6 +31,12 @@ const entry = (ctx: LegendContext, id: string) =>
 describe('legend', () => {
   it('lists only what the globe shows', () => {
     expect(ids(HOME)).toEqual(['countries', 'cities']);
+    expect(ids({ ...HOME, links: 'world' })).toEqual([
+      'countries',
+      'cities',
+      'links-world',
+      'link-count',
+    ]);
     expect(
       ids({
         ...HOME,
@@ -34,7 +44,7 @@ describe('legend', () => {
         regionSelected: true,
         cityHighlighted: true,
         artistShown: true,
-        arcDirections: new Set(['upstream', 'downstream']),
+        links: 'focus',
       }),
     ).toEqual([
       'countries',
@@ -43,9 +53,25 @@ describe('legend', () => {
       'cities',
       'selected-city',
       'artist-points',
-      'arcs-in',
-      'arcs-out',
+      'links-in',
+      'links-out',
+      'links-weak',
+      'link-count',
     ]);
+  });
+
+  it('shows an event’s influences only in the directions open', () => {
+    const event: LegendContext = { ...HOME, links: 'event' };
+    expect(ids(event)).toEqual(['countries', 'cities']);
+    expect(ids({ ...event, arcDirections: new Set(['upstream']) })).toEqual([
+      'countries',
+      'cities',
+      'links-in',
+    ]);
+    expect(
+      entry({ ...event, arcDirections: new Set(['downstream']) }, 'links-out')
+        ?.label,
+    ).toBe('It shaped');
   });
 
   it('drops what Layers hides', () => {
@@ -54,7 +80,7 @@ describe('legend', () => {
       statesInView: true,
       cityHighlighted: true,
       artistShown: true,
-      arcDirections: new Set(['upstream', 'downstream']),
+      links: 'focus',
       layers: {
         landColor: 'music',
         states: false,
@@ -113,7 +139,7 @@ describe('legend', () => {
       regionSelected: true,
       cityHighlighted: true,
       artistShown: true,
-      arcDirections: new Set(['upstream', 'downstream']),
+      links: 'focus',
     };
     expect(entry(all, 'states')?.swatch).toEqual({
       shape: 'outline',
@@ -127,15 +153,25 @@ describe('legend', () => {
       shape: 'point',
       color: ATLAS_SCENE.highlight,
     });
-    expect(entry(all, 'arcs-out')?.swatch).toEqual({
-      shape: 'arc',
-      colors: [...ATLAS_SCENE.arcDownstream],
+    expect(entry(all, 'links-in')?.swatch).toEqual({
+      shape: 'line',
+      colors: [...ROOTS_RAMP],
     });
-    const shade = getContrastColor(getCountryColor('USA'));
-    expect(entry(all, 'arcs-in')?.swatch).toEqual({
-      shape: 'arc',
-      colors: [`${shade}e6`, `${shade}66`],
+    expect(entry(all, 'links-out')?.swatch).toEqual({
+      shape: 'line',
+      colors: [...ROUTES_RAMP],
     });
+    expect(entry(all, 'selected-city')?.swatch).toEqual({
+      shape: 'sun',
+      color: SUN_WHITE,
+    });
+    const halos = entry(all, 'cities')?.swatch;
+    expect(halos?.shape).toBe('halos');
+    if (halos?.shape === 'halos') {
+      for (const c of halos.colors) {
+        expect(Object.values(ERA_HEX)).toContain(c);
+      }
+    }
   });
 
   it('names every mark in words', () => {
@@ -145,22 +181,22 @@ describe('legend', () => {
       regionSelected: true,
       cityHighlighted: true,
       artistShown: true,
-      arcDirections: new Set(['upstream', 'downstream']),
+      links: 'focus',
     })) {
       expect(e.label.length).toBeGreaterThan(3);
       expect(e.detail.length).toBeGreaterThan(10);
     }
   });
 
-  it('describes cities by their names', () => {
+  it('describes places by their dots and halos, and the selected one’s light', () => {
     const names: LegendContext = { ...HOME, cityHighlighted: true };
     expect(entry(names, 'cities')).toMatchObject({
-      detail: expect.stringContaining('select a name to open the city'),
-      swatch: { shape: 'label', color: ATLAS_SCENE.label },
+      label: 'Music places',
+      detail: expect.stringContaining('select one to open it'),
     });
     expect(entry(names, 'selected-city')).toMatchObject({
-      detail: 'Its name turns warm.',
-      swatch: { shape: 'label', color: ATLAS_SCENE.labelHot },
+      label: 'Selected place',
+      detail: 'It glows white, and its links grow out of it.',
     });
   });
 });

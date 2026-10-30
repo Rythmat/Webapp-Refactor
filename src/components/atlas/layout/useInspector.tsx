@@ -32,9 +32,6 @@ import type { PanelZoneSlot } from './usePanelZone';
 const LayersPanel = lazy(
   () => import('@/components/atlas/components/Panels/LayersPanel'),
 );
-const LegendPanel = lazy(
-  () => import('@/components/atlas/components/Panels/LegendPanel'),
-);
 // A Cortex lesson's Promoter mind map (`?mindmap=1`), loaded only when asked.
 const MindMapPanel = lazy(
   () => import('@/components/atlas/components/MindMap/MindMapPanel'),
@@ -88,7 +85,7 @@ const lazyPanel = (title: string, panel: ReactNode) => (
  * closing a tool panel goes back to the details under it.
  */
 /** The panels about the map itself, which the timeline has no use for. */
-const MAP_PANELS: ReadonlySet<InspectorPanelId> = new Set(['layers', 'legend']);
+const MAP_PANELS: ReadonlySet<InspectorPanelId> = new Set(['layers']);
 
 function useInspector(): InspectorState {
   const navigate = useAtlasNavigate();
@@ -131,14 +128,6 @@ function useInspector(): InspectorState {
           title,
           key: panel,
           node: lazyPanel(title, <LayersPanel onClose={back} />),
-          onClose: back,
-        };
-      case 'legend':
-        return {
-          panel,
-          title,
-          key: panel,
-          node: lazyPanel(title, <LegendPanel onClose={back} />),
           onClose: back,
         };
       case 'mindmap': {

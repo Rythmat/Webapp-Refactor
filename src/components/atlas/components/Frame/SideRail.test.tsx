@@ -61,7 +61,11 @@ describe('the side rail', () => {
   it('keeps the map’s own panels to the map', () => {
     setup('/globe?view=timeline');
     expect(button('Layers')).toBeDisabled();
-    expect(button('Legend')).toBeDisabled();
+  });
+
+  it('leaves the legend to its card over the map', () => {
+    setup();
+    expect(screen.queryByRole('button', { name: 'Legend' })).toBeNull();
   });
 
   it('shows the mind map only while a lesson has it open', () => {

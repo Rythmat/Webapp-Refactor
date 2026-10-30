@@ -1,8 +1,5 @@
 import type { Feature } from 'geojson';
-import {
-  getContrastColor,
-  getCountryColor,
-} from '@/components/atlas/data/continentColors';
+import { getCountryColor } from '@/components/atlas/data/continentColors';
 import type { ArcDatum } from '@/components/atlas/data/eventConnections';
 import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import type { GlobeLayers } from '@/components/atlas/types';
@@ -96,21 +93,6 @@ export function cityBaseColor(iso: string | undefined): string {
 
 /** An artist's moments: small white points. */
 export const ARTIST_POINT = { color: ATLAS_SCENE.highlight, radius: 0.45 };
-
-const ARC_DOWNSTREAM: [string, string] = [...ATLAS_SCENE.arcDownstream];
-
-/**
- * An influence arc, head to tail. "Influenced by" arcs come in from the
- * earlier music, in a shade of where it came from; "Influenced" arcs go out
- * to later music, in white.
- */
-export function arcColors(
-  arc: Pick<ArcDatum, 'direction' | 'color'>,
-): [string, string] {
-  if (arc.direction === 'downstream') return ARC_DOWNSTREAM;
-  const c = getContrastColor(arc.color);
-  return [`${c}e6`, `${c}66`];
-}
 
 /* ── Layers ──────────────────────────────────────────────────────────────── */
 

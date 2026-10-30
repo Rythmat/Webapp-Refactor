@@ -1,10 +1,4 @@
-import {
-  Info,
-  Layers,
-  Network,
-  PanelRight,
-  type LucideIcon,
-} from 'lucide-react';
+import { Layers, Network, PanelRight, type LucideIcon } from 'lucide-react';
 import type { InspectorPanelId } from '@/components/atlas/navigation/atlasFrame';
 
 /**
@@ -33,12 +27,6 @@ export const RAIL_PANELS: readonly RailPanel[] = [
     title: 'Layers',
     hint: 'Layers: show or hide what the map draws',
     icon: Layers,
-  },
-  {
-    id: 'legend',
-    title: 'Legend',
-    hint: 'Legend: what the marks on the map mean',
-    icon: Info,
   },
   {
     id: 'mindmap',

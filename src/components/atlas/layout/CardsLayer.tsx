@@ -29,6 +29,7 @@ import type { MapInsets } from '@/components/atlas/types';
 import { cn } from '@/lib/utils';
 import { CARDS_REM, cardsMode, type CardsMode } from './cardsLayout';
 import { insetsFrom, useReportInsets } from './mapInsets';
+import { useLegacyLegendLink } from './useLegacyLegendLink';
 
 const StageCards = lazy(
   () => import('@/components/atlas/components/Cards/StageCards'),
@@ -49,6 +50,7 @@ export function CardsLayer() {
   const ref = useRef<HTMLDivElement>(null);
   const columnRef = useRef<HTMLDivElement>(null);
   const dispatch = useAtlasDispatch();
+  useLegacyLegendLink();
   const hidden = useAtlasSelector((s) => s.cards.hidden);
   const inspectorPx = useAtlasSelector(
     (s) => s.zoneInsets.inspector?.right ?? 0,

@@ -169,8 +169,6 @@ export const ATLAS_SCENE = {
   /** Names of countries, and of the world's regions from orbit. */
   countryLabel: 'rgba(255, 255, 255, 0.34)',
   regionLabel: 'rgba(255, 255, 255, 0.26)',
-  /** The downstream ("influenced") arc, head to tail. */
-  arcDownstream: ['#ffffffe6', '#ffffff66'],
   /** Borders: hairlines, brighter hovered, white selected, with a soft glow. */
   strokeCountry: 'rgba(255, 255, 255, 0.16)',
   strokeState: 'rgba(255, 255, 255, 0.08)',

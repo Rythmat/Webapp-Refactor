@@ -116,9 +116,11 @@ describe('the world’s cards', () => {
     expect(store.api.getState().timeWindow).toBeNull();
   });
 
-  it('keeps the first two cards when compact', () => {
+  it('keeps the first two cards when compact, and the Legend', () => {
     setup({ compact: true });
-    expect(screen.getAllByRole('region')).toHaveLength(2);
+    const regions = screen.getAllByRole('region');
+    expect(regions).toHaveLength(3);
+    expect(regions[2]).toHaveAccessibleName('Legend');
     expect(screen.queryByRole('region', { name: 'Busiest places' })).toBeNull();
   });
 });

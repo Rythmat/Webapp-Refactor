@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * Which rail panels apply right now: the stop's details only when it has
- * some; the map's layers and legend only on the map; a lesson's mind map only
+ * some; the map's layers only on the map; a lesson's mind map only
  * while its lesson has the Globe open.
  */
 export function usePanelAvailability() {
@@ -31,8 +31,7 @@ export function usePanelAvailability() {
   return {
     shown: (panel: RailPanel) => panel.id !== 'mindmap' || mindmap,
     disabled: (id: InspectorPanelId) =>
-      (id === 'details' && !hasDetails) ||
-      ((id === 'layers' || id === 'legend') && offMap),
+      (id === 'details' && !hasDetails) || (id === 'layers' && offMap),
   };
 }
 

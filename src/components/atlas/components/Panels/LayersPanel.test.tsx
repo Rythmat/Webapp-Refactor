@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 /**
- * The Layers panel and the legend, in the Inspector: real switches whose
- * choice the store and the viewer's browser keep, and a legend that drops
- * what Layers hides.
+ * The Layers panel, in the Inspector, and the Legend card: real switches
+ * whose choice the store and the viewer's browser keep, and a legend that
+ * drops what Layers hides.
  */
 import {
   act,
@@ -13,6 +13,7 @@ import {
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { LegendCard } from '@/components/atlas/components/Cards/LegendCard';
 import { AtlasNavigationProvider } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
   AtlasStoreProvider,
@@ -21,7 +22,6 @@ import {
 } from '@/components/atlas/state/atlasStore';
 import { LAYERS_STORAGE_KEY } from '@/components/atlas/state/layersStorage';
 import LayersPanel from './LayersPanel';
-import LegendPanel from './LegendPanel';
 
 beforeEach(() => window.localStorage.clear());
 afterEach(cleanup);
@@ -34,7 +34,7 @@ function setup(store?: AtlasStore, onClose = vi.fn()) {
       <AtlasStoreProvider store={store}>
         <AtlasNavigationProvider>
           <LayersPanel onClose={onClose} />
-          <LegendPanel onClose={onClose} />
+          <LegendCard order={0} />
         </AtlasNavigationProvider>
       </AtlasStoreProvider>
     </MemoryRouter>,
@@ -42,7 +42,12 @@ function setup(store?: AtlasStore, onClose = vi.fn()) {
   return { store, onClose };
 }
 
-const legend = () => screen.getByRole('region', { name: 'Legend' });
+const legend = () => {
+  const card = screen.getByRole('region', { name: 'Legend' });
+  const fold = screen.getByRole('button', { name: 'Legend' });
+  if (fold.getAttribute('aria-expanded') !== 'true') act(() => fold.click());
+  return card;
+};
 
 describe('the Layers panel', () => {
   it('explains the marks in words, and switches a layer off in both', () => {
@@ -98,7 +103,9 @@ describe('the Layers panel', () => {
     expect(music).toHaveAttribute('aria-checked', 'true');
     act(() => screen.getByRole('radio', { name: 'Continent' }).click());
     expect(store.api.getState().layers.landColor).toBe('continent');
-    expect(screen.getByText('Countries by continent')).toBeInTheDocument();
+    expect(
+      legend().querySelector('[data-legend-entry="countries"]')?.textContent,
+    ).toContain('Countries by continent');
     // Arrow keys move along the choices.
     act(() => {
       fireEvent.keyDown(group, { key: 'ArrowRight' });

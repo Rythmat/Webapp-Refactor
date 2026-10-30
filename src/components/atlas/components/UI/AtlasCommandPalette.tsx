@@ -304,7 +304,11 @@ export default function AtlasCommandPalette({
     'stop-spin': () => dispatch({ type: 'SET_GLOBE_ROTATING', payload: false }),
     'copy-link': onCopyLink,
     'clear-trail': trail.clear,
-    legend: () => navigate.setFrame({ panel: 'legend' }),
+    legend: () =>
+      dispatch({
+        type: 'SET_CARD_PREFS',
+        payload: { hidden: false, legendOpen: true },
+      }),
     layers: () => navigate.setFrame({ panel: 'layers' }),
   };
 

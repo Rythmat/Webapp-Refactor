@@ -35,14 +35,14 @@ export type AtlasLens = 'places' | 'pathways' | 'instruments';
 /**
  * The Inspector's panels, one per icon on the side rail (owner, 2026-10-29:
  * the Globe in the Studio's frame): the stop's details, the pathways, the
- * world's instruments, the map's layers and legend, a lesson's mind map.
+ * world's instruments, the map's layers, a lesson's mind map. (The legend
+ * is a floating card now; an old `panel=legend` link opens it: CardsLayer.)
  */
 export const INSPECTOR_PANELS = [
   'details',
   'pathways',
   'instruments',
   'layers',
-  'legend',
   'mindmap',
 ] as const;
 export type InspectorPanelId = (typeof INSPECTOR_PANELS)[number];

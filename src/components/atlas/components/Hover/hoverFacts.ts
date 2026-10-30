@@ -76,6 +76,13 @@ export function hoverFacts(
       eras: eraSplit(years),
     };
   }
+  if (target.kind === 'link') {
+    return {
+      title: target.title,
+      subtitle: 'Connection',
+      detail: target.detail,
+    };
+  }
   if (target.kind === 'event') {
     const event = getEventById(target.eventId);
     if (!event) return null;

@@ -228,14 +228,14 @@ describe('clicks on the MapLibre globe', () => {
     expect(search()).toContain('place=city:new-orleans');
   });
 
-  it('open an event from an artist’s point or an arc', () => {
+  it('open an event from an artist’s point or an influence', () => {
     const { click, search } = setup();
     click(feature(LAYER.artistPoints, { eventId: 'evt-jazz-nola-1923' }));
     expect(search()).toContain('event=evt-jazz-nola-1923');
     click(
-      feature(LAYER.arcsHit, {
+      feature(LAYER.linksHit, {
+        id: 'arc:evt-blues-clarksdale-1903:0',
         eventId: 'evt-blues-clarksdale-1903',
-        direction: 'downstream',
       }),
     );
     expect(search()).toContain('event=evt-blues-clarksdale-1903');

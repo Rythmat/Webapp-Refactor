@@ -14,12 +14,19 @@ import {
   landSources,
 } from './landLayers';
 import { mapFontFaces } from './mapFonts';
+import {
+  NETWORK_LAYER,
+  NETWORK_SOURCE,
+  networkLineLayers,
+  networkPillLayer,
+  networkSources,
+} from './networkLayers';
 import { PLACE_LAYER, SUN_SOURCE, placeLayers } from './placeLayers';
 
 /**
  * The map's style, built in code: the Globe's own layers (the coloured
- * countries, the state outlines, the city names, an artist's points and the
- * influence arcs) on the sea, with no basemap under them. Pure: the same
+ * countries, the state outlines, the places, an artist's points and the
+ * links between places) on the sea, with no basemap under them. Pure: the same
  * inputs give the same style, and the tests read it without a map.
  */
 
@@ -32,7 +39,7 @@ export const SOURCE = {
   regionLabels: LAND_SOURCE.regionLabels,
   cityPoints: 'atlas-city-points',
   artistPoints: 'atlas-artist-points',
-  arcs: 'atlas-arcs',
+  ...NETWORK_SOURCE,
 } as const;
 
 export const LAYER = {
@@ -43,10 +50,12 @@ export const LAYER = {
   statesGlow: LAND_LAYER.statesGlow,
   statesLine: LAND_LAYER.statesLine,
   regionLabels: LAND_LAYER.regionLabels,
-  arcsCasing: 'atlas-arcs-casing',
-  arcsTrace: 'atlas-arcs-trace',
-  arcsDash: 'atlas-arcs-dash',
-  arcsHit: 'atlas-arcs-hit',
+  linksGlow: NETWORK_LAYER.glow,
+  linksRoots: NETWORK_LAYER.roots,
+  linksRoutes: NETWORK_LAYER.routes,
+  linksHit: NETWORK_LAYER.solidHit,
+  linksDottedHit: NETWORK_LAYER.dottedHit,
+  linkPills: NETWORK_LAYER.pills,
   placeHalo: PLACE_LAYER.halo,
   placeDot: PLACE_LAYER.dot,
   placeHit: PLACE_LAYER.hit,
@@ -56,7 +65,8 @@ export const LAYER = {
 
 /** What a click can land on, most specific first: the first hit wins. */
 export const CLICK_LAYERS = [
-  LAYER.arcsHit,
+  LAYER.linksHit,
+  LAYER.linksDottedHit,
   LAYER.artistPoints,
   LAYER.cityLabels,
   LAYER.placeHit,
@@ -91,58 +101,15 @@ export function overlaySources(): Record<string, SourceSpecification> {
       promoteId: 'cityId',
     } as SourceSpecification,
     [SOURCE.artistPoints]: emptyCollection(),
-    [SOURCE.arcs]: emptyCollection(),
+    ...networkSources(),
     [SUN_SOURCE]: emptyCollection(),
   };
 }
 
-/** The links and points over the land: an event's arcs and an artist's points. */
+/** The links and points over the land: the links, then an artist's points. */
 export function overlayLayersBelowLabels(): LayerSpecification[] {
   return [
-    {
-      // A dark edge, so a white arc still reads on the palest land.
-      id: LAYER.arcsCasing,
-      type: 'line',
-      source: SOURCE.arcs,
-      layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: {
-        'line-color': ATLAS_SCENE.pointRim,
-        'line-width': 5,
-        'line-opacity': 0.55,
-      },
-    },
-    {
-      // The whole arc, faint, in its tail's colour…
-      id: LAYER.arcsTrace,
-      type: 'line',
-      source: SOURCE.arcs,
-      layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: { 'line-color': ['get', 'tail'], 'line-width': 2 },
-    },
-    {
-      // …with dashes in its head's colour walking along it (MapLibreGlobe
-      // steps line-dasharray through ARC_DASH_STEPS).
-      id: LAYER.arcsDash,
-      type: 'line',
-      source: SOURCE.arcs,
-      layout: { 'line-join': 'round' },
-      paint: {
-        'line-color': ['get', 'head'],
-        'line-width': 3,
-        'line-dasharray': [0, 4, 3],
-      },
-    },
-    {
-      // A wide, invisible band, so a 2 px line is easy to hover and click.
-      id: LAYER.arcsHit,
-      type: 'line',
-      source: SOURCE.arcs,
-      paint: {
-        'line-color': ATLAS_SCENE.highlight,
-        'line-width': 14,
-        'line-opacity': 0,
-      },
-    },
+    ...networkLineLayers(),
     // An artist's points go last, under the city names, so a name reads
     // over a point rather than under it.
     {
@@ -199,6 +166,7 @@ export function buildStyle({
       ...landLayers(land),
       ...overlayLayersBelowLabels(),
       ...landLabelLayers(textScale),
+      networkPillLayer(textScale),
       ...placeLayers(SOURCE.cityPoints, textScale),
     ],
   };

@@ -26,10 +26,24 @@ const nola = at(LAYER.cityLabels, {
   name: 'New Orleans',
 });
 const point = at(LAYER.artistPoints, { eventId: 'evt-1', name: 'Hot Five' });
-const arc = at(LAYER.arcsHit, {
+const arc = at(LAYER.linksHit, {
+  id: 'arc:evt-2:0',
   eventId: 'evt-2',
-  label: 'Bebop & "cool"',
-  direction: 'upstream',
+  title: 'Bebop & "cool"',
+});
+const link = at(LAYER.linksDottedHit, {
+  id: 'city:new-orleans>city:chicago',
+  eventId: '',
+  title: 'New Orleans → Chicago',
+  detail: '2 influences · 1917–1923',
+  place: 'city:chicago',
+});
+const regions = at(LAYER.linksDottedHit, {
+  id: 'region:west-africa>region:north-america',
+  eventId: '',
+  title: 'West Africa → North America',
+  detail: '9 influences · 1890–1990',
+  place: '',
 });
 
 describe('what a click lands on', () => {
@@ -45,9 +59,22 @@ describe('what a click lands on', () => {
 });
 
 describe('what it opens', () => {
-  it('opens an event from an arc or an artist’s point', () => {
+  it('opens an event from its influence line or an artist’s point', () => {
     expect(targetOf(arc)).toEqual({ kind: 'event', eventId: 'evt-2' });
     expect(targetOf(point)).toEqual({ kind: 'event', eventId: 'evt-1' });
+  });
+
+  it('opens a link’s far place, and says what the link carries', () => {
+    expect(targetOf(link)).toEqual({
+      kind: 'link',
+      id: 'city:new-orleans>city:chicago',
+      title: 'New Orleans → Chicago',
+      detail: '2 influences · 1917–1923',
+      place: { type: 'city', id: 'chicago' },
+    });
+    // Between regions: a card to hover, nothing to open.
+    expect(targetOf(regions)).toMatchObject({ kind: 'link', place: null });
+    expect(topFeature([brazil, nola, link])).toBe(link);
   });
 
   it('opens a city from its name', () => {

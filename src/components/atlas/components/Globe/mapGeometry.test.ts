@@ -1,12 +1,9 @@
 import type { Feature } from 'geojson';
 import { describe, expect, it } from 'vitest';
-import type { ArcDatum } from '@/components/atlas/data';
 import { regionColor, type CityPoint } from './globeLayers';
 import {
   altitudeToMapZoom,
-  arcCollection,
   cityPointCollection,
-  cssColor,
   distanceKm,
   flightDuration,
   flyZoom,
@@ -206,32 +203,5 @@ describe('sources', () => {
     expect(state.properties.color).toBe(
       regionColor({ properties: { ISO_A3: 'CAN' } }),
     );
-  });
-
-  it('draws arcs as great circles in rgba colours MapLibre reads', () => {
-    const arc: ArcDatum = {
-      startLat: 6.5,
-      startLng: 3.4,
-      endLat: 29.95,
-      endLng: -90.07,
-      label: 'Griots',
-      eventId: 'evt-1',
-      direction: 'downstream',
-      color: '#cc4455',
-    };
-    const [line] = arcCollection([arc]).features;
-    expect(line.geometry.coordinates.length).toBeGreaterThan(2);
-    expect(line.properties).toMatchObject({
-      eventId: 'evt-1',
-      label: 'Griots',
-      head: 'rgba(255, 255, 255, 0.902)',
-      tail: 'rgba(255, 255, 255, 0.4)',
-    });
-  });
-
-  it('converts only eight-digit hex colours', () => {
-    expect(cssColor('#ffffff66')).toBe('rgba(255, 255, 255, 0.4)');
-    expect(cssColor('#123456')).toBe('#123456');
-    expect(cssColor('rgba(1, 2, 3, 0.5)')).toBe('rgba(1, 2, 3, 0.5)');
   });
 });

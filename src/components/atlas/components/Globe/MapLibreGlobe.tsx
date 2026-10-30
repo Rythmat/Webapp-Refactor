@@ -10,13 +10,13 @@ import { MapCovered, MapPadding } from './MapPadding';
 import { SunFx } from './SunFx';
 import { NO_INSETS } from './mapFraming';
 import { useProvideMapHandle } from './mapHandle';
-import { useArcLayers } from './useArcLayers';
 import { useGlobeClicks, useGlobeScene } from './useGlobeScene';
 import { useLandLayers, useLandMusic } from './useLandLayers';
 import { useMapFlights } from './useMapFlights';
 import { useMapInstance } from './useMapInstance';
 import { useMapPointer } from './useMapPointer';
 import { useMotionGate } from './useMotionGate';
+import { useNetworkLayers } from './useNetworkLayers';
 import { usePlaceLayers } from './usePlaceLayers';
 import { useSpin } from './useSpin';
 import { useSun } from './useSun';
@@ -30,7 +30,7 @@ import { useSun } from './useSun';
  * The map is made once (useMapInstance). Everything after that reaches it
  * through setData, feature-state and the camera, never a new map, so a
  * selection or a layer switch costs one source update. Each concern is a
- * hook of its own: the land, the places, the arcs, the pointer, the
+ * hook of its own: the land, the places, the links, the pointer, the
  * flights, Spin.
  */
 export default function MapLibreGlobe() {
@@ -54,8 +54,8 @@ export default function MapLibreGlobe() {
   );
   useLandMusic(map, countryData, scene.layers.landColor);
   usePlaceLayers(map, scene);
-  useArcLayers(map, scene.influenceArcs, gate, reducedMotion);
   const signals = useStageSignals();
+  useNetworkLayers(map, scene.influenceArcs, gate, reducedMotion, signals);
   useMapPointer(map, clicks, signals);
   useMapFlights(map, geo, paddingRef, reducedMotionRef);
   useSpin(map, gate);

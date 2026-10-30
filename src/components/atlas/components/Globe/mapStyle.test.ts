@@ -44,14 +44,22 @@ describe('the style', () => {
     for (const url of urls) expect(url.startsWith(`${ORIGIN}/`)).toBe(true);
   });
 
-  it('keeps the outlines, arcs and points under the names', () => {
+  it('keeps the outlines, links and points under the names', () => {
     const order = ids(style.layers);
     const at = (id: string) => order.indexOf(id);
-    for (const id of [LAYER.statesLine, LAYER.countriesLine, LAYER.arcsDash]) {
+    for (const id of [
+      LAYER.statesLine,
+      LAYER.countriesLine,
+      LAYER.linksRoots,
+    ]) {
       expect(at(id)).toBeGreaterThan(at(LAYER.countriesFill));
     }
+    // A link's glow under it; its count over it, under the places' names.
+    expect(at(LAYER.linksGlow)).toBeLessThan(at(LAYER.linksRoots));
+    expect(at(LAYER.linkPills)).toBeGreaterThan(at(LAYER.linksRoutes));
+    expect(at(LAYER.linkPills)).toBeLessThan(at(LAYER.cityLabels));
     // An artist's points too: a name reads over a point, not under it.
-    expect(at(LAYER.artistPoints)).toBeGreaterThan(at(LAYER.arcsDash));
+    expect(at(LAYER.artistPoints)).toBeGreaterThan(at(LAYER.linksRoutes));
     // The cities' names are over everything.
     expect(at(LAYER.cityLabels)).toBe(order.length - 1);
   });

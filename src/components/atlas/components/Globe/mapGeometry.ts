@@ -1,8 +1,6 @@
-import type { Feature, FeatureCollection, LineString, Point } from 'geojson';
-import type { ArcDatum } from '@/components/atlas/data';
+import type { Feature, FeatureCollection, Point } from 'geojson';
 import { getCentroid } from './globeLabels';
 import {
-  arcColors,
   isCityHighlighted,
   regionColor,
   type ArtistPoint,
@@ -185,17 +183,6 @@ export function greatCircle(
   return points;
 }
 
-/* ── Colours ─────────────────────────────────────────────────────────────── */
-
-/** `#rrggbbaa` (the arcs' translucent ends) as `rgba()`; anything else as is. */
-export function cssColor(color: string): string {
-  const hex = /^#([0-9a-f]{6})([0-9a-f]{2})$/i.exec(color);
-  if (!hex) return color;
-  const n = parseInt(hex[1], 16);
-  const alpha = +(parseInt(hex[2], 16) / 255).toFixed(3);
-  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
-}
-
 /* ── Sources ─────────────────────────────────────────────────────────────── */
 
 /** Properties of a country or state outline, as the map's sources hold them. */
@@ -309,62 +296,3 @@ export function artistPointCollection(
     })),
   };
 }
-
-export interface ArcProps {
-  eventId: string;
-  label: string;
-  direction: ArcDatum['direction'];
-  /** The arc's colour at its head (the dashes) and its tail (the trace). */
-  head: string;
-  tail: string;
-}
-
-/** Influence arcs as great circles on the surface, head to tail. */
-export function arcCollection(
-  arcs: readonly ArcDatum[],
-): FeatureCollection<LineString, ArcProps> {
-  return {
-    type: 'FeatureCollection',
-    features: arcs.map((arc) => {
-      const [head, tail] = arcColors(arc);
-      return {
-        type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: greatCircle(
-            { lat: arc.startLat, lng: arc.startLng },
-            { lat: arc.endLat, lng: arc.endLng },
-          ),
-        },
-        properties: {
-          eventId: arc.eventId,
-          label: arc.label,
-          direction: arc.direction,
-          head: cssColor(head),
-          tail: cssColor(tail),
-        },
-      };
-    }),
-  };
-}
-
-/**
- * The steps of the arcs' dash animation: line-dasharray patterns that walk a
- * dash along the line, one per tick (MapLibre's "animate a line" example).
- */
-export const ARC_DASH_STEPS: readonly (readonly number[])[] = [
-  [0, 4, 3],
-  [0.5, 4, 2.5],
-  [1, 4, 2],
-  [1.5, 4, 1.5],
-  [2, 4, 1],
-  [2.5, 4, 0.5],
-  [3, 4, 0],
-  [0, 0.5, 3, 3.5],
-  [0, 1, 3, 3],
-  [0, 1.5, 3, 2.5],
-  [0, 2, 3, 2],
-  [0, 2.5, 3, 1.5],
-  [0, 3, 3, 1],
-  [0, 3.5, 3, 0.5],
-];

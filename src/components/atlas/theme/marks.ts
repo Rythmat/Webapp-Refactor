@@ -89,5 +89,9 @@ export const haloRadius = (level: number): number =>
 export const edgeWidth = (count: number): number =>
   Math.min(8, 1.5 + 1.75 * Math.log2(Math.max(0, count) + 1));
 
-/** Links carrying this many influences or fewer are weak ties: dotted. */
-export const WEAK_LINK_MAX = 2;
+/**
+ * Links carrying this many influences or fewer are weak ties: dotted. One:
+ * place to place, most links carry one or two (London's strongest, nine),
+ * so two already stands out.
+ */
+export const WEAK_LINK_MAX = 1;

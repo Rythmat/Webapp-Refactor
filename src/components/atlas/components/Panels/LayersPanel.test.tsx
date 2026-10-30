@@ -77,16 +77,17 @@ describe('the Layers panel', () => {
 
   it("keeps the viewer's layers in their browser, and reads them back", () => {
     setup();
-    act(() => screen.getByRole('switch', { name: 'Influence arcs' }).click());
+    act(() => screen.getByRole('switch', { name: 'Connections' }).click());
     expect(
       JSON.parse(window.localStorage.getItem(LAYERS_STORAGE_KEY) ?? '{}'),
     ).toMatchObject({ arcs: false, cities: true });
 
     cleanup();
     setup();
-    expect(
-      screen.getByRole('switch', { name: 'Influence arcs' }),
-    ).toHaveAttribute('aria-checked', 'false');
+    expect(screen.getByRole('switch', { name: 'Connections' })).toHaveAttribute(
+      'aria-checked',
+      'false',
+    );
   });
 
   it('colours the land as the viewer picks, and the legend follows', () => {

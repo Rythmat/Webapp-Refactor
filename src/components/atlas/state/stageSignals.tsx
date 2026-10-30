@@ -46,7 +46,7 @@ export type HoverTarget =
   | { kind: 'place'; id: string }
   | { kind: 'region'; place: SelectedLocation }
   | { kind: 'event'; eventId: string }
-  | { kind: 'link'; id: string };
+  | { kind: 'link'; id: string; title: string; detail: string };
 
 export interface PlaceHover {
   target: HoverTarget;

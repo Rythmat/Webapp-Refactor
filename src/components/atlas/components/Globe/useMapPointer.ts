@@ -46,7 +46,8 @@ export function useMapPointer(
       const point = last;
       const feature = pick(point);
       const target = targetOf(feature);
-      map.getCanvas().style.cursor = target ? 'pointer' : '';
+      const opens = target && (target.kind !== 'link' || !!target.place);
+      map.getCanvas().style.cursor = opens ? 'pointer' : '';
       const layer = feature?.layer.id;
       const box = map.getContainer().getBoundingClientRect();
       let hover: HoverTarget | null = null;
@@ -64,6 +65,13 @@ export function useMapPointer(
         light({
           source: layer === LAYER.statesFill ? SOURCE.states : SOURCE.countries,
           id: feature.id,
+        });
+      } else if (target?.kind === 'link') {
+        const { id, title, detail } = target;
+        hover = { kind: 'link', id, title, detail };
+        light({
+          source: layer === LAYER.linksHit ? SOURCE.solid : SOURCE.dotted,
+          id,
         });
       } else if (target?.kind === 'event') {
         hover = { kind: 'event', eventId: target.eventId };
@@ -93,7 +101,10 @@ export function useMapPointer(
       signals.placeHover.set(null);
       if (target.kind === 'event') clicks.event(target.eventId);
       else if (target.kind === 'city') clicks.city(target.cityId);
-      else clicks.region(target.place, target.centroid);
+      else if (target.kind === 'link') {
+        // A link opens its far place; one between regions opens nothing.
+        if (target.place) clicks.place(target.place);
+      } else clicks.region(target.place, target.centroid);
     };
     map.on('mousemove', onMove);
     map.on('mouseout', onLeave);

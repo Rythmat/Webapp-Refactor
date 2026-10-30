@@ -1,3 +1,4 @@
+import { decodePlace } from '@/components/atlas/navigation/atlasStop';
 import type { SelectedLocation } from '@/components/atlas/types';
 import { placeOfRegion } from './globeLabels';
 import { CLICK_LAYERS, LAYER } from './mapStyle';
@@ -20,6 +21,14 @@ export interface PickedFeature {
 
 export type MapTarget =
   | { kind: 'event'; eventId: string }
+  | {
+      kind: 'link';
+      id: string;
+      title: string;
+      detail: string;
+      /** The far place a click opens; none for a link between regions. */
+      place: SelectedLocation | null;
+    }
   | { kind: 'city'; cityId: string }
   | {
       kind: 'region';
@@ -58,7 +67,22 @@ export function targetOf(feature: PickedFeature | null): MapTarget | null {
   if (!feature) return null;
   const p = feature.properties ?? {};
   switch (feature.layer.id) {
-    case LAYER.arcsHit:
+    case LAYER.linksHit:
+    case LAYER.linksDottedHit: {
+      // A pinned event's influence opens its event.
+      const eventId = str(p.eventId);
+      if (eventId) return { kind: 'event', eventId };
+      const id = str(p.id);
+      if (!id) return null;
+      const place = str(p.place);
+      return {
+        kind: 'link',
+        id,
+        title: str(p.title) ?? '',
+        detail: str(p.detail) ?? '',
+        place: place ? decodePlace(place) : null,
+      };
+    }
     case LAYER.artistPoints: {
       const eventId = str(p.eventId);
       return eventId ? { kind: 'event', eventId } : null;

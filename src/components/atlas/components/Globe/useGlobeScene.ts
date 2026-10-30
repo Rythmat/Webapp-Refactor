@@ -130,9 +130,9 @@ export function useGlobeScene() {
 }
 
 /**
- * What a click on the globe does, the same from either engine: a country or
- * state flies to its centre and becomes the stop; a city opens; an artist's
- * point or an arc opens its event.
+ * What a click on the globe does: a country or state flies to its centre
+ * and becomes the stop; a city opens; an artist's point or a pinned event's
+ * influence opens its event; a link opens its far place.
  */
 export function useGlobeClicks() {
   const dispatch = useAtlasDispatch();
@@ -169,5 +169,12 @@ export function useGlobeClicks() {
     (eventId: string) => navigate.toEvent(eventId),
     [navigate],
   );
-  return useMemo(() => ({ region, city, event }), [region, city, event]);
+  const place = useCallback(
+    (to: SelectedLocation) => navigate.toPlace(to),
+    [navigate],
+  );
+  return useMemo(
+    () => ({ region, city, event, place }),
+    [region, city, event, place],
+  );
 }

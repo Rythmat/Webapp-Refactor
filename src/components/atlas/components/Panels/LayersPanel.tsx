@@ -59,8 +59,9 @@ export const LAYER_OPTIONS: {
   },
   {
     layer: 'arcs',
-    label: 'Influence arcs',
-    detail: 'Links from an event to what shaped it and what it shaped.',
+    label: 'Connections',
+    detail:
+      'Where music came from and went to: between places, or an event’s own influences.',
   },
 ];
 

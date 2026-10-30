@@ -80,7 +80,7 @@ const lazyPanel = (title: string, panel: ReactNode) => (
 
 /**
  * The Inspector's slot (owner, 2026-10-29: the Globe in the Studio's frame):
- * the panel chosen on the side rail, else a lesson's mind map, else the
+ * the panel chosen on the bottom rail, else a lesson's mind map, else the
  * stop's details (layout/inspectorModel.ts). Closing details leaves the stop;
  * closing a tool panel goes back to the details under it.
  */

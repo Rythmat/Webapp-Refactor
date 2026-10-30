@@ -10,7 +10,6 @@ import {
   type ReactNode,
 } from 'react';
 import { BottomRail } from '@/components/atlas/components/Frame/BottomRail';
-import { SideRail } from '@/components/atlas/components/Frame/SideRail';
 import {
   StageDock,
   useBottomBar,
@@ -282,12 +281,7 @@ function StageFoot() {
   );
 }
 
-const DESKTOP_GRID: CSSProperties = {
-  gridTemplateAreas: '"top top" "stage rail" "bottom bottom"',
-  gridTemplateRows: `${FRAME_PX.top}px minmax(0, 1fr) ${FRAME_PX.bottom}px`,
-  gridTemplateColumns: `minmax(0, 1fr) ${FRAME_PX.rail}px`,
-};
-const PHONE_GRID: CSSProperties = {
+const FRAME_GRID: CSSProperties = {
   gridTemplateAreas: '"top" "stage" "bottom"',
   gridTemplateRows: `${FRAME_PX.top}px minmax(0, 1fr) ${FRAME_PX.bottom}px`,
   gridTemplateColumns: 'minmax(0, 1fr)',
@@ -296,8 +290,8 @@ const PHONE_GRID: CSSProperties = {
 /**
  * The page's frame, the Studio's (owner, 2026-10-29): the top rail; the stage
  * card holding the map or the timeline, the Inspector over its right edge,
- * the dock under it and the era rail at its foot; the side rail of panels;
- * the bottom rail. It subscribes to nothing but the screen's size, so a
+ * the dock under it and the era rail at its foot; the bottom rail, with the
+ * panels' icons. The app's navigation is at its left (ClassroomDashboard). It subscribes to nothing but the screen's size, so a
  * dispatch or a URL change re-renders only the pieces that read it — the
  * globe in particular.
  */
@@ -312,7 +306,7 @@ function AppLayout() {
       // pieces and never compete with the app around it.
       className="atlas-root relative isolate grid h-full min-h-0 w-full flex-1 overflow-hidden bg-atlas-page text-atlas-text"
       data-tab="globe"
-      style={isPhone ? PHONE_GRID : DESKTOP_GRID}
+      style={FRAME_GRID}
     >
       <AtlasPortalContext.Provider value={root}>
         <InspectorProvider>
@@ -338,11 +332,6 @@ function AppLayout() {
             {!isPhone && <StageDock />}
             <StageFoot />
           </main>
-          {!isPhone && (
-            <div className="min-h-0" style={{ gridArea: 'rail' }}>
-              <SideRail />
-            </div>
-          )}
           <div className="min-w-0" style={{ gridArea: 'bottom' }}>
             <BottomRail />
           </div>

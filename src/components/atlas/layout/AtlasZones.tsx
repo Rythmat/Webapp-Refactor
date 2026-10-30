@@ -87,7 +87,7 @@ function BottomBarFrame({ bar }: { bar: BottomBarSlot }) {
 
 /**
  * Phones: the Inspector's panel in a bottom sheet, and the bar under the map
- * resting on the sheet at peek (the side rail's icons are in the bottom
+ * resting on the sheet at peek (the panels' icons are in the bottom
  * rail). Once the sheet is raised past peek the bar steps aside, and it comes
  * back when the sheet drops or closes. With no bar, the floating cards'
  * strip takes its place, under the same rule.

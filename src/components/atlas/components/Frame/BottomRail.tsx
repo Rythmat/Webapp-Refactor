@@ -27,7 +27,7 @@ import {
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
 import { cn } from '@/lib/utils';
-import { usePanelAvailability, useTogglePanel } from './SideRail';
+import { usePanelAvailability, useTogglePanel } from './usePanels';
 
 /** The views' names on a phone, where the rail is narrow. */
 const SHORT: Record<AtlasSectionId, string> = {
@@ -154,18 +154,28 @@ function CardsToggle() {
 }
 
 /**
- * A phone's side rail: no room for a column, so the panels' icons sit here,
+ * The panels' icons (the Globe has no side rail: owner, 2026-10-30). On a
+ * desktop, at the rail's right: the stop's details, shown or hidden without
+ * leaving the stop, Layers, a lesson's mind map. On a phone, at its left,
  * their panels opening in the bottom sheet, and the globe's spin with them
  * while the map shows.
  */
-function PanelLaunchers({ spin: withSpin }: { spin: boolean }) {
+function PanelLaunchers({
+  spin: withSpin,
+  details = false,
+}: {
+  spin: boolean;
+  details?: boolean;
+}) {
   const { active, toggle } = useTogglePanel();
   const { shown, disabled } = usePanelAvailability();
   const spin = useSpin();
   return (
     <div aria-label="Panels" className={ATLAS_PILL_ZONE} role="group">
       {RAIL_PANELS.filter(
-        (panel) => panel.id !== 'details' && shown(panel),
+        (panel) =>
+          shown(panel) &&
+          (panel.id !== 'details' || (details && !disabled('details'))),
       ).map((panel) => {
         const Icon = panel.icon;
         return (
@@ -173,6 +183,7 @@ function PanelLaunchers({ spin: withSpin }: { spin: boolean }) {
             key={panel.id}
             aria-label={panel.title}
             aria-pressed={active === panel.id}
+            title={panel.hint}
             disabled={disabled(panel.id)}
             variant="pill"
             onClick={() => toggle(panel.id)}
@@ -199,7 +210,8 @@ function PanelLaunchers({ spin: withSpin }: { spin: boolean }) {
  * The Globe's bottom rail, as the Studio's (owner, 2026-10-29): 44 px, the
  * window's full width, its zones in pills on the page. At the left, what
  * the map does (its spin, the years it shows); the views centred in the
- * window; at the right, the floating cards' switch. On a phone, the
+ * window; at the right, the panels' icons and the floating cards' switch. On
+ * a phone, the
  * panels' icons join the left.
  */
 export function BottomRail() {
@@ -232,7 +244,11 @@ export function BottomRail() {
         {!river && <AllYears />}
       </div>
       <ViewTabs short={false} />
-      <div className="flex min-w-0 items-center justify-end" data-zone="end">
+      <div
+        className="flex min-w-0 items-center justify-end gap-2"
+        data-zone="end"
+      >
+        <PanelLaunchers details spin={false} />
         {!river && <CardsToggle />}
       </div>
     </div>

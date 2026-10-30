@@ -6,6 +6,7 @@ import {
   MapPin,
   Maximize2,
   Minimize2,
+  Music,
 } from 'lucide-react';
 import {
   useCallback,
@@ -32,6 +33,7 @@ import {
   AtlasPanelBody,
 } from '@/components/atlas/components/UI/primitives';
 import type { AtlasArtist } from '@/components/atlas/data/artists';
+import { eventImage } from '@/components/atlas/data/eventImage';
 import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import { getCityById } from '@/components/atlas/data/lookups';
 import { songIdForEvent } from '@/components/atlas/data/songEventAliases';
@@ -85,13 +87,38 @@ const LeadSheetButton = ({ event }: { event: HistoricalEvent }) => {
 /** An event's year and city, the line under its title. */
 function EventMeta({ event, id }: { event: HistoricalEvent; id?: string }) {
   return (
-    <span className="flex items-center gap-3 text-xs text-atlas-text-2" id={id}>
-      <span className="flex items-center gap-1">
+    <span
+      className="flex min-w-0 items-center gap-3 text-xs text-atlas-text-2"
+      id={id}
+    >
+      <span className="flex shrink-0 items-center gap-1">
         <Calendar aria-hidden className="size-3" /> {event.year}
       </span>
-      <span className="flex items-center gap-1">
-        <MapPin aria-hidden className="size-3" /> {eventPlaceName(event)}
+      <span className="flex min-w-0 items-center gap-1">
+        <MapPin aria-hidden className="size-3 shrink-0" />
+        <span className="truncate">{eventPlaceName(event)}</span>
       </span>
+    </span>
+  );
+}
+
+/** A tile's picture: the event's own, or a quiet stand-in of the same shape. */
+function EventTilePicture({ event }: { event: HistoricalEvent }) {
+  const src = eventImage(event, 'lane');
+  return src ? (
+    <img
+      alt=""
+      className="aspect-video w-24 shrink-0 rounded-xl object-cover"
+      decoding="async"
+      loading="lazy"
+      src={src}
+    />
+  ) : (
+    <span
+      aria-hidden
+      className="flex aspect-video w-24 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-atlas-text-3"
+    >
+      <Music className="size-4" />
     </span>
   );
 }
@@ -147,7 +174,7 @@ function EventList({
     enabled: !enlarged && shown.length > VIRTUALIZE_OVER,
     scrollRef,
     listRef,
-    estimateSize: 66,
+    estimateSize: 84,
     gap: 8,
     getItemKey: itemKey,
     keep,
@@ -206,61 +233,68 @@ function EventList({
                     }
                   : undefined
               }
-              className={`group relative isolate w-full rounded-2xl border text-left transition-colors ${focused ? 'p-4' : 'p-2.5'} ${
+              // A floating tile: the column's cards, smaller, with its picture
+              // (owner, 2026-10-30); the open one shows its video instead.
+              className={`group relative isolate w-full rounded-2xl border text-left transition-colors [box-shadow:var(--daw-shadow-float)] ${focused ? 'p-4' : 'p-2'} ${
                 isExpanded
                   ? 'border-white/30 bg-white/[0.06]'
-                  : 'border-atlas-panel-border bg-white/[0.03] hover:bg-white/[0.06]'
+                  : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.08]'
               }`}
             >
-              <div className="flex items-start justify-between gap-2">
-                <h4
-                  className={`${ATLAS_ITEM_TITLE} ${focused ? 'text-lg' : ''}`}
-                  id={`${idBase}-${index}-title`}
-                >
-                  <TitleWithArtists
-                    event={event}
-                    onSelectArtist={onSelectArtist}
-                  />
-                </h4>
-                <div className="relative z-10 -mr-1 -mt-0.5 flex shrink-0 items-center gap-0.5">
-                  <LeadSheetButton event={event} />
-                  <AtlasIconButton
-                    aria-label={focused ? 'Shrink' : 'Enlarge'}
-                    size="xs"
-                    onClick={() => {
-                      if (focused) onShrink();
-                      else onEnlarge(event);
-                    }}
-                  >
-                    {focused ? (
-                      <Minimize2 aria-hidden className="size-4" />
-                    ) : (
-                      <Maximize2 aria-hidden className="size-3.5" />
-                    )}
-                  </AtlasIconButton>
+              <div className="flex items-start gap-3">
+                {!isExpanded && <EventTilePicture event={event} />}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <h4
+                      className={`${ATLAS_ITEM_TITLE} ${focused ? 'text-lg' : ''}`}
+                      id={`${idBase}-${index}-title`}
+                    >
+                      <TitleWithArtists
+                        event={event}
+                        onSelectArtist={onSelectArtist}
+                      />
+                    </h4>
+                    <div className="relative z-10 -mr-1 -mt-0.5 flex shrink-0 items-center gap-0.5">
+                      <LeadSheetButton event={event} />
+                      <AtlasIconButton
+                        aria-label={focused ? 'Shrink' : 'Enlarge'}
+                        size="xs"
+                        onClick={() => {
+                          if (focused) onShrink();
+                          else onEnlarge(event);
+                        }}
+                      >
+                        {focused ? (
+                          <Minimize2 aria-hidden className="size-4" />
+                        ) : (
+                          <Maximize2 aria-hidden className="size-3.5" />
+                        )}
+                      </AtlasIconButton>
+                    </div>
+                  </div>
+                  {enlarged ? (
+                    <EventMeta event={event} />
+                  ) : (
+                    <button
+                      aria-controls={
+                        isExpanded ? `${idBase}-${index}-body` : undefined
+                      }
+                      aria-expanded={isExpanded}
+                      aria-labelledby={`${idBase}-${index}-title ${idBase}-${index}-meta`}
+                      className={`mt-1 flex w-full items-center gap-3 rounded-full text-left after:absolute after:inset-0 after:rounded-2xl ${ATLAS_FOCUS}`}
+                      data-row-control
+                      type="button"
+                      onClick={() => onToggle(event.id)}
+                    >
+                      <EventMeta event={event} id={`${idBase}-${index}-meta`} />
+                      <ChevronDown
+                        aria-hidden
+                        className={`ml-auto mr-1 size-3.5 shrink-0 text-atlas-text-2 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                  )}
                 </div>
               </div>
-              {enlarged ? (
-                <EventMeta event={event} />
-              ) : (
-                <button
-                  aria-controls={
-                    isExpanded ? `${idBase}-${index}-body` : undefined
-                  }
-                  aria-expanded={isExpanded}
-                  aria-labelledby={`${idBase}-${index}-title ${idBase}-${index}-meta`}
-                  className={`mt-1 flex w-full items-center gap-3 rounded-full text-left after:absolute after:inset-0 after:rounded-2xl ${ATLAS_FOCUS}`}
-                  data-row-control
-                  type="button"
-                  onClick={() => onToggle(event.id)}
-                >
-                  <EventMeta event={event} id={`${idBase}-${index}-meta`} />
-                  <ChevronDown
-                    aria-hidden
-                    className={`ml-auto mr-1 size-3.5 text-atlas-text-2 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                  />
-                </button>
-              )}
               {isExpanded && (
                 <div className="relative z-10" id={`${idBase}-${index}-body`}>
                   <div className="mt-2 flex flex-wrap gap-1.5">

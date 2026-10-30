@@ -30,9 +30,10 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   // chord-notation bar, so a Chromebook gives the editor the whole window.
   // Its own top bar has Back to Home and an avatar menu with the stats.
   const isStudioEditor = isEditorPath(pathname);
-  // The Globe takes the whole window too, in the Studio's frame (owner,
-  // 2026-10-29); its top rail's Home pill is the way out. Its height is the
-  // dynamic viewport's, so the bottom rail stays above a phone's toolbar.
+  // The Globe has its own top and bottom rails in the Studio's frame (owner,
+  // 2026-10-29), with the app's navigation at its left (owner, 2026-10-30).
+  // Its height is the dynamic viewport's, so the bottom rail stays above a
+  // phone's toolbar.
   const isGlobe = isGlobePath(pathname);
   const focus = isStudioEditor || isGlobe;
 
@@ -43,7 +44,7 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
         isGlobe ? 'h-dvh' : 'h-screen',
       )}
     >
-      {focus ? null : (
+      {isStudioEditor ? null : (
         <ClassroomSidebar className="hidden flex-shrink-0 md:flex" />
       )}
 

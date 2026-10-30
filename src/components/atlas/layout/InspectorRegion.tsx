@@ -12,7 +12,7 @@ import {
 } from 'react';
 import {
   ATLAS_FOCUS_INSET,
-  ATLAS_SURFACE,
+  ATLAS_CARD,
   ATLAS_TRANSITION,
 } from '@/components/atlas/components/UI/primitives';
 import { useAtlasDispatch } from '@/components/atlas/state/atlasStore';
@@ -123,7 +123,7 @@ function InspectorResizer({
 
 /**
  * The Inspector, as the Studio's (owner, 2026-10-29: the Globe in the
- * Studio's frame): beside the side rail, over the map's right edge, the panel
+ * Studio's frame): a floating card over the map's right edge, the panel
  * the rail or the stop asks for (layout/useInspector.tsx). Always mounted, so
  * its width and its focus survive one panel giving way to another.
  *
@@ -209,7 +209,10 @@ export function InspectorView({ slot }: { slot: InspectorSlot | null }) {
       ref={ref}
       aria-label={slot?.title}
       className={cn(
-        ATLAS_SURFACE,
+        // A floating card like the column's at the stage's left, opaque for
+        // reading (owner, 2026-10-30).
+        ATLAS_CARD,
+        'bg-atlas-panel',
         // Its foot clears the event timeline's open height (UI/EraRail),
         // whose era names rise over the map's bottom edge.
         'absolute bottom-10 right-2 top-2 min-h-0 max-w-[calc(100%-1rem)] flex-col overflow-hidden',

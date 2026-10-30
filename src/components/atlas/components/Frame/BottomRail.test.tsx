@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 /**
  * The bottom rail: the views as the Studio's view tabs, the globe's spin, all
- * of time back in, and the floating cards' switch.
+ * of time back in, the panels' icons (the Globe has no side rail) and the
+ * floating cards' switch.
  */
 import {
   cleanup,
@@ -12,6 +13,7 @@ import {
 } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterEach, describe, expect, it } from 'vitest';
+import { InspectorProvider } from '@/components/atlas/layout/useInspector';
 import { AtlasNavigationProvider } from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasUrlSync } from '@/components/atlas/navigation/useAtlasUrlSync';
 import {
@@ -38,7 +40,9 @@ function setup(path = '/globe') {
     <MemoryRouter initialEntries={[path]}>
       <AtlasStoreProvider store={store}>
         <AtlasNavigationProvider>
-          <BottomRail />
+          <InspectorProvider>
+            <BottomRail />
+          </InspectorProvider>
           <UrlSync />
           <Where />
         </AtlasNavigationProvider>
@@ -94,6 +98,36 @@ describe('the bottom rail', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Show all years' }));
     expect(store.api.getState().timeWindow).toBeNull();
     expect(screen.queryByRole('button', { name: 'Show all years' })).toBeNull();
+  });
+
+  it('opens a panel from its icon, and closes it on the same icon', () => {
+    const { where } = setup();
+    const layers = screen.getByRole('button', { name: 'Layers' });
+    expect(layers).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(layers);
+    expect(where.search).toBe('?panel=layers');
+    expect(layers).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(layers);
+    expect(where.search).toBe('?panel=none');
+    expect(layers).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('shows the panels that apply, and only those', () => {
+    setup();
+    // No stop, no details; no lesson, no mind map.
+    expect(screen.queryByRole('button', { name: 'Details' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Mind map' })).toBeNull();
+    // The legend is a card over the map.
+    expect(screen.queryByRole('button', { name: 'Legend' })).toBeNull();
+    cleanup();
+    setup('/globe?view=timeline');
+    expect(screen.getByRole('button', { name: 'Layers' })).toBeDisabled();
+    cleanup();
+    setup('/globe?mindmap=1');
+    expect(screen.getByRole('button', { name: 'Mind map' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
   });
 
   it('hides and shows the floating cards, for good', () => {

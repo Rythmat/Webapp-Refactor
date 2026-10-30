@@ -2,7 +2,7 @@ import { Layers, Network, PanelRight, type LucideIcon } from 'lucide-react';
 import type { InspectorPanelId } from '@/components/atlas/navigation/atlasFrame';
 
 /**
- * The side rail's panels, one icon each, top to bottom (owner, 2026-10-29:
+ * The Inspector's panels, one icon each on the bottom rail (owner, 2026-10-29:
  * the Globe in the Studio's frame; its rail is src/daw/shell/inspector/
  * railPanels.ts). The rail's buttons and the Inspector's names read it.
  */

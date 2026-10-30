@@ -127,6 +127,17 @@ hides it for good (`atlas-cards-v1`). On a phone the cards are a strip
 above the bottom rail. The chart kit (`Cards/charts/`) has no dependency:
 its charts are `role="img"` with a sentence, its lists real text.
 
+## The frame
+
+The Globe has its top and bottom rails, with the app's navigation
+(`ClassroomSidebar`) at its left on a desktop. There is no side rail at the
+right (owner, 2026-10-30): the panels' icons (Details, Layers, a lesson's
+Mind map) sit at the bottom rail's right, beside the Cards pill. The
+Inspector is a floating card over the map's right edge, and a stop's events
+are tiles in it: picture, title, year and place, the open one showing its
+video instead (`UI/DetailsCard.tsx`). Details hides and returns from its icon
+without leaving the stop.
+
 ## The ring
 
 `?view=ring`, the Connections tab: the busiest places in the years shown

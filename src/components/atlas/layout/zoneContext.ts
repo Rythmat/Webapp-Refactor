@@ -3,7 +3,7 @@ import type { SheetSnap } from './sheetSnap';
 
 /**
  * Where a panel is drawn:
- * - `inspector`: the Inspector beside the side rail (desktop), which is the
+ * - `inspector`: the Inspector over the map's right edge (desktop), which is the
  *   surface; Enlarge widens it;
  * - `sheet`: the phone's bottom sheet, which is the surface and gives the
  *   panel its full width and height;

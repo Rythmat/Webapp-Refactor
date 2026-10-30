@@ -1,13 +1,12 @@
 /**
  * The Globe's frame, the Studio's (owner, 2026-10-29): the top rail, the
- * stage card with its gutter, the side rail of icons and the bottom rail.
+ * stage card with its gutter and the bottom rail.
  * frameGeometry.test.ts holds the rails to the Studio's own sizes
  * (src/daw/shell/layout/layoutModel.ts).
  */
 export const FRAME_PX = {
   top: 44,
   bottom: 44,
-  rail: 48,
   /** The stage card's gutter at each side, and the Inspector's inset. */
   gutter: 8,
 } as const;

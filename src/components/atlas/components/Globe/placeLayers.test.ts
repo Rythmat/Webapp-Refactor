@@ -163,4 +163,37 @@ describe('the places a stop is about', () => {
     const rio = features.find((f) => f.properties.cityId === 'rio');
     expect(rio?.properties).toMatchObject({ priority: 2, minzoom: 0 });
   });
+
+  it('hands a lifted region’s places to its dots, naming only the busiest', () => {
+    const points = Array.from({ length: 8 }, (_, i) => ({
+      id: `p${i}`,
+      name: `P${i}`,
+      lat: 0,
+      lng: i,
+      color: 'x',
+    }));
+    const weights = {
+      places: new Map(
+        points.map((p, i) => [p.id, { events: 20 - i, era: null }]),
+      ),
+    } as unknown as MusicWeights;
+    const inside = new Set(['p0', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6']);
+    const { features } = placeCollection(
+      points,
+      weights,
+      'p6',
+      null,
+      new Set(),
+      inside,
+    );
+    const by = (id: string) =>
+      features.find((f) => f.properties.cityId === id)!.properties;
+    expect(by('p0')).toMatchObject({ under: true, quiet: false, minzoom: 0 });
+    expect(by('p4').minzoom).toBe(0);
+    // Past the busiest five, unnamed; but the selected place always is.
+    expect(by('p5').minzoom).toBe(99);
+    expect(by('p6').minzoom).toBe(0);
+    // Beyond the region: quiet and unnamed, however busy.
+    expect(by('p7')).toMatchObject({ under: false, quiet: true, minzoom: 99 });
+  });
 });

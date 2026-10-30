@@ -9,7 +9,7 @@ import type {
 import { CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
 import { getCityById } from '@/components/atlas/data/lookups';
 import { ERA_HEX, type EraId } from '@/components/atlas/data/musicalEras';
-import type { SelectedLocation } from '@/components/atlas/types';
+import type { FlyFrame, SelectedLocation } from '@/components/atlas/types';
 
 /**
  * The selected region lifted off the map, after the DHCS map reference (owner,
@@ -54,6 +54,16 @@ export function liftPlaceOf(
     name: city.country,
     iso: CITY_COUNTRY_TO_ISO[city.country] ?? '',
   };
+}
+
+/**
+ * What a flight frames, for a region to lift: a city's own flight frames the
+ * region it lifts. A tour's stop names no city, and keeps its own zoom.
+ */
+export function liftFrame(frame: FlyFrame | undefined): FlyFrame | undefined {
+  if (frame?.kind !== 'city' || !frame.cityId) return frame;
+  const place = liftPlaceOf({ type: 'city', id: frame.cityId });
+  return place ? { kind: 'region', place } : frame;
 }
 
 /* ── The strips ──────────────────────────────────────────────────────────── */

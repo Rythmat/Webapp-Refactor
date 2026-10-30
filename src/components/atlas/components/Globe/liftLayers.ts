@@ -16,11 +16,15 @@ import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 export const LIFT_SOURCE = {
   strips: 'atlas-lift-strips',
   outline: 'atlas-lift-outline',
+  dots: 'atlas-lift-dots',
 } as const;
 
 /** How far the lid rises, px; how many fills make the walls. */
 export const LIFT_PX = 22;
 const WALLS = 7;
+/** How long the lid takes to rise, and the dots to populate after it, ms. */
+export const RISE_MS = 500;
+export const DOTS_MS = 700;
 /** The camera's tilt over a lifted region, degrees. */
 export const LIFT_PITCH = 35;
 
@@ -35,6 +39,8 @@ export const LIFT_LAYER = {
   lid: 'atlas-lift-lid',
   edgeGlow: 'atlas-lift-edge-glow',
   edge: 'atlas-lift-edge',
+  dots: 'atlas-lift-dots',
+  dotsHit: 'atlas-lift-dots-hit',
 } as const;
 
 export function liftSources(): Record<string, SourceSpecification> {
@@ -48,8 +54,24 @@ export function liftSources(): Record<string, SourceSpecification> {
       lineMetrics: true,
       data: { type: 'FeatureCollection', features: [] },
     },
+    [LIFT_SOURCE.dots]: {
+      type: 'geojson',
+      promoteId: 'eventId',
+      data: { type: 'FeatureCollection', features: [] },
+    },
   };
 }
+
+/** A dot's shown when its year is (useRegionLift writes `on`, live). */
+const dotOn = ['boolean', ['feature-state', 'on'], false];
+const dotHover = ['boolean', ['feature-state', 'hover'], false];
+const dotHot = ['boolean', ['get', 'hot'], false];
+const dotOpacity = [
+  'case',
+  dotOn,
+  ['case', ['boolean', ['get', 'dim'], false], 0.4, 1],
+  0,
+] as unknown as ExpressionSpecification;
 
 /** A strip's colour, written per strip (useRegionLift), so years move it live. */
 const stripColor = [
@@ -115,6 +137,39 @@ export function liftLayerSpecs(): LayerSpecification[] {
           1,
           ATLAS_SCENE.label,
         ] as unknown as ExpressionSpecification,
+      },
+    },
+    {
+      id: LIFT_LAYER.dots,
+      type: 'circle',
+      source: LIFT_SOURCE.dots,
+      paint: {
+        'circle-radius': [
+          'case',
+          dotOn,
+          ['case', ['any', dotHot, dotHover], 4.5, 2.75],
+          0,
+        ] as unknown as ExpressionSpecification,
+        'circle-color': ATLAS_SCENE.dot,
+        'circle-opacity': dotOpacity,
+        'circle-stroke-color': ['get', 'rim'],
+        'circle-stroke-width': 1.25,
+        'circle-stroke-opacity': dotOpacity,
+      },
+    },
+    {
+      // A wider, invisible circle, so a small dot is easy to hover and click.
+      id: LIFT_LAYER.dotsHit,
+      type: 'circle',
+      source: LIFT_SOURCE.dots,
+      paint: {
+        'circle-radius': [
+          'case',
+          dotOn,
+          7,
+          0,
+        ] as unknown as ExpressionSpecification,
+        'circle-opacity': 0,
       },
     },
   ];

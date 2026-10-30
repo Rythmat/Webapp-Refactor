@@ -4,8 +4,14 @@ import type {
   HoverTarget,
   StageSignals,
 } from '@/components/atlas/state/stageSignals';
-import { targetOf, topFeature, type PickedFeature } from './mapPicking';
-import { CLICK_LAYERS, LAYER, SOURCE } from './mapStyle';
+import { LIFT_SOURCE } from './liftLayers';
+import {
+  nearestDot,
+  targetOf,
+  topFeature,
+  type PickedFeature,
+} from './mapPicking';
+import { CLICK_LAYERS, LAYER, RAISED_HITS, SOURCE } from './mapStyle';
 import type { useGlobeClicks } from './useGlobeScene';
 
 /**
@@ -23,11 +29,18 @@ export function useMapPointer(
   useEffect(() => {
     if (!map) return;
     const pick = (point: { x: number; y: number }) => {
-      const layersHere = CLICK_LAYERS.filter((id) => map.getLayer(id));
-      const features = map.queryRenderedFeatures([point.x, point.y], {
-        layers: [...layersHere],
-      }) as unknown as PickedFeature[];
-      return topFeature(features);
+      const ask = (x: number, y: number, raised: boolean) =>
+        map.queryRenderedFeatures([x, y], {
+          layers: CLICK_LAYERS.filter(
+            (id) => RAISED_HITS.includes(id) === raised && map.getLayer(id),
+          ),
+        }) as unknown as PickedFeature[];
+      // The raised hit layers stay on the ground: ask them under the pointer.
+      const ground = { x: point.x, y: point.y + signals.lift.get() };
+      const raised = nearestDot(ask(ground.x, ground.y, true), ground, (at) =>
+        map.project(at),
+      );
+      return topFeature([...raised, ...ask(point.x, point.y, false)]);
     };
     type Lit = { source: string; id: string | number } | null;
     let lit: Lit = null;
@@ -75,7 +88,11 @@ export function useMapPointer(
         });
       } else if (target?.kind === 'event') {
         hover = { kind: 'event', eventId: target.eventId };
-        light(null);
+        light(
+          layer === LAYER.liftDotsHit
+            ? { source: LIFT_SOURCE.dots, id: target.eventId }
+            : null,
+        );
       } else {
         light(null);
       }

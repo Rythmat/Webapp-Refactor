@@ -85,6 +85,13 @@ const townFilter: ExpressionSpecification = [
   ['>=', ['zoom'], TOWNS_FROM],
 ];
 
+/** On a lifted region, where its event dots take over from its places. */
+const under: ExpressionSpecification = ['boolean', ['get', 'under'], false];
+/** Beyond a lifted region: a faint dot, no halo. */
+const quiet: ExpressionSpecification = ['boolean', ['get', 'quiet'], false];
+const shownFilter: ExpressionSpecification = ['all', townFilter, ['!', under]];
+const haloFilter: ExpressionSpecification = ['all', shownFilter, ['!', quiet]];
+
 /** The selected place's light: one point, where the stop is. */
 export const SUN_SOURCE = 'atlas-sun';
 
@@ -103,7 +110,7 @@ export function placeLayers(
       id: PLACE_LAYER.halo,
       type: 'circle',
       source,
-      filter: townFilter,
+      filter: haloFilter,
       paint: {
         'circle-radius': [
           'interpolate',
@@ -124,11 +131,18 @@ export function placeLayers(
       id: PLACE_LAYER.dot,
       type: 'circle',
       source,
-      filter: townFilter,
+      filter: shownFilter,
       paint: {
         'circle-radius': ['case', highlight, 3.5, hover, 3.2, 2.4],
         'circle-color': ATLAS_SCENE.dot,
-        'circle-opacity': ['case', ['>', w, 0], 1, ['case', highlight, 1, 0.4]],
+        'circle-opacity': [
+          'case',
+          quiet,
+          0.3,
+          ['>', w, 0],
+          1,
+          ['case', highlight, 1, 0.4],
+        ],
         'circle-stroke-width': ['case', highlight, 1.5, 1],
         'circle-stroke-color': [
           'case',
@@ -144,7 +158,7 @@ export function placeLayers(
       id: PLACE_LAYER.hit,
       type: 'circle',
       source,
-      filter: townFilter,
+      filter: shownFilter,
       paint: { 'circle-radius': 12, 'circle-opacity': 0 },
     },
     {
@@ -235,7 +249,14 @@ export interface PlaceProps {
   priority: number;
   /** The zoom its name shows from (NAMED_BY_ZOOM). */
   minzoom: number;
+  /** On a lifted region: the event dots stand for it. */
+  under: boolean;
+  /** Beyond a lifted region. */
+  quiet: boolean;
 }
+
+/** How many of a lifted region's places keep a name: its busiest. */
+export const LIFTED_NAMED = 5;
 
 /**
  * Who is named first where names crowd: the selected place, the pinned
@@ -308,6 +329,8 @@ export function placeCollection(
   selectedCityId: string | null,
   pinnedCityId: string | null,
   connected: ReadonlySet<string> = new Set(),
+  /** A lifted region's places: only its busiest are named, none beyond it. */
+  lifted: ReadonlySet<string> | null = null,
 ): FeatureCollection<Point, PlaceProps> {
   const ranked = points
     .map((p) => p.id)
@@ -318,6 +341,9 @@ export function placeCollection(
           (weights.places.get(a)?.events ?? 0) || a.localeCompare(b),
     );
   const rankOf = new Map(ranked.map((id, i) => [id, i]));
+  const namedOnLift = new Set(
+    lifted ? ranked.filter((id) => lifted.has(id)).slice(0, LIFTED_NAMED) : [],
+  );
   return {
     type: 'FeatureCollection',
     features: points.map((point) => {
@@ -332,8 +358,11 @@ export function placeCollection(
         rank: Number.isFinite(rank) ? rank : 9999,
       });
       const town = point.town ?? false;
-      const minzoom =
-        priority < 10
+      const minzoom = lifted
+        ? selected || pinned || namedOnLift.has(point.id)
+          ? 0
+          : NEVER
+        : priority < 10
           ? 0
           : events === 0
             ? NEVER
@@ -349,6 +378,8 @@ export function placeCollection(
           highlight: selected || pinned,
           priority,
           minzoom,
+          under: !!lifted && lifted.has(point.id),
+          quiet: !!lifted && !lifted.has(point.id),
         },
       };
     }),

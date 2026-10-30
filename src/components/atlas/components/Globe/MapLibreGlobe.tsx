@@ -58,14 +58,22 @@ export default function MapLibreGlobe() {
     liftPlace ? null : scene.selectedLocation,
   );
   useLandMusic(map, countryData, scene.layers.landColor);
-  usePlaceLayers(map, scene);
+  usePlaceLayers(map, scene, liftPlace);
   const signals = useStageSignals();
-  useNetworkLayers(map, scene.influenceArcs, gate, reducedMotion, signals);
+  useNetworkLayers(
+    map,
+    scene.influenceArcs,
+    gate,
+    reducedMotion,
+    signals,
+    liftPlace !== null,
+  );
   useRegionLift(
     map,
     geo,
     liftPlace,
     scene.layers.landColor,
+    scene.selectedCityId,
     gate,
     reducedMotion,
     signals,

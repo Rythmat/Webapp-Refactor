@@ -20,6 +20,7 @@ import {
   lineLength,
   sliceLine,
 } from './drawOn';
+import { DOTS_MS, RISE_MS } from './liftLayers';
 import { EMPTY, feed } from './mapFeed';
 import {
   NO_LINKS,
@@ -36,6 +37,9 @@ import {
   NETWORK_SOURCE,
 } from './networkLayers';
 import type { MotionGate } from './useMotionGate';
+
+/** A lifted region's links draw on once its lid has risen and its dots come. */
+const LINKS_AFTER_LIFT_MS = RISE_MS + DOTS_MS;
 
 /** How many links between regions the world shows. */
 const WORLD_LINKS = 24;
@@ -56,6 +60,8 @@ export function useNetworkLayers(
   gate: MotionGate,
   reducedMotion: boolean,
   signals: StageSignals,
+  /** A region is lifting: the links come after its colour and dots. */
+  lifting: boolean,
 ) {
   const stop = useAtlasStop();
   const w = useAtlasSelector((s) => s.timeWindow);
@@ -88,8 +94,9 @@ export function useNetworkLayers(
       feed(map, NETWORK_SOURCE.draw, EMPTY);
     };
     const fresh = drawnFor.current !== key;
-    if (links.solid.features.length) drawnFor.current = key;
-    if (!fresh || reducedMotion || links.solid.features.length === 0) {
+    const any = links.solid.features.length + links.dotted.features.length > 0;
+    if (any) drawnFor.current = key;
+    if (!fresh || reducedMotion || !any) {
       showAll();
       return;
     }
@@ -130,16 +137,23 @@ export function useNetworkLayers(
       });
       frame = requestAnimationFrame(step);
     };
+    let delay = 0;
     const cancel = afterFlight(signals.mapPhase, () => {
-      start = performance.now();
-      frame = requestAnimationFrame(step);
+      delay = window.setTimeout(
+        () => {
+          start = performance.now();
+          frame = requestAnimationFrame(step);
+        },
+        lifting ? LINKS_AFTER_LIFT_MS : 0,
+      );
     });
     return () => {
       cancel();
+      window.clearTimeout(delay);
       cancelAnimationFrame(frame);
       showAll();
     };
-  }, [map, links, key, reducedMotion, signals]);
+  }, [map, links, key, reducedMotion, signals, lifting]);
 
   // The flow: one dotted phase shown at a time, the next every step.
   const flowing = links.dotted.features.length > 0;

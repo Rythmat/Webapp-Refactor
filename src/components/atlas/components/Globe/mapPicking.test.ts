@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { targetOf, topFeature, type PickedFeature } from './mapPicking';
+import {
+  nearestDot,
+  targetOf,
+  topFeature,
+  type PickedFeature,
+} from './mapPicking';
 import { LAYER } from './mapStyle';
 
 const at = (
@@ -75,6 +80,34 @@ describe('what it opens', () => {
     // Between regions: a card to hover, nothing to open.
     expect(targetOf(regions)).toMatchObject({ kind: 'link', place: null });
     expect(topFeature([brazil, nola, link])).toBe(link);
+  });
+
+  it('opens an event from its dot, over anything under it', () => {
+    const dot = at(LAYER.liftDotsHit, { eventId: 'evt-3' });
+    expect(targetOf(dot)).toEqual({ kind: 'event', eventId: 'evt-3' });
+    expect(topFeature([brazil, nola, arc, dot])).toBe(dot);
+  });
+
+  it('takes the nearest of the dots under the pointer', () => {
+    const dot = (eventId: string, x: number): PickedFeature => ({
+      ...at(LAYER.liftDotsHit, { eventId }),
+      geometry: { type: 'Point', coordinates: [x, 0] },
+    });
+    const drawnLast = dot('evt-far', 6);
+    const pointedAt = dot('evt-near', 1);
+    const kept = nearestDot(
+      [drawnLast, arc, pointedAt],
+      { x: 0, y: 0 },
+      ([x, y]) => ({ x, y }),
+    );
+    expect(kept).toEqual([arc, pointedAt]);
+    expect(topFeature(kept)).toBe(pointedAt);
+  });
+
+  it('opens nothing from the lifted region itself', () => {
+    const lid = at(LAYER.liftLid, {});
+    expect(topFeature([brazil, lid])).toBe(lid);
+    expect(targetOf(lid)).toBeNull();
   });
 
   it('opens a city from its name', () => {

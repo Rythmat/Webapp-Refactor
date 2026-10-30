@@ -57,6 +57,30 @@ export function topFeature(
   return best;
 }
 
+/**
+ * Event dots' hit zones overlap, so of those under the pointer only the
+ * nearest stays: the dot being pointed at, not the one drawn last.
+ */
+export function nearestDot(
+  features: readonly PickedFeature[],
+  at: { x: number; y: number },
+  project: (lngLat: [number, number]) => { x: number; y: number },
+): PickedFeature[] {
+  let best: PickedFeature | null = null;
+  let bestDistance = Infinity;
+  for (const feature of features) {
+    if (feature.layer.id !== LAYER.liftDotsHit) continue;
+    const point = feature.geometry?.coordinates as [number, number];
+    const p = project(point);
+    const distance = (p.x - at.x) ** 2 + (p.y - at.y) ** 2;
+    if (distance < bestDistance) {
+      best = feature;
+      bestDistance = distance;
+    }
+  }
+  return features.filter((f) => f.layer.id !== LAYER.liftDotsHit || f === best);
+}
+
 const str = (value: unknown): string | null =>
   typeof value === 'string' && value ? value : null;
 const num = (value: unknown): number | null =>
@@ -83,6 +107,7 @@ export function targetOf(feature: PickedFeature | null): MapTarget | null {
         place: place ? decodePlace(place) : null,
       };
     }
+    case LAYER.liftDotsHit:
     case LAYER.artistPoints: {
       const eventId = str(p.eventId);
       return eventId ? { kind: 'event', eventId } : null;

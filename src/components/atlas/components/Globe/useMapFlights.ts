@@ -17,6 +17,7 @@ import {
   type Outlines,
 } from './mapFraming';
 import { altitudeToMapZoom, flightDuration } from './mapGeometry';
+import { liftFrame } from './regionLift';
 import { MAP_START } from './useMapInstance';
 import { FLIGHT_EVENT } from './useMapPhase';
 
@@ -48,6 +49,11 @@ export function useMapFlights(
   const isPhone = useIsPhone();
   const isPhoneRef = useRef(isPhone);
   isPhoneRef.current = isPhone;
+  const journey = useAtlasSelector(
+    (s) => s.activeModule !== null || s.activeTour !== null,
+  );
+  const journeyRef = useRef(journey);
+  journeyRef.current = journey;
   const flownBefore = useRef(false);
   const flightTimer = useRef<number | undefined>(undefined);
   const waitingSince = useRef<{ target: object; at: number } | null>(null);
@@ -59,7 +65,10 @@ export function useMapFlights(
       countries: countries?.features ?? null,
       states: adminRegions?.features ?? null,
     };
-    const frame = target.frame;
+    // A journey keeps its own camera; otherwise a city frames the region it
+    // lifts, tilted, which sells the height.
+    const frame = journeyRef.current ? target.frame : liftFrame(target.frame);
+    const lifting = !journeyRef.current && frame?.kind === 'region';
     const loading =
       frame?.kind === 'region' &&
       findRegion(frame.place, outlines) === 'loading';
@@ -78,7 +87,7 @@ export function useMapFlights(
       };
       const padding = landingInsets(paddingRef.current, view, !!frame);
       const camera = frameCamera(
-        target,
+        { ...target, frame },
         outlines,
         (bounds, maxZoom) =>
           fitCamera(
@@ -86,7 +95,7 @@ export function useMapFlights(
             view,
             padding,
             maxZoom,
-            frame?.kind === 'region' ? LIFT_MARGIN_PX : undefined,
+            lifting ? LIFT_MARGIN_PX : undefined,
           ),
         view.height,
       );
@@ -108,8 +117,7 @@ export function useMapFlights(
         {
           center: camera.center,
           zoom: camera.zoom,
-          // Tilted over a lifted region, which sells its height.
-          pitch: frame?.kind === 'region' ? LIFT_PITCH : 0,
+          pitch: lifting ? LIFT_PITCH : 0,
           padding,
           duration: flightDuration(reducedMotionRef.current),
           // Not essential: MapLibre itself cuts the flight under reduced

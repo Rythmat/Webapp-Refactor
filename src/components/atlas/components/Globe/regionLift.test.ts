@@ -12,6 +12,7 @@ import {
   cssRgb,
   edgeGradient,
   eraRamp,
+  liftFrame,
   liftPlaceOf,
   rampAt,
   sliceRegion,
@@ -55,6 +56,28 @@ describe('which place lifts', () => {
       iso: 'GBR',
     });
     expect(liftPlaceOf({ type: 'city', id: 'nowhere' })).toBeNull();
+  });
+});
+
+describe('what a flight frames', () => {
+  it('frames the region a city lifts', () => {
+    expect(
+      liftFrame({ kind: 'city', zoom: 10, cityId: 'new-orleans' }),
+    ).toEqual({
+      kind: 'region',
+      place: { type: 'state', name: 'Louisiana', country: 'United States' },
+    });
+  });
+
+  it('leaves a tour’s stop, and a place’s own frame, as they are', () => {
+    const stop = { kind: 'city', zoom: 8 } as const;
+    expect(liftFrame(stop)).toBe(stop);
+    const region = {
+      kind: 'region',
+      place: { type: 'state', name: 'Ohio' },
+    } as const;
+    expect(liftFrame(region)).toBe(region);
+    expect(liftFrame(undefined)).toBeUndefined();
   });
 });
 

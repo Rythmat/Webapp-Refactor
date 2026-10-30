@@ -1,6 +1,8 @@
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { stateBoundariesData } from '@/components/atlas/data/loaders';
+import { ERA_HEX, eraOfYear } from '@/components/atlas/data/musicalEras';
+import { getTimelineEvent } from '@/components/atlas/data/timelineIndex';
 import type { useGeoData } from '@/components/atlas/hooks/useGeoData';
 import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
@@ -12,8 +14,16 @@ import { inWindow } from '@/components/atlas/timeline/timeWindow';
 import type { LandColor, SelectedLocation } from '@/components/atlas/types';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
 import { afterFlight } from './afterFlight';
+import { dotCollection, pxToDeg, seatEvents } from './eventDots';
 import { LAND_LAYER, landPaint } from './landLayers';
-import { LIFT_LAYER, LIFT_PX, LIFT_SOURCE, liftShare } from './liftLayers';
+import {
+  DOTS_MS,
+  LIFT_LAYER,
+  LIFT_PX,
+  LIFT_SOURCE,
+  RISE_MS,
+  liftShare,
+} from './liftLayers';
 import { EMPTY, feed } from './mapFeed';
 import { findRegion, regionBounds, type Outlines } from './mapFraming';
 import { LAYER, RAISED_LAYERS } from './mapStyle';
@@ -30,8 +40,7 @@ import {
 } from './regionLift';
 import type { MotionGate } from './useMotionGate';
 
-/** How long the lid takes to rise and to settle back, ms. */
-const RISE_MS = 500;
+/** How long the lid takes to settle back, ms. */
 const FALL_MS = 300;
 /** How long colour takes to sweep along the strips, ms. */
 const SWEEP_MS = 700;
@@ -40,6 +49,8 @@ const COMET_LOOP_MS = 5000;
 const COMET_STEP_MS = 33;
 /** What the rest of the land keeps of its light beside a lifted region. */
 const LAND_DIMMED = 0.5;
+/** The dots: this far apart on screen. */
+const DOT_SPACING_PX = 8;
 
 /** The land's name layers, which step back with it. */
 const NAME_LAYERS = [LAYER.regionLabels, ...LAND_LAYER.countryLabels];
@@ -86,6 +97,7 @@ export function useRegionLift(
   geo: Pick<ReturnType<typeof useGeoData>, 'countries' | 'adminRegions'>,
   place: ReturnType<typeof liftPlaceOf>,
   landColor: LandColor,
+  selectedCityId: string | null,
   gate: MotionGate,
   reducedMotion: boolean,
   signals: StageSignals,
@@ -108,13 +120,11 @@ export function useRegionLift(
   // Its events' years. A state's towns are placed by the outlines on demand.
   const states = useLazyResource(stateBoundariesData, place?.type === 'state');
   const statesReady = place?.type !== 'state' || states.status === 'ready';
-  const years = useMemo(
-    () =>
-      place && statesReady
-        ? getEventsForLocation(place).map((e) => e.year)
-        : [],
+  const events = useMemo(
+    () => (place && statesReady ? getEventsForLocation(place) : []),
     [place, statesReady],
   );
+  const years = useMemo(() => events.map((e) => e.year), [events]);
 
   // The land steps back as soon as a region is chosen.
   const lifted = shape !== null;
@@ -148,7 +158,9 @@ export function useRegionLift(
     const clear = () => {
       feed(map, LIFT_SOURCE.strips, EMPTY);
       feed(map, LIFT_SOURCE.outline, EMPTY);
+      feed(map, LIFT_SOURCE.dots, EMPTY);
       map.removeFeatureState({ source: LIFT_SOURCE.strips });
+      map.removeFeatureState({ source: LIFT_SOURCE.dots });
     };
     setLanded(null);
     if (!shape) {
@@ -231,6 +243,69 @@ export function useRegionLift(
       cancelAnimationFrame(raf);
     };
   }, [map, landed, years, filtered, camera, reducedMotion]);
+
+  // The dots' seats: fixed once landed, at the spacing this zoom wants.
+  const seats = useMemo(() => {
+    if (!map || !landed) return [];
+    return seatEvents(
+      events.map((e) => ({
+        id: e.id,
+        year: e.year,
+        lat: e.location.lat,
+        lng: e.location.lng,
+      })),
+      landed.outline.features.map((f) => f.geometry.coordinates),
+      pxToDeg(DOT_SPACING_PX, map.getZoom()),
+    );
+  }, [map, landed, events]);
+
+  // Their look: a city's stop brightens its own, the pinned event stands out.
+  const pinnedId = useAtlasSelector((s) => s.pinnedEvent?.id ?? null);
+  useEffect(() => {
+    if (!map || !landed) return;
+    feed(
+      map,
+      LIFT_SOURCE.dots,
+      dotCollection(seats, (eventId, year) => ({
+        rim: ERA_HEX[eraOfYear(year).id],
+        hot: eventId === pinnedId,
+        dim:
+          selectedCityId !== null &&
+          getTimelineEvent(eventId)?.cityId !== selectedCityId,
+      })),
+    );
+  }, [map, landed, seats, pinnedId, selectedCityId]);
+
+  // Populating, in year order, once the lid has risen; then each follows the
+  // era rail live.
+  useEffect(() => {
+    if (!map || !landed || seats.length === 0) return;
+    const shown = new Map<string, boolean>();
+    const start = performance.now() + (reducedMotion ? 0 : RISE_MS);
+    let raf = 0;
+    const draw = (now: number) => {
+      raf = 0;
+      const w = filtered ? camera.get() : null;
+      const reached = reducedMotion
+        ? seats.length
+        : ((now - start) / DOTS_MS) * seats.length;
+      seats.forEach(({ eventId, year }, i) => {
+        const on = i < reached && inWindow(w, year);
+        if (shown.get(eventId) === on) return;
+        shown.set(eventId, on);
+        map.setFeatureState({ source: LIFT_SOURCE.dots, id: eventId }, { on });
+      });
+      if (reached < seats.length) raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    const stop = camera.subscribe(() => {
+      if (!raf) raf = requestAnimationFrame(draw);
+    });
+    return () => {
+      stop();
+      cancelAnimationFrame(raf);
+    };
+  }, [map, landed, seats, filtered, camera, reducedMotion]);
 
   // The comet round the edge, stopped when the map is hidden or covered.
   useEffect(() => {

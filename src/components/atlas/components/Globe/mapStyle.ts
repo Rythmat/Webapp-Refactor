@@ -58,6 +58,7 @@ export const LAYER = {
   linksDottedHit: NETWORK_LAYER.dottedHit,
   linkPills: NETWORK_LAYER.pills,
   liftLid: LIFT_LAYER.lid,
+  liftDotsHit: LIFT_LAYER.dotsHit,
   placeHalo: PLACE_LAYER.halo,
   placeDot: PLACE_LAYER.dot,
   placeHit: PLACE_LAYER.hit,
@@ -67,6 +68,7 @@ export const LAYER = {
 
 /** What a click can land on, most specific first: the first hit wins. */
 export const CLICK_LAYERS = [
+  LAYER.liftDotsHit,
   LAYER.linksHit,
   LAYER.linksDottedHit,
   LAYER.artistPoints,
@@ -160,14 +162,29 @@ function raisedLayers(textScale: number): LayerSpecification[] {
   ];
 }
 
+/**
+ * The raised things the pointer reads. MapLibre tests a viewport translate
+ * in the tile's plane, so under a tilt a raised layer answers short of where
+ * it is drawn (14 to 20 px for a lift of 22). These hit layers stay on the
+ * ground, and are asked at the pointer's spot less the lift.
+ */
+export const RAISED_HITS: readonly string[] = [
+  LAYER.liftDotsHit,
+  LAYER.linksHit,
+  LAYER.linksDottedHit,
+  LAYER.placeHit,
+];
+
 /** Each raised layer and the properties that raise it. */
 export const RAISED_LAYERS: readonly {
   id: string;
   props: readonly string[];
-}[] = raisedLayers(1).map((l) => ({
-  id: l.id,
-  props: TRANSLATE[l.type] ?? [],
-}));
+}[] = raisedLayers(1)
+  .filter((l) => !RAISED_HITS.includes(l.id))
+  .map((l) => ({
+    id: l.id,
+    props: TRANSLATE[l.type] ?? [],
+  }));
 
 /* ── The style ───────────────────────────────────────────────────────────── */
 

@@ -14,6 +14,7 @@ import { feed } from './mapFeed';
 import { artistPointCollection } from './mapGeometry';
 import { SOURCE } from './mapStyle';
 import { placeCollection, stopPlaces } from './placeLayers';
+import type { liftPlaceOf } from './regionLift';
 
 const ERA_INDEX = new Map(MUSICAL_ERAS.map((era, i) => [era.id, i]));
 
@@ -38,6 +39,7 @@ export function usePlaceLayers(
     pinnedCityId: string | null;
     selectedLocation: SelectedLocation | null;
   },
+  liftPlace: ReturnType<typeof liftPlaceOf>,
 ) {
   // The chips' images, before any label asks for them.
   useEffect(() => {
@@ -73,6 +75,25 @@ export function usePlaceLayers(
       ),
     [cityPoints, selectedLocation, artistPoints],
   );
+  // A lifted region's own places: its event dots stand for them.
+  const lifted = useMemo(
+    () =>
+      liftPlace
+        ? stopPlaces(
+            cityPoints,
+            liftPlace.type === 'country'
+              ? { country: countryKey(liftPlace.name) }
+              : {
+                  state: {
+                    name: liftPlace.name,
+                    country: liftPlace.country ?? 'United States',
+                  },
+                },
+            getCityById,
+          )
+        : null,
+    [cityPoints, liftPlace],
+  );
   const places = useMemo(
     () =>
       placeCollection(
@@ -81,8 +102,9 @@ export function usePlaceLayers(
         selectedCityId,
         pinnedCityId,
         named,
+        lifted,
       ),
-    [cityPoints, committed, selectedCityId, pinnedCityId, named],
+    [cityPoints, committed, selectedCityId, pinnedCityId, named, lifted],
   );
   useEffect(() => {
     if (map) feed(map, SOURCE.cityPoints, places);

@@ -12,8 +12,8 @@ import type { LessonInstrument } from '@/curriculum/types/activity.v2';
 
 export type LearnInstrument = LessonInstrument;
 
-/** Every instrument the picker lists; only piano and guitar have lessons. */
-export type InstrumentMenuId = LearnInstrument | 'bass' | 'ukulele';
+/** Every instrument the picker lists. */
+export type InstrumentMenuId = LearnInstrument;
 
 export interface InstrumentOption {
   id: InstrumentMenuId;
@@ -39,12 +39,56 @@ export function isGuitarLearnEnabled(): boolean {
   }
 }
 
+const BASS_FLAG_KEY = 'learn-bass';
+
+/**
+ * Bass (The Bass Atlas, started 2026-10-27) waits behind a flag until the
+ * owner has played it through: on in development, and in one browser with
+ *   localStorage.setItem('learn-bass', 'true')  → show Bass's ways in
+ *   localStorage.removeItem('learn-bass')       → hide them again
+ * The bass routes work either way; the flag only hides the way in.
+ */
+export function isBassLearnEnabled(): boolean {
+  if (import.meta.env.DEV) return true;
+  try {
+    return localStorage.getItem(BASS_FLAG_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+const UKULELE_FLAG_KEY = 'learn-ukulele';
+
+/**
+ * Ukulele (The Ukulele Atlas, started 2026-10-27) waits behind a flag until
+ * the owner has played it through: on in development, and in one browser with
+ *   localStorage.setItem('learn-ukulele', 'true')  → show Ukulele's ways in
+ *   localStorage.removeItem('learn-ukulele')       → hide them again
+ * The ukulele routes work either way; the flag only hides the way in.
+ */
+export function isUkuleleLearnEnabled(): boolean {
+  if (import.meta.env.DEV) return true;
+  try {
+    return localStorage.getItem(UKULELE_FLAG_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+/** Whether an instrument's Learn pages are open on this device. */
+export function isLearnInstrumentEnabled(instrument: LearnInstrument): boolean {
+  if (instrument === 'guitar') return isGuitarLearnEnabled();
+  if (instrument === 'bass') return isBassLearnEnabled();
+  if (instrument === 'ukulele') return isUkuleleLearnEnabled();
+  return true;
+}
+
 export function instrumentOptions(): InstrumentOption[] {
   return [
     { id: 'piano', label: 'Piano', available: true },
     { id: 'guitar', label: 'Guitar', available: isGuitarLearnEnabled() },
-    { id: 'bass', label: 'Bass', available: false },
-    { id: 'ukulele', label: 'Ukulele', available: false },
+    { id: 'bass', label: 'Bass', available: isBassLearnEnabled() },
+    { id: 'ukulele', label: 'Ukulele', available: isUkuleleLearnEnabled() },
   ];
 }
 
@@ -57,7 +101,12 @@ interface InstrumentState {
 }
 
 function isLearnInstrument(value: unknown): value is LearnInstrument {
-  return value === 'piano' || value === 'guitar';
+  return (
+    value === 'piano' ||
+    value === 'guitar' ||
+    value === 'bass' ||
+    value === 'ukulele'
+  );
 }
 
 /**
@@ -99,20 +148,24 @@ export const useInstrumentStore = create<InstrumentState>()(
   ),
 );
 
-/** The Learn page for an instrument: /learn/keyboard or /learn/guitar. */
+/** The Learn page for an instrument: /learn/keyboard, /learn/guitar … */
 export const learnPageRoute = (instrument: LearnInstrument) =>
-  instrument === 'guitar' ? LearnRoutes.guitar() : LearnRoutes.keyboard();
+  instrument === 'guitar'
+    ? LearnRoutes.guitar()
+    : instrument === 'bass'
+      ? LearnRoutes.bass()
+      : instrument === 'ukulele'
+        ? LearnRoutes.ukulele()
+        : LearnRoutes.keyboard();
 
 /** The Learn page for the instrument chosen now (Home's row, the side rail). */
 export const useLearnPageRoute = () => learnPageRoute(useLearnInstrument());
 
 /**
- * The instrument Learn should show now: the stored choice, except that guitar
- * reads as piano while its rollout flag is off.
+ * The instrument Learn should show now: the stored choice, except that guitar,
+ * bass or ukulele reads as piano while its rollout flag is off.
  */
 export function useLearnInstrument(): LearnInstrument {
   const instrument = useInstrumentStore((s) => s.instrument);
-  return instrument === 'guitar' && !isGuitarLearnEnabled()
-    ? 'piano'
-    : instrument;
+  return isLearnInstrumentEnabled(instrument) ? instrument : 'piano';
 }

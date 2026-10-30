@@ -34,24 +34,34 @@ export function pitchClassesOf(slug: string): number[] | null {
 }
 
 /**
- * The notes that set a scale apart from the major scale, with their names:
- * Lydian's ♯4, Dorian's ♭3 and ♭7. A seven-note scale is read degree by
- * degree (so Locrian's 5 is ♭5, Lydian's is ♯4); a shorter one names the
- * notes major doesn't have.
+ * Every note of a scale named as a degree of the major scale: Lydian's
+ * 1 2 3 ♯4 5 6 7, minor pentatonic's 1 ♭3 4 5 ♭7. A seven-note scale is read
+ * degree by degree (so Locrian's 5 is ♭5, Lydian's is ♯4); a shorter or
+ * longer one names major's notes by number and the rest as players do.
  */
-export function alteredDegrees(
+export function degreeLabels(
   pcs: readonly number[],
 ): { pc: number; label: string }[] {
   const formula = pcs.length === 7 ? modeDegreeFormula(pcs) : null;
   if (formula) {
-    return formula
-      .split(' ')
-      .map((label, i) => ({ pc: pcs[i], label }))
-      .filter(({ label }) => /[♭♯𝄫]/u.test(label));
+    return formula.split(' ').map((label, i) => ({ pc: pcs[i], label }));
   }
-  return pcs
-    .filter((pc) => !MAJOR.includes(pc))
-    .map((pc) => ({ pc, label: OUTSIDE_MAJOR[pc] ?? String(pc) }));
+  return pcs.map((pc) => ({
+    pc,
+    label: MAJOR.includes(pc)
+      ? String(MAJOR.indexOf(pc) + 1)
+      : (OUTSIDE_MAJOR[pc] ?? String(pc)),
+  }));
+}
+
+/**
+ * The notes that set a scale apart from the major scale, with their names:
+ * Lydian's ♯4, Dorian's ♭3 and ♭7.
+ */
+export function alteredDegrees(
+  pcs: readonly number[],
+): { pc: number; label: string }[] {
+  return degreeLabels(pcs).filter(({ label }) => /[♭♯𝄫]/u.test(label));
 }
 
 /** The steps between a scale's notes, round to the octave: W, H, or 1½

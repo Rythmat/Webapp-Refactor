@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   alteredDegrees,
+  degreeLabels,
   parentOf,
   pitchClassesOf,
   stepPattern,
@@ -13,6 +14,20 @@ describe('pitchClassesOf', () => {
     expect(pitchClassesOf('harmonicminor')).toEqual([0, 2, 3, 5, 7, 8, 11]);
     expect(pitchClassesOf('minorblues')).toEqual([0, 3, 5, 6, 7, 10]);
     expect(pitchClassesOf('nonsense')).toBeNull();
+  });
+});
+
+describe('degreeLabels', () => {
+  const labels = (slug: string) =>
+    degreeLabels(pitchClassesOf(slug)!).map((d) => d.label);
+
+  it('names every note of a mode as a degree of major', () => {
+    expect(labels('lydian')).toEqual(['1', '2', '3', '♯4', '5', '6', '7']);
+    expect(labels('locrian')).toEqual(['1', '♭2', '♭3', '4', '♭5', '♭6', '♭7']);
+  });
+
+  it("names a pentatonic or blues scale's notes as players do", () => {
+    expect(labels('minorblues')).toEqual(['1', '♭3', '4', '♭5', '5', '♭7']);
   });
 });
 

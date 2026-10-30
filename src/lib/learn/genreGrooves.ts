@@ -1,8 +1,9 @@
 // ── Each genre's signature groove (owner, 2026-10-26) ─────────────────────
-// Learn's Genre tiles draw a genre as its groove: one bar on a circle (a
-// rhythm necklace), the hits a polygon. One pattern per course in
-// genreCourses (by slug): the kick and snare together, as a drummer would
-// count the feel, on sixteen steps, or twelve for a triplet feel.
+// Kept for the Drum lessons (owner, 2026-10-27); the Genre tiles now draw a
+// genre's signature interval (genreIntervals). One bar on a circle (a
+// rhythm necklace, GrooveSigil), the hits a polygon. One pattern per course
+// in genreCourses (by slug): the kick and snare together, as a drummer
+// would count the feel, on sixteen steps, or twelve for a triplet feel.
 
 export interface GenreGroove {
   /** Steps in the bar: 16 (straight sixteenths) or 12 (triplet feel). */

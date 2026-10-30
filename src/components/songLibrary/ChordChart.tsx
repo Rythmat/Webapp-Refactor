@@ -1275,8 +1275,11 @@ export const ChordChart: FC<ChordChartProps> = ({
   const { play } = useUISound();
   // The student's chart on guitar: a chord opens its guitar box. The editor
   // keeps its own popup.
+  const learnInstrument = useLearnInstrument();
   const guitarPopup =
-    useLearnInstrument() === 'guitar' && !onSelectChord && !editable;
+    (learnInstrument === 'guitar' || learnInstrument === 'ukulele') &&
+    !onSelectChord &&
+    !editable;
   useEffect(() => {
     if (guitarPopup) void loadGuitarChordCard();
   }, [guitarPopup]);

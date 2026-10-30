@@ -26,6 +26,12 @@ const entry = (route: string): MatchResult => ({
 });
 const none = () => [];
 
+/** A matcher finding a jazz course, then a jazz ear game. */
+const jazzThenChroma = () => [
+  entry('/learn/keyboard/genre/jazz'),
+  entry('/arcade/chroma'),
+];
+
 describe('resolvePromptRoute', () => {
   const studioPick = PROMPT_SUGGESTIONS.find((s) => s.target === 'studio')!;
 
@@ -66,7 +72,7 @@ describe('resolvePromptRoute', () => {
 
   it('leaves an edited question to the matcher', () => {
     const learnPick = PROMPT_SUGGESTIONS.find((s) => s.target === 'learn')!;
-    const match = vi.fn(() => [entry('/curriculum/funk')]);
+    const match = vi.fn(() => [entry('/learn/keyboard/genre/funk')]);
     expect(
       resolvePromptRoute({
         text: `${learnPick.text} please`,
@@ -74,7 +80,7 @@ describe('resolvePromptRoute', () => {
         accepted: learnPick,
         match,
       }),
-    ).toBe('/curriculum/funk');
+    ).toBe('/learn/keyboard/genre/funk');
   });
 
   it('opens the Studio on a song idea for a song prompt, or anything sent to the Studio', () => {
@@ -86,20 +92,20 @@ describe('resolvePromptRoute', () => {
         text,
         target,
         accepted: null,
-        match: () => [entry('/curriculum/funk')],
+        match: () => [entry('/learn/keyboard/genre/funk')],
       });
     expect(go('make a funk beat')).toBe(
       '/studio?prompt=make%20a%20funk%20beat',
     );
     expect(go('funk in E at 100 bpm')).toMatch(/^\/studio\?prompt=/);
-    expect(go('teach me funk')).toBe('/curriculum/funk');
+    expect(go('teach me funk')).toBe('/learn/keyboard/genre/funk');
     expect(go('teach me funk', 'studio')).toBe(
       '/studio?prompt=teach%20me%20funk',
     );
   });
 
   it('keeps a match to the destination picked', () => {
-    const match = () => [entry('/curriculum/jazz'), entry('/arcade/chroma')];
+    const match = jazzThenChroma;
     expect(
       resolvePromptRoute({
         text: 'jazz ear game',
@@ -150,9 +156,12 @@ describe('a prompt’s first word', () => {
   });
 
   it('“Teach” opens a lesson the matcher finds there', () => {
-    const match = () => [entry('/arcade/foli'), entry('/curriculum/funk')];
+    const match = () => [
+      entry('/arcade/foli'),
+      entry('/learn/keyboard/genre/funk'),
+    ];
     expect(go('Teach me how to play funk guitar', null, match)).toBe(
-      '/curriculum/funk',
+      '/learn/keyboard/genre/funk',
     );
   });
 
@@ -164,7 +173,7 @@ describe('a prompt’s first word', () => {
   });
 
   it('“Play” opens the game the matcher finds, else the Arcade', () => {
-    const match = () => [entry('/curriculum/jazz'), entry('/arcade/chroma')];
+    const match = jazzThenChroma;
     expect(go('Play a jazz ear game', null, match)).toBe('/arcade/chroma');
     expect(go('Play something fun')).toBe('/arcade');
   });
@@ -187,7 +196,7 @@ describe('areaOf', () => {
   it('knows each destination’s paths', () => {
     expect(areaOf('/studio?new=1')).toBe('studio');
     expect(areaOf('/songs/superstition')).toBe('learn');
-    expect(areaOf('/curriculum/jazz')).toBe('learn');
+    expect(areaOf('/learn/keyboard/genre/jazz')).toBe('learn');
     expect(areaOf('/atlas/globe?era=postwar')).toBe('globe');
     expect(areaOf('/arcade/foli')).toBe('arcade');
     expect(areaOf('/search?q=x')).toBeNull();

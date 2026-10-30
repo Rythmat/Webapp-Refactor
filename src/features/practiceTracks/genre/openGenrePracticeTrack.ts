@@ -16,7 +16,11 @@
  * but the same generator and no error, which is the right way round.
  */
 
-import { CurriculumRoutes, StudioRoutes } from '@/constants/routes';
+import {
+  CurriculumRoutes,
+  LearnRoutes,
+  StudioRoutes,
+} from '@/constants/routes';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 import type { ActivityFlowV2 } from '@/curriculum/types/activity.v2';
@@ -347,7 +351,10 @@ export async function resolvePracticeTrack(
   return {
     track,
     genreLabel: genreTitle(genre),
-    returnTo: `/curriculum/${genre}/${level}?section=${section}`,
+    returnTo: LearnRoutes.genreLesson(
+      { genre, level: String(level) },
+      { section },
+    ),
   };
 }
 

@@ -41,6 +41,17 @@ const DawUiGallery = import.meta.env.DEV
     )
   : null;
 
+// DEV only: the redesign's art contact sheet (src/components/art): every
+// cover kind and palette, the kit and the Arcade's games. Lazy behind a
+// literal import.meta.env.DEV, as the gallery above.
+const ArtContactSheet = import.meta.env.DEV
+  ? lazy(() =>
+      import('./components/art/__gallery__/ArtContactSheet').then(
+        ({ ArtContactSheet }) => ({ default: ArtContactSheet }),
+      ),
+    )
+  : null;
+
 // DEV only: Echo's Make Your Song on a page of its own, with a stand-in
 // input, while the play screens leading to it are built. Lazy behind a
 // literal import.meta.env.DEV, as the gallery above.
@@ -132,6 +143,18 @@ const appRoutes = () => [
                 element: (
                   <Suspense fallback={null}>
                     <EchoClassroomHarness />
+                  </Suspense>
+                ),
+              },
+            ]
+          : []),
+        ...(ArtContactSheet
+          ? [
+              {
+                path: '/dev/art/contact-sheet',
+                element: (
+                  <Suspense fallback={null}>
+                    <ArtContactSheet />
                   </Suspense>
                 ),
               },

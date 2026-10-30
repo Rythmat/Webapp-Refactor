@@ -1,10 +1,4 @@
 /* eslint-disable import/order, no-duplicate-imports, react-hooks/exhaustive-deps, react-hooks/rules-of-hooks, sonarjs/no-collapsible-if, react/jsx-sort-props, tailwindcss/classnames-order */
-import {
-  PROMPT_PILL,
-  PROMPT_PILL_OFF,
-  PROMPT_PILL_ON,
-} from '@/components/promptBox/PromptBoxParts';
-import { cn } from '@/components/utilities';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { usePrismStartContours } from '@/hooks/data/prism/usePrismStartContours';
@@ -301,6 +295,7 @@ const OVERVIEW_TAB_LABELS = {
   scale: 'Scale',
   triads: 'Triads',
   sevenths: '7th Chords',
+  ninths: '9th Chords',
   inversions: 'Inversions',
 } as const;
 
@@ -446,6 +441,7 @@ export const ActivityFlow = ({
       Component: () => (
         <LessonOverview
           activeTab={overviewTabRef.current}
+          onTabChange={setOverviewTab}
           showTitle={false}
           mode={mode as PrismModeSlug}
           rootKey={rootKey}
@@ -855,7 +851,7 @@ export const ActivityFlow = ({
   // Section state
   const [currentSectionId, setCurrentSectionId] = useState<SectionId>('O');
   const [overviewTab, setOverviewTab] = useState<
-    'scale' | 'triads' | 'sevenths' | 'inversions'
+    'scale' | 'triads' | 'sevenths' | 'ninths' | 'inversions'
   >('scale');
   const overviewTabRef = useRef(overviewTab);
   overviewTabRef.current = overviewTab;
@@ -2254,7 +2250,6 @@ export const ActivityFlow = ({
   // The Overview's tabs, after Pickup Music's over their video (owner,
   // 2026-10-26): Scale, Chords (its triads, 7ths and inversions under it)
   // and the Practice Track, which opens in the Studio.
-  const chordTabs = ['triads', 'sevenths', 'inversions'] as const;
   const onChords = overviewTab !== 'scale';
   const overviewTabs =
     currentSectionId === 'O' ? (
@@ -2293,30 +2288,6 @@ export const ActivityFlow = ({
               : []),
           ]}
         />
-        {/* Chords: which ones, in Learn's pills (the prompt box's). */}
-        {onChords && (
-          <div
-            role="group"
-            aria-label="Chords"
-            className="flex w-fit shrink-0 flex-wrap items-center gap-2"
-          >
-            {chordTabs.map((t) => (
-              <button
-                key={t}
-                type="button"
-                aria-pressed={overviewTab === t}
-                onClick={() => setOverviewTab(t)}
-                className={cn(
-                  PROMPT_PILL,
-                  'max-[639px]:h-11',
-                  overviewTab === t ? PROMPT_PILL_ON : PROMPT_PILL_OFF,
-                )}
-              >
-                {OVERVIEW_TAB_LABELS[t]}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
     ) : null;
 

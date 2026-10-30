@@ -26,62 +26,102 @@
 <button type="button" aria-label="B Chords" data-section="B" class="flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[0.8125rem] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/40 justify-center max-[639px]:h-11 max-[639px]:flex-1 max-[639px]:px-2 border-white/10 bg-white/[0.03] text-white/60 hover:bg-white/[0.07] hover:text-white/85">Chords</button>
 <button type="button" aria-label="D Play-Along" data-section="D" class="flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[0.8125rem] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/40 justify-center max-[639px]:h-11 max-[639px]:flex-1 max-[639px]:px-2 border-white/10 bg-white/[0.03] text-white/60 hover:bg-white/[0.07] hover:text-white/85">Play-Along</button>
 </div>
-<button type="button" title="Play over the Melody groove" class="flex h-8 shrink-0 items-center rounded-full px-3.5 text-[0.8125rem] font-medium outline-none transition-colors duration-75 focus-visible:ring-2 focus-visible:ring-white/40 border border-white/10 text-white/85 hover:bg-white/[0.06] hover:text-white max-[639px]:h-11">♪ Practice Track</button>
-<div role="group" aria-label="Steps" class="ml-auto flex shrink-0 items-center gap-1">
-<button type="button" aria-label="Previous step" class="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[#e8e8f0] transition-colors duration-150 hover:bg-white/[0.08] disabled:opacity-40 disabled:hover:bg-transparent max-[639px]:size-11">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left size-4" aria-hidden="true">
-<path d="m15 18-6-6 6-6">
-</path>
-</svg>
+</div>
+</div>
+<div role="group" aria-label="Melody" data-lesson-tabs="true" class="relative flex w-full shrink-0">
+<div class="relative flex min-w-0 flex-1">
+<button type="button" aria-label="1. Major Scale" title="1. Major Scale" data-lesson-tab="A1: Major Scale" class="relative -mb-px flex h-14 min-w-0 flex-1 flex-col items-center justify-center px-3.5 pb-1 outline-none transition-colors duration-150 focus-visible:bg-white/[0.04] text-white/55 hover:bg-white/[0.03] hover:text-white/85">
+<span class="max-w-full truncate text-sm leading-[1.125rem]">1</span>
 </button>
-<button type="button" aria-label="Step 14 of 14" data-guitar-step-count="true" class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-normal text-white/55 transition-colors duration-150 hover:bg-white/[0.08] data-[state=open]:bg-white/[0.08] max-[639px]:h-11" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-:r1d:" data-state="closed">
-<span class="font-bold text-[#e8e8f0]">
-<span style="display: inline-block; width: 0.62em; text-align: center; letter-spacing: 0;">1</span>
-<span style="display: inline-block; width: 0.62em; text-align: center; letter-spacing: 0;">4</span>
-</span>
-<span>/</span>
-<span>
-<span style="display: inline-block; width: 0.62em; text-align: center; letter-spacing: 0;">1</span>
-<span style="display: inline-block; width: 0.62em; text-align: center; letter-spacing: 0;">4</span>
+<div role="group" aria-label="1. Major Scale: steps" data-lesson-tab-steps="true" class="absolute inset-x-1 bottom-0 flex h-3 gap-0.5">
+<button type="button" aria-label="Major Scale Ascending (Out of Time)" title="Major Scale Ascending (Out of Time)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
 </span>
 </button>
-<button type="button" aria-label="Next step" class="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[#e8e8f0] transition-colors duration-150 hover:bg-white/[0.08] disabled:opacity-40 disabled:hover:bg-transparent max-[639px]:size-11" disabled="">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4" aria-hidden="true">
+<button type="button" aria-label="Major Scale Ascending (In Time)" title="Major Scale Ascending (In Time)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
+</span>
+</button>
+<button type="button" aria-label="Major Scale Descending (Out of Time)" title="Major Scale Descending (Out of Time)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
+</span>
+</button>
+<button type="button" aria-label="Major Scale Descending (In Time)" title="Major Scale Descending (In Time)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
+</span>
+</button>
+<button type="button" aria-label="Major Scale Ascending &amp; Descending (Out of Time)" title="Major Scale Ascending &amp; Descending (Out of Time)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
+</span>
+</button>
+<button type="button" aria-label="Major Scale Ascending &amp; Descending (In Time)" title="Major Scale Ascending &amp; Descending (In Time)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
+</span>
+</button>
+</div>
+</div>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 text-white/35" aria-hidden="true" style="left: 25%;">
 <path d="m9 18 6-6-6-6">
 </path>
 </svg>
+<div class="relative flex min-w-0 flex-1">
+<button type="button" aria-label="2. Melody" title="2. Melody" data-lesson-tab="A2: Melody" class="relative -mb-px flex h-14 min-w-0 flex-1 flex-col items-center justify-center px-3.5 pb-1 outline-none transition-colors duration-150 focus-visible:bg-white/[0.04] text-white/55 hover:bg-white/[0.03] hover:text-white/85">
+<span class="max-w-full truncate text-sm leading-[1.125rem]">2</span>
+</button>
+<div role="group" aria-label="2. Melody: steps" data-lesson-tab-steps="true" class="absolute inset-x-1 bottom-0 flex h-3 gap-0.5">
+<button type="button" aria-label="3 Note Contour (Out of Time)" title="3 Note Contour (Out of Time)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
+</span>
+</button>
+<button type="button" aria-label="3 Note Contour (In Time)" title="3 Note Contour (In Time)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
+</span>
+</button>
+<button type="button" aria-label="Connect Two 3 Note Contours (Out of Time)" title="Connect Two 3 Note Contours (Out of Time)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
+</span>
+</button>
+<button type="button" aria-label="Connect Two 3 Note Contours (In Time)" title="Connect Two 3 Note Contours (In Time)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
+</span>
 </button>
 </div>
 </div>
-<div aria-hidden="true" data-guitar-progress="true" class="flex h-0.5 w-full gap-0.5">
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 text-white/35" aria-hidden="true" style="left: 50%;">
+<path d="m9 18 6-6-6-6">
+</path>
+</svg>
+<div class="relative flex min-w-0 flex-1">
+<button type="button" aria-label="3. Melody Articulation" title="3. Melody Articulation" data-lesson-tab="A3: Melody Articulation" class="relative -mb-px flex h-14 min-w-0 flex-1 flex-col items-center justify-center px-3.5 pb-1 outline-none transition-colors duration-150 focus-visible:bg-white/[0.04] text-white" aria-current="true">
+<span class="max-w-full truncate text-sm leading-[1.125rem]">3</span>
+</button>
+<div role="group" aria-label="3. Melody Articulation: steps" data-lesson-tab-steps="true" class="absolute inset-x-1 bottom-0 flex h-3 gap-0.5">
+<button type="button" aria-label="3 Note Contour (Staccato)" title="3 Note Contour (Staccato)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
 </span>
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
+</button>
+<button type="button" aria-label="3 Note Contour (Legato)" title="3 Note Contour (Legato)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
 </span>
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
+</button>
+<button type="button" aria-label="3 Note Contour (Mixed Articulation)" title="3 Note Contour (Mixed Articulation)" data-segment="todo" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1 bg-white/[0.08] group-hover/segment:bg-white/70" style="">
 </span>
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
+</button>
+<button type="button" aria-label="Connect Two 3 Note Contours (Mixed Articulation)" title="Connect Two 3 Note Contours (Mixed Articulation)" data-segment="current" class="group/segment flex h-full min-w-0 flex-1 items-end rounded-sm outline-none focus-visible:ring-1 focus-visible:ring-white/60" aria-current="step">
+<span class="h-0.5 w-full rounded-full transition-[height,background-color] duration-150 group-hover/segment:h-1" style="background-color: rgb(199, 133, 211);">
 </span>
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
-</span>
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
-</span>
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
-</span>
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
-</span>
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
-</span>
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
-</span>
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
-</span>
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
-</span>
-<span data-segment="todo" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150 bg-white/[0.08]" style="">
-</span>
-<span data-segment="current" class="h-full min-w-0 flex-1 rounded-full transition-colors duration-150" style="background-color: rgb(199, 133, 211);">
-</span>
+</button>
+</div>
+</div>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 text-white/35" aria-hidden="true" style="left: 75%;">
+<path d="m9 18 6-6-6-6">
+</path>
+</svg>
+<div class="relative flex min-w-0 flex-1">
+<button type="button" data-lesson-tab="practice-track" class="relative -mb-px flex h-14 min-w-0 flex-1 flex-col items-center justify-center px-3.5 pb-1 outline-none transition-colors duration-150 focus-visible:bg-white/[0.04] text-white/55 hover:bg-white/[0.03] hover:text-white/85">
+<span class="max-w-full truncate text-sm leading-[1.125rem]">Practice Track</span>
+</button>
 </div>
 </div>
 <div data-piano-roll-slot="true" class="min-w-0">

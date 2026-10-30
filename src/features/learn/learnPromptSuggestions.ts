@@ -1,13 +1,15 @@
 import {
+  BASS_SUGGESTIONS,
   GUITAR_SUGGESTIONS,
   KEYBOARD_SUGGESTIONS,
+  UKULELE_SUGGESTIONS,
   learnSuggestionsFor,
   rotationOf,
   type PromptSuggestion,
 } from '@/components/ClassroomLayout/home/promptSuggestions';
 import { GENRE_COURSES } from '@/components/learn/genreCourses';
 import { techniqueDataFor } from '@/components/learn/techniqueCatalog';
-import { CurriculumRoutes, SongRoutes } from '@/constants/routes';
+import { LearnRoutes, SongRoutes } from '@/constants/routes';
 import { getAllSongs } from '@/curriculum/data/songs';
 import type { Song } from '@/curriculum/types/songLibrary';
 import type { GenreReadiness } from '@/features/learn/genreReadiness';
@@ -31,6 +33,8 @@ const teach = (text: string, route: string): PromptSuggestion => ({
 const ON: Record<LearnInstrument, string> = {
   piano: 'on piano',
   guitar: 'on guitar',
+  bass: 'on bass',
+  ukulele: 'on ukulele',
 };
 
 /** Songs: the songs the page lists (all of them, or as its filters leave
@@ -48,7 +52,7 @@ const songSuggestions = (instrument: LearnInstrument, songs: readonly Song[]) =>
 const GENRE_SUGGESTIONS: PromptSuggestion[] = GENRE_COURSES.map((course) =>
   teach(
     `Teach me ${course.title}`,
-    CurriculumRoutes.genre({ genre: course.slug }),
+    LearnRoutes.genreCourse({ genre: course.slug }),
   ),
 );
 
@@ -90,7 +94,7 @@ const genreSectionSuggestions = (id: GenreSectionId, ready: GenreReadiness) => {
     ).map(({ level, name }) =>
       teach(
         `Teach me ${section.ask(`${name} ${course.title}`)}`,
-        `${CurriculumRoutes.genreLevel({ genre: course.slug, level })}?section=${id}`,
+        `${LearnRoutes.genreLesson({ genre: course.slug, level })}?section=${id}`,
       ),
     ),
   );
@@ -99,7 +103,7 @@ const genreSectionSuggestions = (id: GenreSectionId, ready: GenreReadiness) => {
 /** A genre course's own route (/curriculum/funk): its slug, else null. */
 const courseOf = (route: string) =>
   GENRE_COURSES.find(
-    (course) => route === CurriculumRoutes.genre({ genre: course.slug }),
+    (course) => route === LearnRoutes.genreCourse({ genre: course.slug }),
   )?.slug ?? null;
 
 /**
@@ -133,6 +137,8 @@ const theorySuggestions = (list: readonly PromptSuggestion[]) =>
 const THEORY_SUGGESTIONS: Record<LearnInstrument, PromptSuggestion[]> = {
   piano: theorySuggestions(KEYBOARD_SUGGESTIONS),
   guitar: theorySuggestions(GUITAR_SUGGESTIONS),
+  bass: theorySuggestions(BASS_SUGGESTIONS),
+  ukulele: theorySuggestions(UKULELE_SUGGESTIONS),
 };
 
 /** Technique: its tiles (none on guitar yet, so its bar suggests nothing),

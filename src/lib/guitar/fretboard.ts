@@ -3,34 +3,44 @@
 // sounds; everything here is the sounding MIDI a microphone hears and a MIDI
 // guitar sends, which is what lessons score against.
 
+// The tuning-dependent functions take the instrument last (see
+// ./instrument): guitar by default, and bass code always passes BASS.
+
+import {
+  GUITAR,
+  GUITAR_TUNING,
+  openMidi,
+  type FrettedInstrument,
+} from './instrument';
 import type { FretPosition, GuitarStringNumber, ShapeFret } from './types';
 
 /** Open-string MIDI notes, keyed by string number (1 = high E). */
 export const GUITAR_STANDARD_TUNING: Readonly<
   Record<GuitarStringNumber, number>
-> = {
-  1: 64, // E4
-  2: 59, // B3
-  3: 55, // G3
-  4: 50, // D3
-  5: 45, // A2
-  6: 40, // E2
-};
+> = GUITAR_TUNING;
 
 /** Strings in the order shape strings are written: low E first. */
-export const GUITAR_STRINGS_LOW_TO_HIGH: readonly GuitarStringNumber[] = [
-  6, 5, 4, 3, 2, 1,
-];
+export const GUITAR_STRINGS_LOW_TO_HIGH: readonly GuitarStringNumber[] =
+  GUITAR.stringsLowToHigh;
 
 /** The highest fret the lesson views draw. */
-export const GUITAR_MAX_FRET = 22;
+export const GUITAR_MAX_FRET = GUITAR.maxFret;
 
-export function midiAt(string: GuitarStringNumber, fret: number): number {
-  return GUITAR_STANDARD_TUNING[string] + fret;
+export function midiAt(
+  string: GuitarStringNumber,
+  fret: number,
+  inst: FrettedInstrument = GUITAR,
+): number {
+  // NaN, not an error, for a string the instrument lacks: callers filter
+  // bad positions out by their pitch (stringVoice's strum).
+  return (inst.tuning[string] ?? NaN) + fret;
 }
 
-export function fretToMidi(position: FretPosition): number {
-  return midiAt(position.string, position.fret);
+export function fretToMidi(
+  position: FretPosition,
+  inst: FrettedInstrument = GUITAR,
+): number {
+  return midiAt(position.string, position.fret, inst);
 }
 
 export function isGuitarStringNumber(n: number): n is GuitarStringNumber {
@@ -39,12 +49,16 @@ export function isGuitarStringNumber(n: number): n is GuitarStringNumber {
 
 /**
  * Parse a book shape string (`'X-3-2-0-1-0'`, string 6 first) into one entry
- * per string, index 0 = string 6. `X` is muted (null), digits are frets.
+ * per string, index 0 = the instrument's first-written string (guitar's low
+ * E; ukulele's G, as in `'0-0-0-3'`). `X` is muted (null), digits are frets.
  */
-export function parseShape(frets: string): ShapeFret[] {
+export function parseShape(
+  frets: string,
+  inst: FrettedInstrument = GUITAR,
+): ShapeFret[] {
   const parts = frets.split('-');
-  if (parts.length !== 6) {
-    throw new Error(`Shape "${frets}" must have 6 strings`);
+  if (parts.length !== inst.stringCount) {
+    throw new Error(`Shape "${frets}" must have ${inst.stringCount} strings`);
   }
   return parts.map((part) => {
     if (part === 'X' || part === 'x') return null;
@@ -61,43 +75,62 @@ export function formatShape(frets: readonly ShapeFret[]): string {
   return frets.map((fret) => (fret === null ? 'X' : String(fret))).join('-');
 }
 
-/** The sounding strings of a shape, from the low E up. */
-export function shapePositions(frets: string): FretPosition[] {
-  const parsed = parseShape(frets);
+/**
+ * The sounding strings of a shape, in the order it is written (guitar: from
+ * the low E up; ukulele: G C E A, so not pitch order — the G is re-entrant).
+ */
+export function shapePositions(
+  frets: string,
+  inst: FrettedInstrument = GUITAR,
+): FretPosition[] {
+  const parsed = parseShape(frets, inst);
   const positions: FretPosition[] = [];
   parsed.forEach((fret, i) => {
     if (fret !== null) {
-      positions.push({ string: GUITAR_STRINGS_LOW_TO_HIGH[i], fret });
+      positions.push({ string: inst.stringsLowToHigh[i], fret });
     }
   });
   return positions;
 }
 
-/** The notes a shape sounds, low to high, with where each is played. */
+/**
+ * The notes a shape sounds, in written (strum) order, with where each is
+ * played. On guitar that is low to high.
+ */
 export function shapeNotes(
   frets: string,
+  inst: FrettedInstrument = GUITAR,
 ): { midi: number; position: FretPosition }[] {
-  return shapePositions(frets).map((position) => ({
-    midi: fretToMidi(position),
+  return shapePositions(frets, inst).map((position) => ({
+    midi: fretToMidi(position, inst),
     position,
   }));
 }
 
 /** The distinct pitch classes a shape sounds, ascending. */
-export function shapePitchClasses(frets: string): number[] {
-  const pcs = new Set(shapeNotes(frets).map((n) => n.midi % 12));
+export function shapePitchClasses(
+  frets: string,
+  inst: FrettedInstrument = GUITAR,
+): number[] {
+  const pcs = new Set(shapeNotes(frets, inst).map((n) => n.midi % 12));
   return [...pcs].sort((a, b) => a - b);
 }
 
-export function shapeLowestMidi(frets: string): number {
-  const notes = shapeNotes(frets);
+export function shapeLowestMidi(
+  frets: string,
+  inst: FrettedInstrument = GUITAR,
+): number {
+  const notes = shapeNotes(frets, inst);
   if (notes.length === 0) throw new Error(`Shape "${frets}" sounds nothing`);
   return Math.min(...notes.map((n) => n.midi));
 }
 
 /** Distance between the lowest and highest fretted (non-open) frets. */
-export function fretSpan(frets: string): number {
-  const fretted = parseShape(frets).filter(
+export function fretSpan(
+  frets: string,
+  inst: FrettedInstrument = GUITAR,
+): number {
+  const fretted = parseShape(frets, inst).filter(
     (fret): fret is number => fret !== null && fret > 0,
   );
   if (fretted.length === 0) return 0;
@@ -109,8 +142,11 @@ export function fretSpan(frets: string): number {
  * for: first position when everything fits in frets 1-5, otherwise one fret
  * above the lowest fretted note (the book's own habit).
  */
-export function defaultDiagramStart(frets: string): number {
-  const fretted = parseShape(frets).filter(
+export function defaultDiagramStart(
+  frets: string,
+  inst: FrettedInstrument = GUITAR,
+): number {
+  const fretted = parseShape(frets, inst).filter(
     (fret): fret is number => fret !== null && fret > 0,
   );
   if (fretted.length === 0) return 1;
@@ -121,12 +157,14 @@ export function defaultDiagramStart(frets: string): number {
 /** Every place a pitch can be played, low string first. */
 export function positionsFor(
   midi: number,
-  maxFret = GUITAR_MAX_FRET,
+  maxFret?: number,
+  inst: FrettedInstrument = GUITAR,
 ): FretPosition[] {
+  const top = maxFret ?? inst.maxFret;
   const positions: FretPosition[] = [];
-  for (const string of GUITAR_STRINGS_LOW_TO_HIGH) {
-    const fret = midi - GUITAR_STANDARD_TUNING[string];
-    if (fret >= 0 && fret <= maxFret) positions.push({ string, fret });
+  for (const string of inst.stringsLowToHigh) {
+    const fret = midi - openMidi(string, inst);
+    if (fret >= 0 && fret <= top) positions.push({ string, fret });
   }
   return positions;
 }
@@ -144,8 +182,9 @@ export interface FretWindow {
 export function nearestPosition(
   midi: number,
   window: FretWindow,
+  inst: FrettedInstrument = GUITAR,
 ): FretPosition | null {
-  const candidates = positionsFor(midi);
+  const candidates = positionsFor(midi, undefined, inst);
   if (candidates.length === 0) return null;
   const centre = (window.min + window.max) / 2;
   let best = candidates[0];

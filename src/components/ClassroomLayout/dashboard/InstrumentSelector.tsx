@@ -45,7 +45,6 @@ export const InstrumentSelector = ({
             key={option.id}
             disabled={!option.available}
             onSelect={() => {
-              if (option.id !== 'piano' && option.id !== 'guitar') return;
               if (option.id !== value) {
                 setInstrument(option.id);
                 onChange?.(option.id);

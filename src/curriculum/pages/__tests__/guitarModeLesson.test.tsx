@@ -101,7 +101,25 @@ describe('GuitarModeLesson', () => {
   it('opens the section the URL names', () => {
     renderAt('/learn/guitar/ionian/c?section=B');
     expect(lastProps().initialSection).toBe('B');
+    expect(lastProps().openOnOverview).toBe(false);
     expect(screen.getByText('lesson, section B')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['no section', '/learn/guitar/ionian/c'],
+    ['?section=O', '/learn/guitar/ionian/c?section=O'],
+    ['a mode', '/learn/guitar/locrian/b'],
+  ])('opens a diatonic lesson on its Overview for %s', (_label, url) => {
+    renderAt(url);
+    expect(lastProps().openOnOverview).toBe(true);
+    // Its Start opens Melody.
+    expect(lastProps().initialSection).toBe('A');
+  });
+
+  it('has no Overview outside the diatonic modes', () => {
+    renderAt('/learn/guitar/minorblues/a');
+    expect(lastProps().openOnOverview).toBe(false);
+    expect(lastProps().initialSection).toBe('A');
   });
 
   it.each([
@@ -119,6 +137,9 @@ describe('GuitarModeLesson', () => {
     act(() => navigate('/learn/guitar/ionian/c?section=D'));
     expect(container.mounts).toBe(2);
     expect(lastProps().initialSection).toBe('D');
+    act(() => navigate('/learn/guitar/ionian/c'));
+    expect(container.mounts).toBe(3);
+    expect(lastProps().openOnOverview).toBe(true);
   });
 
   it('makes guitar the Learn instrument', () => {

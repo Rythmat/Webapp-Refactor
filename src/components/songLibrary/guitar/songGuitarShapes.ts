@@ -10,6 +10,10 @@ import {
   resolveSongChords,
   type SongChordShape,
 } from '@/lib/guitar/songChords';
+import { resolveUkuleleSongChords } from '@/lib/guitar/songChords/ukulele';
+
+/** The instruments the Songs page draws chord boxes for. */
+export type SongBoxInstrument = 'guitar' | 'ukulele';
 
 export interface SongGuitarChord {
   /** The chart's name, trimmed: 'F♯min7', 'D/F♯'. */
@@ -20,10 +24,17 @@ export interface SongGuitarChord {
   box: SongChordShape | null;
 }
 
-const CACHE = new WeakMap<Song, readonly SongGuitarChord[]>();
+const CACHES: Record<
+  SongBoxInstrument,
+  WeakMap<Song, readonly SongGuitarChord[]>
+> = { guitar: new WeakMap(), ukulele: new WeakMap() };
 
-/** The song's chords and their guitar boxes, N.C. left out. */
-export function songGuitarChords(song: Song): readonly SongGuitarChord[] {
+/** The song's chords and their guitar (or ukulele) boxes, N.C. left out. */
+export function songGuitarChords(
+  song: Song,
+  instrument: SongBoxInstrument = 'guitar',
+): readonly SongGuitarChord[] {
+  const CACHE = CACHES[instrument];
   const cached = CACHE.get(song);
   if (cached) return cached;
   const degrees = new Map<string, string>();
@@ -37,7 +48,9 @@ export function songGuitarChords(song: Song): readonly SongGuitarChord[] {
       }
     }
   }
-  const boxes = resolveSongChords([...degrees.keys()]);
+  const boxes = (
+    instrument === 'ukulele' ? resolveUkuleleSongChords : resolveSongChords
+  )([...degrees.keys()]);
   const chords = [...degrees].map(([name, degree]) => ({
     name,
     degree,
@@ -51,7 +64,10 @@ export function songGuitarChords(song: Song): readonly SongGuitarChord[] {
 export function songGuitarBox(
   song: Song,
   chordName: string,
+  instrument: SongBoxInstrument = 'guitar',
 ): SongChordShape | null {
   const name = chordName.trim();
-  return songGuitarChords(song).find((c) => c.name === name)?.box ?? null;
+  return (
+    songGuitarChords(song, instrument).find((c) => c.name === name)?.box ?? null
+  );
 }

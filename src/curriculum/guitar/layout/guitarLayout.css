@@ -47,6 +47,14 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+/* The Overview (the scale's positions on the neck) at its own height: the
+   column scrolls, and the TAB under it is hidden. */
+[data-guitar-layout] [data-guitar-visuals-slot]:has(> [data-guitar-overview]) {
+  flex: none;
+  display: block;
+  min-height: 0;
+}
+
 /* 208px: the container never sizes the TAB under 200px, so a shorter band
    would scroll it. */
 [data-guitar-layout] [data-guitar-stage] {

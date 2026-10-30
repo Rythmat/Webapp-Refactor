@@ -121,8 +121,6 @@ function renderLearn(
 }
 
 const location = () => screen.getByTestId('location').textContent;
-/** How the router got to the current entry: 'POP', 'PUSH' or 'REPLACE'. */
-const navigation = () => screen.getByTestId('location').dataset.navigation;
 
 /** A Theory tile, found by its title. */
 const tile = (title: string) =>
@@ -172,8 +170,8 @@ describe('Learn → Theory on guitar', () => {
       'Harmonic Major',
       'Double Harmonic Major',
       'Ultraphrygian',
-      'Red',
-      'Pink',
+      '♮ (Red)',
+      '♭ (Pink)',
     ]) {
       expect(tile(title), title).not.toHaveAttribute('aria-disabled');
     }
@@ -243,9 +241,10 @@ describe('Learn → Theory on guitar', () => {
   });
 
   it('opens a Relative or Parallel tile on its page', () => {
+    // A Relative key on guitar: its seven positions on the neck.
     renderLearn('/learn?tab=Theory', 'guitar');
-    openTile('Blue');
-    expect(location()).toBe('/learn/keyboard/relative/dflat');
+    openTile('♭♭♭♭♭ (Blue)');
+    expect(location()).toBe('/learn/guitar/relative/dflat');
     expect(
       screen.queryByRole('heading', { name: 'Modes' }),
     ).not.toBeInTheDocument();
@@ -255,16 +254,11 @@ describe('Learn → Theory on guitar', () => {
     expect(location()).toBe('/learn/keyboard/parallel/fsharp');
   });
 
-  it('sends ?tab=Technique to Theory on guitar', () => {
+  it('shows guitar Technique (Harmonics) for ?tab=Technique on guitar', () => {
     const setSubTab = vi.fn();
     renderLearn('/learn?tab=Technique', 'guitar', setSubTab);
-    expect(location()).toBe('/learn?tab=Theory');
-    // Replaced, so Back doesn't return to the empty Technique link.
-    expect(navigation()).toBe('REPLACE');
-    // Theory from the first render: no empty Technique tab in between.
-    expect(setSubTab).toHaveBeenCalledWith('Theory');
-    expect(setSubTab).not.toHaveBeenCalledWith('Technique');
-    expect(screen.getByPlaceholderText('Search modes')).toBeInTheDocument();
+    expect(location()).toBe('/learn?tab=Technique');
+    expect(screen.getByText('Guitar Harmonics')).toBeInTheDocument();
     expect(screen.queryByText('Piano Fundamentals')).not.toBeInTheDocument();
   });
 
@@ -295,7 +289,12 @@ describe('Learn → Theory on piano', () => {
       screen.queryByText('Coming soon for guitar'),
     ).not.toBeInTheDocument();
     expect(screen.queryAllByRole('group')).toHaveLength(0);
-    for (const title of ['Ionian (Major)', 'Dorian', 'Harmonic Minor', 'Red']) {
+    for (const title of [
+      'Ionian (Major)',
+      'Dorian',
+      'Harmonic Minor',
+      '♮ (Red)',
+    ]) {
       expect(tile(title)).not.toHaveAttribute('aria-disabled');
     }
     // Piano progress on the Ionian tile.
@@ -312,14 +311,14 @@ describe('Learn → Theory on piano', () => {
     expect(location()).toBe('/learn/keyboard/dorian');
     cleanup();
     renderLearn('/learn?tab=Theory', 'piano');
-    openTile('Red');
+    openTile('♮ (Red)');
     expect(location()).toBe('/learn/keyboard/relative/c');
   });
 
   it("opens a genre's course from the Genre tab", () => {
     renderLearn('/learn?tab=Genre', 'piano');
     openTile('Pop');
-    expect(location()).toBe('/curriculum/pop');
+    expect(location()).toBe('/learn/keyboard/genre/pop');
     expect(
       screen.queryByRole('heading', { name: 'Levels' }),
     ).not.toBeInTheDocument();

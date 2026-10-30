@@ -164,7 +164,7 @@ const genre = chapter('Genre', {
 
 const course = chapter('Genre', {
   at: atCourse,
-  href: () => `/curriculum/${TOUR_GENRE_SLUG}`,
+  href: () => LearnRoutes.genreCourse({ genre: TOUR_GENRE_SLUG }),
   preview: true,
 });
 
@@ -199,16 +199,18 @@ const overviewTab = (label: RegExp): TargetSpec => ({
   text: label,
 });
 
-const PLAY_CHORD: TargetSpec = {
-  css: '[data-theory-content] button[aria-label="Play chord"]',
-};
-
-const sectionHeader = (title: string): TargetSpec => ({
-  css: `[data-learn-section="${title}"]`,
+/** The Overview card's Triads / 7ths / 9ths / Inversions toggle. */
+const chordView = (label: RegExp): TargetSpec => ({
+  css: '[data-theory-content] [role="group"][aria-label="Chords"] button',
+  text: label,
 });
 
-const expanded = (api: TourApi, title: string) =>
-  api.find(sectionHeader(title))[0]?.getAttribute('aria-expanded');
+const pressed = (api: TourApi, target: TargetSpec) =>
+  api.find(target)[0]?.getAttribute('aria-pressed') === 'true';
+
+const PLAY_CHORD: TargetSpec = {
+  css: '[data-theory-content] [data-chord-tile]',
+};
 
 // ── The tour ───────────────────────────────────────────────────────────────
 
@@ -555,21 +557,6 @@ export const navigateTour: TourDefinition = {
       text: 'Here are the scales and modes, family by family.',
     }),
     theory({
-      id: 'close-section',
-      target: sectionHeader('Diatonic Modes'),
-      text: 'Click the little **triangle** to close a section…',
-      next: 'click',
-      doneWhen: (api) => expanded(api, 'Diatonic Modes') === 'false',
-    }),
-    theory({
-      id: 'open-section',
-      resumeFrom: 'close-section',
-      target: sectionHeader('Diatonic Modes'),
-      text: '…and click it again to open it.',
-      next: 'click',
-      doneWhen: (api) => expanded(api, 'Diatonic Modes') === 'true',
-    }),
-    theory({
       id: 'mode-family',
       target: { css: 'button[aria-label="Mode Family"]' },
       text: '**Mode Family** shows one family of modes at a time.',
@@ -615,25 +602,23 @@ export const navigateTour: TourDefinition = {
     ionian({
       id: 'play-scale',
       wait: 15000,
-      target: { css: '[data-theory-content] button', text: /Play Scale/ },
-      text: 'This is the **Overview**. Click **Play Scale** to hear it.',
+      target: { css: '[data-theory-content] [data-overview-play]' },
+      text: 'This is the **Overview**. Click **Play** to hear the scale.',
       next: 'click',
       doneWhen: 'click',
     }),
     ionian({
       id: 'triads',
-      target: overviewTab(/^Triads$/),
-      text: 'Click **Triads**.',
+      target: overviewTab(/^Chords$/),
+      text: 'Click **Chords**. It opens on the triads.',
       next: 'click',
-      doneWhen: (api) =>
-        api.find(overviewTab(/^Triads$/))[0]?.getAttribute('aria-pressed') ===
-        'true',
+      doneWhen: (api) => pressed(api, chordView(/^Triads$/)),
     }),
     ionian({
       id: 'triads-page',
       resumeFrom: 'triads',
       scroll: { css: '[data-theory-content]' },
-      text: 'A triad on every note of the scale, each in its own color.',
+      text: 'A triad on every note of the scale, in the key’s color.',
     }),
     ionian({
       id: 'play-triad',
@@ -645,13 +630,10 @@ export const navigateTour: TourDefinition = {
     }),
     ionian({
       id: 'sevenths',
-      target: overviewTab(/^7th Chords$/),
-      text: 'Now click **7th Chords**.',
+      target: chordView(/^7ths$/),
+      text: 'Now click **7ths**.',
       next: 'click',
-      doneWhen: (api) =>
-        api
-          .find(overviewTab(/^7th Chords$/))[0]
-          ?.getAttribute('aria-pressed') === 'true',
+      doneWhen: (api) => pressed(api, chordView(/^7ths$/)),
     }),
     ionian({
       id: 'sevenths-page',
@@ -668,14 +650,18 @@ export const navigateTour: TourDefinition = {
       doneWhen: 'click',
     }),
     ionian({
-      id: 'inversions',
-      target: overviewTab(/^Inversions$/),
-      text: 'And **Inversions**.',
+      id: 'ninths',
+      target: chordView(/^9ths$/),
+      text: 'And **9ths**: one more note again, the 9th.',
       next: 'click',
-      doneWhen: (api) =>
-        api
-          .find(overviewTab(/^Inversions$/))[0]
-          ?.getAttribute('aria-pressed') === 'true',
+      doneWhen: (api) => pressed(api, chordView(/^9ths$/)),
+    }),
+    ionian({
+      id: 'inversions',
+      target: chordView(/^Inversions$/),
+      text: 'Then **Inversions**.',
+      next: 'click',
+      doneWhen: (api) => pressed(api, chordView(/^Inversions$/)),
     }),
     ionian({
       id: 'inversions-page',
@@ -686,8 +672,11 @@ export const navigateTour: TourDefinition = {
     ionian({
       id: 'seventh-inversions',
       resumeFrom: 'inversions',
-      target: { css: '[data-theory-content] button', text: /^7th Chords$/ },
-      text: 'Click **7th Chords** to see their inversions too.',
+      target: {
+        css: '[data-theory-content] [role="group"][aria-label="Inversions of"] button',
+        text: /^7ths$/,
+      },
+      text: 'Click **7ths** to see their inversions too.',
       next: 'click',
       doneWhen: 'click',
     }),

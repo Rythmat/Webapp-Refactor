@@ -296,6 +296,27 @@ describe("Studio's mono note settings", () => {
     expect(sizes).toEqual([512, 2048, 8192, 4096]);
     engine.stop();
   });
+
+  it('hears a bass with the bass profile: down to 28 Hz, larger FFTs', async () => {
+    const input = fakeRig();
+    const engine = new GuitarLearnInputEngine(
+      DEFAULT_GUITAR_INPUT_PREFS,
+      { acquireRig: async () => input.rig, releaseRig: vi.fn() },
+      BASS_PITCH_PROFILE,
+    );
+    await engine.start();
+    const [, mode, options] = orchestrators[0];
+    expect(mode).toBe('monophonic');
+    expect(options).toEqual(
+      orchestratorOptionsFor(BASS_PITCH_PROFILE, 'monophonic'),
+    );
+    expect(options).toMatchObject({ minFreq: 28, retriggerOnOnset: true });
+    const sizes = input.context.createAnalyser.mock.results.map(
+      (r) => r.value.fftSize,
+    );
+    expect(sizes).toEqual([512, 4096, 8192, 4096]);
+    engine.stop();
+  });
 });
 
 describe('start and stop', () => {

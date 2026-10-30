@@ -47,11 +47,15 @@ import {
  * so it uses the console's router and kit.
  */
 
+/** A genre course's page (/learn/keyboard/genre/pop[/2]): genre, level. */
+const GENRE_COURSE_PAGE = /^\/learn\/keyboard\/genre\/([^/]+)(?:\/(\d+))?\/?$/;
+
 /**
- * The curriculum: in no category of the Table, since its lessons are one of
- * the other records.
+ * The curriculum (and the genre courses): in no category of the Table, since
+ * its lessons are one of the other records.
  */
-const isCurriculum = (appPath: string) => /^\/curriculum(\/|$)/.test(appPath);
+const isCurriculum = (appPath: string) =>
+  /^\/curriculum(\/|$)/.test(appPath) || GENRE_COURSE_PAGE.test(appPath);
 
 /** The app page an app section opens on, as a console path. */
 const mirrorPathFor = (segment: string) =>
@@ -106,7 +110,9 @@ function contextActions(appPath: string, search: URLSearchParams): Action[] {
         : { label: 'Edit lessons', to: AdminRoutes.musicLiteracy() },
     ];
   }
-  const course = /^\/curriculum\/([^/]+)(?:\/(\d+))?/.exec(appPath);
+  const course =
+    GENRE_COURSE_PAGE.exec(appPath) ??
+    /^\/curriculum\/([^/]+)(?:\/(\d+))?/.exec(appPath);
   if (course) {
     return [
       {

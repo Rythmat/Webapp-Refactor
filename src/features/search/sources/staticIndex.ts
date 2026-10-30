@@ -2,7 +2,6 @@ import { COURSES_GENRE_OPTIONS } from '@/components/learn/learnFilterOptions';
 import {
   AtlasRoutes,
   ClassroomRoutes,
-  CurriculumRoutes,
   GameRoutes,
   LearnRoutes,
   ProfileRoutes,
@@ -101,7 +100,7 @@ function buildCourses(): IndexEntry[] {
       category: 'courses',
       title: o.label,
       subtitle: 'Course',
-      to: CurriculumRoutes.genre({ genre: o.value }),
+      to: LearnRoutes.genreCourse({ genre: o.value }),
       icon,
       thumb: { src: getGenreTileImage(o.value), shape: 'hex' },
     },
@@ -211,6 +210,26 @@ function buildGuitar(): IndexEntry[] {
       },
     },
     ...others,
+    {
+      category: 'theory',
+      keywords: [
+        'Guitar Harmonics',
+        'natural harmonics',
+        'harmonics',
+        'harmonic nodes',
+        'overtones',
+        'partials',
+      ],
+      result: {
+        id: 'technique-guitar-harmonics',
+        category: 'theory',
+        title: 'Guitar Harmonics',
+        subtitle: 'Technique on guitar',
+        to: LearnRoutes.guitarHarmonics(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
   ];
 }
 

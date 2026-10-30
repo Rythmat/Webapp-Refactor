@@ -15,6 +15,15 @@
   overflow: visible;
 }
 
+/* A Learn tile's face: the prompt box's wash, edge and shadow (owner,
+   2026-10-28; PROMPT_SURFACE in promptBox/PromptBoxParts), over the
+   spotlight card's opaque glass. */
+.spotlight-scope .spotlight-card.sigil-card {
+  border-color: rgb(255 255 255 / 0.1);
+  background: rgb(255 255 255 / 0.04);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.36);
+}
+
 /* Line weights in the figure's own units (100 across): about a pixel at a
    tile's size. Not non-scaling strokes: Chrome mis-measures a dash drawn on
    one, and the draw-on is dashes. */
@@ -57,12 +66,22 @@
   text-anchor: middle;
   dominant-baseline: central;
 }
+/* A degree that isn't altered: named in the line's white. */
+.sigil-label--plain {
+  fill: var(--sigil-line);
+}
 
 /* The groove's playhead: shown only while it sweeps. */
 .sigil-playhead {
   stroke: var(--sigil-accent);
   stroke-width: 0.5;
   opacity: 0;
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+/* A genre's figure turns about the middle (the box's origin). */
+.sigil-turn {
   transform-box: view-box;
   transform-origin: 0 0;
 }
@@ -91,6 +110,11 @@
 .sigil-host:is(:hover, :focus-within) .sigil-hit {
   animation: sigil-hit var(--bar, 2.4s) linear infinite;
   animation-delay: calc(var(--t, 0) * var(--bar, 2.4s));
+}
+
+/* A genre's figure turns slowly while hovered, a turn a phrase. */
+.sigil-host:is(:hover, :focus-within) .sigil-turn {
+  animation: sigil-sweep 24s linear infinite;
 }
 
 @keyframes sigil-draw {

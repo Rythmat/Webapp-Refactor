@@ -31,7 +31,7 @@ import {
 } from '@/learn/context/LearnInputContext';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { useNavigate } from 'react-router';
-import { CurriculumRoutes } from '@/constants/routes';
+import { LearnRoutes } from '@/constants/routes';
 import '@/components/learn/learn.css';
 
 // ---------------------------------------------------------------------------
@@ -696,7 +696,7 @@ const GenreLessonContainerInner = ({
     if (lessonComplete) {
       if (midiTriggeredRef.current) return;
       midiTriggeredRef.current = true;
-      navigate(CurriculumRoutes.genre({ genre: genreSlug }));
+      navigate(LearnRoutes.genreCourse({ genre: genreSlug }));
       return;
     }
     if (activityState === 'pending') {
@@ -835,7 +835,7 @@ const GenreLessonContainerInner = ({
               <button
                 type="button"
                 onClick={() =>
-                  navigate(CurriculumRoutes.genre({ genre: genreSlug }))
+                  navigate(LearnRoutes.genreCourse({ genre: genreSlug }))
                 }
                 className="rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors duration-150 glass-panel-sm"
                 style={{
@@ -851,7 +851,7 @@ const GenreLessonContainerInner = ({
                   type="button"
                   onClick={() =>
                     navigate(
-                      CurriculumRoutes.genreLevel({
+                      LearnRoutes.genreLesson({
                         genre: genreSlug,
                         level: String(level + 1),
                       }),

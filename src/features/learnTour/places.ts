@@ -27,9 +27,11 @@ export const atGlobe = (place: TourPlace) =>
 export const atSetLists = (place: TourPlace) =>
   place.pathname === '/songs/setlists';
 export const atCourse = (place: TourPlace) =>
-  place.pathname === `/curriculum/${TOUR_GENRE_SLUG}`;
+  place.pathname === `/learn/keyboard/genre/${TOUR_GENRE_SLUG}`;
 export const atCourseLesson = (place: TourPlace) =>
-  new RegExp(`^/curriculum/${TOUR_GENRE_SLUG}/\\d+$`).test(place.pathname);
+  new RegExp(`^/learn/keyboard/genre/${TOUR_GENRE_SLUG}/\\d+$`).test(
+    place.pathname,
+  );
 export const atIonianLesson = (place: TourPlace) =>
   /^\/learn\/(?:keyboard|guitar)\/ionian\/[^/]+$/i.test(place.pathname);
 export const atStudio = (place: TourPlace) => isEditorPath(place.pathname);
@@ -46,8 +48,9 @@ export const atReturnLesson = (place: TourPlace, ctx: TourContext) =>
  * Piano Fundamentals or a mode's overview, which lack most of its controls.
  */
 export function isLessonPath(pathname: string): boolean {
-  const genre = pathname.match(/^\/curriculum\/([^/]+)\/\d+$/);
-  if (genre) return !!getGenreProfile(genre[1]);
+  // Before Theory's: a genre course's overview reads as a mode's key.
+  const genre = pathname.match(/^\/learn\/keyboard\/genre\/([^/]+)(\/\d+)?$/);
+  if (genre) return !!genre[2] && !!getGenreProfile(genre[1]);
   const theory = pathname.match(
     /^\/learn\/(?:keyboard|guitar)\/([^/]+)\/[^/]+$/,
   );

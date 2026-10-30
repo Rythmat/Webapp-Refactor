@@ -1,3 +1,4 @@
+import { HeartIcon } from '@/components/icons/HeartIcon';
 import {
   ArrowDownUp,
   AudioLines,
@@ -6,11 +7,9 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Heart,
   Search,
   Upload,
   X,
-  type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type ComponentType } from 'react';
 import { cn } from '@/components/utilities';
@@ -68,11 +67,11 @@ const key = (index: keyof typeof KEY_COLORS) =>
 const TILES: {
   view: Exclude<View, 'home'>;
   label: string;
-  icon: LucideIcon;
+  icon: ComponentType<{ className?: string }>;
   color: string;
 }[] = [
   { view: 'all', label: 'Audio', icon: AudioLines, color: key(8) },
-  { view: 'favorites', label: 'Favorites', icon: Heart, color: key(10) },
+  { view: 'favorites', label: 'Favorites', icon: HeartIcon, color: key(10) },
   { view: 'stems', label: 'Stems', icon: AudioWaveform, color: key(7) },
   { view: 'uploads', label: 'Uploads', icon: Upload, color: key(12) },
 ];
@@ -433,10 +432,7 @@ function LibraryList({
             onClick={() => setFavoritesOnly(!favoritesOnly)}
             className={chipClass(favoritesOnly)}
           >
-            <Heart
-              aria-hidden
-              className={cn('size-3.5', favoritesOnly && 'fill-current')}
-            />
+            <HeartIcon filled={favoritesOnly} className="size-3.5" />
           </button>
         )}
         <button

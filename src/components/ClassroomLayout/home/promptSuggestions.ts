@@ -256,9 +256,9 @@ const LEARN_SUGGESTIONS: PromptSuggestion[] = [
   learn('Teach me relative major and minor', '/learn/keyboard/relative/c'),
   learn('Teach me about parallel keys', '/learn/keyboard/parallel/c'),
   learn('Teach me to read music', '/curriculum/music-literacy'),
-  learn('Teach me how to play funk guitar', '/curriculum/funk'),
-  learn('Teach me reggae rhythms', '/curriculum/reggae'),
-  learn('Teach me the basics of hip-hop', '/curriculum/hip-hop'),
+  learn('Teach me how to play funk guitar', '/learn/keyboard/genre/funk'),
+  learn('Teach me reggae rhythms', '/learn/keyboard/genre/reggae'),
+  learn('Teach me the basics of hip-hop', '/learn/keyboard/genre/hip-hop'),
   learn('Teach me piano from the very beginning', '/learn?tab=StartHere'),
   learn('Teach me a song from the song library', '/learn?tab=Songs'),
   learn('Teach me scales from around the world', '/learn?tab=WorldHarmony'),
@@ -295,17 +295,17 @@ const LEARN_SUGGESTIONS: PromptSuggestion[] = [
     'Teach me an E minor pentatonic on guitar',
     '/learn/guitar/minorpentatonic/e',
   ),
-  learn('Teach me jazz', '/curriculum/jazz'),
-  learn('Teach me the blues', '/curriculum/blues'),
-  learn('Teach me how to play R&B', '/curriculum/rnb'),
-  learn('Teach me neo-soul', '/curriculum/neo-soul'),
-  learn('Teach me Latin rhythms', '/curriculum/latin'),
-  learn('Teach me how to play rock', '/curriculum/rock'),
-  learn('Teach me how to play pop', '/curriculum/pop'),
-  learn('Teach me folk music', '/curriculum/folk'),
-  learn('Teach me African music', '/curriculum/african'),
-  learn('Teach me electronic music', '/curriculum/electronic'),
-  learn('Teach me jam band grooves', '/curriculum/jam-band'),
+  learn('Teach me jazz', '/learn/keyboard/genre/jazz'),
+  learn('Teach me the blues', '/learn/keyboard/genre/blues'),
+  learn('Teach me how to play R&B', '/learn/keyboard/genre/rnb'),
+  learn('Teach me neo-soul', '/learn/keyboard/genre/neo-soul'),
+  learn('Teach me Latin rhythms', '/learn/keyboard/genre/latin'),
+  learn('Teach me how to play rock', '/learn/keyboard/genre/rock'),
+  learn('Teach me how to play pop', '/learn/keyboard/genre/pop'),
+  learn('Teach me folk music', '/learn/keyboard/genre/folk'),
+  learn('Teach me African music', '/learn/keyboard/genre/african'),
+  learn('Teach me electronic music', '/learn/keyboard/genre/electronic'),
+  learn('Teach me jam band grooves', '/learn/keyboard/genre/jam-band'),
   learn('Teach me piano technique', '/learn?tab=Technique'),
   learn('Teach me a new genre', '/learn?tab=Genre'),
 ];
@@ -394,7 +394,8 @@ const GLOBE_SUGGESTIONS: PromptSuggestion[] = [
   globe('Show me Edith Piaf on the globe', 'artist=Edith%20Piaf'),
 ];
 
-const ARCADE_SUGGESTIONS: PromptSuggestion[] = [
+/** The Arcade's games, one prompt each way in (the Arcade page's bar too). */
+export const ARCADE_SUGGESTIONS: PromptSuggestion[] = [
   arcade('Play a scales and modes game', 'major-arcanum'),
   arcade('Play a rhythm game with me', 'foli'),
   arcade('Play a challenge on every mode', 'major-arcanum'),
@@ -536,10 +537,10 @@ export const KEYBOARD_SUGGESTIONS: PromptSuggestion[] = [
     'Teach me Killing Me Softly on the keyboard',
     '/songs/killing_me_softly_flack',
   ),
-  learn('Teach me jazz piano', '/curriculum/jazz'),
-  learn('Teach me blues piano', '/curriculum/blues'),
-  learn('Teach me neo-soul keys', '/curriculum/neo-soul'),
-  learn('Teach me R&B keyboard', '/curriculum/rnb'),
+  learn('Teach me jazz piano', '/learn/keyboard/genre/jazz'),
+  learn('Teach me blues piano', '/learn/keyboard/genre/blues'),
+  learn('Teach me neo-soul keys', '/learn/keyboard/genre/neo-soul'),
+  learn('Teach me R&B keyboard', '/learn/keyboard/genre/rnb'),
   songIdea('Make a sad piano ballad in C minor'),
   arcade('Play a scale-finding game on the piano', 'major-arcanum'),
   arcade('Play a mode-matching game on the keyboard', 'major-arcanum'),
@@ -621,9 +622,50 @@ export const GUITAR_SUGGESTIONS: PromptSuggestion[] = [
   ),
 ];
 
+const bassTheory = (text: string, mode: string, key?: string) =>
+  learn(text, `/learn/bass/${mode}${key ? `/${key}` : ''}`);
+
+/** The Learn page's bar on bass: its Theory lessons (The Bass Atlas). */
+export const BASS_SUGGESTIONS: PromptSuggestion[] = [
+  bassTheory('Teach me a C major scale on bass', 'ionian', 'c'),
+  bassTheory('Teach me a G major scale on bass', 'ionian', 'g'),
+  bassTheory('Teach me the E minor pentatonic on bass', 'minorpentatonic', 'e'),
+  bassTheory('Teach me the A minor pentatonic on bass', 'minorpentatonic', 'a'),
+  bassTheory('Teach me the A blues scale on bass', 'minorblues', 'a'),
+  bassTheory('Teach me D Dorian on bass', 'dorian', 'd'),
+  bassTheory('Teach me G Mixolydian on bass', 'mixolydian', 'g'),
+  bassTheory('Teach me A Aeolian on bass', 'aeolian', 'a'),
+  bassTheory('Teach me harmonic minor on bass', 'harmonicminor'),
+];
+
+const ukuleleTheory = (text: string, mode: string, key?: string) =>
+  learn(text, `/learn/ukulele/${mode}${key ? `/${key}` : ''}`);
+
+/** The Learn page's bar on ukulele: its Theory lessons (The Ukulele Atlas). */
+export const UKULELE_SUGGESTIONS: PromptSuggestion[] = [
+  ukuleleTheory('Teach me a C major scale on ukulele', 'ionian', 'c'),
+  ukuleleTheory('Teach me the chords in G major on ukulele', 'ionian', 'g'),
+  ukuleleTheory('Teach me the F major chords on ukulele', 'ionian', 'f'),
+  ukuleleTheory(
+    'Teach me the A minor pentatonic on ukulele',
+    'minorpentatonic',
+    'a',
+  ),
+  ukuleleTheory('Teach me the C blues scale on ukulele', 'minorblues', 'c'),
+  ukuleleTheory('Teach me D Dorian on ukulele', 'dorian', 'd'),
+  ukuleleTheory('Teach me G Mixolydian on ukulele', 'mixolydian', 'g'),
+  ukuleleTheory('Teach me A Aeolian on ukulele', 'aeolian', 'a'),
+];
+
 /** The Learn page bar's suggestions for an instrument. */
 export const learnSuggestionsFor = (instrument: LearnInstrument) =>
-  instrument === 'guitar' ? GUITAR_SUGGESTIONS : KEYBOARD_SUGGESTIONS;
+  instrument === 'guitar'
+    ? GUITAR_SUGGESTIONS
+    : instrument === 'bass'
+      ? BASS_SUGGESTIONS
+      : instrument === 'ukulele'
+        ? UKULELE_SUGGESTIONS
+        : KEYBOARD_SUGGESTIONS;
 
 /** A list's suggestions in a fresh random order, for a bar given its own. */
 export const rotationOf = (suggestions: readonly PromptSuggestion[]) =>

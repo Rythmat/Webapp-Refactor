@@ -5,7 +5,7 @@
  */
 export interface GenreCourse {
   title: string;
-  /** The curriculum's genre slug (CurriculumRoutes.genre). */
+  /** The curriculum's genre slug (LearnRoutes.genreCourse). */
   slug: string;
   /** Its hex-tile art (1920×1080). */
   image: string;

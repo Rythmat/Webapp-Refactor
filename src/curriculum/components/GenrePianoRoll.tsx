@@ -567,8 +567,14 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   );
   // Guitar has no roll: TAB, or the staff written an octave up with an 8
   // under the clef, as guitar music is. The staff's own clef choice
-  // (`staves`, `notationToggle`) doesn't apply.
-  if (instrument === 'guitar') {
+  // (`staves`, `notationToggle`) doesn't apply. Bass reads the same way on
+  // the bass clef, an octave up by convention (no 8 under it). A ukulele
+  // is written at pitch on the treble clef.
+  if (
+    instrument === 'guitar' ||
+    instrument === 'bass' ||
+    instrument === 'ukulele'
+  ) {
     const face = {
       events,
       bars,
@@ -603,9 +609,9 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
       <LearnNotationView
         {...face}
         keyRoot={keyRoot}
-        staves="treble"
-        writtenOctaveShift={1}
-        clefAnnotation="8vb"
+        staves={instrument === 'bass' ? 'bass' : 'treble'}
+        writtenOctaveShift={instrument === 'ukulele' ? 0 : 1}
+        {...(instrument === 'guitar' ? { clefAnnotation: '8vb' as const } : {})}
       />
     );
   }

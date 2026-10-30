@@ -1,9 +1,11 @@
 import type { PrismModeSlug } from '@/hooks/data/prism';
 import { GENRE_GROOVES } from '@/lib/learn/genreGrooves';
+import { GENRE_INTERVALS } from '@/lib/learn/genreIntervals';
 import { modeCharacter } from '@/lib/learn/modeCharacter';
 import { getScaleLesson } from '@/lib/learn/scaleLessons';
 import {
   alteredDegrees,
+  degreeLabels,
   pitchClassesOf,
   stepPattern,
   thirdsStars,
@@ -14,8 +16,9 @@ import { GENRE_COURSES } from '../genreCourses';
 // ── What a Learn tile draws (owner, 2026-10-26) ───────────────────────────
 // From a tile's own data: a mode or scale its figure on the twelve-note
 // circle, a Relative tile its key's, a Parallel tile its tonic's seven
-// modes, a genre its groove, a technique its interval. With the corner
-// stats, the strip along its foot and the line under its title.
+// modes, a genre its signature interval turning (2026-10-27; its groove is
+// kept for the Drum lessons), a technique its interval swinging. With the
+// corner stats, the strip along its foot and the line under its title.
 
 export type SigilSpec =
   | {
@@ -24,6 +27,8 @@ export type SigilSpec =
       tonic: number;
       stars: number[][];
       altered: { pc: number; label: string }[];
+      /** Every note named as a degree (1 2 3 ♯4 5 6 7), round the star. */
+      degrees: { pc: number; label: string }[];
       layers?: number[][];
       weights?: Record<number, number>;
       accent: string;
@@ -35,6 +40,15 @@ export type SigilSpec =
       kind: 'groove';
       steps: number;
       hits: readonly number[];
+      /** The genre's art, for its accent. */
+      art?: string;
+      stats: string;
+      strip: string[];
+      character: string;
+    }
+  | {
+      kind: 'rotary';
+      ratio: readonly [number, number];
       /** The genre's art, for its accent. */
       art?: string;
       stats: string;
@@ -108,12 +122,17 @@ function modeSpec(mode: string): SigilSpec | null {
     tonic: 0,
     stars: thirdsStars(pcs),
     altered,
+    degrees: degreeLabels(pcs),
     accent,
     stats: `${pcs.length} notes · ${marks}`,
     strip: stepPattern(pcs),
     character: modeCharacter(mode),
   };
 }
+
+/** Degrees named above C, moved up to a tonic. */
+const onTonic = (degrees: { pc: number; label: string }[], tonic: number) =>
+  degrees.map(({ pc, label }) => ({ pc: (pc + tonic) % 12, label }));
 
 /** A Relative tile: its key's major scale, which all seven modes share. */
 function relativeSpec(param: string): SigilSpec | null {
@@ -126,6 +145,7 @@ function relativeSpec(param: string): SigilSpec | null {
     tonic: key.pc,
     stars: thirdsStars(pcs),
     altered: [],
+    degrees: onTonic(degreeLabels(MAJOR), key.pc),
     accent: colorForKeyMode(key.name.replace('♯', '#'), 'ionian'),
     stats: `7 modes · ${key.name} major`,
     strip: stepPattern(MAJOR),
@@ -153,6 +173,12 @@ function parallelSpec(param: string): SigilSpec | null {
     tonic: key.pc,
     stars: [thirdsStars(major)[0]],
     altered: [],
+    degrees: onTonic(
+      degreeLabels(
+        pcs.map((pc) => (pc - key.pc + 12) % 12).sort((a, b) => a - b),
+      ),
+      key.pc,
+    ),
     layers,
     weights,
     accent: colorForKeyMode(key.name.replace('♯', '#'), 'ionian'),
@@ -187,8 +213,7 @@ export function sigilFor(item: {
   if (kind === 'parallel' && param) return parallelSpec(param);
   if (kind === 'course') {
     const course = GENRE_COURSES.find((c) => c.expandId === item.expandId);
-    const groove = course && GENRE_GROOVES[course.slug];
-    if (groove) return grooveSpec(course.slug, item.image);
+    if (course) return genreSpec(course.slug, item.image);
   }
   if (item.ratio) {
     const [a, b] = item.ratio;
@@ -204,7 +229,22 @@ export function sigilFor(item: {
   return null;
 }
 
-/** A genre's groove, by its course slug. */
+/** A genre's signature interval, by its course slug. */
+export function genreSpec(slug: string, art?: string): SigilSpec | null {
+  const interval = GENRE_INTERVALS[slug];
+  if (!interval) return null;
+  const [a, b] = interval.ratio;
+  return {
+    kind: 'rotary',
+    ratio: interval.ratio,
+    art,
+    stats: `${a}:${b} · ${interval.name}`,
+    strip: [],
+    character: interval.why,
+  };
+}
+
+/** A genre's groove, by its course slug (kept for the Drum lessons). */
 export function grooveSpec(slug: string, art?: string): SigilSpec | null {
   const groove = GENRE_GROOVES[slug];
   if (!groove) return null;
@@ -240,6 +280,26 @@ export function lissajousPath(
     const t = (2 * Math.PI * s) / samples;
     const x = amp * Math.sin(a * t);
     const y = amp * Math.sin(b * t - phase);
+    parts.push(`${s ? 'L' : 'M'}${fixed(x)},${fixed(y)}`);
+  }
+  return parts.join('');
+}
+
+/** A rotary harmonograph's figure, as the chart's "rotary concurrent"
+ *  column draws an interval: two equal voices turning the same way at
+ *  `ratio`, closed (one turn of the slower's period, whole ratios), `amp`
+ *  from the middle at most. Started at the top, both together. A phase
+ *  between the voices only turns the figure, so the hover turns it. */
+export function rotaryPath(
+  [a, b]: readonly [number, number],
+  amp: number,
+  samples = 1440,
+) {
+  const parts: string[] = [];
+  for (let s = 0; s <= samples; s++) {
+    const t = (2 * Math.PI * s) / samples;
+    const x = (amp / 2) * (Math.sin(a * t) + Math.sin(b * t));
+    const y = -(amp / 2) * (Math.cos(a * t) + Math.cos(b * t));
     parts.push(`${s ? 'L' : 'M'}${fixed(x)},${fixed(y)}`);
   }
   return parts.join('');

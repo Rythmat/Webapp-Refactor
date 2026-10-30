@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ChevronDown, ChevronRight, Heart } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import React, {
   useEffect,
   useMemo,
@@ -9,10 +9,11 @@ import React, {
   type ReactNode,
 } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { HeartIcon } from '@/components/icons/HeartIcon';
 import { FilterDropdown } from '@/components/songLibrary/FilterDropdown';
 import { SearchInput } from '@/components/songLibrary/SearchInput';
 import { type ViewMode } from '@/components/songLibrary/SongLibraryPage';
-import { LearnRoutes, CurriculumRoutes } from '@/constants/routes';
+import { LearnRoutes } from '@/constants/routes';
 import { SLUG_TO_CURRICULUM_GENRE } from '@/curriculum/bridge/genreIdMap';
 import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgress';
 import { START_HERE_TAB } from '@/curriculum/musicLiteracy/literacyPath';
@@ -38,6 +39,11 @@ import { LearnHome } from './LearnHome';
 import { LearnTabBar } from './LearnTabBar';
 import { StartHere } from './StartHere';
 import { WorldHarmony } from './WorldHarmony';
+import {
+  COMING_SOON_FOR_BASS,
+  bassLessonRoute,
+  isTheoryItemOnBass,
+} from './bassTheory';
 import { GENRE_COURSES } from './genreCourses';
 import {
   COMING_SOON_FOR_GUITAR,
@@ -63,6 +69,11 @@ import {
 import { SigilCard } from './sigil/SigilCard';
 import { sigilFor, type SigilSpec } from './sigil/sigilSpec';
 import { techniqueDataFor } from './techniqueCatalog';
+import {
+  COMING_SOON_FOR_UKULELE,
+  isTheoryItemOnUkulele,
+  ukuleleLessonRoute,
+} from './ukuleleTheory';
 import './learn.css';
 
 /* ── Filter row + helpers ─────────────────────────────────────────── */
@@ -310,7 +321,7 @@ function buildGenreLevels(genreSlug: string): ContentSubItem[] {
   return [1, 2, 3].map((n) => ({
     label: `Level ${n}`,
     color: '#7ecfcf',
-    route: CurriculumRoutes.genreLevel({ genre: genreSlug, level: String(n) }),
+    route: LearnRoutes.genreLesson({ genre: genreSlug, level: String(n) }),
     genre: genreSlug,
     level: n,
   }));
@@ -319,7 +330,7 @@ function buildGenreLevels(genreSlug: string): ContentSubItem[] {
 // The genre courses (genreCourses.ts).
 const COURSES_DATA: ContentItem[] = GENRE_COURSES.map((course) => ({
   title: course.title,
-  route: CurriculumRoutes.genre({ genre: course.slug }),
+  route: LearnRoutes.genreCourse({ genre: course.slug }),
   expandId: course.expandId,
   subItems: buildGenreLevels(course.slug),
   image: course.image,
@@ -388,9 +399,11 @@ const PENTATONIC_BLUES_DATA: ContentItem[] = SCALE_LESSON_SLUGS.map((slug) => ({
 
 // Technique tiles live in ./techniqueCatalog, one list per instrument.
 
+// A Relative tile goes by its key signature's accidentals, C's ♮ round
+// to F's ♭, then its colour (owner, 2026-10-28).
 const RELATIVE_MODES_DATA: ContentItem[] = [
   {
-    title: 'Red',
+    title: '♮ (Red)',
     route: LearnRoutes.relativeOverview({ key: 'c' }),
     expandId: 'relative:c',
     subItems: buildRelativeSubItems('C'),
@@ -398,7 +411,7 @@ const RELATIVE_MODES_DATA: ContentItem[] = [
     interactive: true,
   },
   {
-    title: 'Vermillion',
+    title: '♯ (Vermillion)',
     route: LearnRoutes.relativeOverview({ key: 'g' }),
     expandId: 'relative:g',
     subItems: buildRelativeSubItems('G'),
@@ -406,7 +419,7 @@ const RELATIVE_MODES_DATA: ContentItem[] = [
     interactive: true,
   },
   {
-    title: 'Orange',
+    title: '♯♯ (Orange)',
     route: LearnRoutes.relativeOverview({ key: 'd' }),
     expandId: 'relative:d',
     subItems: buildRelativeSubItems('D'),
@@ -414,7 +427,7 @@ const RELATIVE_MODES_DATA: ContentItem[] = [
     interactive: true,
   },
   {
-    title: 'Amber',
+    title: '♯♯♯ (Amber)',
     route: LearnRoutes.relativeOverview({ key: 'a' }),
     expandId: 'relative:a',
     subItems: buildRelativeSubItems('A'),
@@ -422,7 +435,7 @@ const RELATIVE_MODES_DATA: ContentItem[] = [
     interactive: true,
   },
   {
-    title: 'Green',
+    title: '♯♯♯♯ (Green)',
     route: LearnRoutes.relativeOverview({ key: 'e' }),
     expandId: 'relative:e',
     subItems: buildRelativeSubItems('E'),
@@ -430,7 +443,7 @@ const RELATIVE_MODES_DATA: ContentItem[] = [
     interactive: true,
   },
   {
-    title: 'Sage',
+    title: '♯♯♯♯♯ (Sage)',
     route: LearnRoutes.relativeOverview({ key: 'b' }),
     expandId: 'relative:b',
     subItems: buildRelativeSubItems('B'),
@@ -438,7 +451,7 @@ const RELATIVE_MODES_DATA: ContentItem[] = [
     interactive: true,
   },
   {
-    title: 'Teal',
+    title: '♯♯♯♯♯♯ (Teal)',
     route: LearnRoutes.relativeOverview({ key: 'fsharp' }),
     expandId: 'relative:fsharp',
     subItems: buildRelativeSubItems('F#'),
@@ -446,7 +459,7 @@ const RELATIVE_MODES_DATA: ContentItem[] = [
     interactive: true,
   },
   {
-    title: 'Blue',
+    title: '♭♭♭♭♭ (Blue)',
     route: LearnRoutes.relativeOverview({ key: 'dflat' }),
     expandId: 'relative:dflat',
     subItems: buildRelativeSubItems('D♭'),
@@ -454,7 +467,7 @@ const RELATIVE_MODES_DATA: ContentItem[] = [
     interactive: true,
   },
   {
-    title: 'Indigo',
+    title: '♭♭♭♭ (Indigo)',
     route: LearnRoutes.relativeOverview({ key: 'aflat' }),
     expandId: 'relative:aflat',
     subItems: buildRelativeSubItems('A♭'),
@@ -462,7 +475,7 @@ const RELATIVE_MODES_DATA: ContentItem[] = [
     interactive: true,
   },
   {
-    title: 'Purple',
+    title: '♭♭♭ (Purple)',
     route: LearnRoutes.relativeOverview({ key: 'eflat' }),
     expandId: 'relative:eflat',
     subItems: buildRelativeSubItems('E♭'),
@@ -470,7 +483,7 @@ const RELATIVE_MODES_DATA: ContentItem[] = [
     interactive: true,
   },
   {
-    title: 'Magenta',
+    title: '♭♭ (Magenta)',
     route: LearnRoutes.relativeOverview({ key: 'bflat' }),
     expandId: 'relative:bflat',
     subItems: buildRelativeSubItems('B♭'),
@@ -478,7 +491,7 @@ const RELATIVE_MODES_DATA: ContentItem[] = [
     interactive: true,
   },
   {
-    title: 'Pink',
+    title: '♭ (Pink)',
     route: LearnRoutes.relativeOverview({ key: 'f' }),
     expandId: 'relative:f',
     subItems: buildRelativeSubItems('F'),
@@ -817,63 +830,32 @@ const DOUBLE_HARMONIC_DATA: ContentItem[] = [
 //   );
 // };
 
-interface CollapsibleSectionProps {
+interface LearnSectionProps {
   title: string;
   children: React.ReactNode;
-  defaultOpen?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
 
-const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
+/** A family of tiles under its name, always open; the name in the tiles'
+ *  own title type (owner, 2026-10-28). */
+const LearnSection: React.FC<LearnSectionProps> = ({
   title,
   children,
-  defaultOpen = true,
   className = '',
   style,
-}) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-  return (
-    <div className={className} style={style}>
-      <div
-        role="button"
-        tabIndex={0}
-        aria-expanded={isOpen}
-        data-learn-section={title}
-        className="group mb-4 flex w-fit cursor-pointer select-none items-center gap-2"
-        style={{
-          color: 'var(--color-text)',
-          fontSize: '11px',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-        }}
-        onClick={() => setIsOpen(!isOpen)}
-        onKeyDown={(e) => {
-          if (e.key !== 'Enter' && e.key !== ' ') return;
-          e.preventDefault();
-          setIsOpen(!isOpen);
-        }}
-      >
-        <h2>{title}</h2>
-        {isOpen ? (
-          <ChevronDown
-            className="opacity-60 transition-opacity group-hover:opacity-100"
-            size={14}
-            style={{ color: 'var(--color-text-dim)' }}
-          />
-        ) : (
-          <ChevronRight
-            className="opacity-60 transition-opacity group-hover:opacity-100"
-            size={14}
-            style={{ color: 'var(--color-text-dim)' }}
-          />
-        )}
-      </div>
-      {isOpen && <div className="flex flex-col">{children}</div>}
-    </div>
-  );
-};
+}) => (
+  <div className={className} style={style}>
+    <h2
+      data-learn-section={title}
+      className="mb-4 text-lg"
+      style={{ color: 'var(--color-text)' }}
+    >
+      {title}
+    </h2>
+    <div className="flex flex-col">{children}</div>
+  </div>
+);
 
 /**
  * Determine whether a theory/course/technique item is available to free users.
@@ -930,11 +912,9 @@ const CardItem: React.FC<CardItemProps> = ({
   mode,
   expandId,
   ratio,
-  subItems,
   onSelect,
   highlighted,
   highlightRef,
-  expanded,
   imageSize,
   image,
   progressPct,
@@ -944,7 +924,6 @@ const CardItem: React.FC<CardItemProps> = ({
   comingSoon,
 }) => {
   const unavailable = !!comingSoon;
-  const hasExpansion = !!(mode || subItems) && !unavailable;
   // The tile's music, drawn (owner, 2026-10-26); a plain circle for one
   // with nothing to draw.
   const sigil = useMemo(
@@ -983,11 +962,31 @@ const CardItem: React.FC<CardItemProps> = ({
           {unavailable && (
             // The figure veiled, the reason on top, in words, not colour
             // alone.
-            <div className="absolute inset-0 flex items-end bg-black/60 p-3">
+            <div className="absolute inset-0 flex items-start bg-black/60 p-3">
               <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/80">
                 {comingSoon}
               </span>
             </div>
+          )}
+          {/* The title in the card, centred along its foot; no line under
+              it (owner, 2026-10-28). */}
+          <h3
+            className="pointer-events-none absolute inset-x-4 bottom-3 truncate text-center text-lg"
+            style={{
+              color: unavailable
+                ? 'var(--color-text-dim)'
+                : 'var(--color-text)',
+            }}
+          >
+            {title}
+          </h3>
+          {progressPct != null && progressPct > 0 && (
+            <span
+              className="pointer-events-none absolute left-3.5 top-3.5 text-xs"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              {progressPct}%
+            </span>
           )}
           {savedKind && savedId && !unavailable && (
             <button
@@ -1000,62 +999,14 @@ const CardItem: React.FC<CardItemProps> = ({
               aria-pressed={isSaved}
               className="absolute right-2.5 top-2.5 z-10 rounded-full p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
             >
-              <Heart
+              <HeartIcon
                 size={16}
-                fill={isSaved ? 'currentColor' : 'none'}
+                filled={isSaved}
                 style={isSaved ? { color: '#ffffff' } : undefined}
               />
             </button>
           )}
         </SigilCard>
-        <div className="flex items-start justify-between gap-2 px-1">
-          <div className="min-w-0">
-            <h3
-              className="text-lg"
-              style={{
-                color: unavailable
-                  ? 'var(--color-text-dim)'
-                  : 'var(--color-text)',
-              }}
-            >
-              {title}
-            </h3>
-            {sigil.character && (
-              <p className="truncate text-sm text-white/55">
-                {sigil.character}
-              </p>
-            )}
-          </div>
-          {progressPct != null && progressPct > 0 && (
-            <span
-              className="text-xs"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
-              {progressPct}%
-            </span>
-          )}
-          {hasExpansion && (
-            <button
-              type="button"
-              className="flex items-center justify-center rounded p-1 transition-colors hover:bg-white/10"
-              aria-label={`Open ${title}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect?.();
-              }}
-            >
-              <ChevronRight
-                size={18}
-                style={{
-                  color: expanded
-                    ? 'var(--color-accent)'
-                    : 'var(--color-text-dim)',
-                  transition: 'color 150ms',
-                }}
-              />
-            </button>
-          )}
-        </div>
       </div>
     </LockedFeatureOverlay>
   );
@@ -1151,9 +1102,9 @@ const ListItem: React.FC<CardItemProps> = ({
             aria-pressed={isSaved}
             className="flex-shrink-0 rounded-full p-1.5 transition-colors hover:bg-white/10"
           >
-            <Heart
+            <HeartIcon
               size={16}
-              fill={isSaved ? 'currentColor' : 'none'}
+              filled={isSaved}
               style={{
                 color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.55)',
               }}
@@ -1213,14 +1164,13 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           ? initialTab
           : 'Home';
   const [selectedTab, setSubTab] = useState(defaultTab);
-  // The instrument picker decides what Learn shows. Guitar's lessons are
-  // Theory's seven diatonic modes (Ionian from The Guitar Atlas); it has no
-  // Technique tiles, so its Technique tab is hidden and opens Theory instead.
+  // The instrument picker decides what Learn shows: each instrument's
+  // Theory and Technique tiles (guitar's Technique: Harmonics).
   const learnInstrument = useLearnInstrument();
   const onGuitar = learnInstrument === 'guitar';
-  const subTab =
-    fixedTab ??
-    (onGuitar && selectedTab === 'Technique' ? 'Theory' : selectedTab);
+  const onBass = learnInstrument === 'bass';
+  const onUkulele = learnInstrument === 'ukulele';
+  const subTab = fixedTab ?? selectedTab;
   const techniqueData = useMemo<ContentItem[]>(
     () => [...techniqueDataFor(learnInstrument)],
     [learnInstrument],
@@ -1257,18 +1207,50 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     // On guitar, the families the guitar catalog has live have lessons and
     // the rest say so. A Relative / Parallel tile's modes open their guitar
     // lessons.
+    const isOn = onBass
+      ? isTheoryItemOnBass
+      : onUkulele
+        ? isTheoryItemOnUkulele
+        : isTheoryItemOnGuitar;
+    const lessonRoute = onBass
+      ? bassLessonRoute
+      : onUkulele
+        ? ukuleleLessonRoute
+        : guitarLessonRoute;
     const forInstrument = (items: ContentItem[]): ContentItem[] =>
-      onGuitar
+      onGuitar || onBass || onUkulele
         ? items.map((item) => {
-            if (!isTheoryItemOnGuitar(item)) {
-              return { ...item, comingSoon: COMING_SOON_FOR_GUITAR };
+            if (!isOn(item)) {
+              return {
+                ...item,
+                comingSoon: onBass
+                  ? COMING_SOON_FOR_BASS
+                  : onUkulele
+                    ? COMING_SOON_FOR_UKULELE
+                    : COMING_SOON_FOR_GUITAR,
+              };
             }
             if (item.mode || !item.subItems) return item;
+            // A Relative key opens its guitar page: its seven positions.
+            const relativeKey =
+              onGuitar && item.expandId?.startsWith('relative:')
+                ? item.expandId.slice('relative:'.length)
+                : null;
             return {
               ...item,
+              ...(relativeKey
+                ? {
+                    route: LearnRoutes.guitarRelativeOverview({
+                      key: relativeKey,
+                    }),
+                  }
+                : {}),
               subItems: item.subItems.map((sub) =>
                 sub.mode && sub.keyLabel
-                  ? { ...sub, route: guitarLessonRoute(sub.mode, sub.keyLabel) }
+                  ? {
+                      ...sub,
+                      route: lessonRoute(sub.mode, sub.keyLabel),
+                    }
                   : sub,
               ),
             };
@@ -1279,49 +1261,41 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         family: 'diatonic' as ModeFamily,
         title: 'Diatonic Modes',
         items: THEORY_DATA,
-        defaultOpen: true,
       },
       {
         family: 'pentatonic-blues' as ModeFamily,
         title: 'Pentatonic/Blues',
         items: PENTATONIC_BLUES_DATA,
-        defaultOpen: true,
       },
       {
         family: 'relative' as ModeFamily,
         title: 'Relative Modes',
         items: RELATIVE_MODES_DATA,
-        defaultOpen: true,
       },
       {
         family: 'parallel' as ModeFamily,
         title: 'Parallel Modes',
         items: PARALLEL_MODES_DATA,
-        defaultOpen: true,
       },
       {
         family: 'harmonic-minor' as ModeFamily,
         title: 'Harmonic Minor Modes',
         items: HARMONIC_MINOR_DATA,
-        defaultOpen: true,
       },
       {
         family: 'melodic-minor' as ModeFamily,
         title: 'Melodic Minor Modes',
         items: MELODIC_MINOR_DATA,
-        defaultOpen: true,
       },
       {
         family: 'harmonic-major' as ModeFamily,
         title: 'Harmonic Major Modes',
         items: HARMONIC_MAJOR_DATA,
-        defaultOpen: true,
       },
       {
         family: 'double-harmonic' as ModeFamily,
         title: 'Double Harmonic Modes',
         items: DOUBLE_HARMONIC_DATA,
-        defaultOpen: true,
       },
     ];
     return all
@@ -1341,7 +1315,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         ),
       }))
       .filter((s) => s.items.length > 0);
-  }, [theoryFilters, savedLearnItems, onGuitar]);
+  }, [theoryFilters, savedLearnItems, onGuitar, onBass, onUkulele]);
 
   const filteredTechnique = useMemo(() => {
     const searched = applySearch(techniqueData, techniqueFilters.search);
@@ -1378,20 +1352,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabParam, fixedTab]);
-
-  // Guitar has no Technique tab: a ?tab=Technique link shows Theory (see
-  // `subTab`) and the URL is corrected to match, without a history entry.
-  useEffect(() => {
-    if (fixedTab || !onGuitar || tabParam !== 'Technique') return;
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        next.set('tab', 'Theory');
-        return next;
-      },
-      { replace: true },
-    );
-  }, [fixedTab, onGuitar, tabParam, setSearchParams]);
 
   // Auto-select Genre tab and highlight the genre when arriving from Globe.
   // Skip while the Songs tab is active: the Songs filter also writes ?genre=,
@@ -1443,7 +1403,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     };
 
     // Guitar has no server progress; the piano lessons' would mislead.
-    const guitarTheory = onGuitar && tab === 'Theory';
+    const guitarTheory = (onGuitar || onBass || onUkulele) && tab === 'Theory';
     const tileProgress = (item: ContentItem) =>
       guitarTheory ? 0 : getTileCompletion(progressSummary, item);
 
@@ -1454,9 +1414,13 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       if (item.comingSoon) return;
       if (item.mode) {
         navigate(
-          onGuitar
-            ? LearnRoutes.guitarOverview({ mode: item.mode })
-            : LearnRoutes.keyboardOverview({ mode: item.mode }),
+          onBass
+            ? LearnRoutes.bassOverview({ mode: item.mode })
+            : onUkulele
+              ? LearnRoutes.ukuleleOverview({ mode: item.mode })
+              : onGuitar
+                ? LearnRoutes.guitarOverview({ mode: item.mode })
+                : LearnRoutes.keyboardOverview({ mode: item.mode }),
         );
         return;
       }
@@ -1644,11 +1608,8 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                     </p>
                   ) : (
                     theorySections.map((section, i) => (
-                      <CollapsibleSection
+                      <LearnSection
                         key={section.family}
-                        defaultOpen={
-                          section.defaultOpen || theoryFilters.search.length > 0
-                        }
                         className={i === 0 ? 'mt-4' : 'mt-4 pt-4'}
                         style={
                           i === 0
@@ -1662,7 +1623,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                           'Theory',
                           'grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5',
                         )}
-                      </CollapsibleSection>
+                      </LearnSection>
                     ))
                   )}
                 </>
@@ -1736,25 +1697,18 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                         textAlign: 'center',
                       }}
                     >
-                      {/* Guitar's Technique page (the Learn page shows it):
-                          no lessons yet, rather than a filter that matched
-                          nothing. */}
                       {techniqueData.length === 0
-                        ? 'Technique lessons for guitar are coming soon'
+                        ? 'Technique lessons are coming soon'
                         : 'No items match these filters'}
                     </p>
                   ) : (
-                    <CollapsibleSection
-                      defaultOpen
-                      className="mt-4"
-                      title="Foundational"
-                    >
+                    <LearnSection className="mt-4" title="Foundational">
                       {renderContent(
                         filteredTechnique,
                         'Technique',
                         'grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5',
                       )}
-                    </CollapsibleSection>
+                    </LearnSection>
                   )}
                 </>
               ) : subTab === 'WorldHarmony' ? (

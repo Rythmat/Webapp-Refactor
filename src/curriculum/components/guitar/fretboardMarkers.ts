@@ -8,6 +8,7 @@ import {
   nearestPosition,
   type FretWindow,
 } from '@/lib/guitar/fretboard';
+import { GUITAR, type FrettedInstrument } from '@/lib/guitar/instrument';
 import type { FretPosition } from '@/lib/guitar/types';
 import { chordTargetAt } from './guitarVisualModel';
 
@@ -61,6 +62,7 @@ export function noteGroups(
   chordTargets: readonly ChordTarget[],
   countInOffset: number,
   tonicPc: number,
+  inst: FrettedInstrument = GUITAR,
 ): NoteGroup[] {
   const byTick = new Map<number, GroupNote[]>();
   for (const event of events) {
@@ -68,7 +70,7 @@ export function noteGroups(
     const notes = byTick.get(event.startTicks) ?? [];
     notes.push({
       id: event.id,
-      midi: fretToMidi(event.fretPosition),
+      midi: fretToMidi(event.fretPosition, inst),
       position: event.fretPosition,
     });
     byTick.set(event.startTicks, notes);
@@ -134,6 +136,8 @@ export interface FretboardMarkerInput {
   targetMidiSet: ReadonlySet<number>;
   /** Fingers, key numbers or chord tones in place of note names. */
   labelOf?: MarkerLabeler;
+  /** The neck the markers sit on; guitar when omitted. */
+  inst?: FrettedInstrument;
 }
 
 /** Weakest first, as components/guitar/types.ts orders the roles. */
@@ -214,7 +218,7 @@ function anchorGroup(
 function soundingMarkers(
   midis: readonly number[],
   roleOf: (midi: number) => FretMarkerRole,
-  { groups, cursor, window, keyRootPc, labelOf }: FretboardMarkerInput,
+  { groups, cursor, window, keyRootPc, labelOf, inst }: FretboardMarkerInput,
 ): FretMarker[] {
   const anchor = anchorGroup(midis, groups, cursor);
   const group = groups[anchor];
@@ -229,7 +233,8 @@ function soundingMarkers(
     }
   }
   return midis.flatMap((midi) => {
-    const position = where.get(midi) ?? nearestPosition(midi, window);
+    const position =
+      where.get(midi) ?? nearestPosition(midi, window, inst ?? GUITAR);
     return position
       ? [
           marker(position, midi, roleOf(midi), rootPc, keyRootPc, {
@@ -318,18 +323,19 @@ export function litMarkers(
   positions: readonly FretPosition[],
   rootPc: number,
   keyRootPc: number,
+  inst: FrettedInstrument = GUITAR,
 ): FretMarker[] {
   return positions.map((p) =>
-    marker(p, fretToMidi(p), 'target', rootPc, keyRootPc),
+    marker(p, fretToMidi(p, inst), 'target', rootPc, keyRootPc),
   );
 }
 
 /** One marker per spot; where two meet, the stronger role wins. */
 export function fretboardMarkers(input: FretboardMarkerInput): FretMarker[] {
-  const { context, keyRootPc } = input;
+  const { context, keyRootPc, inst = GUITAR } = input;
   const contextMarkers = context
     ? context.positions.map((p) =>
-        marker(p, fretToMidi(p), 'context', context.rootPc, keyRootPc),
+        marker(p, fretToMidi(p, inst), 'context', context.rootPc, keyRootPc),
       )
     : [];
   const bySpot = new Map<string, FretMarker>();

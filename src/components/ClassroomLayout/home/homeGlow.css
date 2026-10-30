@@ -26,9 +26,11 @@
     transparent 100%
   );
   mask-image: linear-gradient(to bottom, #000 0%, #000 22%, transparent 100%);
+  /* --home-glow-ease: a page can quicken it (the Arcade, as you scroll
+     from one kind of game to the next). */
   transition:
-    --home-glow-a 5s ease-in-out,
-    --home-glow-b 5s ease-in-out;
+    --home-glow-a var(--home-glow-ease, 5s) ease-in-out,
+    --home-glow-b var(--home-glow-ease, 5s) ease-in-out;
 }
 
 /* The wash: one color to the other across the width, so they meet in a

@@ -24,19 +24,27 @@ import {
   triggerPianoRelease,
   startPianoSampler,
 } from '@/audio/pianoSampler';
+import { FrettedInstrumentContext } from '@/components/guitar/frettedInstrumentContext';
+import {
+  ModePositionsOverview,
+  positionTabs,
+} from '@/components/guitar/positions/ModePositionsOverview';
 import { ClefToggle } from '@/components/notation/ClefToggle';
 import { SavedGuitarViewToggle } from '@/components/notation/GuitarViewToggle';
 import type { StaffLayout } from '@/components/notation/StaffView';
-import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
+import { LearnRoutes, SettingsRoutes } from '@/constants/routes';
 import { useUserRole } from '@/contexts/AuthContext/hooks/useUserRole';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import DualStaffPianoRoll from '@/curriculum/components/DualStaffPianoRoll';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import { TabTheoryOverlay } from '@/curriculum/components/LearnTabView';
+import { BassLessonVisuals } from '@/curriculum/components/bass/BassLessonVisuals';
 import { GuitarLessonVisuals } from '@/curriculum/components/guitar';
 import { useGuitarTabLayers } from '@/curriculum/components/guitar/GuitarLessonVisuals';
 import { MusicMapOverlay } from '@/curriculum/components/guitar/theory';
 import { createTransportClock } from '@/curriculum/components/transportClock';
+import { flowBassCenterId } from '@/curriculum/data/bass/centers';
+import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import {
   centerTitle,
   flowGuitarCenterId,
@@ -44,6 +52,10 @@ import {
   getGuitarShape,
 } from '@/curriculum/data/guitar/centers';
 import { guitarScaleEntry } from '@/curriculum/data/guitar/theoryCatalog';
+import {
+  flowUkuleleCenterId,
+  getUkuleleCenter,
+} from '@/curriculum/data/ukulele/centers';
 import {
   currentEventForMidi,
   nextEventForMidi,
@@ -57,11 +69,17 @@ import {
 } from '@/curriculum/notation/lessonChordSymbols';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
+import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
 import { useFingeringDisplay } from '@/features/learn/usePianoDisplaySettings';
 import { sectionHasContent } from '@/features/practiceTracks/genre/buildGenrePracticeTrack';
 import { openGenrePracticeTrack } from '@/features/practiceTracks/genre/openGenrePracticeTrack';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
+import {
+  bassLessonVoice,
+  loadBassVoice,
+  stopBassVoice,
+} from '@/learn/audio/bass/bassVoice';
 import { ID_WINDOW_MAX_MS } from '@/learn/audio/guitar/GuitarChordSegmenter';
 import {
   cancelScheduledGuitarNotes,
@@ -75,6 +93,12 @@ import {
   GUIDE_VELOCITY_SCALE,
   playGuideNote,
 } from '@/learn/audio/practiceGuide';
+import {
+  loadUkuleleVoice,
+  stopUkuleleVoice,
+  strumUkuleleChord,
+  ukuleleLessonVoice,
+} from '@/learn/audio/ukulele/ukuleleVoice';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
 import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
@@ -92,6 +116,7 @@ import {
   type ChordNotation,
 } from '@/lib/chordNotation';
 import { shapeNotes } from '@/lib/guitar/fretboard';
+import { BASS, GUITAR, UKULELE } from '@/lib/guitar/instrument';
 import type { FretPosition } from '@/lib/guitar/types';
 import { describeKey, modeFromKeyName } from '@/lib/learn/keyDescription';
 import { buildFingeringTimeline } from '@/lib/learn/pianoFingering';
@@ -115,6 +140,14 @@ import {
   hasMarkedMistakes,
 } from '../guitar/GuitarResultExtras';
 import { GuitarLessonLayout, type NavStep } from '../guitar/layout';
+import { Primary, type Zones } from '../guitar/layout/GuitarActionBar';
+import { LessonTabStrip } from '../guitar/layout/LessonTabStrip';
+import {
+  SectionGroupTabs,
+  groupNavOutline,
+  type GroupNavSection,
+} from '../guitar/layout/sectionGroupNav';
+import type { NavOutlineSection } from '../guitar/layout/types';
 import { useGuitarLessonEvaluation } from '../guitar/useGuitarLessonEvaluation';
 import { BACKING_LEAD_SEC, useBackingTrack } from '../hooks/useBackingTrack';
 import { useDemoPlayback } from '../hooks/useDemoPlayback';
@@ -153,6 +186,11 @@ import type {
 import { flowInstrument } from '../utils/flowInstrument';
 import { scaleColorMode, stepMode } from '../utils/flowKey';
 import { formatAccidentalsForDisplay } from '../utils/formatAccidentals';
+import {
+  GENRE_OVERVIEW_TABS,
+  GenreOverview,
+  type GenreOverviewTab,
+} from './genreOverview/GenreOverview';
 
 // The guitar input setup (tuner, checks) loads when first opened.
 const GuitarInputSetup = lazy(() =>
@@ -176,8 +214,14 @@ interface GenreLessonContainerV2Props {
   genre: string;
   level: number;
   initialSection?: ActivitySectionId;
+  /**
+   * Guitar's diatonic lessons: open on the Overview (the scale's seven
+   * positions on the neck) instead of `initialSection`, which the Overview's
+   * "Start" still opens.
+   */
+  openOnOverview?: boolean;
   // Overrides for non-genre flows (e.g. Applied Theory Fundamentals) that
-  // don't have a real entry in CurriculumRoutes.genre's overview/registry —
+  // don't have a real entry in LearnRoutes.genreCourse's overview/registry —
   // default behavior (derived from `genre`) is unchanged when omitted.
   overviewRoute?: string;
   displayName?: string;
@@ -303,6 +347,7 @@ function GenreLessonContainerV2Inner({
   genre,
   level,
   initialSection,
+  openOnOverview = false,
   overviewRoute,
   displayName,
   rootCrumb = DEFAULT_ROOT_CRUMB,
@@ -331,6 +376,19 @@ function GenreLessonContainerV2Inner({
   const [activeSection, setActiveSection] = useState<ActivitySectionId>(
     initialSection ?? 'A',
   );
+  // The lesson's Overview (owner, 2026-10-27): a genre's piano level opens
+  // on it, as Theory's lessons do, unless the link names a section. Its tabs
+  // were the course page's. Flows without a genre profile have none.
+  const genreProfile =
+    flowInstrument(flow) === 'guitar' ? undefined : getGenreProfile(genre);
+  const overviewLevel = genreProfile?.levels[level as 1 | 2 | 3];
+  const [overviewTab, setOverviewTab] = useState<GenreOverviewTab | null>(
+    overviewLevel && !initialSection ? 'about' : null,
+  );
+  // Guitar's diatonic Overview: the scale's seven positions, one lit.
+  const [positionsOpen, setPositionsOpen] = useState(openOnOverview);
+  const [positionIndex, setPositionIndex] = useState(0);
+  const leftHanded = useInstrumentStore((s) => s.leftHanded);
   const [stepIndex, setStepIndex] = useState(0);
   const [_activityState, _setActivityState] =
     useState<ActivityState>('preview');
@@ -417,10 +475,41 @@ function GenreLessonContainerV2Inner({
 
   // Guitar flows (The Guitar Atlas) run through this same container; the
   // instrument only changes the views, the sound and how input is heard.
-  const isGuitar = flowInstrument(flow) === 'guitar';
+  // Bass flows (The Bass Atlas) run on guitar's screen too — a fretted neck
+  // over TAB — heard one note at a time: isFretted covers both, isGuitar
+  // what only a guitar has (its amp and theory layers). Ukulele flows (The
+  // Ukulele Atlas) are guitar's lesson on a four-string neck: chord boxes
+  // and strums too, on ukulele centers, with the ukulele's own voice.
+  const lessonInstrument = flowInstrument(flow);
+  const isBass = lessonInstrument === 'bass';
+  const isGuitar = lessonInstrument === 'guitar';
+  const isUkulele = lessonInstrument === 'ukulele';
+  const isFretted = isGuitar || isBass || isUkulele;
   // The key center the flow plays: 'C' (Book One) or a mode, 'D:dorian'.
-  const guitarKey = useMemo(() => flowGuitarCenterId(flow), [flow]);
-  const guitarCenter = getGuitarCenter(guitarKey);
+  const guitarKey = useMemo(
+    () =>
+      isBass
+        ? flowBassCenterId(flow)
+        : isUkulele
+          ? flowUkuleleCenterId(flow)
+          : flowGuitarCenterId(flow),
+    [flow, isBass, isUkulele],
+  );
+  const guitarCenter = isUkulele
+    ? getUkuleleCenter(guitarKey)
+    : getGuitarCenter(guitarKey);
+  // The seven positions of a diatonic guitar lesson's scale (its Overview).
+  const positionsScale = useMemo(
+    () =>
+      isGuitar && guitarCenter.family === 'diatonic'
+        ? {
+            tonicPc: guitarCenter.tonicPc,
+            mode: guitarCenter.mode,
+            spelling: guitarCenter.spelling,
+          }
+        : null,
+    [isGuitar, guitarCenter],
+  );
 
   // Key from flow params — no GCM dependency. A step in another key than its
   // flow names it (Latin L1's Mariachi steps: key 'G major').
@@ -457,7 +546,7 @@ function GenreLessonContainerV2Inner({
     // mode's. Piano's 'major' scale id has no entry here and keeps its
     // existing fallback.
     // A harmonic minor step takes the harmonic minor's own color.
-    const modeSlug = isGuitar
+    const modeSlug = isFretted
       ? guitarScaleEntry(guitarCenter.mode).slug
       : ownScaleId
         ? scaleColorMode(ownScaleId)
@@ -466,25 +555,60 @@ function GenreLessonContainerV2Inner({
       keyName,
       modeSlug as Parameters<typeof colorForKeyMode>[1],
     );
-  }, [keyName, keyModeSlug, ownScaleId, isGuitar, guitarCenter]);
+  }, [keyName, keyModeSlug, ownScaleId, isFretted, guitarCenter]);
 
   // Demo playback hook
   const { playDemo, stopDemo, demoHighlightMidis, isPlayingDemo } =
-    useDemoPlayback(keyRoot, tempo, isGuitar ? guitarLessonVoice : undefined);
-
-  // "Hear it" on a chord box: the exact voicing, strummed, on the guitar voice.
-  const handleHearShape = useCallback((frets: string) => {
-    const notes = shapeNotes(frets);
-    void loadGuitarVoice().then(() =>
-      strumGuitarChord(
-        notes.map((n) => n.midi),
-        1.6,
-        90,
-        undefined,
-        notes.map((n) => n.position),
-      ),
+    useDemoPlayback(
+      keyRoot,
+      tempo,
+      isBass
+        ? bassLessonVoice
+        : isUkulele
+          ? ukuleleLessonVoice
+          : isFretted
+            ? guitarLessonVoice
+            : undefined,
     );
+
+  // "Hear it" on a bass arpeggio: its notes one after another, low to high.
+  const handleHearNotes = useCallback((midis: readonly number[]) => {
+    void loadBassVoice().then(() => {
+      const start = Tone.now();
+      midis.forEach((midi, i) =>
+        bassLessonVoice.attackRelease(midi, 0.45, 90, start + i * 0.32),
+      );
+    });
   }, []);
+
+  // "Hear it" on a chord box: the exact voicing, strummed, on the guitar voice
+  // (a ukulele's on the ukulele, G string first).
+  const handleHearShape = useCallback(
+    (frets: string) => {
+      if (isUkulele) {
+        const notes = shapeNotes(frets, UKULELE);
+        void loadUkuleleVoice().then(() =>
+          strumUkuleleChord(
+            notes.map((n) => n.midi),
+            1.6,
+            90,
+          ),
+        );
+        return;
+      }
+      const notes = shapeNotes(frets);
+      void loadGuitarVoice().then(() =>
+        strumGuitarChord(
+          notes.map((n) => n.midi),
+          1.6,
+          90,
+          undefined,
+          notes.map((n) => n.position),
+        ),
+      );
+    },
+    [isUkulele],
+  );
 
   // Progress hook — needed here for variant rotation before targetNotes
   const { assess } = useGenreAssessment();
@@ -584,7 +708,7 @@ function GenreLessonContainerV2Inner({
     barsInStep,
     ticksPerBar: barLength,
     chordTargets: resolvedStep.chordTargets,
-    passes: resolvedStep.guitar?.musicMap?.passes,
+    passes: (resolvedStep.guitar ?? resolvedStep.bass)?.musicMap?.passes,
     assessment: currentStep.assessment ?? 'pitch_only',
     resetKey: `${flow.params.defaultKey}|${activeSection}|${currentStep.tag}`,
   });
@@ -596,7 +720,7 @@ function GenreLessonContainerV2Inner({
   } = practice;
   const practiceSlice = useMemo(
     () =>
-      isGuitar && practice.loop
+      isFretted && practice.loop
         ? sliceStepForLoop(
             {
               targetNotes: lessonTargetNotes,
@@ -608,7 +732,7 @@ function GenreLessonContainerV2Inner({
           )
         : null,
     [
-      isGuitar,
+      isFretted,
       practice.loop,
       practice.padBars,
       barLength,
@@ -619,7 +743,7 @@ function GenreLessonContainerV2Inner({
   );
   /** The run repeats: bars are looped, or the speed trainer climbs the step. */
   const repeatPractice =
-    isGuitar && (practice.loop !== null || (isIT && practice.ladder.enabled));
+    isFretted && (practice.loop !== null || (isIT && practice.ladder.enabled));
   /** The looped bars, while they are what the student is practising. */
   const loopSlice =
     practiceSlice && (activityState === 'practice' || restartingPass)
@@ -628,7 +752,7 @@ function GenreLessonContainerV2Inner({
   const targetNotes = loopSlice?.targetNotes ?? lessonTargetNotes;
   /** Practice plays at the speed trainer's tempo; Play Now at the step's. */
   const practiceTempo =
-    isGuitar && isIT && practice.ladder.enabled
+    isFretted && isIT && practice.ladder.enabled
       ? practice.effectiveTempo
       : tempo;
   const runTempo = activityState === 'practice' ? practiceTempo : tempo;
@@ -649,7 +773,10 @@ function GenreLessonContainerV2Inner({
     [resolvedStep.guitar],
   );
   const barreLoopingMs = useBarreLoopingMs(
-    isGuitar && activityState === 'practice' && !!practice.loop && stepHasBarre,
+    isFretted &&
+      activityState === 'practice' &&
+      !!practice.loop &&
+      stepHasBarre,
   );
 
   // For IT activities, offset all notes by 1 bar to create a genuine count-in
@@ -877,7 +1004,7 @@ function GenreLessonContainerV2Inner({
 
   // Track note-on start times (piano; guitar holds are the guitar hook's)
   useEffect(() => {
-    if (isGuitar) return;
+    if (isFretted) return;
     for (const midi of activeMidis) {
       if (!noteHoldStartRef.current.has(midi)) {
         noteHoldStartRef.current.set(midi, performance.now());
@@ -915,7 +1042,7 @@ function GenreLessonContainerV2Inner({
       }
     }
     if (didComplete) setHoldTick((t) => t + 1);
-  }, [activeMidis, getCurrentEventForMidi, pianoRollEvents, isGuitar]);
+  }, [activeMidis, getCurrentEventForMidi, pianoRollEvents, isFretted]);
 
   // Reset hold tracking on step change
   useEffect(() => {
@@ -1001,7 +1128,7 @@ function GenreLessonContainerV2Inner({
   // on a graded take.
   const fingeringDisplay = useFingeringDisplay();
   const showFingering =
-    !isGuitar && (fingeringDisplay.hands || fingeringDisplay.numbers);
+    !isFretted && (fingeringDisplay.hands || fingeringDisplay.numbers);
   const fingeringTimeline = useMemo(
     () =>
       showFingering
@@ -1045,7 +1172,7 @@ function GenreLessonContainerV2Inner({
   // Track IT note-on/note-off into performanceMeta
   // (MIDI subscription already populates userNotes — here we map to event IDs)
   useEffect(() => {
-    if (isGuitar || !isIT || !isActive) return;
+    if (isFretted || !isIT || !isActive) return;
 
     for (const midi of activeMidis) {
       // Find matching piano roll event for this MIDI
@@ -1078,7 +1205,7 @@ function GenreLessonContainerV2Inner({
         setHoldTick((t) => t + 1);
       }
     }
-  }, [activeMidis, isIT, activityState, pianoRollEvents, isGuitar]);
+  }, [activeMidis, isIT, activityState, pianoRollEvents, isFretted]);
 
   // Reset performanceMeta on step change
   useEffect(() => {
@@ -1185,12 +1312,12 @@ function GenreLessonContainerV2Inner({
   // Load the piano now, so the first key a student plays sounds instead of
   // waiting on the samples.
   useEffect(() => {
-    if (!isGuitar) void getPianoSampler();
-  }, [isGuitar]);
+    if (!isFretted) void getPianoSampler();
+  }, [isFretted]);
 
   useEffect(() => {
     // Guitar input (MIDI guitar or microphone) goes to the guitar hook below.
-    if (isGuitar) return;
+    if (isFretted) return;
     const unsubOn = subscribeNoteOn((event: MidiNoteEvent) => {
       if (event.velocity === 0) return;
 
@@ -1252,13 +1379,13 @@ function GenreLessonContainerV2Inner({
       unsubOn();
       unsubOff();
     };
-  }, [subscribeNoteOn, subscribeNoteOff, keyRoot, soundingTicks, isGuitar]);
+  }, [subscribeNoteOn, subscribeNoteOff, keyRoot, soundingTicks, isFretted]);
 
   // Guitar hears the student here instead: MIDI guitar and microphone notes,
   // and strummed chords judged by identity (Studio's chord detector).
   const bumpHoldTick = useCallback(() => setHoldTick((t) => t + 1), []);
   const guitarEval = useGuitarLessonEvaluation({
-    enabled: isGuitar,
+    enabled: isFretted,
     step: guitarStep,
     events: pianoRollEvents,
     isIT,
@@ -1284,7 +1411,7 @@ function GenreLessonContainerV2Inner({
   // these run again then).
   const guitarSetupOpen = guitarSetupStep !== null;
   const guitarLive =
-    isGuitar &&
+    isFretted &&
     (activityState === 'practice' || activityState === 'performance');
   const guitarStepKind = guitarEval.stepKind;
   const guitarListening = guitar?.status === 'listening';
@@ -1357,7 +1484,7 @@ function GenreLessonContainerV2Inner({
    * In time, a strum near the end is only named when its listening window
    * closes: the take waits that long before it is scored.
    */
-  const guitarGraceMs = isGuitar && guitarListening ? ID_WINDOW_MAX_MS : 0;
+  const guitarGraceMs = isFretted && guitarListening ? ID_WINDOW_MAX_MS : 0;
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -1379,7 +1506,7 @@ function GenreLessonContainerV2Inner({
       stopTransport();
       Tone.getTransport().cancel();
       // For IT, shift user note onsets back by COUNT_IN_OFFSET to align with target onsets
-      const playedNotes = isGuitar ? guitarUserNotes : userNotes;
+      const playedNotes = isFretted ? guitarUserNotes : userNotes;
       const adjustedUserNotes = isIT
         ? playedNotes.map((n) => ({ ...n, onset: n.onset - COUNT_IN_OFFSET }))
         : playedNotes;
@@ -1390,13 +1517,13 @@ function GenreLessonContainerV2Inner({
         [currentStep.tag],
         currentStep.successFeedback,
         tempo,
-        isGuitar ? buildGuitarPolicy() : undefined,
+        isFretted ? buildGuitarPolicy() : undefined,
       );
       setLastResult(result);
       setActivityState('complete');
       // After three takes that failed or couldn't be heard, the student may
       // count the step themselves: detection never blocks progress.
-      if (isGuitar && !result.passed) setGuitarMisses((n) => n + 1);
+      if (isFretted && !result.passed) setGuitarMisses((n) => n + 1);
       // "Couldn't hear that clearly" isn't a failed attempt: nothing is
       // recorded, the student sees what to check and tries again.
       if (result.unclear) return;
@@ -1426,7 +1553,7 @@ function GenreLessonContainerV2Inner({
     stopTickCounter,
     stopBacking,
     tempo,
-    isGuitar,
+    isFretted,
     guitarUserNotes,
     buildGuitarPolicy,
   ]);
@@ -1524,7 +1651,7 @@ function GenreLessonContainerV2Inner({
         genreLabel: genreDisplayName,
         returnTo: practiceReturnTo
           ? practiceReturnTo(sectionId)
-          : `${CurriculumRoutes.genreLevel({ genre, level: String(level) })}?section=${sectionId}`,
+          : `${LearnRoutes.genreLesson({ genre, level: String(level) })}?section=${sectionId}`,
         bpm: tempo,
       });
       if (url) navigate(url);
@@ -1630,6 +1757,8 @@ function GenreLessonContainerV2Inner({
         itTimerRef.current = null;
       }
       stopTickCounter();
+      setOverviewTab(null);
+      setPositionsOpen(false);
       setActiveSection(sectionId);
       setStepIndex(0);
       setActivityState('preview');
@@ -1711,6 +1840,8 @@ function GenreLessonContainerV2Inner({
         itTimerRef.current = null;
       }
       stopTickCounter();
+      setOverviewTab(null);
+      setPositionsOpen(false);
       setStepIndex(next);
       setActivityState('preview');
       setUserNotes([]);
@@ -1775,6 +1906,8 @@ function GenreLessonContainerV2Inner({
 
   useEffect(() => {
     setActiveSection(initialSection ?? 'A');
+    setPositionsOpen(openOnOverview);
+    setPositionIndex(0);
     setStepIndex(0);
     setActivityState('preview');
     setUserNotes([]);
@@ -1788,18 +1921,36 @@ function GenreLessonContainerV2Inner({
   // times), which Tone.getTransport().cancel() doesn't reach. Cancel them
   // whenever a practice run ends or the step/section/run changes.
   useEffect(() => {
-    if (!isGuitar || activityState === 'practice') return;
-    cancelScheduledGuitarNotes();
-  }, [isGuitar, activityState, activityInstanceId, stepIndex, activeSection]);
+    if (!isFretted || activityState === 'practice') return;
+    if (isBass) stopBassVoice();
+    else if (isUkulele) stopUkuleleVoice();
+    else cancelScheduledGuitarNotes();
+  }, [
+    isFretted,
+    isBass,
+    isUkulele,
+    activityState,
+    activityInstanceId,
+    stepIndex,
+    activeSection,
+  ]);
 
   // The guitar voice loads without a gesture; start early so the first Demo
   // or Practice press doesn't wait on the soundfont.
   // Leaving the lesson frees the amp (its model runs while the rig lives).
   useEffect(() => {
-    if (!isGuitar) return;
+    if (!isFretted) return;
+    if (isBass) {
+      void loadBassVoice();
+      return stopBassVoice;
+    }
+    if (isUkulele) {
+      void loadUkuleleVoice();
+      return stopUkuleleVoice;
+    }
     void loadGuitarVoice();
     return releaseGuitarVoice;
-  }, [isGuitar]);
+  }, [isFretted, isBass, isUkulele]);
 
   // ── Practice mode handlers ──────────────────────────────────────────────
 
@@ -1811,7 +1962,9 @@ function GenreLessonContainerV2Inner({
     Tone.getTransport().cancel();
 
     await startTone();
-    if (isGuitar) await loadGuitarVoice();
+    if (isBass) await loadBassVoice();
+    else if (isUkulele) await loadUkuleleVoice();
+    else if (isFretted) await loadGuitarVoice();
     else await startPianoSampler();
 
     // Reset state before starting — but don't activate yet for IT
@@ -1855,7 +2008,7 @@ function GenreLessonContainerV2Inner({
     const guideNotes = practiceSlice?.targetNotes ?? targetNotes;
     // When the microphone hears the speakers, the guide would be scored as
     // the student: it stays quiet (headphones bring it back).
-    if (guideNotes.length > 0 && !(isGuitar && guitarGuideMuted)) {
+    if (guideNotes.length > 0 && !(isFretted && guitarGuideMuted)) {
       const spt = 60 / (practiceTempo * 480); // seconds per tick
       // One guide event per onset: a guitar strums a chord's notes together
       // (low to high), where piano plays each note on its own.
@@ -1878,7 +2031,7 @@ function GenreLessonContainerV2Inner({
         group.duration = Math.max(group.duration, n.duration);
         onsets.set(n.onset, group);
       }
-      const noteEvents = isGuitar
+      const noteEvents = isFretted
         ? [...onsets].map(([onset, group]) => ({
             time: (onset + LEAD_IN_TICKS) * spt,
             midis: group.midis,
@@ -1902,8 +2055,15 @@ function GenreLessonContainerV2Inner({
             positions?: FretPosition[];
           },
         ) => {
-          if (!isGuitar) {
+          if (!isFretted) {
             playGuideNote(value.midis[0], value.durationSec, 80, time);
+          } else if (isBass || isUkulele) {
+            (isBass ? bassLessonVoice : ukuleleLessonVoice).attackRelease(
+              value.midis.length > 1 ? value.midis : value.midis[0],
+              value.durationSec,
+              80 * GUIDE_VELOCITY_SCALE,
+              time,
+            );
           } else if (value.midis.length > 1) {
             strumGuitarChord(
               value.midis,
@@ -1953,7 +2113,8 @@ function GenreLessonContainerV2Inner({
     practiceSlice,
     guitarGuideMuted,
     isIT,
-    isGuitar,
+    isFretted,
+    isBass,
     targetNotes,
     prepareMetronome,
     setActivityState,
@@ -2059,8 +2220,8 @@ function GenreLessonContainerV2Inner({
   useEffect(() => {
     if (practiceRunKeyRef.current === practiceRunKey) return;
     practiceRunKeyRef.current = practiceRunKey;
-    if (isGuitar && activityStateRef.current === 'practice') restartPractice();
-  }, [practiceRunKey, isGuitar, restartPractice]);
+    if (isFretted && activityStateRef.current === 'practice') restartPractice();
+  }, [practiceRunKey, isFretted, restartPractice]);
 
   /** Leaving practice ends the loop: loops are for practice only. */
   const handleBackFromPractice = useCallback(() => {
@@ -2106,6 +2267,17 @@ function GenreLessonContainerV2Inner({
   }, [guitar]);
 
   const playGuitarTestChord = useCallback(async () => {
+    if (isUkulele) {
+      await loadUkuleleVoice();
+      // Open C, The Ukulele Atlas's first box.
+      strumUkuleleChord(
+        shapeNotes('0-0-0-3', UKULELE).map((n) => n.midi),
+        1.5,
+        90,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      return;
+    }
     await loadGuitarVoice();
     const notes = shapeNotes('X-3-2-0-1-0'); // open C
     strumGuitarChord(
@@ -2116,7 +2288,7 @@ function GenreLessonContainerV2Inner({
       notes.map((n) => n.position),
     );
     await new Promise((resolve) => setTimeout(resolve, 1500));
-  }, []);
+  }, [isUkulele]);
 
   /** Loop bars and practise them now (a mistake marker, a next step). */
   const practiceLoop = useCallback(
@@ -2131,14 +2303,14 @@ function GenreLessonContainerV2Inner({
 
   const guitarNextStep = useMemo(
     () =>
-      isGuitar && lastResult
+      isFretted && lastResult
         ? nextStepSuggestion(lastResult, {
             bars: barsInStep,
             tempoPct: 100,
             ticksPerBar: barLength,
           })
         : null,
-    [isGuitar, lastResult, barsInStep],
+    [isFretted, lastResult, barsInStep],
   );
 
   // ── Guitar detection trust ─────────────────────────────────────────────
@@ -2177,19 +2349,19 @@ function GenreLessonContainerV2Inner({
     guitarEval.heardChord !== null ||
     guitarEval.unclearCount > 0;
   useEffect(() => {
-    if (!isGuitar) return;
+    if (!isFretted) return;
     setSilenceOffer(false);
     if (isIT || activityState !== 'performance' || guitarHeardSomething) {
       return;
     }
     const id = setTimeout(() => setSilenceOffer(true), 20_000);
     return () => clearTimeout(id);
-  }, [isGuitar, isIT, activityState, guitarHeardSomething]);
+  }, [isFretted, isIT, activityState, guitarHeardSomething]);
 
   // A new step starts detection trust over.
   useEffect(() => {
-    if (isGuitar) setGuitarMisses(0);
-  }, [isGuitar, activeSection, stepIndex, flow]);
+    if (isFretted) setGuitarMisses(0);
+  }, [isFretted, activeSection, stepIndex, flow]);
 
   // ── Guitar theory layers (display only, never graded) ──────────────────
   // The Beato-derived knowledge the guitar section adds: W/H step chips and
@@ -2204,7 +2376,9 @@ function GenreLessonContainerV2Inner({
   const showRomanNumerals = useGuitarDisplaySettings(
     (s) => s.showRomanNumerals,
   );
-  const musicMapMeta = isGuitar ? resolvedStep.guitar?.musicMap : undefined;
+  const musicMapMeta = isFretted
+    ? (resolvedStep.guitar ?? resolvedStep.bass)?.musicMap
+    : undefined;
   const musicMap = musicMapMeta
     ? guitarCenter.musicMaps[musicMapMeta.example - 1]
     : undefined;
@@ -2224,19 +2398,24 @@ function GenreLessonContainerV2Inner({
       <>
         <TabTheoryOverlay layout={layout} {...tabTheoryLayers} />
         {/* The map's chips span its bars: not over a looped slice, and not
-            under a take's mistake marks, which sit where the chips do */}
-        {musicMap && musicMapMeta && !loopSlice && !takeHasMarks && (
-          <MusicMapOverlay
-            layout={layout}
-            keyCenter={guitarKey}
-            map={musicMap}
-            passes={musicMapMeta.passes}
-            countInOffset={isIT ? COUNT_IN_OFFSET : 0}
-            keyColor={keyColor}
-            showChordJobs={showChordJobs}
-            showRomanNumerals={canShowRomanNumerals && showRomanNumerals}
-          />
-        )}
+            under a take's mistake marks, which sit where the chips do. Its
+            chord jobs read guitar voicings: none on a ukulele. */}
+        {musicMap &&
+          musicMapMeta &&
+          !isUkulele &&
+          !loopSlice &&
+          !takeHasMarks && (
+            <MusicMapOverlay
+              layout={layout}
+              keyCenter={guitarKey}
+              map={musicMap}
+              passes={musicMapMeta.passes}
+              countInOffset={isIT ? COUNT_IN_OFFSET : 0}
+              keyColor={keyColor}
+              showChordJobs={showChordJobs}
+              showRomanNumerals={canShowRomanNumerals && showRomanNumerals}
+            />
+          )}
         {activityState === 'practice' && !loopSlice && (
           <LoopSelectionOverlay
             layout={layout}
@@ -2268,6 +2447,7 @@ function GenreLessonContainerV2Inner({
       tabTheoryLayers,
       musicMap,
       musicMapMeta,
+      isUkulele,
       guitarKey,
       showChordJobs,
       canShowRomanNumerals,
@@ -2291,7 +2471,7 @@ function GenreLessonContainerV2Inner({
     // Stop ALL audio completely before assessment begins
     handleStopPractice();
     // Play Now grades the whole step at its own tempo: no guitar loop.
-    if (isGuitar) {
+    if (isFretted) {
       clearPracticeLoop();
       setRestartingPass(false);
     }
@@ -2371,7 +2551,7 @@ function GenreLessonContainerV2Inner({
     keyRoot,
     requiredBars,
     flow,
-    isGuitar,
+    isFretted,
     clearPracticeLoop,
   ]);
 
@@ -2415,277 +2595,456 @@ function GenreLessonContainerV2Inner({
     };
   });
 
-  if (isGuitar) {
+  // Guitar's screen (guitar and bass) navigates as the keyboard lessons do:
+  // each section paged by a tab row of its exercise groups, the rail listing
+  // every section's steps, no ‹ 3 / 20 › pager (sectionGroupNav).
+  const groupSections: GroupNavSection[] = flow.sections.map((section) => ({
+    id: section.id,
+    name: section.name,
+    done: getSectionProgress(section.id).percentage === 100,
+    steps: section.steps.map((step) => {
+      const saved = progress.completedSteps[step.tag];
+      const own = (step as ActivityStepV2).chordSymbols ?? [];
+      return {
+        subsection: step.subsection,
+        title: splitActivity(chordText(step.activity, own)).title,
+        status: !saved
+          ? 'todo'
+          : !saved.score.passed
+            ? 'attempted'
+            : saved.score.selfReported
+              ? 'selfReported'
+              : 'passed',
+      };
+    }),
+  }));
+  const openSectionStep = (sectionId: ActivitySectionId, index: number) => {
+    if (sectionId !== activeSection) handleSectionChange(sectionId);
+    goToStep(index);
+  };
+
+  if (isFretted) {
     const practising = isPracticing || restartingPass;
     const offerSection = practiceOffer;
 
-    return (
-      <GuitarLessonLayout
-        header={{
-          crumbs: [
-            {
-              label: rootCrumb.label,
-              onClick: () => navigate(rootCrumb.route),
-            },
-            {
-              label: genreDisplayName,
-              onClick: () =>
-                navigate(overviewRoute ?? CurriculumRoutes.genre({ genre })),
-            },
-          ],
-          keyLabel: centerTitle(guitarCenter),
-          keyColor,
-          subsection: stepSubsection,
-          activity: stepActivity,
-          chordNames: stepWritesChords,
-        }}
-        nav={{
-          sections: flow.sections.map((section) => ({
-            id: section.id,
-            name: section.name,
-            active: section.id === activeSection,
-            done: getSectionProgress(section.id).percentage === 100,
-          })),
-          onSection: handleSectionChange,
-          steps: navSteps,
-          index: stepIndex,
-          goToStep,
-          // The active section's Practice Track, as on piano.
-          practiceTrack: sectionHasContent(currentSection)
-            ? { onOpen: () => enterPracticeTrack(activeSection) }
-            : null,
-        }}
-        run={{
-          state: activityState,
-          restartingPass,
-          instruction: stepDirection,
-          listen: {
-            mode: isIT ? 'keepTime' : 'waitForMe',
-            passMarkPct: Math.round(
-              stepPassMark(currentStep.assessment ?? 'pitch_only') * 100,
+    // A diatonic guitar lesson's Overview, section 'O' (as Theory's on
+    // keyboard): the scale's seven positions on the neck, one lit.
+    const FRETTED_OVERVIEW_ID = 'O' as unknown as ActivitySectionId;
+    const onPositions = positionsScale !== null && positionsOpen;
+    const openPositions = (index: number) => {
+      if (!positionsOpen) {
+        stopDemo();
+        stopBacking();
+        stopTransport();
+        Tone.getTransport().cancel();
+        stopTickCounter();
+        setActivityState('preview');
+        setLastResult(null);
+        setPracticeOffer(null);
+        setPositionsOpen(true);
+      }
+      setPositionIndex(index);
+    };
+    const positionTabRow = positionsScale
+      ? positionTabs({
+          mode: positionsScale.mode,
+          labels: 'position',
+          index: positionIndex,
+          onSelect: openPositions,
+          narrow: false,
+        })
+      : [];
+    const firstSection = flow.sections[0];
+    const positionsBar: Zones | null =
+      onPositions && firstSection
+        ? {
+            lead: null,
+            meta: null,
+            actions: (
+              <Primary onClick={() => openSectionStep(firstSection.id, 0)}>
+                Start {firstSection.name}
+              </Primary>
             ),
-          },
-          loading: instrumentsLoading,
-          demo: {
-            playing: isPlayingDemo,
-            play: () => void playDemo(targetNotes),
-            stop: stopDemo,
-          },
-          practise: () => {
-            if (guitarReadyToStart()) void handleStartPractice();
-          },
-          playNow: handleGuitarStartPerformance,
-          back: handleBackFromPractice,
-          stopTake: abortTake,
-          hint: guitarEval.diagnostics?.hint ?? null,
-        }}
-        tempo={
-          isIT
-            ? {
-                bpm: tempo,
-                onChange: handleTempoChange,
-                // The speed trainer's tempo while a practice run plays.
-                effectiveBpm: practising ? practiceTempo : tempo,
-                trainer: {
-                  ladder: practice.ladder,
-                  text: practice.ladderText,
-                  onToggle: practice.toggleLadder,
-                  onReset: practice.resetLadder,
-                },
-              }
-            : null
-        }
-        practice={{
-          loopStatus: {
-            loop: practice.loop,
-            padBars: practice.padBars,
-            passCount: practice.passCount,
-            onPadChange: setPracticePad,
-            onClear: clearPracticeLoop,
-          },
-          notes: {
-            handCareMs: barreLoopingMs,
-            guideMuted: isIT && guitarGuideMuted,
-          },
-          // Music Maps: practise one part of the map on a loop.
-          presets: resolvedStep.guitar?.musicMap
-            ? practice.presets.map((preset) => ({
-                id: preset.id,
-                label: preset.label,
-                start: () => practiceLoop(preset.loop, preset.pct),
-              }))
-            : [],
-        }}
-        input={{
-          handle: guitar,
-          listening: guitarListening,
-          openSetup: openGuitarSetup,
-          // Wait for me: nothing heard for a while.
-          silence:
-            isPerforming && silenceOffer
-              ? {
-                  checkSetup: guitar ? () => openGuitarSetup() : undefined,
-                  countItMyself: handleCountItMyself,
+          }
+        : null;
+    const sectionOutline = groupNavOutline(
+      groupSections,
+      activeSection,
+      stepIndex,
+      openSectionStep,
+    );
+
+    return (
+      <FrettedInstrumentContext.Provider
+        value={isBass ? BASS : isUkulele ? UKULELE : GUITAR}
+      >
+        <GuitarLessonLayout
+          header={{
+            crumbs: [
+              {
+                label: rootCrumb.label,
+                onClick: () => navigate(rootCrumb.route),
+              },
+              {
+                label: genreDisplayName,
+                onClick: () =>
+                  navigate(overviewRoute ?? LearnRoutes.genreCourse({ genre })),
+              },
+            ],
+            keyLabel: centerTitle(guitarCenter),
+            keyColor,
+            subsection: onPositions ? 'Overview' : stepSubsection,
+            activity: onPositions
+              ? (positionTabRow[positionIndex]?.name ?? '')
+              : stepActivity,
+            chordNames: !onPositions && stepWritesChords,
+          }}
+          nav={{
+            sections: [
+              ...(positionsScale
+                ? [
+                    {
+                      id: FRETTED_OVERVIEW_ID,
+                      name: 'Overview',
+                      active: onPositions,
+                      done: false,
+                    },
+                  ]
+                : []),
+              ...flow.sections.map((section) => ({
+                id: section.id,
+                name: section.name,
+                active: !onPositions && section.id === activeSection,
+                done: getSectionProgress(section.id).percentage === 100,
+              })),
+            ],
+            onSection: (id) =>
+              id === FRETTED_OVERVIEW_ID
+                ? openPositions(positionIndex)
+                : handleSectionChange(id),
+            steps: navSteps,
+            index: stepIndex,
+            goToStep,
+            // The tab row pages the steps and ends with the Practice Track.
+            practiceTrack: null,
+            pager: false,
+            outline: [
+              ...(positionsScale
+                ? [
+                    {
+                      id: FRETTED_OVERVIEW_ID,
+                      name: 'Overview',
+                      active: onPositions,
+                      done: false,
+                      steps: positionTabRow.map((tab) => ({
+                        code: '',
+                        title: tab.name ?? tab.label,
+                        subsection: '',
+                        status: 'todo' as const,
+                      })),
+                      index: onPositions ? positionIndex : -1,
+                      onPick: openPositions,
+                    },
+                  ]
+                : []),
+              ...sectionOutline.map((section) =>
+                onPositions
+                  ? { ...section, active: false, index: -1 }
+                  : section,
+              ),
+            ],
+          }}
+          overview={
+            onPositions && positionsScale ? (
+              <ModePositionsOverview
+                scale={positionsScale}
+                index={positionIndex}
+                labels="position"
+                keyColor={keyColor}
+                mirrored={leftHanded}
+                onIndexChange={openPositions}
+              />
+            ) : undefined
+          }
+          barCustom={positionsBar}
+          // On the Overview the positions are chosen on the neck itself.
+          subNav={
+            onPositions ? undefined : (
+              <SectionGroupTabs
+                section={
+                  groupSections.find((s) => s.id === activeSection) ??
+                  groupSections[0]
                 }
-              : null,
-          monitor: guitar?.prefs.monitorThroughAmp ?? false,
-          onMonitorChange: (monitor) =>
-            void guitar?.restart({ monitorThroughAmp: monitor }),
-          onTonePreview: () => setTonePreviewing(true),
-          outputLatencyMs,
-          openAudioTiming: () => navigate(`${SettingsRoutes.root()}/audio`),
-        }}
-        result={
-          activityState === 'complete' && lastResult
-            ? {
-                result: lastResult,
-                stepKind: guitarEval.stepKind,
-                headingOverride: guitarResultHeading(lastResult),
-                feedback: lastResult.feedbackText,
-                suggestion: guitarNextStep,
-                onSuggestion: () => {
-                  if (guitarNextStep) {
-                    practiceLoop(guitarNextStep.loop, guitarNextStep.pct);
+                stepIndex={stepIndex}
+                keyColor={keyColor}
+                goToStep={goToStep}
+                onPracticeTrack={
+                  sectionHasContent(currentSection)
+                    ? () => enterPracticeTrack(activeSection)
+                    : null
+                }
+              />
+            )
+          }
+          run={{
+            state: activityState,
+            restartingPass,
+            instruction: stepDirection,
+            listen: {
+              mode: isIT ? 'keepTime' : 'waitForMe',
+              passMarkPct: Math.round(
+                stepPassMark(currentStep.assessment ?? 'pitch_only') * 100,
+              ),
+            },
+            loading: instrumentsLoading,
+            demo: {
+              playing: isPlayingDemo,
+              play: () => void playDemo(targetNotes),
+              stop: stopDemo,
+            },
+            practise: () => {
+              if (guitarReadyToStart()) void handleStartPractice();
+            },
+            playNow: handleGuitarStartPerformance,
+            back: handleBackFromPractice,
+            stopTake: abortTake,
+            hint: guitarEval.diagnostics?.hint ?? null,
+          }}
+          tempo={
+            isIT
+              ? {
+                  bpm: tempo,
+                  onChange: handleTempoChange,
+                  // The speed trainer's tempo while a practice run plays.
+                  effectiveBpm: practising ? practiceTempo : tempo,
+                  trainer: {
+                    ladder: practice.ladder,
+                    text: practice.ladderText,
+                    onToggle: practice.toggleLadder,
+                    onReset: practice.resetLadder,
+                  },
+                }
+              : null
+          }
+          practice={{
+            loopStatus: {
+              loop: practice.loop,
+              padBars: practice.padBars,
+              passCount: practice.passCount,
+              onPadChange: setPracticePad,
+              onClear: clearPracticeLoop,
+            },
+            notes: {
+              handCareMs: barreLoopingMs,
+              guideMuted: isIT && guitarGuideMuted,
+            },
+            // Music Maps: practise one part of the map on a loop.
+            presets: musicMapMeta
+              ? practice.presets.map((preset) => ({
+                  id: preset.id,
+                  label: preset.label,
+                  start: () => practiceLoop(preset.loop, preset.pct),
+                }))
+              : [],
+          }}
+          input={{
+            handle: guitar,
+            listening: guitarListening,
+            openSetup: openGuitarSetup,
+            // Wait for me: nothing heard for a while.
+            silence:
+              isPerforming && silenceOffer
+                ? {
+                    checkSetup: guitar ? () => openGuitarSetup() : undefined,
+                    countItMyself: handleCountItMyself,
                   }
-                },
-                hasMistakes: hasMarkedMistakes(lastResult),
-                canCountItMyself:
-                  !lastResult.passed && (guitarMisses >= 3 || silenceOffer),
-                onCountItMyself: handleCountItMyself,
-                onOpenSetup: guitar ? openGuitarSetup : undefined,
-                retry: handleRetry,
-                next: handleNext,
-                nextLabel:
-                  stepIndex < currentSection.steps.length - 1
-                    ? 'Next'
-                    : 'Section Complete',
-              }
-            : null
-        }
-        offer={
-          offerSection
-            ? {
-                heading: `${currentSection.name} complete!`,
-                blurb: practiceOfferBlurb(currentSection.id),
-                enterPracticeTrack: () => {
-                  setPracticeOffer(null);
-                  enterPracticeTrack(offerSection);
-                },
-                continueLabel: nextSectionName
-                  ? `Continue to ${nextSectionName}`
-                  : 'Finish the level',
-                onContinue: () => {
-                  setPracticeOffer(null);
-                  advanceSection();
-                },
-              }
-            : null
-        }
-        theory={{
-          flow,
-          step: currentStep,
-          displayStep: guitarStep,
-          keyCenter: guitarKey,
-          keyColor,
-          sectionId: activeSection,
-          onHearShape: handleHearShape,
-          canShowRoman: canShowRomanNumerals,
-          practising,
-        }}
-        slots={{
-          tabViewportRef: rollViewportRef,
-          // The stage box sizes the TAB (measured through rollViewportRef).
-          tab: (
-            <>
-              {/* TAB / Notation in the corner over the music, as the piano
+                : null,
+            monitor: guitar?.prefs.monitorThroughAmp ?? false,
+            onMonitorChange: (monitor) =>
+              void guitar?.restart({ monitorThroughAmp: monitor }),
+            onTonePreview: () => setTonePreviewing(true),
+            outputLatencyMs,
+            openAudioTiming: () => navigate(`${SettingsRoutes.root()}/audio`),
+          }}
+          result={
+            activityState === 'complete' && lastResult
+              ? {
+                  result: lastResult,
+                  stepKind: guitarEval.stepKind,
+                  headingOverride: guitarResultHeading(lastResult),
+                  feedback: lastResult.feedbackText,
+                  suggestion: guitarNextStep,
+                  onSuggestion: () => {
+                    if (guitarNextStep) {
+                      practiceLoop(guitarNextStep.loop, guitarNextStep.pct);
+                    }
+                  },
+                  hasMistakes: hasMarkedMistakes(lastResult),
+                  canCountItMyself:
+                    !lastResult.passed && (guitarMisses >= 3 || silenceOffer),
+                  onCountItMyself: handleCountItMyself,
+                  onOpenSetup: guitar ? openGuitarSetup : undefined,
+                  retry: handleRetry,
+                  next: handleNext,
+                  nextLabel:
+                    stepIndex < currentSection.steps.length - 1
+                      ? 'Next'
+                      : 'Section Complete',
+                }
+              : null
+          }
+          offer={
+            offerSection
+              ? {
+                  heading: `${currentSection.name} complete!`,
+                  blurb: practiceOfferBlurb(currentSection.id),
+                  enterPracticeTrack: () => {
+                    setPracticeOffer(null);
+                    enterPracticeTrack(offerSection);
+                  },
+                  continueLabel: nextSectionName
+                    ? `Continue to ${nextSectionName}`
+                    : 'Finish the level',
+                  onContinue: () => {
+                    setPracticeOffer(null);
+                    advanceSection();
+                  },
+                }
+              : null
+          }
+          theory={{
+            flow,
+            step: currentStep,
+            displayStep: guitarStep,
+            keyCenter: guitarKey,
+            keyColor,
+            sectionId: activeSection,
+            onHearShape: handleHearShape,
+            canShowRoman: canShowRomanNumerals,
+            practising,
+          }}
+          slots={{
+            tabViewportRef: rollViewportRef,
+            // The stage box sizes the TAB (measured through rollViewportRef).
+            tab: (
+              <>
+                {/* TAB / Notation in the corner over the music, as the piano
                   roll has its views; the band keeps its full height. */}
-              <div
-                data-guitar-view-toggle
-                className="absolute left-3 top-3 z-10"
-              >
-                <SavedGuitarViewToggle />
-              </div>
-              <GenrePianoRoll
-                key={`roll-${activityInstanceId}`}
-                instrument="guitar"
-                guitarViewToggle={false}
-                // The preview opens a paged TAB on the music; a loop between
-                // passes keeps the count-in bar in view for the next count.
-                tabOpensOnMusic={activityState === 'preview' && !restartingPass}
-                tabOverlay={renderGuitarTabOverlay}
+                <div
+                  data-guitar-view-toggle
+                  className="absolute left-3 top-3 z-10"
+                >
+                  <SavedGuitarViewToggle />
+                </div>
+                <GenrePianoRoll
+                  key={`roll-${activityInstanceId}`}
+                  instrument={lessonInstrument}
+                  guitarViewToggle={false}
+                  // The preview opens a paged TAB on the music; a loop between
+                  // passes keeps the count-in bar in view for the next count.
+                  tabOpensOnMusic={
+                    activityState === 'preview' && !restartingPass
+                  }
+                  tabOverlay={renderGuitarTabOverlay}
+                  events={pianoRollEvents}
+                  bars={requiredBars}
+                  beatsPerBar={meterBeats}
+                  beatTicks={meterBeatTicks}
+                  timeSignature={timeSignature}
+                  leadInTicks={LEAD_IN_TICKS}
+                  staves={notationStaves}
+                  notationToggle={clefToggle}
+                  subdivision={isIT ? 4 : 1}
+                  rowHeight={rowHeight}
+                  midiRangeMin={noteRange.min}
+                  midiRangeMax={noteRange.max}
+                  inTime={isIT}
+                  playSpeed={runTempo}
+                  isPlaying={isActive && isIT}
+                  onPlayingChange={() => {}}
+                  playbackTicks={isIT ? playbackTicks : undefined}
+                  onTickChange={handleTickChange}
+                  activeMidis={guitarEval.activeMidis}
+                  noteHoldMeta={
+                    isActive && !isIT ? guitarEval.noteHoldMeta : undefined
+                  }
+                  performanceMeta={
+                    isIT ? guitarEval.performanceMeta : undefined
+                  }
+                  keyRoot={keyRoot}
+                  keyColor={keyColor}
+                  userNotes={isActive ? guitarEval.userNotes : []}
+                  targetMidiSet={targetMidiSet}
+                  chordSymbols={chordSymbolsForStaff}
+                />
+              </>
+            ),
+            visuals: isBass ? (
+              <BassLessonVisuals
+                step={guitarStep}
                 events={pianoRollEvents}
-                bars={requiredBars}
-                beatsPerBar={meterBeats}
-                beatTicks={meterBeatTicks}
-                timeSignature={timeSignature}
-                leadInTicks={LEAD_IN_TICKS}
-                staves={notationStaves}
-                notationToggle={clefToggle}
-                subdivision={isIT ? 4 : 1}
-                rowHeight={rowHeight}
-                midiRangeMin={noteRange.min}
-                midiRangeMax={noteRange.max}
+                keyCenter={guitarKey}
+                keyColor={keyColor}
+                activityState={activityState}
                 inTime={isIT}
-                playSpeed={runTempo}
-                isPlaying={isActive && isIT}
-                onPlayingChange={() => {}}
-                playbackTicks={isIT ? playbackTicks : undefined}
-                onTickChange={handleTickChange}
-                activeMidis={guitarEval.activeMidis}
+                countInOffset={isIT ? COUNT_IN_OFFSET : 0}
+                currentTickRef={currentTickRef}
+                activeMidis={isActive ? guitarEval.activeMidis : []}
+                demoHighlightMidis={demoHighlightMidis}
+                isPlayingDemo={isPlayingDemo}
+                practiceHighlightMidis={practiceHighlightMidis}
+                targetMidiSet={targetMidiSet}
                 noteHoldMeta={
                   isActive && !isIT ? guitarEval.noteHoldMeta : undefined
                 }
-                performanceMeta={isIT ? guitarEval.performanceMeta : undefined}
-                keyRoot={keyRoot}
-                keyColor={keyColor}
-                userNotes={isActive ? guitarEval.userNotes : []}
-                targetMidiSet={targetMidiSet}
-                chordSymbols={chordSymbolsForStaff}
+                onHearNotes={handleHearNotes}
               />
-            </>
-          ),
-          visuals: (
-            <GuitarLessonVisuals
-              controls={false}
-              step={guitarStep}
-              events={pianoRollEvents}
-              keyCenter={guitarKey}
-              keyColor={keyColor}
-              activityState={activityState}
-              inTime={isIT}
-              countInOffset={isIT ? COUNT_IN_OFFSET : 0}
-              currentTickRef={currentTickRef}
-              activeMidis={isActive ? guitarEval.activeMidis : []}
-              demoHighlightMidis={demoHighlightMidis}
-              isPlayingDemo={isPlayingDemo}
-              practiceHighlightMidis={practiceHighlightMidis}
-              targetMidiSet={targetMidiSet}
-              noteHoldMeta={
-                isActive && !isIT ? guitarEval.noteHoldMeta : undefined
-              }
-              heardChord={guitarEval.heardChord}
-              diagnostics={guitarEval.diagnostics}
-              onHearShape={handleHearShape}
-              showRomanNumerals={canShowRomanNumerals && showRomanNumerals}
-            />
-          ),
-          setupModal:
-            guitar && guitarSetupStep !== null ? (
-              <Suspense fallback={null}>
-                <GuitarInputSetup
-                  open
-                  initialStep={guitarSetupStep}
-                  onClose={() => setGuitarSetupStep(null)}
-                  handle={guitar}
-                  subscribeNoteOn={subscribeNoteOn}
-                  subscribeChord={subscribeChord}
-                  onPlayTestChord={playGuitarTestChord}
-                  outputLatencySec={outputLatencySecNow()}
-                />
-              </Suspense>
-            ) : null,
-        }}
-      />
+            ) : (
+              <GuitarLessonVisuals
+                controls={false}
+                step={guitarStep}
+                events={pianoRollEvents}
+                keyCenter={guitarKey}
+                keyColor={keyColor}
+                activityState={activityState}
+                inTime={isIT}
+                countInOffset={isIT ? COUNT_IN_OFFSET : 0}
+                currentTickRef={currentTickRef}
+                activeMidis={isActive ? guitarEval.activeMidis : []}
+                demoHighlightMidis={demoHighlightMidis}
+                isPlayingDemo={isPlayingDemo}
+                practiceHighlightMidis={practiceHighlightMidis}
+                targetMidiSet={targetMidiSet}
+                noteHoldMeta={
+                  isActive && !isIT ? guitarEval.noteHoldMeta : undefined
+                }
+                heardChord={guitarEval.heardChord}
+                diagnostics={guitarEval.diagnostics}
+                onHearShape={handleHearShape}
+                showRomanNumerals={canShowRomanNumerals && showRomanNumerals}
+              />
+            ),
+            setupModal:
+              guitar && guitarSetupStep !== null ? (
+                <Suspense fallback={null}>
+                  <GuitarInputSetup
+                    open
+                    initialStep={guitarSetupStep}
+                    onClose={() => setGuitarSetupStep(null)}
+                    handle={guitar}
+                    subscribeNoteOn={subscribeNoteOn}
+                    subscribeChord={subscribeChord}
+                    onPlayTestChord={playGuitarTestChord}
+                    outputLatencySec={outputLatencySecNow()}
+                    instrument={
+                      isBass ? 'bass' : isUkulele ? 'ukulele' : 'guitar'
+                    }
+                  />
+                </Suspense>
+              ) : null,
+          }}
+        />
+      </FrettedInstrumentContext.Provider>
     );
   }
 
@@ -2699,6 +3058,175 @@ function GenreLessonContainerV2Inner({
   );
   const pianoPractising = isPracticing || restartingPass;
 
+  // ── Theory's navigation (owner, 2026-10-27) ──────────────────────────────
+  // The Overview first, then each section paged by a tab row of its exercise
+  // groups (its steps' subsections, numbered), the step line under each tab
+  // and its Practice Track last; the rail lists every section's steps at
+  // once, and there's no ‹ 3 / 20 › pager.
+  const onOverview = overviewTab !== null && !!overviewLevel && !!genreProfile;
+  type FlowSection = ActivityFlowV2['sections'][number];
+  const groupName = (subsection: string) =>
+    chordText(subsection).replace(/^[A-Z]\d+[a-z]?:\s*/, '');
+  const groupsIn = (section: FlowSection) => [
+    ...new Set(section.steps.map((step) => step.subsection)),
+  ];
+  const stepStatus = (step: ActivityStepV2): NavStep['status'] => {
+    const saved = progress.completedSteps[step.tag];
+    return !saved
+      ? 'todo'
+      : !saved.score.passed
+        ? 'attempted'
+        : saved.score.selfReported
+          ? 'selfReported'
+          : 'passed';
+  };
+  const stepTitle = (step: ActivityStepV2) =>
+    splitActivity(chordText(step.activity, step.chordSymbols ?? [])).title;
+  /** A section's steps for the rail: no codes, under numbered groups. */
+  const pianoStepsOf = (section: FlowSection): NavStep[] => {
+    const groups = groupsIn(section);
+    return section.steps.map((step) => ({
+      code: '',
+      title: stepTitle(step as ActivityStepV2),
+      subsection: `${groups.indexOf(step.subsection) + 1}. ${groupName(step.subsection)}`,
+      status: stepStatus(step as ActivityStepV2),
+    }));
+  };
+  const openOverview = (tab: GenreOverviewTab) => {
+    if (overviewTab === null) {
+      stopDemo();
+      stopBacking();
+      stopTransport();
+      Tone.getTransport().cancel();
+      stopTickCounter();
+      setActivityState('preview');
+      setLastResult(null);
+      setPracticeOffer(null);
+    }
+    setOverviewTab(tab);
+  };
+  const openStep = (sectionId: ActivitySectionId, index: number) => {
+    if (sectionId !== activeSection) handleSectionChange(sectionId);
+    goToStep(index);
+  };
+  // Theory's Overview is section 'O'; the nav only shows its name.
+  const OVERVIEW_ID = 'O' as unknown as ActivitySectionId;
+  const sectionDone = (id: ActivitySectionId) =>
+    getSectionProgress(id).percentage === 100;
+
+  const outline: NavOutlineSection[] = [
+    ...(overviewLevel
+      ? [
+          {
+            id: OVERVIEW_ID,
+            name: 'Overview',
+            active: onOverview,
+            done: false,
+            steps: GENRE_OVERVIEW_TABS.map(({ label }) => ({
+              code: '',
+              title: label,
+              subsection: '',
+              status: 'todo' as const,
+            })),
+            index: onOverview
+              ? GENRE_OVERVIEW_TABS.findIndex((t) => t.id === overviewTab)
+              : -1,
+            onPick: (i: number) =>
+              openOverview(GENRE_OVERVIEW_TABS[i]?.id ?? 'about'),
+          },
+        ]
+      : []),
+    ...flow.sections.map((section) => {
+      const active = !onOverview && section.id === activeSection;
+      return {
+        id: section.id,
+        name: section.name,
+        active,
+        done: sectionDone(section.id),
+        steps: pianoStepsOf(section),
+        index: active ? stepIndex : -1,
+        onPick: (i: number) => openStep(section.id, i),
+      };
+    }),
+  ];
+
+  const currentGroup = currentStep.subsection;
+  const sectionGroups = groupsIn(currentSection);
+  const subNav = onOverview ? (
+    <LessonTabStrip
+      label="Overview"
+      keyColor={keyColor}
+      tabs={GENRE_OVERVIEW_TABS.map(({ id, label }) => ({
+        id,
+        label,
+        active: overviewTab === id,
+        onSelect: () => openOverview(id),
+      }))}
+    />
+  ) : (
+    <LessonTabStrip
+      label={currentSection.name}
+      keyColor={keyColor}
+      tabs={[
+        ...sectionGroups.map((group, g) => ({
+          id: group,
+          // Just its number on the tab; its name for assistive tech and the
+          // tooltip (as Theory's).
+          label: String(g + 1),
+          name: `${g + 1}. ${groupName(group)}`,
+          steps: currentSection.steps.flatMap((step, i) => {
+            if (step.subsection !== group) return [];
+            const status = stepStatus(step as ActivityStepV2);
+            const title = stepTitle(step as ActivityStepV2);
+            return [
+              {
+                status,
+                current: i === stepIndex,
+                label: status === 'passed' ? `${title}, passed` : title,
+                onSelect: () => goToStep(i),
+              },
+            ];
+          }),
+          active: group === currentGroup,
+          onSelect: () => {
+            const first = currentSection.steps.findIndex(
+              (step) => step.subsection === group,
+            );
+            if (first >= 0 && group !== currentGroup) goToStep(first);
+          },
+        })),
+        ...(sectionHasContent(currentSection)
+          ? [
+              {
+                id: 'practice-track',
+                label: 'Practice Track',
+                active: false,
+                onSelect: () => enterPracticeTrack(activeSection),
+              },
+            ]
+          : []),
+      ]}
+    />
+  );
+
+  // The Overview's bar: on into the first section (as Theory's "Start
+  // Melody").
+  const firstSection = flow.sections[0];
+  const overviewBar: Zones | null = onOverview
+    ? {
+        lead: null,
+        meta: null,
+        actions: firstSection ? (
+          <Primary onClick={() => openStep(firstSection.id, 0)}>
+            Start {firstSection.name}
+          </Primary>
+        ) : null,
+      }
+    : null;
+  const overviewLabel = onOverview
+    ? (GENRE_OVERVIEW_TABS.find((t) => t.id === overviewTab)?.label ?? '')
+    : '';
+
   return (
     <PianoLessonLayout
       header={{
@@ -2710,34 +3238,49 @@ function GenreLessonContainerV2Inner({
           {
             label: genreDisplayName,
             onClick: () =>
-              navigate(overviewRoute ?? CurriculumRoutes.genre({ genre })),
+              navigate(overviewRoute ?? LearnRoutes.genreCourse({ genre })),
           },
         ],
         keyLabel: formatAccidentalsForDisplay(ownKey ?? flow.params.defaultKey),
         keyColor,
-        subsection: stepSubsection,
-        activity: stepActivity,
-        chordNames: stepWritesChords,
+        subsection: onOverview ? 'Overview' : stepSubsection,
+        activity: onOverview ? overviewLabel : stepActivity,
+        chordNames: !onOverview && stepWritesChords,
       }}
-      chords={pianoChords}
+      chords={onOverview ? [] : pianoChords}
       nav={{
-        sections: flow.sections.map((section) => ({
-          id: section.id,
-          name: section.name,
-          active: section.id === activeSection,
-          done: getSectionProgress(section.id).percentage === 100,
+        sections: outline.map(({ id, name, active, done }) => ({
+          id,
+          name,
+          active,
+          done,
         })),
-        onSection: handleSectionChange,
+        onSection: (id) =>
+          id === OVERVIEW_ID ? openOverview('about') : openStep(id, 0),
+        outline,
         steps: navSteps,
         index: stepIndex,
         goToStep,
-        practiceTrack: sectionHasContent(currentSection)
-          ? { onOpen: () => enterPracticeTrack(activeSection) }
-          : null,
+        // The tab row pages the steps and ends with the Practice Track.
+        practiceTrack: null,
+        pager: false,
         // Roll / Notation / Falling and the hands, on the tool rail (the
         // roll's own corner icons are off).
         noteViews: { hands: true },
       }}
+      subNav={subNav}
+      overview={
+        onOverview && genreProfile && overviewLevel && overviewTab ? (
+          <GenreOverview
+            tab={overviewTab}
+            profile={genreProfile}
+            level={overviewLevel}
+            keyColor={keyColor}
+            onOpenSection={(id) => openStep(id, 0)}
+          />
+        ) : undefined
+      }
+      barCustom={overviewBar}
       run={{
         state: activityState,
         restartingPass,

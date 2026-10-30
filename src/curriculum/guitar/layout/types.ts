@@ -17,6 +17,7 @@ import type {
   GuitarPracticeNotesProps,
 } from '../GuitarLoopStatus';
 import type { GuitarStepKind } from '../useGuitarLessonEvaluation';
+import type { Zones } from './GuitarActionBar';
 
 // ── The guitar lesson layout's contract ────────────────────────────────────
 // GenreLessonContainerV2 keeps every hook, timer and handler; on guitar it
@@ -287,7 +288,19 @@ export interface GuitarLessonLayoutProps {
   /** The section-complete offer (wins over the result). */
   offer: SectionCompleteModel | null;
   theory: TheoryModel;
+  /**
+   * The tab row under the nav: the section's exercise groups and its
+   * Practice Track, as the keyboard lessons have it. Left out, none.
+   */
+  subNav?: ReactNode;
   slots: LayoutSlots;
+  /**
+   * The lesson's Overview (guitar's diatonic lessons: the scale's seven
+   * positions), in place of the visuals; the TAB stays mounted, hidden.
+   */
+  overview?: ReactNode;
+  /** The bar's words and buttons on the Overview (its "Start Melody"). */
+  barCustom?: Zones | null;
 }
 
 /**

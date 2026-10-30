@@ -1,6 +1,7 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
+import { HeartIcon } from '@/components/icons/HeartIcon';
 import { memo, useMemo, useState } from 'react';
-import { Heart, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { HexAvatarSVG } from '@/components/ui/HexAvatarSVG';
@@ -204,11 +205,7 @@ const SongCardImpl = ({
                     color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.4)',
                   }}
                 >
-                  <Heart
-                    width={ICON_SIZE}
-                    height={ICON_SIZE}
-                    fill={isSaved ? 'currentColor' : 'none'}
-                  />
+                  <HeartIcon size={ICON_SIZE} filled={isSaved} />
                 </button>
               </div>
             </div>

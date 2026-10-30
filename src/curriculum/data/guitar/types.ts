@@ -228,6 +228,11 @@ export interface GuitarPentatonic {
 
 interface GuitarCenterCommon extends GuitarKeyCenter {
   id: GuitarCenterId;
+  /**
+   * Absent on guitar. 'ukulele' marks a center whose positions and chord
+   * shapes are on a ukulele (data/ukulele): the same theory, other frets.
+   */
+  instrument?: 'ukulele';
   tonicPc: number;
   /** The scale's semitone steps from the tonic: 7, or 5-6 for pentatonic/blues. */
   steps: readonly number[];

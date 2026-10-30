@@ -1,6 +1,7 @@
 import { ChevronRight } from 'lucide-react';
 import { useMemo, useRef, type RefObject } from 'react';
 import { FixedDigits } from '@/components/common/FixedDigits';
+import { useFrettedInstrument } from '@/components/guitar/frettedInstrumentContext';
 import { cn } from '@/components/utilities';
 import {
   GuitarLabelModeToggle,
@@ -193,9 +194,10 @@ function DisplaySettings({
 
   // What the step shows decides which rows apply.
   const { displayStep, keyCenter } = theory;
+  const inst = useFrettedInstrument();
   const model = useMemo(
-    () => guitarVisualModel(displayStep, keyCenter),
-    [displayStep, keyCenter],
+    () => guitarVisualModel(displayStep, keyCenter, inst),
+    [displayStep, keyCenter, inst],
   );
   const labelMode = useGuitarLabelMode(model.labelKind ?? 'scale');
   const legend = model.labelKind ? labelLegend(labelMode) : null;

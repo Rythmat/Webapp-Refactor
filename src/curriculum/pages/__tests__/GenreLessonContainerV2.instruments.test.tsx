@@ -435,10 +435,9 @@ describe('GenreLessonContainerV2 guitar practice tools', () => {
     expect(
       screen.getByRole('heading', { name: '✓ Counted by you' }),
     ).toBeTruthy();
-    // The step list marks it as the student's own count.
-    fireEvent.click(screen.getByRole('button', { name: /^Step \d+ of \d+/ }));
+    // The tab row's step line marks it as the student's own count.
     expect(
-      screen.getByRole('button', { name: /A1\.\d.*: counted by you$/ }),
+      screen.getByRole('button', { name: /, counted by you$/ }),
     ).toBeTruthy();
   });
 });

@@ -2,11 +2,11 @@ import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/components/utilities';
-import { CurriculumRoutes } from '@/constants/routes';
+import { LearnRoutes } from '@/constants/routes';
 import { useArtAccent } from '@/hooks/useArtAccent';
 import { GENRE_COURSES, type GenreCourse } from './genreCourses';
 import { SigilCard } from './sigil/SigilCard';
-import { grooveSpec } from './sigil/sigilSpec';
+import { genreSpec } from './sigil/sigilSpec';
 
 /** Learn's genre levels per course (buildGenreLevels in LearnInlet). */
 const LEVELS = 3;
@@ -29,10 +29,10 @@ const STACK_FALLBACK = 'rgb(70, 70, 82)';
  */
 function GenreCard({ course }: { course: GenreCourse }) {
   const color = useArtAccent(course.image) ?? STACK_FALLBACK;
-  const spec = grooveSpec(course.slug, course.image);
+  const spec = genreSpec(course.slug, course.image);
   return (
     <Link
-      to={CurriculumRoutes.genre({ genre: course.slug })}
+      to={LearnRoutes.genreCourse({ genre: course.slug })}
       aria-label={`${course.title}: ${LEVELS} levels`}
       className="group flex w-[12.5rem] shrink-0 snap-start flex-col rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-white/60"
     >
@@ -58,8 +58,9 @@ function GenreCard({ course }: { course: GenreCourse }) {
             }
           />
         ))}
-        {/* The cover: the Learn tiles' card, the genre's groove drawn in
-            it (owner, 2026-10-26); opaque, over the stack. */}
+        {/* The cover: the Learn tiles' card, the genre's signature
+            interval drawn in it (owner, 2026-10-27); opaque, over the
+            stack. */}
         {spec && (
           <SigilCard
             spec={spec}

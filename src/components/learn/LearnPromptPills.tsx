@@ -28,9 +28,9 @@ const KIND_OPTIONS: { id: LearnTab; label: string }[] = [
 
 /**
  * One-of pills in the prompt bar, Home's look: choosing one lights it,
- * choosing it again lets it go.
+ * choosing it again lets it go. (The Arcade page's categories too.)
  */
-function ChoicePills<T extends string>({
+export function ChoicePills<T extends string>({
   label,
   options,
   value,

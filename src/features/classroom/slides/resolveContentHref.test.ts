@@ -65,20 +65,20 @@ describe('resolveActivityRefHref — curriculum', () => {
     // The key still has a space; the slug does not, so the URL needs no
     // percent-encoding to carry it.
     expect(resolveActivityRefHref('learn', 'curriculum:HIP HOP:L1:B')).toBe(
-      '/curriculum/hip-hop/1?section=B',
+      '/learn/keyboard/genre/hip-hop/1?section=B',
     );
   });
   it('maps R&B to the rnb slug and accepts bare levels', () => {
     expect(resolveActivityRefHref('learn', 'curriculum:R&B:L2')).toBe(
-      '/curriculum/rnb/2',
+      '/learn/keyboard/genre/rnb/2',
     );
     expect(resolveActivityRefHref('learn', 'curriculum:jazz:1')).toBe(
-      '/curriculum/jazz/1',
+      '/learn/keyboard/genre/jazz/1',
     );
   });
   it('drops an invalid section', () => {
     expect(resolveActivityRefHref('learn', 'curriculum:POP:L1:Z')).toBe(
-      '/curriculum/pop/1',
+      '/learn/keyboard/genre/pop/1',
     );
   });
 });

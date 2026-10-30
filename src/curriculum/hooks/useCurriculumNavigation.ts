@@ -8,7 +8,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CurriculumRoutes } from '@/constants/routes';
+import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
 import {
   CURRICULUM_GENRE_IDS,
   SLUG_TO_CURRICULUM_GENRE,
@@ -60,9 +60,7 @@ export function useCurriculumNavigation() {
     (genre: CurriculumGenreId, level: CurriculumLevelId) => {
       const genreSlug = CURRICULUM_GENRE_SLUGS[genre];
       const levelNum = level.replace('L', '');
-      navigate(
-        CurriculumRoutes.genreLevel({ genre: genreSlug, level: levelNum }),
-      );
+      navigate(LearnRoutes.genreLesson({ genre: genreSlug, level: levelNum }));
     },
     [navigate],
   );

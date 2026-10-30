@@ -31,13 +31,16 @@ import {
   type LearnTab,
 } from '@/features/learn/learnPaths';
 import {
-  isGuitarLearnEnabled,
+  isLearnInstrumentEnabled,
   useInstrumentStore,
   useLearnInstrument,
   useLearnPageRoute,
   type LearnInstrument,
 } from '@/features/learn/useInstrumentStore';
+import { isBassTheorySlug } from '@/curriculum/data/bass/theoryCatalog';
+import { isUkuleleTheorySlug } from '@/curriculum/data/ukulele/theoryCatalog';
 import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
+import { GenreLessonRoute, GenreOverviewRoute } from '@/curriculum/routes';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
 import { SettingsHub } from '@/features/settings/SettingsHub';
@@ -87,8 +90,24 @@ import { ParallelModesOverview } from '@/components/learn/ParallelModesOverview'
 const GuitarModeOverview = lazy(
   () => import('@/components/learn/GuitarModeOverview'),
 );
+const BassModeOverview = lazy(
+  () => import('@/components/learn/BassModeOverview'),
+);
+const BassModeLesson = lazy(() => import('@/curriculum/pages/BassModeLesson'));
+const UkuleleModeOverview = lazy(
+  () => import('@/components/learn/UkuleleModeOverview'),
+);
+const UkuleleModeLesson = lazy(
+  () => import('@/curriculum/pages/UkuleleModeLesson'),
+);
 const GuitarModeLesson = lazy(
   () => import('@/curriculum/pages/GuitarModeLesson'),
+);
+const GuitarHarmonicsPage = lazy(
+  () => import('@/curriculum/guitar/harmonics/GuitarHarmonicsPage'),
+);
+const GuitarRelativeModesOverview = lazy(
+  () => import('@/components/learn/GuitarRelativeModesOverview'),
 );
 
 const ClassroomPickerPage = lazy(() =>
@@ -621,6 +640,48 @@ const GuitarLessonRoute = () => {
   return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
 };
 
+// Bass teaches every Theory tile its catalog has live, from The Bass Atlas;
+// as on guitar, C Ionian is free and the rest Premium.
+const BassOverviewRoute = () => {
+  const { mode } = useParams<{ mode: string }>();
+  if (!isBassTheorySlug(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  const inner = <BassModeOverview />;
+  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
+const BassLessonRoute = () => {
+  const { mode, key: keyParam } = useParams<{ mode: string; key: string }>();
+  if (!isBassTheorySlug(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
+  const inner = <BassModeLesson />;
+  return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
+// Ukulele teaches every Theory tile its catalog has live, from The Ukulele
+// Atlas; as on guitar, C Ionian is free and the rest Premium.
+const UkuleleOverviewRoute = () => {
+  const { mode } = useParams<{ mode: string }>();
+  if (!isUkuleleTheorySlug(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  const inner = <UkuleleModeOverview />;
+  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
+const UkuleleLessonRoute = () => {
+  const { mode, key: keyParam } = useParams<{ mode: string; key: string }>();
+  if (!isUkuleleTheorySlug(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
+  const inner = <UkuleleModeLesson />;
+  return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
 /**
  * Bare /learn: the Learn page for the chosen instrument; an old ?tab= link
  * its tab's page there (/learn?tab=Songs → /learn/keyboard/songs).
@@ -654,7 +715,7 @@ const LearnInstrumentRoute = ({
   const { search } = useLocation();
   const current = useLearnInstrument();
   const setInstrument = useInstrumentStore((s) => s.setInstrument);
-  const available = instrument === 'piano' || isGuitarLearnEnabled();
+  const available = isLearnInstrumentEnabled(instrument);
   useLayoutEffect(() => {
     if (available && current !== instrument) setInstrument(instrument);
   }, [available, current, instrument, setInstrument]);
@@ -668,16 +729,25 @@ const LearnInstrumentRoute = ({
   }
   const tabLink = learnTabRedirect(instrument, search);
   if (tabLink) return <Navigate replace to={tabLink} />;
+  // Bass teaches Theory alone so far: its page is the Theory tab.
+  if (instrument === 'bass' && tab !== 'Theory') {
+    return <Navigate replace to={learnTabRoute('bass', 'Theory')} />;
+  }
+  // Ukulele teaches Theory, and Songs show its chord boxes.
+  if (instrument === 'ukulele' && tab !== 'Theory' && tab !== 'Songs') {
+    return <Navigate replace to={learnTabRoute('ukulele', 'Theory')} />;
+  }
   return <LearnPage tab={tab} />;
 };
 
 /** Each tab's page on each instrument. Static paths, so /learn/guitar/songs
  *  outranks the guitar lessons' '/learn/guitar/:mode'. */
-const learnTabPages = (['piano', 'guitar'] as const).flatMap((instrument) =>
-  LEARN_TABS.map((tab) => ({
-    path: learnTabRoute(instrument, tab),
-    element: <LearnInstrumentRoute instrument={instrument} tab={tab} />,
-  })),
+const learnTabPages = (['piano', 'guitar', 'bass', 'ukulele'] as const).flatMap(
+  (instrument) =>
+    LEARN_TABS.map((tab) => ({
+      path: learnTabRoute(instrument, tab),
+      element: <LearnInstrumentRoute instrument={instrument} tab={tab} />,
+    })),
 );
 
 export const learnPages = () => {
@@ -711,6 +781,16 @@ export const learnPages = () => {
         path: LearnRoutes.keyboardLesson.definition,
         element: <LessonRoute />,
       },
+      // The genre courses: static 'genre' segment, so these outrank
+      // '/:mode' and '/:mode/:key'.
+      {
+        path: LearnRoutes.genreCourse.definition,
+        element: <GenreOverviewRoute />,
+      },
+      {
+        path: LearnRoutes.genreLesson.definition,
+        element: <GenreLessonRoute />,
+      },
       {
         path: LearnRoutes.relativeOverview.definition,
         element: (
@@ -733,6 +813,22 @@ export const learnPages = () => {
         path: LearnRoutes.guitar.definition,
         element: <LearnInstrumentRoute instrument="guitar" />,
       },
+      // Technique → Guitar Harmonics. Free on purpose (every Technique tile
+      // shows unlocked); static, so it outranks '/guitar/:mode/:key'.
+      {
+        path: LearnRoutes.guitarHarmonics.definition,
+        element: <GuitarHarmonicsPage />,
+      },
+      // Theory → Relative Modes on guitar: a key's seven positions. Premium,
+      // as on keyboard; static 'relative', so it outranks '/guitar/:mode/:key'.
+      {
+        path: LearnRoutes.guitarRelativeOverview.definition,
+        element: (
+          <RequirePremium>
+            <GuitarRelativeModesOverview />
+          </RequirePremium>
+        ),
+      },
       {
         path: LearnRoutes.guitarOverview.definition,
         element: <GuitarOverviewRoute />,
@@ -740,6 +836,33 @@ export const learnPages = () => {
       {
         path: LearnRoutes.guitarLesson.definition,
         element: <GuitarLessonRoute />,
+      },
+      // Bass: Theory, from The Bass Atlas. Static 'bass' segment, so these
+      // outrank '/:mode' and '/:mode/:key'.
+      {
+        path: LearnRoutes.bass.definition,
+        element: <LearnInstrumentRoute instrument="bass" />,
+      },
+      {
+        path: LearnRoutes.bassOverview.definition,
+        element: <BassOverviewRoute />,
+      },
+      {
+        path: LearnRoutes.bassLesson.definition,
+        element: <BassLessonRoute />,
+      },
+      // Ukulele: Theory, from The Ukulele Atlas, as bass's.
+      {
+        path: LearnRoutes.ukulele.definition,
+        element: <LearnInstrumentRoute instrument="ukulele" />,
+      },
+      {
+        path: LearnRoutes.ukuleleOverview.definition,
+        element: <UkuleleOverviewRoute />,
+      },
+      {
+        path: LearnRoutes.ukuleleLesson.definition,
+        element: <UkuleleLessonRoute />,
       },
     ],
   };

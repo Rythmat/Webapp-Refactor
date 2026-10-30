@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useFrettedInstrument } from '@/components/guitar/frettedInstrumentContext';
 import { GuitarSectionBCard } from '@/curriculum/components/guitar/theory/GuitarSectionBCard';
 import {
   GuitarKeyNotes,
@@ -53,6 +54,7 @@ export function GuitarAboutStepSheet({
   theory,
   instruction,
 }: GuitarAboutStepSheetProps) {
+  const onUkulele = useFrettedInstrument().id === 'ukulele';
   return (
     // The Studio's Insight (owner, 2026-10-26): its panel and its cards.
     <LessonInsightPanel
@@ -62,11 +64,23 @@ export function GuitarAboutStepSheet({
       title="About this step"
     >
       {/* Mounted while open only: a new step, or a new opening, starts over */}
-      <AboutStep
-        key={`${theory.keyCenter}|${activityId(theory.step)}`}
-        theory={theory}
-        instruction={instruction}
-      />
+      {onUkulele ? (
+        // The theory notes describe guitar grips and strings: a ukulele
+        // step shows its instruction alone.
+        <InsightCard title={stepTitle(theory.step.activity)} data-about-step>
+          {instruction && (
+            <p data-about-instruction className={INSIGHT_TEXT}>
+              {instruction}
+            </p>
+          )}
+        </InsightCard>
+      ) : (
+        <AboutStep
+          key={`${theory.keyCenter}|${activityId(theory.step)}`}
+          theory={theory}
+          instruction={instruction}
+        />
+      )}
     </LessonInsightPanel>
   );
 }
@@ -169,14 +183,19 @@ function AboutStep({
  */
 export function useAboutStepNews(theory: TheoryModel): boolean {
   const { flow, step, keyCenter, sectionId } = theory;
+  const onUkulele = useFrettedInstrument().id === 'ukulele';
   const dismissedNotes = useGuitarDisplaySettings((s) => s.dismissedNotes);
   const showRomanNumerals = useGuitarDisplaySettings(
     (s) => s.showRomanNumerals,
   );
   const intro = useMemo(
-    () => stepTheoryNotes(flow, step, keyCenter, showRomanNumerals).intro,
-    [flow, step, keyCenter, showRomanNumerals],
+    () =>
+      onUkulele
+        ? []
+        : stepTheoryNotes(flow, step, keyCenter, showRomanNumerals).intro,
+    [onUkulele, flow, step, keyCenter, showRomanNumerals],
   );
+  if (onUkulele) return false;
   if (sectionId === 'B' && isSectionBCardDue(keyCenter, dismissedNotes)) {
     return true;
   }

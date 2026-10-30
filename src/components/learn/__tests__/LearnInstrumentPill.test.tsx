@@ -62,7 +62,7 @@ describe('LearnInstrumentPill', () => {
   it('can’t choose an instrument without lessons yet', () => {
     renderPill();
     fireEvent.click(toggle());
-    for (const name of ['Bass', 'Ukulele', 'Drums']) {
+    for (const name of ['Drums']) {
       const item = screen.getByRole('button', {
         name: `${name}, coming soon`,
       }) as HTMLButtonElement;

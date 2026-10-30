@@ -29,6 +29,8 @@ interface Tab {
 const INSTRUMENT_HEADINGS: Record<LearnInstrument, string> = {
   piano: 'Keyboard',
   guitar: 'Guitar',
+  bass: 'Bass',
+  ukulele: 'Ukulele',
 };
 
 const TABS: Tab[] = [
@@ -86,12 +88,9 @@ export const LearnTabBar = ({
     instrumentHeading && isLearnTab(slug)
       ? learnTabRoute(instrument, slug)
       : `?tab=${slug}`;
-  // Guitar has no Technique lessons yet, so the hub hides its tab there; a
-  // bar given its tabs (`only`: the Learn page) shows them on either
-  // instrument (owner, 2026-10-24).
-  const tabs = only
-    ? TABS.filter((t) => only.includes(t.slug))
-    : TABS.filter((t) => !(instrument === 'guitar' && t.slug === 'Technique'));
+  // A bar given its tabs (`only`: the Learn page) shows just those. Both
+  // instruments have Technique (guitar's Harmonics, 2026-10-27).
+  const tabs = only ? TABS.filter((t) => only.includes(t.slug)) : TABS;
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 md:gap-x-6">
@@ -124,35 +123,46 @@ export const LearnTabBar = ({
       </div>
 
       {/* Sub-tabs — plain text links at the same size as the "Learn" heading. */}
-      {tabs.map(({ slug, label }) => (
-        <Link
-          key={slug}
-          to={tabTo(slug)}
-          aria-label={`Open ${label}`}
-          aria-current={active === slug ? 'page' : undefined}
-          className={cn(
-            'text-xl font-medium transition-colors md:text-2xl',
-            active === slug ? 'text-white' : 'text-white/55 hover:text-white',
-          )}
-        >
-          {label}
-        </Link>
-      ))}
+      {/* Bass teaches Theory alone so far (The Bass Atlas); ukulele Theory
+          and Songs (its chord boxes). */}
+      {tabs
+        .filter((t) =>
+          instrument === 'bass'
+            ? t.slug === 'Theory'
+            : instrument === 'ukulele'
+              ? t.slug === 'Theory' || t.slug === 'Songs'
+              : true,
+        )
+        .map(({ slug, label }) => (
+          <Link
+            key={slug}
+            to={tabTo(slug)}
+            aria-label={`Open ${label}`}
+            aria-current={active === slug ? 'page' : undefined}
+            className={cn(
+              'text-xl font-medium transition-colors md:text-2xl',
+              active === slug ? 'text-white' : 'text-white/55 hover:text-white',
+            )}
+          >
+            {label}
+          </Link>
+        ))}
 
       {/* The tour of the page it's on (the whole of Learn on the dashboard). */}
       {extras && <CompassTourButton />}
 
       {/* Instrument selector, pushed to the far right. Start Here and Songs
-          serve both instruments, so switching there stays put; elsewhere it
-          opens a tab with that instrument's lessons: guitar lives in Theory;
-          piano stays on Theory, or else opens Technique. */}
+          serve both instruments, so switching there stays put, as do Theory
+          and Technique (both have each); elsewhere it opens guitar's Theory
+          or piano's Technique. */}
       {extras && (
         <div className="ml-auto">
           <InstrumentSelector
             onChange={(next) => {
               if (active === 'Songs' || active === START_HERE_TAB) return;
               const tab =
-                next === 'guitar' || active === 'Theory'
+                active === 'Theory' ||
+                (next === 'guitar' && active !== 'Technique')
                   ? 'Theory'
                   : 'Technique';
               if (active !== tab) navigate(`?tab=${tab}`);

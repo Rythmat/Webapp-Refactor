@@ -22,6 +22,7 @@ import { suggestedFingers } from '@/lib/guitar/theory/scaleTheory';
 import type { GuitarStringNumber } from '@/lib/guitar/types';
 import { TheoryInfoButton } from './ChordBox';
 import { DIAGRAM_INK, FretDiagram } from './FretDiagram';
+import { useFrettedInstrument } from './frettedInstrumentContext';
 import type {
   DiagramConnector,
   FretDiagramDot,
@@ -93,6 +94,7 @@ export const ScaleBox = memo(function ScaleBox({
   about,
   variant = 'default',
 }: ScaleBoxProps) {
+  const inst = useFrettedInstrument();
   const model = useMemo(() => {
     const open: GuitarStringNumber[] = [];
     // Only playOrder is read; the rest makes it a position.
@@ -104,14 +106,14 @@ export const ScaleBox = memo(function ScaleBox({
       playOrder,
     });
     const labels = playOrder.map((position, i) => {
-      const midi = fretToMidi(position);
+      const midi = fretToMidi(position, inst);
       if (labelMode === 'fingers') return fingers[i] ? String(fingers[i]) : '';
       if (labelMode === 'notes') return keyNoteName(midi, tonicPc);
       return keyNumberLabel(midi, tonicPc, keyNumberLabels);
     });
     const dots: FretDiagramDot[] = playOrder.map((position, i) => {
       if (position.fret === 0) open.push(position.string);
-      const pc = fretToMidi(position) % 12;
+      const pc = fretToMidi(position, inst) % 12;
       return {
         ...position,
         label: labels[i] || undefined,
@@ -128,8 +130,8 @@ export const ScaleBox = memo(function ScaleBox({
       showOctave &&
       low &&
       high &&
-      fretToMidi(high) - fretToMidi(low) === 12 &&
-      fretToMidi(low) % 12 === tonicPc
+      fretToMidi(high, inst) - fretToMidi(low, inst) === 12 &&
+      fretToMidi(low, inst) % 12 === tonicPc
         ? { from: low, to: high, label: theoryString('octave.label') }
         : null;
     const connectors: DiagramConnector[] = octave ? [octave] : [];
@@ -174,6 +176,7 @@ export const ScaleBox = memo(function ScaleBox({
     keyNumberLabels,
     showOctave,
     ghosts,
+    inst,
   ]);
 
   if (variant === 'lesson') {

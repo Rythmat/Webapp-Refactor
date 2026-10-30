@@ -33,6 +33,14 @@ vi.mock('@/curriculum/pages/GuitarModeLesson', async () => {
   const { createElement } = await import('react');
   return { default: () => createElement('p', null, 'guitar lesson') };
 });
+vi.mock('@/curriculum/guitar/harmonics/GuitarHarmonicsPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'guitar harmonics') };
+});
+vi.mock('@/components/learn/GuitarRelativeModesOverview', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'guitar relative modes') };
+});
 vi.mock('@/components/learn/GuitarModeOverview', async () => {
   const { createElement } = await import('react');
   return { default: () => createElement('p', null, 'guitar overview') };
@@ -126,19 +134,21 @@ describe('curriculum routes: legacy guitar paths', () => {
     ).toBe(CurriculumRoutes.guitarAppliedTheoryFundamentalsLesson.definition);
   });
 
-  it('leaves the piano and genre routes where they were', () => {
+  it('leaves the piano routes where they were', () => {
     expect(curriculumPath('/curriculum/applied-theory-fundamentals')).toBe(
       CurriculumRoutes.appliedTheoryFundamentals.definition,
     );
     expect(curriculumPath('/curriculum/applied-theory-fundamentals/c')).toBe(
       CurriculumRoutes.appliedTheoryFundamentalsLesson.definition,
     );
-    expect(curriculumPath('/curriculum/funk/1')).toBe(
-      CurriculumRoutes.genreLevel.definition,
-    );
     expect(curriculumPath('/curriculum/piano-fundamentals')).toBe(
-      CurriculumRoutes.genre.definition,
+      CurriculumRoutes.pianoFundamentals.definition,
     );
+  });
+
+  it('no longer serves the genre courses (owner, 2026-10-27)', () => {
+    expect(curriculumPath('/curriculum/funk')).toBeUndefined();
+    expect(curriculumPath('/curriculum/funk/1')).toBeUndefined();
   });
 
   it('sends the old key picker to the guitar Ionian overview', async () => {
@@ -189,6 +199,18 @@ describe('learn routes: guitar', () => {
     );
   });
 
+  it('puts the genre courses under /learn/keyboard/genre', () => {
+    expect(learnPath('/learn/keyboard/genre/african')).toBe(
+      LearnRoutes.genreCourse.definition,
+    );
+    expect(learnPath('/learn/keyboard/genre/pop/2')).toBe(
+      LearnRoutes.genreLesson.definition,
+    );
+    expect(learnPath('/learn/keyboard/genre')).not.toBe(
+      LearnRoutes.genreCourse.definition,
+    );
+  });
+
   it('no longer serves the old /learn/:mode paths (owner, 2026-10-25)', () => {
     for (const old of [
       '/learn/ionian',
@@ -228,6 +250,20 @@ describe('learn routes: guitar', () => {
     expect(learnPath(url)).toBe(url);
     renderRoute(learnPages(), url);
     expect(await screen.findByText(`learn page ${tab}`)).toBeInTheDocument();
+  });
+
+  it('opens Technique → Guitar Harmonics, free, not as a guitar lesson', async () => {
+    renderRoute(learnPages(), '/learn/guitar/technique/harmonics?tab=play');
+    expect(await screen.findByText('guitar harmonics')).toBeInTheDocument();
+    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
+    expect(screen.queryByText('guitar lesson')).not.toBeInTheDocument();
+  });
+
+  it('opens a Relative key’s guitar page behind Premium, not as a lesson', async () => {
+    renderRoute(learnPages(), '/learn/guitar/relative/c');
+    const gate = await screen.findByTestId('premium-gate');
+    expect(within(gate).getByText('guitar relative modes')).toBeInTheDocument();
+    expect(screen.queryByText('guitar lesson')).not.toBeInTheDocument();
   });
 
   it('forwards an old ?tab= link on an instrument page to its tab’s page', async () => {
@@ -275,11 +311,7 @@ describe('learn routes: guitar', () => {
     ).toBeInTheDocument();
   });
 
-  it.each([
-    '/learn/guitar/harmonicMinor',
-    '/learn/guitar/superlocrian/d',
-    '/learn/guitar/relative/c',
-  ])(
+  it.each(['/learn/guitar/harmonicMinor', '/learn/guitar/superlocrian/d'])(
     'sends %s, a mode with no guitar content, back to Theory, ungated',
     async (url) => {
       renderRoute(learnPages(), url);

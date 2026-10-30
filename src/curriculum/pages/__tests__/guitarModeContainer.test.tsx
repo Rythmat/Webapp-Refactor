@@ -162,10 +162,15 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
         />
       </MemoryRouter>,
     );
-    // The pager's count, as guitar's (the level slug line is gone).
+    // Theory's navigation (2026-10-27): no pager; the tab row's first
+    // exercise group is open, numbered, its first step current. No genre
+    // profile, so no Overview: it opens on the first section.
     expect(
-      screen.getByRole('button', { name: /^Step 1 of \d+$/ }),
-    ).toBeInTheDocument();
+      screen.queryByRole('button', { name: /^Step 1 of \d+$/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '1. Major Scale' }),
+    ).toHaveAttribute('aria-current', 'true');
 
     // The rail's way back: the course's overview.
     fireEvent.click(
@@ -177,7 +182,7 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Practice Track/ }));
     expect(practiceReturn()).toBe(
-      '/curriculum/applied-theory-fundamentals/1?section=A',
+      '/learn/keyboard/genre/applied-theory-fundamentals/1?section=A',
     );
   });
 
@@ -213,9 +218,14 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
     expect(document.querySelector('[data-lesson-rail]')).toHaveTextContent(
       'Theory · Guitar · Ionian (Major)',
     );
+    // As the keyboard's (2026-10-27): no pager; the tab row's first
+    // exercise group is open, numbered.
     expect(
-      screen.getByRole('button', { name: /^Step 1 of \d+$/ }),
-    ).toBeInTheDocument();
+      screen.queryByRole('button', { name: /^Step 1 of \d+$/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '1. Arpeggiate Chords (Triads)' }),
+    ).toHaveAttribute('aria-current', 'true');
     expect(screen.queryByText(/Level 1/)).toBeNull();
     expect(screen.queryByRole('button', { name: 'Courses' })).toBeNull();
 
@@ -255,4 +265,71 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
       );
     },
   );
+
+  it('guitar: a diatonic lesson opens on its Overview, the scale’s seven positions', () => {
+    const flow = buildGuitarModeFlow('C', 'ionian');
+    render(
+      <MemoryRouter>
+        <GenreLessonContainerV2
+          flow={flow}
+          genre={flow.genre}
+          level={1}
+          initialSection="A"
+          openOnOverview
+          displayName="Guitar · Ionian (Major)"
+          overviewRoute="/learn/guitar/ionian"
+          rootCrumb={{ label: 'Theory', route: '/learn?tab=Theory' }}
+        />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('button', { name: 'O Overview' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+    // Seven positions, Position 1 lit: C Ionian's shape, its box beside it.
+    for (let n = 1; n <= 7; n++) {
+      expect(
+        screen.getByRole('radio', { name: `Position ${n}` }),
+      ).toBeInTheDocument();
+    }
+    expect(document.querySelector('[data-position-notes]')).toHaveAttribute(
+      'data-position-notes',
+      '1',
+    );
+    expect(document.querySelector('[data-position-box="1"]')).not.toBeNull();
+    expect(
+      screen.getByText('The C Ionian shape · Frets 7–10'),
+    ).toBeInTheDocument();
+    // The TAB stays mounted, hidden.
+    expect(document.querySelector('[data-guitar-stage]')).toHaveAttribute(
+      'hidden',
+    );
+
+    // No tab row: the positions are chosen beside the neck.
+    expect(screen.queryByRole('button', { name: 'Position 3' })).toBeNull();
+    fireEvent.click(screen.getByRole('radio', { name: 'Position 3' }));
+    expect(document.querySelector('[data-position-notes]')).toHaveAttribute(
+      'data-position-notes',
+      '3',
+    );
+    expect(
+      screen.getByText('The E Phrygian shape · Frets 12–15'),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start Melody' }));
+    expect(document.querySelector('[data-guitar-overview]')).toBeNull();
+    expect(document.querySelector('[data-guitar-stage]')).not.toHaveAttribute(
+      'hidden',
+    );
+    expect(screen.getByRole('button', { name: 'A Melody' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+    // And back.
+    fireEvent.click(screen.getByRole('button', { name: 'O Overview' }));
+    expect(document.querySelector('[data-position-notes]')).toHaveAttribute(
+      'data-position-notes',
+      '3',
+    );
+  });
 });

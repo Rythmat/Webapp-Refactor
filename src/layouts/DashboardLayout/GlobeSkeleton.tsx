@@ -4,7 +4,7 @@ import { SpectrumBar } from '@/components/art/light/SpectrumLight';
 //
 // What /globe shows until the page's chunk and the content bundle have
 // arrived, in the frame's own proportions so nothing jumps when it replaces
-// it: the 44 px top rail (Home and Back at the left, the search pill
+// it: the 44 px top rail (Back at the left, the search pill
 // centred, History and Share at the right), the stage card with an 8 px
 // gutter and the 44 px bottom rail with the view tabs centred. The working
 // line sits on the stage. The app's navigation is the layout's own.
@@ -35,7 +35,7 @@ export function GlobeSkeleton() {
         }}
       >
         <div className="flex gap-2">
-          <div className={`h-9 w-24 ${BLOCK}`} />
+          <div className={`h-9 w-10 md:hidden ${BLOCK}`} />
           <div className={`h-9 w-20 ${BLOCK}`} />
         </div>
         <div className={`h-9 w-full ${BLOCK}`} />

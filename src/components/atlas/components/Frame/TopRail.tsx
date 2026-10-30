@@ -90,9 +90,9 @@ function SearchPill({
 
 /**
  * The Globe's top rail, as the Studio's (owner, 2026-10-29): 44 px, its
- * controls in pills on the page. At the left, Home (the way out of the
- * full-window Globe) and Back / Forward; centred, search (the command
- * palette); at the right, the path walked this visit and Share, a link to
+ * controls in pills on the page. At the left, Back / Forward, with Home
+ * before them on screens too narrow for the app's sidebar; centred, search
+ * (the command palette); at the right, the path walked this visit and Share, a link to
  * exactly this view.
  *
  * Every step of the path is a real history entry with its own URL, so the
@@ -163,10 +163,12 @@ export function TopRail() {
       }}
     >
       <div className="flex min-w-0 items-center gap-2">
+        {/* Only where the app's sidebar is not (below `md`, its own
+            breakpoint): there it is the one way out of the Globe. */}
         <Link
           aria-label="Home"
           className={cn(
-            'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-atlas-pill px-3 text-[0.8125rem] font-medium text-atlas-text hover:bg-white/[0.06]',
+            'inline-flex h-9 shrink-0 items-center rounded-full bg-atlas-pill px-3 text-atlas-text hover:bg-white/[0.06] md:hidden',
             ATLAS_TRANSITION,
             ATLAS_FOCUS,
           )}
@@ -174,9 +176,6 @@ export function TopRail() {
           to={ProfileRoutes.root()}
         >
           <House aria-hidden className="size-4" />
-          <span aria-hidden className="hidden md:inline">
-            Home
-          </span>
         </Link>
         {/* Walking the path opens panels; focus stays here while it does
             (layout/usePanelFocus). */}

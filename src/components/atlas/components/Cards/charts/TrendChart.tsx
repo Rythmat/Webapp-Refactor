@@ -23,11 +23,14 @@ export function TrendChart({
   bins,
   label,
   onPick,
+  mark,
 }: {
   bins: Bin[];
   label: string;
   /** Enter on the crosshair, or a click: these years. */
   onPick?: (bin: Bin) => void;
+  /** A year to mark with a line: a pinned event's. */
+  mark?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
@@ -150,6 +153,19 @@ export function TrendChart({
               strokeLinecap="round"
               strokeWidth={1.5}
             />
+            {mark !== undefined &&
+              mark >= geometry.first &&
+              mark < geometry.last && (
+                <line
+                  data-mark={mark}
+                  stroke="rgb(255 255 255 / 0.7)"
+                  strokeDasharray="2 2"
+                  x1={geometry.x(mark)}
+                  x2={geometry.x(mark)}
+                  y1={TOP - 6}
+                  y2={HEIGHT - BOTTOM}
+                />
+              )}
             {bins[geometry.busiest].count > 0 && (
               <g>
                 <circle

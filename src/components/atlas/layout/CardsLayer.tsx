@@ -55,9 +55,10 @@ export function CardsLayer() {
   );
   const river = useAtlasFrame(isTimelineView);
   const phone = useIsPhone();
-  // The world's cards for now; a stop's come with its connections.
-  const world = useAtlasStopSelector(
-    (stop) => stop.kind === 'home' || stop.kind === 'search',
+  // The world's cards, or a place's, an artist's or an event's; a tour or
+  // a pathway speaks for itself.
+  const carded = useAtlasStopSelector(
+    (stop) => stop.kind !== 'tour' && stop.kind !== 'pathway',
   );
   const [stageWidth, setStageWidth] = useState(0);
   useLayoutEffect(() => {
@@ -72,7 +73,7 @@ export function CardsLayer() {
   }, []);
 
   const mode: CardsMode =
-    stageWidth === 0 || !world
+    stageWidth === 0 || !carded
       ? 'hidden'
       : cardsMode({
           hidden,

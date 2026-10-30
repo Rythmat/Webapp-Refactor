@@ -247,6 +247,7 @@ export function EraRail() {
         ATLAS_Z.bars,
       )}
       data-dragging={dragging}
+      data-era-rail
     >
       {/* What it looks like: the horizon, dimmed, and lit over the years in
           view (clipped to them as the camera moves). */}

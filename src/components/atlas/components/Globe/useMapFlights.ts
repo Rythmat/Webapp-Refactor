@@ -21,6 +21,7 @@ import {
   statesInViewAt,
 } from './mapGeometry';
 import { MAP_START } from './useMapInstance';
+import { FLIGHT_EVENT } from './useMapPhase';
 
 /** How long a framed flight waits for the panel it opens to be measured. */
 const SETTLE_MS = 80;
@@ -95,14 +96,19 @@ export function useMapFlights(
         });
       }
       flownBefore.current = true;
-      map.flyTo({
-        center: camera.center,
-        zoom: camera.zoom,
-        padding,
-        duration: flightDuration(reducedMotionRef.current),
-        // Not essential: MapLibre itself cuts the flight under reduced motion.
-        essential: false,
-      });
+      map.flyTo(
+        {
+          center: camera.center,
+          zoom: camera.zoom,
+          padding,
+          duration: flightDuration(reducedMotionRef.current),
+          // Not essential: MapLibre itself cuts the flight under reduced
+          // motion.
+          essential: false,
+        },
+        // So the page can tell its flights from the spin (useMapPhase).
+        FLIGHT_EVENT,
+      );
     };
 
     window.clearTimeout(flightTimer.current);

@@ -55,7 +55,7 @@ export function BarList({
               className="mt-1 block h-1 rounded-full bg-white/[0.06]"
             >
               <span
-                className="atlas-grow-x block h-full rounded-full"
+                className="atlas-grow-x block h-full rounded-full transition-[width] duration-300 motion-reduce:transition-none"
                 style={
                   {
                     width: `${(row.value / max) * 100}%`,

@@ -34,7 +34,11 @@ export function StackedBar({
       {segments.map((s) => (
         <span
           key={s.key}
-          className={cn('h-full', s.className)}
+          // New years: each share slides to its new width (by key).
+          className={cn(
+            'h-full transition-[width] duration-300 motion-reduce:transition-none',
+            s.className,
+          )}
           style={{
             width: `${(s.count / total) * 100}%`,
             backgroundColor: s.className ? undefined : s.color,

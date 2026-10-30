@@ -16,6 +16,7 @@ import {
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
 import { useIsPhone } from '@/components/atlas/hooks/useMediaQuery';
 import { isTimelineView } from '@/components/atlas/navigation/atlasFrame';
+import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import {
   useAtlasFrame,
   useAtlasStopSelector,
@@ -28,12 +29,13 @@ import { ATLAS_Z } from '@/components/atlas/theme/layers';
 import type { MapInsets } from '@/components/atlas/types';
 import { cn } from '@/lib/utils';
 import { CARDS_REM, cardsMode, type CardsMode } from './cardsLayout';
+import { useIntro } from './intro';
 import { insetsFrom, useReportInsets } from './mapInsets';
 import { useLegacyLegendLink } from './useLegacyLegendLink';
 
-const StageCards = lazy(
-  () => import('@/components/atlas/components/Cards/StageCards'),
-);
+const loadStageCards = () =>
+  import('@/components/atlas/components/Cards/StageCards');
+const StageCards = lazy(loadStageCards);
 
 const remPx = () =>
   parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
@@ -51,6 +53,17 @@ export function CardsLayer() {
   const columnRef = useRef<HTMLDivElement>(null);
   const dispatch = useAtlasDispatch();
   useLegacyLegendLink();
+  // Held back while the intro waits for the map; they land as it plays.
+  const intro = useIntro();
+  // Fetched while the intro waits, so the cards land on time.
+  useEffect(() => {
+    if (intro === 'wait') void loadStageCards();
+  }, [intro]);
+  // A new stop's cards start at the top of the column.
+  const stopId = useAtlasStopSelector(stopKey);
+  useEffect(() => {
+    columnRef.current?.scrollTo?.({ top: 0 });
+  }, [stopId]);
   const hidden = useAtlasSelector((s) => s.cards.hidden);
   const inspectorPx = useAtlasSelector(
     (s) => s.zoneInsets.inspector?.right ?? 0,
@@ -75,7 +88,7 @@ export function CardsLayer() {
   }, []);
 
   const mode: CardsMode =
-    stageWidth === 0 || !carded
+    stageWidth === 0 || !carded || intro === 'wait'
       ? 'hidden'
       : cardsMode({
           hidden,

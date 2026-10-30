@@ -112,15 +112,16 @@
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   animation: atlas-draw 600ms var(--ease-out) forwards;
+  animation-delay: calc(var(--atlas-delay, 0ms) + var(--i, 0) * 40ms);
 }
 .atlas-root .atlas-grow-x {
   transform-origin: left center;
   animation: atlas-grow-x 600ms var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * 40ms);
+  animation-delay: calc(var(--atlas-delay, 0ms) + var(--i, 0) * 40ms);
 }
 .atlas-root .atlas-card-in {
   animation: atlas-card-in 320ms var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * 60ms);
+  animation-delay: calc(var(--atlas-delay, 0ms) + var(--i, 0) * 60ms);
 }
 /* The floating cards' column: it scrolls without a bar, and its foot fades
    so a card running on reads as more below (the padding under the last card
@@ -133,6 +134,34 @@
     transparent
   );
 }
+/* The intro (layout/intro.tsx): the map held back until it is ready, then
+   the globe fading up and the era rail's rim drawing left to right; the
+   cards follow on --atlas-delay. */
+[data-atlas-intro='wait'] .atlas-root .atlas-map-ground,
+[data-atlas-intro='wait'] .atlas-root [data-era-rail] {
+  opacity: 0;
+}
+[data-atlas-intro='play'] .atlas-root .atlas-map-ground {
+  animation: atlas-intro-globe 600ms var(--ease-out) both;
+}
+[data-atlas-intro='play'] .atlas-root [data-era-rail] {
+  animation: atlas-intro-rail 800ms var(--ease-out) 500ms both;
+}
+@keyframes atlas-intro-globe {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+@keyframes atlas-intro-rail {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
 /* The ring's weak ties: dashes marching the way the music went. */
 .atlas-root .atlas-march {
   animation: atlas-march 1.2s linear infinite;

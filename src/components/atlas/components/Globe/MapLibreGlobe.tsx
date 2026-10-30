@@ -11,9 +11,11 @@ import { SunFx } from './SunFx';
 import { NO_INSETS } from './mapFraming';
 import { useProvideMapHandle } from './mapHandle';
 import { useGlobeClicks, useGlobeScene } from './useGlobeScene';
+import { useIntroRim } from './useIntroRim';
 import { useLandLayers, useLandMusic } from './useLandLayers';
 import { useMapFlights } from './useMapFlights';
 import { useMapInstance } from './useMapInstance';
+import { useMapPhase } from './useMapPhase';
 import { useMapPointer } from './useMapPointer';
 import { useMotionGate } from './useMotionGate';
 import { useNetworkLayers } from './useNetworkLayers';
@@ -60,6 +62,8 @@ export default function MapLibreGlobe() {
   useMapFlights(map, geo, paddingRef, reducedMotionRef);
   useSpin(map, gate);
   const sun = useSun(map, scene.selectedCityId);
+  useMapPhase(map, !geo.loading && !geo.error, signals);
+  const rim = useIntroRim();
   useProvideMapHandle(map);
 
   // The country outlines are the map: losing them is the page failing.
@@ -71,7 +75,7 @@ export default function MapLibreGlobe() {
       {map && <MapCovered coveredRef={gate.covered} map={map} />}
       {/* The rim sits under the map's canvas, which is clear round the
           globe. */}
-      {map && <GlobeRim map={map} />}
+      {map && <GlobeRim map={map} progress={rim} />}
       {/* Sized, not positioned: maplibre-gl.css makes the map position:
           relative, which would collapse an inset-0 box to no height. */}
       <div ref={containerRef} className="h-full w-full" />

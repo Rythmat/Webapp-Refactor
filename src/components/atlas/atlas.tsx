@@ -28,6 +28,7 @@ import { PhoneZones } from '@/components/atlas/layout/AtlasZones';
 import { CardsLayer } from '@/components/atlas/layout/CardsLayer';
 import { InspectorRegion } from '@/components/atlas/layout/InspectorRegion';
 import { FRAME_PX } from '@/components/atlas/layout/frameGeometry';
+import { IntroProvider, useIntro } from '@/components/atlas/layout/intro';
 import { AtlasPortalContext } from '@/components/atlas/layout/portalRoot';
 import {
   InspectorProvider,
@@ -158,8 +159,9 @@ function PhoneOverlays() {
   const journey = useAtlasStopSelector(
     (stop) => stop.kind === 'tour' || stop.kind === 'pathway',
   );
+  const intro = useIntro();
   const strip =
-    timeline || hidden || journey ? null : (
+    timeline || hidden || journey || intro === 'wait' ? null : (
       <Suspense fallback={null}>
         <PhoneStrip />
       </Suspense>
@@ -359,7 +361,9 @@ export default function App() {
           <TimeCameraProvider>
             <AtlasMapProvider>
               <StageSignalsProvider>
-                <AppLayout />
+                <IntroProvider>
+                  <AppLayout />
+                </IntroProvider>
               </StageSignalsProvider>
             </AtlasMapProvider>
           </TimeCameraProvider>

@@ -1,7 +1,16 @@
-import { useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ATLAS_FOCUS } from '@/components/atlas/components/UI/primitives';
 import { ERA_HEX, MUSICAL_ERAS } from '@/components/atlas/data/musicalEras';
+import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
 import type { Bin } from '@/components/atlas/stats/placeStats';
+import { easeOut } from '@/components/atlas/theme/motion';
 import { cn } from '@/lib/utils';
 import { binLabel, describeSeries, eventsWord } from './describe';
 import { areaPath, linePath } from './paths';
@@ -71,6 +80,7 @@ export function TrendChart({
     return { x, y, points, busiest, bands, first, last };
   }, [bins, width]);
 
+  const shown = useTweenedPoints(geometry?.points ?? null);
   const description = describeSeries(label, bins);
   const index = at ?? null;
   const focusBin = index !== null ? bins[index] : null;
@@ -141,12 +151,12 @@ export function TrendChart({
               />
             ))}
             <path
-              d={areaPath(geometry.points, HEIGHT - BOTTOM)}
+              d={areaPath(shown ?? geometry.points, HEIGHT - BOTTOM)}
               fill="rgb(255 255 255 / 0.07)"
             />
             <path
               className="atlas-draw"
-              d={linePath(geometry.points)}
+              d={linePath(shown ?? geometry.points)}
               fill="none"
               pathLength={1}
               stroke="rgb(255 255 255 / 0.9)"
@@ -233,4 +243,52 @@ export function TrendChart({
       </span>
     </div>
   );
+}
+
+type Points = readonly (readonly [number, number])[];
+
+/** How long the line takes to move to new years' counts. */
+const MORPH_MS = 400;
+
+/**
+ * The line's points, moving to new ones when the years change and the
+ * stretches line up one for one (the same bins, new counts); else at once,
+ * and at once under reduced motion.
+ */
+function useTweenedPoints(points: Points | null): Points | null {
+  const reduced = usePrefersReducedMotion();
+  const [shown, setShown] = useState<Points | null>(points);
+  const current = useRef<Points | null>(points);
+  useEffect(() => {
+    const from = current.current;
+    if (
+      !points ||
+      !from ||
+      reduced ||
+      from.length !== points.length ||
+      from.every((p, i) => p[0] === points[i][0] && p[1] === points[i][1])
+    ) {
+      current.current = points;
+      setShown(points);
+      return;
+    }
+    const start = performance.now();
+    let raf = 0;
+    const step = (now: number) => {
+      const t = easeOut(Math.min(1, (now - start) / MORPH_MS));
+      const next = points.map(
+        (p, i) =>
+          [
+            from[i][0] + (p[0] - from[i][0]) * t,
+            from[i][1] + (p[1] - from[i][1]) * t,
+          ] as const,
+      );
+      current.current = next;
+      setShown(next);
+      if (t < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [points, reduced]);
+  return shown;
 }

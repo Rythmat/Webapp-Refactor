@@ -36,6 +36,12 @@ import {
 } from './networkLayers';
 import type { MotionGate } from './useMotionGate';
 
+/**
+ * A new stop's links wait for the flight there: `graceMs` for one to
+ * start, and never longer than `capMs` in all.
+ */
+const DRAW_WAIT = { graceMs: 150, capMs: 2600 } as const;
+
 /** How many links between regions the world shows. */
 const WORLD_LINKS = 24;
 
@@ -44,7 +50,8 @@ const WORLD_LINKS = 24;
  * strongest links between regions; at a place or an artist, where the
  * music came from and went to in the years shown; at an event, its own
  * influences (the Layers switches and the event card's directions apply).
- * A new stop's links draw on outward from it; dotted links flow; a card
+ * A new stop's links draw on outward from it once the map has flown there;
+ * dotted links flow; a card
  * pointing at a link (`linkFocus`) brightens it. Under reduced motion they
  * appear drawn and hold still.
  */
@@ -97,7 +104,7 @@ export function useNetworkLayers(
     const lines = links.solid.features;
     const lengths = lines.map((f) => lineLength(f.geometry.coordinates));
     const delays = drawOnPlan(lengths);
-    const start = performance.now();
+    let start = 0;
     let frame = 0;
     const step = (now: number) => {
       const t = now - start;
@@ -128,12 +135,31 @@ export function useNetworkLayers(
       });
       frame = requestAnimationFrame(step);
     };
-    frame = requestAnimationFrame(step);
+    // After the flight there: a moment for one to start, then its end
+    // (or, whatever happens, DRAW_WAIT.capMs).
+    let begun = false;
+    const begin = () => {
+      if (begun) return;
+      begun = true;
+      start = performance.now();
+      frame = requestAnimationFrame(step);
+    };
+    const phase = signals.mapPhase;
+    const grace = window.setTimeout(() => {
+      if (phase.get() !== 'flying') begin();
+    }, DRAW_WAIT.graceMs);
+    const cap = window.setTimeout(begin, DRAW_WAIT.capMs);
+    const off = phase.subscribe(() => {
+      if (phase.get() === 'settled') begin();
+    });
     return () => {
+      off();
+      window.clearTimeout(grace);
+      window.clearTimeout(cap);
       cancelAnimationFrame(frame);
       showAll();
     };
-  }, [map, links, key, reducedMotion]);
+  }, [map, links, key, reducedMotion, signals]);
 
   // The flow: one dotted phase shown at a time, the next every step.
   const flowing = links.dotted.features.length > 0;

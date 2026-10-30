@@ -23,7 +23,8 @@ export default function StageCards({ compact }: { compact: boolean }) {
       {world ? (
         <WorldCards compact={compact} />
       ) : (
-        scope && <StopCards compact={compact} scope={scope} />
+        // A new stop's cards land afresh, one after another.
+        scope && <StopCards key={scope.key} compact={compact} scope={scope} />
       )}
       <LegendCard order={4} />
     </>

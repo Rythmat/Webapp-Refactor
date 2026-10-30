@@ -18,6 +18,7 @@ import {
 import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
 import type { PickedFeature } from './mapPicking';
 import { LAYER } from './mapStyle';
+import { FLIGHT_EVENT } from './useMapPhase';
 
 const fake = vi.hoisted(() => {
   class FakeMap {
@@ -94,6 +95,9 @@ const fake = vi.hoisted(() => {
     }
     isMoving() {
       return false;
+    }
+    loaded() {
+      return true;
     }
     project() {
       return { x: 0, y: 0 };
@@ -310,6 +314,7 @@ describe('the MapLibre camera', () => {
     await waitFor(() =>
       expect(map.flyTo).toHaveBeenCalledWith(
         expect.objectContaining({ center: [3.4, 6.5], duration: 1500 }),
+        FLIGHT_EVENT,
       ),
     );
     expect(map.jumpTo).toHaveBeenCalledWith(
@@ -323,6 +328,7 @@ describe('the MapLibre camera', () => {
     await waitFor(() =>
       expect(map.flyTo).toHaveBeenCalledWith(
         expect.objectContaining({ duration: 0, essential: false }),
+        FLIGHT_EVENT,
       ),
     );
   });
@@ -347,6 +353,7 @@ describe('the MapLibre camera', () => {
           // The Inspector is not measured yet: its width is assumed.
           padding: expect.objectContaining({ left: 0, right: 408 }),
         }),
+        FLIGHT_EVENT,
       ),
     );
   });

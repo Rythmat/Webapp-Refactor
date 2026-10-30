@@ -341,23 +341,74 @@ a clicked country (Brazil), a deep link (Japan), New Orleans' French Quarter
 at street level, an event with its influence arcs, a guided tour and a
 phone viewport.
 
+### The data map (2026-10-30)
+
+The street map, the OpenStreetMap city outlines and the three.js globe went
+on 2026-10-29, and the map became a data map after two references
+([ENGINE.md](ENGINE.md)): dark land lit by music, places in halos, the
+links between them flowing, floating chart cards, a ring view and an
+intro. Measured at `8974198f` with `node scripts/measureGlobe.mjs
+--base=http://localhost:5266` (same machine and set-up as above, 3 runs,
+medians), beside prompt 8's MapLibre engine with no basemap:
+
+| Measure                            | Prompt 8 (no basemap) | Data map                                                |
+| ---------------------------------- | --------------------- | ------------------------------------------------------- |
+| First globe frame                  | 858 ms                | 1,138 ms\*                                              |
+| Frame rate, Spin on                | 60 fps                | 60 fps                                                  |
+| JS heap at 30 s, after GC          | 74.3 MB               | 93.8 MB                                                 |
+| City click to card (4x CPU)        | 192 ms                | 192 ms                                                  |
+| Long tasks opening the card        | 1, 194 ms             | 1, 159 ms                                               |
+| Dragging the card (4x CPU)         | 60 fps, 0 long tasks  | 60 fps, 0                                               |
+| Map re-renders while dragging      | 0                     | 0                                                       |
+| Typing in search (4x CPU)          | –                     | 0 long tasks                                            |
+| A selected place, 5 s (full speed) | –                     | 60 fps, 0 long tasks; the map redraws 24 times a second |
+| Era-rail scrub, 2 s (4x CPU)       | –                     | **60 fps, 0 long tasks, 2 commits, 0 map renders**      |
+| Map bytes in the first 2 s         | –                     | fonts 116 kB, outlines 279 kB                           |
+
+\* Slower than prompt 8's run, and not yet traced. The page now does more
+before the map's first complete frame (the cards' column, the stage
+signals, the land's and places' layers and their feature-state); the
+intro holds the map back until it is ready anyway.
+
+- **The scrub** is the check on the data map's rule: the land, the halos
+  and the cards follow the era rail through feature-state and the store,
+  and MapLibreGlobe itself renders not once.
+- **A selected place** costs the map 24 redraws a second while it sits
+  there: the dotted links' flow switches a layer's opacity every 70 ms
+  (MapLibre draws twice per switch). With the flow paused it is 0.3 a
+  second. Frames hold at 60 fps with no long tasks on this machine; the
+  owner kept the flow (Checkpoint B).
+- **The heap** after GC is about 20 MB above prompt 8's run. Not yet
+  traced; the place network, the cards' stats and the ring's data are
+  likely, as each is built once and kept.
+
+Bundle (production build, raw / gzip): the route chunk is 115.6 / 36.6 kB
+and its static imports 329.2 kB raw. On demand: the map engine with
+MapLibre 1,064.9 / 287.9 kB (pmtiles, fflate and the basemap styles left
+it, the data map's layers came in), the cards 11.1 / 4.3 kB, the ring
+11.1 / 5.0 kB, the phone strip 3.8 / 1.7 kB, the hover card 3.3 / 1.6 kB.
+
 ## Budgets
 
 `scripts/verifyProdBundle.mjs` now checks four things:
 
-- **Lazy-only.** three.js (marker `THREE.WebGLRenderer`), react-globe.gl
-  (marker `scene-container`) and, since prompt 8, maplibre-gl
-  (`maplibre_preloaded_worker_pool`), pmtiles (its "Wrong magic number"
-  error) and @protomaps/basemaps (the `water_label_ocean` layer id) must not
-  appear in an entry chunk or a chunk `index.html` preloads, and each marker
-  must still exist somewhere in the build. Cortex's renderer already had
-  this rule.
-- **Size.** `assets/atlas-*.js` may be at most 5% over **102,904** bytes. The
-  static route total may be at most 5% over **298,824** bytes. Both numbers
+- **Lazy-only.** maplibre-gl (`maplibre_preloaded_worker_pool`) must not
+  appear in an entry chunk or a chunk `index.html` preloads, and the marker
+  must still exist somewhere in the build. Cortex's renderer has the same
+  rule. (three.js, react-globe.gl, pmtiles and @protomaps/basemaps had it
+  too until they left on 2026-10-29.)
+- **No third-party map host.** Since 2026-10-29 the build may name no
+  Protomaps host (`api.protomaps.com`, `protomaps.github.io`,
+  `build.protomaps.com`, `pmtiles://`) and no OpenStreetMap one
+  (`nominatim.openstreetmap.org`, `tile.openstreetmap.org`,
+  `openstreetmap.org/copyright`).
+- **Size.** `assets/atlas-*.js` may be at most 5% over **115,637** bytes. The
+  static route total may be at most 5% over **329,244** bytes. Both numbers
   are in `GLOBE_BUDGET` in the script. When a change shrinks the page on
   purpose, lower them to the new sizes. When a change grows it on purpose,
   raise them in the same commit and record why under "Budget changes".
-- **On demand.** The state outlines, the influence graph and the guided tours
+- **On demand.** The state outlines, the influence graph, the guided tours,
+  the timeline, the floating cards and the Connections ring
   (`GLOBE_ON_DEMAND`, one marker each) must not be in an entry chunk or in the
   route's static imports, and each marker must still exist in the build.
 - **No measuring hook in production.** `__atlasGlobeDebug`, the dev-only hook
@@ -374,6 +425,7 @@ phone viewport.
 | 13 Oct 2026 | Prompt 7: data on demand                | 111,634 (+1,439)  | 885,444 (−256,914)  | Lowered. The state outlines (`hooks` chunk, ~104 kB), the influence graph (128 kB), the guided tours (23 kB) and the pathways (7 kB) now load on first use through `data/loaders.ts`. The atlas chunk grew 1.4 kB for the loaders, their loading and retry lines and the waits in navigation; `topojson-client` (2 kB) joined `geoLoader`.                                                                                                                                                                                                                                                                                                                                                                             |
 | 13 Oct 2026 | Prompt 8: MapLibre engine               | 102,904 (−8,730)  | 298,824 (−586,620)  | Lowered. The map engine now loads lazily (MapLibre by default, three.js with `VITE_ATLAS_ENGINE=three`), so three.js's WebGL build (575 kB) left the route's static imports. To get there, the route had to stop importing the hooks barrel, which re-exports three.js's lighting hook. The atlas chunk lost BaseGlobe's static code. MapLibre itself (1.1 MB, 295 kB gzip, plus a 508 kB worker) loads on the first render, like react-globe.gl did.                                                                                                                                                                                                                                                                  |
 | 14 Oct 2026 | Time River P2: header and timeline      | 110,237 (+7,333)  | 316,812 (+17,988)   | Measured against this checkout's build before the redesign (107,115 / 307,962: the page had grown 4.2 kB / 9.1 kB since prompt 8, inside the 5% headroom), the route chunk grew 3,122 B and its static imports 8,850 B. The Globe's header now carries the five section tabs, the globe / timeline switch and the trail popover (the trail strip left), and every view shares the frame (`navigation/atlasFrame.ts`) and time-window code (`timeline/timeWindow.ts`, `navigation/useWindowSync.ts`). The rest is re-chunking: the store (9.6 kB) and the genre table (11.5 kB) became chunks of their own, now that the lazy timeline imports them too. The timeline itself (`TimeRiver`, 22.3 kB) loads on first use. |
+| 30 Oct 2026 | The data map                            | 115,637 (+5,400)  | 329,244 (+12,432)   | Measured at `8974198f`. The route chunk carries what every view shares: the cards' column and its layout modes (the cards themselves are a lazy chunk), the intro, the ring's stage and tab (the ring is lazy), the per-zone insets, the map's phase signal, the Legend's move out of the Inspector, the Cards pill and the phone strip's slot. The static imports grew with the stage signals, the marks shared by map, cards and ring, and the motion module. The street map's code left the lazy map chunk, not the route. Between Time River P2 and this, the page had also grown inside the 5% headroom (the Studio frame of 2026-10-29).                                                                         |
 
 ## What this baseline added to the page
 
@@ -416,10 +468,6 @@ Other flags:
   Its frame rates only compare with other SwiftShader runs.
 - `--headed` opens a visible window.
 - `--port` and `--out` set the dev server port and the output file.
-- `--engine=three` measures the three.js engine (docs/globe-ui/ENGINE.md);
-  the default is `maplibre`. The MapLibre engine draws its street map only
-  when `VITE_BASEMAP_PMTILES_URL` or `VITE_PROTOMAPS_API_KEY` is set in the
-  environment, which the dev server and the build inherit.
 
 A run writes `docs/globe-ui/runs/latest.json`, which git ignores, and prints
 each median beside this baseline's. Port 5179, the owner's dev server, is

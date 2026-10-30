@@ -267,12 +267,15 @@ const GLOBE_ON_DEMAND = [
  * build left the route's static imports. Raised by the Time River redesign's
  * P2 (from 102,904 and 298,824): the Globe's header (its section tabs, the
  * globe / timeline switch, the trail popover) and the frame and time-window
- * code every view shares; the timeline itself is a lazy chunk. See "Budget
+ * code every view shares; the timeline itself is a lazy chunk. Raised by
+ * the data map of 30 Oct 2026 (from 110,237 and 316,812): the cards'
+ * column, the intro, the ring's stage and tab, the zone insets and the
+ * map's phase; the cards and the ring are lazy chunks. See "Budget
  * changes" in BASELINE.md.
  */
 const GLOBE_BUDGET = {
-  routeChunk: 110_237,
-  routeStatic: 316_812,
+  routeChunk: 115_637,
+  routeStatic: 329_244,
   headroom: 1.05,
 };
 

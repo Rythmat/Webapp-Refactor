@@ -29,8 +29,15 @@
  *   after a forced garbage collection);
  * - city click to card: the camera is pointed at New Orleans through the
  *   page's dev-only hook (window.__atlasGlobeDebug), the pointer rests on
- *   its hex, and the time runs from the click event to the first animation
+ *   its dot, and the time runs from the click event to the first animation
  *   frame after the card's heading is in the page;
+ * - the selected place as it stays, 5 s at full speed once it has landed:
+ *   frame rate, long tasks and the map's own redraws a second (its burst's
+ *   pulses are CSS; its dotted links flow by switching a layer's opacity);
+ * - an era-rail scrub with the CPU slowed: its first handle dragged 200 px
+ *   right and back for 2 s; frame rate, long tasks, React commits and
+ *   MapLibreGlobe renders (the land and halos follow through feature-state,
+ *   so the map's component should not render at all);
  * - long tasks (PerformanceObserver 'longtask', over 50 ms) while opening
  *   that card (2 s from the click), while dragging the card's resize handle
  *   for 2 s with the city's first event expanded (an expanded event is what
@@ -465,6 +472,39 @@ async function runOnce(browser, base, index) {
     notes.push(`the click on ${CITY.name}'s hex opened no card`);
   }
 
+  // 4b. The selected place, as it stays: its burst's slow pulses and its
+  // links' flow, 5 s at full speed after it has landed (2026-10-30 data map).
+  if (card) {
+    if (CPU > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+    await page.waitForTimeout(1500);
+    await page.evaluate(() => {
+      const map = window.__atlasGlobeDebug?.map;
+      window.__measure.mapRenders = [];
+      map?.on('render', () =>
+        window.__measure.mapRenders.push(performance.now()),
+      );
+    });
+    const selFrom = await now(page);
+    await page.waitForTimeout(5000);
+    const selTo = await now(page);
+    const selFrames = await page.evaluate(() =>
+      window.__measure.frames.slice(),
+    );
+    const mapRenders = await page.evaluate(
+      ({ a, b }) =>
+        window.__measure.mapRenders.filter((t) => t >= a && t <= b).length,
+      { a: selFrom, b: selTo },
+    );
+    result.selected = {
+      frames: frameRate(selFrames, selFrom, selTo),
+      longTasks: longTasksIn(await tasksNow(page), selFrom, selTo),
+      mapRendersPerSec: +(mapRenders / ((selTo - selFrom) / 1000)).toFixed(1),
+    };
+    if (CPU > 1) {
+      await cdp.send('Emulation.setCPUThrottlingRate', { rate: CPU });
+    }
+  }
+
   // 5. Expand the city's first event, then drag the resize handle for 2 s.
   if (card) {
     // Click the row's date line, clear of the links and buttons in it.
@@ -524,6 +564,44 @@ async function runOnce(browser, base, index) {
     }
   }
 
+  // 5b. Scrub the era rail (CPU slowed): its first handle 200 px right and
+  // back, once a second, for 2 s. The land, the halos and the cards follow
+  // it; the map's component itself should not render once.
+  {
+    const handle = page.getByRole('slider', { name: 'First year shown' });
+    const box = await handle.boundingBox().catch(() => null);
+    if (box) {
+      const hx = box.x + box.width / 2;
+      const hy = box.y + box.height / 2;
+      await page.mouse.move(hx, hy);
+      await page.mouse.down();
+      const scrubFrom = await now(page);
+      const started = Date.now();
+      let moves = 0;
+      while (Date.now() - started < 2000) {
+        const phase = ((Date.now() - started) % 1000) / 1000;
+        const dx = 200 * (phase < 0.5 ? phase * 2 : 2 - phase * 2);
+        await page.mouse.move(hx + dx, hy);
+        moves++;
+      }
+      await page.mouse.up();
+      const scrubTo = await now(page);
+      await page.waitForTimeout(300);
+      const scrubFrames = await page.evaluate(() =>
+        window.__measure.frames.slice(),
+      );
+      result.scrub = {
+        moves,
+        frames: frameRate(scrubFrames, scrubFrom, scrubTo),
+        longTasks: longTasksIn(await tasksNow(page), scrubFrom, scrubTo),
+        renders: await rendersIn(page, scrubFrom, scrubTo),
+      };
+    } else {
+      result.scrub = null;
+      notes.push('no era rail handle to scrub');
+    }
+  }
+
   // 6. Type into search: the command palette since prompt 6, opened from
   // the top bar's search button. Timing starts once its field is up, so the
   // palette's first (lazy) load is not counted as typing.
@@ -577,6 +655,16 @@ function summarizeRuns(runs) {
     dragFps: pick((r) => r.drag?.frames.fps),
     dragCommits: pick((r) => r.drag?.renders.commits),
     dragGlobeRenders: pick((r) => r.drag?.renders.globeRenders),
+    selectedFps: pick((r) => r.selected?.frames.fps),
+    selectedGapP95Ms: pick((r) => r.selected?.frames.gapP95Ms),
+    selectedLongTasks: pick((r) => r.selected?.longTasks.count),
+    selectedMapRendersPerSec: pick((r) => r.selected?.mapRendersPerSec),
+    scrubFps: pick((r) => r.scrub?.frames.fps),
+    scrubLongTasks: pick((r) => r.scrub?.longTasks.count),
+    scrubLongTaskMs: pick((r) => r.scrub?.longTasks.totalMs),
+    scrubLongestTaskMs: pick((r) => r.scrub?.longTasks.maxMs),
+    scrubCommits: pick((r) => r.scrub?.renders.commits),
+    scrubGlobeRenders: pick((r) => r.scrub?.renders.globeRenders),
     searchLongTasks: pick((r) => r.search.longTasks.count),
     searchLongTaskMs: pick((r) => r.search.longTasks.totalMs),
     searchLongestTaskMs: pick((r) => r.search.longTasks.maxMs),

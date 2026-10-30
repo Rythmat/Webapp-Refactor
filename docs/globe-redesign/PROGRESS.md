@@ -226,3 +226,35 @@ Plan: `~/.claude/plans/the-globe-section-needs-squishy-mango.md`.
   (116,089 / 115,749, shared code); after the dashboard went, 116,409 B
   (static imports 325,741 B). The budget is set once, from measured sizes,
   when the frame lands.
+
+## 2026-10-29/30 — the tile-free data map (owner)
+
+The owner asked to remove Protomaps and OpenStreetMap from the Globe and the
+codebase, and to update the Globe's look and interactions after two
+Dribbble references (25147704, a network graph; 22296468, a map
+dashboard). Answers: the Studio frame stays, with chart cards floating over
+the stage; dark land lit by music; a Map and a Ring view; the three.js
+globe retired. Plan: `~/.claude/plans/the-globe-section-needs-squishy-mango.md`.
+[ENGINE.md](../globe-ui/ENGINE.md) describes the result;
+[BASELINE.md](../globe-ui/BASELINE.md) "The data map" has its numbers.
+
+| Phase | What                                                                                         | State              |
+| ----- | -------------------------------------------------------------------------------------------- | ------------------ |
+| 1–2   | three.js, Protomaps, the OSM city outlines and the map credit removed; labels in Glacial     | done               |
+| 3     | Foundations: map hooks and handle, zone insets, card prefs, stage signals, network and stats | done               |
+| 4     | The data map: land lit by music, dots and halos, chips, rim, sun, hover card                 | done, checkpoint A |
+| 5     | Chart kit and the world's floating cards; Cards pill                                         | done               |
+| 6     | Connections on the map (flow, draw-on, pills), stop cards, Legend card, phone strip          | done, checkpoint B |
+| 7     | The Connections ring (`?view=ring`) and its morph from the map                               | done, checkpoint C |
+| 8     | Motion: intro, selection beats, chart morphs                                                 | done, checkpoint D |
+| 9     | Measure, budgets, docs                                                                       | done               |
+
+Owner calls along the way: atmosphere on, max zoom 8, no shaded relief
+(checkpoint A); the world's links keep flowing, and only single influences
+are dotted (checkpoint B: most place-to-place links carry one or two).
+
+Still to come, from the morning's plan: journeys as a card in the column,
+the Pathways and Instruments panels, the "Ask the Globe" pill, and a
+call-site sweep. The owner should delete the Vercel variables
+`VITE_BASEMAP_PMTILES_URL`, `VITE_PROTOMAPS_API_KEY`,
+`VITE_BASEMAP_ASSETS_URL` and `VITE_ATLAS_ENGINE`.

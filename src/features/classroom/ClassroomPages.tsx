@@ -103,6 +103,28 @@ const UkuleleModeLesson = lazy(
 const GuitarModeLesson = lazy(
   () => import('@/curriculum/pages/GuitarModeLesson'),
 );
+const BassAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/BassAnatomyPage'),
+);
+const KeyboardAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/KeyboardAnatomyPage'),
+);
+const SynthAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/SynthAnatomyPage'),
+);
+const PianoAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/PianoAnatomyPage'),
+);
+const UkuleleAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/UkuleleAnatomyPage'),
+);
+// The song isn't licensed: this, its route and its tile stay out of production.
+const LinusAndLucyLesson = import.meta.env.DEV
+  ? lazy(() => import('@/curriculum/pages/LinusAndLucyLesson'))
+  : null;
+const GuitarAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/GuitarAnatomyPage'),
+);
 const GuitarHarmonicsPage = lazy(
   () => import('@/curriculum/guitar/harmonics/GuitarHarmonicsPage'),
 );
@@ -721,12 +743,17 @@ const LearnInstrumentRoute = ({
   }
   const tabLink = learnTabRedirect(instrument, search);
   if (tabLink) return <Navigate replace to={tabLink} />;
-  // Bass teaches Theory alone so far: its page is the Theory tab.
-  if (instrument === 'bass' && tab !== 'Theory') {
+  // Bass teaches Theory and Technique so far: its page is the Theory tab.
+  if (instrument === 'bass' && tab !== 'Theory' && tab !== 'Technique') {
     return <Navigate replace to={learnTabRoute('bass', 'Theory')} />;
   }
-  // Ukulele teaches Theory, and Songs show its chord boxes.
-  if (instrument === 'ukulele' && tab !== 'Theory' && tab !== 'Songs') {
+  // Ukulele teaches Theory and Technique, and Songs show its chord boxes.
+  if (
+    instrument === 'ukulele' &&
+    tab !== 'Theory' &&
+    tab !== 'Songs' &&
+    tab !== 'Technique'
+  ) {
     return <Navigate replace to={learnTabRoute('ukulele', 'Theory')} />;
   }
   return <LearnPage tab={tab} />;
@@ -805,6 +832,35 @@ export const learnPages = () => {
         path: LearnRoutes.guitar.definition,
         element: <LearnInstrumentRoute instrument="guitar" />,
       },
+      // Technique → Keyboard and Synth Anatomy, free like every Technique tile.
+      {
+        path: LearnRoutes.keyboardAnatomy.definition,
+        element: <KeyboardAnatomyPage />,
+      },
+      {
+        path: LearnRoutes.synthAnatomy.definition,
+        element: <SynthAnatomyPage />,
+      },
+      // Technique → Piano Anatomy. Free on purpose (every Technique tile shows
+      // unlocked); static, so it outranks '/keyboard/:mode/:key'.
+      {
+        path: LearnRoutes.pianoAnatomy.definition,
+        element: <PianoAnatomyPage />,
+      },
+      ...(LinusAndLucyLesson
+        ? [
+            {
+              path: LearnRoutes.linusAndLucy.definition,
+              element: <LinusAndLucyLesson />,
+            },
+          ]
+        : []),
+      // Technique → Guitar Anatomy. Free on purpose (every Technique tile
+      // shows unlocked); static, so it outranks '/guitar/:mode/:key'.
+      {
+        path: LearnRoutes.guitarAnatomy.definition,
+        element: <GuitarAnatomyPage />,
+      },
       // Technique → Guitar Harmonics. Free on purpose (every Technique tile
       // shows unlocked); static, so it outranks '/guitar/:mode/:key'.
       {
@@ -829,6 +885,12 @@ export const learnPages = () => {
         path: LearnRoutes.guitarLesson.definition,
         element: <GuitarLessonRoute />,
       },
+      // Technique → Bass Anatomy. Free on purpose (every Technique tile shows
+      // unlocked); static, so it outranks '/bass/:mode/:key'.
+      {
+        path: LearnRoutes.bassAnatomy.definition,
+        element: <BassAnatomyPage />,
+      },
       // Bass: Theory, from The Bass Atlas. Static 'bass' segment, so these
       // outrank '/:mode' and '/:mode/:key'.
       {
@@ -842,6 +904,12 @@ export const learnPages = () => {
       {
         path: LearnRoutes.bassLesson.definition,
         element: <BassLessonRoute />,
+      },
+      // Technique → Ukulele Anatomy. Free on purpose (every Technique tile
+      // shows unlocked); static, so it outranks '/ukulele/:mode/:key'.
+      {
+        path: LearnRoutes.ukuleleAnatomy.definition,
+        element: <UkuleleAnatomyPage />,
       },
       // Ukulele: Theory, from The Ukulele Atlas, as bass's.
       {

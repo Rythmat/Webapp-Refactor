@@ -254,10 +254,11 @@ describe('Learn → Theory on guitar', () => {
     expect(location()).toBe('/learn/keyboard/parallel/fsharp');
   });
 
-  it('shows guitar Technique (Harmonics) for ?tab=Technique on guitar', () => {
+  it('shows guitar Technique (Anatomy, Harmonics) for ?tab=Technique on guitar', () => {
     const setSubTab = vi.fn();
     renderLearn('/learn?tab=Technique', 'guitar', setSubTab);
     expect(location()).toBe('/learn?tab=Technique');
+    expect(screen.getByText('Guitar Anatomy')).toBeInTheDocument();
     expect(screen.getByText('Guitar Harmonics')).toBeInTheDocument();
     expect(screen.queryByText('Piano Fundamentals')).not.toBeInTheDocument();
   });

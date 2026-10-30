@@ -123,14 +123,16 @@ export const LearnTabBar = ({
       </div>
 
       {/* Sub-tabs — plain text links at the same size as the "Learn" heading. */}
-      {/* Bass teaches Theory alone so far (The Bass Atlas); ukulele Theory
-          and Songs (its chord boxes). */}
+      {/* Bass teaches Theory (The Bass Atlas) and Technique so far; ukulele
+          Theory, Technique and Songs (its chord boxes). */}
       {tabs
         .filter((t) =>
           instrument === 'bass'
-            ? t.slug === 'Theory'
+            ? t.slug === 'Theory' || t.slug === 'Technique'
             : instrument === 'ukulele'
-              ? t.slug === 'Theory' || t.slug === 'Songs'
+              ? t.slug === 'Theory' ||
+                t.slug === 'Technique' ||
+                t.slug === 'Songs'
               : true,
         )
         .map(({ slug, label }) => (

@@ -19,7 +19,11 @@ import {
   getTheoryTileImage,
 } from '@/curriculum/data/learnTileImages';
 import { getAllSongs } from '@/curriculum/data/songs';
-import { isGuitarLearnEnabled } from '@/features/learn/useInstrumentStore';
+import {
+  isBassLearnEnabled,
+  isGuitarLearnEnabled,
+  isUkuleleLearnEnabled,
+} from '@/features/learn/useInstrumentStore';
 import { CATEGORY_META } from '../categories';
 import type { SearchCategory, SearchResult } from '../types';
 
@@ -213,6 +217,26 @@ function buildGuitar(): IndexEntry[] {
     {
       category: 'theory',
       keywords: [
+        'Guitar Anatomy',
+        'parts of the guitar',
+        'guitar parts',
+        'electric guitar parts',
+        'acoustic guitar parts',
+        'exploded diagram',
+      ],
+      result: {
+        id: 'technique-guitar-anatomy',
+        category: 'theory',
+        title: 'Guitar Anatomy',
+        subtitle: 'Technique on guitar',
+        to: LearnRoutes.guitarAnatomy(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
+    {
+      category: 'theory',
+      keywords: [
         'Guitar Harmonics',
         'natural harmonics',
         'harmonics',
@@ -226,6 +250,111 @@ function buildGuitar(): IndexEntry[] {
         title: 'Guitar Harmonics',
         subtitle: 'Technique on guitar',
         to: LearnRoutes.guitarHarmonics(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
+  ];
+}
+
+/* ── Piano ─────────────────────────────────────────────────────────── */
+function buildPiano(): IndexEntry[] {
+  return [
+    {
+      category: 'theory',
+      keywords: ['Keyboard Anatomy', 'parts of a keyboard', 'keyboard parts'],
+      result: {
+        id: 'technique-keyboard-anatomy',
+        category: 'theory',
+        title: 'Keyboard Anatomy',
+        subtitle: 'Technique on keyboard',
+        to: LearnRoutes.keyboardAnatomy(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
+    {
+      category: 'theory',
+      keywords: [
+        'Synth Anatomy',
+        'parts of a synth',
+        'synthesizer parts',
+        'oscillator',
+        'filter',
+        'envelope',
+        'LFO',
+      ],
+      result: {
+        id: 'technique-synth-anatomy',
+        category: 'theory',
+        title: 'Synth Anatomy',
+        subtitle: 'Technique on keyboard',
+        to: LearnRoutes.synthAnatomy(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
+    {
+      category: 'theory',
+      keywords: [
+        'Piano Anatomy',
+        'parts of the piano',
+        'piano parts',
+        'grand piano parts',
+        'upright piano parts',
+      ],
+      result: {
+        id: 'technique-piano-anatomy',
+        category: 'theory',
+        title: 'Piano Anatomy',
+        subtitle: 'Technique on keyboard',
+        to: LearnRoutes.pianoAnatomy(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
+  ];
+}
+
+/* ── Bass, while its rollout flag is on ──────────────────────────────── */
+function buildBass(): IndexEntry[] {
+  if (!isBassLearnEnabled()) return [];
+  return [
+    {
+      category: 'theory',
+      keywords: [
+        'Bass Anatomy',
+        'parts of the bass',
+        'bass parts',
+        'electric bass parts',
+        'acoustic bass parts',
+      ],
+      result: {
+        id: 'technique-bass-anatomy',
+        category: 'theory',
+        title: 'Bass Anatomy',
+        subtitle: 'Technique on bass',
+        to: LearnRoutes.bassAnatomy(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
+  ];
+}
+
+/* ── Ukulele, while its rollout flag is on ─────────────────────────────── */
+function buildUkulele(): IndexEntry[] {
+  if (!isUkuleleLearnEnabled()) return [];
+  return [
+    {
+      category: 'theory',
+      keywords: ['Ukulele Anatomy', 'parts of the ukulele', 'ukulele parts'],
+      result: {
+        id: 'technique-ukulele-anatomy',
+        category: 'theory',
+        title: 'Ukulele Anatomy',
+        subtitle: 'Technique on ukulele',
+        to: LearnRoutes.ukuleleAnatomy(),
         icon: CATEGORY_META.theory.icon,
         thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
       },
@@ -462,7 +591,10 @@ export function getStaticIndex(): IndexEntry[] {
       ...buildArtists(),
       ...buildCourses(),
       ...buildTheory(),
+      ...buildPiano(),
       ...buildGuitar(),
+      ...buildBass(),
+      ...buildUkulele(),
       ...buildGlobe(),
       ...buildArcade(),
       ...buildPages(),

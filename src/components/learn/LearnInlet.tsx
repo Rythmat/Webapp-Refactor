@@ -68,7 +68,7 @@ import {
 } from './learnFilterOptions';
 import { SigilCard } from './sigil/SigilCard';
 import { sigilFor, type SigilSpec } from './sigil/sigilSpec';
-import { techniqueDataFor } from './techniqueCatalog';
+import { DEV_PIANO_TECHNIQUE_DATA, techniqueDataFor } from './techniqueCatalog';
 import {
   COMING_SOON_FOR_UKULELE,
   isTheoryItemOnUkulele,
@@ -1172,7 +1172,10 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const onUkulele = learnInstrument === 'ukulele';
   const subTab = fixedTab ?? selectedTab;
   const techniqueData = useMemo<ContentItem[]>(
-    () => [...techniqueDataFor(learnInstrument)],
+    () => [
+      ...techniqueDataFor(learnInstrument),
+      ...(learnInstrument === 'piano' ? DEV_PIANO_TECHNIQUE_DATA : []),
+    ],
     [learnInstrument],
   );
   const [highlightedGenre, setHighlightedGenre] = useState<string | null>(

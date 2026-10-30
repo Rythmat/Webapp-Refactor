@@ -196,7 +196,8 @@ function problem(route: string): string | null {
             return `no panel ${value}`;
           break;
         case 'view':
-          if (value !== 'timeline') return `no view ${value}`;
+          if (value !== 'timeline' && value !== 'ring')
+            return `no view ${value}`;
           break;
         case 'from':
         case 'to':

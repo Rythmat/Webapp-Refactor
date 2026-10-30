@@ -240,6 +240,11 @@ const GLOBE_ON_DEMAND = [
     pattern: /The strongest links between regions/,
     name: 'the floating cards (components/Cards/StageCards.tsx)',
   },
+  {
+    // The ring's empty state (components/Ring/RingView.tsx).
+    pattern: /Too few places with music in/,
+    name: 'the Connections ring (components/Ring/RingView.tsx)',
+  },
 ];
 
 /**

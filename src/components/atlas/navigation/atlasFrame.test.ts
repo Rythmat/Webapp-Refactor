@@ -4,6 +4,7 @@ import {
   DEFAULT_FRAME,
   frameFromSearchParams,
   isMapView,
+  isRingView,
   isTimelineView,
   windowFromSearchParams,
 } from './atlasFrame';
@@ -102,18 +103,32 @@ describe('views', () => {
     expect(isTimelineView({ view: 'map' })).toBe(false);
     expect(isMapView({ view: 'timeline' })).toBe(false);
     expect(isTimelineView({ view: 'timeline' })).toBe(true);
+    // The ring is neither: it stands over the map.
+    expect(isRingView({ view: 'ring' })).toBe(true);
+    expect(isMapView({ view: 'ring' })).toBe(false);
+    expect(isTimelineView({ view: 'ring' })).toBe(false);
+  });
+
+  it('reads and writes the ring’s view', () => {
+    expect(frameFromSearchParams(p('view=ring')).view).toBe('ring');
+    expect(
+      applyFrameToSearchParams(p('place=city:london'), {
+        view: 'ring',
+      }).toString(),
+    ).toBe('place=city%3Alondon&view=ring');
   });
 });
 
 describe('sections', () => {
   it('maps each view to a frame and back', () => {
-    for (const id of ['explore', 'eras', 'regions'] as const) {
+    for (const id of ['explore', 'ring', 'eras', 'regions'] as const) {
       expect(sectionOf({ ...DEFAULT_FRAME, ...sectionFrame(id) })).toBe(id);
     }
   });
 
   it('tells the views apart by view and opened places', () => {
     expect(sectionOf({ view: 'map', open: [] })).toBe('explore');
+    expect(sectionOf({ view: 'ring', open: [] })).toBe('ring');
     expect(sectionOf({ view: 'timeline', open: [] })).toBe('eras');
     expect(sectionOf({ view: 'timeline', open: ['americas'] })).toBe('regions');
   });

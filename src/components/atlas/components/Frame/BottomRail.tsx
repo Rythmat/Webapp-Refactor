@@ -1,4 +1,5 @@
 import { LayoutGrid, Pause, Play } from 'lucide-react';
+import { prefetchRing } from '@/components/atlas/components/Ring/prefetchRing';
 import { prefetchRiver } from '@/components/atlas/components/River/prefetchRiver';
 import {
   ATLAS_PILL_ZONE,
@@ -30,9 +31,10 @@ import { usePanelAvailability, useTogglePanel } from './SideRail';
 
 /** The views' names on a phone, where the rail is narrow. */
 const SHORT: Record<AtlasSectionId, string> = {
-  explore: 'Explore',
+  explore: 'Map',
+  ring: 'Ring',
   eras: 'Eras',
-  regions: 'Regions',
+  regions: 'Places',
 };
 
 /**
@@ -47,7 +49,13 @@ function ViewTabs({ short }: { short: boolean }) {
     <nav aria-label="Globe sections" className={ATLAS_PILL_ZONE}>
       {ATLAS_SECTIONS.map((section) => {
         const label = short ? SHORT[section.id] : section.label;
-        const river = section.id !== 'explore';
+        const river = section.id === 'eras' || section.id === 'regions';
+        const ring = section.id === 'ring';
+        const prefetch = river
+          ? prefetchRiver
+          : ring
+            ? prefetchRing
+            : undefined;
         return (
           <button
             key={section.id}
@@ -56,8 +64,8 @@ function ViewTabs({ short }: { short: boolean }) {
             className={cn(ATLAS_SEGMENT, short && 'px-3')}
             type="button"
             onClick={() => navigate.toSection(section.id)}
-            onFocus={river ? prefetchRiver : undefined}
-            onPointerEnter={river ? prefetchRiver : undefined}
+            onFocus={prefetch}
+            onPointerEnter={prefetch}
           >
             {label}
           </button>
@@ -225,7 +233,7 @@ export function BottomRail() {
       </div>
       <ViewTabs short={false} />
       <div className="flex min-w-0 items-center justify-end" data-zone="end">
-        {onMap && <CardsToggle />}
+        {!river && <CardsToggle />}
       </div>
     </div>
   );

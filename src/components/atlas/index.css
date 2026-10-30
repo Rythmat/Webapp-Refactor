@@ -133,6 +133,20 @@
     transparent
   );
 }
+/* The ring's weak ties: dashes marching the way the music went. */
+.atlas-root .atlas-march {
+  animation: atlas-march 1.2s linear infinite;
+}
+@keyframes atlas-march {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atlas-root .atlas-march {
+    animation: none;
+  }
+}
 @keyframes atlas-draw {
   to {
     stroke-dashoffset: 0;

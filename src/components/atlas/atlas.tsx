@@ -33,7 +33,10 @@ import {
   InspectorProvider,
   useInspectorState,
 } from '@/components/atlas/layout/useInspector';
-import { isTimelineView } from '@/components/atlas/navigation/atlasFrame';
+import {
+  isRingView,
+  isTimelineView,
+} from '@/components/atlas/navigation/atlasFrame';
 import {
   AtlasNavigationProvider,
   useAtlasFrame,
@@ -46,6 +49,7 @@ import {
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
 import { StageSignalsProvider } from '@/components/atlas/state/stageSignals';
+import { ATLAS_MS } from '@/components/atlas/theme/motion';
 import { RIVER } from '@/components/atlas/theme/river';
 import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
 import type { MapInsets } from '@/components/atlas/types';
@@ -64,6 +68,12 @@ const EraRail = lazy(() =>
   import('@/components/atlas/components/UI/EraRail').then((m) => ({
     default: m.EraRail,
   })),
+);
+
+// The Connections view (the ring): its own chunk, fetched the first time
+// the page shows it, or when the pointer heads for its tab (prefetchRing).
+const RingView = lazy(
+  () => import('@/components/atlas/components/Ring/RingView'),
 );
 
 // The floating cards as a phone's strip: with the cards' own chunk.
@@ -162,6 +172,40 @@ function PhoneOverlays() {
         strip={strip}
         onInsets={onInsets}
       />
+    </div>
+  );
+}
+
+/**
+ * The ring over the globe (Connections), once the page has shown it: its
+ * places grow out of the map and go back to it, so it stays up through the
+ * morph out, then hides (inert). Kept mounted after, as the timeline is.
+ */
+function RingStage() {
+  const ring = useAtlasFrame(isRingView);
+  const [mounted, setMounted] = useState(ring);
+  const [visible, setVisible] = useState(ring);
+  if (ring && !mounted) setMounted(true);
+  if (ring && !visible) setVisible(true);
+  useEffect(() => {
+    if (ring) return;
+    const t = window.setTimeout(() => setVisible(false), ATLAS_MS.morph);
+    return () => window.clearTimeout(t);
+  }, [ring]);
+  if (!mounted) return null;
+  return (
+    <div
+      aria-hidden={!ring}
+      className={cn(
+        'absolute inset-0',
+        !visible && 'invisible',
+        !ring && 'pointer-events-none',
+      )}
+      {...(ring ? {} : { inert: '' })}
+    >
+      <Suspense fallback={null}>
+        <RingView active={ring} />
+      </Suspense>
     </div>
   );
 }
@@ -283,6 +327,7 @@ function AppLayout() {
               <MapStage>
                 <AtlasGlobe />
               </MapStage>
+              <RingStage />
               <RiverView />
               {!isPhone && <CardsLayer />}
               {isPhone ? <PhoneOverlays /> : <InspectorRegion />}

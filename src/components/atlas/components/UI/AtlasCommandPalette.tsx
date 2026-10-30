@@ -7,6 +7,7 @@ import {
   Info,
   Layers,
   Link2,
+  Orbit,
   Pause,
   Play,
   Search,
@@ -75,6 +76,7 @@ const ACTION_ICONS: Record<string, LucideIcon> = {
   'clear-trail': Eraser,
   legend: Info,
   layers: Layers,
+  connections: Orbit,
 };
 
 function itemStop(item: PaletteItem) {
@@ -252,6 +254,12 @@ export default function AtlasCommandPalette({
           ]
         : []),
       {
+        id: 'connections',
+        title: 'Go to Connections',
+        subtitle: 'The places in a ring, and the links between them',
+        keywords: ['ring', 'chord', 'links', 'network', 'connections'],
+      },
+      {
         id: 'legend',
         title: 'Show legend',
         subtitle: 'What the colors and marks mean',
@@ -310,6 +318,7 @@ export default function AtlasCommandPalette({
         payload: { hidden: false, legendOpen: true },
       }),
     layers: () => navigate.setFrame({ panel: 'layers' }),
+    connections: () => navigate.toSection('ring'),
   };
 
   const choose = (item: PaletteItem) => {

@@ -3,7 +3,13 @@
  * The bottom rail: the views as the Studio's view tabs, the globe's spin, all
  * of time back in, and the floating cards' switch.
  */
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterEach, describe, expect, it } from 'vitest';
 import { AtlasNavigationProvider } from '@/components/atlas/navigation/useAtlasNavigate';
@@ -56,6 +62,21 @@ describe('the bottom rail', () => {
     expect(where.search).toBe('?event=evt-1&view=timeline');
     expect(tab('Eras')).toHaveAttribute('aria-current', 'page');
     expect(tab('Explore')).not.toHaveAttribute('aria-current');
+  });
+
+  it('opens the ring of connections as a view, keeping the cards', () => {
+    const { where } = setup('/globe?place=city:london');
+    const nav = screen.getByRole('navigation', { name: 'Globe sections' });
+    expect(
+      within(nav)
+        .getAllByRole('button')
+        .map((b) => b.textContent),
+    ).toEqual(['Explore', 'Connections', 'Eras', 'Regions & Cities']);
+    fireEvent.click(tab('Connections'));
+    expect(where.search).toBe('?place=city%3Alondon&view=ring');
+    // The map's own controls stand down; the cards' switch stays.
+    expect(screen.queryByRole('button', { name: 'Spin the globe' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Hide the cards' })).toBeTruthy();
   });
 
   it('spins the globe and stops it, saying which in its name', () => {

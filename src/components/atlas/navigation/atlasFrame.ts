@@ -25,7 +25,7 @@ import {
  * dashboard's era cards, slides) is read as that era's years and rewritten as
  * `from`/`to` (useWindowSync).
  */
-export type AtlasView = 'map' | 'timeline';
+export type AtlasView = 'map' | 'ring' | 'timeline';
 /**
  * What the timeline's lanes are: places (Explore, Eras, Regions & Cities),
  * pathways (music's family tree and the journeys through it), instruments.
@@ -75,6 +75,13 @@ export interface AtlasFrame {
 /** The map's view: the stage shows the globe (Explore). */
 export const isMapView = (frame: Pick<AtlasFrame, 'view'>): boolean =>
   frame.view === 'map';
+
+/**
+ * The ring's view (Connections): the places in a circle, their links as
+ * chords, over the map it grew out of.
+ */
+export const isRingView = (frame: Pick<AtlasFrame, 'view'>): boolean =>
+  frame.view === 'ring';
 
 /** The timeline's view: the river (Eras, Regions & Cities). */
 export const isTimelineView = (frame: Pick<AtlasFrame, 'view'>): boolean =>
@@ -142,8 +149,8 @@ export function windowFromSearchParams(
 }
 
 export function frameFromSearchParams(params: URLSearchParams): AtlasFrame {
-  const view: AtlasView =
-    params.get('view') === 'timeline' ? 'timeline' : 'map';
+  const raw = params.get('view');
+  const view: AtlasView = raw === 'timeline' || raw === 'ring' ? raw : 'map';
   const lensRaw = params.get('lens');
   return {
     view,

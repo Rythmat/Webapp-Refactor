@@ -23,6 +23,8 @@ import { FLIGHT_EVENT } from './useMapPhase';
 
 /** Room round a lifted region, px: it's the hero, not edge to edge. */
 const LIFT_MARGIN_PX = 72;
+/** A phone's stage above its sheet is short: 72 px would take 40% of it. */
+const LIFT_MARGIN_PHONE_PX = 36;
 /** How long a framed flight waits for the panel it opens to be measured. */
 const SETTLE_MS = 80;
 /** How long a country or state flight waits for its outlines before going anyway. */
@@ -95,7 +97,11 @@ export function useMapFlights(
             view,
             padding,
             maxZoom,
-            lifting ? LIFT_MARGIN_PX : undefined,
+            lifting
+              ? view.phone
+                ? LIFT_MARGIN_PHONE_PX
+                : LIFT_MARGIN_PX
+              : undefined,
           ),
         view.height,
       );

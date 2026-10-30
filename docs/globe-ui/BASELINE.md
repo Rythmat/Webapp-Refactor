@@ -388,6 +388,35 @@ MapLibre 1,064.9 / 287.9 kB (pmtiles, fflate and the basemap styles left
 it, the data map's layers came in), the cards 11.1 / 4.3 kB, the ring
 11.1 / 5.0 kB, the phone strip 3.8 / 1.7 kB, the hover card 3.3 / 1.6 kB.
 
+### The lifted region (2026-10-30)
+
+A selected place now lifts its region, with the comet, dots and tilt
+([ENGINE.md](ENGINE.md)), and the chart cards went. Measured at `71f26ee4` the
+same way, beside the data map. The selected step now waits for the lift to
+land, and adds 5 s with the CPU slowed. The card-drag step went with the
+resize handle.
+
+| Measure                            | Data map             | Lifted region                      |
+| ---------------------------------- | -------------------- | ---------------------------------- |
+| First globe frame                  | 1,138 ms             | 1,188 ms                           |
+| JS heap at 30 s, after GC          | 93.8 MB              | 93.8 MB                            |
+| City click to card (4x CPU)        | 192 ms               | 242 ms                             |
+| Long tasks opening the card        | 1, 159 ms            | 2, 266 ms (longest 213 ms)         |
+| A selected place, 5 s (full speed) | 60 fps, 0 long tasks | 60 fps, 0 long tasks               |
+| A selected place, 5 s (4x CPU)     | –                    | **60 fps, 0 long tasks**           |
+| Map redraws while it sits there    | 24 a second          | 48 a second                        |
+| Era-rail scrub, 2 s (4x CPU)       | 60 fps, 0, 2, 0      | 60 fps, 0 long tasks, 3 commits, 0 |
+| Route chunk                        | 115,637 B            | 107,994 B                          |
+
+- **The comet stays.** The plan was to run it only a few laps if the slowed
+  selected step fell below 30 fps, and it held 60.
+- **What that doesn't show:** Chrome's CPU throttle doesn't slow the GPU, and
+  the comet doubles the map's redraws while a region sits selected. Nothing
+  here has run on a weak GPU; a real Chromebook is the check still owed.
+- **Opening the card** costs one more long task and 50 ms more. This isn't
+  traced. The region's slicing and seating are the likely cause; seating alone
+  took 19 ms for the US's 997 events, measured on its own at full speed.
+
 ## Budgets
 
 `scripts/verifyProdBundle.mjs` now checks four things:
@@ -402,8 +431,8 @@ it, the data map's layers came in), the cards 11.1 / 4.3 kB, the ring
   `build.protomaps.com`, `pmtiles://`) and no OpenStreetMap one
   (`nominatim.openstreetmap.org`, `tile.openstreetmap.org`,
   `openstreetmap.org/copyright`).
-- **Size.** `assets/atlas-*.js` may be at most 5% over **115,637** bytes. The
-  static route total may be at most 5% over **329,244** bytes. Both numbers
+- **Size.** `assets/atlas-*.js` may be at most 5% over **107,994** bytes. The
+  static route total may be at most 5% over **320,833** bytes. Both numbers
   are in `GLOBE_BUDGET` in the script. When a change shrinks the page on
   purpose, lower them to the new sizes. When a change grows it on purpose,
   raise them in the same commit and record why under "Budget changes".
@@ -426,6 +455,7 @@ it, the data map's layers came in), the cards 11.1 / 4.3 kB, the ring
 | 13 Oct 2026 | Prompt 8: MapLibre engine               | 102,904 (−8,730)  | 298,824 (−586,620)  | Lowered. The map engine now loads lazily (MapLibre by default, three.js with `VITE_ATLAS_ENGINE=three`), so three.js's WebGL build (575 kB) left the route's static imports. To get there, the route had to stop importing the hooks barrel, which re-exports three.js's lighting hook. The atlas chunk lost BaseGlobe's static code. MapLibre itself (1.1 MB, 295 kB gzip, plus a 508 kB worker) loads on the first render, like react-globe.gl did.                                                                                                                                                                                                                                                                  |
 | 14 Oct 2026 | Time River P2: header and timeline      | 110,237 (+7,333)  | 316,812 (+17,988)   | Measured against this checkout's build before the redesign (107,115 / 307,962: the page had grown 4.2 kB / 9.1 kB since prompt 8, inside the 5% headroom), the route chunk grew 3,122 B and its static imports 8,850 B. The Globe's header now carries the five section tabs, the globe / timeline switch and the trail popover (the trail strip left), and every view shares the frame (`navigation/atlasFrame.ts`) and time-window code (`timeline/timeWindow.ts`, `navigation/useWindowSync.ts`). The rest is re-chunking: the store (9.6 kB) and the genre table (11.5 kB) became chunks of their own, now that the lazy timeline imports them too. The timeline itself (`TimeRiver`, 22.3 kB) loads on first use. |
 | 30 Oct 2026 | The data map                            | 115,637 (+5,400)  | 329,244 (+12,432)   | Measured at `8974198f`. The route chunk carries what every view shares: the cards' column and its layout modes (the cards themselves are a lazy chunk), the intro, the ring's stage and tab (the ring is lazy), the per-zone insets, the map's phase signal, the Legend's move out of the Inspector, the Cards pill and the phone strip's slot. The static imports grew with the stage signals, the marks shared by map, cards and ring, and the motion module. The street map's code left the lazy map chunk, not the route. Between Time River P2 and this, the page had also grown inside the 5% headroom (the Studio frame of 2026-10-29).                                                                         |
+| 30 Oct 2026 | The lifted region                       | 107,994 (−7,643)  | 320,833 (−8,411)    | Measured at `71f26ee4`. Smaller: the chart cards, the Legend and the card's resizing left. The lift itself is in the lazy map chunk, not the route.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ## What this baseline added to the page
 

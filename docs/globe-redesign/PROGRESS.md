@@ -253,6 +253,11 @@ Owner calls along the way: atmosphere on, max zoom 8, no shaded relief
 (checkpoint A); the world's links keep flowing, and only single influences
 are dotted (checkpoint B: most place-to-place links carry one or two).
 
+**The lifted region (2026-10-30, after Dribbble 23013593).** A selected place
+lifts its state or country, in a gradient of its events' eras, with a comet
+round its edge and a dot per event; the stage is down to the events and
+Connections cards. Numbers: BASELINE.md, "The lifted region".
+
 Still to come, from the morning's plan: journeys as a card in the column,
 the Pathways and Instruments panels, the "Ask the Globe" pill, and a
 call-site sweep. The owner should delete the Vercel variables

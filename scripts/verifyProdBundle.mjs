@@ -274,8 +274,8 @@ const GLOBE_ON_DEMAND = [
  * changes" in BASELINE.md.
  */
 const GLOBE_BUDGET = {
-  routeChunk: 115_637,
-  routeStatic: 329_244,
+  routeChunk: 107_994,
+  routeStatic: 320_833,
   headroom: 1.05,
 };
 

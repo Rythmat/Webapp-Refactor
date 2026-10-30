@@ -31,32 +31,32 @@
  *   page's dev-only hook (window.__atlasGlobeDebug), the pointer rests on
  *   its dot, and the time runs from the click event to the first animation
  *   frame after the card's heading is in the page;
- * - the selected place as it stays, 5 s at full speed once it has landed:
- *   frame rate, long tasks and the map's own redraws a second (its burst's
- *   pulses are CSS; its dotted links flow by switching a layer's opacity);
+ * - the selected place as it stays, once it has landed and its region has
+ *   lifted, 5 s at full speed and 5 s with the CPU slowed: frame rate, long
+ *   tasks and the map's own redraws a second (its burst's pulses are CSS; its
+ *   dotted links flow by switching a layer's opacity; the comet round the
+ *   region's edge rewrites one line-gradient);
  * - an era-rail scrub with the CPU slowed: its first handle dragged 200 px
  *   right and back for 2 s; frame rate, long tasks, React commits and
  *   MapLibreGlobe renders (the land and halos follow through feature-state,
  *   so the map's component should not render at all);
  * - long tasks (PerformanceObserver 'longtask', over 50 ms) while opening
- *   that card (2 s from the click), while dragging the card's resize handle
- *   for 2 s with the city's first event expanded (an expanded event is what
- *   makes the card report its width to the globe), and while typing
+ *   that card (2 s from the click), and while typing
  *   "louis armstrong" into search (from the first key to 0.5 s after the
  *   last);
  * - YouTube requests over the whole run, in which no video is ever played:
  *   the player's (its API, embed page and scripts on youtube.com and
  *   googlevideo.com) and the thumbnails' (ytimg.com, img.youtube.com), with
- *   the thumbnails' bytes. Expanding the city's first event in the drag step
- *   is what shows a video.
+ *   the thumbnails' bytes. Opening the city's first event's tile is what
+ *   shows a video.
  *
- * The card, drag and search steps run with the CPU slowed down `--cpu`
+ * The card and search steps run with the CPU slowed down `--cpu`
  * times (4 by default, the studio-perf Chromebook profile's rate;
  * `--cpu=1` turns it off): unthrottled, a fast laptop shows no long tasks
  * at all, and the baseline could not show later work improving anything.
  * The same three windows also count React commits and MapLibreGlobe renders
  * (through a minimal React DevTools hook the page sees as DevTools), which
- * is how "the globe re-renders while the card is dragged" is measured.
+ * is how "the globe re-renders while the rail is scrubbed" is measured.
  *
  * One warm-up load comes first (Vite transforms the modules on first
  * request) and is not counted; each figure is the median of `--runs` runs.
@@ -107,7 +107,7 @@ const PORT = Number(args.port ?? 5266);
 const GPU =
   args.gpu ?? (process.platform === 'darwin' ? 'metal' : 'swiftshader');
 const HEADED = args.headed === 'true';
-/** CPU slow-down for the interaction steps (card, drag, search); 1 = none. */
+/** CPU slow-down for the interaction steps (card, scrub, search); 1 = none. */
 const CPU = Number(args.cpu ?? 4);
 const OUT = resolve(args.out ?? join(DOCS, 'runs/latest.json'));
 
@@ -472,11 +472,16 @@ async function runOnce(browser, base, index) {
     notes.push(`the click on ${CITY.name}'s hex opened no card`);
   }
 
-  // 4b. The selected place, as it stays: its burst's slow pulses and its
-  // links' flow, 5 s at full speed after it has landed (2026-10-30 data map).
+  // 4b. The selected place, as it stays: its region lifted, the comet round
+  // the edge, its burst's slow pulses and its links' flow, once it has landed
+  // and the dots are in. 5 s at full speed, then 5 s with the CPU slowed: below
+  // 30 fps there, the comet should run a few laps instead of for ever.
   if (card) {
     if (CPU > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
-    await page.waitForTimeout(1500);
+    await page.waitForFunction(
+      () => !window.__atlasGlobeDebug?.map?.isMoving(),
+    );
+    await page.waitForTimeout(2500);
     await page.evaluate(() => {
       const map = window.__atlasGlobeDebug?.map;
       window.__measure.mapRenders = [];
@@ -484,84 +489,39 @@ async function runOnce(browser, base, index) {
         window.__measure.mapRenders.push(performance.now()),
       );
     });
-    const selFrom = await now(page);
-    await page.waitForTimeout(5000);
-    const selTo = await now(page);
-    const selFrames = await page.evaluate(() =>
-      window.__measure.frames.slice(),
-    );
-    const mapRenders = await page.evaluate(
-      ({ a, b }) =>
-        window.__measure.mapRenders.filter((t) => t >= a && t <= b).length,
-      { a: selFrom, b: selTo },
-    );
-    result.selected = {
-      frames: frameRate(selFrames, selFrom, selTo),
-      longTasks: longTasksIn(await tasksNow(page), selFrom, selTo),
-      mapRendersPerSec: +(mapRenders / ((selTo - selFrom) / 1000)).toFixed(1),
+    const holdStill = async () => {
+      const from = await now(page);
+      await page.waitForTimeout(5000);
+      const to = await now(page);
+      const frames = await page.evaluate(() => window.__measure.frames.slice());
+      const renders = await page.evaluate(
+        ({ a, b }) =>
+          window.__measure.mapRenders.filter((t) => t >= a && t <= b).length,
+        { a: from, b: to },
+      );
+      return {
+        frames: frameRate(frames, from, to),
+        longTasks: longTasksIn(await tasksNow(page), from, to),
+        mapRendersPerSec: +(renders / ((to - from) / 1000)).toFixed(1),
+      };
     };
+    result.selected = await holdStill();
+    result.selected.lifted = await page.evaluate(() => {
+      const map = window.__atlasGlobeDebug?.map;
+      const up = map?.getPaintProperty('atlas-lift-lid', 'fill-translate');
+      return Array.isArray(up) && up[1] < 0;
+    });
+    if (!result.selected.lifted) notes.push('the selected place did not lift');
     if (CPU > 1) {
       await cdp.send('Emulation.setCPUThrottlingRate', { rate: CPU });
+      result.selectedSlow = await holdStill();
     }
   }
 
-  // 5. Expand the city's first event, then drag the resize handle for 2 s.
+  // 5. Open the city's first event's tile: what shows a video.
   if (card) {
-    // Click the row's date line, clear of the links and buttons in it.
     await page.locator('[data-event-id]').first().locator('svg').last().click();
     await page.waitForTimeout(1500);
-    // The Inspector is the handle's parent (its left edge); hover reveals
-    // the handle.
-    const handle = page.locator('[data-atlas-inspector-resizer]').first();
-    const box = await handle.boundingBox();
-    if (box) {
-      const hx = box.x + box.width / 2;
-      const hy = box.y + box.height / 2;
-      // The card's widest point during the drag, as the page saw it.
-      const widthBefore = await handle.evaluate((el) => {
-        const card = el.parentElement;
-        const start = card.getBoundingClientRect().width;
-        window.__measure.cardWidthMax = start;
-        new ResizeObserver(([entry]) => {
-          window.__measure.cardWidthMax = Math.max(
-            window.__measure.cardWidthMax,
-            entry.borderBoxSize?.[0]?.inlineSize ?? 0,
-          );
-        }).observe(card);
-        return start;
-      });
-      await page.mouse.move(hx, hy);
-      await page.mouse.down();
-      const dragFrom = await now(page);
-      const started = Date.now();
-      let step = 0;
-      while (Date.now() - started < 2000) {
-        // Out 160 px and back again, once a second.
-        const phase = ((Date.now() - started) % 1000) / 1000;
-        const dx = 160 * (phase < 0.5 ? phase * 2 : 2 - phase * 2);
-        // Leftward: the handle is on the Inspector's left edge, so left widens.
-        await page.mouse.move(hx - dx, hy);
-        step++;
-      }
-      await page.mouse.up();
-      const dragTo = await now(page);
-      const widthMax = await page.evaluate(() => window.__measure.cardWidthMax);
-      await page.waitForTimeout(300);
-      const dragFrames = await page.evaluate(() =>
-        window.__measure.frames.slice(),
-      );
-      result.drag = {
-        moves: step,
-        widthBefore: Math.round(widthBefore),
-        widthMax: Math.round(widthMax),
-        renders: await rendersIn(page, dragFrom, dragTo),
-        longTasks: longTasksIn(await tasksNow(page), dragFrom, dragTo),
-        frames: frameRate(dragFrames, dragFrom, dragTo),
-      };
-    } else {
-      result.drag = null;
-      notes.push('no resize handle on the card');
-    }
   }
 
   // 5b. Scrub the era rail (CPU slowed): its first handle 200 px right and
@@ -649,16 +609,14 @@ function summarizeRuns(runs) {
     openCardLongestTaskMs: pick((r) => r.longTasksOpeningCard?.maxMs),
     openCardCommits: pick((r) => r.rendersOpeningCard?.commits),
     openCardGlobeRenders: pick((r) => r.rendersOpeningCard?.globeRenders),
-    dragLongTasks: pick((r) => r.drag?.longTasks.count),
-    dragLongTaskMs: pick((r) => r.drag?.longTasks.totalMs),
-    dragLongestTaskMs: pick((r) => r.drag?.longTasks.maxMs),
-    dragFps: pick((r) => r.drag?.frames.fps),
-    dragCommits: pick((r) => r.drag?.renders.commits),
-    dragGlobeRenders: pick((r) => r.drag?.renders.globeRenders),
     selectedFps: pick((r) => r.selected?.frames.fps),
     selectedGapP95Ms: pick((r) => r.selected?.frames.gapP95Ms),
     selectedLongTasks: pick((r) => r.selected?.longTasks.count),
     selectedMapRendersPerSec: pick((r) => r.selected?.mapRendersPerSec),
+    selectedSlowFps: pick((r) => r.selectedSlow?.frames.fps),
+    selectedSlowGapP95Ms: pick((r) => r.selectedSlow?.frames.gapP95Ms),
+    selectedSlowLongTasks: pick((r) => r.selectedSlow?.longTasks.count),
+    selectedSlowLongestTaskMs: pick((r) => r.selectedSlow?.longTasks.maxMs),
     scrubFps: pick((r) => r.scrub?.frames.fps),
     scrubLongTasks: pick((r) => r.scrub?.longTasks.count),
     scrubLongTaskMs: pick((r) => r.scrub?.longTasks.totalMs),

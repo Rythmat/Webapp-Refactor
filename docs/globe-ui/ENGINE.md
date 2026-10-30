@@ -8,7 +8,9 @@ the map asks no other site for anything. Since 2026-10-29 it is a "data
 map" after two references the owner chose (Dribbble 25147704, a network
 graph on a tile-free map, and 22296468, a map dashboard with floating
 chart cards): dark land lit by music, places as dots in halos, the links
-between them, chart cards over the stage, and a ring view.
+between them, and a ring view. Since 2026-10-30 a selected place lifts its
+region off the globe (after Dribbble 23013593, the DHCS map), and the stage
+keeps two cards: its events and its Connections.
 
 The code is in `src/components/atlas/components/Globe/`. `AtlasGlobe.tsx`
 loads the engine lazily; `MapLibreGlobe.tsx` makes the map once
@@ -33,7 +35,8 @@ follows the years or the pointer goes through feature-state.**
   `setFeatureState` (each country's `music`, each place's `w` and `era`),
   written only for values that changed (`useLandLayers`, `usePlaceLayers`).
 - No data-driven `setPaintProperty`, ever: MapLibre lays the whole source
-  out again for one. The flow (below) changes only a constant opacity.
+  out again for one. The flow (below) changes only a constant opacity, and
+  the lift (below) only constant translates.
 
 The era-rail scrub step in `measureGlobe.mjs` checks this: MapLibreGlobe
 should not render once while the rail is dragged.
@@ -65,6 +68,41 @@ sprite sheet). The selected place, or the pinned event's, is a white "sun":
 a still bloom and core in the map (`placeLayers.ts`) and a CSS burst and
 two slow pulses over it (`SunFx.tsx`), which play once the map has flown
 there.
+
+## The lifted region
+
+Selecting a country, a state or a city lifts its region: a city lifts its
+state in the US and Canada, else its country (`liftPlaceOf`,
+`regionLift.ts`). Tours, pathways and artists don't lift: tours keep their own
+camera, and an artist's places have no one region. The code is
+`regionLift.ts` (pure), `liftLayers.ts` (the layers) and `useRegionLift.ts`.
+
+- **The height** is a viewport-anchored `*-translate` on every raised layer,
+  a constant with a paint transition, so nothing is laid out again: walls
+  (seven stacked fills), the lid, the edge, the dots, and the links, pills and
+  places that sit on it. Flights to a lifted region land tilted 35°, which
+  sells the height; `GlobeRim` fades out with the pitch.
+- **The colour** is its events' eras, oldest to newest, each as wide as its
+  share. The region is cut into 48 strips across its longer axis
+  (`sliceRegion`) whose colours are feature-state (`c`), so the gradient
+  follows the era rail live.
+- **The edge** carries a comet in the same colours, by rewriting one
+  `line-gradient` about 30 times a second. Reduced motion leaves it still and
+  bright.
+- **The dots** are one per event in the years shown, seated in a sunflower
+  round their place and kept inside the region (`eventDots.ts`, stable seats;
+  feature-state `on`), and populate in year order after the lid rises. At a
+  city, its own are bright and the region's others dim.
+- **The rest steps back:** other land dims, places beyond the region fade
+  and lose their chips, and those inside hand over to the dots, the busiest
+  five keeping their names.
+
+**The pointer.** MapLibre tests a viewport translate in the tile's plane, so
+under a tilt a raised layer answers short of where it is drawn (14 to 20 px
+for a lift of 22, varying with zoom). So the raised hit layers (`RAISED_HITS`:
+dots, links, places) stay on the ground and are asked at the pointer's spot
+less the lift. Dots' hit zones overlap at their 8 px spacing, so the nearest to
+the pointer wins (`nearestDot`).
 
 ## Connections
 
@@ -118,25 +156,31 @@ signal from the map or the ring.
 
 ## The cards
 
-A column of chart cards floats at the stage's right (`layout/CardsLayer.tsx`
-loads `Cards/StageCards.tsx` lazily): the world's with nothing chosen,
-else the stop's, and the Legend at the foot. It narrows, then folds to an
-"At a glance" pill as the Inspector takes room (`cardsLayout.ts`), reports
-what it covers so flights land beside it, and the bottom rail's Cards pill
-hides it for good (`atlas-cards-v1`). On a phone the cards are a strip
-above the bottom rail. The chart kit (`Cards/charts/`) has no dependency:
-its charts are `role="img"` with a sentence, its lists real text.
+Two cards, so the region stays the hero (owner, 2026-10-30):
+
+- **Events**, bottom-left, a fixed 24 by 26 rem (`layout/InspectorRegion.tsx`;
+  only a lesson's Mind map keeps its own size). Its header has the stop's
+  name, its event count and its era bar, the key to the region's gradient. Its
+  events are tiles: picture, title, year and place. One opens at a time,
+  description first, then its video and influences, scrolling inside the card
+  (`UI/DetailsCard.tsx`). Layers, an artist and search use the same card.
+- **Connections**, top-right (`Cards/StageCards.tsx`, lazy): the stop's flow
+  and strongest links, or the strongest links between regions with nothing
+  chosen. The bottom rail's Cards pill hides it for good (`atlas-cards-v1`),
+  and it folds to a pill when there is no room (`cardsLayout.ts`). On a phone it
+  is one mini card in the strip above the bottom rail.
+
+They report what they cover (`cornerBox`), so flights land clear of them. They
+sit in opposite corners, so each reports only a share of its width
+(`CORNER_INSET_SHARE`), or the region would shrink for nothing.
 
 ## The frame
 
 The Globe has its top and bottom rails, with the app's navigation
 (`ClassroomSidebar`) at its left on a desktop. There is no side rail at the
 right (owner, 2026-10-30): the panels' icons (Details, Layers, a lesson's
-Mind map) sit at the bottom rail's right, beside the Cards pill. The
-Inspector is a floating card in the stage's top-left corner, as tall as what
-it holds, and a stop's events are tiles in it: picture, title, year and place, the open one showing its
-video instead (`UI/DetailsCard.tsx`). Details hides and returns from its icon
-without leaving the stop.
+Mind map) sit at the bottom rail's right, beside the Cards pill. Details hides
+and returns from its icon without leaving the stop.
 
 ## The ring
 
@@ -158,8 +202,9 @@ Navigation says what a flight frames (`FlyTarget.frame`,
   (the part holding most of its music cities) plus every part within 3° of
   what is framed so far, so nearby islands join and far territories don't.
   Countries come no closer than zoom 6, states 6.5.
-- **A city** is centred with the region around it, at zoom 7. Navigation
-  asks in street-map zooms (10 for a city, 7 to 9.3 for tour stops);
+- **A city** frames the region it lifts (`liftFrame`).
+- **A tour's stop** is centred with the region around it, at zoom 7.
+  Navigation asks in street-map zooms (7 to 9.3 for tour stops);
   `capFrameZoom` compresses those past 5.5 into what is left below 7, so a
   closer stop still lands closer.
 - **An artist** is fitted to the places their events happened, no closer
@@ -178,22 +223,24 @@ under the globe projection.
 The page's flights carry `FLIGHT_EVENT` on their events, so the map's
 phase (`useMapPhase`: ready, flying, settled) tells them from the spin and
 from a reader's dragging. What should wait for the map waits on it: the
-intro, a new stop's burst and links, the cards' count-ups.
+intro, a new stop's lift, dots, burst and links.
 
 ## Motion
 
 - **The intro** (`layout/intro.tsx`), on a bare `/globe` once a visit:
   the map held back until it is ready (1.5 s at most), then the globe
   fades up and its rim draws, the era rail's rim draws left to right, and
-  the cards land one after another. Never on a link into the Globe.
-- **Selecting a stop:** the flight, then the burst and the links drawing
-  on; the stop's cards land afresh, their counts waiting for the map.
-- **New years:** the land and halos follow the era rail frame by frame;
-  the chart's line tweens to the new counts, bars slide to new widths.
+  the card lands. Never on a link into the Globe.
+- **Selecting a stop:** the cards land at once, so the information doesn't
+  wait; the flight and tilt; the lid rises as its colour sweeps along it; the
+  comet starts; the dots populate; the burst, and the links drawing on.
+  Deselecting settles it in one quick beat and levels the camera.
+- **New years:** the land, halos, the lifted region's gradient and its dots
+  follow the era rail frame by frame; bars slide to new widths.
 
 **Reduced motion** cuts all of it: no intro, flights cut, no flow, no
-draw-on, no burst, the ring appears in place, charts and counts show
-finished.
+draw-on, no burst, the lid and its dots simply there with a still edge, the
+ring appears in place.
 
 ## Fonts
 
@@ -215,7 +262,7 @@ corner control is off.
 ## Performance
 
 See [BASELINE.md](BASELINE.md) and `node scripts/measureGlobe.mjs`. The
-2026-10-30 figures are under "The data map" there.
+2026-10-30 figures are under "The data map" and "The lifted region" there.
 
 ## History
 
@@ -228,3 +275,5 @@ See [BASELINE.md](BASELINE.md) and `node scripts/measureGlobe.mjs`. The
   `git log -- src/components/atlas/components/Globe/basemapConfig.ts`.
 - **2026-10-29 to 30:** the data map: dark land lit by music, places and
   halos, connections, floating cards, the ring, the motion.
+- **2026-10-30:** the lifted region; the chart cards and the Legend went,
+  leaving the events and Connections cards.

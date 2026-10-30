@@ -58,7 +58,7 @@ export function useMapPointer(
         const at = feature?.geometry?.coordinates;
         if (Array.isArray(at) && typeof at[0] === 'number') {
           const p = map.project([at[0], at[1] as number]);
-          anchor = { x: box.left + p.x, y: box.top + p.y };
+          anchor = { x: box.left + p.x, y: box.top + p.y - signals.lift.get() };
         }
       } else if (target?.kind === 'region' && feature?.id !== undefined) {
         hover = { kind: 'region', place: target.place };

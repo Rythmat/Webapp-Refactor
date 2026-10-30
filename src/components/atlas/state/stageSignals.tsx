@@ -67,6 +67,8 @@ export interface StageSignals {
   /** Years a chart points at (charts ↔ the era rail). */
   yearFocus: Channel<{ from: number; to: number } | null>;
   mapPhase: Channel<MapPhase>;
+  /** How far the map's places are raised now, px (the lifted region). */
+  lift: Channel<number>;
 }
 
 const sameYears = (
@@ -84,6 +86,7 @@ export function createStageSignals(): StageSignals {
       sameYears,
     ),
     mapPhase: createChannel<MapPhase>('loading'),
+    lift: createChannel<number>(0),
   };
 }
 

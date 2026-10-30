@@ -20,6 +20,7 @@ import { useMapPointer } from './useMapPointer';
 import { useMotionGate } from './useMotionGate';
 import { useNetworkLayers } from './useNetworkLayers';
 import { usePlaceLayers } from './usePlaceLayers';
+import { useLiftPlace, useRegionLift } from './useRegionLift';
 import { useSpin } from './useSpin';
 import { useSun } from './useSun';
 
@@ -48,16 +49,27 @@ export default function MapLibreGlobe() {
   // The overlays' padding (MapPadding, below), for flights to land clear of it.
   const paddingRef = useRef<MapInsets>(NO_INSETS);
 
+  const liftPlace = useLiftPlace(scene.selectedLocation);
+  // A lifted region is marked by its lift, not an outline on the ground.
   const countryData = useLandLayers(
     map,
     geo,
     scene.layers,
-    scene.selectedLocation,
+    liftPlace ? null : scene.selectedLocation,
   );
   useLandMusic(map, countryData, scene.layers.landColor);
   usePlaceLayers(map, scene);
   const signals = useStageSignals();
   useNetworkLayers(map, scene.influenceArcs, gate, reducedMotion, signals);
+  useRegionLift(
+    map,
+    geo,
+    liftPlace,
+    scene.layers.landColor,
+    gate,
+    reducedMotion,
+    signals,
+  );
   useMapPointer(map, clicks, signals);
   useMapFlights(map, geo, paddingRef, reducedMotionRef);
   useSpin(map, gate);

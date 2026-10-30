@@ -12,6 +12,7 @@ import { useNetwork } from '@/components/atlas/network/useNetwork';
 import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
 import type { StageSignals } from '@/components/atlas/state/stageSignals';
 import { stopScope } from '@/components/atlas/stats/stopScope';
+import { afterFlight } from './afterFlight';
 import {
   DRAW_MS,
   drawOnPlan,
@@ -35,12 +36,6 @@ import {
   NETWORK_SOURCE,
 } from './networkLayers';
 import type { MotionGate } from './useMotionGate';
-
-/**
- * A new stop's links wait for the flight there: `graceMs` for one to
- * start, and never longer than `capMs` in all.
- */
-const DRAW_WAIT = { graceMs: 150, capMs: 2600 } as const;
 
 /** How many links between regions the world shows. */
 const WORLD_LINKS = 24;
@@ -135,27 +130,12 @@ export function useNetworkLayers(
       });
       frame = requestAnimationFrame(step);
     };
-    // After the flight there: a moment for one to start, then its end
-    // (or, whatever happens, DRAW_WAIT.capMs).
-    let begun = false;
-    const begin = () => {
-      if (begun) return;
-      begun = true;
+    const cancel = afterFlight(signals.mapPhase, () => {
       start = performance.now();
       frame = requestAnimationFrame(step);
-    };
-    const phase = signals.mapPhase;
-    const grace = window.setTimeout(() => {
-      if (phase.get() !== 'flying') begin();
-    }, DRAW_WAIT.graceMs);
-    const cap = window.setTimeout(begin, DRAW_WAIT.capMs);
-    const off = phase.subscribe(() => {
-      if (phase.get() === 'settled') begin();
     });
     return () => {
-      off();
-      window.clearTimeout(grace);
-      window.clearTimeout(cap);
+      cancel();
       cancelAnimationFrame(frame);
       showAll();
     };

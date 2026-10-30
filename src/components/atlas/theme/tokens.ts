@@ -153,6 +153,9 @@ export const ATLAS_SCENE = {
   space: '#000005',
   /** The land with no music in the years shown, and plain land. */
   landPlain: '#171a22',
+  /** The lifted region: its lid before colour comes, and its walls. */
+  liftNeutral: '#343848',
+  liftWall: '#10121a',
   /**
    * The land lit by music: at a little (the floor, landLevel 0.12), some,
    * much, and the most (1). Cool, so the halos' era colours and the links'

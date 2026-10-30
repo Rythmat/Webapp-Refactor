@@ -13,6 +13,7 @@ import {
   landLayers,
   landSources,
 } from './landLayers';
+import { LIFT_LAYER, liftLayerSpecs, liftSources } from './liftLayers';
 import { mapFontFaces } from './mapFonts';
 import {
   NETWORK_LAYER,
@@ -56,6 +57,7 @@ export const LAYER = {
   linksHit: NETWORK_LAYER.solidHit,
   linksDottedHit: NETWORK_LAYER.dottedHit,
   linkPills: NETWORK_LAYER.pills,
+  liftLid: LIFT_LAYER.lid,
   placeHalo: PLACE_LAYER.halo,
   placeDot: PLACE_LAYER.dot,
   placeHit: PLACE_LAYER.hit,
@@ -70,6 +72,8 @@ export const CLICK_LAYERS = [
   LAYER.artistPoints,
   LAYER.cityLabels,
   LAYER.placeHit,
+  // A click on the raised region lands on it, not the land under it.
+  LAYER.liftLid,
   LAYER.statesFill,
   LAYER.countriesFill,
 ] as const;
@@ -102,6 +106,7 @@ export function overlaySources(): Record<string, SourceSpecification> {
     } as SourceSpecification,
     [SOURCE.artistPoints]: emptyCollection(),
     ...networkSources(),
+    ...liftSources(),
     [SUN_SOURCE]: emptyCollection(),
   };
 }
@@ -126,6 +131,43 @@ export function overlayLayersBelowLabels(): LayerSpecification[] {
     },
   ];
 }
+
+/* ── What rises with a lifted region ─────────────────────────────────────── */
+
+const TRANSLATE: Record<string, readonly string[]> = {
+  fill: ['fill-translate'],
+  line: ['line-translate'],
+  circle: ['circle-translate'],
+  symbol: ['text-translate', 'icon-translate'],
+};
+
+/** Anchored to the screen: "up" is up, however the camera is turned. */
+function anchored<L extends LayerSpecification>(layer: L): L {
+  const paint: Record<string, unknown> = { ...layer.paint };
+  for (const prop of TRANSLATE[layer.type] ?? []) {
+    paint[`${prop}-anchor`] = 'viewport';
+  }
+  return { ...layer, paint };
+}
+
+/** The lifted region's layers and all that sits on it: links, places. */
+function raisedLayers(textScale: number): LayerSpecification[] {
+  return [
+    ...liftLayerSpecs().filter((l) => l.id !== LIFT_LAYER.ground),
+    ...overlayLayersBelowLabels(),
+    networkPillLayer(textScale),
+    ...placeLayers(SOURCE.cityPoints, textScale),
+  ];
+}
+
+/** Each raised layer and the properties that raise it. */
+export const RAISED_LAYERS: readonly {
+  id: string;
+  props: readonly string[];
+}[] = raisedLayers(1).map((l) => ({
+  id: l.id,
+  props: TRANSLATE[l.type] ?? [],
+}));
 
 /* ── The style ───────────────────────────────────────────────────────────── */
 
@@ -164,10 +206,11 @@ export function buildStyle({
         paint: { 'background-color': ATLAS_SCENE.ocean },
       },
       ...landLayers(land),
-      ...overlayLayersBelowLabels(),
       ...landLabelLayers(textScale),
-      networkPillLayer(textScale),
-      ...placeLayers(SOURCE.cityPoints, textScale),
+      ...liftLayerSpecs().map(anchored),
+      ...overlayLayersBelowLabels().map(anchored),
+      anchored(networkPillLayer(textScale)),
+      ...placeLayers(SOURCE.cityPoints, textScale).map(anchored),
     ],
   };
 }

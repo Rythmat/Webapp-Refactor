@@ -8,6 +8,7 @@ import {
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
 import type { MapInsets } from '@/components/atlas/types';
+import { LIFT_PITCH } from './liftLayers';
 import {
   findRegion,
   fitCamera,
@@ -19,6 +20,8 @@ import { altitudeToMapZoom, flightDuration } from './mapGeometry';
 import { MAP_START } from './useMapInstance';
 import { FLIGHT_EVENT } from './useMapPhase';
 
+/** Room round a lifted region, px: it's the hero, not edge to edge. */
+const LIFT_MARGIN_PX = 72;
 /** How long a framed flight waits for the panel it opens to be measured. */
 const SETTLE_MS = 80;
 /** How long a country or state flight waits for its outlines before going anyway. */
@@ -77,7 +80,14 @@ export function useMapFlights(
       const camera = frameCamera(
         target,
         outlines,
-        (bounds, maxZoom) => fitCamera(bounds, view, padding, maxZoom),
+        (bounds, maxZoom) =>
+          fitCamera(
+            bounds,
+            view,
+            padding,
+            maxZoom,
+            frame?.kind === 'region' ? LIFT_MARGIN_PX : undefined,
+          ),
         view.height,
       );
       // The first flight is a deep link's: start over the target, zoomed
@@ -98,6 +108,8 @@ export function useMapFlights(
         {
           center: camera.center,
           zoom: camera.zoom,
+          // Tilted over a lifted region, which sells its height.
+          pitch: frame?.kind === 'region' ? LIFT_PITCH : 0,
           padding,
           duration: flightDuration(reducedMotionRef.current),
           // Not essential: MapLibre itself cuts the flight under reduced

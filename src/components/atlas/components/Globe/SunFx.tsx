@@ -2,6 +2,7 @@ import type { Map as MapLibreMap } from 'maplibre-gl';
 import { useEffect, useRef, useState } from 'react';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
 import { useStageSignals } from '@/components/atlas/state/stageSignals';
+import { afterFlight } from './afterFlight';
 import { cameraRadii, facing } from './globeGeometry';
 
 /**
@@ -24,22 +25,10 @@ export function SunFx({
 }) {
   const reducedMotion = usePrefersReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
-  const phase = useStageSignals().mapPhase;
+  const { mapPhase: phase, lift } = useStageSignals();
   const [landed, setLanded] = useState(false);
   useEffect(() => {
-    const land = () => setLanded(true);
-    const grace = window.setTimeout(() => {
-      if (phase.get() !== 'flying') land();
-    }, 150);
-    const cap = window.setTimeout(land, 2600);
-    const off = phase.subscribe(() => {
-      if (phase.get() === 'settled') land();
-    });
-    return () => {
-      off();
-      window.clearTimeout(grace);
-      window.clearTimeout(cap);
-    };
+    return afterFlight(phase, () => setLanded(true));
   }, [phase]);
   useEffect(() => {
     const el = ref.current;
@@ -56,7 +45,7 @@ export function SunFx({
       );
       const seen = facing(center, { lat, lng }, r) > 0;
       const { x, y } = map.project([lng, lat]);
-      el.style.transform = `translate(${x}px, ${y}px)`;
+      el.style.transform = `translate(${x}px, ${y - lift.get()}px)`;
       el.style.visibility = seen ? 'visible' : 'hidden';
     };
     place();
@@ -65,12 +54,14 @@ export function SunFx({
     };
     map.on('move', schedule);
     map.on('resize', schedule);
+    const off = lift.subscribe(schedule);
     return () => {
+      off();
       map.off('move', schedule);
       map.off('resize', schedule);
       cancelAnimationFrame(raf);
     };
-  }, [map, lat, lng]);
+  }, [map, lat, lng, lift]);
   if (reducedMotion) return null;
   return (
     <div ref={ref} aria-hidden className="atlas-sun-fx" data-atlas-sun>

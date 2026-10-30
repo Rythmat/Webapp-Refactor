@@ -6,6 +6,7 @@ import {
   useAtlasStop,
 } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
+  farTotals,
   scopeLinks,
   worldLinks,
 } from '@/components/atlas/network/placeNetwork';
@@ -139,20 +140,23 @@ function Connections({
       </p>
     );
   }
-  const far = (l: PlaceLink, s: 'in' | 'out') => (s === 'in' ? l.from : l.to);
-  const flow = (list: readonly PlaceLink[], s: 'in' | 'out') =>
-    list.slice(0, FLOW_SIDE).map((l) => ({
-      key: l.id,
-      label: label(far(l, s)),
-      weight: l.weight,
+  // Each far place once, totalled: a country's cities may all link to it. A
+  // row's key is the place's strongest link, which it points out on the map.
+  const places = (list: readonly PlaceLink[], s: 'from' | 'to') =>
+    farTotals(list, s).map(({ node, weight }) => ({
+      node,
+      weight,
+      key: list.find((l) => l[s] === node)?.id ?? node,
+      label: label(node),
     }));
-  const shown = side === 'in' ? links.roots : links.routes;
-  const byId = new Map(shown.map((l) => [l.id, l]));
+  const cameFrom = places(links.roots, 'from');
+  const wentTo = places(links.routes, 'to');
+  const shown = side === 'in' ? cameFrom : wentTo;
   return (
     <>
       <FlowChart
-        from={flow(links.roots, 'in')}
-        to={flow(links.routes, 'out')}
+        from={cameFrom.slice(0, FLOW_SIDE)}
+        to={wentTo.slice(0, FLOW_SIDE)}
       />
       <div
         aria-label="Which way"
@@ -161,8 +165,8 @@ function Connections({
       >
         {(
           [
-            ['in', 'Came from', links.roots.length],
-            ['out', 'Went to', links.routes.length],
+            ['in', 'Came from', cameFrom.length],
+            ['out', 'Went to', wentTo.length],
           ] as const
         ).map(([id, word, n]) => (
           <button
@@ -184,17 +188,17 @@ function Connections({
         label={
           side === 'in' ? 'Where its music came from' : 'Where its music went'
         }
-        rows={shown.slice(0, ROWS).map((l) => ({
-          key: l.id,
-          label: label(far(l, side)),
-          value: l.weight,
+        rows={shown.slice(0, ROWS).map((row) => ({
+          key: row.key,
+          label: row.label,
+          value: row.weight,
           // The map's colours: cool came in, warm went out.
           color: side === 'in' ? ROOTS_RAMP[1] : ROUTES_RAMP[2],
         }))}
         onHover={(key) => signals.linkFocus.set(key)}
         onSelect={(key) => {
-          const link = byId.get(key);
-          const to = link ? place(far(link, side)) : null;
+          const row = shown.find((r) => r.key === key);
+          const to = row ? place(row.node) : null;
           if (to) navigate.toPlace(to);
         }}
       />

@@ -11,6 +11,8 @@ import { globeDisc, rimOpacity } from './globeGeometry';
  * (clear round the globe), redrawn as the camera moves; it fades as the
  * globe fills the view. `progress` (0–1) draws it on, for the intro.
  */
+const RIM_GONE_AT_PITCH = 12;
+
 export function GlobeRim({
   map,
   progress = 1,
@@ -55,7 +57,10 @@ export function GlobeRim({
         centerLat: center.lat,
         fovDeg: map.getVerticalFieldOfView(),
       });
-      const alpha = rimOpacity(disc.r, width, height);
+      // Its circle assumes the globe seen straight on: gone when tilted.
+      const alpha =
+        rimOpacity(disc.r, width, height) *
+        Math.max(0, 1 - map.getPitch() / RIM_GONE_AT_PITCH);
       const sweep = Math.max(0, Math.min(1, progressRef.current));
       if (alpha <= 0 || sweep <= 0) return;
       // The rainbow turns with the globe: its start follows the longitude.

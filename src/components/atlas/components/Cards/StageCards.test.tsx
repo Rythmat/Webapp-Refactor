@@ -96,6 +96,20 @@ describe('the floating card', () => {
     expect(where.search).not.toMatch(/london/);
   });
 
+  it('names each far place once, totalled', async () => {
+    setup('/globe?place=country:United%20States%20of%20America:USA');
+    const links = card('Connections');
+    const list = await within(links).findByRole(
+      'list',
+      { name: /^Where its music/ },
+      { timeout: 5000 },
+    );
+    const names = within(list)
+      .getAllByRole('button')
+      .map((row) => row.textContent);
+    expect(new Set(names).size).toBe(names.length);
+  });
+
   it('shows an event’s own connections at an event', () => {
     setup('/globe?event=evt-blues-clarksdale-1903');
     expect(card('This event’s connections')).toBeTruthy();

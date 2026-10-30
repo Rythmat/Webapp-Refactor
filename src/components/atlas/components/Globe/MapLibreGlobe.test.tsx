@@ -93,6 +93,9 @@ const fake = vi.hoisted(() => {
     getVerticalFieldOfView() {
       return 36.87;
     }
+    getPitch() {
+      return 0;
+    }
     isMoving() {
       return false;
     }

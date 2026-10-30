@@ -12,15 +12,14 @@ const at = (stageWidth: number, inspectorPx: number) =>
   });
 
 describe('where the cards sit', () => {
-  it('stays full on a wide screen, Inspector open or not', () => {
-    expect(at(1376, 408)).toBe('full');
-    expect(at(1216, 408)).toBe('full');
+  it('shows on a wide screen, events card open or not', () => {
+    expect(at(1376, 422)).toBe('shown');
+    expect(at(925, 422)).toBe('shown');
   });
 
-  it('narrows, then folds to a pill, as the Inspector takes the room', () => {
-    expect(at(1088, 408)).toBe('compact');
-    expect(at(960, 408)).toBe('collapsed');
-    expect(at(960, 0)).toBe('full');
+  it('folds to a pill when the events card leaves too little room', () => {
+    expect(at(860, 422)).toBe('collapsed');
+    expect(at(860, 0)).toBe('shown');
   });
 
   it('steps aside on the river, on a phone, or when hidden', () => {

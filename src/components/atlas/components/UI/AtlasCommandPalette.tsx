@@ -4,7 +4,6 @@ import {
   Compass,
   CornerDownLeft,
   Eraser,
-  Info,
   Layers,
   Link2,
   Orbit,
@@ -74,7 +73,6 @@ const ACTION_ICONS: Record<string, LucideIcon> = {
   'stop-spin': Pause,
   'copy-link': Link2,
   'clear-trail': Eraser,
-  legend: Info,
   layers: Layers,
   connections: Orbit,
 };
@@ -260,12 +258,6 @@ export default function AtlasCommandPalette({
         keywords: ['ring', 'chord', 'links', 'network', 'connections'],
       },
       {
-        id: 'legend',
-        title: 'Show legend',
-        subtitle: 'What the colors and marks mean',
-        keywords: ['key', 'colours', 'colors', 'help'],
-      },
-      {
         id: 'layers',
         title: 'Open Layers',
         subtitle: 'Show or hide cities, arcs, states and colors',
@@ -312,11 +304,6 @@ export default function AtlasCommandPalette({
     'stop-spin': () => dispatch({ type: 'SET_GLOBE_ROTATING', payload: false }),
     'copy-link': onCopyLink,
     'clear-trail': trail.clear,
-    legend: () =>
-      dispatch({
-        type: 'SET_CARD_PREFS',
-        payload: { hidden: false, legendOpen: true },
-      }),
     layers: () => navigate.setFrame({ panel: 'layers' }),
     connections: () => navigate.toSection('ring'),
   };

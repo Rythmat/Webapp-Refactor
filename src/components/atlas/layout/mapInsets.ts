@@ -20,6 +20,35 @@ interface Box {
 const shown = (box: Box | null | undefined): box is Box =>
   !!box && box.width > 0 && box.height > 0;
 
+/**
+ * A corner card's box as the map frames around it: only `share` of its width,
+ * from the side it is on (frameGeometry.ts, CORNER_INSET_SHARE).
+ */
+export function cornerBox(
+  box: Box,
+  side: 'left' | 'right',
+  share: number,
+): Box {
+  const width = box.width * share;
+  return side === 'left'
+    ? {
+        top: box.top,
+        bottom: box.bottom,
+        height: box.height,
+        left: box.left,
+        right: box.left + width,
+        width,
+      }
+    : {
+        top: box.top,
+        bottom: box.bottom,
+        height: box.height,
+        left: box.right - width,
+        right: box.right,
+        width,
+      };
+}
+
 export function insetsFrom(
   container: Box,
   zones: {

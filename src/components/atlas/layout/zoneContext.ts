@@ -3,8 +3,8 @@ import type { SheetSnap } from './sheetSnap';
 
 /**
  * Where a panel is drawn:
- * - `inspector`: the Inspector over the map's right edge (desktop), which is the
- *   surface; Enlarge widens it;
+ * - `inspector`: the Inspector, a fixed card in the stage's corner (desktop),
+ *   which is the surface;
  * - `sheet`: the phone's bottom sheet, which is the surface and gives the
  *   panel its full width and height;
  * - `dock`: the stage's dock under the map (a place's timeline, a tour's or
@@ -18,11 +18,7 @@ export type AtlasZone =
       snap: SheetSnap;
       setSnap: (snap: SheetSnap) => void;
     }
-  | {
-      kind: 'inspector';
-      enlarged: boolean;
-      setEnlarged: (enlarged: boolean) => void;
-    }
+  | { kind: 'inspector' }
   | { kind: 'dock' };
 
 const COLUMN: AtlasZone = { kind: 'column' };

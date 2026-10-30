@@ -101,17 +101,9 @@ export const flyZoom = (
 ): number => altitudeToMapZoom(zoomToAltitude(zoom), viewportHeight, lat);
 
 /**
- * US/Canada state outlines show from this zoom (about the three.js globe's
- * altitude 2.1 on a laptop screen). Hysteresis: the camera has to travel back
- * past STATES_LEAVE_ZOOM to hide them, so a fly that settles near the
- * threshold cannot flicker.
+ * US/Canada state outlines show from this zoom.
  */
 export const STATES_MIN_ZOOM = 3;
-export const STATES_LEAVE_ZOOM = 2.8;
-
-export function statesInViewAt(zoom: number, wasInView: boolean): boolean {
-  return wasInView ? zoom >= STATES_LEAVE_ZOOM : zoom >= STATES_MIN_ZOOM;
-}
 
 /* ── Geometry ────────────────────────────────────────────────────────────── */
 

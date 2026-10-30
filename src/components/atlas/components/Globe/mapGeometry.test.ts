@@ -11,7 +11,6 @@ import {
   MAP_MAX_ZOOM,
   mapZoomToAltitude,
   regionCollection,
-  statesInViewAt,
   zoomToAltitude,
 } from './mapGeometry';
 
@@ -80,13 +79,6 @@ describe('zoom mapping', () => {
   it('stays within the map’s zoom range', () => {
     expect(altitudeToMapZoom(1e6, H)).toBe(0);
     expect(altitudeToMapZoom(1e-9, H)).toBe(MAP_MAX_ZOOM);
-  });
-
-  it('shows the states from zoom 3 and hides them below 2.8', () => {
-    expect(statesInViewAt(2.9, false)).toBe(false);
-    expect(statesInViewAt(3, false)).toBe(true);
-    expect(statesInViewAt(2.9, true)).toBe(true);
-    expect(statesInViewAt(2.7, true)).toBe(false);
   });
 });
 

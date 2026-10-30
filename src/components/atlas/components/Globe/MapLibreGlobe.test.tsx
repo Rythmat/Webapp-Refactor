@@ -262,7 +262,7 @@ describe('clicks on the MapLibre globe', () => {
     const flight = map.flyTo.mock.calls.at(-1)![0];
     expect(flight).toMatchObject({
       essential: false,
-      padding: expect.objectContaining({ left: 408, right: 0 }),
+      padding: expect.objectContaining({ left: 238, right: 0 }),
     });
     expect(flight.center[0]).toBeCloseTo(-54);
     expect(flight.center[1]).toBeLessThan(-14);
@@ -351,7 +351,7 @@ describe('the MapLibre camera', () => {
           center: [-90.07, 29.95],
           zoom: 7,
           // The Inspector is not measured yet: its width is assumed.
-          padding: expect.objectContaining({ left: 408, right: 0 }),
+          padding: expect.objectContaining({ left: 238, right: 0 }),
         }),
         FLIGHT_EVENT,
       ),
@@ -365,13 +365,5 @@ describe('the MapLibre camera', () => {
     expect(map.easeTo).toHaveBeenLastCalledWith(
       expect.objectContaining({ padding: insets }),
     );
-  });
-
-  it('reports the state outlines in view from zoom 3', () => {
-    const { map, store } = setup();
-    expect(store.api.getState().statesInView).toBe(false);
-    map.zoom = 3.2;
-    act(() => map.emit('zoom'));
-    expect(store.api.getState().statesInView).toBe(true);
   });
 });

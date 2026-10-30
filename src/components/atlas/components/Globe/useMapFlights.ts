@@ -2,7 +2,7 @@ import type { Map as MapLibreMap } from 'maplibre-gl';
 import { useEffect, useRef, type MutableRefObject } from 'react';
 import type { useGeoData } from '@/components/atlas/hooks/useGeoData';
 import { useIsPhone } from '@/components/atlas/hooks/useMediaQuery';
-import { readInspectorWidth } from '@/components/atlas/layout/inspectorWidth';
+import { INSPECTOR_REM } from '@/components/atlas/layout/frameGeometry';
 import {
   useAtlasDispatch,
   useAtlasSelector,
@@ -15,11 +15,7 @@ import {
   landingInsets,
   type Outlines,
 } from './mapFraming';
-import {
-  altitudeToMapZoom,
-  flightDuration,
-  statesInViewAt,
-} from './mapGeometry';
+import { altitudeToMapZoom, flightDuration } from './mapGeometry';
 import { MAP_START } from './useMapInstance';
 import { FLIGHT_EVENT } from './useMapPhase';
 
@@ -36,8 +32,7 @@ type Geo = Pick<ReturnType<typeof useGeoData>, 'countries' | 'adminRegions'>;
  * events fitted together, inside the part of the map the overlays leave
  * clear (`paddingRef`, kept by MapPadding). Depends on `map` so a target set
  * before the map finished loading (a deep link) is applied once it has, and
- * on the outlines so a region waits for them. Also tells the store when the
- * state outlines come into view, for the legend.
+ * on the outlines so a region waits for them.
  */
 export function useMapFlights(
   map: MapLibreMap | null,
@@ -73,7 +68,10 @@ export function useMapFlights(
         phone: isPhoneRef.current,
         width: container.clientWidth,
         height: container.clientHeight,
-        inspectorPx: readInspectorWidth(),
+        inspectorPx:
+          INSPECTOR_REM.width *
+          (parseFloat(getComputedStyle(document.documentElement).fontSize) ||
+            16),
       };
       const padding = landingInsets(paddingRef.current, view, !!frame);
       const camera = frameCamera(
@@ -142,23 +140,4 @@ export function useMapFlights(
     reducedMotionRef,
   ]);
   useEffect(() => () => window.clearTimeout(flightTimer.current), []);
-
-  // State outlines in view, for the legend: from STATES_MIN_ZOOM, with
-  // hysteresis. 'zoom' fires every frame of a flight; only a change is sent.
-  const statesInView = useAtlasSelector((s) => s.statesInView);
-  const statesInViewRef = useRef(statesInView);
-  useEffect(() => {
-    if (!map) return;
-    const check = () => {
-      const next = statesInViewAt(map.getZoom(), statesInViewRef.current);
-      if (next === statesInViewRef.current) return;
-      statesInViewRef.current = next;
-      dispatch({ type: 'SET_STATES_IN_VIEW', payload: next });
-    };
-    check();
-    map.on('zoom', check);
-    return () => {
-      map.off('zoom', check);
-    };
-  }, [map, dispatch]);
 }

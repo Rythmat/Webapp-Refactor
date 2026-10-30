@@ -17,6 +17,7 @@ import {
   useState,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { StackedBar } from '@/components/atlas/components/Cards/charts/StackedBar';
 import {
   ArtistChips,
   TitleWithArtists,
@@ -27,7 +28,6 @@ import { GenreBadge } from '@/components/atlas/components/UI/GenreBadge';
 import {
   ATLAS_FOCUS,
   ATLAS_ITEM_TITLE,
-  AtlasEyebrow,
   AtlasIconButton,
   AtlasPanel,
   AtlasPanelBody,
@@ -36,6 +36,7 @@ import type { AtlasArtist } from '@/components/atlas/data/artists';
 import { eventImage } from '@/components/atlas/data/eventImage';
 import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import { getCityById } from '@/components/atlas/data/lookups';
+import { MUSICAL_ERAS } from '@/components/atlas/data/musicalEras';
 import { songIdForEvent } from '@/components/atlas/data/songEventAliases';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
 import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
@@ -53,6 +54,9 @@ import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
+import { eraSplit } from '@/components/atlas/stats/eraSplit';
+import { ERA_BG } from '@/components/atlas/theme/eraClasses';
+import { inWindow } from '@/components/atlas/timeline/timeWindow';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
@@ -102,6 +106,8 @@ function EventMeta({ event, id }: { event: HistoricalEvent; id?: string }) {
   );
 }
 
+const ERA_LABEL = new Map(MUSICAL_ERAS.map((e) => [e.id, e.label]));
+
 /** A tile's picture: the event's own, or a quiet stand-in of the same shape. */
 function EventTilePicture({ event }: { event: HistoricalEvent }) {
   const src = eventImage(event, 'lane');
@@ -123,10 +129,34 @@ function EventTilePicture({ event }: { event: HistoricalEvent }) {
   );
 }
 
+/** The events by era in the years shown, as one bar; none when there are none. */
+function HeaderEras({ events }: { events: readonly HistoricalEvent[] }) {
+  const w = useAtlasSelector((s) => s.timeWindow);
+  const eras = useMemo(
+    () => eraSplit(events.map((e) => e.year).filter((y) => inWindow(w, y))),
+    [events, w],
+  );
+  if (eras.length === 0) return null;
+  return (
+    <div className="mt-3">
+      <StackedBar
+        label="Events by era"
+        segments={eras.map((e) => ({
+          key: e.id,
+          count: e.count,
+          className: ERA_BG[e.id],
+          label: ERA_LABEL.get(e.id) ?? e.id,
+        }))}
+      />
+    </div>
+  );
+}
+
 function EventList({
   events,
   expandedEvents,
   enlarged,
+  canEnlarge,
   pinnedEventId,
   sequenceActive,
   onToggle,
@@ -139,6 +169,8 @@ function EventList({
   events: HistoricalEvent[];
   expandedEvents: Set<string>;
   enlarged: boolean;
+  /** Whether Enlarge is on offer: not in the Inspector's fixed card. */
+  canEnlarge: boolean;
   pinnedEventId?: string;
   sequenceActive: boolean;
   onToggle: (id: string) => void;
@@ -190,11 +222,6 @@ function EventList({
 
   return (
     <AtlasPanelBody ref={scrollRef} className="px-4 pb-3">
-      {!enlarged && (
-        <AtlasEyebrow as="p" className="mb-2 mt-3">
-          {events.length} event{events.length !== 1 && 's'}
-        </AtlasEyebrow>
-      )}
       <div
         ref={listRef}
         className={
@@ -256,20 +283,22 @@ function EventList({
                     </h4>
                     <div className="relative z-10 -mr-1 -mt-0.5 flex shrink-0 items-center gap-0.5">
                       <LeadSheetButton event={event} />
-                      <AtlasIconButton
-                        aria-label={focused ? 'Shrink' : 'Enlarge'}
-                        size="xs"
-                        onClick={() => {
-                          if (focused) onShrink();
-                          else onEnlarge(event);
-                        }}
-                      >
-                        {focused ? (
-                          <Minimize2 aria-hidden className="size-4" />
-                        ) : (
-                          <Maximize2 aria-hidden className="size-3.5" />
-                        )}
-                      </AtlasIconButton>
+                      {canEnlarge && (
+                        <AtlasIconButton
+                          aria-label={focused ? 'Shrink' : 'Enlarge'}
+                          size="xs"
+                          onClick={() => {
+                            if (focused) onShrink();
+                            else onEnlarge(event);
+                          }}
+                        >
+                          {focused ? (
+                            <Minimize2 aria-hidden className="size-4" />
+                          ) : (
+                            <Maximize2 aria-hidden className="size-3.5" />
+                          )}
+                        </AtlasIconButton>
+                      )}
                     </div>
                   </div>
                   {enlarged ? (
@@ -297,17 +326,17 @@ function EventList({
               </div>
               {isExpanded && (
                 <div className="relative z-10" id={`${idBase}-${index}-body`}>
+                  <p
+                    className={`mt-2 leading-relaxed text-atlas-text/80 ${focused ? 'text-base' : 'text-sm'}`}
+                  >
+                    {event.description}
+                  </p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {event.genre.map((g) => (
                       <GenreBadge key={g} genre={g} />
                     ))}
                   </div>
                   <ArtistChips event={event} onSelectArtist={onSelectArtist} />
-                  <p
-                    className={`mt-2 leading-relaxed text-atlas-text/80 ${focused ? 'text-base' : 'text-sm'}`}
-                  >
-                    {event.description}
-                  </p>
                   <EventVideo
                     event={event}
                     onPlay={onVideoPlay}
@@ -344,12 +373,10 @@ export function DetailsCard() {
   const navigate = useAtlasNavigate();
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
   const zone = useAtlasZone();
-  // In the Inspector, Enlarge widens the Inspector itself (InspectorRegion);
-  // elsewhere the card keeps it.
-  const [ownEnlarged, setOwnEnlarged] = useState(false);
-  const enlarged = zone.kind === 'inspector' ? zone.enlarged : ownEnlarged;
-  const setEnlarged =
-    zone.kind === 'inspector' ? zone.setEnlarged : setOwnEnlarged;
+  // The Inspector is a card of a fixed size (owner, 2026-10-30); on a phone,
+  // Enlarge is the sheet at full height.
+  const canEnlarge = zone.kind !== 'inspector';
+  const [enlarged, setEnlarged] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const reducedMotion = usePrefersReducedMotion();
 
@@ -408,7 +435,8 @@ export function DetailsCard() {
       cardRef.current
         ?.querySelector(`[data-event-id="${id}"]`)
         ?.scrollIntoView({
-          block: 'nearest',
+          // Its description first: the card is short.
+          block: 'start',
           behavior: scrollBehavior(reducedMotion),
         });
     });
@@ -451,18 +479,19 @@ export function DetailsCard() {
       : undefined;
   const heading =
     selectedLocation.type === 'country'
-      ? {
-          title: selectedLocation.name,
-          subtitle: `ISO: ${selectedLocation.iso}`,
-        }
+      ? { title: selectedLocation.name, place: undefined }
       : selectedLocation.type === 'state'
         ? {
             title: selectedLocation.name,
-            subtitle: selectedLocation.country ?? 'United States',
+            place: selectedLocation.country ?? 'United States',
           }
         : city
-          ? { title: city.name, subtitle: city.country }
-          : { title: 'City not found', subtitle: undefined };
+          ? { title: city.name, place: city.country }
+          : { title: 'City not found', place: undefined };
+  const counted = listed
+    ? `${events.length} event${events.length === 1 ? '' : 's'}`
+    : undefined;
+  const subtitle = [heading.place, counted].filter(Boolean).join(' · ');
 
   return (
     <AtlasPanel
@@ -473,32 +502,13 @@ export function DetailsCard() {
         </AtlasIconButton>
       }
       as="div"
-      header={
-        city &&
-        !enlarged && (
-          <>
-            {/* A town events make a city of has no description of its own. */}
-            {city.description && (
-              <p className="mt-3 text-sm leading-relaxed text-atlas-text/80">
-                {city.description}
-              </p>
-            )}
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {city.genres.map((genre) => (
-                <GenreBadge key={genre} genre={genre} />
-              ))}
-            </div>
-            <p className="mt-3 text-sm text-atlas-text-2">
-              Active: {city.activeDecades.map((d) => `${d}s`).join(', ')}
-            </p>
-          </>
-        )
-      }
+      // The region's colours, explained: its events by era, in the years shown.
+      header={!enlarged && <HeaderEras events={events} />}
       // On its own (no zone to fill), Enlarge widens the card itself.
       style={
         enlarged ? { width: 'min(66vw, 900px)' } : { width: 'min(30rem, 100%)' }
       }
-      subtitle={heading.subtitle}
+      subtitle={subtitle || undefined}
       title={heading.title}
     >
       {awaitingOutlines && (
@@ -526,6 +536,7 @@ export function DetailsCard() {
           events={events}
           expandedEvents={expandedEvents}
           enlarged={enlarged}
+          canEnlarge={canEnlarge}
           pinnedEventId={pinnedEvent?.id}
           sequenceActive={sequenceActive}
           onToggle={toggleEvent}

@@ -12,21 +12,17 @@ export const FRAME_PX = {
 } as const;
 
 /**
- * The Inspector's width. Wider than the Studio's 300 px: an event row (its
- * still, its title, its links) and two cards across need the room.
+ * The Inspector's fixed size, a card in the stage's bottom-left corner (owner,
+ * 2026-10-30: the region is the hero; the card never grows over it). A
+ * lesson's mind map is a board, and keeps a tall column of `mindmapPx`.
  */
-export const INSPECTOR_PX = { min: 320, default: 400, max: 640 } as const;
+export const INSPECTOR_REM = { width: 24, height: 26 } as const;
+export const MINDMAP_PX = 400;
 
-/** The widest the Inspector grows over a map area `areaPx` wide. */
-export const inspectorMaxPx = (areaPx: number): number =>
-  Math.max(
-    INSPECTOR_PX.min,
-    Math.min(INSPECTOR_PX.max, Math.round(areaPx * 0.7)),
-  );
-
-/** A width the Inspector can take over a map area `areaPx` wide. */
-export const clampInspectorPx = (px: number, areaPx: number): number =>
-  Math.round(Math.min(Math.max(px, INSPECTOR_PX.min), inspectorMaxPx(areaPx)));
-
-/** Enlarged (an event's video, read in full): most of the map's width. */
-export const INSPECTOR_ENLARGED = 'min(66vw, 900px)';
+/**
+ * How much of a corner card's width the map frames around. The events card
+ * and the Connections card sit in opposite corners, leaving the other two
+ * free, so framing around their full width would shrink the region for
+ * nothing; a region may pass beside a card at its widest.
+ */
+export const CORNER_INSET_SHARE = 0.6;

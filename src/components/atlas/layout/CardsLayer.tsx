@@ -29,9 +29,9 @@ import { ATLAS_Z } from '@/components/atlas/theme/layers';
 import type { MapInsets } from '@/components/atlas/types';
 import { cn } from '@/lib/utils';
 import { CARDS_REM, cardsMode, type CardsMode } from './cardsLayout';
+import { CORNER_INSET_SHARE, INSPECTOR_REM } from './frameGeometry';
 import { useIntro } from './intro';
-import { insetsFrom, useReportInsets } from './mapInsets';
-import { useLegacyLegendLink } from './useLegacyLegendLink';
+import { cornerBox, insetsFrom, useReportInsets } from './mapInsets';
 
 const loadStageCards = () =>
   import('@/components/atlas/components/Cards/StageCards');
@@ -41,19 +41,16 @@ const remPx = () =>
   parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
 
 /**
- * The floating cards' place over the map (owner, 2026-10-29: the Studio
- * frame with floating cards, after the map-dashboard reference): a column
- * at the stage's right (the events card has the left corner), under the
- * Inspector and the era rail, its cards
- * loading with their own chunk. It tells the map what it covers, so
- * flights land beside it; folded to "At a glance" when the Inspector leaves
- * too little room, the pill opens it over the map instead.
+ * The floating card's place over the map (owner, 2026-10-30: the region is the
+ * hero): the stage's top-right corner, under the panels and the era rail, its
+ * code loading with its own chunk. It tells the map what it covers, so flights
+ * land beside it; folded to "At a glance" when the events card leaves too
+ * little room, the pill opens it over the map instead.
  */
 export function CardsLayer() {
   const ref = useRef<HTMLDivElement>(null);
   const columnRef = useRef<HTMLDivElement>(null);
   const dispatch = useAtlasDispatch();
-  useLegacyLegendLink();
   // Held back while the intro waits for the map; they land as it plays.
   const intro = useIntro();
   // Fetched while the intro waits, so the cards land on time.
@@ -66,8 +63,8 @@ export function CardsLayer() {
     columnRef.current?.scrollTo?.({ top: 0 });
   }, [stopId]);
   const hidden = useAtlasSelector((s) => s.cards.hidden);
-  const inspectorPx = useAtlasSelector(
-    (s) => s.zoneInsets.inspector?.left ?? 0,
+  const eventsOpen = useAtlasSelector(
+    (s) => (s.zoneInsets.inspector?.left ?? 0) > 0,
   );
   const river = useAtlasFrame(isTimelineView);
   const phone = useIsPhone();
@@ -96,7 +93,7 @@ export function CardsLayer() {
           river,
           phone,
           stageWidth,
-          inspectorPx,
+          inspectorPx: eventsOpen ? INSPECTOR_REM.width * remPx() : 0,
           remPx: remPx(),
         });
   const [opened, setOpened] = useState(false);
@@ -107,7 +104,7 @@ export function CardsLayer() {
 
   // What the column covers of the map's right; nothing when it floats over
   // the map from the pill, or is gone.
-  const docked = mode === 'full' || mode === 'compact';
+  const docked = mode === 'shown';
   const onInsets = useCallback(
     (insets: MapInsets) =>
       dispatch({
@@ -119,10 +116,12 @@ export function CardsLayer() {
   useReportInsets(
     ref,
     () => [columnRef.current],
-    (root) =>
-      insetsFrom(root.getBoundingClientRect(), {
-        right: [columnRef.current?.getBoundingClientRect() ?? null],
-      }),
+    (root) => {
+      const column = columnRef.current?.getBoundingClientRect() ?? null;
+      return insetsFrom(root.getBoundingClientRect(), {
+        right: [column ? cornerBox(column, 'right', CORNER_INSET_SHARE) : null],
+      });
+    },
     onInsets,
     `${mode}`,
   );
@@ -136,7 +135,6 @@ export function CardsLayer() {
   );
 
   const showColumn = docked || (mode === 'collapsed' && opened);
-  const width = mode === 'full' ? CARDS_REM.full : CARDS_REM.compact;
   return (
     <div ref={ref} className="pointer-events-none absolute inset-0">
       {mode === 'collapsed' && !opened && (
@@ -157,11 +155,11 @@ export function CardsLayer() {
           ref={columnRef}
           aria-label="At a glance"
           className={cn(
-            'atlas-cards pointer-events-auto absolute bottom-10 right-2 top-2 flex flex-col gap-2 overflow-y-auto overscroll-contain pb-6',
+            'atlas-cards pointer-events-auto absolute right-2 top-2 flex max-h-[calc(100%-3rem)] flex-col gap-2 overflow-y-auto overscroll-contain pb-6',
             ATLAS_Z.mapControls,
           )}
           data-atlas-cards
-          style={{ width: `${width}rem` }}
+          style={{ width: `${CARDS_REM}rem` }}
         >
           {mode === 'collapsed' && (
             <div
@@ -181,7 +179,7 @@ export function CardsLayer() {
             </div>
           )}
           <Suspense fallback={null}>
-            <StageCards compact={mode !== 'full'} />
+            <StageCards />
           </Suspense>
         </section>
       )}

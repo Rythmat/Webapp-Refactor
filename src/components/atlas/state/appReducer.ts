@@ -29,7 +29,6 @@ export const initialAppState: AppState = {
   visibleArcDirections: new Set(),
   globeRotating: false,
   layers: DEFAULT_LAYERS,
-  statesInView: false,
   cards: DEFAULT_CARD_PREFS,
   zoneInsets: {},
   mapInsets: NO_MAP_INSETS,
@@ -134,14 +133,9 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return state.layers.landColor === action.payload
         ? state
         : { ...state, layers: { ...state.layers, landColor: action.payload } };
-    case 'SET_STATES_IN_VIEW':
-      return state.statesInView === action.payload
-        ? state
-        : { ...state, statesInView: action.payload };
     case 'SET_CARD_PREFS': {
       const next = { ...state.cards, ...action.payload };
-      return next.hidden === state.cards.hidden &&
-        next.legendOpen === state.cards.legendOpen
+      return next.hidden === state.cards.hidden
         ? state
         : { ...state, cards: next };
     }

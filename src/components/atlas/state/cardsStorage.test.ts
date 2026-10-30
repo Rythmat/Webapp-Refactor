@@ -15,14 +15,14 @@ import {
 beforeEach(() => window.localStorage.clear());
 
 describe('the cards’ choices', () => {
-  it('start shown, with the Legend folded', () => {
+  it('start shown', () => {
     expect(loadCardPrefs()).toEqual(DEFAULT_CARD_PREFS);
-    expect(initialAppState.cards).toEqual({ hidden: false, legendOpen: false });
+    expect(initialAppState.cards).toEqual({ hidden: false });
   });
 
   it('come back as the viewer left them', () => {
-    saveCardPrefs({ hidden: true, legendOpen: true });
-    expect(loadCardPrefs()).toEqual({ hidden: true, legendOpen: true });
+    saveCardPrefs({ hidden: true });
+    expect(loadCardPrefs()).toEqual({ hidden: true });
   });
 
   it('ignore what was stored wrongly', () => {
@@ -37,7 +37,7 @@ describe('the cards’ choices', () => {
       type: 'SET_CARD_PREFS',
       payload: { hidden: true },
     });
-    expect(hidden.cards).toEqual({ hidden: true, legendOpen: false });
+    expect(hidden.cards).toEqual({ hidden: true });
     expect(
       appReducer(hidden, { type: 'SET_CARD_PREFS', payload: { hidden: true } }),
     ).toBe(hidden);

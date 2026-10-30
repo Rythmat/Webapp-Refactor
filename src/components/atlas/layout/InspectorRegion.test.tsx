@@ -2,7 +2,7 @@
 /**
  * The Inspector (the Globe in the Studio's frame): opening a panel moves
  * focus to its heading, Escape closes the topmost thing open, closing gives
- * focus back to the opener, and its right edge resizes it from the keyboard.
+ * focus back to the opener, and it keeps its size whatever it holds.
  */
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
@@ -11,10 +11,8 @@ import { SidePanel } from '@/components/atlas/components/UI/SidePanel';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
 import { AtlasStoreProvider } from '@/components/atlas/state/atlasStore';
 import { InspectorView } from './InspectorRegion';
-import { INSPECTOR_PX } from './frameGeometry';
-import { INSPECTOR_WIDTH_KEY } from './inspectorWidth';
+import { INSPECTOR_REM } from './frameGeometry';
 import type { InspectorSlot } from './useInspector';
-import { useAtlasZone } from './zoneContext';
 
 beforeEach(() => window.localStorage.clear());
 afterEach(cleanup);
@@ -30,17 +28,6 @@ function Popover() {
       </button>
       {open && <p>Popover</p>}
     </>
-  );
-}
-
-/** Enlarge, as an event card asks the Inspector for it. */
-function EnlargeButton() {
-  const zone = useAtlasZone();
-  if (zone.kind !== 'inspector') return null;
-  return (
-    <button type="button" onClick={() => zone.setEnlarged(true)}>
-      Enlarge
-    </button>
   );
 }
 
@@ -63,7 +50,6 @@ function Harness() {
         ) : (
           <Popover />
         )}
-        <EnlargeButton />
       </SidePanel>
     ),
   };
@@ -159,42 +145,13 @@ describe('the Inspector', () => {
     expect(document.activeElement).toBe(opener);
   });
 
-  it('resizes from the keyboard through its right edge, and keeps the width', () => {
+  it('keeps its fixed size, whatever it holds', () => {
     render(<Harness />);
     press(screen.getByRole('button', { name: 'Open' }));
-    const handle = screen.getByRole('separator', {
-      name: 'Resize the side panel',
-    });
-    // Its first child, so it leads the panel's own content.
-    expect(handle.parentElement).toBe(inspector());
-    expect(inspector().firstElementChild).toBe(handle);
-    expect(handle.getAttribute('aria-orientation')).toBe('vertical');
-    expect(handle.getAttribute('aria-valuemin')).toBe(String(INSPECTOR_PX.min));
-
-    const start = Number(handle.getAttribute('aria-valuenow'));
-    // The handle is on the right edge: Right widens.
-    fireEvent.keyDown(handle, { key: 'ArrowRight' });
-    expect(Number(handle.getAttribute('aria-valuenow'))).toBe(start + 16);
-    expect(inspector().style.width).toBe(`${start + 16}px`);
-    expect(window.localStorage.getItem(INSPECTOR_WIDTH_KEY)).toBe(
-      String(start + 16),
-    );
-
-    fireEvent.keyDown(handle, { key: 'Home' });
-    expect(handle.getAttribute('aria-valuenow')).toBe(String(INSPECTOR_PX.min));
-    fireEvent.keyDown(handle, { key: 'ArrowLeft' });
-    expect(handle.getAttribute('aria-valuenow')).toBe(String(INSPECTOR_PX.min));
-  });
-
-  it('grows for Enlarge, and Escape-free content changes go back to its width', () => {
-    render(<Harness />);
-    press(screen.getByRole('button', { name: 'Open' }));
-    press(screen.getByRole('button', { name: 'Enlarge' }));
-    expect(inspector().style.width).toBe('min(66vw, 900px)');
-    expect(
-      screen.queryByRole('separator', { name: 'Resize the side panel' }),
-    ).toBeNull();
+    expect(inspector().style.width).toBe(`${INSPECTOR_REM.width}rem`);
+    expect(inspector().style.height).toContain(`${INSPECTOR_REM.height}rem`);
     press(screen.getByRole('button', { name: 'Go to B' }));
-    expect(inspector().style.width).toMatch(/px$/);
+    expect(inspector().style.width).toBe(`${INSPECTOR_REM.width}rem`);
+    expect(screen.queryByRole('separator')).toBeNull();
   });
 });

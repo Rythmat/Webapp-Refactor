@@ -2,7 +2,7 @@ import type { Feature, Geometry, Position } from 'geojson';
 import { CITIES, CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
 import {
   FRAME_PX,
-  clampInspectorPx,
+  CORNER_INSET_SHARE,
 } from '@/components/atlas/layout/frameGeometry';
 import { sheetHeights } from '@/components/atlas/layout/sheetSnap';
 import type {
@@ -261,8 +261,8 @@ export function findRegion(
 /**
  * The insets a flight lands with. A framed flight is a place, an event, an
  * artist or a tour stop opening, and its panel may not be on the page yet
- * when the flight sets off: on a desktop the Inspector is assumed at its
- * left, at the width the viewer last left it (`inspectorPx`), on a phone
+ * when the flight sets off: on a desktop the Inspector is assumed in its
+ * corner (`inspectorPx` wide, the share of it the map frames around), on a phone
  * the sheet at half. Once the panel is there and measured, the map's
  * padding (MapPadding) already matches, so nothing slides.
  */
@@ -282,7 +282,7 @@ export function landingInsets(
     ...measured,
     left:
       measured.left ||
-      FRAME_PX.gutter + clampInspectorPx(view.inspectorPx, view.width),
+      FRAME_PX.gutter + Math.round(view.inspectorPx * CORNER_INSET_SHARE),
   };
 }
 

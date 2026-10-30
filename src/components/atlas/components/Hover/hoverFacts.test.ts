@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { eraSplit } from '@/components/atlas/stats/eraSplit';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { MUSIC_HISTORY } from '@/content/contentStore';
-import { eraSplit, hoverFacts } from './hoverFacts';
+import { hoverFacts } from './hoverFacts';
 
 const event = (id: string, year: number, city: string, country = 'US') =>
   ({

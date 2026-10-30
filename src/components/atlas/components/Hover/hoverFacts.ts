@@ -1,8 +1,9 @@
 import { getCityById, getEventById } from '@/components/atlas/data/lookups';
-import { MUSICAL_ERAS, type EraId } from '@/components/atlas/data/musicalEras';
+import type { EraId } from '@/components/atlas/data/musicalEras';
 import { regionLabel } from '@/components/atlas/data/placeTree';
 import { getTimelineIndex } from '@/components/atlas/data/timelineIndex';
 import type { HoverTarget } from '@/components/atlas/state/stageSignals';
+import { eraSplit } from '@/components/atlas/stats/eraSplit';
 import { eventsIn } from '@/components/atlas/stats/musicWeights';
 import {
   inWindow,
@@ -19,25 +20,6 @@ export interface HoverFacts {
   eras?: { id: EraId; count: number }[];
   /** For an event: its year and place. */
   detail?: string;
-}
-
-const eraOf = (year: number): EraId => {
-  for (let i = MUSICAL_ERAS.length - 1; i >= 0; i--) {
-    if (year >= MUSICAL_ERAS[i].yearStart) return MUSICAL_ERAS[i].id;
-  }
-  return MUSICAL_ERAS[0].id;
-};
-
-/** Years, counted by era, in the eras' order; eras with none left out. */
-export function eraSplit(
-  years: readonly number[],
-): { id: EraId; count: number }[] {
-  const counts = new Map<EraId, number>();
-  for (const y of years) counts.set(eraOf(y), (counts.get(eraOf(y)) ?? 0) + 1);
-  return MUSICAL_ERAS.filter((e) => counts.has(e.id)).map((e) => ({
-    id: e.id,
-    count: counts.get(e.id)!,
-  }));
 }
 
 /** The facts for a hover target, in the years shown (null: all of time). */

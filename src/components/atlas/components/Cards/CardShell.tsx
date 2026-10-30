@@ -43,19 +43,3 @@ export function CardShell({
     </section>
   );
 }
-
-/** A number and what it counts, as the cards' tiles. */
-export function StatTile({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="min-w-0">
-      <p className="text-lg font-bold leading-6 text-atlas-text">{children}</p>
-      <p className="truncate text-xs text-atlas-text-2">{label}</p>
-    </div>
-  );
-}

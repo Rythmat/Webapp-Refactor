@@ -37,8 +37,8 @@ function setup() {
   };
   const States = () => {
     renders.states += 1;
-    const inView = useAtlasSelector((s) => s.statesInView);
-    return <span data-testid="states">{String(inView)}</span>;
+    const hidden = useAtlasSelector((s) => s.cards.hidden);
+    return <span data-testid="states">{String(hidden)}</span>;
   };
   // Selects a derived object; the equality keeps it from re-rendering when
   // the object is rebuilt with the same contents.
@@ -66,7 +66,9 @@ describe('atlas store', () => {
     const { store, renders } = setup();
     expect(renders).toEqual({ spin: 1, states: 1, pin: 1 });
 
-    act(() => store.dispatch({ type: 'SET_STATES_IN_VIEW', payload: true }));
+    act(() =>
+      store.dispatch({ type: 'SET_CARD_PREFS', payload: { hidden: true } }),
+    );
     expect(screen.getByTestId('states')).toHaveTextContent('true');
     expect(renders).toEqual({ spin: 1, states: 2, pin: 1 });
 

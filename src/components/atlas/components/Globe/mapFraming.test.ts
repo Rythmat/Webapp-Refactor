@@ -151,17 +151,13 @@ describe('landingInsets', () => {
   const desktop = { phone: false, width: 1360, height: 780, inspectorPx: 400 };
 
   it('assumes the Inspector a framed flight opens, until it is measured', () => {
-    // At its left, past the stage's gutter, at the width it was left at.
+    // At its left, past the stage's gutter: the share of it framed around.
     expect(landingInsets(measured, desktop, true)).toEqual({
       ...measured,
-      left: 408,
+      left: 248,
     });
     expect(landingInsets({ ...measured, left: 380 }, desktop, true).left).toBe(
       380,
-    );
-    // No wider than it can be over a narrow map.
-    expect(landingInsets(measured, { ...desktop, width: 480 }, true).left).toBe(
-      8 + 336,
     );
   });
 

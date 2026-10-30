@@ -1,17 +1,16 @@
 /**
- * How the floating cards sit over the map (owner, 2026-10-29: the Studio
- * frame with floating cards): a column at the stage's left, narrower when
- * the Inspector leaves less room, folded to an "At a glance" pill when it
- * leaves too little; none on the river, on a phone (for now), or when the
- * viewer hides them.
+ * How the floating card sits over the map (owner, 2026-10-30: the region is
+ * the hero): one card in the stage's top-right corner, folded to an "At a
+ * glance" pill when the events card leaves it too little room; none on the
+ * river, on a phone (it has a strip), or when the viewer hides it.
  */
-export type CardsMode = 'hidden' | 'full' | 'compact' | 'collapsed';
+export type CardsMode = 'hidden' | 'shown' | 'collapsed';
 
-/** The column's width, in rem, full and compact. */
-export const CARDS_REM = { full: 17, compact: 15 } as const;
-/** The least map, in px, the column leaves beside it, full and compact. */
-const MAP_LEFT = { full: 480, compact: 320 } as const;
-/** The stage's gutter and the gaps round the column, px. */
+/** The card's width, in rem. */
+export const CARDS_REM = 17;
+/** The least clear width, px, kept between the two cards. */
+const CLEAR_MIN = 160;
+/** The stage's gutter and the gaps round the card, px. */
 const GAP = 8;
 
 export function cardsMode(v: {
@@ -20,15 +19,12 @@ export function cardsMode(v: {
   phone: boolean;
   /** The map area's width, px. */
   stageWidth: number;
-  /** What the Inspector covers of its left, px. */
+  /** The events card's width when it is open, px. */
   inspectorPx: number;
   /** A rem in px (the app is set at 110%). */
   remPx: number;
 }): CardsMode {
   if (v.hidden || v.river || v.phone) return 'hidden';
-  const left = (rem: number) =>
-    v.stageWidth - v.inspectorPx - rem * v.remPx - 3 * GAP;
-  if (left(CARDS_REM.full) >= MAP_LEFT.full) return 'full';
-  if (left(CARDS_REM.compact) >= MAP_LEFT.compact) return 'compact';
-  return 'collapsed';
+  const clear = v.stageWidth - v.inspectorPx - CARDS_REM * v.remPx - 3 * GAP;
+  return clear >= CLEAR_MIN ? 'shown' : 'collapsed';
 }

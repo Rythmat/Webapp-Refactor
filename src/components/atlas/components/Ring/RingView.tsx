@@ -19,6 +19,7 @@ import {
   useIsPhone,
   usePrefersReducedMotion,
 } from '@/components/atlas/hooks/useMediaQuery';
+import { CORNER_INSET_SHARE } from '@/components/atlas/layout/frameGeometry';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import {
   useAtlasNavigate,
@@ -230,8 +231,10 @@ export default function RingView({ active }: { active: boolean }) {
         ref={areaRef}
         className="absolute"
         style={{
-          left: insets.left + 8,
-          right: insets.right + 8,
+          // The corner cards report only part of their width (the map may
+          // pass beside them); names must not.
+          left: insets.left / CORNER_INSET_SHARE + 8,
+          right: insets.right / CORNER_INSET_SHARE + 8,
           top: insets.top + 8,
           bottom: insets.bottom + 8,
         }}

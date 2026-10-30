@@ -106,6 +106,57 @@
   }
 }
 
+/* The cards' motion: a line drawing itself on (pathLength 1), a bar
+   growing from the left, a card landing; each may wait its turn (--i). */
+.atlas-root .atlas-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: atlas-draw 600ms var(--ease-out) forwards;
+}
+.atlas-root .atlas-grow-x {
+  transform-origin: left center;
+  animation: atlas-grow-x 600ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+.atlas-root .atlas-card-in {
+  animation: atlas-card-in 320ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+/* The floating cards' column: it scrolls without a bar, and its foot fades
+   so a card running on reads as more below (the padding under the last card
+   keeps the fade off it at the end). */
+.atlas-root .atlas-cards {
+  scrollbar-width: none;
+  mask-image: linear-gradient(
+    to bottom,
+    black calc(100% - 1.5rem),
+    transparent
+  );
+}
+@keyframes atlas-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes atlas-grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes atlas-card-in {
+  from {
+    opacity: 0;
+    transform: translateX(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Respect reduced-motion for the page's own animations. */
 @media (prefers-reduced-motion: reduce) {
   .atlas-root *,

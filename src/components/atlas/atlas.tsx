@@ -25,6 +25,7 @@ import {
 } from '@/components/atlas/components/UI/primitives';
 import { useIsPhone } from '@/components/atlas/hooks/useMediaQuery';
 import { PhoneZones } from '@/components/atlas/layout/AtlasZones';
+import { CardsLayer } from '@/components/atlas/layout/CardsLayer';
 import { InspectorRegion } from '@/components/atlas/layout/InspectorRegion';
 import { FRAME_PX } from '@/components/atlas/layout/frameGeometry';
 import { AtlasPortalContext } from '@/components/atlas/layout/portalRoot';
@@ -258,6 +259,7 @@ function AppLayout() {
                 <AtlasGlobe />
               </MapStage>
               <RiverView />
+              {!isPhone && <CardsLayer />}
               {isPhone ? <PhoneOverlays /> : <InspectorRegion />}
               <HoverLayer />
             </div>

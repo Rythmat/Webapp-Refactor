@@ -33,6 +33,14 @@ export const ATLAS_SURFACE =
  * A popover or menu: the Studio's menu surface, opaque, since it opens over
  * other panels (search over the details card).
  */
+/**
+ * A floating card over the map (owner, 2026-10-29: the Studio frame with
+ * floating cards): Home's prompt-box frame on the panel, nearly opaque, no
+ * blur (the map moves under it).
+ */
+export const ATLAS_CARD =
+  'rounded-[1.25rem] border border-white/10 bg-atlas-panel/95 text-atlas-text [box-shadow:var(--daw-shadow-float)]';
+
 export const ATLAS_POPOVER =
   'rounded-[0.625rem] bg-atlas-menu text-atlas-text [box-shadow:var(--daw-shadow-pop)]';
 

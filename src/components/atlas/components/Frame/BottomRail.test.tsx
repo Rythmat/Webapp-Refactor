@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
  * The bottom rail: the views as the Studio's view tabs, the globe's spin, all
- * of time back in, and the map's credit in a place of its own.
+ * of time back in, and the floating cards' switch.
  */
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
@@ -75,11 +75,22 @@ describe('the bottom rail', () => {
     expect(screen.queryByRole('button', { name: 'Show all years' })).toBeNull();
   });
 
+  it('hides and shows the floating cards, for good', () => {
+    const { store } = setup();
+    const hide = screen.getByRole('button', { name: 'Hide the cards' });
+    expect(hide).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(hide);
+    expect(store.api.getState().cards.hidden).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Show the cards' }));
+    expect(store.api.getState().cards.hidden).toBe(false);
+  });
+
   it('keeps the map’s controls to the map', () => {
     setup();
     expect(screen.getByRole('button', { name: 'Spin the globe' })).toBeTruthy();
     cleanup();
     setup('/globe?view=timeline');
     expect(screen.queryByRole('button', { name: 'Spin the globe' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Hide the cards' })).toBeNull();
   });
 });

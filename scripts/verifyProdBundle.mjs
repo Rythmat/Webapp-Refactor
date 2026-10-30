@@ -235,6 +235,11 @@ const GLOBE_ON_DEMAND = [
     pattern: /Music around the world, /,
     name: 'the timeline (components/River/TimeRiver.tsx)',
   },
+  {
+    // The world's links card (components/Cards/StageCards.tsx).
+    pattern: /The strongest links between regions/,
+    name: 'the floating cards (components/Cards/StageCards.tsx)',
+  },
 ];
 
 /**

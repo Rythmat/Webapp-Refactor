@@ -1,4 +1,4 @@
-import { Pause, Play } from 'lucide-react';
+import { LayoutGrid, Pause, Play } from 'lucide-react';
 import { prefetchRiver } from '@/components/atlas/components/River/prefetchRiver';
 import {
   ATLAS_PILL_ZONE,
@@ -121,6 +121,31 @@ function AllYears() {
 }
 
 /**
+ * The floating cards over the map, hidden or shown for good (the viewer's
+ * choice, remembered); a phone has no column, so none there.
+ */
+function CardsToggle() {
+  const hidden = useAtlasSelector((s) => s.cards.hidden);
+  const dispatch = useAtlasDispatch();
+  return (
+    <AtlasPillButton
+      aria-label={hidden ? 'Show the cards' : 'Hide the cards'}
+      aria-pressed={!hidden}
+      title={
+        hidden ? 'Show the cards over the map' : 'Hide the cards over the map'
+      }
+      variant="pill"
+      onClick={() =>
+        dispatch({ type: 'SET_CARD_PREFS', payload: { hidden: !hidden } })
+      }
+    >
+      <LayoutGrid aria-hidden className="size-4" />
+      <span>Cards</span>
+    </AtlasPillButton>
+  );
+}
+
+/**
  * A phone's side rail: no room for a column, so the panels' icons sit here,
  * their panels opening in the bottom sheet, and the globe's spin with them
  * while the map shows.
@@ -166,7 +191,7 @@ function PanelLaunchers({ spin: withSpin }: { spin: boolean }) {
  * The Globe's bottom rail, as the Studio's (owner, 2026-10-29): 44 px, the
  * window's full width, its zones in pills on the page. At the left, what
  * the map does (its spin, the years it shows); the views centred in the
- * window; the right is kept, so the views stay centred. On a phone, the
+ * window; at the right, the floating cards' switch. On a phone, the
  * panels' icons join the left.
  */
 export function BottomRail() {
@@ -199,7 +224,9 @@ export function BottomRail() {
         {!river && <AllYears />}
       </div>
       <ViewTabs short={false} />
-      <div className="flex min-w-0 items-center justify-end" data-zone="end" />
+      <div className="flex min-w-0 items-center justify-end" data-zone="end">
+        {onMap && <CardsToggle />}
+      </div>
     </div>
   );
 }

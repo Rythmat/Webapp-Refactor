@@ -1,25 +1,14 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ATLAS_POPOVER } from '@/components/atlas/components/UI/primitives';
-import type { EraId } from '@/components/atlas/data/musicalEras';
 import { useAtlasPortal } from '@/components/atlas/layout/portalRoot';
 import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
 import type { PlaceHover } from '@/components/atlas/state/stageSignals';
+import { ERA_BG } from '@/components/atlas/theme/eraClasses';
 import { ATLAS_Z } from '@/components/atlas/theme/layers';
 import { cn } from '@/lib/utils';
 import { hoverFacts } from './hoverFacts';
 import { placeCard } from './placeCard';
-
-/** Each era's colour as a class (static, so Tailwind keeps it). */
-const ERA_BG: Record<EraId, string> = {
-  ancient: 'bg-atlas-era-ancient',
-  renaissance: 'bg-atlas-era-renaissance',
-  'classical-romantic': 'bg-atlas-era-classical-romantic',
-  'early-modern': 'bg-atlas-era-early-modern',
-  postwar: 'bg-atlas-era-postwar',
-  'electronic-hiphop': 'bg-atlas-era-electronic-hiphop',
-  'global-digital': 'bg-atlas-era-global-digital',
-};
 
 const eventsLine = (n: number) =>
   n === 0 ? 'No events in these years' : n === 1 ? '1 event' : `${n} events`;

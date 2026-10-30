@@ -43,7 +43,8 @@ const remPx = () =>
 /**
  * The floating cards' place over the map (owner, 2026-10-29: the Studio
  * frame with floating cards, after the map-dashboard reference): a column
- * at the stage's left, under the Inspector and the era rail, its cards
+ * at the stage's right (the events card has the left corner), under the
+ * Inspector and the era rail, its cards
  * loading with their own chunk. It tells the map what it covers, so
  * flights land beside it; folded to "At a glance" when the Inspector leaves
  * too little room, the pill opens it over the map instead.
@@ -66,7 +67,7 @@ export function CardsLayer() {
   }, [stopId]);
   const hidden = useAtlasSelector((s) => s.cards.hidden);
   const inspectorPx = useAtlasSelector(
-    (s) => s.zoneInsets.inspector?.right ?? 0,
+    (s) => s.zoneInsets.inspector?.left ?? 0,
   );
   const river = useAtlasFrame(isTimelineView);
   const phone = useIsPhone();
@@ -104,7 +105,7 @@ export function CardsLayer() {
   }, [mode]);
   useEscapeLayer(opened, () => setOpened(false));
 
-  // What the column covers of the map's left; nothing when it floats over
+  // What the column covers of the map's right; nothing when it floats over
   // the map from the pill, or is gone.
   const docked = mode === 'full' || mode === 'compact';
   const onInsets = useCallback(
@@ -120,7 +121,7 @@ export function CardsLayer() {
     () => [columnRef.current],
     (root) =>
       insetsFrom(root.getBoundingClientRect(), {
-        left: columnRef.current?.getBoundingClientRect() ?? null,
+        right: [columnRef.current?.getBoundingClientRect() ?? null],
       }),
     onInsets,
     `${mode}`,
@@ -141,7 +142,7 @@ export function CardsLayer() {
       {mode === 'collapsed' && !opened && (
         <AtlasPillButton
           className={cn(
-            'pointer-events-auto absolute left-2 top-2',
+            'pointer-events-auto absolute right-2 top-2',
             ATLAS_Z.mapControls,
           )}
           variant="pill"
@@ -156,7 +157,7 @@ export function CardsLayer() {
           ref={columnRef}
           aria-label="At a glance"
           className={cn(
-            'atlas-cards pointer-events-auto absolute bottom-10 left-2 top-2 flex flex-col gap-2 overflow-y-auto overscroll-contain pb-6',
+            'atlas-cards pointer-events-auto absolute bottom-10 right-2 top-2 flex flex-col gap-2 overflow-y-auto overscroll-contain pb-6',
             ATLAS_Z.mapControls,
           )}
           data-atlas-cards

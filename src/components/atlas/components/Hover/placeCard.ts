@@ -1,7 +1,7 @@
 /**
  * Where the hover card goes: beside its anchor, to the right unless that
- * would cross out of the clear part of the map (the Inspector covers its
- * right), then to the left; centred on the anchor's height, kept inside.
+ * would cross out of the clear part of the map (the cards cover its right),
+ * then to the left, never over what covers its left; centred on the anchor's height, kept inside.
  * All in viewport px.
  */
 export function placeCard(

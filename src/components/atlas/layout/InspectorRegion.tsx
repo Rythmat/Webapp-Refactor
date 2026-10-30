@@ -34,8 +34,8 @@ import { AtlasZoneContext, type AtlasZone } from './zoneContext';
 const RESIZE_STEP = 16;
 
 /**
- * The Inspector's left edge: drag it left to widen the panel, or focus it and
- * use the Arrow keys (Left widens); Home and End go to the narrowest and
+ * The Inspector's right edge: drag it right to widen the panel, or focus it
+ * and use the Arrow keys (Right widens); Home and End go to the narrowest and
  * widest, and a double-click back to the default.
  *
  * While dragging, the width is written straight to the panel's style and
@@ -64,7 +64,7 @@ function InspectorResizer({
       const startWidth = aside.getBoundingClientRect().width;
       let next = startWidth;
       const onMove = (mv: globalThis.PointerEvent) => {
-        next = clampInspectorPx(startWidth - (mv.clientX - startX), areaPx);
+        next = clampInspectorPx(startWidth + (mv.clientX - startX), areaPx);
         aside.style.width = `${next}px`;
       };
       const onUp = () => {
@@ -83,9 +83,9 @@ function InspectorResizer({
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     const step = e.shiftKey ? RESIZE_STEP * 4 : RESIZE_STEP;
     const next =
-      e.key === 'ArrowLeft'
+      e.key === 'ArrowRight'
         ? width + step
-        : e.key === 'ArrowRight'
+        : e.key === 'ArrowLeft'
           ? width - step
           : e.key === 'Home'
             ? INSPECTOR_PX.min
@@ -105,7 +105,7 @@ function InspectorResizer({
       aria-valuemin={INSPECTOR_PX.min}
       aria-valuenow={width}
       className={cn(
-        'absolute left-0 top-0 z-10 flex h-full w-3 cursor-ew-resize touch-none items-center justify-center rounded-l-xl opacity-0 hover:opacity-100 focus-visible:opacity-100 active:opacity-100',
+        'absolute right-0 top-0 z-10 flex h-full w-3 cursor-ew-resize touch-none items-center justify-center rounded-r-xl opacity-0 hover:opacity-100 focus-visible:opacity-100 active:opacity-100',
         ATLAS_TRANSITION,
         ATLAS_FOCUS_INSET,
       )}
@@ -123,7 +123,8 @@ function InspectorResizer({
 
 /**
  * The Inspector, as the Studio's (owner, 2026-10-29: the Globe in the
- * Studio's frame): a floating card over the map's right edge, the panel
+ * Studio's frame): a floating card in the map's top-left corner (owner,
+ * 2026-10-30), as tall as what it holds and no taller than the stage, the panel
  * the rail or the stop asks for (layout/useInspector.tsx). Always mounted, so
  * its width and its focus survive one panel giving way to another.
  *
@@ -187,7 +188,7 @@ export function InspectorView({ slot }: { slot: InspectorSlot | null }) {
     () => [ref.current],
     (area) =>
       insetsFrom(area.getBoundingClientRect(), {
-        right: [slot ? ref.current?.getBoundingClientRect() : null],
+        left: slot ? ref.current?.getBoundingClientRect() : null,
       }),
     onInsets,
     `${slot !== null} ${enlarged}`,
@@ -215,7 +216,7 @@ export function InspectorView({ slot }: { slot: InspectorSlot | null }) {
         'bg-atlas-panel',
         // Its foot clears the event timeline's open height (UI/EraRail),
         // whose era names rise over the map's bottom edge.
-        'absolute bottom-10 right-2 top-2 min-h-0 max-w-[calc(100%-1rem)] flex-col overflow-hidden',
+        'absolute left-2 top-2 max-h-[calc(100%-3rem)] min-h-0 max-w-[calc(100%-1rem)] flex-col overflow-hidden',
         ATLAS_Z.panels,
         slot ? 'flex' : 'hidden',
       )}

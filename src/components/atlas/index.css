@@ -192,7 +192,7 @@
 @keyframes atlas-card-in {
   from {
     opacity: 0;
-    transform: translateX(-0.5rem);
+    transform: translateX(0.5rem);
   }
   to {
     opacity: 1;

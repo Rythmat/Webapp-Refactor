@@ -20,7 +20,7 @@ export function cardsMode(v: {
   phone: boolean;
   /** The map area's width, px. */
   stageWidth: number;
-  /** What the Inspector covers of its right, px. */
+  /** What the Inspector covers of its left, px. */
   inspectorPx: number;
   /** A rem in px (the app is set at 110%). */
   remPx: number;

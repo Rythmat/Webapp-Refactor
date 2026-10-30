@@ -262,7 +262,7 @@ export function findRegion(
  * The insets a flight lands with. A framed flight is a place, an event, an
  * artist or a tour stop opening, and its panel may not be on the page yet
  * when the flight sets off: on a desktop the Inspector is assumed at its
- * right, at the width the viewer last left it (`inspectorPx`), on a phone
+ * left, at the width the viewer last left it (`inspectorPx`), on a phone
  * the sheet at half. Once the panel is there and measured, the map's
  * padding (MapPadding) already matches, so nothing slides.
  */
@@ -280,8 +280,8 @@ export function landingInsets(
   }
   return {
     ...measured,
-    right:
-      measured.right ||
+    left:
+      measured.left ||
       FRAME_PX.gutter + clampInspectorPx(view.inspectorPx, view.width),
   };
 }

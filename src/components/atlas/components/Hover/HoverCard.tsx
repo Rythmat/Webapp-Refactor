@@ -38,14 +38,14 @@ export default function HoverCard({ hover }: { hover: PlaceHover }) {
         hover.anchor,
         { width: box.width, height: box.height },
         {
-          left: 8,
+          left: (portal?.getBoundingClientRect().left ?? 0) + insets.left + 16,
           top: 8,
           right: window.innerWidth - insets.right - 8,
           bottom: window.innerHeight - insets.bottom - 8,
         },
       ),
     );
-  }, [hover.anchor, facts, insets.right, insets.bottom]);
+  }, [hover.anchor, facts, insets.left, insets.right, insets.bottom, portal]);
 
   if (!facts) return null;
   const total = facts.eras?.reduce((n, e) => n + e.count, 0) ?? 0;

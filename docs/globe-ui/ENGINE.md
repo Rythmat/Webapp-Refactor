@@ -118,7 +118,7 @@ signal from the map or the ring.
 
 ## The cards
 
-A column of chart cards floats at the stage's left (`layout/CardsLayer.tsx`
+A column of chart cards floats at the stage's right (`layout/CardsLayer.tsx`
 loads `Cards/StageCards.tsx` lazily): the world's with nothing chosen,
 else the stop's, and the Legend at the foot. It narrows, then folds to an
 "At a glance" pill as the Inspector takes room (`cardsLayout.ts`), reports
@@ -133,8 +133,8 @@ The Globe has its top and bottom rails, with the app's navigation
 (`ClassroomSidebar`) at its left on a desktop. There is no side rail at the
 right (owner, 2026-10-30): the panels' icons (Details, Layers, a lesson's
 Mind map) sit at the bottom rail's right, beside the Cards pill. The
-Inspector is a floating card over the map's right edge, and a stop's events
-are tiles in it: picture, title, year and place, the open one showing its
+Inspector is a floating card in the stage's top-left corner, as tall as what
+it holds, and a stop's events are tiles in it: picture, title, year and place, the open one showing its
 video instead (`UI/DetailsCard.tsx`). Details hides and returns from its icon
 without leaving the stop.
 

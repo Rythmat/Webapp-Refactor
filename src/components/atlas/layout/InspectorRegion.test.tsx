@@ -2,7 +2,7 @@
 /**
  * The Inspector (the Globe in the Studio's frame): opening a panel moves
  * focus to its heading, Escape closes the topmost thing open, closing gives
- * focus back to the opener, and its left edge resizes it from the keyboard.
+ * focus back to the opener, and its right edge resizes it from the keyboard.
  */
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
@@ -159,7 +159,7 @@ describe('the Inspector', () => {
     expect(document.activeElement).toBe(opener);
   });
 
-  it('resizes from the keyboard through its left edge, and keeps the width', () => {
+  it('resizes from the keyboard through its right edge, and keeps the width', () => {
     render(<Harness />);
     press(screen.getByRole('button', { name: 'Open' }));
     const handle = screen.getByRole('separator', {
@@ -172,8 +172,8 @@ describe('the Inspector', () => {
     expect(handle.getAttribute('aria-valuemin')).toBe(String(INSPECTOR_PX.min));
 
     const start = Number(handle.getAttribute('aria-valuenow'));
-    // The handle is on the left edge: Left widens.
-    fireEvent.keyDown(handle, { key: 'ArrowLeft' });
+    // The handle is on the right edge: Right widens.
+    fireEvent.keyDown(handle, { key: 'ArrowRight' });
     expect(Number(handle.getAttribute('aria-valuenow'))).toBe(start + 16);
     expect(inspector().style.width).toBe(`${start + 16}px`);
     expect(window.localStorage.getItem(INSPECTOR_WIDTH_KEY)).toBe(
@@ -182,7 +182,7 @@ describe('the Inspector', () => {
 
     fireEvent.keyDown(handle, { key: 'Home' });
     expect(handle.getAttribute('aria-valuenow')).toBe(String(INSPECTOR_PX.min));
-    fireEvent.keyDown(handle, { key: 'ArrowRight' });
+    fireEvent.keyDown(handle, { key: 'ArrowLeft' });
     expect(handle.getAttribute('aria-valuenow')).toBe(String(INSPECTOR_PX.min));
   });
 

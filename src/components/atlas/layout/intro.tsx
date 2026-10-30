@@ -70,12 +70,19 @@ const prefersReduced = (): boolean =>
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const IntroContext = createContext<IntroStage>('none');
+interface IntroState {
+  stage: IntroStage;
+  /** When the play began (performance.now()), or null. */
+  playAt: number | null;
+}
+
+const IntroContext = createContext<IntroState>({ stage: 'none', playAt: null });
 
 /**
  * Decides once, when the page opens, and runs the stages; its wrapper
- * carries the stage for the CSS and the delay the cards' animations start
- * after (`--atlas-delay`).
+ * carries the stage for the CSS. Each card takes its own delay when it
+ * lands (useIntroDelay), counted from the play's start, so a card whose
+ * code arrives late is not held back longer.
  */
 export function IntroProvider({ children }: { children: ReactNode }) {
   const signals = useStageSignals();
@@ -107,6 +114,11 @@ export function IntroProvider({ children }: { children: ReactNode }) {
     };
   }, [stage, signals]);
 
+  const [playAt, setPlayAt] = useState<number | null>(null);
+  useEffect(() => {
+    if (stage === 'play') setPlayAt(performance.now());
+  }, [stage]);
+
   useEffect(() => {
     if (stage !== 'play') return;
     const timer = window.setTimeout(() => setStage('none'), INTRO.totalMs);
@@ -114,24 +126,32 @@ export function IntroProvider({ children }: { children: ReactNode }) {
   }, [stage]);
 
   return (
-    <IntroContext.Provider value={stage}>
-      <div
-        className="contents"
-        data-atlas-intro={stage}
-        style={
-          {
-            '--atlas-delay': `${stage === 'play' ? INTRO.cardsDelayMs : 0}ms`,
-          } as CSSProperties
-        }
-      >
+    <IntroContext.Provider value={{ stage, playAt }}>
+      <div className="contents" data-atlas-intro={stage}>
         {children}
       </div>
     </IntroContext.Provider>
   );
 }
 
-export const useIntro = (): IntroStage => useContext(IntroContext);
+export const useIntro = (): IntroStage => useContext(IntroContext).stage;
 
-/** How long a card's own motion waits while the intro plays. */
-export const introDelayMs = (stage: IntroStage): number =>
-  stage === 'play' ? INTRO.cardsDelayMs : 0;
+/** What is left of the cards' wait, `elapsed` ms into the play. */
+export const introDelayLeft = (stage: IntroStage, elapsed: number): number =>
+  stage === 'play' ? Math.max(0, Math.round(INTRO.cardsDelayMs - elapsed)) : 0;
+
+/**
+ * How long a card (or a count in it) waits before it plays, fixed when it
+ * mounts: what is left of the intro's wait, else nothing.
+ */
+export function useIntroDelay(): number {
+  const { stage, playAt } = useContext(IntroContext);
+  const [delay] = useState(() =>
+    introDelayLeft(stage, playAt === null ? 0 : performance.now() - playAt),
+  );
+  return delay;
+}
+
+/** The delay as the cards' animations read it (`--atlas-delay`). */
+export const introDelayStyle = (delay: number): CSSProperties =>
+  ({ '--atlas-delay': `${delay}ms` }) as CSSProperties;

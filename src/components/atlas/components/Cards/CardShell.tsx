@@ -3,6 +3,10 @@ import {
   ATLAS_CARD,
   ATLAS_EYEBROW,
 } from '@/components/atlas/components/UI/primitives';
+import {
+  introDelayStyle,
+  useIntroDelay,
+} from '@/components/atlas/layout/intro';
 import { cn } from '@/lib/utils';
 
 /**
@@ -21,6 +25,7 @@ export function CardShell({
   className?: string;
 }) {
   const id = useId();
+  const delay = useIntroDelay();
   return (
     <section
       aria-labelledby={id}
@@ -29,7 +34,7 @@ export function CardShell({
         'atlas-card-in shrink-0 px-4 pb-4 pt-3',
         className,
       )}
-      style={{ '--i': order } as CSSProperties}
+      style={{ ...introDelayStyle(delay), '--i': order } as CSSProperties}
     >
       <h3 className={ATLAS_EYEBROW} id={id}>
         {title}

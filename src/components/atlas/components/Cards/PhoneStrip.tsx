@@ -6,6 +6,10 @@ import {
   AtlasIconButton,
 } from '@/components/atlas/components/UI/primitives';
 import { getTimelineIndex } from '@/components/atlas/data/timelineIndex';
+import {
+  introDelayStyle,
+  useIntroDelay,
+} from '@/components/atlas/layout/intro';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import { useAtlasStop } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
@@ -169,13 +173,14 @@ function StripCard({
   order: number;
   children: ReactNode;
 }) {
+  const delay = useIntroDelay();
   return (
     <li
       className={cn(
         ATLAS_CARD,
         'atlas-card-in h-[6.25rem] w-64 shrink-0 snap-start overflow-hidden px-4 py-3',
       )}
-      style={{ '--i': order } as CSSProperties}
+      style={{ ...introDelayStyle(delay), '--i': order } as CSSProperties}
     >
       <p className={cn(ATLAS_EYEBROW, 'truncate')}>{title}</p>
       <div className="mt-1.5">{children}</div>

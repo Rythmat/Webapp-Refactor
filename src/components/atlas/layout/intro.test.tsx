@@ -10,7 +10,13 @@ import {
   useStageSignals,
   type StageSignals,
 } from '@/components/atlas/state/stageSignals';
-import { INTRO, IntroProvider, shouldPlayIntro, useIntro } from './intro';
+import {
+  INTRO,
+  IntroProvider,
+  introDelayLeft,
+  shouldPlayIntro,
+  useIntro,
+} from './intro';
 
 beforeEach(() => {
   window.sessionStorage.clear();
@@ -31,6 +37,14 @@ describe('whether the intro plays', () => {
     );
     expect(shouldPlayIntro({ ...bare, seen: true })).toBe(false);
     expect(shouldPlayIntro({ ...bare, reducedMotion: true })).toBe(false);
+  });
+
+  it('holds a card only for what is left of the wait when it lands', () => {
+    expect(introDelayLeft('play', 0)).toBe(INTRO.cardsDelayMs);
+    expect(introDelayLeft('play', 600)).toBe(INTRO.cardsDelayMs - 600);
+    // Its code came late: it lands at once.
+    expect(introDelayLeft('play', 5000)).toBe(0);
+    expect(introDelayLeft('none', 0)).toBe(0);
   });
 });
 

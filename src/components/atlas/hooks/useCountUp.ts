@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { introDelayMs, useIntro } from '@/components/atlas/layout/intro';
+import { useIntroDelay } from '@/components/atlas/layout/intro';
 import { useStageSignals } from '@/components/atlas/state/stageSignals';
 import { ATLAS_MS, easeOut, tween } from '@/components/atlas/theme/motion';
 import { usePrefersReducedMotion } from './useMediaQuery';
@@ -12,7 +12,7 @@ import { usePrefersReducedMotion } from './useMediaQuery';
  */
 export function useCountUp(value: number, delayMs = 0): number {
   const reduced = usePrefersReducedMotion();
-  const intro = useIntro();
+  const intro = useIntroDelay();
   const phase = useStageSignals().mapPhase;
   const [shown, setShown] = useState(reduced ? value : 0);
   const from = useRef(reduced ? value : 0);
@@ -25,9 +25,7 @@ export function useCountUp(value: number, delayMs = 0): number {
     const start = from.current;
     let cancel = () => {};
     const wait =
-      delayMs +
-      introDelayMs(intro) +
-      (phase.get() === 'flying' ? ATLAS_MS.settleMax : 0);
+      delayMs + intro + (phase.get() === 'flying' ? ATLAS_MS.settleMax : 0);
     const timer = window.setTimeout(() => {
       cancel = tween(ATLAS_MS.count, easeOut, (p) => {
         const v = Math.round(start + (value - start) * p);

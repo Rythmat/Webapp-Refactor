@@ -106,6 +106,28 @@ function EventMeta({ event, id }: { event: HistoricalEvent; id?: string }) {
   );
 }
 
+/** The room left above an opened tile, px. */
+const TILE_TOP_GAP_PX = 8;
+
+/**
+ * Brings an opened tile to the top of its own list, description first. Only
+ * that list scrolls: scrollIntoView would move the page's frame too, whose
+ * clipped overflow can still scroll.
+ */
+function showTileFirst(tile: HTMLElement, behavior: ScrollBehavior) {
+  let list = tile.parentElement;
+  while (list && !/auto|scroll/.test(getComputedStyle(list).overflowY)) {
+    list = list.parentElement;
+  }
+  if (!list) return;
+  const top =
+    list.scrollTop +
+    tile.getBoundingClientRect().top -
+    list.getBoundingClientRect().top -
+    TILE_TOP_GAP_PX;
+  list.scrollTo?.({ top, behavior });
+}
+
 const ERA_LABEL = new Map(MUSICAL_ERAS.map((e) => [e.id, e.label]));
 
 /** A tile's picture: the event's own, or a quiet stand-in of the same shape. */
@@ -431,14 +453,14 @@ export function DetailsCard() {
     if (!pinnedEvent) return;
     setExpandedEvents(new Set([pinnedEvent.id]));
     const id = pinnedEvent.id;
-    const raf = requestAnimationFrame(() => {
-      cardRef.current
-        ?.querySelector(`[data-event-id="${id}"]`)
-        ?.scrollIntoView({
-          // Its description first: the card is short.
-          block: 'start',
-          behavior: scrollBehavior(reducedMotion),
-        });
+    // A frame later again: the opened tile's own layout has to land first.
+    let raf = requestAnimationFrame(() => {
+      raf = requestAnimationFrame(() => {
+        const tile = cardRef.current?.querySelector<HTMLElement>(
+          `[data-event-id="${id}"]`,
+        );
+        if (tile) showTileFirst(tile, scrollBehavior(reducedMotion));
+      });
     });
     return () => cancelAnimationFrame(raf);
   }, [pinnedEvent]);

@@ -37,11 +37,13 @@ import { isTimelineView } from '@/components/atlas/navigation/atlasFrame';
 import {
   AtlasNavigationProvider,
   useAtlasFrame,
+  useAtlasStopSelector,
 } from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasUrlSync } from '@/components/atlas/navigation/useAtlasUrlSync';
 import {
   AtlasStoreProvider,
   useAtlasDispatch,
+  useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
 import { StageSignalsProvider } from '@/components/atlas/state/stageSignals';
 import { RIVER } from '@/components/atlas/theme/river';
@@ -62,6 +64,11 @@ const EraRail = lazy(() =>
   import('@/components/atlas/components/UI/EraRail').then((m) => ({
     default: m.EraRail,
   })),
+);
+
+// The floating cards as a phone's strip: with the cards' own chunk.
+const PhoneStrip = lazy(
+  () => import('@/components/atlas/components/Cards/PhoneStrip'),
 );
 
 /** Whether the page is showing the timeline rather than the globe. */
@@ -134,9 +141,27 @@ function PhoneOverlays() {
       }),
     [dispatch],
   );
+  // The cards' strip: on the map, for the world or a stop (a journey has
+  // its own bar), unless the viewer hid the cards.
+  const timeline = useTimelineView();
+  const hidden = useAtlasSelector((s) => s.cards.hidden);
+  const journey = useAtlasStopSelector(
+    (stop) => stop.kind === 'tour' || stop.kind === 'pathway',
+  );
+  const strip =
+    timeline || hidden || journey ? null : (
+      <Suspense fallback={null}>
+        <PhoneStrip />
+      </Suspense>
+    );
   return (
     <div className="pointer-events-none absolute inset-0">
-      <PhoneZones bottom={bottom} inspector={slot} onInsets={onInsets} />
+      <PhoneZones
+        bottom={bottom}
+        inspector={slot}
+        strip={strip}
+        onInsets={onInsets}
+      />
     </div>
   );
 }

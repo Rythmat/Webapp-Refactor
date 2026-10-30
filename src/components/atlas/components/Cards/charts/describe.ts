@@ -7,7 +7,8 @@ export function binLabel(bin: Bin): string {
 }
 
 /** A bin's count as words. */
-export const eventsWord = (n: number) => (n === 1 ? '1 event' : `${n} events`);
+export const eventsWord = (n: number) =>
+  n === 1 ? '1 event' : `${n.toLocaleString('en')} events`;
 
 /** The sentence a screen reader hears for a series of bins. */
 export function describeSeries(label: string, bins: readonly Bin[]): string {

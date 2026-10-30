@@ -28,6 +28,11 @@ export interface PhoneZonesProps {
   /** The Inspector's panel, shown in the sheet (layout/useInspector.tsx). */
   inspector: InspectorSlot | null;
   bottom: BottomBarSlot | null;
+  /**
+   * The floating cards as a strip (layout/PhoneStrip.tsx), above the bottom
+   * rail when nothing else is: no journey's bar, the sheet down.
+   */
+  strip?: ReactNode;
   /** What the zones cover of the map, whenever it changes (MapInsets). */
   onInsets?: (insets: MapInsets) => void;
 }
@@ -84,9 +89,15 @@ function BottomBarFrame({ bar }: { bar: BottomBarSlot }) {
  * Phones: the Inspector's panel in a bottom sheet, and the bar under the map
  * resting on the sheet at peek (the side rail's icons are in the bottom
  * rail). Once the sheet is raised past peek the bar steps aside, and it comes
- * back when the sheet drops or closes.
+ * back when the sheet drops or closes. With no bar, the floating cards'
+ * strip takes its place, under the same rule.
  */
-export function PhoneZones({ inspector, bottom, onInsets }: PhoneZonesProps) {
+export function PhoneZones({
+  inspector,
+  bottom,
+  strip,
+  onInsets,
+}: PhoneZonesProps) {
   const sheetRef = usePanelZone<HTMLDivElement>(inspector);
   const [snap, setSnap] = useState<SheetSnap>('half');
   const open = inspector !== null;
@@ -104,6 +115,8 @@ export function PhoneZones({ inspector, bottom, onInsets }: PhoneZonesProps) {
   );
   const barHidden = open && snap !== 'peek';
   const bar = bottom && !barHidden ? bottom : null;
+  // The cards' strip: not over a journey's bar, nor a raised sheet.
+  const cards = !bottom && !barHidden && strip ? strip : null;
   const stackBottom = !open ? 8 : SHEET_PEEK_PX + 16;
 
   // What covers the map: along the bottom the bar or the sheet, which at
@@ -124,12 +137,12 @@ export function PhoneZones({ inspector, bottom, onInsets }: PhoneZonesProps) {
       });
     },
     onInsets,
-    `${open} ${snap} ${bar !== null}`,
+    `${open} ${snap} ${bar !== null} ${cards !== null}`,
   );
 
   return (
     <div ref={rootRef} className="pointer-events-none absolute inset-0">
-      {bar && (
+      {(bar || cards) && (
         <div
           ref={stackRef}
           className={cn(
@@ -139,7 +152,8 @@ export function PhoneZones({ inspector, bottom, onInsets }: PhoneZonesProps) {
           )}
           style={{ bottom: stackBottom }}
         >
-          <BottomBarFrame bar={bar} />
+          {bar && <BottomBarFrame bar={bar} />}
+          {cards}
         </div>
       )}
       {inspector && (

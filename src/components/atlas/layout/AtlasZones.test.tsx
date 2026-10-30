@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
  * The phone's zones: the Inspector's panel is a bottom sheet with buttons for
- * its heights, and the bar under the map rests on it.
+ * its heights, and the bar under the map (or the cards' strip) rests on it.
  */
 import {
   act,
@@ -33,7 +33,7 @@ function Popover() {
   );
 }
 
-function Harness() {
+function Harness({ journey = true }: { journey?: boolean }) {
   const [panel, setPanel] = useState<'a' | 'b' | null>(null);
   const close = () => setPanel(null);
   const inspector: InspectorSlot | null = panel && {
@@ -59,8 +59,13 @@ function Harness() {
         Open
       </button>
       <PhoneZones
-        bottom={{ label: 'timeline', maxWidth: 800, node: <p>Timeline</p> }}
+        bottom={
+          journey
+            ? { label: 'timeline', maxWidth: 800, node: <p>Timeline</p> }
+            : null
+        }
         inspector={inspector}
+        strip={<p>Cards</p>}
       />
     </>
   );
@@ -111,5 +116,19 @@ describe('the phone bottom sheet', () => {
     act(() => escape());
     expect(screen.queryByRole('region', { name: 'Details' })).toBeNull();
     expect(document.activeElement).toBe(opener);
+  });
+
+  it('shows the cards’ strip when no bar is up, under the sheet’s rule', () => {
+    render(<Harness />);
+    // A journey's bar has the place.
+    expect(screen.queryByText('Cards')).toBeNull();
+    cleanup();
+    render(<Harness journey={false} />);
+    expect(screen.getByText('Cards')).toBeTruthy();
+    press(screen.getByRole('button', { name: 'Open' }));
+    expect(screen.queryByText('Cards')).toBeNull();
+    const collapse = screen.getByRole('button', { name: 'Collapse sheet' });
+    press(collapse);
+    expect(screen.getByText('Cards')).toBeTruthy();
   });
 });

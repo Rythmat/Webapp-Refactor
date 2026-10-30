@@ -15,8 +15,14 @@
   "compatibility_flags": ["nodejs_compat"],
   "durable_objects": {
     "bindings": [
-      { "name": "Main", "class_name": "CollabServer" },
-      { "name": "ClassroomSession", "class_name": "ClassroomSessionServer" },
+      {
+        "name": "Main",
+        "class_name": "CollabServer",
+      },
+      {
+        "name": "ClassroomSession",
+        "class_name": "ClassroomSessionServer",
+      },
     ],
   },
   // Wrangler doesn't create Durable Object migrations: add an entry whenever a
@@ -27,6 +33,15 @@
       "new_sqlite_classes": ["CollabServer", "ClassroomSessionServer"],
     },
   ],
-  "observability": { "enabled": true },
-  "dev": { "port": 1999 },
+  "observability": {
+    "enabled": false,
+  },
+  "dev": {
+    "port": 1999,
+  },
+  "vars": {
+    "AUTH0_AUDIENCE": "https://api.musicatlas.io",
+    "AUTH0_DOMAIN": "dev-x2yqy4esrjckwanh.us.auth0.com",
+    "MUSIC_ATLAS_API_URL": "https://music-atlas-api.vercel.app",
+  },
 }

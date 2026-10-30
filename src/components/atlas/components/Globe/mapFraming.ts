@@ -1,5 +1,9 @@
 import type { Feature, Geometry, Position } from 'geojson';
 import { CITIES, CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
+import {
+  FRAME_PX,
+  CORNER_INSET_SHARE,
+} from '@/components/atlas/layout/frameGeometry';
 import { sheetHeights } from '@/components/atlas/layout/sheetSnap';
 import type {
   FlyTarget,
@@ -13,8 +17,8 @@ import { flyZoom } from './mapGeometry';
 /**
  * Where the MapLibre engine puts the camera for a flight (FlyTarget.frame),
  * as pure functions: a country or a state fitted to its outline, a city
- * centred at a street-map zoom, an artist's events fitted together, all
- * inside the part of the map the page leaves clear (Insets).
+ * centred with the region around it, an artist's events fitted together,
+ * all inside the part of the map the page leaves clear (Insets).
  */
 
 /** [[west, south], [east, north]], in degrees. */
@@ -28,26 +32,36 @@ export const NO_INSETS: Insets = { top: 0, right: 0, bottom: 0, left: 0 };
 /** Space kept between a framed place and the overlays around it. */
 export const FRAME_MARGIN_PX = 32;
 /** How close a fit may come: a small country or state still shows context. */
-export const COUNTRY_MAX_ZOOM = 7;
-export const STATE_MAX_ZOOM = 8;
-/** An artist whose events are all in one city sees the city. */
-export const POINTS_MAX_ZOOM = 9;
-/** A small city's outline is still seen with its streets around it. */
-export const CITY_MAX_ZOOM = 12;
+export const COUNTRY_MAX_ZOOM = 6;
+export const STATE_MAX_ZOOM = 6.5;
+/** An artist whose events are all in one city sees the city's region. */
+export const POINTS_MAX_ZOOM = 6.5;
+/** A city is seen with the region around it: there are no streets to see. */
+export const CITY_MAX_ZOOM = 7;
+
+/**
+ * A city flight's zoom on a map with no streets. Navigation still asks in
+ * street-map zooms (10 for a city, 7–9.3 for a tour's stops, wider where a
+ * stop shows its region): up to 5.5 they stand, past it they are compressed
+ * into what is left below CITY_MAX_ZOOM, so a closer stop still lands
+ * closer (10 → 7; a tour's 7 → 6.0, 9.3 → 6.8).
+ */
+export function capFrameZoom(zoom: number): number {
+  return Math.min(
+    CITY_MAX_ZOOM,
+    zoom <= 5.5 ? zoom : 5.5 + (zoom - 5.5) * 0.35,
+  );
+}
 /**
  * A part of a country or state joins its main landmass when it lies within
  * this many degrees of what is framed so far: Sicily, Hokkaido and Tasmania
  * do; Alaska, Hawaii, Svalbard and the Canaries don't.
  */
 export const NEARBY_PART_DEG = 3;
-/** The desktop details card's width (DetailsCard), before it is measured. */
-const CARD_WIDTH_PX = 480;
-/** The left zone's padding (AtlasZones, p-4). */
-const ZONE_GAP_PX = 16;
 
 /* ── Outlines ────────────────────────────────────────────────────────────── */
 
-type Ring = Position[];
+export type Ring = Position[];
 
 /** The outer ring of each polygon in a geometry. */
 export function outerRings(geometry: Geometry | null | undefined): Ring[] {
@@ -77,7 +91,8 @@ function ringBounds(ring: Ring): Bounds {
 }
 
 /** A ring's area, in square degrees narrowed by latitude: enough to rank. */
-function ringArea(ring: Ring): number {
+/** A ring's area, in square degrees narrowed by the cosine of its latitude. */
+export function ringArea(ring: Ring): number {
   let twice = 0;
   for (let i = 0; i < ring.length; i++) {
     const [x1, y1] = ring[i];
@@ -188,11 +203,6 @@ export function pointsBounds(
 export interface Outlines {
   countries: readonly Feature[] | null;
   states: readonly Feature[] | null;
-  /**
-   * A city's outline (data/cityOutlines.ts): the outline, null when it has
-   * none, undefined while it is on its way.
-   */
-  city?: (cityId: string) => Feature | null | undefined;
 }
 
 /**
@@ -251,13 +261,14 @@ export function findRegion(
 /**
  * The insets a flight lands with. A framed flight is a place, an event, an
  * artist or a tour stop opening, and its panel may not be on the page yet
- * when the flight sets off: on a desktop the details card's width is
- * assumed, on a phone the sheet at half. Once the panel is there and
- * measured, the map's padding (MapPadding) already matches, so nothing slides.
+ * when the flight sets off: on a desktop the Inspector is assumed in its
+ * corner (`inspectorPx` wide, the share of it the map frames around), on a phone
+ * the sheet at half. Once the panel is there and measured, the map's
+ * padding (MapPadding) already matches, so nothing slides.
  */
 export function landingInsets(
   measured: Insets,
-  view: { phone: boolean; width: number; height: number },
+  view: { phone: boolean; width: number; height: number; inspectorPx: number },
   framed: boolean,
 ): Insets {
   if (!framed) return measured;
@@ -271,7 +282,7 @@ export function landingInsets(
     ...measured,
     left:
       measured.left ||
-      ZONE_GAP_PX + Math.min(CARD_WIDTH_PX, view.width - 2 * ZONE_GAP_PX),
+      FRAME_PX.gutter + Math.round(view.inspectorPx * CORNER_INSET_SHARE),
   };
 }
 
@@ -353,15 +364,8 @@ export function frameCamera(
   const frame = target.frame;
   if (!frame) return fallback;
   if (frame.kind === 'city') {
-    // The whole city, by its outline; else its centre at the frame's zoom.
-    const outline = frame.cityId ? outlines.city?.(frame.cityId) : null;
-    const bounds = outline && regionBounds(outline.geometry, [target]);
-    return (
-      (bounds && fit(bounds, CITY_MAX_ZOOM)) ?? {
-        center: [target.lng, target.lat],
-        zoom: frame.zoom,
-      }
-    );
+    // The city at its centre, with the region around it.
+    return { center: [target.lng, target.lat], zoom: capFrameZoom(frame.zoom) };
   }
   if (frame.kind === 'points') {
     const bounds = pointsBounds(frame.points);

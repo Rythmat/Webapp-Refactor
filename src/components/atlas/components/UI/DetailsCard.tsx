@@ -2,12 +2,11 @@ import {
   X,
   ChevronDown,
   FileMusic,
-  ChevronRight,
   Calendar,
   MapPin,
   Maximize2,
   Minimize2,
-  GripVertical,
+  Music,
 } from 'lucide-react';
 import {
   useCallback,
@@ -16,10 +15,9 @@ import {
   useMemo,
   useRef,
   useState,
-  type KeyboardEvent,
-  type PointerEvent,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { StackedBar } from '@/components/atlas/components/Cards/charts/StackedBar';
 import {
   ArtistChips,
   TitleWithArtists,
@@ -30,14 +28,15 @@ import { GenreBadge } from '@/components/atlas/components/UI/GenreBadge';
 import {
   ATLAS_FOCUS,
   ATLAS_ITEM_TITLE,
-  AtlasEyebrow,
   AtlasIconButton,
   AtlasPanel,
   AtlasPanelBody,
 } from '@/components/atlas/components/UI/primitives';
 import type { AtlasArtist } from '@/components/atlas/data/artists';
+import { eventImage } from '@/components/atlas/data/eventImage';
 import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import { getCityById } from '@/components/atlas/data/lookups';
+import { MUSICAL_ERAS } from '@/components/atlas/data/musicalEras';
 import { songIdForEvent } from '@/components/atlas/data/songEventAliases';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
 import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
@@ -55,22 +54,13 @@ import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
+import { eraSplit } from '@/components/atlas/stats/eraSplit';
+import { ERA_BG } from '@/components/atlas/theme/eraClasses';
+import { inWindow } from '@/components/atlas/timeline/timeWindow';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
 import { SongRoutes } from '@/constants/routes';
-
-/** The card's width to start with, and its limits when resized. */
-const DEFAULT_WIDTH = 480;
-const MIN_WIDTH = 280;
-/** One Arrow-key step of the resize handle; Shift takes four. */
-const RESIZE_STEP = 16;
-const maxWidth = () =>
-  typeof window === 'undefined'
-    ? DEFAULT_WIDTH
-    : Math.max(MIN_WIDTH, Math.round(window.innerWidth * 0.72));
-const clampWidth = (w: number) =>
-  Math.round(Math.min(Math.max(w, MIN_WIDTH), maxWidth()));
 
 /**
  * Back to the chart this event was made from.
@@ -101,14 +91,86 @@ const LeadSheetButton = ({ event }: { event: HistoricalEvent }) => {
 /** An event's year and city, the line under its title. */
 function EventMeta({ event, id }: { event: HistoricalEvent; id?: string }) {
   return (
-    <span className="flex items-center gap-3 text-xs text-atlas-text-2" id={id}>
-      <span className="flex items-center gap-1">
+    <span
+      className="flex min-w-0 items-center gap-3 text-xs text-atlas-text-2"
+      id={id}
+    >
+      <span className="flex shrink-0 items-center gap-1">
         <Calendar aria-hidden className="size-3" /> {event.year}
       </span>
-      <span className="flex items-center gap-1">
-        <MapPin aria-hidden className="size-3" /> {eventPlaceName(event)}
+      <span className="flex min-w-0 items-center gap-1">
+        <MapPin aria-hidden className="size-3 shrink-0" />
+        <span className="truncate">{eventPlaceName(event)}</span>
       </span>
     </span>
+  );
+}
+
+/** The room left above an opened tile, px. */
+const TILE_TOP_GAP_PX = 8;
+
+/**
+ * Brings an opened tile to the top of its own list, description first. Only
+ * that list scrolls: scrollIntoView would move the page's frame too, whose
+ * clipped overflow can still scroll.
+ */
+function showTileFirst(tile: HTMLElement, behavior: ScrollBehavior) {
+  let list = tile.parentElement;
+  while (list && !/auto|scroll/.test(getComputedStyle(list).overflowY)) {
+    list = list.parentElement;
+  }
+  if (!list) return;
+  const top =
+    list.scrollTop +
+    tile.getBoundingClientRect().top -
+    list.getBoundingClientRect().top -
+    TILE_TOP_GAP_PX;
+  list.scrollTo?.({ top, behavior });
+}
+
+const ERA_LABEL = new Map(MUSICAL_ERAS.map((e) => [e.id, e.label]));
+
+/** A tile's picture: the event's own, or a quiet stand-in of the same shape. */
+function EventTilePicture({ event }: { event: HistoricalEvent }) {
+  const src = eventImage(event, 'lane');
+  return src ? (
+    <img
+      alt=""
+      className="aspect-video w-24 shrink-0 rounded-xl object-cover"
+      decoding="async"
+      loading="lazy"
+      src={src}
+    />
+  ) : (
+    <span
+      aria-hidden
+      className="flex aspect-video w-24 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-atlas-text-3"
+    >
+      <Music className="size-4" />
+    </span>
+  );
+}
+
+/** The events by era in the years shown, as one bar; none when there are none. */
+function HeaderEras({ events }: { events: readonly HistoricalEvent[] }) {
+  const w = useAtlasSelector((s) => s.timeWindow);
+  const eras = useMemo(
+    () => eraSplit(events.map((e) => e.year).filter((y) => inWindow(w, y))),
+    [events, w],
+  );
+  if (eras.length === 0) return null;
+  return (
+    <div className="mt-3">
+      <StackedBar
+        label="Events by era"
+        segments={eras.map((e) => ({
+          key: e.id,
+          count: e.count,
+          className: ERA_BG[e.id],
+          label: ERA_LABEL.get(e.id) ?? e.id,
+        }))}
+      />
+    </div>
   );
 }
 
@@ -116,6 +178,7 @@ function EventList({
   events,
   expandedEvents,
   enlarged,
+  canEnlarge,
   pinnedEventId,
   sequenceActive,
   onToggle,
@@ -128,6 +191,8 @@ function EventList({
   events: HistoricalEvent[];
   expandedEvents: Set<string>;
   enlarged: boolean;
+  /** Whether Enlarge is on offer: not in the Inspector's fixed card. */
+  canEnlarge: boolean;
   pinnedEventId?: string;
   sequenceActive: boolean;
   onToggle: (id: string) => void;
@@ -163,7 +228,7 @@ function EventList({
     enabled: !enlarged && shown.length > VIRTUALIZE_OVER,
     scrollRef,
     listRef,
-    estimateSize: 66,
+    estimateSize: 84,
     gap: 8,
     getItemKey: itemKey,
     keep,
@@ -179,11 +244,6 @@ function EventList({
 
   return (
     <AtlasPanelBody ref={scrollRef} className="px-4 pb-3">
-      {!enlarged && (
-        <AtlasEyebrow as="p" className="mb-2 mt-3">
-          {events.length} event{events.length !== 1 && 's'}
-        </AtlasEyebrow>
-      )}
       <div
         ref={listRef}
         className={
@@ -222,74 +282,83 @@ function EventList({
                     }
                   : undefined
               }
-              className={`group relative isolate w-full rounded-2xl border text-left transition-colors ${focused ? 'p-4' : 'p-2.5'} ${
+              // A floating tile: the column's cards, smaller, with its picture
+              // (owner, 2026-10-30); the open one shows its video instead.
+              className={`group relative isolate w-full rounded-2xl border text-left transition-colors [box-shadow:var(--daw-shadow-float)] ${focused ? 'p-4' : 'p-2'} ${
                 isExpanded
-                  ? 'border-atlas-accent/40 bg-atlas-accent/10'
-                  : 'border-atlas-panel-border bg-white/[0.03] hover:bg-white/[0.06]'
+                  ? 'border-white/30 bg-white/[0.06]'
+                  : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.08]'
               }`}
             >
-              <div className="flex items-start justify-between gap-2">
-                <h4
-                  className={`${ATLAS_ITEM_TITLE} ${focused ? 'text-lg' : ''}`}
-                  id={`${idBase}-${index}-title`}
-                >
-                  <TitleWithArtists
-                    event={event}
-                    onSelectArtist={onSelectArtist}
-                  />
-                </h4>
-                <div className="relative z-10 -mr-1 -mt-0.5 flex shrink-0 items-center gap-0.5">
-                  <LeadSheetButton event={event} />
-                  <AtlasIconButton
-                    aria-label={focused ? 'Shrink' : 'Enlarge'}
-                    size="xs"
-                    onClick={() => {
-                      if (focused) onShrink();
-                      else onEnlarge(event);
-                    }}
-                  >
-                    {focused ? (
-                      <Minimize2 aria-hidden className="size-4" />
-                    ) : (
-                      <Maximize2 aria-hidden className="size-3.5" />
-                    )}
-                  </AtlasIconButton>
+              <div className="flex items-start gap-3">
+                {!isExpanded && <EventTilePicture event={event} />}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <h4
+                      className={`${ATLAS_ITEM_TITLE} ${focused ? 'text-lg' : ''}`}
+                      id={`${idBase}-${index}-title`}
+                    >
+                      <TitleWithArtists
+                        event={event}
+                        onSelectArtist={onSelectArtist}
+                      />
+                    </h4>
+                    <div className="relative z-10 -mr-1 -mt-0.5 flex shrink-0 items-center gap-0.5">
+                      <LeadSheetButton event={event} />
+                      {canEnlarge && (
+                        <AtlasIconButton
+                          aria-label={focused ? 'Shrink' : 'Enlarge'}
+                          size="xs"
+                          onClick={() => {
+                            if (focused) onShrink();
+                            else onEnlarge(event);
+                          }}
+                        >
+                          {focused ? (
+                            <Minimize2 aria-hidden className="size-4" />
+                          ) : (
+                            <Maximize2 aria-hidden className="size-3.5" />
+                          )}
+                        </AtlasIconButton>
+                      )}
+                    </div>
+                  </div>
+                  {enlarged ? (
+                    <EventMeta event={event} />
+                  ) : (
+                    <button
+                      aria-controls={
+                        isExpanded ? `${idBase}-${index}-body` : undefined
+                      }
+                      aria-expanded={isExpanded}
+                      aria-labelledby={`${idBase}-${index}-title ${idBase}-${index}-meta`}
+                      className={`mt-1 flex w-full items-center gap-3 rounded-full text-left after:absolute after:inset-0 after:rounded-2xl ${ATLAS_FOCUS}`}
+                      data-row-control
+                      type="button"
+                      onClick={() => onToggle(event.id)}
+                    >
+                      <EventMeta event={event} id={`${idBase}-${index}-meta`} />
+                      <ChevronDown
+                        aria-hidden
+                        className={`ml-auto mr-1 size-3.5 shrink-0 text-atlas-text-2 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                  )}
                 </div>
               </div>
-              {enlarged ? (
-                <EventMeta event={event} />
-              ) : (
-                <button
-                  aria-controls={
-                    isExpanded ? `${idBase}-${index}-body` : undefined
-                  }
-                  aria-expanded={isExpanded}
-                  aria-labelledby={`${idBase}-${index}-title ${idBase}-${index}-meta`}
-                  className={`mt-1 flex w-full items-center gap-3 rounded-full text-left after:absolute after:inset-0 after:rounded-2xl ${ATLAS_FOCUS}`}
-                  data-row-control
-                  type="button"
-                  onClick={() => onToggle(event.id)}
-                >
-                  <EventMeta event={event} id={`${idBase}-${index}-meta`} />
-                  <ChevronDown
-                    aria-hidden
-                    className={`ml-auto mr-1 size-3.5 text-atlas-text-2 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                  />
-                </button>
-              )}
               {isExpanded && (
                 <div className="relative z-10" id={`${idBase}-${index}-body`}>
+                  <p
+                    className={`mt-2 leading-relaxed text-atlas-text/80 ${focused ? 'text-base' : 'text-sm'}`}
+                  >
+                    {event.description}
+                  </p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {event.genre.map((g) => (
                       <GenreBadge key={g} genre={g} />
                     ))}
                   </div>
                   <ArtistChips event={event} onSelectArtist={onSelectArtist} />
-                  <p
-                    className={`mt-2 leading-relaxed text-atlas-text/80 ${focused ? 'text-base' : 'text-sm'}`}
-                  >
-                    {event.description}
-                  </p>
                   <EventVideo
                     event={event}
                     onPlay={onVideoPlay}
@@ -325,68 +394,16 @@ export function DetailsCard() {
   const dispatch = useAtlasDispatch();
   const navigate = useAtlasNavigate();
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
-  const [collapsed, setCollapsed] = useState(false);
-  const [enlarged, setEnlarged] = useState(false);
-  const [width, setWidth] = useState(DEFAULT_WIDTH);
-  const cardRef = useRef<HTMLDivElement>(null);
   const zone = useAtlasZone();
-  const inSheet = zone.kind === 'sheet';
+  // The Inspector is a card of a fixed size (owner, 2026-10-30); on a phone,
+  // Enlarge is the sheet at full height.
+  const canEnlarge = zone.kind !== 'inspector';
+  const [enlarged, setEnlarged] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
   const reducedMotion = usePrefersReducedMotion();
 
-  // While dragging, the width is written straight to the card's style and
-  // React hears about it once, on release: re-rendering the card and its event
-  // list on every move is what made the drag stutter. The globe still
-  // follows along, through the ResizeObserver below. Pointer events, so a
-  // finger or a pen drags it as well as a mouse.
-  //
-  // Listened for on the window, not with setPointerCapture on the handle:
-  // with capture the drag ran at 12 fps instead of 17, and the slowed page
-  // kept twice the long tasks afterwards (measureGlobe, 4x CPU). Touch and
-  // pen pointers are captured to the handle by the browser anyway.
-  const onDragStart = useCallback((e: PointerEvent<HTMLDivElement>) => {
-    if (e.button > 0) return;
-    e.preventDefault();
-    const card = cardRef.current;
-    if (!card) return;
-    const startX = e.clientX;
-    const startWidth = card.getBoundingClientRect().width;
-    let next = startWidth;
-    const onMove = (mv: globalThis.PointerEvent) => {
-      next = clampWidth(startWidth + mv.clientX - startX);
-      card.style.width = `${next}px`;
-    };
-    const onUp = () => {
-      setWidth(Math.round(next));
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      window.removeEventListener('pointercancel', onUp);
-    };
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
-    window.addEventListener('pointercancel', onUp);
-  }, []);
-
-  // The same handle from the keyboard: Arrow keys step it, Shift steps
-  // further, Home and End go to the narrowest and widest.
-  const onResizeKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    const step = e.shiftKey ? RESIZE_STEP * 4 : RESIZE_STEP;
-    const next =
-      e.key === 'ArrowLeft'
-        ? width - step
-        : e.key === 'ArrowRight'
-          ? width + step
-          : e.key === 'Home'
-            ? MIN_WIDTH
-            : e.key === 'End'
-              ? maxWidth()
-              : null;
-    if (next === null) return;
-    e.preventDefault();
-    setWidth(clampWidth(next));
-  };
-
-  // Escape leaves Enlarge first; the next one closes the card (the left
-  // zone's layer, under this one).
+  // Escape leaves Enlarge first; the next one closes the card (the
+  // Inspector's layer, under this one).
   useEscapeLayer(enlarged, () => setEnlarged(false));
 
   // The pinned event is always in the list. resolveEventRegion.test.ts proves
@@ -431,48 +448,22 @@ export function DetailsCard() {
   }, [selectedLocation, listed]);
 
   // Expand only the pinned event (timeline click / deep-link / sequence step),
-  // un-collapse the card, and scroll that event into view so it reads fully.
+  // and scroll that event into view so it reads fully.
   useEffect(() => {
     if (!pinnedEvent) return;
     setExpandedEvents(new Set([pinnedEvent.id]));
-    setCollapsed(false);
     const id = pinnedEvent.id;
-    const raf = requestAnimationFrame(() => {
-      cardRef.current
-        ?.querySelector(`[data-event-id="${id}"]`)
-        ?.scrollIntoView({
-          block: 'nearest',
-          behavior: scrollBehavior(reducedMotion),
-        });
+    // A frame later again: the opened tile's own layout has to land first.
+    let raf = requestAnimationFrame(() => {
+      raf = requestAnimationFrame(() => {
+        const tile = cardRef.current?.querySelector<HTMLElement>(
+          `[data-event-id="${id}"]`,
+        );
+        if (tile) showTileFirst(tile, scrollBehavior(reducedMotion));
+      });
     });
     return () => cancelAnimationFrame(raf);
   }, [pinnedEvent]);
-
-  // Report the card's occluding width to the globe while an event is expanded so
-  // it can shift the region clear of the card. The ResizeObserver tracks drag-
-  // resize + enlarge, and delivers at most once per frame; only the globe's
-  // offset subscribes to the width, so a report re-renders nothing else.
-  // Cleanup clears it (unmount / nothing pinned). In the phone's bottom sheet
-  // the card covers no side of the globe, so it reports nothing.
-  useEffect(() => {
-    const el = cardRef.current;
-    if (!el || !pinnedEvent || inSheet) {
-      dispatch({ type: 'SET_DETAILS_PANEL_WIDTH', payload: null });
-      return;
-    }
-    const report = () =>
-      dispatch({
-        type: 'SET_DETAILS_PANEL_WIDTH',
-        payload: el.getBoundingClientRect().width,
-      });
-    report();
-    const ro = new ResizeObserver(report);
-    ro.observe(el);
-    return () => {
-      ro.disconnect();
-      dispatch({ type: 'SET_DETAILS_PANEL_WIDTH', payload: null });
-    };
-  }, [dispatch, pinnedEvent, selectedLocation, inSheet]);
 
   if (!selectedLocation) return null;
 
@@ -510,94 +501,39 @@ export function DetailsCard() {
       : undefined;
   const heading =
     selectedLocation.type === 'country'
-      ? {
-          title: selectedLocation.name,
-          subtitle: `ISO: ${selectedLocation.iso}`,
-        }
+      ? { title: selectedLocation.name, place: undefined }
       : selectedLocation.type === 'state'
         ? {
             title: selectedLocation.name,
-            subtitle: selectedLocation.country ?? 'United States',
+            place: selectedLocation.country ?? 'United States',
           }
         : city
-          ? { title: city.name, subtitle: city.country }
-          : { title: 'City not found', subtitle: undefined };
+          ? { title: city.name, place: city.country }
+          : { title: 'City not found', place: undefined };
+  const counted = listed
+    ? `${events.length} event${events.length === 1 ? '' : 's'}`
+    : undefined;
+  const subtitle = [heading.place, counted].filter(Boolean).join(' · ');
 
   return (
     <AtlasPanel
       ref={cardRef}
       actions={
-        <>
-          {/* In the phone sheet, the sheet's own heights do this. */}
-          {!enlarged && !inSheet && (
-            <AtlasIconButton
-              aria-label={collapsed ? 'Expand details' : 'Collapse details'}
-              size="sm"
-              title={collapsed ? 'Expand' : 'Collapse'}
-              onClick={() => setCollapsed((c) => !c)}
-            >
-              <ChevronRight
-                aria-hidden
-                className={`size-4 transition-transform ${collapsed ? 'rotate-0' : 'rotate-90'}`}
-              />
-            </AtlasIconButton>
-          )}
-          <AtlasIconButton aria-label="Close details" size="sm" onClick={close}>
-            <X aria-hidden className="size-4" />
-          </AtlasIconButton>
-        </>
+        <AtlasIconButton aria-label="Close details" size="sm" onClick={close}>
+          <X aria-hidden className="size-4" />
+        </AtlasIconButton>
       }
       as="div"
-      edge={
-        // Resize handle on the right edge (not while enlarged): drag it, or
-        // focus it and use the Arrow keys.
-        !enlarged && (
-          <div
-            aria-label="Resize the details panel"
-            aria-orientation="vertical"
-            aria-valuemax={maxWidth()}
-            aria-valuemin={MIN_WIDTH}
-            aria-valuenow={width}
-            className={`absolute right-0 top-0 z-10 flex h-full w-3 cursor-ew-resize touch-none items-center justify-center rounded-r-2xl opacity-0 transition-opacity hover:opacity-100 focus-visible:opacity-100 active:opacity-100 ${ATLAS_FOCUS}`}
-            role="separator"
-            tabIndex={0}
-            onKeyDown={onResizeKey}
-            onPointerDown={onDragStart}
-          >
-            <GripVertical aria-hidden className="size-3 text-atlas-text-2" />
-          </div>
-        )
+      // The region's colours, explained: its events by era, in the years shown.
+      header={!enlarged && <HeaderEras events={events} />}
+      // On its own (no zone to fill), Enlarge widens the card itself.
+      style={
+        enlarged ? { width: 'min(66vw, 900px)' } : { width: 'min(30rem, 100%)' }
       }
-      header={
-        city &&
-        !enlarged && (
-          <>
-            {/* A town events make a city of has no description of its own. */}
-            {city.description && (
-              <p className="mt-3 text-sm leading-relaxed text-atlas-text/80">
-                {city.description}
-              </p>
-            )}
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {city.genres.map((genre) => (
-                <GenreBadge key={genre} genre={genre} />
-              ))}
-            </div>
-            <p className="mt-3 text-sm text-atlas-text-2">
-              Active: {city.activeDecades.map((d) => `${d}s`).join(', ')}
-            </p>
-          </>
-        )
-      }
-      // The zone caps the height (above the bottom bar) and the width (what
-      // the right column leaves).
-      style={{
-        width: enlarged ? 'min(66vw, 900px)' : `min(${width}px, 100vw - 2rem)`,
-      }}
-      subtitle={heading.subtitle}
+      subtitle={subtitle || undefined}
       title={heading.title}
     >
-      {!collapsed && awaitingOutlines && (
+      {awaitingOutlines && (
         <div className="border-t border-atlas-panel-border px-4 py-3">
           {outlines.status === 'error' ? (
             <p className="text-sm text-atlas-text-2" role="alert">
@@ -617,11 +553,12 @@ export function DetailsCard() {
           )}
         </div>
       )}
-      {!collapsed && !awaitingOutlines && (
+      {!awaitingOutlines && (
         <EventList
           events={events}
           expandedEvents={expandedEvents}
           enlarged={enlarged}
+          canEnlarge={canEnlarge}
           pinnedEventId={pinnedEvent?.id}
           sequenceActive={sequenceActive}
           onToggle={toggleEvent}

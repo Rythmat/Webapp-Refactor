@@ -59,7 +59,7 @@ export function EventVideo({
     >
       <PlayCircle aria-hidden className="size-8 text-atlas-text-3" />
       <span className="text-sm text-atlas-text-2">No video attached yet</span>
-      <span className="inline-flex items-center gap-1 text-sm font-medium text-atlas-accent">
+      <span className="inline-flex items-center gap-1 text-sm font-medium text-atlas-text underline decoration-white/40 underline-offset-2">
         Find on YouTube
         <ExternalLink aria-hidden className="size-3.5" />
       </span>

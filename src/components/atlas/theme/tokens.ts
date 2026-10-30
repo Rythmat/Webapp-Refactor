@@ -4,10 +4,13 @@
  *
  * Every token is a `--atlas-<name>` custom property, declared on `.atlas-root`
  * in `../index.css` (a test holds that file to this one), and a Tailwind
- * colour `atlas-<name>`: `bg-atlas-panel/95`, `text-atlas-text-2`,
- * `ring-atlas-focus`. The surfaces and text are aliases of the app's `--ui-*`
- * tokens (src/styles/appTheme.css), the same ones the mind map, Cortex and
- * the Studio read, so the Globe follows any re-skin of the app. The four
+ * colour `atlas-<name>`: `bg-atlas-panel`, `text-atlas-text-2`,
+ * `bg-atlas-pill`. The surfaces and text are aliases of the app's `--ui-*`
+ * tokens (src/styles/appTheme.css), and the secondary text, the pills, the
+ * menus and the focus ring the Studio's `--daw-*` ones (src/daw/ui/tokens.ts),
+ * so the Globe wears the Studio's frame and follows any re-skin of the app
+ * (owner, 2026-10-29). There is no accent: selection and actions are white,
+ * and colour means something (an era, a kind of thing, a country). The four
  * entity kinds take Cortex's colours (src/content/graph/cortexPalette.ts).
  *
  * WebGL cannot read var(), so what the globe itself draws in a fixed colour
@@ -46,6 +49,12 @@ const rgb = (hex: string): AtlasColorToken => ({
   css: rgbChannels(hex),
   value: hex,
 });
+/** One of the Studio's `--daw-*` colours, resolving to `value`. */
+const daw = (name: string, value: string): AtlasColorToken => ({
+  space: 'color',
+  css: `var(--daw-${name})`,
+  value,
+});
 const whiteAt = (alpha: number): AtlasColorToken => ({
   space: 'color',
   css: `rgb(255 255 255 / ${alpha})`,
@@ -58,24 +67,26 @@ const tokens = <T extends Record<string, AtlasColorToken>>(t: T): T => t;
 export const ATLAS_COLOR = tokens({
   /** The page behind everything. */
   page: ui('background', '#101012'),
-  /** Every panel and bar, at 95% (`bg-atlas-panel/95`); popovers opaque. */
+  /** The stage card and the Inspector's panels; the Studio's surface 1. */
   panel: ui('card', '#151518'),
   /** A panel's hairline edge and its inner dividers. */
   'panel-border': whiteAt(0.08),
   /** Body text and headings. */
   text: ui('foreground', '#e8e8f0'),
   /** Secondary text: subtitles, metadata. */
-  'text-2': whiteAt(0.55),
-  /** Eyebrows (bold, uppercase) and placeholders; not for running text. */
-  'text-3': whiteAt(0.45),
-  /** The Globe tab's accent: links, the pinned event, progress. */
-  accent: rgb('#60a5fa'),
-  /** The accent where it has to stand out on the accent: a pinned dot's rim. */
-  'accent-strong': rgb('#93c5fd'),
-  /** Keyboard focus rings. */
-  focus: rgb('#60a5fa'),
-  /** Guided tours, so a tour never reads as a pathway. */
-  tour: rgb('#7ecfcf'),
+  'text-2': daw('text-2', 'rgba(255, 255, 255, 0.7)'),
+  /** Micro labels (bold, uppercase) and placeholders; not for running text. */
+  'text-3': daw('text-3', '#8e8ea3'),
+  /** Popovers and menus: the Studio's menu surface. */
+  menu: daw('menu', '#252529'),
+  /** The rails' pills: a zone of controls on the page (the Studio's pill). */
+  pill: daw('pill', '#141417'),
+  /** A control's label inside a pill. */
+  'pill-text': daw('pill-text', 'rgba(255, 255, 255, 0.5)'),
+  /** A pill's control that is on: a view tab, a pressed toggle. */
+  'pill-on': daw('pill-on', 'rgba(255, 255, 255, 0.2)'),
+  /** Keyboard focus outlines: the Studio's grey. */
+  focus: daw('focus', '#9f9fa0'),
   /** Errors. */
   danger: rgb('#f26255'),
   /** The space behind the globe. */
@@ -123,79 +134,68 @@ export const ATLAS_TAILWIND_COLORS = Object.fromEntries(
 ) as Readonly<Record<AtlasColorName, string>>;
 
 /**
- * What the globe draws in a fixed colour. Country colours come from the data
- * (flagColors, continentColors) and are not here.
+ * What the map draws in a fixed colour: a dark map that the music lights
+ * (owner, 2026-10-29). Country colours come from the data
+ * (continentColors) and era colours from musicalEras.ts; they are not here.
  */
 export const ATLAS_SCENE = {
-  /** The selected city's column and an artist's event points. */
+  /** An artist's event points. */
   highlight: '#ffffff',
-  /** The selected city's column sides. */
-  highlightSide: 'rgba(255, 255, 255, 0.8)',
-  /** The halo around the globe. */
-  atmosphere: '#ffffff',
+  /** The faint halo at the globe's limb (the rainbow rim is the page's). */
+  atmosphere: '#c9d2ff',
   /** A city with no country colour. */
   fallback: '#ffffff',
-  /** Antarctica and Greenland, painted as ice (the MapLibre engine). */
+  /** Antarctica and Greenland, as ice, in continent colours. */
   ice: '#ffffff',
-  /**
-   * The sea seen from orbit: the three.js globe's ocean glow (globeVisuals),
-   * which the MapLibre engine paints until the street basemap takes over.
-   */
-  ocean: '#33d6ff',
+  /** The sea: near-black, a touch of blue. */
+  ocean: '#090b11',
   /** Space around the planet (the `canvas` token, as WebGL needs it). */
   space: '#000005',
-  /** The dark rim round a city's circle or an artist's point on the map. */
-  pointRim: 'rgba(10, 10, 14, 0.85)',
+  /** The land with no music in the years shown, and plain land. */
+  landPlain: '#171a22',
+  /** The lifted region: its lid before colour comes, and its walls. */
+  liftNeutral: '#343848',
+  liftWall: '#10121a',
+  /**
+   * The land lit by music: at a little (the floor, landLevel 0.12), some,
+   * much, and the most (1). Cool, so the halos' era colours and the links'
+   * key colours read on it.
+   */
+  landLit: ['#1c1f2c', '#242a3d', '#2f3754', '#3f4a70'],
+  /** Continent colours sit this far over the sea, muted to the dark map. */
+  continentOpacity: 0.55,
+  /** The dark rim round an artist's point. */
+  pointRim: 'rgba(9, 11, 17, 0.85)',
   /** City names on the map, and the halo that keeps them legible. */
   label: '#e8e8f0',
-  labelHalo: 'rgba(16, 16, 18, 0.9)',
-  /** The land with country colours switched off in Layers. */
-  landPlain: '#6b6b74',
-  /** The downstream ("influenced") arc, head to tail. */
-  arcDownstream: ['#ffffffe6', '#ffffff66'],
-  /** Country and state outlines; the selected region's is warm and bright. */
-  strokeSelected: 'rgba(255, 210, 140, 0.95)',
-  strokeState: 'rgba(130, 110, 80, 0.6)',
-  strokeCountry: 'rgba(90, 78, 58, 0.85)',
-} as const;
-
-/**
- * The Atlas flavor: the street basemap's colours where they differ from
- * Protomaps' `dark` flavor (the MapLibre engine, components/Globe/mapStyle.ts).
- * The country colours tint its land at every zoom, so its own land is the
- * plain grey they are drawn over (and that shows with them off in Layers);
- * its sea is the globe's cyan; and its labels are light with dark halos, so
- * they read on any country's colour. Keys are @protomaps/basemaps Flavor keys.
- */
-const LABEL_HALO = 'rgba(16, 16, 18, 0.85)';
-export const ATLAS_BASEMAP = {
-  background: ATLAS_SCENE.ocean,
-  earth: ATLAS_SCENE.landPlain,
-  water: ATLAS_SCENE.ocean,
-  ocean_label: '#0b4f5f',
-  country_label: '#f2f2f6',
-  state_label: '#e2e2ea',
-  state_label_halo: LABEL_HALO,
-  city_label: '#f2f2f6',
-  city_label_halo: LABEL_HALO,
-  subplace_label: '#d6d6de',
-  subplace_label_halo: LABEL_HALO,
-  roads_label_major: '#e2e2ea',
-  roads_label_major_halo: LABEL_HALO,
-  roads_label_minor: '#d0d0d8',
-  roads_label_minor_halo: LABEL_HALO,
-  address_label: '#d0d0d8',
-  address_label_halo: LABEL_HALO,
-  // Places of interest, in light versions of Protomaps' hues so they read
-  // on tinted land.
-  pois: {
-    blue: '#a9d8ec',
-    green: '#a8ecc6',
-    lapis: '#b9c8ff',
-    pink: '#ffc4ea',
-    red: '#ffbccb',
-    slategray: '#d6d6de',
-    tangerine: '#ffd2bb',
-    turquoise: '#a6f0f6',
-  },
+  labelHalo: 'rgba(9, 11, 17, 0.9)',
+  /** Names of countries, and of the world's regions from orbit. */
+  countryLabel: 'rgba(255, 255, 255, 0.34)',
+  regionLabel: 'rgba(255, 255, 255, 0.26)',
+  /** Borders: hairlines, brighter hovered, white selected, with a soft glow. */
+  strokeCountry: 'rgba(255, 255, 255, 0.16)',
+  strokeState: 'rgba(255, 255, 255, 0.08)',
+  strokeHover: 'rgba(255, 255, 255, 0.55)',
+  strokeSelected: 'rgba(255, 255, 255, 0.95)',
+  /** The glow round a hovered or selected place: warm white, not yellow. */
+  regionGlow: 'rgba(255, 228, 200, 0.45)',
+  /** A city's name while it is hovered, selected or holds the pinned event. */
+  labelHot: 'rgba(255, 236, 214, 1)',
+  /** A place's second line (its events in the years shown). */
+  labelSub: 'rgba(255, 255, 255, 0.62)',
+  /** A place: its white dot, its dark rim, its ring when selected. */
+  dot: '#ffffff',
+  dotRim: 'rgba(9, 11, 17, 0.85)',
+  dotRing: 'rgba(255, 255, 255, 0.6)',
+  /** The selected place's light: its bloom and its core. */
+  sunBloom: 'rgba(255, 236, 214, 0.38)',
+  sunCore: '#ffffff',
+  /**
+   * A place's name chip, as [r, g, b, a] (drawn into an image, mapChips.ts):
+   * its fill and border, and brighter for the selected or pinned place.
+   */
+  chip: [20, 20, 24, 0.92],
+  chipBorder: [255, 255, 255, 0.12],
+  chipOn: [34, 34, 40, 0.96],
+  chipOnBorder: [255, 255, 255, 0.55],
 } as const;

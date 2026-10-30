@@ -5,7 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { AtlasRoutes } from '@/constants/routes';
+import { GlobeRoutes } from '@/constants/routes';
 import { getInstrument } from '@/curriculum/data/instruments';
 import type { Credit, Song } from '@/curriculum/types/songLibrary';
 
@@ -29,15 +29,14 @@ import type { Credit, Song } from '@/curriculum/types/songLibrary';
  * sheet still leaves the chart most of the page.
  */
 
-// `/atlas` is the Globe Dashboard and drops these params silently; the full
-// globe at `/atlas/globe` is what reads them and flies to the pin.
+// The Globe reads these params and flies to the pin.
 const atlas = {
   artist: (name: string) =>
-    `${AtlasRoutes.globe()}?artist=${encodeURIComponent(name)}`,
+    `${GlobeRoutes.root()}?artist=${encodeURIComponent(name)}`,
   place: (name: string) =>
-    `${AtlasRoutes.globe()}?place=${encodeURIComponent(name)}`,
+    `${GlobeRoutes.root()}?place=${encodeURIComponent(name)}`,
   era: (name: string) =>
-    `${AtlasRoutes.globe()}?era=${encodeURIComponent(name)}`,
+    `${GlobeRoutes.root()}?era=${encodeURIComponent(name)}`,
 };
 
 /** Roles whose name is a person or group the Globe may know. */

@@ -7,55 +7,56 @@
  *                                 [--base=http://localhost:5266]
  *                                 [--skip-bundle] [--skip-browser]
  *                                 [--cpu=4] [--gpu=metal|swiftshader]
- *                                 [--engine=maplibre|three]
  *                                 [--headed] [--out=file.json]
- *
- * `--engine` picks the Globe's map engine (docs/globe-ui/ENGINE.md) for the
- * dev server and the build it starts; a reused server (`--base`) runs
- * whichever it was started with. The MapLibre engine draws its street map
- * only with a tile source in the environment (VITE_BASEMAP_PMTILES_URL or
- * VITE_PROTOMAPS_API_KEY), which the dev server and the build inherit.
  *
  * Two parts, each skippable:
  *
  * BROWSER (`--skip-browser` to leave out). Starts a dev server of its own on
  * `--port` (or reuses the one at `--base`, which must run with
- * VITE_DEV_AUTH_BYPASS=1), opens /atlas/globe signed in through the dev
+ * VITE_DEV_AUTH_BYPASS=1), opens /globe signed in through the dev
  * bypass (src/auth/devBypass.ts) in headless Chrome via playwright-core, and
  * per run, in a fresh browser context:
  *
  * - first globe frame: from navigation start to the first animation frame
- *   after the engine's `atlas:globe-ready` mark (react-globe.gl initialised,
- *   or MapLibre's first complete frame, basemap tiles included);
- * - map bytes: what the page downloads that is not code — tiles, fonts,
- *   icons, outlines — until 2 s after that mark, by kind;
+ *   after the map's `atlas:globe-ready` mark (MapLibre's first complete
+ *   frame);
+ * - map bytes: what the page downloads that is not code — the label fonts
+ *   and the country and state outlines — until 2 s after that mark, by
+ *   kind;
  * - frame rate with Spin on: frames from requestAnimationFrame over 10 s,
  *   after a 1 s ramp, with the gap between frames (median, p95, max);
  * - JS heap 30 s after navigation start (CDP JSHeapUsedSize, before and
  *   after a forced garbage collection);
  * - city click to card: the camera is pointed at New Orleans through the
  *   page's dev-only hook (window.__atlasGlobeDebug), the pointer rests on
- *   its hex, and the time runs from the click event to the first animation
+ *   its dot, and the time runs from the click event to the first animation
  *   frame after the card's heading is in the page;
+ * - the selected place as it stays, once it has landed and its region has
+ *   lifted, 5 s at full speed and 5 s with the CPU slowed: frame rate, long
+ *   tasks and the map's own redraws a second (its burst's pulses are CSS; its
+ *   dotted links flow by switching a layer's opacity; the comet round the
+ *   region's edge rewrites one line-gradient);
+ * - an era-rail scrub with the CPU slowed: its first handle dragged 200 px
+ *   right and back for 2 s; frame rate, long tasks, React commits and
+ *   MapLibreGlobe renders (the land and halos follow through feature-state,
+ *   so the map's component should not render at all);
  * - long tasks (PerformanceObserver 'longtask', over 50 ms) while opening
- *   that card (2 s from the click), while dragging the card's resize handle
- *   for 2 s with the city's first event expanded (an expanded event is what
- *   makes the card report its width to the globe), and while typing
+ *   that card (2 s from the click), and while typing
  *   "louis armstrong" into search (from the first key to 0.5 s after the
  *   last);
  * - YouTube requests over the whole run, in which no video is ever played:
  *   the player's (its API, embed page and scripts on youtube.com and
  *   googlevideo.com) and the thumbnails' (ytimg.com, img.youtube.com), with
- *   the thumbnails' bytes. Expanding the city's first event in the drag step
- *   is what shows a video.
+ *   the thumbnails' bytes. Opening the city's first event's tile is what
+ *   shows a video.
  *
- * The card, drag and search steps run with the CPU slowed down `--cpu`
+ * The card and search steps run with the CPU slowed down `--cpu`
  * times (4 by default, the studio-perf Chromebook profile's rate;
  * `--cpu=1` turns it off): unthrottled, a fast laptop shows no long tasks
  * at all, and the baseline could not show later work improving anything.
- * The same three windows also count React commits and BaseGlobe renders
+ * The same three windows also count React commits and MapLibreGlobe renders
  * (through a minimal React DevTools hook the page sees as DevTools), which
- * is how "the globe re-renders while the card is dragged" is measured.
+ * is how "the globe re-renders while the rail is scrubbed" is measured.
  *
  * One warm-up load comes first (Vite transforms the modules on first
  * request) and is not counted; each figure is the median of `--runs` runs.
@@ -68,8 +69,8 @@
  * raw data, reporting the atlas route chunk and every chunk the page loads
  * (raw and gzip level 9): the entry's (index.html and its preloads), the
  * route's (atlas.tsx and its static imports), and the chunks it imports
- * dynamically, react-globe.gl on first render and the rest on demand. It
- * names the chunks that hold three.js and react-globe.gl.
+ * dynamically, the map engine on first render and the rest on demand. It
+ * names the chunks that hold the map's renderer packages.
  *
  * Output: docs/globe-ui/runs/latest.json (git-ignored) unless --out, and,
  * with --baseline, docs/globe-ui/baseline.json. A run prints its numbers
@@ -106,11 +107,9 @@ const PORT = Number(args.port ?? 5266);
 const GPU =
   args.gpu ?? (process.platform === 'darwin' ? 'metal' : 'swiftshader');
 const HEADED = args.headed === 'true';
-/** CPU slow-down for the interaction steps (card, drag, search); 1 = none. */
+/** CPU slow-down for the interaction steps (card, scrub, search); 1 = none. */
 const CPU = Number(args.cpu ?? 4);
 const OUT = resolve(args.out ?? join(DOCS, 'runs/latest.json'));
-/** The Globe's map engine for the server and the build this script starts. */
-const ENGINE = args.engine === 'three' ? 'three' : 'maplibre';
 
 if (PORT === OWNER_PORT) {
   console.error(
@@ -127,8 +126,6 @@ const CITY = {
   lng: -90.0715,
   altitude: 1.4,
 };
-/** BaseGlobe's hexAltitude: the top of a city's column. */
-const HEX_ALTITUDE = 0.018;
 const SEARCH_TEXT = 'louis armstrong';
 
 /* ── Shared ──────────────────────────────────────────────────────────── */
@@ -232,19 +229,14 @@ async function openGlobe(browser, base) {
   await context.addInitScript(() => {
     window.__measure = { longTasks: [], frames: [], commits: [], globe: [] };
     // A minimal React DevTools hook: React reports every commit to it. A
-    // commit counts as a BaseGlobe render when the globe's fiber is a new
+    // commit counts as a map render when the map's fiber is a new
     // object that did work (PerformedWork, flag 1) in that commit.
     let lastGlobeFiber = null;
     const findGlobe = (fiber) => {
       const stack = [fiber];
       while (stack.length) {
         const node = stack.pop();
-        if (
-          node.type?.name === 'BaseGlobe' ||
-          node.type?.name === 'MapLibreGlobe'
-        ) {
-          return node;
-        }
+        if (node.type?.name === 'MapLibreGlobe') return node;
         if (node.sibling) stack.push(node.sibling);
         if (node.child) stack.push(node.child);
       }
@@ -324,7 +316,7 @@ async function openGlobe(browser, base) {
       youtube.player += 1;
     }
   });
-  await page.goto(`${base}/atlas/globe`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${base}/globe`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(
     () => performance.getEntriesByName('atlas:globe-ready').length > 0,
     null,
@@ -334,17 +326,12 @@ async function openGlobe(browser, base) {
 }
 
 /**
- * What a request is, if it is the map's data rather than code: basemap
- * tiles, fonts and icons, or the country and state outlines.
+ * What a request is, if it is the map's data rather than code: the label
+ * fonts, or the country and state outlines.
  */
 function mapKind(url) {
-  const { hostname, pathname } = new URL(url);
-  if (/\.pmtiles$/.test(pathname) || hostname === 'api.protomaps.com') {
-    return 'tiles';
-  }
-  if (/\.pbf$/.test(pathname) || /\/sprites\//.test(pathname)) {
-    return 'fontsAndIcons';
-  }
+  const { pathname } = new URL(url);
+  if (/\/fonts\/.+\.(otf|ttf|woff2?)$/.test(pathname)) return 'fonts';
   if (/\/geo\/.*\.json$/.test(pathname) || /naturalearth|geojson/i.test(url)) {
     return 'outlines';
   }
@@ -353,7 +340,7 @@ function mapKind(url) {
 
 const tasksNow = (page) =>
   page.evaluate(() => window.__measure.longTasks.slice());
-/** React commits and BaseGlobe renders within `[from, to]`. */
+/** React commits and MapLibreGlobe renders within `[from, to]`. */
 const rendersIn = (page, from, to) =>
   page.evaluate(
     ([a, b]) => ({
@@ -390,7 +377,7 @@ async function runOnce(browser, base, index) {
       performance.getEntriesByName('atlas:globe-ready')[0].startTime,
   );
   await page.waitForTimeout(2000);
-  result.mapKB = { tiles: 0, fontsAndIcons: 0, outlines: 0 };
+  result.mapKB = { fonts: 0, outlines: 0 };
   for (const { kind, at, bytes } of mapBytes) {
     if (at <= readyWall + 2000) result.mapKB[kind] += bytes / 1e3;
   }
@@ -425,7 +412,7 @@ async function runOnce(browser, base, index) {
     usedAfterGcMB: +(heapAfterGcBytes / 1e6).toFixed(1),
   };
 
-  // 4. Click New Orleans' hex; time to its card. From here on the CPU runs
+  // 4. Click New Orleans' name; time to its card. From here on the CPU runs
   // slowed down (--cpu), so the main-thread cost of each step shows.
   if (CPU > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: CPU });
   await page.evaluate(
@@ -435,15 +422,15 @@ async function runOnce(browser, base, index) {
   );
   await page.waitForTimeout(1500);
   const spot = await page.evaluate(
-    ({ lat, lng, alt }) => window.__atlasGlobeDebug.screenOf(lat, lng, alt),
-    { lat: CITY.lat, lng: CITY.lng, alt: HEX_ALTITUDE },
+    ({ lat, lng }) => window.__atlasGlobeDebug.screenOf(lat, lng),
+    { lat: CITY.lat, lng: CITY.lng },
   );
   // The globe's canvas starts below the toolbar; screenOf is in its pixels.
   const canvasBox = await page.locator('canvas').first().boundingBox();
   const x = canvasBox.x + spot.x;
   const y = canvasBox.y + spot.y;
   await page.mouse.move(x, y);
-  // globe.gl picks the hovered object in its render loop; clicks use it.
+  // Let the map register the pointer before the click.
   await page.waitForTimeout(400);
   await page.evaluate((name) => {
     window.__measure.card = new Promise((done) => {
@@ -485,60 +472,93 @@ async function runOnce(browser, base, index) {
     notes.push(`the click on ${CITY.name}'s hex opened no card`);
   }
 
-  // 5. Expand the city's first event, then drag the resize handle for 2 s.
+  // 4b. The selected place, as it stays: its region lifted, the comet round
+  // the edge, its burst's slow pulses and its links' flow, once it has landed
+  // and the dots are in. 5 s at full speed, then 5 s with the CPU slowed: below
+  // 30 fps there, the comet should run a few laps instead of for ever.
   if (card) {
-    // Click the row's date line, clear of the links and buttons in it.
+    if (CPU > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+    await page.waitForFunction(
+      () => !window.__atlasGlobeDebug?.map?.isMoving(),
+    );
+    await page.waitForTimeout(2500);
+    await page.evaluate(() => {
+      const map = window.__atlasGlobeDebug?.map;
+      window.__measure.mapRenders = [];
+      map?.on('render', () =>
+        window.__measure.mapRenders.push(performance.now()),
+      );
+    });
+    const holdStill = async () => {
+      const from = await now(page);
+      await page.waitForTimeout(5000);
+      const to = await now(page);
+      const frames = await page.evaluate(() => window.__measure.frames.slice());
+      const renders = await page.evaluate(
+        ({ a, b }) =>
+          window.__measure.mapRenders.filter((t) => t >= a && t <= b).length,
+        { a: from, b: to },
+      );
+      return {
+        frames: frameRate(frames, from, to),
+        longTasks: longTasksIn(await tasksNow(page), from, to),
+        mapRendersPerSec: +(renders / ((to - from) / 1000)).toFixed(1),
+      };
+    };
+    result.selected = await holdStill();
+    result.selected.lifted = await page.evaluate(() => {
+      const map = window.__atlasGlobeDebug?.map;
+      const up = map?.getPaintProperty('atlas-lift-lid', 'fill-translate');
+      return Array.isArray(up) && up[1] < 0;
+    });
+    if (!result.selected.lifted) notes.push('the selected place did not lift');
+    if (CPU > 1) {
+      await cdp.send('Emulation.setCPUThrottlingRate', { rate: CPU });
+      result.selectedSlow = await holdStill();
+    }
+  }
+
+  // 5. Open the city's first event's tile: what shows a video.
+  if (card) {
     await page.locator('[data-event-id]').first().locator('svg').last().click();
     await page.waitForTimeout(1500);
-    // The card is the handle's parent; hover reveals the handle.
-    const handle = page.locator('.cursor-ew-resize').first();
-    const box = await handle.boundingBox();
+  }
+
+  // 5b. Scrub the era rail (CPU slowed): its first handle 200 px right and
+  // back, once a second, for 2 s. The land, the halos and the cards follow
+  // it; the map's component itself should not render once.
+  {
+    const handle = page.getByRole('slider', { name: 'First year shown' });
+    const box = await handle.boundingBox().catch(() => null);
     if (box) {
       const hx = box.x + box.width / 2;
       const hy = box.y + box.height / 2;
-      // The card's widest point during the drag, as the page saw it.
-      const widthBefore = await handle.evaluate((el) => {
-        const card = el.parentElement;
-        const start = card.getBoundingClientRect().width;
-        window.__measure.cardWidthMax = start;
-        new ResizeObserver(([entry]) => {
-          window.__measure.cardWidthMax = Math.max(
-            window.__measure.cardWidthMax,
-            entry.borderBoxSize?.[0]?.inlineSize ?? 0,
-          );
-        }).observe(card);
-        return start;
-      });
       await page.mouse.move(hx, hy);
       await page.mouse.down();
-      const dragFrom = await now(page);
+      const scrubFrom = await now(page);
       const started = Date.now();
-      let step = 0;
+      let moves = 0;
       while (Date.now() - started < 2000) {
-        // Out 160 px and back again, once a second.
         const phase = ((Date.now() - started) % 1000) / 1000;
-        const dx = 160 * (phase < 0.5 ? phase * 2 : 2 - phase * 2);
+        const dx = 200 * (phase < 0.5 ? phase * 2 : 2 - phase * 2);
         await page.mouse.move(hx + dx, hy);
-        step++;
+        moves++;
       }
       await page.mouse.up();
-      const dragTo = await now(page);
-      const widthMax = await page.evaluate(() => window.__measure.cardWidthMax);
+      const scrubTo = await now(page);
       await page.waitForTimeout(300);
-      const dragFrames = await page.evaluate(() =>
+      const scrubFrames = await page.evaluate(() =>
         window.__measure.frames.slice(),
       );
-      result.drag = {
-        moves: step,
-        widthBefore: Math.round(widthBefore),
-        widthMax: Math.round(widthMax),
-        renders: await rendersIn(page, dragFrom, dragTo),
-        longTasks: longTasksIn(await tasksNow(page), dragFrom, dragTo),
-        frames: frameRate(dragFrames, dragFrom, dragTo),
+      result.scrub = {
+        moves,
+        frames: frameRate(scrubFrames, scrubFrom, scrubTo),
+        longTasks: longTasksIn(await tasksNow(page), scrubFrom, scrubTo),
+        renders: await rendersIn(page, scrubFrom, scrubTo),
       };
     } else {
-      result.drag = null;
-      notes.push('no resize handle on the card');
+      result.scrub = null;
+      notes.push('no era rail handle to scrub');
     }
   }
 
@@ -589,12 +609,20 @@ function summarizeRuns(runs) {
     openCardLongestTaskMs: pick((r) => r.longTasksOpeningCard?.maxMs),
     openCardCommits: pick((r) => r.rendersOpeningCard?.commits),
     openCardGlobeRenders: pick((r) => r.rendersOpeningCard?.globeRenders),
-    dragLongTasks: pick((r) => r.drag?.longTasks.count),
-    dragLongTaskMs: pick((r) => r.drag?.longTasks.totalMs),
-    dragLongestTaskMs: pick((r) => r.drag?.longTasks.maxMs),
-    dragFps: pick((r) => r.drag?.frames.fps),
-    dragCommits: pick((r) => r.drag?.renders.commits),
-    dragGlobeRenders: pick((r) => r.drag?.renders.globeRenders),
+    selectedFps: pick((r) => r.selected?.frames.fps),
+    selectedGapP95Ms: pick((r) => r.selected?.frames.gapP95Ms),
+    selectedLongTasks: pick((r) => r.selected?.longTasks.count),
+    selectedMapRendersPerSec: pick((r) => r.selected?.mapRendersPerSec),
+    selectedSlowFps: pick((r) => r.selectedSlow?.frames.fps),
+    selectedSlowGapP95Ms: pick((r) => r.selectedSlow?.frames.gapP95Ms),
+    selectedSlowLongTasks: pick((r) => r.selectedSlow?.longTasks.count),
+    selectedSlowLongestTaskMs: pick((r) => r.selectedSlow?.longTasks.maxMs),
+    scrubFps: pick((r) => r.scrub?.frames.fps),
+    scrubLongTasks: pick((r) => r.scrub?.longTasks.count),
+    scrubLongTaskMs: pick((r) => r.scrub?.longTasks.totalMs),
+    scrubLongestTaskMs: pick((r) => r.scrub?.longTasks.maxMs),
+    scrubCommits: pick((r) => r.scrub?.renders.commits),
+    scrubGlobeRenders: pick((r) => r.scrub?.renders.globeRenders),
     searchLongTasks: pick((r) => r.search.longTasks.count),
     searchLongTaskMs: pick((r) => r.search.longTasks.totalMs),
     searchLongestTaskMs: pick((r) => r.search.longTasks.maxMs),
@@ -603,8 +631,7 @@ function summarizeRuns(runs) {
     youtubePlayerRequests: pick((r) => r.youtube?.playerRequests),
     youtubeThumbRequests: pick((r) => r.youtube?.thumbRequests),
     youtubeThumbKB: pick((r) => r.youtube?.thumbKB),
-    mapTilesKB: pick((r) => r.mapKB?.tiles),
-    mapFontsAndIconsKB: pick((r) => r.mapKB?.fontsAndIcons),
+    mapFontsKB: pick((r) => r.mapKB?.fonts),
     mapOutlinesKB: pick((r) => r.mapKB?.outlines),
   };
 }
@@ -620,7 +647,6 @@ async function measureBrowser() {
       env: {
         ...PLACEHOLDER_ENV,
         VITE_DEV_AUTH_BYPASS: '1',
-        VITE_ATLAS_ENGINE: ENGINE,
         // Its own dep cache, so it never re-optimizes under the owner's server.
         VITE_CACHE_DIR: join(ROOT, 'node_modules/.vite-measure-globe'),
       },
@@ -646,7 +672,6 @@ async function measureBrowser() {
     }
     return {
       server: args.base ? `reused ${args.base}` : `vite dev on ${PORT}`,
-      engine: args.base ? 'as the reused server runs' : ENGINE,
       browser: `Chrome ${browser.version()}${HEADED ? ' (headed)' : ' (headless)'}`,
       gpu: { mode: GPU, renderer: gpu, ...SCREEN },
       cpuThrottle: CPU,
@@ -668,7 +693,6 @@ function build(tmp) {
   const env = {
     ...process.env,
     ...PLACEHOLDER_ENV,
-    VITE_ATLAS_ENGINE: ENGINE,
     ANALYZE: '1',
     ANALYZE_JSON: join(tmp, 'bundle-raw.json'),
     ANALYZE_OUT: join(tmp, 'bundle.html'),
@@ -706,26 +730,11 @@ function staticClosure(manifest, key, seen = new Set()) {
   return seen;
 }
 
-/** Packages whose code marks the globe's renderer, for "where is three.js". */
-const RENDERER_PACKAGES = [
-  'three',
-  'react-globe.gl',
-  'globe.gl',
-  'three-globe',
-  'maplibre-gl',
-  'pmtiles',
-  '@protomaps/basemaps',
-];
+/** Packages whose code marks the map's renderer, for "where is MapLibre". */
+const RENDERER_PACKAGES = ['maplibre-gl'];
 
-/**
- * The modules that load with the first render: the build's engine and its
- * renderer. The bundler keeps the other engine as a lazy chunk too, but
- * only this one is ever loaded.
- */
-const FIRST_RENDER =
-  ENGINE === 'three'
-    ? /node_modules\/react-globe\.gl|components\/Globe\/BaseGlobe\.tsx/
-    : /components\/Globe\/MapLibreGlobe\.tsx/;
+/** The modules that load with the first render: the map engine. */
+const FIRST_RENDER = /components\/Globe\/MapLibreGlobe\.tsx/;
 
 async function measureBundle() {
   const tmp = mkdtempSync(join(tmpdir(), 'measure-globe-'));
@@ -774,8 +783,8 @@ async function measureBundle() {
         if (!loaded.has(next)) dynamicKeys.add(next);
       }
     }
-    // The engine loads on the first render and loads its renderer in turn
-    // (BaseGlobe → react-globe.gl): that is first render too.
+    // The engine loads on the first render, and whatever it loads in turn
+    // with it: that is first render too.
     for (const key of [...dynamicKeys]) {
       if (!FIRST_RENDER.test(key)) continue;
       for (const next of manifest[key].dynamicImports ?? []) {
@@ -787,12 +796,10 @@ async function measureBundle() {
         (k) => !loaded.has(k),
       );
       const when = FIRST_RENDER.test(key)
-        ? `first render (${ENGINE} engine)`
-        : /components\/Globe\/(BaseGlobe|MapLibreGlobe)\.tsx/.test(key)
-          ? 'never (the other engine)'
-          : key.includes('MindMap')
-            ? 'only with ?mindmap=1'
-            : 'on demand';
+        ? 'first render (the map engine)'
+        : key.includes('MindMap')
+          ? 'only with ?mindmap=1'
+          : 'on demand';
       return { key, when, adds };
     });
 
@@ -848,7 +855,6 @@ async function measureBundle() {
       RENDERER_PACKAGES.map((pkg) => [pkg, Object.keys(homes[pkg])]),
     );
     return {
-      engine: ENGINE,
       routeChunk: {
         file: routeChunk.file,
         rawBytes: routeChunk.rawBytes,

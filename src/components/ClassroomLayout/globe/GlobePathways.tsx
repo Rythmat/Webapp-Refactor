@@ -2,16 +2,16 @@ import { ArrowRight, Compass, Play } from 'lucide-react';
 import { Fragment, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { HISTORICAL_MODULES } from '@/components/atlas/data/historicalModules';
-import { AtlasRoutes } from '@/constants/routes';
+import { GlobeRoutes } from '@/constants/routes';
 import { GlobeSectionHeader } from './GlobeSectionHeader';
 import { ROOTS_AND_ROUTES } from './data/rootsAndRoutes';
 
-// The 6 "Roots & Routes" lineages are mirrored as HistoricalModules whose ids
+// The 7 "Roots & Routes" lineages are mirrored as HistoricalModules whose ids
 // match the route ids, so the "Guided Tours" grid below excludes them (they get
-// their own richer shelf) and every card deep-links to /atlas/globe?pathway=<id>.
+// their own richer shelf) and every card deep-links to /globe?pathway=<id>.
 const ROOT_ROUTE_IDS = new Set(ROOTS_AND_ROUTES.map((r) => r.id));
 
-const pathwayHref = (id: string) => `${AtlasRoutes.globe()}?pathway=${id}`;
+const pathwayHref = (id: string) => `${GlobeRoutes.root()}?pathway=${id}`;
 
 const CARD_FOCUS =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7ecfcf]/50';
@@ -19,16 +19,15 @@ const CARD_FOCUS =
 interface GlobePathwaysProps {
   /**
    * When provided, cards act as SELECTORS (a `<button>` calling this) instead of
-   * navigation `<Link>`s — reused by the lesson editor's content picker so the
-   * picker shows the exact dashboard shelf. Omit for the dashboard's default
-   * "open the globe" behavior.
+   * navigation `<Link>`s — the lesson editor's content picker. Omit for cards
+   * that open the Globe.
    */
   onSelectPathway?: (id: string, title: string) => void;
 }
 
 /**
  * Shared card wrapper: a selector `<button>` in picker mode, else a navigation
- * `<Link>` to `/atlas/globe?pathway=<id>` (the dashboard default).
+ * `<Link>` to `/globe?pathway=<id>`.
  */
 const PathwayShell = ({
   id,

@@ -1,7 +1,7 @@
 # Globe "Time River" redesign — progress
 
 The Globe section rebuilt after Dorot (dorot.tali.org.il/en): one immersive
-page at `/atlas/globe` where Explore is the map, Eras the timeline ("river"),
+page (at `/atlas/globe` until 2026-10-29, now `/globe`) where Explore is the map, Eras the timeline ("river"),
 and Regions & Cities, Pathways and Instruments are lenses that regroup the
 river's lanes. Owner decisions of 2026-10-14: one immersive Atlas; YouTube
 posters now, a curated image field later; built in phases with screenshot
@@ -208,3 +208,58 @@ four marker shapes mixed in one row, and two tabs that changed nothing.
 - Budget: route chunk 113,165 B, static imports 323,145 B; TimeRiver
   47.8 kB lazy.
 - Screens: `docs/globe-ui/screens/tr-p4b-*`.
+
+## 2026-10-29 — the Globe at /globe, in the Studio's frame (owner)
+
+The owner removed the `/atlas` dashboard and every `/atlas` address (no
+redirects) and asked for the Globe to take the Studio editor's frame: full
+window, a top rail, a right side rail with an Inspector, a bottom rail.
+Plan: `~/.claude/plans/the-globe-section-needs-squishy-mango.md`.
+
+- Phase 1 (route): the Globe is `GlobeRoutes.root` = `/globe`; the dashboard
+  (GlobeInlet, the tab bar, the three.js hero, shelves, marquee, Regions,
+  Eras and Instruments views) is deleted. The console mirrors it at
+  `/console/content/globe`. `globeDeepLink.test.ts` fails on any old address.
+- Pathways and Instruments become Inspector panels (later phases), so the
+  P6 lenses for them stay to come.
+- Budget: HEAD was already 340 B over the route-chunk limit before this work
+  (116,089 / 115,749, shared code); after the dashboard went, 116,409 B
+  (static imports 325,741 B). The budget is set once, from measured sizes,
+  when the frame lands.
+
+## 2026-10-29/30 — the tile-free data map (owner)
+
+The owner asked to remove Protomaps and OpenStreetMap from the Globe and the
+codebase, and to update the Globe's look and interactions after two
+Dribbble references (25147704, a network graph; 22296468, a map
+dashboard). Answers: the Studio frame stays, with chart cards floating over
+the stage; dark land lit by music; a Map and a Ring view; the three.js
+globe retired. Plan: `~/.claude/plans/the-globe-section-needs-squishy-mango.md`.
+[ENGINE.md](../globe-ui/ENGINE.md) describes the result;
+[BASELINE.md](../globe-ui/BASELINE.md) "The data map" has its numbers.
+
+| Phase | What                                                                                         | State              |
+| ----- | -------------------------------------------------------------------------------------------- | ------------------ |
+| 1–2   | three.js, Protomaps, the OSM city outlines and the map credit removed; labels in Glacial     | done               |
+| 3     | Foundations: map hooks and handle, zone insets, card prefs, stage signals, network and stats | done               |
+| 4     | The data map: land lit by music, dots and halos, chips, rim, sun, hover card                 | done, checkpoint A |
+| 5     | Chart kit and the world's floating cards; Cards pill                                         | done               |
+| 6     | Connections on the map (flow, draw-on, pills), stop cards, Legend card, phone strip          | done, checkpoint B |
+| 7     | The Connections ring (`?view=ring`) and its morph from the map                               | done, checkpoint C |
+| 8     | Motion: intro, selection beats, chart morphs                                                 | done, checkpoint D |
+| 9     | Measure, budgets, docs                                                                       | done               |
+
+Owner calls along the way: atmosphere on, max zoom 8, no shaded relief
+(checkpoint A); the world's links keep flowing, and only single influences
+are dotted (checkpoint B: most place-to-place links carry one or two).
+
+**The lifted region (2026-10-30, after Dribbble 23013593).** A selected place
+lifts its state or country, in a gradient of its events' eras, with a comet
+round its edge and a dot per event; the stage is down to the events and
+Connections cards. Numbers: BASELINE.md, "The lifted region".
+
+Still to come, from the morning's plan: journeys as a card in the column,
+the Pathways and Instruments panels, the "Ask the Globe" pill, and a
+call-site sweep. The owner should delete the Vercel variables
+`VITE_BASEMAP_PMTILES_URL`, `VITE_PROTOMAPS_API_KEY`,
+`VITE_BASEMAP_ASSETS_URL` and `VITE_ATLAS_ENGINE`.

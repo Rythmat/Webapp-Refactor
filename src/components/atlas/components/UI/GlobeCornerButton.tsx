@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
+import { isTimelineView } from '@/components/atlas/navigation/atlasFrame';
 import {
   useAtlasFrame,
   useAtlasNavigate,
@@ -17,7 +18,7 @@ const TURN_SECONDS = 24;
  * still under reduced motion and while the tab is hidden.
  */
 export function GlobeCornerButton() {
-  const timeline = useAtlasFrame((f) => f.view === 'timeline');
+  const timeline = useAtlasFrame(isTimelineView);
   const navigate = useAtlasNavigate();
   const reducedMotion = usePrefersReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement>(null);

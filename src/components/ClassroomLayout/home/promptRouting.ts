@@ -59,7 +59,7 @@ export function onInstrument(
 export function areaOf(route: string): PromptTarget | null {
   if (route.startsWith('/studio')) return 'studio';
   if (/^\/(learn|songs|curriculum)\b/.test(route)) return 'learn';
-  if (route.startsWith('/atlas')) return 'globe';
+  if (route.startsWith('/globe')) return 'globe';
   if (route.startsWith('/arcade')) return 'arcade';
   return null;
 }
@@ -111,7 +111,7 @@ function fallback(text: string, target: PromptTarget | null): string {
     case 'studio':
       return promptSongRoute(text);
     case 'globe':
-      return `/atlas/globe?q=${encodeURIComponent(globeQuery(text))}`;
+      return `/globe?q=${encodeURIComponent(globeQuery(text))}`;
     case 'arcade':
       return '/arcade';
     case 'learn':

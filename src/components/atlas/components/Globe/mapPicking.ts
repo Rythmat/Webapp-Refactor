@@ -1,12 +1,6 @@
+import { decodePlace } from '@/components/atlas/navigation/atlasStop';
 import type { SelectedLocation } from '@/components/atlas/types';
-import {
-  arcLabel,
-  featureName,
-  placeOfRegion,
-  pointLabel,
-  regionLabel,
-} from './globeLabels';
-import { REGION_CLICK_MAX_ZOOM } from './mapGeometry';
+import { placeOfRegion } from './globeLabels';
 import { CLICK_LAYERS, LAYER } from './mapStyle';
 
 /**
@@ -17,12 +11,24 @@ import { CLICK_LAYERS, LAYER } from './mapStyle';
 
 /** A feature as queryRenderedFeatures gives it: only what we read. */
 export interface PickedFeature {
+  /** The source's feature id (countries and states are numbered). */
+  id?: string | number;
+  /** A place's point, where its hover card hangs. */
+  geometry?: { type: string; coordinates?: unknown };
   layer: { id: string };
   properties: Record<string, unknown> | null;
 }
 
 export type MapTarget =
   | { kind: 'event'; eventId: string }
+  | {
+      kind: 'link';
+      id: string;
+      title: string;
+      detail: string;
+      /** The far place a click opens; none for a link between regions. */
+      place: SelectedLocation | null;
+    }
   | { kind: 'city'; cityId: string }
   | {
       kind: 'region';
@@ -36,29 +42,43 @@ const priority = (layerId: string): number => {
 };
 
 /**
- * Countries and states answer clicks from orbit down to the country level
- * (REGION_CLICK_MAX_ZOOM). With a street basemap, a click among the streets
- * should not open the country it lands in; without one, the outlines are
- * the whole map and always answer.
+ * The feature a click means: the most specific layer's (CLICK_LAYERS).
+ * Countries and states answer at every zoom: they are the whole map.
  */
-export const regionsClickable = (zoom: number, withBasemap: boolean): boolean =>
-  !withBasemap || zoom < REGION_CLICK_MAX_ZOOM;
-
-/** The feature a click means: the most specific layer's (CLICK_LAYERS). */
 export function topFeature(
   features: readonly PickedFeature[],
-  regions: boolean,
 ): PickedFeature | null {
   let best: PickedFeature | null = null;
   for (const feature of features) {
     const id = feature.layer.id;
-    if (!regions && (id === LAYER.countriesFill || id === LAYER.statesFill)) {
-      continue;
-    }
     if (priority(id) === Infinity) continue;
     if (!best || priority(id) < priority(best.layer.id)) best = feature;
   }
   return best;
+}
+
+/**
+ * Event dots' hit zones overlap, so of those under the pointer only the
+ * nearest stays: the dot being pointed at, not the one drawn last.
+ */
+export function nearestDot(
+  features: readonly PickedFeature[],
+  at: { x: number; y: number },
+  project: (lngLat: [number, number]) => { x: number; y: number },
+): PickedFeature[] {
+  let best: PickedFeature | null = null;
+  let bestDistance = Infinity;
+  for (const feature of features) {
+    if (feature.layer.id !== LAYER.liftDotsHit) continue;
+    const point = feature.geometry?.coordinates as [number, number];
+    const p = project(point);
+    const distance = (p.x - at.x) ** 2 + (p.y - at.y) ** 2;
+    if (distance < bestDistance) {
+      best = feature;
+      bestDistance = distance;
+    }
+  }
+  return features.filter((f) => f.layer.id !== LAYER.liftDotsHit || f === best);
 }
 
 const str = (value: unknown): string | null =>
@@ -71,12 +91,29 @@ export function targetOf(feature: PickedFeature | null): MapTarget | null {
   if (!feature) return null;
   const p = feature.properties ?? {};
   switch (feature.layer.id) {
-    case LAYER.arcsHit:
+    case LAYER.linksHit:
+    case LAYER.linksDottedHit: {
+      // A pinned event's influence opens its event.
+      const eventId = str(p.eventId);
+      if (eventId) return { kind: 'event', eventId };
+      const id = str(p.id);
+      if (!id) return null;
+      const place = str(p.place);
+      return {
+        kind: 'link',
+        id,
+        title: str(p.title) ?? '',
+        detail: str(p.detail) ?? '',
+        place: place ? decodePlace(place) : null,
+      };
+    }
+    case LAYER.liftDotsHit:
     case LAYER.artistPoints: {
       const eventId = str(p.eventId);
       return eventId ? { kind: 'event', eventId } : null;
     }
-    case LAYER.cityLabels: {
+    case LAYER.cityLabels:
+    case LAYER.placeHit: {
       const cityId = str(p.cityId);
       return cityId ? { kind: 'city', cityId } : null;
     }
@@ -90,29 +127,6 @@ export function targetOf(feature: PickedFeature | null): MapTarget | null {
         centroid: lat !== null && lng !== null ? { lat, lng } : null,
       };
     }
-    default:
-      return null;
-  }
-}
-
-/** The hover label for `feature`, in the same words as the three.js globe's. */
-export function labelOf(feature: PickedFeature | null): string | null {
-  if (!feature) return null;
-  const p = feature.properties ?? {};
-  switch (feature.layer.id) {
-    case LAYER.arcsHit:
-      return arcLabel({
-        label: str(p.label) ?? '',
-        direction: p.direction === 'upstream' ? 'upstream' : 'downstream',
-      });
-    case LAYER.artistPoints:
-      return pointLabel(str(p.name) ?? '');
-    // A city is its name, already on the map and warm when hovered.
-    case LAYER.cityLabels:
-      return null;
-    case LAYER.statesFill:
-    case LAYER.countriesFill:
-      return regionLabel(featureName({ properties: p }), p._layer === 'state');
     default:
       return null;
   }

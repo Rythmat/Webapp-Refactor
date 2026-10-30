@@ -20,6 +20,35 @@ interface Box {
 const shown = (box: Box | null | undefined): box is Box =>
   !!box && box.width > 0 && box.height > 0;
 
+/**
+ * A corner card's box as the map frames around it: only `share` of its width,
+ * from the side it is on (frameGeometry.ts, CORNER_INSET_SHARE).
+ */
+export function cornerBox(
+  box: Box,
+  side: 'left' | 'right',
+  share: number,
+): Box {
+  const width = box.width * share;
+  return side === 'left'
+    ? {
+        top: box.top,
+        bottom: box.bottom,
+        height: box.height,
+        left: box.left,
+        right: box.left + width,
+        width,
+      }
+    : {
+        top: box.top,
+        bottom: box.bottom,
+        height: box.height,
+        left: box.right - width,
+        right: box.right,
+        width,
+      };
+}
+
 export function insetsFrom(
   container: Box,
   zones: {
@@ -50,6 +79,37 @@ export function insetsFrom(
         .map((box) => px(container.right - box.left)),
     ),
   };
+}
+
+/** No zone over the map. */
+export const NO_MAP_INSETS: MapInsets = {
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+};
+
+export const sameInsets = (a: MapInsets, b: MapInsets): boolean =>
+  a.top === b.top &&
+  a.right === b.right &&
+  a.bottom === b.bottom &&
+  a.left === b.left;
+
+/**
+ * What several zones cover together: on each edge, the deepest. The cards
+ * at the left and the Inspector at the right each keep their own side; a
+ * bar and a sheet along the bottom don't add up, the taller one counts.
+ */
+export function combineInsets(zones: readonly MapInsets[]): MapInsets {
+  return zones.reduce<MapInsets>(
+    (all, z) => ({
+      top: Math.max(all.top, z.top),
+      right: Math.max(all.right, z.right),
+      bottom: Math.max(all.bottom, z.bottom),
+      left: Math.max(all.left, z.left),
+    }),
+    NO_MAP_INSETS,
+  );
 }
 
 /**
@@ -86,6 +146,3 @@ export function useReportInsets(
     };
   }, [rootRef, onInsets, layoutKey]);
 }
-
-/** The map-control buttons, inside the controls zone (MapControls). */
-export const CONTROLS_ROW = '[data-atlas-controls-row]';

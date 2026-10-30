@@ -33,6 +33,30 @@ vi.mock('@/curriculum/pages/GuitarModeLesson', async () => {
   const { createElement } = await import('react');
   return { default: () => createElement('p', null, 'guitar lesson') };
 });
+vi.mock('@/curriculum/anatomy/KeyboardAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'keyboard anatomy') };
+});
+vi.mock('@/curriculum/anatomy/SynthAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'synth anatomy') };
+});
+vi.mock('@/curriculum/anatomy/PianoAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'piano anatomy') };
+});
+vi.mock('@/curriculum/anatomy/UkuleleAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'ukulele anatomy') };
+});
+vi.mock('@/curriculum/anatomy/BassAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'bass anatomy') };
+});
+vi.mock('@/curriculum/anatomy/GuitarAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'guitar anatomy') };
+});
 vi.mock('@/curriculum/guitar/harmonics/GuitarHarmonicsPage', async () => {
   const { createElement } = await import('react');
   return { default: () => createElement('p', null, 'guitar harmonics') };
@@ -250,6 +274,40 @@ describe('learn routes: guitar', () => {
     expect(learnPath(url)).toBe(url);
     renderRoute(learnPages(), url);
     expect(await screen.findByText(`learn page ${tab}`)).toBeInTheDocument();
+  });
+
+  it.each([
+    ['keyboard-anatomy', 'keyboard anatomy'],
+    ['synth-anatomy', 'synth anatomy'],
+  ])('opens Technique → %s, free, not as a lesson', async (path, text) => {
+    renderRoute(learnPages(), `/learn/keyboard/technique/${path}?tab=build`);
+    expect(await screen.findByText(text)).toBeInTheDocument();
+    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
+  });
+
+  it('opens Technique → Piano Anatomy, free, not as a lesson', async () => {
+    renderRoute(learnPages(), '/learn/keyboard/technique/anatomy?kind=upright');
+    expect(await screen.findByText('piano anatomy')).toBeInTheDocument();
+    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
+  });
+
+  it('opens Technique → Ukulele Anatomy, free, not as a lesson', async () => {
+    renderRoute(learnPages(), '/learn/ukulele/technique/anatomy?tab=build');
+    expect(await screen.findByText('ukulele anatomy')).toBeInTheDocument();
+    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
+  });
+
+  it('opens Technique → Bass Anatomy, free, not as a bass lesson', async () => {
+    renderRoute(learnPages(), '/learn/bass/technique/anatomy?tab=build');
+    expect(await screen.findByText('bass anatomy')).toBeInTheDocument();
+    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
+  });
+
+  it('opens Technique → Guitar Anatomy, free, not as a guitar lesson', async () => {
+    renderRoute(learnPages(), '/learn/guitar/technique/anatomy?tab=build');
+    expect(await screen.findByText('guitar anatomy')).toBeInTheDocument();
+    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
+    expect(screen.queryByText('guitar lesson')).not.toBeInTheDocument();
   });
 
   it('opens Technique → Guitar Harmonics, free, not as a guitar lesson', async () => {

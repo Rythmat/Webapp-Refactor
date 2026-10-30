@@ -141,12 +141,11 @@ const THEORY_SUGGESTIONS: Record<LearnInstrument, PromptSuggestion[]> = {
   ukulele: theorySuggestions(UKULELE_SUGGESTIONS),
 };
 
-/** Technique: its tiles (none on guitar yet, so its bar suggests nothing),
- *  the instrument named unless the tile's title already does. */
+/** Technique: its tiles, the instrument named unless the tile's title already does. */
 const techniqueSuggestions = (instrument: LearnInstrument) =>
   techniqueDataFor(instrument).map((item) =>
     teach(
-      /\b(piano|keyboard|guitar)\b/i.test(item.title)
+      /\b(piano|keyboard|synth|guitar|bass|ukulele)\b/i.test(item.title)
         ? `Teach me ${item.title}`
         : `Teach me ${item.title} ${ON[instrument]}`,
       item.route,

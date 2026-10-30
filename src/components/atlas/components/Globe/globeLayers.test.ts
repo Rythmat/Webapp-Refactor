@@ -1,7 +1,7 @@
 /**
- * The Layers control hides a layer by giving the globe no data for it, and
- * leaves every other layer's array exactly as it was, so react-globe.gl
- * rebuilds only the layer that changed.
+ * The Layers control hides a layer by giving the map no data for it, and
+ * leaves every other layer's array exactly as it was, so the map updates
+ * only the layer that changed.
  */
 import { describe, expect, it } from 'vitest';
 import { getCountryColor } from '@/components/atlas/data/continentColors';
@@ -10,11 +10,9 @@ import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import type { GlobeLayers } from '@/components/atlas/types';
 import {
   cityBaseColor,
-  landColor,
   visibleArcs,
   visibleArtistPoints,
   visibleCityPoints,
-  visiblePolygons,
 } from './globeLayers';
 
 const off = (layer: keyof GlobeLayers): GlobeLayers => ({
@@ -22,8 +20,6 @@ const off = (layer: keyof GlobeLayers): GlobeLayers => ({
   [layer]: false,
 });
 
-const countries = [{ id: 'FRA' }, { id: 'USA' }];
-const states = [{ id: 'Texas' }];
 const cities = [{ id: 'paris' }, { id: 'austin' }];
 const artist = [{ id: 'moment' }];
 const arcs = [
@@ -34,10 +30,6 @@ const BOTH = new Set(['upstream', 'downstream'] as const);
 
 describe('globe layers', () => {
   it('draws everything with every layer on', () => {
-    expect(visiblePolygons(DEFAULT_LAYERS, countries, states, true)).toEqual([
-      ...countries,
-      ...states,
-    ]);
     expect(visibleCityPoints(DEFAULT_LAYERS, cities)).toBe(cities);
     expect(visibleArtistPoints(DEFAULT_LAYERS, artist)).toBe(artist);
     expect(visibleArcs(DEFAULT_LAYERS, arcs, BOTH)).toBe(arcs);
@@ -48,7 +40,6 @@ describe('globe layers', () => {
     expect(visibleCityPoints(layers, cities)).toEqual([]);
     expect(visibleArtistPoints(layers, artist)).toBe(artist);
     expect(visibleArcs(layers, arcs, BOTH)).toBe(arcs);
-    expect(visiblePolygons(layers, countries, states, false)).toBe(countries);
   });
 
   it("hides an artist's points", () => {
@@ -67,25 +58,14 @@ describe('globe layers', () => {
     expect(visibleArcs(DEFAULT_LAYERS, arcs, new Set())).toEqual([]);
   });
 
-  it('shows state lines only when the layer is on and they are in view', () => {
-    expect(visiblePolygons(DEFAULT_LAYERS, countries, states, false)).toBe(
-      countries,
-    );
-    expect(visiblePolygons(off('states'), countries, states, true)).toBe(
-      countries,
-    );
-  });
-
   it('hands back one shared empty array, so "off" never looks like a change', () => {
     expect(visibleCityPoints(off('cities'), cities)).toBe(
       visibleCityPoints(off('cities'), [{ id: 'other' }]),
     );
   });
 
-  it('paints the land plain with country colours off', () => {
-    expect(landColor('FRA', true)).toBe(getCountryColor('FRA'));
-    expect(landColor('FRA', false)).toBe(ATLAS_SCENE.landPlain);
-    expect(cityBaseColor('FRA', false)).toBe(ATLAS_SCENE.landPlain);
-    expect(cityBaseColor(undefined, true)).toBe(ATLAS_SCENE.fallback);
+  it('gives a city its country’s colour', () => {
+    expect(cityBaseColor('FRA')).toBe(getCountryColor('FRA'));
+    expect(cityBaseColor(undefined)).toBe(ATLAS_SCENE.fallback);
   });
 });

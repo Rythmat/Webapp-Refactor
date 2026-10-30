@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
+import { ATLAS_EYEBROW } from '@/components/atlas/components/UI/primitives/styles';
 import { cn } from '@/lib/utils';
 
 /**
- * The small bold uppercase label over a section: "21 events", "Artists · 12",
- * a tour's name. A dot in an entity kind's colour may lead it.
+ * The micro label over a section (the kit's and the Studio's): "21 events",
+ * "Artists · 12", a tour's name. A dot in an entity kind's colour may lead it.
  */
 export function AtlasEyebrow({
   as: Tag = 'span',
@@ -21,10 +22,7 @@ export function AtlasEyebrow({
 }) {
   return (
     <Tag
-      className={cn(
-        'flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-atlas-text-3',
-        className,
-      )}
+      className={cn('flex items-center gap-1.5', ATLAS_EYEBROW, className)}
       id={id}
     >
       {dot && (

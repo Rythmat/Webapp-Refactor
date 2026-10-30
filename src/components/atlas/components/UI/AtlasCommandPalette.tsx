@@ -4,9 +4,9 @@ import {
   Compass,
   CornerDownLeft,
   Eraser,
-  Info,
   Layers,
   Link2,
+  Orbit,
   Pause,
   Play,
   Search,
@@ -73,8 +73,8 @@ const ACTION_ICONS: Record<string, LucideIcon> = {
   'stop-spin': Pause,
   'copy-link': Link2,
   'clear-trail': Eraser,
-  legend: Info,
   layers: Layers,
+  connections: Orbit,
 };
 
 function itemStop(item: PaletteItem) {
@@ -149,7 +149,9 @@ function PaletteRow({
         <span
           className={cn(
             'block truncate text-sm',
-            item.type === 'see-all' ? 'text-atlas-accent' : 'text-atlas-text',
+            item.type === 'see-all'
+              ? 'font-bold text-atlas-text'
+              : 'text-atlas-text',
           )}
         >
           {title}
@@ -185,7 +187,7 @@ function PaletteRow({
  * cmdk 1.0 sets the field's aria-activedescendant once and never updates it,
  * so a screen reader would not hear the arrow keys move.
  *
- * Loaded on first use (AtlasToolbar), so cmdk is not in the page's first
+ * Loaded on first use (Frame/TopRail), so cmdk is not in the page's first
  * download.
  */
 export default function AtlasCommandPalette({
@@ -250,10 +252,10 @@ export default function AtlasCommandPalette({
           ]
         : []),
       {
-        id: 'legend',
-        title: 'Show legend',
-        subtitle: 'What the colors and marks mean',
-        keywords: ['key', 'colours', 'colors', 'help'],
+        id: 'connections',
+        title: 'Go to Connections',
+        subtitle: 'The places in a ring, and the links between them',
+        keywords: ['ring', 'chord', 'links', 'network', 'connections'],
       },
       {
         id: 'layers',
@@ -302,8 +304,8 @@ export default function AtlasCommandPalette({
     'stop-spin': () => dispatch({ type: 'SET_GLOBE_ROTATING', payload: false }),
     'copy-link': onCopyLink,
     'clear-trail': trail.clear,
-    legend: () => dispatch({ type: 'SET_LEGEND_OPEN', payload: true }),
-    layers: () => dispatch({ type: 'SET_LAYERS_OPEN', payload: true }),
+    layers: () => navigate.setFrame({ panel: 'layers' }),
+    connections: () => navigate.toSection('ring'),
   };
 
   const choose = (item: PaletteItem) => {

@@ -1,5 +1,5 @@
 import {
-  AtlasRoutes,
+  GlobeRoutes,
   GameRoutes,
   LearnRoutes,
   SongRoutes,
@@ -65,7 +65,7 @@ const BROWSE_SEE_ALL: Partial<Record<SearchCategory, string>> = {
   artists: SongRoutes.root(),
   courses: LearnRoutes.root(),
   theory: LearnRoutes.root(),
-  globe: AtlasRoutes.root(),
+  globe: GlobeRoutes.root(),
   arcade: GameRoutes.root(),
 };
 

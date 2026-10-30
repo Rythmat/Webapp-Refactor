@@ -1,12 +1,18 @@
+import {
+  NO_MAP_INSETS,
+  combineInsets,
+  sameInsets,
+} from '@/components/atlas/layout/mapInsets';
 import type {
   AppState,
   AppAction,
   GlobeLayers,
 } from '@/components/atlas/types';
+import { DEFAULT_CARD_PREFS } from './cardsStorage';
 
-/** Every layer on: the globe as it has always looked. */
+/** Every layer on, the land lit by music. */
 export const DEFAULT_LAYERS: GlobeLayers = {
-  countryColors: true,
+  landColor: 'music',
   states: true,
   cities: true,
   artistPoints: true,
@@ -21,15 +27,11 @@ export const initialAppState: AppState = {
   timeWindow: null,
   searchFlyTarget: null,
   visibleArcDirections: new Set(),
-  detailsPanelWidth: null,
-  sheetOcclusion: null,
   globeRotating: false,
   layers: DEFAULT_LAYERS,
-  statesInView: false,
-  legendOpen: false,
-  layersOpen: false,
-  mapTouched: false,
-  mapInsets: { top: 0, right: 0, bottom: 0, left: 0 },
+  cards: DEFAULT_CARD_PREFS,
+  zoneInsets: {},
+  mapInsets: NO_MAP_INSETS,
 };
 
 /**
@@ -40,14 +42,6 @@ export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'SELECT_LOCATION':
       return { ...state, selectedLocation: action.payload, pinnedEvent: null };
-    case 'SET_DETAILS_PANEL_WIDTH':
-      return state.detailsPanelWidth === action.payload
-        ? state
-        : { ...state, detailsPanelWidth: action.payload };
-    case 'SET_SHEET_OCCLUSION':
-      return state.sheetOcclusion === action.payload
-        ? state
-        : { ...state, sheetOcclusion: action.payload };
     case 'SET_GLOBE_ROTATING':
       return state.globeRotating === action.payload
         ? state
@@ -135,30 +129,40 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ? state
         : { ...state, layers: { ...state.layers, [layer]: on } };
     }
-    case 'SET_STATES_IN_VIEW':
-      return state.statesInView === action.payload
+    case 'SET_LAND_COLOR':
+      return state.layers.landColor === action.payload
         ? state
-        : { ...state, statesInView: action.payload };
-    case 'SET_LEGEND_OPEN':
-      return state.legendOpen === action.payload
+        : { ...state, layers: { ...state.layers, landColor: action.payload } };
+    case 'SET_CARD_PREFS': {
+      const next = { ...state.cards, ...action.payload };
+      return next.hidden === state.cards.hidden
         ? state
-        : { ...state, legendOpen: action.payload };
-    case 'SET_LAYERS_OPEN':
-      return state.layersOpen === action.payload
-        ? state
-        : { ...state, layersOpen: action.payload };
-    case 'MAP_TOUCHED':
-      return state.mapTouched ? state : { ...state, mapTouched: true };
-    case 'SET_MAP_INSETS': {
-      const was = state.mapInsets;
-      const now = action.payload;
-      return was.top === now.top &&
-        was.right === now.right &&
-        was.bottom === now.bottom &&
-        was.left === now.left
-        ? state
-        : { ...state, mapInsets: now };
+        : { ...state, cards: next };
     }
+    case 'SET_ZONE_INSETS': {
+      const { zone, insets } = action.payload;
+      const was = state.zoneInsets[zone];
+      if (
+        insets === null ? was === undefined : was && sameInsets(was, insets)
+      ) {
+        return state;
+      }
+      const zoneInsets = { ...state.zoneInsets };
+      if (insets === null) delete zoneInsets[zone];
+      else zoneInsets[zone] = insets;
+      const combined = combineInsets(Object.values(zoneInsets));
+      return {
+        ...state,
+        zoneInsets,
+        mapInsets: sameInsets(combined, state.mapInsets)
+          ? state.mapInsets
+          : combined,
+      };
+    }
+    case 'SET_MAP_INSETS':
+      return sameInsets(state.mapInsets, action.payload)
+        ? state
+        : { ...state, mapInsets: action.payload };
     default:
       return state;
   }

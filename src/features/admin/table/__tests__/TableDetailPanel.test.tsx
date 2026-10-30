@@ -288,9 +288,7 @@ describe('the row panel', () => {
     expect(hrefOf('Open in Cortex')).toBe(
       '/console/cortex?focus=artist%3Atoto',
     );
-    expect(hrefOf('Open page')).toBe(
-      '/console/content/atlas/globe?artist=Toto',
-    );
+    expect(hrefOf('Open page')).toBe('/console/content/globe?artist=Toto');
     // Artists have no full editor yet: records/artist/:id would open nothing.
     expect(
       within(panel()).queryByRole('link', { name: /Full editor/ }),

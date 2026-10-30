@@ -11,7 +11,9 @@ import { useStampEarnedAwards } from '@/hooks/data/useAwards';
 import { useStreakPing } from '@/hooks/data/useStreak';
 import { useChallengeWatcher } from '@/hooks/useChallengeWatcher';
 import { ClassroomSidebar } from './ClassroomSidebar';
+import { GlobeSkeleton } from './GlobeSkeleton';
 import { MobileTabBar } from './MobileTabBar';
+import { isGlobePath } from './focusPaths';
 import '@/components/ClassroomLayout/dashboard/dashboard.css';
 
 export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
@@ -28,9 +30,20 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   // chord-notation bar, so a Chromebook gives the editor the whole window.
   // Its own top bar has Back to Home and an avatar menu with the stats.
   const isStudioEditor = isEditorPath(pathname);
+  // The Globe has its own top and bottom rails in the Studio's frame (owner,
+  // 2026-10-29), with the app's navigation at its left (owner, 2026-10-30).
+  // Its height is the dynamic viewport's, so the bottom rail stays above a
+  // phone's toolbar.
+  const isGlobe = isGlobePath(pathname);
+  const focus = isStudioEditor || isGlobe;
 
   return (
-    <div className="dashboard-root flex h-screen w-full overflow-hidden">
+    <div
+      className={cn(
+        'dashboard-root flex w-full overflow-hidden',
+        isGlobe ? 'h-dvh' : 'h-screen',
+      )}
+    >
       {isStudioEditor ? null : (
         <ClassroomSidebar className="hidden flex-shrink-0 md:flex" />
       )}
@@ -39,7 +52,7 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
         ref={mainRef}
         className="flex min-w-0 flex-1 flex-col overflow-hidden"
       >
-        {isStudioEditor ? null : (
+        {focus ? null : (
           <>
             <TopRail />
             {/* Below `md` the rail is hidden: the tab bar stands in. */}
@@ -50,14 +63,23 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
         <div
           className={cn(
             'relative flex-1 min-w-0',
-            isStudioEditor
+            focus
               ? 'flex flex-col min-h-0 overflow-hidden'
               : 'overflow-y-auto overflow-x-hidden rounded-xl bg-[#101012] p-2',
           )}
         >
-          {/* The editor shows its own shape while its chunk loads (1.12a). */}
+          {/* The editor and the Globe show their own shapes while their
+              chunks load (1.12a). */}
           <Suspense
-            fallback={isStudioEditor ? <DawSkeleton /> : props.fallback}
+            fallback={
+              isStudioEditor ? (
+                <DawSkeleton />
+              ) : isGlobe ? (
+                <GlobeSkeleton />
+              ) : (
+                props.fallback
+              )
+            }
           >
             <Outlet />
           </Suspense>

@@ -33,13 +33,9 @@
  *
  * THE GLOBE STAYS LAZY, AND WITHIN ITS BUDGET
  *
- * The Atlas Globe page (/atlas/globe) draws with MapLibre GL over a
- * Protomaps basemap (maplibre-gl, pmtiles, @protomaps/basemaps), or, built
- * with VITE_ATLAS_ENGINE=three, with three.js through react-globe.gl; each
- * well over a megabyte. Every one of them gets the same lazy-only rule as
- * Cortex, one marker string each (see LAZY_ONLY); three.js and
- * react-globe.gl are still in a default build through the classroom's
- * decorative HeroGlobe. The page's own code has a size budget measured
+ * The Globe page (/globe) draws with MapLibre GL (maplibre-gl), well over a
+ * megabyte. It gets the same lazy-only rule as Cortex (see LAZY_ONLY). The
+ * page's own code has a size budget measured
  * from the Globe UI plan's baseline (docs/globe-ui/BASELINE.md): the atlas
  * route chunk
  * (`assets/atlas-*.js`) and everything it imports statically beyond the
@@ -154,10 +150,39 @@ const FORBIDDEN = [
     why: 'Studio UI gallery route (App.tsx)',
   },
   // The Globe page's measuring hook (scripts/measureGlobe.mjs): installed in
-  // BaseGlobe.tsx behind a literal DEV guard.
+  // MapLibreGlobe.tsx behind a literal DEV guard.
   {
     marker: '__atlasGlobeDebug',
-    why: "the Globe page's dev-only measuring hook (Globe/BaseGlobe.tsx)",
+    why: "the Globe page's dev-only measuring hook (Globe/MapLibreGlobe.tsx)",
+  },
+  // The Globe's map asks no third-party map host for anything: its land is
+  // Natural Earth's and its labels are drawn from the app's own font files
+  // (docs/globe-ui/ENGINE.md). Hosts, not names: MapLibre's own bundle
+  // mentions other map sites in its messages.
+  {
+    marker: 'api.protomaps.com',
+    why: "Protomaps' hosted tile API (removed 2026-10-29)",
+  },
+  {
+    marker: 'protomaps.github.io',
+    why: "Protomaps' glyph and sprite host (removed 2026-10-29)",
+  },
+  {
+    marker: 'build.protomaps.com',
+    why: "Protomaps' daily planet builds (removed 2026-10-29)",
+  },
+  { marker: 'pmtiles://', why: 'the pmtiles protocol (removed 2026-10-29)' },
+  {
+    marker: 'nominatim.openstreetmap.org',
+    why: "OpenStreetMap's geocoder, which the city outlines came from (removed 2026-10-29)",
+  },
+  {
+    marker: 'tile.openstreetmap.org',
+    why: "OpenStreetMap's tile servers",
+  },
+  {
+    marker: 'openstreetmap.org/copyright',
+    why: "the OpenStreetMap credit's link (the map draws no OpenStreetMap data since 2026-10-29)",
   },
 ];
 
@@ -175,34 +200,9 @@ const LAZY_ONLY = [
     loadsWith: 'the Cortex page',
   },
   {
-    // three.js's WebGL build (three.module.js) logs under this name.
-    marker: 'THREE.WebGLRenderer',
-    name: 'three.js',
-    loadsWith: 'the Atlas Globe page',
-  },
-  {
-    // The container class three-render-objects gives the globe's canvas
-    // (react-globe.gl → globe.gl → three-render-objects).
-    marker: 'scene-container',
-    name: 'react-globe.gl',
-    loadsWith: 'the Atlas Globe page',
-  },
-  {
     // MapLibre's name for its shared worker pool (maplibre-gl.mjs).
     marker: 'maplibre_preloaded_worker_pool',
     name: 'maplibre-gl',
-    loadsWith: 'the Atlas Globe page (the MapLibre engine)',
-  },
-  {
-    // The error pmtiles throws on a file that is not an archive.
-    marker: 'Wrong magic number for PMTiles archive',
-    name: 'pmtiles',
-    loadsWith: 'the Atlas Globe page (the MapLibre engine)',
-  },
-  {
-    // A Protomaps basemap layer id (@protomaps/basemaps).
-    marker: 'water_label_ocean',
-    name: '@protomaps/basemaps',
     loadsWith: 'the Atlas Globe page (the MapLibre engine)',
   },
 ];
@@ -235,6 +235,16 @@ const GLOBE_ON_DEMAND = [
     pattern: /Music around the world, /,
     name: 'the timeline (components/River/TimeRiver.tsx)',
   },
+  {
+    // The world's links card (components/Cards/StageCards.tsx).
+    pattern: /The strongest links between regions/,
+    name: 'the floating cards (components/Cards/StageCards.tsx)',
+  },
+  {
+    // The ring's empty state (components/Ring/RingView.tsx).
+    pattern: /Too few places with music in/,
+    name: 'the Connections ring (components/Ring/RingView.tsx)',
+  },
 ];
 
 /**
@@ -257,12 +267,15 @@ const GLOBE_ON_DEMAND = [
  * build left the route's static imports. Raised by the Time River redesign's
  * P2 (from 102,904 and 298,824): the Globe's header (its section tabs, the
  * globe / timeline switch, the trail popover) and the frame and time-window
- * code every view shares; the timeline itself is a lazy chunk. See "Budget
+ * code every view shares; the timeline itself is a lazy chunk. Raised by
+ * the data map of 30 Oct 2026 (from 110,237 and 316,812): the cards'
+ * column, the intro, the ring's stage and tab, the zone insets and the
+ * map's phase; the cards and the ring are lazy chunks. See "Budget
  * changes" in BASELINE.md.
  */
 const GLOBE_BUDGET = {
-  routeChunk: 110_237,
-  routeStatic: 316_812,
+  routeChunk: 107_994,
+  routeStatic: 320_833,
   headroom: 1.05,
 };
 
@@ -472,12 +485,12 @@ if (hits.length > 0) {
       'a literal `import.meta.env.DEV` that Vite can statically replace, and\n' +
       "that every import of repo mode code is guarded the same way. Cortex's\n" +
       'graph (its renderer and its dev hook) must load only through the\n' +
-      'lazy Cortex page, and three.js and react-globe.gl only through the\n' +
-      'lazy Globe page.\n',
+      'lazy Cortex page, and the map engine only through the lazy Globe\n' +
+      'page, which asks no third-party map host for anything.\n',
   );
   process.exit(1);
 }
 
 console.log(
-  `verify:prod OK — scanned ${files.length} file(s) in ${DIST}/, no DEV-bypass, content-mock, repo-mode or graph-debug markers shipped; lazy-only code (${lazyHomes.join(', ')} chunk(s)) is in none of the ${entries.length} entry chunk(s); ${globeSizes}.`,
+  `verify:prod OK — scanned ${files.length} file(s) in ${DIST}/, no DEV-bypass, content-mock, repo-mode, graph-debug or third-party map markers shipped; lazy-only code (${lazyHomes.join(', ')} chunk(s)) is in none of the ${entries.length} entry chunk(s); ${globeSizes}.`,
 );

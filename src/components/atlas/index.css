@@ -1,20 +1,17 @@
 /* Atlas Globe local styles.
    Tailwind utilities come from the main app pipeline; this file declares the
    page's colour tokens, which the overlays read as `atlas-*` Tailwind colours
-   (bg-atlas-panel/95, text-atlas-text-2). theme/tokens.ts is their source and
-   a test holds this block to it. The surfaces and text alias the app's --ui-*
-   tokens (src/styles/appTheme.css); the entity kinds are Cortex's colours.
-   The globe's per-country colours are unaffected (handled in BaseGlobe). */
+   (bg-atlas-panel, text-atlas-text-2, bg-atlas-pill). theme/tokens.ts is their
+   source and a test holds this block to it. The surfaces and text alias the
+   app's --ui-* tokens (src/styles/appTheme.css), the secondary text, pills,
+   menus and focus the Studio's --daw-* ones; the entity kinds are Cortex's
+   colours. The map's own colours are ATLAS_SCENE's (theme/tokens.ts). */
 
 .atlas-root {
   /* Channels (hsl or rgb), so Tailwind's opacity modifier works on them. */
   --atlas-page: var(--ui-background);
   --atlas-panel: var(--ui-card);
   --atlas-text: var(--ui-foreground);
-  --atlas-accent: 96 165 250;
-  --atlas-accent-strong: 147 197 253;
-  --atlas-focus: 96 165 250;
-  --atlas-tour: 126 207 207;
   --atlas-danger: 242 98 85;
   --atlas-canvas: 0 0 5;
   --atlas-artist: 10 147 150;
@@ -31,23 +28,176 @@
   /* Motion curves (theme/motion.ts): entering and leaving; moving. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  /* Whole colours, already translucent. */
+  /* Whole colours: translucent, or the Studio's. */
   --atlas-panel-border: rgb(255 255 255 / 0.08);
-  --atlas-text-2: rgb(255 255 255 / 0.55);
-  --atlas-text-3: rgb(255 255 255 / 0.45);
+  --atlas-text-2: var(--daw-text-2);
+  --atlas-text-3: var(--daw-text-3);
+  --atlas-menu: var(--daw-menu);
+  --atlas-pill: var(--daw-pill);
+  --atlas-pill-text: var(--daw-pill-text);
+  --atlas-pill-on: var(--daw-pill-on);
+  --atlas-focus: var(--daw-focus);
 }
 
-/* The globe's hover labels (float-tooltip, under react-globe.gl): a small
-   panel in the page's look instead of the library's grey box. */
-.atlas-root .float-tooltip-kap {
-  padding: 6px 10px;
-  border: 1px solid var(--atlas-panel-border);
-  border-radius: 1rem;
-  background: hsl(var(--atlas-panel) / 0.95);
-  color: hsl(var(--atlas-text));
-  font: inherit;
-  font-size: 12px;
-  line-height: 1.35;
+/* The ground under the globe: space, with a faint dot grid and a vignette,
+   as the network-graph reference's backdrop. The map's canvas is clear
+   outside the globe (mapStyle.ts sky), so this shows round it. Static. */
+.atlas-root .atlas-map-ground {
+  background-color: rgb(var(--atlas-canvas));
+  background-image:
+    radial-gradient(
+      ellipse at center,
+      transparent 0%,
+      transparent 40%,
+      rgb(0 0 5 / 0.9) 100%
+    ),
+    radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1.4px);
+  background-size:
+    100% 100%,
+    1.25rem 1.25rem;
+}
+
+/* The selected place's light, moving (Globe/SunFx.tsx): a burst, then two
+   slow pulses, in the sun's warm white. Transform and opacity only. */
+.atlas-root .atlas-sun-fx {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+.atlas-root .atlas-sun-fx > span {
+  position: absolute;
+  left: -1.5rem;
+  top: -1.5rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  border: 1px solid rgb(255 236 214 / 0.7);
+  opacity: 0;
+}
+.atlas-root .atlas-sun-burst {
+  box-shadow: 0 0 1.5rem rgb(255 236 214 / 0.45);
+  animation: atlas-sun-burst 700ms var(--ease-out) both;
+}
+.atlas-root .atlas-sun-pulse {
+  animation: atlas-sun-pulse 2.4s var(--ease-out) 700ms infinite;
+}
+.atlas-root .atlas-sun-pulse-late {
+  animation-delay: 1.9s;
+}
+@keyframes atlas-sun-burst {
+  from {
+    transform: scale(0.3);
+    opacity: 0.95;
+  }
+  to {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+@keyframes atlas-sun-pulse {
+  from {
+    transform: scale(0.5);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* The cards' motion: a line drawing itself on (pathLength 1), a bar
+   growing from the left, a card landing; each may wait its turn (--i). */
+.atlas-root .atlas-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: atlas-draw 600ms var(--ease-out) forwards;
+  animation-delay: calc(var(--atlas-delay, 0ms) + var(--i, 0) * 40ms);
+}
+.atlas-root .atlas-grow-x {
+  transform-origin: left center;
+  animation: atlas-grow-x 600ms var(--ease-out) both;
+  animation-delay: calc(var(--atlas-delay, 0ms) + var(--i, 0) * 40ms);
+}
+.atlas-root .atlas-card-in {
+  animation: atlas-card-in 320ms var(--ease-out) both;
+  animation-delay: calc(var(--atlas-delay, 0ms) + var(--i, 0) * 60ms);
+}
+/* The floating cards' column: it scrolls without a bar, and its foot fades
+   so a card running on reads as more below (the padding under the last card
+   keeps the fade off it at the end). */
+.atlas-root .atlas-cards {
+  scrollbar-width: none;
+  mask-image: linear-gradient(
+    to bottom,
+    black calc(100% - 1.5rem),
+    transparent
+  );
+}
+/* The intro (layout/intro.tsx): the map held back until it is ready, then
+   the globe fading up and the era rail's rim drawing left to right; the
+   cards follow on --atlas-delay. */
+[data-atlas-intro='wait'] .atlas-root .atlas-map-ground,
+[data-atlas-intro='wait'] .atlas-root [data-era-rail] {
+  opacity: 0;
+}
+[data-atlas-intro='play'] .atlas-root .atlas-map-ground {
+  animation: atlas-intro-globe 600ms var(--ease-out) both;
+}
+[data-atlas-intro='play'] .atlas-root [data-era-rail] {
+  animation: atlas-intro-rail 800ms var(--ease-out) 500ms both;
+}
+@keyframes atlas-intro-globe {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+@keyframes atlas-intro-rail {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* The ring's weak ties: dashes marching the way the music went. */
+.atlas-root .atlas-march {
+  animation: atlas-march 1.2s linear infinite;
+}
+@keyframes atlas-march {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atlas-root .atlas-march {
+    animation: none;
+  }
+}
+@keyframes atlas-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes atlas-grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes atlas-card-in {
+  from {
+    opacity: 0;
+    transform: translateX(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Respect reduced-motion for the page's own animations. */
@@ -59,24 +209,4 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-}
-
-/* The MapLibre engine's hover labels: the same small panel as above. */
-.atlas-root .atlas-map-label .maplibregl-popup-content {
-  padding: 6px 10px;
-  border: 1px solid var(--atlas-panel-border);
-  border-radius: 1rem;
-  background: hsl(var(--atlas-panel) / 0.95);
-  box-shadow: none;
-  color: hsl(var(--atlas-text));
-  font: inherit;
-  font-size: 12px;
-  line-height: 1.35;
-  pointer-events: none;
-}
-.atlas-root .atlas-map-label .maplibregl-popup-tip {
-  display: none;
-}
-.atlas-root .atlas-map-label {
-  pointer-events: none;
 }

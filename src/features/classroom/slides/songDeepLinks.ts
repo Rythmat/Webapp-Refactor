@@ -7,7 +7,7 @@
  * component tree and be unit-tested. The lesson/globe routes are consumed by
  * Phase 2 app-route slides; they're exported now for API stability.
  */
-import { AtlasRoutes } from '@/constants/routes';
+import { GlobeRoutes } from '@/constants/routes';
 import type { Song } from '@/curriculum/types/songLibrary';
 import type { SlideMedia } from './types';
 
@@ -62,8 +62,7 @@ export { songLessonRoute } from '@/features/songs/songLessonRoute';
 
 /**
  * The Globe route `openInGlobe` navigates to — lands with the song's pin
- * selected. Targets `/atlas/globe` (NOT the `/atlas` dashboard, which ignores
- * `?event=`); the full globe consumes the param and flies to the pin.
+ * selected: the Globe reads `?event=` and flies to the pin.
  */
 export const songGlobeRoute = (song: Song): string =>
-  `${AtlasRoutes.globe()}?event=song-${song.id}`;
+  `${GlobeRoutes.root()}?event=song-${song.id}`;

@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import type { Feature } from 'geojson';
 import type { Topology } from 'topojson-specification';
 import { describe, expect, it } from 'vitest';
-import { resolveIso } from '@/components/atlas/components/Globe/globeVisuals';
+import { resolveIso } from '@/components/atlas/components/Globe/globeLayers';
 import { GEO_FILES } from '../geoFiles';
 import { decodeTopology } from '../geoLoader';
 import reference from './fixtures/geoReference.json';

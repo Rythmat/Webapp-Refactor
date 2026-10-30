@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import * as AppRoutes from '@/constants/routes';
 import {
   AdminRoutes,
-  AtlasRoutes,
+  GlobeRoutes,
   ClassroomRoutes,
   CurriculumRoutes,
   GameRoutes,
@@ -59,7 +59,7 @@ describe('translating between app and console paths', () => {
   });
 
   it('round-trips', () => {
-    for (const path of ['/songs/africa', '/atlas/globe', '/learn', '/office']) {
+    for (const path of ['/songs/africa', '/globe', '/learn', '/office']) {
       expect(toAppPathname(toConsolePath(path))).toBe(path);
     }
   });
@@ -67,14 +67,14 @@ describe('translating between app and console paths', () => {
   it('carries key and state across', () => {
     expect(
       toAppLocation({
-        pathname: '/console/content/atlas/globe',
+        pathname: '/console/content/globe',
         search: '?event=evt-x',
         hash: '',
         state: { from: 1 },
         key: 'k1',
       }),
     ).toEqual({
-      pathname: '/atlas/globe',
+      pathname: '/globe',
       search: '?event=evt-x',
       hash: '',
       state: { from: 1 },
@@ -99,7 +99,7 @@ describe('translating between app and console paths', () => {
     );
     expect(consoleAppPath('/console/content/records/song')).toBe('/learn');
     expect(consoleAppPath('/console/content/records/globe_event/x')).toBe(
-      '/atlas',
+      '/globe',
     );
     expect(consoleAppPath('/console/content/records/vocabulary')).toBeNull();
     expect(consoleAppPath('/console/lessons/pop')).toBe('/learn');
@@ -109,7 +109,7 @@ describe('translating between app and console paths', () => {
     );
     expect(consoleAppPath('/console/content/publishing')).toBeNull();
     expect(consoleAppPath('/console/users')).toBeNull();
-    expect(segmentForKind('artist')).toBe('/atlas');
+    expect(segmentForKind('artist')).toBe('/globe');
     expect(segmentForKind('nonsense')).toBeNull();
   });
 });
@@ -140,7 +140,7 @@ describe('the mirror namespace', () => {
         SongRoutes.root(),
         CurriculumRoutes.root(),
         StudioRoutes.root(),
-        AtlasRoutes.root(),
+        GlobeRoutes.root(),
         GameRoutes.root(),
         SearchRoutes.root(),
         ClassroomRoutes.root(),

@@ -129,10 +129,29 @@ describe('learnPageSuggestions', () => {
   });
 
   it('Technique: each instrument’s own tiles', () => {
+    expect(learnPageSuggestions('ukulele', 'Technique')).toEqual([
+      {
+        text: 'Teach me Ukulele Anatomy',
+        target: 'learn',
+        route: '/learn/ukulele/technique/anatomy',
+      },
+    ]);
+    expect(learnPageSuggestions('bass', 'Technique')).toEqual([
+      {
+        text: 'Teach me Bass Anatomy',
+        target: 'learn',
+        route: '/learn/bass/technique/anatomy',
+      },
+    ]);
     expect(routes(learnPageSuggestions('piano', 'Technique'))).toEqual(
       techniqueDataFor('piano').map((item) => item.route),
     );
     expect(learnPageSuggestions('guitar', 'Technique')).toEqual([
+      {
+        text: 'Teach me Guitar Anatomy',
+        target: 'learn',
+        route: '/learn/guitar/technique/anatomy',
+      },
       {
         text: 'Teach me Guitar Harmonics',
         target: 'learn',

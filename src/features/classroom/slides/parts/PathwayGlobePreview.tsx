@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 import { ROOTS_AND_ROUTES } from '@/components/ClassroomLayout/globe/data/rootsAndRoutes';
 import { HISTORICAL_MODULES } from '@/components/atlas/data/historicalModules';
 import type { HistoricalEvent } from '@/components/atlas/types';
-import { AtlasRoutes } from '@/constants/routes';
+import { GlobeRoutes } from '@/constants/routes';
 import { ContentGate } from '@/content/ContentGate';
 import { MUSIC_HISTORY } from '@/content/contentStore';
 import { buildPathwayGlobeData } from './pathwayGlobeData';
@@ -83,7 +83,7 @@ const PathwayGlobePreviewInner = ({
   );
 
   const event = events[activeIndex];
-  const href = `${AtlasRoutes.globe()}?pathway=${encodeURIComponent(pathwayId)}`;
+  const href = `${GlobeRoutes.root()}?pathway=${encodeURIComponent(pathwayId)}`;
 
   return (
     <div className={`flex w-full flex-col gap-3 ${className ?? ''}`}>

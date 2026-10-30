@@ -6,7 +6,7 @@ import {
   PROMPT_WASH,
 } from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
-import { AtlasRoutes } from '@/constants/routes';
+import { GlobeRoutes } from '@/constants/routes';
 import type { GenreProfile } from '@/curriculum/types/genreProfile';
 import { EYEBROW } from './genreOverviewShared';
 
@@ -42,7 +42,7 @@ export function AboutPanel({ profile }: { profile: GenreProfile }) {
                 <p className="text-base text-[#e8e8f0]">{artist.name}</p>
                 {/* Opens the artist's globe card, where a featured hit plays. */}
                 <Link
-                  to={AtlasRoutes.globe(undefined, {
+                  to={GlobeRoutes.root(undefined, {
                     artist: artist.globeArtist ?? artist.name,
                   })}
                   aria-label={`${artist.name} on the Globe`}

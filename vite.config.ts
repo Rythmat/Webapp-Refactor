@@ -7,7 +7,6 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 // therefore `npm run build`) fail on it.
 import { defineConfig } from 'vitest/config';
 import { devContentWriter } from './scripts/vite/devContentWriter';
-import { protomapsDevTiles } from './scripts/vite/protomapsDevTiles';
 import { repoContentPlugin } from './scripts/vite/repoContentPlugin';
 
 const analyze = process.env.ANALYZE === '1';
@@ -22,9 +21,6 @@ export default defineConfig({
     repoContentPlugin(),
     // Dev server only: Drum Grooves / Parts Library / synth patch files.
     devContentWriter(),
-    // Dev server only: Protomaps' daily planet builds at /__protomaps/, for
-    // the Globe's street map on this machine (docs/globe-ui/ENGINE.md).
-    protomapsDevTiles(),
     analyze &&
       visualizer({
         filename:

@@ -64,7 +64,7 @@ function setup() {
     return null;
   };
   const view = render(
-    <MemoryRouter initialEntries={['/atlas/globe?view=timeline']}>
+    <MemoryRouter initialEntries={['/globe?view=timeline']}>
       <AtlasStoreProvider>
         <AtlasNavigationProvider>
           <TimeCameraProvider>

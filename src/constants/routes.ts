@@ -20,7 +20,7 @@ const marketingPrefix = '/features';
 
 /**
  * Public marketing pages (renders for logged-out and logged-in visitors). Module
- * pages live under `/features/*` because `/studio`, `/learn`, `/arcade`, `/atlas`
+ * pages live under `/features/*` because `/studio`, `/learn`, `/arcade`, `/globe`
  * are taken by the authenticated app.
  */
 export const MarketingRoutes = {
@@ -882,6 +882,32 @@ export const LearnRoutes = {
   /** The Learn page on keyboard (owner, 2026-10-24). */
   keyboard: createRouteDefinition('/keyboard', { prefix: learnPrefix }),
 
+  /**
+   * Technique → Piano Anatomy; `?tab=build`, `?kind=upright` and `?part=<term>`
+   * open any of it. Static, so it outranks the lessons' '/keyboard/:mode/:key'.
+   */
+  pianoAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; kind?: 'upright'; part?: string }
+  >('/keyboard/technique/anatomy', { prefix: learnPrefix }),
+
+  /** A trial song lesson, registered in DEV only. Static, like Piano Anatomy. */
+  linusAndLucy: createRouteDefinition('/keyboard/technique/linus-and-lucy', {
+    prefix: learnPrefix,
+  }),
+
+  /** Technique → Keyboard Anatomy; `?tab=build`, `?part=<term>`. Static. */
+  keyboardAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; part?: string }
+  >('/keyboard/technique/keyboard-anatomy', { prefix: learnPrefix }),
+
+  /** Technique → Synth Anatomy; `?tab=build`, `?part=<term>`. Static. */
+  synthAnatomy: createRouteDefinition<void, { tab?: 'build'; part?: string }>(
+    '/keyboard/technique/synth-anatomy',
+    { prefix: learnPrefix },
+  ),
+
   /** A Theory tile's keyboard overview: the keys. */
   keyboardOverview: createRouteDefinition<{
     mode: string;
@@ -918,6 +944,16 @@ export const LearnRoutes = {
   guitar: createRouteDefinition('/guitar', { prefix: learnPrefix }),
 
   /**
+   * Technique → Guitar Anatomy; `?tab=build`, `?kind=acoustic` and
+   * `?part=<term>` open any of it. Static, so it outranks the lessons'
+   * '/guitar/:mode/:key'.
+   */
+  guitarAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; kind?: 'acoustic'; part?: string }
+  >('/guitar/technique/anatomy', { prefix: learnPrefix }),
+
+  /**
    * Technique → Guitar Harmonics; `?tab=ratios|geometry|play` opens that
    * activity. Static, so it outranks the lessons' '/guitar/:mode/:key'.
    */
@@ -952,6 +988,16 @@ export const LearnRoutes = {
   /** The Learn page on bass: Theory, from The Bass Atlas (2026-10-27). */
   bass: createRouteDefinition('/bass', { prefix: learnPrefix }),
 
+  /**
+   * Technique → Bass Anatomy; `?tab=build`, `?kind=acoustic` and
+   * `?part=<term>` open any of it. Static, so it outranks the lessons'
+   * '/bass/:mode/:key'.
+   */
+  bassAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; kind?: 'acoustic'; part?: string }
+  >('/bass/technique/anatomy', { prefix: learnPrefix }),
+
   /** A Theory tile's bass overview: the keys. */
   bassOverview: createRouteDefinition<{
     mode: string;
@@ -965,6 +1011,15 @@ export const LearnRoutes = {
 
   /** The Learn page on ukulele: Theory, from The Ukulele Atlas (2026-10-27). */
   ukulele: createRouteDefinition('/ukulele', { prefix: learnPrefix }),
+
+  /**
+   * Technique → Ukulele Anatomy; `?tab=build` and `?part=<term>` open any of
+   * it. Static, so it outranks the lessons' '/ukulele/:mode/:key'.
+   */
+  ukuleleAnatomy: createRouteDefinition<void, { tab?: 'build'; part?: string }>(
+    '/ukulele/technique/anatomy',
+    { prefix: learnPrefix },
+  ),
 
   /** A Theory tile's ukulele overview: the keys. */
   ukuleleOverview: createRouteDefinition<{
@@ -990,13 +1045,14 @@ export const LibraryRoutes = {
   root: createRouteDefinition(libraryPrefix),
 };
 
-const atlasPrefix = '/atlas';
+const globePrefix = '/globe';
 
-export const AtlasRoutes = {
-  root: createRouteDefinition(atlasPrefix),
-
-  /** The full interactive 3D globe. The `/atlas` index now shows the Globe Dashboard. */
-  globe: createRouteDefinition('/globe', { prefix: atlasPrefix }),
+/**
+ * The Globe: the interactive map and its timeline, one full-window page
+ * (owner, 2026-10-29; the /atlas dashboard and its addresses are gone).
+ */
+export const GlobeRoutes = {
+  root: createRouteDefinition(globePrefix),
 };
 
 const songsPrefix = '/songs';

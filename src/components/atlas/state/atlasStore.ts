@@ -10,6 +10,7 @@ import {
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import type { AppAction, AppState } from '@/components/atlas/types';
 import { appReducer, initialAppState } from './appReducer';
+import { loadCardPrefs, saveCardPrefs } from './cardsStorage';
 import { loadLayers, saveLayers } from './layersStorage';
 
 /**
@@ -37,13 +38,18 @@ export function createAtlasStore(initial: AppState = initialAppState) {
 }
 
 /**
- * The page's store: the viewer's Layers choices come from localStorage and
- * go back to it whenever they change.
+ * The page's store: the viewer's Layers choices and card choices come from
+ * localStorage and go back to it whenever they change.
  */
 function createPageStore(): AtlasStore {
-  const store = createAtlasStore({ ...initialAppState, layers: loadLayers() });
+  const store = createAtlasStore({
+    ...initialAppState,
+    layers: loadLayers(),
+    cards: loadCardPrefs(),
+  });
   store.api.subscribe((state, prev) => {
     if (state.layers !== prev.layers) saveLayers(state.layers);
+    if (state.cards !== prev.cards) saveCardPrefs(state.cards);
   });
   return store;
 }

@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  labelOf,
-  regionsClickable,
+  nearestDot,
   targetOf,
   topFeature,
   type PickedFeature,
@@ -32,36 +31,83 @@ const nola = at(LAYER.cityLabels, {
   name: 'New Orleans',
 });
 const point = at(LAYER.artistPoints, { eventId: 'evt-1', name: 'Hot Five' });
-const arc = at(LAYER.arcsHit, {
+const arc = at(LAYER.linksHit, {
+  id: 'arc:evt-2:0',
   eventId: 'evt-2',
-  label: 'Bebop & "cool"',
-  direction: 'upstream',
+  title: 'Bebop & "cool"',
+});
+const link = at(LAYER.linksDottedHit, {
+  id: 'city:new-orleans>city:chicago',
+  eventId: '',
+  title: 'New Orleans → Chicago',
+  detail: '2 influences · 1917–1923',
+  place: 'city:chicago',
+});
+const regions = at(LAYER.linksDottedHit, {
+  id: 'region:west-africa>region:north-america',
+  eventId: '',
+  title: 'West Africa → North America',
+  detail: '9 influences · 1890–1990',
+  place: '',
 });
 
 describe('what a click lands on', () => {
   it('takes the most specific layer, whatever the order found', () => {
-    expect(topFeature([brazil, nola, point], true)).toBe(point);
-    expect(topFeature([brazil, nola, arc], true)).toBe(arc);
-    expect(topFeature([brazil, texas], true)).toBe(texas);
+    expect(topFeature([brazil, nola, point])).toBe(point);
+    expect(topFeature([brazil, nola, arc])).toBe(arc);
+    expect(topFeature([brazil, texas])).toBe(texas);
   });
 
   it('ignores layers that are not the Globe’s', () => {
-    expect(topFeature([at('water', {})], true)).toBeNull();
-  });
-
-  it('leaves countries alone among the streets', () => {
-    expect(regionsClickable(5.9, true)).toBe(true);
-    expect(regionsClickable(6, true)).toBe(false);
-    expect(regionsClickable(12, false)).toBe(true);
-    expect(topFeature([brazil, texas], false)).toBeNull();
-    expect(topFeature([brazil, nola], false)).toBe(nola);
+    expect(topFeature([at('water', {})])).toBeNull();
   });
 });
 
 describe('what it opens', () => {
-  it('opens an event from an arc or an artist’s point', () => {
+  it('opens an event from its influence line or an artist’s point', () => {
     expect(targetOf(arc)).toEqual({ kind: 'event', eventId: 'evt-2' });
     expect(targetOf(point)).toEqual({ kind: 'event', eventId: 'evt-1' });
+  });
+
+  it('opens a link’s far place, and says what the link carries', () => {
+    expect(targetOf(link)).toEqual({
+      kind: 'link',
+      id: 'city:new-orleans>city:chicago',
+      title: 'New Orleans → Chicago',
+      detail: '2 influences · 1917–1923',
+      place: { type: 'city', id: 'chicago' },
+    });
+    // Between regions: a card to hover, nothing to open.
+    expect(targetOf(regions)).toMatchObject({ kind: 'link', place: null });
+    expect(topFeature([brazil, nola, link])).toBe(link);
+  });
+
+  it('opens an event from its dot, over anything under it', () => {
+    const dot = at(LAYER.liftDotsHit, { eventId: 'evt-3' });
+    expect(targetOf(dot)).toEqual({ kind: 'event', eventId: 'evt-3' });
+    expect(topFeature([brazil, nola, arc, dot])).toBe(dot);
+  });
+
+  it('takes the nearest of the dots under the pointer', () => {
+    const dot = (eventId: string, x: number): PickedFeature => ({
+      ...at(LAYER.liftDotsHit, { eventId }),
+      geometry: { type: 'Point', coordinates: [x, 0] },
+    });
+    const drawnLast = dot('evt-far', 6);
+    const pointedAt = dot('evt-near', 1);
+    const kept = nearestDot(
+      [drawnLast, arc, pointedAt],
+      { x: 0, y: 0 },
+      ([x, y]) => ({ x, y }),
+    );
+    expect(kept).toEqual([arc, pointedAt]);
+    expect(topFeature(kept)).toBe(pointedAt);
+  });
+
+  it('opens nothing from the lifted region itself', () => {
+    const lid = at(LAYER.liftLid, {});
+    expect(topFeature([brazil, lid])).toBe(lid);
+    expect(targetOf(lid)).toBeNull();
   });
 
   it('opens a city from its name', () => {
@@ -84,16 +130,5 @@ describe('what it opens', () => {
   it('opens nothing it cannot name', () => {
     expect(targetOf(null)).toBeNull();
     expect(targetOf(at(LAYER.artistPoints, {}))).toBeNull();
-  });
-});
-
-describe('hover labels', () => {
-  it('say what the three.js globe said, escaped', () => {
-    expect(labelOf(arc)).toContain('Bebop &amp; &quot;cool&quot; →');
-    // A city's name is on the map already: no hover label.
-    expect(labelOf(nola)).toBeNull();
-    expect(labelOf(brazil)).toContain('Brazil');
-    expect(labelOf(texas)).toContain('Texas');
-    expect(labelOf(null)).toBeNull();
   });
 });

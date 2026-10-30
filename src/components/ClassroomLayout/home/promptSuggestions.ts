@@ -143,7 +143,7 @@ const learn = (
 const globe = (text: string, query: string): PromptSuggestion => ({
   text,
   target: 'globe',
-  route: `/atlas/globe?${query}`,
+  route: `/globe?${query}`,
 });
 const arcade = (
   text: string,
@@ -340,12 +340,13 @@ const GLOBE_SUGGESTIONS: PromptSuggestion[] = [
   globe('Show me the music of Oceania', 'tour=region-oceania'),
   globe('Show me the history of jazz', 'view=timeline&genres=blues-jazz'),
   globe('Show me music in the 1970s', 'view=timeline&from=1970&to=1979'),
+  globe('Show me how music travelled between cities', 'view=ring'),
   globe('Show me ancient and medieval music', 'era=ancient'),
   globe('Show me the Renaissance and Baroque', 'era=renaissance'),
   globe('Show me music from postwar Europe', 'open=europe&era=postwar'),
   globe('Show me music in the digital age', 'era=global-digital'),
-  globe('Show me the instruments of the world', 'lens=instruments'),
-  globe('Show me the paths music traveled', 'lens=pathways'),
+  globe('Show me the instruments of the world', 'panel=instruments'),
+  globe('Show me the paths music traveled', 'panel=pathways'),
   globe('How did K-pop rise?', 'pathway=kpop-rise'),
   globe('How did punk spread around the world?', 'pathway=punk-shockwave'),
   globe('How did Congolese rumba travel?', 'pathway=congolese-rumba'),

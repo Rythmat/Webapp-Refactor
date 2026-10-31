@@ -115,6 +115,34 @@ export const UKULELE_TECHNIQUE_DATA: readonly TechniqueItem[] = [
   },
 ];
 
+/** Technique → Gear: what every musician uses, whatever they play. */
+export const GEAR_TECHNIQUE_DATA: readonly TechniqueItem[] = [
+  {
+    title: 'Combo Amp Anatomy',
+    route: LearnRoutes.comboAmpAnatomy(),
+    image: '/learn-tiles/beginner-hex.svg',
+    interactive: true,
+    // The major 6th: distinct from the tiles beside it.
+    ratio: [3, 5],
+  },
+  {
+    title: 'Headphone Anatomy',
+    route: LearnRoutes.headphoneAnatomy(),
+    image: '/learn-tiles/beginner-hex.svg',
+    interactive: true,
+    // The minor 6th: distinct from the instrument tiles above it.
+    ratio: [5, 8],
+  },
+  {
+    title: 'Microphone Anatomy',
+    route: LearnRoutes.microphoneAnatomy(),
+    image: '/learn-tiles/beginner-hex.svg',
+    interactive: true,
+    // The whole tone: distinct from the instrument tiles above it.
+    ratio: [8, 9],
+  },
+];
+
 export function techniqueDataFor(
   instrument: LearnInstrument,
 ): readonly TechniqueItem[] {

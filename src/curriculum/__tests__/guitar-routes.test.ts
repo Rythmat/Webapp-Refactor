@@ -33,6 +33,18 @@ vi.mock('@/curriculum/pages/GuitarModeLesson', async () => {
   const { createElement } = await import('react');
   return { default: () => createElement('p', null, 'guitar lesson') };
 });
+vi.mock('@/curriculum/anatomy/ComboAmpAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'combo amp anatomy') };
+});
+vi.mock('@/curriculum/anatomy/HeadphoneAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'headphone anatomy') };
+});
+vi.mock('@/curriculum/anatomy/MicrophoneAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'microphone anatomy') };
+});
 vi.mock('@/curriculum/anatomy/KeyboardAnatomyPage', async () => {
   const { createElement } = await import('react');
   return { default: () => createElement('p', null, 'keyboard anatomy') };
@@ -281,6 +293,16 @@ describe('learn routes: guitar', () => {
     ['synth-anatomy', 'synth anatomy'],
   ])('opens Technique → %s, free, not as a lesson', async (path, text) => {
     renderRoute(learnPages(), `/learn/keyboard/technique/${path}?tab=build`);
+    expect(await screen.findByText(text)).toBeInTheDocument();
+    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['combo-amp', 'combo amp anatomy'],
+    ['headphones', 'headphone anatomy'],
+    ['microphone', 'microphone anatomy'],
+  ])('opens Gear → %s, free, not as a lesson', async (path, text) => {
+    renderRoute(learnPages(), `/learn/gear/${path}?tab=build`);
     expect(await screen.findByText(text)).toBeInTheDocument();
     expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
   });

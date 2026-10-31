@@ -15,6 +15,10 @@ import type { CompiledModel } from './compileModel';
 
 const CARD = 'rounded-[1.25rem] border border-white/10 bg-white/[0.04] p-5';
 const FAMILIES: readonly TermFamily[] = [
+  'head',
+  'fit',
+  'earcups',
+  'sound',
   'neck',
   'body',
   'hardware',
@@ -26,6 +30,7 @@ const FAMILIES: readonly TermFamily[] = [
   'strings',
   'pedals',
   'electronics',
+  'signal',
 ];
 
 export function TermList({
@@ -41,7 +46,7 @@ export function TermList({
 }) {
   return (
     <div className="flex flex-col gap-4" data-term-list>
-      {FAMILIES.map((family) => {
+      {(model.familyOrder ?? FAMILIES).map((family) => {
         const terms = model.terms.filter((term) => term.family === family);
         if (!terms.length) return null;
         return (

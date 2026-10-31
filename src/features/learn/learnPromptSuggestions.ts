@@ -8,7 +8,10 @@ import {
   type PromptSuggestion,
 } from '@/components/ClassroomLayout/home/promptSuggestions';
 import { GENRE_COURSES } from '@/components/learn/genreCourses';
-import { techniqueDataFor } from '@/components/learn/techniqueCatalog';
+import {
+  GEAR_TECHNIQUE_DATA,
+  techniqueDataFor,
+} from '@/components/learn/techniqueCatalog';
 import { LearnRoutes, SongRoutes } from '@/constants/routes';
 import { getAllSongs } from '@/curriculum/data/songs';
 import type { Song } from '@/curriculum/types/songLibrary';
@@ -143,9 +146,11 @@ const THEORY_SUGGESTIONS: Record<LearnInstrument, PromptSuggestion[]> = {
 
 /** Technique: its tiles, the instrument named unless the tile's title already does. */
 const techniqueSuggestions = (instrument: LearnInstrument) =>
-  techniqueDataFor(instrument).map((item) =>
+  [...techniqueDataFor(instrument), ...GEAR_TECHNIQUE_DATA].map((item) =>
     teach(
-      /\b(piano|keyboard|synth|guitar|bass|ukulele)\b/i.test(item.title)
+      /\b(piano|keyboard|synth|guitar|bass|ukulele|headphone|microphone|amp)\b/i.test(
+        item.title,
+      )
         ? `Teach me ${item.title}`
         : `Teach me ${item.title} ${ON[instrument]}`,
       item.route,

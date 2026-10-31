@@ -112,6 +112,15 @@ const KeyboardAnatomyPage = lazy(
 const SynthAnatomyPage = lazy(
   () => import('@/curriculum/anatomy/SynthAnatomyPage'),
 );
+const ComboAmpAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/ComboAmpAnatomyPage'),
+);
+const HeadphoneAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/HeadphoneAnatomyPage'),
+);
+const MicrophoneAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/MicrophoneAnatomyPage'),
+);
 const PianoAnatomyPage = lazy(
   () => import('@/curriculum/anatomy/PianoAnatomyPage'),
 );
@@ -831,6 +840,19 @@ export const learnPages = () => {
       {
         path: LearnRoutes.guitar.definition,
         element: <LearnInstrumentRoute instrument="guitar" />,
+      },
+      // Technique → Gear, on every instrument, free like every Technique tile.
+      {
+        path: LearnRoutes.comboAmpAnatomy.definition,
+        element: <ComboAmpAnatomyPage />,
+      },
+      {
+        path: LearnRoutes.headphoneAnatomy.definition,
+        element: <HeadphoneAnatomyPage />,
+      },
+      {
+        path: LearnRoutes.microphoneAnatomy.definition,
+        element: <MicrophoneAnatomyPage />,
       },
       // Technique → Keyboard and Synth Anatomy, free like every Technique tile.
       {

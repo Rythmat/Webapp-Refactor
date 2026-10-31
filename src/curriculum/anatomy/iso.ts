@@ -229,7 +229,28 @@ export interface Tilt {
   angle: number;
 }
 
+/** A round part: a profile spun about a line, in any direction. Sections run
+ *  along the line from the end away from the viewer to the end facing them. */
+export interface Lathe {
+  origin: V3;
+  axis: V3;
+  /** [distance along the line, radius], in order; 'seam' draws its ring. */
+  profile: readonly (readonly [number, number, 'seam'?])[];
+  /** An open middle, such as an ear pad's. */
+  bore?: number;
+  /** Lines around the surface: one way (a knurled grip) or both (wire mesh). */
+  texture?: 'helix' | 'mesh';
+  strands?: number;
+  /** The stretch of the line the texture covers; else all of it. */
+  from?: number;
+  to?: number;
+}
+
 export interface Solid {
+  /** Instead of an extruded outline: a round part. */
+  lathe?: Lathe;
+  /** Instead of an extruded outline: one flat face, anywhere in space. */
+  face?: readonly V3[];
   outer: readonly V2[];
   holes?: readonly (readonly V2[])[];
   /** Its extent along what it is extruded along: up in z, or for a 'front'
@@ -249,6 +270,9 @@ export interface Solid {
 }
 
 export interface CompiledDrawing {
+  /** The outer edge of a round part, stroked under its fill so only the outside
+   *  of the line shows: a curved solid's silhouette, without working it out. */
+  outline: string;
   /** Top faces and walls, opaque: what hides the parts behind. */
   fill: string;
   /** Every edge. */
@@ -348,16 +372,220 @@ function along(run: readonly V2[], lengths: readonly number[], s: number): V2 {
   return [u0 + (u1 - u0) * t, v0 + (v1 - v0) * t];
 }
 
+/** A round part, from a profile and a line. */
+export const lathe = (spec: Lathe): Solid => ({
+  lathe: spec,
+  outer: [],
+  z0: 0,
+  z1: 0,
+});
+
+/** One flat face, anywhere in space. */
+export const polyFace = (face: readonly V3[]): Solid => ({
+  face,
+  outer: [],
+  z0: 0,
+  z1: 0,
+});
+
+const VIEW_DIRECTION: V3 = [-1, 1, 1];
+const RING_POINTS = 36;
+
+const unit = (a: V3): V3 => {
+  const length = Math.hypot(a[0], a[1], a[2]) || 1;
+  return [a[0] / length, a[1] / length, a[2] / length];
+};
+
+/** The outside of a set of points on the page. */
+function convexHull(points: readonly V2[]): V2[] {
+  const sorted = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const turn = (o: V2, a: V2, b: V2) =>
+    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const half = (list: readonly V2[]) => {
+    const out: V2[] = [];
+    for (const p of list) {
+      while (
+        out.length >= 2 &&
+        turn(out[out.length - 2], out[out.length - 1], p) <= 0
+      ) {
+        out.pop();
+      }
+      out.push(p);
+    }
+    out.pop();
+    return out;
+  };
+  return [...half(sorted), ...half([...sorted].reverse())];
+}
+
+function compileLathe(spec: Lathe) {
+  const axis = unit(spec.axis);
+  const view = unit(VIEW_DIRECTION);
+  const dot = axis[0] * view[0] + axis[1] * view[1] + axis[2] * view[2];
+  // Around the line: `side` runs across the view, so angles 0 and π are the
+  // part's silhouette; `toward` faces the viewer, so 0 to π is its near half.
+  const side = unit([
+    axis[1] * view[2] - axis[2] * view[1],
+    axis[2] * view[0] - axis[0] * view[2],
+    axis[0] * view[1] - axis[1] * view[0],
+  ]);
+  const toward = unit([
+    view[0] - axis[0] * dot,
+    view[1] - axis[1] * dot,
+    view[2] - axis[2] * dot,
+  ]);
+  const at = (t: number, r: number, angle: number): V2 => {
+    const c = Math.cos(angle) * r;
+    const s = Math.sin(angle) * r;
+    return project(
+      spec.origin[0] + axis[0] * t + side[0] * c + toward[0] * s,
+      spec.origin[1] + axis[1] * t + side[1] * c + toward[1] * s,
+      spec.origin[2] + axis[2] * t + side[2] * c + toward[2] * s,
+    );
+  };
+  const ring = (t: number, r: number) =>
+    Array.from({ length: RING_POINTS }, (_, i) =>
+      at(t, r, (i / RING_POINTS) * Math.PI * 2),
+    );
+  const nearArc = (t: number, r: number) =>
+    Array.from({ length: RING_POINTS / 2 + 1 }, (_, i) =>
+      at(t, r, (i / (RING_POINTS / 2)) * Math.PI),
+    );
+
+  const { profile, bore } = spec;
+  // The end toward the viewer is the last one if the line points at them.
+  const nearEnd = dot >= 0 ? profile[profile.length - 1] : profile[0];
+  const farEnd = dot >= 0 ? profile[0] : profile[profile.length - 1];
+
+  let fill = '';
+  let outline = '';
+  let ink = '';
+  let hatch = '';
+  let marks = '';
+  const points: V2[] = [];
+
+  for (let i = 0; i + 1 < profile.length; i++) {
+    const [t0, r0] = profile[i];
+    const [t1, r1] = profile[i + 1];
+    if (bore) {
+      const wall = [...nearArc(t0, r0), ...nearArc(t1, r1).reverse()];
+      const shape = polyline(wound(wall, 1), true);
+      fill += shape;
+      outline += shape;
+    } else {
+      const shape = polyline(
+        wound(convexHull([...ring(t0, r0), ...ring(t1, r1)]), 1),
+        true,
+      );
+      fill += shape;
+      outline += shape;
+    }
+    points.push(...ring(t0, r0), ...ring(t1, r1));
+  }
+
+  const cap = ring(nearEnd[0], nearEnd[1]);
+  if (bore) {
+    const hole = ring(nearEnd[0], bore);
+    const capShape = polyline(wound(cap, 1), true);
+    fill += capShape + polyline(wound(hole, -1), true);
+    outline += capShape;
+    ink += polyline(hole, true);
+    // Through the hole, the inside of its far wall.
+    const inside = Array.from({ length: RING_POINTS / 2 + 1 }, (_, i) => {
+      const a = Math.PI + (i / (RING_POINTS / 2)) * Math.PI;
+      return [at(nearEnd[0], bore, a), at(farEnd[0], bore, a)] as const;
+    });
+    fill += polyline(
+      wound(
+        [...inside.map(([a]) => a), ...[...inside].reverse().map(([, b]) => b)],
+        1,
+      ),
+      true,
+    );
+  }
+  if (nearEnd[1] > 0.01) ink += polyline(cap, true);
+  for (const [t, r, seam] of profile) {
+    if (seam) ink += polyline(nearArc(t, r));
+  }
+
+  if (spec.texture) {
+    const ts = profile.map(([t]) => t);
+    const from = spec.from ?? Math.min(...ts);
+    const to = spec.to ?? Math.max(...ts);
+    const radiusAt = (t: number) => {
+      for (let i = 0; i + 1 < profile.length; i++) {
+        const [a, ra] = profile[i];
+        const [b, rb] = profile[i + 1];
+        if (t >= Math.min(a, b) && t <= Math.max(a, b)) {
+          return ra + ((t - a) / (b - a || 1)) * (rb - ra);
+        }
+      }
+      return 0;
+    };
+    const widest = Math.max(...profile.map(([, r]) => r));
+    const twist = ((to - from) / widest) * 0.9;
+    const strands = spec.strands ?? 24;
+    const STEPS = 18;
+    const line = (start: number, direction: 1 | -1) => {
+      let path = '';
+      let run: V2[] = [];
+      for (let i = 0; i <= STEPS; i++) {
+        const k = i / STEPS;
+        const angle = start + direction * twist * k;
+        // Only where it faces the viewer.
+        if (Math.sin(angle) > 0.02) {
+          run.push(
+            at(from + (to - from) * k, radiusAt(from + (to - from) * k), angle),
+          );
+        } else {
+          path += polyline(run);
+          run = [];
+        }
+      }
+      return path + polyline(run);
+    };
+    for (let i = 0; i < strands; i++) {
+      const start = (i / strands) * Math.PI * 2;
+      if (spec.texture === 'mesh') {
+        marks += line(start, 1) + line(start, -1);
+      } else {
+        hatch += line(start, 1);
+      }
+    }
+  }
+
+  return { outline, fill, ink, hatch, marks, points };
+}
+
 export function compileDrawing(
   solids: readonly Solid[],
   marks: readonly (readonly V3[])[] = [],
 ): CompiledDrawing {
+  let outline = '';
   let fill = '';
   let ink = '';
   let hatch = '';
+  let lineMarks = '';
   const points: V2[] = [];
 
   for (const solid of solids) {
+    if (solid.lathe) {
+      const round = compileLathe(solid.lathe);
+      outline += round.outline;
+      fill += round.fill;
+      ink += round.ink;
+      hatch += round.hatch;
+      lineMarks += round.marks;
+      points.push(...round.points);
+      continue;
+    }
+    if (solid.face) {
+      const page = solid.face.map(([u, v, z]) => project(u, v, z));
+      fill += polyline(wound(page, 1), true);
+      ink += polyline(page, true);
+      points.push(...page);
+      continue;
+    }
     const { z0, z1, tilt } = solid;
     const front = solid.plane === 'front';
     const side = solid.plane === 'side';
@@ -429,12 +657,12 @@ export function compileDrawing(
     });
   }
 
-  let marksPath = '';
+  let marksPath = lineMarks;
   for (const line of marks) {
     const page = line.map(([u, v, z]) => project(u, v, z));
     marksPath += polyline(page);
     points.push(...page);
   }
 
-  return { fill, ink, hatch, marks: marksPath, points };
+  return { outline, fill, ink, hatch, marks: marksPath, points };
 }

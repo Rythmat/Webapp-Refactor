@@ -257,6 +257,55 @@ function buildGuitar(): IndexEntry[] {
   ];
 }
 
+/* ── Gear, on every instrument ───────────────────────────────────────── */
+function buildGear(): IndexEntry[] {
+  const entry = (
+    title: string,
+    keywords: string[],
+    id: string,
+    to: string,
+  ): IndexEntry => ({
+    category: 'theory',
+    keywords: [title, ...keywords],
+    result: {
+      id,
+      category: 'theory',
+      title,
+      subtitle: 'Gear',
+      to,
+      icon: CATEGORY_META.theory.icon,
+      thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+    },
+  });
+  return [
+    entry(
+      'Combo Amp Anatomy',
+      [
+        'parts of an amp',
+        'amp parts',
+        'guitar amp',
+        'tube amp',
+        'solid state amp',
+        'amplifier',
+      ],
+      'technique-combo-amp-anatomy',
+      LearnRoutes.comboAmpAnatomy(),
+    ),
+    entry(
+      'Headphone Anatomy',
+      ['parts of headphones', 'headphone parts', 'headphones'],
+      'technique-headphone-anatomy',
+      LearnRoutes.headphoneAnatomy(),
+    ),
+    entry(
+      'Microphone Anatomy',
+      ['parts of a microphone', 'microphone parts', 'microphone', 'mic'],
+      'technique-microphone-anatomy',
+      LearnRoutes.microphoneAnatomy(),
+    ),
+  ];
+}
+
 /* ── Piano ─────────────────────────────────────────────────────────── */
 function buildPiano(): IndexEntry[] {
   return [
@@ -592,6 +641,7 @@ export function getStaticIndex(): IndexEntry[] {
       ...buildCourses(),
       ...buildTheory(),
       ...buildPiano(),
+      ...buildGear(),
       ...buildGuitar(),
       ...buildBass(),
       ...buildUkulele(),

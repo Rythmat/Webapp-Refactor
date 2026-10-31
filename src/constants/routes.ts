@@ -908,6 +908,24 @@ export const LearnRoutes = {
     { prefix: learnPrefix },
   ),
 
+  /** Technique → Gear → Headphone Anatomy, on every instrument. */
+  headphoneAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; part?: string }
+  >('/gear/headphones', { prefix: learnPrefix }),
+
+  /** Technique → Gear → Microphone Anatomy, on every instrument. */
+  microphoneAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; part?: string }
+  >('/gear/microphone', { prefix: learnPrefix }),
+
+  /** Technique → Gear → Combo Amp Anatomy, on every instrument. */
+  comboAmpAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; kind?: 'solid-state'; part?: string }
+  >('/gear/combo-amp', { prefix: learnPrefix }),
+
   /** A Theory tile's keyboard overview: the keys. */
   keyboardOverview: createRouteDefinition<{
     mode: string;

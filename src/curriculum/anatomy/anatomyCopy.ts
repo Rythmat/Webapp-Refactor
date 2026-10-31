@@ -1,4 +1,6 @@
+import { AMP_COPY, SOLID_STATE_AMP_COPY, TUBE_AMP_COPY } from './ampCopy';
 import type { ModelKind } from './anatomyTypes';
+import { HEADPHONES_COPY, MICROPHONE_COPY } from './gearCopy';
 import { KEYBOARD_COPY, SYNTH_COPY } from './keyboardCopy';
 import { GRAND_PIANO_COPY, PIANO_COPY, UPRIGHT_PIANO_COPY } from './pianoCopy';
 
@@ -67,6 +69,10 @@ const SHARED: Readonly<Record<string, TermCopy>> = {
 };
 
 const OWN: Readonly<Record<ModelKind, Readonly<Record<string, TermCopy>>>> = {
+  tubeAmp: TUBE_AMP_COPY,
+  solidStateAmp: SOLID_STATE_AMP_COPY,
+  headphones: HEADPHONES_COPY,
+  microphone: MICROPHONE_COPY,
   keyboard: KEYBOARD_COPY,
   synth: SYNTH_COPY,
   grandPiano: GRAND_PIANO_COPY,
@@ -405,8 +411,18 @@ const BASS: Readonly<Record<string, TermCopy>> = {
 
 export function termCopy(kind: ModelKind, id: string): TermCopy | undefined {
   const onBass = kind === 'electricBass' || kind === 'acousticBass';
+  if (kind === 'tubeAmp' || kind === 'solidStateAmp') {
+    return OWN[kind][id] ?? AMP_COPY[id];
+  }
   const onPiano = kind === 'grandPiano' || kind === 'uprightPiano';
   if (onPiano) return OWN[kind][id] ?? PIANO_COPY[id];
-  if (kind === 'keyboard' || kind === 'synth') return OWN[kind][id];
+  if (
+    kind === 'keyboard' ||
+    kind === 'synth' ||
+    kind === 'headphones' ||
+    kind === 'microphone'
+  ) {
+    return OWN[kind][id];
+  }
   return OWN[kind][id] ?? (onBass ? BASS[id] : undefined) ?? SHARED[id];
 }

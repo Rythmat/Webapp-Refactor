@@ -35,7 +35,88 @@ export function AnatomyAbout({
           takes the whole {instrument} apart by hand.
         </p>
       </InsightCard>
-      {instrument === 'keyboard' ? (
+      {instrument === 'comboAmp' ? (
+        <>
+          <InsightCard title="Follow the signal">
+            <p className={INSIGHT_TEXT}>
+              Your instrument’s tiny signal enters at the input jack. The preamp
+              makes it stronger and shapes its tone, and the power amp makes it
+              strong enough to move a speaker.
+            </p>
+            <p className={INSIGHT_DIM}>
+              The speaker turns that signal back into moving air, and the room
+              does the rest.
+            </p>
+          </InsightCard>
+          <InsightCard title="Tube or solid state">
+            <p className={INSIGHT_TEXT}>
+              Tubes distort gradually when pushed, which many players love, but
+              they run hot, need warming up and wear out.
+            </p>
+            <p className={INSIGHT_DIM}>
+              Transistors are lighter, tougher and ready instantly. They stay
+              clean to high volumes, then clip more abruptly. Neither is simply
+              better.
+            </p>
+          </InsightCard>
+          <InsightCard title="Keep it closed">
+            <p className={INSIGHT_TEXT}>
+              Amps contain dangerous voltages, and some parts hold a charge even
+              when unplugged.
+            </p>
+            <p className={INSIGHT_DIM}>
+              This drawing shows what is inside so you don’t have to look. Leave
+              any work inside the chassis to a qualified technician.
+            </p>
+          </InsightCard>
+        </>
+      ) : instrument === 'headphones' ? (
+        <>
+          <InsightCard title="Tiny speakers">
+            <p className={INSIGHT_TEXT}>
+              Each cup holds a driver: the audio signal runs through a coil, the
+              coil pushes against a magnet, and that moves a thin diaphragm.
+            </p>
+            <p className={INSIGHT_DIM}>
+              That moving diaphragm pushes the air by your ear, and you hear
+              music.
+            </p>
+          </InsightCard>
+          <InsightCard title="Open or closed">
+            <p className={INSIGHT_TEXT}>
+              This pair is closed-back: solid cups keep the sound in, so a
+              microphone nearby won’t pick it up.
+            </p>
+            <p className={INSIGHT_DIM}>
+              Open-back models let air through their cups. They often sound more
+              spacious, but everyone nearby can hear them too.
+            </p>
+          </InsightCard>
+        </>
+      ) : instrument === 'microphone' ? (
+        <>
+          <InsightCard title="A speaker in reverse">
+            <p className={INSIGHT_TEXT}>
+              Sound moves the diaphragm, the diaphragm moves a coil through a
+              magnet’s field, and that makes a small electric signal.
+            </p>
+            <p className={INSIGHT_DIM}>
+              It is the same set of parts as a headphone driver, working the
+              other way round.
+            </p>
+          </InsightCard>
+          <InsightCard title="Dynamic and condenser">
+            <p className={INSIGHT_TEXT}>
+              This is a dynamic microphone: tough, needs no power, and common on
+              stage.
+            </p>
+            <p className={INSIGHT_DIM}>
+              A condenser uses a charged plate instead of a magnet and coil. It
+              is more sensitive, and it needs phantom power from your interface.
+            </p>
+          </InsightCard>
+        </>
+      ) : instrument === 'keyboard' ? (
         <>
           <InsightCard title="A piano with no strings">
             <p className={INSIGHT_TEXT}>

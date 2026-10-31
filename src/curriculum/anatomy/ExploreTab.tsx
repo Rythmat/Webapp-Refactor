@@ -206,7 +206,7 @@ export function ExploreTab({
             min={0}
             max={100}
             value={Math.round(explode * 100)}
-            aria-label={`How far apart the ${model.noun} is`}
+            aria-label="How far apart the parts are"
             className="anatomy-slider min-w-0 flex-1 cursor-pointer"
             style={
               {

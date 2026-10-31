@@ -15,6 +15,7 @@ import type {
 import { learnTabRoute } from '@/features/learn/learnPaths';
 import {
   useInstrumentStore,
+  useLearnInstrument,
   type LearnInstrument,
 } from '@/features/learn/useInstrumentStore';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -36,7 +37,7 @@ import { compiledInstrument } from './compileModel';
 // and `?part=saddle` open any of it.
 //
 // Free (the route is ungated, as every Technique tile is shown unlocked).
-// Opening it makes this device's Learn instrument the lesson's.
+// Opening an instrument's lesson makes it this device's Learn instrument.
 
 const TABS = [
   {
@@ -58,11 +59,24 @@ const isTab = (value: string | null): value is TabId =>
   TABS.some((t) => t.id === value);
 
 /** Learn's instrument for each lesson: a keyboard and a synth are both taught
- *  under Keyboard, as a piano is. */
-const learnInstrumentOf = (instrument: AnatomyInstrument): LearnInstrument =>
-  instrument === 'guitar' || instrument === 'bass' || instrument === 'ukulele'
+ *  under Keyboard, as a piano is. Gear belongs to every instrument, so a gear
+ *  lesson leaves the student's choice alone. */
+const learnInstrumentOf = (
+  instrument: AnatomyInstrument,
+): LearnInstrument | null => {
+  if (
+    instrument === 'headphones' ||
+    instrument === 'microphone' ||
+    instrument === 'comboAmp'
+  ) {
+    return null;
+  }
+  return instrument === 'guitar' ||
+    instrument === 'bass' ||
+    instrument === 'ukulele'
     ? instrument
     : 'piano';
+};
 
 const paramOf = (option: AnatomyOption) =>
   option.param ?? option.label.toLowerCase();
@@ -77,7 +91,14 @@ export function AnatomyLesson({
   /** The default first; the URL names the other by its label. */
   options: readonly AnatomyOption[];
 }) {
-  const learnInstrument = learnInstrumentOf(instrument);
+  const lessonInstrument = learnInstrumentOf(instrument);
+  const currentInstrument = useLearnInstrument();
+  const learnInstrument = lessonInstrument ?? currentInstrument;
+  // Only a stringed instrument can be built the other way round.
+  const hasHand =
+    instrument === 'guitar' ||
+    instrument === 'bass' ||
+    instrument === 'ukulele';
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const tabParam = params.get('tab');
@@ -90,10 +111,9 @@ export function AnatomyLesson({
   const leftHanded = useInstrumentStore((s) => s.leftHanded);
   const setLeftHanded = useInstrumentStore((s) => s.setLeftHanded);
   const setInstrument = useInstrumentStore((s) => s.setInstrument);
-  useEffect(
-    () => setInstrument(learnInstrument),
-    [learnInstrument, setInstrument],
-  );
+  useEffect(() => {
+    if (lessonInstrument) setInstrument(lessonInstrument);
+  }, [lessonInstrument, setInstrument]);
 
   const model = compiledInstrument(kind, leftHanded);
   const partParam = params.get('part');
@@ -250,7 +270,7 @@ export function AnatomyLesson({
               checked={labels}
               onCheckedChange={setLabels}
             />
-            {learnInstrument !== 'piano' && (
+            {hasHand && (
               <SettingsSwitchRow
                 label="Left-handed"
                 helper={`Build the ${instrument} the other way round`}

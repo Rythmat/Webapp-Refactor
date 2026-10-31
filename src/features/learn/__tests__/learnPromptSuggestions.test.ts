@@ -5,7 +5,10 @@
 import { describe, expect, it } from 'vitest';
 import { learnSuggestionsFor } from '@/components/ClassroomLayout/home/promptSuggestions';
 import { GENRE_COURSES } from '@/components/learn/genreCourses';
-import { techniqueDataFor } from '@/components/learn/techniqueCatalog';
+import {
+  GEAR_TECHNIQUE_DATA,
+  techniqueDataFor,
+} from '@/components/learn/techniqueCatalog';
 import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { getAllSongs } from '@/curriculum/data/songs';
 import { genreReadinessFrom, isSectionBuilt } from '../genreReadiness';
@@ -135,6 +138,21 @@ describe('learnPageSuggestions', () => {
         target: 'learn',
         route: '/learn/ukulele/technique/anatomy',
       },
+      {
+        text: 'Teach me Combo Amp Anatomy',
+        target: 'learn',
+        route: '/learn/gear/combo-amp',
+      },
+      {
+        text: 'Teach me Headphone Anatomy',
+        target: 'learn',
+        route: '/learn/gear/headphones',
+      },
+      {
+        text: 'Teach me Microphone Anatomy',
+        target: 'learn',
+        route: '/learn/gear/microphone',
+      },
     ]);
     expect(learnPageSuggestions('bass', 'Technique')).toEqual([
       {
@@ -142,9 +160,26 @@ describe('learnPageSuggestions', () => {
         target: 'learn',
         route: '/learn/bass/technique/anatomy',
       },
+      {
+        text: 'Teach me Combo Amp Anatomy',
+        target: 'learn',
+        route: '/learn/gear/combo-amp',
+      },
+      {
+        text: 'Teach me Headphone Anatomy',
+        target: 'learn',
+        route: '/learn/gear/headphones',
+      },
+      {
+        text: 'Teach me Microphone Anatomy',
+        target: 'learn',
+        route: '/learn/gear/microphone',
+      },
     ]);
     expect(routes(learnPageSuggestions('piano', 'Technique'))).toEqual(
-      techniqueDataFor('piano').map((item) => item.route),
+      [...techniqueDataFor('piano'), ...GEAR_TECHNIQUE_DATA].map(
+        (item) => item.route,
+      ),
     );
     expect(learnPageSuggestions('guitar', 'Technique')).toEqual([
       {
@@ -156,6 +191,21 @@ describe('learnPageSuggestions', () => {
         text: 'Teach me Guitar Harmonics',
         target: 'learn',
         route: '/learn/guitar/technique/harmonics',
+      },
+      {
+        text: 'Teach me Combo Amp Anatomy',
+        target: 'learn',
+        route: '/learn/gear/combo-amp',
+      },
+      {
+        text: 'Teach me Headphone Anatomy',
+        target: 'learn',
+        route: '/learn/gear/headphones',
+      },
+      {
+        text: 'Teach me Microphone Anatomy',
+        target: 'learn',
+        route: '/learn/gear/microphone',
       },
     ]);
   });

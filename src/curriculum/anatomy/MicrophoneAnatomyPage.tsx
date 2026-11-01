@@ -1,7 +1,7 @@
 import { AnatomyLesson } from './AnatomyLesson';
 import type { AnatomyOption } from './anatomyTypes';
 
-// Learn → Technique → Gear → Microphone Anatomy, on every instrument.
+// Learn → Audio → Microphone Anatomy.
 
 const OPTIONS: readonly AnatomyOption[] = [
   { value: 'microphone', label: 'Microphone' },

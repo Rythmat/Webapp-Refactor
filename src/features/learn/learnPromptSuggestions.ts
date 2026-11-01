@@ -8,11 +8,9 @@ import {
   type PromptSuggestion,
 } from '@/components/ClassroomLayout/home/promptSuggestions';
 import { GENRE_COURSES } from '@/components/learn/genreCourses';
-import {
-  GEAR_TECHNIQUE_DATA,
-  techniqueDataFor,
-} from '@/components/learn/techniqueCatalog';
+import { techniqueDataFor } from '@/components/learn/techniqueCatalog';
 import { LearnRoutes, SongRoutes } from '@/constants/routes';
+import { AUDIO_MODULES, audioLessonRoute } from '@/curriculum/audio/catalog';
 import { getAllSongs } from '@/curriculum/data/songs';
 import type { Song } from '@/curriculum/types/songLibrary';
 import type { GenreReadiness } from '@/features/learn/genreReadiness';
@@ -146,14 +144,20 @@ const THEORY_SUGGESTIONS: Record<LearnInstrument, PromptSuggestion[]> = {
 
 /** Technique: its tiles, the instrument named unless the tile's title already does. */
 const techniqueSuggestions = (instrument: LearnInstrument) =>
-  [...techniqueDataFor(instrument), ...GEAR_TECHNIQUE_DATA].map((item) =>
+  techniqueDataFor(instrument).map((item) =>
     teach(
-      /\b(piano|keyboard|synth|guitar|bass|ukulele|headphone|microphone|amp)\b/i.test(
-        item.title,
-      )
+      /\b(piano|keyboard|synth|guitar|bass|ukulele)\b/i.test(item.title)
         ? `Teach me ${item.title}`
         : `Teach me ${item.title} ${ON[instrument]}`,
       item.route,
+    ),
+  );
+
+/** Audio: its lessons, on every instrument. */
+export const audioSuggestions = () =>
+  AUDIO_MODULES.flatMap((module) =>
+    module.lessons.map((lesson) =>
+      teach(`Teach me ${lesson.title}`, audioLessonRoute(module, lesson)),
     ),
   );
 
@@ -175,6 +179,11 @@ export function allLearnSuggestions(
     ready ? genreSuggestions(ready, null) : [],
     THEORY_SUGGESTIONS[instrument],
     techniqueSuggestions(instrument),
+    // Audio's lessons, but for the anatomy lesson Technique already suggests.
+    audioSuggestions().filter(
+      (s) =>
+        !techniqueDataFor(instrument).some((item) => item.route === s.route),
+    ),
   ];
   const taken = new Set(kinds.flat().map((s) => s.route));
   const rest = learnSuggestionsFor(instrument).filter(

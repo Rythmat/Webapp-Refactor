@@ -1,6 +1,11 @@
 import { getChordScales } from '@/components/learn/chordScaleData';
 import { LearnRoutes } from '@/constants/routes';
 import {
+  audioLessonRoute,
+  audioModule,
+  LAB_STEPS,
+} from '@/curriculum/audio/catalog';
+import {
   CURRICULUM_GENRE_SLUGS,
   curriculumToEngineGenre,
   type CurriculumGenreId,
@@ -78,6 +83,24 @@ export const useRecentLessons = (minCompleted = 1): ActivityItem[] => {
           accentColor: getGenreProfile(slug)?.accentColor,
           image: getGenreTileImage(slug),
           route: LearnRoutes.genreLesson({ genre: slug, level }),
+          touchedAt: timeFromIso(l.updatedAt),
+        };
+      }
+
+      // An Audio lab: `audio:{MODULE}:{LESSON}`
+      if (l.lessonId.startsWith('audio:')) {
+        const [, moduleId, lessonId] = l.lessonId.split(':');
+        const module = audioModule(moduleId);
+        const lesson = module?.lessons.find((item) => item.id === lessonId);
+        if (!module || lesson?.kind !== 'lab') return null;
+        return {
+          id: `lesson:${l.lessonId}`,
+          kind: 'lesson',
+          category: 'Audio',
+          title: lesson.title,
+          subtitle: `${l.completedCount}/${lesson.topics.length * LAB_STEPS.length} steps`,
+          accentColor: colorForKeyMode(module.accentKey),
+          route: audioLessonRoute(module, lesson),
           touchedAt: timeFromIso(l.updatedAt),
         };
       }

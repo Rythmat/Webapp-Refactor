@@ -68,11 +68,7 @@ import {
 } from './learnFilterOptions';
 import { SigilCard } from './sigil/SigilCard';
 import { sigilFor, type SigilSpec } from './sigil/sigilSpec';
-import {
-  DEV_PIANO_TECHNIQUE_DATA,
-  GEAR_TECHNIQUE_DATA,
-  techniqueDataFor,
-} from './techniqueCatalog';
+import { DEV_PIANO_TECHNIQUE_DATA, techniqueDataFor } from './techniqueCatalog';
 import {
   COMING_SOON_FOR_UKULELE,
   isTheoryItemOnUkulele,
@@ -196,6 +192,8 @@ interface ContentItem {
   /** When true (and `image` is a polygon honeycomb), the tile art is an
    *  interactive hex canvas that paints on hover and drifts on its own. */
   interactive?: boolean;
+  /** A Technique tile that opens a Premium lesson (Anatomy, in Audio). */
+  premium?: true;
   /** Set when the tile has no lessons on the chosen instrument yet: it is
    *  shown dimmed and disabled, labelled with this text. */
   comingSoon?: string;
@@ -874,7 +872,7 @@ const LearnSection: React.FC<LearnSectionProps> = ({
  */
 function isLearnItemFree(item: ContentItem, tab: string): boolean {
   return (
-    tab === 'Technique' || // Piano Fundamentals, Applied Theory Fundamentals
+    (tab === 'Technique' && !item.premium) || // Piano Fundamentals, Applied Theory Fundamentals
     (tab === 'Theory' && item.mode === 'ionian') // C Ionian available
   );
 }
@@ -1179,7 +1177,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     () => [
       ...techniqueDataFor(learnInstrument),
       ...(learnInstrument === 'piano' ? DEV_PIANO_TECHNIQUE_DATA : []),
-      ...GEAR_TECHNIQUE_DATA,
     ],
     [learnInstrument],
   );
@@ -1335,11 +1332,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     // category + difficulty have no backing data today — wired but no-op
     return applyTechniqueSort(savedFiltered, techniqueFilters.sort);
   }, [techniqueData, techniqueFilters, savedLearnItems]);
-  // Gear is the same on every instrument, so it gets its own shelf.
-  const isGear = (item: ContentItem) =>
-    GEAR_TECHNIQUE_DATA.some((gear) => gear.title === item.title);
-  const foundationalTechnique = filteredTechnique.filter((i) => !isGear(i));
-  const gearTechnique = filteredTechnique.filter(isGear);
 
   const filteredCourses = useMemo(
     () =>
@@ -1715,26 +1707,13 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                         : 'No items match these filters'}
                     </p>
                   ) : (
-                    <>
-                      {foundationalTechnique.length > 0 && (
-                        <LearnSection className="mt-4" title="Foundational">
-                          {renderContent(
-                            foundationalTechnique,
-                            'Technique',
-                            'grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5',
-                          )}
-                        </LearnSection>
+                    <LearnSection className="mt-4" title="Foundational">
+                      {renderContent(
+                        filteredTechnique,
+                        'Technique',
+                        'grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5',
                       )}
-                      {gearTechnique.length > 0 && (
-                        <LearnSection className="mt-4" title="Gear">
-                          {renderContent(
-                            gearTechnique,
-                            'Technique',
-                            'grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5',
-                          )}
-                        </LearnSection>
-                      )}
-                    </>
+                    </LearnSection>
                   )}
                 </>
               ) : subTab === 'WorldHarmony' ? (

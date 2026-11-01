@@ -1,3 +1,4 @@
+import { useLayoutEffect } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { LearnRoutes } from '@/constants/routes';
@@ -14,6 +15,14 @@ export type LearnInstrument = LessonInstrument;
 
 /** Every instrument the picker lists. */
 export type InstrumentMenuId = LearnInstrument;
+
+/**
+ * What Learn is open on (owner, 2026-11-01): an instrument, or Audio, which is
+ * chosen the same way but isn't one: nothing is played on it. So `instrument`
+ * stays the last one played, for everything that asks which that is (a
+ * lesson's voice, a song's chord chart), and Audio is kept beside it.
+ */
+export type LearnChoice = LearnInstrument | 'audio';
 
 export interface InstrumentOption {
   id: InstrumentMenuId;
@@ -94,9 +103,12 @@ export function instrumentOptions(): InstrumentOption[] {
 
 interface InstrumentState {
   instrument: LearnInstrument;
+  /** Learn is open on Audio. Choosing any instrument clears it. */
+  audio: boolean;
   /** Mirror the fretboard and chord diagrams for left-handed players. */
   leftHanded: boolean;
   setInstrument: (instrument: LearnInstrument) => void;
+  chooseAudio: () => void;
   setLeftHanded: (leftHanded: boolean) => void;
 }
 
@@ -124,6 +136,7 @@ export function mergeStoredInstrument<T extends InstrumentState>(
     instrument: isLearnInstrument(stored.instrument)
       ? stored.instrument
       : 'piano',
+    audio: stored.audio === true,
     leftHanded: stored.leftHanded === true,
   };
 }
@@ -132,8 +145,10 @@ export const useInstrumentStore = create<InstrumentState>()(
   persist(
     (set) => ({
       instrument: 'piano',
+      audio: false,
       leftHanded: false,
-      setInstrument: (instrument) => set({ instrument }),
+      setInstrument: (instrument) => set({ instrument, audio: false }),
+      chooseAudio: () => set({ audio: true }),
       setLeftHanded: (leftHanded) => set({ leftHanded }),
     }),
     {
@@ -141,6 +156,7 @@ export const useInstrumentStore = create<InstrumentState>()(
       version: 1,
       partialize: (state) => ({
         instrument: state.instrument,
+        audio: state.audio,
         leftHanded: state.leftHanded,
       }),
       merge: mergeStoredInstrument,
@@ -158,8 +174,16 @@ export const learnPageRoute = (instrument: LearnInstrument) =>
         ? LearnRoutes.ukulele()
         : LearnRoutes.keyboard();
 
-/** The Learn page for the instrument chosen now (Home's row, the side rail). */
-export const useLearnPageRoute = () => learnPageRoute(useLearnInstrument());
+/** The Learn page for a choice: an instrument's, or Audio's. */
+export const learnChoiceRoute = (choice: LearnChoice) =>
+  choice === 'audio' ? LearnRoutes.audio() : learnPageRoute(choice);
+
+/** Whether a choice is open on this device. Audio is, for everyone. */
+export const isLearnChoiceEnabled = (choice: LearnChoice) =>
+  choice === 'audio' || isLearnInstrumentEnabled(choice);
+
+/** The Learn page for what's chosen now (Home's row, the side rail). */
+export const useLearnPageRoute = () => learnChoiceRoute(useLearnChoice());
 
 /**
  * The instrument Learn should show now: the stored choice, except that guitar,
@@ -168,4 +192,16 @@ export const useLearnPageRoute = () => learnPageRoute(useLearnInstrument());
 export function useLearnInstrument(): LearnInstrument {
   const instrument = useInstrumentStore((s) => s.instrument);
   return isLearnInstrumentEnabled(instrument) ? instrument : 'piano';
+}
+
+/** What Learn is open on now: Audio, or the instrument Learn should show. */
+export function useLearnChoice(): LearnChoice {
+  const instrument = useLearnInstrument();
+  return useInstrumentStore((s) => s.audio) ? 'audio' : instrument;
+}
+
+/** The address chooses: a page under /learn/audio makes Audio the choice. */
+export function useChooseAudio() {
+  const chooseAudio = useInstrumentStore((s) => s.chooseAudio);
+  useLayoutEffect(() => chooseAudio(), [chooseAudio]);
 }

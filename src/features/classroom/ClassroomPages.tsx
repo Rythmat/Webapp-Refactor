@@ -33,11 +33,14 @@ import {
 } from '@/features/learn/learnPaths';
 import {
   isLearnInstrumentEnabled,
+  useChooseAudio,
   useInstrumentStore,
+  useLearnChoice,
   useLearnInstrument,
   useLearnPageRoute,
   type LearnInstrument,
 } from '@/features/learn/useInstrumentStore';
+import { ANATOMY_MOVES } from '@/curriculum/audio/anatomyMoves';
 import { isBassTheorySlug } from '@/curriculum/data/bass/theoryCatalog';
 import { isUkuleleTheorySlug } from '@/curriculum/data/ukulele/theoryCatalog';
 import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
@@ -102,6 +105,14 @@ const UkuleleModeLesson = lazy(
 );
 const GuitarModeLesson = lazy(
   () => import('@/curriculum/pages/GuitarModeLesson'),
+);
+const AudioHub = lazy(() =>
+  import('@/curriculum/audio/AudioHub').then((m) => ({ default: m.AudioHub })),
+);
+const AudioLessonRoute = lazy(() =>
+  import('@/curriculum/audio/AudioLessonRoute').then((m) => ({
+    default: m.AudioLessonRoute,
+  })),
 );
 const BassAnatomyPage = lazy(
   () => import('@/curriculum/anatomy/BassAnatomyPage'),
@@ -736,7 +747,7 @@ const LearnInstrumentRoute = ({
   tab?: LearnTab;
 }) => {
   const { search } = useLocation();
-  const current = useLearnInstrument();
+  const current = useLearnChoice();
   const setInstrument = useInstrumentStore((s) => s.setInstrument);
   const available = isLearnInstrumentEnabled(instrument);
   useLayoutEffect(() => {
@@ -766,6 +777,23 @@ const LearnInstrumentRoute = ({
     return <Navigate replace to={learnTabRoute('ukulele', 'Theory')} />;
   }
   return <LearnPage tab={tab} />;
+};
+
+/** An old link, sent on with its query, so ?tab=build&part=frets still opens
+ *  what it did. */
+const MovedTo = ({ to }: { to: string }) => {
+  const { search, hash } = useLocation();
+  return <Navigate replace to={{ pathname: to, search, hash }} />;
+};
+
+/** /learn/audio: Audio's page, chosen by the address as an instrument's is. */
+const AudioRoute = () => {
+  useChooseAudio();
+  return (
+    <LearnPage section="Audio">
+      <AudioHub />
+    </LearnPage>
+  );
 };
 
 /** Each tab's page on each instrument. Static paths, so /learn/guitar/songs
@@ -801,6 +829,43 @@ export const learnPages = () => {
         element: <LearnInstrumentRoute instrument="piano" />,
       },
       ...learnTabPages,
+      // Audio: one page whatever the instrument, and its labs.
+      {
+        path: LearnRoutes.audio.definition,
+        element: <AudioRoute />,
+      },
+      // The Anatomy lessons, Premium like everything in Audio past Sound Basics.
+      // Static, so they outrank the labs' '/audio/:module/:lesson'.
+      ...(
+        [
+          [LearnRoutes.pianoAnatomy, PianoAnatomyPage],
+          [LearnRoutes.keyboardAnatomy, KeyboardAnatomyPage],
+          [LearnRoutes.synthAnatomy, SynthAnatomyPage],
+          [LearnRoutes.guitarAnatomy, GuitarAnatomyPage],
+          [LearnRoutes.bassAnatomy, BassAnatomyPage],
+          [LearnRoutes.ukuleleAnatomy, UkuleleAnatomyPage],
+          [LearnRoutes.microphoneAnatomy, MicrophoneAnatomyPage],
+          [LearnRoutes.comboAmpAnatomy, ComboAmpAnatomyPage],
+          [LearnRoutes.headphoneAnatomy, HeadphoneAnatomyPage],
+        ] as const
+      ).map(([route, Page]) => ({
+        path: route.definition,
+        element: (
+          <RequirePremium>
+            <Page />
+          </RequirePremium>
+        ),
+      })),
+      // Where they used to be, under Technique and Gear. These stay registered,
+      // or an old link would fall through to '/:mode/:key' as a lesson.
+      ...ANATOMY_MOVES.map(({ from, to }) => ({
+        path: from,
+        element: <MovedTo to={to()} />,
+      })),
+      {
+        path: LearnRoutes.audioLesson.definition,
+        element: <AudioLessonRoute />,
+      },
       {
         path: LearnRoutes.keyboardOverview.definition,
         element: <OverviewRoute />,
@@ -841,34 +906,6 @@ export const learnPages = () => {
         path: LearnRoutes.guitar.definition,
         element: <LearnInstrumentRoute instrument="guitar" />,
       },
-      // Technique → Gear, on every instrument, free like every Technique tile.
-      {
-        path: LearnRoutes.comboAmpAnatomy.definition,
-        element: <ComboAmpAnatomyPage />,
-      },
-      {
-        path: LearnRoutes.headphoneAnatomy.definition,
-        element: <HeadphoneAnatomyPage />,
-      },
-      {
-        path: LearnRoutes.microphoneAnatomy.definition,
-        element: <MicrophoneAnatomyPage />,
-      },
-      // Technique → Keyboard and Synth Anatomy, free like every Technique tile.
-      {
-        path: LearnRoutes.keyboardAnatomy.definition,
-        element: <KeyboardAnatomyPage />,
-      },
-      {
-        path: LearnRoutes.synthAnatomy.definition,
-        element: <SynthAnatomyPage />,
-      },
-      // Technique → Piano Anatomy. Free on purpose (every Technique tile shows
-      // unlocked); static, so it outranks '/keyboard/:mode/:key'.
-      {
-        path: LearnRoutes.pianoAnatomy.definition,
-        element: <PianoAnatomyPage />,
-      },
       ...(LinusAndLucyLesson
         ? [
             {
@@ -877,12 +914,6 @@ export const learnPages = () => {
             },
           ]
         : []),
-      // Technique → Guitar Anatomy. Free on purpose (every Technique tile
-      // shows unlocked); static, so it outranks '/guitar/:mode/:key'.
-      {
-        path: LearnRoutes.guitarAnatomy.definition,
-        element: <GuitarAnatomyPage />,
-      },
       // Technique → Guitar Harmonics. Free on purpose (every Technique tile
       // shows unlocked); static, so it outranks '/guitar/:mode/:key'.
       {
@@ -907,12 +938,6 @@ export const learnPages = () => {
         path: LearnRoutes.guitarLesson.definition,
         element: <GuitarLessonRoute />,
       },
-      // Technique → Bass Anatomy. Free on purpose (every Technique tile shows
-      // unlocked); static, so it outranks '/bass/:mode/:key'.
-      {
-        path: LearnRoutes.bassAnatomy.definition,
-        element: <BassAnatomyPage />,
-      },
       // Bass: Theory, from The Bass Atlas. Static 'bass' segment, so these
       // outrank '/:mode' and '/:mode/:key'.
       {
@@ -926,12 +951,6 @@ export const learnPages = () => {
       {
         path: LearnRoutes.bassLesson.definition,
         element: <BassLessonRoute />,
-      },
-      // Technique → Ukulele Anatomy. Free on purpose (every Technique tile
-      // shows unlocked); static, so it outranks '/ukulele/:mode/:key'.
-      {
-        path: LearnRoutes.ukuleleAnatomy.definition,
-        element: <UkuleleAnatomyPage />,
       },
       // Ukulele: Theory, from The Ukulele Atlas, as bass's.
       {

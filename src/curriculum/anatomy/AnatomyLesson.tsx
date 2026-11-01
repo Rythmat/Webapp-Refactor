@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { LearnRoutes } from '@/constants/routes';
 import { GuitarLessonHeader } from '@/curriculum/guitar/layout/GuitarLessonHeader';
 import { LessonFrame } from '@/curriculum/guitar/layout/LessonFrame';
 import { LessonTabStrip } from '@/curriculum/guitar/layout/LessonTabStrip';
@@ -12,12 +13,7 @@ import type {
   HeaderModel,
   StepNavModel,
 } from '@/curriculum/guitar/layout/types';
-import { learnTabRoute } from '@/features/learn/learnPaths';
-import {
-  useInstrumentStore,
-  useLearnInstrument,
-  type LearnInstrument,
-} from '@/features/learn/useInstrumentStore';
+import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { AnatomyAbout } from './AnatomyAbout';
 import { BuildTab } from './BuildTab';
@@ -30,14 +26,14 @@ import type {
 import { compiledInstrument } from './compileModel';
 
 // ── An anatomy lesson ──────────────────────────────────────────────────────
-// Learn → Technique → each instrument's Anatomy: its parts, as
+// Learn → Audio → each instrument's Anatomy: its parts, as
 // an exploded diagram that moves with the student's choices. Two tabs: Explore
 // (choose a part and it lifts clear while the rest reassembles) and Build it
 // (put it back together, part by named part). `?tab=build`, `?kind=acoustic`
 // and `?part=saddle` open any of it.
 //
-// Free (the route is ungated, as every Technique tile is shown unlocked).
-// Opening an instrument's lesson makes it this device's Learn instrument.
+// Premium (its route is gated). Opening one changes nothing about what Learn is
+// open on: a guitarist comes here from Technique and stays on guitar.
 
 const TABS = [
   {
@@ -58,26 +54,6 @@ type TabId = (typeof TABS)[number]['id'];
 const isTab = (value: string | null): value is TabId =>
   TABS.some((t) => t.id === value);
 
-/** Learn's instrument for each lesson: a keyboard and a synth are both taught
- *  under Keyboard, as a piano is. Gear belongs to every instrument, so a gear
- *  lesson leaves the student's choice alone. */
-const learnInstrumentOf = (
-  instrument: AnatomyInstrument,
-): LearnInstrument | null => {
-  if (
-    instrument === 'headphones' ||
-    instrument === 'microphone' ||
-    instrument === 'comboAmp'
-  ) {
-    return null;
-  }
-  return instrument === 'guitar' ||
-    instrument === 'bass' ||
-    instrument === 'ukulele'
-    ? instrument
-    : 'piano';
-};
-
 const paramOf = (option: AnatomyOption) =>
   option.param ?? option.label.toLowerCase();
 
@@ -91,9 +67,6 @@ export function AnatomyLesson({
   /** The default first; the URL names the other by its label. */
   options: readonly AnatomyOption[];
 }) {
-  const lessonInstrument = learnInstrumentOf(instrument);
-  const currentInstrument = useLearnInstrument();
-  const learnInstrument = lessonInstrument ?? currentInstrument;
   // Only a stringed instrument can be built the other way round.
   const hasHand =
     instrument === 'guitar' ||
@@ -110,10 +83,6 @@ export function AnatomyLesson({
 
   const leftHanded = useInstrumentStore((s) => s.leftHanded);
   const setLeftHanded = useInstrumentStore((s) => s.setLeftHanded);
-  const setInstrument = useInstrumentStore((s) => s.setInstrument);
-  useEffect(() => {
-    if (lessonInstrument) setInstrument(lessonInstrument);
-  }, [lessonInstrument, setInstrument]);
 
   const model = compiledInstrument(kind, leftHanded);
   const partParam = params.get('part');
@@ -168,8 +137,8 @@ export function AnatomyLesson({
   const header: HeaderModel = {
     crumbs: [
       {
-        label: 'Technique',
-        onClick: () => navigate(learnTabRoute(learnInstrument, 'Technique')),
+        label: 'Audio',
+        onClick: () => navigate(LearnRoutes.audio()),
       },
     ],
     keyLabel: title,
@@ -212,7 +181,7 @@ export function AnatomyLesson({
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
         <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-6 pb-10 pt-5 max-[639px]:px-4">
-          <GuitarLessonHeader header={header} section="Technique" />
+          <GuitarLessonHeader header={header} section="Anatomy" />
           <LessonTabStrip
             label="Anatomy activities"
             keyColor={keyColor}

@@ -1,7 +1,7 @@
 import { AnatomyLesson } from './AnatomyLesson';
 import type { AnatomyOption } from './anatomyTypes';
 
-// Learn → Technique → Gear → Combo Amp Anatomy, on every instrument. Same
+// Learn → Audio → Combo Amp Anatomy. Same
 // cabinet and speaker, two ways of making the signal bigger.
 
 const OPTIONS: readonly AnatomyOption[] = [

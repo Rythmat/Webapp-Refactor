@@ -9,24 +9,11 @@ describe('techniqueCatalog', () => {
     expect(PIANO_TECHNIQUE_DATA).toEqual([
       {
         title: 'Piano Anatomy',
-        route: '/learn/keyboard/technique/anatomy',
+        route: '/learn/audio/anatomy/piano',
         image: '/learn-tiles/beginner-hex.svg',
         interactive: true,
         ratio: [3, 4],
-      },
-      {
-        title: 'Keyboard Anatomy',
-        route: '/learn/keyboard/technique/keyboard-anatomy',
-        image: '/learn-tiles/beginner-hex.svg',
-        interactive: true,
-        ratio: [4, 5],
-      },
-      {
-        title: 'Synth Anatomy',
-        route: '/learn/keyboard/technique/synth-anatomy',
-        image: '/learn-tiles/beginner-hex.svg',
-        interactive: true,
-        ratio: [5, 6],
+        premium: true,
       },
       {
         title: 'Piano Fundamentals',
@@ -53,13 +40,21 @@ describe('techniqueCatalog', () => {
     ).toBe(false);
   });
 
-  it('gives bass and ukulele their own Technique tiles: Anatomy', () => {
+  it('gives bass and ukulele one Technique tile: a way into Audio’s Anatomy', () => {
     expect(techniqueDataFor('bass').map((tile) => tile.route)).toEqual([
-      '/learn/bass/technique/anatomy',
+      '/learn/audio/anatomy/bass',
     ]);
     expect(techniqueDataFor('ukulele').map((tile) => tile.route)).toEqual([
-      '/learn/ukulele/technique/anatomy',
+      '/learn/audio/anatomy/ukulele',
     ]);
+  });
+
+  it('locks only the Anatomy shortcuts for free users', () => {
+    for (const instrument of ['piano', 'guitar', 'bass', 'ukulele'] as const) {
+      for (const tile of techniqueDataFor(instrument)) {
+        expect(!!tile.premium, tile.title).toBe(tile.title.endsWith('Anatomy'));
+      }
+    }
   });
 
   it('gives guitar its own Technique tiles, anatomy before harmonics', () => {
@@ -68,7 +63,7 @@ describe('techniqueCatalog', () => {
       'Guitar Harmonics',
     ]);
     expect(techniqueDataFor('guitar').map((tile) => tile.route)).toEqual([
-      '/learn/guitar/technique/anatomy',
+      '/learn/audio/anatomy/guitar',
       '/learn/guitar/technique/harmonics',
     ]);
   });

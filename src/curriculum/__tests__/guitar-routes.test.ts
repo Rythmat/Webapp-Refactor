@@ -19,6 +19,7 @@ import {
 } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
+import { ANATOMY_MOVES } from '@/curriculum/audio/anatomyMoves';
 import { curriculumPages } from '@/curriculum/routes';
 import { learnPages } from '@/features/classroom/ClassroomPages';
 
@@ -289,48 +290,29 @@ describe('learn routes: guitar', () => {
   });
 
   it.each([
-    ['keyboard-anatomy', 'keyboard anatomy'],
-    ['synth-anatomy', 'synth anatomy'],
-  ])('opens Technique → %s, free, not as a lesson', async (path, text) => {
-    renderRoute(learnPages(), `/learn/keyboard/technique/${path}?tab=build`);
-    expect(await screen.findByText(text)).toBeInTheDocument();
-    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
-  });
-
-  it.each([
+    ['piano', 'piano anatomy'],
+    ['keyboard', 'keyboard anatomy'],
+    ['synth', 'synth anatomy'],
+    ['guitar', 'guitar anatomy'],
+    ['bass', 'bass anatomy'],
+    ['ukulele', 'ukulele anatomy'],
+    ['microphone', 'microphone anatomy'],
     ['combo-amp', 'combo amp anatomy'],
     ['headphones', 'headphone anatomy'],
-    ['microphone', 'microphone anatomy'],
-  ])('opens Gear → %s, free, not as a lesson', async (path, text) => {
-    renderRoute(learnPages(), `/learn/gear/${path}?tab=build`);
-    expect(await screen.findByText(text)).toBeInTheDocument();
-    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
+  ])('opens Audio → Anatomy → %s behind Premium', async (path, text) => {
+    renderRoute(learnPages(), `/learn/audio/anatomy/${path}?tab=build`);
+    const gate = await screen.findByTestId('premium-gate');
+    expect(within(gate).getByText(text)).toBeInTheDocument();
   });
 
-  it('opens Technique → Piano Anatomy, free, not as a lesson', async () => {
-    renderRoute(learnPages(), '/learn/keyboard/technique/anatomy?kind=upright');
-    expect(await screen.findByText('piano anatomy')).toBeInTheDocument();
-    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
-  });
-
-  it('opens Technique → Ukulele Anatomy, free, not as a lesson', async () => {
-    renderRoute(learnPages(), '/learn/ukulele/technique/anatomy?tab=build');
-    expect(await screen.findByText('ukulele anatomy')).toBeInTheDocument();
-    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
-  });
-
-  it('opens Technique → Bass Anatomy, free, not as a bass lesson', async () => {
-    renderRoute(learnPages(), '/learn/bass/technique/anatomy?tab=build');
-    expect(await screen.findByText('bass anatomy')).toBeInTheDocument();
-    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
-  });
-
-  it('opens Technique → Guitar Anatomy, free, not as a guitar lesson', async () => {
-    renderRoute(learnPages(), '/learn/guitar/technique/anatomy?tab=build');
-    expect(await screen.findByText('guitar anatomy')).toBeInTheDocument();
-    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
-    expect(screen.queryByText('guitar lesson')).not.toBeInTheDocument();
-  });
+  it.each(ANATOMY_MOVES.map(({ from, to }) => [from, to()]))(
+    'sends the old %s on to %s, its query kept',
+    async (from, to) => {
+      expect(learnPath(from)).toBe(from);
+      renderRoute(learnPages(), `${from}?tab=build&part=frets`);
+      expect(await location()).toBe(`${to}?tab=build&part=frets`);
+    },
+  );
 
   it('opens Technique → Guitar Harmonics, free, not as a guitar lesson', async () => {
     renderRoute(learnPages(), '/learn/guitar/technique/harmonics?tab=play');

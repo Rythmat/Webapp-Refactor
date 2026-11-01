@@ -1,7 +1,7 @@
 import { AnatomyLesson } from './AnatomyLesson';
 import type { AnatomyOption } from './anatomyTypes';
 
-// Learn → Technique → Bass Anatomy: an electric and an acoustic bass.
+// Learn → Audio → Bass Anatomy: an electric and an acoustic bass.
 
 const OPTIONS: readonly AnatomyOption[] = [
   { value: 'electricBass', label: 'Electric' },

@@ -1,7 +1,7 @@
 import { AnatomyLesson } from './AnatomyLesson';
 import type { AnatomyOption } from './anatomyTypes';
 
-// Learn → Technique → Ukulele Anatomy: one instrument, so no choice between two.
+// Learn → Audio → Ukulele Anatomy: one instrument, so no choice between two.
 
 const OPTIONS: readonly AnatomyOption[] = [
   { value: 'ukulele', label: 'Concert' },

@@ -220,7 +220,7 @@ describe('the pages', () => {
     ['keyboard', <KeyboardAnatomyPage key="k" />, 'an electronic keyboard'],
     ['synth', <SynthAnatomyPage key="s" />, 'a hardware synth'],
   ] as const)(
-    '%s: one instrument, taught under Keyboard',
+    '%s: one instrument, and it leaves the student’s alone',
     (kind, page, name) => {
       open(page);
       expect(document.querySelector('[data-guitar]')).toHaveAttribute(
@@ -229,7 +229,7 @@ describe('the pages', () => {
       );
       expect(screen.queryByRole('radio')).not.toBeInTheDocument();
       expect(screen.queryByText('Left-handed')).not.toBeInTheDocument();
-      expect(useInstrumentStore.getState().instrument).toBe('piano');
+      expect(useInstrumentStore.getState().instrument).toBe('guitar');
       expect(
         screen.getByRole('img', { name: `Exploded diagram of ${name}` }),
       ).toBeInTheDocument();

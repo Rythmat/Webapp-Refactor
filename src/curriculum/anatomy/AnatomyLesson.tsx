@@ -61,11 +61,14 @@ export function AnatomyLesson({
   instrument,
   title,
   options,
+  back,
 }: {
   instrument: AnatomyInstrument;
   title: string;
   /** The default first; the URL names the other by its label. */
   options: readonly AnatomyOption[];
+  /** Where its back button goes, if not to the Audio section. */
+  back?: { label: string; to: string };
 }) {
   // Only a stringed instrument can be built the other way round.
   const hasHand =
@@ -137,8 +140,8 @@ export function AnatomyLesson({
   const header: HeaderModel = {
     crumbs: [
       {
-        label: 'Audio',
-        onClick: () => navigate(LearnRoutes.audio()),
+        label: back?.label ?? 'Audio',
+        onClick: () => navigate(back?.to ?? LearnRoutes.audio()),
       },
     ],
     keyLabel: title,

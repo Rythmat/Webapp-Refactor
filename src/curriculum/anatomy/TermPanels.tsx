@@ -7,6 +7,7 @@ import { cn } from '@/components/utilities';
 import { termCopy } from './anatomyCopy';
 import { FAMILY_LABEL, type TermDef, type TermFamily } from './anatomyTypes';
 import type { CompiledModel } from './compileModel';
+import { MIC_RECORDING_COPY } from './recordingCopy';
 
 // ── The words ──────────────────────────────────────────────────────────────
 // Real buttons, grouped by family: the keyboard's and screen reader's way
@@ -121,6 +122,12 @@ export function TermDetail({
         <>
           <p className="mt-3 text-sm leading-5 text-white/85">{copy.what}</p>
           <p className="mt-2 text-sm leading-5 text-white/55">{copy.why}</p>
+          {model.kind === 'microphone' && MIC_RECORDING_COPY[term.id] && (
+            <p className="mt-3 text-sm leading-5 text-white/85">
+              <span className="font-bold text-white">In a recording: </span>
+              {MIC_RECORDING_COPY[term.id]}
+            </p>
+          )}
         </>
       )}
     </div>

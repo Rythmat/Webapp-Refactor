@@ -1,6 +1,7 @@
 import type { SceneCamera, ScenePose, TermDef } from './anatomyTypes';
-import { termAnchor, type CompiledModel } from './compileModel';
+import type { CompiledModel } from './compileCore';
 import { projectOffset, type V2 } from './iso';
+import { termAnchor } from './termAnchor';
 
 // ── Callouts ───────────────────────────────────────────────────────────────
 // The reference chart's labels: a word in a column at each side of the drawing

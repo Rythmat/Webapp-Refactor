@@ -5,6 +5,7 @@ import { TopRail } from '@/components/ClassroomLayout/TopRail';
 import { cn } from '@/components/utilities';
 import { isEditorPath } from '@/daw/preload';
 import { DawSkeleton } from '@/daw/shell/DawSkeleton';
+import { useCortexCapture } from '@/features/cortex/useCortexCapture';
 import { LearnTourLayer } from '@/features/learnTour/LearnTourLayer';
 import { useProgressBootstrap } from '@/hooks/data';
 import { useStampEarnedAwards } from '@/hooks/data/useAwards';
@@ -13,7 +14,7 @@ import { useChallengeWatcher } from '@/hooks/useChallengeWatcher';
 import { ClassroomSidebar } from './ClassroomSidebar';
 import { GlobeSkeleton } from './GlobeSkeleton';
 import { MobileTabBar } from './MobileTabBar';
-import { isGlobePath } from './focusPaths';
+import { isAudioPlayerPath, isGlobePath } from './focusPaths';
 import '@/components/ClassroomLayout/dashboard/dashboard.css';
 
 export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
@@ -23,6 +24,7 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   useChallengeWatcher();
   useStreakPing();
   useStampEarnedAwards();
+  useCortexCapture();
 
   // Only the DAW editor (`/studio`) needs the full-viewport, no-scroll
   // treatment; `/studio/production`, the DAW lessons, is a normal inlet.
@@ -35,16 +37,18 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   // Its height is the dynamic viewport's, so the bottom rail stays above a
   // phone's toolbar.
   const isGlobe = isGlobePath(pathname);
-  const focus = isStudioEditor || isGlobe;
+  // A guided Audio lesson takes the whole window too (owner, 2026-11-01).
+  const isAudioPlayer = isAudioPlayerPath(pathname);
+  const focus = isStudioEditor || isGlobe || isAudioPlayer;
 
   return (
     <div
       className={cn(
         'dashboard-root flex w-full overflow-hidden',
-        isGlobe ? 'h-dvh' : 'h-screen',
+        isGlobe || isAudioPlayer ? 'h-dvh' : 'h-screen',
       )}
     >
-      {isStudioEditor ? null : (
+      {isStudioEditor || isAudioPlayer ? null : (
         <ClassroomSidebar className="hidden flex-shrink-0 md:flex" />
       )}
 
@@ -76,7 +80,7 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
                 <DawSkeleton />
               ) : isGlobe ? (
                 <GlobeSkeleton />
-              ) : (
+              ) : isAudioPlayer ? null : (
                 props.fallback
               )
             }

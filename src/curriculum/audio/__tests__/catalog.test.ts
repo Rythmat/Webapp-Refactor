@@ -1,7 +1,13 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { AUDIO_MODULES, audioLessonRoute, audioShelves } from '../catalog';
+import {
+  AUDIO_MODULES,
+  audioLessonRoute,
+  audioModule,
+  audioShelves,
+  courseRows,
+} from '../catalog';
 import { LAB_TOPIC_PAGES } from '../labPages';
 
 const lessons = AUDIO_MODULES.flatMap((m) => m.lessons);
@@ -38,23 +44,54 @@ describe('the Audio catalog', () => {
     expect(Object.keys(LAB_TOPIC_PAGES).sort()).toEqual([...topics].sort());
   });
 
-  it('gives each taught module one tile', () => {
+  it('puts each course’s lab first, for whatever opens it', () => {
     const course = audioShelves().find((shelf) => shelf.title === 'Course');
-    expect(course?.modules.map((m) => m.lessons.length)).toEqual(
-      course?.modules.map(() => 1),
+    expect(course?.modules.map((m) => m.lessons[0].kind)).toEqual(
+      course?.modules.map(() => 'lab'),
     );
   });
 
-  it('teaches Sound Basics as one unit of four topics', () => {
-    const [unit, ...others] =
-      AUDIO_MODULES.find((m) => m.id === 'sound-basics')?.lessons ?? [];
-    expect(others).toEqual([]);
-    expect(unit.kind === 'lab' && unit.topics.map((t) => t.id)).toEqual([
+  it('hands a replaced topic to a guided lesson in its own course', () => {
+    for (const module of AUDIO_MODULES) {
+      for (const lesson of module.lessons) {
+        if (lesson.kind !== 'lab') continue;
+        for (const topic of lesson.topics) {
+          if (!topic.replacedBy) continue;
+          expect(
+            module.lessons.find((l) => l.id === topic.replacedBy)?.kind,
+            topic.id,
+          ).toBe('guided');
+        }
+      }
+    }
+  });
+
+  it('lays out a course’s path in teaching order', () => {
+    const stops = (id: string) =>
+      courseRows(audioModule(id)!).map((row) => row.lesson.id);
+    expect(stops('sound-basics')).toEqual([
+      'physics-of-sound',
+      'hear-the-kit',
+      'decibels-and-faders',
+    ]);
+    expect(stops('signal-path')).toEqual(['gain-staging', 'mic-to-speaker']);
+    expect(stops('sound-color')).toEqual(['tone-and-timbre']);
+  });
+
+  it('leaves replaced topics out of what’s left of the lab', () => {
+    const lab = courseRows(audioModule('sound-basics')!)[0];
+    expect(lab.kind === 'lab' && lab.topics.map((t) => t.id)).toEqual([
       'waves',
       'compression',
-      'frequency',
-      'amplitude',
     ]);
+  });
+
+  it('hangs Microphone Anatomy from the lesson that uses it', () => {
+    const [gain] = courseRows(audioModule('signal-path')!);
+    expect(gain.kind === 'guided' && gain.side?.id).toBe('microphone');
+    expect(gain.kind === 'guided' && gain.side?.route).toBe(
+      '/learn/audio/anatomy/microphone',
+    );
   });
 
   it('holds all nine anatomy lessons and Signal Flow', () => {
@@ -101,6 +138,11 @@ describe('the Audio section’s source', () => {
       /from '(tone|@\/daw\/audio\/EffectChain|@\/daw\/store[^']*|@\/learn\/audio\/lessonVolumeStore|@\/learn\/audio\/useLessonVolume)'/;
     for (const file of sourcesUnder(join(root, 'lab'))) {
       expect(readFileSync(file, 'utf8'), file).not.toMatch(banned);
+    }
+    for (const dir of ['mix', 'player', 'lessons']) {
+      for (const file of sourcesUnder(join(root, dir))) {
+        expect(readFileSync(file, 'utf8'), file).not.toMatch(banned);
+      }
     }
     for (const file of sourcesUnder(join(root, 'labs'))) {
       expect(readFileSync(file, 'utf8'), file).not.toMatch(banned);

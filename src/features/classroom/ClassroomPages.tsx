@@ -40,6 +40,7 @@ import {
   useLearnPageRoute,
   type LearnInstrument,
 } from '@/features/learn/useInstrumentStore';
+import { isCortexEnabled } from '@/features/cortex/cortexFlag';
 import { ANATOMY_MOVES } from '@/curriculum/audio/anatomyMoves';
 import { isBassTheorySlug } from '@/curriculum/data/bass/theoryCatalog';
 import { isUkuleleTheorySlug } from '@/curriculum/data/ukulele/theoryCatalog';
@@ -108,6 +109,11 @@ const GuitarModeLesson = lazy(
 );
 const AudioHub = lazy(() =>
   import('@/curriculum/audio/AudioHub').then((m) => ({ default: m.AudioHub })),
+);
+const AudioCoursePage = lazy(() =>
+  import('@/curriculum/audio/CoursePage').then((m) => ({
+    default: m.CoursePage,
+  })),
 );
 const AudioLessonRoute = lazy(() =>
   import('@/curriculum/audio/AudioLessonRoute').then((m) => ({
@@ -763,6 +769,8 @@ const LearnInstrumentRoute = ({
   }
   const tabLink = learnTabRedirect(instrument, search);
   if (tabLink) return <Navigate replace to={tabLink} />;
+  // With no tab, the Learn page shows the student's Cortex on every instrument.
+  if (!tab && isCortexEnabled()) return <LearnPage />;
   // Bass teaches Theory and Technique so far: its page is the Theory tab.
   if (instrument === 'bass' && tab !== 'Theory' && tab !== 'Technique') {
     return <Navigate replace to={learnTabRoute('bass', 'Theory')} />;
@@ -862,6 +870,10 @@ export const learnPages = () => {
         path: from,
         element: <MovedTo to={to()} />,
       })),
+      {
+        path: LearnRoutes.audioCourse.definition,
+        element: <AudioCoursePage />,
+      },
       {
         path: LearnRoutes.audioLesson.definition,
         element: <AudioLessonRoute />,

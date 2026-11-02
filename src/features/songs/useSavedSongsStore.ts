@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { recordDone } from '@/features/cortex/ledger';
 
 interface SavedSongsState {
   savedIds: Record<string, true>;
@@ -19,7 +20,8 @@ export const useSavedSongsStore = create<SavedSongsState>()(
 
       isSaved: (songId) => Boolean(get().savedIds[songId]),
 
-      toggleSaved: (songId) =>
+      toggleSaved: (songId) => {
+        if (!get().savedIds[songId]) recordDone(`song:${songId}`);
         set((state) => {
           const nextIds = { ...state.savedIds };
           const nextAt = { ...state.savedAt };
@@ -31,9 +33,11 @@ export const useSavedSongsStore = create<SavedSongsState>()(
             nextAt[songId] = Date.now();
           }
           return { savedIds: nextIds, savedAt: nextAt };
-        }),
+        });
+      },
 
-      setSaved: (songId, saved) =>
+      setSaved: (songId, saved) => {
+        if (saved) recordDone(`song:${songId}`);
         set((state) => {
           const nextIds = { ...state.savedIds };
           const nextAt = { ...state.savedAt };
@@ -45,7 +49,8 @@ export const useSavedSongsStore = create<SavedSongsState>()(
             delete nextAt[songId];
           }
           return { savedIds: nextIds, savedAt: nextAt };
-        }),
+        });
+      },
     }),
     {
       name: 'music-atlas-saved-songs',

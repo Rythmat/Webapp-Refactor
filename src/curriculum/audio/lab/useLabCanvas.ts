@@ -16,11 +16,16 @@ export interface LabFrame {
  * paused offscreen and in a hidden tab. With reduced motion there is no loop:
  * the lab calls `redraw` when something changes, and offers a scrubber instead.
  */
-export function useLabCanvas(draw: (frame: LabFrame) => void) {
+export function useLabCanvas(
+  draw: (frame: LabFrame) => void,
+  /** Reads a live signal: it keeps running with reduced motion, as a meter must. */
+  { live = false }: { live?: boolean } = {},
+) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawRef = useRef(draw);
   drawRef.current = draw;
-  const reduced = useReducedMotion() ?? false;
+  const reducedMotion = useReducedMotion() ?? false;
+  const reduced = reducedMotion && !live;
   const sizeRef = useRef({ width: 0, height: 0 });
   const timeRef = useRef(0);
 

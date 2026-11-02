@@ -6,6 +6,7 @@ import {
   studioTutorialActivityRef,
   useMspModuleCompletion,
 } from '@/features/classroom/msp';
+import { recordDone } from '@/features/cortex/ledger';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
 import { getTutorial } from './tutorials';
 import { Spotlight } from './Spotlight';
@@ -187,6 +188,7 @@ export function TutorialLayer() {
     const id = window.setTimeout(() => {
       if (isLast) {
         markComplete(tutorial.id);
+        recordDone(`tutorial:${tutorial.id}`);
         reportLesson(tutorial.id);
         quit();
       } else {
@@ -211,6 +213,7 @@ export function TutorialLayer() {
 
   const finishNow = () => {
     markComplete(tutorial.id);
+    recordDone(`tutorial:${tutorial.id}`);
     reportLesson(tutorial.id);
     quit();
   };

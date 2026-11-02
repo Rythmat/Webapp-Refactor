@@ -4,6 +4,7 @@ import { HeartIcon } from '@/components/icons/HeartIcon';
 import { SigilCard } from '@/components/learn/sigil/SigilCard';
 import { sigilFor } from '@/components/learn/sigil/sigilSpec';
 import { LockedFeatureOverlay } from '@/components/ui/LockedFeatureOverlay';
+import { LearnRoutes } from '@/constants/routes';
 import { isLearnInstrumentEnabled } from '@/features/learn/useInstrumentStore';
 import { useSavedItemsStore } from '@/features/learn/useSavedItemsStore';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
@@ -11,10 +12,11 @@ import { useIsPremium } from '@/hooks/useIsPremium';
 import {
   audioLessonRoute,
   audioShelves,
+  courseRows,
   type AudioLesson,
   type AudioModule,
 } from './catalog';
-import { labPercent } from './lab/audioProgress';
+import { labPercent, rowPercent } from './lab/audioProgress';
 
 /**
  * Learn → Audio: the section's tiles on their shelves, in the order it teaches
@@ -27,16 +29,19 @@ export function AudioHub() {
     () =>
       audioShelves().map((shelf) => ({
         title: shelf.title,
-        tiles: shelf.modules.flatMap((module) =>
-          module.lessons
-            .filter(
-              (lesson) =>
-                lesson.kind !== 'anatomy' ||
-                !lesson.instrument ||
-                isLearnInstrumentEnabled(lesson.instrument),
-            )
-            .map((lesson) => ({ module, lesson })),
-        ),
+        courses: shelf.modules.filter((module) => module.shelf),
+        tiles: shelf.modules
+          .filter((module) => !module.shelf)
+          .flatMap((module) =>
+            module.lessons
+              .filter(
+                (lesson) =>
+                  lesson.kind !== 'anatomy' ||
+                  !lesson.instrument ||
+                  isLearnInstrumentEnabled(lesson.instrument),
+              )
+              .map((lesson) => ({ module, lesson })),
+          ),
       })),
     [],
   );
@@ -46,10 +51,17 @@ export function AudioHub() {
       data-audio-hub
     >
       <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-8">
-        {shelves.map(({ title, tiles }) => (
+        {shelves.map(({ title, courses, tiles }) => (
           <section key={title} data-audio-shelf={title}>
             <h2 className="mb-4 text-lg text-[var(--color-text)]">{title}</h2>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+              {courses.map((module) => (
+                <CourseTile
+                  key={module.id}
+                  module={module}
+                  locked={module.access === 'premium' && !isPremium}
+                />
+              ))}
               {tiles.map(({ module, lesson }) => (
                 <AudioTile
                   key={lesson.id}
@@ -63,6 +75,65 @@ export function AudioHub() {
         ))}
       </div>
     </div>
+  );
+}
+
+/** A course: its one tile opens its page, with its lessons in order. */
+function CourseTile({
+  module,
+  locked,
+}: {
+  module: AudioModule;
+  locked: boolean;
+}) {
+  const navigate = useNavigate();
+  const rows = useMemo(() => courseRows(module), [module]);
+  const spec = useMemo(
+    () => sigilFor({ ratio: module.lessons[0].ratio }),
+    [module],
+  );
+  const percent = useTutorialProgressStore((s) => {
+    const counted = rows.filter(
+      (row) => row.kind === 'guided' || row.kind === 'lab',
+    );
+    const sum = counted.reduce(
+      (total, row) => total + rowPercent(s.completedAt, module, row),
+      0,
+    );
+    return Math.round(sum / Math.max(1, counted.length));
+  });
+  if (!spec) return null;
+  const open = () => navigate(LearnRoutes.audioCourse({ module: module.id }));
+  return (
+    <LockedFeatureOverlay locked={locked} label={module.title}>
+      <div className="group flex cursor-pointer flex-col gap-3">
+        <SigilCard
+          spec={spec}
+          label={module.title}
+          className="relative"
+          data-audio-tile={module.id}
+          role="link"
+          tabIndex={0}
+          aria-label={module.title}
+          onClick={open}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              open();
+            }
+          }}
+        >
+          <h3 className="pointer-events-none absolute inset-x-4 bottom-3 truncate text-center text-lg text-[var(--color-text)]">
+            {module.title}
+          </h3>
+          {percent > 0 && (
+            <span className="pointer-events-none absolute left-3.5 top-3.5 text-xs text-[var(--color-text-dim)]">
+              {percent}%
+            </span>
+          )}
+        </SigilCard>
+      </div>
+    </LockedFeatureOverlay>
   );
 }
 

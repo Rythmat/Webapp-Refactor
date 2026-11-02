@@ -1,0 +1,63 @@
+/* The lesson player's own pieces: a vertical fader, and the frame's verdict. */
+
+.lesson-fader {
+  appearance: none;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 2.5rem;
+  height: 100%;
+  min-height: 7rem;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+}
+.lesson-fader:active {
+  cursor: grabbing;
+}
+.lesson-fader:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+.lesson-fader::-webkit-slider-runnable-track {
+  width: 0.25rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.14);
+}
+.lesson-fader::-moz-range-track {
+  width: 0.25rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.14);
+}
+/* A fader cap: wide and low, with a line across it. */
+.lesson-fader::-webkit-slider-thumb {
+  appearance: none;
+  width: 2.25rem;
+  height: 1rem;
+  margin-left: -1rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: linear-gradient(
+    to bottom,
+    #d6d6dc 0 44%,
+    #101012 44% 56%,
+    #d6d6dc 56% 100%
+  );
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.5);
+}
+.lesson-fader::-moz-range-thumb {
+  width: 2.25rem;
+  height: 1rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: linear-gradient(
+    to bottom,
+    #d6d6dc 0 44%,
+    #101012 44% 56%,
+    #d6d6dc 56% 100%
+  );
+}
+.lesson-fader:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 0.6);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}

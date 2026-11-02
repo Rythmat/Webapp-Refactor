@@ -1,3 +1,4 @@
+import { LearnRoutes } from '@/constants/routes';
 import { AnatomyLesson } from './AnatomyLesson';
 import type { AnatomyOption } from './anatomyTypes';
 
@@ -13,6 +14,10 @@ export default function MicrophoneAnatomyPage() {
       instrument="microphone"
       title="Microphone Anatomy"
       options={OPTIONS}
+      back={{
+        label: 'The Signal Path',
+        to: LearnRoutes.audioCourse({ module: 'signal-path' }),
+      }}
     />
   );
 }

@@ -6,6 +6,7 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { LAST_LEVEL, type FoliMode } from '@/curriculum/engine/foli/levels';
+import { recordDone } from '@/features/cortex/ledger';
 import { useGameOptions } from '@/hooks/data/gameOptions/useGameOptions';
 import { useSaveGameOptions } from '@/hooks/data/gameOptions/useSaveGameOptions';
 
@@ -79,6 +80,7 @@ export function useFoliProgress() {
   /** A level cleared: the next one opens; the last one conquers the mode. */
   const clearLevel = useCallback(
     (mode: FoliMode, cleared: number) => {
+      recordDone(`game:${FOLI_GAME_ID}`);
       const now = progressRef.current;
       const opened = Math.min(LAST_LEVEL, cleared + 1);
       save({

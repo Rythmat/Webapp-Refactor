@@ -885,6 +885,11 @@ export const LearnRoutes = {
   /** Learn → Audio: not tied to an instrument, so no instrument segment. */
   audio: createRouteDefinition('/audio', { prefix: learnPrefix }),
 
+  /** A course's page: its lessons in order. Static anatomy paths outrank it. */
+  audioCourse: createRouteDefinition<{ module: string }>('/audio/:module', {
+    prefix: learnPrefix,
+  }),
+
   /**
    * A lab in the Audio section, opening where the student left off;
    * `?topic=<id>&step=predict|reveal|try` opens any of it.

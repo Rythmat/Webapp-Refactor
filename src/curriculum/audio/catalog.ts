@@ -34,6 +34,8 @@ export interface LabTopic {
   /** Its tab: the name and the quieter line under it. */
   tab: string;
   sub: string;
+  /** The guided lesson that has taken this topic's place on the course page. */
+  replacedBy?: string;
 }
 
 /** A unit: one tile, one percent and one lesson page, its topics in order. */
@@ -47,6 +49,8 @@ export interface AnatomyEntry extends LessonBase {
   route: string;
   /** The Learn instrument whose rollout flag it follows, if any. */
   instrument?: LearnInstrument;
+  /** The guided lesson it hangs from on its course's path. */
+  sideOf?: string;
 }
 
 export interface ArcadeEntry extends LessonBase {
@@ -54,7 +58,16 @@ export interface ArcadeEntry extends LessonBase {
   route: string;
 }
 
-export type AudioLesson = LabLesson | AnatomyEntry | ArcadeEntry;
+/** A lesson in the focus player: one screen at a time, from its own script. */
+export interface GuidedLesson extends LessonBase {
+  kind: 'guided';
+  blurb: string;
+  /** How many screens it has, for a percent without loading its script. A test
+   *  holds this to the script. */
+  screens: number;
+}
+
+export type AudioLesson = LabLesson | GuidedLesson | AnatomyEntry | ArcadeEntry;
 
 export interface AudioModule {
   id: string;
@@ -103,14 +116,32 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
             title: 'Frequency & Pitch',
             tab: 'Frequency',
             sub: 'What we hear as pitch',
+            replacedBy: 'hear-the-kit',
           },
           {
             id: 'amplitude',
             title: 'Amplitude & Volume',
             tab: 'Amplitude',
             sub: 'What we hear as volume',
+            replacedBy: 'decibels-and-faders',
           },
         ],
+      },
+      {
+        kind: 'guided',
+        id: 'hear-the-kit',
+        title: 'Hear the Kit',
+        blurb: 'Why a kick thumps in a club and clicks on a phone',
+        ratio: [3, 4],
+        screens: 14,
+      },
+      {
+        kind: 'guided',
+        id: 'decibels-and-faders',
+        title: 'Decibels and Faders',
+        blurb: 'Why 0 sits near the top, and what −6 really does',
+        ratio: [4, 5],
+        screens: 14,
       },
     ],
   },
@@ -272,6 +303,7 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
             title: 'Preamps & Levels',
             tab: 'Preamps',
             sub: 'Up to line level',
+            replacedBy: 'gain-staging',
           },
           {
             id: 'digital',
@@ -298,6 +330,22 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
             sub: 'Getting it there',
           },
         ],
+      },
+      {
+        kind: 'guided',
+        id: 'gain-staging',
+        title: 'Gain Staging',
+        blurb: 'The one knob you can’t fix later',
+        ratio: [5, 6],
+        screens: 14,
+      },
+      {
+        kind: 'anatomy',
+        id: 'microphone',
+        title: 'Take the mic apart',
+        route: LearnRoutes.microphoneAnatomy(),
+        ratio: [8, 9],
+        sideOf: 'gain-staging',
       },
     ],
   },
@@ -362,13 +410,6 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
     lessons: [
       {
         kind: 'anatomy',
-        id: 'microphone',
-        title: 'Microphone Anatomy',
-        route: LearnRoutes.microphoneAnatomy(),
-        ratio: [8, 9],
-      },
-      {
-        kind: 'anatomy',
         id: 'combo-amp',
         title: 'Combo Amp Anatomy',
         route: LearnRoutes.comboAmpAnatomy(),
@@ -420,6 +461,50 @@ export const audioModule = (id: string | undefined) =>
 
 /** Where a lesson opens. */
 export const audioLessonRoute = (module: AudioModule, lesson: AudioLesson) =>
-  lesson.kind === 'lab'
+  lesson.kind === 'lab' || lesson.kind === 'guided'
     ? LearnRoutes.audioLesson({ module: module.id, lesson: lesson.id })
     : lesson.route;
+
+/** One stop on a course's path. */
+export type CourseRow =
+  | { kind: 'guided'; lesson: GuidedLesson; side: AnatomyEntry | null }
+  | { kind: 'lab'; lesson: LabLesson; topics: readonly LabTopic[] }
+  | { kind: 'anatomy' | 'arcade'; lesson: AnatomyEntry | ArcadeEntry };
+
+/**
+ * A course's path, in teaching order: its lab's topics in turn, each one that's
+ * been replaced giving way to its guided lesson, and what's left of the lab as
+ * one stop. Anatomy hangs off the lesson that uses it.
+ */
+export function courseRows(module: AudioModule): readonly CourseRow[] {
+  const rows: CourseRow[] = [];
+  const guided = (id: string): CourseRow | null => {
+    const lesson = module.lessons.find(
+      (l): l is GuidedLesson => l.kind === 'guided' && l.id === id,
+    );
+    if (!lesson) return null;
+    const side = module.lessons.find(
+      (l): l is AnatomyEntry => l.kind === 'anatomy' && l.sideOf === id,
+    );
+    return { kind: 'guided', lesson, side: side ?? null };
+  };
+  for (const lesson of module.lessons) {
+    if (lesson.kind === 'lab') {
+      const left = lesson.topics.filter((topic) => !topic.replacedBy);
+      let placed = false;
+      for (const topic of lesson.topics) {
+        const row = topic.replacedBy ? guided(topic.replacedBy) : null;
+        if (row) rows.push(row);
+        else if (!placed) {
+          rows.push({ kind: 'lab', lesson, topics: left });
+          placed = true;
+        }
+      }
+    } else if (lesson.kind === 'anatomy' || lesson.kind === 'arcade') {
+      if (lesson.kind === 'arcade' || !lesson.sideOf) {
+        rows.push({ kind: lesson.kind, lesson });
+      }
+    }
+  }
+  return rows;
+}

@@ -171,7 +171,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
   {
     title: 'Signal Flow',
     category: 'Sound Lab',
-    blurb: 'Wire up the signal chain and route the sound.',
+    blurb: 'Patch real gear, then hear what every cable carries.',
     route: 'signalFlow',
     art: { kind: 'chladni', mode: { n: 4, m: 1, sign: -0.5 } },
   },

@@ -68,6 +68,7 @@ import {
   type LessonChord,
 } from '@/curriculum/notation/lessonChordSymbols';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
+import { markCurrentDone } from '@/features/cortex/ledger';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
 import { useFingeringDisplay } from '@/features/learn/usePianoDisplaySettings';
@@ -1686,6 +1687,8 @@ function GenreLessonContainerV2Inner({
         flow.params.defaultKey,
         currentStep.styleRef as StyleSubProfile,
       );
+      // The last section finishes the lesson, for the student's Cortex.
+      if (flow.sections.at(-1)?.id === activeSection) markCurrentDone();
       // Classroom app-route completion (no-op unless launched from a slide).
       reportCompletion();
       // The section's own Practice Track, offered before moving on: the groove

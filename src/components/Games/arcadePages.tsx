@@ -15,7 +15,6 @@ import GrooveLab from './GrooveLab/GrooveLab';
 import HarmonicStrings from './HarmonicStrings/HarmonicStrings';
 import MajorArcanum from './MajorArcanum/MajorArcanum';
 import { PlayAlong } from './PlayAlong';
-import SignalFlow from './SignalFlow/SignalFlow';
 import WaveSculptor from './WaveSculptor/WaveSculptor';
 import { ARCADE_ROOT } from './arcadeChrome';
 import Chroma from './chroma';
@@ -29,6 +28,8 @@ import '@/components/learn/learn.css';
 // Echo is its own chunk: its engine, contours and screens load only when
 // it opens.
 const EchoGame = lazy(() => import('./Echo/EchoGame'));
+// Signal Flow too: it brings its gear's drawings and its audio with it.
+const SignalFlow = lazy(() => import('./SignalFlow/SignalFlow'));
 
 /**
  * A page's streak, as its game's header shows it (scoring/ArcadeStreak.tsx):
@@ -275,15 +276,15 @@ export function HarmonicStringsPage() {
 }
 
 export function SignalFlowPage() {
-  const awardXP = useAwardArcadeExperience();
-
-  const handleComplete = useCallback(async () => {
-    await awardXP.mutateAsync().catch(() => {});
-  }, [awardXP]);
-
+  const reward = useArcadeStreakReward('signal_flow');
+  const { registerCorrect, registerWrong } = reward;
   return (
     <GameShell>
-      <SignalFlow onComplete={handleComplete} />
+      <ArcadeStreakContext.Provider value={streakState(reward)}>
+        <Suspense fallback={null}>
+          <SignalFlow onCorrect={registerCorrect} onWrong={registerWrong} />
+        </Suspense>
+      </ArcadeStreakContext.Provider>
     </GameShell>
   );
 }

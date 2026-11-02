@@ -1,12 +1,11 @@
 import { ACOUSTIC_BASS_MODEL, ACOUSTIC_MODEL } from './acousticModel';
-import type { ModelKind, InstrumentModel, TermDef } from './anatomyTypes';
+import type { ModelKind, InstrumentModel } from './anatomyTypes';
 import { SOLID_STATE_AMP_MODEL, TUBE_AMP_MODEL } from './comboAmpModel';
-import { compile, reachOf, type CompiledModel } from './compileCore';
+import { compile, type CompiledModel } from './compileCore';
 import { ELECTRIC_BASS_MODEL } from './electricBassModel';
 import { ELECTRIC_MODEL } from './electricModel';
 import { GRAND_PIANO_MODEL } from './grandPianoModel';
 import { HEADPHONES_MODEL } from './headphonesModel';
-import { project, type V2 } from './iso';
 import { KEYBOARD_MODEL } from './keyboardModel';
 import { MICROPHONE_MODEL } from './microphoneModel';
 import { SYNTH_MODEL } from './synthModel';
@@ -61,13 +60,4 @@ export const describe = ({ label, noun, kind }: CompiledModel) => {
   return /^[aeiou]/.test(name) ? `an ${name}` : `a ${name}`;
 };
 
-/** Where a term's callout points, assembled, on the page. */
-export function termAnchor(model: CompiledModel, term: TermDef): V2 {
-  if (term.anchor)
-    return project(term.anchor[0], term.anchor[1], term.anchor[2]);
-  const box = reachOf(
-    term.parts.map((id) => model.partById[id]),
-    () => [0, 0, 0],
-  );
-  return [(box.x0 + box.x1) / 2, (box.y0 + box.y1) / 2];
-}
+export { termAnchor } from './termAnchor';

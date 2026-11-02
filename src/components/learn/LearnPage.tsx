@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ActivityRail } from '@/components/ClassroomLayout/home/ActivityRail';
 import { HomeGlow } from '@/components/ClassroomLayout/home/HomeGlow';
@@ -11,6 +18,7 @@ import { PerStudent } from '@/components/ui/PerStudent';
 import { cn } from '@/components/utilities';
 import { SongRoutes } from '@/constants/routes';
 import { getAllSongs } from '@/curriculum/data/songs';
+import { isCortexEnabled } from '@/features/cortex/cortexFlag';
 import { useGenreReadiness } from '@/features/learn/genreReadiness';
 import type { LearnTab } from '@/features/learn/learnPaths';
 import {
@@ -28,6 +36,9 @@ import {
   SongFilterPills,
 } from './LearnPromptPills';
 import { LearnTabBar } from './LearnTabBar';
+
+// The map and its catalogues load with this page's bare view, not with Learn.
+const CortexPanel = lazy(() => import('@/features/cortex/CortexPanel'));
 
 /** The old Learn navigation's tabs the page keeps, after its heading. */
 const NAV_TABS = ['Songs', 'Genre', 'Theory', 'Technique'] as const;
@@ -113,6 +124,7 @@ export const LearnPage = ({
           }),
     [section, instrument, kind, shownSongs, genreSection, genreReady],
   );
+  const showCortex = !tab && !section && isCortexEnabled();
   return (
     // `isolate`, so the glow's -z-10 puts it behind everything here but
     // still in front of the panel's background (as on Home).
@@ -129,7 +141,11 @@ export const LearnPage = ({
           'relative flex w-full shrink-0 flex-col items-center p-2',
           // The Songs pages' column headers 20px under it (owner,
           // 2026-10-25), in rem as the app's 110% scale wants.
-          tab === 'Songs' ? 'pb-5' : tab || section ? 'pb-2' : 'pb-10',
+          tab === 'Songs'
+            ? 'pb-5'
+            : tab || section || showCortex
+              ? 'pb-2'
+              : 'pb-10',
         )}
       >
         {/* The instrument switcher, top right, where Home keeps its search. */}
@@ -189,6 +205,19 @@ export const LearnPage = ({
         </div>
       )}
       {section && <div className="relative min-h-0 flex-1">{children}</div>}
+      {/* Learn's own page: the student's Cortex, everything they've done in
+        Music Atlas and how it connects (owner, 2026-11-01). */}
+      {showCortex && (
+        <div className="relative min-h-72 flex-1">
+          <div className="absolute inset-0">
+            <PerStudent label="Your Cortex" className="h-full">
+              <Suspense fallback={null}>
+                <CortexPanel />
+              </Suspense>
+            </PerStudent>
+          </div>
+        </div>
+      )}
       {/* Pinned to the bottom, as on Home: where you left off, cycling
         through your recent activity. The negative margins and the -8px
         stick take it to the panel's edges, past the scroll area's 8px

@@ -42,12 +42,12 @@ describe('the Audio hub', () => {
       ),
     ].map((tile) => tile.getAttribute('data-audio-tile'));
     expect(tiles).toEqual([
-      'physics-of-sound',
-      'tone-and-timbre',
-      'how-waves-combine',
-      'how-we-hear',
-      'air-to-signal',
-      'mic-to-speaker',
+      'sound-basics',
+      'sound-color',
+      'waves-together',
+      'hearing',
+      'sound-to-electricity',
+      'signal-path',
     ]);
   });
 
@@ -71,39 +71,39 @@ describe('the Audio hub', () => {
     ).toHaveLength(5);
     expect(
       within(course as HTMLElement).getByRole('link', {
-        name: 'Physics of Sound',
+        name: 'Sound Basics',
       }),
     ).toBeTruthy();
   });
 
-  it('opens the unit from its tile', () => {
+  it('opens a course’s page from its tile', () => {
     open();
-    fireEvent.click(screen.getByRole('link', { name: 'Physics of Sound' }));
+    fireEvent.click(screen.getByRole('link', { name: 'Sound Basics' }));
     expect(screen.getByTestId('at').textContent).toBe(
-      '/learn/audio/sound-basics/physics-of-sound',
+      '/learn/audio/sound-basics',
     );
   });
 
-  it('counts the whole unit on its tile', () => {
+  it('counts every lesson in the course on its tile', () => {
     useTutorialProgressStore.setState({
       completedAt: {
         'audio:sound-basics:physics-of-sound:waves:hear': 1,
         'audio:sound-basics:physics-of-sound:waves:predict': 1,
-        'audio:sound-basics:physics-of-sound:amplitude:try': 1,
-        'audio:sound-basics:physics-of-sound:amplitude:hear': 1,
+        'audio:sound-basics:hear-the-kit:done': 1,
       },
     });
     open();
-    expect(screen.getByText('25%')).toBeTruthy();
+    // A quarter of what's left of the lab, all of one lesson, none of another.
+    expect(screen.getByText('42%')).toBeTruthy();
   });
 
   it('locks everything past Sound Basics for a free student', () => {
     isPremium = false;
     open();
-    expect(screen.getByRole('link', { name: 'Physics of Sound' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Sound Basics' })).toBeTruthy();
     expect(
       screen.getAllByRole('button', { name: /subscribe to unlock/ }),
-    ).toHaveLength(15);
+    ).toHaveLength(14);
   });
 
   it('keeps Anatomy’s hearts, by the same key, without opening the lesson', () => {

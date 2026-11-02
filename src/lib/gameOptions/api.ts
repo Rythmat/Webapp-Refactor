@@ -36,7 +36,12 @@ function parseApiResponse(text: string): unknown {
 
 async function apiRequest<T>(
   path: string,
-  params: { method?: 'GET' | 'PATCH'; token: string; body?: unknown },
+  params: {
+    method?: 'GET' | 'PATCH';
+    token: string;
+    body?: unknown;
+    keepalive?: boolean;
+  },
 ): Promise<T> {
   const response = await authFetch(
     `${normalizedApiBase()}${path}`,
@@ -45,6 +50,7 @@ async function apiRequest<T>(
       method: params.method ?? 'GET',
       headers: { 'Content-Type': 'application/json' },
       body: params.body != null ? JSON.stringify(params.body) : undefined,
+      keepalive: params.keepalive,
     },
   );
 
@@ -68,9 +74,15 @@ async function apiRequest<T>(
 export const gameOptionsApi = {
   fetchAll: (token: string) =>
     apiRequest<{ options: GameOptionsMap }>(gameOptionsPath(), { token }),
-  patchGame: (token: string, game: string, options: GameOptions) =>
+  /** `keepalive` lets a save outlive the page (bodies under 64 KB). */
+  patchGame: (
+    token: string,
+    game: string,
+    options: GameOptions,
+    { keepalive }: { keepalive?: boolean } = {},
+  ) =>
     apiRequest<{ options: GameOptionsMap }>(
       gameOptionsPath(`/${encodeURIComponent(game)}`),
-      { token, method: 'PATCH', body: { options } },
+      { token, method: 'PATCH', body: { options }, keepalive },
     ),
 };

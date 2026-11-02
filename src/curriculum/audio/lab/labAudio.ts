@@ -65,7 +65,8 @@ const ceilingCurve = (() => {
 })();
 
 interface Voice {
-  osc: OscillatorNode;
+  /** What's sounding: a loop has no frequency to glide. */
+  osc: AudioScheduledSourceNode;
   gain: GainNode;
   /** The auto fade's timer, restarted by any change the student makes. */
   fade: ReturnType<typeof setTimeout>;
@@ -77,6 +78,8 @@ interface Voice {
   pair?: { nodes: readonly AudioNode[]; delay: DelayNode };
 }
 
+/** Quick enough to follow a dragged slider, slow enough not to click. */
+const LOOP_CROSSFADE_SECONDS = 0.008;
 /** A pair's two tones are each half a voice, so their sum can't pass one. */
 const PAIR_BRANCH = 0.5;
 const MAX_DELAY_SECONDS = 0.1;
@@ -141,10 +144,11 @@ export class LabAudio {
     if (voice) {
       clearTimeout(voice.fade);
       voice.fade = this.scheduleFade(id);
-      voice.osc.frequency.setTargetAtTime(safeHz, now, GLIDE_SECONDS);
+      const osc = voice.osc as OscillatorNode;
+      osc.frequency.setTargetAtTime(safeHz, now, GLIDE_SECONDS);
       voice.gain.gain.setTargetAtTime(target, now, GLIDE_SECONDS);
       if (harmonics && harmonics !== voice.harmonics) {
-        voice.osc.setPeriodicWave(this.periodicWave(harmonics));
+        osc.setPeriodicWave(this.periodicWave(harmonics));
         voice.harmonics = harmonics;
       }
       return;
@@ -214,7 +218,11 @@ export class LabAudio {
     if (existing?.pair) {
       clearTimeout(existing.fade);
       existing.fade = this.scheduleFade(id);
-      existing.osc.frequency.setTargetAtTime(safeHz, now, GLIDE_SECONDS);
+      (existing.osc as OscillatorNode).frequency.setTargetAtTime(
+        safeHz,
+        now,
+        GLIDE_SECONDS,
+      );
       existing.pair.delay.delayTime.setTargetAtTime(
         delaySeconds,
         now,
@@ -238,6 +246,45 @@ export class LabAudio {
     second.connect(voice.gain);
     voice.pair = { nodes: [first, second, delay], delay };
     voice.gain.gain.setTargetAtTime(voiceGain(1, safeHz), now, RAMP_SECONDS);
+  }
+
+  /**
+   * Loop a computed waveform (peak ±1) through everything a tone goes through,
+   * replacing whatever `id` was playing. For sounds a tone can't make: clipped,
+   * quantized, or a signal with hum on it. `hz` sets the ear trim.
+   */
+  setLoop(
+    id: string,
+    samples: Float32Array<ArrayBuffer>,
+    hz: number,
+    level = 1,
+  ) {
+    if (this.closed) return;
+    this.stop(id, LOOP_CROSSFADE_SECONDS);
+    const buffer = this.ctx.createBuffer(
+      1,
+      samples.length,
+      this.ctx.sampleRate,
+    );
+    buffer.copyToChannel(samples, 0);
+    const source = this.ctx.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
+    const gain = this.ctx.createGain();
+    gain.gain.value = 0;
+    gain.gain.setTargetAtTime(
+      voiceGain(level, clampHz(hz)),
+      this.ctx.currentTime,
+      LOOP_CROSSFADE_SECONDS,
+    );
+    source.connect(gain);
+    gain.connect(this.mix);
+    source.start();
+    this.voices.set(id, { osc: source, gain, fade: this.scheduleFade(id) });
+  }
+
+  get sampleRate(): number {
+    return this.ctx.sampleRate;
   }
 
   isSounding(id: string): boolean {

@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { AUDIO_MODULES, audioLessonRoute } from '../catalog';
+import { AUDIO_MODULES, audioLessonRoute, audioShelves } from '../catalog';
 import { LAB_TOPIC_PAGES } from '../labPages';
 
 const lessons = AUDIO_MODULES.flatMap((m) => m.lessons);
@@ -36,6 +36,13 @@ describe('the Audio catalog', () => {
     );
     expect(new Set(topics).size).toBe(topics.length);
     expect(Object.keys(LAB_TOPIC_PAGES).sort()).toEqual([...topics].sort());
+  });
+
+  it('gives each taught module one tile', () => {
+    const course = audioShelves().find((shelf) => shelf.title === 'Course');
+    expect(course?.modules.map((m) => m.lessons.length)).toEqual(
+      course?.modules.map(() => 1),
+    );
   });
 
   it('teaches Sound Basics as one unit of four topics', () => {

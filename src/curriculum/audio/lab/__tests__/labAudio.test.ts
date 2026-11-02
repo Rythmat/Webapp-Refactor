@@ -34,6 +34,18 @@ function rig() {
       node.getFloatFrequencyData = vi.fn();
       return node;
     },
+    createBuffer: vi.fn((_channels: number, length: number) => ({
+      length,
+      copyToChannel: vi.fn(),
+    })),
+    createBufferSource: () => {
+      const node = gainNode() as Record<string, unknown>;
+      node.kind = 'buffer-source';
+      node.start = vi.fn();
+      node.stop = vi.fn();
+      started.push(node);
+      return node;
+    },
     createDelay: () => {
       const node = gainNode() as Record<string, unknown>;
       node.kind = 'delay';
@@ -283,6 +295,36 @@ describe('the labs’ sound', () => {
     expect(r.from(shaper)).toHaveLength(2);
     audio.close();
     expect(r.edges).toEqual([]);
+  });
+
+  it('loops a computed sound through the limiter and the ceiling too', () => {
+    const r = rig();
+    const audio = make(r);
+    audio.setLoop('a', new Float32Array(100), 220);
+    expect(r.started[0].loop).toBe(true);
+    expect(kinds(r, r.started[0])).toEqual([
+      'gain',
+      'gain',
+      'compressor',
+      'waveshaper',
+      'analyser',
+      'gain',
+    ]);
+  });
+
+  it('replaces a loop, leaving one sounding, and closes clean', () => {
+    const r = rig();
+    const audio = make(r);
+    audio.setLoop('a', new Float32Array(100), 220);
+    audio.setLoop('a', new Float32Array(100), 220);
+    expect(r.started).toHaveLength(2);
+    expect(r.started[0].stop).toHaveBeenCalledTimes(1);
+    expect(r.started[1].stop).not.toHaveBeenCalled();
+    (r.started[0].onended as () => void)();
+    audio.close();
+    expect(r.edges).toEqual([]);
+    audio.setLoop('b', new Float32Array(100), 220);
+    expect(r.started).toHaveLength(2);
   });
 
   it('leaves nothing connected on closing, and no timer to fire', () => {

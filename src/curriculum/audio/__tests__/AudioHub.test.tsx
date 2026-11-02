@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useSavedItemsStore } from '@/features/learn/useSavedItemsStore';
@@ -28,14 +34,46 @@ afterEach(() => {
 });
 
 describe('the Audio hub', () => {
-  it('shows Sound Basics as one unit', () => {
+  it('puts the course’s modules on one shelf, in teaching order', () => {
     open();
     const tiles = [
       ...document.querySelectorAll(
-        '[data-audio-module="sound-basics"] [data-audio-tile]',
+        '[data-audio-shelf="Course"] [data-audio-tile]',
       ),
     ].map((tile) => tile.getAttribute('data-audio-tile'));
-    expect(tiles).toEqual(['physics-of-sound']);
+    expect(tiles).toEqual([
+      'physics-of-sound',
+      'tone-and-timbre',
+      'how-waves-combine',
+      'how-we-hear',
+      'air-to-signal',
+      'mic-to-speaker',
+    ]);
+  });
+
+  it('keeps Anatomy and Hands On on their own shelves, below the course', () => {
+    open();
+    expect(
+      [...document.querySelectorAll('[data-audio-shelf]')].map((shelf) =>
+        shelf.getAttribute('data-audio-shelf'),
+      ),
+    ).toEqual(['Course', 'Instrument Anatomy', 'Gear Anatomy', 'Hands On']);
+  });
+
+  it('locks each tile by its own module, on the shared shelf', () => {
+    isPremium = false;
+    open();
+    const course = document.querySelector('[data-audio-shelf="Course"]')!;
+    expect(
+      within(course as HTMLElement).getAllByRole('button', {
+        name: /subscribe to unlock/,
+      }),
+    ).toHaveLength(5);
+    expect(
+      within(course as HTMLElement).getByRole('link', {
+        name: 'Physics of Sound',
+      }),
+    ).toBeTruthy();
   });
 
   it('opens the unit from its tile', () => {
@@ -65,7 +103,7 @@ describe('the Audio hub', () => {
     expect(screen.getByRole('link', { name: 'Physics of Sound' })).toBeTruthy();
     expect(
       screen.getAllByRole('button', { name: /subscribe to unlock/ }),
-    ).toHaveLength(14);
+    ).toHaveLength(15);
   });
 
   it('keeps Anatomy’s hearts, by the same key, without opening the lesson', () => {

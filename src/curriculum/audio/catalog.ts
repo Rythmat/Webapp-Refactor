@@ -59,6 +59,8 @@ export type AudioLesson = LabLesson | AnatomyEntry | ArcadeEntry;
 export interface AudioModule {
   id: string;
   title: string;
+  /** The shelf it shares with other modules; left out, it has its own. */
+  shelf?: string;
   /** Free modules open for everyone; the rest need Premium. */
   access: 'free' | 'premium';
   /** The key whose colour is this module's one accent (not A or D: yellow and
@@ -67,10 +69,14 @@ export interface AudioModule {
   lessons: readonly AudioLesson[];
 }
 
+/** Every module taught in order, one tile each. */
+const COURSE = 'Course';
+
 export const AUDIO_MODULES: readonly AudioModule[] = [
   {
     id: 'sound-basics',
     title: 'Sound Basics',
+    shelf: COURSE,
     access: 'free',
     accentKey: 'F#',
     lessons: [
@@ -111,6 +117,7 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
   {
     id: 'sound-color',
     title: 'Sound Color',
+    shelf: COURSE,
     access: 'premium',
     accentKey: 'E',
     lessons: [
@@ -145,6 +152,7 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
   {
     id: 'waves-together',
     title: 'Waves Together',
+    shelf: COURSE,
     access: 'premium',
     accentKey: 'E',
     lessons: [
@@ -179,6 +187,7 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
   {
     id: 'hearing',
     title: 'Hearing',
+    shelf: COURSE,
     access: 'premium',
     accentKey: 'E',
     lessons: [
@@ -213,6 +222,7 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
   {
     id: 'sound-to-electricity',
     title: 'Sound to Electricity',
+    shelf: COURSE,
     access: 'premium',
     accentKey: 'E',
     lessons: [
@@ -239,6 +249,53 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
             title: 'Transducers',
             tab: 'Transducers',
             sub: 'Sound to signal and back',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'signal-path',
+    title: 'The Signal Path',
+    shelf: COURSE,
+    access: 'premium',
+    accentKey: 'E',
+    lessons: [
+      {
+        kind: 'lab',
+        id: 'mic-to-speaker',
+        title: 'From Mic to Speaker',
+        ratio: [7, 10],
+        topics: [
+          {
+            id: 'preamps',
+            title: 'Preamps & Levels',
+            tab: 'Preamps',
+            sub: 'Up to line level',
+          },
+          {
+            id: 'digital',
+            title: 'ADC, DAC & Sample Rate',
+            tab: 'Digital',
+            sub: 'Sound as numbers',
+          },
+          {
+            id: 'amps',
+            title: 'Amps & Speaker Level',
+            tab: 'Amps',
+            sub: 'Power and tone',
+          },
+          {
+            id: 'loudspeakers',
+            title: 'Loudspeakers',
+            tab: 'Speakers',
+            sub: 'Back into air',
+          },
+          {
+            id: 'cables',
+            title: 'Connectors & Cables',
+            tab: 'Cables',
+            sub: 'Getting it there',
           },
         ],
       },
@@ -342,6 +399,21 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
     ],
   },
 ];
+
+/** The hub's shelves, in teaching order: modules sharing one, side by side. */
+export function audioShelves(): readonly {
+  title: string;
+  modules: readonly AudioModule[];
+}[] {
+  const shelves: { title: string; modules: AudioModule[] }[] = [];
+  for (const module of AUDIO_MODULES) {
+    const title = module.shelf ?? module.title;
+    const shelf = shelves.find((s) => s.title === title);
+    if (shelf) shelf.modules.push(module);
+    else shelves.push({ title, modules: [module] });
+  }
+  return shelves;
+}
 
 export const audioModule = (id: string | undefined) =>
   AUDIO_MODULES.find((module) => module.id === id);

@@ -9,29 +9,33 @@ import { useSavedItemsStore } from '@/features/learn/useSavedItemsStore';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
 import { useIsPremium } from '@/hooks/useIsPremium';
 import {
-  AUDIO_MODULES,
   audioLessonRoute,
+  audioShelves,
   type AudioLesson,
   type AudioModule,
 } from './catalog';
 import { labPercent } from './lab/audioProgress';
 
 /**
- * Learn → Audio: the section's tiles, a shelf for each module, in the order it
- * teaches them. It isn't tied to an instrument, though a lesson behind a
- * rollout flag only shows once that instrument is on.
+ * Learn → Audio: the section's tiles on their shelves, in the order it teaches
+ * them, the course's modules sharing one. It isn't tied to an instrument, though
+ * a lesson behind a rollout flag only shows once that instrument is on.
  */
 export function AudioHub() {
   const { isPremium } = useIsPremium();
   const shelves = useMemo(
     () =>
-      AUDIO_MODULES.map((module) => ({
-        module,
-        lessons: module.lessons.filter(
-          (lesson) =>
-            lesson.kind !== 'anatomy' ||
-            !lesson.instrument ||
-            isLearnInstrumentEnabled(lesson.instrument),
+      audioShelves().map((shelf) => ({
+        title: shelf.title,
+        tiles: shelf.modules.flatMap((module) =>
+          module.lessons
+            .filter(
+              (lesson) =>
+                lesson.kind !== 'anatomy' ||
+                !lesson.instrument ||
+                isLearnInstrumentEnabled(lesson.instrument),
+            )
+            .map((lesson) => ({ module, lesson })),
         ),
       })),
     [],
@@ -42,13 +46,11 @@ export function AudioHub() {
       data-audio-hub
     >
       <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-8">
-        {shelves.map(({ module, lessons }) => (
-          <section key={module.id} data-audio-module={module.id}>
-            <h2 className="mb-4 text-lg text-[var(--color-text)]">
-              {module.title}
-            </h2>
+        {shelves.map(({ title, tiles }) => (
+          <section key={title} data-audio-shelf={title}>
+            <h2 className="mb-4 text-lg text-[var(--color-text)]">{title}</h2>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
-              {lessons.map((lesson) => (
+              {tiles.map(({ module, lesson }) => (
                 <AudioTile
                   key={lesson.id}
                   module={module}

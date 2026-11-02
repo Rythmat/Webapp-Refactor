@@ -122,6 +122,21 @@ export function useLabTone() {
     }
   }, []);
 
+  /** Loop a computed sound, made for this context's sample rate. */
+  const setLoop = useCallback(
+    (
+      id: string,
+      make: (sampleRate: number) => Float32Array<ArrayBuffer>,
+      hz: number,
+      level = 1,
+    ) => {
+      const audio = ensure();
+      audio.setLoop(id, make(audio.sampleRate), hz, level);
+      setSounding((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
+    },
+    [ensure],
+  );
+
   /** What's really leaving the page, once there's a sound to measure. */
   const spectrum = useCallback(() => audioRef.current?.spectrum() ?? null, []);
 
@@ -195,6 +210,7 @@ export function useLabTone() {
     playNote,
     setPair,
     glidePair,
+    setLoop,
     spectrum,
     sounding,
     needsTap,

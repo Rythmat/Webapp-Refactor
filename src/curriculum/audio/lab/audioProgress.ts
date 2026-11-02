@@ -113,8 +113,10 @@ export function guidedPercent(
 ): number {
   if (completedAt[guidedDoneId(moduleId, lessonId)] != null) return 100;
   const prefix = `${audioLessonId(moduleId, lessonId)}:`;
-  const done = Object.keys(completedAt).filter((id) =>
-    id.startsWith(prefix),
+  // A screen's id has nothing after it. Anything longer is a step from when this
+  // lesson was a lab, which doesn't count towards its screens.
+  const done = Object.keys(completedAt).filter(
+    (id) => id.startsWith(prefix) && !id.slice(prefix.length).includes(':'),
   ).length;
   return Math.min(99, Math.round((done / Math.max(1, screens)) * 100));
 }

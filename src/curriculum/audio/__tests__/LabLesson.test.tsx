@@ -8,9 +8,10 @@ import {
 } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
-import { medium } from '../lab/physics/particles';
-import { LEVEL_ROUNDS } from '../labs/AmplitudeLab';
-import { MYSTERY_ROUNDS } from '../labs/WavesLab';
+import { shapeNamed } from '../lab/physics/envelope';
+import { recipeNamed } from '../lab/physics/harmonics';
+import { MYSTERY_SHAPES } from '../labs/EnvelopeLab';
+import { MYSTERY_RECIPES } from '../labs/TimbreLab';
 import { openUnit } from './openLabTopic';
 
 vi.mock('../lab/useLabTone', () => ({
@@ -20,6 +21,9 @@ vi.mock('../lab/useLabTone', () => ({
     stop: vi.fn(),
     stopAll: vi.fn(),
     glide: vi.fn(),
+    noteOn: vi.fn(),
+    noteOff: vi.fn(),
+    playNote: vi.fn(),
     sounding: new Set<string>(),
     needsTap: false,
     peak: () => 0,
@@ -39,7 +43,7 @@ vi.mock('@/hooks/data/experience/useAwardExperience', () => ({
 HTMLCanvasElement.prototype.getContext = () => null;
 
 const id = (topic: string, step: string) =>
-  `audio:sound-basics:physics-of-sound:${topic}:${step}`;
+  `audio:sound-color:tone-and-timbre:${topic}:${step}`;
 const topicOpen = () =>
   document
     .querySelector('[data-audio-topic]')
@@ -53,56 +57,56 @@ afterEach(() => {
   useTutorialProgressStore.setState({ completedAt: {} });
 });
 
-describe('the Physics of Sound unit', () => {
-  it('is one lesson, with its four topics as tabs', async () => {
+describe('a lab’s unit', () => {
+  it('is one lesson, with its topics as tabs', async () => {
     await openUnit();
-    expect(title()).toBe('Physics of Sound');
+    expect(title()).toBe('Tone & Timbre');
     const tabs = screen.getByRole('group', { name: 'Topics' });
     expect(
       [...tabs.querySelectorAll('[data-lesson-tab]')].map((tab) =>
         tab.getAttribute('data-lesson-tab'),
       ),
-    ).toEqual(['waves', 'compression', 'frequency', 'amplitude']);
-    expect(tabs.querySelectorAll('[data-segment]')).toHaveLength(16);
+    ).toEqual(['strings-and-pipes', 'timbre', 'envelope']);
+    expect(tabs.querySelectorAll('[data-segment]')).toHaveLength(12);
   });
 
   it('lists every step on the rail under its topic', async () => {
     await openUnit();
     const rail = document.querySelector<HTMLElement>('[data-lesson-rail]')!;
-    expect(rail.querySelectorAll('[data-step-status]')).toHaveLength(16);
+    expect(rail.querySelectorAll('[data-step-status]')).toHaveLength(12);
     expect(
-      within(rail).getByRole('heading', { name: 'Compression & Rarefaction' }),
+      within(rail).getByRole('heading', { name: 'Timbre & Harmonics' }),
     ).toBeTruthy();
   });
 
   it('starts a new student at the beginning', async () => {
     await openUnit();
-    expect(topicOpen()).toBe('waves');
-    expect(where()).toBe('Waves & Mediums: Hear');
+    expect(topicOpen()).toBe('strings-and-pipes');
+    expect(where()).toBe('Strings & Pipes: Hear');
   });
 
   it('opens where the student left off', async () => {
     useTutorialProgressStore.setState({
       completedAt: Object.fromEntries(
         ['hear', 'predict', 'reveal', 'try']
-          .map((step) => [id('waves', step), 1])
-          .concat([[id('compression', 'hear'), 1]]),
+          .map((step) => [id('strings-and-pipes', step), 1])
+          .concat([[id('timbre', 'hear'), 1]]),
       ),
     });
     await openUnit();
-    expect(topicOpen()).toBe('compression');
-    expect(where()).toBe('Compression & Rarefaction: Predict');
+    expect(topicOpen()).toBe('timbre');
+    expect(where()).toBe('Timbre & Harmonics: Predict');
   });
 
   it('opens any step from its address, and from the rail', async () => {
-    await openUnit('?topic=amplitude&step=reveal');
-    expect(where()).toBe('Amplitude & Volume: Reveal');
+    await openUnit('?topic=envelope&step=reveal');
+    expect(where()).toBe('Envelope & ADSR: Reveal');
     const rail = document.querySelector<HTMLElement>('[data-lesson-rail]')!;
     fireEvent.click(
       rail.querySelectorAll<HTMLElement>('[data-step-status]')[4],
     );
-    await waitFor(() => expect(topicOpen()).toBe('compression'));
-    expect(where()).toBe('Compression & Rarefaction: Hear');
+    await waitFor(() => expect(topicOpen()).toBe('timbre'));
+    expect(where()).toBe('Timbre & Harmonics: Hear');
   });
 
   it('marks a finished step on the rail and on its tab', async () => {
@@ -110,9 +114,9 @@ describe('the Physics of Sound unit', () => {
     fireEvent.click(
       screen.getByRole('button', { name: 'Next: make a prediction' }),
     );
-    expect(where()).toBe('Waves & Mediums: Predict');
+    expect(where()).toBe('Strings & Pipes: Predict');
     expect(useTutorialProgressStore.getState().completedAt).toHaveProperty([
-      id('waves', 'hear'),
+      id('strings-and-pipes', 'hear'),
     ]);
     expect(
       document.querySelectorAll('[data-step-status="passed"]'),
@@ -121,24 +125,28 @@ describe('the Physics of Sound unit', () => {
   });
 
   it('leads on to the next topic when one is finished', async () => {
-    await openUnit('?topic=waves&step=try');
-    for (const round of MYSTERY_ROUNDS) {
-      fireEvent.click(screen.getByRole('button', { name: medium(round).name }));
+    await openUnit('?topic=timbre&step=try');
+    for (const recipe of MYSTERY_RECIPES) {
+      const answers = screen.getByRole('group', { name: 'It’s…' });
+      fireEvent.click(
+        [...answers.querySelectorAll('button')].find(
+          (b) => b.textContent === recipeNamed(recipe).name,
+        )!,
+      );
     }
     fireEvent.click(
-      screen.getByRole('button', { name: 'Next: Compression & Rarefaction' }),
+      screen.getByRole('button', { name: 'Next: Envelope & ADSR' }),
     );
-    await waitFor(() => expect(topicOpen()).toBe('compression'));
-    expect(where()).toBe('Compression & Rarefaction: Hear');
+    await waitFor(() => expect(topicOpen()).toBe('envelope'));
+    expect(where()).toBe('Envelope & ADSR: Hear');
   });
 
   it('ends the unit with the way back to Audio', async () => {
-    await openUnit('?topic=amplitude&step=try');
-    for (const db of LEVEL_ROUNDS) {
-      fireEvent.change(screen.getByRole('slider', { name: 'Your level' }), {
-        target: { value: String(db) },
-      });
-      fireEvent.click(screen.getByRole('button', { name: 'Check' }));
+    await openUnit('?topic=envelope&step=try');
+    for (const shape of MYSTERY_SHAPES) {
+      fireEvent.click(
+        screen.getByRole('button', { name: shapeNamed(shape).name }),
+      );
     }
     expect(document.querySelector('[data-lab-done]')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Back to Audio' })).toBeTruthy();

@@ -5,7 +5,7 @@ import { LabLesson } from '../lab/LabLesson';
 
 /** Opens a module's unit at a URL, through its real page, once its topic has
  *  loaded. */
-export async function openUnit(query = '', moduleId = 'sound-basics') {
+export async function openUnit(query = '', moduleId = 'sound-color') {
   const module = audioModule(moduleId)!;
   const view = render(
     <MemoryRouter initialEntries={[`/x${query}`]}>

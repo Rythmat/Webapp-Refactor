@@ -6,10 +6,6 @@ import type { LabTopicProps } from './lab/LabLesson';
 export const LAB_TOPIC_PAGES: Readonly<
   Record<string, LazyExoticComponent<ComponentType<LabTopicProps>>>
 > = {
-  waves: lazy(() => import('./labs/WavesLab')),
-  compression: lazy(() => import('./labs/CompressionLab')),
-  frequency: lazy(() => import('./labs/FrequencyLab')),
-  amplitude: lazy(() => import('./labs/AmplitudeLab')),
   'strings-and-pipes': lazy(() => import('./labs/StringsAndPipesLab')),
   timbre: lazy(() => import('./labs/TimbreLab')),
   envelope: lazy(() => import('./labs/EnvelopeLab')),

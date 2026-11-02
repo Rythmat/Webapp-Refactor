@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { STEMS, type StemId } from '../../mix/stems';
 import type { StageProps } from '../../player/LessonPlayer';
-import { ChannelStrip, Toggle } from '../stage/ChannelStrip';
+import { ChannelStrip, faderGainDb, Toggle } from '../stage/ChannelStrip';
 import { MixWave } from '../stage/MixWave';
 import type { DeskScene } from './script';
 
@@ -37,16 +37,16 @@ export function DecibelsStage({
   useEffect(() => {
     mix.apply(
       {
-        kick: { faderDb: scene.faders.kick },
+        kick: { faderDb: faderGainDb(scene.faders.kick) },
         snare: {
-          faderDb: scene.faders.snare,
+          faderDb: faderGainDb(scene.faders.snare),
           // A second copy in step is exactly twice the height.
           inputDb: scene.doubled ? 20 * Math.log10(2) : 0,
         },
-        hats: { faderDb: scene.faders.hats },
-        bass: { faderDb: scene.faders.bass },
+        hats: { faderDb: faderGainDb(scene.faders.hats) },
+        bass: { faderDb: faderGainDb(scene.faders.bass) },
       },
-      { masterDb: scene.master },
+      { masterDb: faderGainDb(scene.master) },
     );
   }, [mix.apply, scene]);
 
@@ -54,8 +54,10 @@ export function DecibelsStage({
   const focus = FOCUS[screen.view] ?? 'master';
   const gains = useMemo(
     () => ({
-      ...scene.faders,
-      snare: scene.faders.snare + (scene.doubled ? 6.02 : 0),
+      kick: faderGainDb(scene.faders.kick),
+      hats: faderGainDb(scene.faders.hats),
+      bass: faderGainDb(scene.faders.bass),
+      snare: faderGainDb(scene.faders.snare) + (scene.doubled ? 6.02 : 0),
     }),
     [scene.doubled, scene.faders],
   );
@@ -67,7 +69,7 @@ export function DecibelsStage({
           mix={mix}
           focus={focus}
           gains={gains}
-          masterDb={scene.master}
+          masterDb={faderGainDb(scene.master)}
           accent={accent}
         />
       )}
@@ -93,7 +95,6 @@ export function DecibelsStage({
           <ChannelStrip
             label="Master"
             db={scene.master}
-            max={12}
             disabled={locked || !live.includes('master')}
             dim={!live.includes('master') && live.length > 0}
             point={{ bus: 'pre' }}

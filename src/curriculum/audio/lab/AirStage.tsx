@@ -37,7 +37,6 @@ export function AirStage({
   frozenPhase,
   marker,
   onMark,
-  peak,
   className,
 }: {
   hz: number;
@@ -54,14 +53,10 @@ export function AirStage({
   marker?: number | null;
   /** Pressing the picture marks that place, 0..1 across the air. */
   onMark?: (x: number) => void;
-  /** The real output's peak, written on the canvas for the page's own checks. */
-  peak?: () => number;
   className?: string;
 }) {
   const propsRef = useRef({ hz, squeeze, pressure, labels, marker, accent });
   propsRef.current = { hz, squeeze, pressure, labels, marker, accent };
-  const peakRef = useRef(peak);
-  peakRef.current = peak;
   const frozenRef = useRef(frozenPhase);
   frozenRef.current = frozenPhase;
   const phaseRef = useRef(0);
@@ -85,9 +80,6 @@ export function AirStage({
       phaseRef.current += dt * SLOWED_A4 * (now.hz / 440);
       const phase = frozenRef.current ?? phaseRef.current + scrubRef.current;
       const canvas = canvasRef.current;
-      if (canvas && peakRef.current) {
-        canvas.dataset.labPeak = peakRef.current().toFixed(4);
-      }
       const left = speakerWidth(canvas);
       const air = width - left;
       const waves = wavesAcross(now.hz);

@@ -419,6 +419,14 @@ export function LessonPlayer<S>({
     return '';
   }, [abFlip, screen]);
 
+  // Once it's answered, the stage shows and plays the answer, whichever side they
+  // last listened to, so that what it says and what's there agree.
+  const showAnswer = useCallback(() => {
+    if (screen.kind !== 'ab' || screen.correct === 'same') return;
+    setScene(screen.correct === 'a' ? screen.a : screen.b);
+    setAbSide(correctChoice as 'a' | 'b');
+  }, [correctChoice, screen, setScene]);
+
   const onCheck = useCallback(() => {
     if (screen.kind === 'do') {
       // They should hear their own answer.
@@ -438,6 +446,7 @@ export function LessonPlayer<S>({
     }
     if (screen.kind === 'choose' || screen.kind === 'ab') {
       if (state.picked === correctChoice) {
+        showAnswer();
         dispatch({ type: 'verdict', screenId: screen.id, ok: true });
       } else if (state.picked) {
         dispatch({
@@ -448,7 +457,7 @@ export function LessonPlayer<S>({
         });
       }
     }
-  }, [correctChoice, mix, scene, screen, state.picked]);
+  }, [correctChoice, mix, scene, screen, showAnswer, state.picked]);
 
   const onIdentify = useCallback(
     (term: string) => {
@@ -470,6 +479,7 @@ export function LessonPlayer<S>({
 
   const onSeeAnswer = useCallback(() => {
     if (screen.kind === 'do') setScene(screen.answer);
+    showAnswer();
     dispatch({
       type: 'seeAnswer',
       screenId: screen.id,
@@ -478,7 +488,7 @@ export function LessonPlayer<S>({
           ? correctChoice
           : undefined,
     });
-  }, [correctChoice, screen, setScene]);
+  }, [correctChoice, screen, setScene, showAnswer]);
 
   const listen = useCallback(
     (side: 'a' | 'b') => {
@@ -515,7 +525,8 @@ export function LessonPlayer<S>({
       ) {
         primaryRef.current?.click();
       }
-      if (event.key === ' ' && tag !== 'BUTTON' && tag !== 'INPUT') {
+      // A fader has no use for Space, so it still plays with one in hand.
+      if (event.key === ' ' && tag !== 'BUTTON') {
         event.preventDefault();
         if (mix.playing) mix.stop();
         else mix.play();

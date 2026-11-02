@@ -94,38 +94,12 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
     accentKey: 'F#',
     lessons: [
       {
-        kind: 'lab',
+        kind: 'guided',
         id: 'physics-of-sound',
         title: 'Physics of Sound',
+        blurb: 'What really travels from the kit to the mic',
         ratio: [2, 3],
-        topics: [
-          {
-            id: 'waves',
-            title: 'Waves & Mediums',
-            tab: 'Waves',
-            sub: 'How sound travels',
-          },
-          {
-            id: 'compression',
-            title: 'Compression & Rarefaction',
-            tab: 'Compression',
-            sub: 'Pressure in the air',
-          },
-          {
-            id: 'frequency',
-            title: 'Frequency & Pitch',
-            tab: 'Frequency',
-            sub: 'What we hear as pitch',
-            replacedBy: 'hear-the-kit',
-          },
-          {
-            id: 'amplitude',
-            title: 'Amplitude & Volume',
-            tab: 'Amplitude',
-            sub: 'What we hear as volume',
-            replacedBy: 'decibels-and-faders',
-          },
-        ],
+        screens: 16,
       },
       {
         kind: 'guided',
@@ -472,12 +446,17 @@ export type CourseRow =
   | { kind: 'anatomy' | 'arcade'; lesson: AnatomyEntry | ArcadeEntry };
 
 /**
- * A course's path, in teaching order: its lab's topics in turn, each one that's
- * been replaced giving way to its guided lesson, and what's left of the lab as
- * one stop. Anatomy hangs off the lesson that uses it.
+ * A course's path, in teaching order: its lessons as listed, a lab's topics in
+ * turn, each one that's been replaced giving way to its guided lesson, and what's
+ * left of the lab as one stop. Anatomy hangs off the lesson that uses it.
  */
 export function courseRows(module: AudioModule): readonly CourseRow[] {
   const rows: CourseRow[] = [];
+  const replacing = new Set(
+    module.lessons.flatMap((l) =>
+      l.kind === 'lab' ? l.topics.flatMap((t) => t.replacedBy ?? []) : [],
+    ),
+  );
   const guided = (id: string): CourseRow | null => {
     const lesson = module.lessons.find(
       (l): l is GuidedLesson => l.kind === 'guided' && l.id === id,
@@ -500,6 +479,10 @@ export function courseRows(module: AudioModule): readonly CourseRow[] {
           placed = true;
         }
       }
+    } else if (lesson.kind === 'guided') {
+      // One that took a topic's place goes where that topic was.
+      const row = replacing.has(lesson.id) ? null : guided(lesson.id);
+      if (row) rows.push(row);
     } else if (lesson.kind === 'anatomy' || lesson.kind === 'arcade') {
       if (lesson.kind === 'arcade' || !lesson.sideOf) {
         rows.push({ kind: lesson.kind, lesson });

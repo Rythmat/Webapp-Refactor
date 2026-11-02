@@ -87,14 +87,15 @@ describe('the Audio hub', () => {
   it('counts every lesson in the course on its tile', () => {
     useTutorialProgressStore.setState({
       completedAt: {
+        // A step from when this lesson was a lab: it no longer counts.
         'audio:sound-basics:physics-of-sound:waves:hear': 1,
-        'audio:sound-basics:physics-of-sound:waves:predict': 1,
+        'audio:sound-basics:physics-of-sound:hook': 1,
         'audio:sound-basics:hear-the-kit:done': 1,
       },
     });
     open();
-    // A quarter of what's left of the lab, all of one lesson, none of another.
-    expect(screen.getByText('42%')).toBeTruthy();
+    // One screen in 16 of one lesson, all of another, none of the third.
+    expect(screen.getByText('35%')).toBeTruthy();
   });
 
   it('locks everything past Sound Basics for a free student', () => {

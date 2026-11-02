@@ -6,16 +6,21 @@ import type { MeterPoint } from '../../mix/mixEngine';
 import { dbToGain, gainToDb, nextMeter } from '../../mix/mixMath';
 import type { Mix } from '../../mix/useMixEngine';
 
-const METER_FLOOR = -60;
-const METER_TOP = 3;
+/** Every fader and meter runs the same way, so that their marks line up. */
+const SCALE_TOP = 6;
+const SCALE_FLOOR = -48;
 /** The analyser's window, and a fader's ramp settling. */
 const SETTLE_SECONDS = 0.12;
 
 /** The markings beside a meter. */
-const TICKS = [0, -6, -12, -24, -48];
+const TICKS = [6, 0, -6, -12, -24, -48];
 
-const position = (db: number) =>
-  Math.max(0, Math.min(1, (db - METER_FLOOR) / (METER_TOP - METER_FLOOR)));
+/** How far up the scale a level sits, 0 to 1. */
+export const scalePosition = (db: number) =>
+  Math.max(0, Math.min(1, (db - SCALE_FLOOR) / (SCALE_TOP - SCALE_FLOOR)));
+
+/** A fader all the way down is off, as on a real desk, not merely quiet. */
+export const faderGainDb = (db: number) => (db <= SCALE_FLOOR ? -Infinity : db);
 
 export const formatDb = (db: number) => {
   if (!Number.isFinite(db)) return '−∞';
@@ -23,9 +28,6 @@ export const formatDb = (db: number) => {
   if (rounded === 0) return '0';
   return `${rounded > 0 ? '+' : '−'}${Math.abs(rounded).toFixed(1)}`;
 };
-
-/** The marks beside a fader, on the same scale as its travel. */
-const FADER_MARKS = [6, 0, -6, -12, -24, -48];
 
 /**
  * A peak meter from the real signal at one point on the desk: green, then amber
@@ -59,7 +61,10 @@ export function useHeldPeak({
   const settling = useRef(0);
   const lastTrack = useRef(trackDb);
   if (lastTrack.current !== trackDb) {
-    held.current *= dbToGain(trackDb - lastTrack.current);
+    // Back up from off, there's nothing held to scale.
+    held.current = Number.isFinite(lastTrack.current)
+      ? held.current * dbToGain(trackDb - lastTrack.current)
+      : 0;
     over.current = false;
     settling.current = SETTLE_SECONDS;
     lastTrack.current = trackDb;
@@ -110,20 +115,24 @@ export function PeakMeter(props: {
       const seconds = Math.max(0, time - last.current);
       last.current = time;
       const { playing, levelDb: db, heldDb, held, over } = read(seconds);
-      const light = 8;
-      const top = light + 3;
-      const tall = h - top;
-      const yAt = (db: number) => top + (1 - position(db)) * tall;
+      // The same stops as the fader's cap, half a cap in from each end, with
+      // the clip light in the space at the top.
+      const inset =
+        parseFloat(getComputedStyle(document.documentElement).fontSize) / 2;
+      const light = inset - 2;
+      const top = inset;
+      const tall = h - inset * 2;
+      const yAt = (db: number) => top + (1 - scalePosition(db)) * tall;
       const barWidth = width;
 
       ctx.fillStyle = 'rgb(255 255 255 / 0.07)';
       ctx.fillRect(0, top, barWidth, tall);
-      if (db > METER_FLOOR) {
+      if (db > SCALE_FLOOR) {
         const zones: readonly [number, number, string][] = [
-          [METER_FLOOR, -12, '#34d399'],
+          [SCALE_FLOOR, -12, '#34d399'],
           [-12, -3, '#6ee7b7'],
           [-3, 0, '#f59e0b'],
-          [0, METER_TOP, '#ef4444'],
+          [0, SCALE_TOP, '#ef4444'],
         ];
         for (const [low, high, color] of zones) {
           if (db <= low) continue;
@@ -132,13 +141,14 @@ export function PeakMeter(props: {
           ctx.fillRect(0, from, barWidth, yAt(low) - from);
         }
       }
-      if (heldDb > METER_FLOOR) {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, Math.round(yAt(heldDb)), barWidth, 1);
-      }
       ctx.fillStyle = '#101012';
       for (const tick of TICKS)
         ctx.fillRect(0, Math.round(yAt(tick)), barWidth, 1);
+      // Over the marks, or a peak that lands exactly on one disappears.
+      if (heldDb > SCALE_FLOOR) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, Math.round(yAt(heldDb)), barWidth, 1);
+      }
 
       ctx.fillStyle = over ? '#ef4444' : 'rgb(255 255 255 / 0.12)';
       ctx.fillRect(0, 0, barWidth, light);
@@ -149,10 +159,9 @@ export function PeakMeter(props: {
           ? heldDb.toFixed(2)
           : '-inf';
         canvas.dataset.over = String(over);
-        const label =
-          canvas.parentElement?.querySelector<HTMLElement>(
-            '[data-meter-value]',
-          );
+        const label = canvas
+          .closest('[data-channel]')
+          ?.querySelector<HTMLElement>('[data-meter-value]');
         if (label) {
           label.textContent = playing && held > 1e-4 ? formatDb(heldDb) : '—';
         }
@@ -162,15 +171,8 @@ export function PeakMeter(props: {
   );
 
   return (
-    <div className="flex h-full w-9 flex-col items-center gap-1">
-      <canvas ref={canvasRef} className="w-2.5 flex-1 rounded-sm" aria-hidden />
-      <span
-        data-meter-value
-        aria-hidden
-        className="text-xs font-bold tabular-nums text-white/80"
-      >
-        —
-      </span>
+    <div className="flex h-full w-6 justify-center">
+      <canvas ref={canvasRef} className="h-full w-2.5 rounded-sm" aria-hidden />
     </div>
   );
 }
@@ -179,8 +181,6 @@ export function PeakMeter(props: {
 export function ChannelStrip({
   label,
   db,
-  min = -48,
-  max = 6,
   disabled,
   dim,
   point,
@@ -191,8 +191,6 @@ export function ChannelStrip({
 }: {
   label: string;
   db: number;
-  min?: number;
-  max?: number;
   disabled?: boolean;
   dim?: boolean;
   point: MeterPoint;
@@ -201,6 +199,7 @@ export function ChannelStrip({
   accent: string;
   onChange: (db: number) => void;
 }) {
+  const off = faderGainDb(db) === -Infinity;
   return (
     <div
       className={cn(
@@ -217,41 +216,54 @@ export function ChannelStrip({
         {label}
       </span>
       <div className="flex h-[clamp(9rem,26vh,14rem)] items-stretch">
-        <div aria-hidden className="relative hidden w-5 sm:block">
-          {FADER_MARKS.filter((mark) => mark >= min && mark <= max).map(
-            (mark) => (
-              <span
-                key={mark}
-                className="absolute right-0 -translate-y-1/2 text-[0.6875rem] tabular-nums text-white/45"
-                style={{
-                  // The cap's centre stops half a cap short of each end.
-                  top: `calc(0.5rem + (100% - 1rem) * ${(max - mark) / (max - min)})`,
-                }}
-              >
-                {mark > 0 ? `+${mark}` : mark < 0 ? `−${-mark}` : '0'}
-              </span>
-            ),
-          )}
+        <div aria-hidden className="relative hidden w-6 sm:block">
+          {TICKS.map((mark) => (
+            <span
+              key={mark}
+              className="absolute right-0 -translate-y-1/2 text-[0.6875rem] tabular-nums text-white/45"
+              style={{
+                // The cap's centre stops half a cap short of each end.
+                top: `calc(0.5rem + (100% - 1rem) * ${1 - scalePosition(mark)})`,
+              }}
+            >
+              {mark === SCALE_FLOOR
+                ? '−∞'
+                : mark > 0
+                  ? `+${mark}`
+                  : mark < 0
+                    ? `−${-mark}`
+                    : '0'}
+            </span>
+          ))}
         </div>
         <input
           type="range"
           className="lesson-fader"
           aria-label={`${label} fader`}
-          aria-valuetext={`${formatDb(db)} decibels`}
-          min={min}
-          max={max}
+          aria-valuetext={off ? 'Off' : `${formatDb(db)} decibels`}
+          min={SCALE_FLOOR}
+          max={SCALE_TOP}
           step={0.5}
           value={db}
           disabled={disabled}
           onChange={(event) => onChange(Number(event.target.value))}
         />
-        <PeakMeter mix={mix} point={point} trackDb={db} resetKey={resetKey} />
+        <PeakMeter
+          mix={mix}
+          point={point}
+          trackDb={faderGainDb(db)}
+          resetKey={resetKey}
+        />
       </div>
       <span className="text-[0.875rem] font-bold tabular-nums text-white">
-        {formatDb(db)}
+        {off ? '−∞' : formatDb(db)}
         <span className="ml-0.5 text-[0.6875rem] font-normal text-white/55">
           dB
         </span>
+      </span>
+      <span className="-mt-1.5 text-xs tabular-nums text-white/60" aria-hidden>
+        <span className="max-sm:hidden">Peak </span>
+        <span data-meter-value>—</span>
       </span>
     </div>
   );

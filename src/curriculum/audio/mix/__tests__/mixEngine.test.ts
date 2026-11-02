@@ -39,6 +39,12 @@ function rig() {
       started.push(node);
       return node;
     },
+    createDelay: () => {
+      const node = gainNode();
+      node.kind = 'delay';
+      node.delayTime = param();
+      return node;
+    },
     createChannelSplitter: () => {
       const node = gainNode();
       node.kind = 'splitter';
@@ -114,6 +120,88 @@ describe('the safety ceiling', () => {
 });
 
 describe('the desk', () => {
+  describe('a channel’s copy', () => {
+    /** The dry and copy paths, from where they split. */
+    const paths = (r: ReturnType<typeof rig>) => {
+      let node: unknown = r.started[0];
+      for (let i = 0; i < 40 && node; i++) {
+        const out = r.from(node);
+        const delays = out.filter((n) => n.kind === 'delay');
+        if (delays.length === 2) {
+          const [dry, copy] = delays as unknown as {
+            delayTime: { value: number };
+          }[];
+          const [tone] = r.from(copy) as unknown as {
+            kind: string;
+            frequency: { value: number };
+          }[];
+          const [gain] = r.from(tone) as unknown as {
+            gain: { value: number };
+          }[];
+          return { dry, copy, tone, gain };
+        }
+        node = out.find((n) => n.kind !== 'splitter');
+      }
+      throw new Error('No split found');
+    };
+
+    it('is silent, and adds no delay, until it’s asked for', () => {
+      const r = rig();
+      const engine = make(r, ['kick']);
+      engine.setChannels({ kick: {} });
+      engine.start();
+      const { dry, copy, gain } = paths(r);
+      expect(gain.gain.value).toBe(0);
+      expect(dry.delayTime.value).toBe(0);
+      expect(copy.delayTime.value).toBe(0);
+    });
+
+    it('comes in late, at its own level, and upside down if asked', () => {
+      const r = rig();
+      const engine = make(r, ['kick']);
+      engine.setChannels({
+        kick: {
+          copy: {
+            delayMs: 10,
+            gainDb: 20 * Math.log10(0.5),
+            invert: true,
+            lowpassHz: 2000,
+          },
+          dryDelayMs: 4,
+        },
+      });
+      engine.start();
+      const { dry, copy, tone, gain } = paths(r);
+      expect(copy.delayTime.value).toBeCloseTo(0.01, 9);
+      expect(dry.delayTime.value).toBeCloseTo(0.004, 9);
+      expect(gain.gain.value).toBeCloseTo(-0.5, 9);
+      expect(tone.kind).toBe('biquad');
+      expect(tone.frequency.value).toBe(2000);
+    });
+  });
+
+  it('sets levels outright before there’s sound, and glides once there is', () => {
+    const r = rig();
+    const engine = make(r, ['kick']);
+    engine.setChannels({ kick: { faderDb: 20 * Math.log10(0.25) } });
+    engine.start();
+    // Follow the path to the fader: it's already at its level.
+    let node: unknown = r.started[0];
+    let fader: { gain: AudioParam } | null = null;
+    for (let i = 0; i < 40 && node && !fader; i++) {
+      const next = r.from(node).find((n) => n.kind !== 'splitter');
+      const gain = (next as { gain?: AudioParam } | undefined)?.gain;
+      if (gain && Math.abs(gain.value - 0.25) < 1e-9) {
+        fader = next as unknown as { gain: AudioParam };
+      }
+      node = next;
+    }
+    expect(fader).not.toBeNull();
+    const glide = vi.spyOn(fader!.gain, 'setTargetAtTime');
+    engine.setChannels({ kick: { faderDb: 0 } });
+    expect(glide).toHaveBeenCalled();
+  });
+
   it('starts every stem on the same instant', () => {
     const r = rig();
     const engine = make(r);
@@ -138,13 +226,15 @@ describe('the desk', () => {
   it('adds filters and takes them away, leaving the path whole', () => {
     const r = rig();
     const engine = make(r);
+    const biquads = () => r.nodes.filter((n) => n.kind === 'biquad');
+    // Each channel's copy has its own, from the start.
+    const tones = biquads().length;
     engine.setChannels({
       kick: { filters: [{ type: 'highpass', hz: 300 }] },
     });
-    const biquads = () => r.nodes.filter((n) => n.kind === 'biquad');
-    expect(biquads()).toHaveLength(1);
+    expect(biquads()).toHaveLength(tones + 1);
     engine.setChannels({ kick: { filters: [{ type: 'highpass', hz: 500 }] } });
-    expect(biquads()).toHaveLength(1);
+    expect(biquads()).toHaveLength(tones + 1);
     engine.start();
     expect(pathKinds(r, r.started[0])).toContain('biquad');
     engine.setChannels({ kick: { filters: [] } });

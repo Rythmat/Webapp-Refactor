@@ -32,14 +32,7 @@ afterEach(() => {
   useTutorialProgressStore.setState({ completedAt: {} });
 });
 
-const FINISHED_LAB = Object.fromEntries(
-  ['waves', 'compression'].flatMap((topic) =>
-    ['hear', 'predict', 'reveal', 'try'].map((step) => [
-      `audio:sound-basics:physics-of-sound:${topic}:${step}`,
-      1,
-    ]),
-  ),
-);
+const PHYSICS_DONE = { 'audio:sound-basics:physics-of-sound:done': 1 };
 
 describe('a course’s page', () => {
   it('marks the first lesson next for someone new', () => {
@@ -52,20 +45,25 @@ describe('a course’s page', () => {
     expect(screen.getByRole('button', { name: 'Start' })).toBeTruthy();
   });
 
-  it('counts the lab done once what’s left of it is', () => {
-    useTutorialProgressStore.setState({ completedAt: FINISHED_LAB });
-    open('/learn/audio/sound-basics');
-    expect(states()).toEqual([
-      'physics-of-sound:done',
-      'hear-the-kit:next',
-      'decibels-and-faders:todo',
-    ]);
+  it('counts a lab done once what’s left of it is', () => {
+    useTutorialProgressStore.setState({
+      completedAt: Object.fromEntries(
+        ['digital', 'amps', 'loudspeakers', 'cables'].flatMap((topic) =>
+          ['hear', 'predict', 'reveal', 'try'].map((step) => [
+            `audio:signal-path:mic-to-speaker:${topic}:${step}`,
+            1,
+          ]),
+        ),
+      ),
+    });
+    open('/learn/audio/signal-path');
+    expect(states()).toEqual(['gain-staging:next', 'mic-to-speaker:done']);
   });
 
   it('moves on past a finished lesson, and says Continue on a started one', () => {
     useTutorialProgressStore.setState({
       completedAt: {
-        ...FINISHED_LAB,
+        ...PHYSICS_DONE,
         'audio:sound-basics:hear-the-kit:done': 1,
         'audio:sound-basics:decibels-and-faders:hook': 1,
       },
@@ -77,6 +75,14 @@ describe('a course’s page', () => {
       'decibels-and-faders:next',
     ]);
     expect(screen.getByRole('button', { name: 'Continue' })).toBeTruthy();
+  });
+
+  it('doesn’t count steps from when a lesson was a lab', () => {
+    useTutorialProgressStore.setState({
+      completedAt: { 'audio:sound-basics:physics-of-sound:waves:hear': 1 },
+    });
+    open('/learn/audio/sound-basics');
+    expect(screen.getByRole('button', { name: 'Start' })).toBeTruthy();
   });
 
   it('keeps every lesson open, even one still to come', () => {

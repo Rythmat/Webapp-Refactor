@@ -44,11 +44,21 @@ describe('the Audio catalog', () => {
     expect(Object.keys(LAB_TOPIC_PAGES).sort()).toEqual([...topics].sort());
   });
 
-  it('puts each course’s lab first, for whatever opens it', () => {
+  it('puts a course’s lab first where it has one, for whatever opens it', () => {
     const course = audioShelves().find((shelf) => shelf.title === 'Course');
-    expect(course?.modules.map((m) => m.lessons[0].kind)).toEqual(
-      course?.modules.map(() => 'lab'),
-    );
+    for (const module of course?.modules ?? []) {
+      if (module.lessons.some((l) => l.kind === 'lab')) {
+        expect(module.lessons[0].kind, module.id).toBe('lab');
+      }
+    }
+  });
+
+  it('teaches Sound Basics entirely in guided lessons', () => {
+    expect(audioModule('sound-basics')?.lessons.map((l) => l.kind)).toEqual([
+      'guided',
+      'guided',
+      'guided',
+    ]);
   });
 
   it('hands a replaced topic to a guided lesson in its own course', () => {
@@ -79,10 +89,12 @@ describe('the Audio catalog', () => {
   });
 
   it('leaves replaced topics out of what’s left of the lab', () => {
-    const lab = courseRows(audioModule('sound-basics')!)[0];
+    const lab = courseRows(audioModule('signal-path')!)[1];
     expect(lab.kind === 'lab' && lab.topics.map((t) => t.id)).toEqual([
-      'waves',
-      'compression',
+      'digital',
+      'amps',
+      'loudspeakers',
+      'cables',
     ]);
   });
 

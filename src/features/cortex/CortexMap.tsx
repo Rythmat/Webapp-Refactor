@@ -8,7 +8,6 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from 'react';
-import { cortexColor } from '@/content/graph/cortexPalette';
 import { neighboursOf, type CortexWeb, type WebNode } from './buildWeb';
 import { nodeRadius, placeLabels } from './labels';
 import {
@@ -18,6 +17,7 @@ import {
   type Positions,
   type View,
 } from './layout';
+import { NODE_COLOR } from './nodeMeta';
 import type { CortexView } from './useCortexView';
 
 /**
@@ -25,33 +25,6 @@ import type { CortexView } from './useCortexView';
  * the names are worked out in screen space, always at 12px, once the view
  * comes to rest. One finger scrolls the page on a phone; two pan and pinch.
  */
-
-const LESSON_COLOR = cortexColor('Events');
-const STUDIO_COLOR = cortexColor('Openings');
-
-export const NODE_COLOR: Readonly<Record<WebNode['kind'], string>> = {
-  song: cortexColor('Songs'),
-  theory: LESSON_COLOR,
-  lesson: LESSON_COLOR,
-  audio: LESSON_COLOR,
-  anatomy: LESSON_COLOR,
-  technique: LESSON_COLOR,
-  literacy: LESSON_COLOR,
-  game: cortexColor('Studios & Labels'),
-  project: STUDIO_COLOR,
-  tutorial: STUDIO_COLOR,
-  artist: cortexColor('Artists'),
-  place: cortexColor('Location'),
-  event: cortexColor('Artists'),
-  person: cortexColor('Artists'),
-  release: cortexColor('Records'),
-  studio: cortexColor('Studios & Labels'),
-  mode: cortexColor('Key'),
-  key: cortexColor('Key'),
-  genre: cortexColor('Genre'),
-  instrument: cortexColor('Instruments'),
-  group: '#c8c8d0',
-};
 
 const ZOOM_STEP = 1.3;
 /** A press that moves further than this is a drag, not a click. */

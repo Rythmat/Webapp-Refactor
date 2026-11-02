@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
+import { cortexIdForLesson } from '@/features/cortex/ids';
+import { markCurrentDone, recordDone } from '@/features/cortex/ledger';
 import { reportChallengeEvent } from '@/lib/challenges/eventBus';
 import { experienceApi } from '@/lib/experience/api';
 
@@ -28,6 +30,12 @@ export const useAwardLessonCompletionExperience = () => {
       if (!token) throw new Error('Not authenticated');
       return experienceApi.awardLessonCompletion(token, lessonId);
     },
+    // They finished it whether or not the XP request gets through.
+    onMutate: (lessonId) => {
+      const cortexId = cortexIdForLesson(lessonId);
+      if (cortexId) recordDone(cortexId);
+      else markCurrentDone();
+    },
     onSuccess: (_data, lessonId) => {
       queryClient.invalidateQueries({ queryKey: ['experienceSummary'] });
       reportChallengeEvent({ kind: 'lesson_completed', lessonId });
@@ -44,6 +52,7 @@ export const useAwardArcadeExperience = () => {
       if (!token) throw new Error('Not authenticated');
       return experienceApi.awardArcade(token);
     },
+    onMutate: () => markCurrentDone(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['experienceSummary'] });
     },

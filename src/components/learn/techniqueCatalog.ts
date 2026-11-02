@@ -2,6 +2,7 @@ import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
 import type { LearnInstrument } from '@/features/learn/useInstrumentStore';
 
 // ── Learn → Technique tiles, per instrument ────────────────────────────────
+// Anatomy lives in Audio now; each instrument keeps one tile as a shortcut.
 
 export interface TechniqueItem {
   title: string;
@@ -10,6 +11,8 @@ export interface TechniqueItem {
   interactive: boolean;
   /** The interval its tile draws (a Lissajous figure, owner 2026-10-26). */
   ratio: readonly [number, number];
+  /** A way into a Premium lesson elsewhere: its tile shows locked to free users. */
+  premium?: true;
 }
 
 export const PIANO_TECHNIQUE_DATA: readonly TechniqueItem[] = [
@@ -20,22 +23,7 @@ export const PIANO_TECHNIQUE_DATA: readonly TechniqueItem[] = [
     interactive: true,
     // The perfect 4th: distinct from the two tiles beside it.
     ratio: [3, 4],
-  },
-  {
-    title: 'Keyboard Anatomy',
-    route: LearnRoutes.keyboardAnatomy(),
-    image: '/learn-tiles/beginner-hex.svg',
-    interactive: true,
-    // The major 3rd: distinct from the tiles beside it.
-    ratio: [4, 5],
-  },
-  {
-    title: 'Synth Anatomy',
-    route: LearnRoutes.synthAnatomy(),
-    image: '/learn-tiles/beginner-hex.svg',
-    interactive: true,
-    // The minor 3rd: distinct from the tiles beside it.
-    ratio: [5, 6],
+    premium: true,
   },
   {
     title: 'Piano Fundamentals',
@@ -82,6 +70,7 @@ export const GUITAR_TECHNIQUE_DATA: readonly TechniqueItem[] = [
     interactive: true,
     // The octave: the 12th fret halves the string.
     ratio: [1, 2],
+    premium: true,
   },
   {
     title: 'Guitar Harmonics',
@@ -101,6 +90,7 @@ export const BASS_TECHNIQUE_DATA: readonly TechniqueItem[] = [
     interactive: true,
     // The octave: the 12th fret halves the string.
     ratio: [1, 2],
+    premium: true,
   },
 ];
 
@@ -112,6 +102,7 @@ export const UKULELE_TECHNIQUE_DATA: readonly TechniqueItem[] = [
     interactive: true,
     // The octave: the 12th fret halves the string.
     ratio: [1, 2],
+    premium: true,
   },
 ];
 

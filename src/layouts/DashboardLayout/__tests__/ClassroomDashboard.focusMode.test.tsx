@@ -20,6 +20,9 @@ vi.mock('@/features/learnTour/LearnTourLayer', () => ({
 }));
 vi.mock('@/hooks/data/useAwards', () => ({ useStampEarnedAwards: () => {} }));
 vi.mock('@/hooks/data/useStreak', () => ({ useStreakPing: () => {} }));
+vi.mock('@/features/cortex/useCortexCapture', () => ({
+  useCortexCapture: () => {},
+}));
 vi.mock('@/hooks/useChallengeWatcher', () => ({
   useChallengeWatcher: () => {},
 }));

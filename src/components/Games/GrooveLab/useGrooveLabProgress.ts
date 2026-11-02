@@ -9,6 +9,7 @@ import {
   LAST_GROOVE_LAB_LEVEL,
   type GrooveLabLevel,
 } from '@/curriculum/engine/grooveLab/levels';
+import { recordDone } from '@/features/cortex/ledger';
 import { useGameOptions } from '@/hooks/data/gameOptions/useGameOptions';
 import { useSaveGameOptions } from '@/hooks/data/gameOptions/useSaveGameOptions';
 
@@ -79,6 +80,7 @@ export function useGrooveLabProgress() {
   /** A level cleared: the next one opens; the last one masters the view. */
   const clearLevel = useCallback(
     (view: GrooveLabView, level: GrooveLabLevel) => {
+      recordDone(`game:${GROOVE_LAB_GAME_ID}`);
       const was = progressRef.current;
       const next: GrooveLabProgress = {
         version: 1,

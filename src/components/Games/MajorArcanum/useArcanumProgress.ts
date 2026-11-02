@@ -16,6 +16,7 @@ import {
   type ArcanumProgress,
   type ArcanumTask,
 } from '@/curriculum/engine/majorArcanum/progress';
+import { recordDone } from '@/features/cortex/ledger';
 import { useGameOptions } from '@/hooks/data/gameOptions/useGameOptions';
 import { useSaveGameOptions } from '@/hooks/data/gameOptions/useSaveGameOptions';
 
@@ -49,6 +50,7 @@ export function useArcanumProgress(): {
 
   const clear = useCallback(
     (task: ArcanumTask) => {
+      recordDone(`game:${ARCANUM_GAME_ID}`);
       const next = withCleared(progressRef.current, task);
       progressRef.current = next;
       setLocal((was) => merged(was, next));

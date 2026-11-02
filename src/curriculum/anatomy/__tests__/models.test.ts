@@ -16,6 +16,10 @@ const KINDS: readonly ModelKind[] = [
   'uprightPiano',
   'keyboard',
   'synth',
+  'headphones',
+  'microphone',
+  'tubeAmp',
+  'solidStateAmp',
 ];
 
 /** The owner's reference chart, word for word. */

@@ -7,6 +7,7 @@ import { cn } from '@/components/utilities';
 import { termCopy } from './anatomyCopy';
 import { FAMILY_LABEL, type TermDef, type TermFamily } from './anatomyTypes';
 import type { CompiledModel } from './compileModel';
+import { MIC_RECORDING_COPY } from './recordingCopy';
 
 // ── The words ──────────────────────────────────────────────────────────────
 // Real buttons, grouped by family: the keyboard's and screen reader's way
@@ -15,6 +16,10 @@ import type { CompiledModel } from './compileModel';
 
 const CARD = 'rounded-[1.25rem] border border-white/10 bg-white/[0.04] p-5';
 const FAMILIES: readonly TermFamily[] = [
+  'head',
+  'fit',
+  'earcups',
+  'sound',
   'neck',
   'body',
   'hardware',
@@ -26,6 +31,7 @@ const FAMILIES: readonly TermFamily[] = [
   'strings',
   'pedals',
   'electronics',
+  'signal',
 ];
 
 export function TermList({
@@ -41,7 +47,7 @@ export function TermList({
 }) {
   return (
     <div className="flex flex-col gap-4" data-term-list>
-      {FAMILIES.map((family) => {
+      {(model.familyOrder ?? FAMILIES).map((family) => {
         const terms = model.terms.filter((term) => term.family === family);
         if (!terms.length) return null;
         return (
@@ -116,6 +122,12 @@ export function TermDetail({
         <>
           <p className="mt-3 text-sm leading-5 text-white/85">{copy.what}</p>
           <p className="mt-2 text-sm leading-5 text-white/55">{copy.why}</p>
+          {model.kind === 'microphone' && MIC_RECORDING_COPY[term.id] && (
+            <p className="mt-3 text-sm leading-5 text-white/85">
+              <span className="font-bold text-white">In a recording: </span>
+              {MIC_RECORDING_COPY[term.id]}
+            </p>
+          )}
         </>
       )}
     </div>

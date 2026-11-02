@@ -228,7 +228,7 @@ function buildGuitar(): IndexEntry[] {
         id: 'technique-guitar-anatomy',
         category: 'theory',
         title: 'Guitar Anatomy',
-        subtitle: 'Technique on guitar',
+        subtitle: 'Audio · Anatomy',
         to: LearnRoutes.guitarAnatomy(),
         icon: CATEGORY_META.theory.icon,
         thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
@@ -257,6 +257,55 @@ function buildGuitar(): IndexEntry[] {
   ];
 }
 
+/* ── Gear, on every instrument ───────────────────────────────────────── */
+function buildGear(): IndexEntry[] {
+  const entry = (
+    title: string,
+    keywords: string[],
+    id: string,
+    to: string,
+  ): IndexEntry => ({
+    category: 'theory',
+    keywords: [title, ...keywords],
+    result: {
+      id,
+      category: 'theory',
+      title,
+      subtitle: 'Audio · Anatomy',
+      to,
+      icon: CATEGORY_META.theory.icon,
+      thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+    },
+  });
+  return [
+    entry(
+      'Combo Amp Anatomy',
+      [
+        'parts of an amp',
+        'amp parts',
+        'guitar amp',
+        'tube amp',
+        'solid state amp',
+        'amplifier',
+      ],
+      'technique-combo-amp-anatomy',
+      LearnRoutes.comboAmpAnatomy(),
+    ),
+    entry(
+      'Headphone Anatomy',
+      ['parts of headphones', 'headphone parts', 'headphones'],
+      'technique-headphone-anatomy',
+      LearnRoutes.headphoneAnatomy(),
+    ),
+    entry(
+      'Microphone Anatomy',
+      ['parts of a microphone', 'microphone parts', 'microphone', 'mic'],
+      'technique-microphone-anatomy',
+      LearnRoutes.microphoneAnatomy(),
+    ),
+  ];
+}
+
 /* ── Piano ─────────────────────────────────────────────────────────── */
 function buildPiano(): IndexEntry[] {
   return [
@@ -267,7 +316,7 @@ function buildPiano(): IndexEntry[] {
         id: 'technique-keyboard-anatomy',
         category: 'theory',
         title: 'Keyboard Anatomy',
-        subtitle: 'Technique on keyboard',
+        subtitle: 'Audio · Anatomy',
         to: LearnRoutes.keyboardAnatomy(),
         icon: CATEGORY_META.theory.icon,
         thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
@@ -288,7 +337,7 @@ function buildPiano(): IndexEntry[] {
         id: 'technique-synth-anatomy',
         category: 'theory',
         title: 'Synth Anatomy',
-        subtitle: 'Technique on keyboard',
+        subtitle: 'Audio · Anatomy',
         to: LearnRoutes.synthAnatomy(),
         icon: CATEGORY_META.theory.icon,
         thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
@@ -307,7 +356,7 @@ function buildPiano(): IndexEntry[] {
         id: 'technique-piano-anatomy',
         category: 'theory',
         title: 'Piano Anatomy',
-        subtitle: 'Technique on keyboard',
+        subtitle: 'Audio · Anatomy',
         to: LearnRoutes.pianoAnatomy(),
         icon: CATEGORY_META.theory.icon,
         thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
@@ -333,7 +382,7 @@ function buildBass(): IndexEntry[] {
         id: 'technique-bass-anatomy',
         category: 'theory',
         title: 'Bass Anatomy',
-        subtitle: 'Technique on bass',
+        subtitle: 'Audio · Anatomy',
         to: LearnRoutes.bassAnatomy(),
         icon: CATEGORY_META.theory.icon,
         thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
@@ -353,7 +402,7 @@ function buildUkulele(): IndexEntry[] {
         id: 'technique-ukulele-anatomy',
         category: 'theory',
         title: 'Ukulele Anatomy',
-        subtitle: 'Technique on ukulele',
+        subtitle: 'Audio · Anatomy',
         to: LearnRoutes.ukuleleAnatomy(),
         icon: CATEGORY_META.theory.icon,
         thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
@@ -592,6 +641,7 @@ export function getStaticIndex(): IndexEntry[] {
       ...buildCourses(),
       ...buildTheory(),
       ...buildPiano(),
+      ...buildGear(),
       ...buildGuitar(),
       ...buildBass(),
       ...buildUkulele(),

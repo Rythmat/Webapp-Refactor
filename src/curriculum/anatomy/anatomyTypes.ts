@@ -9,7 +9,11 @@ export type ModelKind =
   | 'grandPiano'
   | 'uprightPiano'
   | 'keyboard'
-  | 'synth';
+  | 'synth'
+  | 'headphones'
+  | 'microphone'
+  | 'tubeAmp'
+  | 'solidStateAmp';
 
 export type AnatomyInstrument =
   | 'guitar'
@@ -17,7 +21,10 @@ export type AnatomyInstrument =
   | 'ukulele'
   | 'piano'
   | 'keyboard'
-  | 'synth';
+  | 'synth'
+  | 'headphones'
+  | 'microphone'
+  | 'comboAmp';
 export type TermFamily =
   | 'neck'
   | 'body'
@@ -29,7 +36,12 @@ export type TermFamily =
   | 'strings'
   | 'pedals'
   | 'engine'
-  | 'controls';
+  | 'controls'
+  | 'head'
+  | 'fit'
+  | 'earcups'
+  | 'sound'
+  | 'signal';
 
 export const FAMILY_LABEL: Readonly<Record<TermFamily, string>> = {
   neck: 'Neck',
@@ -43,6 +55,11 @@ export const FAMILY_LABEL: Readonly<Record<TermFamily, string>> = {
   pedals: 'Pedals',
   engine: 'Sound Path',
   controls: 'Controls',
+  head: 'Head',
+  fit: 'Headband & Fit',
+  earcups: 'Ear Cups',
+  sound: 'Sound',
+  signal: 'Signal',
 };
 
 /** One piece of the guitar that moves: drawn, in paint order, as a unit. */
@@ -108,6 +125,8 @@ export interface InstrumentModel {
   /** How far the camera may move in; small parts on a big instrument need
    *  more than the default. */
   maxZoom?: number;
+  /** The order its families list in, where the usual one doesn't suit it. */
+  familyOrder?: readonly TermFamily[];
   /** Nobody builds it mirrored, so left-handed doesn't apply. */
   fixedHand?: boolean;
   /** The key whose colour lights its parts. */

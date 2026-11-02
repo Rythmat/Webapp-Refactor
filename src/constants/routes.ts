@@ -882,31 +882,67 @@ export const LearnRoutes = {
   /** The Learn page on keyboard (owner, 2026-10-24). */
   keyboard: createRouteDefinition('/keyboard', { prefix: learnPrefix }),
 
+  /** Learn → Audio: not tied to an instrument, so no instrument segment. */
+  audio: createRouteDefinition('/audio', { prefix: learnPrefix }),
+
+  /** A course's page: its lessons in order. Static anatomy paths outrank it. */
+  audioCourse: createRouteDefinition<{ module: string }>('/audio/:module', {
+    prefix: learnPrefix,
+  }),
+
   /**
-   * Technique → Piano Anatomy; `?tab=build`, `?kind=upright` and `?part=<term>`
-   * open any of it. Static, so it outranks the lessons' '/keyboard/:mode/:key'.
+   * A lab in the Audio section, opening where the student left off;
+   * `?topic=<id>&step=predict|reveal|try` opens any of it.
+   */
+  audioLesson: createRouteDefinition<
+    { module: string; lesson: string },
+    { topic?: string; step?: 'predict' | 'reveal' | 'try' }
+  >('/audio/:module/:lesson', { prefix: learnPrefix }),
+
+  /**
+   * Audio → Piano Anatomy; `?tab=build`, `?kind=upright` and `?part=<term>`
+   * open any of it. Static, so it outranks '/audio/:module/:lesson'. Every
+   * lesson under /audio/anatomy moved from Technique (anatomyMoves.ts).
    */
   pianoAnatomy: createRouteDefinition<
     void,
     { tab?: 'build'; kind?: 'upright'; part?: string }
-  >('/keyboard/technique/anatomy', { prefix: learnPrefix }),
+  >('/audio/anatomy/piano', { prefix: learnPrefix }),
 
   /** A trial song lesson, registered in DEV only. Static, like Piano Anatomy. */
   linusAndLucy: createRouteDefinition('/keyboard/technique/linus-and-lucy', {
     prefix: learnPrefix,
   }),
 
-  /** Technique → Keyboard Anatomy; `?tab=build`, `?part=<term>`. Static. */
+  /** Audio → Keyboard Anatomy; `?tab=build`, `?part=<term>`. Static. */
   keyboardAnatomy: createRouteDefinition<
     void,
     { tab?: 'build'; part?: string }
-  >('/keyboard/technique/keyboard-anatomy', { prefix: learnPrefix }),
+  >('/audio/anatomy/keyboard', { prefix: learnPrefix }),
 
-  /** Technique → Synth Anatomy; `?tab=build`, `?part=<term>`. Static. */
+  /** Audio → Synth Anatomy; `?tab=build`, `?part=<term>`. Static. */
   synthAnatomy: createRouteDefinition<void, { tab?: 'build'; part?: string }>(
-    '/keyboard/technique/synth-anatomy',
+    '/audio/anatomy/synth',
     { prefix: learnPrefix },
   ),
+
+  /** Audio → Headphone Anatomy. */
+  headphoneAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; part?: string }
+  >('/audio/anatomy/headphones', { prefix: learnPrefix }),
+
+  /** Audio → Microphone Anatomy. */
+  microphoneAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; part?: string }
+  >('/audio/anatomy/microphone', { prefix: learnPrefix }),
+
+  /** Audio → Combo Amp Anatomy. */
+  comboAmpAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; kind?: 'solid-state'; part?: string }
+  >('/audio/anatomy/combo-amp', { prefix: learnPrefix }),
 
   /** A Theory tile's keyboard overview: the keys. */
   keyboardOverview: createRouteDefinition<{
@@ -944,14 +980,13 @@ export const LearnRoutes = {
   guitar: createRouteDefinition('/guitar', { prefix: learnPrefix }),
 
   /**
-   * Technique → Guitar Anatomy; `?tab=build`, `?kind=acoustic` and
-   * `?part=<term>` open any of it. Static, so it outranks the lessons'
-   * '/guitar/:mode/:key'.
+   * Audio → Guitar Anatomy; `?tab=build`, `?kind=acoustic` and
+   * `?part=<term>` open any of it.
    */
   guitarAnatomy: createRouteDefinition<
     void,
     { tab?: 'build'; kind?: 'acoustic'; part?: string }
-  >('/guitar/technique/anatomy', { prefix: learnPrefix }),
+  >('/audio/anatomy/guitar', { prefix: learnPrefix }),
 
   /**
    * Technique → Guitar Harmonics; `?tab=ratios|geometry|play` opens that
@@ -989,14 +1024,13 @@ export const LearnRoutes = {
   bass: createRouteDefinition('/bass', { prefix: learnPrefix }),
 
   /**
-   * Technique → Bass Anatomy; `?tab=build`, `?kind=acoustic` and
-   * `?part=<term>` open any of it. Static, so it outranks the lessons'
-   * '/bass/:mode/:key'.
+   * Audio → Bass Anatomy; `?tab=build`, `?kind=acoustic` and
+   * `?part=<term>` open any of it.
    */
   bassAnatomy: createRouteDefinition<
     void,
     { tab?: 'build'; kind?: 'acoustic'; part?: string }
-  >('/bass/technique/anatomy', { prefix: learnPrefix }),
+  >('/audio/anatomy/bass', { prefix: learnPrefix }),
 
   /** A Theory tile's bass overview: the keys. */
   bassOverview: createRouteDefinition<{
@@ -1013,11 +1047,10 @@ export const LearnRoutes = {
   ukulele: createRouteDefinition('/ukulele', { prefix: learnPrefix }),
 
   /**
-   * Technique → Ukulele Anatomy; `?tab=build` and `?part=<term>` open any of
-   * it. Static, so it outranks the lessons' '/ukulele/:mode/:key'.
+   * Audio → Ukulele Anatomy; `?tab=build` and `?part=<term>` open any of it.
    */
   ukuleleAnatomy: createRouteDefinition<void, { tab?: 'build'; part?: string }>(
-    '/ukulele/technique/anatomy',
+    '/audio/anatomy/ukulele',
     { prefix: learnPrefix },
   ),
 

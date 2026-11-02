@@ -192,6 +192,8 @@ interface ContentItem {
   /** When true (and `image` is a polygon honeycomb), the tile art is an
    *  interactive hex canvas that paints on hover and drifts on its own. */
   interactive?: boolean;
+  /** A Technique tile that opens a Premium lesson (Anatomy, in Audio). */
+  premium?: true;
   /** Set when the tile has no lessons on the chosen instrument yet: it is
    *  shown dimmed and disabled, labelled with this text. */
   comingSoon?: string;
@@ -870,7 +872,7 @@ const LearnSection: React.FC<LearnSectionProps> = ({
  */
 function isLearnItemFree(item: ContentItem, tab: string): boolean {
   return (
-    tab === 'Technique' || // Piano Fundamentals, Applied Theory Fundamentals
+    (tab === 'Technique' && !item.premium) || // Piano Fundamentals, Applied Theory Fundamentals
     (tab === 'Theory' && item.mode === 'ionian') // C Ionian available
   );
 }

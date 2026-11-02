@@ -133,14 +133,14 @@ describe('learnPageSuggestions', () => {
       {
         text: 'Teach me Ukulele Anatomy',
         target: 'learn',
-        route: '/learn/ukulele/technique/anatomy',
+        route: '/learn/audio/anatomy/ukulele',
       },
     ]);
     expect(learnPageSuggestions('bass', 'Technique')).toEqual([
       {
         text: 'Teach me Bass Anatomy',
         target: 'learn',
-        route: '/learn/bass/technique/anatomy',
+        route: '/learn/audio/anatomy/bass',
       },
     ]);
     expect(routes(learnPageSuggestions('piano', 'Technique'))).toEqual(
@@ -150,7 +150,7 @@ describe('learnPageSuggestions', () => {
       {
         text: 'Teach me Guitar Anatomy',
         target: 'learn',
-        route: '/learn/guitar/technique/anatomy',
+        route: '/learn/audio/anatomy/guitar',
       },
       {
         text: 'Teach me Guitar Harmonics',

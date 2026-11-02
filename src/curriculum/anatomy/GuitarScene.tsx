@@ -150,6 +150,13 @@ function PartDrawing({
     >
       {part.layers.map((layer, i) => (
         <g key={i}>
+          {layer.outline && (
+            <path
+              className="anatomy-line"
+              d={layer.outline}
+              strokeWidth={lineWidth * 2}
+            />
+          )}
           {layer.fill && <path className="anatomy-face" d={layer.fill} />}
           {layer.hatch && (
             <path
@@ -371,7 +378,9 @@ export function GuitarScene({
       ghost
         ? parts
             .filter((part) => part.id !== 'frets' && part.id !== 'markers')
-            .flatMap((part) => part.layers.map((layer) => layer.ink))
+            .flatMap((part) =>
+              part.layers.map((layer) => layer.outline + layer.ink),
+            )
             .join('')
         : '',
     [ghost, parts],

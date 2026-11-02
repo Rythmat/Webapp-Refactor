@@ -10,6 +10,7 @@ import {
 import { GENRE_COURSES } from '@/components/learn/genreCourses';
 import { techniqueDataFor } from '@/components/learn/techniqueCatalog';
 import { LearnRoutes, SongRoutes } from '@/constants/routes';
+import { AUDIO_MODULES, audioLessonRoute } from '@/curriculum/audio/catalog';
 import { getAllSongs } from '@/curriculum/data/songs';
 import type { Song } from '@/curriculum/types/songLibrary';
 import type { GenreReadiness } from '@/features/learn/genreReadiness';
@@ -152,6 +153,14 @@ const techniqueSuggestions = (instrument: LearnInstrument) =>
     ),
   );
 
+/** Audio: its lessons, on every instrument. */
+export const audioSuggestions = () =>
+  AUDIO_MODULES.flatMap((module) =>
+    module.lessons.map((lesson) =>
+      teach(`Teach me ${lesson.title}`, audioLessonRoute(module, lesson)),
+    ),
+  );
+
 /**
  * Learn's own page, no pill (owner, 2026-10-25): everything the tab pages
  * suggest (songs, built genre lessons, Theory, Technique) and the rest of
@@ -170,6 +179,11 @@ export function allLearnSuggestions(
     ready ? genreSuggestions(ready, null) : [],
     THEORY_SUGGESTIONS[instrument],
     techniqueSuggestions(instrument),
+    // Audio's lessons, but for the anatomy lesson Technique already suggests.
+    audioSuggestions().filter(
+      (s) =>
+        !techniqueDataFor(instrument).some((item) => item.route === s.route),
+    ),
   ];
   const taken = new Set(kinds.flat().map((s) => s.route));
   const rest = learnSuggestionsFor(instrument).filter(

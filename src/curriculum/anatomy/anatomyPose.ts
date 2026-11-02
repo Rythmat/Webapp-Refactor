@@ -1,5 +1,5 @@
 import type { PartPose, SceneCamera, ScenePose, TermDef } from './anatomyTypes';
-import { reachOf, type CompiledModel } from './compileModel';
+import { reachOf, type CompiledModel } from './compileCore';
 import type { V3 } from './iso';
 
 // ── Where every part goes ──────────────────────────────────────────────────

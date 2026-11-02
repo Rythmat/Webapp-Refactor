@@ -1,0 +1,49 @@
+/* A lab's slider: a hairline track, filled to the thumb in the module's accent.
+   Its whole 2.75rem height takes a press, for a finger on a phone. */
+.lab-slider {
+  appearance: none;
+  height: 2.75rem;
+  background: transparent;
+  cursor: pointer;
+  touch-action: none;
+}
+.lab-slider::-webkit-slider-runnable-track {
+  height: 0.25rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--slider-accent) var(--slider-fill),
+    rgb(255 255 255 / 0.12) var(--slider-fill)
+  );
+}
+.lab-slider::-moz-range-track {
+  height: 0.25rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.12);
+}
+.lab-slider::-moz-range-progress {
+  height: 0.25rem;
+  border-radius: 999px;
+  background: var(--slider-accent);
+}
+.lab-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: -0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: #e8e8f0;
+}
+.lab-slider::-moz-range-thumb {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 0;
+  border-radius: 999px;
+  background: #e8e8f0;
+}
+.lab-slider:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 0.6);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}

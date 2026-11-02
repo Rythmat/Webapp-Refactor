@@ -9,20 +9,22 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/components/utilities';
 import { learnTabOfPath, learnTabRoute } from '@/features/learn/learnPaths';
 import {
-  isLearnInstrumentEnabled,
-  learnPageRoute,
+  isLearnChoiceEnabled,
+  learnChoiceRoute,
   useInstrumentStore,
+  useLearnChoice,
   useLearnInstrument,
-  type LearnInstrument,
+  type LearnChoice,
 } from '@/features/learn/useInstrumentStore';
 
-/** The instruments, as Home's row lists them; `id` null until it has
- *  lessons. */
-const INSTRUMENTS: { label: string; id: LearnInstrument | null }[] = [
+/** The instruments and Audio, as Home's row lists them; `id` null until it
+ *  has lessons. */
+const INSTRUMENTS: { label: string; id: LearnChoice | null }[] = [
   { label: 'Keyboard', id: 'piano' },
   { label: 'Guitar', id: 'guitar' },
   { label: 'Bass', id: 'bass' },
   { label: 'Ukulele', id: 'ukulele' },
+  { label: 'Audio', id: 'audio' },
   { label: 'Drums', id: null },
 ];
 
@@ -41,7 +43,7 @@ export const LearnInstrumentPill = ({
   stay = false,
 }: {
   /** Switch the instrument where you are, not open its Learn page (Set
-   *  Lists). */
+   *  Lists). Nothing there can be shown on Audio, so it isn't offered. */
   stay?: boolean;
 } = {}) => {
   const navigate = useNavigate();
@@ -50,8 +52,11 @@ export const LearnInstrumentPill = ({
   // /learn/guitar/songs.
   const tab = learnTabOfPath(pathname);
   const instrument = useLearnInstrument();
+  const learnChoice = useLearnChoice();
+  const choice = stay ? instrument : learnChoice;
   const setInstrument = useInstrumentStore((s) => s.setInstrument);
-  const current = INSTRUMENTS.find((i) => i.id === instrument)!;
+  const chooseAudio = useInstrumentStore((s) => s.chooseAudio);
+  const current = INSTRUMENTS.find((i) => i.id === choice)!;
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -98,39 +103,44 @@ export const LearnInstrumentPill = ({
               aria-hidden={!open || undefined}
               className="flex items-center gap-0.5 whitespace-nowrap pl-1"
             >
-              {INSTRUMENTS.filter((i) => i.id !== instrument).map(
-                ({ label, id }) => {
-                  const available = id !== null && isLearnInstrumentEnabled(id);
-                  return (
-                    <button
-                      key={label}
-                      type="button"
-                      tabIndex={open ? 0 : -1}
-                      disabled={!available}
-                      title={available ? undefined : 'Coming soon'}
-                      aria-label={available ? label : `${label}, coming soon`}
-                      onClick={() => {
-                        if (!id) return;
-                        setOpen(false);
-                        setInstrument(id);
-                        if (stay) return;
-                        navigate(
-                          tab ? learnTabRoute(id, tab) : learnPageRoute(id),
-                        );
-                      }}
-                      className={cn(
-                        'h-8 rounded-full px-3 text-[0.9375rem] leading-6 outline-none transition-colors',
-                        'focus-visible:ring-2 focus-visible:ring-white/40',
-                        available
-                          ? 'text-white/70 hover:bg-white/[0.08] hover:text-white'
-                          : 'cursor-default text-white/30',
-                      )}
-                    >
-                      {label}
-                    </button>
-                  );
-                },
-              )}
+              {INSTRUMENTS.filter(
+                (i) => i.id !== choice && !(stay && i.id === 'audio'),
+              ).map(({ label, id }) => {
+                const available = id !== null && isLearnChoiceEnabled(id);
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    tabIndex={open ? 0 : -1}
+                    disabled={!available}
+                    title={available ? undefined : 'Coming soon'}
+                    aria-label={available ? label : `${label}, coming soon`}
+                    onClick={() => {
+                      if (!id) return;
+                      setOpen(false);
+                      if (id === 'audio') {
+                        chooseAudio();
+                        navigate(learnChoiceRoute(id));
+                        return;
+                      }
+                      setInstrument(id);
+                      if (stay) return;
+                      navigate(
+                        tab ? learnTabRoute(id, tab) : learnChoiceRoute(id),
+                      );
+                    }}
+                    className={cn(
+                      'h-8 rounded-full px-3 text-[0.9375rem] leading-6 outline-none transition-colors',
+                      'focus-visible:ring-2 focus-visible:ring-white/40',
+                      available
+                        ? 'text-white/70 hover:bg-white/[0.08] hover:text-white'
+                        : 'cursor-default text-white/30',
+                    )}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

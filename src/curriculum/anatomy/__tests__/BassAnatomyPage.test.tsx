@@ -51,10 +51,12 @@ describe('BassAnatomyPage', () => {
     );
   });
 
-  it('opens on the electric bass and makes bass the Learn instrument', () => {
+  it('opens on the electric bass and leaves the student’s instrument alone', () => {
+    useInstrumentStore.getState().setInstrument('guitar');
     open();
     expect(drawing()).toHaveAttribute('data-guitar', 'electricBass');
-    expect(useInstrumentStore.getState().instrument).toBe('bass');
+    expect(useInstrumentStore.getState().instrument).toBe('guitar');
+    useInstrumentStore.getState().setInstrument('piano');
   });
 
   it('opens the acoustic bass from the URL', () => {

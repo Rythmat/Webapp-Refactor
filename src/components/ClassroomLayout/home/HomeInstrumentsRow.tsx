@@ -13,11 +13,11 @@ import {
 } from '@/components/promptBox/PromptBoxParts';
 import { KEY_RAINBOW_COLORS } from '@/features/landing/rainbow';
 import {
-  isLearnInstrumentEnabled,
-  learnPageRoute,
+  isLearnChoiceEnabled,
+  learnChoiceRoute,
   useInstrumentStore,
-  useLearnInstrument,
-  type LearnInstrument,
+  useLearnChoice,
+  type LearnChoice,
 } from '@/features/learn/useInstrumentStore';
 import { cn } from '@/lib/utils';
 import './homeInstruments.css';
@@ -60,8 +60,8 @@ interface InstrumentCell {
   label: string;
   /** Its icon in public/icons. */
   icon: string;
-  /** The Learn instrument this cell selects; null until it has lessons. */
-  instrument: LearnInstrument | null;
+  /** What this cell selects in Learn; null until it has lessons. */
+  instrument: LearnChoice | null;
 }
 
 const INSTRUMENTS: InstrumentCell[] = [
@@ -73,6 +73,7 @@ const INSTRUMENTS: InstrumentCell[] = [
     icon: '/icons/ukulele-icon.svg',
     instrument: 'ukulele',
   },
+  { label: 'Audio', icon: '/icons/audio-icon.svg', instrument: 'audio' },
   { label: 'Drums', icon: '/icons/drum-icon.svg', instrument: null },
 ];
 
@@ -91,8 +92,9 @@ const INSTRUMENTS: InstrumentCell[] = [
  * page, /learn/keyboard or /learn/guitar), a rainbow sweeping across its text.
  */
 export const HomeInstrumentsRow = () => {
-  const selected = useLearnInstrument();
+  const selected = useLearnChoice();
   const setInstrument = useInstrumentStore((s) => s.setInstrument);
+  const chooseAudio = useInstrumentStore((s) => s.chooseAudio);
   // An instrument without lessons, picked here: shown as chosen, Learn's own
   // instrument untouched.
   const [soonPick, setSoonPick] = useState<string | null>(null);
@@ -139,17 +141,16 @@ export const HomeInstrumentsRow = () => {
       </div>
 
       {/* Stacks to two columns when the content area is under 42rem
-          (container query, so the sidebar's width counts); the odd last
-          tile then spans the row. */}
+          (container query, so the sidebar's width counts). */}
       <div className="@container">
         <div
           role="radiogroup"
           aria-labelledby="home-instruments-heading"
-          className="grid grid-cols-2 gap-2 @2xl:grid-cols-5"
+          className="grid grid-cols-2 gap-2 @2xl:grid-cols-6"
         >
-          {INSTRUMENTS.map(({ label, icon, instrument }, i) => {
+          {INSTRUMENTS.map(({ label, icon, instrument }) => {
             const available =
-              instrument !== null && isLearnInstrumentEnabled(instrument);
+              instrument !== null && isLearnChoiceEnabled(instrument);
             const checked =
               soonPick !== null
                 ? label === soonPick
@@ -159,12 +160,9 @@ export const HomeInstrumentsRow = () => {
               // Go to link, a sibling: a label can't hold a link.
               <div
                 key={label}
-                className={cn(
-                  // No fill behind a tile (owner, 2026-10-24): the check
-                  // and Go to (instrument) say which is chosen.
-                  'relative rounded-[1.25rem]',
-                  i === INSTRUMENTS.length - 1 && 'col-span-2 @2xl:col-span-1',
-                )}
+                // No fill behind a tile (owner, 2026-10-24): the check and Go
+                // to (instrument) say which is chosen.
+                className="relative rounded-[1.25rem]"
               >
                 <label
                   className={cn(
@@ -180,7 +178,8 @@ export const HomeInstrumentsRow = () => {
                     onChange={() => {
                       if (available && instrument) {
                         setSoonPick(null);
-                        setInstrument(instrument);
+                        if (instrument === 'audio') chooseAudio();
+                        else setInstrument(instrument);
                       } else {
                         setSoonPick(label);
                       }
@@ -227,7 +226,7 @@ export const HomeInstrumentsRow = () => {
                   <Link
                     // That instrument's Learn page: /learn/keyboard,
                     // /learn/guitar (owner, 2026-10-24).
-                    to={learnPageRoute(instrument)}
+                    to={learnChoiceRoute(instrument)}
                     // The prompt box's Go pill, the text still swept.
                     className={cn(
                       GO_PILL,

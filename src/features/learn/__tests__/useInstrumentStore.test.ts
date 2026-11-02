@@ -4,7 +4,9 @@ import {
   instrumentOptions,
   isBassLearnEnabled,
   isGuitarLearnEnabled,
+  isLearnChoiceEnabled,
   isUkuleleLearnEnabled,
+  learnChoiceRoute,
   learnPageRoute,
   mergeStoredInstrument,
   useInstrumentStore,
@@ -12,7 +14,39 @@ import {
 
 describe('useInstrumentStore', () => {
   afterEach(() => {
-    useInstrumentStore.setState({ instrument: 'piano', leftHanded: false });
+    useInstrumentStore.setState({
+      instrument: 'piano',
+      audio: false,
+      leftHanded: false,
+    });
+  });
+
+  it('keeps the instrument last played while Audio is chosen', () => {
+    const store = useInstrumentStore.getState();
+    store.setInstrument('guitar');
+    store.chooseAudio();
+    expect(useInstrumentStore.getState()).toMatchObject({
+      instrument: 'guitar',
+      audio: true,
+    });
+    store.setInstrument('bass');
+    expect(useInstrumentStore.getState()).toMatchObject({
+      instrument: 'bass',
+      audio: false,
+    });
+  });
+
+  it('remembers Audio between visits, and only a real yes', () => {
+    const current = useInstrumentStore.getState();
+    expect(mergeStoredInstrument({ audio: true }, current).audio).toBe(true);
+    expect(mergeStoredInstrument({ audio: 'yes' }, current).audio).toBe(false);
+    expect(mergeStoredInstrument(undefined, current).audio).toBe(false);
+  });
+
+  it('opens Audio’s page for Audio, an instrument’s for an instrument', () => {
+    expect(learnChoiceRoute('audio')).toBe('/learn/audio');
+    expect(learnChoiceRoute('guitar')).toBe('/learn/guitar');
+    expect(isLearnChoiceEnabled('audio')).toBe(true);
   });
 
   it('defaults to piano, right-handed', () => {

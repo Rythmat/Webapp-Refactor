@@ -44,13 +44,15 @@ describe('UkuleleAnatomyPage', () => {
     );
   });
 
-  it('opens on the ukulele and makes it the Learn instrument', () => {
+  it('opens on the ukulele and leaves the student’s instrument alone', () => {
+    useInstrumentStore.getState().setInstrument('guitar');
     open();
     expect(document.querySelector('[data-guitar]')).toHaveAttribute(
       'data-guitar',
       'ukulele',
     );
-    expect(useInstrumentStore.getState().instrument).toBe('ukulele');
+    expect(useInstrumentStore.getState().instrument).toBe('guitar');
+    useInstrumentStore.getState().setInstrument('piano');
   });
 
   it('has no choice of instrument, in either tab', () => {

@@ -14,9 +14,10 @@ import {
   learnTabRoute,
 } from '@/features/learn/learnPaths';
 import {
-  learnPageRoute,
+  useLearnChoice,
   useLearnInstrument,
-  type LearnInstrument,
+  useLearnPageRoute,
+  type LearnChoice,
 } from '@/features/learn/useInstrumentStore';
 import { CompassTourButton } from '@/features/learnTour/CompassTourButton';
 
@@ -25,12 +26,13 @@ interface Tab {
   label: string;
 }
 
-/** The heading's name for each instrument, as Home's instrument row calls it. */
-const INSTRUMENT_HEADINGS: Record<LearnInstrument, string> = {
+/** The heading's name for each choice, as Home's instrument row calls it. */
+const INSTRUMENT_HEADINGS: Record<LearnChoice, string> = {
   piano: 'Keyboard',
   guitar: 'Guitar',
   bass: 'Bass',
   ukulele: 'Ukulele',
+  audio: 'Audio',
 };
 
 const TABS: Tab[] = [
@@ -77,6 +79,8 @@ export const LearnTabBar = ({
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const instrument = useLearnInstrument();
+  const choice = useLearnChoice();
+  const choicePage = useLearnPageRoute();
   // On the Learn page each tab is a path (/learn/keyboard/songs); the hub
   // reads ?tab=.
   const active =
@@ -97,9 +101,7 @@ export const LearnTabBar = ({
       {/* Learn heading — also the way back to the Learn Home. */}
       <div className="flex items-center gap-1">
         <Link
-          to={
-            instrumentHeading ? learnPageRoute(instrument) : LearnRoutes.root()
-          }
+          to={instrumentHeading ? choicePage : LearnRoutes.root()}
           aria-current={active === '' ? 'page' : undefined}
           className="flex items-center gap-2 text-white/85 transition-opacity hover:opacity-90 md:gap-3"
         >
@@ -117,7 +119,7 @@ export const LearnTabBar = ({
               instrumentHeading && 'sr-only',
             )}
           >
-            {instrumentHeading ? INSTRUMENT_HEADINGS[instrument] : 'Learn'}
+            {instrumentHeading ? INSTRUMENT_HEADINGS[choice] : 'Learn'}
           </h2>
         </Link>
       </div>

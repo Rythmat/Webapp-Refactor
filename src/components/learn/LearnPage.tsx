@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ActivityRail } from '@/components/ClassroomLayout/home/ActivityRail';
 import { HomeGlow } from '@/components/ClassroomLayout/home/HomeGlow';
@@ -11,9 +18,11 @@ import { PerStudent } from '@/components/ui/PerStudent';
 import { cn } from '@/components/utilities';
 import { SongRoutes } from '@/constants/routes';
 import { getAllSongs } from '@/curriculum/data/songs';
+import { isCortexEnabled } from '@/features/cortex/cortexFlag';
 import { useGenreReadiness } from '@/features/learn/genreReadiness';
 import type { LearnTab } from '@/features/learn/learnPaths';
 import {
+  audioSuggestions,
   learnPageSuggestions,
   type GenreSectionId,
 } from '@/features/learn/learnPromptSuggestions';
@@ -27,6 +36,9 @@ import {
   SongFilterPills,
 } from './LearnPromptPills';
 import { LearnTabBar } from './LearnTabBar';
+
+// The map and its catalogues load with this page's bare view, not with Learn.
+const CortexPanel = lazy(() => import('@/features/cortex/CortexPanel'));
 
 /** The old Learn navigation's tabs the page keeps, after its heading. */
 const NAV_TABS = ['Songs', 'Genre', 'Theory', 'Technique'] as const;
@@ -54,8 +66,20 @@ const NAV_TABS = ['Songs', 'Genre', 'Theory', 'Technique'] as const;
  * tab bar), on the instrument: Songs' chord charts, Theory's tiles and
  * Technique's are its. Home's glow behind, and Home's activity rail
  * (ActivityRail) pinned to the bottom.
+ *
+ * `section="Audio"` is the Learn page with `children` for its content: chosen
+ * in the switcher like an instrument, but with no tabs or pills of its own, and
+ * its prompt bar suggests its lessons.
  */
-export const LearnPage = ({ tab }: { tab?: LearnTab }) => {
+export const LearnPage = ({
+  tab,
+  section,
+  children,
+}: {
+  tab?: LearnTab;
+  section?: 'Audio';
+  children?: ReactNode;
+}) => {
   const instrument = useLearnInstrument();
   // The kind the bar's pills narrow its suggestions to: the page's own on a
   // tab's page, none (the instrument's whole list) on Learn's own.
@@ -86,18 +110,21 @@ export const LearnPage = ({ tab }: { tab?: LearnTab }) => {
   );
   // Which genre lessons are built: the Genre pages and Learn's own page
   // suggest only those.
-  const genreReady = useGenreReadiness(!tab || tab === 'Genre');
+  const genreReady = useGenreReadiness(!section && (!tab || tab === 'Genre'));
   // Kept while the kind, instrument and songs stay: the bar reshuffles when
   // its list changes.
   const suggestions = useMemo(
     () =>
-      learnPageSuggestions(instrument, kind ?? undefined, {
-        songs: shownSongs,
-        genreSection,
-        genreReady,
-      }),
-    [instrument, kind, shownSongs, genreSection, genreReady],
+      section
+        ? audioSuggestions()
+        : learnPageSuggestions(instrument, kind ?? undefined, {
+            songs: shownSongs,
+            genreSection,
+            genreReady,
+          }),
+    [section, instrument, kind, shownSongs, genreSection, genreReady],
   );
+  const showCortex = !tab && !section && isCortexEnabled();
   return (
     // `isolate`, so the glow's -z-10 puts it behind everything here but
     // still in front of the panel's background (as on Home).
@@ -105,7 +132,7 @@ export const LearnPage = ({ tab }: { tab?: LearnTab }) => {
       data-testid="learn-page"
       className={cn(
         'relative isolate flex w-full flex-col',
-        tab ? 'h-full' : 'min-h-full',
+        tab || section ? 'h-full' : 'min-h-full',
       )}
     >
       <HomeGlow />
@@ -114,7 +141,11 @@ export const LearnPage = ({ tab }: { tab?: LearnTab }) => {
           'relative flex w-full shrink-0 flex-col items-center p-2',
           // The Songs pages' column headers 20px under it (owner,
           // 2026-10-25), in rem as the app's 110% scale wants.
-          tab === 'Songs' ? 'pb-5' : tab ? 'pb-2' : 'pb-10',
+          tab === 'Songs'
+            ? 'pb-5'
+            : tab || section || showCortex
+              ? 'pb-2'
+              : 'pb-10',
         )}
       >
         {/* The instrument switcher, top right, where Home keeps its search. */}
@@ -134,7 +165,11 @@ export const LearnPage = ({ tab }: { tab?: LearnTab }) => {
           </Link>
         )}
         {/* The old Learn navigation, centred at the top (owner, 2026-10-24). */}
-        <LearnTabBar only={NAV_TABS} extras={false} instrumentHeading />
+        <LearnTabBar
+          only={section ? [] : NAV_TABS}
+          extras={false}
+          instrumentHeading
+        />
         {/* The prompt bar under it, centred, on every Learn page (owner,
           2026-10-25: the tab pages too). */}
         <div className="mt-6 flex w-full justify-center">
@@ -142,13 +177,13 @@ export const LearnPage = ({ tab }: { tab?: LearnTab }) => {
             suggestions={suggestions}
             // Learn's own page, no pill: the mixed list is already in its
             // order (the kinds take turns).
-            ordered={!tab && !kind}
+            ordered={!tab && !kind && !section}
             showTargets={false}
             instrument={instrument}
             // The Songs pages: their filters; the Genre pages: a lesson's
             // sections; elsewhere, the kinds.
             pills={
-              tab === 'Songs' ? (
+              section ? null : tab === 'Songs' ? (
                 <SongFilterPills />
               ) : tab === 'Genre' ? (
                 <GenreSectionPills
@@ -167,6 +202,20 @@ export const LearnPage = ({ tab }: { tab?: LearnTab }) => {
       {tab && (
         <div className="relative min-h-0 flex-1">
           <LearnInlet tab={tab} bare />
+        </div>
+      )}
+      {section && <div className="relative min-h-0 flex-1">{children}</div>}
+      {/* Learn's own page: the student's Cortex, everything they've done in
+        Music Atlas and how it connects (owner, 2026-11-01). */}
+      {showCortex && (
+        <div className="relative min-h-72 flex-1">
+          <div className="absolute inset-0">
+            <PerStudent label="Your Cortex" className="h-full">
+              <Suspense fallback={null}>
+                <CortexPanel />
+              </Suspense>
+            </PerStudent>
+          </div>
         </div>
       )}
       {/* Pinned to the bottom, as on Home: where you left off, cycling

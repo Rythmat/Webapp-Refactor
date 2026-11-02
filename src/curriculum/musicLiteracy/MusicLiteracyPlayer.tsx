@@ -134,6 +134,7 @@ import type {
 } from '@/curriculum/guitar/layout/types';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
+import { markCurrentDone } from '@/features/cortex/ledger';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { useElementSize } from '@/hooks/useElementSize';
 import { useDrumGrooveSettings } from '@/learn/audio/useDrumGrooveSettings';
@@ -633,6 +634,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         run.stepIndex === lesson.steps.length - 1
       ) {
         reportCompletion();
+        markCurrentDone();
       }
       // An echo that finishes its module brings the module's card, when
       // it has a round to offer.

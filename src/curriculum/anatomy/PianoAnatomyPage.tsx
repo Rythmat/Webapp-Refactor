@@ -1,7 +1,7 @@
 import { AnatomyLesson } from './AnatomyLesson';
 import type { AnatomyOption } from './anatomyTypes';
 
-// Learn → Technique → Piano Anatomy: a grand and an upright. The labels are the
+// Learn → Audio → Piano Anatomy: a grand and an upright. The labels are the
 // instruments' full names; the URL takes the short word.
 
 const OPTIONS: readonly AnatomyOption[] = [

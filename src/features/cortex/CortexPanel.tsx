@@ -178,7 +178,7 @@ const EmptyCortex = () => (
 
 export const CortexPanel = () => {
   const { web, loading } = useCortexWeb();
-  const view = useCortexView(web);
+  const view = useCortexView(web, { loading, layout: true });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selected = selectedId
     ? web.nodes.find((n) => n.id === selectedId)

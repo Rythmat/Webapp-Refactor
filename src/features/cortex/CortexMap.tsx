@@ -270,13 +270,6 @@ export const CortexMap = ({
       ?.focus();
   };
 
-  const sentences = useMemo(() => {
-    const names = new Map(web.nodes.map((n) => [n.id, n.label]));
-    return web.links
-      .filter((l) => !l.hollow)
-      .map((l) => `${names.get(l.source)} connects to ${names.get(l.target)}`);
-  }, [web]);
-
   const k = view?.k ?? 1;
   const fade = web.nodes.length <= FADE_MAX_NODES ? FADE : undefined;
   const guides = useMemo(() => {
@@ -505,13 +498,8 @@ export const CortexMap = ({
           </g>
         )}
       </svg>
-      <ul className="sr-only">
-        {sentences.map((sentence) => (
-          <li key={sentence}>{sentence}</li>
-        ))}
-      </ul>
       {positions && view && (
-        <div className="absolute right-2 top-2 flex flex-col overflow-hidden rounded-full border border-white/10 bg-[#141416]">
+        <div className="absolute right-2 top-12 flex flex-col overflow-hidden rounded-full border border-white/10 bg-[#141416]">
           {[
             {
               label: 'Zoom in',

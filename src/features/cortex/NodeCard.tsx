@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, type Ref } from 'react';
 import { Link } from 'react-router-dom';
 import { neighboursOf, type CortexWeb, type WebNode } from './buildWeb';
 import { KIND_NAME, NODE_COLOR, status } from './nodeMeta';
@@ -13,10 +13,12 @@ export const NodeCard = ({
   node,
   web,
   onSelect,
+  cardRef,
 }: {
   node: WebNode;
   web: CortexWeb;
   onSelect: (id: string | null) => void;
+  cardRef?: Ref<HTMLElement>;
 }) => {
   const others = useMemo(() => {
     const byId = new Map(web.nodes.map((n) => [n.id, n]));
@@ -29,8 +31,9 @@ export const NodeCard = ({
     node.role === 'concept' ? 'What you’ve done here' : 'Connected through';
   return (
     <aside
+      ref={cardRef}
       aria-label={node.label}
-      className="absolute inset-x-2 bottom-2 z-10 max-h-[60%] overflow-y-auto rounded-[1.25rem] border border-white/10 bg-[#141416] p-4 sm:inset-x-auto sm:bottom-auto sm:left-2 sm:top-12 sm:w-[17rem]"
+      className="absolute inset-x-2 bottom-2 z-10 max-h-[45%] overflow-y-auto rounded-[1.25rem] border border-white/10 bg-[#141416] p-4 lg:inset-x-auto lg:bottom-auto lg:left-2 lg:top-12 lg:max-h-[calc(100%-3.5rem)] lg:w-[17rem]"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
@@ -42,6 +45,12 @@ export const NodeCard = ({
             <p className="mt-0.5 text-sm text-white/70">{node.detail}</p>
           )}
           {line && <p className="mt-1 text-xs text-white/55">{line}</p>}
+          {others.length > 0 && !node.hollow && (
+            <p className="mt-0.5 text-xs text-white/55">
+              Connected to {others.length}{' '}
+              {others.length === 1 ? 'thing' : 'things'}
+            </p>
+          )}
         </div>
         <button
           type="button"

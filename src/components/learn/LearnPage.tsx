@@ -207,7 +207,7 @@ export const LearnPage = ({
       {/* Learn's own page: the student's Cortex, everything they've done in
         Music Atlas and how it connects (owner, 2026-11-01). */}
       {showCortex && (
-        <div className="relative min-h-72 flex-1">
+        <div className="relative min-h-[22rem] flex-1">
           <div className="absolute inset-0">
             <PerStudent label="Your Cortex" className="h-full">
               <Suspense fallback={null}>

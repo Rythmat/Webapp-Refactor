@@ -177,6 +177,74 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
     ],
   },
   {
+    id: 'hearing',
+    title: 'Hearing',
+    access: 'premium',
+    accentKey: 'E',
+    lessons: [
+      {
+        kind: 'lab',
+        id: 'how-we-hear',
+        title: 'How We Hear',
+        ratio: [7, 9],
+        topics: [
+          {
+            id: 'ear',
+            title: 'Ear Mechanics',
+            tab: 'The Ear',
+            sub: 'From air to nerve',
+          },
+          {
+            id: 'brain',
+            title: 'Brain & Psychoacoustics',
+            tab: 'The Brain',
+            sub: 'What you really hear',
+          },
+          {
+            id: 'emotion',
+            title: 'Music, Emotion & Body',
+            tab: 'Emotion',
+            sub: 'How music moves us',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'sound-to-electricity',
+    title: 'Sound to Electricity',
+    access: 'premium',
+    accentKey: 'E',
+    lessons: [
+      {
+        kind: 'lab',
+        id: 'air-to-signal',
+        title: 'From Air to Signal',
+        ratio: [5, 9],
+        topics: [
+          {
+            id: 'electricity',
+            title: 'Electricity & Voltage',
+            tab: 'Electricity',
+            sub: 'Voltage and current',
+          },
+          {
+            id: 'electromagnetism',
+            title: 'Electromagnetism',
+            tab: 'Magnetism',
+            sub: 'Movement makes voltage',
+          },
+          {
+            id: 'transducers',
+            title: 'Transducers',
+            tab: 'Transducers',
+            sub: 'Sound to signal and back',
+          },
+        ],
+      },
+    ],
+  },
+  {
     id: 'instrument-anatomy',
     title: 'Instrument Anatomy',
     access: 'premium',

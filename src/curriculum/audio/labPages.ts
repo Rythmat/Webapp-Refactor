@@ -16,4 +16,10 @@ export const LAB_TOPIC_PAGES: Readonly<
   interference: lazy(() => import('./labs/InterferenceLab')),
   spectrum: lazy(() => import('./labs/SpectrumLab')),
   intervals: lazy(() => import('./labs/IntervalsLab')),
+  ear: lazy(() => import('./labs/EarLab')),
+  brain: lazy(() => import('./labs/BrainLab')),
+  emotion: lazy(() => import('./labs/EmotionLab')),
+  electricity: lazy(() => import('./labs/ElectricityLab')),
+  electromagnetism: lazy(() => import('./labs/ElectromagnetismLab')),
+  transducers: lazy(() => import('./labs/TransducersLab')),
 };

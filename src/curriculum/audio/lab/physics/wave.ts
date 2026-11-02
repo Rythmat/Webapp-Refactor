@@ -87,6 +87,8 @@ export function formatLength(metres: number): string {
 
 /** A frequency to the precision that reads naturally: "55 Hz", "1.76 kHz". */
 export function formatHz(hz: number): string {
-  if (hz >= 1000) return `${(hz / 1000).toFixed(2)} kHz`;
+  if (hz >= 1000) {
+    return `${(hz / 1000).toFixed(2).replace(/\.?0+$/, '')} kHz`;
+  }
   return `${hz >= 100 ? Math.round(hz) : hz.toFixed(1).replace(/\.0$/, '')} Hz`;
 }

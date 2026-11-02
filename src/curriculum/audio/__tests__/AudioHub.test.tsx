@@ -65,7 +65,7 @@ describe('the Audio hub', () => {
     expect(screen.getByRole('link', { name: 'Physics of Sound' })).toBeTruthy();
     expect(
       screen.getAllByRole('button', { name: /subscribe to unlock/ }),
-    ).toHaveLength(12);
+    ).toHaveLength(14);
   });
 
   it('keeps Anatomy’s hearts, by the same key, without opening the lesson', () => {

@@ -8,8 +8,8 @@ import { useLabCanvas } from './useLabCanvas';
 const CYCLES = 2.5;
 /** The slide across the stage, in cycles a second, for the eye only. */
 const DRIFT = 0.12;
-/** How many harmonics the bars always have room for. */
-const BARS = 8;
+/** How many harmonics the bars have room for, unless told otherwise. */
+const DEFAULT_BARS = 8;
 
 /**
  * A recipe twice over, from the same numbers the sound is built from: its wave
@@ -17,11 +17,13 @@ const BARS = 8;
  */
 export function RecipeStage({
   harmonics,
+  bars: barCount = DEFAULT_BARS,
   accent,
   tone,
   caption,
 }: {
   harmonics: Recipe;
+  bars?: number;
   accent: string;
   tone: Tone;
   caption: string;
@@ -71,12 +73,12 @@ export function RecipeStage({
       const font = canvas ? canvasFont(canvas, 0.75) : '12px sans-serif';
       const pad = 16;
       const foot = 22;
-      const slot = (bars.width - pad * 2) / BARS;
+      const slot = (bars.width - pad * 2) / barCount;
       const tallest = bars.height - foot - pad;
       ctx.font = font;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      for (let i = 0; i < BARS; i++) {
+      for (let i = 0; i < barCount; i++) {
         const amount = recipe[i] ?? 0;
         const x = bars.x + pad + slot * i;
         const barHeight = Math.max(amount * tallest, amount > 0 ? 2 : 0);

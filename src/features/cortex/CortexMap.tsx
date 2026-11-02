@@ -8,6 +8,7 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from 'react';
+import { OrbitalCore } from '@/components/orbital/OrbitalCore';
 import { neighboursOf, type CortexWeb, type WebNode } from './buildWeb';
 import { nodeRadius, placeLabels } from './labels';
 import {
@@ -24,12 +25,22 @@ import type { CortexView } from './useCortexView';
  * The map. Dots and lines keep their place in the web's own coordinates, and
  * the names are worked out in screen space, always at 12px, once the view
  * comes to rest. One finger scrolls the page on a phone; two pan and pinch.
+ * The web's middle, its core, stays at the origin.
  */
 
 const ZOOM_STEP = 1.3;
 /** A press that moves further than this is a drag, not a click. */
 const DRAG_PX = 4;
 const LABELS_REST_MS = 120;
+const ORIGIN = { x: 0, y: 0 };
+/** As the console's map fades what isn't lit. */
+const FADED = 0.2;
+const FADE = 'opacity 150ms ease-out';
+/** Past this many, a fade would restyle too much at once to stay smooth. */
+const FADE_MAX_NODES = 150;
+/** The faint rings the web grows out through, in the web's own units. */
+const GUIDE_STEP = 130;
+const CORE_R = 8;
 
 const clampZoom = (k: number) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, k));
 
@@ -107,7 +118,7 @@ export const CortexMap = ({
   // Fit the first time it's laid out, and as long as they haven't moved it.
   const fit = useCallback(() => {
     if (!positions || size.width === 0) return;
-    setView(fitView(positions, size.width, size.height));
+    setView(fitView(positions, size.width, size.height, ORIGIN));
   }, [positions, size.width, size.height]);
   useEffect(() => {
     if (!positions || size.width === 0) return;
@@ -267,6 +278,18 @@ export const CortexMap = ({
   }, [web]);
 
   const k = view?.k ?? 1;
+  const fade = web.nodes.length <= FADE_MAX_NODES ? FADE : undefined;
+  const guides = useMemo(() => {
+    if (!positions) return [];
+    const reach = Math.max(
+      0,
+      ...Object.values(positions).map((p) => Math.hypot(p.x, p.y)),
+    );
+    const out: number[] = [];
+    for (let r = GUIDE_STEP; r <= reach + GUIDE_STEP / 2; r += GUIDE_STEP)
+      out.push(r);
+    return out;
+  }, [positions]);
   const rest = restedView ?? view;
   const labelsMatch = rest !== null && view !== null && rest.k === view.k;
 
@@ -276,6 +299,19 @@ export const CortexMap = ({
     () =>
       positions ? (
         <>
+          <g aria-hidden pointerEvents="none">
+            {guides.map((r) => (
+              <circle
+                key={r}
+                r={r}
+                fill="none"
+                stroke="white"
+                strokeOpacity={0.05}
+                strokeWidth={1}
+                vectorEffect="non-scaling-stroke"
+              />
+            ))}
+          </g>
           <g>
             {web.links.map((link) => {
               const a = positions[link.source];
@@ -294,13 +330,16 @@ export const CortexMap = ({
                   pathLength={1}
                   vectorEffect="non-scaling-stroke"
                   stroke="white"
-                  strokeOpacity={on ? 0.7 : litSet ? 0.07 : 0.22}
+                  strokeOpacity={on ? 0.7 : litSet ? 0.05 : 0.16}
                   strokeWidth={on ? 1.5 : 1}
                   strokeDasharray={
                     link.hollow && !bornLinks.has(link.id)
                       ? '0.04 0.03'
                       : undefined
                   }
+                  style={{
+                    transition: fade && 'stroke-opacity 150ms ease-out',
+                  }}
                   className={
                     bornLinks.has(link.id) ? 'cortex-link-born' : undefined
                   }
@@ -308,6 +347,7 @@ export const CortexMap = ({
               );
             })}
           </g>
+          <OrbitalCore r={CORE_R / k} />
           {web.nodes.map((node) => {
             const p = positions[node.id];
             if (!p) return null;
@@ -324,7 +364,8 @@ export const CortexMap = ({
                 aria-label={describe}
                 aria-pressed={node.id === selectedId}
                 transform={`translate(${p.x} ${p.y})`}
-                opacity={faded ? 0.25 : 1}
+                opacity={faded ? FADED : 1}
+                style={{ transition: fade }}
                 className="cursor-pointer outline-none"
                 onClick={() => {
                   if (!pressMoved.current) onSelect(node.id);
@@ -398,6 +439,8 @@ export const CortexMap = ({
     [
       web,
       positions,
+      guides,
+      fade,
       k,
       litSet,
       bornNodes,
@@ -450,8 +493,8 @@ export const CortexMap = ({
                   textAnchor="middle"
                   fontSize={12}
                   fill="#e8e8f0"
-                  opacity={faded ? 0.25 : 0.9}
-                  style={{ paintOrder: 'stroke' }}
+                  opacity={faded ? FADED : 0.9}
+                  style={{ paintOrder: 'stroke', transition: fade }}
                   stroke="#101012"
                   strokeWidth={3}
                 >
@@ -468,7 +511,7 @@ export const CortexMap = ({
         ))}
       </ul>
       {positions && view && (
-        <div className="absolute right-2 top-2 flex flex-col overflow-hidden rounded-full border border-white/10 bg-white/10 backdrop-blur-md">
+        <div className="absolute right-2 top-2 flex flex-col overflow-hidden rounded-full border border-white/10 bg-[#141416]">
           {[
             {
               label: 'Zoom in',
@@ -495,7 +538,7 @@ export const CortexMap = ({
               aria-label={label}
               title={label}
               onClick={run}
-              className="flex size-9 items-center justify-center text-white/70 outline-none transition-colors duration-150 hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/40"
+              className="flex size-9 items-center justify-center text-white/60 outline-none transition-colors duration-150 hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/40"
             >
               <Icon className="size-4" />
             </button>

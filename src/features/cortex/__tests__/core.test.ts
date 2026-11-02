@@ -5,7 +5,7 @@ import { backfillRecords } from '../backfill';
 import { buildWeb, SEED_BELOW, type WebActivity } from '../buildWeb';
 import { cortexIdForLesson, genreLessonId, theoryId } from '../ids';
 import { placeLabels } from '../labels';
-import { fitView, layoutIsCurrent, layoutWeb } from '../layout';
+import { fitCentre, fitView, layoutIsCurrent, layoutWeb } from '../layout';
 import { activityForLocation } from '../routeTable';
 import {
   keyConcept,
@@ -461,6 +461,33 @@ describe('the layout', () => {
       );
       expect(moved, id).toBeLessThan(60);
     }
+  });
+
+  it('holds the middle open for the core, which is never on the web', () => {
+    const big = buildWeb(
+      Array.from({ length: 40 }, (_, i) =>
+        activity(`song:${i}`, i % 2 ? [funk] : []),
+      ),
+    );
+    const placed = layoutWeb(big);
+    expect(Object.keys(placed).sort()).toEqual(
+      big.nodes.map((n) => n.id).sort(),
+    );
+    for (const [id, p] of Object.entries(placed)) {
+      expect(Math.hypot(p.x, p.y), id).toBeGreaterThan(50);
+    }
+    expect(layoutIsCurrent(big, placed)).toBe(true);
+  });
+
+  it('keeps a chosen point at the middle of the box', () => {
+    const lopsided = { a: { x: 10, y: 0 }, b: { x: 300, y: 40 } };
+    const view = fitView(lopsided, 800, 400, { x: 0, y: 0 });
+    const centre = fitCentre(800, 400);
+    expect(view.x).toBeCloseTo(centre.x);
+    expect(view.y).toBeCloseTo(centre.y);
+    // Everything still fits, measured out from that point.
+    expect(view.x + 300 * view.k).toBeLessThanOrEqual(800);
+    expect(view.k).toBeLessThanOrEqual(1.15);
   });
 
   it('fits the web in its box, without blowing up a small one', () => {

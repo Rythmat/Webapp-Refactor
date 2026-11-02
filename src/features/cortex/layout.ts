@@ -15,7 +15,8 @@ import type { CortexWeb } from './buildWeb';
  * always gives one picture, and it starts from where the nodes were last time:
  * old nodes are tethered there, so the map stays recognisable while new ones
  * find their place beside what they connect to and clusters can still form.
- * With nothing new, nothing moves at all.
+ * With nothing new, nothing moves at all. A fixed core holds the middle open,
+ * so the web grows around it and never over it.
  */
 
 export interface Point {
@@ -28,6 +29,9 @@ export type Positions = Readonly<Record<string, Point>>;
 const LINK_DISTANCE = 64;
 const CHARGE = -340;
 const COLLIDE_RADIUS = 30;
+/** Not a node on the web: only a place in the simulation, always at the origin. */
+const CORE_ID = '\0core';
+const CORE_CLEAR = 70;
 /** How hard an old node holds its place. */
 const TETHER = 0.35;
 const TICKS_FRESH = 220;
@@ -96,7 +100,7 @@ const buildSimulation = (web: CortexWeb, saved: Positions, narrow: boolean) => {
           y: cy + Math.sin(angle) * LINK_DISTANCE,
         };
       }
-      const radius = 40 + 14 * Math.sqrt(index);
+      const radius = CORE_CLEAR + 30 + 14 * Math.sqrt(index);
       return {
         id: node.id,
         x: Math.cos(angle) * radius,
@@ -109,8 +113,11 @@ const buildSimulation = (web: CortexWeb, saved: Positions, narrow: boolean) => {
     .map((link) => ({ source: link.source, target: link.target }));
 
   const isHeld = (node: SimNode) => node.home !== undefined;
+  const isCore = (node: SimNode) => node.id === CORE_ID;
+  const seed = web.nodes.length;
+  nodes.push({ id: CORE_ID, x: 0, y: 0, fx: 0, fy: 0 });
   const simulation = forceSimulation(nodes)
-    .randomSource(seededRandom(nodes.length))
+    .randomSource(seededRandom(seed))
     .force(
       'link',
       forceLink<SimNode, SimulationLinkDatum<SimNode>>(links)
@@ -118,8 +125,16 @@ const buildSimulation = (web: CortexWeb, saved: Positions, narrow: boolean) => {
         .distance(LINK_DISTANCE)
         .strength(0.6),
     )
-    .force('charge', forceManyBody<SimNode>().strength(CHARGE))
-    .force('collide', forceCollide<SimNode>(COLLIDE_RADIUS))
+    .force(
+      'charge',
+      forceManyBody<SimNode>().strength((node) => (isCore(node) ? 0 : CHARGE)),
+    )
+    .force(
+      'collide',
+      forceCollide<SimNode>((node) =>
+        isCore(node) ? CORE_CLEAR : COLLIDE_RADIUS,
+      ),
+    )
     // Holds the web together, far wider than tall: under the prompt bar the
     // panel is a wide strip, and a round web would only use its middle. On a
     // phone the panel is about square, and a strip would shrink to a sliver.
@@ -144,6 +159,7 @@ const buildSimulation = (web: CortexWeb, saved: Positions, narrow: boolean) => {
 const result = (nodes: readonly SimNode[]): Positions => {
   const out: Record<string, Point> = {};
   for (const node of nodes) {
+    if (node.id === CORE_ID) continue;
     out[node.id] = {
       x: Math.round((node.x ?? 0) * 10) / 10,
       y: Math.round((node.y ?? 0) * 10) / 10,
@@ -227,16 +243,40 @@ export const NARROW_PX = 640;
 const FIT_MARGIN_BOTTOM = 24;
 const FIT_MARGIN_TOP = 48;
 
-/** The view that shows the whole web in a box this size. */
+/** Where the middle of a box this size sits, clear of the panel's header. */
+export const fitCentre = (width: number, height: number): Point => ({
+  x: width / 2,
+  y: (height + FIT_MARGIN_TOP - FIT_MARGIN_BOTTOM) / 2,
+});
+
+/**
+ * The view that shows the whole web in a box this size. With `around`, that
+ * point of the web sits at the box's middle, whichever way the web has grown.
+ */
 export const fitView = (
   positions: Positions,
   width: number,
   height: number,
+  around?: Point,
 ): View => {
   const bounds = boundsOf(positions);
   if (!bounds) return { x: width / 2, y: height / 2, k: 1 };
-  const w = Math.max(1, bounds.maxX - bounds.minX);
-  const h = Math.max(1, bounds.maxY - bounds.minY);
+  const middle = around ?? {
+    x: (bounds.minX + bounds.maxX) / 2,
+    y: (bounds.minY + bounds.maxY) / 2,
+  };
+  const w = Math.max(
+    1,
+    around
+      ? 2 * Math.max(bounds.maxX - around.x, around.x - bounds.minX)
+      : bounds.maxX - bounds.minX,
+  );
+  const h = Math.max(
+    1,
+    around
+      ? 2 * Math.max(bounds.maxY - around.y, around.y - bounds.minY)
+      : bounds.maxY - bounds.minY,
+  );
   const k = Math.max(
     MIN_ZOOM,
     Math.min(
@@ -246,11 +286,6 @@ export const fitView = (
       (height - FIT_MARGIN_TOP - FIT_MARGIN_BOTTOM) / h,
     ),
   );
-  return {
-    k,
-    x: width / 2 - ((bounds.minX + bounds.maxX) / 2) * k,
-    y:
-      (height + FIT_MARGIN_TOP - FIT_MARGIN_BOTTOM) / 2 -
-      ((bounds.minY + bounds.maxY) / 2) * k,
-  };
+  const centre = fitCentre(width, height);
+  return { k, x: centre.x - middle.x * k, y: centre.y - middle.y * k };
 };

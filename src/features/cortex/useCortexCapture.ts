@@ -48,7 +48,7 @@ export const trackDwell = (id: CortexId | null): void => {
 /**
  * Feeds the student's Cortex from wherever they are in the app, and keeps it
  * on their account. Mounted once in the signed-in dashboard, whether or not
- * the map is showing yet.
+ * the map is showing.
  */
 export const useCortexCapture = (): void => {
   const { pathname, search } = useLocation();

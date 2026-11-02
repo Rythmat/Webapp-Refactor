@@ -40,7 +40,6 @@ import {
   useLearnPageRoute,
   type LearnInstrument,
 } from '@/features/learn/useInstrumentStore';
-import { isCortexEnabled } from '@/features/cortex/cortexFlag';
 import { ANATOMY_MOVES } from '@/curriculum/audio/anatomyMoves';
 import { isBassTheorySlug } from '@/curriculum/data/bass/theoryCatalog';
 import { isUkuleleTheorySlug } from '@/curriculum/data/ukulele/theoryCatalog';
@@ -770,7 +769,7 @@ const LearnInstrumentRoute = ({
   const tabLink = learnTabRedirect(instrument, search);
   if (tabLink) return <Navigate replace to={tabLink} />;
   // With no tab, the Learn page shows the student's Cortex on every instrument.
-  if (!tab && isCortexEnabled()) return <LearnPage />;
+  if (!tab) return <LearnPage />;
   // Bass teaches Theory and Technique so far: its page is the Theory tab.
   if (instrument === 'bass' && tab !== 'Theory' && tab !== 'Technique') {
     return <Navigate replace to={learnTabRoute('bass', 'Theory')} />;

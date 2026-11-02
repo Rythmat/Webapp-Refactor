@@ -1,15 +1,10 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PerStudentPreviewContext } from '@/components/ui/PerStudent';
 import { LearnPage } from '../LearnPage';
 
-const flag = vi.hoisted(() => ({ on: true }));
-
-vi.mock('@/features/cortex/cortexFlag', () => ({
-  isCortexEnabled: () => flag.on,
-}));
 vi.mock('@/features/cortex/CortexPanel', () => ({
   default: () => <div data-testid="cortex" />,
 }));
@@ -55,10 +50,6 @@ const renderPage = (props = {}, placeholder = false) =>
     </MemoryRouter>,
   );
 
-beforeEach(() => {
-  flag.on = true;
-});
-
 afterEach(cleanup);
 
 describe('Learn’s own page', () => {
@@ -75,12 +66,6 @@ describe('Learn’s own page', () => {
     expect(screen.getByTestId('inlet')).toBeInTheDocument();
     renderPage({ section: 'Audio', children: <div data-testid="hub" /> });
     expect(screen.getByTestId('hub')).toBeInTheDocument();
-    expect(screen.queryByTestId('cortex')).toBeNull();
-  });
-
-  it('waits for its flag', () => {
-    flag.on = false;
-    renderPage();
     expect(screen.queryByTestId('cortex')).toBeNull();
   });
 

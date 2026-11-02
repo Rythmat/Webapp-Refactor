@@ -18,7 +18,6 @@ import { PerStudent } from '@/components/ui/PerStudent';
 import { cn } from '@/components/utilities';
 import { SongRoutes } from '@/constants/routes';
 import { getAllSongs } from '@/curriculum/data/songs';
-import { isCortexEnabled } from '@/features/cortex/cortexFlag';
 import { useGenreReadiness } from '@/features/learn/genreReadiness';
 import type { LearnTab } from '@/features/learn/learnPaths';
 import {
@@ -124,7 +123,7 @@ export const LearnPage = ({
           }),
     [section, instrument, kind, shownSongs, genreSection, genreReady],
   );
-  const showCortex = !tab && !section && isCortexEnabled();
+  const showCortex = !tab && !section;
   return (
     // `isolate`, so the glow's -z-10 puts it behind everything here but
     // still in front of the panel's background (as on Home).

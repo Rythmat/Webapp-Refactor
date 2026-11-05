@@ -17,6 +17,9 @@ const PENDING = new Set([
   // The official "Insane in the Brain" video may not be the edited audio:
   // Apple lists it as cleaned, its captions don't agree. Needs a listen.
   'Cypress Hill',
+  // Every hit checked has sexual references or profanity (Pa' Que Retozen,
+  // Al Natural, Métele Sazón, Llora, Llora); none is clean.
+  'Tego Calderón',
 ]);
 
 const overviewArtists = Object.values(GENRE_PROFILES).flatMap((profile) =>

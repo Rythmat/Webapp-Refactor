@@ -25,6 +25,28 @@
     {
       "kind": "part",
       "id": "latin-guitarist-1-l2-merengue-chunking-copy"
+    },
+    {
+      "kind": "part",
+      "id": "latin-guitarist-1-l2-bolero-take-6"
+    },
+    {
+      "kind": "part",
+      "id": "latin-guitarist-1-l3-tango-take-7"
+    }
+  ],
+  "families": [
+    {
+      "id": "tango-guitar-comping",
+      "name": "Tango guitar comping",
+      "style": "latin-tango",
+      "versions": [
+        {
+          "part": "latin-guitarist-1-l3-tango-take-7",
+          "use": "band",
+          "levels": [3]
+        }
+      ]
     }
   ]
 }

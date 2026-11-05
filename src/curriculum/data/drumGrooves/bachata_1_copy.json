@@ -1,0 +1,250 @@
+{
+  "id": "bachata_1_copy",
+  "name": "Cha Cha Cha groove",
+  "description": "Cha Cha Cha groove",
+  "genre": "latin",
+  "style": "Salsa",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 2,
+  "tempo": 130,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "16n",
+  "kit": "salsa_kit_2",
+  "padGains": {
+    "38": 0.5,
+    "41": 1.5,
+    "42": 1.5,
+    "45": 1.5,
+    "51": 1.5
+  },
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 1920,
+      "note": 44,
+      "velocity": 38
+    },
+    {
+      "tick": 720,
+      "note": 36,
+      "velocity": 38
+    },
+    {
+      "tick": 2640,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 480,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 720,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 2400,
+      "note": 45,
+      "velocity": 112
+    },
+    {
+      "tick": 2640,
+      "note": 45,
+      "velocity": 70
+    },
+    {
+      "tick": 3120,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 3660,
+      "note": 45,
+      "velocity": 70
+    },
+    {
+      "tick": 3780,
+      "note": 45,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "note": 38,
+      "velocity": 96
+    },
+    {
+      "tick": 1680,
+      "note": 48,
+      "velocity": 96
+    },
+    {
+      "tick": 1440,
+      "note": 48,
+      "velocity": 70
+    },
+    {
+      "tick": 3600,
+      "note": 48,
+      "velocity": 96
+    },
+    {
+      "tick": 3360,
+      "note": 48,
+      "velocity": 38
+    },
+    {
+      "tick": 0,
+      "note": 41,
+      "velocity": 96
+    },
+    {
+      "tick": 960,
+      "note": 41,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 1920,
+      "note": 41,
+      "velocity": 38
+    },
+    {
+      "tick": 2880,
+      "note": 41,
+      "velocity": 38
+    },
+    {
+      "tick": 960,
+      "note": 38,
+      "velocity": 38
+    },
+    {
+      "tick": 1920,
+      "note": 38,
+      "velocity": 70
+    },
+    {
+      "tick": 2880,
+      "note": 38,
+      "velocity": 38
+    },
+    {
+      "tick": 3360,
+      "note": 40,
+      "velocity": 96
+    },
+    {
+      "tick": 1680,
+      "note": 40,
+      "velocity": 38
+    },
+    {
+      "tick": 1440,
+      "note": 36,
+      "velocity": 70
+    },
+    {
+      "tick": 3360,
+      "note": 36,
+      "velocity": 70
+    },
+    {
+      "tick": 0,
+      "note": 51,
+      "velocity": 112
+    },
+    {
+      "tick": 480,
+      "note": 51,
+      "velocity": 96
+    },
+    {
+      "tick": 720,
+      "note": 51,
+      "velocity": 112
+    },
+    {
+      "tick": 960,
+      "note": 51,
+      "velocity": 112
+    },
+    {
+      "tick": 1440,
+      "note": 51,
+      "velocity": 112
+    },
+    {
+      "tick": 1680,
+      "note": 51,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "note": 51,
+      "velocity": 112
+    },
+    {
+      "tick": 2400,
+      "note": 51,
+      "velocity": 96
+    },
+    {
+      "tick": 2640,
+      "note": 51,
+      "velocity": 96
+    },
+    {
+      "tick": 2880,
+      "note": 51,
+      "velocity": 96
+    },
+    {
+      "tick": 3360,
+      "note": 51,
+      "velocity": 96
+    },
+    {
+      "tick": 3600,
+      "note": 51,
+      "velocity": 96
+    },
+    {
+      "tick": 480,
+      "note": 44,
+      "velocity": 38
+    },
+    {
+      "tick": 960,
+      "note": 44,
+      "velocity": 38
+    },
+    {
+      "tick": 2640,
+      "note": 44,
+      "velocity": 38
+    },
+    {
+      "tick": 3360,
+      "note": 44,
+      "velocity": 38
+    },
+    {
+      "tick": 2160,
+      "note": 41,
+      "velocity": 38
+    }
+  ]
+}

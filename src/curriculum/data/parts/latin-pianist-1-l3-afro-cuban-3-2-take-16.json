@@ -1,0 +1,694 @@
+{
+  "id": "latin-pianist-1-l3-afro-cuban-3-2-take-16",
+  "name": "Afro Cuban Montuno 3-2",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 3,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 152,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 64,
+      "velocity": 81
+    },
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 76,
+      "velocity": 46
+    },
+    {
+      "offset": -48,
+      "tick": 240,
+      "duration": 240,
+      "midi": 67,
+      "velocity": 48
+    },
+    {
+      "offset": -48,
+      "tick": 240,
+      "duration": 240,
+      "midi": 67,
+      "velocity": 44
+    },
+    {
+      "offset": 8,
+      "tick": 240,
+      "duration": 120,
+      "midi": 79,
+      "velocity": 63
+    },
+    {
+      "offset": 8,
+      "tick": 240,
+      "duration": 240,
+      "midi": 79,
+      "velocity": 26
+    },
+    {
+      "offset": -13,
+      "tick": 480,
+      "duration": 240,
+      "midi": 71,
+      "velocity": 47
+    },
+    {
+      "offset": -13,
+      "tick": 480,
+      "duration": 240,
+      "midi": 71,
+      "velocity": 57
+    },
+    {
+      "offset": -13,
+      "tick": 480,
+      "duration": 120,
+      "midi": 83,
+      "velocity": 27
+    },
+    {
+      "offset": -13,
+      "tick": 480,
+      "duration": 240,
+      "midi": 83,
+      "velocity": 68
+    },
+    {
+      "offset": 15,
+      "tick": 720,
+      "duration": 240,
+      "midi": 64,
+      "velocity": 55
+    },
+    {
+      "offset": 15,
+      "tick": 720,
+      "duration": 240,
+      "midi": 64,
+      "velocity": 59
+    },
+    {
+      "offset": -6,
+      "tick": 720,
+      "duration": 360,
+      "midi": 76,
+      "velocity": 98
+    },
+    {
+      "offset": -6,
+      "tick": 720,
+      "duration": 360,
+      "midi": 76,
+      "velocity": 59
+    },
+    {
+      "offset": -13,
+      "tick": 1200,
+      "duration": 360,
+      "midi": 67,
+      "velocity": 44
+    },
+    {
+      "offset": -13,
+      "tick": 1200,
+      "duration": 360,
+      "midi": 67,
+      "velocity": 53
+    },
+    {
+      "offset": 1,
+      "tick": 1200,
+      "duration": 360,
+      "midi": 71,
+      "velocity": 46
+    },
+    {
+      "offset": 1,
+      "tick": 1200,
+      "duration": 360,
+      "midi": 71,
+      "velocity": 63
+    },
+    {
+      "offset": 1,
+      "tick": 1200,
+      "duration": 120,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "offset": 1,
+      "tick": 1200,
+      "duration": 240,
+      "midi": 79,
+      "velocity": 70
+    },
+    {
+      "offset": 1,
+      "tick": 1200,
+      "duration": 360,
+      "midi": 83,
+      "velocity": 96
+    },
+    {
+      "offset": 1,
+      "tick": 1200,
+      "duration": 240,
+      "midi": 83,
+      "velocity": 84
+    },
+    {
+      "offset": 22,
+      "tick": 1680,
+      "duration": 360,
+      "midi": 64,
+      "velocity": 51
+    },
+    {
+      "offset": 22,
+      "tick": 1680,
+      "duration": 240,
+      "midi": 64,
+      "velocity": 60
+    },
+    {
+      "offset": 29,
+      "tick": 1680,
+      "duration": 240,
+      "midi": 76,
+      "velocity": 73
+    },
+    {
+      "offset": 29,
+      "tick": 1680,
+      "duration": 360,
+      "midi": 76,
+      "velocity": 53
+    },
+    {
+      "offset": 44,
+      "tick": 2160,
+      "duration": 360,
+      "midi": 69,
+      "velocity": 47
+    },
+    {
+      "offset": 44,
+      "tick": 2160,
+      "duration": 360,
+      "midi": 69,
+      "velocity": 54
+    },
+    {
+      "offset": 29,
+      "tick": 2160,
+      "duration": 360,
+      "midi": 72,
+      "velocity": 41
+    },
+    {
+      "offset": 29,
+      "tick": 2160,
+      "duration": 360,
+      "midi": 72,
+      "velocity": 41
+    },
+    {
+      "offset": 15,
+      "tick": 2160,
+      "duration": 360,
+      "midi": 81,
+      "velocity": 83
+    },
+    {
+      "offset": 15,
+      "tick": 2160,
+      "duration": 360,
+      "midi": 81,
+      "velocity": 64
+    },
+    {
+      "offset": 22,
+      "tick": 2160,
+      "duration": 360,
+      "midi": 84,
+      "velocity": 78
+    },
+    {
+      "offset": 22,
+      "tick": 2160,
+      "duration": 360,
+      "midi": 84,
+      "velocity": 69
+    },
+    {
+      "offset": 8,
+      "tick": 2640,
+      "duration": 360,
+      "midi": 64,
+      "velocity": 58
+    },
+    {
+      "offset": 8,
+      "tick": 2640,
+      "duration": 240,
+      "midi": 64,
+      "velocity": 50
+    },
+    {
+      "offset": 15,
+      "tick": 2640,
+      "duration": 360,
+      "midi": 76,
+      "velocity": 58
+    },
+    {
+      "offset": 15,
+      "tick": 2640,
+      "duration": 240,
+      "midi": 76,
+      "velocity": 52
+    },
+    {
+      "offset": 8,
+      "tick": 3120,
+      "duration": 240,
+      "midi": 69,
+      "velocity": 62
+    },
+    {
+      "offset": 8,
+      "tick": 3120,
+      "duration": 240,
+      "midi": 69,
+      "velocity": 55
+    },
+    {
+      "offset": -6,
+      "tick": 3120,
+      "duration": 360,
+      "midi": 72,
+      "velocity": 49
+    },
+    {
+      "offset": -6,
+      "tick": 3120,
+      "duration": 360,
+      "midi": 72,
+      "velocity": 49
+    },
+    {
+      "offset": -13,
+      "tick": 3120,
+      "duration": 120,
+      "midi": 81,
+      "velocity": 88
+    },
+    {
+      "offset": -13,
+      "tick": 3120,
+      "duration": 120,
+      "midi": 81,
+      "velocity": 59
+    },
+    {
+      "offset": -13,
+      "tick": 3120,
+      "duration": 240,
+      "midi": 84,
+      "velocity": 87
+    },
+    {
+      "offset": -13,
+      "tick": 3120,
+      "duration": 240,
+      "midi": 84,
+      "velocity": 70
+    },
+    {
+      "offset": -13,
+      "tick": 3600,
+      "duration": 120,
+      "midi": 63,
+      "velocity": 57
+    },
+    {
+      "offset": -13,
+      "tick": 3600,
+      "duration": 120,
+      "midi": 63,
+      "velocity": 60
+    },
+    {
+      "offset": 1,
+      "tick": 3600,
+      "duration": 120,
+      "midi": 75,
+      "velocity": 63
+    },
+    {
+      "offset": 1,
+      "tick": 3600,
+      "duration": 120,
+      "midi": 75,
+      "velocity": 61
+    },
+    {
+      "offset": 1,
+      "tick": 3840,
+      "duration": 240,
+      "midi": 63,
+      "velocity": 69
+    },
+    {
+      "offset": 1,
+      "tick": 3840,
+      "duration": 240,
+      "midi": 63,
+      "velocity": 63
+    },
+    {
+      "offset": 15,
+      "tick": 3840,
+      "duration": 240,
+      "midi": 75,
+      "velocity": 60
+    },
+    {
+      "offset": 15,
+      "tick": 3840,
+      "duration": 240,
+      "midi": 75,
+      "velocity": 62
+    },
+    {
+      "offset": -13,
+      "tick": 4080,
+      "duration": 240,
+      "midi": 66,
+      "velocity": 70
+    },
+    {
+      "offset": -13,
+      "tick": 4080,
+      "duration": 240,
+      "midi": 66,
+      "velocity": 60
+    },
+    {
+      "offset": -6,
+      "tick": 4080,
+      "duration": 240,
+      "midi": 78,
+      "velocity": 75
+    },
+    {
+      "offset": -6,
+      "tick": 4080,
+      "duration": 240,
+      "midi": 78,
+      "velocity": 61
+    },
+    {
+      "offset": -6,
+      "tick": 4320,
+      "duration": 240,
+      "midi": 71,
+      "velocity": 51
+    },
+    {
+      "offset": -6,
+      "tick": 4320,
+      "duration": 240,
+      "midi": 71,
+      "velocity": 45
+    },
+    {
+      "offset": 15,
+      "tick": 4320,
+      "duration": 120,
+      "midi": 83,
+      "velocity": 73
+    },
+    {
+      "offset": 15,
+      "tick": 4320,
+      "duration": 240,
+      "midi": 83,
+      "velocity": 49
+    },
+    {
+      "offset": -20,
+      "tick": 4560,
+      "duration": 360,
+      "midi": 63,
+      "velocity": 91
+    },
+    {
+      "offset": -20,
+      "tick": 4560,
+      "duration": 480,
+      "midi": 63,
+      "velocity": 62
+    },
+    {
+      "offset": 1,
+      "tick": 4560,
+      "duration": 360,
+      "midi": 75,
+      "velocity": 74
+    },
+    {
+      "offset": 1,
+      "tick": 4560,
+      "duration": 360,
+      "midi": 75,
+      "velocity": 72
+    },
+    {
+      "offset": -6,
+      "tick": 5040,
+      "duration": 360,
+      "midi": 66,
+      "velocity": 60
+    },
+    {
+      "offset": -6,
+      "tick": 5040,
+      "duration": 360,
+      "midi": 66,
+      "velocity": 60
+    },
+    {
+      "offset": 8,
+      "tick": 5040,
+      "duration": 360,
+      "midi": 71,
+      "velocity": 46
+    },
+    {
+      "offset": 8,
+      "tick": 5040,
+      "duration": 360,
+      "midi": 71,
+      "velocity": 44
+    },
+    {
+      "offset": 8,
+      "tick": 5040,
+      "duration": 360,
+      "midi": 78,
+      "velocity": 76
+    },
+    {
+      "offset": 8,
+      "tick": 5040,
+      "duration": 360,
+      "midi": 78,
+      "velocity": 76
+    },
+    {
+      "offset": 8,
+      "tick": 5040,
+      "duration": 360,
+      "midi": 83,
+      "velocity": 85
+    },
+    {
+      "offset": 8,
+      "tick": 5040,
+      "duration": 360,
+      "midi": 83,
+      "velocity": 73
+    },
+    {
+      "offset": 1,
+      "tick": 5520,
+      "duration": 360,
+      "midi": 64,
+      "velocity": 46
+    },
+    {
+      "offset": 1,
+      "tick": 5520,
+      "duration": 360,
+      "midi": 64,
+      "velocity": 48
+    },
+    {
+      "offset": 8,
+      "tick": 5520,
+      "duration": 360,
+      "midi": 76,
+      "velocity": 53
+    },
+    {
+      "offset": 8,
+      "tick": 5520,
+      "duration": 360,
+      "midi": 76,
+      "velocity": 63
+    },
+    {
+      "offset": 29,
+      "tick": 6000,
+      "duration": 360,
+      "midi": 67,
+      "velocity": 58
+    },
+    {
+      "offset": 29,
+      "tick": 6000,
+      "duration": 360,
+      "midi": 67,
+      "velocity": 60
+    },
+    {
+      "offset": 15,
+      "tick": 6000,
+      "duration": 360,
+      "midi": 71,
+      "velocity": 65
+    },
+    {
+      "offset": 15,
+      "tick": 6000,
+      "duration": 360,
+      "midi": 71,
+      "velocity": 52
+    },
+    {
+      "offset": 1,
+      "tick": 6000,
+      "duration": 360,
+      "midi": 79,
+      "velocity": 76
+    },
+    {
+      "offset": 1,
+      "tick": 6000,
+      "duration": 360,
+      "midi": 79,
+      "velocity": 85
+    },
+    {
+      "offset": 1,
+      "tick": 6000,
+      "duration": 360,
+      "midi": 83,
+      "velocity": 64
+    },
+    {
+      "offset": 1,
+      "tick": 6000,
+      "duration": 360,
+      "midi": 83,
+      "velocity": 82
+    },
+    {
+      "tick": 6480,
+      "duration": 360,
+      "midi": 64,
+      "velocity": 100
+    },
+    {
+      "offset": 29,
+      "tick": 6480,
+      "duration": 360,
+      "midi": 76,
+      "velocity": 56
+    },
+    {
+      "offset": 29,
+      "tick": 6480,
+      "duration": 360,
+      "midi": 76,
+      "velocity": 45
+    },
+    {
+      "tick": 6960,
+      "duration": 360,
+      "midi": 67,
+      "velocity": 100
+    },
+    {
+      "offset": 15,
+      "tick": 6960,
+      "duration": 360,
+      "midi": 71,
+      "velocity": 63
+    },
+    {
+      "offset": 8,
+      "tick": 6960,
+      "duration": 360,
+      "midi": 79,
+      "velocity": 86
+    },
+    {
+      "offset": 8,
+      "tick": 6960,
+      "duration": 360,
+      "midi": 79,
+      "velocity": 87
+    },
+    {
+      "offset": 8,
+      "tick": 6960,
+      "duration": 240,
+      "midi": 83,
+      "velocity": 88
+    },
+    {
+      "offset": 8,
+      "tick": 7440,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 90
+    },
+    {
+      "offset": -20,
+      "tick": 7440,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 99
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "latin",
+  "style": "Afro-Cuban",
+  "chordSymbols": ["Em", "Am", "B7", "Em"]
+}

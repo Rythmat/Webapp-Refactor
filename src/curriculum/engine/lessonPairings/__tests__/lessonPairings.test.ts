@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { lessonStyleFor } from '../../../data/lessonStyles';
 import type { ActivityStepV2 } from '../../../types/activity.v2';
+import { getBand } from '../../band/registry';
 import {
   buildBackingNotes,
   stepBassVoice,
   stepDrumKit,
 } from '../../genreGeneration/backingPatterns';
 import { qualityFromIntervals } from '../pairedBacking';
-import { pairingFor, pairingsReady } from '../registry';
+import { listPairings, pairingFor, pairingsReady } from '../registry';
 
 const step = (styleRef: string, chordSymbols: string[]): ActivityStepV2 =>
   ({
@@ -62,6 +63,32 @@ describe('lesson pairings', () => {
     expect(notes.some((n) => n.part === 'drums')).toBe(true);
     expect(stepDrumKit(s, 'l1b', 'latin', 1)).toBe('custom_custom_natural_01');
     expect(stepBassVoice(s, 'l1b', 'latin', 1)).toBe('finger');
+  });
+
+  it('names only variations its bands have', () => {
+    // A variation the band lacks plays the band's first instead (Ryan, 5 Nov
+    // 2026: Jazz L2's Esus4♭9 and Amin7♭6 steps).
+    const missing = listPairings().flatMap((p) =>
+      [
+        { band: p.band, variation: p.variation, at: 'variation' },
+        ...(p.overrides ?? []).map((o, i) => ({
+          band: o.band,
+          variation: o.variation,
+          at: `overrides[${i}]`,
+        })),
+      ]
+        .filter(
+          ({ band, variation }) =>
+            band &&
+            variation &&
+            !getBand(band)?.variations?.some((v) => v.id === variation),
+        )
+        .map(
+          ({ band, variation, at }) =>
+            `${p.id} ${at}: ${band} has no ${variation}`,
+        ),
+    );
+    expect(missing).toEqual([]);
   });
 
   it('leaves genres without lesson styles alone', () => {

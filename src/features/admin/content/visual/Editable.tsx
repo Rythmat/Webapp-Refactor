@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/components/utilities';
+import { caretFromClick, placeCaret } from '@/lib/caretFromClick';
 import { CONSOLE_LABEL } from '../../ui/styles';
 
 /**
@@ -51,16 +52,23 @@ const contentWidth = (text: string, minChars: number) => ({
   maxWidth: '100%',
 });
 
-/** Select all on focus so a click-to-edit replaces rather than appends. */
+/**
+ * Focus a field as it opens. Text opens with its caret where it was clicked
+ * (`caret`, else at the end), so a word can be changed without retyping the
+ * rest (owner, 3 Nov 2026: selecting it all meant the first key wiped it
+ * out). A number, or a new entry, opens selected, to type over.
+ */
 const useAutoFocus = <T extends HTMLInputElement | HTMLTextAreaElement>(
   active: boolean,
+  caret?: { current: number | null },
 ) => {
   const ref = useRef<T>(null);
   useLayoutEffect(() => {
-    if (!active) return;
-    ref.current?.focus();
-    ref.current?.select();
-  }, [active]);
+    if (!active || !ref.current) return;
+    ref.current.focus();
+    if (caret) placeCaret(ref.current, caret.current);
+    else ref.current.select();
+  }, [active, caret]);
   return ref;
 };
 
@@ -80,7 +88,8 @@ export const InlineText: FC<{
 }) => {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value ?? '');
-  const ref = useAutoFocus<HTMLInputElement>(editing);
+  const caret = useRef<number | null>(null);
+  const ref = useAutoFocus<HTMLInputElement>(editing, caret);
 
   useEffect(() => setDraft(value ?? ''), [value]);
 
@@ -119,10 +128,14 @@ export const InlineText: FC<{
       tabIndex={0}
       aria-label={`${ariaLabel} — click to edit`}
       className={cn(EDIT_AFFORDANCE, className, !value && 'text-white/30')}
-      onClick={() => setEditing(true)}
+      onClick={(e) => {
+        caret.current = value ? caretFromClick(e) : null;
+        setEditing(true);
+      }}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
+          caret.current = null;
           setEditing(true);
         }
       }}
@@ -149,7 +162,8 @@ export const InlineTextarea: FC<{
 }) => {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value ?? '');
-  const ref = useAutoFocus<HTMLTextAreaElement>(editing);
+  const caret = useRef<number | null>(null);
+  const ref = useAutoFocus<HTMLTextAreaElement>(editing, caret);
 
   useEffect(() => setDraft(value ?? ''), [value]);
 
@@ -194,10 +208,14 @@ export const InlineTextarea: FC<{
         className,
         !value && 'text-white/30',
       )}
-      onClick={() => setEditing(true)}
+      onClick={(e) => {
+        caret.current = value ? caretFromClick(e) : null;
+        setEditing(true);
+      }}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
+          caret.current = null;
           setEditing(true);
         }
       }}
@@ -340,6 +358,18 @@ export const InlineTagList: FC<{
   addLabel?: string;
   ariaLabel: string;
   className?: string;
+  /**
+   * A list in order, where a value comes again (a step's chords, one a bar:
+   * C7 F7 C7 C7). Each chip opens in place, so bar 9 changes without
+   * retyping bars 10–12.
+   */
+  ordered?: boolean;
+  /**
+   * Reads what's typed as one or more entries ('C7 | F7 | C7'); null when it
+   * can't be read, and the field stays open, marked. Left out, what's typed
+   * is one entry.
+   */
+  parse?: (text: string) => string[] | null;
 }> = ({
   values,
   onChange,
@@ -347,69 +377,141 @@ export const InlineTagList: FC<{
   addLabel = 'Add',
   ariaLabel,
   className,
+  ordered = false,
+  parse,
 }) => {
-  const [adding, setAdding] = useState(false);
+  // The chip being changed, or the new entry. The ref keeps a blur that
+  // follows Enter from committing twice.
+  const [editing, setEditing] = useState<number | 'new' | null>(null);
+  const open = useRef<number | 'new' | null>(null);
   const [draft, setDraft] = useState('');
-  const ref = useAutoFocus<HTMLInputElement>(adding);
+  const [refused, setRefused] = useState(false);
+  const caret = useRef<number | null>(null);
+  const ref = useAutoFocus<HTMLInputElement>(editing !== null, caret);
 
-  const commit = () => {
-    const next = draft.trim();
-    setAdding(false);
-    setDraft('');
-    if (next && !values.includes(next)) onChange([...values, next]);
+  const start = (at: number | 'new', text: string, caretAt: number | null) => {
+    open.current = at;
+    caret.current = caretAt;
+    setDraft(text);
+    setRefused(false);
+    setEditing(at);
   };
+  const close = () => {
+    open.current = null;
+    setEditing(null);
+    setDraft('');
+    setRefused(false);
+  };
+
+  /** Keeps the draft; `leaving`, one that can't be read is dropped. */
+  const commit = (leaving: boolean) => {
+    const at = open.current;
+    if (at === null) return;
+    const text = draft.trim();
+    const typed = !text ? [] : parse ? parse(text) : [text];
+    if (!typed) return leaving ? close() : setRefused(true);
+    close();
+    if (at === 'new') {
+      const added = ordered
+        ? typed
+        : typed.filter((v, i) => !values.includes(v) && typed.indexOf(v) === i);
+      if (added.length) onChange([...values, ...added]);
+      return;
+    }
+    // A chip changed in place; emptied, it goes.
+    const next = [...values.slice(0, at), ...typed, ...values.slice(at + 1)];
+    if (next.join('\n') !== values.join('\n')) onChange(next);
+  };
+
+  const field = (
+    <input
+      ref={ref}
+      aria-label={
+        editing === 'new' ? `${ariaLabel} — new entry` : `${ariaLabel} — edit`
+      }
+      aria-invalid={refused || undefined}
+      className={cn(
+        INPUT_RESET,
+        'text-xs',
+        !ordered && 'w-28',
+        refused && 'ring-red-400',
+      )}
+      style={ordered ? contentWidth(draft, 6) : undefined}
+      value={draft}
+      onChange={(e) => {
+        setDraft(e.target.value);
+        setRefused(false);
+      }}
+      onBlur={() => commit(true)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          commit(false);
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          close();
+        }
+      }}
+    />
+  );
 
   return (
     <div className={cn('flex flex-wrap items-center gap-1.5', className)}>
-      {values.map((value, index) => (
-        <span
-          key={`${value}-${index}`}
-          className="group inline-flex items-center gap-1"
-        >
-          {renderTag ? (
-            renderTag(value)
-          ) : (
-            <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/70">
-              {value}
-            </span>
-          )}
-          <button
-            type="button"
-            aria-label={`Remove ${value}`}
-            className="text-white/25 transition-colors hover:text-red-400"
-            onClick={() => onChange(values.filter((_, i) => i !== index))}
+      {values.map((value, index) =>
+        editing === index ? (
+          <span key={`${value}-${index}`}>{field}</span>
+        ) : (
+          <span
+            key={`${value}-${index}`}
+            className="group inline-flex items-center gap-1"
           >
-            <X className="size-3" />
-          </button>
-        </span>
-      ))}
+            {renderTag ? (
+              renderTag(value)
+            ) : ordered ? (
+              <span
+                role="button"
+                tabIndex={0}
+                aria-label={`${ariaLabel} — change ${value}`}
+                className={cn(
+                  EDIT_AFFORDANCE,
+                  'rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/70',
+                )}
+                onClick={(e) => start(index, value, caretFromClick(e))}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    start(index, value, null);
+                  }
+                }}
+              >
+                {value}
+              </span>
+            ) : (
+              <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/70">
+                {value}
+              </span>
+            )}
+            <button
+              type="button"
+              aria-label={`Remove ${value}`}
+              className="text-white/25 transition-colors hover:text-red-400"
+              onClick={() => onChange(values.filter((_, i) => i !== index))}
+            >
+              <X className="size-3" />
+            </button>
+          </span>
+        ),
+      )}
 
-      {adding ? (
-        <input
-          ref={ref}
-          aria-label={`${ariaLabel} — new entry`}
-          className={cn(INPUT_RESET, 'w-28 text-xs')}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={commit}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              commit();
-            }
-            if (e.key === 'Escape') {
-              e.preventDefault();
-              setDraft('');
-              setAdding(false);
-            }
-          }}
-        />
+      {editing === 'new' ? (
+        field
       ) : (
         <button
           type="button"
           aria-label={`${ariaLabel} — ${addLabel.toLowerCase()}`}
           className="inline-flex items-center gap-0.5 rounded-full border border-dashed border-white/20 px-2 py-0.5 text-xs text-white/40 transition-colors hover:border-white/40 hover:text-white/80"
-          onClick={() => setAdding(true)}
+          onClick={() => start('new', '', null)}
         >
           <Plus className="size-3" />
           {addLabel}

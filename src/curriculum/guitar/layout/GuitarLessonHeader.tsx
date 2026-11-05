@@ -1,5 +1,6 @@
-import { Fragment, type ReactNode } from 'react';
+import { Fragment, useContext, type ReactNode } from 'react';
 import { ChordNameSwitch } from '@/components/notation/ChordNameSwitch';
+import { EditableText, LessonTextEditingContext } from './lessonTextEditing';
 import type { HeaderModel } from './types';
 
 // ── Lesson header ──────────────────────────────────────────────────────────
@@ -14,6 +15,17 @@ export function lessonTitle(activity: string): string {
     .replace(/^\s*[A-Z]\d+(?:\.\d+)*[a-z]?:\s*/, '')
     .replace(/\s*\((?:Out of Time|In Time)\)\s*$/i, '')
     .trim();
+}
+
+/**
+ * The activity line with its title changed and its label and timing kept:
+ * ("A1.1: Major Scale (Out of Time)", "Major Scale Ascending") →
+ * "A1.1: Major Scale Ascending (Out of Time)". The inverse of lessonTitle.
+ */
+export function withLessonTitle(activity: string, title: string): string {
+  const label = /^\s*([A-Z]\d+(?:\.\d+)*[a-z]?):\s*/.exec(activity)?.[1];
+  const timing = /\s*\((?:Out of Time|In Time)\)\s*$/i.exec(activity)?.[0];
+  return `${label ? `${label}: ` : ''}${title.trim()}${timing ?? ''}`;
 }
 
 /** "A1: Major Scale" → "A1 Major Scale", as the eyebrow reads it. */
@@ -44,6 +56,8 @@ export function GuitarLessonHeader({
   // (Music Literacy's module).
   const where =
     section || (header.subsection ? eyebrowSubsection(header.subsection) : '');
+  // In the console's lesson editor, the section and title edit in place.
+  const editing = useContext(LessonTextEditingContext);
 
   const aside =
     titleAside || header.chordNames ? (
@@ -64,8 +78,37 @@ export function GuitarLessonHeader({
         title={header.activity}
         className="min-w-0 truncate pr-2 text-sm leading-5 text-white/55"
       >
-        {where && <span data-subtitle-where>{where}: </span>}
-        <span data-subtitle-step>{step}</span>
+        {where && (
+          <span data-subtitle-where>
+            {editing && section ? (
+              <EditableText
+                value={editing.sectionName}
+                onChange={editing.setSectionName}
+                label="Section name"
+              >
+                {where}
+              </EditableText>
+            ) : (
+              where
+            )}
+            :{' '}
+          </span>
+        )}
+        <span data-subtitle-step>
+          {editing ? (
+            <EditableText
+              value={lessonTitle(editing.activity)}
+              onChange={(title) =>
+                editing.setActivity(withLessonTitle(editing.activity, title))
+              }
+              label="Step title"
+            >
+              {step}
+            </EditableText>
+          ) : (
+            step
+          )}
+        </span>
       </p>
       {aside ? (
         <div

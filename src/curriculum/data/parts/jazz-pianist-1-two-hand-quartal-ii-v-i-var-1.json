@@ -1,0 +1,131 @@
+{
+  "id": "jazz-pianist-1-two-hand-quartal-ii-v-i-var-1",
+  "name": "Jazz-Pianist-1 · Quartal II–V–I variation #1",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 3,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 10,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 58,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 64,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 57,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 63,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 57,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 69,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 74,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 79,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 68,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 73,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 78,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 67,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 72,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 77,
+      "velocity": 80,
+      "hand": "rh"
+    }
+  ],
+  "chordSymbols": ["C7", "F7#5b9", "Bbmaj7", "Bbmaj7"],
+  "stayInKey": "both"
+}

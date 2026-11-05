@@ -1,6 +1,7 @@
 /**
- * The rule for chord symbols, held over the whole library: a symbol sits over
- * the target notes that play its chord (lessonChordSymbols.ts).
+ * The rule for chord symbols, held over the whole library: above the measures,
+ * each chord at the start of its bar and a change inside a bar on its own
+ * strike (lessonChordSymbols.ts).
  *
  * lessonChordSymbols.test.ts proves the placement does what it says; this
  * proves the lessons let it. A step whose symbols don't match its notes — a
@@ -53,6 +54,7 @@ interface Case {
   labels: string[];
   notes: GenreNoteEvent[];
   ticksPerBar: number;
+  outOfTime: boolean;
 }
 
 /** Every step with chord symbols and notes, resolved as the lesson resolves it. */
@@ -84,6 +86,7 @@ async function stepsWithChords(): Promise<Case[]> {
           labels: step.chordSymbols,
           notes,
           ticksPerBar: barTicks(timeSignature),
+          outOfTime: step.assessment === 'pitch_order',
         });
       }
     }
@@ -91,12 +94,13 @@ async function stepsWithChords(): Promise<Case[]> {
   return out;
 }
 
-const place = ({ labels, notes, ticksPerBar }: Case) =>
+const place = ({ labels, notes, ticksPerBar, outOfTime }: Case) =>
   placeLessonChords(labels, {
     // The roll's padded count: placement has to see past it.
     bars: Math.max(2, Math.ceil(end(notes) / ticksPerBar)),
     ticksPerBar,
     notes,
+    outOfTime,
   });
 
 const end = (notes: readonly GenreNoteEvent[]) =>
@@ -104,7 +108,7 @@ const end = (notes: readonly GenreNoteEvent[]) =>
 
 const pc = (midi: number) => ((midi % 12) + 12) % 12;
 
-describe('chord symbols sit over the notes that play them', () => {
+describe('chord symbols sit above the measures', () => {
   it('has steps to check', async () => {
     expect((await stepsWithChords()).length).toBeGreaterThan(200);
   });
@@ -136,11 +140,12 @@ describe('chord symbols sit over the notes that play them', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('puts each symbol on notes of its own chord, when the notes play chords', async () => {
+  it('starts each bar’s chord on its downbeat, and a change inside a bar on notes of its own chord', async () => {
     const offenders: string[] = [];
     for (const step of await stepsWithChords()) {
       if (!chordStrikes(step.labels, step.notes)) continue;
       for (const chord of place(step)) {
+        if (chord.startTick % step.ticksPerBar === 0) continue;
         const tones = chordSymbolTones(chord.label);
         if (!tones) continue;
         const pcs = new Set([
@@ -150,6 +155,19 @@ describe('chord symbols sit over the notes that play them', () => {
         const struck = step.notes.filter((n) => n.onset === chord.startTick);
         const fit = struck.filter((n) => pcs.has(pc(n.midi))).length;
         if (struck.length === 0 || fit * 2 < struck.length) {
+          offenders.push(`${step.where}: ${chord.label} at ${chord.startTick}`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('puts a line’s chords one a bar, in time', async () => {
+    const offenders: string[] = [];
+    for (const step of await stepsWithChords()) {
+      if (step.outOfTime || chordStrikes(step.labels, step.notes)) continue;
+      for (const chord of place(step)) {
+        if (chord.startTick % step.ticksPerBar !== 0) {
           offenders.push(`${step.where}: ${chord.label} at ${chord.startTick}`);
         }
       }

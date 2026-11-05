@@ -1,0 +1,55 @@
+{
+  "id": "blues-pianist-1-blues-language-f-1",
+  "name": "Blues-Pianist-1 · Blues Language in F · Phrase 1",
+  "instrument": "piano",
+  "role": "melody",
+  "level": 2,
+  "tags": ["blues", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 5,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 1,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "blues",
+  "chordSymbols": ["F7"],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 80,
+      "velocity": 80
+    },
+    {
+      "tick": 240,
+      "duration": 240,
+      "midi": 81,
+      "velocity": 80
+    },
+    {
+      "tick": 480,
+      "duration": 240,
+      "midi": 80,
+      "velocity": 80
+    },
+    {
+      "tick": 720,
+      "duration": 240,
+      "midi": 81,
+      "velocity": 80
+    },
+    {
+      "tick": 960,
+      "duration": 960,
+      "midi": 77,
+      "velocity": 80
+    }
+  ]
+}

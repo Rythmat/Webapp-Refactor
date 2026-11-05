@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
+import { styleKeyName } from '@/curriculum/data/lessonStyles';
 import {
   BAND_INSTRUMENTS,
   type BandInstrument,
@@ -15,11 +16,16 @@ import {
   uniquePartId,
 } from '@/curriculum/engine/parts/part';
 import {
+  type FamilyVersion,
+  type PartFamily,
   PLAYER_ROLE,
   type Player,
   type PlayerItem,
+  VERSION_USE,
   withItem,
   withoutItem,
+  withoutVersion,
+  withVersion,
 } from '@/curriculum/engine/players/player';
 import { useInstrumentStore } from '../drumGrooves/instrumentStore';
 import { usePartList } from '../parts/partFiles';
@@ -46,7 +52,9 @@ const CAPTURE_INSTRUMENT: Partial<Record<BandInstrument, PartInstrument>> = {
 /**
  * One player: who they are, the grooves, lines, patterns and parts they play
  * (each opening in its own editor), filing more under them, and capturing a
- * new part as them — it opens in the Parts editor, already theirs.
+ * new part as them — it opens in the Parts editor, already theirs. Their
+ * parts gathered in families (player.ts) come first, each version marked
+ * band take, teaching version or both, for the levels it fits.
  */
 export const AdminPlayerPage = () => {
   const { id = '' } = useParams<{ id: string }>();
@@ -105,6 +113,15 @@ const PlayerView = ({
     .map((item) => items.get(itemKey(item)))
     .filter((i): i is ItemInfo => Boolean(i));
   const missing = player.items.filter((item) => !items.has(itemKey(item)));
+  const families = player.families ?? [];
+  const inFamily = new Set(
+    families.flatMap((f) => f.versions.map((v) => `part:${v.part}`)),
+  );
+  const loose = mine.filter((i) => !inFamily.has(itemKey(i.item)));
+  const infoOf = (partId: string) =>
+    items.get(itemKey({ kind: 'part', id: partId }));
+  const setVersion = (family: PartFamily, version: FamilyVersion) =>
+    run(() => savePlayer(withVersion(player, { id: family.id }, version)));
 
   // What could be filed under them: their instrument first; the rest on asking.
   const candidates = [...items.values()]
@@ -254,13 +271,120 @@ const PlayerView = ({
       <div className="overflow-hidden rounded-lg border border-white/[0.08]">
         <div className={cn(CONSOLE_LABEL, 'px-4 py-2')}>
           Plays · {mine.length}
+          {families.length > 0 && ` · ${families.length} families`}
         </div>
         {mine.length === 0 && (
           <p className="px-4 pb-3 text-sm italic text-muted-foreground">
             Nothing filed under {player.name} yet.
           </p>
         )}
-        {mine.map((info) => (
+        {families.map((family) => (
+          <div key={family.id} className="border-t border-white/[0.06]">
+            <div className="px-4 pt-2 text-sm font-semibold">
+              {family.name}
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                {family.style && `${styleKeyName(family.style)} · `}
+                {family.versions.length} version
+                {family.versions.length === 1 ? '' : 's'}
+              </span>
+            </div>
+            {family.versions.map((version) => {
+              const info = infoOf(version.part);
+              return (
+                <div
+                  key={version.part}
+                  className="flex flex-wrap items-center gap-3 px-4 py-1.5 pl-8 text-sm"
+                >
+                  {info ? (
+                    <Link
+                      to={info.href}
+                      className="min-w-0 flex-1 hover:underline"
+                    >
+                      {info.name}
+                    </Link>
+                  ) : (
+                    <span className="min-w-0 flex-1 text-amber-300">
+                      {version.part} (no longer in the Parts Library)
+                    </span>
+                  )}
+                  {CAN_WRITE_FILES ? (
+                    <>
+                      <select
+                        value={version.use}
+                        onChange={(e) =>
+                          void setVersion(family, {
+                            ...version,
+                            use: e.target.value as FamilyVersion['use'],
+                          })
+                        }
+                        className={cn(input, 'py-0.5 text-xs')}
+                        aria-label={`What ${info?.name ?? version.part} is for`}
+                      >
+                        {(['band', 'teaching', 'both'] as const).map((u) => (
+                          <option key={u} value={u}>
+                            {VERSION_USE[u]}
+                          </option>
+                        ))}
+                      </select>
+                      {[1, 2, 3].map((lvl) => (
+                        <label
+                          key={lvl}
+                          className="flex items-center gap-1 text-xs text-white/60"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={version.levels.includes(lvl)}
+                            onChange={(e) =>
+                              void setVersion(family, {
+                                ...version,
+                                levels: e.target.checked
+                                  ? [...version.levels, lvl].sort(
+                                      (a, b) => a - b,
+                                    )
+                                  : version.levels.filter((l) => l !== lvl),
+                              })
+                            }
+                          />
+                          L{lvl}
+                        </label>
+                      ))}
+                      <button
+                        type="button"
+                        aria-label={`Take ${info?.name ?? version.part} out of ${family.name}`}
+                        title="Out of the family — it stays theirs"
+                        className="text-muted-foreground hover:text-white"
+                        onClick={() =>
+                          void run(() =>
+                            savePlayer(withoutVersion(player, version.part)),
+                          )
+                        }
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">
+                      {VERSION_USE[version.use]}
+                      {version.levels.length > 0 &&
+                        ` · L${version.levels.join(', L')}`}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ))}
+        {families.length > 0 && loose.length > 0 && (
+          <div
+            className={cn(
+              CONSOLE_LABEL,
+              'border-t border-white/[0.06] px-4 py-2',
+            )}
+          >
+            Not in a family · {loose.length}
+          </div>
+        )}
+        {loose.map((info) => (
           <div
             key={itemKey(info.item)}
             className="flex items-center gap-3 border-t border-white/[0.06] px-4 py-2 text-sm"

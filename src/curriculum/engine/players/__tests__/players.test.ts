@@ -6,7 +6,14 @@ import {
   loadStudioGrooves,
 } from '../../drumGrooves/registry';
 import { listParts } from '../../parts/registry';
-import { PLAYER_ID_PATTERN, withItem, withoutItem } from '../player';
+import {
+  familyOf,
+  PLAYER_ID_PATTERN,
+  type Player,
+  withItem,
+  withoutItem,
+  withVersion,
+} from '../player';
 import { listPlayers, playerOf } from '../registry';
 
 /**
@@ -84,5 +91,74 @@ describe('the players', () => {
       p.items.length + 1,
     );
     expect(withoutItem(withItem(p, item), item).items).toEqual(p.items);
+  });
+});
+
+/**
+ * A player's parts by idea: a take is filed as a version in one family at
+ * most — the band take, a teaching version, or both — for the levels it fits.
+ */
+describe('a part family', () => {
+  const bare: Player = {
+    id: 'latin-pianist-9',
+    name: 'Latin-Pianist-9',
+    instrument: 'keys',
+    kind: 'placeholder',
+    items: [],
+  };
+  const band = { part: 'take-1', use: 'band' as const, levels: [1] };
+  const easy = { part: 'take-2', use: 'teaching' as const, levels: [1, 2] };
+  const comp = withVersion(
+    bare,
+    { name: 'Cumbia offbeat comp', style: 'latin-cumbia' },
+    band,
+  );
+
+  it('starts from a take, named and styled, and owns the part', () => {
+    expect(comp.families).toEqual([
+      {
+        id: 'cumbia-offbeat-comp',
+        name: 'Cumbia offbeat comp',
+        style: 'latin-cumbia',
+        versions: [band],
+      },
+    ]);
+    expect(comp.items).toEqual([{ kind: 'part', id: 'take-1' }]);
+  });
+
+  it('takes more versions, each across the levels it fits', () => {
+    const two = withVersion(comp, { id: 'cumbia-offbeat-comp' }, easy);
+    expect(two.families?.[0].versions).toEqual([band, easy]);
+    expect(familyOf(two, 'take-2')?.id).toBe('cumbia-offbeat-comp');
+  });
+
+  it('changes a version where it is, and keeps the family’s name', () => {
+    const again = withVersion(
+      comp,
+      { id: 'cumbia-offbeat-comp' },
+      { ...band, use: 'both' },
+    );
+    expect(again.families).toEqual([
+      { ...comp.families![0], versions: [{ ...band, use: 'both' }] },
+    ]);
+  });
+
+  it('holds a part in one family at most', () => {
+    const moved = withVersion(comp, { name: 'Cumbia montuno' }, band);
+    expect(moved.families?.map((f) => f.id)).toEqual(['cumbia-montuno']);
+  });
+
+  it('lets a part go with the item, and an empty family with it', () => {
+    const gone = withoutItem(comp, { kind: 'part', id: 'take-1' });
+    expect(gone.items).toEqual([]);
+    expect(gone.families).toBeUndefined();
+  });
+
+  it('gives a second family of the same name an id of its own', () => {
+    const twin = withVersion(comp, { name: 'Cumbia offbeat comp' }, easy);
+    expect(twin.families?.map((f) => f.id)).toEqual([
+      'cumbia-offbeat-comp',
+      'cumbia-offbeat-comp-2',
+    ]);
   });
 });

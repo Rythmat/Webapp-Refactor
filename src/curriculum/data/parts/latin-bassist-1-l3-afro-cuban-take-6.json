@@ -1,0 +1,193 @@
+{
+  "id": "latin-bassist-1-l3-afro-cuban-take-6",
+  "name": "Afro Cuban Tumbao 1",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 3,
+  "tags": [],
+  "status": "draft",
+  "key": {
+    "tonic": 4,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "bass-electric:upright",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 40,
+      "velocity": 77
+    },
+    {
+      "tick": 0,
+      "offset": 7,
+      "duration": 720,
+      "midi": 47,
+      "velocity": 108
+    },
+    {
+      "tick": 720,
+      "offset": 12,
+      "duration": 720,
+      "midi": 47,
+      "velocity": 94
+    },
+    {
+      "tick": 720,
+      "offset": -11,
+      "duration": 600,
+      "midi": 54,
+      "velocity": 110
+    },
+    {
+      "tick": 1440,
+      "offset": 3,
+      "duration": 960,
+      "midi": 52,
+      "velocity": 103
+    },
+    {
+      "tick": 1440,
+      "offset": 5,
+      "duration": 960,
+      "midi": 59,
+      "velocity": 117
+    },
+    {
+      "tick": 2640,
+      "offset": 2,
+      "duration": 600,
+      "midi": 47,
+      "velocity": 124
+    },
+    {
+      "tick": 2640,
+      "offset": -8,
+      "duration": 120,
+      "midi": 54,
+      "velocity": 125
+    },
+    {
+      "tick": 2880,
+      "offset": 2,
+      "duration": 480,
+      "midi": 54,
+      "velocity": 103
+    },
+    {
+      "tick": 3360,
+      "offset": -24,
+      "duration": 120,
+      "midi": 45,
+      "velocity": 98
+    },
+    {
+      "tick": 3360,
+      "offset": -1,
+      "duration": 240,
+      "midi": 47,
+      "velocity": 75
+    },
+    {
+      "tick": 3600,
+      "offset": -40,
+      "duration": 960,
+      "midi": 40,
+      "velocity": 78
+    },
+    {
+      "tick": 3600,
+      "offset": -26,
+      "duration": 840,
+      "midi": 45,
+      "velocity": 113
+    },
+    {
+      "tick": 4560,
+      "offset": -6,
+      "duration": 720,
+      "midi": 47,
+      "velocity": 98
+    },
+    {
+      "tick": 4560,
+      "offset": -8,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 108
+    },
+    {
+      "tick": 5280,
+      "offset": -32,
+      "duration": 1080,
+      "midi": 52,
+      "velocity": 105
+    },
+    {
+      "tick": 5280,
+      "offset": -17,
+      "duration": 960,
+      "midi": 57,
+      "velocity": 112
+    },
+    {
+      "tick": 6480,
+      "offset": -16,
+      "duration": 240,
+      "midi": 45,
+      "velocity": 86
+    },
+    {
+      "tick": 6480,
+      "offset": 3,
+      "duration": 720,
+      "midi": 52,
+      "velocity": 113
+    },
+    {
+      "tick": 6720,
+      "offset": -9,
+      "duration": 360,
+      "midi": 47,
+      "velocity": 86
+    },
+    {
+      "tick": 7200,
+      "offset": -15,
+      "duration": 240,
+      "midi": 45,
+      "velocity": 107
+    },
+    {
+      "tick": 7200,
+      "offset": -4,
+      "duration": 240,
+      "midi": 47,
+      "velocity": 96
+    },
+    {
+      "tick": 7440,
+      "offset": -27,
+      "duration": 600,
+      "midi": 40,
+      "velocity": 89
+    },
+    {
+      "tick": 7440,
+      "offset": -21,
+      "duration": 240,
+      "midi": 47,
+      "velocity": 74
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "latin",
+  "style": "Afro-Cuban",
+  "chordSymbols": ["Em", "Am", "B7", "Em"]
+}

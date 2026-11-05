@@ -1,0 +1,79 @@
+{
+  "id": "blues-pianist-1-blues-language-bb-8",
+  "name": "Blues-Pianist-1 · Blues Language in B♭ · Phrase 8",
+  "instrument": "piano",
+  "role": "melody",
+  "level": 2,
+  "tags": ["blues", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 10,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 1,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "blues",
+  "chordSymbols": ["Bb7"],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 60,
+      "midi": 64,
+      "velocity": 80
+    },
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 68,
+      "velocity": 80
+    },
+    {
+      "tick": 60,
+      "duration": 180,
+      "midi": 65,
+      "velocity": 80
+    },
+    {
+      "tick": 240,
+      "duration": 240,
+      "midi": 58,
+      "velocity": 80
+    },
+    {
+      "tick": 480,
+      "duration": 240,
+      "midi": 63,
+      "velocity": 80
+    },
+    {
+      "tick": 480,
+      "duration": 240,
+      "midi": 67,
+      "velocity": 80
+    },
+    {
+      "tick": 720,
+      "duration": 240,
+      "midi": 58,
+      "velocity": 80
+    },
+    {
+      "tick": 960,
+      "duration": 960,
+      "midi": 61,
+      "velocity": 80
+    },
+    {
+      "tick": 960,
+      "duration": 960,
+      "midi": 65,
+      "velocity": 80
+    }
+  ]
+}

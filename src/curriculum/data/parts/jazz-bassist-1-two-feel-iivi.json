@@ -1,0 +1,97 @@
+{
+  "id": "jazz-bassist-1-two-feel-iivi",
+  "name": "Jazz-Bassist-1 · Two-Feel, ii–V–I",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 1,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "bass-electric:upright",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 960,
+      "midi": 38,
+      "velocity": 80
+    },
+    {
+      "tick": 960,
+      "duration": 720,
+      "midi": 45,
+      "velocity": 80
+    },
+    {
+      "tick": 1680,
+      "duration": 240,
+      "midi": 50,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 960,
+      "midi": 43,
+      "velocity": 80
+    },
+    {
+      "tick": 2880,
+      "duration": 480,
+      "midi": 43,
+      "velocity": 80
+    },
+    {
+      "tick": 3360,
+      "duration": 480,
+      "midi": 38,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 960,
+      "midi": 36,
+      "velocity": 80
+    },
+    {
+      "tick": 4800,
+      "duration": 720,
+      "midi": 43,
+      "velocity": 80
+    },
+    {
+      "tick": 5520,
+      "duration": 240,
+      "midi": 37,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 960,
+      "midi": 36,
+      "velocity": 80
+    },
+    {
+      "tick": 6720,
+      "duration": 480,
+      "midi": 36,
+      "velocity": 80
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 35,
+      "velocity": 80
+    }
+  ],
+  "chordSymbols": ["Dm7", "G7", "Cmaj7", "Cmaj7"]
+}

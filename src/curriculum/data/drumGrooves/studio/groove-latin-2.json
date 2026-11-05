@@ -14,7 +14,9 @@
   "swing": 50,
   "grid": "8n",
   "kit": "go_go_kit",
-  "padGains": {},
+  "padGains": {
+    "42": 1.2
+  },
   "humanize": {
     "timing": 0,
     "velocity": 0
@@ -51,24 +53,34 @@
       "velocity": 96
     },
     {
-      "tick": 480,
-      "note": 42,
-      "velocity": 38
-    },
-    {
-      "tick": 960,
-      "note": 42,
-      "velocity": 38
-    },
-    {
       "tick": 1920,
-      "note": 42,
-      "velocity": 38
+      "note": 44,
+      "velocity": 96
     },
     {
       "tick": 2400,
+      "note": 44,
+      "velocity": 96
+    },
+    {
+      "tick": 480,
+      "note": 44,
+      "velocity": 96
+    },
+    {
+      "tick": 960,
+      "note": 44,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
       "note": 42,
-      "velocity": 38
+      "velocity": 96
+    },
+    {
+      "tick": 1440,
+      "note": 42,
+      "velocity": 96
     }
   ]
 }

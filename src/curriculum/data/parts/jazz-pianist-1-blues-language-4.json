@@ -1,0 +1,61 @@
+{
+  "id": "jazz-pianist-1-blues-language-4",
+  "name": "Jazz-Pianist-1 · Blues Language phrases 4",
+  "instrument": "piano",
+  "role": "melody",
+  "level": 1,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 1,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 160,
+      "midi": 75,
+      "velocity": 80
+    },
+    {
+      "tick": 160,
+      "duration": 160,
+      "midi": 74,
+      "velocity": 80
+    },
+    {
+      "tick": 320,
+      "duration": 160,
+      "midi": 72,
+      "velocity": 80
+    },
+    {
+      "tick": 480,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 80
+    },
+    {
+      "tick": 720,
+      "duration": 240,
+      "midi": 69,
+      "velocity": 80
+    },
+    {
+      "tick": 960,
+      "duration": 960,
+      "midi": 72,
+      "velocity": 80
+    }
+  ],
+  "chordSymbols": ["C7"]
+}

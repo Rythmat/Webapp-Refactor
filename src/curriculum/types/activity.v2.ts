@@ -4,6 +4,7 @@ import type {
 } from '@/curriculum/data/guitar/types';
 import type { FretPosition } from '@/lib/guitar/types';
 import type { PianoFinger } from '@/lib/learn/pianoFingering/types';
+import type { SwingUnit } from '../engine/genreGeneration/swing';
 import type {
   ActivityStep,
   ActivityFlow,
@@ -24,7 +25,7 @@ export type HandConfig =
   | 'lh_rootless_rh_melody'
   | 'open';
 
-/** a, b, c: a level's first, second and third style (Latin teaches three, lessonStyles.ts). */
+/** a, b, c, d: a level's first, second, third and fourth style (Latin teaches three, four in L2, lessonStyles.ts). */
 export type StyleSubProfile =
   | 'l1a'
   | 'l1b'
@@ -32,6 +33,7 @@ export type StyleSubProfile =
   | 'l2a'
   | 'l2b'
   | 'l2c'
+  | 'l2d'
   | 'l3a'
   | 'l3b'
   | 'l3c';
@@ -210,6 +212,12 @@ export interface ActivityStepV2 extends ActivityStep {
    * If omitted, bass derives from keyRoot.
    */
   chordSymbols?: string[];
+  /**
+   * Two chords a bar: each `chordSymbols` entry lasts half a bar (beats 1–2,
+   * then 3–4), for jazz's ii–V in one bar and the jazz blues' Gm7 C7. The
+   * backing, the staff's symbols and the header read it; left out, one a bar.
+   */
+  chordsPerBar?: 2;
   /** Multiple note-set variants for a single step — rotated by attempt count */
   variants?: ActivityVariant[];
   /** Override groove selection — if present, bypasses styleRef→groove lookup */
@@ -219,6 +227,12 @@ export interface ActivityStepV2 extends ActivityStep {
    * feel. Overrides the flow's `params.swing`. See engine/genreGeneration/swing.ts.
    */
   swing?: number;
+  /**
+   * What `swing` moves: '16n' (default) the off-beat 16ths, as Hip Hop
+   * swings; '8n' the off-beat 8ths, as jazz swings (engine/genreGeneration/
+   * swing.ts). Read off the step wherever it is played or graded.
+   */
+  swingUnit?: SwingUnit;
   /**
    * The tempo this step opens at, when it differs from the level's (Hip Hop
    * play-alongs run at 77–90 within one level). Also the step's Practice Track

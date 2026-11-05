@@ -1,4 +1,4 @@
-import { useState, type ReactNode, type RefObject } from 'react';
+import { useContext, useState, type ReactNode, type RefObject } from 'react';
 import {
   GuitarActionBar,
   type Zones,
@@ -12,6 +12,11 @@ import { GuitarSectionCompletePanel } from '@/curriculum/guitar/layout/GuitarSec
 import { GuitarStepNav } from '@/curriculum/guitar/layout/GuitarStepNav';
 import { LessonFrame } from '@/curriculum/guitar/layout/LessonFrame';
 import { deriveBarState } from '@/curriculum/guitar/layout/deriveBarState';
+import {
+  EditableText,
+  LessonTextEditingContext,
+  parseChordList,
+} from '@/curriculum/guitar/layout/lessonTextEditing';
 import type {
   HeaderModel,
   ResultModel,
@@ -95,6 +100,8 @@ export function PianoLessonLayout({
   barCustom,
   slots,
 }: PianoLessonLayoutProps) {
+  // Given only by the console's lesson editor: the chords edit in place.
+  const editing = useContext(LessonTextEditingContext);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
 
@@ -154,13 +161,32 @@ export function PianoLessonLayout({
             header={header}
             section={nav.sections.find((s) => s.active)?.name}
             titleAside={
-              chords.length > 0 ? (
+              chords.length > 0 || editing ? (
                 <span
                   data-piano-chords
                   className="text-sm font-normal"
                   style={{ color: header.keyColor }}
                 >
-                  {chords.join(' → ')}
+                  {editing ? (
+                    // In the console's lesson editor, the chords edit here.
+                    <EditableText
+                      value={editing.chordSymbols.join(' ')}
+                      onChange={(text) =>
+                        editing.setChordSymbols(parseChordList(text) ?? [])
+                      }
+                      valid={(text) => parseChordList(text) !== null}
+                      hint="Chords, one a bar: Dm7 G7 Cmaj7"
+                      label="Chord symbols"
+                    >
+                      {chords.length ? (
+                        chords.join(' → ')
+                      ) : (
+                        <span className="opacity-60">Add chords</span>
+                      )}
+                    </EditableText>
+                  ) : (
+                    chords.join(' → ')
+                  )}
                 </span>
               ) : undefined
             }

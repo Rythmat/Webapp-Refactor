@@ -1,7 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ActivityStepV2 } from '../../../types/activity.v2';
 import { buildBackingNotes } from '../backingPatterns';
-import { applySwing, stepSwing, swingOnset, swingPercent } from '../swing';
+import {
+  applySwing,
+  stepSwing,
+  stepSwingUnit,
+  swingOnset,
+  swingPercent,
+} from '../swing';
 
 describe('swingPercent', () => {
   it('reads the legacy 0/1 flags as straight', () => {
@@ -73,5 +79,34 @@ describe('buildBackingNotes with swing', () => {
       if (expected !== note.onset) moved++;
     });
     expect(moved).toBeGreaterThan(0);
+  });
+});
+
+describe('8th-note swing (jazz)', () => {
+  it('moves only the off-beat 8th; 16ths and triplets stay straight', () => {
+    expect(swingOnset(0, 66, '8n')).toBe(0);
+    expect(swingOnset(240, 66, '8n')).toBe(317); // 480 × 0.66
+    expect(swingOnset(720, 64, '8n')).toBe(787);
+    expect(swingOnset(120, 66, '8n')).toBe(120); // a 16th
+    expect(swingOnset(360, 66, '8n')).toBe(360);
+    expect(swingOnset(320, 66, '8n')).toBe(320); // a triplet 8th
+  });
+
+  it('keeps a swung 8th’s end, so the pair plays long, short', () => {
+    const [on, off] = applySwing(
+      [
+        { onset: 0, duration: 220 },
+        { onset: 240, duration: 220 },
+      ],
+      64,
+      '8n',
+    );
+    expect(on).toEqual({ onset: 0, duration: 220 });
+    expect(off).toEqual({ onset: 307, duration: 153 });
+  });
+
+  it('is read off the step: 16ths unless it says 8ths', () => {
+    expect(stepSwingUnit({})).toBe('16n');
+    expect(stepSwingUnit({ swingUnit: '8n' })).toBe('8n');
   });
 });

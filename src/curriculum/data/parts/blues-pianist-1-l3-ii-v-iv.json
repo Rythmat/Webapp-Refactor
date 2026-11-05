@@ -1,0 +1,121 @@
+{
+  "id": "blues-pianist-1-l3-ii-v-iv",
+  "name": "Blues-Pianist-1 · L3 · ii–V into the IV (B♭)",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 3,
+  "tags": ["blues"],
+  "status": "live",
+  "key": {
+    "tonic": 10,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 120,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "blues",
+  "chordSymbols": ["Cm9 F13", "Bb9"],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 51,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 55,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 58,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 62,
+      "velocity": 82
+    },
+    {
+      "tick": 720,
+      "duration": 900,
+      "midi": 51,
+      "velocity": 74
+    },
+    {
+      "tick": 720,
+      "duration": 900,
+      "midi": 55,
+      "velocity": 74
+    },
+    {
+      "tick": 720,
+      "duration": 900,
+      "midi": 57,
+      "velocity": 74
+    },
+    {
+      "tick": 720,
+      "duration": 900,
+      "midi": 62,
+      "velocity": 74
+    },
+    {
+      "tick": 1920,
+      "duration": 660,
+      "midi": 50,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "duration": 660,
+      "midi": 53,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "duration": 660,
+      "midi": 56,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "duration": 660,
+      "midi": 60,
+      "velocity": 82
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 50,
+      "velocity": 70
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 53,
+      "velocity": 70
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 56,
+      "velocity": 70
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 60,
+      "velocity": 70
+    }
+  ]
+}

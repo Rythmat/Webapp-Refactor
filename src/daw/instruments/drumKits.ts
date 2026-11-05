@@ -14,6 +14,23 @@ export interface DrumKitConfig {
    * a custom kit's uploads (absolute paths under /daw-assets/).
    */
   urls?: Record<number, string>;
+  /** Pad → the pad whose hit stops it ringing (a custom kit's; padStops). */
+  stoppedBy?: Record<number, number>;
+}
+
+/**
+ * Pad hit → the pads it stops ringing. On every kit the closed and pedal hats
+ * stop the open hat; a kit can name more of its own — a timbale roll that
+ * stops when the timbale is hit.
+ */
+export function padStops(config: DrumKitConfig): Map<number, number[]> {
+  const stops = new Map<number, number[]>([
+    [42, [46]],
+    [44, [46]],
+  ]);
+  for (const [pad, by] of Object.entries(config.stoppedBy ?? {}))
+    stops.set(by, [...(stops.get(by) ?? []), Number(pad)]);
+  return stops;
 }
 
 /** Where a kit's pad sample is fetched from. */
@@ -36,6 +53,8 @@ export interface CustomDrumKitFile {
   base: string;
   /** Pad note → absolute sample path, e.g. /daw-assets/samples/drums/uploads/x.wav */
   samples: Record<number, string>;
+  /** Pad note → the pad whose hit stops it, e.g. { 40: 38 }: roll on hit. */
+  stoppedBy?: Record<number, number>;
 }
 
 export const DRUM_KIT_CONFIGS: DrumKitConfig[] = [
@@ -135,7 +154,13 @@ const customKitFiles = import.meta.glob<CustomDrumKitFile>(
 export function resolveCustomKit(file: CustomDrumKitFile): DrumKitConfig {
   const base =
     DRUM_KIT_CONFIGS.find((c) => c.id === file.base) ?? DRUM_KIT_CONFIGS[0];
-  return { ...base, id: file.id, label: file.label, urls: { ...file.samples } };
+  return {
+    ...base,
+    id: file.id,
+    label: file.label,
+    urls: { ...file.samples },
+    stoppedBy: file.stoppedBy,
+  };
 }
 
 /** The custom kit files as written — the designer edits these. */

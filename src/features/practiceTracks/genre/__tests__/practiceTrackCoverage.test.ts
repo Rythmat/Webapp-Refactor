@@ -21,9 +21,9 @@ import {
 const SECTIONS: ActivitySectionId[] = ['A', 'B', 'C', 'D'];
 const LEVELS = [1, 2, 3];
 /** The genres with authored content today. Everything else is a stub. */
-const AUTHORED = new Set(['funk', 'pop', 'hip-hop']);
-/** Single levels authored ahead of the rest of their genre. */
-const AUTHORED_LEVELS = new Set<string>(['latin L1']);
+const AUTHORED = new Set(['funk', 'pop', 'hip-hop', 'latin', 'jazz', 'blues']);
+/** Single levels authored ahead of the rest of their genre ('latin L1' was). */
+const AUTHORED_LEVELS = new Set<string>();
 
 const v2 = (flow: unknown): ActivityFlowV2 | null =>
   flow && typeof flow === 'object' && 'version' in flow && flow.version === 'v2'

@@ -5,6 +5,7 @@ import { PianoKeyboard } from '@/components/PianoKeyboard/PianoKeyboard';
 import { midiToNoteLabel } from '@/components/songLibrary/ChordDiagramCard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext';
 import { SCALES } from '@/curriculum/engine/genreGeneration/scaleRegistry';
+import { parseChordList } from '@/curriculum/guitar/layout/lessonTextEditing';
 import type {
   ActivityStepV2,
   HandConfig,
@@ -69,6 +70,27 @@ const STYLE_PROFILES: StyleSubProfile[] = [
   'l3b',
 ];
 
+/** A step's key, as lessons write it ('Bb major'). */
+const KEY_OPTIONS = [
+  'C',
+  'Db',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B',
+].flatMap((tonic) => [`${tonic} major`, `${tonic} minor`]);
+const METER_OPTIONS = ['4/4', '3/4', '2/4', '6/8', '12/8'];
+const SWING_UNITS = [
+  { value: '8n', label: '8ths (jazz, blues)' },
+  { value: '16n', label: '16ths (hip hop, funk)' },
+];
+
 const ENGINE_PARTS = ['melody', 'chords', 'bass', 'drums'] as const;
 const STUDENT_PARTS = ['melody', 'chords', 'bass'] as const;
 
@@ -112,7 +134,12 @@ export const StepEditor: FC<{
    * notes then get a finger column, and Fill writes the suggestions.
    */
   fingering?: (step: ActivityStepV2) => StepFingerSuggestions | null;
-}> = ({ step, onChange, onEditNotes, fingering }) => {
+  /**
+   * Whether the notes are listed here, one by one. The in-place lesson
+   * editor edits them in the Parts editor beside it instead.
+   */
+  noteList?: boolean;
+}> = ({ step, onChange, onEditNotes, fingering, noteList = true }) => {
   const patch = (next: Partial<ActivityStepV2>) =>
     onChange({ ...step, ...next });
   const fingers = useMemo(() => fingering?.(step) ?? null, [fingering, step]);
@@ -148,15 +175,31 @@ export const StepEditor: FC<{
 
       {/* ── Text the student reads ── */}
       <section className="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
-        <DetailCell
-          label="Step name (shown as the heading)"
-          className="md:col-span-2"
-        >
+        {/* The name is "label: title", as the lesson splits it: the label
+            in its step list (B1.1), the title as the heading. */}
+        <DetailCell label="Label">
           <InlineText
-            value={step.activity}
-            onChange={(value) => patch({ activity: value })}
-            placeholder="A1.1: D Minor Pentatonic Ascending (Out of Time)"
-            ariaLabel="Step name"
+            value={nameParts(step.activity).label}
+            onChange={(label) =>
+              patch({
+                activity: joinName(label, nameParts(step.activity).title),
+              })
+            }
+            placeholder="A1.1"
+            ariaLabel="Step label"
+            className="text-sm tabular-nums"
+          />
+        </DetailCell>
+        <DetailCell label="Title (shown as the heading)">
+          <InlineText
+            value={nameParts(step.activity).title}
+            onChange={(title) =>
+              patch({
+                activity: joinName(nameParts(step.activity).label, title),
+              })
+            }
+            placeholder="D Minor Pentatonic Ascending (Out of Time)"
+            ariaLabel="Step title"
             className="text-base font-medium tracking-[-0.01em] text-white"
           />
         </DetailCell>
@@ -256,6 +299,10 @@ export const StepEditor: FC<{
               onChange={(values) =>
                 patch({ chordSymbols: values.length ? values : undefined })
               }
+              // A progression repeats its chords, and comes typed or pasted
+              // a line at a time: "C7 | F7 | C7 | C7".
+              ordered
+              parse={parseChordList}
               addLabel="Chord"
               ariaLabel="Chord symbols"
             />
@@ -268,7 +315,7 @@ export const StepEditor: FC<{
           </DetailCell>
         </div>
 
-        {onEditNotes && notes.length > 0 && (
+        {noteList && onEditNotes && notes.length > 0 && (
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -298,13 +345,116 @@ export const StepEditor: FC<{
               )}
           </div>
         )}
-        <TargetNoteEditor
-          notes={notes}
-          fingers={fingers}
-          onChange={(next) =>
-            patch({ targetNotes: next.length ? next : undefined })
-          }
-        />
+        {noteList && (
+          <TargetNoteEditor
+            notes={notes}
+            fingers={fingers}
+            onChange={(next) =>
+              patch({ targetNotes: next.length ? next : undefined })
+            }
+          />
+        )}
+      </section>
+
+      {/* ── Key, meter and feel: the step's own, else the level's ── */}
+      <section>
+        <h4 className={`mb-2 ${CONSOLE_LABEL}`}>Key, meter &amp; feel</h4>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          <DetailCell label="Key">
+            <div className="flex items-center gap-2">
+              <InlineSelect
+                value={step.key ?? ''}
+                onChange={(value) => patch({ key: value || undefined })}
+                options={KEY_OPTIONS}
+                placeholder="The level’s key"
+                ariaLabel="Key"
+                className="text-sm"
+              />
+              {step.key && (
+                <ClearButton onClick={() => patch({ key: undefined })} />
+              )}
+            </div>
+          </DetailCell>
+          <DetailCell label="Tempo">
+            <InlineNumber
+              value={step.tempo}
+              onChange={(tempo) => patch({ tempo })}
+              min={30}
+              max={300}
+              suffix=" bpm"
+              placeholder="The level’s"
+              ariaLabel="Tempo"
+              className="text-sm"
+            />
+          </DetailCell>
+          <DetailCell label="Meter">
+            <div className="flex items-center gap-2">
+              <InlineSelect
+                value={step.timeSignature?.join('/') ?? ''}
+                onChange={(value) =>
+                  patch({
+                    timeSignature: value
+                      ? (value.split('/').map(Number) as [number, number])
+                      : undefined,
+                  })
+                }
+                options={METER_OPTIONS}
+                placeholder="The level’s"
+                ariaLabel="Meter"
+                className="text-sm"
+              />
+              {step.timeSignature && (
+                <ClearButton
+                  onClick={() => patch({ timeSignature: undefined })}
+                />
+              )}
+            </div>
+          </DetailCell>
+          <DetailCell label="Swing">
+            <InlineNumber
+              value={step.swing}
+              onChange={(swing) => patch({ swing })}
+              min={50}
+              max={75}
+              suffix="%"
+              placeholder="The level’s"
+              ariaLabel="Swing"
+              className="text-sm"
+            />
+          </DetailCell>
+          <DetailCell label="Swing moves">
+            <InlineSelect
+              value={step.swingUnit ?? ''}
+              onChange={(value) =>
+                patch({ swingUnit: (value || undefined) as '8n' | '16n' })
+              }
+              options={SWING_UNITS}
+              placeholder="16ths"
+              ariaLabel="Swing moves"
+              className="text-sm"
+            />
+          </DetailCell>
+          <DetailCell label="Chords a bar">
+            <div className="flex gap-1">
+              {([1, 2] as const).map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  aria-pressed={(step.chordsPerBar ?? 1) === n}
+                  className={consoleTabClass(
+                    (step.chordsPerBar ?? 1) === n,
+                    'sm',
+                  )}
+                  onClick={() =>
+                    patch({ chordsPerBar: n === 2 ? 2 : undefined })
+                  }
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          </DetailCell>
+        </div>
       </section>
 
       {/* ── Engine settings the chosen activity brought with it ── */}
@@ -418,6 +568,30 @@ export const StepEditor: FC<{
     </div>
   );
 };
+
+/** A step's name as the lesson reads it: "B1.1: Title" (splitActivity). */
+const nameParts = (activity: string) => {
+  const colon = activity.indexOf(':');
+  return colon < 0
+    ? { label: '', title: activity.trim() }
+    : {
+        label: activity.slice(0, colon).trim(),
+        title: activity.slice(colon + 1).trim(),
+      };
+};
+const joinName = (label: string, title: string) =>
+  label.trim() ? `${label.trim()}: ${title}` : title;
+
+/** Back to the level's value. */
+const ClearButton: FC<{ onClick: () => void }> = ({ onClick }) => (
+  <button
+    type="button"
+    className="text-xs text-white/45 transition-colors hover:text-white/80"
+    onClick={onClick}
+  >
+    clear
+  </button>
+);
 
 /** Multi-select as toggle chips — shorter than four checkboxes and a legend. */
 const PartToggles: FC<{

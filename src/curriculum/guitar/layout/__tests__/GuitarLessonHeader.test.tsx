@@ -1,12 +1,14 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   GuitarLessonHeader,
   eyebrowSubsection,
   lessonTitle,
+  withLessonTitle,
   type GuitarLessonHeaderProps,
 } from '../GuitarLessonHeader';
+import { LessonTextEditingContext } from '../lessonTextEditing';
 import { makeLayoutProps } from './fixtures';
 
 afterEach(cleanup);
@@ -50,6 +52,26 @@ describe('lessonTitle', () => {
     ['Free Play', 'Free Play'],
   ])('%s → %s', (activity, title) => {
     expect(lessonTitle(activity)).toBe(title);
+  });
+});
+
+describe('withLessonTitle', () => {
+  it.each([
+    [
+      'B1.1: 1-7 Shells — ii–V–I (Out of Time)',
+      'Dominant 7th Shells',
+      'B1.1: Dominant 7th Shells (Out of Time)',
+    ],
+    [
+      'A1.2: Major Scale (In Time)',
+      'Major Scale Up',
+      'A1.2: Major Scale Up (In Time)',
+    ],
+    ['A3.2: 3 Note Contour (Legato)', 'Contour', 'A3.2: Contour'],
+    ['Warm-up', 'Warm-up Two', 'Warm-up Two'],
+  ])('%s with the title %s is %s', (activity, title, expected) => {
+    expect(withLessonTitle(activity, title)).toBe(expected);
+    expect(lessonTitle(withLessonTitle(activity, title))).toBe(title);
   });
 });
 
@@ -111,5 +133,38 @@ describe('GuitarLessonHeader', () => {
     expect(
       screen.getByRole('button', { name: 'Set up guitar' }),
     ).toBeInTheDocument();
+  });
+
+  it('edits the section and title in place, in the console’s editor only', () => {
+    const edits: string[] = [];
+    const { props } = setup({ section: 'Chords' });
+    expect(screen.queryByRole('button', { name: /Step title/ })).toBeNull();
+    cleanup();
+    render(
+      <LessonTextEditingContext.Provider
+        value={{
+          activity: props.header.activity,
+          setActivity: (a) => edits.push(a),
+          sectionName: 'Chords',
+          setSectionName: (n) => edits.push(`section ${n}`),
+          chordSymbols: [],
+          setChordSymbols: () => {},
+        }}
+      >
+        <GuitarLessonHeader {...props} section="Chords" />
+      </LessonTextEditingContext.Provider>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Step title/ }));
+    const input = screen.getByRole('textbox', { name: 'Step title' });
+    fireEvent.change(input, { target: { value: 'A new title' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    fireEvent.click(screen.getByRole('button', { name: /Section name/ }));
+    const section = screen.getByRole('textbox', { name: 'Section name' });
+    fireEvent.change(section, { target: { value: 'Voicings' } });
+    fireEvent.keyDown(section, { key: 'Enter' });
+    expect(edits).toEqual([
+      withLessonTitle(props.header.activity, 'A new title'),
+      'section Voicings',
+    ]);
   });
 });

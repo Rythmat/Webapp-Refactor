@@ -58,8 +58,12 @@ const GOLDEN: Record<string, string> = {
   // 98 edges onto genre and instrument nodes, nothing else moved. Taken
   // again 14 and 15 Oct 2026 for the new parts, players and bands, and 19
   // Oct 2026 for the Pop and Latin bands' new parts and copies, and 20 Oct
-  // 2026 for the Hip Hop band's and the day's other copies (content only).
-  graph: '9e26c413cc2e531f4ad11469250098a02b3d2d01c344b0431b120f3f3f0201be',
+  // 2026 for the Hip Hop band's and the day's other copies, and 29 Oct 2026
+  // for Jazz Band 1's parts, the Jazz Library parts and the Latin band's new
+  // takes, and 30 Oct 2026 for Blues Band 1's parts and the Blues Library
+  // parts, and 4 Nov 2026 for the Jazz, Blues and Latin lessons' new parts
+  // and pairings (content only).
+  graph: '5b3c8570048f75469614b7d308c5a9c6a31a903b274c141003a01e63a3a0ed6e',
   mapGenre: '8bd762b39a6fba226af4828d3bcd81f8e2b44198abf4a2c2e24c3d5b4af7921a',
   mapInstrument:
     'f694219a31ced971e2bb90549148765b874ac5f533ab3ae11a303696eafa22d0',
@@ -69,8 +73,8 @@ const GOLDEN: Record<string, string> = {
   resolveGenreTag:
     '761075b0a6f5a5bdf91295a92f493232f88daf69d6f9d282dfdde9ca93fa66f7',
   // 7 Oct 2026: the same 13 genre and instrument rows now list those edges
-  // (again 19 and 20 Oct 2026, with the graph).
-  tables: 'bfa855e905e1e6c59cc5927083189b45b416569f4b15f0deec064e21931e26f8',
+  // (again 19, 20, 29 and 30 Oct and 4 Nov 2026, with the graph).
+  tables: '2aa82c2e7891224e9b752f3269bef53bb0404b8067b5ea9b4beb4faca272be16',
   vocabularyPage:
     '8c3210c3ab7a49f6ed4bd98ca606443f27260841f432852e72235b8819b26b2e',
 };

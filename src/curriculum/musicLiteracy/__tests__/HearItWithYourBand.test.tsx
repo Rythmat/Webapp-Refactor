@@ -140,8 +140,9 @@ describe('Practice with a Band', () => {
     const bands = within(
       screen.getByRole('radiogroup', { name: 'Choose a Band' }),
     );
-    expect(bands.getAllByRole('radio')).toHaveLength(4);
-    expect(screen.queryByText('Jazz Band 1')).toBeNull();
+    expect(bands.getAllByRole('radio')).toHaveLength(6);
+    expect(screen.getByText('Jazz Band 1')).toBeTruthy();
+    expect(screen.getByText('Blues Band 1')).toBeTruthy();
     expect(checked('band:latin-band-1')).toBe(true);
     const styles = within(
       screen.getByRole('radiogroup', { name: 'Choose a Style' }),

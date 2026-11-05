@@ -1,0 +1,599 @@
+{
+  "id": "jazz-pianist-1-two-hand-jazz-blues-two-hand-f",
+  "name": "Jazz-Pianist-1 · Jazz blues two-hand voicings (F)",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 3,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 5,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 12,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 41,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 41,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 41,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 6720,
+      "duration": 960,
+      "midi": 53,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 6720,
+      "duration": 960,
+      "midi": 57,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 480,
+      "midi": 46,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 480,
+      "midi": 56,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 9600,
+      "duration": 480,
+      "midi": 46,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 9600,
+      "duration": 480,
+      "midi": 56,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 11520,
+      "duration": 480,
+      "midi": 41,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 11520,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 13440,
+      "duration": 480,
+      "midi": 41,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 13440,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 14400,
+      "duration": 960,
+      "midi": 50,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 14400,
+      "duration": 960,
+      "midi": 54,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 15360,
+      "duration": 480,
+      "midi": 43,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 15360,
+      "duration": 480,
+      "midi": 53,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 17280,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 17280,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 19200,
+      "duration": 480,
+      "midi": 41,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 19200,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 20160,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 20160,
+      "duration": 480,
+      "midi": 54,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 21120,
+      "duration": 480,
+      "midi": 43,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 21120,
+      "duration": 480,
+      "midi": 53,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 22080,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 22080,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 63,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 74,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 960,
+      "midi": 63,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 960,
+      "midi": 67,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 960,
+      "midi": 74,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 480,
+      "midi": 70,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 9600,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 9600,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 9600,
+      "duration": 480,
+      "midi": 70,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 11520,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 11520,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 11520,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 13440,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 13440,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 13440,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 14400,
+      "duration": 960,
+      "midi": 60,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 14400,
+      "duration": 960,
+      "midi": 63,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 14400,
+      "duration": 960,
+      "midi": 69,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 15360,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 15360,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 15360,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 17280,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 17280,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 17280,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 19200,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 19200,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 19200,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 20160,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 20160,
+      "duration": 480,
+      "midi": 63,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 20160,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 21120,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 21120,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 21120,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 22080,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 22080,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 22080,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 80,
+      "hand": "rh"
+    }
+  ],
+  "chordSymbols": [
+    "F13",
+    "F13",
+    "F13",
+    "Cm9 F13",
+    "Bb13",
+    "Bb13",
+    "F13",
+    "F13 D7b9",
+    "Gm9",
+    "C13",
+    "F13 D7b9",
+    "Gm9 C13"
+  ],
+  "stayInKey": "both"
+}

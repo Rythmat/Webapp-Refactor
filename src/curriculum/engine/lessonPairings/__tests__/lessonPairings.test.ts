@@ -34,7 +34,7 @@ describe('lesson styles', () => {
     expect(lessonStyleFor('latin', 1, 'l1b')?.name).toBe('Cumbia');
     expect(lessonStyleFor('latin', 1, 'l1c')?.name).toBe('Mariachi');
     expect(lessonStyleFor('funk', 2, 'l2b')?.name).toBe('Syncopation & Sauce');
-    expect(lessonStyleFor('jazz', 1, 'l1a')).toBeUndefined();
+    expect(lessonStyleFor('rock', 1, 'l1a')).toBeUndefined();
   });
 });
 
@@ -66,7 +66,7 @@ describe('lesson pairings', () => {
 
   it('leaves genres without lesson styles alone', () => {
     // Pairings are content the back office edits, so test a genre with none.
-    expect(pairingFor('jazz', 1, 'l1a')).toBeUndefined();
+    expect(pairingFor('rock', 1, 'l1a')).toBeUndefined();
   });
 });
 

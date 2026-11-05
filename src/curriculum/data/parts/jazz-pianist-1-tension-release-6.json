@@ -1,0 +1,79 @@
+{
+  "id": "jazz-pianist-1-tension-release-6",
+  "name": "Jazz-Pianist-1 · Minor tension and release 6",
+  "instrument": "piano",
+  "role": "melody",
+  "level": 3,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 2,
+    "mode": "harmonic_minor"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 80
+    },
+    {
+      "tick": 240,
+      "duration": 240,
+      "midi": 71,
+      "velocity": 80
+    },
+    {
+      "tick": 480,
+      "duration": 240,
+      "midi": 73,
+      "velocity": 80
+    },
+    {
+      "tick": 720,
+      "duration": 240,
+      "midi": 76,
+      "velocity": 80
+    },
+    {
+      "tick": 960,
+      "duration": 240,
+      "midi": 69,
+      "velocity": 80
+    },
+    {
+      "tick": 1200,
+      "duration": 240,
+      "midi": 68,
+      "velocity": 80
+    },
+    {
+      "tick": 1440,
+      "duration": 240,
+      "midi": 67,
+      "velocity": 80
+    },
+    {
+      "tick": 1680,
+      "duration": 240,
+      "midi": 69,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 960,
+      "midi": 65,
+      "velocity": 80
+    }
+  ],
+  "chordSymbols": ["A7b9", "Dm6"]
+}

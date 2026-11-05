@@ -1,0 +1,109 @@
+{
+  "id": "latin-bassist-1-l3-tango-take-8",
+  "name": "Tango Bass 1",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 3,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "bass-electric:upright",
+  "notes": [
+    {
+      "offset": 1,
+      "tick": 0,
+      "duration": 720,
+      "midi": 40,
+      "velocity": 103
+    },
+    {
+      "offset": -9,
+      "tick": 720,
+      "duration": 720,
+      "midi": 48,
+      "velocity": 105
+    },
+    {
+      "offset": 3,
+      "tick": 1440,
+      "duration": 360,
+      "midi": 47,
+      "velocity": 103
+    },
+    {
+      "offset": 12,
+      "tick": 1920,
+      "duration": 720,
+      "midi": 45,
+      "velocity": 108
+    },
+    {
+      "tick": 2640,
+      "duration": 720,
+      "midi": 54,
+      "velocity": 97
+    },
+    {
+      "offset": 14,
+      "tick": 3360,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 109
+    },
+    {
+      "offset": 6,
+      "tick": 3840,
+      "duration": 720,
+      "midi": 47,
+      "velocity": 111
+    },
+    {
+      "offset": -12,
+      "tick": 4560,
+      "duration": 720,
+      "midi": 55,
+      "velocity": 96
+    },
+    {
+      "offset": 25,
+      "tick": 5280,
+      "duration": 480,
+      "midi": 54,
+      "velocity": 103
+    },
+    {
+      "offset": 13,
+      "tick": 5760,
+      "duration": 720,
+      "midi": 52,
+      "velocity": 97
+    },
+    {
+      "offset": -1,
+      "tick": 6480,
+      "duration": 720,
+      "midi": 48,
+      "velocity": 95
+    },
+    {
+      "offset": 31,
+      "tick": 7200,
+      "duration": 360,
+      "midi": 47,
+      "velocity": 84
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "latin",
+  "style": "Tango",
+  "chordSymbols": ["Em", "Am", "B7", "Em"]
+}

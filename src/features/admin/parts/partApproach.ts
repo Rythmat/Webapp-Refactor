@@ -202,7 +202,8 @@ export function describeApproach(
   notes: readonly PartNote[],
   indices: readonly number[],
 ): string | null {
-  const marked = indices.map((i) => notes[i]).filter((n) => n.approach);
+  // A note no longer there (a selection outliving a delete) is no approach.
+  const marked = indices.map((i) => notes[i]).filter((n) => n?.approach);
   if (!marked.length) return null;
   const byTick = new Map<number, number>();
   for (const n of marked) byTick.set(n.tick, n.approach!.step);

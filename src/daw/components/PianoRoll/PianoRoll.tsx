@@ -347,6 +347,12 @@ export interface PianoRollProps {
    * indices in the next clip.
    */
   clipId?: string | null;
+  /**
+   * A colour per event (by index into `events`), in place of the clip's or
+   * the chord's: the Part editor shows which hand plays each note. An event
+   * left undefined keeps the clip's colour.
+   */
+  noteColors?: readonly (string | undefined)[];
 }
 
 export function PianoRoll({
@@ -360,6 +366,7 @@ export function PianoRoll({
   loopScope = 'project',
   onSelectionChange,
   clipId,
+  noteColors,
 }: PianoRollProps) {
   // Outside the Studio a host stands in for the store (pianoRollHost.ts).
   const host = usePianoRollHost();
@@ -893,12 +900,15 @@ export function PianoRoll({
       const alpha = 0.7 + (ev.velocity / 127) * 0.3;
       const useChordColors =
         clipColorMode === 'prism' && chordRegions.length > 0;
-      const [nr, ng, nb] = resolveNoteColor(
-        timelineStartTick + ev.startTick,
-        clipColor,
-        chordRegions,
-        useChordColors,
-      );
+      const own = noteColors?.[i];
+      const [nr, ng, nb] = own
+        ? hexToRgb(own)
+        : resolveNoteColor(
+            timelineStartTick + ev.startTick,
+            clipColor,
+            chordRegions,
+            useChordColors,
+          );
 
       ctx.fillStyle = isSelected
         ? `rgb(${nr}, ${ng}, ${nb})`
@@ -944,6 +954,7 @@ export function PianoRoll({
     events,
     clipStartTick,
     clipColor,
+    noteColors,
     chordRegions,
     clipColorMode,
     rootNote,
@@ -1031,12 +1042,15 @@ export function PianoRoll({
         const alpha = 0.5 + (ev.velocity / 127) * 0.5;
         const useChordColors =
           clipColorMode === 'prism' && chordRegions.length > 0;
-        const [nr, ng, nb] = resolveNoteColor(
-          timelineStartTick + ev.startTick,
-          clipColor,
-          chordRegions,
-          useChordColors,
-        );
+        const own = noteColors?.[i];
+        const [nr, ng, nb] = own
+          ? hexToRgb(own)
+          : resolveNoteColor(
+              timelineStartTick + ev.startTick,
+              clipColor,
+              chordRegions,
+              useChordColors,
+            );
         const stemColor = isSelected
           ? '#ffffff'
           : `rgba(${nr}, ${ng}, ${nb}, ${alpha})`;
@@ -1072,6 +1086,7 @@ export function PianoRoll({
     clipStartTick,
     timelineStartTick,
     clipColor,
+    noteColors,
     chordRegions,
     clipColorMode,
     selectedIndices,

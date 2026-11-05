@@ -255,6 +255,38 @@ function overChart(p: InstrumentPart, c: (typeof CHARTS)[number]) {
 const triad = (c: ChordSymbolTones) =>
   new Set([0, c.third ?? 0, c.fifth ?? 7].map((i) => mod12(c.rootPc + i)));
 
+/** A number's chord member, its alteration aside: 'b7' a 7th, a sus '4' the 3rd's place. */
+const memberOf = (number: string) =>
+  ({ '2': '9', '4': '3', '6': '13', bb7: '7' })[number] ??
+  number.replace(/^[b#]+(?=\d)/, '');
+
+/** The member a note is over a chord, as numberPart reads one. */
+function heardMember(midi: number, c: ChordSymbolTones): string {
+  const i = mod12(midi - c.rootPc);
+  if (i === 0) return '1';
+  if (i === c.third) return i === 2 ? '9' : '3';
+  if (i === c.fifth) return '5';
+  if (i === c.seventh)
+    return i === 9 && !(c.third === 3 && c.fifth === 6) ? '13' : '7';
+  if (i === 3) return c.third === 4 ? '9' : '3';
+  if (i === 6 || i === 8)
+    return c.fifth === 7 || c.fifth === undefined
+      ? i === 6
+        ? '11'
+        : '13'
+      : '5';
+  return ['1', '9', '9', '3', '3', '11', '11', '5', '13', '13', '7', '7'][i];
+}
+
+/** Where a number the new chord can't take falls (followChords realizeNumber). */
+const FALLS_TO: Record<string, string> = {
+  '7': '1',
+  '9': '1',
+  '11': '5',
+  '13': '5',
+  bass: '1',
+};
+
 describe.each(CHARTS)('over $name', (c) => {
   it.each(FOLLOWERS.map((p) => [p.id, p] as const))(
     '%s keeps the player’s rhythm, the key and the chords',
@@ -321,9 +353,9 @@ describe.each(CHARTS)('over $name', (c) => {
   );
 
   it.each(FOLLOWERS.map((p) => [p.id, p] as const))(
-    '%s voice-leads in its own register',
+    '%s keeps its numbers, bottom to top, in its own register',
     (_, p) => {
-      const { notes, numbers, hits } = overChart(p, c);
+      const { notes, numbers, asPlayed } = overChart(p, c);
 
       // Each hand within a tritone of where it was captured (an approach a
       // half step past the note it leads into).
@@ -341,45 +373,26 @@ describe.each(CHARTS)('over $name', (c) => {
         );
       }
 
-      // Between one chord of a hand and its next of as many notes, no voice
-      // moves more than a fifth further than the player's own voice moved
-      // there, and on average no more than a minor third further: a new
-      // chord can need some motion where the player's held still (a 1-3-7
-      // shell from C to G moves its voices about that far).
-      const chords = new Map<string, FollowedNote[][]>();
-      for (const hit of hits) {
-        const pitches = new Set(hit.map((n) => n.midi));
-        if (pitches.size < 2 || hit.some((n) => n.role !== 'chord')) continue;
-        const line = `${numbers[hit[0].source].hand ?? '-'}:${pitches.size}`;
-        chords.set(line, [...(chords.get(line) ?? []), hit]);
-      }
-      const voices = (hit: FollowedNote[], own: boolean) =>
-        [
-          ...new Set(hit.map((n) => (own ? p.notes[n.source].midi : n.midi))),
-        ].sort((a, b) => a - b);
-      let further = 0;
-      let moves = 0;
-      for (const line of chords.values()) {
-        line.sort((a, b) => a[0].tick - b[0].tick);
-        for (let k = 1; k < line.length; k++) {
-          const [from, to] = [
-            voices(line[k - 1], false),
-            voices(line[k], false),
-          ];
-          const [was, now] = [voices(line[k - 1], true), voices(line[k], true)];
-          if (was.length !== now.length) continue;
-          to.forEach((m, j) => {
-            const extra = Math.abs(m - from[j]) - Math.abs(now[j] - was[j]);
-            expect(
-              extra,
-              `${noteName(m)}@${line[k][0].tick}`,
-            ).toBeLessThanOrEqual(7);
-            further += extra;
-            moves++;
-          });
-        }
-      }
-      if (moves) expect(further / moves).toBeLessThanOrEqual(3);
+      // Every chord note plays its own number over the new chord, so a
+      // voicing keeps the player's shape — a 3-7-9 on C7 is a 3-7-9 on F7 —
+      // and is never turned to another inversion to move less (Peter). A
+      // color the new chord can't take falls as followChords says: a 7th or
+      // 9th to the root, an 11th or 13th to the 5th. A hand that Stays in
+      // Key plays the key's degrees instead.
+      const stays = (n: FollowedNote) =>
+        p.stayInKey === 'both' ||
+        (p.stayInKey !== undefined && numbers[n.source].hand === p.stayInKey);
+      const turned = notes.filter((n) => {
+        if (n.role !== 'chord' || asPlayed(n) || stays(n)) return false;
+        const own = memberOf(numbers[n.source].number);
+        const heard = heardMember(n.midi, n.chord);
+        return heard !== own && heard !== FALLS_TO[own];
+      });
+      expect(
+        turned.map(
+          (n) => `${numbers[n.source].number} as ${noteName(n.midi)}@${n.tick}`,
+        ),
+      ).toEqual([]);
     },
   );
 });
@@ -407,8 +420,9 @@ describe('over a student’s chart', () => {
     // ♭7–9–5 over Dm in D minor: Dm9 without its root (the take sits an
     // octave lower since 20 Oct 2026).
     expect(firstHits(funk, dMinor, 0)).toEqual(['C4', 'E4', 'A4']);
-    // Over B♭ the 7th is the scale's major 7th: B♭maj9.
-    expect(firstHits(funk, dMinor, 3)).toEqual(['F4', 'A4', 'C5']);
+    // Over B♭ the 7th is the scale's major 7th: B♭maj9, still 7–9–5 from
+    // the bottom, as the player voiced it.
+    expect(firstHits(funk, dMinor, 3)).toEqual(['A3', 'C4', 'F4']);
     // Over G in C major the 7th is F: G9, the 5 chord's own.
     expect(firstHits(funk, cMajor, 2).map((n) => n.slice(0, -1))).toEqual(
       expect.arrayContaining(['F']),
@@ -496,6 +510,51 @@ describe('over a student’s chart', () => {
         expect(n.midi).toBeLessThanOrEqual(108);
       }
     }
+  });
+});
+
+describe('the numbers over a new progression', () => {
+  // Peter's chain: C7 as 3-7-9 (E B♭ D), into F7 as 7-3-5 (E♭ A C).
+  const shells: InstrumentPart = {
+    ...blankPart('icp-379-735', '3-7-9 into 7-3-5', 'piano'),
+    key: { tonic: 0, mode: 'mixolydian' },
+    bars: 2,
+    chordSymbols: ['C7', 'F7'],
+    notes: [
+      ...[52, 58, 62].map((midi) => ({
+        tick: 0,
+        duration: 1800,
+        midi,
+        velocity: 90,
+      })),
+      ...[51, 57, 60].map((midi) => ({
+        tick: 1920,
+        duration: 1800,
+        midi,
+        velocity: 90,
+      })),
+    ],
+  };
+  const voicings = (symbols: string[], key: PartKey) => {
+    const notes = followChords(shells, chart(symbols, 1920), 3840, key)!;
+    return [0, 1920].map((tick) => pitchesAt(notes, tick).map(noteName));
+  };
+
+  it('keeps a 3-7-9 a 3-7-9 and a 7-3-5 a 7-3-5', () => {
+    // Over F7 | B♭7: F7 as A E♭ G, B♭7 as A♭ D F — not turned to sit nearer.
+    expect(voicings(['F7', 'Bb7'], { tonic: 5, mode: 'mixolydian' })).toEqual([
+      ['A3', 'E♭4', 'G4'],
+      ['A♭3', 'D4', 'F4'],
+    ]);
+  });
+
+  it('keeps them whichever way the roots move', () => {
+    // Over F7 | C7, a 4th down where the player went up one: still 3-7-9
+    // into 7-3-5, the C7 as B♭ E G.
+    expect(voicings(['F7', 'C7'], { tonic: 5, mode: 'mixolydian' })).toEqual([
+      ['A3', 'E♭4', 'G4'],
+      ['B♭3', 'E4', 'G4'],
+    ]);
   });
 });
 

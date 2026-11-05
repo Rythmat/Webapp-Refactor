@@ -5,6 +5,7 @@ import {
   useLocation,
   useRoutes,
 } from 'react-router-dom';
+import { LearnRoutes } from '@/constants/routes';
 import { curriculumPages } from '@/curriculum/routes';
 import {
   globePages,
@@ -17,6 +18,7 @@ import { searchPages } from '@/features/search/routes';
 import { NotMirroredYet } from './NotMirroredYet';
 import { ClassroomMirror } from './segments/ClassroomMirror';
 import { LearnMirror } from './segments/LearnMirror';
+import { LessonMirrorPage } from './segments/LessonMirrorPage';
 import { SongMirrorPage } from './segments/SongMirrorPage';
 import { TeachMirror } from './segments/TeachMirror';
 
@@ -65,9 +67,14 @@ const buildRoutes = (): RouteObject[] => [
   { path: '/', element: <HomeInlet /> },
   // Home: the dashboard only; awards and the plan page are per-student.
   { path: '/home', element: <HomeInlet /> },
-  // Learn, always on a tab (LearnMirror explains why).
+  // Learn, always on a tab (LearnMirror explains why); a genre course's
+  // level is its lesson, with its Edit mode (`?edit=1`).
   segment(learnPages, (child) =>
-    child.index ? { ...child, element: <LearnMirror /> } : child,
+    child.index
+      ? { ...child, element: <LearnMirror /> }
+      : child.path === LearnRoutes.genreLesson.definition
+        ? { ...child, element: <LessonMirrorPage preview={child.element} /> }
+        : child,
   ),
   // Songs: the song pages, each with its Edit mode (`?edit=1`); set lists
   // are a student's own.

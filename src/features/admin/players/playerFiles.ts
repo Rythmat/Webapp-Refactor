@@ -4,10 +4,12 @@
  */
 
 import {
+  type FamilyVersion,
   type Player,
   type PlayerItem,
   withItem,
   withoutItem,
+  withVersion,
 } from '@/curriculum/engine/players/player';
 import { listPlayers } from '@/curriculum/engine/players/registry';
 import { CAN_WRITE_FILES } from '../drumGrooves/devFiles';
@@ -55,4 +57,18 @@ export async function fileItem(item: PlayerItem, playerId: string | null) {
       await savePlayer(withoutItem(player, item));
     }
   }
+}
+
+/**
+ * Files a part under a player as a version in one of their families — one
+ * they have, by id, or a new one, by name — taking it from whoever had it.
+ */
+export async function fileVersion(
+  playerId: string,
+  family: { id: string } | { name: string; style?: string },
+  version: FamilyVersion,
+) {
+  await fileItem({ kind: 'part', id: version.part }, playerId);
+  const player = listPlayers().find((p) => p.id === playerId);
+  if (player) await savePlayer(withVersion(player, family, version));
 }

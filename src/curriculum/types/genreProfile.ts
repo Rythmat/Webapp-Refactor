@@ -68,6 +68,13 @@ export interface LevelScale {
   scaleId: string;
   intervals: number[];
   notes: string[];
+  /**
+   * The scale's own key, when not the level's (D-089: Latin L1's Mariachi
+   * teaches G major in an E minor level): 'G major', with its tonic's MIDI
+   * note in `keyMidi`. Shown, played and colored from there.
+   */
+  key?: string;
+  keyMidi?: number;
 }
 
 export interface VoicingRef {

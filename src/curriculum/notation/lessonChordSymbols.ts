@@ -27,21 +27,28 @@
  * staff, so consecutive repeats collapse into the first.
  *
  * WHERE A SYMBOL SITS — the rule
- * A symbol sits over the target notes that play its chord. When the targets
- * play the chords (voicings, comping, a bass under chords), each symbol goes on
- * the strike that sounds it — Am9 on beat 1 and D13 on beat 3 of one bar — the
- * same timeline the backing track plays (chordTimeline.ts), so what's written
- * and what's heard never disagree. `chordSymbols` gives the order, not the
- * timing, so only a single line (a melody, a bass line) falls back to the
- * bar: one label per downbeat, looping, or shared out across the notes when
- * there are more labels than bars. Never past the music: the bars counted are
- * the notes' own, not the roll's padding, which walked a one-bar exercise's
- * second chord onto the empty bar after it. lessonChordPlacement.test.ts holds
- * the whole library to this. See `placeLessonChords`.
+ * Above the measures, as a lead sheet writes it: each chord at the start of
+ * its bar, and a change inside a bar on its own beat. When the targets play
+ * the chords (voicings, comping, a bass under chords), the strikes tell which
+ * chord is in which bar, and a bar's first change sits on its downbeat even
+ * when the chord is struck later (a bolero's "and", a groove's beat 3); a
+ * second change in the bar sits on its strike — Am9 on beat 1, D13 on beat 3.
+ * That is the timeline the backing track plays (chordTimeline.ts `onTheBar`),
+ * so what's written and what's heard never disagree. A single line (a melody,
+ * a bass line) gets one chord a bar, looping, as the band plays them — Gm7 |
+ * C7 | Fmaj7 over a four-bar line, however its notes fall. Only an
+ * out-of-time exercise with more chords than bars shares its chords out
+ * across the beats. Never past the music: the bars counted are the notes'
+ * own, not the roll's padding, which walked a one-bar exercise's second chord
+ * onto the empty bar after it. lessonChordPlacement.test.ts holds the whole
+ * library to this. See `placeLessonChords`.
  */
 
-import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbolTones';
-import { chordStrikes } from '@/curriculum/engine/genreGeneration/chordTimeline';
+import {
+  chordStrikes,
+  onTheBar,
+} from '@/curriculum/engine/genreGeneration/chordTimeline';
+import { PPQ } from '@/curriculum/engine/meter';
 import {
   formatChord,
   normalizeQuality,
@@ -183,63 +190,48 @@ export function chordsPerBar(
   }));
 }
 
-/** The note onset nearest a tick, or the tick itself when there are none. */
-function nearestOnset(tick: number, onsets: readonly number[]): number {
-  if (onsets.length === 0) return tick;
-  return onsets.reduce((best, onset) =>
-    Math.abs(onset - tick) < Math.abs(best - tick) ? onset : best,
+/**
+ * Labels two to a bar (a step's `chordsPerBar: 2`), each where its half bar
+ * starts. A chord held across halves is labelled once.
+ */
+export function chordsTwoABar(
+  labels: readonly string[],
+  ticksPerBar: number,
+  startTick = 0,
+): LessonChord[] {
+  const half = ticksPerBar / 2;
+  return labels.flatMap((label, i) =>
+    i > 0 && labels[i - 1] === label
+      ? []
+      : [{ label, startTick: startTick + i * half }],
   );
 }
 
 /**
- * Share a label list out across the notes when the labels outnumber the bars.
- *
- * The content is divided evenly — two labels split a bar in half, four split
- * two bars into quarters — and each label then snaps to the nearest note
- * onset. The snap matters: an exercise ending at 1880 ticks divides at 940,
- * which is nowhere near a note, and a symbol hanging between two chords reads
- * worse than no symbol at all. Snapping puts every label over a real chord.
+ * An out-of-time exercise's chords when they outnumber its bars: shared out
+ * evenly across the music, each on the nearest beat (two in a bar on beats 1
+ * and 3), never two on one beat and never past the music.
  */
-export function chordsAcrossContent(
+export function chordsOnTheBeats(
   labels: readonly string[],
   contentEndTick: number,
-  onsets: readonly number[],
+  beatTicks = 480,
   startTick = 0,
 ): LessonChord[] {
   if (labels.length === 0 || contentEndTick <= 0) return [];
-  const span = contentEndTick / labels.length;
-  return labels.map((label, index) => ({
-    label,
-    startTick: startTick + nearestOnset(index * span, onsets),
-  }));
-}
-
-/**
- * A label shared out over a single line moves to the first note of its share
- * that belongs to its chord: a chromatic approach leads into the chord, so
- * "Chromatic Approach to Chord Root" writes Dm7 over the D, not the C♯ before
- * it. A share with no chord tone keeps the onset it snapped to.
- */
-function ontoChordTones(
-  chords: readonly LessonChord[],
-  notes: readonly PlacementNote[],
-): LessonChord[] {
-  return chords.map((chord, i) => {
-    const tones = chordSymbolTones(chord.label);
-    if (!tones) return chord;
-    const pcs = new Set([
-      ...tones.intervals.map((step) => (tones.rootPc + step) % 12),
-      tones.bassPc,
-    ]);
-    const until = chords[i + 1]?.startTick ?? Infinity;
-    const onChord = notes
-      .filter((n) => n.onset >= chord.startTick && n.onset < until)
-      .filter((n) => pcs.has(((n.midi % 12) + 12) % 12))
-      .map((n) => n.onset);
-    return onChord.length
-      ? { ...chord, startTick: Math.min(...onChord) }
-      : chord;
+  const out: LessonChord[] = [];
+  let previous = -Infinity;
+  labels.forEach((label, index) => {
+    const even = (index * contentEndTick) / labels.length;
+    const tick = Math.max(
+      Math.round(even / beatTicks) * beatTicks,
+      previous + beatTicks,
+    );
+    if (tick >= contentEndTick) return;
+    previous = tick;
+    out.push({ label, startTick: startTick + tick });
   });
+  return out;
 }
 
 /** What placement reads of a target note. */
@@ -252,13 +244,13 @@ export interface PlacementNote {
 /**
  * Where an activity's chord symbols go (the rule is in the header).
  *
- * Given the notes, a step whose targets play the chords puts each symbol on
- * the strike that sounds it. Otherwise, with a label per bar or fewer, the
- * labels belong to bars and loop across them — a two-chord progression over
- * four bars is heard twice, not squeezed into the first half. With more labels
- * than bars they cannot be bar-sized, so they are shared out across the notes.
- * The notes also set the bar count: theirs, not `bars`, when `bars` runs past
- * them (the roll's two-bar minimum).
+ * Given notes that play the chords, each symbol goes where its chord is
+ * struck, a bar's first change moved to that bar's downbeat. Otherwise one
+ * label a bar, looping — a two-chord progression over four bars is heard
+ * twice — and when the labels outnumber the bars, the bars keep the first
+ * ones, as the band plays them. Only `outOfTime` with more labels than bars
+ * shares them out across the beats instead. The notes also set the bar count:
+ * theirs, not `bars`, when `bars` runs past them (the roll's two-bar minimum).
  */
 export function placeLessonChords(
   labels: readonly string[],
@@ -267,11 +259,11 @@ export function placeLessonChords(
     ticksPerBar: number;
     /** The target notes, relative to `startTick`. */
     notes?: readonly PlacementNote[];
-    /** Distinct note onsets, relative to `startTick` (read from `notes` when given). */
-    onsets?: readonly number[];
     /** Where the notes stop, relative to `startTick` (read from `notes` when given). */
     contentEndTick?: number;
     startTick?: number;
+    /** An out-of-time exercise: no band, so chords may share a bar. */
+    outOfTime?: boolean;
   },
 ): LessonChord[] {
   const { ticksPerBar, notes, startTick = 0 } = options;
@@ -279,34 +271,32 @@ export function placeLessonChords(
 
   const struck = notes?.length ? chordStrikes(labels, notes) : null;
   if (struck) {
-    return struck.map((chord) => ({
+    return onTheBar(struck, ticksPerBar).map((chord) => ({
       label: chord.symbol,
       startTick: startTick + chord.tick,
     }));
   }
 
-  const onsets =
-    options.onsets ??
-    [...new Set((notes ?? []).map((n) => n.onset))].sort((a, b) => a - b);
   const contentEndTick =
     options.contentEndTick ??
     (notes?.length
       ? Math.max(...notes.map((n) => n.onset + n.duration))
       : undefined);
   const bars =
-    contentEndTick !== undefined && notes?.length
+    contentEndTick !== undefined
       ? Math.min(
           options.bars,
           Math.max(1, Math.ceil(contentEndTick / ticksPerBar)),
         )
       : options.bars;
 
-  if (labels.length <= bars) {
-    return chordsPerBar(labels, bars, ticksPerBar, startTick);
+  if (labels.length > bars && options.outOfTime) {
+    return chordsOnTheBeats(
+      labels,
+      contentEndTick ?? bars * ticksPerBar,
+      PPQ,
+      startTick,
+    );
   }
-  const end = contentEndTick ?? bars * ticksPerBar;
-  const spread = chordsAcrossContent(labels, end, onsets);
-  return (notes?.length ? ontoChordTones(spread, notes) : spread).map(
-    (chord) => ({ ...chord, startTick: startTick + chord.startTick }),
-  );
+  return chordsPerBar(labels, bars, ticksPerBar, startTick);
 }

@@ -61,6 +61,7 @@ import {
   nextEventForMidi,
 } from '@/curriculum/engine/noteGate';
 import {
+  chordsTwoABar,
   formatChordsInText,
   formatLessonChord,
   lessonChordSymbols,
@@ -233,6 +234,15 @@ interface GenreLessonContainerV2Props {
    * route, which only genre flows have.
    */
   practiceReturnTo?: (sectionId: ActivitySectionId) => string;
+  /**
+   * The step to show, held from outside: the console's lesson editor, whose
+   * every edit is a new `flow`. Given, a new flow keeps the lesson on this
+   * step instead of starting it over, and the lesson goes here when it
+   * changes (a step added or moved).
+   */
+  position?: { section: ActivitySectionId; index: number };
+  /** Where the lesson is, whenever it moves (its rail, its arrows). */
+  onPositionChange?: (section: ActivitySectionId, index: number) => void;
   // Dongle callbacks — wire these when Globe/Studio/Arcade are ready
   onGlobeUpdate?: (data: GlobeDongleData) => void;
   onStudioUpdate?: (data: StudioDongleData) => void;
@@ -353,6 +363,8 @@ function GenreLessonContainerV2Inner({
   displayName,
   rootCrumb = DEFAULT_ROOT_CRUMB,
   practiceReturnTo,
+  position,
+  onPositionChange,
   onGlobeUpdate,
   onStudioUpdate,
   onArcadeUpdate,
@@ -375,22 +387,23 @@ function GenreLessonContainerV2Inner({
     null,
   );
   const [activeSection, setActiveSection] = useState<ActivitySectionId>(
-    initialSection ?? 'A',
+    position?.section ?? initialSection ?? 'A',
   );
   // The lesson's Overview (owner, 2026-10-27): a genre's piano level opens
-  // on it, as Theory's lessons do, unless the link names a section. Its tabs
-  // were the course page's. Flows without a genre profile have none.
+  // on it, as Theory's lessons do, unless the link names a section or the
+  // console's lesson editor holds a step. Its tabs were the course page's.
+  // Flows without a genre profile have none.
   const genreProfile =
     flowInstrument(flow) === 'guitar' ? undefined : getGenreProfile(genre);
   const overviewLevel = genreProfile?.levels[level as 1 | 2 | 3];
   const [overviewTab, setOverviewTab] = useState<GenreOverviewTab | null>(
-    overviewLevel && !initialSection ? 'about' : null,
+    overviewLevel && !initialSection && !position ? 'about' : null,
   );
   // Guitar's diatonic Overview: the scale's seven positions, one lit.
   const [positionsOpen, setPositionsOpen] = useState(openOnOverview);
   const [positionIndex, setPositionIndex] = useState(0);
   const leftHanded = useInstrumentStore((s) => s.leftHanded);
-  const [stepIndex, setStepIndex] = useState(0);
+  const [stepIndex, setStepIndex] = useState(position?.index ?? 0);
   const [_activityState, _setActivityState] =
     useState<ActivityState>('preview');
   const activityStateRef = useRef<ActivityState>('preview');
@@ -449,8 +462,13 @@ function GenreLessonContainerV2Inner({
     [flow, activeSection],
   );
 
+  // Clamped: an editor's deleted step can be gone a render before the
+  // position that follows it arrives.
   const currentStep = useMemo(
-    () => currentSection.steps[stepIndex] as ActivityStepV2,
+    () =>
+      currentSection.steps[
+        Math.min(stepIndex, currentSection.steps.length - 1)
+      ] as ActivityStepV2,
     [currentSection, stepIndex],
   );
 
@@ -1591,14 +1609,17 @@ function GenreLessonContainerV2Inner({
               startTick: target.onsetTick,
             })),
           )
-        : labels?.length
-          ? placeLessonChords(labels, {
-              bars: Math.max(1, requiredBars - (isIT ? 1 : 0)),
-              ticksPerBar: barLength,
-              notes: targetNotes,
-              startTick: offset,
-            })
-          : [];
+        : labels?.length && resolvedStep.chordsPerBar === 2
+          ? at(chordsTwoABar(labels, barLength))
+          : labels?.length
+            ? placeLessonChords(labels, {
+                bars: Math.max(1, requiredBars - (isIT ? 1 : 0)),
+                ticksPerBar: barLength,
+                notes: targetNotes,
+                startTick: offset,
+                outOfTime: !isIT,
+              })
+            : [];
     if (chords.length === 0) return undefined;
     return lessonChordSymbols(chords, chordNotation, chordContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- COUNT_IN_OFFSET follows the step's meter, which these deps already track
@@ -1906,12 +1927,17 @@ function GenreLessonContainerV2Inner({
   // demo. (Piano's own handler here went with its old screen.)
 
   // ── Reset on flow change ───────────────────────────────────────────────
+  // Held from outside (the console's lesson editor), the lesson stays on its
+  // step: an edit is a new flow, not a new lesson.
 
+  const positionRef = useRef(position);
+  positionRef.current = position;
   useEffect(() => {
-    setActiveSection(initialSection ?? 'A');
+    const held = positionRef.current;
+    setActiveSection(held?.section ?? initialSection ?? 'A');
     setPositionsOpen(openOnOverview);
     setPositionIndex(0);
-    setStepIndex(0);
+    setStepIndex(held?.index ?? 0);
     setActivityState('preview');
     setUserNotes([]);
     setLastResult(null);
@@ -1919,6 +1945,22 @@ function GenreLessonContainerV2Inner({
     stopTickCounter();
     setTempo(flow.params.tempoRange[0]);
   }, [flow, setActivityState, stopTickCounter]);
+
+  // The held step, when the editor moves it (a step added, moved, deleted).
+  const heldSection = position?.section;
+  const heldIndex = position?.index;
+  useEffect(() => {
+    if (heldSection === undefined || heldIndex === undefined) return;
+    setActiveSection(heldSection);
+    setStepIndex(heldIndex);
+  }, [heldSection, heldIndex]);
+
+  // …and where the lesson is, when it moves itself.
+  const onPositionRef = useRef(onPositionChange);
+  onPositionRef.current = onPositionChange;
+  useEffect(() => {
+    onPositionRef.current?.(activeSection, stepIndex);
+  }, [activeSection, stepIndex]);
 
   // Guitar notes are scheduled on timers (the GM synth ignores scheduled
   // times), which Tone.getTransport().cancel() doesn't reach. Cancel them
@@ -3056,9 +3098,15 @@ function GenreLessonContainerV2Inner({
   // card, the instruction and the buttons in the bar at the bottom. The
   // layout gets plain values and callbacks, as guitar's does.
 
-  const pianoChords = (resolvedStep.chordSymbols ?? []).map((symbol) =>
-    chordSymbolForDisplay(symbol, chordNotation, chordContext),
-  );
+  // Two a bar, a chord held across halves is named once.
+  const pianoChords = (resolvedStep.chordSymbols ?? [])
+    .filter(
+      (symbol, i, all) =>
+        resolvedStep.chordsPerBar !== 2 || i === 0 || all[i - 1] !== symbol,
+    )
+    .map((symbol) =>
+      chordSymbolForDisplay(symbol, chordNotation, chordContext),
+    );
   const pianoPractising = isPracticing || restartingPass;
 
   // ── Theory's navigation (owner, 2026-10-27) ──────────────────────────────

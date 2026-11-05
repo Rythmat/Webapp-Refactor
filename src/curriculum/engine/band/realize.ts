@@ -120,6 +120,14 @@ export interface RealizeOptions {
    * as lessons walk it.
    */
   bassLinesInKey?: boolean;
+  /**
+   * Parts follow the chart's chords in this key, as `followChords` makes them,
+   * but nothing else changes: a lesson step's chords (owner, 3 Nov 2026: the
+   * band plays its parts over the progression the step names). Bass lines
+   * and comping walk the chart already. A part over the very chords it was
+   * captured over, in its own key, plays exactly as captured.
+   */
+  partsFollow?: { tonic: number; mode: string };
 }
 
 /**
@@ -176,8 +184,9 @@ export function realizeLayer(
       if (!part) return null;
       // Over a chart it wasn't captured over, a part follows its chords; a
       // melody keeps its tune and drums their hits.
-      if (ctx.followChords && followsChords(part)) {
-        const followed = followedNotes(part, ctx, ctx.followChords);
+      const follow = ctx.followChords ?? options.partsFollow;
+      if (follow && followsChords(part)) {
+        const followed = followedNotes(part, ctx, follow);
         if (followed || !options.keepUnfollowable) return followed;
       }
       return partNotes(part, ctx, options.tonic ?? ctx.followChords?.tonic);

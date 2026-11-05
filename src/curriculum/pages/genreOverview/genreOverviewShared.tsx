@@ -126,13 +126,19 @@ export function levelScales(level: GenreLevelProfile): ShownScale[] {
   );
 }
 
+/** A scale's tonic letter: its own key's when it names one, else the level's. */
+export function scaleRoot(level: GenreLevelProfile, scaleId?: string): string {
+  const own = level.scales?.find((s) => s.scaleId === scaleId)?.key;
+  return (own ?? level.keyCenter).split(' ')[0];
+}
+
 /**
  * The color one of a level's scales is shown in, as its lesson steps are:
- * its mode's color in the level's key, the harmonic minor its own. Without a
- * scale id, the color the level's mode reads as.
+ * its mode's color in its key, the harmonic minor its own. Without a scale
+ * id, the color the level's mode reads as.
  */
 export function scaleColor(level: GenreLevelProfile, scaleId?: string): string {
-  const root = level.keyCenter.split(' ')[0];
+  const root = scaleRoot(level, scaleId);
   if (scaleId)
     return colorForKeyMode(
       root,
@@ -148,10 +154,11 @@ export function scaleColor(level: GenreLevelProfile, scaleId?: string): string {
   );
 }
 
-/** A scale's notes from the level's key note, up to its octave. */
+/** A scale's notes from its key note (its own, else the level's), up to its octave. */
 export function scaleMidis(level: GenreLevelProfile, scale: ShownScale) {
-  const midis = scale.intervals.map((i) => i + level.keyMidi);
-  const octave = level.keyMidi + 12;
+  const root = scale.keyMidi ?? level.keyMidi;
+  const midis = scale.intervals.map((i) => i + root);
+  const octave = root + 12;
   if (!midis.includes(octave)) midis.push(octave);
   return midis;
 }

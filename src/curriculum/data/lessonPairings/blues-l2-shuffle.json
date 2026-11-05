@@ -1,0 +1,32 @@
+{
+  "id": "blues-l2-shuffle",
+  "band": "blues-band-1",
+  "variation": "l2-12bar-qc",
+  "overrides": [
+    {
+      "steps": [4, 5, 6, 7, 8, 9],
+      "band": "blues-band-1",
+      "variation": "l1-c7"
+    },
+    {
+      "steps": [10, 11, 12],
+      "band": "blues-band-1",
+      "variation": "l2-iv"
+    },
+    {
+      "steps": [13],
+      "band": "blues-band-1",
+      "variation": "l2-v"
+    },
+    {
+      "steps": [14, 16, 27, 39],
+      "band": "blues-band-1",
+      "variation": "l2-12bar-e"
+    },
+    {
+      "steps": [17],
+      "band": "blues-band-1",
+      "variation": "l2-cjam"
+    }
+  ]
+}

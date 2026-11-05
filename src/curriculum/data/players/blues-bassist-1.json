@@ -9,6 +9,74 @@
     {
       "kind": "bassLine",
       "id": "boogie"
+    },
+    {
+      "kind": "part",
+      "id": "blues-bassist-1-boogie-8bar-b-c"
+    },
+    {
+      "kind": "part",
+      "id": "blues-bassist-1-boogie-minor-c"
+    },
+    {
+      "kind": "part",
+      "id": "blues-bassist-1-half-time-12bar-c"
+    },
+    {
+      "kind": "part",
+      "id": "blues-bassist-1-half-time-12bar-f"
+    },
+    {
+      "kind": "part",
+      "id": "blues-bassist-1-walking-bird-blues"
+    }
+  ],
+  "families": [
+    {
+      "id": "blues-bass-l1",
+      "name": "Boogie lines",
+      "style": "blues-shuffle",
+      "versions": [
+        {
+          "part": "blues-bassist-1-boogie-8bar-b-c",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "blues-bassist-1-boogie-minor-c",
+          "use": "teaching",
+          "levels": [1]
+        }
+      ]
+    },
+    {
+      "id": "blues-bass-l2",
+      "name": "Half-time shuffle lines",
+      "style": "blues-half-time",
+      "versions": [
+        {
+          "part": "blues-bassist-1-half-time-12bar-c",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-bassist-1-half-time-12bar-f",
+          "use": "teaching",
+          "levels": [2]
+        }
+      ]
+    },
+    {
+      "id": "blues-bass-l3",
+      "name": "Walking the Bird blues",
+      "style": "blues-jazz-blues",
+      "versions": [
+        {
+          "part": "blues-bassist-1-walking-bird-blues",
+          "use": "teaching",
+          "levels": [3]
+        }
+      ]
     }
   ]
 }

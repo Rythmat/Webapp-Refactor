@@ -5,5 +5,485 @@
   "genre": "blues",
   "kind": "placeholder",
   "order": 70,
-  "items": []
+  "items": [
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l1-c7"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l1-minor"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l1-8bar-a"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l1-8bar-b"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l2-iv"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l2-v"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l2-12bar-e"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l2-12bar-qc"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l2-cjam"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l2-ht-e"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l2-ht-cjam"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l3-f7"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l3-ii-v-iv"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l3-four-bar-f"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l3-jazz-blues-f"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l3-jazz-blues-bb"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l3-c-jam"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l3-bags"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l3-freddie"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l3-five-spot"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l3-blues-by-five"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-l3-blue-seven"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-f-1"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-f-2"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-f-3"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-f-4"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-f-5"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-f-6"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-f-7"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-f-8"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-bb-1"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-bb-2"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-bb-3"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-bb-4"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-bb-5"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-bb-6"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-bb-7"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-blues-language-bb-8"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-ii-v-into-iv-2"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-ii-v-into-iv-4"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-ii-v-into-iv-6"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-triad-pair-groove-f7"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-137-8bar-b-c"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-735-379-12bar-c"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-735-379-12bar-f"
+    },
+    {
+      "kind": "part",
+      "id": "blues-pianist-1-rootless-a-12bar-c"
+    }
+  ],
+  "families": [
+    {
+      "id": "blues-language-f",
+      "name": "Blues Language in F",
+      "style": "blues-shuffle",
+      "versions": [
+        {
+          "part": "blues-pianist-1-blues-language-f-1",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-f-2",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-f-3",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-f-4",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-f-5",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-f-6",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-f-7",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-f-8",
+          "use": "teaching",
+          "levels": [2]
+        }
+      ]
+    },
+    {
+      "id": "blues-language-bb",
+      "name": "Blues Language in B♭",
+      "style": "blues-shuffle",
+      "versions": [
+        {
+          "part": "blues-pianist-1-blues-language-bb-1",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-bb-2",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-bb-3",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-bb-4",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-bb-5",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-bb-6",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-bb-7",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-blues-language-bb-8",
+          "use": "teaching",
+          "levels": [2]
+        }
+      ]
+    },
+    {
+      "id": "blues-ii-v-into-iv",
+      "name": "ii–V lines into the IV (B♭)",
+      "style": "blues-jazz-blues",
+      "versions": [
+        {
+          "part": "blues-pianist-1-ii-v-into-iv-2",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "blues-pianist-1-ii-v-into-iv-4",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "blues-pianist-1-ii-v-into-iv-6",
+          "use": "teaching",
+          "levels": [3]
+        }
+      ]
+    },
+    {
+      "id": "blues-voicings-l1",
+      "name": "Voicings: shells on the 8-bar blues",
+      "style": "blues-shuffle",
+      "versions": [
+        {
+          "part": "blues-pianist-1-137-8bar-b-c",
+          "use": "teaching",
+          "levels": [1]
+        }
+      ]
+    },
+    {
+      "id": "blues-voicings-l2",
+      "name": "Voicings: triad pairs, 7-3-5 / 3-7-9, rootless A",
+      "style": "blues-shuffle",
+      "versions": [
+        {
+          "part": "blues-pianist-1-triad-pair-groove-f7",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-735-379-12bar-c",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-735-379-12bar-f",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-rootless-a-12bar-c",
+          "use": "teaching",
+          "levels": [2]
+        }
+      ]
+    },
+    {
+      "id": "blues-band-comping-l1",
+      "name": "Blues band comping · Shuffle Blues",
+      "style": "blues-shuffle",
+      "versions": [
+        {
+          "part": "blues-pianist-1-l1-c7",
+          "use": "band",
+          "levels": [1]
+        },
+        {
+          "part": "blues-pianist-1-l1-minor",
+          "use": "band",
+          "levels": [1]
+        },
+        {
+          "part": "blues-pianist-1-l1-8bar-a",
+          "use": "band",
+          "levels": [1]
+        },
+        {
+          "part": "blues-pianist-1-l1-8bar-b",
+          "use": "band",
+          "levels": [1]
+        }
+      ]
+    },
+    {
+      "id": "blues-band-comping-l2",
+      "name": "Blues band comping · The 12-Bar Blues",
+      "style": "blues-shuffle",
+      "versions": [
+        {
+          "part": "blues-pianist-1-l2-iv",
+          "use": "band",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-l2-v",
+          "use": "band",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-l2-12bar-e",
+          "use": "band",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-l2-12bar-qc",
+          "use": "band",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-l2-cjam",
+          "use": "band",
+          "levels": [2]
+        }
+      ]
+    },
+    {
+      "id": "blues-band-comping-l2-half-time",
+      "name": "Blues band comping · The 12-Bar Blues (half-time)",
+      "style": "blues-half-time",
+      "versions": [
+        {
+          "part": "blues-pianist-1-l2-ht-e",
+          "use": "band",
+          "levels": [2]
+        },
+        {
+          "part": "blues-pianist-1-l2-ht-cjam",
+          "use": "band",
+          "levels": [2]
+        }
+      ]
+    },
+    {
+      "id": "blues-band-comping-l3",
+      "name": "Blues band comping · Jazz Blues",
+      "style": "blues-jazz-blues",
+      "versions": [
+        {
+          "part": "blues-pianist-1-l3-f7",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "blues-pianist-1-l3-ii-v-iv",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "blues-pianist-1-l3-four-bar-f",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "blues-pianist-1-l3-jazz-blues-f",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "blues-pianist-1-l3-jazz-blues-bb",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "blues-pianist-1-l3-c-jam",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "blues-pianist-1-l3-bags",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "blues-pianist-1-l3-freddie",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "blues-pianist-1-l3-five-spot",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "blues-pianist-1-l3-blues-by-five",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "blues-pianist-1-l3-blue-seven",
+          "use": "band",
+          "levels": [3]
+        }
+      ]
+    }
+  ]
 }

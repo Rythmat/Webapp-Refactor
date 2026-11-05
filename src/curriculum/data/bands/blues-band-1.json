@@ -1,0 +1,482 @@
+{
+  "id": "blues-band-1",
+  "name": "Blues Band 1",
+  "description": "Shuffle, half-time shuffle and swing drums; boogie, half-time and walking bass; piano comping from Peter’s ICP voicings.",
+  "genre": "blues",
+  "style": "Shuffle",
+  "status": "live",
+  "order": 45,
+  "timeSignature": [4, 4],
+  "tempo": 100,
+  "swing": 67,
+  "swingUnit": "8n",
+  "layers": [
+    {
+      "id": "drums",
+      "name": "Drums",
+      "instrument": "drums",
+      "source": {
+        "kind": "groove",
+        "id": "blues-shuffle"
+      },
+      "player": "blues-drummer-1"
+    },
+    {
+      "id": "bass",
+      "name": "Bass",
+      "instrument": "bass",
+      "source": {
+        "kind": "bassLine",
+        "id": "boogie"
+      },
+      "player": "blues-bassist-1"
+    },
+    {
+      "id": "keys",
+      "name": "Keys comping",
+      "instrument": "keys",
+      "player": "blues-pianist-1",
+      "sound": "soundfont:0"
+    }
+  ],
+  "preview": {
+    "chart": "| C7 | F7 | C7 | C7 | F7 | F7 | C7 | C7 | G7 | F7 | C7 | G7 |"
+  },
+  "variations": [
+    {
+      "id": "l1-c7",
+      "name": "L1 · C7 shuffle (I–IV pair)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "blues-shuffle"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "boogie"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l1-c7"
+        }
+      },
+      "tempo": 100,
+      "style": "blues-l1-shuffle"
+    },
+    {
+      "id": "l1-minor",
+      "name": "L1 · Cm7 shuffle",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "blues-shuffle"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "boogie"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l1-minor"
+        }
+      },
+      "tempo": 100
+    },
+    {
+      "id": "l1-8bar-a",
+      "name": "L1 · 8-bar blues A (Key to the Highway)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "blues-shuffle"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "boogie"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l1-8bar-a"
+        }
+      },
+      "tempo": 100
+    },
+    {
+      "id": "l1-8bar-b",
+      "name": "L1 · 8-bar blues B",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "blues-shuffle"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "boogie"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l1-8bar-b"
+        }
+      },
+      "tempo": 100
+    },
+    {
+      "id": "l2-iv",
+      "name": "L2 · IV vamp (F7 in C)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "blues-shuffle"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "boogie"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l2-iv"
+        }
+      },
+      "tempo": 100
+    },
+    {
+      "id": "l2-v",
+      "name": "L2 · V vamp (G7 in C)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "blues-shuffle"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "boogie"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l2-v"
+        }
+      },
+      "tempo": 100
+    },
+    {
+      "id": "l2-12bar-e",
+      "name": "L2 · 12-bar blues, I–IV–V (E)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "blues-shuffle"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "boogie"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l2-12bar-e"
+        }
+      },
+      "tempo": 100
+    },
+    {
+      "id": "l2-12bar-qc",
+      "name": "L2 · 12-bar blues, quick change (G)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "blues-shuffle"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "boogie"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l2-12bar-qc"
+        }
+      },
+      "tempo": 100,
+      "style": "blues-l2-shuffle"
+    },
+    {
+      "id": "l2-cjam",
+      "name": "L2 · C Jam Blues (Peter’s left hand)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "blues-shuffle"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "boogie"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l2-cjam"
+        }
+      },
+      "tempo": 100
+    },
+    {
+      "id": "l2-ht-e",
+      "name": "L2 · Half-time shuffle, quick change (E)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "purdie-shuffle"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "half-time-shuffle"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l2-ht-e"
+        }
+      },
+      "tempo": 150,
+      "timeSignature": [12, 8],
+      "style": "blues-l2-half-time"
+    },
+    {
+      "id": "l2-ht-cjam",
+      "name": "L2 · Half-time shuffle, C Jam Blues form",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "purdie-shuffle"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "half-time-shuffle"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l2-ht-cjam"
+        }
+      },
+      "tempo": 150,
+      "timeSignature": [12, 8]
+    },
+    {
+      "id": "l3-f7",
+      "name": "L3 · F7 vamp",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l3-f7"
+        }
+      },
+      "tempo": 120,
+      "swing": 64
+    },
+    {
+      "id": "l3-ii-v-iv",
+      "name": "L3 · ii–V into the IV (B♭)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-2-chords-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l3-ii-v-iv"
+        }
+      },
+      "tempo": 120,
+      "swing": 64
+    },
+    {
+      "id": "l3-four-bar-f",
+      "name": "L3 · ii–V–I–I in F",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l3-four-bar-f"
+        }
+      },
+      "tempo": 120,
+      "swing": 64
+    },
+    {
+      "id": "l3-jazz-blues-f",
+      "name": "L3 · Peter’s jazz blues (F)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l3-jazz-blues-f"
+        }
+      },
+      "tempo": 120,
+      "swing": 64,
+      "style": "blues-l3-jazz-blues"
+    },
+    {
+      "id": "l3-jazz-blues-bb",
+      "name": "L3 · Peter’s jazz blues (B♭)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l3-jazz-blues-bb"
+        }
+      },
+      "tempo": 120,
+      "swing": 64
+    },
+    {
+      "id": "l3-c-jam",
+      "name": "L3 · C Jam Blues (Duke Ellington)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l3-c-jam"
+        }
+      },
+      "tempo": 120,
+      "swing": 64
+    },
+    {
+      "id": "l3-bags",
+      "name": "L3 · Bags’ Groove (Milt Jackson)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l3-bags"
+        }
+      },
+      "tempo": 120,
+      "swing": 64
+    },
+    {
+      "id": "l3-freddie",
+      "name": "L3 · Freddie Freeloader (Miles Davis)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l3-freddie"
+        }
+      },
+      "tempo": 120,
+      "swing": 64
+    },
+    {
+      "id": "l3-five-spot",
+      "name": "L3 · Blues Five Spot (Thelonious Monk)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l3-five-spot"
+        }
+      },
+      "tempo": 120,
+      "swing": 64
+    },
+    {
+      "id": "l3-blues-by-five",
+      "name": "L3 · Blues by Five (Red Garland)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l3-blues-by-five"
+        }
+      },
+      "tempo": 120,
+      "swing": 64
+    },
+    {
+      "id": "l3-blue-seven",
+      "name": "L3 · Blue Seven (Sonny Rollins)",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "blues-pianist-1-l3-blue-seven"
+        }
+      },
+      "tempo": 120,
+      "swing": 64
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "id": "jazz-pianist-1-system-shells-1-7",
+  "name": "Jazz-Pianist-1 · 1-7 shells",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 50,
+      "velocity": 80
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 60,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 65,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 48,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 59,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 48,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 59,
+      "velocity": 80
+    }
+  ],
+  "chordSymbols": ["Dm7", "G7", "Cmaj7", "Cmaj7"]
+}

@@ -1,0 +1,134 @@
+{
+  "id": "jazz-pianist-1-l3-quartal-pedal-on-cm7-take-145",
+  "name": "Jazz-Pianist-1 · L3 · Quartal pedal on Cm7 take 145",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 3,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 140,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "notes": [
+    {
+      "offset": 14,
+      "tick": 0,
+      "duration": 960,
+      "midi": 36,
+      "velocity": 54
+    },
+    {
+      "tick": 0,
+      "duration": 960,
+      "midi": 43,
+      "velocity": 91
+    },
+    {
+      "tick": 960,
+      "duration": 240,
+      "midi": 48,
+      "velocity": 85
+    },
+    {
+      "tick": 960,
+      "duration": 240,
+      "midi": 53,
+      "velocity": 101
+    },
+    {
+      "tick": 960,
+      "duration": 240,
+      "midi": 58,
+      "velocity": 95
+    },
+    {
+      "offset": 2,
+      "tick": 1800,
+      "duration": 1800,
+      "midi": 50,
+      "velocity": 90
+    },
+    {
+      "offset": 2,
+      "tick": 1800,
+      "duration": 1800,
+      "midi": 55,
+      "velocity": 98
+    },
+    {
+      "offset": 2,
+      "tick": 1800,
+      "duration": 1800,
+      "midi": 60,
+      "velocity": 100
+    },
+    {
+      "offset": 29,
+      "tick": 3840,
+      "duration": 960,
+      "midi": 36,
+      "velocity": 84
+    },
+    {
+      "offset": 16,
+      "tick": 3840,
+      "duration": 960,
+      "midi": 43,
+      "velocity": 97
+    },
+    {
+      "offset": 38,
+      "tick": 4800,
+      "duration": 240,
+      "midi": 53,
+      "velocity": 106
+    },
+    {
+      "offset": 32,
+      "tick": 4800,
+      "duration": 240,
+      "midi": 58,
+      "velocity": 107
+    },
+    {
+      "offset": 32,
+      "tick": 4800,
+      "duration": 240,
+      "midi": 63,
+      "velocity": 103
+    },
+    {
+      "offset": 17,
+      "tick": 5640,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 99
+    },
+    {
+      "offset": 17,
+      "tick": 5640,
+      "duration": 1920,
+      "midi": 60,
+      "velocity": 110
+    },
+    {
+      "offset": 17,
+      "tick": 5640,
+      "duration": 1920,
+      "midi": 65,
+      "velocity": 95
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "style": "The ii–V–I",
+  "chordSymbols": ["Cmin7", "Cmin7", "Cmin7", "Cmin7"]
+}

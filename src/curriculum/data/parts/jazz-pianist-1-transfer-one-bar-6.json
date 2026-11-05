@@ -1,0 +1,55 @@
+{
+  "id": "jazz-pianist-1-transfer-one-bar-6",
+  "name": "Jazz-Pianist-1 · Melodies to Transfer, one-bar 6",
+  "instrument": "piano",
+  "role": "melody",
+  "level": 2,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 1,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 69,
+      "velocity": 80
+    },
+    {
+      "tick": 240,
+      "duration": 240,
+      "midi": 65,
+      "velocity": 80
+    },
+    {
+      "tick": 480,
+      "duration": 240,
+      "midi": 64,
+      "velocity": 80
+    },
+    {
+      "tick": 720,
+      "duration": 240,
+      "midi": 62,
+      "velocity": 80
+    },
+    {
+      "tick": 960,
+      "duration": 960,
+      "midi": 67,
+      "velocity": 80
+    }
+  ],
+  "chordSymbols": ["Cmaj9"]
+}

@@ -79,26 +79,20 @@
     },
     {
       "time": "2:1:0",
-      "degree": "6",
+      "degree": "2",
       "dur": 0.96,
       "velocity": 0.8
     },
     {
       "time": "2:2:0",
-      "degree": "5",
+      "degree": "5-",
       "dur": 0.96,
       "velocity": 0.8
     },
     {
       "time": "2:3:0",
-      "degree": "A",
-      "dur": 0.46,
-      "velocity": 0.8
-    },
-    {
-      "time": "2:3:2",
-      "degree": "A",
-      "dur": 0.46,
+      "degree": "2",
+      "dur": 0.96,
       "velocity": 0.8
     },
     {
@@ -109,13 +103,13 @@
     },
     {
       "time": "3:1:0",
-      "degree": "W",
+      "degree": "5",
       "dur": 0.96,
       "velocity": 0.8
     },
     {
       "time": "3:2:0",
-      "degree": "R",
+      "degree": "5-",
       "dur": 0.46,
       "velocity": 0.8
     },

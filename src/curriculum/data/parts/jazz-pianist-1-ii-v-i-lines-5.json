@@ -1,0 +1,79 @@
+{
+  "id": "jazz-pianist-1-ii-v-i-lines-5",
+  "name": "Jazz-Pianist-1 · ii–V–I lines 5",
+  "instrument": "piano",
+  "role": "melody",
+  "level": 3,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 5,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 80
+    },
+    {
+      "tick": 240,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 80
+    },
+    {
+      "tick": 480,
+      "duration": 240,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 720,
+      "duration": 240,
+      "midi": 81,
+      "velocity": 80
+    },
+    {
+      "tick": 960,
+      "duration": 240,
+      "midi": 79,
+      "velocity": 80
+    },
+    {
+      "tick": 1200,
+      "duration": 240,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 1440,
+      "duration": 240,
+      "midi": 76,
+      "velocity": 80
+    },
+    {
+      "tick": 1680,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 72,
+      "velocity": 80
+    }
+  ],
+  "chordSymbols": ["Gm7 C7", "Fmaj7"]
+}

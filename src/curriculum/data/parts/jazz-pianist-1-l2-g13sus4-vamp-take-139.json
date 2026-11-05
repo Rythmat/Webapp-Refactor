@@ -1,0 +1,300 @@
+{
+  "id": "jazz-pianist-1-l2-g13sus4-vamp-take-139",
+  "name": "Jazz-Pianist-1 · L2 · G13sus4 vamp take 139",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 7,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 110,
+  "swing": 66,
+  "sound": "soundfont:0",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 720,
+      "midi": 43,
+      "velocity": 98
+    },
+    {
+      "tick": 0,
+      "duration": 720,
+      "midi": 53,
+      "velocity": 97
+    },
+    {
+      "tick": 0,
+      "duration": 720,
+      "midi": 57,
+      "velocity": 104
+    },
+    {
+      "tick": 0,
+      "duration": 720,
+      "midi": 60,
+      "velocity": 106
+    },
+    {
+      "tick": 0,
+      "duration": 720,
+      "midi": 64,
+      "velocity": 91
+    },
+    {
+      "tick": 840,
+      "offset": 39,
+      "duration": 120,
+      "midi": 43,
+      "velocity": 81
+    },
+    {
+      "tick": 840,
+      "offset": 39,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 76
+    },
+    {
+      "tick": 840,
+      "offset": 34,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 73
+    },
+    {
+      "tick": 840,
+      "offset": 34,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 82
+    },
+    {
+      "tick": 840,
+      "offset": 34,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 77
+    },
+    {
+      "tick": 2880,
+      "offset": 17,
+      "duration": 240,
+      "midi": 43,
+      "velocity": 73
+    },
+    {
+      "tick": 2880,
+      "offset": 12,
+      "duration": 240,
+      "midi": 53,
+      "velocity": 75
+    },
+    {
+      "tick": 2880,
+      "offset": 7,
+      "duration": 240,
+      "midi": 57,
+      "velocity": 94
+    },
+    {
+      "tick": 2880,
+      "offset": 7,
+      "duration": 240,
+      "midi": 60,
+      "velocity": 101
+    },
+    {
+      "tick": 2880,
+      "offset": 7,
+      "duration": 240,
+      "midi": 64,
+      "velocity": 87
+    },
+    {
+      "tick": 3240,
+      "offset": 10,
+      "duration": 120,
+      "midi": 43,
+      "velocity": 58
+    },
+    {
+      "tick": 3240,
+      "offset": 10,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 54
+    },
+    {
+      "tick": 3240,
+      "offset": 10,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 54
+    },
+    {
+      "tick": 3240,
+      "offset": 15,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 47
+    },
+    {
+      "tick": 3240,
+      "offset": 15,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 47
+    },
+    {
+      "tick": 3840,
+      "offset": 13,
+      "duration": 600,
+      "midi": 43,
+      "velocity": 75
+    },
+    {
+      "tick": 3840,
+      "offset": 13,
+      "duration": 600,
+      "midi": 53,
+      "velocity": 79
+    },
+    {
+      "tick": 3840,
+      "offset": 13,
+      "duration": 600,
+      "midi": 57,
+      "velocity": 99
+    },
+    {
+      "tick": 3840,
+      "offset": 13,
+      "duration": 600,
+      "midi": 60,
+      "velocity": 103
+    },
+    {
+      "tick": 3840,
+      "offset": 13,
+      "duration": 600,
+      "midi": 64,
+      "velocity": 85
+    },
+    {
+      "tick": 4680,
+      "offset": 15,
+      "duration": 120,
+      "midi": 43,
+      "velocity": 82
+    },
+    {
+      "tick": 4680,
+      "offset": 15,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 93
+    },
+    {
+      "tick": 4680,
+      "offset": 15,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 103
+    },
+    {
+      "tick": 4680,
+      "offset": 15,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 104
+    },
+    {
+      "tick": 4680,
+      "offset": 15,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 88
+    },
+    {
+      "tick": 6720,
+      "offset": 29,
+      "duration": 240,
+      "midi": 43,
+      "velocity": 77
+    },
+    {
+      "tick": 6720,
+      "offset": 29,
+      "duration": 240,
+      "midi": 53,
+      "velocity": 64
+    },
+    {
+      "tick": 6720,
+      "offset": 29,
+      "duration": 240,
+      "midi": 57,
+      "velocity": 82
+    },
+    {
+      "tick": 6720,
+      "offset": 19,
+      "duration": 240,
+      "midi": 60,
+      "velocity": 81
+    },
+    {
+      "tick": 6720,
+      "offset": 29,
+      "duration": 240,
+      "midi": 64,
+      "velocity": 73
+    },
+    {
+      "tick": 7080,
+      "offset": 6,
+      "duration": 120,
+      "midi": 43,
+      "velocity": 64
+    },
+    {
+      "tick": 7080,
+      "offset": 1,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 72
+    },
+    {
+      "tick": 7080,
+      "offset": 6,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 79
+    },
+    {
+      "tick": 7080,
+      "offset": 6,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 88
+    },
+    {
+      "tick": 7080,
+      "offset": 6,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 74
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "chordSymbols": ["G13sus4", "G13sus4", "G13sus4", "G13sus4"]
+}

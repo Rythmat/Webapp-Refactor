@@ -1,0 +1,61 @@
+{
+  "id": "jazz-pianist-1-l1-c7",
+  "name": "Jazz-Pianist-1 · L1 · C7 vamp",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": ["jazz"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 1,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "chordSymbols": ["C7"],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 58,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 64,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 67,
+      "velocity": 82
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 58,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 70
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "id": "jazz-bassist-1-just-roots-blues",
+  "name": "Jazz-Bassist-1 · Just Roots, C blues",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 1,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 12,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "bass-electric:upright",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 36,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 41,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 36,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 36,
+      "velocity": 80
+    },
+    {
+      "tick": 7680,
+      "duration": 1920,
+      "midi": 41,
+      "velocity": 80
+    },
+    {
+      "tick": 9600,
+      "duration": 1920,
+      "midi": 41,
+      "velocity": 80
+    },
+    {
+      "tick": 11520,
+      "duration": 1920,
+      "midi": 36,
+      "velocity": 80
+    },
+    {
+      "tick": 13440,
+      "duration": 1920,
+      "midi": 36,
+      "velocity": 80
+    },
+    {
+      "tick": 15360,
+      "duration": 1920,
+      "midi": 31,
+      "velocity": 80
+    },
+    {
+      "tick": 17280,
+      "duration": 1920,
+      "midi": 29,
+      "velocity": 80
+    },
+    {
+      "tick": 19200,
+      "duration": 1920,
+      "midi": 36,
+      "velocity": 80
+    },
+    {
+      "tick": 21120,
+      "duration": 1920,
+      "midi": 36,
+      "velocity": 80
+    }
+  ],
+  "chordSymbols": [
+    "C7",
+    "F7",
+    "C7",
+    "C7",
+    "F7",
+    "F7",
+    "C7",
+    "C7",
+    "G7",
+    "F7",
+    "C7",
+    "C7"
+  ]
+}

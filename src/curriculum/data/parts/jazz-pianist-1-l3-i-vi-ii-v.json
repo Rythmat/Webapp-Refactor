@@ -1,0 +1,121 @@
+{
+  "id": "jazz-pianist-1-l3-i-vi-ii-v",
+  "name": "Jazz-Pianist-1 · L3 · I–VI–ii–V in C",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 3,
+  "tags": ["jazz"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 120,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "chordSymbols": ["Cmaj9 A7b9", "Dm9 G13"],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 52,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 55,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 59,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 62,
+      "velocity": 82
+    },
+    {
+      "tick": 720,
+      "duration": 900,
+      "midi": 55,
+      "velocity": 74
+    },
+    {
+      "tick": 720,
+      "duration": 900,
+      "midi": 58,
+      "velocity": 74
+    },
+    {
+      "tick": 720,
+      "duration": 900,
+      "midi": 61,
+      "velocity": 74
+    },
+    {
+      "tick": 720,
+      "duration": 900,
+      "midi": 64,
+      "velocity": 74
+    },
+    {
+      "tick": 1920,
+      "duration": 600,
+      "midi": 53,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "duration": 600,
+      "midi": 57,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "duration": 600,
+      "midi": 60,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "duration": 600,
+      "midi": 64,
+      "velocity": 82
+    },
+    {
+      "tick": 2640,
+      "duration": 900,
+      "midi": 53,
+      "velocity": 74
+    },
+    {
+      "tick": 2640,
+      "duration": 900,
+      "midi": 57,
+      "velocity": 74
+    },
+    {
+      "tick": 2640,
+      "duration": 900,
+      "midi": 59,
+      "velocity": 74
+    },
+    {
+      "tick": 2640,
+      "duration": 900,
+      "midi": 64,
+      "velocity": 74
+    }
+  ]
+}

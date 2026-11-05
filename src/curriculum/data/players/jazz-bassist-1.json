@@ -33,6 +33,128 @@
     {
       "kind": "bassLine",
       "id": "waltz-walk"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-bassist-1-just-roots-blues"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-bassist-1-two-feel-blues"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-bassist-1-two-feel-iivi"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-bassist-1-blues-line"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-bassist-1-blues-line-c-jam"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-bassist-1-walking-iivi"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-bassist-1-walking-minor"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-bassist-1-walking-jazz-blues"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-bassist-1-walking-2-per-bar"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-bassist-1-walking-fast-iivi"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-bassist-1-waltz-walk-iivi"
+    }
+  ],
+  "families": [
+    {
+      "id": "jazz-bass-l1",
+      "name": "Roots, root–5 and two-feel",
+      "style": "jazz-blues",
+      "versions": [
+        {
+          "part": "jazz-bassist-1-just-roots-blues",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-bassist-1-two-feel-blues",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-bassist-1-two-feel-iivi",
+          "use": "teaching",
+          "levels": [1]
+        }
+      ]
+    },
+    {
+      "id": "jazz-bass-l2",
+      "name": "Peter’s blues line",
+      "style": "jazz-transfer",
+      "versions": [
+        {
+          "part": "jazz-bassist-1-blues-line",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-bassist-1-blues-line-c-jam",
+          "use": "teaching",
+          "levels": [2]
+        }
+      ]
+    },
+    {
+      "id": "jazz-bass-l3",
+      "name": "Walking lines",
+      "style": "jazz-ii-v-i",
+      "versions": [
+        {
+          "part": "jazz-bassist-1-walking-iivi",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-bassist-1-walking-minor",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-bassist-1-walking-jazz-blues",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-bassist-1-walking-2-per-bar",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-bassist-1-walking-fast-iivi",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-bassist-1-waltz-walk-iivi",
+          "use": "teaching",
+          "levels": [3]
+        }
+      ]
     }
   ]
 }

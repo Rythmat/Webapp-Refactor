@@ -1,0 +1,17 @@
+{
+  "id": "jazz-l1-blues",
+  "band": "jazz-band-1",
+  "variation": "l1-blues",
+  "overrides": [
+    {
+      "steps": [4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+      "band": "jazz-band-1",
+      "variation": "l1-c7"
+    },
+    {
+      "steps": [17, 18, 19, 20],
+      "band": "jazz-band-1",
+      "variation": "l1-cm7"
+    }
+  ]
+}

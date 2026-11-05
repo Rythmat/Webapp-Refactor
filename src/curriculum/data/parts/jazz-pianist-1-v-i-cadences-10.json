@@ -1,0 +1,37 @@
+{
+  "id": "jazz-pianist-1-v-i-cadences-10",
+  "name": "Jazz-Pianist-1 · V–I cadences 10",
+  "instrument": "piano",
+  "role": "melody",
+  "level": 3,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 960,
+      "duration": 960,
+      "midi": 61,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 80
+    }
+  ],
+  "chordSymbols": ["G7", "Cmaj7"]
+}

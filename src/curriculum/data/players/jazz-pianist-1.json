@@ -5,5 +5,1456 @@
   "genre": "jazz",
   "kind": "placeholder",
   "order": 310,
-  "items": []
+  "items": [
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l1-blues"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l1-c7"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l1-cm7"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l2-cjam"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l2-cmaj9"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l2-dmin9"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l2-esus4b9"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l2-fmaj7s11"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l2-g13sus4"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l2-amin7b6"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l2-iivi"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-iivi-f"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-iivi-f-2bar"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-v-i"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-a7-dm"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-a7-dm-half"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-iivi-c"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-i-vi-ii-v"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-blues-language-1"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-blues-language-2"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-blues-language-3"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-blues-language-4"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-blues-language-5"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-blues-language-6"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-blues-language-7"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-blues-language-8"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-minor-blues-lines-1"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-minor-blues-lines-2"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-minor-blues-lines-3"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-minor-blues-lines-4"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-1"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-2"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-3"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-4"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-5"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-6"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-7"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-8"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-9"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-10"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-11"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-12"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-13"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-14"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-15"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-one-bar-16"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-two-bar-1"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-two-bar-2"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-two-bar-3"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-two-bar-4"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-two-bar-5"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-two-bar-6"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-two-bar-7"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-two-bar-8"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-two-bar-9"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-two-bar-10"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-two-bar-11"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-transfer-two-bar-12"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-ii-v-i-lines-1"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-ii-v-i-lines-2"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-ii-v-i-lines-3"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-ii-v-i-lines-4"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-ii-v-i-lines-5"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-ii-v-i-lines-6"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-ii-v-i-lines-7"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-ii-v-i-lines-8"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-1"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-2"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-3"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-4"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-5"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-6"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-7"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-8"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-9"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-10"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-11"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-12"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-13"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-14"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-15"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-16"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-17"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-18"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-19"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-20"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-21"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-22"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-23"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-24"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-25"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-four-bar-lines-26"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-v-i-cadences-1"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-v-i-cadences-2"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-v-i-cadences-3"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-v-i-cadences-4"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-v-i-cadences-5"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-v-i-cadences-6"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-v-i-cadences-7"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-v-i-cadences-8"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-v-i-cadences-9"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-v-i-cadences-10"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-v-i-cadences-11"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-v-i-cadences-12"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-tension-release-1"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-tension-release-2"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-tension-release-3"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-tension-release-4"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-tension-release-5"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-tension-release-6"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-tension-release-7"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-tension-release-8"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-tension-release-9"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-tension-release-10"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-system-shells-1-7"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-system-shells-1-3-7"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-system-rootless-7-3-5"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-system-area-code-7-3-5"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-system-area-code-3-7-9"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-system-area-code-7-3-5-minor"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-system-area-code-3-7-9-minor"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-system-rootless-b"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-system-rootless-b-minor"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-system-rootless-a"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-system-rootless-a-minor"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-quartal-iivi-1"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-quartal-iivi-2"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-quartal-4-note-var-1"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-quartal-4-note-var-2"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-cmin6-pentatonic"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-cmin-pentatonic"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-gmin-pentatonic-over-cmin"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-lh-shells-rh-upper"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-lh-shells-rh-7-9-5"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-lh-shells-rh-7-9-5-minor"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-jazz-blues-two-hand-f"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-quartal-ii-v-i-var-1"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-two-hand-quartal-ii-v-i-var-2"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l2-g13sus4-vamp-take-139"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-a7-9-dm6-d-minor-take-140"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-a7-9-dm6-in-one-bar-take-141"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-ii-v-i-in-c-take-142"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-i-vi-ii-v-in-c-take-143"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-quartal-pedal-on-cm7-take-144"
+    },
+    {
+      "kind": "part",
+      "id": "jazz-pianist-1-l3-quartal-pedal-on-cm7-take-145"
+    }
+  ],
+  "families": [
+    {
+      "id": "jazz-band-comping-l1",
+      "name": "Jazz band comping · Blues",
+      "style": "jazz-blues",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-l1-blues",
+          "use": "band",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-l1-c7",
+          "use": "band",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-l1-cm7",
+          "use": "band",
+          "levels": [1]
+        }
+      ]
+    },
+    {
+      "id": "jazz-band-comping-l2",
+      "name": "Jazz band comping · Color & Transfer",
+      "style": "jazz-transfer",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-l2-cjam",
+          "use": "band",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-l2-cmaj9",
+          "use": "band",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-l2-dmin9",
+          "use": "band",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-l2-esus4b9",
+          "use": "band",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-l2-fmaj7s11",
+          "use": "band",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-l2-g13sus4",
+          "use": "band",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-l2-amin7b6",
+          "use": "band",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-l2-iivi",
+          "use": "band",
+          "levels": [2]
+        }
+      ]
+    },
+    {
+      "id": "jazz-band-comping-l3",
+      "name": "Jazz band comping · The ii–V–I",
+      "style": "jazz-ii-v-i",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-l3-iivi-f",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-l3-iivi-f-2bar",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-l3-v-i",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-l3-a7-dm",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-l3-a7-dm-half",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-l3-iivi-c",
+          "use": "band",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-l3-i-vi-ii-v",
+          "use": "band",
+          "levels": [3]
+        }
+      ]
+    },
+    {
+      "id": "jazz-blues-language",
+      "name": "Blues Language phrases",
+      "style": "jazz-blues",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-blues-language-1",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-blues-language-2",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-blues-language-3",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-blues-language-4",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-blues-language-5",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-blues-language-6",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-blues-language-7",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-blues-language-8",
+          "use": "teaching",
+          "levels": [1]
+        }
+      ]
+    },
+    {
+      "id": "jazz-minor-blues-lines",
+      "name": "C minor blues lines",
+      "style": "jazz-blues",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-minor-blues-lines-1",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-minor-blues-lines-2",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-minor-blues-lines-3",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-minor-blues-lines-4",
+          "use": "teaching",
+          "levels": [1]
+        }
+      ]
+    },
+    {
+      "id": "jazz-transfer-one-bar",
+      "name": "Melodies to Transfer, one-bar",
+      "style": "jazz-transfer",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-1",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-2",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-3",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-4",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-5",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-6",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-7",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-8",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-9",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-10",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-11",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-12",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-13",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-14",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-15",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-one-bar-16",
+          "use": "teaching",
+          "levels": [2]
+        }
+      ]
+    },
+    {
+      "id": "jazz-transfer-two-bar",
+      "name": "Melodies to Transfer, two-bar",
+      "style": "jazz-transfer",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-transfer-two-bar-1",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-two-bar-2",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-two-bar-3",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-two-bar-4",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-two-bar-5",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-two-bar-6",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-two-bar-7",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-two-bar-8",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-two-bar-9",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-two-bar-10",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-two-bar-11",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-transfer-two-bar-12",
+          "use": "teaching",
+          "levels": [2]
+        }
+      ]
+    },
+    {
+      "id": "jazz-ii-v-i-lines",
+      "name": "ii–V–I lines",
+      "style": "jazz-ii-v-i",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-ii-v-i-lines-1",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-ii-v-i-lines-2",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-ii-v-i-lines-3",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-ii-v-i-lines-4",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-ii-v-i-lines-5",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-ii-v-i-lines-6",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-ii-v-i-lines-7",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-ii-v-i-lines-8",
+          "use": "teaching",
+          "levels": [3]
+        }
+      ]
+    },
+    {
+      "id": "jazz-four-bar-lines",
+      "name": "Four-bar ii–V–I lines",
+      "style": "jazz-ii-v-i",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-four-bar-lines-1",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-2",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-3",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-4",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-5",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-6",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-7",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-8",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-9",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-10",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-11",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-12",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-13",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-14",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-15",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-16",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-17",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-18",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-19",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-20",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-21",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-22",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-23",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-24",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-25",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-four-bar-lines-26",
+          "use": "teaching",
+          "levels": [3]
+        }
+      ]
+    },
+    {
+      "id": "jazz-v-i-cadences",
+      "name": "V–I cadences",
+      "style": "jazz-ii-v-i",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-v-i-cadences-1",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-v-i-cadences-2",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-v-i-cadences-3",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-v-i-cadences-4",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-v-i-cadences-5",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-v-i-cadences-6",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-v-i-cadences-7",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-v-i-cadences-8",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-v-i-cadences-9",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-v-i-cadences-10",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-v-i-cadences-11",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-v-i-cadences-12",
+          "use": "teaching",
+          "levels": [3]
+        }
+      ]
+    },
+    {
+      "id": "jazz-tension-release",
+      "name": "Minor tension and release",
+      "style": "jazz-ii-v-i",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-tension-release-1",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-tension-release-2",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-tension-release-3",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-tension-release-4",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-tension-release-5",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-tension-release-6",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-tension-release-7",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-tension-release-8",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-tension-release-9",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-tension-release-10",
+          "use": "teaching",
+          "levels": [3]
+        }
+      ]
+    },
+    {
+      "id": "jazz-voicings-l1",
+      "name": "Voicings: shells and 7-3-5",
+      "style": "jazz-blues",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-system-shells-1-7",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-system-shells-1-3-7",
+          "use": "teaching",
+          "levels": [1]
+        },
+        {
+          "part": "jazz-pianist-1-system-rootless-7-3-5",
+          "use": "teaching",
+          "levels": [1]
+        }
+      ]
+    },
+    {
+      "id": "jazz-voicings-l2",
+      "name": "Voicings: the area codes and rootless B",
+      "style": "jazz-transfer",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-system-area-code-7-3-5",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-system-area-code-3-7-9",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-system-area-code-7-3-5-minor",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-system-area-code-3-7-9-minor",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-system-rootless-b",
+          "use": "teaching",
+          "levels": [2]
+        },
+        {
+          "part": "jazz-pianist-1-system-rootless-b-minor",
+          "use": "teaching",
+          "levels": [2]
+        }
+      ]
+    },
+    {
+      "id": "jazz-voicings-l3",
+      "name": "Voicings: rootless A, quartals, two hands",
+      "style": "jazz-ii-v-i",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-system-rootless-a",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-system-rootless-a-minor",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-quartal-iivi-1",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-quartal-iivi-2",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-quartal-ii-v-i-var-1",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-quartal-ii-v-i-var-2",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-quartal-4-note-var-1",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-quartal-4-note-var-2",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-cmin6-pentatonic",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-cmin-pentatonic",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-gmin-pentatonic-over-cmin",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-lh-shells-rh-upper",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-lh-shells-rh-7-9-5",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-lh-shells-rh-7-9-5-minor",
+          "use": "teaching",
+          "levels": [3]
+        },
+        {
+          "part": "jazz-pianist-1-two-hand-jazz-blues-two-hand-f",
+          "use": "teaching",
+          "levels": [3]
+        }
+      ]
+    },
+    {
+      "id": "l2-g13sus4-vamp-keys-comping",
+      "name": "L2 · G13sus4 vamp keys comping",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-l2-g13sus4-vamp-take-139",
+          "use": "band",
+          "levels": []
+        }
+      ]
+    },
+    {
+      "id": "l3-a7-9-dm6-d-minor-keys-comping",
+      "name": "L3 · A7♭9 – Dm6, D minor keys comping",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-l3-a7-9-dm6-d-minor-take-140",
+          "use": "band",
+          "levels": []
+        }
+      ]
+    },
+    {
+      "id": "l3-a7-9-dm6-in-one-bar-keys-comping",
+      "name": "L3 · A7♭9 Dm6 in one bar keys comping",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-l3-a7-9-dm6-in-one-bar-take-141",
+          "use": "band",
+          "levels": []
+        }
+      ]
+    },
+    {
+      "id": "l3-ii-v-i-in-c-keys-comping",
+      "name": "L3 · ii–V–I in C keys comping",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-l3-ii-v-i-in-c-take-142",
+          "use": "band",
+          "levels": []
+        }
+      ]
+    },
+    {
+      "id": "the-ii-v-i-keys-comping",
+      "name": "The ii–V–I keys comping",
+      "style": "jazz-ii-v-i",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-l3-i-vi-ii-v-in-c-take-143",
+          "use": "band",
+          "levels": [3]
+        }
+      ]
+    },
+    {
+      "id": "the-ii-v-i-keys-comping-2",
+      "name": "The ii–V–I keys comping",
+      "style": "jazz-ii-v-i",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-l3-quartal-pedal-on-cm7-take-144",
+          "use": "band",
+          "levels": [3]
+        }
+      ]
+    },
+    {
+      "id": "the-ii-v-i-keys-comping-3",
+      "name": "The ii–V–I keys comping",
+      "style": "jazz-ii-v-i",
+      "versions": [
+        {
+          "part": "jazz-pianist-1-l3-quartal-pedal-on-cm7-take-145",
+          "use": "band",
+          "levels": [3]
+        }
+      ]
+    }
+  ]
 }

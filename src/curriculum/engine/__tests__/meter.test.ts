@@ -126,13 +126,13 @@ describe('backing in other meters', () => {
 
   it('falls back to meter-true parts without a pairing', () => {
     const s = step('l1a', ['Dm', 'A7'], ['drums', 'bass', 'chords']);
-    const notes = buildBackingNotes(s, 62, 1, 'l1a', [], 'jazz', 0, 50, [6, 8]);
+    const notes = buildBackingNotes(s, 62, 1, 'l1a', [], 'rock', 0, 50, [6, 8]);
     const kicks = notes.filter((n) => n.part === 'drums' && n.note === 36);
     expect(kicks.map((k) => k.onset).slice(0, 3)).toEqual([0, 1440, 2880]);
     const chords = notes.filter((n) => n.part === 'chords' && n.onset < 1440);
     // A chord on each felt beat: two dotted quarters.
     expect([...new Set(chords.map((c) => c.onset))]).toEqual([0, 720]);
-    const vals = buildBackingNotes(s, 62, 1, 'l1a', [], 'jazz', 0, 50, [3, 4]);
+    const vals = buildBackingNotes(s, 62, 1, 'l1a', [], 'rock', 0, 50, [3, 4]);
     const valsChords = vals.filter(
       (n) => n.part === 'chords' && n.onset < 1440,
     );

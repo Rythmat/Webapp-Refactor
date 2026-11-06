@@ -12,7 +12,7 @@ import type { ActivitySectionId } from '../../types/activity';
 import type { ActivityStepV2, LessonInstrument } from '../../types/activity.v2';
 import { midiToPitchName } from './enharmonicEngine';
 import { applyRegisterRules } from './registerRules';
-import { applySwing } from './swing';
+import { applySwing, stepSwingUnit } from './swing';
 
 // ── Our internal note format ─────────────────────────────────────────────────
 
@@ -174,7 +174,11 @@ export function resolveStepContent(
     instrument_config: step.instrument_config,
     genre: ctx.genre,
   });
-  return applySwing(placed, ctx.swing ?? 50) as GenreNoteEvent[];
+  return applySwing(
+    placed,
+    ctx.swing ?? 50,
+    stepSwingUnit(step),
+  ) as GenreNoteEvent[];
 }
 
 function resolveRawStepContent(

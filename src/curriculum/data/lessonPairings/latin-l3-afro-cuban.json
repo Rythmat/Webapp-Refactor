@@ -1,4 +1,12 @@
 {
   "id": "latin-l3-afro-cuban",
-  "band": "latin-band-1"
+  "band": "latin-band-1",
+  "variation": "l3-afro-cuban",
+  "overrides": [
+    {
+      "steps": [16, 25, 40],
+      "band": "latin-band-1",
+      "variation": "l3-afro-cuban-copy"
+    }
+  ]
 }

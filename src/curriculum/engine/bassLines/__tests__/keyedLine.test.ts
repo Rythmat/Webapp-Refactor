@@ -150,7 +150,8 @@ describe.each(CHARTS)('over $name, in its key', ({ chords, key }) => {
  * exactly as it did.
  */
 const BEFORE: Record<string, string> = {
-  'walking-1-chord-per-bar': '1o57z56',
+  // Rewritten in the back office, Nov 2026: its notes moved on purpose.
+  'walking-1-chord-per-bar': 'ggwf9l',
   'walking-2-chords-per-bar': '40rr71',
   'walking-fast-swing': 'mkoazu',
   'two-feel': 'ad3m40',

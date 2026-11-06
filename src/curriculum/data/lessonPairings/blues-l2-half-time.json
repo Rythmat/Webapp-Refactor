@@ -1,0 +1,12 @@
+{
+  "id": "blues-l2-half-time",
+  "band": "blues-band-1",
+  "variation": "l2-ht-e",
+  "overrides": [
+    {
+      "steps": [33, 36],
+      "band": "blues-band-1",
+      "variation": "l2-ht-cjam"
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "id": "jazz-pianist-1-l2-iivi",
+  "name": "Jazz-Pianist-1 · L2 · ii–V–I, 7-3-5 area code",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 2,
+  "tags": ["jazz"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "chordSymbols": ["Dm7", "G9", "Cmaj7", "Cmaj7"],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 60,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 65,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 69,
+      "velocity": 82
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 60,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 65,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 69,
+      "velocity": 70
+    },
+    {
+      "tick": 1920,
+      "duration": 660,
+      "midi": 59,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "duration": 660,
+      "midi": 65,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "duration": 660,
+      "midi": 69,
+      "velocity": 82
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 59,
+      "velocity": 70
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 65,
+      "velocity": 70
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 69,
+      "velocity": 70
+    },
+    {
+      "tick": 3840,
+      "duration": 660,
+      "midi": 59,
+      "velocity": 82
+    },
+    {
+      "tick": 3840,
+      "duration": 660,
+      "midi": 64,
+      "velocity": 82
+    },
+    {
+      "tick": 3840,
+      "duration": 660,
+      "midi": 67,
+      "velocity": 82
+    },
+    {
+      "tick": 4560,
+      "duration": 200,
+      "midi": 59,
+      "velocity": 70
+    },
+    {
+      "tick": 4560,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 70
+    },
+    {
+      "tick": 4560,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 70
+    },
+    {
+      "tick": 5760,
+      "duration": 660,
+      "midi": 59,
+      "velocity": 82
+    },
+    {
+      "tick": 5760,
+      "duration": 660,
+      "midi": 64,
+      "velocity": 82
+    },
+    {
+      "tick": 5760,
+      "duration": 660,
+      "midi": 67,
+      "velocity": 82
+    },
+    {
+      "tick": 6480,
+      "duration": 200,
+      "midi": 59,
+      "velocity": 70
+    },
+    {
+      "tick": 6480,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 70
+    },
+    {
+      "tick": 6480,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 70
+    }
+  ]
+}

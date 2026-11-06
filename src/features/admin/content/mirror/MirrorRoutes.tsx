@@ -5,7 +5,7 @@ import {
   useLocation,
   useRoutes,
 } from 'react-router-dom';
-import { StudioRoutes } from '@/constants/routes';
+import { LearnRoutes, StudioRoutes } from '@/constants/routes';
 import { curriculumPages } from '@/curriculum/routes';
 import {
   globePages,
@@ -19,6 +19,7 @@ import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
 import { searchPages } from '@/features/search/routes';
 import { NotMirroredYet } from './NotMirroredYet';
 import { ClassroomMirror } from './segments/ClassroomMirror';
+import { LessonMirrorPage } from './segments/LessonMirrorPage';
 import { SongMirrorPage } from './segments/SongMirrorPage';
 import { TeachMirror } from './segments/TeachMirror';
 
@@ -68,11 +69,14 @@ const buildRoutes = (): RouteObject[] => [
   // Home: the dashboard only; awards and the plan page are per-student.
   { path: '/home', element: <HomeInlet /> },
   // Learn: the catalog's shelves (owner, 2026-11-04). Old links go where the
-  // app sends them.
+  // app sends them. A genre course's level is its lesson, with its Edit mode
+  // (`?edit=1`).
   segment(learnPages, (child) =>
     child.index
       ? { ...child, element: <LearnIndexMirror hub={child.element} /> }
-      : child,
+      : child.path === LearnRoutes.genreLesson.definition
+        ? { ...child, element: <LessonMirrorPage preview={child.element} /> }
+        : child,
   ),
   // Songs: the song pages, each with its Edit mode (`?edit=1`); set lists
   // are a student's own.

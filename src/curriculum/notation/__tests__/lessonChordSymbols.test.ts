@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { ChordContext } from '@/lib/chordNotation';
 import {
   chordsPerBar,
+  chordsTwoABar,
   formatChordsInText,
   placeLessonChords,
   formatLessonChord,
@@ -221,15 +222,77 @@ describe('placeLessonChords', () => {
     ).toEqual([0, 1920, 3840, 5760]);
   });
 
-  it('places two chords inside one bar over their own notes', () => {
-    // B1.5 as written: Am9 on beat 1, D13 on beat 3, both in a single bar.
-    // Per-bar placement walked D13 onto the empty bar after the music.
+  it('puts one chord a bar over a single line, however its notes fall', () => {
+    // Jazz L3 Four-Bar Line 1: a pickup in bar 1, eighths in bar 2, a whole
+    // note in bar 3 and a bar of rest. Gm7 | C7 | Fmaj7, each on its bar.
+    const line = [
+      1440,
+      1680,
+      ...[0, 1, 2, 3, 4, 5, 6, 7].map((i) => 1920 + i * 240),
+    ]
+      .map((onset) => ({ onset, duration: 220, midi: 67 }))
+      .concat({ onset: 3840, duration: 1860, midi: 69 });
+    expect(
+      placeLessonChords(['Gm7', 'C7', 'Fmaj7', 'Fmaj7'], {
+        bars: 5,
+        ticksPerBar: BAR,
+        notes: line,
+      }),
+    ).toEqual([
+      { label: 'Gm7', startTick: 0 },
+      { label: 'C7', startTick: BAR },
+      { label: 'Fmaj7', startTick: 2 * BAR },
+    ]);
+  });
+
+  it('keeps a bar’s first chord in time, as the band plays it', () => {
+    // A one-bar phrase over Em | F: the band plays F in bar 2.
+    expect(
+      placeLessonChords(['Em', 'F'], {
+        bars: 2,
+        ticksPerBar: BAR,
+        notes: [{ onset: 0, duration: 1900, midi: 64 }],
+      }),
+    ).toEqual([{ label: 'Em', startTick: 0 }]);
+  });
+
+  it('puts a bar’s first chord on its downbeat when it is struck later', () => {
+    // A bolero comps on the "and": Em on 240, Am on 2160.
+    const triad = (onset: number, midis: number[]) =>
+      midis.map((midi) => ({ onset, duration: 200, midi }));
+    expect(
+      placeLessonChords(['Em', 'Am'], {
+        bars: 2,
+        ticksPerBar: BAR,
+        notes: [...triad(240, [55, 59, 64]), ...triad(2160, [57, 60, 64])],
+      }),
+    ).toEqual([
+      { label: 'Em', startTick: 0 },
+      { label: 'Am', startTick: BAR },
+    ]);
+  });
+
+  it('keeps a change inside a bar on its own strike', () => {
+    // Funk L2 B1.5: Am9 on beat 1, D13 on beat 3 of one bar.
+    const chord = (onset: number, midis: number[]) =>
+      midis.map((midi) => ({ onset, duration: 900, midi }));
     expect(
       placeLessonChords(['Am9', 'D13'], {
         bars: 1,
         ticksPerBar: BAR,
-        onsets: [0, 960],
+        notes: [...chord(0, [55, 60, 64, 71]), ...chord(960, [54, 59, 60, 64])],
+      }).map((c) => c.startTick),
+    ).toEqual([0, 960]);
+  });
+
+  it('shares an out-of-time exercise’s chords across its beats', () => {
+    // Two chords in one bar: beats 1 and 3.
+    expect(
+      placeLessonChords(['Am9', 'D13'], {
+        bars: 1,
+        ticksPerBar: BAR,
         contentEndTick: 1920,
+        outOfTime: true,
       }),
     ).toEqual([
       { label: 'Am9', startTick: 0 },
@@ -237,39 +300,37 @@ describe('placeLessonChords', () => {
     ]);
   });
 
-  it('snaps to a real note rather than an exact division', () => {
-    // B1.7 ends at 1880, so an even split lands on 940 — between the chords.
+  it('lands on a beat, not an exact division', () => {
+    // An exercise ending at 1880 divides at 940: the chord goes on beat 3.
     expect(
       placeLessonChords(['Cm9', 'F13'], {
         bars: 1,
         ticksPerBar: BAR,
-        onsets: [0, 960],
         contentEndTick: 1880,
+        outOfTime: true,
       }).map((c) => c.startTick),
     ).toEqual([0, 960]);
   });
 
-  it('reaches past a nearer note to the one the division means', () => {
-    // B2.7: chords at 0 and 240 in a 700-tick exercise. The split is 350,
-    // whose nearest onset is 240 — the second chord, not the first.
+  it('keeps two chords on two beats of a short exercise', () => {
+    // 700 ticks: the second chord can't wait for beat 3.
     expect(
       placeLessonChords(['Bfunk9', 'Cfunk9'], {
         bars: 1,
         ticksPerBar: BAR,
-        onsets: [0, 240],
         contentEndTick: 700,
+        outOfTime: true,
       }).map((c) => c.startTick),
-    ).toEqual([0, 240]);
+    ).toEqual([0, 480]);
   });
 
-  it('spreads a four-chord comp across two bars of quarter-note strikes', () => {
-    // B4.3: strikes every 480, chords change every 960.
+  it('shares four chords across the half bars of a longer exercise', () => {
     expect(
       placeLessonChords(['C', 'F', 'G', 'C'], {
         bars: 3,
         ticksPerBar: BAR,
-        onsets: [0, 480, 960, 1440, 1920, 2400, 2880, 3360, 3840],
         contentEndTick: 3960,
+        outOfTime: true,
       }).map((c) => c.startTick),
     ).toEqual([0, 960, 1920, 2880]);
   });
@@ -279,21 +340,20 @@ describe('placeLessonChords', () => {
       placeLessonChords(['Am9', 'D13'], {
         bars: 1,
         ticksPerBar: BAR,
-        onsets: [0, 960],
         contentEndTick: 1920,
         startTick: 1920,
+        outOfTime: true,
       }).map((c) => c.startTick),
     ).toEqual([1920, 2880]);
   });
+});
 
-  it('falls back to the division when the step has no notes', () => {
-    expect(
-      placeLessonChords(['Am9', 'D13'], {
-        bars: 1,
-        ticksPerBar: BAR,
-        onsets: [],
-        contentEndTick: 1920,
-      }).map((c) => c.startTick),
-    ).toEqual([0, 960]);
+describe('chordsTwoABar', () => {
+  it('labels each half bar, a chord held across halves once', () => {
+    expect(chordsTwoABar(['Gm7', 'C7', 'Fmaj7', 'Fmaj7'], 1920, 960)).toEqual([
+      { label: 'Gm7', startTick: 960 },
+      { label: 'C7', startTick: 1920 },
+      { label: 'Fmaj7', startTick: 2880 },
+    ]);
   });
 });

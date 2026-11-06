@@ -68,6 +68,19 @@ const songSlugOf = (appPath: string): string | null => {
   return song && song[1] !== 'setlists' ? song[1] : null;
 };
 
+/** A genre level's lesson (`/learn/keyboard/genre/jazz/2`), which edits in place too. */
+const isLessonPage = (appPath: string) =>
+  /^\/learn\/keyboard\/genre\/[^/]+\/\d+$/.test(appPath);
+
+/** This page's URL with Edit on or off, its other parameters kept. */
+const withEdit = (pathname: string, params: URLSearchParams, on: boolean) => {
+  const next = new URLSearchParams(params);
+  if (on) next.set('edit', '1');
+  else next.delete('edit');
+  const query = next.toString();
+  return query ? `${pathname}?${query}` : pathname;
+};
+
 /**
  * A Music Literacy page (`/curriculum/music-literacy[/:id…]`) and its
  * lesson's id, which is kebab-case, so never needs decoding.
@@ -274,6 +287,7 @@ export const MirrorBar = () => {
 
   const actions = appPath ? contextActions(appPath, params) : [];
   const songSlug = appPath ? songSlugOf(appPath) : null;
+  const inPlace = !!songSlug || (!!appPath && isLessonPage(appPath));
   const editing = params.get('edit') === '1';
   const focus = appPath ? graphFocusFor(appPath, params) : null;
 
@@ -314,14 +328,17 @@ export const MirrorBar = () => {
         </div>
       )}
 
-      {songSlug && (
+      {inPlace && (
         <div
           role="group"
           aria-label="Mode"
           className="flex shrink-0 items-center gap-1"
         >
           {editing ? (
-            <Link to={pathname} className={consoleTabClass(false, 'sm')}>
+            <Link
+              to={withEdit(pathname, params, false)}
+              className={consoleTabClass(false, 'sm')}
+            >
               Preview
             </Link>
           ) : (
@@ -335,7 +352,7 @@ export const MirrorBar = () => {
             </span>
           ) : (
             <Link
-              to={`${pathname}?edit=1`}
+              to={withEdit(pathname, params, true)}
               className={consoleTabClass(false, 'sm')}
             >
               Edit

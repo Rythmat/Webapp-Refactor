@@ -1052,6 +1052,12 @@ export function buildGenrePracticeTrack(
   // following some exercise's hits, which is what a looping vamp wants.
   const backingStep: ActivityStepV2 = {
     ...(step ?? ({} as ActivityStepV2)),
+    // Two chords a bar only while the track plays the step's own chords.
+    chordsPerBar:
+      step?.chordsPerBar === 2 &&
+      chords.join(' ') === (step.chordSymbols ?? []).join(' ')
+        ? 2
+        : undefined,
     chordSymbols: chords,
     grooveId,
     targetNotes: [],

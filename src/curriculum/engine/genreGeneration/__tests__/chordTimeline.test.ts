@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildChordTimeline,
   chordAtTick,
+  halfBarChords,
   timedChordTimeline,
   type TimedChord,
 } from '../chordTimeline';
@@ -47,6 +48,21 @@ describe('buildChordTimeline', () => {
     ).toEqual([
       [0, 'Afunk9'],
       [1800, 'Dfunk9'],
+    ]);
+  });
+
+  it('keeps a chord voiced past the match where the progression puts it (Jazz L1 B2.2)', () => {
+    const targets = [
+      ...strike([60, 65, 69], 0, 1920), // Dm7: C-F-A
+      ...strike([59, 65, 69], 1920, 1920), // G7 as 3-7-9: B-F-A
+      ...strike([59, 64, 67], 3840, 1920), // Cmaj7: B-E-G
+    ];
+    expect(
+      summary(buildChordTimeline(['Dm7', 'G7', 'Cmaj7'], targets, 3)),
+    ).toEqual([
+      [0, 'Dm7'],
+      [1920, 'G7'],
+      [3840, 'Cmaj7'],
     ]);
   });
 
@@ -151,5 +167,23 @@ describe('timedChordTimeline', () => {
     expect(
       timedChordTimeline({ changes: [{ tick: 0, symbol: '?' }], length: 1 }, 4),
     ).toEqual([]);
+  });
+});
+
+describe('two chords a bar (chordsPerBar: 2)', () => {
+  it('times each symbol to half a bar, looping the pass', () => {
+    // Gm7 C7 | Fmaj7: the ii and V share bar 1.
+    const timeline = timedChordTimeline(
+      halfBarChords(['Gm7', 'C7', 'Fmaj7', 'Fmaj7']),
+      4,
+    );
+    expect(timeline.map((c) => [c.symbol, c.tick])).toEqual([
+      ['Gm7', 0],
+      ['C7', 960],
+      ['Fmaj7', 1920],
+      ['Gm7', 3840],
+      ['C7', 4800],
+      ['Fmaj7', 5760],
+    ]);
   });
 });

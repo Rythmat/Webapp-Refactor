@@ -114,7 +114,8 @@ describe('the Practice Track groove toggle (D-088)', () => {
     })!;
     expect(track.chordCycle).toEqual(['Em', 'C', 'G', 'D']);
     expect(track.progressionId).toBe('Em C G D');
-    const bass = track.clips.bass!.events;
+    // Latin Band 1's bass is on a sound of its own: a layer.
+    const bass = track.layerClips.find((l) => l.part === 'bass')!.clip.events;
     // The Cumbia line over the reggaeton loop: bar 2 is C.
     expect(bass.find((e) => e.startTick === 1920)!.note % 12).toBe(0);
   });

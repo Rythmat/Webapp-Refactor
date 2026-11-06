@@ -1,0 +1,74 @@
+{
+  "id": "jazz-pianist-1-l3-a7-dm-half",
+  "name": "Jazz-Pianist-1 · L3 · A7♭9 Dm6 in one bar",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 3,
+  "tags": ["jazz"],
+  "status": "live",
+  "key": {
+    "tonic": 2,
+    "mode": "harmonic_minor"
+  },
+  "timeSignature": [4, 4],
+  "bars": 1,
+  "tempo": 120,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "chordSymbols": ["A7b9 Dm6/9"],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 55,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 58,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 61,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 64,
+      "velocity": 82
+    },
+    {
+      "tick": 720,
+      "duration": 900,
+      "midi": 53,
+      "velocity": 74
+    },
+    {
+      "tick": 720,
+      "duration": 900,
+      "midi": 57,
+      "velocity": 74
+    },
+    {
+      "tick": 720,
+      "duration": 900,
+      "midi": 59,
+      "velocity": 74
+    },
+    {
+      "tick": 720,
+      "duration": 900,
+      "midi": 64,
+      "velocity": 74
+    }
+  ],
+  "stayInKey": "both"
+}

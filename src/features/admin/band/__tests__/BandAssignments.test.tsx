@@ -3,7 +3,12 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Band } from '@/curriculum/engine/band/band';
 import type { LessonPairing } from '@/curriculum/engine/lessonPairings/registry';
-import { BandAssignments, parseSteps, stepsLabel } from '../BandAssignments';
+import {
+  BandAssignments,
+  parseSteps,
+  stepsLabel,
+  withStepVariation,
+} from '../BandAssignments';
 
 /**
  * A band is given to a lesson style once — every step in the style — with an
@@ -117,5 +122,40 @@ describe('assigning a band to lesson styles', () => {
       band: 'cumbia-band',
       overrides: [{ section: 'D', steps: [3, 4], band: 'cumbia-break' }],
     });
+  });
+});
+
+/**
+ * A variation for one lesson: the step gets an exception of its own, ahead
+ * of any section-wide one, and gives it back without touching the rest.
+ */
+describe('a lesson given a variation of its own', () => {
+  const section = { section: 'D', band: 'cumbia-break' };
+
+  it('goes first, so it wins over a section’s exception', () => {
+    expect(withStepVariation([section], 'cumbia-band', 25, 'timbales')).toEqual(
+      [{ steps: [25], band: 'cumbia-band', variation: 'timbales' }, section],
+    );
+  });
+
+  it('changes its pick without a second exception', () => {
+    const once = withStepVariation([], 'cumbia-band', 25, 'timbales');
+    expect(withStepVariation(once, 'cumbia-band', 25, 'brushes')).toEqual([
+      { steps: [25], band: 'cumbia-band', variation: 'brushes' },
+    ]);
+  });
+
+  it('leaves a run of the band’s that named it, and the run keeps the rest', () => {
+    const run = { steps: [24, 25], band: 'cumbia-band', variation: 'full' };
+    expect(withStepVariation([run], 'cumbia-band', 25, undefined)).toEqual([
+      { ...run, steps: [24] },
+    ]);
+  });
+
+  it('drops a run left with no steps, rather than let it cover every step', () => {
+    const one = { steps: [25], band: 'cumbia-band', variation: 'full' };
+    expect(
+      withStepVariation([one, section], 'cumbia-band', 25, undefined),
+    ).toEqual([section]);
   });
 });

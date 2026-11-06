@@ -1,0 +1,259 @@
+{
+  "id": "blues-pianist-1-l1-c7",
+  "name": "Blues-Pianist-1 · L1 · C7 shuffle (I–IV pair)",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": ["blues"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "blues",
+  "chordSymbols": ["C7", "C7", "C7", "C7"],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 64,
+      "velocity": 76
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 76
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 76
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 76
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 76
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 76
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 64,
+      "velocity": 76
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 76
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 76
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 76
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 76
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 76
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 64,
+      "velocity": 76
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 76
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 76
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 65,
+      "velocity": 76
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 69,
+      "velocity": 76
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 72,
+      "velocity": 76
+    },
+    {
+      "tick": 2640,
+      "duration": 1200,
+      "midi": 64,
+      "velocity": 76
+    },
+    {
+      "tick": 2640,
+      "duration": 1200,
+      "midi": 67,
+      "velocity": 76
+    },
+    {
+      "tick": 2640,
+      "duration": 1200,
+      "midi": 72,
+      "velocity": 76
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 65,
+      "velocity": 76
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 69,
+      "velocity": 76
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 72,
+      "velocity": 76
+    },
+    {
+      "tick": 4080,
+      "duration": 240,
+      "midi": 64,
+      "velocity": 76
+    },
+    {
+      "tick": 4080,
+      "duration": 240,
+      "midi": 67,
+      "velocity": 76
+    },
+    {
+      "tick": 4080,
+      "duration": 240,
+      "midi": 72,
+      "velocity": 76
+    },
+    {
+      "tick": 4320,
+      "duration": 240,
+      "midi": 65,
+      "velocity": 76
+    },
+    {
+      "tick": 4320,
+      "duration": 240,
+      "midi": 69,
+      "velocity": 76
+    },
+    {
+      "tick": 4320,
+      "duration": 240,
+      "midi": 72,
+      "velocity": 76
+    },
+    {
+      "tick": 4560,
+      "duration": 720,
+      "midi": 64,
+      "velocity": 76
+    },
+    {
+      "tick": 4560,
+      "duration": 720,
+      "midi": 67,
+      "velocity": 76
+    },
+    {
+      "tick": 4560,
+      "duration": 720,
+      "midi": 72,
+      "velocity": 76
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 76
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 76
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 76
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 64,
+      "velocity": 76
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 67,
+      "velocity": 76
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 72,
+      "velocity": 76
+    }
+  ]
+}

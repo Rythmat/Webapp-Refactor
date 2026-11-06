@@ -4,6 +4,7 @@ import {
   DRUM_KIT_CONFIGS,
   DRUM_PADS,
   padSampleUrl,
+  padStops,
   type DrumKitConfig,
   type DrumKitId,
 } from './drumKits';
@@ -94,6 +95,8 @@ export class DrumMachineEngine implements InstrumentAdapter {
   // Per pad, the context time a choke's fade ends. A hit that lands inside
   // the fade takes its velocity gain back from the fade.
   private chokeEnds = new Map<number, number>();
+  // Pad hit → the pads it stops ringing, for the loaded kit (padStops).
+  private stops = padStops(DRUM_KIT_CONFIGS[0]);
 
   async init(_ctx: AudioContext, outputNode: AudioNode): Promise<void> {
     this.output = new Tone.Gain(1);
@@ -214,6 +217,7 @@ export class DrumMachineEngine implements InstrumentAdapter {
     // Commit: swap players and route through the per-pad chains
     for (const player of this.players.values()) player.dispose();
     this.players = newPlayers;
+    this.stops = padStops(config);
     for (const [padNote, player] of newPlayers) {
       const chain = this.padChains.get(padNote);
       if (chain) player.connect(chain.velGain);
@@ -237,10 +241,11 @@ export class DrumMachineEngine implements InstrumentAdapter {
     const canonical = canonicalPadNote(note);
     const velGain = Math.max(0, Math.min(1, velocity / 127));
 
-    // Hi-hat choke: closed hat (42) or pedal (44) cuts open hat (46)
-    if (canonical === 42 || canonical === 44) {
-      const openHat = this.players.get(46);
-      if (openHat?.loaded) openHat.stop(t);
+    // A hit cuts the pads it stops: closed hat (42) or pedal (44) the open
+    // hat (46), and any the kit names — its timbale hit, its roll.
+    for (const pad of this.stops.get(canonical) ?? []) {
+      const ringing = this.players.get(pad);
+      if (ringing?.loaded) ringing.stop(t);
     }
 
     // Apply velocity on the dedicated velocity gain node (pad volume stays untouched)

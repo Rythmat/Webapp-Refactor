@@ -1,9 +1,15 @@
 /**
- * swing.ts — 16th-note swing for genre play-alongs.
+ * swing.ts — swing for genre play-alongs.
  *
- * Swing is a percentage: where the off-beat 16th of each 8th-note pair lands,
- * as a share of the pair. 50 is straight, 66 is a triplet feel. Only the
- * off-beat 16ths move; downbeats and 8th notes stay put.
+ * Swing is a percentage: where the off-beat note of each pair lands, as a
+ * share of the pair. 50 is straight, 66 is a triplet feel. Only the off-beat
+ * notes move; downbeats stay put.
+ *
+ * What swings is the step's `swingUnit`: '16n' (the default) moves the
+ * off-beat 16th of each 8th, as Hip Hop swings, and 8th notes stay put; '8n'
+ * moves the off-beat 8th of each beat, as jazz swings, and 16ths and written
+ * triplets stay straight. A swung 8th keeps its end, so the pair plays long,
+ * short.
  *
  * Applied to the backing and to the student's target notes alike, so the
  * grading hears the same groove the drums are playing.
@@ -16,10 +22,16 @@ import type { ActivityStepV2 } from '../../types/activity.v2';
 
 export const STRAIGHT = 50;
 const MAX_SWING = 75;
-const PAIR_TICKS = 240; // an 8th note at PPQ 480
-const OFFBEAT = 120;
-/** How far a note may sit from the off-beat 16th and still count as one. */
-const OFFBEAT_WINDOW = 30;
+
+/** What swings: the off-beat 16th of each 8th, or the off-beat 8th of each beat. */
+export type SwingUnit = '16n' | '8n';
+
+/** The pair that swings, in ticks at PPQ 480, by unit. */
+const PAIR_TICKS: Record<SwingUnit, number> = { '16n': 240, '8n': 480 };
+/** How far a note may sit from the off-beat and still count as one. */
+const OFFBEAT_WINDOW: Record<SwingUnit, number> = { '16n': 30, '8n': 60 };
+/** The shortest a swung 8th is cut to when it keeps its end. */
+const MIN_DURATION = 60;
 
 /** A swing value as a playable percentage (legacy flags read as straight). */
 export function swingPercent(value: number | undefined): number {
@@ -35,22 +47,43 @@ export function stepSwing(
   return swingPercent(step?.swing ?? flowSwing);
 }
 
+/** What a step swings: its own unit, else 16ths. */
+export function stepSwingUnit(
+  step: Pick<ActivityStepV2, 'swingUnit'> | null | undefined,
+): SwingUnit {
+  return step?.swingUnit ?? '16n';
+}
+
 /** Where a note starting at `onset` lands with swing applied. */
-export function swingOnset(onset: number, swing: number): number {
+export function swingOnset(
+  onset: number,
+  swing: number,
+  unit: SwingUnit = '16n',
+): number {
   if (swing <= STRAIGHT) return onset;
-  const pos = ((onset % PAIR_TICKS) + PAIR_TICKS) % PAIR_TICKS;
-  if (Math.abs(pos - OFFBEAT) > OFFBEAT_WINDOW) return onset;
-  return onset + Math.round((PAIR_TICKS * swing) / 100 - OFFBEAT);
+  const pair = PAIR_TICKS[unit];
+  const offbeat = pair / 2;
+  const pos = ((onset % pair) + pair) % pair;
+  if (Math.abs(pos - offbeat) > OFFBEAT_WINDOW[unit]) return onset;
+  return onset + Math.round((pair * swing) / 100 - offbeat);
 }
 
 /** Swing a list of notes; returns the same array when straight. */
 export function applySwing<T extends { onset: number }>(
   notes: readonly T[],
   swing: number,
+  unit: SwingUnit = '16n',
 ): readonly T[] {
   if (swing <= STRAIGHT) return notes;
   return notes.map((note) => {
-    const onset = swingOnset(note.onset, swing);
-    return onset === note.onset ? note : { ...note, onset };
+    const onset = swingOnset(note.onset, swing, unit);
+    if (onset === note.onset) return note;
+    const duration = (note as { duration?: unknown }).duration;
+    // A swung 8th keeps its end: the off-beat note plays short.
+    if (unit === '8n' && typeof duration === 'number') {
+      const kept = Math.max(MIN_DURATION, duration - (onset - note.onset));
+      return { ...note, onset, duration: kept };
+    }
+    return { ...note, onset };
   });
 }

@@ -69,16 +69,23 @@ const DEFAULT_SECTION_NAMES: Record<ActivitySectionId, string> = {
 
 const SCALE_OPTIONS = Object.keys(SCALES).sort();
 
-/** Step numbers are positional, so any structural edit renumbers the section. */
-const renumber = (steps: ActivityStepV2[]): ActivityStepV2[] =>
-  steps.map((step, index) => ({ ...step, stepNumber: index + 1 }));
+/**
+ * A step's number is its identity, never its position: students' progress
+ * (useCurriculumProgress.ts) and band pairings' overrides name steps by it.
+ * So nothing here renumbers; a new step takes the level's next number.
+ */
+const nextStepNumber = (flow: LessonFlowBody) =>
+  Math.max(
+    0,
+    ...(flow.sections ?? []).flatMap((s) => s.steps.map((st) => st.stepNumber)),
+  ) + 1;
 
 const newStep = (
   flow: LessonFlowBody,
   section: LessonSection,
   index: number,
 ): ActivityStepV2 => ({
-  stepNumber: index + 1,
+  stepNumber: nextStepNumber(flow),
   module: section.name,
   section: section.id,
   subsection: 'Listen & Learn',
@@ -87,7 +94,7 @@ const newStep = (
   assessment: null,
   // The progress store keys off tag, so a duplicate would silently share
   // completion state between two steps.
-  tag: `${flow.genre.replace(/\s+/g, '_')}_l${flow.level}_${section.id.toLowerCase()}${index + 1}`,
+  tag: `${flow.genre.replace(/\s+/g, '_')}_l${flow.level}_${section.id.toLowerCase()}${index + 1}_${nextStepNumber(flow)}`,
   styleRef: '',
   successFeedback: 'Nice work!',
 });
@@ -130,7 +137,7 @@ export const LessonLevelEditor: FC<{
     });
 
   const patchSteps = (map: (steps: ActivityStepV2[]) => ActivityStepV2[]) =>
-    patchSection({ steps: renumber(map(active.steps ?? [])) });
+    patchSection({ steps: map(active.steps ?? []) });
 
   const freeSectionId = SECTION_IDS.find(
     (id) => !sections.some((section) => section.id === id),

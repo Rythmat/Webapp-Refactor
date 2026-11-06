@@ -1,0 +1,97 @@
+{
+  "id": "jazz-pianist-1-system-rootless-7-3-5",
+  "name": "Jazz-Pianist-1 · 7-3-5 on every chord",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 48,
+      "velocity": 80
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 53,
+      "velocity": 80
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 57,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 53,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 59,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 59,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 64,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 67,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 59,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 64,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 67,
+      "velocity": 80
+    }
+  ],
+  "chordSymbols": ["Dm7", "G7", "Cmaj7", "Cmaj7"]
+}

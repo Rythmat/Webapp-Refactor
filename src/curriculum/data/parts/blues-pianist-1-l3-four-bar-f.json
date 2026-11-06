@@ -1,0 +1,217 @@
+{
+  "id": "blues-pianist-1-l3-four-bar-f",
+  "name": "Blues-Pianist-1 · L3 · ii–V–I–I in F",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 3,
+  "tags": ["blues"],
+  "status": "live",
+  "key": {
+    "tonic": 5,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 120,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "blues",
+  "chordSymbols": ["Gm9", "C9", "F13", "F13"],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 53,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 57,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 58,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 64,
+      "velocity": 82
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 53,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 57,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 58,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 70
+    },
+    {
+      "tick": 1920,
+      "duration": 660,
+      "midi": 52,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "duration": 660,
+      "midi": 55,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "duration": 660,
+      "midi": 58,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "duration": 660,
+      "midi": 62,
+      "velocity": 82
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 52,
+      "velocity": 70
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 55,
+      "velocity": 70
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 58,
+      "velocity": 70
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 62,
+      "velocity": 70
+    },
+    {
+      "tick": 3840,
+      "duration": 660,
+      "midi": 51,
+      "velocity": 82
+    },
+    {
+      "tick": 3840,
+      "duration": 660,
+      "midi": 55,
+      "velocity": 82
+    },
+    {
+      "tick": 3840,
+      "duration": 660,
+      "midi": 57,
+      "velocity": 82
+    },
+    {
+      "tick": 3840,
+      "duration": 660,
+      "midi": 62,
+      "velocity": 82
+    },
+    {
+      "tick": 4560,
+      "duration": 200,
+      "midi": 51,
+      "velocity": 70
+    },
+    {
+      "tick": 4560,
+      "duration": 200,
+      "midi": 55,
+      "velocity": 70
+    },
+    {
+      "tick": 4560,
+      "duration": 200,
+      "midi": 57,
+      "velocity": 70
+    },
+    {
+      "tick": 4560,
+      "duration": 200,
+      "midi": 62,
+      "velocity": 70
+    },
+    {
+      "tick": 5760,
+      "duration": 660,
+      "midi": 51,
+      "velocity": 82
+    },
+    {
+      "tick": 5760,
+      "duration": 660,
+      "midi": 55,
+      "velocity": 82
+    },
+    {
+      "tick": 5760,
+      "duration": 660,
+      "midi": 57,
+      "velocity": 82
+    },
+    {
+      "tick": 5760,
+      "duration": 660,
+      "midi": 62,
+      "velocity": 82
+    },
+    {
+      "tick": 6480,
+      "duration": 200,
+      "midi": 51,
+      "velocity": 70
+    },
+    {
+      "tick": 6480,
+      "duration": 200,
+      "midi": 55,
+      "velocity": 70
+    },
+    {
+      "tick": 6480,
+      "duration": 200,
+      "midi": 57,
+      "velocity": 70
+    },
+    {
+      "tick": 6480,
+      "duration": 200,
+      "midi": 62,
+      "velocity": 70
+    }
+  ]
+}

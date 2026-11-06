@@ -39,6 +39,7 @@ import type { ChordSymbolTones } from './chordSymbolTones';
 import {
   buildChordTimeline,
   chordAtTick,
+  halfBarChords,
   timedChordTimeline,
   type TimedChord,
   type TimedChords,
@@ -57,7 +58,7 @@ import {
 } from './meterBacking';
 import type { GenreNoteEvent } from './resolveStepContent';
 import { SCALES } from './scaleRegistry';
-import { applySwing } from './swing';
+import { applySwing, stepSwingUnit } from './swing';
 
 const BACKING_BARS = 16;
 const BAR_TICKS = 1920;
@@ -829,6 +830,23 @@ export function resolveStepGrooveId(
  * The kit a step's drums play on: the step's own (backing_style.kit), else its
  * published designed groove's, else natural.
  */
+/**
+ * The scale a step's band parts follow its chords in, by name: its own scale
+ * id, else the scale its intervals spell, else what its key says (minor →
+ * aeolian), else major. Only the colours its chords don't name come from it.
+ */
+function scaleName(
+  step: Pick<ActivityStepV2, 'scaleId' | 'key'>,
+  intervals: readonly number[] | undefined,
+): string {
+  if (step.scaleId && SCALES[step.scaleId]) return step.scaleId;
+  const spelled = intervals?.length
+    ? Object.entries(SCALES).find(([, iv]) => iv.join() === intervals.join())
+    : undefined;
+  if (spelled) return spelled[0];
+  return /minor/i.test(step.key ?? '') ? 'aeolian' : 'ionian';
+}
+
 /** Where a step sits in its style, for a pairing's exceptions. */
 const placeOf = (
   step: Partial<Pick<ActivityStepV2, 'section' | 'stepNumber'>>,
@@ -1454,10 +1472,16 @@ export function buildBackingNotes(
   const barLength = meterBarTicks(ts);
   const swing_ = meterSwing(swing, ts);
   const swung = (part: BackingNote[]) =>
-    applySwing(part, swing_) as BackingNote[];
+    applySwing(part, swing_, stepSwingUnit(step)) as BackingNote[];
   const engineGenerates = step.backing_parts?.engine_generates ?? [];
-  const timed = options.timedChords
-    ? timedChordTimeline(options.timedChords, BACKING_BARS, barLength)
+  // Chords the caller timed, else a step's two a bar.
+  const timedChords =
+    options.timedChords ??
+    (step.chordsPerBar === 2 && step.chordSymbols?.length
+      ? halfBarChords(step.chordSymbols, barLength)
+      : undefined);
+  const timed = timedChords
+    ? timedChordTimeline(timedChords, BACKING_BARS, barLength)
     : [];
   const timeline = timed.length
     ? timed
@@ -1498,8 +1522,21 @@ export function buildBackingNotes(
           }
         : {}),
     };
+    // A step that names its chords hears the band's parts over them, in its
+    // key (owner, 3 Nov 2026): the Jazz Band's comping and a bass part play
+    // the ii–V–I the step names, not the chords they were captured over.
+    // Bass lines and comping patterns walk the step's chords already; a part
+    // that names no chords plays as written, as it always has.
+    const tonic = ((keyRoot % 12) + 12) % 12;
+    const namesChords =
+      (step.chordSymbols?.length ?? 0) > 0 || !!options.timedChords;
+    const partsFollow =
+      namesChords && !options.followChords
+        ? { tonic, mode: scaleName(step, stepScale) }
+        : undefined;
     const realized = realizeBand(band, LIVE_ITEMS, ctx, {
-      tonic: ((keyRoot % 12) + 12) % 12,
+      tonic,
+      ...(partsFollow ? { partsFollow, keepUnfollowable: true } : {}),
     });
     let out = notes;
     for (const part of ['drums', 'bass', 'chords'] as const) {

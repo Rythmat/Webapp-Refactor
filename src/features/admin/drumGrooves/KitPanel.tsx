@@ -139,6 +139,13 @@ export const KitPanel: FC<Props> = ({
   const editingSaved =
     !!customKit && savedKits.some((k) => k.id === customKit.id);
 
+  /** A pad as the Stopped by menu names it: 'Snare (MA_timbale_hit)'. */
+  const padName = (note: number) => {
+    const label = padLabel(note, customKit?.base ?? 'natural');
+    const url = customKit?.samples[note];
+    return url ? `${label} (${sampleName(url).replace(/\.\w+$/, '')})` : label;
+  };
+
   const saveAsNewKit = async () => {
     if (!customKit) return;
     const { id, label } = kitCopyName(
@@ -300,6 +307,37 @@ export const KitPanel: FC<Props> = ({
                     ),
                   )}
                 </select>
+                {pad.note === 46 ? (
+                  <span className="w-48 shrink-0 text-xs text-white/40">
+                    Stopped by the closed and pedal hats
+                  </span>
+                ) : (
+                  <select
+                    value={customKit.stoppedBy?.[pad.note] ?? ''}
+                    onChange={(e) => {
+                      const stoppedBy = { ...customKit.stoppedBy };
+                      if (e.target.value)
+                        stoppedBy[pad.note] = Number(e.target.value);
+                      else delete stoppedBy[pad.note];
+                      onCustomKit({
+                        ...customKit,
+                        stoppedBy: Object.keys(stoppedBy).length
+                          ? stoppedBy
+                          : undefined,
+                      });
+                    }}
+                    className="w-48 shrink-0 rounded-md border border-white/10 bg-white/5 px-2 py-1"
+                    aria-label={`${pad.label} stopped by`}
+                    title="Stop this pad ringing when another pad is hit, as the closed hi-hat stops the open one"
+                  >
+                    <option value="">Rings on</option>
+                    {DRUM_PADS.filter((p) => p.note !== pad.note).map((p) => (
+                      <option key={p.note} value={p.note}>
+                        Stopped by {padName(p.note)}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 <Button
                   size="sm"
                   variant="outline"
@@ -333,6 +371,8 @@ export const KitPanel: FC<Props> = ({
           <p className="text-xs text-muted-foreground">
             One-shots up to 5MB. Uploads go to
             public/daw-assets/samples/drums/uploads/ — commit them with the kit.
+            Stopped by cuts a pad off when another is hit, as the closed hi-hat
+            cuts the open one: a timbale roll stopped by the timbale hit.
           </p>
         </div>
       )}

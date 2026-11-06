@@ -4,7 +4,10 @@
  * loops (with a metronome, if wanted) while a MIDI keyboard is played in.
  * Every pass adds to the take, as overdub; stopped, the take is kept as a
  * new part — filed under the layer's player, played by the layer in the open
- * variation — or played again, or thrown away.
+ * variation — or played again, or thrown away. Kept as a player, it goes
+ * into one of their part families (player.ts): as the band take the layer
+ * plays, as a teaching version a lesson targets, or as both, for the levels
+ * it fits.
  *
  * The keyboard itself is the Band editor's (useLiveCapture there): it's
  * heard on the open layer's sound whenever a layer is open, and written into
@@ -15,6 +18,11 @@ import { Circle, Loader2, Square } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import type { PartNote } from '@/curriculum/engine/parts/part';
+import {
+  type FamilyVersion,
+  type PartFamily,
+  VERSION_USE,
+} from '@/curriculum/engine/players/player';
 import { countIn } from '../parts/metronome';
 import {
   type CaptureQuantize,
@@ -27,6 +35,17 @@ export interface Take {
   recording: boolean;
   notes: PartNote[];
 }
+
+/** Where a kept take goes among its player's part families. */
+export interface TakeFiling {
+  use: FamilyVersion['use'];
+  /** One of theirs, by id, or a new one, by name. */
+  family: { id: string } | { name: string };
+  levels: number[];
+}
+
+/** The lesson levels a version can be for. */
+const LEVELS = [1, 2, 3];
 
 interface Props {
   take: Take;
@@ -41,7 +60,16 @@ interface Props {
   player: { stop: () => void };
   /** Starts the band (all but the captured layer) looping. */
   playBand: (click: boolean) => void;
-  onKeep: (notes: PartNote[]) => Promise<void>;
+  /** The layer's player's families, when it has a player to file under. */
+  filing?: {
+    playerName: string;
+    families: readonly PartFamily[];
+    /** A new family's name to start from: 'Cumbia keys comping'. */
+    newName: string;
+    /** The open variation's level, ticked to start. */
+    level?: number;
+  };
+  onKeep: (notes: PartNote[], filing?: TakeFiling) => Promise<void>;
 }
 
 export const BandCapture = ({
@@ -55,11 +83,27 @@ export const BandCapture = ({
   tempo,
   player,
   playBand,
+  filing,
   onKeep,
 }: Props) => {
   const [click, setClick] = useState(true);
   const [counting, setCounting] = useState(false);
   const [keeping, setKeeping] = useState(false);
+  const [use, setUse] = useState<FamilyVersion['use']>('band');
+  /** A family's id, or '' for a new one. */
+  const [familyId, setFamilyId] = useState('');
+  const [newName, setNewName] = useState(filing?.newName ?? '');
+  const [levels, setLevels] = useState<number[]>(
+    filing?.level ? [filing.level] : [],
+  );
+  const filed = (): TakeFiling | undefined =>
+    filing && {
+      use,
+      family: familyId
+        ? { id: familyId }
+        : { name: newName.trim() || filing.newName },
+      levels,
+    };
 
   /** A bar's count-in, then the band loops and the take records. */
   const record = () => {
@@ -124,6 +168,69 @@ export const BandCapture = ({
               : 'Plug in a MIDI keyboard.')}
         </span>
       </div>
+      {filing && !take.recording && n > 0 && (
+        <div className="flex flex-wrap items-center gap-2 text-sm text-white/70">
+          Keep as {filing.playerName}&rsquo;s
+          <select
+            value={use}
+            onChange={(e) => setUse(e.target.value as FamilyVersion['use'])}
+            className={control}
+            aria-label="What the take is for"
+          >
+            {(['band', 'teaching', 'both'] as const).map((u) => (
+              <option key={u} value={u}>
+                {VERSION_USE[u]}
+              </option>
+            ))}
+          </select>
+          in
+          <select
+            value={familyId}
+            onChange={(e) => setFamilyId(e.target.value)}
+            className={control}
+            aria-label="Part family"
+          >
+            <option value="">A new family…</option>
+            {filing.families.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.name} ({f.versions.length})
+              </option>
+            ))}
+          </select>
+          {!familyId && (
+            <input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder={filing.newName}
+              className={`${control} w-56`}
+              aria-label="New family name"
+            />
+          )}
+          for level
+          {LEVELS.map((lvl) => (
+            <label key={lvl} className="flex items-center gap-1">
+              <input
+                type="checkbox"
+                checked={levels.includes(lvl)}
+                onChange={(e) =>
+                  setLevels((ls) =>
+                    e.target.checked
+                      ? [...ls, lvl].sort((a, b) => a - b)
+                      : ls.filter((l) => l !== lvl),
+                  )
+                }
+                className="accent-white"
+              />
+              L{lvl}
+            </label>
+          ))}
+          <span className="text-xs text-muted-foreground">
+            {use === 'teaching'
+              ? `${layerName} keeps playing what it plays; this is filed for lessons to teach.`
+              : `${layerName} plays it in this variation.`}
+          </span>
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         {take.recording ? (
           <Button
@@ -156,13 +263,16 @@ export const BandCapture = ({
             onClick={async () => {
               setKeeping(true);
               try {
-                await onKeep(take.notes);
+                await onKeep(take.notes, filed());
               } finally {
                 setKeeping(false);
               }
             }}
           >
-            {keeping && <Loader2 className="animate-spin" />} Keep as a new part
+            {keeping && <Loader2 className="animate-spin" />}
+            {use === 'teaching' && filing
+              ? 'Keep as a teaching version'
+              : 'Keep as a new part'}
           </Button>
         )}
         {!take.recording && (

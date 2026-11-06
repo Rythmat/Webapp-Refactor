@@ -1,0 +1,73 @@
+{
+  "id": "jazz-pianist-1-l2-dmin9",
+  "name": "Jazz-Pianist-1 · L2 · Dmin9 vamp",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 2,
+  "tags": ["jazz"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 1,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "chordSymbols": ["Dm9"],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 60,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 64,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 65,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 69,
+      "velocity": 82
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 60,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 65,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 69,
+      "velocity": 70
+    }
+  ]
+}

@@ -80,18 +80,39 @@ describe('the styles a band offers', () => {
       'funk-band-1',
       'pop-band-1',
       'hip-hop-band-1',
+      'blues-band-1',
+      'jazz-band-1',
     ]);
-    // Jazz Band 1 is a draft: never offered.
-    expect(getBand('jazz-band-1')?.status).toBe('draft');
-    expect(bands.some((b) => b.band.id === 'jazz-band-1')).toBe(false);
+    // Jazz Band 1 went live with the Jazz lessons, Blues Band 1 with Blues.
+    expect(getBand('jazz-band-1')?.status).toBe('live');
+    expect(getBand('blues-band-1')?.status).toBe('live');
   });
 
-  it('leaves out Mariachi (3/4) and the Latin styles with no lesson yet', async () => {
+  it('leaves out Mariachi (3/4), and offers every other style, in the band’s order', async () => {
     const styles = await bandStyles(getLiveBand('latin-band-1')!);
-    expect(styles.map((s) => s.name)).toEqual(['Reggaeton', 'Cumbia']);
+    expect(styles.map((s) => s.name)).toEqual([
+      'Reggaeton',
+      'Cumbia',
+      'Merengue',
+      'Cha-cha-chá',
+      'Bolero',
+      'Bossa & Samba',
+      'Tango',
+      'Afro-Cuban',
+      'Bachata',
+      'Afro-Cuban',
+    ]);
     expect(styles.map((s) => s.variation)).toEqual([
       'l1-reggaeton',
       'l1-cumbia',
+      'l2-merengue-bachata',
+      'l2-cha-cha',
+      'l2-bolero',
+      'l3-bossa-samba',
+      'l3-tango',
+      'l3-afro-cuban',
+      'l2-merengue-copy',
+      'l3-afro-cuban-copy',
     ]);
   });
 
@@ -152,6 +173,13 @@ describe('a style’s tempo', () => {
       // Its own steps' tempo: not Mariachi's 126, the section's last.
       'latin-l1-reggaeton': 92,
       'latin-l1-cumbia': 96,
+      'latin-l2-merengue': 120,
+      'latin-l2-bachata': 148,
+      'latin-l2-cha-cha': 130,
+      'latin-l2-bolero': 90,
+      'latin-l3-bossa-samba': 110,
+      'latin-l3-tango': 100,
+      'latin-l3-afro-cuban': 160,
       // The level's tempo range, as its Practice Track picks it.
       'funk-l1-pocket': 92,
       'funk-l2-syncopation': 102,
@@ -164,6 +192,15 @@ describe('a style’s tempo', () => {
       'hip-hop-l1-trap': 72,
       'hip-hop-l2-boom-bap': 90,
       'hip-hop-l3-conscious': 77,
+      // Jazz Band 1's styles, at their play-alongs' tempo; L3's last
+      // variation, the quartal pedal, sets its own 140.
+      'jazz-l1-blues': 100,
+      'jazz-l2-transfer': 110,
+      'jazz-l3-ii-v-i': 140,
+      // Blues Band 1's 4/4 styles (the 12/8 half-time shuffle is left out).
+      'blues-l1-shuffle': 100,
+      'blues-l2-shuffle': 100,
+      'blues-l3-jazz-blues': 120,
     });
     // A lesson's own Practice Track keeps its pick.
     expect(buildGenrePracticeTrack(await flow('latin', 1), 'A')?.bpm).toBe(126);
@@ -334,16 +371,31 @@ describe('a band’s track over the student’s chart', () => {
     expect(track.chordCycle).toEqual(['Dm', 'Gm', 'Am', 'Bb']);
     expect(track.section).toBe('A');
     expect(track.studentParts).toEqual(['melody']);
-    expect(Object.keys(track.clips).sort()).toEqual([
-      'bass',
-      'chords',
-      'drums',
+    // Every layer on a sound of its own (owner's Latin Band 1, Nov 2026), so
+    // each plays as a layer rather than on the part's lesson voice.
+    expect(Object.keys(track.clips)).toEqual([]);
+    expect(
+      track.layerClips.map((l) => [l.name, l.clip.events.length > 0]),
+    ).toEqual([
+      ['Drums', true],
+      ['Bass', true],
+      ['Keys comping', true],
+      ['Guitar comping', true],
     ]);
-    expect(track.layerClips.map((l) => l.name)).toEqual(['Guitar comping']);
     // The band's styles and the student's progressions, on the switches.
+    // Its L2 and L3 styles too, now their variations play (Nov 2026);
+    // Afro-Cuban twice, for its 2-3 and 3-2 variations.
     expect(track.styles).toEqual([
       { id: 'latin-l1-reggaeton', name: 'Reggaeton' },
       { id: 'latin-l1-cumbia', name: 'Cumbia' },
+      { id: 'latin-l2-merengue', name: 'Merengue' },
+      { id: 'latin-l2-cha-cha', name: 'Cha-cha-chá' },
+      { id: 'latin-l2-bolero', name: 'Bolero' },
+      { id: 'latin-l3-bossa-samba', name: 'Bossa & Samba' },
+      { id: 'latin-l3-tango', name: 'Tango' },
+      { id: 'latin-l3-afro-cuban', name: 'Afro-Cuban' },
+      { id: 'latin-l2-bachata', name: 'Bachata' },
+      { id: 'latin-l3-afro-cuban', name: 'Afro-Cuban' },
     ]);
     expect(track.styleId).toBe('latin-l1-cumbia');
     expect(track.progressions).toEqual([

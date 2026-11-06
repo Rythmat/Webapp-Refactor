@@ -132,8 +132,8 @@ describe('sliceStepForLoop', () => {
     expect(slice.chordSymbols).toEqual(['C', 'Dm']);
   });
 
-  it('keeps the symbols drawn over the loop when they outnumber the bars', () => {
-    // Four chords, a half note each, over two bars.
+  it('keeps the loop bar’s own chord when a line has more symbols than bars', () => {
+    // Four chords over a two-bar line: one a bar, as the band plays them.
     const content = {
       targetNotes: [0, 960, 1920, 2880].map((onset, i) =>
         note(48 + i, onset, 940),
@@ -142,7 +142,7 @@ describe('sliceStepForLoop', () => {
     };
     expect(
       sliceStepForLoop(content, { startBar: 1, endBar: 1 }).chordSymbols,
-    ).toEqual(['C', 'Em']);
+    ).toEqual(['Dm']);
   });
 
   it('leaves out fields the step has none of', () => {

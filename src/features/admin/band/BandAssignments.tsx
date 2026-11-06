@@ -1,16 +1,21 @@
 /* eslint-disable react/jsx-sort-props */
-import { Plus, X } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronDown, ChevronRight, Plus, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { getActivityFlow } from '@/content/flowStore';
 import {
   LESSON_STYLES,
+  lessonStyleFor,
   type LessonStyle,
 } from '@/curriculum/data/lessonStyles';
 import { type Band, variationForStyle } from '@/curriculum/engine/band/band';
-import type {
-  LessonPairing,
-  PairingOverride,
+import {
+  bandIdAt,
+  type LessonPairing,
+  type PairingOverride,
+  variationIdAt,
 } from '@/curriculum/engine/lessonPairings/registry';
+import type { ActivityStepV2 } from '@/curriculum/types/activity.v2';
 import { CONSOLE_LABEL } from '../ui/styles';
 import { CAN_WRITE_FILES, savePairing } from './bandFiles';
 import { useBandList, usePairingList } from './bandSession';
@@ -24,6 +29,9 @@ import { useBandList, usePairingList } from './bandSession';
  *
  * A band with variations plays, in a style, the variation made for it unless
  * the style names another; an exception can name a band's variation too.
+ * So the band goes to many lessons at once — every style its variations are
+ * made for, in one click — and a variation (its kit, its arrangement) to
+ * just one: a style's lessons open below it, each with its own pick.
  */
 
 const SECTIONS = ['A', 'B', 'C', 'D'];
@@ -52,6 +60,61 @@ export function stepsLabel(steps: readonly number[]): string {
     start = steps[i];
   }
   return runs.join(', ');
+}
+
+/**
+ * A pairing's exceptions with one step playing a variation of the band's of
+ * its own — first, so it wins over a section-wide exception — or, given
+ * none, back to what the rest of its style plays. The step leaves any run of
+ * this band's that named it; a run left with no steps goes.
+ */
+export function withStepVariation(
+  overrides: readonly PairingOverride[],
+  bandId: string,
+  step: number,
+  variation: string | undefined,
+): PairingOverride[] {
+  const rest = overrides.flatMap((o) => {
+    if (o.band !== bandId || !o.steps?.includes(step)) return [o];
+    const steps = o.steps.filter((s) => s !== step);
+    return steps.length ? [{ ...o, steps }] : [];
+  });
+  return variation
+    ? [{ steps: [step], band: bandId, variation }, ...rest]
+    : rest;
+}
+
+/** The variation a step was given of its own, if any. */
+const stepVariation = (
+  overrides: readonly PairingOverride[],
+  bandId: string,
+  step: number,
+) =>
+  overrides.find(
+    (o) => o.band === bandId && o.variation && o.steps?.includes(step),
+  )?.variation;
+
+/** A lesson in a style that a band plays under: a step with backing. */
+interface BandStep {
+  stepNumber: number;
+  section: string;
+  activity: string;
+}
+
+async function bandSteps(style: LessonStyle): Promise<BandStep[]> {
+  const flow = await getActivityFlow(style.genre, style.level);
+  return (flow?.sections ?? [])
+    .flatMap((s) => s.steps as ActivityStepV2[])
+    .filter(
+      (st) =>
+        !!st.backing_parts?.engine_generates.length &&
+        lessonStyleFor(style.genre, style.level, st.styleRef)?.id === style.id,
+    )
+    .map((st) => ({
+      stepNumber: st.stepNumber,
+      section: st.section,
+      activity: st.activity,
+    }));
 }
 
 /** An exception's band, and its variation when it names one: 'id#variation'. */
@@ -127,6 +190,24 @@ export const BandAssignments = ({ band, dirty }: Props) => {
     });
   };
 
+  // The macro: every style one of its variations is made for, at once. A
+  // style another band plays is only taken on asking.
+  const madeFor = LESSON_STYLES.filter((s) =>
+    band.variations?.some((v) => v.style === s.id),
+  );
+  const toAssign = madeFor.filter((s) => byStyle.get(s.id)?.band !== band.id);
+  const assignAll = async () => {
+    const taken = toAssign.filter((s) => byStyle.get(s.id)?.band);
+    if (
+      taken.length &&
+      !window.confirm(
+        `${taken.map((s) => `${s.name} plays ${bandName(byStyle.get(s.id)!.band!)}`).join('; ')}. Give ${taken.length === 1 ? 'it' : 'them'} ${band.name} too?`,
+      )
+    )
+      return;
+    for (const style of toAssign) await assign(style);
+  };
+
   // Styles grouped as the curriculum is: genre, then level.
   const groups = new Map<string, LessonStyle[]>();
   for (const style of LESSON_STYLES) {
@@ -144,7 +225,26 @@ export const BandAssignments = ({ band, dirty }: Props) => {
         {band.status !== 'live' &&
           ' This band is a draft: lessons keep their own backing until it is published.'}
         {dirty && ' Lessons play the band as saved.'}
+        {!!band.variations?.length &&
+          ' Open a style’s lessons to give any one of them another variation — its own kit, its own arrangement.'}
       </p>
+      {CAN_WRITE_FILES && toAssign.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={busy !== null}
+            onClick={() => void assignAll()}
+          >
+            Use in every style it has a variation for ({madeFor.length})
+          </Button>
+          <span className="text-xs text-muted-foreground">
+            {toAssign
+              .map((s) => `${s.genreName} L${s.level} · ${s.name}`)
+              .join(', ')}
+          </span>
+        </div>
+      )}
       <div className="grid gap-x-6 gap-y-3 md:grid-cols-2 xl:grid-cols-3">
         {[...groups].map(([group, styles]) => (
           <div key={group} className="flex flex-col gap-1.5">
@@ -224,7 +324,22 @@ const StyleRow = ({
   const [section, setSection] = useState('');
   const [steps, setSteps] = useState('');
   const [other, setOther] = useState('');
+  const [open, setOpen] = useState(false);
+  const [lessons, setLessons] = useState<BandStep[] | null>(null);
   const overrides = pairing?.overrides ?? [];
+  const variations = currentBand.variations ?? [];
+
+  // The style's lessons load the first time they're opened.
+  useEffect(() => {
+    if (!open || lessons) return;
+    let live = true;
+    bandSteps(style)
+      .then((l) => live && setLessons(l))
+      .catch(() => live && setLessons([]));
+    return () => {
+      live = false;
+    };
+  }, [open, lessons, style]);
   const bandName = (target: string) => targetName(bands, target);
   const made = variationForStyle(currentBand, style.id);
   const select =
@@ -279,6 +394,92 @@ const StyleRow = ({
             </option>
           ))}
         </select>
+      )}
+
+      {mine && pairing && variations.length > 0 && (
+        <>
+          <button
+            type="button"
+            className="mt-1.5 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-white"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+          >
+            {open ? (
+              <ChevronDown className="size-3" />
+            ) : (
+              <ChevronRight className="size-3" />
+            )}
+            Lessons, one by one
+          </button>
+          {open && (
+            <div className="mt-1 flex flex-col gap-1 border-t border-white/[0.06] pt-1.5 text-xs">
+              {lessons === null && (
+                <span className="text-muted-foreground">Loading…</span>
+              )}
+              {lessons?.length === 0 && (
+                <span className="text-muted-foreground">
+                  No lessons with a band in this style yet.
+                </span>
+              )}
+              {lessons?.map((st) => {
+                const at = { section: st.section, stepNumber: st.stepNumber };
+                const playsBand = bandIdAt(pairing, at);
+                const playsVariation = variationIdAt(pairing, at);
+                const own = stepVariation(
+                  overrides,
+                  currentBand.id,
+                  st.stepNumber,
+                );
+                return (
+                  <div
+                    key={st.stepNumber}
+                    className="flex flex-col gap-0.5 rounded px-1 py-0.5 hover:bg-white/[0.03]"
+                  >
+                    <span className="truncate" title={st.activity}>
+                      {st.activity}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {CAN_WRITE_FILES ? (
+                        <select
+                          value={own ?? ''}
+                          onChange={(e) =>
+                            onOverrides(
+                              withStepVariation(
+                                overrides,
+                                currentBand.id,
+                                st.stepNumber,
+                                e.target.value || undefined,
+                              ),
+                            )
+                          }
+                          className={`${select} min-w-0 flex-1`}
+                          aria-label={`The variation ${st.activity} plays`}
+                        >
+                          <option value="">As the style plays it</option>
+                          {variations.map((v) => (
+                            <option key={v.id} value={v.id}>
+                              {v.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : null}
+                      <span className="shrink-0 truncate text-muted-foreground">
+                        →{' '}
+                        {playsBand
+                          ? bandName(
+                              playsVariation
+                                ? `${playsBand}#${playsVariation}`
+                                : playsBand,
+                            )
+                          : 'its own backing'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
 
       {overrides.length > 0 && (

@@ -51,6 +51,12 @@ const sameSet = (a: ReadonlySet<number>, b: ReadonlySet<number>) =>
 const BASS_GAP = 10;
 /** Extra weight for a symbol whose bass is the hit's bass note. */
 const BASS_BONUS = 0.6;
+/**
+ * A tie-breaker: extra weight for a symbol whose guide tones (3rd and 7th)
+ * the hit plays. Jazz voicings fit more than one symbol — G13 holds all of
+ * Cmaj9's E–B–D — and the chord whose 3rd and 7th sound is the one played.
+ */
+const GUIDE_BONUS = 0.05;
 
 const pitchClass = (midi: number) => ((midi % 12) + 12) % 12;
 
@@ -103,7 +109,11 @@ function hitScore(hit: Hit, chord: Chord | null): number {
   const fit = chordFit(hit.pcs, chord);
   const bassMatch = hit.bassPc !== null && hit.bassPc === chord.bassPc;
   if (fit < (bassMatch ? 0.5 : MATCH)) return 0;
-  return fit + (bassMatch ? BASS_BONUS : 0);
+  const guides = [chord.third, chord.seventh]
+    .filter((i): i is number => i !== undefined)
+    .map((i) => (chord.rootPc + i) % 12);
+  const guided = guides.length > 0 && guides.every((pc) => hit.pcs.has(pc));
+  return fit + (bassMatch ? BASS_BONUS : 0) + (guided ? GUIDE_BONUS : 0);
 }
 
 /**
@@ -150,6 +160,37 @@ function assignSymbols(
   return assigned;
 }
 
+/**
+ * Unmatched hits where the progression's skipped chords belong: a run of
+ * them between two matched chords takes, in order, the chords the symbols
+ * list between those two — a G7 voiced B–F–A (3-7-9) fits no symbol, but
+ * between Dm7 and Cmaj7 it is the G7. A run before the first match takes the
+ * chords listed before it, one after the last those listed after. Hits past
+ * the skipped chords are left to the approach rule.
+ */
+function fillSkipped(
+  assigned: (number | null)[],
+  chords: readonly (Chord | null)[],
+): void {
+  for (let i = 0; i < assigned.length; ) {
+    if (assigned[i] !== null) {
+      i++;
+      continue;
+    }
+    const start = i;
+    while (i < assigned.length && assigned[i] === null) i++;
+    const before = start > 0 ? assigned[start - 1] : null;
+    const after = i < assigned.length ? assigned[i] : null;
+    const from = before === null ? 0 : before + 1;
+    const to = after === null ? chords.length : after;
+    const skipped: number[] = [];
+    for (let c = from; c < to; c++) if (chords[c]) skipped.push(c);
+    skipped.slice(0, i - start).forEach((c, k) => {
+      assigned[start + k] = c;
+    });
+  }
+}
+
 function matchTargets(
   chords: (Chord | null)[],
   hits: readonly Hit[],
@@ -159,6 +200,7 @@ function matchTargets(
   const matched = assigned.filter((i) => i !== null).length;
   if (matched * 2 < hits.length) return null;
 
+  fillSkipped(assigned, chords);
   // An unmatched chord (an approach stab) takes the chord it leads into.
   for (let i = assigned.length - 2; i >= 0; i--) {
     if (assigned[i] === null) assigned[i] = assigned[i + 1];
@@ -215,16 +257,38 @@ export function chordStrikes(
   targetNotes: readonly TargetNote[],
 ): TimedChord[] | null {
   if (!symbols?.length) return null;
-  const chords = toChords(symbols);
+  // A chord listed again straight after itself is held, not a new change
+  // (two a bar: C13 C13 | Gm9 C13).
+  const chords = toChords(
+    symbols.filter((s, i) => i === 0 || symbols[i - 1] !== s),
+  );
   const overBass = matchTargets(chords, targetChordHits(targetNotes));
   const every = matchTargets(chords, targetChordHits(targetNotes, true));
   return named(every) > named(overBass) ? every : overBass;
 }
 
 /**
+ * Struck chords where a lead sheet puts them, over the measures: the first
+ * chord from the downbeat, and a bar's first change on that bar's downbeat
+ * even when its notes come later (a bolero's "and", a groove's beat 3). A
+ * change later in a bar keeps its own strike (Am9 → D13 on beat 3).
+ */
+export function onTheBar<T extends { tick: number }>(
+  chords: readonly T[],
+  barLength = BAR_TICKS,
+): T[] {
+  return chords.map((chord, i) => {
+    if (i === 0) return { ...chord, tick: 0 };
+    const downbeat = Math.floor(chord.tick / barLength) * barLength;
+    return chords[i - 1].tick < downbeat ? { ...chord, tick: downbeat } : chord;
+  });
+}
+
+/**
  * The step's chord timeline over `bars` bars; empty without chord symbols.
- * `barLength` is the meter's bar in ticks (engine/meter.ts barTicks). The
- * first chord sounds from the downbeat, even when the targets come in later.
+ * `barLength` is the meter's bar in ticks (engine/meter.ts barTicks). Struck
+ * chords change where the staff writes them (`onTheBar`), so the band plays a
+ * bar's new chord from its downbeat.
  */
 export function buildChordTimeline(
   symbols: readonly string[] | undefined,
@@ -234,9 +298,7 @@ export function buildChordTimeline(
 ): TimedChord[] {
   if (!symbols?.length) return [];
   const struck = chordStrikes(symbols, targetNotes);
-  if (struck) {
-    return struck.map((chord, i) => (i === 0 ? { ...chord, tick: 0 } : chord));
-  }
+  if (struck) return onTheBar(struck, barLength);
   return perBar(toChords(symbols), bars, barLength);
 }
 
@@ -254,6 +316,21 @@ export interface ChordChange {
 export interface TimedChords {
   changes: readonly ChordChange[];
   length: number;
+}
+
+/**
+ * A step's symbols two to a bar (`chordsPerBar: 2`): each lasts half a bar,
+ * as changes timed for `timedChordTimeline`.
+ */
+export function halfBarChords(
+  symbols: readonly string[],
+  barLength = BAR_TICKS,
+): TimedChords {
+  const half = barLength / 2;
+  return {
+    changes: symbols.map((symbol, i) => ({ tick: i * half, symbol })),
+    length: symbols.length * half,
+  };
 }
 
 /**

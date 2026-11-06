@@ -21,9 +21,11 @@
  * through the chart's scale from the note before them; approach notes keep
  * their half step into the note after.
  *
- * Each hit is voiced where the player's hand went from its last hit, in the
- * player's own inversion and spacing unless another inversion lies clearly
- * nearer, and inside the hand's captured register. A single line — a bass
+ * Each hit keeps the player's numbers, bottom to top: a 3-7-9 on C7 is a
+ * 3-7-9 on F7, never turned into another inversion to move less (Peter: when
+ * a part moves to an activity or a band, the numbers take precedence). It is
+ * placed where the player's hand went from its last hit, inside the hand's
+ * captured register. A single line — a bass
  * part, a left hand playing bass — moves the same way, note by note, so its
  * roots land on the new chord's roots. Timing, lengths, velocities and hands
  * stay the player's, so the rhythm is theirs.
@@ -180,7 +182,7 @@ interface Hit {
   numbers: ChordNumber[];
   /**
    * Each voice's place in the hit's own chord cycle (its distinct numbers
-   * going up from the bottom note), which an inversion turns.
+   * going up from the bottom note), kept wherever the hit is played.
    */
   cycle: number[];
   /** A passing tone's step from the note before: in the scale, in semitones. */
@@ -940,16 +942,16 @@ function realizeNumber(
 
 /** Pull toward where the player's hand was, against following its motion. */
 const ANCHOR = 0.5;
-/** Cost per voice of leaving the player's own inversion. */
-const TURN = 1.5;
 /** Hits with more voices than this keep each voice's nearest place. */
 const MAX_COMBO_VOICES = 6;
 
 /**
- * The voicing of a hit's new pitch classes nearest `aim` (where the player's
- * hand went from its last hit), pulled toward `home` (where it was played),
- * in the player's inversion unless another lies clearly nearer, low to high,
- * inside the register.
+ * A hit's new pitch classes in the player's own order (each voice its own
+ * number), placed nearest `aim` (where the player's hand went from its last
+ * hit), pulled toward `home` (where it was played), low to high, inside the
+ * register. Two numbers that fall on one note (a ♯11 to the 5th beside the
+ * player's own 5th) share it, as a player would, rather than push the
+ * voices above them up an octave.
  */
 function voiceHit(
   pcsByCycle: number[],
@@ -958,42 +960,63 @@ function voiceHit(
   home: number[],
   register: Register,
 ): number[] {
-  const size = pcsByCycle.length;
   const keep = aim.length <= 4 ? 3 : aim.length <= MAX_COMBO_VOICES ? 2 : 1;
-  let best: number[] | null = null;
-  let bestCost = Infinity;
-  for (let turn = 0; turn < size; turn++) {
-    const pcs = cycle.map((c) => pcsByCycle[(c + turn) % size]);
-    // Each voice's places in the register, nearest its aim first.
+  const pcs = cycle.map((c) => pcsByCycle[c]);
+  /** Whether voice j may sit at `m`, over the voice below it at `below`. */
+  const above = (m: number, below: number, j: number) =>
+    m > below ||
+    (m === below && pcs[j] === pcs[j - 1] && cycle[j] !== cycle[j - 1]);
+  /**
+   * The cheapest placing from each voice's `keep` places nearest its aim,
+   * in order low to high, or null when none is in order. Walked depth
+   * first, nearest places first, so the first cheapest is the one kept.
+   */
+  const search = (keep: number): number[] | null => {
+    const lowest = Math.max(register.low - STRAY, register.floor);
     const options = pcs.map((pc, j) => {
       const places: number[] = [];
-      const lowest = Math.max(register.low - STRAY, register.floor);
       for (let m = lowest; m <= register.high + STRAY; m++)
         if (mod12(m) === pc) places.push(m);
       return places
         .sort((a, b) => Math.abs(a - aim[j]) - Math.abs(b - aim[j]) || a - b)
         .slice(0, keep);
     });
-    const combos = options.reduce<number[][]>(
-      (all, opts) => all.flatMap((c) => opts.map((o) => [...c, o])),
-      [[]],
-    );
-    for (const c of combos) {
-      if (c.some((m, j) => j > 0 && m <= c[j - 1])) continue;
-      let cost = turn ? TURN * c.length : 0;
-      c.forEach((m, j) => {
-        cost += Math.abs(m - aim[j]) + ANCHOR * Math.abs(m - home[j]);
-        cost += OUTSIDE * Math.max(0, register.low - m, m - register.high);
-      });
-      if (cost < bestCost) [best, bestCost] = [c, cost];
-    }
-  }
+    let best: number[] | null = null;
+    let bestCost = Infinity;
+    const chosen: number[] = [];
+    const walk = (j: number, cost: number) => {
+      if (cost >= bestCost) return;
+      if (j === pcs.length) {
+        [best, bestCost] = [[...chosen], cost];
+        return;
+      }
+      for (const m of options[j]) {
+        if (j > 0 && !above(m, chosen[j - 1], j)) continue;
+        chosen.push(m);
+        walk(
+          j + 1,
+          cost +
+            Math.abs(m - aim[j]) +
+            ANCHOR * Math.abs(m - home[j]) +
+            OUTSIDE * Math.max(0, register.low - m, m - register.high),
+        );
+        chosen.pop();
+      }
+    };
+    walk(0, 0);
+    return best;
+  };
+  // The nearest places first; when no order fits among them (a hand that
+  // has drifted up a stack of five), every place in the register, so the
+  // voicing comes back down rather than piling up out of it.
+  const best =
+    search(keep) ?? (aim.length <= MAX_COMBO_VOICES ? search(Infinity) : null);
   if (best) return best;
-  // No order fits (a doubled tone): stack upward from the aim.
+  // No order fits anywhere (a doubled tone): stack upward from the aim.
   const stacked: number[] = [];
   cycle.forEach((c, j) => {
     let m = aim[j] - mod12(aim[j] - pcsByCycle[c]);
-    while (j > 0 && m <= stacked[j - 1]) m += 12;
+    while (j > 0 && !above(m, stacked[j - 1], j)) m += 12;
     stacked.push(m);
   });
   return stacked;

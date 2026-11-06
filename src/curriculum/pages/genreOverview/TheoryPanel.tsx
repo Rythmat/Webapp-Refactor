@@ -21,6 +21,7 @@ import {
   playChord,
   ScaledPiano,
   scaleColor,
+  scaleRoot,
   type ShownScale,
 } from './genreOverviewShared';
 
@@ -92,7 +93,7 @@ export function TheoryPanel({
   onStart: () => void;
 }) {
   const scale = scales[scaleAt] ?? scales[0];
-  const keyLetter = level.keyCenter.split(' ')[0];
+  const keyLetter = scaleRoot(level, scale.scaleId);
 
   // One range for every chord card: all their notes, an octave either side.
   const { startC, endC } = useMemo(() => {
@@ -132,7 +133,7 @@ export function TheoryPanel({
                   className="size-2 rounded-full"
                   style={{ background: scaleColor(level, sc.scaleId) }}
                 />
-                {keyLetter} {sc.name}
+                {scaleRoot(level, sc.scaleId)} {sc.name}
               </button>
             ))}
           </div>

@@ -190,7 +190,7 @@ describe('GenreLessonContainerV2 on piano and guitar', () => {
     expect(screen.getByRole('radio', { name: 'Roll' })).toBeTruthy();
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Perform' }));
     });
     // C major scale, out of time: hold each note past 80% of its length.
     for (const midi of [60, 62, 64, 65, 67, 69, 71, 72]) {
@@ -225,7 +225,7 @@ describe('GenreLessonContainerV2 on piano and guitar', () => {
     );
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Perform' }));
     });
     // The book's C major position: C3 D3 E3 F3 G3 A3 B3 C4, out of time.
     const scale = flow.sections[0].steps[0].targetNotes!.map((n) => n.midi);
@@ -254,7 +254,7 @@ describe('GenreLessonContainerV2 on piano and guitar', () => {
       screen.getByRole('button', { name: /^About this step/ });
     expect(card()).toBeNull();
     expect(screen.queryByRole('dialog')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Play Now' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Perform' })).toBeTruthy();
     expect(about()).toHaveAttribute('data-unseen', 'true');
     fireEvent.click(about());
     const sheet = screen.getByRole('dialog', { name: /^About this step/ });
@@ -282,7 +282,7 @@ describe('GenreLessonContainerV2 on piano and guitar', () => {
       'B2.1: Play Chords 1,2,3,4 (Out of Time)',
     );
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Perform' }));
     });
     const chords = [
       { rootPc: 0, quality: 'major', pcs: [0, 4, 7] },
@@ -354,10 +354,10 @@ describe('GenreLessonContainerV2 guitar practice tools', () => {
     }
   }
 
-  /** Play Now, play nothing, let the take run out. */
+  /** Perform, play nothing, let the take run out. */
   async function missATake() {
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Perform' }));
       await settle();
     });
     await act(async () => {
@@ -415,9 +415,9 @@ describe('GenreLessonContainerV2 guitar practice tools', () => {
     });
     await act(() => settle());
     expect(status()).toMatch(/Tap a bar to loop it/);
-    // Back leaves practice; Play Now would grade the whole step.
+    // Back leaves practice; Perform would grade the whole step.
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
-    expect(screen.getByRole('button', { name: 'Play Now' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Perform' })).toBeTruthy();
   });
 
   it('after three missed takes the student may count the step themselves', async () => {
@@ -489,13 +489,13 @@ describe('GenreLessonContainerV2 guitar input', () => {
     expect(handle.setEvaluationMode).toHaveBeenLastCalledWith('off');
     expect(screen.getByRole('button', { name: 'Set up guitar' })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Perform' }));
     expect(await screen.findByRole('dialog')).toBeTruthy();
     expect(handle.enable).not.toHaveBeenCalled();
     expect(handle.setEvaluationMode).not.toHaveBeenCalledWith('notes');
   });
 
-  it('switches the microphone on from Play Now and listens for the step only during the take', async () => {
+  it('switches the microphone on from Perform and listens for the step only during the take', async () => {
     const handle = fakeGuitarHandle('idle');
     stable.guitar = handle;
     renderLesson(buildGuitarAppliedTheoryFundamentalsFlow('C'));
@@ -506,7 +506,7 @@ describe('GenreLessonContainerV2 guitar input', () => {
     );
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Perform' }));
     });
     expect(handle.enable).toHaveBeenCalledTimes(1);
     expect(handle.setEvaluationMode).toHaveBeenLastCalledWith('notes');

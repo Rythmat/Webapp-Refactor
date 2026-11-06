@@ -10,9 +10,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/components/utilities';
 import {
-  GlobeRoutes,
   ClassroomRoutes,
   GameRoutes,
+  GlobeRoutes,
   LearnRoutes,
   OfficeRoutes,
   ProfileRoutes,
@@ -20,7 +20,6 @@ import {
   StudioRoutes,
 } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import { useLearnPageRoute } from '@/features/learn/useInstrumentStore';
 import { isRouteActive, SidebarMainNavItem } from './SidebarMainNavItem';
 
 interface SidebarProps {
@@ -63,9 +62,6 @@ export const ClassroomSidebar = ({
   // bounce. There is no dual admin+teacher account: `UserRole` is scalar.
   // The console shows it to everyone: there Office is the curriculum.
   const canManage = role === 'teacher' || !!showAllSections;
-  // Learn opens on the instrument chosen on Home (owner, 2026-10-24), and
-  // stays current anywhere under /learn. The console's copy keeps /learn.
-  const learnPage = useLearnPageRoute();
   const { pathname } = useLocation();
   /** An item's link: the app path as it is, or the console's copy of it. */
   const nav = (appTo: string, activePaths?: string[]) =>
@@ -113,7 +109,7 @@ export const ClassroomSidebar = ({
             {...(lens
               ? nav(LearnRoutes.root())
               : {
-                  to: learnPage,
+                  to: LearnRoutes.root(),
                   active: isRouteActive(pathname, LearnRoutes.root()),
                 })}
           />

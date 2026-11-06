@@ -1,0 +1,15 @@
+/* The skill check: nothing shows what to play. Hidden rather than removed, because
+   the engines measure these boxes and keep their timing against them. */
+[data-from-memory] [data-piano-roll],
+[data-from-memory] [data-guitar-visuals-slot] > *,
+[data-from-memory] [data-guitar-stage],
+[data-from-memory] [data-theory-content] {
+  visibility: hidden;
+}
+
+/* The bands' own rules (pianoLayout.css, guitarLayout.css) still size what's in
+   the stage; here it just gets the frame's room instead of a whole page's. */
+[data-guided-stage] [data-theory-content] {
+  flex: 1 1 0%;
+  min-height: 0;
+}

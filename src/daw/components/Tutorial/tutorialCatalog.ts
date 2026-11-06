@@ -5,10 +5,19 @@
 // carries (audit practice-tutorial-25); tutorials.ts adds the steps to these
 // entries by id.
 //
-// Pure data and functions on purpose: no imports, so the dashboard chunk can
-// take it as is. That includes the courses: a course (Studio Basics) is a
-// run of lessons taken in order, and Start Here, Teach and the dashboard read
-// its order and its progress from here too.
+// Data and functions on purpose, with no Studio imports, so the dashboard
+// chunk can take it as is. That includes the courses: a course (Studio
+// Basics) is a run of lessons taken in order, and Start Here, Teach and the
+// dashboard read its order and its progress from here too.
+//
+// The lessons written in the console (curriculum/engine/studioLessons) join
+// these: one with a code lesson's id replaces its entry, any other is a new
+// lesson. `listTutorialCatalog` is the merged list; TUTORIAL_CATALOG is the
+// code's own.
+
+import { lessonNeedsPremium } from '@/content/studioLessons/premium';
+import type { StudioLesson } from '@/content/studioLessons/schemas';
+import { listStudioLessons } from '@/curriculum/engine/studioLessons/registry';
 
 export type TutorialDifficulty = 'Beginner' | 'Intermediate' | 'Advanced';
 
@@ -204,15 +213,46 @@ export const TUTORIAL_CATALOG = [
 /** A lesson's id: tutorials.ts must give steps to exactly these. */
 export type TutorialId = (typeof TUTORIAL_CATALOG)[number]['id'];
 
+/** A console lesson's tile: its catalog fields, Premium by its steps. */
+export function fileCatalogEntry(lesson: StudioLesson): TutorialCatalogEntry {
+  return {
+    id: lesson.id,
+    title: lesson.title,
+    subtitle: lesson.subtitle,
+    difficulty: lesson.difficulty,
+    estMinutes: lesson.estMinutes,
+    requiresPremium: lessonNeedsPremium(lesson.steps),
+    ...(lesson.course
+      ? { course: lesson.course, courseOrder: lesson.courseOrder }
+      : {}),
+    ...(lesson.seed ? { seed: lesson.seed } : {}),
+  };
+}
+
+/**
+ * Every Production lesson: the code's, each replaced by a console lesson of
+ * the same id, then the console's new lessons by title.
+ */
+export function listTutorialCatalog(): readonly TutorialCatalogEntry[] {
+  const files = new Map(listStudioLessons().map((l) => [l.id, l]));
+  const code = (TUTORIAL_CATALOG as readonly TutorialCatalogEntry[]).map(
+    (entry) => {
+      const file = files.get(entry.id);
+      return file ? fileCatalogEntry(file) : entry;
+    },
+  );
+  const added = [...files.values()]
+    .filter((l) => !code.some((e) => e.id === l.id))
+    .sort((a, b) => a.title.localeCompare(b.title))
+    .map(fileCatalogEntry);
+  return [...code, ...added];
+}
+
 export function getTutorialEntry(
   id: string | null,
 ): TutorialCatalogEntry | null {
   if (!id) return null;
-  return (
-    (TUTORIAL_CATALOG as readonly TutorialCatalogEntry[]).find(
-      (t) => t.id === id,
-    ) ?? null
-  );
+  return listTutorialCatalog().find((t) => t.id === id) ?? null;
 }
 
 // ── Courses ────────────────────────────────────────────────────────────────
@@ -267,14 +307,24 @@ export function courseOfLesson(id: string | null): TutorialCourse | null {
   return getTutorialCourse(getTutorialEntry(id)?.course);
 }
 
-/** A course's lessons, in order, as catalog entries. */
+/**
+ * A course's lessons, in order, as catalog entries: every lesson naming the
+ * course, by its place in it (a console lesson may join one).
+ */
 export function courseLessons(
   course: TutorialCourse,
 ): readonly TutorialCatalogEntry[] {
-  return course.lessonIds.flatMap((id) => {
-    const entry = getTutorialEntry(id);
-    return entry ? [entry] : [];
-  });
+  const declared = (id: string) => {
+    const i = (course.lessonIds as readonly string[]).indexOf(id);
+    return i === -1 ? Infinity : i;
+  };
+  return listTutorialCatalog()
+    .filter((t) => t.course === course.id)
+    .sort(
+      (a, b) =>
+        (a.courseOrder ?? Infinity) - (b.courseOrder ?? Infinity) ||
+        declared(a.id) - declared(b.id),
+    );
 }
 
 /** Where lesson `id` sits in its course: "Lesson 3 of 9". */
@@ -283,9 +333,10 @@ export function lessonPlace(
 ): { course: TutorialCourse; number: number; total: number } | null {
   const course = courseOfLesson(id);
   if (!course || !id) return null;
-  const index = course.lessonIds.indexOf(id as TutorialId);
+  const ids = courseLessons(course).map((t) => t.id);
+  const index = ids.indexOf(id);
   if (index === -1) return null;
-  return { course, number: index + 1, total: course.lessonIds.length };
+  return { course, number: index + 1, total: ids.length };
 }
 
 /** The lesson after `id` in its course, or null after the last one. */
@@ -294,7 +345,7 @@ export function nextCourseLesson(
 ): TutorialCatalogEntry | null {
   const place = lessonPlace(id);
   if (!place) return null;
-  return getTutorialEntry(place.course.lessonIds[place.number] ?? null);
+  return courseLessons(place.course)[place.number] ?? null;
 }
 
 /** Completion times by lesson id, as useTutorialProgressStore keeps them. */

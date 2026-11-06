@@ -7,6 +7,14 @@ import type {
   ExperienceSummaryResponse,
 } from './types';
 
+/** What `/experience/award` reports: undocumented, so all of it's optional. */
+interface LearnXpReply {
+  awarded?: boolean;
+  awardedExperience?: number;
+  totalExperience?: number;
+  level?: number;
+}
+
 export function normalizedApiBase() {
   return Env.get('VITE_MUSIC_ATLAS_API_URL').replace(/\/+$/, '');
 }
@@ -89,6 +97,14 @@ export const experienceApi = {
       token,
       method: 'POST',
       body: { lessonId },
+    }),
+
+  /** A small amount for a small action. The server has the last word on it. */
+  awardAction: (token: string, body: { source: string; amount: number }) =>
+    apiRequest<LearnXpReply | undefined>(experiencePath('/award'), {
+      token,
+      method: 'POST',
+      body,
     }),
 
   awardArcade: (token: string) =>

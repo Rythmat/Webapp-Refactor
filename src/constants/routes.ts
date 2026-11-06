@@ -465,6 +465,21 @@ export const AdminRoutes = {
   ),
 
   /**
+   * Studio lessons — the Production lessons the Studio's lesson layer runs,
+   * the code's and the console's: list, New lesson, and each one's editor.
+   * Saving writes repo files (dev server).
+   */
+  studioLessons: createRouteDefinition('/studio-lessons', {
+    prefix: adminPrefix,
+  }),
+
+  /** Studio lessons — one lesson's editor. `?step=<id>` opens that step. */
+  studioLesson: createRouteDefinition<{ id: string }, { step?: string }>(
+    '/studio-lessons/:id',
+    { prefix: adminPrefix },
+  ),
+
+  /**
    * Parts editor on a lesson step's notes: piano roll / staff, then commit
    * back to the lesson. `index` is the step's position in its section.
    */
@@ -863,6 +878,18 @@ export const SettingsRoutes = {
   }),
 };
 
+/**
+ * The Learn onboarding (owner, 2026-11-04): what they play, how much they
+ * know, what they love, why they're here, how often. `?edit=1` opens it with
+ * their answers to change; `&step=` on one question.
+ */
+export const WelcomeRoutes = {
+  root: createRouteDefinition<
+    void,
+    { edit?: string; step?: string; continue?: string }
+  >('/welcome'),
+};
+
 const learnPrefix = '/learn';
 
 /** A Theory lesson's chapter: O(verview) on keyboard, A Melody, B Chords,
@@ -871,6 +898,11 @@ const learnPrefix = '/learn';
 export type LearnSection = 'O' | 'A' | 'B' | 'C' | 'D';
 
 export const LearnRoutes = {
+  /**
+   * Learn: shelves of courses and songs in Suno's layout (owner,
+   * 2026-11-04), a topic at a time. `?i=keyboard|guitar|bass|ukulele|audio`
+   * picks it, `&c=<section>` opens a section's courses whole, `?q=` searches.
+   */
   root: createRouteDefinition(learnPrefix),
 
   // The instrument is the first segment: /learn/keyboard/… and
@@ -1124,11 +1156,18 @@ const curriculumPrefix = '/curriculum';
 export const CurriculumRoutes = {
   root: createRouteDefinition(curriculumPrefix),
 
-  /** Piano Fundamentals' overview (Learn → Technique). */
+  /** Piano Fundamentals' course page (Learn → Technique). */
   pianoFundamentals: createRouteDefinition('/piano-fundamentals', {
     prefix: curriculumPrefix,
   }),
 
+  /** A lesson of the Piano Fundamentals course (owner, 2026-11-05). */
+  fundamentalsLesson: createRouteDefinition<{ lessonId: string }>(
+    '/piano-fundamentals/:lessonId',
+    { prefix: curriculumPrefix },
+  ),
+
+  /** The old course's sections (1–7): they redirect to its lessons. */
   fundamentalsSection: createRouteDefinition<{ sectionId: string }>(
     '/piano-fundamentals/:sectionId',
     { prefix: curriculumPrefix },

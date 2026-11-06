@@ -4,6 +4,7 @@ import { getChordScales } from '@/components/learn/chordScaleData';
 import { GameRoutes, LearnRoutes } from '@/constants/routes';
 import { getGenre, SONG_TAG_TO_GENRE } from '@/content/graph/genres';
 import { canonicalId } from '@/content/graph/ids';
+import { keyColourOfSlugs } from '@/content/graph/keyColour';
 import type { EntityId } from '@/content/graph/types';
 import {
   AUDIO_MODULES,
@@ -19,6 +20,7 @@ import { getSong } from '@/curriculum/data/songs';
 import { LITERACY_PATH } from '@/curriculum/musicLiteracy/literacyPath';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { getTutorialEntry } from '@/daw/components/Tutorial/tutorialCatalog';
+import { engineModeName, keyColourOf } from '@/daw/prism-engine/data/keyColour';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { WebActivity } from './buildWeb';
 import { genreLessonId, kindOfId, type CortexId } from './ids';
@@ -123,6 +125,7 @@ const theoryFacts = (rest: string) => {
     label: `${modeName} in ${keyConcept(key).label.replace('Key of ', '')}`,
     detail: instrument === 'piano' ? undefined : words(instrument),
     route: `/learn/${segment}/${encodeURIComponent(mode)}/${keyParamOfSlug(key)}`,
+    keyColour: keyColourOfSlugs(key, mode) ?? undefined,
     concepts: [
       modeConcept(mode, modeName),
       keyConcept(key),
@@ -242,7 +245,10 @@ const TECHNIQUE: Readonly<
 const facts = (
   id: string,
   ctx: DescribeContext,
-): Pick<WebActivity, 'label' | 'detail' | 'route' | 'concepts'> | null => {
+): Pick<
+  WebActivity,
+  'label' | 'detail' | 'route' | 'concepts' | 'keyColour'
+> | null => {
   const kind = kindOfId(id);
   const rest = id.slice(id.indexOf(':') + 1);
   switch (kind) {
@@ -254,6 +260,11 @@ const facts = (
         detail: song.artist,
         route: `/songs/${song.id}`,
         concepts: conceptsOfSong(song),
+        // Its key centre's colour: 24k Magic, in F minor, is A♭'s indigo.
+        keyColour: keyColourOf(
+          song.keyRoot,
+          engineModeName(song.mode) ?? 'ionian',
+        ),
       };
     }
     case 'theory':

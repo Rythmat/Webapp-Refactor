@@ -127,7 +127,7 @@ describe('fretboardMarkers', () => {
   it('only counts the student’s notes and the guide while they apply', () => {
     const { input } = setup('play_chords_oot');
     const preview = summary(fretboardMarkers(input()));
-    // Notes in preview, and the guide during Play Now, fall to the step.
+    // Notes in preview, and the guide during Perform, fall to the step.
     expect(summary(fretboardMarkers(input({ activeMidis: [48] })))).toEqual(
       preview,
     );

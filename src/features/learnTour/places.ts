@@ -16,6 +16,7 @@ const tabOf = (place: TourPlace) =>
 export const learnHref = (tab?: string) =>
   tab ? `/learn?tab=${tab}` : '/learn';
 
+/** Learn's page. */
 export const atLearn = (place: TourPlace) => place.pathname === '/learn';
 export const atLearnHome = (place: TourPlace) =>
   atLearn(place) && tabOf(place) === '';

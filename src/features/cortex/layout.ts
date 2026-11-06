@@ -15,8 +15,8 @@ import type { CortexWeb } from './buildWeb';
  * always gives one picture, and it starts from where the nodes were last time:
  * old nodes are tethered there, so the map stays recognisable while new ones
  * find their place beside what they connect to and clusters can still form.
- * With nothing new, nothing moves at all. A fixed core holds the middle open,
- * so the web grows around it and never over it.
+ * With nothing new, nothing moves at all. Since 2026-11-04 there's no core in
+ * the middle, as on the console's map: the web holds together on its own.
  */
 
 export interface Point {
@@ -29,9 +29,6 @@ export type Positions = Readonly<Record<string, Point>>;
 const LINK_DISTANCE = 64;
 const CHARGE = -340;
 const COLLIDE_RADIUS = 30;
-/** Not a node on the web: only a place in the simulation, always at the origin. */
-const CORE_ID = '\0core';
-const CORE_CLEAR = 70;
 /** How hard an old node holds its place. */
 const TETHER = 0.35;
 const TICKS_FRESH = 220;
@@ -100,7 +97,7 @@ const buildSimulation = (web: CortexWeb, saved: Positions, narrow: boolean) => {
           y: cy + Math.sin(angle) * LINK_DISTANCE,
         };
       }
-      const radius = CORE_CLEAR + 30 + 14 * Math.sqrt(index);
+      const radius = 14 * Math.sqrt(index);
       return {
         id: node.id,
         x: Math.cos(angle) * radius,
@@ -113,9 +110,7 @@ const buildSimulation = (web: CortexWeb, saved: Positions, narrow: boolean) => {
     .map((link) => ({ source: link.source, target: link.target }));
 
   const isHeld = (node: SimNode) => node.home !== undefined;
-  const isCore = (node: SimNode) => node.id === CORE_ID;
   const seed = web.nodes.length;
-  nodes.push({ id: CORE_ID, x: 0, y: 0, fx: 0, fy: 0 });
   const simulation = forceSimulation(nodes)
     .randomSource(seededRandom(seed))
     .force(
@@ -125,29 +120,22 @@ const buildSimulation = (web: CortexWeb, saved: Positions, narrow: boolean) => {
         .distance(LINK_DISTANCE)
         .strength(0.6),
     )
-    .force(
-      'charge',
-      forceManyBody<SimNode>().strength((node) => (isCore(node) ? 0 : CHARGE)),
-    )
-    .force(
-      'collide',
-      forceCollide<SimNode>((node) =>
-        isCore(node) ? CORE_CLEAR : COLLIDE_RADIUS,
-      ),
-    )
-    // Holds the web together, far wider than tall: under the prompt bar the
-    // panel is a wide strip, and a round web would only use its middle. On a
-    // phone the panel is about square, and a strip would shrink to a sliver.
+    .force('charge', forceManyBody<SimNode>().strength(CHARGE))
+    .force('collide', forceCollide<SimNode>(COLLIDE_RADIUS))
+    // Holds the web together, wider than tall: the User page's card is about
+    // twice as wide as it is tall, and a round web would only use its middle.
+    // On a phone the card is about square, and a strip would shrink to a
+    // sliver.
     .force(
       'x',
       forceX<SimNode>((node) => node.home?.x ?? 0).strength((node) =>
-        isHeld(node) ? TETHER : narrow ? 0.07 : 0.02,
+        isHeld(node) ? TETHER : narrow ? 0.07 : 0.04,
       ),
     )
     .force(
       'y',
       forceY<SimNode>((node) => node.home?.y ?? 0).strength((node) =>
-        isHeld(node) ? TETHER : narrow ? 0.07 : 0.11,
+        isHeld(node) ? TETHER : narrow ? 0.07 : 0.1,
       ),
     )
     .stop();
@@ -159,7 +147,6 @@ const buildSimulation = (web: CortexWeb, saved: Positions, narrow: boolean) => {
 const result = (nodes: readonly SimNode[]): Positions => {
   const out: Record<string, Point> = {};
   for (const node of nodes) {
-    if (node.id === CORE_ID) continue;
     out[node.id] = {
       x: Math.round((node.x ?? 0) * 10) / 10,
       y: Math.round((node.y ?? 0) * 10) / 10,
@@ -235,7 +222,7 @@ export const MIN_ZOOM = 0.08;
 export const MAX_ZOOM = 2.5;
 /** A map of a few nodes isn't blown up to fill the panel. */
 const MAX_FIT_ZOOM = 1.15;
-/** Room round the edge for names: the panel's own header sits top left. */
+/** Room round the edge for names, and for the caption top left. */
 const FIT_MARGIN_X = 112;
 const FIT_MARGIN_X_NARROW = 24;
 /** Under this, the map is on a phone. */

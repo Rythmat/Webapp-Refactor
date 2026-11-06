@@ -26,7 +26,7 @@ import type { Zones } from './GuitarActionBar';
 // open). Piano never reaches it.
 //
 // Labels students already know stay as they are: "Demo", "Practice",
-// "Play Now", "Try Again", "Next" / "Section Complete", and section buttons
+// "Perform", "Try Again", "Next" / "Section Complete", and section buttons
 // named "A Melody" / "B Chords" / "D Play-Along" for assistive tech (the
 // visible text can drop the letter).
 
@@ -149,12 +149,12 @@ export interface RunModel {
   instruction: string;
   /** "Wait for me" (out of time) or "Keep time" (in time), and the mark. */
   listen: { mode: 'waitForMe' | 'keepTime'; passMarkPct: number };
-  /** Instruments are loading: Play Now waits. */
+  /** Instruments are loading: Perform waits. */
   loading: boolean;
   demo: { playing: boolean; play: () => void; stop: () => void };
   /** Practice (checks the guitar setup gate first). */
   practise: () => void;
-  /** Play Now / Perform (checks the guitar setup gate first). */
+  /** Perform (checks the guitar setup gate first). */
   playNow: () => void;
   /** Leave practice (ends any loop). */
   back: () => void;
@@ -162,6 +162,10 @@ export interface RunModel {
   stopTake: () => void;
   /** After a missed strum: one thing to try (display only). */
   hint: string | null;
+  /** The last practice to finish by itself, and whether anything was played. */
+  lastPractice?: { id: number; heard: boolean } | null;
+  /** The last take to be scored. */
+  lastTake?: { id: number; passed: boolean; heard: boolean } | null;
 }
 
 export interface TempoModel {
@@ -236,6 +240,8 @@ export interface SectionCompleteModel {
   enterPracticeTrack: () => void;
   continueLabel: string;
   onContinue: () => void;
+  /** There's a section to go on to: it does, by itself, after a moment. */
+  autoContinue?: boolean;
 }
 
 // ── Theory (About this step) ───────────────────────────────────────────────

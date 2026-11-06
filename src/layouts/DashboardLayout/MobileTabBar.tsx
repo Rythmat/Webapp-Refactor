@@ -22,9 +22,9 @@ import {
 } from '@/components/ui/sheet';
 import { cn } from '@/components/utilities';
 import {
-  GlobeRoutes,
   ClassroomRoutes,
   GameRoutes,
+  GlobeRoutes,
   LearnRoutes,
   OfficeRoutes,
   ProfileRoutes,

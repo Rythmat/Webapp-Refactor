@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useMemo, useState, type CSSProperties } from 'react';
+import { CARD, TILE_PAPER } from '@/lib/cover';
 import { at, points, R } from './sigilGeometry';
 import { lissajousPath, rotaryPath } from './sigilSpec';
 import './sigil.css';
@@ -9,26 +10,65 @@ import './sigil.css';
 // for the Drum lessons), a Lissajous figure for an interval, a rotary
 // harmonograph's for a genre.
 
+/** How a sigil is drawn in the covers' look (owner, 2026-11-05): bold
+ *  gradient lines. */
+export type SigilLook = 'lines';
+
+/** The covers' two colours and the look; left out, the old white lines. */
+export interface SigilPaint {
+  colors: readonly [string, string];
+  look: SigilLook;
+}
+
 function Frame({
   accent,
   label,
+  paint,
   children,
 }: {
   accent: string;
   label: string;
+  paint?: SigilPaint;
   children: React.ReactNode;
 }) {
+  const id = `sigil-ink${useId().replace(/:/g, '')}`;
+  const vars = paint
+    ? {
+        '--sigil-accent': accent,
+        '--sigil-ink': `url(#${id})`,
+        '--sigil-a': paint.colors[0],
+        '--sigil-b': paint.colors[1],
+        '--sigil-bg': CARD,
+        '--sigil-paper': TILE_PAPER,
+      }
+    : { '--sigil-accent': accent };
   return (
     <svg
       viewBox="-50 -50 100 100"
-      className="sigil size-full"
+      className={`sigil size-full sigil--${paint?.look ?? 'plain'}`}
       role="img"
       aria-label={label}
-      style={{ '--sigil-accent': accent } as CSSProperties}
+      style={vars as CSSProperties}
     >
+      {paint && (
+        <defs>
+          {/* The covers' diagonal, top left into bottom right. */}
+          <linearGradient
+            id={id}
+            gradientUnits="userSpaceOnUse"
+            x1={-50}
+            y1={-50}
+            x2={50}
+            y2={50}
+          >
+            <stop offset={0} stopColor={paint.colors[0]} />
+            <stop offset={1} stopColor={paint.colors[1]} />
+          </linearGradient>
+        </defs>
+      )}
       {/* The poster's nested circles. */}
-      <circle r={R} className="sigil-faint" />
-      <circle r={R * 0.62} className="sigil-faint" />
+      <circle r={R} className="sigil-faint sigil-ring" />
+      <circle r={R * 0.62} className="sigil-faint sigil-ring" />
       {children}
     </svg>
   );
@@ -61,6 +101,7 @@ export function ScaleSigil({
   weights,
   accent,
   label,
+  paint,
 }: {
   pcs: readonly number[];
   tonic: number;
@@ -71,6 +112,7 @@ export function ScaleSigil({
   weights?: Readonly<Record<number, number>>;
   accent: string;
   label: string;
+  paint?: SigilPaint;
 }) {
   const alteredAt = new Map(altered.map((a) => [a.pc, a.label]));
   // The accent on the notes that set the scale apart, or, with none
@@ -82,7 +124,7 @@ export function ScaleSigil({
     (a, b) => ((a - tonic + 12) % 12) - ((b - tonic + 12) % 12),
   );
   return (
-    <Frame accent={accent} label={label}>
+    <Frame accent={accent} label={label} paint={paint}>
       <Ticks n={12} />
       {layers.map((layer, i) => (
         <polygon
@@ -154,15 +196,17 @@ export function GrooveSigil({
   hits,
   accent,
   label,
+  paint,
 }: {
   steps: number;
   hits: readonly number[];
   accent: string;
   label: string;
+  paint?: SigilPaint;
 }) {
   const [hx, hy] = at(0, steps, R * 1.06);
   return (
-    <Frame accent={accent} label={label}>
+    <Frame accent={accent} label={label} paint={paint}>
       <Ticks n={steps} />
       {/* Spokes to the hits, faint, through the middle (the poster's). */}
       {hits.map((h) => {
@@ -219,11 +263,13 @@ export function IntervalSigil({
   accent,
   label,
   active,
+  paint,
 }: {
   ratio: readonly [number, number];
   accent: string;
   label: string;
   active: boolean;
+  paint?: SigilPaint;
 }) {
   const [phase, setPhase] = useState(REST_PHASE);
   useEffect(() => {
@@ -245,7 +291,7 @@ export function IntervalSigil({
     [ratio, phase],
   );
   return (
-    <Frame accent={accent} label={label}>
+    <Frame accent={accent} label={label} paint={paint}>
       <path d={d} className="sigil-line" />
       <circle r={1.6} className="sigil-node sigil-node--accent" />
     </Frame>
@@ -262,16 +308,18 @@ export function RotarySigil({
   ratio,
   accent,
   label,
+  paint,
 }: {
   ratio: readonly [number, number];
   accent: string;
   label: string;
+  paint?: SigilPaint;
 }) {
   // Out to the circle, as a scale's notes and an interval's loops reach
   // (owner, 2026-10-28).
   const d = useMemo(() => rotaryPath(ratio, R * 0.92), [ratio]);
   return (
-    <Frame accent={accent} label={label}>
+    <Frame accent={accent} label={label} paint={paint}>
       <g className="sigil-turn">
         <path d={d} className="sigil-line sigil-draw" pathLength={1} />
       </g>

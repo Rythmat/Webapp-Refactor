@@ -21,6 +21,7 @@ export function AnatomyStage({
   onPressTerm,
   listLabel,
   focus,
+  label = 'A microphone',
 }: {
   model: CompiledModel;
   /** The term lifted out and named, if any. */
@@ -33,6 +34,8 @@ export function AnatomyStage({
   listLabel?: string;
   /** The terms to frame while none is lifted out, for small parts. */
   focus?: readonly string[];
+  /** What the drawing is, for a screen reader. */
+  label?: string;
 }) {
   const stage = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -104,8 +107,8 @@ export function AnatomyStage({
           }}
           label={
             chosen
-              ? `A microphone, with the ${chosen.name} lifted out`
-              : 'A microphone, its parts drawn apart'
+              ? `${label}, with the ${chosen.name} lifted out`
+              : `${label}, its parts drawn apart`
           }
         />
       </div>

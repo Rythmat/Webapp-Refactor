@@ -44,6 +44,7 @@ import {
   type ChladniMode,
   type RingsVariant,
 } from '@/lib/art';
+import { CourseCoverSheet } from './CourseCoverSheet';
 
 const ROWS: { label: string; kind: ArtKind; variant?: RingsVariant }[] = [
   { label: 'Strands', kind: 'strands' },
@@ -179,6 +180,8 @@ export function ArtContactSheet() {
           title="Art contact sheet"
           sub="Every cover kind in every palette, the kit, and the Arcade's games. Hover a tile to breathe it."
         />
+
+        <CourseCoverSheet />
 
         {/* Chladni modes (GRM's Atelier figures): pick each game's. */}
         <section id="chladni-modes" className="flex flex-col gap-3">

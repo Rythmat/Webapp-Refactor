@@ -36,6 +36,8 @@ export type PlayerAction =
   | { type: 'verdict'; screenId: string; ok: true }
   | { type: 'verdict'; screenId: string; ok: false; mistake: string }
   | { type: 'tryAgain' }
+  /** The next part of the same screen, after a right answer. */
+  | { type: 'nextPart' }
   | { type: 'seeAnswer'; screenId: string; answer?: string }
   | { type: 'continue'; count: number; practiceFrom: number }
   | { type: 'startPractice' }
@@ -106,6 +108,8 @@ export function playerReducer(
       return state.phase === 'wrong'
         ? { ...state, phase: 'acting', mistake: null, picked: null }
         : state;
+    case 'nextPart':
+      return { ...state, phase: 'acting', mistake: null, attempts: 0 };
     case 'seeAnswer':
       return state.phase === 'wrong'
         ? {

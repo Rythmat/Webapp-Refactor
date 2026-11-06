@@ -26,6 +26,8 @@ export interface WebActivity {
   lastAt: number;
   doneAt: number;
   concepts: readonly ConceptRef[];
+  /** Its key's colour, where it has a key (a song, a Theory lesson). */
+  keyColour?: string;
 }
 
 export interface WebNode {
@@ -42,6 +44,8 @@ export interface WebNode {
   hollow: boolean;
   lastAt: number;
   doneAt: number;
+  /** Its key's colour; a node with no key is white. */
+  keyColour?: string;
 }
 
 export interface WebLink {
@@ -136,6 +140,7 @@ export const buildWeb = (activities: readonly WebActivity[]): CortexWeb => {
     hollow: false,
     lastAt: a.lastAt,
     doneAt: a.doneAt,
+    keyColour: a.keyColour,
   }));
   const links: WebLink[] = [];
   const linked = new Set<string>();
@@ -152,6 +157,7 @@ export const buildWeb = (activities: readonly WebActivity[]): CortexWeb => {
         hollow: false,
         lastAt: 0,
         doneAt: 0,
+        keyColour: ref.keyColour,
       });
     } else {
       linked.add(ref.id);
@@ -190,6 +196,7 @@ export const buildWeb = (activities: readonly WebActivity[]): CortexWeb => {
         hollow: true,
         lastAt: 0,
         doneAt: 0,
+        keyColour: seed.keyColour,
       });
       links.push({
         id: linkId(activity.id, seed.id),

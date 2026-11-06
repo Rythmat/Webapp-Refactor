@@ -78,28 +78,35 @@ describe('the Audio catalog', () => {
 
   it('lays out a course’s path in teaching order', () => {
     const stops = (id: string) =>
-      courseRows(audioModule(id)!).map((row) => row.lesson.id);
+      courseRows(audioModule(id)!).map((row) =>
+        row.kind === 'lab' ? row.topic.id : row.lesson.id,
+      );
     expect(stops('sound-basics')).toEqual([
       'physics-of-sound',
       'hear-the-kit',
       'decibels-and-faders',
     ]);
-    expect(stops('signal-path')).toEqual(['gain-staging', 'mic-to-speaker']);
-    expect(stops('sound-color')).toEqual(['tone-and-timbre']);
-  });
-
-  it('leaves replaced topics out of what’s left of the lab', () => {
-    const lab = courseRows(audioModule('signal-path')!)[1];
-    expect(lab.kind === 'lab' && lab.topics.map((t) => t.id)).toEqual([
-      'digital',
-      'amps',
-      'loudspeakers',
-      'cables',
+    expect(stops('signal-path')).toEqual(['mic-to-speaker', 'gain-staging']);
+    expect(stops('sound-color')).toEqual([
+      'strings-and-pipes',
+      'timbre',
+      'envelope',
     ]);
   });
 
+  it('tells every course what it teaches', () => {
+    for (const shelf of audioShelves()) {
+      if (shelf.title !== 'Course') continue;
+      for (const module of shelf.modules) {
+        expect(module.blurb, module.id).toBeTruthy();
+        expect(module.unit, module.id).toBeTruthy();
+        expect(module.goals?.length, module.id).toBeGreaterThan(0);
+      }
+    }
+  });
+
   it('hangs Microphone Anatomy from the lesson that uses it', () => {
-    const [gain] = courseRows(audioModule('signal-path')!);
+    const [, gain] = courseRows(audioModule('signal-path')!);
     expect(gain.kind === 'guided' && gain.side?.id).toBe('microphone');
     expect(gain.kind === 'guided' && gain.side?.route).toBe(
       '/learn/audio/anatomy/microphone',

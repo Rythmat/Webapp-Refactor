@@ -78,6 +78,8 @@ export interface LessonFrameProps extends HTMLAttributes<HTMLDivElement> {
   nav: StepNavModel;
   /** About this step and the settings, on the tool rail at the right. */
   tools: LessonTools;
+  /** A guided lesson goes one screen at a time: no outline, no glow. */
+  guided?: boolean;
   children: ReactNode;
 }
 
@@ -85,6 +87,7 @@ export function LessonFrame({
   header,
   nav,
   tools,
+  guided = false,
   className,
   children,
   ...rest
@@ -124,7 +127,7 @@ export function LessonFrame({
         className,
       )}
     >
-      {wide && (
+      {wide && !guided && (
         <LessonRail
           header={header}
           nav={nav}
@@ -138,10 +141,12 @@ export function LessonFrame({
         ref={setDockEl}
         className="relative isolate flex min-h-0 min-w-0 flex-1 flex-col"
       >
-        <HomeGlow
-          colors={[header.keyColor, header.keyColor]}
-          className="inset-x-0 top-0 h-[clamp(16rem,45vh,30rem)]"
-        />
+        {!guided && (
+          <HomeGlow
+            colors={[header.keyColor, header.keyColor]}
+            className="inset-x-0 top-0 h-[clamp(16rem,45vh,30rem)]"
+          />
+        )}
         {/* Wide, the sections are the rail's alone, open or collapsed (owner,
           2026-10-26: no section pills there); narrower, the nav's pills. */}
         <LessonRailContext.Provider value={wide}>

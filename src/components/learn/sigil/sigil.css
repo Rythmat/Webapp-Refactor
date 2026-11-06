@@ -1,8 +1,8 @@
 /*
- * Learn's tile sigils (owner, 2026-10-26): white line geometry drawn from
- * the music, after the "Sacred Geometry" poster and the interval
- * harmonograph chart. One weight of line, no fills, colour (the tile's
- * accent) only on the notes that matter. Hovering the card (`.sigil-host`)
+ * Learn's tile sigils (owner, 2026-10-26): line geometry drawn from the
+ * music, after the "Sacred Geometry" poster and the interval harmonograph
+ * chart; in the Truchet covers' gradient on a tile (2026-11-05, below),
+ * white lines elsewhere. Hovering the card (`.sigil-host`)
  * draws the figure, lights its notes in order and warms the line toward the
  * accent; under reduced motion it stays still.
  */
@@ -13,15 +13,6 @@
   --sigil-bg: #151518;
   display: block;
   overflow: visible;
-}
-
-/* A Learn tile's face: the prompt box's wash, edge and shadow (owner,
-   2026-10-28; PROMPT_SURFACE in promptBox/PromptBoxParts), over the
-   spotlight card's opaque glass. */
-.spotlight-scope .spotlight-card.sigil-card {
-  border-color: rgb(255 255 255 / 0.1);
-  background: rgb(255 255 255 / 0.04);
-  box-shadow: 0 8px 28px rgb(0 0 0 / 0.36);
 }
 
 /* Line weights in the figure's own units (100 across): about a pixel at a
@@ -86,12 +77,52 @@
   transform-origin: 0 0;
 }
 
+/* ── In the covers' look (owner, 2026-11-05) ────────────────────────────
+   The Truchet covers' two-colour diagonal (`--sigil-ink`, the Frame's
+   gradient) on their dark card: the figure in bold gradient lines, its
+   notes solid. */
+
+.sigil--lines .sigil-line {
+  stroke: var(--sigil-ink);
+  stroke-width: 1.5;
+}
+.sigil--lines .sigil-faint {
+  stroke: var(--sigil-ink);
+  stroke-width: 0.8;
+  opacity: 0.32;
+}
+.sigil--lines .sigil-node {
+  fill: var(--sigil-ink);
+  stroke: var(--sigil-bg);
+  stroke-width: 0.9;
+}
+/* The notes that set it apart: solid in the second colour. */
+.sigil--lines .sigil-node--accent {
+  fill: var(--sigil-b);
+  stroke: var(--sigil-bg);
+  stroke-width: 1.1;
+}
+
+.sigil--lines .sigil-tick {
+  fill: var(--sigil-ink);
+  opacity: 0.55;
+}
+.sigil--lines .sigil-label {
+  fill: var(--sigil-b);
+}
+.sigil--lines .sigil-label--plain {
+  fill: rgb(255 255 255 / 0.7);
+}
+.sigil--lines .sigil-playhead {
+  stroke: var(--sigil-b);
+}
+
 /* ── Hover: the figure draws itself, its notes light in order ──────── */
 
-.sigil-host:is(:hover, :focus-within) .sigil-line {
+.sigil-host:is(:hover, :focus-within) .sigil--plain .sigil-line {
   stroke: color-mix(in oklab, var(--sigil-accent) 55%, white);
 }
-.sigil-host:is(:hover, :focus-within) .sigil-node {
+.sigil-host:is(:hover, :focus-within) .sigil--plain .sigil-node {
   stroke: color-mix(in oklab, var(--sigil-accent) 55%, white);
 }
 .sigil-host:is(:hover, :focus-within) .sigil-draw {

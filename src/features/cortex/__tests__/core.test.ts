@@ -463,7 +463,7 @@ describe('the layout', () => {
     }
   });
 
-  it('holds the middle open for the core, which is never on the web', () => {
+  it('places every node, and only the web’s own', () => {
     const big = buildWeb(
       Array.from({ length: 40 }, (_, i) =>
         activity(`song:${i}`, i % 2 ? [funk] : []),
@@ -473,9 +473,6 @@ describe('the layout', () => {
     expect(Object.keys(placed).sort()).toEqual(
       big.nodes.map((n) => n.id).sort(),
     );
-    for (const [id, p] of Object.entries(placed)) {
-      expect(Math.hypot(p.x, p.y), id).toBeGreaterThan(50);
-    }
     expect(layoutIsCurrent(big, placed)).toBe(true);
   });
 

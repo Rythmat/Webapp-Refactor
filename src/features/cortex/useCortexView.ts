@@ -19,8 +19,9 @@ interface SavedView extends Seen {
   positions: Positions;
 }
 
-/** Positions from before the web grew around the core are laid out afresh. */
-const VIEW_VERSION = 2;
+/** Positions from before the web grew around the core, or from when it held
+ *  the middle open for one (before 2026-11-04), are laid out afresh. */
+const VIEW_VERSION = 3;
 
 const storageKey = (userKey: string) => `music-atlas-cortex-view:${userKey}`;
 

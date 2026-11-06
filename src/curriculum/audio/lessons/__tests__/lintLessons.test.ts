@@ -4,6 +4,7 @@ import { DECIBELS_SCRIPT } from '../decibels-and-faders/script';
 import { GAIN_SCRIPT } from '../gain-staging/script';
 import { KIT_SCRIPT } from '../hear-the-kit/script';
 import { lintLesson } from '../lintLesson';
+import { PATH_SCRIPT } from '../mic-to-speaker/script';
 import { lateMs, offsetMs, PHYSICS_SCRIPT } from '../physics-of-sound/script';
 import { faderGainDb, scalePosition } from '../stage/ChannelStrip';
 import { allScreens, doScreenFor, sceneAt, type LessonScript } from '../types';
@@ -13,6 +14,7 @@ const SCRIPTS = [
   KIT_SCRIPT,
   DECIBELS_SCRIPT,
   GAIN_SCRIPT,
+  PATH_SCRIPT,
 ] as unknown as readonly LessonScript<never>[];
 
 describe('every guided lesson', () => {

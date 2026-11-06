@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { GraduationCap } from 'lucide-react';
+import {
+  Check,
+  Circle,
+  GraduationCap,
+  Pause,
+  Play,
+  Repeat,
+  Square,
+} from 'lucide-react';
 import { ALL_MODES, DEGREES, MODE_DISPLAY, noteNameInKey } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
 import { keyName } from '@/daw/components/Library/chordInKey';
@@ -41,7 +49,10 @@ import { ChordChart } from './ChordChart';
 import { practiceStudentTrack } from './practiceStudentTrack';
 import { ScaleKeyboard, type KeyboardScale } from './ScaleKeyboard';
 import { SegmentedToggle } from './SegmentedToggle';
-import { COLOR } from '@/daw/ui/tokens';
+import { OUTLINE_PILL, WHITE_PILL_LG } from '@/components/kit/pills';
+import { cn } from '@/components/utilities';
+import { TempoStepper } from '@/curriculum/guitar/layout/TempoStepper';
+import { Select } from '@/daw/ui/Select';
 import { formatLessonChord } from '@/curriculum/notation/lessonChordSymbols';
 import { useChordNotation } from '@/lib/chordNotation';
 import { colorForKeyMode } from '@/lib/modeColorShift';
@@ -75,7 +86,6 @@ interface PracticeTrackViewProps {
   onInit: () => void;
 }
 
-const ACCENT = COLOR.accent.value;
 /** Each pitch class as the key colours name it (modeColorShift). */
 const KEY_BY_PC = [
   'C',
@@ -519,120 +529,110 @@ export function PracticeTrackView({
 
   const transport = (
     <>
-      <div className="flex flex-wrap items-center justify-center gap-4">
+      <div className="flex flex-wrap items-center justify-center gap-3">
         <button
           type="button"
           onClick={togglePlay}
-          className="rounded-full px-8 py-3 text-lg font-semibold"
-          style={{ background: ACCENT, color: '#191919' }}
+          className={cn(WHITE_PILL_LG, 'min-w-32')}
         >
-          {isPlaying && !isRecording ? '❚❚ Pause' : '▶ Play'}
+          {isPlaying && !isRecording ? (
+            <Pause aria-hidden />
+          ) : (
+            <Play aria-hidden />
+          )}
+          {isPlaying && !isRecording ? 'Pause' : 'Play'}
         </button>
         <button
           type="button"
           onClick={toggleRecord}
-          className="rounded-full px-6 py-3 text-base font-semibold"
-          style={{
-            border: '1px solid #ef4444',
-            color: isRecording || isCountingIn ? '#191919' : '#ef4444',
-            background: isRecording || isCountingIn ? '#ef4444' : 'transparent',
-          }}
+          className={cn(
+            OUTLINE_PILL,
+            'h-11 px-5 text-[0.9375rem]',
+            (isRecording || isCountingIn) &&
+              'border-daw-record bg-daw-record text-white hover:bg-daw-record',
+          )}
         >
+          {isRecording ? (
+            <Square aria-hidden />
+          ) : (
+            <Circle aria-hidden className="fill-daw-record text-daw-record" />
+          )}
           {isCountingIn
             ? 'Counting in…'
             : isRecording
-              ? '■ Stop recording'
-              : '● Record take'}
+              ? 'Stop recording'
+              : 'Record take'}
         </button>
         <button
           type="button"
           aria-pressed={loopEnabled}
           onClick={toggleLoop}
-          className="rounded-full px-5 py-3 text-sm"
-          style={{
-            border: `1px solid ${loopEnabled ? ACCENT : 'var(--daw-hairline)'}`,
-            color: loopEnabled ? ACCENT : 'var(--daw-text-3)',
-          }}
+          className={cn(
+            OUTLINE_PILL,
+            'h-11 px-5 text-[0.9375rem]',
+            loopEnabled ? 'bg-daw-selected' : 'text-daw-text-3',
+          )}
         >
-          ⟳ Loop {loopEnabled ? 'on' : 'off'}
+          <Repeat aria-hidden />
+          Loop {loopEnabled ? 'on' : 'off'}
         </button>
-        <label className="flex items-center gap-3 text-sm">
-          <span style={{ color: 'var(--daw-text-3)' }}>Tempo</span>
-          <input
-            type="range"
-            min={TEMPO_MIN}
-            max={TEMPO_MAX}
-            value={tempo.value}
-            onChange={(e) => tempo.change(Number(e.target.value))}
-            onPointerDown={tempo.begin}
-            onPointerUp={tempo.end}
-            aria-label="Tempo"
-          />
-          <span className="w-16 tabular-nums">
-            {Math.round(tempo.value)} BPM
-          </span>
-        </label>
+        <TempoStepper
+          bpm={Math.round(tempo.value)}
+          effectiveBpm={Math.round(tempo.value)}
+          min={TEMPO_MIN}
+          max={TEMPO_MAX}
+          onChange={(bpm) => {
+            tempo.begin();
+            tempo.change(bpm);
+            tempo.end();
+          }}
+        />
         {genre?.styles && genre.styles.length > 1 && (
-          <label className="flex items-center gap-2 text-sm">
-            <span style={{ color: 'var(--daw-text-3)' }}>
-              {band ? 'Style' : 'Groove'}
-            </span>
-            <select
-              value={genre.styleId ?? ''}
-              disabled={switching || isRecording}
-              onChange={(e) => void switchTrack({ styleId: e.target.value })}
-              className="rounded-full bg-transparent px-3 py-2"
-              style={{ border: '1px solid var(--daw-hairline)' }}
-              aria-label={band ? 'Style' : 'Groove'}
-            >
-              {genre.styles.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Select
+            label={band ? 'Style' : 'Groove'}
+            value={genre.styleId ?? ''}
+            disabled={switching || isRecording}
+            onValueChange={(styleId) => void switchTrack({ styleId })}
+            options={genre.styles.map((s) => ({ value: s.id, label: s.name }))}
+          />
         )}
         {genre?.progressions && genre.progressions.length > 1 && (
-          <label className="flex items-center gap-2 text-sm">
-            <span style={{ color: 'var(--daw-text-3)' }}>Progression</span>
-            <select
-              value={genre.progressionId ?? ''}
-              disabled={switching || isRecording}
-              onChange={(e) =>
-                void switchTrack({ progressionId: e.target.value })
-              }
-              className="max-w-72 rounded-full bg-transparent px-3 py-2"
-              style={{ border: '1px solid var(--daw-hairline)' }}
-              aria-label="Progression"
-            >
-              {genre.progressions.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {/* The student's own progressions read as Part 2 named
-                      their chords: "1 min – 4 min – 5 min – ♭6 maj". */}
-                  {band
-                    ? p.label
-                    : [
-                        p.styleName,
-                        p.chords
-                          .map((chord) =>
-                            formatLessonChord(chord, chordNotation, {
-                              keyRootPc: rootNote,
-                              mode,
-                            }),
-                          )
-                          .join(' – '),
-                      ]
-                        .filter(Boolean)
-                        .join(' · ')}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Select
+            label="Progression"
+            className="max-w-72"
+            value={genre.progressionId ?? ''}
+            disabled={switching || isRecording}
+            onValueChange={(progressionId) =>
+              void switchTrack({ progressionId })
+            }
+            options={genre.progressions.map((p) => ({
+              value: p.id,
+              // The student's own progressions read as Part 2 named their
+              // chords: "1 min – 4 min – 5 min – ♭6 maj".
+              label: band
+                ? p.label
+                : [
+                    p.styleName,
+                    p.chords
+                      .map((chord) =>
+                        formatLessonChord(chord, chordNotation, {
+                          keyRootPc: rootNote,
+                          mode,
+                        }),
+                      )
+                      .join(' – '),
+                  ]
+                    .filter(Boolean)
+                    .join(' · '),
+            }))}
+          />
         )}
       </div>
 
-      <p className="text-sm" style={{ color: 'var(--daw-text-3)' }}>
+      <p
+        className="text-center text-[0.875rem]"
+        style={{ color: 'var(--daw-text-3)' }}
+      >
         {takeNotes > 0 && !isRecording
           ? `Your take is on the ${studentTrackLabel} track. Take it to the Studio to hear or edit it.`
           : guitar
@@ -716,6 +716,7 @@ export function PracticeTrackView({
         large={chartLarge}
         keyRootPc={rootNote}
         mode={mode}
+        accent={keyColor}
       />
     </div>
   );
@@ -736,15 +737,21 @@ export function PracticeTrackView({
 
       <div className="mx-auto mt-4 flex w-full max-w-4xl flex-col items-center gap-4 sm:mt-6 sm:gap-6">
         <div className="text-center">
-          <h2 className="text-xl font-semibold sm:text-2xl md:text-3xl">
+          <h2 className="text-[1.25rem] font-bold leading-tight tracking-[-0.01em] sm:text-[1.75rem]">
             {task}
           </h2>
           {band ? (
-            <p className="mt-1 text-sm" style={{ color: 'var(--daw-text-3)' }}>
+            <p
+              className="mt-1 text-[0.875rem]"
+              style={{ color: 'var(--daw-text-3)' }}
+            >
               {band.bandName} · {band.styleName} · {band.keyName}
             </p>
           ) : genre ? (
-            <p className="mt-1 text-sm" style={{ color: 'var(--daw-text-3)' }}>
+            <p
+              className="mt-1 text-[0.875rem]"
+              style={{ color: 'var(--daw-text-3)' }}
+            >
               {genre.genreLabel} Level {genre.level} · {genre.sectionName}
             </p>
           ) : null}
@@ -763,15 +770,16 @@ export function PracticeTrackView({
           <button
             type="button"
             onClick={() => startCourseInPlace('studio-basics')}
-            className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm transition-colors hover:bg-white/5"
-            style={{ border: '1px solid var(--daw-hairline)' }}
+            className={OUTLINE_PILL}
           >
-            <GraduationCap aria-hidden className="size-4" />
+            <GraduationCap aria-hidden />
             Learn the Studio with this song
           </button>
         ) : null}
 
-        {genre ? <PromptList prompts={genre.prompts} /> : null}
+        {genre ? (
+          <PromptList prompts={genre.prompts} accent={keyColor} />
+        ) : null}
       </div>
     </div>
   );
@@ -782,34 +790,39 @@ export function PracticeTrackView({
  * is freedom and, for a student who has only played written notes, paralysis.
  * The section's own direction leads; the rest are small enough to try at once.
  */
-function PromptList({ prompts }: { prompts: string[] }) {
+function PromptList({
+  prompts,
+  accent,
+}: {
+  prompts: string[];
+  accent: string;
+}) {
   if (prompts.length === 0) return null;
   const [lead, ...rest] = prompts;
   return (
     <section
-      className="w-full rounded-2xl px-5 py-4"
-      style={{
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid var(--daw-hairline)',
-      }}
+      className="w-full rounded-2xl border p-4"
+      style={{ borderColor: `${accent}66` }}
     >
       <h3
-        className="text-xs font-semibold uppercase tracking-wide"
-        style={{ color: 'var(--daw-text-3)' }}
+        className="mb-1 text-[0.75rem] font-bold uppercase tracking-[0.14em]"
+        style={{ color: accent }}
       >
         Things to try
       </h3>
-      <p className="mt-2 text-sm">{lead}</p>
+      <p className="text-[0.9375rem] leading-6 text-white">{lead}</p>
       {rest.length > 0 && (
         <ul
-          className="mt-3 flex flex-col gap-1.5 text-sm"
+          className="mt-2 flex flex-col gap-1.5 text-[0.875rem] leading-6"
           style={{ color: 'var(--daw-text-3)' }}
         >
           {rest.map((prompt) => (
-            <li key={prompt} className="flex gap-2">
-              <span aria-hidden style={{ color: ACCENT }}>
-                ·
-              </span>
+            <li key={prompt} className="flex gap-2.5">
+              <Check
+                aria-hidden
+                className="mt-1 size-4 shrink-0"
+                style={{ color: accent }}
+              />
               <span>{prompt}</span>
             </li>
           ))}

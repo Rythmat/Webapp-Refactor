@@ -13,6 +13,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AdminRoutes } from '@/constants/routes';
 import { canonicalId } from '@/content/graph/ids';
+import { graphKeyColour } from '@/content/graph/keyColour';
 import { localGraph } from '@/content/graph/localGraph';
 import type { EntityId, GraphNode } from '@/content/graph/types';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -42,11 +43,7 @@ import {
   useTimelapsePlayer,
 } from './map/TimelapseCanvas';
 import { layoutSignature } from './map/layout/positionCache';
-import {
-  colorNodes,
-  presetGroups,
-  type ColorGroup,
-} from './map/model/colorGroups';
+import { colorNodes, type ColorGroup } from './map/model/colorGroups';
 import { graphFacets } from './map/model/facets';
 import { compileQueryText } from './map/model/graphQuery';
 import {
@@ -218,6 +215,8 @@ export function useColoringGroups(
 const hexOf = (bytes: readonly number[]) =>
   `#${bytes.map((b) => b.toString(16).padStart(2, '0')).join('')}`;
 
+const NO_GROUPS: readonly ColorGroup[] = [];
+
 /** The theme's dot colours, one source for the groups and the page's dots. */
 const DEFAULT_DOT = GRAPH_THEME.defaultNode;
 const MISSING_DOT = hexOf(
@@ -367,9 +366,14 @@ export const MindMapPage = () => {
 
   // ── Colours ─────────────────────────────────────────────────────────
 
-  const presets = useMemo(() => presetGroups(), []);
-  const liveGroups: readonly ColorGroup[] = settings.groups ?? presets;
+  // No groups unless the owner adds some: every dot is white, and only what
+  // has a key wears its key's colour (owner, 2026-11-04).
+  const liveGroups: readonly ColorGroup[] = settings.groups ?? NO_GROUPS;
   const groups = useColoringGroups(liveGroups, GROUPS_DEBOUNCE_MS);
+  const keyColourOf = useCallback(
+    (id: string) => (graph ? graphKeyColour(graph, id as EntityId) : null),
+    [graph],
+  );
 
   const coloring = useMemo(
     () =>
@@ -379,16 +383,17 @@ export const MindMapPage = () => {
             facets,
             groups,
             isOrphan: (i) => renderGraph.weights[i] === 0,
+            ownColor: keyColourOf,
             defaultColor: DEFAULT_DOT,
             missingColor: MISSING_DOT,
           })
         : null,
-    [renderGraph, facets, groups],
+    [renderGraph, facets, groups, keyColourOf],
   );
 
-  // Every dot wears its group's colour, the local graph's focus included:
-  // the focus stands out by its size and its white ring, never by a fill
-  // of its own.
+  // Every dot wears its colour (a group's, its key's, or white), the local
+  // graph's focus included: the focus stands out by its size and its ring,
+  // never by a fill of its own.
   const colors = coloring?.rgba ?? null;
 
   const spotlight = useMemo(() => {
@@ -418,9 +423,9 @@ export const MindMapPage = () => {
       if (!f) return DEFAULT_DOT;
       if (f.status === 'missing') return MISSING_DOT;
       for (const g of compiledGroups) if (g.match?.(f, false)) return g.color;
-      return DEFAULT_DOT;
+      return keyColourOf(node.id) ?? DEFAULT_DOT;
     },
-    [renderGraph, colors, facets, compiledGroups],
+    [renderGraph, colors, facets, compiledGroups, keyColourOf],
   );
 
   // ── Layout keys ─────────────────────────────────────────────────────

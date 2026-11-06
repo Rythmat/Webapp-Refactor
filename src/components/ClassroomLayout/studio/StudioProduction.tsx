@@ -8,11 +8,12 @@ import {
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StudioRoutes } from '@/constants/routes';
+import { useStudioLessonsVersion } from '@/curriculum/engine/studioLessons/registry';
 import { UpgradeLessonDialog } from '@/daw/components/Tutorial/UpgradeLessonDialog';
 import {
   courseLessons,
   courseProgress,
-  TUTORIAL_CATALOG,
+  listTutorialCatalog,
   TUTORIAL_COURSES,
   type CompletedLessons,
   type TutorialCatalogEntry,
@@ -52,7 +53,9 @@ export const StudioProduction = () => {
   const [upgradeFor, setUpgradeFor] = useState<string | null>(null);
   const open = (id: string) =>
     accessOf(id) === 'upgrade' ? setUpgradeFor(id) : navigate(editorLink(id));
-  const others = TUTORIAL_CATALOG.filter((t) => !('course' in t));
+  // Lessons written in the console join the list (and change with a save).
+  useStudioLessonsVersion();
+  const others = listTutorialCatalog().filter((t) => !t.course);
 
   return (
     <section

@@ -65,12 +65,20 @@ export type InstrumentContentKind =
  */
 export type MusicLiteracyContentKind = 'music_literacy';
 
+/**
+ * Studio Production lessons (docs/studio-lesson-content-kind.md): the DAW
+ * lessons the console's lesson editor writes. Repo files on the dev server
+ * for now; the API joins when it adds the kind.
+ */
+export type StudioLessonContentKind = 'studio_lesson';
+
 export type ContentKind =
   | LegacyContentKind
   | RecordContentKind
   | VocabularyContentKind
   | InstrumentContentKind
-  | MusicLiteracyContentKind;
+  | MusicLiteracyContentKind
+  | StudioLessonContentKind;
 
 export type ContentStatus = 'draft' | 'published' | 'archived';
 

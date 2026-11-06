@@ -12,8 +12,6 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
-import { FundamentalsLessonContainer } from '@/components/learn/FundamentalsLessonContainer';
-import { FundamentalsOverview } from '@/components/learn/FundamentalsOverview';
 import { GenreLessonContainer } from '@/components/learn/GenreLessonContainer';
 import { GenreOverview } from '@/components/learn/GenreOverview';
 import { RequirePremium } from '@/components/ui/RequirePremium';
@@ -24,6 +22,8 @@ import { AppliedTheoryFundamentalsKeyPicker } from '@/curriculum/components/Appl
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { buildAppliedTheoryFundamentalsFlow } from '@/curriculum/data/activityFlows/appliedTheoryFundamentals';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
+import { firstOpenChapter, popLevel1Lesson } from '@/curriculum/guided/lessons';
+import { readGenreSections } from '@/curriculum/hooks/useGenreProgress';
 import {
   MusicLiteracyBandRoute,
   MusicLiteracyIndexRoute,
@@ -31,6 +31,8 @@ import {
 } from '@/curriculum/musicLiteracy/MusicLiteracyRoutes';
 import { GenreCourseOverview } from '@/curriculum/pages/GenreCourseOverview';
 import { GenreLessonContainerV2 } from '@/curriculum/pages/GenreLessonContainerV2';
+import { FundamentalsCoursePage } from '@/curriculum/piano/fundamentals/CoursePage';
+import { FundamentalsLessonPage } from '@/curriculum/piano/fundamentals/LessonPage';
 import type { ActivityFlow } from '@/curriculum/types/activity';
 import type { ActivityFlowV2 } from '@/curriculum/types/activity.v2';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
@@ -98,25 +100,26 @@ const AppliedTheoryFundamentalsLessonRoute = () => {
   );
 };
 
-const FundamentalsLessonRoute = () => {
-  const { sectionId } = useParams<{ sectionId: string }>();
-  // Piano Fundamentals sections are free
-  return <FundamentalsLessonContainer sectionId={sectionId ?? '1'} />;
-};
-
 /** A genre course's level (LearnRoutes.genreLesson). */
 export const GenreLessonRoute = () => {
   const { genre, level } = useParams<{ genre: string; level: string }>();
   const [searchParams] = useSearchParams();
   const genreSlug = genre ?? '';
   const levelNum = parseInt(level ?? '1');
+  // Pop's first level is guided: unnamed, it opens on the first section to finish.
+  const guided =
+    genreSlug === 'pop' && levelNum === 1 ? popLevel1Lesson : undefined;
   // No section named: the lesson opens on its Overview (as Theory's).
-  const initialSection = (searchParams.get('section') ?? undefined) as
-    | 'A'
-    | 'B'
-    | 'C'
-    | 'D'
-    | undefined;
+  const initialSection = (searchParams.get('section') ??
+    (guided
+      ? firstOpenChapter(guided(), (id) =>
+          Boolean(
+            readGenreSections(genreSlug, levelNum).sections[
+              id as 'A' | 'B' | 'C' | 'D'
+            ]?.completed,
+          ),
+        )
+      : undefined)) as 'A' | 'B' | 'C' | 'D' | undefined;
   const [flow, setFlow] = useState<ActivityFlow | null>(null);
 
   useEffect(() => {
@@ -132,6 +135,7 @@ export const GenreLessonRoute = () => {
           genre={genreSlug}
           level={levelNum}
           initialSection={initialSection}
+          guided={guided}
         />
       </RequirePremium>
     );
@@ -160,13 +164,15 @@ export function curriculumPages() {
       </AppContext>
     ),
     children: [
+      // Piano Fundamentals is a free course of guided lessons (owner,
+      // 2026-11-05); its old numbered sections redirect from the lesson route.
       {
         path: CurriculumRoutes.pianoFundamentals.definition,
-        element: <FundamentalsOverview />,
+        element: <FundamentalsCoursePage />,
       },
       {
-        path: CurriculumRoutes.fundamentalsSection.definition,
-        element: <FundamentalsLessonRoute />,
+        path: CurriculumRoutes.fundamentalsLesson.definition,
+        element: <FundamentalsLessonPage />,
       },
       {
         path: CurriculumRoutes.appliedTheoryFundamentals.definition,

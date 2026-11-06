@@ -414,7 +414,7 @@ function FundamentalsLessonContainerInner({
   }, [stopDemo, resetStep]);
 
   // Practice runs evaluate for live feedback but don't count toward the
-  // step's checkmark — only a Play Now (Performance) pass does. When a
+  // step's checkmark — only a Perform pass does. When a
   // practice attempt meets the step criteria, prompt the user to try it
   // for real instead of silently marking it complete.
   const practiceComplete = useMemo(() => {
@@ -424,6 +424,33 @@ function FundamentalsLessonContainerInner({
     }
     return evalResult?.passed ?? false;
   }, [activityState, isPassed, currentStep, quizState, evalResult]);
+
+  // A practice that's met the step's criteria has finished by itself.
+  const [lastPractice, setLastPractice] = useState<{
+    id: number;
+    heard: boolean;
+  } | null>(null);
+  useEffect(() => {
+    if (!practiceComplete) return;
+    setLastPractice((prev) => ({ id: (prev?.id ?? 0) + 1, heard: true }));
+  }, [practiceComplete]);
+
+  // A Perform that's passed.
+  const [lastTake, setLastTake] = useState<{
+    id: number;
+    passed: boolean;
+    heard: boolean;
+  } | null>(null);
+  useEffect(() => {
+    if (!isPassed || activityState !== 'performance') return;
+    setLastTake((prev) => ({
+      id: (prev?.id ?? 0) + 1,
+      passed: true,
+      heard: true,
+    }));
+    // Once, as it passes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPassed]);
 
   // Quiz display note
   const quizDisplayNote = useMemo(() => {
@@ -468,7 +495,7 @@ function FundamentalsLessonContainerInner({
 
   // ── The one-page screen (TheoryLessonLayout, as Theory's) ─────────────────
   // No start card: a step waits in its preview with its notes lit, Demo /
-  // Practice / Play Now in the bar under the keyboard. A pass, the practice
+  // Practice / Perform in the bar under the keyboard. A pass, the practice
   // prompt, a missed quiz and the section's end take the activity's place,
   // their buttons in the bar. The direction is in About this step.
 
@@ -521,7 +548,7 @@ function FundamentalsLessonContainerInner({
         ? {
             heading: 'Nice practicing!',
             status: null,
-            lines: ['Try it in Play Now to complete this step.'],
+            lines: ['Perform it to complete this step.'],
           }
         : quizFailed
           ? {
@@ -576,7 +603,7 @@ function FundamentalsLessonContainerInner({
                 <Secondary onClick={handleStartPractice}>
                   Practice Again
                 </Secondary>
-                <Primary onClick={handleStartPerformance}>Play Now</Primary>
+                <Primary onClick={handleStartPerformance}>Perform</Primary>
               </>
             ),
           }
@@ -598,7 +625,7 @@ function FundamentalsLessonContainerInner({
                     <Secondary onClick={handleStartPractice}>
                       Practice
                     </Secondary>
-                    <Primary onClick={handleStartPerformance}>Play Now</Primary>
+                    <Primary onClick={handleStartPerformance}>Perform</Primary>
                   </>
                 ),
                 corner: (
@@ -692,7 +719,7 @@ function FundamentalsLessonContainerInner({
         playingNotes={
           // Every target only while the step waits; then just the notes in
           // sequence: the demo's as they sound, what's due next in practice,
-          // nothing in Play Now.
+          // nothing in Perform.
           isPlayingDemo
             ? highlightNotes.filter((n) => demoHighlightMidis.has(n.midi))
             : activityState === 'practice'
@@ -755,6 +782,8 @@ function FundamentalsLessonContainerInner({
             back: backToPreview,
             stopTake: backToPreview,
             hint: null,
+            lastPractice,
+            lastTake,
           },
           tempo: null,
           practice: { presets: [] },
@@ -776,6 +805,25 @@ function FundamentalsLessonContainerInner({
           result
             ? [result.heading, result.status].filter(Boolean).join('. ')
             : ''
+        }
+        pass={{
+          advance,
+          detail: currentStep?.successFeedback,
+        }}
+        sectionEnd={
+          isSectionComplete && nextSection
+            ? {
+                heading: 'Section Complete!',
+                blurb: `You completed “${section.name}”.`,
+                continueLabel: `Continue to ${nextSection.name}`,
+                onContinue: () =>
+                  navigate(
+                    CurriculumRoutes.fundamentalsSection({
+                      sectionId: nextSection.id,
+                    }),
+                  ),
+              }
+            : null
         }
       />
     </div>

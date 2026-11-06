@@ -29,6 +29,7 @@ import { legalPages } from './features/legal';
 import { marketingPages } from './features/marketing';
 import { searchPages } from './features/search/routes';
 import { officePages, teacherPages } from './features/teacher/TeacherPages';
+import { welcomePages } from './features/welcome/welcomePages';
 
 // DEV only: every Studio UI primitive in every state (src/daw/ui). Lazy behind
 // a literal import.meta.env.DEV, so a production build folds the import away
@@ -101,6 +102,7 @@ const appRoutes = () => [
   userPages(),
   settingsPages(),
   learnPages(),
+  welcomePages(),
   connectPages(),
   libraryPages(),
   globePages(),

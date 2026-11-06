@@ -33,11 +33,11 @@ export function GuitarSectionCompletePanel({
     >
       <h2
         id={headingId}
-        className="text-2xl font-normal leading-8 text-[#e8e8f0]"
+        className="text-[1.5rem] font-normal leading-8 text-[#e8e8f0]"
       >
         {offer.heading}
       </h2>
-      <p className="max-w-[640px] text-[15px] leading-6 text-white/55">
+      <p className="max-w-[40rem] text-[0.9375rem] leading-6 text-white/55">
         {offer.blurb}
       </p>
     </section>

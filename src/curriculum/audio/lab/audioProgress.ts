@@ -81,38 +81,39 @@ export function resumePoint(
 // asked for on the takeaway and the skill check, and once for the whole lesson:
 // the backend sets the amounts, and a tap through ten screens shouldn't count ten.
 
-export const guidedScreenId = (
-  moduleId: string,
-  lessonId: string,
-  screenId: string,
-) => `${audioLessonId(moduleId, lessonId)}:${screenId}`;
+// Keyed by the whole lesson's id (`audio:<module>:<lesson>`, or another
+// course's, such as `piano:fundamentals:<lesson>`), so any course on the
+// guided player keeps its progress the same way.
 
-export const guidedDoneId = (moduleId: string, lessonId: string) =>
-  guidedScreenId(moduleId, lessonId, 'done');
+/** A guided screen's id, under its lesson's. */
+export const lessonScreenId = (lessonKey: string, screenId: string) =>
+  `${lessonKey}:${screenId}`;
+
+/** The id that marks a guided lesson finished. */
+export const lessonDoneId = (lessonKey: string) =>
+  lessonScreenId(lessonKey, 'done');
 
 /** The first screen still to do, or the start once all are done. */
-export function guidedResumeIndex(
+export function lessonResumeIndex(
   completedAt: Completed,
-  moduleId: string,
-  lessonId: string,
+  lessonKey: string,
   screenIds: readonly string[],
 ): number {
-  if (completedAt[guidedDoneId(moduleId, lessonId)] != null) return 0;
+  if (completedAt[lessonDoneId(lessonKey)] != null) return 0;
   const index = screenIds.findIndex(
-    (id) => completedAt[guidedScreenId(moduleId, lessonId, id)] == null,
+    (id) => completedAt[lessonScreenId(lessonKey, id)] == null,
   );
   return index < 0 ? 0 : index;
 }
 
 /** Percent of a guided lesson done, for a course page that hasn't its script. */
-export function guidedPercent(
+export function lessonPercent(
   completedAt: Completed,
-  moduleId: string,
-  lessonId: string,
+  lessonKey: string,
   screens: number,
 ): number {
-  if (completedAt[guidedDoneId(moduleId, lessonId)] != null) return 100;
-  const prefix = `${audioLessonId(moduleId, lessonId)}:`;
+  if (completedAt[lessonDoneId(lessonKey)] != null) return 100;
+  const prefix = `${lessonKey}:`;
   // A screen's id has nothing after it. Anything longer is a step from when this
   // lesson was a lab, which doesn't count towards its screens.
   const done = Object.keys(completedAt).filter(
@@ -120,6 +121,33 @@ export function guidedPercent(
   ).length;
   return Math.min(99, Math.round((done / Math.max(1, screens)) * 100));
 }
+
+export const guidedScreenId = (
+  moduleId: string,
+  lessonId: string,
+  screenId: string,
+) => lessonScreenId(audioLessonId(moduleId, lessonId), screenId);
+
+export const guidedDoneId = (moduleId: string, lessonId: string) =>
+  lessonDoneId(audioLessonId(moduleId, lessonId));
+
+/** The first screen still to do, or the start once all are done. */
+export const guidedResumeIndex = (
+  completedAt: Completed,
+  moduleId: string,
+  lessonId: string,
+  screenIds: readonly string[],
+): number =>
+  lessonResumeIndex(completedAt, audioLessonId(moduleId, lessonId), screenIds);
+
+/** Percent of a guided lesson done, for a course page that hasn't its script. */
+export const guidedPercent = (
+  completedAt: Completed,
+  moduleId: string,
+  lessonId: string,
+  screens: number,
+): number =>
+  lessonPercent(completedAt, audioLessonId(moduleId, lessonId), screens);
 
 /** A stop on a course's path, as a percent. Anatomy records no progress. */
 export function rowPercent(
@@ -138,13 +166,14 @@ export function rowPercent(
   if (row.kind === 'lab') {
     return labPercent(completedAt, module.id, {
       ...row.lesson,
-      topics: row.topics,
+      topics: [row.topic],
     });
   }
   return 0;
 }
 
-export function useGuidedProgress(moduleId: string, lessonId: string) {
+/** A guided lesson's progress, by its whole id (`audio:<module>:<lesson>`). */
+export function useGuidedProgress(lessonKey: string) {
   const { mutate: updateProgress } = useUpdateActivityProgress();
   const { mutate: awardStep } = useAwardLessonActivityExperience();
   const { mutateAsync: awardLesson } = useAwardLessonCompletionExperience();
@@ -152,13 +181,13 @@ export function useGuidedProgress(moduleId: string, lessonId: string) {
   const screenDone = useCallback(
     (screenId: string, attempts: number, earnsXp: boolean) => {
       const store = useTutorialProgressStore.getState();
-      const id = guidedScreenId(moduleId, lessonId, screenId);
+      const id = lessonScreenId(lessonKey, screenId);
       if (store.isComplete(id)) return;
       store.markComplete(id);
       updateProgress(
         {
           activityInstanceId: id,
-          lessonId: audioLessonId(moduleId, lessonId),
+          lessonId: lessonKey,
           lessonVersion: VERSION,
           activityDefId: screenId,
           mode: '',
@@ -173,7 +202,7 @@ export function useGuidedProgress(moduleId: string, lessonId: string) {
         },
       );
     },
-    [moduleId, lessonId, updateProgress, awardStep],
+    [lessonKey, updateProgress, awardStep],
   );
 
   /**
@@ -182,13 +211,13 @@ export function useGuidedProgress(moduleId: string, lessonId: string) {
    */
   const finish = useCallback(async (): Promise<number | null> => {
     const store = useTutorialProgressStore.getState();
-    const id = guidedDoneId(moduleId, lessonId);
+    const id = lessonDoneId(lessonKey);
     if (store.isComplete(id)) return null;
     store.markComplete(id);
     const timeout = new Promise<null>((resolve) => {
       setTimeout(() => resolve(null), 1500);
     });
-    const award = awardLesson(audioLessonId(moduleId, lessonId)).then(
+    const award = awardLesson(lessonKey).then(
       (result) =>
         result.awarded && result.awardedExperience > 0
           ? result.awardedExperience
@@ -196,7 +225,7 @@ export function useGuidedProgress(moduleId: string, lessonId: string) {
       () => null,
     );
     return Promise.race([award, timeout]);
-  }, [moduleId, lessonId, awardLesson]);
+  }, [lessonKey, awardLesson]);
 
   return { screenDone, finish };
 }

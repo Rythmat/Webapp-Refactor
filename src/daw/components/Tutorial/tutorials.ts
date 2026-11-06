@@ -6,7 +6,15 @@ import type { RackTarget } from '@/daw/store/effectRack';
 import type { DemoBeat } from './demo/demoTypes';
 import { GENRE_MAP } from '@prism/engine';
 import { STUDIO_BASICS_STEPS } from './studioBasics/studioBasicsLessons';
+import type {
+  StudioLesson,
+  StudioLessonStep,
+} from '@/content/studioLessons/schemas';
+import { getStudioLesson } from '@/curriculum/engine/studioLessons/registry';
+import { buildNamedCheck } from './checkRegistry';
 import {
+  fileCatalogEntry,
+  listTutorialCatalog,
   TUTORIAL_CATALOG,
   type TutorialCatalogEntry,
   type TutorialId,
@@ -763,13 +771,82 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
   ...STUDIO_BASICS_STEPS,
 };
 
-/** Every lesson, in catalog order, with its steps. */
+/** Every code lesson, in catalog order, with its steps. */
 export const TUTORIALS: Tutorial[] = TUTORIAL_CATALOG.map((entry) => ({
   ...entry,
   steps: LESSON_STEPS[entry.id],
 }));
 
+// ── Lessons written in the console ─────────────────────────────────────────
+// A console lesson (curriculum/engine/studioLessons) is data: its steps name
+// what they check, a code step's check by its lesson and step id or a
+// ready-made one (checkRegistry.ts). They are built into steps like the
+// code's here, and one with a code lesson's id replaces that lesson.
+
+/** A code lesson's step, by lesson and step id. */
+export function codeStep(
+  lessonId: string,
+  stepId: string,
+): TutorialStep | undefined {
+  return Object.prototype.hasOwnProperty.call(LESSON_STEPS, lessonId)
+    ? LESSON_STEPS[lessonId as TutorialId].find((st) => st.id === stepId)
+    : undefined;
+}
+
+function warnUnresolved(lesson: string, step: string, what: string) {
+  if (import.meta.env.DEV) {
+    console.warn(
+      `[studio lesson] ${lesson} › ${step}: ${what} not found; the step advances on Next.`,
+    );
+  }
+}
+
+/** A console lesson's step, as a step the lesson layer runs. */
+function stepFromFile(lessonId: string, step: StudioLessonStep): TutorialStep {
+  const { check, demo, requires, rack, ...rest } = step;
+  const built: TutorialStep = { ...rest };
+  if (requires) built.requires = requires as StepRequires;
+  if (rack) built.rack = rack as AnchorRack;
+  if (check?.kind === 'code') {
+    const code = codeStep(check.lesson, check.step);
+    if (code?.check) built.check = code.check;
+    if (code?.synthCheck) built.synthCheck = code.synthCheck;
+    if (!code)
+      warnUnresolved(lessonId, step.id, `${check.lesson}/${check.step}`);
+  } else if (check?.kind === 'named') {
+    const named = buildNamedCheck(check.name, check.params);
+    if (named?.check) built.check = named.check;
+    if (named?.synthCheck) built.synthCheck = named.synthCheck;
+    if (!named) warnUnresolved(lessonId, step.id, `check "${check.name}"`);
+  }
+  if (demo) {
+    const code = codeStep(demo.lesson, demo.step);
+    if (code?.demo) built.demo = code.demo;
+    else warnUnresolved(lessonId, step.id, `demo ${demo.lesson}/${demo.step}`);
+  }
+  return built;
+}
+
+/** A console lesson, built. */
+export function tutorialFromFile(lesson: StudioLesson): Tutorial {
+  return {
+    ...fileCatalogEntry(lesson),
+    steps: lesson.steps.map((st) => stepFromFile(lesson.id, st)),
+  };
+}
+
+/** A lesson by id: the console's when there is one, else the code's. */
 export function getTutorial(id: string | null): Tutorial | null {
   if (!id) return null;
+  const file = getStudioLesson(id);
+  if (file) return tutorialFromFile(file);
   return TUTORIALS.find((t) => t.id === id) ?? null;
+}
+
+/** Every lesson, console ones included, in catalog order. */
+export function listTutorials(): Tutorial[] {
+  return listTutorialCatalog().flatMap((entry) => {
+    const lesson = getTutorial(entry.id);
+    return lesson ? [lesson] : [];
+  });
 }

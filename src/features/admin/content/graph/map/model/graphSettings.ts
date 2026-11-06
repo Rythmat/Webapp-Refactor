@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { LOCAL_DEPTH_MAX, LOCAL_DEPTH_MIN } from '@/content/graph/localGraph';
+import { PRESET_GROUPS } from './colorGroups';
 import { TAG_FAMILIES, type TagFamily } from './nodeRoles';
 
 /**
@@ -61,6 +62,11 @@ import { TAG_FAMILIES, type TagFamily } from './nodeRoles';
  * presets (the same seven queries in the same order, in the old colours)
  * become `null`, so they take the new presets too. Groups the owner edited
  * in any way are kept as they are.
+ *
+ * Since 4 November 2026 Cortex has no preset groups: "the presets" are none,
+ * so every dot is white unless it has a key (`content/graph/keyColour.ts`).
+ * Groups that are exactly the palette presets of 1 October become `null` in
+ * the same way, so nobody who never customised them keeps the old colours.
  *
  * The module is pure: storage is handed in, so it runs in node.
  */
@@ -309,8 +315,9 @@ function matchesRetired(
 }
 
 /**
- * Whether stored groups are exactly the retired presets: either the
- * version 1 presets or the interim key-colour presets, with the same
+ * Whether stored groups are exactly the retired presets: the version 1
+ * presets, the interim key-colour presets or the palette presets Cortex
+ * opened with until 4 November 2026 (`PRESET_GROUPS`), with the same
  * queries in the same order, in the same colours (in either case), and
  * nothing else. Any edit (a query, a colour, a name, an order, a group
  * added or deleted) makes them the owner's own.
@@ -320,7 +327,8 @@ export function isRetiredPresets(
 ): boolean {
   return (
     matchesRetired(groups, RETIRED_PRESET_GROUPS_V1) ||
-    matchesRetired(groups, RETIRED_PRESET_GROUPS_KEY_COLOURS)
+    matchesRetired(groups, RETIRED_PRESET_GROUPS_KEY_COLOURS) ||
+    matchesRetired(groups, PRESET_GROUPS)
   );
 }
 

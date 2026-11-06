@@ -116,6 +116,7 @@ describe('the content kinds', () => {
       instrument_part: true,
       feel_profile: true,
       music_literacy: true,
+      studio_lesson: true,
     } satisfies Record<ContentKind, true>;
     // The vocabulary kinds, which only the dev repo content server serves:
     // their rows are the Genres and Instruments tables' (TABLE_FOR_NODE_KIND),

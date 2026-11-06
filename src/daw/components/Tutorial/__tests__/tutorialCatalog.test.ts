@@ -82,12 +82,22 @@ describe('the lesson catalog', () => {
     expect(getTutorialEntry(null)).toBeNull();
   });
 
-  it('imports nothing, so the dashboard never loads the steps or Prism', () => {
+  it('imports only the console lessons, so the dashboard never loads the steps or Prism', () => {
     const source = readFileSync(
       join(__dirname, '..', 'tutorialCatalog.ts'),
       'utf8',
     );
-    expect(source).not.toMatch(/^\s*import\s/m);
+    // The lessons written in the console: their files and their Premium
+    // rule, data with no Studio in it.
+    const allowed = [
+      '@/content/studioLessons/premium',
+      '@/content/studioLessons/schemas',
+      '@/curriculum/engine/studioLessons/registry',
+    ];
+    const imported = [
+      ...source.matchAll(/^import[\s\S]*?from '([^']+)';/gm),
+    ].map((m) => m[1]);
+    expect(imported.filter((from) => !allowed.includes(from))).toEqual([]);
     expect(source).not.toMatch(/\bimport\(/);
   });
 });

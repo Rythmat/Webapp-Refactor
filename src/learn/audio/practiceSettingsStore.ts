@@ -27,11 +27,14 @@ export interface PracticeSettings {
   metronomeEnabled: boolean;
   /** Explicit BPM, or null to follow the activity's own tempo. */
   tempoBpm: number | null;
+  /** Activities play through Demo, Practice and Perform by themselves. */
+  autoFlow: boolean;
 }
 
 const DEFAULTS: PracticeSettings = {
   metronomeEnabled: true,
   tempoBpm: null,
+  autoFlow: true,
 };
 
 export function clampBpm(bpm: number): number {
@@ -55,6 +58,10 @@ function readInitial(): PracticeSettings {
         typeof parsed.tempoBpm === 'number' && Number.isFinite(parsed.tempoBpm)
           ? clampBpm(parsed.tempoBpm)
           : null,
+      autoFlow:
+        typeof parsed.autoFlow === 'boolean'
+          ? parsed.autoFlow
+          : DEFAULTS.autoFlow,
     };
   } catch {
     return DEFAULTS;
@@ -81,6 +88,11 @@ export function getPracticeSettings(): PracticeSettings {
 export function subscribePracticeSettings(cb: () => void): () => void {
   listeners.add(cb);
   return () => listeners.delete(cb);
+}
+
+export function setAutoFlow(autoFlow: boolean): void {
+  if (current.autoFlow === autoFlow) return;
+  commit({ ...current, autoFlow });
 }
 
 export function setMetronomeEnabled(enabled: boolean): void {

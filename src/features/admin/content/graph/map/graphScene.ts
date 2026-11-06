@@ -774,6 +774,13 @@ export function createGraphScene(options: GraphSceneOptions): GraphScene {
       labelsDirty = true;
     }
 
+    // Cortex's rainbow turns on its own (owner, 2026-11-04): a frame for the
+    // lines every tick, the labels untouched. Under reduced motion it holds.
+    if (renderer.animated && !reducedMotion && drawnPositions) {
+      renderer.setTime?.(time);
+      again = true;
+    }
+
     const visible = viewport.width > 0 && viewport.height > 0;
     if (drawnPositions && visible && renderer.isDirty) {
       renderer.render();

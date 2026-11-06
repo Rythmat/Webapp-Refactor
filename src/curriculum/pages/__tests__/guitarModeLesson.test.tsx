@@ -84,10 +84,12 @@ describe('GuitarModeLesson', () => {
     expect(props.genre).toBe('guitar-applied-theory-fundamentals');
     expect(props.level).toBe(1);
     expect(props.displayName).toBe('Guitar · Ionian (Major)');
-    expect(props.overviewRoute).toBe('/learn/guitar/ionian');
+    expect(props.overviewRoute).toBe(
+      '/learn/guitar/theory/diatonic?select=ionian%3Afsharp',
+    );
     expect(props.rootCrumb).toEqual({
-      label: 'Theory',
-      route: '/learn?tab=Theory',
+      label: 'Diatonic Modes',
+      route: '/learn/guitar/theory/diatonic?select=ionian%3Afsharp',
     });
   });
 
@@ -154,7 +156,9 @@ describe('GuitarModeLesson', () => {
     expect(props.flow.params.defaultScaleId).toBe('dorian');
     expect(props.genre).toBe('guitar-mode-dorian');
     expect(props.displayName).toBe('Guitar · Dorian');
-    expect(props.overviewRoute).toBe('/learn/guitar/dorian');
+    expect(props.overviewRoute).toBe(
+      '/learn/guitar/theory/diatonic?select=dorian',
+    );
     expect(props.initialSection).toBe('B');
     expect(props.practiceReturnTo?.('D')).toBe(
       '/learn/guitar/dorian/fsharp?section=D',
@@ -172,7 +176,7 @@ describe('GuitarModeLesson', () => {
   it('sends a mode with no guitar content back to Theory', () => {
     renderAt('/learn/guitar/harmonicMinor/c');
     expect(screen.getByTestId('location').textContent).toBe(
-      '/learn?tab=Theory',
+      '/learn?i=guitar&c=theory',
     );
     expect(container.props).toHaveLength(0);
     expect(useInstrumentStore.getState().instrument).toBe('piano');

@@ -139,7 +139,7 @@ describe('useCortexView', () => {
     );
     expect(result.current.bornNodes.size).toBe(0);
     expect(saved().positions).toEqual({});
-    expect(saved().v).toBe(2);
+    expect(saved().v).toBe(3);
   });
 
   it('never lays out when nothing needs positions', () => {

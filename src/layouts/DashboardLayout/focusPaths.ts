@@ -1,10 +1,14 @@
 import { GlobeRoutes } from '@/constants/routes';
 import { audioModule } from '@/curriculum/audio/catalog';
+import { isGuidedLessonPath } from '@/curriculum/guided/guidedPaths';
+import { isFundamentalsLessonPath } from '@/curriculum/piano/fundamentals/course';
 import { isEditorPath } from '@/daw/preload';
 
 /** The Globe: one full-window page (owner, 2026-10-29). */
 export const isGlobePath = (pathname: string): boolean =>
   pathname === GlobeRoutes.root() || pathname === `${GlobeRoutes.root()}/`;
+
+export { isFundamentalsLessonPath, isGuidedLessonPath };
 
 /** A guided Audio lesson: the whole window, one screen at a time. */
 export function isAudioPlayerPath(pathname: string): boolean {
@@ -25,4 +29,6 @@ export function isAudioPlayerPath(pathname: string): boolean {
 export const isFocusPath = (pathname: string): boolean =>
   isEditorPath(pathname) ||
   isGlobePath(pathname) ||
-  isAudioPlayerPath(pathname);
+  isAudioPlayerPath(pathname) ||
+  isFundamentalsLessonPath(pathname) ||
+  isGuidedLessonPath(pathname);

@@ -1,34 +1,14 @@
-import { cortexColor } from '@/content/graph/cortexPalette';
 import type { WebNode } from './buildWeb';
 
 /** How a node reads, in any view of the Cortex: its colour, its name, its status. */
 
-const LESSON_COLOR = cortexColor('Events');
-const STUDIO_COLOR = cortexColor('Openings');
-
-export const NODE_COLOR: Readonly<Record<WebNode['kind'], string>> = {
-  song: cortexColor('Songs'),
-  theory: LESSON_COLOR,
-  lesson: LESSON_COLOR,
-  audio: LESSON_COLOR,
-  anatomy: LESSON_COLOR,
-  technique: LESSON_COLOR,
-  literacy: LESSON_COLOR,
-  game: cortexColor('Studios & Labels'),
-  project: STUDIO_COLOR,
-  tutorial: STUDIO_COLOR,
-  artist: cortexColor('Artists'),
-  place: cortexColor('Location'),
-  event: cortexColor('Artists'),
-  person: cortexColor('Artists'),
-  release: cortexColor('Records'),
-  studio: cortexColor('Studios & Labels'),
-  mode: cortexColor('Key'),
-  key: cortexColor('Key'),
-  genre: cortexColor('Genre'),
-  instrument: cortexColor('Instruments'),
-  group: '#c8c8d0',
-};
+/**
+ * A node's colour: white, unless it has a key, and then the key's own colour
+ * as the rest of the app gives it (owner, 2026-11-04): Key of C is red, a song
+ * in F minor A♭'s indigo.
+ */
+export const nodeColour = (node: Pick<WebNode, 'keyColour'>): string =>
+  node.keyColour ?? '#ffffff';
 
 export const KIND_NAME: Readonly<Record<WebNode['kind'], string>> = {
   song: 'Song',

@@ -5,7 +5,7 @@ import {
   useTransform,
 } from 'framer-motion';
 import type { ReactNode } from 'react';
-import { KEY_CENTERS } from '../music';
+import { HeroArcDefs, STREAK_REACH } from './heroArcParts';
 
 // Geometry (viewBox units): a huge circle whose crown sits just under the
 // title and whose sides meet the frame's bottom corners (Attio-style horizon).
@@ -37,14 +37,6 @@ export const HeroArc = ({ children }: { children?: ReactNode }) => {
   const y = useTransform(scrollY, [0, 600], [0, -40]);
   const scale = useTransform(scrollY, [0, 600], [1, 1.04]);
 
-  const stops = KEY_CENTERS.map((k, i) => (
-    <stop
-      key={k.name}
-      offset={`${(i / (KEY_CENTERS.length - 1)) * 100}%`}
-      stopColor={k.color}
-    />
-  ));
-
   return (
     <motion.div
       className="pointer-events-none relative grid w-full origin-bottom"
@@ -56,50 +48,13 @@ export const HeroArc = ({ children }: { children?: ReactNode }) => {
         className="col-start-1 row-start-1 block h-auto w-full self-start overflow-visible"
         preserveAspectRatio="xMidYMax meet"
       >
-        <defs>
-          {/* Spans the frame, not the circle (which runs far past both
-              sides), so the whole spectrum shows corner to corner. */}
-          <linearGradient
-            id="hero-rim"
-            gradientUnits="userSpaceOnUse"
-            x1={0}
-            y1={0}
-            x2={W}
-            y2={0}
-          >
-            {stops}
-          </linearGradient>
-          <pattern
-            id="hero-streaks"
-            width="7"
-            height="10"
-            patternUnits="userSpaceOnUse"
-          >
-            <rect width="1" height="10" fill="rgba(255,255,255,0.09)" />
-          </pattern>
-          <radialGradient
-            id="hero-streak-fade"
-            cx={CX}
-            cy={CY}
-            r={R + 260}
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop offset={R / (R + 260)} stopColor="#fff" stopOpacity="1" />
-            <stop offset="1" stopColor="#fff" stopOpacity="0" />
-          </radialGradient>
-          <mask id="hero-streak-mask">
-            <rect width={W} height={H} fill="url(#hero-streak-fade)" />
-          </mask>
-          <filter id="hero-glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="22" />
-          </filter>
-        </defs>
+        <HeroArcDefs id="hero" width={W} height={H} cx={CX} cy={CY} r={R} />
 
         {/* Light streaks rising off the horizon */}
         <rect
-          y={-240}
+          y={-STREAK_REACH}
           width={W}
-          height={H + 240}
+          height={H + STREAK_REACH}
           fill="url(#hero-streaks)"
           mask="url(#hero-streak-mask)"
         />

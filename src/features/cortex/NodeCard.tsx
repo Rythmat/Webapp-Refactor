@@ -1,24 +1,23 @@
 import { X } from 'lucide-react';
-import { useMemo, type Ref } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { neighboursOf, type CortexWeb, type WebNode } from './buildWeb';
-import { KIND_NAME, NODE_COLOR, status } from './nodeMeta';
+import { KIND_NAME, nodeColour, status } from './nodeMeta';
 
-/** The card a selected node opens: what it is, and what it connects to. */
+/** The card a selected node opens: what it is, and what it connects to. On
+ *  the right, in the look of the console's row drawer (owner, 2026-11-04). */
 
 const CARD_BUTTON =
-  'rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-sm text-white outline-none transition-colors duration-150 hover:bg-white/[0.14] focus-visible:ring-2 focus-visible:ring-white/40';
+  'inline-flex items-center rounded-md border border-white/10 px-2.5 py-1 text-xs text-white/85 outline-none transition-colors duration-150 hover:bg-white/[0.06] hover:text-white focus-visible:ring-2 focus-visible:ring-white/40';
 
 export const NodeCard = ({
   node,
   web,
   onSelect,
-  cardRef,
 }: {
   node: WebNode;
   web: CortexWeb;
   onSelect: (id: string | null) => void;
-  cardRef?: Ref<HTMLElement>;
 }) => {
   const others = useMemo(() => {
     const byId = new Map(web.nodes.map((n) => [n.id, n]));
@@ -31,14 +30,15 @@ export const NodeCard = ({
     node.role === 'concept' ? 'What you’ve done here' : 'Connected through';
   return (
     <aside
-      ref={cardRef}
       aria-label={node.label}
-      className="absolute inset-x-2 bottom-2 z-10 max-h-[45%] overflow-y-auto rounded-[1.25rem] border border-white/10 bg-[#141416] p-4 lg:inset-x-auto lg:bottom-auto lg:left-2 lg:top-12 lg:max-h-[calc(100%-3.5rem)] lg:w-[17rem]"
+      className="absolute inset-x-2 bottom-2 z-10 max-h-[45%] overflow-y-auto rounded-lg border border-white/10 bg-[#141416]/95 p-4 shadow-lg lg:inset-x-auto lg:bottom-12 lg:right-2 lg:top-2 lg:max-h-none lg:w-72"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-xs text-white/55">{KIND_NAME[node.kind]}</p>
-          <h3 className="mt-0.5 break-words text-base font-bold text-white">
+          <span className="inline-flex rounded-md bg-white/10 px-2 py-0.5 text-xs text-white/85">
+            {KIND_NAME[node.kind]}
+          </span>
+          <h3 className="mt-2 break-words text-lg font-medium text-white">
             {node.label}
           </h3>
           {node.detail && (
@@ -85,7 +85,7 @@ export const NodeCard = ({
                   <span
                     aria-hidden
                     className="size-2 shrink-0 rounded-full"
-                    style={{ backgroundColor: NODE_COLOR[other.kind] }}
+                    style={{ backgroundColor: nodeColour(other) }}
                   />
                   <span className="min-w-0 truncate">{other.label}</span>
                 </button>

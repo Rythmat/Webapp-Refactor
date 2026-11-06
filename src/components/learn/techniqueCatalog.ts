@@ -13,18 +13,14 @@ export interface TechniqueItem {
   ratio: readonly [number, number];
   /** A way into a Premium lesson elsewhere: its tile shows locked to free users. */
   premium?: true;
+  /** A student's very first step: its cover is the simplest pattern
+   *  (owner, 2026-11-05). */
+  firstStep?: true;
 }
 
+// Piano Anatomy now lives in Piano Fundamentals' first lesson (owner,
+// 2026-11-05), and on Audio's Instrument Anatomy shelf.
 export const PIANO_TECHNIQUE_DATA: readonly TechniqueItem[] = [
-  {
-    title: 'Piano Anatomy',
-    route: LearnRoutes.pianoAnatomy(),
-    image: '/learn-tiles/beginner-hex.svg',
-    interactive: true,
-    // The perfect 4th: distinct from the two tiles beside it.
-    ratio: [3, 4],
-    premium: true,
-  },
   {
     title: 'Piano Fundamentals',
     route: CurriculumRoutes.pianoFundamentals(),
@@ -32,6 +28,7 @@ export const PIANO_TECHNIQUE_DATA: readonly TechniqueItem[] = [
     interactive: true,
     // The octave: where the keyboard starts.
     ratio: [1, 2],
+    firstStep: true,
   },
   {
     title: 'Applied Theory Fundamentals',

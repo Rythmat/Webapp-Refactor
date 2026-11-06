@@ -1,4 +1,5 @@
 import type { PrismModeSlug } from '@/hooks/data/prism';
+import { genrePair, intervalPair, pairNear } from '@/lib/cover';
 import { GENRE_GROOVES } from '@/lib/learn/genreGrooves';
 import { GENRE_INTERVALS } from '@/lib/learn/genreIntervals';
 import { modeCharacter } from '@/lib/learn/modeCharacter';
@@ -38,6 +39,8 @@ export type SigilSpec =
     }
   | {
       kind: 'groove';
+      /** The genre's course slug: its colours. */
+      slug?: string;
       steps: number;
       hits: readonly number[];
       /** The genre's art, for its accent. */
@@ -48,6 +51,8 @@ export type SigilSpec =
     }
   | {
       kind: 'rotary';
+      /** The genre's course slug: its colours. */
+      slug?: string;
       ratio: readonly [number, number];
       /** The genre's art, for its accent. */
       art?: string;
@@ -236,6 +241,7 @@ export function genreSpec(slug: string, art?: string): SigilSpec | null {
   const [a, b] = interval.ratio;
   return {
     kind: 'rotary',
+    slug,
     ratio: interval.ratio,
     art,
     stats: `${a}:${b} · ${interval.name}`,
@@ -251,6 +257,7 @@ export function grooveSpec(slug: string, art?: string): SigilSpec | null {
   const hit = new Set(groove.hits);
   return {
     kind: 'groove',
+    slug,
     steps: groove.steps,
     hits: groove.hits,
     art,
@@ -260,6 +267,27 @@ export function grooveSpec(slug: string, art?: string): SigilSpec | null {
     ),
     character: groove.name,
   };
+}
+
+/**
+ * A sigil's two colours, from its music, as the Truchet covers pair theirs
+ * (owner, 2026-11-05): a scale its mode's or key's colour, a genre its Best
+ * Of tile's, an interval its upper note's above C.
+ */
+export function sigilColors(
+  spec: SigilSpec,
+  /** The page's Best Of row, by slug (GenreOrderContext). */
+  genreOrder?: readonly string[],
+): [string, string] {
+  switch (spec.kind) {
+    case 'scale':
+      return pairNear(spec.accent);
+    case 'rotary':
+    case 'groove':
+      return genrePair(spec.slug ?? '', genreOrder);
+    case 'interval':
+      return intervalPair(spec.ratio);
+  }
 }
 
 /** Two decimals, with no "-0.00". */

@@ -160,8 +160,9 @@ describe('an app page’s table', () => {
   it.each([
     ['/songs/africa', '', { table: 'songs', row: 'africa' }],
     ['/songs', '', { table: 'songs' }],
+    ['/songs', '?genre=funk', { table: 'songs' }],
     ['/songs/setlists', '', { table: 'songs' }],
-    ['/learn', '?tab=Songs', { table: 'songs' }],
+    ['/learn/guitar/songs', '', { table: 'songs' }],
     [
       '/globe',
       '?event=evt-woodstock',
@@ -189,6 +190,10 @@ describe('an app page’s table', () => {
     expect(tableForAppPage('/office', '?day=aug-day-1')).toBeNull();
     expect(tableForAppPage('/')).toBeNull();
     expect(tableForAppPage('/learners')).toBeNull();
+    // Learn past its Songs page: its shelves, a Theory tile, a genre course.
+    expect(tableForAppPage('/learn')).toBeNull();
+    expect(tableForAppPage('/learn/keyboard/ionian')).toBeNull();
+    expect(tableForAppPage('/learn/keyboard/genre/funk')).toBeNull();
     // The Globe's old addresses are gone (2026-10-29).
     expect(tableForAppPage('/atlas')).toBeNull();
     expect(tableForAppPage('/atlas/globe', '?event=evt-woodstock')).toBeNull();

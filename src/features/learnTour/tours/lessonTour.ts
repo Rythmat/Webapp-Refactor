@@ -5,7 +5,7 @@ import type { TourApi, TourDefinition, TourStep } from '../types';
 // ── The lesson tour ────────────────────────────────────────────────────────
 // Offered the first time a player opens a genre or Theory lesson ("Is this
 // your first time in Music Atlas Learn?"), and again from Lesson Settings.
-// Peter's order (2026-10-21): Demo / Practice / Play Now, Roll / Notation /
+// Peter's order (2026-10-21): Demo / Practice / Perform, Roll / Notation /
 // Falling, Hands, the lesson's parts, the step arrows and the number that
 // opens the list, Settings, Practice Track; in the Practice Track, Play and
 // Loop, 1 2 3 / A B C, the scales and chords, Things to Try, Record take and
@@ -100,21 +100,21 @@ export const lessonTour: TourDefinition = {
     }),
     lesson({
       id: 'demo',
-      chapter: 'Watch, practice, play',
+      chapter: 'Watch, practice, perform',
       target: { css: `${BAR} button`, text: /^(Demo|Stop demo)$/ },
       text: '**Demo** plays the step for you, so you can see and hear it before you try.',
     }),
     lesson({
       id: 'practice',
-      chapter: 'Watch, practice, play',
+      chapter: 'Watch, practice, perform',
       target: { css: `${BAR} button`, text: /^Practice$/ },
       text: '**Practice** is your turn at your own pace: the notes wait for you.',
     }),
     lesson({
       id: 'play-now',
-      chapter: 'Watch, practice, play',
-      target: { css: `${BAR} [data-primary]`, text: /Play Now|Loading/ },
-      text: '**Play Now** is the real take: play in time with the band and get your score.',
+      chapter: 'Watch, practice, perform',
+      target: { css: `${BAR} [data-primary]`, text: /Perform|Loading/ },
+      text: '**Perform** is the real take: play in time with the band and get your score.',
     }),
     lesson({
       id: 'views',

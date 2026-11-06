@@ -18,9 +18,4 @@ export const LAB_TOPIC_PAGES: Readonly<
   electricity: lazy(() => import('./labs/ElectricityLab')),
   electromagnetism: lazy(() => import('./labs/ElectromagnetismLab')),
   transducers: lazy(() => import('./labs/TransducersLab')),
-  preamps: lazy(() => import('./labs/PreampsLab')),
-  digital: lazy(() => import('./labs/DigitalLab')),
-  amps: lazy(() => import('./labs/AmpsLab')),
-  loudspeakers: lazy(() => import('./labs/LoudspeakersLab')),
-  cables: lazy(() => import('./labs/CablesLab')),
 };

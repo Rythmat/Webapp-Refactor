@@ -1,10 +1,11 @@
-import { lazy, useMemo } from 'react';
+import { lazy, useMemo, type ReactNode } from 'react';
 import {
   Navigate,
   type RouteObject,
   useLocation,
   useRoutes,
 } from 'react-router-dom';
+import { StudioRoutes } from '@/constants/routes';
 import { curriculumPages } from '@/curriculum/routes';
 import {
   globePages,
@@ -13,10 +14,11 @@ import {
   songsPages,
   studioPages,
 } from '@/features/classroom/ClassroomPages';
+import { learnIndexRedirect } from '@/features/learn/learnPaths';
+import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
 import { searchPages } from '@/features/search/routes';
 import { NotMirroredYet } from './NotMirroredYet';
 import { ClassroomMirror } from './segments/ClassroomMirror';
-import { LearnMirror } from './segments/LearnMirror';
 import { SongMirrorPage } from './segments/SongMirrorPage';
 import { TeachMirror } from './segments/TeachMirror';
 
@@ -65,9 +67,12 @@ const buildRoutes = (): RouteObject[] => [
   { path: '/', element: <HomeInlet /> },
   // Home: the dashboard only; awards and the plan page are per-student.
   { path: '/home', element: <HomeInlet /> },
-  // Learn, always on a tab (LearnMirror explains why).
+  // Learn: the catalog's shelves (owner, 2026-11-04). Old links go where the
+  // app sends them.
   segment(learnPages, (child) =>
-    child.index ? { ...child, element: <LearnMirror /> } : child,
+    child.index
+      ? { ...child, element: <LearnIndexMirror hub={child.element} /> }
+      : child,
   ),
   // Songs: the song pages, each with its Edit mode (`?edit=1`); set lists
   // are a student's own.
@@ -80,10 +85,12 @@ const buildRoutes = (): RouteObject[] => [
   ),
   segment(curriculumPages),
   segment(globePages),
-  // Studio: the dashboard and its Production lessons; the editor opens a
-  // student's own project.
+  // Studio: its Production lessons. `/studio` is the editor, a student's
+  // own project, so it opens only to preview a lesson (`?tutorial=<id>`).
   segment(studioPages, (child) =>
-    child.path === 'editor' ? notMirrored(child) : child,
+    child.index
+      ? { ...child, element: <StudioIndexMirror editor={child.element} /> }
+      : child,
   ),
   // Arcade: the dashboard; the games are code, and some open live rooms.
   segment(gamesPages, (child) => (child.index ? child : notMirrored(child))),
@@ -96,6 +103,21 @@ const buildRoutes = (): RouteObject[] => [
   { path: '/teach', element: <TeachRedirect /> },
   { path: '*', element: <NotMirroredYet /> },
 ];
+
+/** Bare /learn: an old link's place, else the catalog's shelves. */
+export const LearnIndexMirror = ({ hub }: { hub: ReactNode }) => {
+  const instrument = useLearnInstrument();
+  const { search, hash } = useLocation();
+  const to = learnIndexRedirect(instrument, search, hash);
+  return to ? <Navigate replace to={to} /> : <>{hub}</>;
+};
+
+/** Bare /studio: a lesson's preview in the real editor, else Production. */
+export const StudioIndexMirror = ({ editor }: { editor: ReactNode }) => {
+  const { search } = useLocation();
+  if (new URLSearchParams(search).get('tutorial')) return <>{editor}</>;
+  return <Navigate replace to={StudioRoutes.production()} />;
+};
 
 /** Old /teach links land on Office, keeping the unit and day they named. */
 const TeachRedirect = () => {

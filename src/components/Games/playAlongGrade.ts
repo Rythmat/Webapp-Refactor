@@ -19,6 +19,45 @@ export interface PlayAlongResult {
   /** Pitches played that weren't targets; shown, but not scored. */
   wrongNotes: number;
   passed: boolean;
+  /** Which notes those were, and how the run sat against the beat. */
+  detail?: PlayAlongDetail;
+}
+
+export interface PlayAlongDetail {
+  missedMidis: readonly number[];
+  wrongMidis: readonly number[];
+  /** Played onset − written onset, in ticks: negative is early. */
+  meanDevTicks: number | null;
+  spreadTicks: number | null;
+}
+
+/** What's behind a run's count, for saying what went wrong in words. */
+export function playAlongDetail(
+  events: readonly { id: string; startTicks: number; midi: number | null }[],
+  performance: Readonly<Record<string, { startTick?: number | null }>>,
+  wrongMidis: readonly number[],
+): PlayAlongDetail {
+  const devs: number[] = [];
+  const missedMidis: number[] = [];
+  for (const event of events) {
+    const played = performance[event.id]?.startTick;
+    if (played != null) devs.push(played - event.startTicks);
+    else if (event.midi != null) missedMidis.push(event.midi);
+  }
+  const mean = devs.length
+    ? devs.reduce((a, b) => a + b, 0) / devs.length
+    : null;
+  return {
+    missedMidis,
+    wrongMidis,
+    meanDevTicks: mean,
+    spreadTicks:
+      mean === null
+        ? null
+        : Math.sqrt(
+            devs.reduce((sum, dev) => sum + (dev - mean) ** 2, 0) / devs.length,
+          ),
+  };
 }
 
 export function gradePlayAlong(

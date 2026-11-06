@@ -1,3 +1,4 @@
+import { keyColourOfSlugs } from '@/content/graph/keyColour';
 import { artistSlug, keySlug } from '@/content/graph/slugs';
 import type { Song } from '@/curriculum/types/songLibrary';
 
@@ -31,6 +32,8 @@ export interface ConceptRef {
    * major, which says little until a lesson on that key or mode meets them.
    */
   needsTheory?: boolean;
+  /** A key's colour (Key of C, red); nothing else has one. */
+  keyColour?: string;
 }
 
 /** Most specific first: of two concepts with the same members, the first stays. */
@@ -78,6 +81,7 @@ export const keyConcept = (slug: string): ConceptRef => ({
     slug.endsWith('-flat') ? '♭' : slug.endsWith('-sharp') ? '♯' : ''
   }`,
   needsTheory: true,
+  keyColour: keyColourOfSlugs(slug) ?? undefined,
 });
 
 /** A song's tags and modes in the vocabulary lessons use. */

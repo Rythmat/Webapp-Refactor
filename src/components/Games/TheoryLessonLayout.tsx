@@ -5,6 +5,15 @@ import {
 } from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
 import {
+  PassMoment,
+  SectionMoment,
+  type SectionEnd,
+} from '@/curriculum/flow/PassMoment';
+import { StageRail } from '@/curriculum/flow/StageRail';
+import { StageTransition } from '@/curriculum/flow/StageTransition';
+import { XpRise } from '@/curriculum/flow/XpRise';
+import { useStepFlow, type PassPlan } from '@/curriculum/flow/useStepFlow';
+import {
   GuitarActionBar,
   type GuitarActionBarProps,
 } from '@/curriculum/guitar/layout/GuitarActionBar';
@@ -49,6 +58,10 @@ export interface TheoryLessonLayoutProps {
   audio: { outputLatencyMs: number; openAudioTiming: () => void };
   /** Said once when a result or offer arrives. */
   announcement: string;
+  /** What a passed take says, and its Continue. */
+  pass?: Omit<PassPlan, 'nextLabel'>;
+  /** The end of a section with another after it, other than the bar's offer. */
+  sectionEnd?: SectionEnd | null;
 }
 
 export function TheoryLessonLayout({
@@ -61,9 +74,24 @@ export function TheoryLessonLayout({
   about,
   audio,
   announcement,
+  pass,
+  sectionEnd,
 }: TheoryLessonLayoutProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+
+  const section = nav.sections.find((s) => s.active)?.id as unknown as string;
+  const flow = useStepFlow({
+    stepKey:
+      section === 'O' || bar.state === 'sectionComplete'
+        ? null
+        : `${section}|${nav.index}`,
+    run: bar.run,
+    paused: settingsOpen || aboutOpen,
+    takeEnded: bar.state === 'result',
+    xpScope: `${header.crumbs.at(-1)?.label}:${header.keyLabel}`,
+    pass: pass && { ...pass, nextLabel: nav.steps[nav.index + 1]?.title },
+  });
 
   useGuitarStepKeys({
     enabled: bar.state === 'preview' && !settingsOpen && !aboutOpen,
@@ -122,7 +150,25 @@ export function TheoryLessonLayout({
         {announcement}
       </div>
 
-      <GuitarActionBar {...bar} variant="centered" />
+      <GuitarActionBar
+        {...bar}
+        run={flow.run}
+        custom={bar.custom ?? flow.zones(bar.tempo)}
+        rail={
+          !flow.available || section === 'O' ? undefined : (
+            <StageRail flow={flow} accent={header.keyColor} />
+          )
+        }
+        variant="centered"
+      />
+      <StageTransition flow={flow} accent={header.keyColor} />
+      <PassMoment flow={flow} accent={header.keyColor} />
+      <SectionMoment
+        end={sectionEnd ?? (bar.offer?.autoContinue ? bar.offer : null)}
+        flow={flow}
+        accent={header.keyColor}
+      />
+      <XpRise muted={flow.status === 'passed'} />
 
       <PianoSettingsSheet
         open={settingsOpen}

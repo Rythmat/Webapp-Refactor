@@ -3,6 +3,9 @@
  * scale is lit, which voicing a chord is lit in. One option is always on.
  */
 
+import { cn } from '@/components/utilities';
+import { FOCUS_RING, TRANSITION } from '@/daw/ui/styles';
+
 export interface SegmentedOption<T extends string> {
   id: T;
   label: string;
@@ -37,7 +40,11 @@ export function SegmentedToggle<T extends string>({
             type="button"
             aria-pressed={active}
             onClick={() => onChange(option.id)}
-            className="rounded-full px-3 py-1 text-sm font-medium transition-colors"
+            className={cn(
+              'rounded-full px-3 py-1 text-[0.8125rem] font-bold active:scale-[0.97] motion-reduce:active:scale-100',
+              TRANSITION,
+              FOCUS_RING,
+            )}
             style={{
               background: active ? 'var(--daw-selected)' : 'transparent',
               color: active ? 'var(--daw-text)' : 'var(--daw-text-3)',

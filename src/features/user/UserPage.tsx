@@ -3,13 +3,14 @@ import { useMe } from '@/hooks/data';
 import { AvatarCard } from './AvatarCard';
 import { BioCard } from './BioCard';
 import { ConnectCard } from './ConnectCard';
+import { CortexCard } from './CortexCard';
 import { PreferencesCard } from './PreferencesCard';
 import { RecentAwardsCard } from './RecentAwardsCard';
 import '@/features/settings/settings.css';
 
 /**
- * User page — Avatar + Bio + XP graph + Connect (search, connection requests,
- * and suggested musicians). Connecting with someone here makes them a suggested
+ * User page — Avatar + XP graph + Cortex + Bio + Connect (search, connection
+ * requests, and suggested musicians). Connecting with someone here makes them a suggested
  * collaborator on the Studio Dashboard once both sides accept.
  */
 export const UserPage = () => {
@@ -33,6 +34,9 @@ export const UserPage = () => {
 
         {/* XP card */}
         <XpTrackerCard />
+
+        {/* Your Cortex: everything you've done and how it connects */}
+        <CortexCard />
 
         {/* Recent Awards */}
         <RecentAwardsCard />

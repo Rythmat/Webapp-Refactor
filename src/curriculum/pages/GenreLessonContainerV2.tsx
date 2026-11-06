@@ -23,12 +23,14 @@ import {
   triggerPianoAttack,
   triggerPianoRelease,
   startPianoSampler,
+  triggerPianoAttackRelease,
 } from '@/audio/pianoSampler';
 import { FrettedInstrumentContext } from '@/components/guitar/frettedInstrumentContext';
 import {
   ModePositionsOverview,
   positionTabs,
 } from '@/components/guitar/positions/ModePositionsOverview';
+import { discRatio } from '@/components/learn/path/pathGeometry';
 import { ClefToggle } from '@/components/notation/ClefToggle';
 import { SavedGuitarViewToggle } from '@/components/notation/GuitarViewToggle';
 import type { StaffLayout } from '@/components/notation/StaffView';
@@ -69,12 +71,14 @@ import {
 } from '@/curriculum/notation/lessonChordSymbols';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { markCurrentDone } from '@/features/cortex/ledger';
+import { exploreHref } from '@/features/learn/catalog/exploreState';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
 import { useFingeringDisplay } from '@/features/learn/usePianoDisplaySettings';
 import { sectionHasContent } from '@/features/practiceTracks/genre/buildGenrePracticeTrack';
 import { openGenrePracticeTrack } from '@/features/practiceTracks/genre/openGenrePracticeTrack';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
+import { useLearnXp } from '@/hooks/data/experience/useLearnXp';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import {
   bassLessonVoice,
@@ -105,6 +109,7 @@ import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
 import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import type { GuitarSetupStep } from '@/learn/components/guitar/GuitarInputSetup';
 import { PREVIEW_MS as TONE_PREVIEW_MS } from '@/learn/components/guitar/GuitarToneMenu';
+import { GuitarTroubleshootList } from '@/learn/components/guitar/GuitarTroubleshootList';
 import {
   LearnInputProvider,
   useLearnInputStable,
@@ -122,6 +127,7 @@ import type { FretPosition } from '@/lib/guitar/types';
 import { describeKey, modeFromKeyName } from '@/lib/learn/keyDescription';
 import { buildFingeringTimeline } from '@/lib/learn/pianoFingering';
 import { colorForKeyMode } from '@/lib/modeColorShift';
+import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import { useChordClef, type NotationStaves } from '@/lib/notation';
 import {
   resolveStepContent,
@@ -136,6 +142,13 @@ import {
   beatTicks,
   stepTimeSignature,
 } from '../engine/meter';
+import { GuidedGuitarLayout, GuidedPianoLayout } from '../guided/GuidedLayouts';
+import type { GuidedBinding } from '../guided/GuidedPlayer';
+import { markGuidedSteps, readGuidedSteps } from '../guided/guidedProgress';
+import type { GuidedLessonContext } from '../guided/lessons';
+import { noteNameInKey } from '../guided/noteNames';
+import { reportOfAssessment } from '../guided/takeFeedback';
+import { resolveChapter, type GuidedChapter } from '../guided/types';
 import {
   guitarResultHeading,
   hasMarkedMistakes,
@@ -159,6 +172,7 @@ import {
   type TargetOutcome,
 } from '../hooks/useGenreAssessment';
 import {
+  readGenreKeySteps,
   useGenreProgress,
   type GlobeDongleData,
   type StudioDongleData,
@@ -233,6 +247,11 @@ interface GenreLessonContainerV2Props {
    * route, which only genre flows have.
    */
   practiceReturnTo?: (sectionId: ActivitySectionId) => string;
+  /**
+   * This lesson in the guided format: its chapters, one per section. Left out,
+   * it's on the instrument's own layout.
+   */
+  guided?: (context: GuidedLessonContext) => readonly GuidedChapter[];
   // Dongle callbacks — wire these when Globe/Studio/Arcade are ready
   onGlobeUpdate?: (data: GlobeDongleData) => void;
   onStudioUpdate?: (data: StudioDongleData) => void;
@@ -244,7 +263,10 @@ interface GenreLessonContainerV2Props {
 
 type ActivityState = 'preview' | 'practice' | 'performance' | 'complete';
 
-const DEFAULT_ROOT_CRUMB = { label: 'Courses', route: '/learn' };
+const DEFAULT_ROOT_CRUMB = {
+  label: 'Courses',
+  route: exploreHref('piano', 'genres'),
+};
 
 // ── Scale → mode slug mapping (for key center color) ────────────────────────
 
@@ -341,6 +363,21 @@ function splitActivity(activity: string): { code: string; title: string } {
   };
 }
 
+/**
+ * How many steps a section really counts: progress goes by tag, and a few steps
+ * share one (Pop's four chord loops), so that counting steps would mean a section
+ * could never read as finished.
+ */
+function sectionStepCount(section: { steps: readonly { tag: string }[] }) {
+  return new Set(section.steps.map((step) => step.tag)).size;
+}
+
+const stepCodeOf = (step: { activity: string }) =>
+  splitActivity(step.activity).code;
+
+/** Nothing lit, for the skill check. */
+const NO_MIDIS = new Set<number>();
+
 // ── Inner component (needs LearnInputProvider wrapper) ────────────────────────
 
 function GenreLessonContainerV2Inner({
@@ -353,6 +390,7 @@ function GenreLessonContainerV2Inner({
   displayName,
   rootCrumb = DEFAULT_ROOT_CRUMB,
   practiceReturnTo,
+  guided,
   onGlobeUpdate,
   onStudioUpdate,
   onArcadeUpdate,
@@ -384,10 +422,10 @@ function GenreLessonContainerV2Inner({
     flowInstrument(flow) === 'guitar' ? undefined : getGenreProfile(genre);
   const overviewLevel = genreProfile?.levels[level as 1 | 2 | 3];
   const [overviewTab, setOverviewTab] = useState<GenreOverviewTab | null>(
-    overviewLevel && !initialSection ? 'about' : null,
+    overviewLevel && !initialSection && !guided ? 'about' : null,
   );
   // Guitar's diatonic Overview: the scale's seven positions, one lit.
-  const [positionsOpen, setPositionsOpen] = useState(openOnOverview);
+  const [positionsOpen, setPositionsOpen] = useState(openOnOverview && !guided);
   const [positionIndex, setPositionIndex] = useState(0);
   const leftHanded = useInstrumentStore((s) => s.leftHanded);
   const [stepIndex, setStepIndex] = useState(0);
@@ -469,7 +507,7 @@ function GenreLessonContainerV2Inner({
   }, [flow.sections, activeSection]);
 
   // True when the current step has an engine-generated backing track (drums/bass/chords).
-  // Used to suppress the metronome in Play Now mode — the drum track provides the pulse.
+  // Used to suppress the metronome in Perform mode — the drum track provides the pulse.
   const hasBackingParts =
     ((currentStep as ActivityStepV2).backing_parts?.engine_generates?.length ??
       0) > 0;
@@ -541,6 +579,53 @@ function GenreLessonContainerV2Inner({
   );
 
   // Key color from app's color system — mode-shifted to match Music Atlas key center colors
+  // The guided format: a chapter is a section, and the screens run its steps.
+  const guidedChapters = useMemo(
+    () =>
+      guided?.({
+        flow,
+        chordName: (symbol) =>
+          chordSymbolForDisplay(symbol, chordNotation, chordContext),
+      })?.map((chapter) => {
+        const section = flow.sections.find((s) => s.id === chapter.id);
+        return resolveChapter(
+          chapter,
+          (section?.steps ?? []).map((step) => {
+            const { code, title } = splitActivity(step.activity);
+            return { ref: code, title, direction: step.direction ?? '' };
+          }),
+        );
+      }) ?? null,
+    [guided, flow, chordNotation, chordContext],
+  );
+  const guidedChapter =
+    guidedChapters?.find((chapter) => chapter.id === activeSection) ?? null;
+  const guidedScope = `${genre}:${level}:${keyLabelToUrlParam(flow.params.defaultKey.split(' ')[0])}`;
+  // Bumped when a step's marked, so that the rungs redraw.
+  const [guidedMarks, setGuidedMarks] = useState(0);
+  // The skill check: nothing shows what to play.
+  const [hintsOff, setHintsOff] = useState(false);
+  // The last practice to finish by itself, for what comes after it.
+  const [lastPractice, setLastPractice] = useState<{
+    id: number;
+    heard: boolean;
+  } | null>(null);
+  const practiceEnded = useCallback((heard: boolean) => {
+    setLastPractice((prev) => ({ id: (prev?.id ?? 0) + 1, heard }));
+  }, []);
+  const [lastTake, setLastTake] = useState<{
+    id: number;
+    passed: boolean;
+    heard: boolean;
+  } | null>(null);
+  const awardXp = useLearnXp();
+  const guidedMarked = useMemo(
+    () => readGuidedSteps(guidedScope),
+    // Read again when a step's marked.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [guidedScope, guidedMarks],
+  );
+
   const keyColor = useMemo(() => {
     // Guitar follows the Atlas rule — keys are colours — so a major key
     // takes its own (ionian) colour, as on the key picker, and a mode its
@@ -696,7 +781,7 @@ function GenreLessonContainerV2Inner({
   // Guitar-only in v1 (the tools themselves are instrument-neutral). A loop
   // lives only in practice: the run plays the looped bars and restarts with a
   // count-in after each pass, which is scored silently for the speed trainer
-  // and never recorded. Play Now always grades the whole step at its tempo.
+  // and never recorded. Perform always grades the whole step at its tempo.
   const barsInStep = stepBarCount(
     {
       targetNotes: lessonTargetNotes,
@@ -751,7 +836,7 @@ function GenreLessonContainerV2Inner({
       ? practiceSlice
       : null;
   const targetNotes = loopSlice?.targetNotes ?? lessonTargetNotes;
-  /** Practice plays at the speed trainer's tempo; Play Now at the step's. */
+  /** Practice plays at the speed trainer's tempo; Perform at the step's. */
   const practiceTempo =
     isFretted && isIT && practice.ladder.enabled
       ? practice.effectiveTempo
@@ -785,7 +870,7 @@ function GenreLessonContainerV2Inner({
   // In time, the student's bar 1 arrives two bars after transport start: the
   // piano roll's own count-in bar (its playhead starts a bar early) plus the
   // one-bar note offset above. Audio scheduled on the transport — the practice
-  // guide and the Play Now backing track — must start its bar 1 there.
+  // guide and the Perform backing track — must start its bar 1 there.
   const LEAD_IN_TICKS = COUNT_IN_OFFSET * 2;
 
   // Convert to PianoRoll format (with IT count-in offset)
@@ -1125,7 +1210,7 @@ function GenreLessonContainerV2Inner({
   }, [pianoRollEvents, activeMidis, holdTick, isIT]);
 
   // Fingering: the book's hands over the keys and finger numbers, piano
-  // only, following what the keyboard lights. Off in Play Now: no fingers
+  // only, following what the keyboard lights. Off in Perform: no fingers
   // on a graded take.
   const fingeringDisplay = useFingeringDisplay();
   const showFingering =
@@ -1231,7 +1316,7 @@ function GenreLessonContainerV2Inner({
   const { setBpm, prepare: prepareMetronome } = useMetronome({
     bpm: tempo,
     timeSignature,
-    // Disable metronome in Play Now (performance) mode when a backing track is running —
+    // Disable metronome in Perform mode when a backing track is running —
     // the drum track provides the pulse. Practice mode always gets the metronome.
     enabled:
       metronomeEnabled &&
@@ -1521,6 +1606,11 @@ function GenreLessonContainerV2Inner({
         isFretted ? buildGuitarPolicy() : undefined,
       );
       setLastResult(result);
+      setLastTake((prev) => ({
+        id: (prev?.id ?? 0) + 1,
+        passed: result.passed,
+        heard: !result.unclear && playedNotes.length > 0,
+      }));
       setActivityState('complete');
       // After three takes that failed or couldn't be heard, the student may
       // count the step themselves: detection never blocks progress.
@@ -1532,7 +1622,7 @@ function GenreLessonContainerV2Inner({
         section: activeSection,
         key: flow.params.defaultKey,
         styleRef: currentStep.styleRef,
-        stepsTotal: currentSection.steps.length,
+        stepsTotal: sectionStepCount(currentSection),
         skillTags: [currentStep.tag],
       });
     };
@@ -1777,7 +1867,8 @@ function GenreLessonContainerV2Inner({
   useEffect(() => {
     if (activityState !== 'performance' && activityState !== 'practice') return;
     if (isIT) return;
-    if (currentStep.assessment !== 'pitch_only') return;
+    // Everything else out of time is judged the same way. Waiting only for
+    // pitch_only left Pop's pitch_order steps with no way to finish.
     if (targetNotes.length === 0) return;
 
     // Check if ALL events have been completed (sequential, per-event)
@@ -1796,6 +1887,7 @@ function GenreLessonContainerV2Inner({
         return;
       }
       // Practice complete — stop everything, return to preview
+      practiceEnded(true);
       stopDemo();
       stopTransport();
       Tone.getTransport().cancel();
@@ -2000,7 +2092,7 @@ function GenreLessonContainerV2Inner({
 
     // Schedule target notes as an audio guide in practice mode.
     // Notes are offset by the count-in bar (COUNT_IN_OFFSET ticks) to align
-    // with the piano roll playhead. Muted in Play Now (performance) mode so
+    // with the piano roll playhead. Muted in Perform mode so
     // the student plays without a guide.
     if (practiceNotePartRef.current) {
       disposeGuidePart(practiceNotePartRef.current);
@@ -2183,6 +2275,11 @@ function GenreLessonContainerV2Inner({
   // ladder and goes again. Practice passes never reach progress.
   const handlePracticeEnd = useCallback(() => {
     if (!repeatPractice) {
+      practiceEnded(
+        isFretted
+          ? guitarUserNotes.length > 0 || guitarEval.heardChord !== null
+          : userNotes.length > 0,
+      );
       handleStopPractice();
       return;
     }
@@ -2204,6 +2301,10 @@ function GenreLessonContainerV2Inner({
   }, [
     repeatPractice,
     handleStopPractice,
+    practiceEnded,
+    isFretted,
+    userNotes.length,
+    guitarEval.heardChord,
     isIT,
     guitarUserNotes,
     onPracticePass,
@@ -2331,7 +2432,7 @@ function GenreLessonContainerV2Inner({
       section: activeSection,
       key: flow.params.defaultKey,
       styleRef: currentStep.styleRef,
-      stepsTotal: currentSection.steps.length,
+      stepsTotal: sectionStepCount(currentSection),
       skillTags: [currentStep.tag],
     });
   }, [
@@ -2342,8 +2443,58 @@ function GenreLessonContainerV2Inner({
     recordResult,
     activeSection,
     flow.params.defaultKey,
-    currentSection.steps.length,
+    currentSection,
   ]);
+
+  const guidedPassedInKey = useMemo(
+    () =>
+      guided
+        ? new Set(readGenreKeySteps(genre, level, flow.params.defaultKey))
+        : new Set<string>(),
+    // Read again as results come in.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [guided, genre, level, flow.params.defaultKey, progress],
+  );
+
+  // The last take, in the words the guided screen uses for it.
+  const guidedTakeId = useRef(0);
+  const guidedTake = useMemo(() => {
+    if (!guided || activityState !== 'complete' || !lastResult) return null;
+    const played = isFretted ? guitarUserNotes : userNotes;
+    const chordTargets = resolvedStep.chordTargets;
+    const chordOutcomes =
+      chordTargets?.length && lastResult.outcomes
+        ? {
+            missed: lastResult.outcomes
+              .filter((o) => o.status === 'missed')
+              .map((o) => chordTargets[o.targetIndex]?.symbol ?? ''),
+            wrong: lastResult.outcomes
+              .filter((o) => o.status === 'wrong')
+              .map((o) => chordTargets[o.targetIndex]?.symbol ?? ''),
+          }
+        : undefined;
+    guidedTakeId.current += 1;
+    return reportOfAssessment({
+      id: guidedTakeId.current,
+      step: stepCodeOf(currentStep),
+      result: lastResult,
+      targets: targetNotes,
+      played: isIT
+        ? played.map((n) => ({ ...n, onset: n.onset - COUNT_IN_OFFSET }))
+        : played,
+      inTime: isIT,
+      passMarkPct: Math.round(
+        stepPassMark(currentStep.assessment ?? 'pitch_only') * 100,
+      ),
+      noteName: (midi) => noteNameInKey(midi, keyName),
+      chordNames: chordOutcomes,
+      heard:
+        played.length > 0 ||
+        (lastResult.outcomes?.some((o) => o.status !== 'missed') ?? false),
+    });
+    // A take's words are fixed when it ends.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastResult, activityState, guided]);
 
   // Wait for me: 20 s with nothing heard at all offers the setup and the
   // self-count instead of leaving the student stuck.
@@ -2473,7 +2624,7 @@ function GenreLessonContainerV2Inner({
   const handleStartPerformance = useCallback(async () => {
     // Stop ALL audio completely before assessment begins
     handleStopPractice();
-    // Play Now grades the whole step at its own tempo: no guitar loop.
+    // Perform grades the whole step at its own tempo: no guitar loop.
     if (isFretted) {
       clearPracticeLoop();
       setRestartingPass(false);
@@ -2512,7 +2663,7 @@ function GenreLessonContainerV2Inner({
         flow.level,
         (resolvedStep as ActivityStepV2).styleRef ?? 'l1a',
         targetNotes,
-        undefined, // no metronome in Play Now with backing track — drums provide the pulse
+        undefined, // no metronome in Perform with backing track — drums provide the pulse
         flow.genre,
         isIT ? LEAD_IN_TICKS : 0, // backing bar 1 = the student's bar 1
         swing,
@@ -2558,7 +2709,7 @@ function GenreLessonContainerV2Inner({
     clearPracticeLoop,
   ]);
 
-  // Guitar's Play Now: the first-run setup or the microphone first.
+  // Guitar's Perform: the first-run setup or the microphone first.
   const handleGuitarStartPerformance = useCallback(() => {
     if (guitarReadyToStart()) void handleStartPerformance();
   }, [guitarReadyToStart, handleStartPerformance]);
@@ -2626,6 +2777,121 @@ function GenreLessonContainerV2Inner({
     goToStep(index);
   };
 
+  /** The binding the guided screen needs, given how each instrument's overview opens. */
+  const guidedBinding = (
+    extra: Partial<GuidedBinding> & {
+      overviewOn?: boolean;
+      openOverview?: () => void;
+    },
+  ): GuidedBinding | null => {
+    if (!guidedChapter) return null;
+    const { overviewOn, openOverview, ...rest } = extra;
+    const stepsByCode = new Map(
+      currentSection.steps.map((step, index) => [
+        stepCodeOf(step),
+        { step, index },
+      ]),
+    );
+    const marked = guidedMarked;
+    const tagCount = new Map<string, number>();
+    currentSection.steps.forEach((step) =>
+      tagCount.set(step.tag, (tagCount.get(step.tag) ?? 0) + 1),
+    );
+    const passedInKey = guidedPassedInKey;
+    const chapterIndex =
+      guidedChapters?.findIndex((c) => c.id === activeSection) ?? 0;
+    const following = guidedChapters?.[chapterIndex + 1] ?? null;
+    return {
+      chapter: guidedChapter,
+      xpScope: guidedScope,
+      accent: keyColor,
+      ratio: discRatio(chapterIndex),
+      currentStep: overviewOn ? 'overview' : stepCodeOf(currentStep),
+      status: (ref) => {
+        if (marked.has(ref)) return 'passed';
+        const found = stepsByCode.get(ref);
+        if (!found) return 'todo';
+        // Only a tag of its own can speak for this one step, in this key.
+        if (
+          tagCount.get(found.step.tag) === 1 &&
+          passedInKey.has(found.step.tag)
+        ) {
+          return 'passed';
+        }
+        return 'todo';
+      },
+      goToStep: (ref) => {
+        if (ref === 'overview') {
+          openOverview?.();
+          return;
+        }
+        const found = stepsByCode.get(ref);
+        if (found) goToStep(found.index);
+      },
+      credit: (refs, from) => {
+        markGuidedSteps(guidedScope, [from, ...refs]);
+        setGuidedMarks((n) => n + 1);
+        if (!lastResult) return;
+        refs.forEach((ref) => {
+          const found = stepsByCode.get(ref);
+          if (!found) return;
+          // Passing the harder step proved this one. No XP: it wasn't played.
+          recordResult(
+            found.step.tag,
+            { ...lastResult, xpEarned: 0, skillTagsEarned: [] },
+            {
+              section: activeSection,
+              key: flow.params.defaultKey,
+              styleRef: found.step.styleRef,
+              stepsTotal: sectionStepCount(currentSection),
+              skillTags: [found.step.tag],
+            },
+          );
+        });
+      },
+      take: guidedTake,
+      clearTake: () => {
+        if (lastResult) handleRetry();
+      },
+      onLeave: () =>
+        navigate(overviewRoute ?? LearnRoutes.genreCourse({ genre })),
+      finish: async () => {
+        recordSectionComplete(
+          activeSection,
+          flow.params.defaultKey,
+          currentStep.styleRef as StyleSubProfile,
+        );
+        if (!following) markCurrentDone();
+        reportCompletion();
+        return awardXp('finish', `${guidedScope}:${activeSection}`);
+      },
+      next: following
+        ? {
+            id: following.id,
+            name: following.name,
+            open: () => handleSectionChange(following.id as ActivitySectionId),
+          }
+        : null,
+      practiceTrack: sectionHasContent(currentSection)
+        ? () => enterPracticeTrack(activeSection)
+        : null,
+      onFromMemoryChange: setHintsOff,
+      hearNote: (midi) => {
+        if (isFretted) {
+          void loadGuitarVoice().then(() =>
+            guitarLessonVoice.attackRelease(midi, 0.7, 90, Tone.now()),
+          );
+          return;
+        }
+        void triggerPianoAttackRelease(
+          Tone.Frequency(midi, 'midi').toNote(),
+          0.7,
+        );
+      },
+      ...rest,
+    };
+  };
+
   if (isFretted) {
     const practising = isPracticing || restartingPass;
     const offerSection = practiceOffer;
@@ -2676,12 +2942,31 @@ function GenreLessonContainerV2Inner({
       stepIndex,
       openSectionStep,
     );
+    const frettedGuided = guidedBinding({
+      overviewOn: onPositions,
+      openOverview: () => openPositions(0),
+      countItMyself:
+        lastResult && !lastResult.passed && (guitarMisses >= 3 || silenceOffer)
+          ? handleCountItMyself
+          : null,
+      suggestion: guitarNextStep
+        ? {
+            label: guitarNextStep.label,
+            start: () => practiceLoop(guitarNextStep.loop, guitarNextStep.pct),
+          }
+        : null,
+      troubleshoot: <GuitarTroubleshootList onOpenSetup={openGuitarSetup} />,
+    });
+    const FrettedLayout = (
+      frettedGuided ? GuidedGuitarLayout : GuitarLessonLayout
+    ) as typeof GuidedGuitarLayout;
 
     return (
       <FrettedInstrumentContext.Provider
         value={isBass ? BASS : isUkulele ? UKULELE : GUITAR}
       >
-        <GuitarLessonLayout
+        <FrettedLayout
+          guided={frettedGuided as GuidedBinding}
           header={{
             crumbs: [
               {
@@ -2812,6 +3097,8 @@ function GenreLessonContainerV2Inner({
             back: handleBackFromPractice,
             stopTake: abortTake,
             hint: guitarEval.diagnostics?.hint ?? null,
+            lastPractice,
+            lastTake,
           }}
           tempo={
             isIT
@@ -2912,6 +3199,7 @@ function GenreLessonContainerV2Inner({
                     setPracticeOffer(null);
                     advanceSection();
                   },
+                  autoContinue: !!nextSectionName,
                 }
               : null
           }
@@ -3230,8 +3518,16 @@ function GenreLessonContainerV2Inner({
     ? (GENRE_OVERVIEW_TABS.find((t) => t.id === overviewTab)?.label ?? '')
     : '';
 
+  const pianoGuided = guidedBinding({
+    overviewOn: false,
+  });
+  const PianoLayout = (
+    pianoGuided ? GuidedPianoLayout : PianoLessonLayout
+  ) as typeof GuidedPianoLayout;
+
   return (
-    <PianoLessonLayout
+    <PianoLayout
+      guided={pianoGuided as GuidedBinding}
       header={{
         crumbs: [
           {
@@ -3305,6 +3601,8 @@ function GenreLessonContainerV2Inner({
         back: handleStopPractice,
         stopTake: abortTake,
         hint: null,
+        lastPractice,
+        lastTake,
       }}
       tempo={
         isIT
@@ -3360,6 +3658,7 @@ function GenreLessonContainerV2Inner({
                 setPracticeOffer(null);
                 advanceSection();
               },
+              autoContinue: !!nextSectionName,
             }
           : null
       }
@@ -3453,12 +3752,12 @@ function GenreLessonContainerV2Inner({
           <LessonKeyboard
             activeWhiteKeyColor={keyColor}
             activeBlackKeyColor={keyColor}
-            targetMidis={targetMidiSet}
+            targetMidis={hintsOff ? NO_MIDIS : targetMidiSet}
             playingNotes={
               // Every target only while the step waits. Once the demo or a
               // run starts, just the notes in sequence: the demo's and the
               // in-time guide's as they sound (nothing between them), the
-              // notes due next out of time, nothing in Play Now. The
+              // notes due next out of time, nothing in Perform. The
               // student's own keys are drawn over all of it (playedKeys).
               isPlayingDemo
                 ? keyHighlights(demoHighlightMidis, 'demo')
@@ -3467,7 +3766,7 @@ function GenreLessonContainerV2Inner({
                       isIT ? practiceHighlightMidis : ootDueMidis,
                       'practice',
                     )
-                  : activityState === 'preview'
+                  : activityState === 'preview' && !hintsOff
                     ? keyboardPlayingNotes
                     : []
             }

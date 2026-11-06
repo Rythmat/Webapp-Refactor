@@ -17,6 +17,8 @@
  *   PUT    /__dev/feels/:id            body: feel profile JSON
  *   PUT    /__dev/music-literacy/:id   body: Music Literacy lesson JSON
  *   DELETE /__dev/music-literacy/:id
+ *   PUT    /__dev/studio-lessons/:id   body: Studio Production lesson JSON
+ *   DELETE /__dev/studio-lessons/:id
  *   PUT    /__dev/lesson-fingers/:id   body: a lesson level → its fingers
  *          written into the lesson files (src/scripts/lessonFingers), the
  *          rest of each file untouched → { files, changed, skipped }
@@ -63,6 +65,7 @@ const LESSON_PAIRING_DIR = path.join(
 const PART_DIR = path.join(ROOT, 'src/curriculum/data/parts');
 const FEEL_DIR = path.join(ROOT, 'src/curriculum/data/feels');
 const MUSIC_LITERACY_DIR = path.join(ROOT, 'src/curriculum/data/musicLiteracy');
+const STUDIO_LESSON_DIR = path.join(ROOT, 'src/curriculum/data/studioLessons');
 const PATCH_DIR = path.join(ROOT, 'src/daw/oracle-synth/store/presets/atlas');
 const SAMPLE_DIR = path.join(ROOT, 'public/daw-assets/samples/drums/uploads');
 const SAMPLE_URL = '/daw-assets/samples/drums/uploads/';
@@ -235,6 +238,7 @@ export function devContentWriter(): Plugin {
             parts: PART_DIR,
             feels: FEEL_DIR,
             'music-literacy': MUSIC_LITERACY_DIR,
+            'studio-lessons': STUDIO_LESSON_DIR,
             'synth-patches': PATCH_DIR,
           };
           if (kind && kind in JSON_DIRS) {

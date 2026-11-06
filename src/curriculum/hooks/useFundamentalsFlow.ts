@@ -48,7 +48,7 @@ export interface FundamentalsFlowState {
   quizState: QuizState | null;
   /**
    * Feed a MIDI note into the evaluator.
-   * `graded` marks the attempt as a Play Now (Performance) run — only a
+   * `graded` marks the attempt as a Perform run — only a
    * graded pass marks the step complete and checks off its progress dot.
    * Practice runs still evaluate for live feedback but don't count.
    */

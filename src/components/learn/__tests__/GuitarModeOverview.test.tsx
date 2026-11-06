@@ -174,7 +174,7 @@ describe('GuitarModeOverview', () => {
   it('sends a mode with no guitar content back to Theory', () => {
     renderGuitarAt('/learn/guitar/harmonicMinor');
     expect(screen.getByTestId('location').textContent).toBe(
-      '/learn?tab=Theory',
+      '/learn?i=guitar&c=theory',
     );
     expect(useInstrumentStore.getState().instrument).toBe('piano');
   });

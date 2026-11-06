@@ -8,17 +8,28 @@
  * (learn/GenreCatalogRow) moved to Learn's Genre page, then came off it too
  * (owner 2026-10-26).
  */
+import { lazy, Suspense } from 'react';
+import { Navigate } from 'react-router-dom';
 import { PerStudent } from '@/components/ui/PerStudent';
+import { useWelcomeRedirect } from '@/features/welcome/useWelcomeGate';
 import { ActivityRail } from './home/ActivityRail';
-import { HomeGlobeCard } from './home/HomeGlobeCard';
+import { HomeGlobeArc } from './home/HomeGlobeArc';
 import { HomeGlow } from './home/HomeGlow';
-import { HomeInstrumentsRow } from './home/HomeInstrumentsRow';
 import { HomeProjectsCard } from './home/HomeProjectsCard';
 import { HomePromptBar } from './home/HomePromptBar';
 import { HomeSearchPill } from './home/HomeSearchPill';
 import { StudioPreviewCard } from './home/StudioPreviewCard';
 
+const LearnDiscoverColumns = lazy(() =>
+  import('@/components/learn/dashboard/LearnDiscoverColumns').then((m) => ({
+    default: m.LearnDiscoverColumns,
+  })),
+);
+
 export const HomeInlet = () => {
+  // A first visit asks what they want from Learn (owner, 2026-11-04).
+  const welcome = useWelcomeRedirect();
+  if (welcome) return <Navigate replace to={welcome} />;
   return (
     <div className="flex min-h-full w-full flex-col">
       {/* `isolate`, so the glow's -z-10 puts it behind everything here but
@@ -60,16 +71,23 @@ export const HomeInlet = () => {
           </div>
         </div>
 
-        {/* Under the columns, in the same frame: the instrument picker, as
-          the landing page's bento boxes. */}
+        {/* Under the columns, in the same frame: Learn's For You, Staff
+          Picks and Progress, in Suno Discover's columns, where the
+          instrument picker was (owner, 2026-11-04). Its own chunk: the Learn
+          catalog stays off Home's first load. */}
         <div className="mt-12 w-full max-w-[66.5rem]">
-          <HomeInstrumentsRow />
+          <PerStudent label="Learn">
+            <Suspense fallback={<div className="min-h-[30rem]" />}>
+              <LearnDiscoverColumns />
+            </Suspense>
+          </PerStudent>
         </div>
 
-        {/* Under the instruments: the Globe preview, a featured event's
-          influence paths on a spinning globe (owner, 2026-10-25). */}
+        {/* Under the Learn columns: the Globe, a featured event's influence
+          paths on a spinning globe (owner, 2026-10-25), cropped to its cap
+          under the landing's rainbow horizon (owner, 2026-11-04). */}
         <div className="mt-12 w-full max-w-[66.5rem]">
-          <HomeGlobeCard />
+          <HomeGlobeArc />
         </div>
       </div>
       {/* Pinned to the bottom, like Suno's player bar: where you left off,

@@ -326,7 +326,7 @@ export function ScaleKeyboard({
                 return (
                   <span
                     key={midi}
-                    className="pointer-events-none absolute bottom-1.5 -translate-x-1/2 text-[11px] font-medium text-black/70"
+                    className="pointer-events-none absolute bottom-1.5 -translate-x-1/2 text-[0.6875rem] font-medium text-black/70"
                     style={{ left: x }}
                   >
                     C{Math.floor(midi / 12) - 1}

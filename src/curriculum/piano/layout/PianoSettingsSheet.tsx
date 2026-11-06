@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import {
   AudioTimingRow,
+  AutoFlowRow,
   MetronomeRow,
   VolumeRow,
 } from '@/curriculum/guitar/layout/GuitarSettingsSheet';
@@ -43,6 +44,7 @@ export function PianoSettingsSheet({
     >
       {children}
       <SettingsSection label="Sound">
+        <AutoFlowRow />
         <MetronomeRow />
         <VolumeRow />
         <AudioTimingRow

@@ -68,6 +68,8 @@ export interface GraphStageOptions {
   markHover?: GraphSceneOptions['markHover'];
   /** How labels are placed and sized; Obsidian's rules by default. */
   labelRules?: GraphSceneOptions['labelRules'];
+  /** The renderer's colours, where they aren't the default (Cortex's rainbow). */
+  theme?: WebglRendererOptions['theme'];
 }
 
 export interface GraphStage {
@@ -104,6 +106,7 @@ export function useGraphStage(options: GraphStageOptions): GraphStage {
     if (!region || !canvas) return;
     const made = optionsRef.current;
     const renderer = made.createRenderer(canvas, {
+      theme: made.theme,
       onContextLost: () => {
         setPaused(true);
         optionsRef.current.onPausedChange?.(true);

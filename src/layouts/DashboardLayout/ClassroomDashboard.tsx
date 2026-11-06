@@ -14,7 +14,12 @@ import { useChallengeWatcher } from '@/hooks/useChallengeWatcher';
 import { ClassroomSidebar } from './ClassroomSidebar';
 import { GlobeSkeleton } from './GlobeSkeleton';
 import { MobileTabBar } from './MobileTabBar';
-import { isAudioPlayerPath, isGlobePath } from './focusPaths';
+import {
+  isAudioPlayerPath,
+  isFundamentalsLessonPath,
+  isGlobePath,
+  isGuidedLessonPath,
+} from './focusPaths';
 import '@/components/ClassroomLayout/dashboard/dashboard.css';
 
 export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
@@ -38,7 +43,12 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   // phone's toolbar.
   const isGlobe = isGlobePath(pathname);
   // A guided Audio lesson takes the whole window too (owner, 2026-11-01).
-  const isAudioPlayer = isAudioPlayerPath(pathname);
+  // So does any other lesson that's gone guided (owner, 2026-11-02).
+  // And Piano Fundamentals' lessons, on the same player (owner, 2026-11-05).
+  const isAudioPlayer =
+    isAudioPlayerPath(pathname) ||
+    isGuidedLessonPath(pathname) ||
+    isFundamentalsLessonPath(pathname);
   const focus = isStudioEditor || isGlobe || isAudioPlayer;
 
   return (

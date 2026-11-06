@@ -202,9 +202,12 @@ describe('Learn → Theory on guitar', () => {
       within(disabled).queryByRole('button', { name: 'Save' }),
     ).not.toBeInTheDocument();
     expect(disabled.closest('[style*="grayscale"]')).toBeNull();
-    // Nor does its card lift on hover as if it could be opened.
+    // Nor does its card ease in on hover as if it could be opened.
     const lifts = (el: HTMLElement) =>
-      el.querySelector('.spotlight-card')?.getAttribute('data-interactive');
+      (el.matches('.sigil-host')
+        ? el
+        : el.querySelector('.sigil-host')
+      )?.getAttribute('data-interactive') ?? null;
     expect(lifts(disabled)).toBeNull();
     expect(lifts(tile('Ionian (Major)'))).toBe('true');
     // A disabled tile doesn't open.

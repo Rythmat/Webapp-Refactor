@@ -1,5 +1,9 @@
 import { START_HERE_TAB } from '@/curriculum/musicLiteracy/literacyPath';
 import {
+  exploreHref,
+  parseLearnHash,
+} from '@/features/learn/catalog/exploreState';
+import {
   learnPageRoute,
   type LearnInstrument,
 } from '@/features/learn/useInstrumentStore';
@@ -53,4 +57,21 @@ export function learnTabRedirect(
   params.delete('tab');
   const rest = params.toString();
   return `${learnTabRoute(instrument, tab)}${rest ? `?${rest}` : ''}`;
+}
+
+/**
+ * Where bare /learn sends an old link: a ?tab= to its tab's page, a one-page
+ * anchor (/learn#guitar-theory) to its place in Explore. Null when the link
+ * is no old one; the app then shows the student's dashboard, the console's
+ * mirror Explore.
+ */
+export function learnIndexRedirect(
+  instrument: LearnInstrument,
+  search: string,
+  hash: string,
+): string | null {
+  const tabLink = learnTabRedirect(instrument, search);
+  if (tabLink) return tabLink;
+  const old = parseLearnHash(hash);
+  return old ? exploreHref(old.topic, old.section) : null;
 }

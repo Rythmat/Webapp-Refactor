@@ -1,15 +1,22 @@
-import { Maximize2, Minus, Plus } from 'lucide-react';
+import { Maximize, Minus, Plus } from 'lucide-react';
 import {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
   type KeyboardEvent,
   type PointerEvent,
 } from 'react';
-import { OrbitalCore } from '@/components/orbital/OrbitalCore';
 import { neighboursOf, type CortexWeb, type WebNode } from './buildWeb';
+import {
+  GRAPH_LOOK,
+  labelAlpha,
+  linePx,
+  pixelRatio,
+  ringPx,
+} from './graphStyle';
 import { nodeRadius, placeLabels } from './labels';
 import {
   fitView,
@@ -18,29 +25,41 @@ import {
   type Positions,
   type View,
 } from './layout';
-import { NODE_COLOR } from './nodeMeta';
+import { nodeColour } from './nodeMeta';
 import type { CortexView } from './useCortexView';
 
 /**
- * The map. Dots and lines keep their place in the web's own coordinates, and
- * the names are worked out in screen space, always at 12px, once the view
- * comes to rest. One finger scrolls the page on a phone; two pan and pinch.
- * The web's middle, its core, stays at the origin.
+ * The map, drawn as the console's Cortex is (`graphStyle.ts`): flat dots sized
+ * by their links, hairline lines from the edge of one dot to the edge of the
+ * next, names under the dots, and white for what's lit. Dots and lines keep
+ * their place in the web's own coordinates, and the names are worked out in
+ * screen space once the view comes to rest. One finger scrolls the page on a
+ * phone; two pan and pinch.
  */
 
-const ZOOM_STEP = 1.3;
+/** The console's zoom buttons' step. */
+const ZOOM_STEP = 1.5;
 /** A press that moves further than this is a drag, not a click. */
 const DRAG_PX = 4;
 const LABELS_REST_MS = 120;
-const ORIGIN = { x: 0, y: 0 };
-/** As the console's map fades what isn't lit. */
-const FADED = 0.2;
-const FADE = 'opacity 150ms ease-out';
+const FADED = GRAPH_LOOK.dimAlpha;
+const FADE = `opacity ${GRAPH_LOOK.hoverFadeMs}ms ease-out`;
 /** Past this many, a fade would restyle too much at once to stay smooth. */
 const FADE_MAX_NODES = 150;
-/** The faint rings the web grows out through, in the web's own units. */
-const GUIDE_STEP = 130;
-const CORE_R = 8;
+/** Visited but not finished: a dim dot, as the owner asked (2026-11-01). */
+const VISITED_ALPHA = 0.45;
+/** The rainbow's slant: it runs along (1, 0.6), as the console's does. */
+const RAINBOW_DX = GRAPH_LOOK.rainbowPeriod;
+const RAINBOW_DY = GRAPH_LOOK.rainbowPeriod * 0.6;
+const RAINBOW_STOPS = [...GRAPH_LOOK.rainbow, GRAPH_LOOK.rainbow[0]];
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+
+/** The console's dotted line, for what isn't a connection yet, in CSS px. */
+const DOT_ON = 1.5;
+const DOT_OFF = 2.5;
 
 const clampZoom = (k: number) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, k));
 
@@ -103,6 +122,9 @@ export const CortexMap = ({
   const [focusId, setFocusId] = useState<string | null>(null);
   const moved = useRef(false);
   const fitted = useRef(false);
+  const dpr = useMemo(pixelRatio, []);
+  const rainbowId = `cortex-rainbow-${useId().replace(/:/g, '')}`;
+  const still = useMemo(prefersReducedMotion, []);
 
   useEffect(() => {
     const box = boxRef.current;
@@ -118,7 +140,7 @@ export const CortexMap = ({
   // Fit the first time it's laid out, and as long as they haven't moved it.
   const fit = useCallback(() => {
     if (!positions || size.width === 0) return;
-    setView(fitView(positions, size.width, size.height, ORIGIN));
+    setView(fitView(positions, size.width, size.height));
   }, [positions, size.width, size.height]);
   useEffect(() => {
     if (!positions || size.width === 0) return;
@@ -245,8 +267,9 @@ export const CortexMap = ({
       size.height,
       litSet ?? undefined,
       lit,
+      dpr,
     );
-  }, [web.nodes, positions, degrees, restedView, size, litSet, lit]);
+  }, [web.nodes, positions, degrees, restedView, size, litSet, lit, dpr]);
 
   // Keyboard: one tab stop, arrows walk the map.
   const tabStop = focusId ?? selectedId ?? web.nodes[0]?.id ?? null;
@@ -272,17 +295,7 @@ export const CortexMap = ({
 
   const k = view?.k ?? 1;
   const fade = web.nodes.length <= FADE_MAX_NODES ? FADE : undefined;
-  const guides = useMemo(() => {
-    if (!positions) return [];
-    const reach = Math.max(
-      0,
-      ...Object.values(positions).map((p) => Math.hypot(p.x, p.y)),
-    );
-    const out: number[] = [];
-    for (let r = GUIDE_STEP; r <= reach + GUIDE_STEP / 2; r += GUIDE_STEP)
-      out.push(r);
-    return out;
-  }, [positions]);
+  const zoomAlpha = labelAlpha(restedView?.k ?? k, dpr);
   const rest = restedView ?? view;
   const labelsMatch = rest !== null && view !== null && rest.k === view.k;
 
@@ -292,61 +305,96 @@ export const CortexMap = ({
     () =>
       positions ? (
         <>
-          <g aria-hidden pointerEvents="none">
-            {guides.map((r) => (
-              <circle
-                key={r}
-                r={r}
-                fill="none"
-                stroke="white"
-                strokeOpacity={0.05}
-                strokeWidth={1}
-                vectorEffect="non-scaling-stroke"
-              />
-            ))}
-          </g>
+          {/* Every line flows through the key centres' rainbow (owner,
+            2026-11-04): one gradient in the web's own units, turning once
+            round the twelve every cycle; under reduced motion it holds. */}
+          <defs>
+            <linearGradient
+              id={rainbowId}
+              gradientUnits="userSpaceOnUse"
+              x1={0}
+              y1={0}
+              x2={RAINBOW_DX}
+              y2={RAINBOW_DY}
+              spreadMethod="repeat"
+            >
+              {RAINBOW_STOPS.map((colour, i) => (
+                <stop
+                  key={i}
+                  offset={i / (RAINBOW_STOPS.length - 1)}
+                  stopColor={colour}
+                />
+              ))}
+              {!still && (
+                <animateTransform
+                  attributeName="gradientTransform"
+                  type="translate"
+                  from="0 0"
+                  to={`${RAINBOW_DX} ${RAINBOW_DY}`}
+                  dur={`${GRAPH_LOOK.rainbowCycleMs}ms`}
+                  repeatCount="indefinite"
+                />
+              )}
+            </linearGradient>
+          </defs>
           <g>
             {web.links.map((link) => {
               const a = positions[link.source];
               const b = positions[link.target];
               if (!a || !b) return null;
+              // From the edge of one dot to the edge of the other, as the
+              // console draws them: none shows through a dim dot.
+              const ra = nodeRadius(degrees.get(link.source) ?? 0, k, dpr) / k;
+              const rb = nodeRadius(degrees.get(link.target) ?? 0, k, dpr) / k;
+              const length = Math.hypot(b.x - a.x, b.y - a.y);
+              if (length <= ra + rb) return null;
+              const ux = (b.x - a.x) / length;
+              const uy = (b.y - a.y) / length;
               const on = litSet
-                ? litSet.has(link.source) && litSet.has(link.target)
+                ? lit !== null &&
+                  (link.source === lit || link.target === lit) &&
+                  litSet.has(link.source) &&
+                  litSet.has(link.target)
                 : false;
+              const born = bornLinks.has(link.id);
               return (
                 <line
                   key={link.id}
-                  x1={a.x}
-                  y1={a.y}
-                  x2={b.x}
-                  y2={b.y}
-                  pathLength={1}
+                  x1={a.x + ux * ra}
+                  y1={a.y + uy * ra}
+                  x2={b.x - ux * rb}
+                  y2={b.y - uy * rb}
+                  pathLength={born ? 1 : undefined}
                   vectorEffect="non-scaling-stroke"
-                  stroke="white"
-                  strokeOpacity={on ? 0.7 : litSet ? 0.05 : 0.16}
-                  strokeWidth={on ? 1.5 : 1}
+                  // The rainbow's lines, white where a hover lights them.
+                  stroke={on ? GRAPH_LOOK.highlight : `url(#${rainbowId})`}
+                  strokeOpacity={
+                    on ? 1 : GRAPH_LOOK.rainbowAlpha * (litSet ? FADED : 1)
+                  }
+                  strokeWidth={linePx(dpr)}
                   strokeDasharray={
-                    link.hollow && !bornLinks.has(link.id)
-                      ? '0.04 0.03'
+                    link.hollow && !born
+                      ? `${DOT_ON / k} ${DOT_OFF / k}`
                       : undefined
                   }
                   style={{
-                    transition: fade && 'stroke-opacity 150ms ease-out',
+                    transition:
+                      fade &&
+                      `stroke-opacity ${GRAPH_LOOK.hoverFadeMs}ms ease-out`,
                   }}
-                  className={
-                    bornLinks.has(link.id) ? 'cortex-link-born' : undefined
-                  }
+                  className={born ? 'cortex-link-born' : undefined}
                 />
               );
             })}
           </g>
-          <OrbitalCore r={CORE_R / k} />
           {web.nodes.map((node) => {
             const p = positions[node.id];
             if (!p) return null;
-            const r = nodeRadius(node, degrees.get(node.id) ?? 0, k) / k;
-            const color = NODE_COLOR[node.kind];
+            const r = nodeRadius(degrees.get(node.id) ?? 0, k, dpr) / k;
             const faded = litSet ? !litSet.has(node.id) : false;
+            const ringed =
+              node.id === lit || node.id === selectedId || node.id === focusId;
+            const ring = ringPx(k, dpr);
             const describe = `${node.label}${node.detail ? `, ${node.detail}` : ''}`;
             return (
               <g
@@ -383,42 +431,25 @@ export const CortexMap = ({
                 >
                   {/* A bigger target than the dot, for fingers. */}
                   <circle r={Math.max(r, 12 / k)} fill="transparent" />
-                  {(node.id === selectedId || node.id === focusId) && (
+                  <circle
+                    r={r}
+                    fill={node.hollow ? GRAPH_LOOK.missing : nodeColour(node)}
+                    fillOpacity={
+                      node.hollow
+                        ? GRAPH_LOOK.missingAlpha
+                        : node.role === 'activity' && !node.done
+                          ? VISITED_ALPHA
+                          : 1
+                    }
+                  />
+                  {ringed && (
+                    // Clear of the dot by its own width, so it shows round
+                    // a white one.
                     <circle
-                      r={r + 4 / k}
+                      r={r + (ring * 1.5) / k}
                       fill="none"
-                      stroke="white"
-                      strokeOpacity={0.8}
-                      strokeWidth={1.5}
-                      vectorEffect="non-scaling-stroke"
-                    />
-                  )}
-                  {node.hollow ? (
-                    <circle
-                      r={r}
-                      fill="#101012"
-                      stroke={color}
-                      strokeWidth={1.5}
-                      strokeDasharray="3 3"
-                      vectorEffect="non-scaling-stroke"
-                    />
-                  ) : node.role === 'concept' ? (
-                    <circle
-                      r={r}
-                      fill={color}
-                      stroke="white"
-                      strokeOpacity={0.35}
-                      strokeWidth={1}
-                      vectorEffect="non-scaling-stroke"
-                    />
-                  ) : (
-                    <circle
-                      r={r}
-                      fill={color}
-                      fillOpacity={node.done ? 1 : 0.42}
-                      stroke={color}
-                      strokeOpacity={node.done ? 0 : 0.7}
-                      strokeWidth={1}
+                      stroke={GRAPH_LOOK.highlight}
+                      strokeWidth={ring}
                       vectorEffect="non-scaling-stroke"
                     />
                   )}
@@ -432,9 +463,10 @@ export const CortexMap = ({
     [
       web,
       positions,
-      guides,
       fade,
       k,
+      dpr,
+      lit,
       litSet,
       bornNodes,
       bornLinks,
@@ -442,6 +474,8 @@ export const CortexMap = ({
       selectedId,
       focusId,
       tabStop,
+      rainbowId,
+      still,
     ],
   );
 
@@ -477,19 +511,31 @@ export const CortexMap = ({
             transform={`translate(${view.x - restedView.x} ${view.y - restedView.y})`}
           >
             {labels.map((label) => {
-              const faded = litSet ? !litSet.has(label.id) : false;
+              const near = litSet?.has(label.id) ?? false;
+              // As the console's: names fade out with the zoom, but what's lit
+              // is always named, at full strength.
+              const opacity =
+                label.id === lit
+                  ? 1
+                  : litSet && !near
+                    ? FADED * zoomAlpha
+                    : zoomAlpha;
+              if (opacity === 0) return null;
               return (
                 <text
                   key={label.id}
                   x={label.x}
                   y={label.y}
                   textAnchor="middle"
-                  fontSize={12}
-                  fill="#e8e8f0"
-                  opacity={faded ? FADED : 0.9}
+                  fontSize={label.size}
+                  fontFamily={GRAPH_LOOK.font}
+                  fill={GRAPH_LOOK.text}
+                  opacity={opacity}
+                  // A dark halo only where the names sit on white lines.
+                  stroke={near ? 'hsl(var(--ui-background))' : undefined}
+                  strokeWidth={near ? 3.5 / dpr : undefined}
+                  strokeLinejoin="round"
                   style={{ paintOrder: 'stroke', transition: fade }}
-                  stroke="#101012"
-                  strokeWidth={3}
                 >
                   {label.text}
                 </text>
@@ -499,7 +545,12 @@ export const CortexMap = ({
         )}
       </svg>
       {positions && view && (
-        <div className="absolute right-2 top-12 flex flex-col overflow-hidden rounded-full border border-white/10 bg-[#141416]">
+        // The console's zoom buttons, bottom right.
+        <div
+          role="group"
+          aria-label="Zoom"
+          className="absolute bottom-2 right-2 flex items-center gap-0.5 rounded-lg border border-white/10 bg-[#141416]/90 p-0.5 shadow-lg"
+        >
           {[
             {
               label: 'Zoom in',
@@ -513,7 +564,7 @@ export const CortexMap = ({
             },
             {
               label: 'Show all of it',
-              Icon: Maximize2,
+              Icon: Maximize,
               run: () => {
                 moved.current = false;
                 fit();
@@ -526,9 +577,9 @@ export const CortexMap = ({
               aria-label={label}
               title={label}
               onClick={run}
-              className="flex size-9 items-center justify-center text-white/60 outline-none transition-colors duration-150 hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/40"
+              className="flex size-7 items-center justify-center rounded-md text-white/55 outline-none transition-colors duration-150 hover:bg-white/[0.06] hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
             >
-              <Icon className="size-4" />
+              <Icon aria-hidden className="size-4" />
             </button>
           ))}
         </div>

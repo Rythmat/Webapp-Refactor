@@ -1,4 +1,10 @@
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import {
   dirname,
   join,
@@ -574,4 +580,53 @@ describe('tutorial anchor inventory', () => {
       }
     });
   }
+});
+
+// ── The console's anchor list ─────────────────────────────────────────────
+// The lesson editor in the console offers these ids for a step's spotlight:
+// every one the editor renders, its templates filled from TEMPLATE_SOURCES,
+// with where it lives. Committed as JSON, so the console reads it without
+// the Studio's sources; regenerate with
+//   UPDATE_ANCHORS=1 npx vitest run src/daw/components/Tutorial/__tests__/tutorialAnchors.test.ts
+
+const ANCHOR_CATALOG = join(SRC, 'content', 'studioLessons', 'anchors.json');
+
+/** Where an anchor lives, for the picker's groups: its file's folder. */
+const areaOf = (files: Iterable<string>) => {
+  const file = [...files].filter((f) => REACHABLE.has(f)).sort()[0];
+  if (!file) return null;
+  return relative(DAW, dirname(file)).split(sep).join('/') || 'daw';
+};
+
+function renderedAnchors(): { id: string; area: string }[] {
+  const out = new Map<string, string>();
+  for (const [id, files] of ANCHORS.exact) {
+    const area = areaOf(files);
+    if (area) out.set(id, area);
+  }
+  for (const [head, files] of ANCHORS.templates) {
+    const area = areaOf(files);
+    const source = TEMPLATE_SOURCES[head];
+    if (!area || !source) continue;
+    for (const value of source.suffixes()) out.set(head + value, area);
+  }
+  return [...out]
+    .map(([id, area]) => ({ id, area }))
+    .sort((a, b) => a.area.localeCompare(b.area) || a.id.localeCompare(b.id));
+}
+
+describe('the console’s anchor list', () => {
+  it('is every anchor the editor renders', () => {
+    const now = renderedAnchors();
+    if (process.env.UPDATE_ANCHORS) {
+      writeFileSync(ANCHOR_CATALOG, `${JSON.stringify(now, null, 2)}\n`);
+    }
+    const committed = existsSync(ANCHOR_CATALOG)
+      ? (JSON.parse(readFileSync(ANCHOR_CATALOG, 'utf8')) as unknown)
+      : null;
+    expect(
+      committed,
+      'src/content/studioLessons/anchors.json is out of date: run with UPDATE_ANCHORS=1',
+    ).toEqual(now);
+  });
 });

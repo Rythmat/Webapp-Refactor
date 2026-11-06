@@ -175,7 +175,7 @@ const shuffle = <T,>(arr: T[]): T[] => {
  * The Globe preview's state: a featured event that advances once per full
  * globe rotation, and the globe data for it (that event's real influence
  * flight paths, matching the main globe). Shared by this section and Home's
- * HomeGlobeCard; render it inside <ContentGate> (see GlobeSection below).
+ * HomeGlobeArc; render it inside <ContentGate> (see GlobeSection below).
  */
 export const useGlobePreview = () => {
   // Shuffle once per page load so the events (and their order) vary each visit.

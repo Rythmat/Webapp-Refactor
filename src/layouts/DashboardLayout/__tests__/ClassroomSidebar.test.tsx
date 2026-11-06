@@ -53,9 +53,7 @@ describe('the collapsed sidebar for assistive technology', () => {
       ).toBeTruthy();
     }
     expect(
-      container
-        .querySelector('a[href="/learn/keyboard"]')
-        ?.getAttribute('aria-label'),
+      container.querySelector('a[href="/learn"]')?.getAttribute('aria-label'),
     ).toBe('Learn');
   });
 });

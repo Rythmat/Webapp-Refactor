@@ -29,6 +29,7 @@ const KIND_LABELS: Record<ContentKind, string> = {
   instrument_part: 'Parts',
   feel_profile: 'Feels',
   music_literacy: 'Music Literacy',
+  studio_lesson: 'Studio lessons',
 };
 
 export const kindLabel = (kind: ContentKind): string =>

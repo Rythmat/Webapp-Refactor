@@ -143,7 +143,7 @@ export const GENRE_OPTIONS = [
 
 /** Genre slug → display label, so the list's Genre column reads exactly like the
  *  filter dropdown (e.g. `rnb` → "R&B", `neo-soul` → "Neo Soul"). */
-const GENRE_LABELS: Record<string, string> = Object.fromEntries(
+export const GENRE_LABELS: Record<string, string> = Object.fromEntries(
   GENRE_OPTIONS.map((o) => [o.value, o.label]),
 );
 

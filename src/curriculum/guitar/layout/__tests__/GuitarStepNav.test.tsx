@@ -63,9 +63,9 @@ describe('GuitarStepNav — sections', () => {
     expect(nav.onSection).toHaveBeenCalledWith('D');
   });
 
-  it('keeps ♪ Practice Track, same label and action, when offered', () => {
+  it('keeps Practice Track, same label and action, when offered', () => {
     const { nav, rerender } = setup();
-    const button = screen.getByRole('button', { name: '♪ Practice Track' });
+    const button = screen.getByRole('button', { name: 'Practice Track' });
     expect(button).toHaveAttribute('title', 'Play over the Melody groove');
     fireEvent.click(button);
     expect(nav.practiceTrack!.onOpen).toHaveBeenCalledTimes(1);

@@ -14,7 +14,6 @@ import {
   ModePositionsOverview,
   positionTabs,
 } from '@/components/guitar/positions/ModePositionsOverview';
-import { LearnRoutes } from '@/constants/routes';
 import {
   keyPitchClass,
   keyScaleSpelling,
@@ -38,13 +37,14 @@ import {
   INSIGHT_TEXT,
   InsightCard,
 } from '@/daw/components/Library/InsightCard';
+import { exploreHref } from '@/features/learn/catalog/exploreState';
 import { learnTabRoute } from '@/features/learn/learnPaths';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { guitarLessonRoute } from './guitarTheory';
 import { findByUrlParam } from './relativeModeContent';
 
-const THEORY_TAB_ROUTE = LearnRoutes.root(undefined, { tab: 'Theory' });
+const THEORY_TAB_ROUTE = exploreHref('guitar', 'theory');
 
 export default function GuitarRelativeModesOverview() {
   const navigate = useNavigate();

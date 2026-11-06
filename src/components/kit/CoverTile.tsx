@@ -28,6 +28,8 @@ export interface CoverTileProps {
   ariaLabel: string;
   /** Fill the column instead of the shelf's fixed width (grids). */
   fluid?: boolean;
+  /** The hover rim's colours instead of the spectrum: a song's key colour. */
+  rimColors?: readonly string[];
   className?: string;
 }
 
@@ -59,6 +61,7 @@ export function CoverTile({
   onSelect,
   ariaLabel,
   fluid = false,
+  rimColors,
   className,
 }: CoverTileProps) {
   if (layout === 'tray') {
@@ -95,7 +98,7 @@ export function CoverTile({
           className="size-4 shrink-0 text-daw-text-3 transition-colors group-hover:text-daw-text"
           fill="currentColor"
         />
-        <SpectrumRim state="hover" />
+        <SpectrumRim state="hover" colors={rimColors} />
       </button>
     );
   }
@@ -133,7 +136,7 @@ export function CoverTile({
           </span>
         )}
       </span>
-      <SpectrumRim state="hover" />
+      <SpectrumRim state="hover" colors={rimColors} />
     </button>
   );
 }

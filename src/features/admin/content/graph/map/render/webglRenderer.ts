@@ -81,6 +81,18 @@ export interface RenderTheme {
   ring: string;
   /** How strongly everything not hovered or lit shows while a node is hovered. */
   dimAlpha: number;
+  /**
+   * Twelve colours the lines flow through instead of `line`, or null for
+   * plain lines. With them the renderer is `animated`: `setTime` turns them.
+   */
+  rainbow: readonly string[] | null;
+  rainbowAlpha: number;
+  /** CSS px on screen for the rainbow to go once round. */
+  rainbowPeriod: number;
+  /** Milliseconds for a line to go once round the colours. */
+  rainbowCycleMs: number;
+  /** The gap between a dot and its ring, in ring widths (0: none). */
+  ringGap: number;
 }
 
 /** The Mind Map's theme (graphTheme.ts, the one source of its colours). */
@@ -91,6 +103,21 @@ export const DEFAULT_RENDER_THEME: RenderTheme = {
   arrow: GRAPH_THEME.text,
   ring: GRAPH_THEME.highlight,
   dimAlpha: GRAPH_THEME.dimAlpha,
+  rainbow: null,
+  rainbowAlpha: GRAPH_THEME.rainbowAlpha,
+  rainbowPeriod: GRAPH_THEME.rainbowPeriod,
+  rainbowCycleMs: GRAPH_THEME.rainbowCycleMs,
+  ringGap: 0,
+};
+
+/**
+ * Cortex's own (owner, 2026-11-04): white dots with a ring that stands clear
+ * of them, and lines flowing through the key centres' rainbow. Tesseract
+ * keeps the default.
+ */
+export const CORTEX_RENDER_THEME: Partial<RenderTheme> = {
+  rainbow: GRAPH_THEME.rainbow,
+  ringGap: 1,
 };
 
 export interface WebglRendererOptions {
@@ -120,6 +147,10 @@ export interface WebglGraphRenderer extends GraphRenderer {
    * unlike it, it does not clear a hover.
    */
   setNodeFlags(flags: Uint8Array): void;
+  /** Whether the picture changes with time on its own (the rainbow). */
+  readonly animated?: boolean;
+  /** The time, in ms, the next frame shows; marks it dirty when animated. */
+  setTime?(ms: number): void;
 }
 
 /** Pixel ratios above 2 cost fill rate and look no different on a graph of dots. */
@@ -307,6 +338,13 @@ export function createWebglRenderer(
     arrow: vec4(theme.arrow),
     ring: vec4(theme.ring),
   };
+  const rainbow =
+    theme.rainbow && theme.rainbow.length === 12
+      ? new Float32Array(
+          theme.rainbow.flatMap((c) => parseColor(c).slice(0, 3)),
+        )
+      : null;
+  let rainbowPhase = 0;
 
   // CPU copies: what was last given, re-uploaded after a context loss. The
   // per-node arrays are padded to the textures' full size.
@@ -591,6 +629,16 @@ export function createWebglRenderer(
     get gpu() {
       return gpuName;
     },
+    get animated() {
+      return rainbow !== null;
+    },
+
+    setTime(ms) {
+      if (!rainbow) return;
+      const cycle = Math.max(1, theme.rainbowCycleMs);
+      rainbowPhase = (ms % cycle) / cycle;
+      dirty = true;
+    },
 
     setGraph(g) {
       graph = {
@@ -726,6 +774,14 @@ export function createWebglRenderer(
         bindCommon(g.line, vw, vh);
         setVec4(g.line, 'u_lineColor', colors.line);
         setVec4(g.line, 'u_lineLit', colors.lineLit);
+        setInt(g.line, 'u_rainbow', rainbow ? 1 : 0);
+        if (rainbow) {
+          const loc = g.line.uniforms.get('u_rainbowColors[0]');
+          if (loc) gl.uniform3fv(loc, rainbow);
+          setFloat(g.line, 'u_rainbowAlpha', theme.rainbowAlpha);
+          setFloat(g.line, 'u_rainbowPeriod', theme.rainbowPeriod);
+          setFloat(g.line, 'u_rainbowPhase', rainbowPhase);
+        }
         // Obsidian's lines: `lineSize` device pixels at every zoom.
         setFloat(g.line, 'u_lineWidth', style.lineSize);
         setFloat(g.line, 'u_patternMin', CONFIDENCE_MIN_SCREEN_PX * dpr);
@@ -748,6 +804,7 @@ export function createWebglRenderer(
 
       bindCommon(g.node, vw, vh);
       setVec4(g.node, 'u_ring', colors.ring);
+      setFloat(g.node, 'u_ringGap', theme.ringGap);
       setFloat(g.node, 'u_minRadius', NODE_MIN_DEVICE_PX);
       setInt(g.node, 'u_indexOffset', 0);
       gl.bindVertexArray(g.nodeVao);

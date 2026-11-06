@@ -1,3 +1,6 @@
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { OUTLINE_PILL } from '@/components/kit/pills';
+import { cn } from '@/components/utilities';
 import { DevProfiler } from '@/daw/dev/DevProfiler';
 import { AvatarMenu } from './AvatarMenu';
 import { SaveStatusChip } from './SaveStatusChip';
@@ -8,8 +11,8 @@ import { SaveStatusChip } from './SaveStatusChip';
 // Studio' and the avatar menu. Lifted from PracticeTrackView unchanged in
 // look; the chip is one addition, and the avatar menu (2.5) the other: in
 // focus mode the app's TopRail is gone from the practice screen too. No Undo/Redo: the practice screen has no undo (Cmd+Z is off
-// there). 'Take it to the Studio' is the white pill, the screen's primary
-// action (it was teal until milestone 2.1).
+// there). 'Take it to the Studio' is an outline pill: playing is what this screen's
+// for, so Play is its one white pill.
 //
 // Three columns, so the title stays centred now that the right-hand group
 // (chip and pill) is wider than the back button; it wraps below md, as before.
@@ -37,13 +40,13 @@ export function PracticeHeader({
       <button
         type="button"
         onClick={onBack}
-        className="justify-self-start rounded-full px-4 py-1.5 text-sm transition-colors hover:bg-white/5"
-        style={{ border: '1px solid var(--daw-hairline)' }}
+        className={cn(OUTLINE_PILL, 'justify-self-start')}
       >
-        &larr; {backLabel}
+        <ArrowLeft aria-hidden />
+        {backLabel}
       </button>
       <h1
-        className="min-w-0 truncate text-center text-sm font-medium"
+        className="min-w-0 truncate text-center text-[0.8125rem] font-bold"
         style={{ color: 'var(--daw-text-3)' }}
       >
         {projectName}
@@ -52,16 +55,9 @@ export function PracticeHeader({
         <DevProfiler id="PracticeHeaderChip">
           <SaveStatusChip />
         </DevProfiler>
-        <button
-          type="button"
-          onClick={onTakeToStudio}
-          className="rounded-full px-4 py-1.5 text-sm font-semibold transition-colors"
-          style={{
-            background: 'var(--daw-primary)',
-            color: 'var(--daw-on-primary)',
-          }}
-        >
-          Take it to the Studio &rarr;
+        <button type="button" onClick={onTakeToStudio} className={OUTLINE_PILL}>
+          Take it to the Studio
+          <ArrowRight aria-hidden />
         </button>
         <AvatarMenu />
       </div>

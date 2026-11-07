@@ -610,7 +610,7 @@ const jazzL1SectionB: ActivitySectionV2 = {
       activity: 'B1.3: 1-3-7 Shells Diatonic Chords (Out of Time)',
       direction: 'D–F–C, G–B–F, C–E–B.',
       assessment: 'pitch_order',
-      tag: 'jazz:l1_shell_137 | jazz',
+      tag: 'jazz:l1_shell_137_diatonic | jazz',
       styleRef: 'l1a',
       successFeedback: 'Next we get to 2-5-1 progression!',
       chordSymbols: ['Dm7', 'Dm7', 'Cmaj7', 'Cmaj7'],

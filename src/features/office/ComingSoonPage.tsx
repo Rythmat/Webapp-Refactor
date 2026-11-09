@@ -1,9 +1,4 @@
-import {
-  CalendarDays,
-  Library,
-  ListChecks,
-  type LucideIcon,
-} from 'lucide-react';
+import { Library, type LucideIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MicroLabel } from '@/components/kit';
 import { OfficeRoutes } from '@/constants/routes';
@@ -12,26 +7,14 @@ import { EmptyState } from '@/daw/ui/EmptyState';
 import { OFFICE_CARD, OFFICE_PAGE, OFFICE_PAGE_TITLE } from './ui/styles';
 
 const PAGES: Record<
-  'planner' | 'library' | 'review',
+  'library',
   { title: string; icon: LucideIcon; description: string }
 > = {
-  planner: {
-    title: 'Planner',
-    icon: CalendarDays,
-    description:
-      "Every class's week side by side, lessons lined up by day, each opening beside the calendar. Until then, each class's Plan has its calendar.",
-  },
   library: {
     title: 'Library',
     icon: Library,
     description:
       'Saved lessons, lesson seeds, activities, learning goals and themes, ready to drop into any class. Until then, the lesson editor has the activity and goal pickers.',
-  },
-  review: {
-    title: 'Review',
-    icon: ListChecks,
-    description:
-      "Students' work from every class in one queue, with the work and your feedback side by side. Until then, open an assignment's progress from its class.",
   },
 };
 

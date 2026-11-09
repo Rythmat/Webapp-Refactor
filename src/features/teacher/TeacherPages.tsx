@@ -58,6 +58,18 @@ const ComingSoonPage = lazy(() =>
   })),
 );
 
+const PlannerPage = lazy(() =>
+  import('@/features/office/planner/PlannerPage').then(({ PlannerPage }) => ({
+    default: PlannerPage,
+  })),
+);
+
+const ReviewPage = lazy(() =>
+  import('@/features/office/review/ReviewPage').then(({ ReviewPage }) => ({
+    default: ReviewPage,
+  })),
+);
+
 const ClassOverviewPage = lazy(() =>
   import('@/features/office/class/ClassOverviewPage').then(
     ({ ClassOverviewPage }) => ({ default: ClassOverviewPage }),
@@ -208,7 +220,7 @@ export const officePages = () => {
               },
               {
                 path: OfficeRoutes.planner.definition,
-                element: <ComingSoonPage page="planner" />,
+                element: <PlannerPage />,
               },
               {
                 path: OfficeRoutes.library.definition,
@@ -216,7 +228,7 @@ export const officePages = () => {
               },
               {
                 path: OfficeRoutes.review.definition,
-                element: <ComingSoonPage page="review" />,
+                element: <ReviewPage />,
               },
               {
                 // Every page of one class, behind its role guard. Child paths

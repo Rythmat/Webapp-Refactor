@@ -23,16 +23,17 @@ import { useCanEditClassroom } from '@/hooks/data';
 import { insertActivityIntoCell } from '../../content/applySeed';
 import type { Activity } from '../../content/types';
 import { useGoLive } from '../../live/useGoLive';
-import { PHASE_FULL_NAMES, PHASES } from '../../phases';
 import { publishDay } from '../../publish/publishDay';
 import { useTeacherConfig } from '../../settings/useTeacherConfig';
 import { isUngeneratedCortexDeck } from '../../slides/cortex/buildDeck';
+import { COPY, RESET_CHECKLIST } from '../../slides/cortex/copy';
 import { slideInteractionIds } from '../../slides/deck';
 import {
   deleteSlideAt,
   duplicateSlideAt,
   insertSlideAt,
   moveSlide,
+  moveSlideToSection,
   newSlide,
   setSlideInteractions,
   updateSlideAt,
@@ -41,6 +42,15 @@ import {
   deckFromCells,
   revealForInteraction,
 } from '../../slides/deckFromCells';
+import {
+  SECTIONS,
+  SECTION_LABEL,
+  SECTION_PHASE,
+  sectionInsertIndex,
+  sectionOf,
+  sortSlidesBySection,
+  type SlideSection,
+} from '../../slides/sections';
 import {
   SLIDE_TEMPLATES,
   buildTemplateSlide,
@@ -66,6 +76,7 @@ import { SlideCanvas } from './SlideCanvas';
 import { TextFormatMenu } from './TextFormatMenu';
 import { ContentPickerDialog } from './contentPicker/ContentPickerDialog';
 import type { PickedTile, SlideMediaEmbed } from './contentPicker/catalog';
+import type { SectionAddOption } from './sectionMenu';
 import '../../presentation.css';
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
@@ -105,9 +116,12 @@ export const SlideDeckEditor = () => {
   const agePreset: AgePreset = teacherConfig.agePresetDefault;
   const [rationaleCollapsed, setRationaleCollapsed] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
-  // The Add-slide template awaiting a content pick (opens a scoped picker).
-  const [pendingTemplate, setPendingTemplate] =
-    useState<SlideTemplateId | null>(null);
+  // The Add-slide template awaiting a content pick (opens a scoped picker),
+  // and the section the new slide goes into.
+  const [pendingTemplate, setPendingTemplate] = useState<{
+    templateId: SlideTemplateId;
+    section: SlideSection;
+  } | null>(null);
 
   // Bounce back to the plan list if the dayId isn't in the plan.
   useEffect(() => {
@@ -160,23 +174,150 @@ export const SlideDeckEditor = () => {
     [clampedIndex],
   );
 
-  // Add-slide opens the template's content picker; the slide is seeded on pick.
-  const addSlide = useCallback((templateId: SlideTemplateId) => {
-    setPendingTemplate(templateId);
-  }, []);
+  /**
+   * Put a new slide at the end of its section (and its interactions in that
+   * section's phase cell, in the same transaction), then select it.
+   */
+  const insertIntoSection = useCallback(
+    (slide: Slide, interactions: Interaction[] = []) => {
+      const index = sectionInsertIndex(slides, sectionOf(slide));
+      setDraft((prev) => {
+        if (!prev?.deck) return prev;
+        const withSlide = {
+          ...prev,
+          deck: {
+            ...prev.deck,
+            slides: insertSlideAt(
+              prev.deck.slides,
+              slide,
+              sectionInsertIndex(prev.deck.slides, sectionOf(slide)),
+            ),
+          },
+        };
+        return interactions.length
+          ? setSlideInteractions(withSlide, slide.id, interactions)
+          : withSlide;
+      });
+      setSelectedIndex(index);
+    },
+    [slides],
+  );
 
-  // Seed a template slide from the picked content and insert it after the
-  // current slide (inheriting its phase). Cancelling the picker inserts nothing.
+  // A section's "Add" menu: what that section is for.
+  const addToSection = useCallback(
+    (section: SlideSection, option: SectionAddOption) => {
+      const phase = SECTION_PHASE[section];
+      const stamp = <T extends Slide>(slide: T): T => ({ ...slide, section });
+      switch (option.kind) {
+        case 'template':
+          setPendingTemplate({ templateId: option.templateId, section });
+          return;
+        case 'blank':
+          insertIntoSection(stamp(newSlide('content', phase)));
+          return;
+        case 'reset':
+          insertIntoSection(
+            stamp({
+              ...newSlide('content', phase),
+              title: COPY.resetTitle,
+              resetChecklist: [...RESET_CHECKLIST],
+            } as Slide),
+          );
+          return;
+        case 'studio':
+          insertIntoSection(
+            stamp({
+              ...newSlide('studio-collab', phase),
+              grouping: option.grouping,
+              presetId: 'personal-project-time',
+              title:
+                option.grouping === 'pairs'
+                  ? { en: 'Studio in pairs', es: 'Studio en parejas' }
+                  : COPY.projectTitle,
+            } as Slide),
+          );
+          return;
+        case 'share': {
+          const offer: Interaction = {
+            ...emptyInteraction('showcase'),
+            question: COPY.shareQuestion,
+          };
+          insertIntoSection(
+            stamp({
+              ...newSlide('showcase', phase),
+              presetId: 'share-day',
+              title: COPY.shareTitle,
+              prompt: COPY.sharePrompt,
+            } as Slide),
+            [offer],
+          );
+          return;
+        }
+        case 'response': {
+          const base = emptyInteraction(option.type);
+          const interaction: Interaction = {
+            ...base,
+            ...(option.shareable !== undefined
+              ? { shareable: option.shareable }
+              : {}),
+            ...(option.level
+              ? {
+                  checkIn: { style: 'feelings', level: option.level },
+                  question:
+                    section === 'reflect'
+                      ? {
+                          en: 'How are you leaving today?',
+                          es: '¿Cómo te vas hoy?',
+                        }
+                      : base.question,
+                }
+              : {}),
+            ...(section === 'reflect' && option.type === 'text'
+              ? { question: COPY.exitQuestion }
+              : {}),
+          };
+          const reveal = revealForInteraction(interaction);
+          const slide = stamp(newSlide('interaction', phase));
+          insertIntoSection(
+            {
+              ...slide,
+              ...(option.level ? { presetId: 'greeting-check-in' } : {}),
+              ...(reveal && interaction.shareable ? { reveal } : {}),
+            } as Slide,
+            [interaction],
+          );
+          return;
+        }
+      }
+    },
+    [insertIntoSection],
+  );
+
+  // Seed a template slide from the picked content and put it in the section
+  // it was added to. Cancelling the picker inserts nothing.
   const seedFromTemplate = useCallback(
     (tile: PickedTile, embed?: SlideMediaEmbed) => {
       if (!pendingTemplate) return;
-      const phase = slides[clampedIndex]?.phase ?? PHASES[0];
-      const slide = buildTemplateSlide(pendingTemplate, phase, { tile, embed });
-      updateSlides(insertSlideAt(slides, slide, clampedIndex + 1));
-      setSelectedIndex(clampedIndex + 1);
+      const { templateId, section } = pendingTemplate;
+      const slide = buildTemplateSlide(templateId, SECTION_PHASE[section], {
+        tile,
+        embed,
+      });
+      insertIntoSection({ ...slide, section } as Slide);
       setPendingTemplate(null);
     },
-    [pendingTemplate, slides, clampedIndex, updateSlides],
+    [pendingTemplate, insertIntoSection],
+  );
+
+  // Move the selected slide to another section; it stays selected.
+  const changeSection = useCallback(
+    (section: SlideSection) => {
+      if (!draft || !selected) return;
+      const { day, index } = moveSlideToSection(draft, selected.id, section);
+      setDraft(day);
+      if (index >= 0) setSelectedIndex(index);
+    },
+    [draft, selected],
   );
 
   // Adding a student-response component inserts a NEW question slide (interaction
@@ -186,10 +327,14 @@ export const SlideDeckEditor = () => {
   // a dedicated slide (one transaction: insert slide + write the interaction).
   const insertResponseSlide = useCallback(
     (type: InteractionType) => {
-      const phase = slides[clampedIndex]?.phase ?? PHASES[0];
+      const current = slides[clampedIndex];
+      const section = current ? sectionOf(current) : 'connect';
       const interaction = emptyInteraction(type);
       const reveal = revealForInteraction(interaction);
-      const base = newSlide('interaction', phase);
+      const base = {
+        ...newSlide('interaction', SECTION_PHASE[section]),
+        section,
+      };
       const slide = reveal ? ({ ...base, reveal } as typeof base) : base;
       setDraft((prev) => {
         if (!prev?.deck) return prev;
@@ -238,11 +383,9 @@ export const SlideDeckEditor = () => {
     [slides, updateSlides],
   );
 
-  const sortByPhase = useCallback(() => {
+  const sortBySection = useCallback(() => {
     const selId = slides[clampedIndex]?.id;
-    const sorted = [...slides].sort(
-      (a, b) => PHASES.indexOf(a.phase) - PHASES.indexOf(b.phase),
-    );
+    const sorted = sortSlidesBySection(slides);
     updateSlides(sorted);
     setSelectedIndex(
       Math.max(
@@ -448,17 +591,22 @@ export const SlideDeckEditor = () => {
             selectedIndex={clampedIndex}
             snapshot={snapshot}
             onSelect={setSelectedIndex}
-            onAdd={addSlide}
+            onAdd={addToSection}
             onDuplicate={duplicateSlide}
             onDelete={deleteSlide}
             onMove={moveSlideBy}
-            onSortByPhase={sortByPhase}
+            onSortBySection={sortBySection}
           />
         </div>
 
         <RationaleSidePanel
           slide={selected}
-          phaseFullName={PHASE_FULL_NAMES[selected.phase]}
+          phaseFullName={SECTIONS.filter(
+            (sec) => SECTION_PHASE[sec] === selected.phase,
+          )
+            .map((sec) => SECTION_LABEL[sec].en)
+            .join(' & ')}
+          onSectionChange={canEdit ? changeSection : undefined}
           rationale={cell.rationale}
           onRationaleChange={(r) => updateRationale(selected.phase, r)}
           slideInteractions={slideInteractions}
@@ -475,7 +623,7 @@ export const SlideDeckEditor = () => {
       {pendingTemplate &&
         (() => {
           const domain = SLIDE_TEMPLATES.find(
-            (t) => t.id === pendingTemplate,
+            (t) => t.id === pendingTemplate.templateId,
           )?.pickerDomain;
           return domain ? (
             <ContentPickerDialog

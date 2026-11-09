@@ -1,6 +1,6 @@
 import type { MindMapBoard } from '@/content/graph/mindMapBoard';
 import type { EdgeKind, EntityId } from '@/content/graph/types';
-import type { LocalizedText } from '../../types';
+import type { FeelingsLevel, LocalizedText } from '../../types';
 import type { SlideMedia } from '../types';
 
 /**
@@ -112,15 +112,14 @@ export interface CortexLessonPlan {
   notes: string[];
 }
 
-export type CheckInStyle = 'emoji' | 'scale' | 'word';
-
 export interface CortexLessonChoices {
   role: GroupRole;
   /** A Producer's tutorial; the plan's first when absent. */
   tutorialId?: string;
   /** A Performer's lesson ref; the plan's first when absent. */
   performerRef?: string;
-  checkInStyle: CheckInStyle;
+  /** The Connect check-in's feelings tool: 5 faces, 9 faces, or the wheel. */
+  checkInLevel: FeelingsLevel;
   checkInQuestion?: LocalizedText;
   /** Add the "which sound matches your mood?" poll when there are vibes. */
   vibePoll: boolean;
@@ -131,7 +130,7 @@ export interface CortexLessonChoices {
 }
 
 export const DEFAULT_CORTEX_CHOICES: Omit<CortexLessonChoices, 'role'> = {
-  checkInStyle: 'emoji',
+  checkInLevel: 'simple',
   vibePoll: true,
   projectMinutes: 20,
   seed: 0,

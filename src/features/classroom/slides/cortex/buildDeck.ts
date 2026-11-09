@@ -1,10 +1,17 @@
 import { PHASES, type PhaseKey } from '../../phases';
-import type { Day, DayCells, Interaction, LocalizedText } from '../../types';
+import type {
+  Day,
+  DayCells,
+  FeelingsLevel,
+  Interaction,
+  LocalizedText,
+} from '../../types';
 import type { Slide, SlideDeck, SlideDeckTemplateRef } from '../types';
 import {
   CHECK_IN_QUESTION,
   COPY,
   PREP_CHECKLIST,
+  RESET_CHECKLIST,
   deckTitle,
   groupTitle,
   listenTitle,
@@ -27,13 +34,17 @@ import type { CortexLessonChoices, CortexLessonPlan, GroupRole } from './types';
  * new slide kinds and no new interaction types: the server's `Interaction.type`
  * is an enum.
  *
- *   Connection          `interaction`  check-in (+ mood poll)   connectRegulate
- *   Showcase            `content`      facts + portrait/globe   connectRegulate
+ * The six sections, in order (`slides/sections.ts`):
+ *
+ *   Connect             `interaction`  feelings check-in (+ mood poll)  connectRegulate
+ *   Showcase            `content`      facts + portrait/globe           connectRegulate
  *                       `media`        a video, when there is one
- *   Group Project       `app-route`    Globe / Studio / Learn   groupPractice
- *   Individual Project  `app-route`    the Studio library       creativeProjects
- *   Present             `interaction`  progress, to the teacher presentPerform
+ *   Group Project       `app-route`    Globe / Studio / Learn           groupPractice
+ *   Individual Project  `app-route`    the Studio library               creativeProjects
+ *   Present             `interaction`  progress, to the teacher         presentPerform
  *                       `showcase`     a project to offer
+ *   Reflect             `interaction`  exit question, projectable       respondReflectReset
+ *                       `content`      the room-reset checklist
  */
 
 export const CORTEX_LESSON_TEMPLATE_ID = 'cortex-lesson-v1';
@@ -62,12 +73,59 @@ const ixIds = (prefix: string) => ({
   project: `${prefix}-ix-project`,
   progress: `${prefix}-ix-progress`,
   share: `${prefix}-ix-share`,
+  exit: `${prefix}-ix-exit`,
 });
+
+/** The emotional check-in, at a level. Teacher-eyes-only (Rule 2). */
+const feelingsCheckIn = (
+  id: string,
+  level: FeelingsLevel,
+  question: LocalizedText = CHECK_IN_QUESTION[level],
+): Interaction => ({
+  id,
+  type: 'check-in',
+  question,
+  // Rule 2: check-ins never reach the projector.
+  shareable: false,
+  checkIn: { style: 'feelings', level },
+});
+
+/** Reflect's exit question: answered anonymously on the projector if shared. */
+const exitQuestion = (id: string): Interaction => ({
+  id,
+  type: 'text',
+  question: COPY.exitQuestion,
+  shareable: true,
+  text: { maxLen: 140 },
+});
+
+/** Reflect's two slides: the exit question, then the room reset. */
+const reflectSlides = (prefix: string, exitId: string): Slide[] => [
+  {
+    id: `${prefix}-slide-exit`,
+    kind: 'interaction',
+    phase: 'respondReflectReset',
+    section: 'reflect',
+    presetId: 'question',
+    title: COPY.exitTitle,
+    interactionIds: [exitId],
+    reveal: 'wall',
+  },
+  {
+    id: `${prefix}-slide-reset`,
+    kind: 'content',
+    phase: 'respondReflectReset',
+    section: 'reflect',
+    variant: 'plain',
+    title: COPY.resetTitle,
+    resetChecklist: [...RESET_CHECKLIST],
+  },
+];
 
 const withTimer = (minutes: number): { timerSec?: number } =>
   minutes > 0 ? { timerSec: Math.round(minutes * 60) } : {};
 
-/** The parts every Cortex deck shares: Individual Project and Present. */
+/** The parts every Cortex deck shares: Individual Project, Present, Reflect. */
 const projectAndPresent = (
   prefix: string,
   projectMinutes: number,
@@ -98,16 +156,19 @@ const projectAndPresent = (
     question: COPY.shareQuestion,
     shareable: false,
   };
+  const exit = exitQuestion(ids.exit);
   return {
     interactionsByPhase: {
       creativeProjects: [project],
       presentPerform: [progress, share],
+      respondReflectReset: [exit],
     },
     slides: [
       {
         id: `${prefix}-slide-project`,
         kind: 'app-route',
         phase: 'creativeProjects',
+        section: 'individualProject',
         presetId: 'personal-project-time',
         title: COPY.projectTitle,
         prompt: COPY.projectPrompt,
@@ -118,6 +179,7 @@ const projectAndPresent = (
         id: `${prefix}-slide-progress`,
         kind: 'interaction',
         phase: 'presentPerform',
+        section: 'present',
         presetId: 'question',
         title: COPY.presentTitle,
         prompt: COPY.presentPrompt,
@@ -127,11 +189,13 @@ const projectAndPresent = (
         id: `${prefix}-slide-share`,
         kind: 'showcase',
         phase: 'presentPerform',
+        section: 'present',
         presetId: 'share-day',
         title: COPY.shareTitle,
         prompt: COPY.sharePrompt,
         interactionId: share.id,
       },
+      ...reflectSlides(prefix, exit.id),
     ],
     cellCopy: {
       creativeProjects: {
@@ -141,6 +205,10 @@ const projectAndPresent = (
       presentPerform: {
         title: COPY.presentCell,
         prompt: COPY.progressQuestion,
+      },
+      respondReflectReset: {
+        title: COPY.exitTitle,
+        prompt: COPY.exitQuestion,
       },
     },
   };
@@ -242,15 +310,11 @@ export const buildCortexLessonContent = (
   const ids = ixIds(prefix);
   const { focus, showcase } = plan;
 
-  const checkIn: Interaction = {
-    id: ids.checkIn,
-    type: 'check-in',
-    question:
-      choices.checkInQuestion ?? CHECK_IN_QUESTION[choices.checkInStyle],
-    // Rule 2: check-ins never reach the projector.
-    shareable: false,
-    checkIn: { style: choices.checkInStyle },
-  };
+  const checkIn = feelingsCheckIn(
+    ids.checkIn,
+    choices.checkInLevel,
+    choices.checkInQuestion,
+  );
   const vibe: Interaction | null =
     choices.vibePoll && plan.vibes.length >= 2
       ? {
@@ -273,6 +337,7 @@ export const buildCortexLessonContent = (
       id: `${prefix}-slide-showcase`,
       kind: 'content',
       phase: 'connectRegulate',
+      section: 'showcase',
       presetId: 'artist-spotlight',
       title: { en: focus.label, es: focus.label },
       prompt:
@@ -290,6 +355,7 @@ export const buildCortexLessonContent = (
       id: `${prefix}-slide-listen`,
       kind: 'media',
       phase: 'connectRegulate',
+      section: 'showcase',
       title: listenTitle(listen.title),
       prompt: {
         en: `${listen.caption} — ${COPY.listenPrompt.en}`,
@@ -318,6 +384,7 @@ export const buildCortexLessonContent = (
         id: `${prefix}-slide-connection`,
         kind: 'interaction',
         phase: 'connectRegulate',
+        section: 'connect',
         presetId: 'greeting-check-in',
         title: COPY.connectionTitle,
         prompt: todayWith(focus),
@@ -329,6 +396,7 @@ export const buildCortexLessonContent = (
         id: `${prefix}-slide-group`,
         kind: 'app-route',
         phase: 'groupPractice',
+        section: 'groupProject',
         title: groupTitle(choices.role),
         prompt: group.prompt,
         interactionId: group.interaction.id,
@@ -461,20 +529,36 @@ export const applyCortexLessonToDay = (
   };
 };
 
+/** The starter interactions' ids: the new Day's own check-in and exit question. */
+const starterIds = (dayId: string) => ({
+  feelings: `${dayId}-cx-ix-feelings`,
+  exit: `${dayId}-cx-ix-exit`,
+});
+
 /**
- * The deck every new Day starts with, before a focus is chosen: the same five
- * parts, as content slides with general copy. No interactions, on purpose: a
- * cell with an interaction counts as filled in (`isCellPopulated`), so a
- * blank Day must not carry any, or seeding it would skip those cells. The
- * Individual Project's Studio library opens from a launch tile instead;
- * "Generate from Cortex" adds the check-in, the Group Project and the
- * Present slides' responses.
+ * Whether an interaction is one a new Day starts with (its feelings check-in
+ * or exit question) rather than one a teacher or a seed added. A cell holding
+ * only these still counts as empty, so seeding a new Day fills every cell.
+ */
+export const isStarterInteraction = (interaction: Pick<Interaction, 'id'>) =>
+  /-cx-ix-(feelings|exit)$/.test(interaction.id);
+
+/**
+ * The deck every new Day starts with, before a focus is chosen: the six
+ * sections with general copy. Connect asks the feelings check-in (Simple) and
+ * Reflect the exit question, so a new lesson taught as it stands still opens
+ * and closes properly; their interactions are `cortexSkeletonInteractions`,
+ * which `newBlankDay` puts in the cells. The Individual Project's Studio
+ * library opens from a launch tile. "Generate from Cortex" replaces the lot,
+ * filling the Showcase and the Group Project in.
  */
 export const buildCortexLessonSkeleton = (dayId: string): SlideDeck => {
   const prefix = `${dayId}-cx`;
+  const ids = starterIds(dayId);
   const section = (
     key: string,
     phase: Slide['phase'],
+    sectionId: NonNullable<Slide['section']>,
     title: LocalizedText,
     prompt: LocalizedText,
     presetId = 'section',
@@ -482,6 +566,7 @@ export const buildCortexLessonSkeleton = (dayId: string): SlideDeck => {
     id: `${prefix}-slide-${key}`,
     kind: 'content',
     phase,
+    section: sectionId,
     presetId,
     title,
     prompt,
@@ -490,23 +575,34 @@ export const buildCortexLessonSkeleton = (dayId: string): SlideDeck => {
     id: `${dayId}-deck`,
     title: { en: 'Lesson', es: 'Lección' },
     slides: [
-      section(
-        'connection',
-        'connectRegulate',
-        COPY.connectionTitle,
-        CHECK_IN_QUESTION.emoji,
-      ),
+      {
+        id: `${prefix}-slide-connection`,
+        kind: 'interaction',
+        phase: 'connectRegulate',
+        section: 'connect',
+        presetId: 'greeting-check-in',
+        title: COPY.connectionTitle,
+        interactionIds: [ids.feelings],
+      },
       section(
         'showcase',
         'connectRegulate',
+        'showcase',
         COPY.showcaseTitle,
         COPY.showcaseOpen,
       ),
-      section('group', 'groupPractice', COPY.groupTitle, COPY.groupOpen),
+      section(
+        'group',
+        'groupPractice',
+        'groupProject',
+        COPY.groupTitle,
+        COPY.groupOpen,
+      ),
       {
         ...section(
           'project',
           'creativeProjects',
+          'individualProject',
           COPY.projectTitle,
           COPY.projectPrompt,
           'project-menu',
@@ -523,12 +619,25 @@ export const buildCortexLessonSkeleton = (dayId: string): SlideDeck => {
       section(
         'present',
         'presentPerform',
+        'present',
         COPY.presentTitle,
         COPY.presentPrompt,
         'share-day',
       ),
+      ...reflectSlides(prefix, ids.exit),
     ],
     templateRef: { templateId: CORTEX_LESSON_TEMPLATE_ID },
+  };
+};
+
+/** The new Day's starter interactions, by the phase cell they live in. */
+export const cortexSkeletonInteractions = (
+  dayId: string,
+): InteractionsByPhase => {
+  const ids = starterIds(dayId);
+  return {
+    connectRegulate: [feelingsCheckIn(ids.feelings, 'simple')],
+    respondReflectReset: [exitQuestion(ids.exit)],
   };
 };
 

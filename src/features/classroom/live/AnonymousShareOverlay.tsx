@@ -3,6 +3,7 @@
  * Belt-and-suspenders on top of buildProjectorView's own check-in refusal —
  * a bug in the projector selector still cannot cause a check-in leak.
  */
+import { isProjectionRefused } from '../slides/interactionPolicy';
 import type { Interaction } from '../types';
 import type { ProjectorView } from './buildProjectorView';
 
@@ -14,8 +15,7 @@ export interface AnonymousShareOverlayProps {
 const ANON_PATTERN = /^anon-[a-z0-9]{6}$/;
 
 export const AnonymousShareOverlay = (props: AnonymousShareOverlayProps) => {
-  if (props.interaction.type === 'check-in') return null;
-  if (!props.interaction.shareable) return null;
+  if (isProjectionRefused(props.interaction)) return null;
   if (!props.projectorView.emit) return null;
   if (props.projectorView.responses.some((r) => !ANON_PATTERN.test(r.anon))) {
     return null;

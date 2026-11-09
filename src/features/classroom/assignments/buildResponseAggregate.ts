@@ -4,6 +4,7 @@
  * live here; the dashboard component is a dumb switch on aggregate.kind.
  */
 import type {
+  FeelingsLevel,
   Interaction,
   InteractionResponsePayload,
   LocalizedText,
@@ -67,6 +68,8 @@ export interface DrawAggregate extends AggregateBase {
 
 export interface CheckInAggregate extends AggregateBase {
   kind: 'check-in';
+  /** The feelings tool's level; null for an older check-in (emoji, 1–5, word). */
+  level: FeelingsLevel | null;
   rows: Array<{ enrollmentId: string; displayName: string; value: string }>;
 }
 
@@ -284,7 +287,11 @@ export const buildResponseAggregate = (
               value: string;
             } => Boolean(r),
           );
-        return { ...base, kind: 'check-in', rows };
+        const level =
+          interaction.checkIn?.style === 'feelings'
+            ? (interaction.checkIn.level ?? 'simple')
+            : null;
+        return { ...base, kind: 'check-in', level, rows };
       }
 
       case 'atlas': {

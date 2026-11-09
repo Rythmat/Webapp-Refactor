@@ -8,10 +8,13 @@ import { EmptyState } from '@/daw/ui/EmptyState';
 import { TYPE_CLASS } from '@/daw/ui/styles';
 import { useWeekGridData } from '@/features/classroom/annual/useWeekGridData';
 import { useGoLive } from '@/features/classroom/live/useGoLive';
-import { PHASES } from '@/features/classroom/phases';
 import { LessonThumb } from '@/features/classroom/plan/LessonThumb';
 import { StatusChip } from '@/features/classroom/plan/lessonStatus';
 import { useLocalPlan } from '@/features/classroom/plan/useLocalPlan';
+import {
+  SECTIONS,
+  groupSlidesBySection,
+} from '@/features/classroom/slides/sections';
 import { useCanEditClassroom, useClassroom } from '@/hooks/data';
 import { relativeDay } from '../today/todayModel';
 
@@ -46,10 +49,9 @@ export const LessonInspector = ({
 
   const { status, assignment } = grid.statusFor(day);
   const slides = day.deck?.slides.length ?? 0;
-  const filled = PHASES.filter((phase) => {
-    const p = day.cells[phase]?.presentation;
-    return Boolean(p?.title.en.trim() || p?.prompt.en.trim());
-  }).length;
+  const sectionsUsed = groupSlidesBySection(day.deck?.slides ?? []).filter(
+    (g) => g.slides.length > 0,
+  ).length;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-3 [scrollbar-width:thin]">
@@ -77,7 +79,10 @@ export const LessonInspector = ({
 
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.06]">
         <Fact label="Slides" value={slides > 0 ? String(slides) : '—'} />
-        <Fact label="Phases" value={`${filled} of ${PHASES.length}`} />
+        <Fact
+          label="Sections"
+          value={`${sectionsUsed} of ${SECTIONS.length}`}
+        />
       </div>
 
       <div className="flex flex-col gap-2">

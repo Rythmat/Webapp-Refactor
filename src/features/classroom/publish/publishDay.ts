@@ -17,6 +17,8 @@ import type { MindMapBoard } from '@/content/graph/mindMapBoard';
 import { stripLegacySongSlug } from '../legacySongSlug';
 import { PHASES, type PhaseKey } from '../phases';
 import { deckFromCells } from '../slides/deckFromCells';
+import { NEVER_PROJECTED } from '../slides/interactionPolicy';
+import { isSlideSection } from '../slides/sections';
 import { isZoneName } from '../slides/slideGrid';
 import {
   SLIDE_BLOCK_KEYS,
@@ -150,18 +152,24 @@ const projectInteraction = (interaction: Interaction): Interaction => {
     id: interaction.id,
     type: interaction.type,
     question: interaction.question,
-    // Rule 2 belt: `check-in` and `echo` are hard-`false` regardless of the
-    // source value.
-    shareable:
-      interaction.type === 'check-in' || interaction.type === 'echo'
-        ? false
-        : interaction.shareable,
+    // Rule 2 belt: check-ins, offers and Echo runs are hard-`false`
+    // regardless of the source value.
+    shareable: NEVER_PROJECTED.has(interaction.type)
+      ? false
+      : interaction.shareable,
   };
   if (interaction.choice) out.choice = interaction.choice;
   if (interaction.number) out.number = interaction.number;
   if (interaction.text) out.text = interaction.text;
   if (interaction.draw) out.draw = interaction.draw;
-  if (interaction.checkIn) out.checkIn = interaction.checkIn;
+  if (interaction.checkIn) {
+    out.checkIn = {
+      style: interaction.checkIn.style,
+      ...(interaction.checkIn.level
+        ? { level: interaction.checkIn.level }
+        : {}),
+    };
+  }
   if (interaction.atlas) out.atlas = projectAtlas(interaction.atlas);
   if (interaction.echo) out.echo = projectEcho(interaction.echo);
   return out;
@@ -350,6 +358,8 @@ const projectSlide = (slide: Slide): Slide => {
   const common = {
     id: slide.id,
     phase: slide.phase,
+    // An enum token, and only when it names a real section.
+    ...(isSlideSection(slide.section) ? { section: slide.section } : {}),
     // Through `projectLocalized`, not by reference. `projectElement` already
     // does this for element text; the slide-level fields did not, so a
     // `LocalizedText` carrying an extra key kept it — the object is a teacher's

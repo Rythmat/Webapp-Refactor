@@ -111,7 +111,13 @@ export interface Interaction {
   number?: { min?: number; max?: number };
   text?: { maxLen: number };
   draw?: { background?: 'blank' | 'staff' | 'keyboard' | 'grid' };
-  checkIn?: { style: 'emoji' | 'scale' | 'word' };
+  /**
+   * A check-in's answer tool. `feelings` is the emotional check-in
+   * (owner, 2026-11-09) at the teacher's chosen `level`: a 5-face scale, a
+   * 3×3 face grid, or Plutchik's wheel. `emoji` / `scale` / `word` are the
+   * older tools, still answered by lessons saved with them.
+   */
+  checkIn?: { style: CheckInStyle; level?: FeelingsLevel };
   atlas?: {
     module: 'globe' | 'learn' | 'studio' | 'arcade';
     activityRef: string;
@@ -130,6 +136,11 @@ export interface Interaction {
    */
   echo?: EchoInteractionConfig;
 }
+
+export type CheckInStyle = 'emoji' | 'scale' | 'word' | 'feelings';
+
+/** How fine-grained the emotional check-in is (`feelings/feelings.ts`). */
+export type FeelingsLevel = 'simple' | 'advanced' | 'complex';
 
 export type InteractionType =
   | 'choice'

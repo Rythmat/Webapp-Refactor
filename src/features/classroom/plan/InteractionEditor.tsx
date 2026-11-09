@@ -16,13 +16,21 @@ import {
   LITERACY_TONICS,
   type LiteracyTonic,
 } from '@/content/musicLiteracy/schemas';
+import { Segmented } from '@/daw/ui';
 import { DEFAULT_ECHO_INTERACTION } from '../echo/types';
+import { FeelingsPreview } from '../feelings/FeelingsPicker';
+import {
+  FEELINGS_LEVELS,
+  FEELINGS_LEVEL_HINT,
+  FEELINGS_LEVEL_LABEL,
+} from '../feelings/feelings';
 import {
   MODULE_CAPABILITIES,
   type AtlasExpects,
   type AtlasModule,
 } from '../msp/capabilities';
-import type { Interaction, InteractionType } from '../types';
+import { CHECK_IN_QUESTION } from '../slides/cortex/copy';
+import type { FeelingsLevel, Interaction, InteractionType } from '../types';
 
 export const INTERACTION_TYPES: {
   value: InteractionType;
@@ -56,9 +64,9 @@ export const INTERACTION_TYPES: {
   },
   {
     value: 'check-in',
-    label: 'Check-in',
+    label: 'Feelings check-in',
     Icon: Sparkles,
-    description: 'Teacher-eyes-only wellness pulse.',
+    description: 'How students are arriving. Only you see the answers.',
   },
   {
     value: 'echo',
@@ -92,7 +100,11 @@ export const emptyInteraction = (type: InteractionType): Interaction => {
     case 'draw':
       return { ...base, draw: { background: 'blank' } };
     case 'check-in':
-      return { ...base, checkIn: { style: 'emoji' } };
+      return {
+        ...base,
+        question: { ...CHECK_IN_QUESTION.simple },
+        checkIn: { style: 'feelings', level: 'simple' },
+      };
     case 'atlas':
       return {
         ...base,
@@ -397,19 +409,53 @@ const TypeSpecificFields = ({
           }
         />
       );
-    case 'check-in':
+    case 'check-in': {
+      const level: FeelingsLevel =
+        interaction.checkIn?.style === 'feelings'
+          ? (interaction.checkIn.level ?? 'simple')
+          : 'simple';
+      const isOlder =
+        interaction.checkIn !== undefined &&
+        interaction.checkIn.style !== 'feelings';
       return (
-        <TinySelectField
-          label="Style"
-          value={interaction.checkIn?.style ?? 'emoji'}
-          options={['emoji', 'scale', 'word']}
-          onChange={(v) =>
-            onUpdate({
-              checkIn: { style: v as 'emoji' | 'scale' | 'word' },
-            })
-          }
-        />
+        <div className="flex flex-col gap-3">
+          <Segmented<FeelingsLevel>
+            label="How detailed"
+            value={isOlder ? ('' as FeelingsLevel) : level}
+            options={FEELINGS_LEVELS.map((l) => ({
+              value: l,
+              label: FEELINGS_LEVEL_LABEL[l],
+            }))}
+            onValueChange={(next) => {
+              const question = interaction.question.en.trim();
+              const wasDefault =
+                question === '' ||
+                Object.values(CHECK_IN_QUESTION).some((q) => q.en === question);
+              onUpdate({
+                checkIn: { style: 'feelings', level: next },
+                // Follow the level's question unless the teacher wrote their own.
+                ...(wasDefault
+                  ? { question: { ...CHECK_IN_QUESTION[next] } }
+                  : {}),
+              });
+            }}
+          />
+          <p className="text-[0.8125rem] text-daw-text-2">
+            {isOlder
+              ? 'An older check-in. Pick a level to use the feelings faces or wheel.'
+              : FEELINGS_LEVEL_HINT[level]}
+          </p>
+          {!isOlder && (
+            <div className="rounded-[1.25rem] border border-white/[0.06] bg-white/[0.03] p-3 text-[0.9375rem]">
+              <FeelingsPreview
+                level={level}
+                className={level === 'complex' ? 'mx-auto max-w-48' : 'mx-auto'}
+              />
+            </div>
+          )}
+        </div>
       );
+    }
     case 'atlas': {
       const module: AtlasModule = interaction.atlas?.module ?? 'learn';
       const capability = MODULE_CAPABILITIES[module];

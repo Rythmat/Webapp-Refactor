@@ -10,11 +10,7 @@ import { EmptyState } from '@/daw/ui/EmptyState';
 import { IconButton } from '@/daw/ui/IconButton';
 import { Segmented } from '@/daw/ui/Segmented';
 import { useThemeBank } from '@/features/classroom/content/hooks';
-import {
-  PHASES,
-  PHASE_FULL_NAMES,
-  type PhaseKey,
-} from '@/features/classroom/phases';
+import { PHASES, type PhaseKey } from '@/features/classroom/phases';
 import { useLocalPlan } from '@/features/classroom/plan/useLocalPlan';
 import { useSavedLessons } from '@/features/classroom/plan/useSavedLessons';
 import { useSongsReady } from '@/features/classroom/plan/useSongsReady';
@@ -32,6 +28,7 @@ import {
   SECTION_TITLE,
   isSection,
   matches,
+  phaseName,
   themeForMonth,
   type LibrarySection,
 } from './libraryModel';
@@ -184,13 +181,13 @@ export const LibraryPage = () => {
           </div>
           {phaseFilter && (
             <Segmented<PhaseFilter>
-              label="Phase"
+              label="Section"
               className="max-w-full overflow-x-auto"
               options={[
-                { value: 'all', label: 'All phases' },
+                { value: 'all', label: 'All sections' },
                 ...PHASES.map((p) => ({
                   value: p,
-                  label: PHASE_FULL_NAMES[p],
+                  label: phaseName(p),
                 })),
               ]}
               value={phase}

@@ -9,9 +9,10 @@ import type {
   LessonSeed,
   Theme,
 } from '@/features/classroom/content/types';
-import { PHASE_FULL_NAMES, type PhaseKey } from '@/features/classroom/phases';
+import type { PhaseKey } from '@/features/classroom/phases';
 import { newBlankDay } from '@/features/classroom/plan/newBlankDay';
 import { deckFromCells } from '@/features/classroom/slides/deckFromCells';
+import { phaseSectionLabel } from '@/features/classroom/slides/sections';
 import type { Day } from '@/features/classroom/types';
 
 // ── The Library (owner, 2026-11-09) ────────────────────────────────────────
@@ -45,8 +46,9 @@ export const goalText = (clo: Clo): string =>
         .filter(Boolean)
         .join(' ');
 
+/** A phase by its lesson section: "Connect", "Group Project"… */
 export const phaseName = (phase: PhaseKey | undefined) =>
-  phase ? PHASE_FULL_NAMES[phase] : 'Any phase';
+  phase ? phaseSectionLabel(phase).en : 'Any section';
 
 const has = (q: string, ...fields: (string | undefined | null)[]) =>
   fields.some((f) => f?.toLowerCase().includes(q));

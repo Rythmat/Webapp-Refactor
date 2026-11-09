@@ -2,6 +2,10 @@ import { Eye, EyeOff } from 'lucide-react';
 import type { MindMapSubmission } from '@/content/graph/mindMapBoard';
 import { InteractionResponseDashboard } from '../../assignments/InteractionResponseDashboard';
 import type { ResponseAggregate } from '../../assignments/buildResponseAggregate';
+import {
+  isProjectionRefused,
+  projectionRefusedReason,
+} from '../../slides/interactionPolicy';
 import type { Slide } from '../../slides/types';
 import { ResponseRateRing } from '../../slides/viz/ResponseRateRing';
 import { RevealViz } from '../../slides/viz/RevealViz';
@@ -77,9 +81,7 @@ export const CurrentSlidePanel = ({
         <div className="flex flex-col gap-3">
           {interactions.map((interaction) => {
             const shared = sharedInteractionIds.includes(interaction.id);
-            const canShare =
-              interaction.type !== 'check-in' &&
-              interaction.shareable !== false;
+            const canShare = !isProjectionRefused(interaction);
             return (
               <div
                 key={interaction.id}
@@ -97,9 +99,7 @@ export const CurrentSlidePanel = ({
                   title={
                     canShare
                       ? undefined
-                      : interaction.type === 'check-in'
-                        ? 'Check-ins are structurally teacher-only.'
-                        : 'This interaction is not shareable.'
+                      : (projectionRefusedReason(interaction) ?? undefined)
                   }
                   className={
                     'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-colors ' +

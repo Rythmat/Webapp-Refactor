@@ -7,6 +7,7 @@
  * Sprint 4 mock stores no per-response timestamp, so createdAt falls back to
  * session.endedAt ?? startedAt. Ryan's PartyKit swap surfaces the real ts.
  */
+import { describeFeeling } from '../feelings/feelings';
 import type { Interaction, InteractionResponsePayload } from '../types';
 import type { SessionState } from './sessionsStore';
 
@@ -52,8 +53,14 @@ const serializePayload = (payload: InteractionResponsePayload): string => {
       return String(payload.value);
     case 'draw':
       return `[${payload.strokes.length} strokes]`;
-    case 'check-in':
-      return `TEACHER_ONLY:${payload.value}`;
+    case 'check-in': {
+      const feeling = describeFeeling(payload.value);
+      return `TEACHER_ONLY:${
+        feeling
+          ? `${feeling.label}${feeling.detail ? ` (${feeling.detail})` : ''}`
+          : payload.value
+      }`;
+    }
     case 'atlas':
       return `${payload.activityRef}|${JSON.stringify(payload.result)}`;
     case 'showcase':

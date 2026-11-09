@@ -38,6 +38,10 @@ import {
   slideAt,
   slideInteractionIds,
 } from '../slides/deck';
+import {
+  isProjectionRefused,
+  projectionRefusedReason,
+} from '../slides/interactionPolicy';
 import { resolveElements } from '../slides/migrateDeckV1';
 import { revealContentHeight } from '../slides/slideGrid';
 import { ParticipationPulse } from '../slides/viz/ParticipationPulse';
@@ -704,8 +708,7 @@ interface ShareRowProps {
 }
 
 const ShareRow = ({ interaction, shared, onToggle }: ShareRowProps) => {
-  const canShare =
-    interaction.type !== 'check-in' && interaction.shareable !== false;
+  const canShare = !isProjectionRefused(interaction);
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
       <div className="flex flex-col">
@@ -721,9 +724,7 @@ const ShareRow = ({ interaction, shared, onToggle }: ShareRowProps) => {
         title={
           canShare
             ? undefined
-            : interaction.type === 'check-in'
-              ? 'Check-ins are structurally teacher-only.'
-              : 'This interaction is not shareable.'
+            : (projectionRefusedReason(interaction) ?? undefined)
         }
         className={
           'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-colors ' +

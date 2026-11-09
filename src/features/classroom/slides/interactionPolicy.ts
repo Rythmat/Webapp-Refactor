@@ -16,13 +16,41 @@
  * whatever the variant says, because a mixed slide has no single variant that
  * describes every interaction on it.
  */
-import type { Interaction } from '../types';
+import type { Interaction, InteractionType } from '../types';
 import type {
   InteractionSlide as InteractionSlideModel,
   SlideSurface,
 } from './types';
 
 export type InteractionVariant = 'check-in' | 'exit-poll' | 'question';
+
+/**
+ * The interaction types whose answers never reach a projected surface:
+ * check-ins (how a student feels), showcase offers (a student's project and
+ * name) and Echo runs (identified results). `buildProjectorView` refuses
+ * exactly these; everything that gates sharing reads this one list.
+ */
+export const NEVER_PROJECTED: ReadonlySet<InteractionType> =
+  new Set<InteractionType>(['check-in', 'showcase', 'echo']);
+
+/** Rule 2b: whether an interaction's answers may never be projected. */
+export const isProjectionRefused = (
+  interaction: Pick<Interaction, 'type' | 'shareable'>,
+): boolean => NEVER_PROJECTED.has(interaction.type) || !interaction.shareable;
+
+/** Why sharing is off, in the teacher's words (for a disabled Share toggle). */
+export const projectionRefusedReason = (
+  interaction: Pick<Interaction, 'type' | 'shareable'>,
+): string | null => {
+  if (interaction.type === 'check-in')
+    return 'Check-ins are only ever seen by you.';
+  if (interaction.type === 'showcase')
+    return 'Offers name the student; feature one instead.';
+  if (interaction.type === 'echo')
+    return 'Echo results name each student; they stay with you.';
+  if (!interaction.shareable) return 'This question is set not to be shared.';
+  return null;
+};
 
 /**
  * The runtime fan-out `SlideRenderer` has always used, extracted verbatim:
@@ -77,14 +105,7 @@ export const mayRevealOn = (
   //
   // Keyed on the INTERACTION, not the slide's variant, because that is what
   // the rule is actually about.
-  if (
-    interaction.type === 'check-in' ||
-    interaction.type === 'showcase' ||
-    interaction.type === 'echo'
-  ) {
-    return false;
-  }
-  if (!interaction.shareable) return false;
+  if (isProjectionRefused(interaction)) return false;
 
   switch (variant) {
     case 'check-in':

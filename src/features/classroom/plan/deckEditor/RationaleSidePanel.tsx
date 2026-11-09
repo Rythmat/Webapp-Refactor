@@ -7,7 +7,17 @@
  */
 import { Lock, PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { useState } from 'react';
+import { MicroLabel } from '@/components/kit';
+import { Select } from '@/daw/ui';
 import type { Activity } from '../../content/types';
+import {
+  SECTIONS,
+  SECTION_LABEL,
+  isSlideSection,
+  sectionNumber,
+  sectionOf,
+  type SlideSection,
+} from '../../slides/sections';
 import type { Slide } from '../../slides/types';
 import type { CellRationale, Interaction } from '../../types';
 import { ActivityBankPicker } from '../ActivityBankPicker';
@@ -17,7 +27,10 @@ import { SlideInteractionPanel } from './SlideInteractionPanel';
 
 interface RationaleSidePanelProps {
   slide: Slide;
+  /** The sections these notes cover ("Connect & Showcase"). */
   phaseFullName: string;
+  /** Move the slide to another section (Connect … Reflect). */
+  onSectionChange?: (section: SlideSection) => void;
   rationale: CellRationale;
   onRationaleChange: (r: CellRationale) => void;
   slideInteractions: Interaction[];
@@ -31,6 +44,7 @@ interface RationaleSidePanelProps {
 export const RationaleSidePanel = ({
   slide,
   phaseFullName,
+  onSectionChange,
   rationale,
   onRationaleChange,
   slideInteractions,
@@ -82,6 +96,20 @@ export const RationaleSidePanel = ({
         </button>
       </div>
 
+      <div className="flex flex-col gap-1.5">
+        <MicroLabel>Section</MicroLabel>
+        <Select
+          label="Section"
+          value={sectionOf(slide)}
+          disabled={!onSectionChange}
+          onValueChange={(v) => isSlideSection(v) && onSectionChange?.(v)}
+          options={SECTIONS.map((s) => ({
+            value: s,
+            label: `${sectionNumber(s)} · ${SECTION_LABEL[s].en}`,
+          }))}
+        />
+      </div>
+
       {slide.kind === 'interaction' && (
         <SlideInteractionPanel
           interactions={slideInteractions}
@@ -97,9 +125,9 @@ export const RationaleSidePanel = ({
       )}
 
       <div className="flex flex-col gap-2 border-t border-white/[0.06] pt-3">
-        <span className="text-[11px] text-white/40">
-          Pedagogy applies to all {phaseFullName} slides — it never reaches
-          students.
+        <span className="text-[0.75rem] text-daw-text-3">
+          These notes cover every {phaseFullName} slide. Students never see
+          them.
         </span>
         <RationaleEditor rationale={rationale} onChange={onRationaleChange} />
         <button

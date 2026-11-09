@@ -3,7 +3,10 @@
  * so a student who navigates directly to the progress URL never sees this.
  */
 import { useEffect, useRef } from 'react';
+import { MicroLabel } from '@/components/kit';
 import { useMe } from '@/hooks/data';
+import { ClassMoodView } from '../feelings/ClassMoodView';
+import { describeFeeling } from '../feelings/feelings';
 import type { ResponseAggregate } from './buildResponseAggregate';
 
 export interface InteractionResponseDashboardProps {
@@ -304,29 +307,31 @@ const CheckInBody = ({
   if (aggregate.rows.length === 0)
     return <EmptyRow label="No check-ins yet." />;
   return (
-    <div className="overflow-x-auto rounded-xl border border-amber-500/20 bg-amber-500/[0.06]">
-      <div className="px-3 py-1.5 text-xs uppercase tracking-wide text-amber-200/80">
-        Teacher only — do not project
-      </div>
-      <table className="w-full text-sm">
-        <thead className="text-left text-xs uppercase tracking-wide text-white/40">
-          <tr>
-            <th className="px-3 py-2">Student</th>
-            <th className="px-3 py-2">Response</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="flex flex-col gap-3 rounded-[1.25rem] border border-white/[0.06] bg-white/[0.03] p-4">
+      <MicroLabel>Only you see this — never projected</MicroLabel>
+      {aggregate.level ? (
+        <ClassMoodView
+          level={aggregate.level}
+          answers={aggregate.rows.map((r) => ({
+            value: r.value,
+            name: r.displayName,
+          }))}
+        />
+      ) : (
+        <ul className="flex flex-col gap-1.5">
           {aggregate.rows.map((r) => (
-            <tr
+            <li
               key={r.enrollmentId}
-              className="border-t border-white/[0.06] text-white/80"
+              className="flex items-center justify-between gap-3 text-[0.875rem] text-daw-text"
             >
-              <td className="px-3 py-2">{r.displayName}</td>
-              <td className="px-3 py-2">{r.value}</td>
-            </tr>
+              <span className="truncate">{r.displayName}</span>
+              <span className="shrink-0 text-daw-text-2">
+                {describeFeeling(r.value)?.label ?? r.value}
+              </span>
+            </li>
           ))}
-        </tbody>
-      </table>
+        </ul>
+      )}
     </div>
   );
 };

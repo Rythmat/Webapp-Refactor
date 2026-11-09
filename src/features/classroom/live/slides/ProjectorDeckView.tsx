@@ -9,6 +9,7 @@ import {
 } from '../../slides/deck';
 import { resolveElements } from '../../slides/migrateDeckV1';
 import { revealContentHeight } from '../../slides/slideGrid';
+import { AnsweredCount } from '../../slides/viz/AnsweredCount';
 import { ParticipationPulse } from '../../slides/viz/ParticipationPulse';
 import type { Interaction, InteractionResponsePayload } from '../../types';
 import { JoinCard } from '../JoinCard';
@@ -113,11 +114,17 @@ export const ProjectorDeckView = ({
     });
 
   const firstInteractionId = interactions[0]?.id;
+  // A feelings check-in shares the band with its faces or wheel, so the room
+  // gets a one-line count rather than the pulse ring.
   const statusChip = firstInteractionId ? (
-    <ParticipationPulse
-      responded={countFor(firstInteractionId)}
-      language="both"
-    />
+    interactions[0].checkIn?.style === 'feelings' ? (
+      <AnsweredCount n={countFor(firstInteractionId)} />
+    ) : (
+      <ParticipationPulse
+        responded={countFor(firstInteractionId)}
+        language="both"
+      />
+    )
   ) : undefined;
 
   // Showcase: the projector shows ONLY the single teacher-featured project

@@ -352,6 +352,22 @@ describe('publishDay deck projection', () => {
     expect(findForbiddenSubstring(snapshot)).toBeNull();
   });
 
+  it('carries a slide section through publish, and only a real one', () => {
+    const day = makeDeckDay();
+    const s0 = day.deck!.slides[0] as unknown as Record<string, unknown>;
+    const s1 = day.deck!.slides[1] as unknown as Record<string, unknown>;
+    s0.section = 'connect';
+    s1.section = 'SECRET teacher note';
+    const snapshot = publishDay(day);
+    const slides = snapshot.deck!.slides as unknown as Record<
+      string,
+      unknown
+    >[];
+    expect(slides[0].section).toBe('connect');
+    expect('section' in slides[1]).toBe(false);
+    expect(JSON.stringify(snapshot)).not.toContain('SECRET');
+  });
+
   it('carries per-block textStyle through publish (whitelisted keys only, firewall clean)', () => {
     const day = makeDeckDay();
     const s0 = day.deck!.slides[0] as unknown as Record<string, unknown>;

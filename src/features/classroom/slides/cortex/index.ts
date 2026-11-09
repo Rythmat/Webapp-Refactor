@@ -6,6 +6,8 @@ export {
   buildCortexLessonContent,
   buildCortexLessonSkeleton,
   cortexLessonTeacherNotes,
+  cortexSkeletonInteractions,
+  isStarterInteraction,
   isUngeneratedCortexDeck,
   roleAvailable,
 } from './buildDeck';

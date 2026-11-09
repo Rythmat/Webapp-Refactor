@@ -32,8 +32,6 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
-import { STUDENT_PHASE_LABELS } from '../../phases';
-import { pickLocalized } from '../../presentation/localized';
 import type { Interaction, StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
 import { blockKeyForElement, resolveElements } from '../migrateDeckV1';
@@ -63,6 +61,7 @@ import type {
   SlideLayout,
   SlideSurface,
 } from '../types';
+import { sectionLabelOf } from './SectionChip';
 import { SlideElementView } from './SlideElementView';
 import { SlideFrameChrome } from './SlideFrameChrome';
 import { SlideReflow } from './SlideReflow';
@@ -327,10 +326,7 @@ export const SlideStage = ({
                   )}
                   slots={slots}
                   playableMedia={playableMedia}
-                  phaseLabel={pickLocalized(
-                    STUDENT_PHASE_LABELS[slide.phase],
-                    language,
-                  )}
+                  phaseLabel={sectionLabelOf(slide, language)}
                 />
               </ZoneBox>
             ))

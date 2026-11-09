@@ -19,13 +19,12 @@
  *     The band is injected at `REFLOW_BAND_AFTER` instead.
  */
 import type { CSSProperties, ReactNode } from 'react';
-import { STUDENT_PHASE_LABELS } from '../../phases';
-import { pickLocalized, secondaryLine } from '../../presentation/localized';
 import type { Interaction, StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
 import { showsPhaseChip } from '../deck';
 import { REFLOW_BAND_AFTER, REFLOW_ORDER } from '../slideGrid';
 import type { Slide, SlideElement, SlideSurface } from '../types';
+import { SectionChip, sectionLabelOf } from './SectionChip';
 import { SlideElementView } from './SlideElementView';
 
 interface SlideReflowProps {
@@ -54,10 +53,6 @@ export const SlideReflow = ({
   band,
   bandInteractionIds,
 }: SlideReflowProps) => {
-  const phaseLabel = STUDENT_PHASE_LABELS[slide.phase];
-  const label = pickLocalized(phaseLabel, language);
-  const labelAlt = secondaryLine(phaseLabel, language);
-
   // An interaction the band already carries renders nothing, and an empty
   // wrapper still takes a `gap-4` of dead space in a column. In the stage that
   // div is absolutely positioned and costs nothing; here it is visible.
@@ -88,16 +83,7 @@ export const SlideReflow = ({
       style={style}
     >
       {showsPhaseChip(slide) && (
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
-          <span aria-hidden className="slide-frame__chip-dot" />
-          <span
-            className="font-semibold uppercase tracking-widest text-white/80"
-            style={{ fontSize: 'var(--slide-label-fz)' }}
-          >
-            {label}
-            {labelAlt && <span className="text-white/40"> · {labelAlt}</span>}
-          </span>
-        </span>
+        <SectionChip slide={slide} language={language} />
       )}
 
       {REFLOW_ORDER.flatMap((zone) => {
@@ -115,7 +101,7 @@ export const SlideReflow = ({
               hiddenInteractionIds={bandInteractionIds}
               slots={slots}
               playableMedia={playableMedia}
-              phaseLabel={label}
+              phaseLabel={sectionLabelOf(slide, language)}
             />
           </div>
         ));

@@ -12,13 +12,15 @@ import {
   expectNoRationaleLeak,
 } from '../firewall.testUtils';
 import { PHASES } from '../phases';
+import { bareDay } from '../plan/bareDay.testUtils';
 import { newBlankDay } from '../plan/newBlankDay';
 import type { Day } from '../types';
 import { deckFromCells } from './deckFromCells';
+import { slidesAreSectionOrdered } from './sections';
 
 /** A blank Day, then populate a couple of cells with student-safe content. */
 const makePopulatedDay = (): Day => {
-  const day = newBlankDay('Test Day');
+  const day = bareDay('Test Day');
   const connect = day.cells.connectRegulate.presentation;
   connect.title = { en: 'Warm Up', es: 'Calentamiento' };
   connect.prompt = { en: 'How do you feel today?' };
@@ -70,27 +72,62 @@ describe('deckFromCells', () => {
     expectNoRationaleLeak(deck, 'deck');
   });
 
-  it('a blank Day yields exactly the 5 phase content slides in order', () => {
+  it('a new Day yields its sections, with the starter check-in and exit question', () => {
     const deck = deckFromCells(newBlankDay('Blank'));
-    expect(deck.slides).toHaveLength(5);
-    expect(deck.slides.map((s) => s.phase)).toEqual([...PHASES]);
-    expect(deck.slides.every((s) => s.kind === 'content')).toBe(true);
+    expect(deck.slides.map((s) => [s.section, s.kind])).toEqual([
+      ['connect', 'content'],
+      ['connect', 'interaction'],
+      ['groupProject', 'content'],
+      ['individualProject', 'content'],
+      ['present', 'content'],
+      ['reflect', 'content'],
+      ['reflect', 'interaction'],
+    ]);
     // A truly empty phase is named by its student label.
     expect(deck.slides[0].title).toEqual({ en: 'Connect', es: 'Conecta' });
   });
 
-  it('maps song → artistImage media and carries launch tiles', () => {
+  it('a bare Day yields exactly the 5 phase content slides in order', () => {
+    const deck = deckFromCells(bareDay('Bare'));
+    expect(deck.slides.map((s) => s.phase)).toEqual([...PHASES]);
+    expect(deck.slides.every((s) => s.kind === 'content')).toBe(true);
+  });
+
+  it("splits Connect's song and spotlight tiles onto a Showcase slide", () => {
     const deck = deckFromCells(makePopulatedDay());
     const connect = deck.slides.find(
       (s) => s.id.endsWith('-present-connectRegulate') && s.kind === 'content',
     );
     expect(connect).toMatchObject({
       kind: 'content',
+      section: 'connect',
       title: { en: 'Warm Up', es: 'Calentamiento' },
       prompt: { en: 'How do you feel today?' },
+    });
+    expect(connect).not.toHaveProperty('media');
+    expect(connect).not.toHaveProperty('launchTiles');
+    const showcase = deck.slides.find((s) => s.section === 'showcase');
+    expect(showcase).toMatchObject({
+      kind: 'content',
+      phase: 'connectRegulate',
       media: { type: 'artistImage', songId: 'lovely_day' },
       launchTiles: [{ id: 'lt-1', module: 'globe', activityRef: 'event-1' }],
     });
+  });
+
+  it('runs in section order, every slide stamped', () => {
+    const deck = deckFromCells(makePopulatedDay());
+    expect(deck.slides.every((s) => s.section)).toBe(true);
+    expect(slidesAreSectionOrdered(deck.slides)).toBe(true);
+    expect(deck.slides.map((s) => s.section)).toEqual([
+      'connect',
+      'showcase',
+      'groupProject',
+      'individualProject',
+      'present',
+      'reflect',
+      'reflect',
+    ]);
   });
 
   it('carries the Reflect reset checklist and is lossless for interactions', () => {
@@ -102,7 +139,10 @@ describe('deckFromCells', () => {
       resetChecklist: [{ en: 'Chairs pushed in', es: 'Sillas acomodadas' }],
     });
     // The cell's interaction survives as an InteractionSlide referencing it.
-    const ixSlide = deck.slides.find((s) => s.kind === 'interaction');
+    const ixSlide = deck.slides.find(
+      (s) =>
+        s.kind === 'interaction' && s.interactionIds.includes('ix-oneword'),
+    );
     expect(ixSlide).toMatchObject({
       kind: 'interaction',
       phase: 'respondReflectReset',

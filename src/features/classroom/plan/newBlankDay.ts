@@ -1,9 +1,10 @@
-import { PHASES } from '../phases';
+import { PHASES, type PhaseKey } from '../phases';
 import {
   buildCortexLessonSkeleton,
   cortexLessonTeacherNotes,
+  cortexSkeletonInteractions,
 } from '../slides/cortex/buildDeck';
-import type { Cell, Day, DayCells } from '../types';
+import type { Cell, Day, DayCells, Interaction } from '../types';
 
 /** A blank cell — presentation is empty LocalizedText; rationale is empty defaults. */
 const blankCell = (): Cell => ({
@@ -45,14 +46,15 @@ const generateDayId = (): string => {
 /**
  * Factory for a fresh Day.
  *
- * It carries the default deck: the Cortex lesson's five parts (Connection,
- * Showcase, Group Project, Individual Project, Present) before a focus is
+ * It carries the default deck: the lesson's six sections (Connect, Showcase,
+ * Group Project, Individual Project, Present, Reflect) before a focus is
  * chosen. Before Days had a default deck, `publishDay` attached one only when
  * already stored, so a Day taken straight from the plan list to "Go Live"
  * went out DECKLESS and the class fell back to the legacy phase board while
- * the teacher's own Present view showed slides. The default deck is content
- * slides only, so the cells stay empty; "Generate from Cortex" fills in the
- * Showcase, the Group Project and the interactive parts.
+ * the teacher's own Present view showed slides. Its Connect check-in and
+ * Reflect exit question live in the cells; they are starter interactions
+ * (`isStarterInteraction`), so the cells still count as empty for seeding.
+ * "Generate from Cortex" fills in the Showcase and the Group Project.
  *
  * The teacher's prep checklist goes to the Connect cell's rationale notes —
  * teacher-only text, never a slide.
@@ -61,6 +63,11 @@ export const newBlankDay = (label?: string): Day => {
   const id = generateDayId();
   const cells = blankCells();
   cells.connectRegulate.rationale.notes = cortexLessonTeacherNotes();
+  for (const [phase, interactions] of Object.entries(
+    cortexSkeletonInteractions(id),
+  ) as [PhaseKey, Interaction[]][]) {
+    cells[phase].presentation.interactions = interactions;
+  }
   return {
     id,
     label: label?.trim() || 'Untitled Day',

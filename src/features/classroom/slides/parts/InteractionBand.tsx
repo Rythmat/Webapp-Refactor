@@ -11,6 +11,7 @@
  *
  * Response data still only ever arrives through the pre-gated `slots`.
  */
+import { FeelingsPreview } from '../../feelings/FeelingsPicker';
 import { pickLocalized, secondaryLine } from '../../presentation/localized';
 import type { Interaction, LocalizedText, StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
@@ -19,11 +20,6 @@ import type { SlideSurface } from '../types';
 const RESPONSES_INCOMING: LocalizedText = {
   en: 'Responses coming in…',
   es: 'Llegando respuestas…',
-};
-
-const TEACHER_ONLY_NOTE: LocalizedText = {
-  en: 'Only your teacher sees your answer',
-  es: 'Solo tu maestro ve tu respuesta',
 };
 
 /** Bilingual interaction question at the slide question scale. */
@@ -81,7 +77,7 @@ export interface InteractionBandProps {
   surface: SlideSurface;
   language: StudentLanguage;
   slots?: SlideSlots;
-  /** True for the all-check-in variant: students get the teacher-only note. */
+  /** True for the all-check-in variant: the room sees the tool, never answers. */
   teacherOnly?: boolean;
 }
 
@@ -114,18 +110,61 @@ export const InteractionBand = ({
               {slots?.input?.(interaction)}
             </div>
           ))}
-          {teacherOnly && (
-            <p
-              className="text-center text-white/40"
-              style={{ fontSize: 'calc(var(--slide-body-fz) * 0.9)' }}
-            >
-              {pickLocalized(TEACHER_ONLY_NOTE, language)}
-              {secondaryLine(TEACHER_ONLY_NOTE, language) && (
-                <span> · {secondaryLine(TEACHER_ONLY_NOTE, language)}</span>
-              )}
-            </p>
-          )}
         </div>
+      </div>
+    );
+  }
+
+  // A feelings check-in, projected: the room sees the question and the faces
+  // (or the wheel) to answer with on their own device — never the answers,
+  // which are teacher-only (Rule 2). The wheel sits beside the question; the
+  // faces sit on one line under it.
+  const feelings =
+    teacherOnly && surface !== 'teacher'
+      ? interactions.find((i) => i.checkIn?.style === 'feelings')
+      : undefined;
+  if (feelings?.checkIn) {
+    const level = feelings.checkIn.level ?? 'simple';
+    const status = (
+      <div className="flex items-center gap-3">
+        {slots?.statusChip ?? <IncomingChip language={language} />}
+      </div>
+    );
+    if (level === 'complex') {
+      return (
+        <div className="flex h-full w-full items-center gap-12 overflow-hidden">
+          <div className="flex min-w-0 flex-1 flex-col justify-center gap-6">
+            <QuestionText question={feelings.question} language={language} />
+            {status}
+          </div>
+          <FeelingsPreview
+            level="complex"
+            language={language}
+            className="h-full w-auto shrink-0"
+          />
+        </div>
+      );
+    }
+    return (
+      <div className="flex h-full w-full flex-col justify-center gap-5 overflow-hidden">
+        <QuestionText question={feelings.question} language={language} />
+        <div
+          className="shrink-0"
+          style={{
+            fontSize:
+              level === 'simple'
+                ? 'var(--slide-body-fz)'
+                : 'calc(var(--slide-body-fz) * 0.8)',
+          }}
+        >
+          <FeelingsPreview
+            level={level}
+            language={language}
+            row
+            className="justify-start"
+          />
+        </div>
+        {status}
       </div>
     );
   }

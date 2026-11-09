@@ -96,7 +96,7 @@ export const DeckWizardPage = () => {
   const [tutorialId, setTutorialId] = useState<string>();
   const [performerRef, setPerformerRef] = useState<string>();
   const [options, setOptions] = useState<CortexOptionValues>({
-    checkInStyle: DEFAULT_CORTEX_CHOICES.checkInStyle,
+    checkInLevel: DEFAULT_CORTEX_CHOICES.checkInLevel,
     vibePoll: DEFAULT_CORTEX_CHOICES.vibePoll,
     projectMinutes: DEFAULT_CORTEX_CHOICES.projectMinutes,
   });

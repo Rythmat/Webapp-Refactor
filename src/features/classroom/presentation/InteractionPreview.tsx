@@ -11,6 +11,7 @@
  * text + options are still authored in the side-panel `InteractionEditor`; this
  * only mirrors them onto the slide.
  */
+import { FeelingsPreview } from '../feelings/FeelingsPicker';
 import type { Interaction, StudentLanguage } from '../types';
 import { pickLocalized } from './localized';
 
@@ -73,7 +74,31 @@ const AnswerPreview = ({
         <FauxField>{`Sketch · ${interaction.draw?.background ?? 'blank'}`}</FauxField>
       );
     case 'check-in': {
-      const chips = CHECK_IN_PREVIEW[interaction.checkIn?.style ?? 'emoji'];
+      if (interaction.checkIn?.style === 'feelings') {
+        const level = interaction.checkIn.level ?? 'simple';
+        // A compact strip: this preview sits in the slide's short footer.
+        return level === 'complex' ? (
+          <FeelingsPreview
+            level="complex"
+            language={language === 'es' ? 'es' : 'en'}
+            className="h-[5em] w-auto"
+          />
+        ) : (
+          <div style={{ fontSize: '0.55em' }}>
+            <FeelingsPreview
+              level={level}
+              language={language === 'es' ? 'es' : 'en'}
+              row
+              className="justify-start"
+            />
+          </div>
+        );
+      }
+      const chips =
+        CHECK_IN_PREVIEW[
+          (interaction.checkIn?.style ??
+            'emoji') as keyof typeof CHECK_IN_PREVIEW
+        ];
       return (
         <div className="flex flex-wrap gap-1.5">
           {chips.map((chip, i) => (

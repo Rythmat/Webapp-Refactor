@@ -1,3 +1,4 @@
+import { describeFeeling } from '@/features/classroom/feelings/feelings';
 import type {
   Interaction,
   InteractionResponsePayload,
@@ -26,8 +27,13 @@ export const describeResponse = (
       return String(payload.value);
     case 'draw':
       return `A drawing (${payload.strokes.length} ${payload.strokes.length === 1 ? 'stroke' : 'strokes'})`;
-    case 'check-in':
-      return payload.value;
+    case 'check-in': {
+      const feeling = describeFeeling(payload.value);
+      if (!feeling) return payload.value;
+      return feeling.detail
+        ? `Feeling ${feeling.label} (${feeling.detail})`
+        : `Feeling ${feeling.label}`;
+    }
     case 'atlas':
       return `Finished ${payload.activityRef}`;
     case 'showcase':

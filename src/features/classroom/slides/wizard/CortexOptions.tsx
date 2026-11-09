@@ -1,4 +1,9 @@
-import type { CheckInStyle, CortexLessonChoices } from '../cortex/types';
+import {
+  FEELINGS_LEVELS,
+  FEELINGS_LEVEL_HINT,
+  FEELINGS_LEVEL_LABEL,
+} from '../../feelings/feelings';
+import type { CortexLessonChoices } from '../cortex/types';
 import { EYEBROW, FIELD, PANEL } from './wizardStyles';
 
 /**
@@ -8,14 +13,13 @@ import { EYEBROW, FIELD, PANEL } from './wizardStyles';
 
 export type CortexOptionValues = Pick<
   CortexLessonChoices,
-  'checkInStyle' | 'vibePoll' | 'projectMinutes'
+  'checkInLevel' | 'vibePoll' | 'projectMinutes'
 >;
 
-const STYLES: { value: CheckInStyle; label: string }[] = [
-  { value: 'emoji', label: 'Emoji' },
-  { value: 'scale', label: '1 to 5' },
-  { value: 'word', label: 'One word' },
-];
+const LEVELS = FEELINGS_LEVELS.map((value) => ({
+  value,
+  label: FEELINGS_LEVEL_LABEL[value],
+}));
 
 const MINUTES = [10, 15, 20, 25, 30];
 
@@ -31,20 +35,20 @@ export const CortexOptions = ({
 }) => (
   <section className={`${PANEL} flex flex-col gap-4 p-4`}>
     <div className="flex flex-col gap-2">
-      <span className={EYEBROW}>Check-in</span>
+      <span className={EYEBROW}>Feelings check-in</span>
       <div
         role="group"
-        aria-label="Check-in style"
+        aria-label="Feelings check-in level"
         className="inline-flex w-fit items-center gap-0.5 rounded-full border border-white/10 p-0.5"
       >
-        {STYLES.map((s) => (
+        {LEVELS.map((s) => (
           <button
             key={s.value}
             type="button"
-            aria-pressed={value.checkInStyle === s.value}
-            onClick={() => onChange({ ...value, checkInStyle: s.value })}
+            aria-pressed={value.checkInLevel === s.value}
+            onClick={() => onChange({ ...value, checkInLevel: s.value })}
             className={`h-8 rounded-full px-3 text-sm transition-colors ${
-              value.checkInStyle === s.value
+              value.checkInLevel === s.value
                 ? 'bg-white text-[#101012]'
                 : 'text-white/55 hover:text-[#e8e8f0]'
             }`}
@@ -53,6 +57,9 @@ export const CortexOptions = ({
           </button>
         ))}
       </div>
+      <p className="text-[0.8125rem] text-white/55">
+        {FEELINGS_LEVEL_HINT[value.checkInLevel]}
+      </p>
     </div>
 
     <label className="flex items-center gap-3 text-sm">

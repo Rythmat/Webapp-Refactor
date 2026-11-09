@@ -1,5 +1,5 @@
-import type { LocalizedText } from '../../types';
-import type { CheckInStyle, GroupRole, LessonFocus } from './types';
+import type { FeelingsLevel, LocalizedText } from '../../types';
+import type { GroupRole, LessonFocus } from './types';
 
 /**
  * The Cortex lesson's student-facing copy, English and Spanish. Every string
@@ -12,18 +12,33 @@ export const ROLE_NAME: Readonly<Record<GroupRole, LocalizedText>> = {
   performer: { en: 'Performer', es: 'Intérprete' },
 };
 
-export const CHECK_IN_QUESTION: Readonly<Record<CheckInStyle, LocalizedText>> =
+/** The feelings check-in's question, by how fine-grained it is. */
+export const CHECK_IN_QUESTION: Readonly<Record<FeelingsLevel, LocalizedText>> =
   {
-    emoji: { en: 'How are you arriving today?', es: '¿Cómo llegas hoy?' },
-    scale: {
-      en: 'How is your energy today, from 1 to 5?',
-      es: '¿Cómo está tu energía hoy, del 1 al 5?',
+    simple: { en: 'How are you arriving today?', es: '¿Cómo llegas hoy?' },
+    advanced: {
+      en: 'Which face is closest to how you feel?',
+      es: '¿Qué cara se parece más a cómo te sientes?',
     },
-    word: {
-      en: 'One word for how you feel right now.',
-      es: 'Una palabra para cómo te sientes ahora.',
+    complex: {
+      en: 'Name what you are feeling. Pick one, or two that mix.',
+      es: 'Nombra lo que sientes. Elige uno, o dos que se mezclan.',
     },
   };
+
+/** Reflect's room reset, in the order a class does it. */
+export const RESET_CHECKLIST: readonly LocalizedText[] = [
+  { en: 'Save your project', es: 'Guarda tu proyecto' },
+  {
+    en: 'Instruments and headphones put away',
+    es: 'Instrumentos y audífonos guardados',
+  },
+  { en: 'Chairs pushed in', es: 'Sillas acomodadas' },
+  {
+    en: 'Space ready for the next class',
+    es: 'Espacio listo para la próxima clase',
+  },
+];
 
 export const COPY = {
   connectionTitle: { en: 'Check in', es: 'Conéctate' },
@@ -74,6 +89,12 @@ export const COPY = {
     en: 'Share your project with your teacher.',
     es: 'Comparte tu proyecto con tu maestro.',
   },
+  exitTitle: { en: 'Before you go', es: 'Antes de irte' },
+  exitQuestion: {
+    en: 'What is one thing you learned or made today?',
+    es: '¿Qué es algo que aprendiste o creaste hoy?',
+  },
+  resetTitle: { en: 'Reset the room', es: 'Ordena el salón' },
 } satisfies Record<string, LocalizedText>;
 
 export const todayWith = (

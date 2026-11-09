@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { isCellPopulated } from '../../../content/applySeed';
 import { PHASES, type PhaseKey } from '../../../phases';
 import { newBlankDay } from '../../../plan/newBlankDay';
 import { findForbiddenKey, publishDay } from '../../../publish/publishDay';
 import type { Day, Interaction } from '../../../types';
+import { slidesAreSectionOrdered } from '../../sections';
 import { presetFor } from '../../templates/presets';
 import type { Slide } from '../../types';
 import {
@@ -59,18 +61,35 @@ describe('a generated Cortex lesson', () => {
   );
   const slides = day.deck!.slides;
 
-  it('runs Connection, Showcase, Group Project, Individual Project, Present in phase order', () => {
-    expect(slides.map((s) => [s.phase, s.kind])).toEqual([
-      ['connectRegulate', 'interaction'],
-      ['connectRegulate', 'content'],
-      ['connectRegulate', 'media'],
-      ['groupPractice', 'app-route'],
-      ['creativeProjects', 'app-route'],
-      ['presentPerform', 'interaction'],
-      ['presentPerform', 'showcase'],
+  it('runs the six sections in order', () => {
+    expect(slides.map((s) => [s.section, s.phase, s.kind])).toEqual([
+      ['connect', 'connectRegulate', 'interaction'],
+      ['showcase', 'connectRegulate', 'content'],
+      ['showcase', 'connectRegulate', 'media'],
+      ['groupProject', 'groupPractice', 'app-route'],
+      ['individualProject', 'creativeProjects', 'app-route'],
+      ['present', 'presentPerform', 'interaction'],
+      ['present', 'presentPerform', 'showcase'],
+      ['reflect', 'respondReflectReset', 'interaction'],
+      ['reflect', 'respondReflectReset', 'content'],
     ]);
+    expect(slidesAreSectionOrdered(slides)).toBe(true);
     const order = slides.map((s) => PHASES.indexOf(s.phase));
     expect([...order].sort((a, b) => a - b)).toEqual(order);
+  });
+
+  it('closes with an exit question the class may see, then the room reset', () => {
+    const [exit] = day.cells.respondReflectReset.presentation
+      .interactions as Interaction[];
+    expect(exit).toMatchObject({ type: 'text', shareable: true });
+    expect(slides[7]).toMatchObject({
+      kind: 'interaction',
+      interactionIds: [exit.id],
+      reveal: 'wall',
+    });
+    expect(
+      (slides[8] as { resetChecklist?: unknown[] }).resetChecklist?.length,
+    ).toBeGreaterThan(0);
   });
 
   it("wires every slide to an interaction in its own phase's cell", () => {
@@ -90,7 +109,8 @@ describe('a generated Cortex lesson', () => {
     expect(checkIn).toMatchObject({
       type: 'check-in',
       shareable: false,
-      checkIn: { style: 'emoji' },
+      checkIn: { style: 'feelings', level: 'simple' },
+      question: { en: 'How are you arriving today?' },
     });
     expect(vibe).toMatchObject({
       type: 'choice',
@@ -328,13 +348,15 @@ describe('regenerating a Day', () => {
 describe('the default deck of a new Day', () => {
   const deck = buildCortexLessonSkeleton('day-1');
 
-  it('has the five parts, waiting for a focus', () => {
-    expect(deck.slides.map((s) => [s.phase, s.title.en])).toEqual([
-      ['connectRegulate', 'Check in'],
-      ['connectRegulate', 'Showcase'],
-      ['groupPractice', 'Group Project'],
-      ['creativeProjects', 'Individual Project'],
-      ['presentPerform', 'Present your progress'],
+  it('has the six sections, waiting for a focus', () => {
+    expect(deck.slides.map((s) => [s.section, s.title.en])).toEqual([
+      ['connect', 'Check in'],
+      ['showcase', 'Showcase'],
+      ['groupProject', 'Group Project'],
+      ['individualProject', 'Individual Project'],
+      ['present', 'Present your progress'],
+      ['reflect', 'Before you go'],
+      ['reflect', 'Reset the room'],
     ]);
     expect(isUngeneratedCortexDeck(deck)).toBe(true);
     const generated = applyCortexLessonToDay(
@@ -345,14 +367,32 @@ describe('the default deck of a new Day', () => {
     expect(isUngeneratedCortexDeck(generated.deck)).toBe(false);
   });
 
-  it('asks nothing of the cells: content slides only, so a new Day stays empty', () => {
-    expect(deck.slides.every((s) => s.kind === 'content')).toBe(true);
+  it('asks how students arrive and what they take away, and still counts as empty', () => {
     const day = newBlankDay('Blank');
+    expect(day.deck).toEqual(buildCortexLessonSkeleton(day.id));
+    expectWired(day);
+    expect(day.cells.connectRegulate.presentation.interactions).toEqual([
+      expect.objectContaining({
+        type: 'check-in',
+        checkIn: { style: 'feelings', level: 'simple' },
+      }),
+    ]);
+    // The starters are the lesson's frame: seeding still fills every cell.
     for (const phase of PHASES)
-      expect(day.cells[phase].presentation.interactions).toBeUndefined();
-    expect(day.deck).toEqual({
-      ...buildCortexLessonSkeleton(day.id),
-    });
+      expect(isCellPopulated(day.cells[phase]), phase).toBe(false);
+  });
+
+  it('replaces its starters when Cortex generates the lesson', () => {
+    const day = applyCortexLessonToDay(
+      newBlankDay('Gen'),
+      plan,
+      choices('promoter'),
+    );
+    const ids = PHASES.flatMap((p) =>
+      (day.cells[p].presentation.interactions ?? []).map((i) => i.id),
+    );
+    expect(ids.some((id) => /-cx-ix-(feelings|exit)$/.test(id))).toBe(false);
+    expectWired(day);
   });
 
   it("opens the Studio library from the Individual Project's tile", () => {

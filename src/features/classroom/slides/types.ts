@@ -17,6 +17,7 @@
  */
 import type { PhaseKey } from '../phases';
 import type { LaunchTile, LocalizedText } from '../types';
+import type { SlideSection } from './sections';
 import type { ZoneName } from './slideGrid';
 
 /** Visual media block usable on content / media / interaction slides. */
@@ -204,8 +205,15 @@ export type SlideElementKind = SlideElement['kind'];
 
 interface SlideCommon {
   id: string;
-  /** IMPACT anchor — drives derived currentPhase, phase chip, report grouping. */
+  /** IMPACT anchor — drives derived currentPhase, report grouping, and where
+   *  the slide's interactions are stored. */
   phase: PhaseKey;
+  /**
+   * The lesson section the slide sits in (Connect … Reflect). Must agree with
+   * `phase` (`SECTION_PHASE`); absent on slides saved before sections, which
+   * `sectionOf` places from the phase. Student-safe: an enum token.
+   */
+  section?: SlideSection;
   title: LocalizedText;
   prompt?: LocalizedText;
   /** Teacher-set countdown seconds (Phase 4 UI; parameterized by templates now). */
@@ -361,7 +369,7 @@ export interface SlideDeckTemplateRef {
 export interface SlideDeck {
   id: string;
   title: LocalizedText;
-  /** Ordered. Template-guaranteed soft invariant: `slide.phase` is non-decreasing in PHASES order. */
+  /** Ordered. Soft invariant: slides run in section order (`slidesAreSectionOrdered`). */
   slides: Slide[];
   templateRef?: SlideDeckTemplateRef;
   /**

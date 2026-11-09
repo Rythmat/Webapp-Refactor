@@ -1,74 +1,80 @@
 /* eslint-disable react/jsx-sort-props */
+// ── Foli ────────────────────────────────────────────────────────────────────
+// Call and response on hand drums: Foli plays a rhythm, the player plays it
+// back. Levels add 8th-note triplets, 16ths, a second bar, then 10 BPM a
+// level up to 300; a streak clears a level, and conquering 300 BPM opens the
+// same climb on four drums (curriculum/engine/foli).
+//
+// ONE CLOCK
+// Everything runs on the audio clock from one downbeat: bar n starts at
+// t0 + n bars. The metronome's clicks, the call's notes and the answer's
+// window all hang off that grid, and every hit the player plays is kept
+// with the moment it was played (the event's own timestamp, on the audio
+// clock, less the latency to the player's ears), whatever the phase. So a
+// downbeat played a little early is graded, not thrown away, and nothing
+// drifts the way chained timers did. Timers only update the screen.
+
+import { Pause, Play } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { audioEngine } from '@/audio/AudioEngine';
+import type {
+  NoteStyle,
+  PlayheadSubscription,
+} from '@/components/notation/StaffView';
+import {
+  defaultKeys,
+  MODE_DRUMS,
+  type FoliDrum,
+} from '@/curriculum/engine/foli/drums';
+import {
+  gradeAnswer,
+  toleranceFor,
+  type FoliHit,
+} from '@/curriculum/engine/foli/grade';
+import {
+  foliLevel,
+  LAST_LEVEL,
+  levelNews,
+  type FoliMode,
+} from '@/curriculum/engine/foli/levels';
+import {
+  buildCall,
+  TICKS_PER_BEAT,
+  type FoliNote,
+} from '@/curriculum/engine/foli/rhythms';
+import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { useGameOptions } from '@/hooks/data/gameOptions/useGameOptions';
 import { useSaveGameOptions } from '@/hooks/data/gameOptions/useSaveGameOptions';
-import { usePrismRhythms } from '@/hooks/data/prism/usePrismRhythms';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
+import { FoliAudio } from './FoliParts/FoliAudio';
+import { FoliPads, type DrumGlow } from './FoliParts/FoliPads';
+import { FoliStaff } from './FoliParts/FoliStaff';
+import { FOLI_GAME_ID, useFoliProgress } from './FoliParts/useFoliProgress';
 import { VolumeDial } from './VolumeDial';
+import { useArcadeStreak, winXpLine } from './scoring/ArcadeStreak';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const TICKS_PER_QUARTER = 480;
-const BPM = 90;
-const TICK_DURATION_S = 60 / (BPM * TICKS_PER_QUARTER);
-const TOLERANCE_RATIO = 0.1;
-const FLASH_HOLD_MS = 180;
-
-const BEAT_MS = (60 / BPM) * 1000; // ~666.67ms
-const BAR_MS = BEAT_MS * 4; // ~2666.67ms
-const BAR_TICKS = TICKS_PER_QUARTER * 4; // 1920
-const NUM_CYCLES = 2;
-
-const BONGO_LEFT_URL = '/samples/bongo/bongo0.mp3';
-const BONGO_RIGHT_URL = '/samples/bongo/bongo1.mp3';
-
-const SHAKER_URLS = [
-  '/samples/bongo/shaker1.wav',
-  '/samples/bongo/shaker2.wav',
-  '/samples/bongo/shaker3.wav',
-];
-
 const MAX_LIVES = 5;
-
-/** Game id this component's options are stored under in user_game_options. */
-const FOLI_GAME_ID = 'foli';
+/** Tries at each call: call, answer, call again, answer again. */
+const CYCLES = 2;
+/** The first downbeat, this far after Start. */
+const START_LEAD_S = 0.15;
+/** How far ahead the clicks are scheduled. */
+const CLICK_LOOKAHEAD_S = 0.15;
+const FLASH_HOLD_MS = 160;
+/** The latency to the player's ears, at most. */
+const MAX_DEVICE_LATENCY_S = 0.2;
 
 /** Start/Play Again button height; Change Keys sits above it at exactly half. */
 const START_BUTTON_HEIGHT = 38;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type Side = 'left' | 'right';
-/** KeyboardEvent.code per drum — layout-independent, so it survives non-QWERTY. */
-type KeyBindings = Record<Side, string>;
-type RhythmHit = [start: number, duration: number];
-type SequenceNote = { startTick: number; durationTick: number; side: Side };
-type Phase =
-  | 'loading'
-  | 'ready'
-  | 'listening'
-  | 'input'
-  | 'success'
-  | 'fail'
-  | 'gameover';
-type BongoGlow = 'idle' | 'hit' | 'success' | 'fail';
+type Phase = 'loading' | 'ready' | 'playing' | 'paused' | 'won' | 'over';
+type Status = 'count' | 'listening' | 'input' | 'success' | 'fail';
+type KeyBindings = Record<FoliDrum, string>;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function wait(ms: number) {
-  return new Promise<void>((r) => setTimeout(r, ms));
-}
-
-function ticksToMs(ticks: number) {
-  return ticks * TICK_DURATION_S * 1000;
-}
-
-function pickRandom<T>(items: T[]): T {
-  return items[Math.floor(Math.random() * items.length)]!;
-}
-
-const DEFAULT_KEY_BINDINGS: KeyBindings = { left: 'KeyA', right: 'KeyD' };
 
 /** Keys that can't be bound to a drum — they'd trap the user in rebind mode. */
 const UNBINDABLE_CODES = new Set([
@@ -83,12 +89,11 @@ const UNBINDABLE_CODES = new Set([
   'MetaLeft',
   'MetaRight',
   'CapsLock',
+  'Space',
+  'Enter',
 ]);
 
 const KEY_LABEL_OVERRIDES: Record<string, string> = {
-  Space: 'SPC',
-  Enter: 'ENTER',
-  Backspace: 'BKSP',
   ArrowLeft: '←',
   ArrowRight: '→',
   ArrowUp: '↑',
@@ -104,6 +109,7 @@ const KEY_LABEL_OVERRIDES: Record<string, string> = {
   Minus: '-',
   Equal: '=',
   Backquote: '`',
+  Backspace: 'BKSP',
 };
 
 /** Short display label for a KeyboardEvent.code ('KeyA' → 'A'). */
@@ -115,815 +121,69 @@ function keyLabel(code: string): string {
   return code;
 }
 
-function normalizeBindings(value: unknown): KeyBindings | null {
-  if (!value || typeof value !== 'object') return null;
-  const { left, right } = value as { left?: unknown; right?: unknown };
-  if (typeof left !== 'string' || typeof right !== 'string') return null;
-  if (!left || !right || left === right) return null;
-  return { left, right };
+/** Saved bindings, if they're whole: two drums are { left, right }. */
+function readBindings(mode: FoliMode, raw: unknown): KeyBindings | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const keys = defaultKeys(mode);
+  const r = raw as Record<string, unknown>;
+  const picks: Partial<Record<FoliDrum, unknown>> =
+    mode === 'two'
+      ? { bongoHigh: r.left, bongoLow: r.right }
+      : Object.fromEntries(MODE_DRUMS.four.map((d) => [d, r[d]]));
+  const drums = MODE_DRUMS[mode];
+  if (!drums.every((d) => typeof picks[d] === 'string' && picks[d]))
+    return null;
+  const codes = drums.map((d) => picks[d] as string);
+  if (new Set(codes).size !== codes.length) return null;
+  drums.forEach((d, i) => (keys[d] = codes[i]));
+  return keys;
 }
 
-// ── Bongo Audio Engine ───────────────────────────────────────────────────────
-
-class BongoEngine {
-  private ctx: AudioContext | null = null;
-  /** This game's channel on the shared mixer; replaces a private context. */
-  private out: GainNode | null = null;
-  private bufferLeft: AudioBuffer | null = null;
-  private bufferRight: AudioBuffer | null = null;
-  private shakerBuffers: AudioBuffer[] = [];
-  private activeShaker: AudioBufferSourceNode | null = null;
-  private shakerGain: GainNode | null = null;
-  private loaded = false;
-  private shakersLoaded = false;
-  private metroLoaded = false;
-  private volume = 1;
-
-  /** Shared context + this game's mixer channel, rather than a private graph. */
-  private attach() {
-    if (!this.out) {
-      this.ctx = audioEngine.context;
-      this.out = audioEngine.channel('games', this.volume);
-    }
-    return this.out;
-  }
-
-  /**
-   * Level for everything this game makes: bongos and shaker on its own channel,
-   * plus the count-in clicks. The clicks play on the shared metronome bus, so
-   * this drives that bus too — fine while Foli is the only metronome running,
-   * the same trade-off Major Arcanum's mixer makes.
-   */
-  setVolume(volume: number) {
-    this.volume = Math.max(0, Math.min(1, volume));
-    if (this.out) {
-      this.out.gain.setTargetAtTime(
-        this.volume,
-        this.out.context.currentTime,
-        0.01,
-      );
-    }
-    audioEngine.metronome.setVolume(this.volume);
-  }
-
-  async init() {
-    if (this.loaded) return;
-    this.attach();
-    // Buffers come from the shared SampleManager: decoded once, on the one
-    // context, and reused by anything else that needs the same file (the
-    // metronome clicks below are also used by Board Choice).
-    const [leftBuf, rightBuf] = await Promise.all([
-      audioEngine.samples.load(BONGO_LEFT_URL),
-      audioEngine.samples.load(BONGO_RIGHT_URL),
-    ]);
-    this.bufferLeft = leftBuf;
-    this.bufferRight = rightBuf;
-    this.loaded = true;
-  }
-
-  async loadShakers() {
-    if (this.shakersLoaded) return;
-    this.shakerBuffers = await Promise.all(
-      SHAKER_URLS.map((url) => audioEngine.samples.load(url)),
-    );
-    this.shakersLoaded = true;
-  }
-
-  /** Decode the shared metronome clicks ahead of the count-in. */
-  async loadMetronome() {
-    if (this.metroLoaded) return;
-    await audioEngine.metronome.preload();
-    this.metroLoaded = true;
-  }
-
-  private playBuffer(buffer: AudioBuffer | null) {
-    this.playBufferAt(buffer, 0);
-  }
-
-  private playBufferAt(buffer: AudioBuffer | null, when: number) {
-    if (!buffer) return;
-    const out = this.attach();
-    audioEngine.resume();
-    const source = out.context.createBufferSource();
-    source.buffer = buffer;
-    source.connect(out);
-    source.onended = () => source.disconnect();
-    source.start(when);
-  }
-
-  play(side: Side) {
-    this.playBuffer(side === 'left' ? this.bufferRight : this.bufferLeft);
-  }
-
-  playAt(side: Side, when: number) {
-    this.playBufferAt(
-      side === 'left' ? this.bufferRight : this.bufferLeft,
-      when,
-    );
-  }
-
-  playClick(isFirst: boolean) {
-    audioEngine.metronome.click(undefined, isFirst);
-  }
-
-  getCtxTime() {
-    return audioEngine.context.currentTime;
-  }
-
-  playShaker(index: number) {
-    if (!this.shakersLoaded) return;
-    this.stopShaker();
-    const out = this.attach();
-    audioEngine.resume();
-    const buffer = this.shakerBuffers[index];
-    if (!buffer) return;
-    const gain = out.context.createGain();
-    gain.gain.value = 0.4;
-    gain.connect(out);
-    const source = out.context.createBufferSource();
-    source.buffer = buffer;
-    source.loop = true;
-    source.connect(gain);
-    source.start();
-    this.activeShaker = source;
-    this.shakerGain = gain;
-  }
-
-  // The lookahead loop this class used to run is now the engine's — same
-  // two-clock technique, one implementation, shared with every other feature.
-  startMetronome() {
-    this.attach();
-    audioEngine.metronome.start({ bpm: BPM, beatsPerBar: 4 });
-  }
-
-  stopMetronome() {
-    audioEngine.metronome.stop();
-  }
-
-  stopShaker() {
-    if (this.shakerGain && this.activeShaker && this.ctx) {
-      this.shakerGain.gain.linearRampToValueAtTime(
-        0,
-        this.ctx.currentTime + 0.1,
-      );
-      const src = this.activeShaker;
-      setTimeout(() => {
-        try {
-          src.stop();
-        } catch {
-          /* ok */
-        }
-      }, 120);
-      this.activeShaker = null;
-      this.shakerGain = null;
-    }
-  }
-
-  /** Release this game's channel. The context is shared — never close it. */
-  close() {
-    this.stopMetronome();
-    this.stopShaker();
-    this.out?.disconnect();
-    this.out = null;
-  }
-}
-
-// ── Foil SVG path (shared by both pillars) ──────────────────────────────────
-
-const FOIL_PATH =
-  'M 129.695312 69.484375 L 119.902344 57.707031 C 119.597656 57.328125 119.132812 57.109375 118.640625 57.109375 L 99.054688 57.109375 C 98.566406 57.109375 98.101562 57.328125 97.792969 57.707031 L 90.671875 66.273438 L 90.664062 43.480469 C 90.65625 43.40625 90.644531 43.332031 90.621094 43.253906 C 90.707031 42.792969 90.589844 42.316406 90.292969 41.945312 L 78.453125 27.6875 L 78.445312 27.6875 C 78.136719 27.3125 77.671875 27.101562 77.1875 27.101562 L 53.492188 27.101562 C 53 27.101562 52.542969 27.3125 52.230469 27.6875 L 40.386719 41.945312 L 40.378906 41.945312 C 40.085938 42.316406 39.964844 42.792969 40.054688 43.253906 C 40.035156 43.332031 40.023438 43.40625 40.011719 43.480469 L 40.011719 115.078125 C 40.011719 115.460938 40.140625 115.832031 40.386719 116.125 L 52.230469 130.382812 C 52.246094 130.40625 52.273438 130.414062 52.292969 130.433594 L 52.296875 130.433594 C 52.390625 130.519531 52.5 130.601562 52.613281 130.671875 C 52.679688 130.726562 52.757812 130.777344 52.839844 130.820312 C 52.988281 130.882812 53.152344 130.914062 53.308594 130.929688 C 53.371094 130.945312 53.433594 130.960938 53.5 130.972656 L 77.183594 130.972656 C 77.246094 130.960938 77.300781 130.945312 77.363281 130.929688 C 77.527344 130.914062 77.683594 130.882812 77.835938 130.820312 C 77.917969 130.777344 77.992188 130.726562 78.0625 130.671875 C 78.175781 130.601562 78.28125 130.519531 78.375 130.433594 C 78.394531 130.414062 78.425781 130.402344 78.4375 130.382812 L 87.617188 119.34375 L 87.617188 121.945312 L 87.621094 121.945312 C 87.621094 122.328125 87.753906 122.699219 88 122.996094 L 97.792969 134.773438 C 97.808594 134.796875 97.84375 134.804688 97.859375 134.828125 L 97.859375 134.824219 C 98.03125 134.96875 98.210938 135.097656 98.402344 135.21875 C 98.515625 135.253906 98.632812 135.28125 98.753906 135.292969 C 98.855469 135.332031 98.953125 135.347656 99.054688 135.363281 L 118.640625 135.363281 C 118.761719 135.347656 118.878906 135.324219 119 135.28125 C 119.09375 135.269531 119.1875 135.25 119.28125 135.21875 C 119.386719 135.160156 119.496094 135.09375 119.589844 135.011719 C 119.671875 134.960938 119.746094 134.898438 119.820312 134.835938 C 119.847656 134.808594 119.878906 134.796875 119.902344 134.773438 L 129.695312 122.980469 C 129.941406 122.6875 130.078125 122.316406 130.078125 121.933594 L 130.078125 70.9375 C 130.066406 70.875 130.054688 70.8125 130.035156 70.75 C 130.109375 70.300781 129.984375 69.835938 129.695312 69.484375 Z M 99.828125 60.390625 L 117.867188 60.390625 L 126.296875 70.53125 L 117.867188 80.671875 L 99.828125 80.664062 L 91.402344 70.523438 Z M 100.703125 83.945312 L 116.988281 83.945312 L 116.988281 132.074219 L 100.703125 132.074219 Z M 54.265625 30.375 L 76.410156 30.375 L 86.894531 42.984375 L 76.410156 55.597656 L 54.265625 55.605469 L 43.785156 42.992188 Z M 55.140625 58.867188 L 75.539062 58.867188 L 75.539062 127.671875 L 55.140625 127.671875 Z M 43.292969 47.519531 L 51.859375 57.824219 L 51.855469 124.78125 L 43.292969 114.484375 Z M 78.824219 124.773438 L 78.816406 57.824219 L 87.386719 47.519531 L 87.386719 114.484375 Z M 90.910156 75.066406 L 97.421875 82.898438 L 97.417969 129.171875 L 90.90625 121.335938 Z M 120.269531 129.183594 L 120.269531 82.910156 L 126.789062 75.070312 L 126.789062 121.335938 Z M 120.269531 129.183594';
-
-const CLIP_SPLIT_X = 89;
-
-// ── Rhythm Notation Component ────────────────────────────────────────────────
-
-type NoteValue =
-  | 'whole'
-  | 'half.'
-  | 'half'
-  | 'quarter.'
-  | 'quarter'
-  | 'eighth.'
-  | 'eighth'
-  | 'sixteenth.'
-  | 'sixteenth';
-type RestSlot = { startTick: number; durationTick: number };
-
-function durationToValue(ticks: number): NoteValue {
-  if (ticks >= 1680) return 'whole';
-  if (ticks >= 1200) return 'half.';
-  if (ticks >= 840) return 'half';
-  if (ticks >= 600) return 'quarter.';
-  if (ticks >= 420) return 'quarter';
-  if (ticks >= 300) return 'eighth.';
-  if (ticks >= 180) return 'eighth';
-  if (ticks >= 150) return 'sixteenth.';
-  return 'sixteenth';
-}
-
-function isDotted(val: NoteValue) {
-  return val.endsWith('.');
-}
-function isFilledHead(val: NoteValue) {
-  return !['whole', 'half.', 'half'].includes(val);
-}
-function hasNoteStem(val: NoteValue) {
-  return val !== 'whole';
-}
-function isBeamable(val: NoteValue) {
-  return ['eighth', 'eighth.', 'sixteenth', 'sixteenth.'].includes(val);
-}
-
-const REST_TICK_VALUES = [1920, 960, 480, 240, 120];
-
-function subdivideRest(startTick: number, durationTick: number): RestSlot[] {
-  const result: RestSlot[] = [];
-  let remaining = durationTick;
-  let cursor = startTick;
-  while (remaining >= 120) {
-    for (const d of REST_TICK_VALUES) {
-      if (d <= remaining) {
-        result.push({ startTick: cursor, durationTick: d });
-        cursor += d;
-        remaining -= d;
-        break;
-      }
-    }
-  }
-  return result;
-}
-
-function computeRests(seq: SequenceNote[]): RestSlot[] {
-  const rests: RestSlot[] = [];
-  let cursor = 0;
-  for (const note of seq) {
-    if (note.startTick > cursor) {
-      rests.push(...subdivideRest(cursor, note.startTick - cursor));
-    }
-    cursor = note.startTick + note.durationTick;
-  }
-  if (cursor < BAR_TICKS) {
-    rests.push(...subdivideRest(cursor, BAR_TICKS - cursor));
-  }
-  return rests;
-}
-
-const NOTATION_W = 280;
-const NOTATION_H = 60;
-const NOTATION_PAD_L = 22;
-const NOTATION_PAD_R = 22;
-const NOTATION_STAFF_Y = 36;
-const NOTATION_HEAD_RX = 5.5;
-const NOTATION_HEAD_RY = 4;
-const NOTATION_STEM_H = 24;
-const NOTATION_BEAM_THICK = 3;
-const NOTATION_USABLE = NOTATION_W - NOTATION_PAD_L - NOTATION_PAD_R;
-
-function tickToX(tick: number) {
-  return NOTATION_PAD_L + (tick / BAR_TICKS) * NOTATION_USABLE;
-}
-
-function restBaseValue(
-  ticks: number,
-): 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth' {
-  if (ticks >= 1680) return 'whole';
-  if (ticks >= 840) return 'half';
-  if (ticks >= 420) return 'quarter';
-  if (ticks >= 180) return 'eighth';
-  return 'sixteenth';
-}
-
-function RestSymbol({ slot }: { slot: RestSlot }) {
-  const x = tickToX(slot.startTick + slot.durationTick / 2);
-  const y = NOTATION_STAFF_Y;
-  const c = 'rgba(255,255,255,0.22)';
-  const val = restBaseValue(slot.durationTick);
-
-  if (val === 'whole') {
-    return <rect x={x - 5} y={y} width={10} height={5} rx={0.5} fill={c} />;
-  }
-  if (val === 'half') {
-    return <rect x={x - 5} y={y - 5} width={10} height={5} rx={0.5} fill={c} />;
-  }
-  if (val === 'quarter') {
-    return (
-      <path
-        d={`M${x + 2} ${y - 10} L${x - 2} ${y - 5} L${x + 3} ${y - 1} Q${x - 3} ${y + 2} ${x - 1} ${y + 8}`}
-        fill="none"
-        stroke={c}
-        strokeWidth={1.6}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    );
-  }
-  if (val === 'eighth') {
-    return (
-      <g>
-        <circle cx={x + 1} cy={y - 7} r={1.8} fill={c} />
-        <line
-          x1={x + 1}
-          y1={y - 7}
-          x2={x - 3}
-          y2={y + 5}
-          stroke={c}
-          strokeWidth={1.4}
-          strokeLinecap="round"
-        />
-      </g>
-    );
-  }
-  // sixteenth
-  return (
-    <g>
-      <circle cx={x + 1} cy={y - 9} r={1.8} fill={c} />
-      <circle cx={x - 0.5} cy={y - 3} r={1.8} fill={c} />
-      <line
-        x1={x + 1}
-        y1={y - 9}
-        x2={x - 4}
-        y2={y + 5}
-        stroke={c}
-        strokeWidth={1.4}
-        strokeLinecap="round"
-      />
-    </g>
+/** The latency from the audio clock to the player's ears. */
+function heardLatency(ctx: AudioContext): number {
+  const device = Math.min(
+    MAX_DEVICE_LATENCY_S,
+    Math.max(0, (ctx.outputLatency ?? 0) + (ctx.baseLatency ?? 0)),
   );
+  return device + useSettingsStore.getState().outputLatencyMs / 1000;
 }
 
-function RhythmNotation({
-  sequence,
-  matched,
-  barStartTime,
-}: {
-  sequence: SequenceNote[];
-  matched: Set<number>;
-  barStartTime: number | null;
-}) {
-  const W = NOTATION_W;
-  const H = NOTATION_H;
-  const PAD_L = NOTATION_PAD_L;
-  const PAD_R = NOTATION_PAD_R;
-  const STAFF_Y = NOTATION_STAFF_Y;
-  const HEAD_RX = NOTATION_HEAD_RX;
-  const HEAD_RY = NOTATION_HEAD_RY;
-  const STEM_H = NOTATION_STEM_H;
-  const BEAM_THICK = NOTATION_BEAM_THICK;
-  const usable = NOTATION_USABLE;
-
-  // ── Playhead ──
-  const [playheadX, setPlayheadX] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (barStartTime === null) {
-      setPlayheadX(null);
-      return;
+/** The staff's playhead, read from the audio clock each frame. */
+function createPlayhead() {
+  const listeners = new Set<(tick: number) => void>();
+  let origin: { at: number; tickS: number; ctx: AudioContext } | null = null;
+  let tick: number | null = null;
+  let frame = 0;
+  const loop = () => {
+    if (origin) {
+      const t = (origin.ctx.currentTime - origin.at) / origin.tickS;
+      tick = t >= 0 ? t : null;
+      if (tick !== null) listeners.forEach((l) => l(tick!));
     }
-    let raf: number;
-    const tick = () => {
-      const elapsed = performance.now() - barStartTime;
-      const progress = Math.min(elapsed / BAR_MS, 1);
-      setPlayheadX(PAD_L + progress * usable);
-      if (progress < 1) raf = requestAnimationFrame(tick);
-      else setPlayheadX(null);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [barStartTime, PAD_L, usable]);
-
-  const noteX = (n: SequenceNote) => tickToX(n.startTick);
-
-  // ── Beam groups ──
-  const beamGroups: number[][] = [];
-  let cur: number[] = [];
-  for (let i = 0; i < sequence.length; i++) {
-    const val = durationToValue(sequence[i].durationTick);
-    if (isBeamable(val)) {
-      cur.push(i);
-    } else {
-      if (cur.length > 1) beamGroups.push(cur);
-      cur = [];
-    }
-  }
-  if (cur.length > 1) beamGroups.push(cur);
-  const beamed = new Set(beamGroups.flat());
-
-  // ── Rest slots ──
-  const rests = computeRests(sequence);
-
-  const sideColor = (side: Side) => (side === 'left' ? '#a78bfa' : '#38bdf8');
-
-  const barTop = STAFF_Y - STEM_H - 2;
-  const barBot = STAFF_Y + 8;
-
-  return (
-    <svg width={W} height={H} style={{ overflow: 'visible' }}>
-      {/* Bar lines */}
-      <line
-        x1={PAD_L - 10}
-        y1={barTop}
-        x2={PAD_L - 10}
-        y2={barBot}
-        stroke="rgba(255,255,255,0.25)"
-        strokeWidth={1.5}
-      />
-      <line
-        x1={W - PAD_R + 10}
-        y1={barTop}
-        x2={W - PAD_R + 10}
-        y2={barBot}
-        stroke="rgba(255,255,255,0.25)"
-        strokeWidth={1.5}
-      />
-
-      {/* Staff line */}
-      <line
-        x1={PAD_L - 10}
-        y1={STAFF_Y}
-        x2={W - PAD_R + 10}
-        y2={STAFF_Y}
-        stroke="rgba(255,255,255,0.12)"
-        strokeWidth={1.2}
-      />
-
-      {/* Rests */}
-      {rests.map((slot, i) => (
-        <RestSymbol key={`rest-${i}`} slot={slot} />
-      ))}
-
-      {/* Beams */}
-      {beamGroups.map((group, gi) => {
-        const x1 = noteX(sequence[group[0]]) + HEAD_RX;
-        const x2 = noteX(sequence[group[group.length - 1]]) + HEAD_RX;
-        const beamY = STAFF_Y - STEM_H;
-        const hasDouble = group.some((idx) => {
-          const v = durationToValue(sequence[idx].durationTick);
-          return v === 'sixteenth' || v === 'sixteenth.';
-        });
-        return (
-          <g key={`beam-${gi}`}>
-            <line
-              x1={x1}
-              y1={beamY}
-              x2={x2}
-              y2={beamY}
-              stroke="rgba(255,255,255,0.5)"
-              strokeWidth={BEAM_THICK}
-              strokeLinecap="round"
-            />
-            {hasDouble && (
-              <line
-                x1={x1}
-                y1={beamY + 5}
-                x2={x2}
-                y2={beamY + 5}
-                stroke="rgba(255,255,255,0.5)"
-                strokeWidth={BEAM_THICK}
-                strokeLinecap="round"
-              />
-            )}
-          </g>
-        );
-      })}
-
-      {/* Notes */}
-      {sequence.map((note, i) => {
-        const x = noteX(note);
-        const val = durationToValue(note.durationTick);
-        const isHit = matched.has(i);
-        const color = sideColor(note.side);
-        const opacity = isHit ? 1 : 0.3;
-        const filled = isFilledHead(val);
-        const stem = hasNoteStem(val);
-        const dotted = isDotted(val);
-        const base = val.replace('.', '') as string;
-        const isSixteenth = base === 'sixteenth';
-
-        return (
-          <g key={i} style={{ transition: 'opacity 0.15s' }} opacity={opacity}>
-            {/* Note head */}
-            <ellipse
-              cx={x}
-              cy={STAFF_Y}
-              rx={HEAD_RX}
-              ry={HEAD_RY}
-              fill={filled ? color : 'none'}
-              stroke={color}
-              strokeWidth={filled ? 0 : 1.6}
-              transform={`rotate(-20 ${x} ${STAFF_Y})`}
-            />
-
-            {/* Augmentation dot */}
-            {dotted && (
-              <circle
-                cx={x + HEAD_RX + 4}
-                cy={STAFF_Y - 1}
-                r={1.5}
-                fill={color}
-              />
-            )}
-
-            {/* Stem */}
-            {stem && (
-              <line
-                x1={x + HEAD_RX}
-                y1={STAFF_Y - 2}
-                x2={x + HEAD_RX}
-                y2={STAFF_Y - STEM_H}
-                stroke={color}
-                strokeWidth={1.4}
-                strokeLinecap="round"
-              />
-            )}
-
-            {/* Flag for isolated beamable notes */}
-            {isBeamable(val) && !beamed.has(i) && (
-              <>
-                <path
-                  d={`M ${x + HEAD_RX} ${STAFF_Y - STEM_H} q 6 8 0 16`}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth={1.4}
-                  strokeLinecap="round"
-                />
-                {isSixteenth && (
-                  <path
-                    d={`M ${x + HEAD_RX} ${STAFF_Y - STEM_H + 5} q 6 8 0 16`}
-                    fill="none"
-                    stroke={color}
-                    strokeWidth={1.4}
-                    strokeLinecap="round"
-                  />
-                )}
-              </>
-            )}
-          </g>
-        );
-      })}
-
-      {/* Playhead */}
-      {playheadX !== null && (
-        <line
-          x1={playheadX}
-          y1={barTop - 2}
-          x2={playheadX}
-          y2={barBot + 2}
-          stroke="rgba(255,255,255,0.6)"
-          strokeWidth={1.5}
-          strokeLinecap="round"
-        />
-      )}
-    </svg>
-  );
-}
-
-// ── Key Box ──────────────────────────────────────────────────────────────────
-
-/** The key currently bound to a drum. Rings in that drum's colour when the drum
- *  is selected during rebinding, so it's obvious which box the next key fills. */
-function KeyBox({
-  label,
-  color,
-  selected,
-  onSelect,
-}: {
-  label: string;
-  color: string;
-  selected: boolean;
-  /** Set while rebinding: clicking the box selects its drum, like the drum does. */
-  onSelect?: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      // Don't take focus on click: a focused box would swallow the next Space
-      // or Enter as a button activation instead of a key to bind.
-      onMouseDown={(e) => e.preventDefault()}
-      disabled={!onSelect}
-      style={{
-        minWidth: 38,
-        height: 26,
-        padding: '0 8px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 6,
-        border: `1.5px solid ${selected ? color : 'rgba(255,255,255,0.12)'}`,
-        backgroundColor: selected
-          ? 'rgba(255,255,255,0.08)'
-          : 'rgba(255,255,255,0.03)',
-        boxShadow: selected ? `0 0 12px ${color}66` : 'none',
-        fontSize: 12,
-        fontWeight: 700,
-        letterSpacing: 2,
-        color,
-        cursor: onSelect ? 'pointer' : 'default',
-        transition: 'color 0.15s ease, border-color 0.15s ease',
-      }}
-    >
-      {label}
-    </button>
-  );
-}
-
-// ── Foil Drums Component ─────────────────────────────────────────────────────
-
-function FoilDrums({
-  leftGlow,
-  rightGlow,
-  disabled,
-  onPressLeft,
-  onPressRight,
-  leftKeyLabel,
-  rightKeyLabel,
-  selectedSide = null,
-  bindingMode = false,
-}: {
-  leftGlow: BongoGlow;
-  rightGlow: BongoGlow;
-  disabled: boolean;
-  onPressLeft: () => void;
-  onPressRight: () => void;
-  leftKeyLabel: string;
-  rightKeyLabel: string;
-  /** Drum awaiting a key press while rebinding — lit, with its key box ringed. */
-  selectedSide?: Side | null;
-  /** Rebinding: the whole half — and its key box — selects that drum. */
-  bindingMode?: boolean;
-}) {
-  const [pressedLeft, setPressedLeft] = useState(false);
-  const [pressedRight, setPressedRight] = useState(false);
-
-  const getFill = (glow: BongoGlow, pressed: boolean, side: Side) => {
-    const isLit = glow === 'hit' || pressed;
-    if (glow === 'success') return '#22c55e';
-    if (glow === 'fail') return '#f87171';
-    if (isLit) return side === 'left' ? '#a78bfa' : '#38bdf8';
-    return '#52525b';
+    frame = requestAnimationFrame(loop);
   };
-
-  const getFilter = (glow: BongoGlow, pressed: boolean, side: Side): string => {
-    const isLit = glow === 'hit' || pressed;
-    if (glow === 'success')
-      return 'drop-shadow(0 0 18px rgba(34,197,94,0.7)) drop-shadow(0 0 36px rgba(34,197,94,0.3))';
-    if (glow === 'fail')
-      return 'drop-shadow(0 0 18px rgba(248,113,113,0.7)) drop-shadow(0 0 36px rgba(248,113,113,0.3))';
-    if (isLit) {
-      return side === 'left'
-        ? 'drop-shadow(0 0 16px rgba(167,139,250,0.9)) drop-shadow(0 0 32px rgba(167,139,250,0.4))'
-        : 'drop-shadow(0 0 16px rgba(56,189,248,0.9)) drop-shadow(0 0 32px rgba(56,189,248,0.4))';
-    }
-    return 'none';
+  const source: PlayheadSubscription = {
+    get: () => tick,
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
   };
-
-  // A drum selected for rebinding lights up exactly like a held press.
-  const leftLit = pressedLeft || selectedSide === 'left';
-  const rightLit = pressedRight || selectedSide === 'right';
-
-  const leftFill = getFill(leftGlow, leftLit, 'left');
-  const rightFill = getFill(rightGlow, rightLit, 'right');
-  const leftFilter = getFilter(leftGlow, leftLit, 'left');
-  const rightFilter = getFilter(rightGlow, rightLit, 'right');
-
-  const handleLeftDown = () => {
-    if (!disabled) {
-      setPressedLeft(true);
-      onPressLeft();
-    }
+  return {
+    source,
+    /** Run the playhead from an audio-clock time; null hides it. */
+    from(at: number | null, tickS = 1, ctx?: AudioContext) {
+      origin = at === null || !ctx ? null : { at, tickS, ctx };
+      if (!origin) tick = null;
+      if (!frame && origin) frame = requestAnimationFrame(loop);
+    },
+    stop() {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      origin = null;
+      tick = null;
+    },
   };
-  const handleRightDown = () => {
-    if (!disabled) {
-      setPressedRight(true);
-      onPressRight();
-    }
-  };
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 12,
-      }}
-    >
-      <svg
-        width={280}
-        height={260}
-        viewBox="0 0 165 150"
-        style={{ overflow: 'visible', userSelect: 'none' }}
-      >
-        <defs>
-          <clipPath id="foil-clip-left">
-            <rect x="0" y="0" width={CLIP_SPLIT_X} height="150" />
-          </clipPath>
-          <clipPath id="foil-clip-right">
-            <rect
-              x={CLIP_SPLIT_X}
-              y="0"
-              width={165 - CLIP_SPLIT_X}
-              height="150"
-            />
-          </clipPath>
-        </defs>
-
-        {/* Left pillar */}
-        <g
-          clipPath="url(#foil-clip-left)"
-          style={{
-            cursor: disabled ? 'default' : 'pointer',
-            transition: 'filter 0.15s ease',
-            filter: leftFilter,
-          }}
-          onMouseDown={handleLeftDown}
-          onMouseUp={() => setPressedLeft(false)}
-          onMouseLeave={() => setPressedLeft(false)}
-          onTouchStart={handleLeftDown}
-          onTouchEnd={() => setPressedLeft(false)}
-        >
-          {/* Rebinding: the drum's whole half is the target, not just the
-              painted shape. Clipped to this side, so the two never overlap. */}
-          {bindingMode && (
-            <rect
-              x={2}
-              y={2}
-              width={165 - 4}
-              height={146}
-              rx={4}
-              fill="transparent"
-              pointerEvents="all"
-              stroke={
-                selectedSide === 'left' ? leftFill : 'rgba(255,255,255,0.12)'
-              }
-              strokeWidth={1}
-              strokeDasharray="4 4"
-            />
-          )}
-          <path
-            d={FOIL_PATH}
-            fill={leftFill}
-            fillRule="nonzero"
-            style={{ transition: 'fill 0.15s ease' }}
-          />
-        </g>
-
-        {/* Right pillar */}
-        <g
-          clipPath="url(#foil-clip-right)"
-          style={{
-            cursor: disabled ? 'default' : 'pointer',
-            transition: 'filter 0.15s ease',
-            filter: rightFilter,
-          }}
-          onMouseDown={handleRightDown}
-          onMouseUp={() => setPressedRight(false)}
-          onMouseLeave={() => setPressedRight(false)}
-          onTouchStart={handleRightDown}
-          onTouchEnd={() => setPressedRight(false)}
-        >
-          {bindingMode && (
-            <rect
-              x={2}
-              y={2}
-              width={165 - 4}
-              height={146}
-              rx={4}
-              fill="transparent"
-              pointerEvents="all"
-              stroke={
-                selectedSide === 'right' ? rightFill : 'rgba(255,255,255,0.12)'
-              }
-              strokeWidth={1}
-              strokeDasharray="4 4"
-            />
-          )}
-          <path
-            d={FOIL_PATH}
-            fill={rightFill}
-            fillRule="nonzero"
-            style={{ transition: 'fill 0.15s ease' }}
-          />
-        </g>
-      </svg>
-
-      {/* Key boxes — one per drum, ringed while that drum awaits a new key */}
-      <div style={{ display: 'flex', gap: 68, justifyContent: 'center' }}>
-        <KeyBox
-          label={leftKeyLabel}
-          color={leftFill}
-          selected={selectedSide === 'left'}
-          onSelect={bindingMode ? onPressLeft : undefined}
-        />
-        <KeyBox
-          label={rightKeyLabel}
-          color={rightFill}
-          selected={selectedSide === 'right'}
-          onSelect={bindingMode ? onPressRight : undefined}
-        />
-      </div>
-    </div>
-  );
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
@@ -931,426 +191,466 @@ function FoilDrums({
 export type FoliProps = {
   onCorrect?: () => void;
   onWrong?: () => void;
+  /** A level begins: the streak starts from nothing. */
+  onRestart?: () => void;
 };
 
-export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
-  const rhythmsQuery = usePrismRhythms();
+export default function Foli({
+  onCorrect,
+  onWrong,
+  onRestart,
+}: FoliProps = {}) {
+  const { progress, clearLevel, openFour } = useFoliProgress();
+  const streak = useArcadeStreak();
 
   const [phase, setPhase] = useState<Phase>('loading');
-  const [leftGlow, setLeftGlow] = useState<BongoGlow>('idle');
-  const [rightGlow, setRightGlow] = useState<BongoGlow>('idle');
-  const [sequence, setSequence] = useState<SequenceNote[]>([]);
-  const [matched, setMatched] = useState<Set<number>>(new Set());
+  const phaseRef = useRef<Phase>('loading');
+  const [status, setStatus] = useState<Status>('count');
+  const [mode, setMode] = useState<FoliMode>('two');
+  const [level, setLevel] = useState(1);
   const [lives, setLives] = useState(MAX_LIVES);
   const [score, setScore] = useState(0);
-  const [barStartTime, setBarStartTime] = useState<number | null>(null);
-
-  // ── Key bindings ────────────────────────────────────────────────────
-  // Rebinding is a start-screen mode: pick a drum, then press the key that
-  // should trigger it. Saving writes them to the user's profile.
-  const [keyBindings, setKeyBindings] =
-    useState<KeyBindings>(DEFAULT_KEY_BINDINGS);
-  const [bindingMode, setBindingMode] = useState(false);
-  const [bindingSide, setBindingSide] = useState<Side | null>(null);
-  const [keysSavedNote, setKeysSavedNote] = useState<string | null>(null);
-
-  const keyBindingsRef = useRef<KeyBindings>(DEFAULT_KEY_BINDINGS);
-  const bindingModeRef = useRef(false);
-  const bindingSideRef = useRef<Side | null>(null);
-  const savedBindingsAppliedRef = useRef(false);
-
-  const savedOptions = useGameOptions<{ keyBindings?: unknown }>(FOLI_GAME_ID);
-  const saveGameOptions = useSaveGameOptions(FOLI_GAME_ID);
-
-  // Apply the profile's saved bindings once, so a mid-session rebind isn't
-  // clobbered by a later refetch.
-  useEffect(() => {
-    if (savedBindingsAppliedRef.current) return;
-    const saved = normalizeBindings(savedOptions.data?.keyBindings);
-    if (!saved) return;
-    savedBindingsAppliedRef.current = true;
-    keyBindingsRef.current = saved;
-    setKeyBindings(saved);
-  }, [savedOptions.data]);
-
-  const phaseRef = useRef<Phase>('loading');
-  const sequenceRef = useRef<SequenceNote[]>([]);
-  const inputStartRef = useRef<number>(0);
-  const matchedRef = useRef<Set<number>>(new Set());
-  const toleranceRef = useRef(BEAT_MS * 0.15);
-  const engineRef = useRef<BongoEngine | null>(null);
-  const runningRef = useRef(false);
-  const livesRef = useRef(MAX_LIVES);
-  const scoreRef = useRef(0);
-
-  const getEngine = useCallback(() => {
-    if (!engineRef.current) engineRef.current = new BongoEngine();
-    return engineRef.current;
-  }, []);
-
-  // ── Volume ──────────────────────────────────────────────────────────
-
-  const [volume, setVolume] = useState(1);
-
-  const handleVolumeChange = useCallback(
-    (next: number) => {
-      setVolume(next);
-      // Applies immediately if the engine exists, and is remembered for the
-      // channel it opens on first play if it doesn't.
-      getEngine().setVolume(next);
-    },
-    [getEngine],
+  const [call, setCall] = useState<FoliNote[]>([]);
+  const [noteStyles, setNoteStyles] = useState<Map<string, NoteStyle>>(
+    new Map(),
   );
+  const [glows, setGlows] = useState<Partial<Record<FoliDrum, DrumGlow>>>({});
+  const [volume, setVolume] = useState(1);
+  /** The level just cleared, and what clearing it meant. */
+  const [cleared, setCleared] = useState<{
+    level: number;
+    mode: FoliMode;
+  } | null>(null);
+
+  const audioRef = useRef<FoliAudio | null>(null);
+  const audio = useCallback(() => (audioRef.current ??= new FoliAudio()), []);
+  const playhead = useMemo(() => createPlayhead(), []);
+  /** Bumped by every start and stop: a run's timers check it's still theirs. */
+  const runRef = useRef(0);
+  const hitsRef = useRef<FoliHit[]>([]);
+  const clickTimerRef = useRef<number>(0);
+  const levelRef = useRef(1);
+  const modeRef = useRef<FoliMode>('two');
+  const livesRef = useRef(MAX_LIVES);
 
   const sp = useCallback((p: Phase) => {
     phaseRef.current = p;
     setPhase(p);
   }, []);
 
-  // Cleanup
+  // Open where the player left off: the highest level they've opened.
+  const openedRef = useRef(false);
   useEffect(() => {
-    return () => {
-      runningRef.current = false;
-      engineRef.current?.close();
-    };
-  }, []);
+    if (openedRef.current) return;
+    if (phaseRef.current !== 'loading' && phaseRef.current !== 'ready') return;
+    if (progress.two > 1 || progress.four > 0) {
+      openedRef.current = true;
+      setLevel(progress.two);
+    }
+  }, [progress]);
 
-  // ── Flash helper ────────────────────────────────────────────────────
-
-  const flashSide = useCallback((side: Side, glow: BongoGlow = 'hit') => {
-    const setter = side === 'left' ? setLeftGlow : setRightGlow;
-    setter(glow);
-    setTimeout(() => {
-      if (phaseRef.current === 'listening' || phaseRef.current === 'input') {
-        setter('idle');
-      }
-    }, FLASH_HOLD_MS);
-  }, []);
-
-  // ── Pick a random rhythm once data is loaded ─────────────────────────
-
-  const allPatterns = useMemo(() => {
-    if (!rhythmsQuery.data) return [];
-    const melodies = Object.values(rhythmsQuery.data.melodies ?? {});
-    const chords = Object.values(rhythmsQuery.data.chords ?? {});
-    const all = [...melodies, ...chords].filter((p) => {
-      if (!Array.isArray(p) || p.length < 2 || p.length > 12) return false;
-      // Only patterns that fit within 1 bar
-      const lastTick = p[p.length - 1][0];
-      return lastTick < BAR_TICKS;
+  // ── Key bindings ────────────────────────────────────────────────────
+  const savedOptions = useGameOptions<{
+    keyBindings?: unknown;
+    keyBindings4?: unknown;
+  }>(FOLI_GAME_ID);
+  const saveGameOptions = useSaveGameOptions(FOLI_GAME_ID);
+  const [bindings, setBindings] = useState<Record<FoliMode, KeyBindings>>({
+    two: defaultKeys('two'),
+    four: defaultKeys('four'),
+  });
+  const bindingsRef = useRef(bindings);
+  bindingsRef.current = bindings;
+  const savedBindingsAppliedRef = useRef(false);
+  useEffect(() => {
+    if (savedBindingsAppliedRef.current || !savedOptions.data) return;
+    savedBindingsAppliedRef.current = true;
+    setBindings({
+      two:
+        readBindings('two', savedOptions.data.keyBindings) ??
+        defaultKeys('two'),
+      four:
+        readBindings('four', savedOptions.data.keyBindings4) ??
+        defaultKeys('four'),
     });
-    return all as RhythmHit[][];
-  }, [rhythmsQuery.data]);
+  }, [savedOptions.data]);
+  const [bindingMode, setBindingMode] = useState(false);
+  const [bindingDrum, setBindingDrum] = useState<FoliDrum | null>(null);
+  const bindingRef = useRef<{ on: boolean; drum: FoliDrum | null }>({
+    on: false,
+    drum: null,
+  });
+  bindingRef.current = { on: bindingMode, drum: bindingDrum };
+  const [keysSavedNote, setKeysSavedNote] = useState<string | null>(null);
 
+  const drums = MODE_DRUMS[mode];
+
+  // ── Sound ───────────────────────────────────────────────────────────
+  // The drums load as the game opens; a run waits for its own (four drums
+  // load the first time they're played).
   useEffect(() => {
-    if (allPatterns.length > 0 && phaseRef.current === 'loading') {
-      sp('ready');
-    }
-  }, [allPatterns, sp]);
+    let gone = false;
+    void audio()
+      .load(MODE_DRUMS.two)
+      .catch((err: unknown) => console.error('[Foli] sounds failed', err))
+      .finally(() => {
+        if (!gone && phaseRef.current === 'loading') sp('ready');
+      });
+    return () => {
+      gone = true;
+    };
+  }, [audio, sp]);
 
-  // ── Assign L/R sides & normalize to start at tick 0 ─────────────────
-
-  const assignSides = useCallback((pattern: RhythmHit[]): SequenceNote[] => {
-    const firstTick = pattern[0][0];
-    return pattern.map(([startTick, duration], i) => ({
-      startTick: startTick - firstTick,
-      durationTick: duration,
-      side: (i % 2 === 0 ? 'left' : 'right') as Side,
-    }));
-  }, []);
-
-  // ── Play the demonstration sequence (fire-and-forget within a bar) ──
-
-  const playSequence = useCallback(
-    (seq: SequenceNote[], engine: BongoEngine, barOrigin: number) => {
-      // Schedule all notes via Web Audio clock for sample-accurate timing
-      for (const note of seq) {
-        const when = barOrigin + ticksToMs(note.startTick) / 1000;
-        engine.playAt(note.side, when);
-        // Visual flash via setTimeout — visual jitter is acceptable
-        const delayMs = Math.max(0, (when - engine.getCtxTime()) * 1000);
-        const { side } = note;
-        setTimeout(() => {
-          if (!runningRef.current) return;
-          flashSide(side);
-        }, delayMs);
-      }
+  const handleVolumeChange = useCallback(
+    (next: number) => {
+      setVolume(next);
+      audio().setVolume(next);
     },
-    [flashSide],
+    [audio],
   );
 
-  // ── Evaluate user hits against the sequence ─────────────────────────
-
-  const checkHits = useCallback((seq: SequenceNote[]): boolean => {
-    return matchedRef.current.size >= seq.length;
+  const flash = useCallback((drum: FoliDrum, glow: DrumGlow = 'hit') => {
+    setGlows((g) => ({ ...g, [drum]: glow }));
+    window.setTimeout(
+      () => setGlows((g) => (g[drum] === glow ? { ...g, [drum]: 'idle' } : g)),
+      FLASH_HOLD_MS,
+    );
   }, []);
 
-  // ── Play a single round, return true if passed ──────────────────────
+  // ── Stopping ────────────────────────────────────────────────────────
+  const stop = useCallback(() => {
+    runRef.current += 1;
+    window.clearInterval(clickTimerRef.current);
+    playhead.stop();
+    audioRef.current?.cancelScheduled();
+    audioRef.current?.stopShaker();
+  }, [playhead]);
 
-  const playRound = useCallback(
-    async (engine: BongoEngine): Promise<boolean> => {
-      if (allPatterns.length === 0) return false;
-
-      const picked = pickRandom(allPatterns);
-      const withSides = assignSides(picked);
-      sequenceRef.current = withSides;
-
-      setSequence(withSides);
-      setLeftGlow('idle');
-      setRightGlow('idle');
-
-      // Compute tolerance window for this pattern
-      const seqTimesMs = withSides.map((n) => ticksToMs(n.startTick));
-      const seqSpan =
-        seqTimesMs.length > 1 ? seqTimesMs[seqTimesMs.length - 1] : 1000;
-      toleranceRef.current = Math.max(
-        seqSpan * TOLERANCE_RATIO,
-        BEAT_MS * 0.15,
-      );
-
-      // Question/Answer cycles
-      for (let cycle = 0; cycle < NUM_CYCLES; cycle++) {
-        if (!runningRef.current) return false;
-
-        // Question bar
-        sp('listening');
-        setLeftGlow('idle');
-        setRightGlow('idle');
-        const barOrigin = engine.getCtxTime();
-        setBarStartTime(performance.now());
-        playSequence(withSides, engine, barOrigin);
-        await wait(BAR_MS);
-        if (!runningRef.current) return false;
-
-        // Answer bar
-        matchedRef.current = new Set();
-        setMatched(new Set());
-        inputStartRef.current = performance.now();
-        setBarStartTime(performance.now());
-        sp('input');
-        await wait(BAR_MS);
-        if (!runningRef.current) return false;
-
-        if (checkHits(withSides)) return true;
-      }
-
-      setBarStartTime(null);
-      return false;
+  useEffect(
+    () => () => {
+      stop();
+      audioRef.current?.close();
     },
-    [allPatterns, assignSides, playSequence, checkHits, sp],
+    [stop],
   );
 
-  // ── Start a full game session ──────────────────────────────────────
+  // ── A run ───────────────────────────────────────────────────────────
+  /** A run of a level; `resume` carries on after a pause, lives and score kept. */
+  const start = useCallback(
+    (atLevel: number, inMode: FoliMode, resume = false) => {
+      stop();
+      const run = runRef.current;
+      const engine = audio();
+      void engine
+        .load(MODE_DRUMS[inMode])
+        .catch((err: unknown) => console.error('[Foli] sounds failed', err))
+        .then(() => {
+          if (runRef.current === run)
+            beginRef.current(run, engine, atLevel, inMode, resume);
+        });
+    },
+    [audio, stop],
+  );
 
-  const startGame = useCallback(async () => {
-    if (allPatterns.length === 0) return;
+  const begin = useCallback(
+    (
+      run: number,
+      engine: FoliAudio,
+      atLevel: number,
+      inMode: FoliMode,
+      resume: boolean,
+    ) => {
+      const ctx = engine.ctx;
+      const spec = foliLevel(atLevel);
+      const beatS = 60 / spec.bpm;
+      const barS = 4 * beatS;
+      const tickS = beatS / TICKS_PER_BEAT;
+      const t0 = ctx.currentTime + START_LEAD_S;
+      const barAt = (bar: number) => t0 + bar * barS;
+      const live = () => runRef.current === run;
+      /** Do `fn` at an audio-clock time (on screen, give or take a frame). */
+      const at = (t: number, fn: () => void) =>
+        window.setTimeout(
+          () => live() && fn(),
+          Math.max(0, (t - ctx.currentTime) * 1000),
+        );
+      const until = (t: number) =>
+        new Promise<void>((resolve) => at(t, resolve));
 
-    livesRef.current = MAX_LIVES;
-    scoreRef.current = 0;
-    setLives(MAX_LIVES);
-    setScore(0);
-    runningRef.current = true;
-
-    const engine = getEngine();
-    await engine.init();
-    await engine.loadShakers();
-    await engine.loadMetronome();
-
-    const shakerIndex = Math.floor(Math.random() * SHAKER_URLS.length);
-    engine.playShaker(shakerIndex);
-    engine.startMetronome();
-
-    // One count-in bar before the first question
-    sp('listening');
-    await wait(BAR_MS);
-    if (!runningRef.current) return;
-
-    while (livesRef.current > 0 && runningRef.current) {
-      const passed = await playRound(engine);
-      if (!runningRef.current) return;
-
-      setBarStartTime(null);
-      if (passed) {
-        onCorrect?.();
-        scoreRef.current += 1;
-        setScore(scoreRef.current);
-        setLeftGlow('success');
-        setRightGlow('success');
-        sp('success');
-      } else {
-        onWrong?.();
-        livesRef.current -= 1;
-        setLives(livesRef.current);
-        setLeftGlow('fail');
-        setRightGlow('fail');
-        sp('fail');
+      levelRef.current = spec.level;
+      modeRef.current = inMode;
+      hitsRef.current = [];
+      setLevel(spec.level);
+      setMode(inMode);
+      setCleared(null);
+      setCall([]);
+      setNoteStyles(new Map());
+      setStatus('count');
+      sp('playing');
+      // A new run starts the level over; a resumed one carries on.
+      if (!resume) {
+        livesRef.current = MAX_LIVES;
+        setLives(MAX_LIVES);
+        setScore(0);
+        onRestart?.();
       }
-    }
 
-    runningRef.current = false;
-    engine.stopMetronome();
-    engine.stopShaker();
-    sp('gameover');
-  }, [allPatterns, getEngine, playRound, sp, onCorrect, onWrong]);
-
-  // ── Handle user bongo press ─────────────────────────────────────────
-
-  const handleHit = useCallback(
-    (side: Side) => {
-      if (phaseRef.current !== 'input') return;
-
-      const engine = getEngine();
-      engine.play(side);
-      flashSide(side);
-
-      const relativeMs = performance.now() - inputStartRef.current;
-      const seq = sequenceRef.current;
-      const windowMs = toleranceRef.current;
-
-      // Find closest unmatched note within tolerance and correct side
-      let bestIdx = -1;
-      let bestDist = Infinity;
-      for (let i = 0; i < seq.length; i++) {
-        if (matchedRef.current.has(i)) continue;
-        if (seq[i].side !== side) continue;
-        const expectedMs = ticksToMs(seq[i].startTick);
-        const dist = Math.abs(relativeMs - expectedMs);
-        if (dist < bestDist && dist <= windowMs) {
-          bestDist = dist;
-          bestIdx = i;
+      // The click: every beat of the grid, scheduled a little ahead.
+      let nextBeat = 0;
+      const scheduleClicks = () => {
+        while (t0 + nextBeat * beatS < ctx.currentTime + CLICK_LOOKAHEAD_S) {
+          engine.click(t0 + nextBeat * beatS, nextBeat % 4 === 0);
+          nextBeat += 1;
         }
-      }
-      if (bestIdx >= 0) {
-        matchedRef.current = new Set(matchedRef.current).add(bestIdx);
-        setMatched(new Set(matchedRef.current));
-      }
+      };
+      scheduleClicks();
+      clickTimerRef.current = window.setInterval(scheduleClicks, 25);
+      engine.startShaker(spec.bpm, t0);
+
+      void (async () => {
+        let bar = 1; // bar 0 is the count-in
+        while (live() && livesRef.current > 0) {
+          const notes = buildCall(spec, inMode, Math.random);
+          const tolerance = toleranceFor(notes, spec.bpm);
+          let passed = false;
+          for (let cycle = 0; cycle < CYCLES && !passed; cycle++) {
+            const callStart = barAt(bar);
+            at(callStart - 0.05, () => {
+              setCall(notes);
+              setNoteStyles(new Map());
+              setStatus('listening');
+              setGlows({});
+              playhead.from(callStart, tickS, ctx);
+            });
+            for (const note of notes) {
+              const when = callStart + note.startTick * tickS;
+              engine.play(note.drum, when);
+              at(when, () => flash(note.drum));
+            }
+            bar += spec.bars;
+            const answerStart = barAt(bar);
+            // In development only: the answer to come, for a test to play.
+            if (import.meta.env.DEV)
+              (window as unknown as Record<string, unknown>).__foli = {
+                notes,
+                answerStart,
+                tickS,
+                latency: heardLatency(ctx),
+                now: () => ctx.currentTime,
+              };
+            at(answerStart - tolerance, () => {
+              setStatus('input');
+              playhead.from(answerStart, tickS, ctx);
+            });
+            bar += spec.bars;
+            await until(barAt(bar) + tolerance + 0.03);
+            if (!live()) return;
+            const grade = gradeAnswer(
+              notes,
+              hitsRef.current,
+              answerStart,
+              spec.bpm,
+              spec.bars,
+              tolerance,
+            );
+            passed = grade.passed;
+            setNoteStyles(
+              new Map(
+                notes.map((_, i) => [
+                  String(i),
+                  { color: grade.matched.has(i) ? '#22c55e' : '#f87171' },
+                ]),
+              ),
+            );
+          }
+          playhead.from(null);
+          setGlows(
+            Object.fromEntries(
+              MODE_DRUMS[inMode].map((d) => [d, passed ? 'success' : 'fail']),
+            ),
+          );
+          if (passed) {
+            setStatus('success');
+            setScore((s) => s + 1);
+            onCorrect?.();
+          } else {
+            setStatus('fail');
+            livesRef.current -= 1;
+            setLives(livesRef.current);
+            onWrong?.();
+          }
+          hitsRef.current = hitsRef.current.slice(-64);
+          // A bar to see how it went, then the next call.
+          bar += 1;
+          await until(barAt(bar) - 0.1);
+        }
+        if (!live()) return;
+        stop();
+        sp('over');
+      })();
     },
-    [getEngine, flashSide],
+    [flash, onCorrect, onRestart, onWrong, playhead, sp, stop],
+  );
+  const beginRef = useRef(begin);
+  beginRef.current = begin;
+
+  // A streak won: the level is cleared. Congratulations, and what's next.
+  const lastWinRef = useRef(streak?.win?.id ?? 0);
+  useEffect(() => {
+    const win = streak?.win;
+    if (!win || win.id <= lastWinRef.current) return;
+    lastWinRef.current = win.id;
+    if (phaseRef.current !== 'playing') return;
+    stop();
+    clearLevel(modeRef.current, levelRef.current);
+    setCleared({ level: levelRef.current, mode: modeRef.current });
+    sp('won');
+  }, [streak?.win, stop, clearLevel, sp]);
+
+  // In development only: start any level, for a test to look at.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const w = window as unknown as Record<string, unknown>;
+    w.__foliStart = (atLevel: number, inMode: FoliMode) =>
+      start(atLevel, inMode);
+    return () => {
+      delete w.__foliStart;
+    };
+  }, [start]);
+
+  // ── Pause ───────────────────────────────────────────────────────────
+  // A pause stops the clock where it is and drops the round under way, which
+  // counts neither way; resuming counts in again and plays a fresh call,
+  // lives, score and streak as they were.
+  const pause = useCallback(() => {
+    if (phaseRef.current !== 'playing') return;
+    stop();
+    setGlows({});
+    setCall([]);
+    setNoteStyles(new Map());
+    sp('paused');
+  }, [stop, sp]);
+
+  const resume = useCallback(() => {
+    if (phaseRef.current !== 'paused') return;
+    start(levelRef.current, modeRef.current, true);
+  }, [start]);
+
+  // ── A hit ───────────────────────────────────────────────────────────
+  const hit = useCallback(
+    (drum: FoliDrum, timeStamp: number) => {
+      const engine = audio();
+      engine.play(drum);
+      flash(drum);
+      if (phaseRef.current !== 'playing') return;
+      const ctx = engine.ctx;
+      // When it was played, on the audio clock, as the player heard the beat.
+      const since = Math.max(0, performance.now() - timeStamp) / 1000;
+      hitsRef.current.push({
+        t: ctx.currentTime - since - heardLatency(ctx),
+        drum,
+      });
+    },
+    [audio, flash],
   );
 
   // ── Rebinding drum keys ─────────────────────────────────────────────
-
-  const selectSide = useCallback((side: Side) => {
-    bindingSideRef.current = side;
-    setBindingSide(side);
-  }, []);
-
-  /** Bind `code` to `side`. If the other drum already used it, the two swap so
-   *  the drums never end up sharing one key. */
-  const assignKey = useCallback((side: Side, code: string) => {
-    const prev = keyBindingsRef.current;
-    const other: Side = side === 'left' ? 'right' : 'left';
-    const next: KeyBindings = { ...prev, [side]: code };
-    if (prev[other] === code) next[other] = prev[side];
-
-    keyBindingsRef.current = next;
-    setKeyBindings(next);
-    bindingSideRef.current = null;
-    setBindingSide(null);
-  }, []);
-
-  const enterBindingMode = useCallback(() => {
-    // Drop focus from the button that opened the mode, so binding Space or
-    // Enter to a drum doesn't also activate Save Keys.
-    (document.activeElement as HTMLElement | null)?.blur?.();
-    setKeysSavedNote(null);
-    bindingModeRef.current = true;
-    bindingSideRef.current = null;
-    setBindingMode(true);
-    setBindingSide(null);
-  }, []);
+  const assignKey = useCallback(
+    (drum: FoliDrum, code: string) => {
+      setBindings((all) => {
+        const now = { ...all[mode] };
+        const holder = MODE_DRUMS[mode].find((d) => now[d] === code);
+        if (holder && holder !== drum) now[holder] = now[drum];
+        now[drum] = code;
+        return { ...all, [mode]: now };
+      });
+      setBindingDrum(null);
+    },
+    [mode],
+  );
 
   const saveKeys = useCallback(async () => {
-    bindingModeRef.current = false;
-    bindingSideRef.current = null;
     setBindingMode(false);
-    setBindingSide(null);
-
+    setBindingDrum(null);
+    const keys = bindingsRef.current;
     try {
       await saveGameOptions.mutateAsync({
-        keyBindings: keyBindingsRef.current,
+        keyBindings: { left: keys.two.bongoHigh, right: keys.two.bongoLow },
+        keyBindings4: Object.fromEntries(
+          MODE_DRUMS.four.map((d) => [d, keys.four[d]]),
+        ),
       });
       setKeysSavedNote('Keys saved to your profile');
     } catch (error) {
-      // Signed-out arcade play still gets the new keys for this session.
       console.error('Failed to save Foli key bindings', error);
       setKeysSavedNote('Keys saved for this session only');
     }
   }, [saveGameOptions]);
 
-  // ── Keyboard support: bound drum keys, Space/Enter = start ──────────
-
+  // ── The keyboard: drum keys, Space/Enter to start ───────────────────
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.repeat) return;
-
-      // While rebinding, the next key press lands in the selected drum's box.
-      if (bindingModeRef.current) {
+      const binding = bindingRef.current;
+      if (binding.on) {
         if (e.code === 'Escape') {
-          bindingSideRef.current = null;
-          setBindingSide(null);
+          setBindingDrum(null);
           return;
         }
-        if (!bindingSideRef.current || UNBINDABLE_CODES.has(e.code)) return;
+        if (!binding.drum || UNBINDABLE_CODES.has(e.code)) return;
         e.preventDefault();
-        assignKey(bindingSideRef.current, e.code);
+        assignKey(binding.drum, e.code);
         return;
       }
-
-      const bindings = keyBindingsRef.current;
-
-      if (e.code === bindings.left) {
+      if (e.code === 'Escape') {
+        if (phaseRef.current === 'playing') pause();
+        else if (phaseRef.current === 'paused') resume();
+        return;
+      }
+      const keys = bindingsRef.current[modeRef.current];
+      const drum = MODE_DRUMS[modeRef.current].find((d) => keys[d] === e.code);
+      if (drum) {
         e.preventDefault();
-        if (phaseRef.current === 'input') handleHit('left');
-      } else if (e.code === bindings.right) {
-        e.preventDefault();
-        if (phaseRef.current === 'input') handleHit('right');
+        hit(drum, e.timeStamp);
       } else if (e.code === 'Space' || e.code === 'Enter') {
-        e.preventDefault();
-        if (phaseRef.current === 'ready' || phaseRef.current === 'gameover') {
-          startGame();
+        if (phaseRef.current === 'paused') {
+          e.preventDefault();
+          resume();
+        } else if (
+          phaseRef.current === 'ready' ||
+          phaseRef.current === 'over'
+        ) {
+          e.preventDefault();
+          start(levelRef.current, modeRef.current);
         }
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [handleHit, startGame, assignKey]);
+  }, [hit, start, assignKey, pause, resume]);
 
-  // ── Reset after result ────────────────────────────────────────────────
+  // Keep the chosen level and mode in reach of the keyboard handler.
+  useEffect(() => {
+    levelRef.current = level;
+    modeRef.current = mode;
+  }, [level, mode]);
 
-  const handleReset = useCallback(() => {
-    runningRef.current = false;
-    getEngine().stopMetronome();
-    getEngine().stopShaker();
-    setLeftGlow('idle');
-    setRightGlow('idle');
-    setSequence([]);
-    setMatched(new Set());
-    setBarStartTime(null);
-    matchedRef.current = new Set();
-    livesRef.current = MAX_LIVES;
-    scoreRef.current = 0;
-    setLives(MAX_LIVES);
-    setScore(0);
-    sp('ready');
-  }, [getEngine, sp]);
-
-  // ── Derived display ───────────────────────────────────────────────────
-
-  const isInputActive = phase === 'input';
-
-  const statusLabel: Record<Phase, string> = {
-    loading: 'Loading rhythms…',
-    ready: '',
+  // ── Display ─────────────────────────────────────────────────────────
+  const opened = mode === 'two' ? progress.two : progress.four;
+  const spec = foliLevel(level);
+  const statusLabel: Record<Status, string> = {
+    count: 'Count in…',
     listening: 'Listen to the rhythm…',
-    input: 'Your turn — tap it back!',
+    input: 'Your turn — play it back!',
     success: 'Rhythm matched!',
     fail: 'Not quite…',
-    gameover: '',
   };
-
-  // Hex path for tiny life indicators (flat-top, centered at 0,0, radius ~6)
+  const keyLabels = Object.fromEntries(
+    drums.map((d) => [d, keyLabel(bindings[mode][d])]),
+  ) as Partial<Record<FoliDrum, string>>;
   const hexPts = '0,-6 5.2,-3 5.2,3 0,6 -5.2,3 -5.2,-3';
+  const conquering =
+    cleared !== null && cleared.level >= LAST_LEVEL && cleared.mode === 'two';
 
   return (
     <div
@@ -1365,6 +665,10 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
       <ArcadeGameHeader
         title="Foli"
         stats={[
+          {
+            label: 'Level',
+            value: `${mode === 'four' ? '4 drums · ' : ''}${level}`,
+          },
           {
             label: 'Lives',
             value: (
@@ -1396,8 +700,8 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 20,
-          padding: '24px 16px',
+          gap: 18,
+          padding: '20px 16px',
         }}
       >
         {/* Volume — tucked inside the left edge of the play area */}
@@ -1415,62 +719,203 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
           </div>
         </div>
 
-        {/* Foil drums — clickable to select a drum while rebinding */}
-        <FoilDrums
-          leftGlow={leftGlow}
-          rightGlow={rightGlow}
-          disabled={!isInputActive && !bindingMode}
-          onPressLeft={() =>
-            bindingMode ? selectSide('left') : handleHit('left')
-          }
-          onPressRight={() =>
-            bindingMode ? selectSide('right') : handleHit('right')
-          }
-          leftKeyLabel={keyLabel(keyBindings.left)}
-          rightKeyLabel={keyLabel(keyBindings.right)}
-          selectedSide={bindingMode ? bindingSide : null}
-          bindingMode={bindingMode}
-        />
-
-        {/* Status */}
-        {phase !== 'gameover' && (
+        {/* Pause — tucked inside the right edge of the play area */}
+        {(phase === 'playing' || phase === 'paused') && (
           <div
             style={{
-              fontSize: 11,
-              fontWeight: 500,
-              minHeight: 16,
-              textAlign: 'center',
-              transition: 'color 0.3s',
-              color:
-                phase === 'success'
-                  ? '#22c55e'
-                  : phase === 'fail'
-                    ? '#f87171'
-                    : 'var(--color-text-dim, #6b7280)',
+              position: 'absolute',
+              right: 16,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 2,
             }}
           >
-            {statusLabel[phase]}
+            <button
+              type="button"
+              onClick={phase === 'playing' ? pause : resume}
+              aria-label={phase === 'playing' ? 'Pause' : 'Resume'}
+              title={`${phase === 'playing' ? 'Pause' : 'Resume'} (Esc)`}
+              className="flex flex-col items-center gap-1 rounded-xl border border-white/5 bg-black/20 px-4 py-3 text-zinc-300 backdrop-blur-sm transition-colors hover:text-white"
+            >
+              {phase === 'playing' ? <Pause size={22} /> : <Play size={22} />}
+              <span className="text-[10px] uppercase tracking-wider">
+                {phase === 'playing' ? 'Pause' : 'Resume'}
+              </span>
+            </button>
           </div>
         )}
 
-        {/* Rhythm notation */}
-        {(phase === 'listening' || phase === 'input') &&
-          sequence.length > 0 && (
-            <RhythmNotation
-              sequence={sequence}
-              matched={matched}
-              barStartTime={barStartTime}
-            />
-          )}
+        <FoliPads
+          drums={drums}
+          glows={glows}
+          keyLabels={keyLabels}
+          disabled={phase === 'loading'}
+          onPress={hit}
+          bindingMode={bindingMode}
+          selected={bindingMode ? bindingDrum : null}
+          onSelect={setBindingDrum}
+        />
 
-        {/* Game Over screen */}
-        {phase === 'gameover' && (
+        {phase === 'playing' && (
+          <>
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 500,
+                minHeight: 16,
+                textAlign: 'center',
+                color:
+                  status === 'success'
+                    ? '#22c55e'
+                    : status === 'fail'
+                      ? '#f87171'
+                      : status === 'input'
+                        ? '#ddd6fe'
+                        : 'var(--color-text-dim, #6b7280)',
+              }}
+            >
+              {statusLabel[status]}
+            </div>
+            {call.length > 0 && (
+              <FoliStaff
+                notes={call}
+                bars={spec.bars}
+                noteStyles={noteStyles}
+                playhead={playhead.source}
+              />
+            )}
+          </>
+        )}
+
+        {phase === 'paused' && (
+          <div
+            data-foli-paused
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 10,
+              textAlign: 'center',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 16,
+                fontWeight: 800,
+                letterSpacing: 3,
+                color: '#ddd6fe',
+                textTransform: 'uppercase',
+              }}
+            >
+              Paused
+            </div>
+            <div
+              style={{ fontSize: 11, color: 'var(--color-text-dim, #6b7280)' }}
+            >
+              Resume counts you back in with a new rhythm.
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <ActionButton primary onClick={resume}>
+                Resume
+              </ActionButton>
+              <ActionButton
+                onClick={() => {
+                  stop();
+                  sp('ready');
+                }}
+              >
+                Levels
+              </ActionButton>
+            </div>
+          </div>
+        )}
+
+        {/* A streak won: the level is cleared */}
+        {phase === 'won' && cleared && (
+          <div
+            data-foli-won
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 10,
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#f5f3ff' }}>
+              {conquering
+                ? 'You have conquered the game!'
+                : cleared.level >= LAST_LEVEL
+                  ? 'You’ve conquered Foli on four drums!'
+                  : 'Congratulations! Streak complete!'}
+            </div>
+            <div style={{ fontSize: 13, color: '#c4b5fd' }}>
+              {cleared.mode === 'four' ? 'Four drums · ' : ''}Level{' '}
+              {cleared.level} cleared
+              {cleared.level < LAST_LEVEL
+                ? ` · Level ${cleared.level + 1} is open: ${levelNews(cleared.level + 1)}`
+                : ''}
+            </div>
+            {streak?.win && (
+              <div
+                style={{
+                  fontSize: streak.win.status === 'granted' ? 26 : 12,
+                  fontWeight: 800,
+                  color:
+                    streak.win.status === 'granted' ? '#f5f3ff' : '#ddd6fe',
+                }}
+              >
+                {winXpLine(streak.win)}
+              </div>
+            )}
+            {conquering ? (
+              <>
+                <div style={{ fontSize: 13, color: '#e4e4e7' }}>
+                  Want to try something even harder?
+                </div>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <ActionButton
+                    primary
+                    onClick={() => {
+                      openFour();
+                      start(1, 'four');
+                    }}
+                  >
+                    Yes! Four drums
+                  </ActionButton>
+                  <ActionButton onClick={() => sp('ready')}>
+                    Not now
+                  </ActionButton>
+                </div>
+              </>
+            ) : (
+              <div style={{ display: 'flex', gap: 10 }}>
+                {cleared.level < LAST_LEVEL && (
+                  <ActionButton
+                    primary
+                    onClick={() => start(cleared.level + 1, cleared.mode)}
+                  >
+                    Next level: {cleared.level + 1}
+                  </ActionButton>
+                )}
+                <ActionButton
+                  onClick={() => start(cleared.level, cleared.mode)}
+                >
+                  Replay Level {cleared.level}
+                </ActionButton>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Game over */}
+        {phase === 'over' && (
           <div
             style={{
               textAlign: 'center',
               display: 'flex',
               flexDirection: 'column',
-              gap: 12,
+              gap: 10,
               alignItems: 'center',
             }}
           >
@@ -1486,27 +931,21 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
               Game Over
             </div>
             <div
-              style={{
-                fontSize: 11,
-                color: 'var(--color-text-dim, #6b7280)',
-              }}
+              style={{ fontSize: 11, color: 'var(--color-text-dim, #6b7280)' }}
             >
-              Final Score:{' '}
-              <span
-                style={{
-                  color: '#ddd6fe',
-                  fontWeight: 700,
-                  fontVariantNumeric: 'tabular-nums',
-                }}
-              >
-                {score}
-              </span>
+              Level {level} · {score} matched
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <ActionButton primary onClick={() => start(level, mode)}>
+                Try again
+              </ActionButton>
+              <ActionButton onClick={() => sp('ready')}>Levels</ActionButton>
             </div>
           </div>
         )}
 
-        {/* Start screen: instructions → Change Keys → Start */}
-        {(phase === 'ready' || phase === 'gameover') && (
+        {/* Start: the level, the drums, the keys */}
+        {phase === 'ready' && (
           <div
             style={{
               display: 'flex',
@@ -1515,112 +954,151 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
               gap: 10,
             }}
           >
-            {phase === 'ready' && (
+            {progress.four > 0 && !bindingMode && (
+              <div style={{ display: 'flex', gap: 6 }}>
+                {(['two', 'four'] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    aria-pressed={mode === m}
+                    onClick={() => {
+                      setMode(m);
+                      setLevel(m === 'two' ? progress.two : progress.four);
+                    }}
+                    style={{
+                      padding: '4px 12px',
+                      borderRadius: 999,
+                      border: `1px solid ${mode === m ? '#a78bfa' : 'rgba(255,255,255,0.12)'}`,
+                      background:
+                        mode === m ? 'rgba(167,139,250,0.14)' : 'transparent',
+                      color: mode === m ? '#ddd6fe' : 'rgba(255,255,255,0.5)',
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {m === 'two' ? 'Two drums' : 'Four drums'}
+                  </button>
+                ))}
+              </div>
+            )}
+            {!bindingMode && (
               <div
-                style={{
-                  fontSize: 11,
-                  maxWidth: 300,
-                  textAlign: 'center',
-                  lineHeight: 1.5,
-                  color: bindingMode
-                    ? '#ddd6fe'
-                    : 'var(--color-text-dim, #6b7280)',
-                }}
+                role="group"
+                aria-label="Level"
+                style={{ display: 'flex', alignItems: 'center', gap: 10 }}
               >
-                {bindingMode
-                  ? 'Click a drum and then press the key you would like to use'
-                  : 'Press the keys on your keyboard to match the drum pattern'}
+                <StepButton
+                  label="Easier level"
+                  disabled={level <= 1}
+                  onClick={() => setLevel((l) => Math.max(1, l - 1))}
+                >
+                  ‹
+                </StepButton>
+                <div style={{ textAlign: 'center', minWidth: 170 }}>
+                  <div
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 800,
+                      color: '#ddd6fe',
+                      letterSpacing: 1,
+                    }}
+                  >
+                    Level {level}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>
+                    {levelNews(level)}
+                    {levelNews(level).endsWith('BPM')
+                      ? ''
+                      : ` · ${spec.bpm} BPM`}
+                  </div>
+                </div>
+                <StepButton
+                  label="Harder level"
+                  disabled={level >= opened}
+                  onClick={() => setLevel((l) => Math.min(opened, l + 1))}
+                >
+                  ›
+                </StepButton>
               </div>
             )}
 
-            {phase === 'ready' && keysSavedNote && !bindingMode && (
+            <div
+              style={{
+                fontSize: 11,
+                maxWidth: 320,
+                textAlign: 'center',
+                lineHeight: 1.5,
+                color: bindingMode
+                  ? '#ddd6fe'
+                  : 'var(--color-text-dim, #6b7280)',
+              }}
+            >
+              {bindingMode
+                ? 'Click a drum and then press the key you would like to use'
+                : `Listen, then play it back on ${mode === 'two' ? 'two' : 'four'} drums. ${streak?.target ?? 5} in a row clears the level.`}
+            </div>
+
+            {keysSavedNote && !bindingMode && (
               <div style={{ fontSize: 10, color: '#22c55e' }}>
                 {keysSavedNote}
               </div>
             )}
 
-            {/* Half the height of the Start button below it */}
-            {phase === 'ready' && (
-              <button
-                onClick={bindingMode ? saveKeys : enterBindingMode}
-                style={{
-                  height: START_BUTTON_HEIGHT / 2,
-                  padding: '0 18px',
-                  borderRadius: 6,
-                  border: '1px solid rgba(167,139,250,0.5)',
-                  backgroundColor: bindingMode
-                    ? 'rgba(167,139,250,0.22)'
-                    : 'rgba(167,139,250,0.06)',
-                  color: '#ddd6fe',
-                  fontSize: 9,
-                  fontWeight: 700,
-                  lineHeight: 1,
-                  cursor: 'pointer',
-                  letterSpacing: 1.5,
-                  textTransform: 'uppercase',
-                  transition: 'all 0.18s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor =
-                    'rgba(167,139,250,0.25)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = bindingMode
-                    ? 'rgba(167,139,250,0.22)'
-                    : 'rgba(167,139,250,0.06)';
-                }}
-              >
-                {bindingMode ? 'Save Keys' : 'Change Keys'}
-              </button>
-            )}
+            <button
+              onClick={
+                bindingMode
+                  ? saveKeys
+                  : () => {
+                      (document.activeElement as HTMLElement | null)?.blur?.();
+                      setKeysSavedNote(null);
+                      setBindingMode(true);
+                      setBindingDrum(null);
+                    }
+              }
+              style={{
+                height: START_BUTTON_HEIGHT / 2,
+                padding: '0 18px',
+                borderRadius: 6,
+                border: '1px solid rgba(167,139,250,0.5)',
+                backgroundColor: bindingMode
+                  ? 'rgba(167,139,250,0.22)'
+                  : 'rgba(167,139,250,0.06)',
+                color: '#ddd6fe',
+                fontSize: 9,
+                fontWeight: 700,
+                lineHeight: 1,
+                cursor: 'pointer',
+                letterSpacing: 1.5,
+                textTransform: 'uppercase',
+              }}
+            >
+              {bindingMode ? 'Save Keys' : 'Change Keys'}
+            </button>
 
-            {/* Hidden while rebinding, so Save Keys is the only next step */}
             {!bindingMode && (
               <button
-                onClick={
-                  phase === 'ready'
-                    ? startGame
-                    : () => {
-                        handleReset();
-                      }
-                }
+                onClick={() => start(level, mode)}
                 style={{
                   height: START_BUTTON_HEIGHT,
                   padding: '0 36px',
                   borderRadius: 10,
-                  border: `1.5px solid ${phase === 'gameover' ? '#f87171' : '#a78bfa'}`,
-                  backgroundColor:
-                    phase === 'gameover'
-                      ? 'rgba(248,113,113,0.1)'
-                      : 'rgba(167,139,250,0.14)',
-                  color: phase === 'gameover' ? '#fca5a5' : '#ddd6fe',
+                  border: '1.5px solid #a78bfa',
+                  backgroundColor: 'rgba(167,139,250,0.14)',
+                  color: '#ddd6fe',
                   fontSize: 13,
                   fontWeight: 700,
                   cursor: 'pointer',
                   letterSpacing: 2,
                   textTransform: 'uppercase',
-                  transition: 'all 0.18s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor =
-                    phase === 'gameover'
-                      ? 'rgba(248,113,113,0.2)'
-                      : 'rgba(167,139,250,0.25)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor =
-                    phase === 'gameover'
-                      ? 'rgba(248,113,113,0.1)'
-                      : 'rgba(167,139,250,0.14)';
                 }}
               >
-                {phase === 'ready' ? 'Start' : 'Play Again'}
+                Start
               </button>
             )}
           </div>
         )}
 
-        {/* Loading state */}
         {phase === 'loading' && (
           <div
             style={{
@@ -1629,10 +1107,75 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
               letterSpacing: 1,
             }}
           >
-            Loading rhythms…
+            Loading drums…
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function ActionButton({
+  children,
+  onClick,
+  primary = false,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  primary?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        height: START_BUTTON_HEIGHT,
+        padding: '0 22px',
+        borderRadius: 10,
+        border: `1.5px solid ${primary ? '#a78bfa' : 'rgba(255,255,255,0.15)'}`,
+        backgroundColor: primary ? 'rgba(167,139,250,0.18)' : 'transparent',
+        color: primary ? '#ede9fe' : 'rgba(255,255,255,0.75)',
+        fontSize: 12,
+        fontWeight: 700,
+        cursor: 'pointer',
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function StepButton({
+  children,
+  onClick,
+  disabled,
+  label,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled: boolean;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        width: 28,
+        height: 28,
+        borderRadius: 999,
+        border: '1px solid rgba(255,255,255,0.12)',
+        background: 'transparent',
+        color: disabled ? 'rgba(255,255,255,0.2)' : '#ddd6fe',
+        fontSize: 16,
+        cursor: disabled ? 'default' : 'pointer',
+      }}
+    >
+      {children}
+    </button>
   );
 }

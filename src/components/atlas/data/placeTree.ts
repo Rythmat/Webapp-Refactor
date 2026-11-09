@@ -94,6 +94,9 @@ const REGION_LABEL: Readonly<Record<RegionId, string>> = {
   oceania: 'Oceania',
 };
 
+/** A region's name as the Globe writes it ("Northern Europe"). */
+export const regionLabel = (region: RegionId): string => REGION_LABEL[region];
+
 const CONTINENT_OF = new Map<RegionId, ContinentId>(
   CONTINENTS.flatMap((c) => c.regions.map((r) => [r, c.id] as const)),
 );

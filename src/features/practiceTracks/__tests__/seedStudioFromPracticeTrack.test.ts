@@ -27,7 +27,7 @@ beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
   resetSessionToEmpty();
   s().setProjectName('My work');
-  s().addTrack('midi', 'piano-sampler', 'Mine');
+  s().addTrack('midi', 'soundfont', 'Mine');
 });
 
 describe('preparePracticeModeTrack', () => {

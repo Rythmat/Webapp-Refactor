@@ -3,6 +3,8 @@ import type {
   GuitarScaleSlot,
 } from '@/curriculum/data/guitar/types';
 import type { FretPosition } from '@/lib/guitar/types';
+import type { PianoFinger } from '@/lib/learn/pianoFingering/types';
+import type { SwingUnit } from '../engine/genreGeneration/swing';
 import type {
   ActivityStep,
   ActivityFlow,
@@ -11,7 +13,7 @@ import type {
 } from './activity';
 
 /** The instrument a flow is played on. A flow without one is piano. */
-export type LessonInstrument = 'piano' | 'guitar';
+export type LessonInstrument = 'piano' | 'guitar' | 'bass' | 'ukulele';
 
 // Hand configuration options for Performance section (Section D)
 export type HandConfig =
@@ -23,7 +25,7 @@ export type HandConfig =
   | 'lh_rootless_rh_melody'
   | 'open';
 
-/** a, b, c: a level's first, second and third style (Latin teaches three, lessonStyles.ts). */
+/** a, b, c, d: a level's first, second, third and fourth style (Latin teaches three, four in L2, lessonStyles.ts). */
 export type StyleSubProfile =
   | 'l1a'
   | 'l1b'
@@ -31,6 +33,7 @@ export type StyleSubProfile =
   | 'l2a'
   | 'l2b'
   | 'l2c'
+  | 'l2d'
   | 'l3a'
   | 'l3b'
   | 'l3c';
@@ -94,7 +97,7 @@ export interface PracticeVoicingSource {
 export interface ActivityFlowParamsV2 extends ActivityFlowParams {
   defaultScale: number[]; // scale intervals for this level e.g. [0,3,5,7,10]
   defaultScaleId: string; // human-readable e.g. 'minor_pentatonic'
-  /** Omitted for piano; 'guitar' switches the lesson to guitar input and views. */
+  /** Omitted for piano; 'guitar' or 'bass' switches the lesson to that instrument's input and views. */
   instrument?: LessonInstrument;
   /** Optional authored backing for this level's Practice Tracks. */
   practiceTrack?: PracticeTrackParams;
@@ -113,6 +116,12 @@ export interface TargetNote {
   onset: number; // ticks from start (480 = quarter note)
   duration: number; // ticks
   hand?: 'lh' | 'rh'; // explicit stave assignment for grand staff rendering (D section only)
+  /**
+   * Piano only: the finger that plays it (1 = thumb). Read against `hand`, or
+   * the hand inferred when `hand` is absent — a finger never needs a hand,
+   * and setting one turns the staff grand.
+   */
+  finger?: PianoFinger;
   /** Guitar only: where the note is played. `midi` is its sounding pitch. */
   fretPosition?: FretPosition;
 }
@@ -169,6 +178,17 @@ export interface GuitarStepMeta {
   musicMap?: { example: 1 | 2 | 3 | 4 | 5; passes: number };
 }
 
+/**
+ * Bass only: the Bass Atlas material this step plays. Centers share guitar's
+ * ids (data/bass/centers); arpeggio ids are 'C/triad/1', 'C/map/4/2'.
+ */
+export interface BassStepMeta {
+  keyCenter: GuitarCenterId;
+  scalePosition?: GuitarScaleSlot;
+  arpeggioIds?: string[];
+  musicMap?: { example: 1 | 2 | 3 | 4 | 5; passes: number };
+}
+
 export interface ActivityVariant {
   variantId: string;
   description: string;
@@ -192,6 +212,12 @@ export interface ActivityStepV2 extends ActivityStep {
    * If omitted, bass derives from keyRoot.
    */
   chordSymbols?: string[];
+  /**
+   * Two chords a bar: each `chordSymbols` entry lasts half a bar (beats 1–2,
+   * then 3–4), for jazz's ii–V in one bar and the jazz blues' Gm7 C7. The
+   * backing, the staff's symbols and the header read it; left out, one a bar.
+   */
+  chordsPerBar?: 2;
   /** Multiple note-set variants for a single step — rotated by attempt count */
   variants?: ActivityVariant[];
   /** Override groove selection — if present, bypasses styleRef→groove lookup */
@@ -201,6 +227,12 @@ export interface ActivityStepV2 extends ActivityStep {
    * feel. Overrides the flow's `params.swing`. See engine/genreGeneration/swing.ts.
    */
   swing?: number;
+  /**
+   * What `swing` moves: '16n' (default) the off-beat 16ths, as Hip Hop
+   * swings; '8n' the off-beat 8ths, as jazz swings (engine/genreGeneration/
+   * swing.ts). Read off the step wherever it is played or graded.
+   */
+  swingUnit?: SwingUnit;
   /**
    * The tempo this step opens at, when it differs from the level's (Hip Hop
    * play-alongs run at 77–90 within one level). Also the step's Practice Track
@@ -221,6 +253,8 @@ export interface ActivityStepV2 extends ActivityStep {
   chordTargets?: ChordTarget[];
   /** Guitar only: the book material this step plays. */
   guitar?: GuitarStepMeta;
+  /** Bass only: the Bass Atlas material this step plays. */
+  bass?: BassStepMeta;
 }
 
 /**

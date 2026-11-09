@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 /**
- * The MapLibre engine against a stand-in map: each kind of click goes where
- * the three.js globe sent it, a flight follows the motion setting, and the
- * details card turns into map padding. The map itself (WebGL, tiles) is
+ * The map against a stand-in for MapLibre: each kind of click goes where it
+ * should, a flight follows the motion setting, and the details card turns
+ * into map padding. The map itself (WebGL, tiles) is
  * mocked; what it draws is covered by the pure tests beside this one.
  */
 import { act, cleanup, render, waitFor } from '@testing-library/react';
@@ -15,8 +15,10 @@ import {
   createAtlasStore,
   type AtlasStore,
 } from '@/components/atlas/state/atlasStore';
+import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
 import type { PickedFeature } from './mapPicking';
 import { LAYER } from './mapStyle';
+import { FLIGHT_EVENT } from './useMapPhase';
 
 const fake = vi.hoisted(() => {
   class FakeMap {
@@ -30,6 +32,9 @@ const fake = vi.hoisted(() => {
     easeTo = vi.fn();
     setFeatureState = vi.fn();
     removeFeatureState = vi.fn();
+    getFeatureState = vi.fn(() => ({}));
+    hasImage = vi.fn(() => false);
+    addImage = vi.fn();
     setPaintProperty = vi.fn();
     remove = vi.fn();
     touchZoomRotate = { disableRotation: vi.fn() };
@@ -85,8 +90,17 @@ const fake = vi.hoisted(() => {
     getPadding() {
       return { top: 0, right: 0, bottom: 0, left: 0 };
     }
+    getVerticalFieldOfView() {
+      return 36.87;
+    }
+    getPitch() {
+      return 0;
+    }
     isMoving() {
       return false;
+    }
+    loaded() {
+      return true;
     }
     project() {
       return { x: 0, y: 0 };
@@ -132,16 +146,10 @@ const fake = vi.hoisted(() => {
 vi.mock('maplibre-gl', () => ({
   Map: fake.FakeMap,
   Popup: fake.FakePopup,
-  addProtocol: vi.fn(),
   setWorkerUrl: vi.fn(),
 }));
 vi.mock('maplibre-gl/dist/maplibre-gl-worker.mjs?url', () => ({
   default: '/maplibre-gl-worker.mjs',
-}));
-vi.mock('pmtiles', () => ({
-  Protocol: class {
-    tile = vi.fn();
-  },
 }));
 vi.mock('@/components/atlas/data/geoLoader', () => ({
   loadCountries: () => Promise.resolve([fake.brazil]),
@@ -154,6 +162,9 @@ const originalMatchMedia = window.matchMedia;
 
 beforeEach(() => {
   fake.FakeMap.all = [];
+  // jsdom draws no canvas: the rim has nothing to draw on, and says so.
+  HTMLCanvasElement.prototype.getContext = (() =>
+    null) as unknown as HTMLCanvasElement['getContext'];
   globalThis.IntersectionObserver ??= class {
     observe() {}
     unobserve() {}
@@ -187,10 +198,12 @@ function setup(store: AtlasStore = createAtlasStore(), reduceMotion = false) {
     return null;
   };
   render(
-    <MemoryRouter initialEntries={['/atlas/globe']}>
+    <MemoryRouter initialEntries={['/globe']}>
       <AtlasStoreProvider store={store}>
         <AtlasNavigationProvider>
-          <MapLibreGlobe />
+          <TimeCameraProvider>
+            <MapLibreGlobe />
+          </TimeCameraProvider>
         </AtlasNavigationProvider>
       </AtlasStoreProvider>
       <Where />
@@ -222,14 +235,14 @@ describe('clicks on the MapLibre globe', () => {
     expect(search()).toContain('place=city:new-orleans');
   });
 
-  it('open an event from an artist’s point or an arc', () => {
+  it('open an event from an artist’s point or an influence', () => {
     const { click, search } = setup();
     click(feature(LAYER.artistPoints, { eventId: 'evt-jazz-nola-1923' }));
     expect(search()).toContain('event=evt-jazz-nola-1923');
     click(
-      feature(LAYER.arcsHit, {
+      feature(LAYER.linksHit, {
+        id: 'arc:evt-blues-clarksdale-1903:0',
         eventId: 'evt-blues-clarksdale-1903',
-        direction: 'downstream',
       }),
     );
     expect(search()).toContain('event=evt-blues-clarksdale-1903');
@@ -247,16 +260,16 @@ describe('clicks on the MapLibre globe', () => {
       }),
     );
     expect(search()).toContain('place=country:Brazil:BRA');
-    // Fitted to the outline, clear of the details card about to open.
+    // Fitted to the outline, clear of the Inspector about to open.
     await waitFor(() => expect(map.flyTo).toHaveBeenCalled());
     const flight = map.flyTo.mock.calls.at(-1)![0];
     expect(flight).toMatchObject({
       essential: false,
-      padding: expect.objectContaining({ left: 496 }),
+      padding: expect.objectContaining({ left: 238, right: 0 }),
     });
     expect(flight.center[0]).toBeCloseTo(-54);
     expect(flight.center[1]).toBeLessThan(-14);
-    expect(flight.zoom).toBeLessThanOrEqual(7);
+    expect(flight.zoom).toBeLessThanOrEqual(6);
   });
 
   it('open a state with its country', () => {
@@ -281,30 +294,8 @@ describe('clicks on the MapLibre globe', () => {
   });
 });
 
-describe('the first touch on the map', () => {
-  it('is reported once, for the credit to fold away', () => {
-    const { map, store } = setup();
-    expect(store.api.getState().mapTouched).toBe(false);
-    act(() => {
-      map.canvasContainer.dispatchEvent(new Event('pointerdown'));
-    });
-    expect(store.api.getState().mapTouched).toBe(true);
-  });
-
-  it('is the viewer’s: a flight to a deep link is not a touch', () => {
-    const { store } = setup(
-      createAtlasStore({
-        ...initialAppState,
-        searchFlyTarget: { lat: 6.5, lng: 3.4, zoom: 8 },
-      }),
-    );
-    expect(store.api.getState().searchFlyTarget).toBeNull();
-    expect(store.api.getState().mapTouched).toBe(false);
-  });
-});
-
-describe('the OpenStreetMap credit', () => {
-  it('is the page’s (MapCredit), not a control in the map’s corner', () => {
+describe('the map’s corners', () => {
+  it('carry no credit control: the map draws only public-domain data', () => {
     const { map } = setup();
     expect(map.options).toMatchObject({ attributionControl: false });
   });
@@ -326,6 +317,7 @@ describe('the MapLibre camera', () => {
     await waitFor(() =>
       expect(map.flyTo).toHaveBeenCalledWith(
         expect.objectContaining({ center: [3.4, 6.5], duration: 1500 }),
+        FLIGHT_EVENT,
       ),
     );
     expect(map.jumpTo).toHaveBeenCalledWith(
@@ -339,11 +331,12 @@ describe('the MapLibre camera', () => {
     await waitFor(() =>
       expect(map.flyTo).toHaveBeenCalledWith(
         expect.objectContaining({ duration: 0, essential: false }),
+        FLIGHT_EVENT,
       ),
     );
   });
 
-  it('centres a city at a street-map zoom, clear of the card it opens', async () => {
+  it('centres a city with its region, clear of the card it opens', async () => {
     const { map } = setup(
       createAtlasStore({
         ...initialAppState,
@@ -359,10 +352,11 @@ describe('the MapLibre camera', () => {
       expect(map.flyTo).toHaveBeenCalledWith(
         expect.objectContaining({
           center: [-90.07, 29.95],
-          zoom: 10,
-          // The card is not measured yet: its width is assumed.
-          padding: expect.objectContaining({ left: 496 }),
+          zoom: 7,
+          // The Inspector is not measured yet: its width is assumed.
+          padding: expect.objectContaining({ left: 238, right: 0 }),
         }),
+        FLIGHT_EVENT,
       ),
     );
   });
@@ -374,13 +368,5 @@ describe('the MapLibre camera', () => {
     expect(map.easeTo).toHaveBeenLastCalledWith(
       expect.objectContaining({ padding: insets }),
     );
-  });
-
-  it('reports the state outlines in view from zoom 3', () => {
-    const { map, store } = setup();
-    expect(store.api.getState().statesInView).toBe(false);
-    map.zoom = 3.2;
-    act(() => map.emit('zoom'));
-    expect(store.api.getState().statesInView).toBe(true);
   });
 });

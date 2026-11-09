@@ -93,7 +93,7 @@ export const MUSICAL_ERAS: MusicalEra[] = [
     color: ERA_HEX['global-digital'],
     label: 'Global Digital',
     yearStart: 2000,
-    // Open-ended on purpose: RegionTimeline filters inclusively, so a hard
+    // Open-ended on purpose: the time window filters inclusively, so a hard
     // 2025 meant the first event dated 2026 would belong to no era at all and
     // vanish from every era filter.
     yearEnd: 2100,

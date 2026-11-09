@@ -3,11 +3,21 @@
  * call, once, at the step's tempo on the Studio's piano sampler (the Parts
  * editor's player, usePartPlayer), with a click on every beat. While it
  * plays it says which syllable or note is sounding, as heard, so the editor
- * can light its chip.
+ * can light its chip; a chord call's, which bar and which strike of the
+ * rhythm.
+ *
+ * Part 2's steps play in the lesson's key (the preview key, when the
+ * student picks theirs): a chord call voiced as the student hears it, a
+ * saved progression as a sample (`resolveChordFigure`), a replay once in
+ * each harmony. A step with nothing of its own to play (a choose-chords
+ * step) can be played as another: `play(lesson, index, standIn)`.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
+import type {
+  LiteracyStep,
+  MusicLiteracyLesson,
+} from '@/content/musicLiteracy/schemas';
 import {
   secondsPerTick,
   stepNotes,
@@ -21,6 +31,18 @@ export interface LitNote {
   segment: 'words' | 'call';
   /** The note's index within its segment. */
   index: number;
+  /** A chord call's: the bar sounding, from 0. */
+  bar?: number;
+  /** A chord call's: which strike of the bar's rhythm, from 0. */
+  strike?: number;
+}
+
+/** A chord call's strike, where it sounds. */
+interface Strike {
+  onset: number;
+  duration: number;
+  bar: number;
+  strike: number;
 }
 
 interface Playing {
@@ -28,6 +50,7 @@ interface Playing {
   end: number;
   words: TimedNote[];
   call: TimedNote[];
+  strikes: Strike[];
 }
 
 /** The note sounding at `tick`; null in a rest. */
@@ -51,13 +74,32 @@ export function useStepPreview() {
   }, [player]);
 
   const play = useCallback(
-    async (lesson: MusicLiteracyLesson, index: number) => {
-      const step = lesson.steps[index];
+    async (
+      lesson: MusicLiteracyLesson,
+      index: number,
+      standIn?: LiteracyStep,
+    ) => {
+      const step = standIn ?? lesson.steps[index];
       if (!step) return;
       window.clearTimeout(timer.current);
       // From the top every time, not from wherever a last play left off.
       player.stop();
-      const { timeline, words, call } = stepNotes(lesson, step);
+      const { timeline, words, call, chords } = stepNotes(lesson, step);
+      // Which strike of its bar each chord is: counted bar by bar.
+      const perBar = new Map<number, number>();
+      const strikes = (chords?.call ?? []).map((attack) => {
+        const at = Math.floor(
+          (attack.onset - timeline.call.start) / timeline.barTicks,
+        );
+        const strike = perBar.get(at) ?? 0;
+        perBar.set(at, strike + 1);
+        return {
+          onset: attack.onset,
+          duration: attack.duration,
+          bar: attack.bar,
+          strike,
+        };
+      });
       const end = timeline.call.start + timeline.call.length;
       const part: InstrumentPart = {
         id: `preview-${lesson.id}`,
@@ -81,7 +123,7 @@ export function useStepPreview() {
         })),
         source: { kind: 'scratch' },
       };
-      setPlaying({ step: index, end, words, call });
+      setPlaying({ step: index, end, words, call, strikes });
       try {
         await player.play(part, undefined, { click: true });
       } catch (error) {
@@ -106,10 +148,18 @@ export function useStepPreview() {
     const tick = player.currentTick();
     const words = sounding(playing.words, tick);
     const call = sounding(playing.call, tick);
+    const strike = playing.strikes.find(
+      (s) => s.onset <= tick && tick < s.onset + s.duration,
+    );
     if (words !== null)
       lit = { step: playing.step, segment: 'words', index: words };
     else if (call !== null)
-      lit = { step: playing.step, segment: 'call', index: call };
+      lit = {
+        step: playing.step,
+        segment: 'call',
+        index: call,
+        ...(strike ? { bar: strike.bar, strike: strike.strike } : {}),
+      };
   }
 
   return {

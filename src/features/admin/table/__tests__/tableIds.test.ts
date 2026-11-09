@@ -163,25 +163,20 @@ describe('an app page’s table', () => {
     ['/songs/setlists', '', { table: 'songs' }],
     ['/learn', '?tab=Songs', { table: 'songs' }],
     [
-      '/atlas/globe',
+      '/globe',
       '?event=evt-woodstock',
       { table: 'events', row: 'evt-woodstock' },
     ],
-    ['/atlas/globe', '?event=song-africa', { table: 'songs', row: 'africa' }],
-    ['/atlas/globe', '?artist=Toto', { table: 'artists', row: 'toto' }],
+    ['/globe', '?event=song-africa', { table: 'songs', row: 'africa' }],
+    ['/globe', '?artist=Toto', { table: 'artists', row: 'toto' }],
     [
-      '/atlas/globe',
+      '/globe',
       '?artist=Hall%20%26%20Oates',
       { table: 'artists', row: 'hall-and-oates' },
     ],
-    [
-      '/atlas/globe',
-      '?place=city:detroit',
-      { table: 'locations', row: 'detroit' },
-    ],
-    ['/atlas/globe', '?pathway=blues-to-rock', { table: 'events' }],
-    ['/atlas/globe', '', { table: 'events' }],
-    ['/atlas', '', { table: 'events' }],
+    ['/globe', '?place=city:detroit', { table: 'locations', row: 'detroit' }],
+    ['/globe', '?pathway=blues-to-rock', { table: 'events' }],
+    ['/globe', '', { table: 'events' }],
   ])('%s%s → %o', (path, search, target) => {
     expect(tableForAppPage(path, search)).toEqual(target);
     expect(tableForAppPage(path, new URLSearchParams(search))).toEqual(target);
@@ -194,6 +189,9 @@ describe('an app page’s table', () => {
     expect(tableForAppPage('/office', '?day=aug-day-1')).toBeNull();
     expect(tableForAppPage('/')).toBeNull();
     expect(tableForAppPage('/learners')).toBeNull();
+    // The Globe's old addresses are gone (2026-10-29).
+    expect(tableForAppPage('/atlas')).toBeNull();
+    expect(tableForAppPage('/atlas/globe', '?event=evt-woodstock')).toBeNull();
   });
 });
 

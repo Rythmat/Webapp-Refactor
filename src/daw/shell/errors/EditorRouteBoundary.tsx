@@ -6,7 +6,7 @@ import { ErrorPanel } from './ErrorPanel';
 
 // ── The editor route's boundary (milestone 1.12a, bundle-load-16) ──────────
 //
-// Around /studio/editor's lazy element, in the app's entry: the editor's own
+// Around /studio's lazy element, in the app's entry: the editor's own
 // chunk can fail to arrive (offline, or a tab from before a deploy whose
 // one reload didn't help), and that must leave the app's frame standing, not
 // fall to the whole-page error. Nothing of the editor has loaded at that

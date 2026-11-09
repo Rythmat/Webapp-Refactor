@@ -1,0 +1,100 @@
+{
+  "id": "latin-bassist-1-l3-afro-cuban-take-7",
+  "name": "Afro Cuban Tumbao 1",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 3,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "bass-electric:upright",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 40,
+      "velocity": 74
+    },
+    {
+      "offset": 25,
+      "tick": 720,
+      "duration": 600,
+      "midi": 47,
+      "velocity": 100
+    },
+    {
+      "offset": 7,
+      "tick": 1440,
+      "duration": 960,
+      "midi": 45,
+      "velocity": 106
+    },
+    {
+      "offset": -6,
+      "tick": 2640,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 91
+    },
+    {
+      "offset": -3,
+      "tick": 3360,
+      "duration": 120,
+      "midi": 47,
+      "velocity": 96
+    },
+    {
+      "offset": -9,
+      "tick": 3600,
+      "duration": 960,
+      "midi": 47,
+      "velocity": 113
+    },
+    {
+      "tick": 4560,
+      "duration": 720,
+      "midi": 42,
+      "velocity": 98
+    },
+    {
+      "tick": 5280,
+      "duration": 960,
+      "midi": 40,
+      "velocity": 95
+    },
+    {
+      "offset": -22,
+      "tick": 6480,
+      "duration": 120,
+      "midi": 47,
+      "velocity": 90
+    },
+    {
+      "offset": -32,
+      "tick": 6720,
+      "duration": 480,
+      "midi": 47,
+      "velocity": 93
+    },
+    {
+      "offset": -6,
+      "tick": 7200,
+      "duration": 600,
+      "midi": 40,
+      "velocity": 85
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "latin",
+  "style": "Afro-Cuban",
+  "chordSymbols": ["Em", "Am", "B7", "Em"]
+}

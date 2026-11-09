@@ -2,8 +2,6 @@ import {
   GraduationCap,
   Library,
   Lightbulb,
-  MessageSquare,
-  Sparkles,
   Users,
   type LucideIcon,
 } from 'lucide-react';
@@ -11,8 +9,10 @@ import type { InspectorPanelId } from '../layout/layoutModel';
 
 // ── The side rail's panels (B4a) ───────────────────────────────────────────
 //
-// One entry per icon, top to bottom (the owner's six, 2026-10-16): the
-// rail's button and the Inspector's header both read it.
+// One entry per icon, top to bottom (the owner's six, 2026-10-16; Effects moved
+// to the Add effect picker, 2026-10-21; Chat went into People, renamed
+// Collaborate, 2026-10-25): the rail's button and the Inspector's header both
+// read it.
 
 export interface RailPanel {
   id: InspectorPanelId;
@@ -33,14 +33,8 @@ export const RAIL_PANELS: readonly RailPanel[] = [
   {
     id: 'library',
     title: 'Library',
-    hint: 'Library: parts, grooves, drum kits, sounds and templates',
+    hint: 'Library: your projects, stems and uploads',
     icon: Library,
-  },
-  {
-    id: 'fx',
-    title: 'Effects',
-    hint: 'Effects: add one to the selected track',
-    icon: Sparkles,
   },
   {
     id: 'lessons',
@@ -50,15 +44,9 @@ export const RAIL_PANELS: readonly RailPanel[] = [
   },
   {
     id: 'people',
-    title: 'People',
-    hint: 'People: who is in this session',
+    title: 'Collaborate',
+    hint: 'Collaborate: invite people, see who is here and chat',
     icon: Users,
-  },
-  {
-    id: 'chat',
-    title: 'Chat',
-    hint: 'Chat with the people in this session',
-    icon: MessageSquare,
   },
 ];
 

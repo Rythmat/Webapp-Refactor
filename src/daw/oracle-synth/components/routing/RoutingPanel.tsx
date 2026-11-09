@@ -21,6 +21,7 @@ export const RoutingPanel: React.FC = React.memo(() => {
   const routing = useSynthStore((s) => s.routing);
   const toggleFilterSource = useSynthStore((s) => s.toggleFilterSource);
   const toggleEnvSource = useSynthStore((s) => s.toggleEnvSource);
+  const setFilterSerial = useSynthStore((s) => s.setFilterSerial);
 
   const isActive = useCallback(
     (type: 'filter' | 'env', index: 0 | 1, source: SourceId): boolean => {
@@ -55,6 +56,19 @@ export const RoutingPanel: React.FC = React.memo(() => {
   return (
     <div className={styles.panel}>
       <span className={styles.title}>ROUTING</span>
+      {/* Filter 1 runs into Filter 2 (series), or both side by side. */}
+      <button
+        type="button"
+        aria-pressed={routing.filterRouting.serial ?? false}
+        title="Run Filter 1 into Filter 2"
+        className={styles.serialToggle}
+        data-on={routing.filterRouting.serial || undefined}
+        onClick={() =>
+          setFilterSerial(!(routing.filterRouting.serial ?? false))
+        }
+      >
+        FLT 1 → FLT 2
+      </button>
 
       <div className={styles.grid}>
         {/* Column headers */}

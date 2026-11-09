@@ -86,12 +86,14 @@ describe('searchStatic', () => {
   it('finds a theory mode by name and links to /learn/<slug>', () => {
     const theory = searchStatic('DORIAN').find((g) => g.category === 'theory');
     expect(theory).toBeTruthy();
-    expect(theory!.results[0].to).toBe('/learn/dorian');
+    expect(theory!.results[0].to).toBe('/learn/keyboard/dorian');
   });
 
-  it('finds a course and links to /curriculum/<slug>', () => {
+  it('finds a course and links to /learn/keyboard/genre/<slug>', () => {
     const course = searchStatic('jazz').find((g) => g.category === 'courses');
-    expect(course?.results.some((r) => r.to === '/curriculum/jazz')).toBe(true);
+    expect(
+      course?.results.some((r) => r.to === '/learn/keyboard/genre/jazz'),
+    ).toBe(true);
   });
 
   it('finds guitar under Theory → Ionian (Major) (rollout flag on in dev and tests)', () => {
@@ -119,7 +121,7 @@ describe('searchStatic', () => {
     for (const query of ['ionian', 'major', 'ionian (major)']) {
       const theory = searchStatic(query).find((g) => g.category === 'theory');
       const links = theory?.results.map((r) => r.to);
-      expect(links?.[0]).toBe('/learn/ionian');
+      expect(links?.[0]).toBe('/learn/keyboard/ionian');
       expect(links).toContain('/learn/guitar/ionian');
     }
     expect(
@@ -137,7 +139,7 @@ describe('searchStatic', () => {
     expect(
       searchStatic('dorian').find((g) => g.category === 'theory')?.results[0]
         ?.to,
-    ).toBe('/learn/dorian');
+    ).toBe('/learn/keyboard/dorian');
   });
 
   it('links the harmonic and melodic families by their Theory slugs', () => {
@@ -145,9 +147,9 @@ describe('searchStatic', () => {
       searchStatic(query)
         .find((g) => g.category === 'theory')
         ?.results.map((r) => r.to);
-    expect(links('melodic minor')).toContain('/learn/melodicminor');
-    expect(links('harmonic minor')).toContain('/learn/harmonicminor');
-    expect(links('harmonic major')).toContain('/learn/harmonicmajor');
+    expect(links('melodic minor')).toContain('/learn/keyboard/melodicminor');
+    expect(links('harmonic minor')).toContain('/learn/keyboard/harmonicminor');
+    expect(links('harmonic major')).toContain('/learn/keyboard/harmonicmajor');
   });
 
   it('matches a real song by its title and links to /songs/:id', () => {

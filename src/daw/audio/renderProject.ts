@@ -38,8 +38,9 @@
 //     doesn't bundle, or a failed fetch): that amp passes its clips through
 //     untouched and the rest of the pedals still play. The export dialog
 //     warns about an unknown model; a failed fetch is only logged.
-//   • Automation of gate/ducker params — those are JS poll-loops absent from the
-//     offline render (only the direct-AudioParam automatable set is covered).
+//   • Automation of gate/ducker params — they run in the dynamics worklet and
+//     follow the track's settings, not lanes (only the direct-AudioParam
+//     automatable set is covered).
 //
 // ── One track alone, dry, unmastered (milestone 2.15) ─────────────────────
 // A one-track export or a stem renders a single track (`onlyTrackId`): the
@@ -72,15 +73,15 @@ import { useStore } from '@/daw/store';
 import type { AutomationLanes } from './automation';
 import { audioEngine } from './AudioEngine';
 import { EffectChain, type TrackEffectState } from './EffectChain';
+import { duckerKeyLoops } from './graph/duckerKeys';
 import { ensureProcessedIr } from './reverbIR';
 import { TrackEngine } from './TrackEngine';
 import { isTrackAudible } from './trackAudibility';
 import { MidiScheduler } from './MidiScheduler';
 import { AudioClipScheduler } from './AudioClipScheduler';
 import { dropRepeatedTicks } from './transportTicks';
-import { getAudioBuffer, sliceBuffer } from './AudioBufferStore';
+import { getAudioBuffer } from './AudioBufferStore';
 import { renderSoundFontTracks, type RenderedSegment } from './soundFontRender';
-import { TonewheelOrganEngine } from '@/daw/instruments/TonewheelOrganEngine';
 import {
   applyOfflineAutomation,
   applyOfflineLanes,
@@ -89,7 +90,6 @@ import { resolveMasterAutomationTargets } from './automationParams';
 import { createInstrument, applyDrumPads } from '@/daw/hooks/usePlaybackEngine';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
 import { DrumMachineEngine } from '@/daw/instruments/DrumMachineEngine';
-import { ChopsSampler } from '@/daw/instruments/ChopsSampler';
 import {
   buildPedalChain,
   type StoredPedalBlock,
@@ -99,13 +99,6 @@ import {
   applySynthStateToEngine,
   defaultSynthTrackState,
 } from '@/daw/oracle-synth/synthTrackState';
-import {
-  DEFAULT_SAMPLER_FILTER_HZ,
-  isValidRootNote,
-  samplerBufferKey,
-  samplerSampleSignature,
-  samplerTrimRange,
-} from '@/daw/instruments/samplerChops';
 
 const PPQ = 480;
 // Extra tail so reverb/delay/release aren't cut off at the project end.
@@ -293,10 +286,9 @@ export async function renderProject(
   const secPerTick = 60 / bpm / PPQ;
   const duration = Math.max(0.5, (endTick - startTick) * secPerTick + tail);
 
-  // EffectChains/TrackEngines each start a gate + duck window.setInterval on
-  // construction. Nothing stops those wall-clock loops when the offline render
-  // ends, so collect every disposable and tear them all down afterwards — else
-  // each export leaks N timers polling a dead graph forever.
+  // Every chain, engine and helper node made for the render, torn down after
+  // it: their worklet nodes (gate, ducker, pedals) are told to stop and the
+  // instruments let go of their voices and buffers.
   const disposables: Array<{ dispose(): void }> = [];
   // Tone.Offline points Tone's global context (and with it the transport) at
   // the offline one, and only points it back when the callback succeeds. Keep
@@ -478,7 +470,7 @@ export async function renderProject(
           if (instrument) {
             const ready = instrument
               .init(asRunningContext(ctx), te.getInputNode())
-              .then(() => {
+              .then(async () => {
                 if (settled) {
                   instrument.dispose();
                   return;
@@ -491,20 +483,18 @@ export async function renderProject(
                     getTrackSynthState(track.id) ?? defaultSynthTrackState();
                   const engine = instrument.getEngine();
                   if (engine) {
-                    applySynthStateToEngine(engine, patch, { projectBpm: bpm });
+                    // Its pack tables load first: the render never bakes in
+                    // the fallback waveform (audit 2026-10-21).
+                    await applySynthStateToEngine(engine, patch, {
+                      projectBpm: bpm,
+                    });
+                    if (settled) return;
                   }
                   // The LFOs keep the song's bars: the render's first moment
                   // is the song at startTick (milestone 1.11).
                   instrument.alignToTransport(0, startTick / PPQ);
                 } else if (instrument instanceof DrumMachineEngine) {
                   applyDrumPads(instrument, track);
-                } else if (instrument instanceof ChopsSampler) {
-                  applyOfflineSampler(instrument, track, ctx);
-                } else if (
-                  instrument instanceof TonewheelOrganEngine &&
-                  track.organState
-                ) {
-                  instrument.setState(track.organState);
                 }
                 scheduleTrackMidi(track, te, startTick);
               })
@@ -543,10 +533,13 @@ export async function renderProject(
         }
 
         // A ducker listens to its key track here as it does live; a key track
-        // left out of this render (one track alone) ducks nothing.
+        // left out of this render (one track alone) ducks nothing, and a key
+        // that closes a loop of duckers (a cycle: silence) is refused.
         for (const [id, te] of engines) {
           te.setKeySourceResolver((key) =>
-            key === id ? null : (engines.get(key)?.getAnalyserNode() ?? null),
+            duckerKeyLoops(renderedTracks, id, key)
+              ? null
+              : (engines.get(key)?.getAnalyserNode() ?? null),
           );
         }
         // Gates and duckers run in an AudioWorklet loaded per context
@@ -919,48 +912,13 @@ function playRenderedAudio(
   };
 }
 
-/** The pedal chain a guitar, bass or vocal track holds, or null (none, or
- *  an empty one: the clips then play straight into the track, as live). */
+/** The pedal chain an Audio track holds (its amp, pitch correction), or
+ *  null (none, or an empty one: the clips then play straight into the
+ *  track, as live). */
 function storedPedalChain(
   track: ReturnType<typeof useStore.getState>['tracks'][number],
 ): StoredPedalBlock[] | null {
   const chain =
-    track.instrument === 'guitar-fx' || track.instrument === 'bass-fx'
-      ? track.guitarChain
-      : track.instrument === 'vocal-fx'
-        ? track.vocalChain
-        : undefined;
+    track.instrument === 'audio-input' ? track.guitarChain : undefined;
   return chain && chain.length > 0 ? chain : null;
-}
-
-/** Apply a Chops sampler track's state to its offline engine (mirrors the live
- *  applySamplerState but slices on the offline context). */
-function applyOfflineSampler(
-  engine: ChopsSampler,
-  track: ReturnType<typeof useStore.getState>['tracks'][number],
-  ctx: AudioContext,
-): void {
-  const sample = track.samplerSample;
-  if (!sample) return;
-  engine.setEnvelope(sample.attack, sample.release);
-  engine.setMode(sample.mode ?? 'classic');
-  engine.setGain(sample.gain ?? 1);
-  engine.setFilter(
-    sample.filterOn ?? false,
-    sample.filterHz ?? DEFAULT_SAMPLER_FILTER_HZ,
-    sample.filterRes ?? 0,
-  );
-  const buffer = getAudioBuffer(samplerBufferKey(sample.sampleId));
-  if (!buffer) return;
-  const rootNote = isValidRootNote(sample.rootNote) ? sample.rootNote : 'C4';
-  const { startFrame, endFrame } = samplerTrimRange(
-    buffer.length,
-    sample.startPct,
-    sample.lengthPct,
-  );
-  const playBuffer =
-    startFrame === 0 && endFrame === buffer.length
-      ? buffer
-      : sliceBuffer(ctx, buffer, startFrame, endFrame);
-  engine.setSample(samplerSampleSignature(sample), playBuffer, rootNote);
 }

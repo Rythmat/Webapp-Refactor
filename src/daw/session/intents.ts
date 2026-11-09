@@ -4,7 +4,7 @@ import { transposeSong } from '@/curriculum/songLibrary/transpose';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { ensureSongContent } from '@/content/songStore';
 import { getTutorial } from '@/daw/components/Tutorial/tutorials';
-import { applyDemo, prepareDemo } from '@/daw/data/demoSeed';
+import { applyDemo, prepareDemo, prepareLessonSeed } from '@/daw/data/demoSeed';
 import { getDemoProject } from '@/daw/data/demoProjects';
 import { getProjectTemplate } from '@/daw/data/projectTemplates';
 import { seedTemplateSynthPatches } from '@/daw/data/templateSynthPatches';
@@ -52,7 +52,9 @@ import {
   announceLessonResumed,
   announceOpenedProjectDraft,
   announceProjectDraftKept,
+  announcePromptSong,
 } from './sessionNotices';
+import { usePromptBarStore } from '@/daw/shell/prompt/promptBarStore';
 import type { SessionDeps } from './sessionDeps';
 import type {
   BootNotice,
@@ -165,6 +167,10 @@ export function intentLabel(intent: OpenIntent, name?: string | null): string {
     case 'practiceMode':
     case 'practiceGenre':
       return 'Building your practice track…';
+    case 'echoSong':
+      return 'Opening your song…';
+    case 'prompt':
+      return 'Building your song idea…';
     case 'collab':
       if (intent.code === 'new') return 'Starting a session…';
       return intent.awaitHost
@@ -446,7 +452,7 @@ export async function prepareIntent(
       return prepareProject(intent, ctx);
     case 'new':
       return seeded(await claimNew(ctx), {
-        apply: noExtras,
+        apply: () => seedComposer(ctx),
         baseline: { source: 'new', reopenable: true },
       });
     case 'template':
@@ -454,6 +460,7 @@ export async function prepareIntent(
         name: getProjectTemplate(intent.templateId)?.label ?? null,
         apply: () => {
           useStore.getState().loadProjectTemplate(intent.templateId);
+          seedComposer(ctx);
           // Its synth tracks' patches, before the baseline so they aren't an edit.
           seedTemplateSynthPatches(intent.templateId);
         },
@@ -472,16 +479,27 @@ export async function prepareIntent(
         baseline: { source: 'demo', ref: intent.demoId, reopenable: true },
       });
     }
-    case 'tutorial':
+    case 'tutorial': {
+      // A course lesson opens on its demo song (Studio Basics): fetched
+      // first, then the song and the lesson go in as one seed with one
+      // baseline, as a demo does. Any other lesson opens on a blank project.
+      const song = await raceSignal(
+        prepareLessonSeed(intent.tutorialId),
+        ctx.signal,
+      );
       return seeded(await claimNew(ctx), {
         name: getTutorial(intent.tutorialId)?.title ?? null,
-        apply: () => useStore.getState().startTutorial(intent.tutorialId),
+        apply: () => {
+          if (song) applyDemo(song);
+          useStore.getState().startTutorial(intent.tutorialId);
+        },
         baseline: {
           source: 'tutorial',
           ref: intent.tutorialId,
           reopenable: true,
         },
       });
+    }
     case 'song':
       return prepareSong(intent, ctx);
     case 'progression':
@@ -490,6 +508,10 @@ export async function prepareIntent(
       return preparePracticeMode(intent, ctx);
     case 'practiceGenre':
       return preparePracticeGenre(intent, ctx);
+    case 'echoSong':
+      return prepareEchoSong(intent, ctx);
+    case 'prompt':
+      return preparePrompt(intent, ctx);
     case 'jam': {
       const jam = readPendingJam();
       if (!jam) throw new OpenRefusal(notFoundError(NOT_FOUND_MESSAGES.jam));
@@ -514,6 +536,16 @@ export async function prepareIntent(
       // openSession handles a rejoin itself: no keep, no reset.
       throw new Error('A rejoin is not prepared');
   }
+}
+
+/**
+ * A new project's composer: whoever started it (owner, 2026-10-22). Part of
+ * the seed, so it is no edit to undo; a project opened, joined or made from
+ * a song keeps its own.
+ */
+function seedComposer(ctx: PrepareContext): void {
+  const name = ctx.deps.userName?.()?.trim();
+  if (name) useStore.getState().setComposerName(name);
 }
 
 async function prepareResume(ctx: PrepareContext): Promise<PreparedOpen> {
@@ -845,11 +877,12 @@ async function preparePracticeGenre(
   ctx: PrepareContext,
 ): Promise<PreparedOpen> {
   const { genre, level, section } = intent;
+  const band = intent.band ?? null;
   let resolved;
   try {
     // Peeks at the lesson's hand-off box; it is taken once ready.
     resolved = await raceSignal(
-      resolvePracticeTrack(genre, level, section),
+      resolvePracticeTrack(genre, level, section, { band }),
       ctx.signal,
     );
   } catch (err) {
@@ -871,6 +904,7 @@ async function preparePracticeGenre(
       const studentTrackId = applyGenrePracticeTrack(
         practice.track,
         practice.genreLabel,
+        practice.projectName,
       );
       const store = useStore.getState();
       store.setPracticeSession({
@@ -878,6 +912,7 @@ async function preparePracticeGenre(
           practice.track,
           practice.genreLabel,
           practice.returnTo,
+          practice.literacy,
         ),
         studentTrackId,
       });
@@ -890,10 +925,128 @@ async function preparePracticeGenre(
     },
     afterReady: ({ stillCurrent }) => {
       if (!stillCurrent()) return;
-      takePracticeTrack(genre, level, section);
+      takePracticeTrack(genre, level, section, band);
     },
   });
 }
+
+/**
+ * A song made in Echo's Make Your Song: the game's hand-off box, or the song
+ * built again from the link (echoSongStudio.ts). Loaded here, not at the
+ * top: it reaches Echo's and Music Literacy's code, which the Studio's
+ * start never needs. The student's song is their own work, kept as a
+ * draft until it is saved (not a source that opens again as it was).
+ */
+async function prepareEchoSong(
+  intent: Extract<OpenIntent, { kind: 'echoSong' }>,
+  ctx: PrepareContext,
+): Promise<PreparedOpen> {
+  let loaded;
+  try {
+    const [studio, seed] = await raceSignal(
+      Promise.all([
+        import('@/features/practiceTracks/genre/echoSongStudio'),
+        import('@/features/practiceTracks/genre/seedStudioFromEchoSong'),
+      ]),
+      ctx.signal,
+    );
+    // Peeks at the game's hand-off box; it is taken once ready.
+    const song = await raceSignal(
+      studio.resolveEchoSong(intent.song),
+      ctx.signal,
+    );
+    loaded = { studio, seed, song };
+  } catch (err) {
+    throwIfAborted(ctx.signal);
+    console.error('The Echo song failed to build', err);
+    const error = openErrorFromFailure(err, 'song');
+    throw new OpenRefusal(
+      error.surface === 'panel'
+        ? error
+        : notFoundError(NOT_FOUND_MESSAGES.song),
+    );
+  }
+  const { studio, seed, song } = loaded;
+  if (!song) throw new OpenRefusal(notFoundError(NOT_FOUND_MESSAGES.song));
+  return seeded(await claimNew(ctx), {
+    name: song.name,
+    apply: () => {
+      seed.applyEchoSong(song);
+    },
+    savedComplete: false,
+    baseline: {
+      source: 'echoSong',
+      ref: `${song.ref.band}/${song.ref.variation}`,
+      reopenable: false,
+    },
+    afterReady: ({ stillCurrent }) => {
+      if (!stillCurrent()) return;
+      studio.takeEchoSong(intent.song);
+    },
+  });
+}
+
+/**
+ * A song idea from a Home prompt (features/promptSong): a console band
+ * plays a progression the library tags for the prompt's moods and style, in
+ * its key and tempo. Loaded here, not at the top: it reaches the curriculum
+ * engines, which the Studio's start never needs. An idea is the student's
+ * to keep, kept as a draft until saved: nothing builds it again from its
+ * ref, and the next prompt makes another.
+ */
+async function preparePrompt(
+  intent: Extract<OpenIntent, { kind: 'prompt' }>,
+  ctx: PrepareContext,
+): Promise<PreparedOpen> {
+  const seedOf = () => crypto.getRandomValues(new Uint32Array(1))[0];
+  let loaded;
+  try {
+    const [build, apply] = await raceSignal(
+      Promise.all([
+        import('@/features/promptSong/buildPromptSong'),
+        import('@/features/promptSong/seedStudioFromPromptSong'),
+      ]),
+      ctx.signal,
+    );
+    const song = await raceSignal(
+      build.buildPromptSong(intent.text, { seed: intent.seed ?? seedOf() }),
+      ctx.signal,
+    );
+    loaded = { apply, song };
+  } catch (err) {
+    throwIfAborted(ctx.signal);
+    console.error('The prompt song failed to build', err);
+    const error = openErrorFromFailure(err, 'practice');
+    throw new OpenRefusal(error.surface === 'panel' ? error : promptError(err));
+  }
+  const { apply, song } = loaded;
+  if (!song) throw new OpenRefusal(promptError());
+  return seeded(await claimNew(ctx), {
+    name: song.projectName,
+    apply: () => {
+      apply.applyPromptSong(song);
+      seedComposer(ctx);
+      // The style the Studio's prompt bar suggests in.
+      usePromptBarStore.getState().setSessionPrompt(intent.text);
+    },
+    savedComplete: false,
+    baseline: {
+      source: 'prompt',
+      ref: `${song.genre}/${song.seed}`,
+      reopenable: false,
+    },
+    afterReady: ({ stillCurrent }) => {
+      if (stillCurrent()) announcePromptSong(song.reading, intent.text);
+    },
+  });
+}
+
+const promptError = (cause?: unknown) =>
+  openError(
+    'unknown',
+    'We couldn’t make a song from that prompt. Try different words.',
+    { cause, surface: 'toast', retryable: false },
+  );
 
 /**
  * How long a classroom partner waits for the pair's host. A teacher-made pair
@@ -949,7 +1102,7 @@ async function prepareCollab(
     afterReady: ({ stillCurrent, draftWritten }) => {
       if (!stillCurrent()) return;
       if (code === 'new') {
-        // Surface the room code: CollabToolbar owns the Invite modal.
+        // Surface the room code: InviteHost opens the People panel.
         useStore.getState()._setInviteRequested(true);
       }
       if (jam && draftWritten) clearJamSession();

@@ -135,13 +135,21 @@ const practiceReturn = () =>
   ).returnTo;
 
 afterEach(() => {
+  vi.unstubAllGlobals();
   cleanup();
   vi.clearAllMocks();
   localStorage.clear();
 });
 
 describe('GenreLessonContainerV2 header and Practice Track return', () => {
-  it('piano: Courses, the step count and the genre level route', () => {
+  it('piano: the step count, the way back to the course and the genre level route', () => {
+    // A wide window: the lesson rail, where the way back lives.
+    vi.stubGlobal('matchMedia', (media: string) => ({
+      matches: true,
+      media,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
     const flow = buildAppliedTheoryFundamentalsFlow('C');
     render(
       <MemoryRouter>
@@ -154,13 +162,17 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
         />
       </MemoryRouter>,
     );
-    // The pager's count, as guitar's (the level slug line is gone).
+    // Theory's navigation (2026-10-27): no pager; the tab row's first
+    // exercise group is open, numbered, its first step current. No genre
+    // profile, so no Overview: it opens on the first section.
     expect(
-      screen.getByRole('button', { name: /^Step 1 of \d+$/ }),
-    ).toBeInTheDocument();
+      screen.queryByRole('button', { name: /^Step 1 of \d+$/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '1. Major Scale' }),
+    ).toHaveAttribute('aria-current', 'true');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Courses' }));
-    expect(navigate).toHaveBeenLastCalledWith('/learn');
+    // The rail's way back: the course's overview.
     fireEvent.click(
       screen.getByRole('button', { name: 'Applied Theory Fundamentals' }),
     );
@@ -170,11 +182,18 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Practice Track/ }));
     expect(practiceReturn()).toBe(
-      '/curriculum/applied-theory-fundamentals/1?section=A',
+      '/learn/keyboard/genre/applied-theory-fundamentals/1?section=A',
     );
   });
 
-  it('guitar: Theory, the key, and back to its own lesson section', () => {
+  it('guitar: titled for its key, the way back, and back to its own lesson section', () => {
+    // A wide window: the lesson rail, where the way back lives.
+    vi.stubGlobal('matchMedia', (media: string) => ({
+      matches: true,
+      media,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
     const flow = buildGuitarAppliedTheoryFundamentalsFlow('F#');
     const practiceReturnTo = (section: ActivitySectionId) =>
       `/learn/guitar/ionian/fsharp?section=${section}`;
@@ -192,19 +211,24 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
         />
       </MemoryRouter>,
     );
-    // The trail names the key and the subsection; the pager, the step.
-    const trail = screen.getByRole('navigation', { name: 'Breadcrumb' });
-    expect(trail).toHaveTextContent(
-      /Theory›Guitar · Ionian \(Major\)›F♯ major›B1 Arpeggiate Chords/,
-    );
+    // Titled for its key; the rail names the way here; the pager, the step.
     expect(
-      screen.getByRole('button', { name: /^Step 1 of \d+$/ }),
+      screen.getByRole('heading', { level: 1, name: 'F♯ major' }),
     ).toBeInTheDocument();
+    expect(document.querySelector('[data-lesson-rail]')).toHaveTextContent(
+      'Theory · Guitar · Ionian (Major)',
+    );
+    // As the keyboard's (2026-10-27): no pager; the tab row's first
+    // exercise group is open, numbered.
+    expect(
+      screen.queryByRole('button', { name: /^Step 1 of \d+$/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '1. Arpeggiate Chords (Triads)' }),
+    ).toHaveAttribute('aria-current', 'true');
     expect(screen.queryByText(/Level 1/)).toBeNull();
     expect(screen.queryByRole('button', { name: 'Courses' })).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Theory' }));
-    expect(navigate).toHaveBeenLastCalledWith('/learn?tab=Theory');
     fireEvent.click(
       screen.getByRole('button', { name: 'Guitar · Ionian (Major)' }),
     );
@@ -231,11 +255,81 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
         </MemoryRouter>,
       );
       const first = flow.sections.find((s) => s.id === section)!.steps[0];
-      const subsection = first.subsection.replace(':', '');
-      const trail = screen.getByRole('navigation', { name: 'Breadcrumb' });
-      expect(trail).toHaveTextContent(
-        `Theory›Guitar · Locrian›D♭ Locrian›${subsection}`,
+      // Titled for its key and mode; the subtitle, the step.
+      expect(
+        screen.getByRole('heading', { level: 1, name: 'D♭ Locrian' }),
+      ).toBeInTheDocument();
+      expect(document.querySelector('[data-guitar-subtitle]')).toHaveAttribute(
+        'title',
+        first.activity,
       );
     },
   );
+
+  it('guitar: a diatonic lesson opens on its Overview, the scale’s seven positions', () => {
+    const flow = buildGuitarModeFlow('C', 'ionian');
+    render(
+      <MemoryRouter>
+        <GenreLessonContainerV2
+          flow={flow}
+          genre={flow.genre}
+          level={1}
+          initialSection="A"
+          openOnOverview
+          displayName="Guitar · Ionian (Major)"
+          overviewRoute="/learn/guitar/ionian"
+          rootCrumb={{ label: 'Theory', route: '/learn?tab=Theory' }}
+        />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('button', { name: 'O Overview' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+    // Seven positions, Position 1 lit: C Ionian's shape, its box beside it.
+    for (let n = 1; n <= 7; n++) {
+      expect(
+        screen.getByRole('radio', { name: `Position ${n}` }),
+      ).toBeInTheDocument();
+    }
+    expect(document.querySelector('[data-position-notes]')).toHaveAttribute(
+      'data-position-notes',
+      '1',
+    );
+    expect(document.querySelector('[data-position-box="1"]')).not.toBeNull();
+    expect(
+      screen.getByText('The C Ionian shape · Frets 7–10'),
+    ).toBeInTheDocument();
+    // The TAB stays mounted, hidden.
+    expect(document.querySelector('[data-guitar-stage]')).toHaveAttribute(
+      'hidden',
+    );
+
+    // No tab row: the positions are chosen beside the neck.
+    expect(screen.queryByRole('button', { name: 'Position 3' })).toBeNull();
+    fireEvent.click(screen.getByRole('radio', { name: 'Position 3' }));
+    expect(document.querySelector('[data-position-notes]')).toHaveAttribute(
+      'data-position-notes',
+      '3',
+    );
+    expect(
+      screen.getByText('The E Phrygian shape · Frets 12–15'),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start Melody' }));
+    expect(document.querySelector('[data-guitar-overview]')).toBeNull();
+    expect(document.querySelector('[data-guitar-stage]')).not.toHaveAttribute(
+      'hidden',
+    );
+    expect(screen.getByRole('button', { name: 'A Melody' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+    // And back.
+    fireEvent.click(screen.getByRole('button', { name: 'O Overview' }));
+    expect(document.querySelector('[data-position-notes]')).toHaveAttribute(
+      'data-position-notes',
+      '3',
+    );
+  });
 });

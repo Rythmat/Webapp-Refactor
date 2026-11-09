@@ -18,6 +18,7 @@ import { Check } from 'lucide-react';
 import { memo, type SVGAttributes } from 'react';
 import { cn } from '@/components/utilities';
 import type { GuitarBarre, GuitarStringNumber } from '@/lib/guitar/types';
+import { useFrettedInstrument } from './frettedInstrumentContext';
 import type {
   DiagramDotState,
   FretDiagramDot,
@@ -25,6 +26,7 @@ import type {
 } from './types';
 
 // Geometry, in viewBox units.
+
 const STRING_GAP = 16;
 const FRET_GAP = 20;
 /** Fret-number gutter. Both sides, so a mirrored box keeps its viewBox. */
@@ -32,8 +34,8 @@ const SIDE = 24;
 /** The X/O row above the box. */
 const TOP = 18;
 const BOTTOM = 8;
-const BOX_W = STRING_GAP * 5;
-const WIDTH = SIDE * 2 + BOX_W;
+/** The box's width between its outer strings, for a string count. */
+const boxWidth = (stringCount: number) => STRING_GAP * (stringCount - 1);
 const DOT_R = 6.5;
 /** Fret numbers stand clear of a dot on the outer string. */
 const LABEL_OFFSET = DOT_R + 3;
@@ -72,7 +74,10 @@ const INLAY = 'rgba(232,232,240,0.34)';
 const INLAY_R = 3;
 const INLAY_FRETS: ReadonlySet<number> = new Set([3, 5, 7, 9, 12, 15]);
 /** Where a neck's inlays sit, in string gaps from the box's left edge. */
-const INLAY_GAPS = { single: [2.5], double: [1.5, 3.5] } as const;
+const inlayGaps = (stringCount: number) => ({
+  single: [(stringCount - 1) / 2],
+  double: [stringCount / 2 - 1.5, stringCount / 2 + 0.5],
+});
 
 type PaintProps = Pick<
   SVGAttributes<SVGElement>,
@@ -277,6 +282,11 @@ export const FretDiagram = memo(function FretDiagram({
   /** Printed under the title, e.g. the Hybrid Number System label '2 min7'. */
   subtitle?: string;
 }) {
+  const inst = useFrettedInstrument();
+  const n = inst.stringCount;
+  const BOX_W = boxWidth(n);
+  const WIDTH = SIDE * 2 + BOX_W;
+  const INLAY_GAPS = inlayGaps(n);
   const boxH = rows * FRET_GAP;
   const height = TOP + boxH + BOTTOM;
   const lesson = variant === 'lesson';
@@ -285,7 +295,7 @@ export const FretDiagram = memo(function FretDiagram({
   const emphasised = state === 'current' || state === 'heard';
 
   const xOf = (string: GuitarStringNumber) =>
-    SIDE + (mirrored ? string - 1 : 6 - string) * STRING_GAP;
+    SIDE + (mirrored ? string - 1 : n - string) * STRING_GAP;
   const yOf = (fret: number) => TOP + (fret - startFret + 0.5) * FRET_GAP;
   const markerY = TOP / 2;
   /** A spot's centre: its fret row, or the O row for an open string. */
@@ -303,7 +313,7 @@ export const FretDiagram = memo(function FretDiagram({
           .flatMap((fret) =>
             (fret === 12 ? INLAY_GAPS.double : INLAY_GAPS.single)
               .filter((gaps) => {
-                const beside = [6 - Math.floor(gaps), 6 - Math.ceil(gaps)];
+                const beside = [n - Math.floor(gaps), n - Math.ceil(gaps)];
                 return !fretted.some(
                   (dot) => dot.fret === fret && beside.includes(dot.string),
                 );
@@ -428,7 +438,7 @@ export const FretDiagram = memo(function FretDiagram({
             strokeWidth={emphasised ? 2.25 : 1.25}
           />
         )}
-        {[2, 3, 4, 5].map((string) => {
+        {Array.from({ length: n - 2 }, (_, i) => i + 2).map((string) => {
           const x = xOf(string as GuitarStringNumber);
           return (
             <line

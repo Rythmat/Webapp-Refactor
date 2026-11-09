@@ -1,287 +1,279 @@
-# The Globe's map engine
+# The Globe's map
 
-The Atlas Globe page (`/atlas/globe`) can draw its map with either of two
-engines, chosen when the app is built:
+The Globe page (`/globe`) draws its map with MapLibre GL 6 in globe
+projection, from the Globe's own data alone: Natural Earth's country and
+state outlines (public domain) and the app's own places, events and
+influence links. There is no basemap, no tile server and no glyph server;
+the map asks no other site for anything. Since 2026-10-29 it is a "data
+map" after two references the owner chose (Dribbble 25147704, a network
+graph on a tile-free map, and 22296468, a map dashboard with floating
+chart cards): dark land lit by music, places as dots in halos, the links
+between them, and a ring view. Since 2026-10-30 a selected place lifts its
+region off the globe (after Dribbble 23013593, the DHCS map), and the stage
+keeps two cards: its events and its Connections.
 
-| `VITE_ATLAS_ENGINE`  | Engine                                                                     | Zooms to                                            |
-| -------------------- | -------------------------------------------------------------------------- | --------------------------------------------------- |
-| `maplibre` (default) | MapLibre GL 6 in globe projection, over a Protomaps vector basemap         | street level, with real place, road and park labels |
-| `three`              | the earlier three.js globe (react-globe.gl), with raised arcs and lighting | country outlines only (Natural Earth, 1:110m)       |
+The code is in `src/components/atlas/components/Globe/`. `AtlasGlobe.tsx`
+loads the engine lazily; `MapLibreGlobe.tsx` makes the map once
+(`useMapInstance`) and wires one hook per concern; `mapStyle.ts` builds the
+style from `landLayers.ts`, `placeLayers.ts` and `networkLayers.ts`. Pure
+models live outside it: `stats/` (music in the years shown, a stop's
+stats), `network/` (the influence links rolled up by place), and
+`Ring/ringLayout.ts`.
 
-Both draw the same things from the same state: continent-coloured countries,
-US/Canada state outlines, a mark on each music city (white when selected),
-an artist's event points and a pinned event's influence arcs. The MapLibre
-engine marks a city with a dot; the three.js engine raises a column. Both
-answer clicks the same way and keep every URL and deep link. The code is in
-`src/components/atlas/components/Globe/`: `engine.ts` reads the flag,
-`AtlasGlobe.tsx` loads the engine, `MapLibreGlobe.tsx` and `BaseGlobe.tsx`
-are the two engines, and `useGlobeScene.ts` and `globeLabels.ts` hold what
-they share.
+The engine loads only with the Globe page. `scripts/verifyProdBundle.mjs`
+fails the build check if maplibre-gl is in an entry chunk, and if a
+Protomaps or OpenStreetMap host appears anywhere in the build.
 
-Either engine loads only with the Globe page. `scripts/verifyProdBundle.mjs`
-fails the build check if maplibre-gl, pmtiles, @protomaps/basemaps, three.js
-or react-globe.gl appear in an entry chunk.
+## Fixed layers and live ones
 
-## What the MapLibre engine draws
+The rule that keeps the map cheap: **geometry is set once; anything that
+follows the years or the pointer goes through feature-state.**
 
-The map is Protomaps' street map, tinted with the Globe's colours at every
-zoom (the Atlas theme):
+- `setData` runs only when something settles: a window committed, a stop
+  chosen, a layer switched.
+- The years the era rail shows are followed live, frame by frame, through
+  `setFeatureState` (each country's `music`, each place's `w` and `era`),
+  written only for values that changed (`useLandLayers`, `usePlaceLayers`).
+- No data-driven `setPaintProperty`, ever: MapLibre lays the whole source
+  out again for one. The flow (below) changes only a constant opacity, and
+  the lift (below) only constant translates.
 
-- **Countries keep their continent colours all the way down.** Protomaps'
-  tiles don't record which country a piece of land is in, so a flavor (one
-  colour per layer) can't shade by country on its own. The Globe's Natural
-  Earth country outlines are therefore drawn as a tint just above the
-  basemap's land and land use, and under its sea, roads, buildings and
-  labels. The basemap's detailed coastline trims the coarse outlines at the
-  shore. The tint is strong from orbit and lighter among the streets, so
-  parks, roads and buildings read through (`COUNTRY_TINT` in
-  `mapGeometry.ts`).
-- **The sea, lakes and rivers** are the globe's cyan at every zoom.
-- **Labels** for countries, places, roads and points of interest show at
-  every zoom, light with dark halos, so they read on any country's colour.
-- **From zoom 3**, the US and Canadian state outlines appear.
-- **Cities are their names.** There is no dot: a city's name is drawn
-  over everything, and clicking it opens the city. A name turns warm while
-  the pointer is on it, and stays warm while the city is selected or holds
-  the pinned event. The basemap skips its own label for any name the Globe
-  shows, so no name is doubled. Where names crowd, the selected city's wins,
-  then the music cities', then the towns'.
-- **Towns events happened in are cities too.** An event placed somewhere no
-  music city claims, such as Aspen ("Take Me Home, Country Roads") or
-  Colorado Springs ("Counting Stars"), makes that town a city of its own
-  (`utils/eventCities.ts`). It gets its name on the map from zoom 5, a card
-  listing its events, a stop in the URL (`place=city:aspen-us`) and a place
-  in search. Nothing about it is authored: its genres and decades are its
-  events', and it appears as soon as published content places an event
-  there. US and Canadian events still open their state's card first, as
-  before; the town's name highlights while the event is pinned.
-- **A selected city is outlined** by its boundary, in the same bright, warm
-  line as a selected country or state (see "City outlines" below).
-- **Influence arcs** are dashed great circles on the surface with a slowly
-  moving dash and a dark edge. With reduced motion turned on, the dash
-  holds still and camera flights cut instead of flying.
-- **Clicks** on a country or state open it below zoom 6. Further in, a
-  click among the streets doesn't open the country it lands in. City dots,
-  artist points and arcs stay clickable at every zoom.
+The era-rail scrub step in `measureGlobe.mjs` checks this: MapLibreGlobe
+should not render once while the rail is dragged.
 
-The theme is Protomaps' `dark` flavor with our colours on top:
-`ATLAS_BASEMAP` in `src/components/atlas/theme/tokens.ts`. Its land is the
-plain grey that also shows when country colours are switched off in
-Layers. The community flavors in
-[protomaps/basemaps-flavors](https://github.com/protomaps/basemaps-flavors)
-are marked work in progress and have no licence, so none are copied in. A
-flavor is just an object of colours, so the Atlas theme can be changed in
-that one place.
+## The land
+
+Countries and states are Natural Earth's 1:110m outlines with hairline
+borders; US and Canadian states from zoom 3. Region names in spaced caps
+from orbit, country names (three tiers by size) closer in. A hovered or
+selected region gets a soft warm-white glow.
+
+Layers → "Colour the land by" picks one of three (`GlobeLayers.landColor`):
+
+- **Music** (the default): dark land that lights up the more music
+  happened there in the years shown, on a log scale with a floor for any
+  music at all (`stats/musicWeights.ts`, `landLevel`). A country's key is
+  `countryKey(NAME)`, the same match its panel uses, so a lit country always
+  opens the events that lit it.
+- **Continent**: the continent palette.
+- **Plain**: one colour.
+
+## Places
+
+Every music city and every town an event made a city is a dot in a halo:
+the halo's area follows its events in the years shown (`haloLevel`), its
+colour is its busiest era's. The busiest are named on chips (`mapChips.ts`
+draws the chip's RGBA image at runtime for `icon-text-fit`, so there is no
+sprite sheet). The selected place, or the pinned event's, is a white "sun":
+a still bloom and core in the map (`placeLayers.ts`) and a CSS burst and
+two slow pulses over it (`SunFx.tsx`), which play once the map has flown
+there.
+
+## The lifted region
+
+Selecting a country, a state or a city lifts its region: a city lifts its
+state in the US and Canada, else its country (`liftPlaceOf`,
+`regionLift.ts`). Tours, pathways and artists don't lift: tours keep their own
+camera, and an artist's places have no one region. The code is
+`regionLift.ts` (pure), `liftLayers.ts` (the layers) and `useRegionLift.ts`.
+
+- **The height** is a viewport-anchored `*-translate` on every raised layer,
+  a constant with a paint transition, so nothing is laid out again: walls
+  (seven stacked fills), the lid, the edge, the dots, and the links, pills and
+  places that sit on it. Flights to a lifted region land tilted 35°, which
+  sells the height; `GlobeRim` fades out with the pitch.
+- **The colour** is its events' eras, oldest to newest, each as wide as its
+  share. The region is cut into 48 strips across its longer axis
+  (`sliceRegion`) whose colours are feature-state (`c`), so the gradient
+  follows the era rail live.
+- **The edge** carries a comet in the same colours, by rewriting one
+  `line-gradient` about 30 times a second. Reduced motion leaves it still and
+  bright.
+- **The dots** are one per event in the years shown, seated in a sunflower
+  round their place and kept inside the region (`eventDots.ts`, stable seats;
+  feature-state `on`), and populate in year order after the lid rises. At a
+  city, its own are bright and the region's others dim.
+- **The rest steps back:** other land dims, places beyond the region fade
+  and lose their chips, and those inside hand over to the dots, the busiest
+  five keeping their names.
+
+**The pointer.** MapLibre tests a viewport translate in the tile's plane, so
+under a tilt a raised layer answers short of where it is drawn (14 to 20 px
+for a lift of 22, varying with zoom). So the raised hit layers (`RAISED_HITS`:
+dots, links, places) stay on the ground and are asked at the pointer's spot
+less the lift. Dots' hit zones overlap at their 8 px spacing, so the nearest to
+the pointer wins (`nearestDot`).
+
+## Connections
+
+The 1,793 hand-written influence links between events
+(`data/eventConnections.ts`) are rolled up place to place
+(`network/placeNetwork.ts`). A link counts in the year its later event
+happened, when the influence arrived, so counts add up across windows and
+the cards, ring and map agree.
+
+What the map draws (`useNetworkLayers.ts`, `networkFeatures.ts`):
+
+- **Nothing chosen:** the 24 strongest links between regions, dotted.
+- **A place or an artist:** the 40 strongest links on each side. Links
+  into the stop run cool (F♯ → D♭ → A♭ → E♭ → white): where its music came
+  from. Links out run white → B♭ → F → C → G: where it went. Key A's yellow
+  is the brand's and no link takes it (`theme/marks.ts`).
+- **An event:** its own influences, in the directions its card has on.
+
+A link carrying two influences or more is solid, with a `line-gradient`
+and a soft glow, and the strongest eight carry a count pill. A single
+influence is dotted and flows. (Owner, 2026-10-30: most city-to-city links
+carry one or two; London's strongest carries nine.) Two links on the same
+path running opposite ways sit a little apart (`line-offset`).
+
+**The flow** is six copies of the dotted links, each dashed a sixth of a
+period further on (`phaseDash`); every 70 ms one is shown and the last
+hidden, with the opacity's transition off. Restyling `line-dasharray`
+instead, as the old arcs did, makes MapLibre lay the source out again 16
+times a second. The flow stops when the map is hidden or covered
+(`useMotionGate`) and under reduced motion.
+
+**Drawing on:** MapLibre has no line trim, so for 850 ms after a new stop
+lands, its solid links are cut to how far they have got (`drawOn.ts`,
+`sliceLine`) and fed to a source of their own each frame, the nearest
+first; links into the stop draw from the stop's end, so all grow out of it.
+
+Hovering a link shows what it carries; clicking it opens the far place.
+A card's row (Connections, Strongest connections) brightens its link
+through the `linkFocus` signal.
+
+## The rim and the hover card
+
+MapLibre's atmosphere can't be coloured, so the globe's rainbow rim is a 2D
+canvas under the map's (`GlobeRim.tsx`), redrawn on `move`: its radius is
+MapLibre's globe radius (`worldSize / 2π / cos(lat)`, `globeGeometry.ts`)
+and it fades as the globe fills the view.
+
+The hover card (`components/Hover/`) replaces MapLibre's popup: lazy,
+`aria-hidden` (the Inspector says the same), fed by the `placeHover`
+signal from the map or the ring.
+
+## The cards
+
+Two cards, so the region stays the hero (owner, 2026-10-30):
+
+- **Events**, bottom-left, a fixed 24 by 26 rem (`layout/InspectorRegion.tsx`;
+  only a lesson's Mind map keeps its own size). Its header has the stop's
+  name, its event count and its era bar, the key to the region's gradient. Its
+  events are tiles: picture, title, year and place. One opens at a time,
+  description first, then its video and influences, scrolling inside the card
+  (`UI/DetailsCard.tsx`). Layers, an artist and search use the same card.
+- **Connections**, top-right (`Cards/StageCards.tsx`, lazy): the stop's flow
+  and strongest links, or the strongest links between regions with nothing
+  chosen. The bottom rail's Cards pill hides it for good (`atlas-cards-v1`),
+  and it folds to a pill when there is no room (`cardsLayout.ts`). On a phone it
+  is one mini card in the strip above the bottom rail.
+
+They report what they cover (`cornerBox`), so flights land clear of them. They
+sit in opposite corners, so each reports only a share of its width
+(`CORNER_INSET_SHARE`), or the region would shrink for nothing.
+
+## The frame
+
+The Globe has its top and bottom rails, with the app's navigation
+(`ClassroomSidebar`) at its left on a desktop. There is no side rail at the
+right (owner, 2026-10-30): the panels' icons (Details, Layers, a lesson's
+Mind map) sit at the bottom rail's right, beside the Cards pill. Details hides
+and returns from its icon without leaving the stop.
+
+## The ring
+
+`?view=ring`, the Connections tab: the busiest places in the years shown
+round a circle (by continent, region and longitude, so each keeps its seat),
+the links among them as chords (`Ring/`). The places grow out of where the
+map draws them: the map's handle (`mapHandle.tsx`, no MapLibre import)
+projects them, and CSS transitions move them to their seats and back.
+Each place is a button with roving focus (arrows, Page Up/Down by region,
+Home/End).
 
 ## Where the camera goes
 
 Navigation says what a flight frames (`FlyTarget.frame`,
-`navigation/flyFrames.ts`), and the MapLibre engine places the camera for it
-(`components/Globe/mapFraming.ts`):
+`navigation/flyFrames.ts`), and the engine places the camera for it
+(`mapFraming.ts`):
 
-- **A country or a state** is fitted to its own outline. That means the
-  main landmass, plus every part within 3° of what is framed so far, so
-  nearby islands join (Sicily and Sardinia, Hokkaido, Tasmania, a whole
-  archipelago like Indonesia) and far territories don't (Alaska, Hawaii,
-  Svalbard, the Canaries, the Galápagos). The main landmass is the part
-  holding the most of the place's music cities, so Malaysia frames the
-  peninsula with Kuala Lumpur, not the larger Malaysian Borneo. Countries
-  come no closer than zoom 7, and states no closer than zoom 8.
-- **A city** is fitted to its outline, no closer than zoom 12, so the
-  whole city shows. A city with no outline is centred at zoom 10. A city
-  flight waits up to 0.8 s for the city's outline file before it sets off
-  anyway. A guided tour's city stops use the tour's own zoom, wider where a
-  stop shows the region around the city.
+- **A country or a state** is fitted to its own outline: the main landmass
+  (the part holding most of its music cities) plus every part within 3° of
+  what is framed so far, so nearby islands join and far territories don't.
+  Countries come no closer than zoom 6, states 6.5.
+- **A city** frames the region it lifts (`liftFrame`).
+- **A tour's stop** is centred with the region around it, at zoom 7.
+  Navigation asks in street-map zooms (7 to 9.3 for tour stops);
+  `capFrameZoom` compresses those past 5.5 into what is left below 7, so a
+  closer stop still lands closer.
 - **An artist** is fitted to the places their events happened, no closer
-  than zoom 9.
-- **Anything else** (a tour's overview stop) flies to its centre, at the
-  zoom the three.js globe used for it.
+  than zoom 6.5.
+- **The map stops at zoom 8.** Natural Earth's 1:110m coasts turn to blobs
+  much past 7.
 
-Every flight lands in the part of the map the page leaves clear. The layout
-measures what its overlays cover (`MapInsets`, `layout/mapInsets.ts`): the
-left panel, the map controls, the timeline row, the mind map or an open
-legend on the right, and the phone's sheet. The map's padding follows it,
-so its centre is always the middle of what you can see. A place has a
-32 px margin inside that area. A flight opens a panel that may not be on
-the page yet, so it lands as if the card (desktop) or the half-height
-sheet (phone) were already there. When the panel arrives and is measured,
-nothing moves.
+Every flight lands in the part of the map the page leaves clear: the
+layout measures what its overlays cover (`SET_ZONE_INSETS`, one zone each
+for the Inspector, the cards and the phone's sheet or strip, the deepest
+inset per edge winning), and the map's padding follows. A flight lands as
+if the panel it opens were already there. Fits are computed in Web
+Mercator; MapLibre's own `cameraForBounds` sizes regions a third too small
+under the globe projection.
 
-The fit is computed in Web Mercator, which matches MapLibre's globe at the
-zooms states and cities are seen from, and gives continent-sized countries
-a little extra room. MapLibre's own `cameraForBounds` sized a region's
-height a third too small under the globe projection, so it isn't used.
+The page's flights carry `FLIGHT_EVENT` on their events, so the map's
+phase (`useMapPhase`: ready, flying, settled) tells them from the spin and
+from a reader's dragging. What should wait for the map waits on it: the
+intro, a new stop's lift, dots, burst and links.
 
-The three.js engine keeps its own camera: it flies to each target's
-lat/lng/zoom and ignores the frame.
+## Motion
 
-## Tiles
+- **The intro** (`layout/intro.tsx`), on a bare `/globe` once a visit:
+  the map held back until it is ready (1.5 s at most), then the globe
+  fades up and its rim draws, the era rail's rim draws left to right, and
+  the card lands. Never on a link into the Globe.
+- **Selecting a stop:** the cards land at once, so the information doesn't
+  wait; the flight and tilt; the lid rises as its colour sweeps along it; the
+  comet starts; the dots populate; the burst, and the links drawing on.
+  Deselecting settles it in one quick beat and levels the camera.
+- **New years:** the land, halos, the lifted region's gradient and its dots
+  follow the era rail frame by frame; bars slide to new widths.
 
-Without a tile source, the MapLibre engine still works: it draws the Globe's
-own country outlines on the cyan sea at every zoom, like the three.js globe,
-with no streets or labels. To get the street map, set **one** of these at build time. Neither is
-a secret. A self-hosted file wins if both are set.
+**Reduced motion** cuts all of it: no intro, flights cut, no flow, no
+draw-on, no burst, the lid and its dots simply there with a still edge, the
+ring appears in place.
 
-### Option A: a self-hosted `.pmtiles` file (`VITE_BASEMAP_PMTILES_URL`)
+## Fonts
 
-A PMTiles archive is a single file that the browser reads with HTTP range
-requests. No tile server is needed.
+The map's labels are in the app's font, Glacial Indifference, drawn by
+MapLibre from `public/fonts/` through the style's `font-faces`
+(`mapFonts.ts`), each file with the characters it holds. Glacial has basic
+Latin and the Western European accents; a character it lacks (the "ș" and
+"ă" in Chișinău, a name in Japanese) is drawn in the browser's own sans at
+the label's weight. The stacks are named "Atlas Glacial Regular" and
+"Atlas Glacial Bold": MapLibre reads the weight from the name, and no CSS
+font has that name. `mapFonts.test.ts` checks the ranges against the files.
 
-1. **Get a file.** Protomaps publishes a daily build of the whole planet at
-   <https://maps.protomaps.com/builds/> (about 130 GB). Each build is kept
-   only for a few days. For a smaller file, cut out a region or a maximum
-   zoom with the [`pmtiles` CLI](https://docs.protomaps.com/pmtiles/cli):
-   `pmtiles extract https://build.protomaps.com/20261013.pmtiles world-z12.pmtiles --maxzoom=12`.
-   The whole planet to zoom 15 is what street-level labels need.
-2. **Host it** on Cloudflare R2, which charges nothing for egress, or on S3.
-   The bucket needs CORS that allows `GET` and `HEAD` from the app's origins
-   (`https://app.musicatlas.io`, the preview domains, `http://localhost:*`),
-   allows the `Range` and `If-Match` request headers, and exposes `ETag`,
-   `Content-Range` and `Content-Length`. Put a CDN in front of it, for
-   example the [Protomaps Cloudflare Worker](https://docs.protomaps.com/deploy/cloudflare).
-   Range requests to a bare bucket work, but they are slower from far away.
-3. **Point the app at it.** Set
-   `VITE_BASEMAP_PMTILES_URL=https://tiles.example.com/planet.pmtiles` in
-   Vercel and rebuild.
+## Data and credit
 
-Don't point production at `build.protomaps.com` itself. It sends no CORS
-headers, so a browser can't read it, and its files are deleted after a few
-days.
+Natural Earth (public domain) is the only map data; everything else is the
+app's own. No credit is required, so the map shows none and MapLibre's
+corner control is off.
 
-### Option B: Protomaps' hosted API (`VITE_PROTOMAPS_API_KEY`)
+## Performance
 
-Create a key at <https://protomaps.com/account> and add each origin the app
-is served from (production, previews, localhost) to the key's allowed list.
-Then set `VITE_PROTOMAPS_API_KEY` and rebuild. The app reads
-`https://api.protomaps.com/tiles/v4.json?key=…`. Check Protomaps' current
-terms and limits for commercial use before relying on it in production.
+See [BASELINE.md](BASELINE.md) and `node scripts/measureGlobe.mjs`. The
+2026-10-30 figures are under "The data map" and "The lifted region" there.
 
-### Fonts and icons (`VITE_BASEMAP_ASSETS_URL`)
+## History
 
-The basemap's labels need glyph files (Noto Sans) and its points of interest
-need a sprite sheet. By default both come from Protomaps' GitHub Pages
-(`https://protomaps.github.io/basemaps-assets`). To serve them from the app
-instead, copy `fonts/` and `sprites/v4/` from
-[protomaps/basemaps-assets](https://github.com/protomaps/basemaps-assets)
-into, for example, `public/basemaps-assets/`, and set
-`VITE_BASEMAP_ASSETS_URL=/basemaps-assets`. Only the fonts the style names
-are needed: Noto Sans Regular, Medium and Italic. Each is 256 small files.
-
-The map's labels are drawn by WebGL from these glyphs, so they are in Noto
-Sans, not Glacial Indifference. This is the same exception as the music
-notation glyphs. Making Glacial labels would mean generating glyph PBFs for
-it (with `font-maker`, for example).
-
-## Attribution
-
-The basemap's data is © OpenStreetMap contributors under the ODbL, which
-requires the credit to be visible on the map. The page draws it itself
-(`components/UI/MapCredit.tsx`) in the map's bottom-right corner:
-
-- when the map first appears, it reads "Protomaps © OpenStreetMap", with a
-  link to each ("© OpenStreetMap" alone on the plain map without a tile
-  source, where the only OpenStreetMap data is a selected city's outline);
-- at the viewer's first press, scroll or key on the map itself, it folds up
-  behind an ⓘ button. Camera flights and Spin don't count; the map reports
-  the touch as `mapTouched` in the store;
-- the ⓘ opens and closes it after that, and the viewer's choice stands.
-
-This is how MapLibre's own compact credit behaves, and it matches what
-OpenStreetMap's attribution guidelines ask of a small or interactive map:
-the credit shows when the map does, then a link to it stays.
-
-It sits in a layout zone of its own (`layout/AtlasZones.tsx`), so nothing
-covers it, open or folded:
-
-- on desktop, in the bottom row's right-hand cell, beside the centred
-  timeline. While it is open on a narrow desktop, the timeline gives up the
-  width rather than sliding under it;
-- on phones, at the right just above the timeline, or above the sheet when
-  the timeline steps aside. A full-height sheet covers the whole map, and
-  the credit with it.
-
-MapLibre's own corner control is switched off, because it sat under the
-timeline and the phone's sheet. The credit shows whenever the MapLibre
-engine is in use (`SHOWS_OSM_DATA` in `basemapConfig.ts`), because the city
-outlines are OpenStreetMap's data even without a tile source. The country
-and state outlines are Natural Earth, which is public domain. Keep the
-credit reachable: removing it, or covering it with another control, breaks
-the licence.
-
-## City outlines
-
-Each city's boundary, music city or town, comes from OpenStreetMap through
-Nominatim's search, and is built once by `scripts/buildCityOutlines.mjs`.
-It runs under `tsx`, which reads the app's TypeScript, so it can work out
-the towns from the bundled events:
-
-```sh
-npx tsx scripts/buildCityOutlines.mjs                    # build from the cache
-npx tsx scripts/buildCityOutlines.mjs --refresh          # ask OpenStreetMap again
-npx tsx scripts/buildCityOutlines.mjs --only=aspen-us    # try a few, write nothing
-```
-
-The script follows Nominatim's usage policy: one request a second, an
-identifying user agent, and every answer cached in
-`node_modules/.cache/build-city-outlines`, so nothing is asked twice. A
-boundary is kept only if it contains the city's own coordinates
-(`cities.ts`), and the part containing them is city-sized (under
-20,000 km²), so a search that answers with a whole state is refused. Far
-parts of a city (Tokyo's Pacific islands) are dropped. A city that
-OpenStreetMap maps only as a point, or whose coordinates sit outside its
-boundary (Kingston, Jamaica), gets no outline and keeps just its dot.
-
-It writes one small GeoJSON file per city to `public/geo/cities/`, with a
-content hash in the name, and the list of them to
-`src/components/atlas/data/cityOutlineFiles.ts`. Commit both. The page
-fetches a city's file only when that city is selected or flown to
-(`data/cityOutlines.ts`). Re-run the script after adding cities to
-`cities.ts`, or when the bundled events place events in new towns. A town
-only the published content places has no outline until then; selecting it
-still works, at zoom 10.
-
-## Language
-
-The basemap labels places in Spanish when the page's `<html lang>` starts
-with `es`, and in English otherwise. The app has no global language setting
-yet, only per-classroom teacher settings. When it gets one, pass it to
-`basemapLang` in `MapLibreGlobe.tsx`.
-
-## Switching back to the three.js globe
-
-Set `VITE_ATLAS_ENGINE=three` in Vercel's environment variables and
-redeploy. That is the whole rollback: the build then carries the three.js
-engine instead, with no code change and no change to URLs. Unset it, or set
-it to `maplibre`, to switch back. Locally:
-
-```sh
-VITE_ATLAS_ENGINE=three VITE_DEV_AUTH_BYPASS=1 npx vite
-```
-
-To measure either engine, run `node scripts/measureGlobe.mjs --engine=three`
-or `--engine=maplibre`. Set a tile variable in the environment to include
-the basemap. See [BASELINE.md](BASELINE.md).
-
-## Seeing the street map on this machine
-
-Protomaps publishes a planet build every day at `build.protomaps.com`, but
-with no CORS headers, so a browser can't read it from another origin. The
-dev server (and `vite preview`) serves it same-origin instead
-(`scripts/vite/protomapsDevTiles.ts`):
-
-- `/__protomaps/<date>.pmtiles` is forwarded to Protomaps, range requests
-  included;
-- `/__protomaps/latest.pmtiles` redirects to the newest build, so the
-  setting never goes stale when old builds are deleted.
-
-Put this in `.env.local` (git-ignored) and the dev server restarts with the
-street map:
-
-```sh
-VITE_BASEMAP_PMTILES_URL=/__protomaps/latest.pmtiles
-```
-
-This is for development only. A deployed build has no `/__protomaps/`
-route, so production needs one of the tile options above. Delete the line
-to see the map without a basemap. The screenshots in [screens/](screens/)
-(`p8-*`) were made from the same daily build.
+- **2026-10-13:** MapLibre became the default engine, with Protomaps'
+  street map (OpenStreetMap data) when a tile source was set.
+- **2026-10-29:** Protomaps, the OpenStreetMap city outlines (Nominatim,
+  ODbL) and the three.js globe (react-globe.gl, the rollback behind
+  `VITE_ATLAS_ENGINE=three`) were removed. Roll back from git:
+  `git log -- src/components/atlas/components/Globe/BaseGlobe.tsx` and
+  `git log -- src/components/atlas/components/Globe/basemapConfig.ts`.
+- **2026-10-29 to 30:** the data map: dark land lit by music, places and
+  halos, connections, floating cards, the ring, the motion.
+- **2026-10-30:** the lifted region; the chart cards and the Legend went,
+  leaving the events and Connections cards.

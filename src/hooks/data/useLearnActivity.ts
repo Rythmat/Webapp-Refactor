@@ -1,5 +1,10 @@
 import { getChordScales } from '@/components/learn/chordScaleData';
-import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
+import { LearnRoutes } from '@/constants/routes';
+import {
+  audioLessonRoute,
+  audioModule,
+  LAB_STEPS,
+} from '@/curriculum/audio/catalog';
 import {
   CURRICULUM_GENRE_SLUGS,
   curriculumToEngineGenre,
@@ -53,7 +58,10 @@ export const useRecentLessons = (minCompleted = 1): ActivityItem[] => {
           subtitle: `${l.completedCount}/${l.totalCount ?? '—'} activities`,
           accentColor: colorForKeyMode(rootLabel, mode),
           image: getTheoryTileImage(mode),
-          route: LearnRoutes.lesson({ mode, key: keyLabelToUrlParam(l.root) }),
+          route: LearnRoutes.keyboardLesson({
+            mode,
+            key: keyLabelToUrlParam(l.root),
+          }),
           touchedAt: timeFromIso(l.updatedAt),
         };
       }
@@ -74,7 +82,30 @@ export const useRecentLessons = (minCompleted = 1): ActivityItem[] => {
           subtitle: `${l.completedCount}/${l.totalCount ?? '—'} activities`,
           accentColor: getGenreProfile(slug)?.accentColor,
           image: getGenreTileImage(slug),
-          route: CurriculumRoutes.genreLevel({ genre: slug, level }),
+          route: LearnRoutes.genreLesson({ genre: slug, level }),
+          touchedAt: timeFromIso(l.updatedAt),
+        };
+      }
+
+      // An Audio lab: `audio:{MODULE}:{LESSON}`
+      if (l.lessonId.startsWith('audio:')) {
+        const [, moduleId, lessonId] = l.lessonId.split(':');
+        const module = audioModule(moduleId);
+        const lesson = module?.lessons.find((item) => item.id === lessonId);
+        if (!module || (lesson?.kind !== 'lab' && lesson?.kind !== 'guided')) {
+          return null;
+        }
+        return {
+          id: `lesson:${l.lessonId}`,
+          kind: 'lesson',
+          category: 'Audio',
+          title: lesson.title,
+          subtitle:
+            lesson.kind === 'lab'
+              ? `${l.completedCount}/${lesson.topics.length * LAB_STEPS.length} steps`
+              : `${l.completedCount}/${lesson.screens} screens`,
+          accentColor: colorForKeyMode(module.accentKey),
+          route: audioLessonRoute(module, lesson),
           touchedAt: timeFromIso(l.updatedAt),
         };
       }

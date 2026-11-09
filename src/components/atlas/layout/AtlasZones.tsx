@@ -5,26 +5,17 @@ import {
   ATLAS_SURFACE,
   AtlasIconButton,
 } from '@/components/atlas/components/UI/primitives';
-import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
 import { ATLAS_Z } from '@/components/atlas/theme/layers';
 import type { MapInsets } from '@/components/atlas/types';
 import { cn } from '@/lib/utils';
 import { BottomSheet } from './BottomSheet';
-import { CONTROLS_ROW, insetsFrom, useReportInsets } from './mapInsets';
+import { insetsFrom, useReportInsets } from './mapInsets';
 import { SHEET_PEEK_PX, type SheetSnap } from './sheetSnap';
-import { usePanelFocus } from './usePanelFocus';
+import type { InspectorSlot } from './useInspector';
+import { usePanelZone } from './usePanelZone';
 import { AtlasZoneContext, type AtlasZone } from './zoneContext';
 
-/** The panel in the left zone (or the phone sheet): place, event, artist, search. */
-export interface LeftPanelSlot {
-  /** Identity of what it shows; a change is new content, not a re-open. */
-  key: string;
-  node: ReactNode;
-  /** Escape and the close button both close it this way. */
-  onClose: () => void;
-}
-
-/** The bar in the bottom zone: the timeline, or a tour or pathway. */
+/** The bar under the map: the timeline, or a tour or pathway. */
 export interface BottomBarSlot {
   /** What the collapsed handle says: "timeline", "tour". */
   label: string;
@@ -33,20 +24,15 @@ export interface BottomBarSlot {
   node: ReactNode;
 }
 
-export interface AtlasZonesProps {
-  left: LeftPanelSlot | null;
-  /** The mind map, when open. */
-  right: ReactNode | null;
-  /** The map-control cluster: the legend, Layers and Spin. */
-  controls: ReactNode;
+export interface PhoneZonesProps {
+  /** The Inspector's panel, shown in the sheet (layout/useInspector.tsx). */
+  inspector: InspectorSlot | null;
   bottom: BottomBarSlot | null;
   /**
-   * The map's data credit (MapCredit), when the map draws OpenStreetMap's
-   * data. It gets a place of its own that nothing else covers: the
-   * bottom-right corner beside the bottom bar on desktop, above the bottom
-   * bar or the sheet on phones (the bar fills a phone's width).
+   * The floating cards as a strip (layout/PhoneStrip.tsx), above the bottom
+   * rail when nothing else is: no journey's bar, the sheet down.
    */
-  credit?: ReactNode | null;
+  strip?: ReactNode;
   /** What the zones cover of the map, whenever it changes (MapInsets). */
   onInsets?: (insets: MapInsets) => void;
 }
@@ -100,221 +86,50 @@ function BottomBarFrame({ bar }: { bar: BottomBarSlot }) {
 }
 
 /**
- * The left panel's zone, which owns its focus and its Escape: opening moves
- * focus to the panel's heading, closing returns it, and Escape closes it.
- */
-function useLeftPanelZone(left: LeftPanelSlot | null) {
-  const ref = useRef<HTMLDivElement>(null);
-  usePanelFocus(ref, left !== null, left?.key ?? null);
-  useEscapeLayer(left !== null, () => left?.onClose());
-  return ref;
-}
-
-/**
- * Desktop and tablet (sm and up): a grid over the globe, so the zones cannot
- * overlap.
- *
- *   ┌──────────┬─────────────┬──────────┐
- *   │ left     │             │ controls │
- *   │ panel    │   (globe)   │ mind map │
- *   ├──────────┴─────────────┴──────────┤
- *   │            bottom bar             │
- *   └───────────────────────────────────┘
- *
- * The left column is as wide as its panel, up to what the right column
- * leaves; the bottom row is as tall as its bar. The grid itself takes no
- * pointer events, so the globe is draggable everywhere a panel is not.
- */
-export function DesktopZones({
-  left,
-  right,
-  controls,
-  bottom,
-  credit,
-  onInsets,
-}: AtlasZonesProps) {
-  const leftRef = useLeftPanelZone(left);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const controlsRef = useRef<HTMLDivElement>(null);
-  const rightRef = useRef<HTMLDivElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  useReportInsets(
-    rootRef,
-    () => [
-      leftRef.current,
-      controlsRef.current,
-      rightRef.current,
-      bottomRef.current,
-    ],
-    (root) => {
-      const box = (el: Element | null | undefined) =>
-        el?.getBoundingClientRect() ?? null;
-      const controlsZone = box(controlsRef.current);
-      const row = box(controlsRef.current?.querySelector(CONTROLS_ROW));
-      // Taller than its buttons, the controls zone holds the open legend.
-      const legendOpen =
-        !!controlsZone && !!row && controlsZone.height > row.height + 8;
-      return insetsFrom(root.getBoundingClientRect(), {
-        left: left ? box(leftRef.current) : null,
-        top: row,
-        bottom: [box(bottomRef.current)],
-        right: [box(rightRef.current), legendOpen ? controlsZone : null],
-      });
-    },
-    onInsets,
-    `${left !== null} ${right !== null} ${bottom !== null} ${credit != null}`,
-  );
-  return (
-    <div
-      ref={rootRef}
-      className="pointer-events-none absolute inset-0 grid grid-cols-[minmax(0,max-content)_minmax(0,1fr)_auto] grid-rows-[minmax(0,1fr)_auto] gap-4 p-4"
-    >
-      <div
-        ref={leftRef}
-        {...zoneItem('left-panel')}
-        className={cn(
-          'relative col-start-1 row-start-1 flex max-h-full min-w-0 flex-col self-start *:pointer-events-auto',
-          ATLAS_Z.panels,
-          !left && 'hidden',
-        )}
-      >
-        {left?.node}
-      </div>
-      <div className="col-start-3 row-start-1 flex min-h-0 flex-col items-end gap-3">
-        <div
-          ref={controlsRef}
-          {...zoneItem('map-controls')}
-          className={cn(
-            'relative flex shrink-0 items-start gap-2 *:pointer-events-auto',
-            ATLAS_Z.mapControls,
-          )}
-        >
-          {controls}
-        </div>
-        {right && (
-          <div
-            ref={rightRef}
-            {...zoneItem('mind-map')}
-            className={cn(
-              'relative flex min-h-0 flex-col *:pointer-events-auto',
-              ATLAS_Z.panels,
-            )}
-          >
-            {right}
-          </div>
-        )}
-      </div>
-      {(bottom || credit) && (
-        // The bottom row: the bar centred, the credit in the bottom-right
-        // corner. Columns, not overlap: the side columns share what the bar
-        // leaves, and the credit's keeps at least its own width, so an open
-        // credit nudges the bar over rather than going under it.
-        <div
-          ref={bottomRef}
-          className={cn(
-            'relative col-span-3 row-start-2 grid items-end gap-4',
-            ATLAS_Z.bars,
-          )}
-          style={{
-            gridTemplateColumns: `1fr minmax(0, ${bottom?.maxWidth ?? 0}px) 1fr`,
-          }}
-        >
-          <div className="col-start-2 flex min-w-0 justify-center">
-            {bottom && <BottomBarFrame bar={bottom} />}
-          </div>
-          {credit && (
-            <div
-              {...zoneItem('map-credit')}
-              className="col-start-3 flex justify-end *:pointer-events-auto"
-            >
-              {credit}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/**
- * Phones (below sm): the controls in the top-right corner, the left panel
- * and the mind map in one bottom sheet (a switch picks between them, so they
- * never stack), and the bottom bar resting on the sheet at peek. Once the
- * sheet is raised past peek the bar steps aside, and it comes back when the
- * sheet drops or closes.
+ * Phones: the Inspector's panel in a bottom sheet, and the bar under the map
+ * resting on the sheet at peek (the panels' icons are in the bottom
+ * rail). Once the sheet is raised past peek the bar steps aside, and it comes
+ * back when the sheet drops or closes. With no bar, the floating cards'
+ * strip takes its place, under the same rule.
  */
 export function PhoneZones({
-  left,
-  right,
-  controls,
+  inspector,
   bottom,
-  credit,
+  strip,
   onInsets,
-  onSheetOcclusion,
-}: AtlasZonesProps & {
-  /**
-   * How much of the globe the sheet covers (px), so the globe can rise clear
-   * of it: its height at peek and half, nothing at full or closed.
-   */
-  onSheetOcclusion?: (px: number | null) => void;
-}) {
-  const sheetRef = useLeftPanelZone(left);
+}: PhoneZonesProps) {
+  const sheetRef = usePanelZone<HTMLDivElement>(inspector);
   const [snap, setSnap] = useState<SheetSnap>('half');
-  const [tab, setTab] = useState<'left' | 'right'>('left');
+  const open = inspector !== null;
 
-  const items = useMemo(
-    () => [
-      ...(left ? [{ id: 'left', label: 'Details' }] : []),
-      ...(right ? [{ id: 'right', label: 'Mind map' }] : []),
-    ],
-    [left !== null, right !== null],
-  );
-  const open = items.length > 0;
-  const shown: 'left' | 'right' = !left ? 'right' : !right ? 'left' : tab;
-
-  // A newly opened sheet starts at half; new left-panel content brings the
-  // sheet to it.
+  // A newly opened sheet starts at half.
   const wasOpen = useRef(open);
   useEffect(() => {
     if (open && !wasOpen.current) setSnap('half');
     wasOpen.current = open;
   }, [open]);
-  useEffect(() => {
-    if (left) setTab('left');
-  }, [left?.key]);
 
   const zone = useMemo<AtlasZone>(
     () => ({ kind: 'sheet', snap, setSnap }),
     [snap],
   );
   const barHidden = open && snap !== 'peek';
-  // The sheet's height, for the credit to sit on when the bar steps aside.
-  const [sheetPx, setSheetPx] = useState(SHEET_PEEK_PX);
   const bar = bottom && !barHidden ? bottom : null;
-  // A full sheet covers the map, and the credit with it.
-  const showCredit = !!credit && !(open && snap === 'full');
-  const stackBottom = !open ? 8 : bar ? SHEET_PEEK_PX + 16 : sheetPx + 8;
+  // The cards' strip: not over a journey's bar, nor a raised sheet.
+  const cards = !bottom && !barHidden && strip ? strip : null;
+  const stackBottom = !open ? 8 : SHEET_PEEK_PX + 16;
 
-  // Closed, the sheet covers nothing.
-  useEffect(() => {
-    if (!open) onSheetOcclusion?.(null);
-  }, [open]);
-  useEffect(() => () => onSheetOcclusion?.(null), []);
-
-  // What covers the map: the controls along the top, and along the bottom
-  // the bar (with the credit) or the sheet, which at full covers it all and
-  // leaves nothing to frame.
+  // What covers the map: along the bottom the bar or the sheet, which at
+  // full covers it all and leaves nothing to frame.
   const rootRef = useRef<HTMLDivElement>(null);
-  const controlsRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
   useReportInsets(
     rootRef,
-    () => [controlsRef.current, stackRef.current, sheetRef.current],
+    () => [stackRef.current, sheetRef.current],
     (root) => {
       const box = (el: Element | null | undefined) =>
         el?.getBoundingClientRect() ?? null;
       return insetsFrom(root.getBoundingClientRect(), {
-        top: box(controlsRef.current?.querySelector(CONTROLS_ROW)),
         bottom: [
           box(stackRef.current),
           open && snap !== 'full' ? box(sheetRef.current) : null,
@@ -322,22 +137,12 @@ export function PhoneZones({
       });
     },
     onInsets,
-    `${open} ${snap} ${bar !== null} ${showCredit}`,
+    `${open} ${snap} ${bar !== null} ${cards !== null}`,
   );
 
   return (
     <div ref={rootRef} className="pointer-events-none absolute inset-0">
-      <div
-        ref={controlsRef}
-        {...zoneItem('map-controls')}
-        className={cn(
-          'absolute right-2 top-2 flex items-start gap-2 *:pointer-events-auto',
-          ATLAS_Z.mapControls,
-        )}
-      >
-        {controls}
-      </div>
-      {(bar || showCredit) && (
+      {(bar || cards) && (
         <div
           ref={stackRef}
           className={cn(
@@ -347,52 +152,19 @@ export function PhoneZones({
           )}
           style={{ bottom: stackBottom }}
         >
-          {showCredit && (
-            <div
-              {...zoneItem('map-credit')}
-              className="self-end *:pointer-events-auto"
-            >
-              {credit}
-            </div>
-          )}
           {bar && <BottomBarFrame bar={bar} />}
+          {cards}
         </div>
       )}
-      {open && (
+      {inspector && (
         <AtlasZoneContext.Provider value={zone}>
           <BottomSheet
             ref={sheetRef}
-            activeTab={shown}
-            label={shown === 'right' ? 'Mind map' : 'Details'}
+            label={inspector.title}
             snap={snap}
-            tabs={items}
-            onHeight={(px) => {
-              onSheetOcclusion?.(snap === 'full' ? null : px);
-              if (credit) setSheetPx(px);
-            }}
             onSnap={setSnap}
-            onTab={(id) => setTab(id as 'left' | 'right')}
           >
-            {left && (
-              <div
-                className={cn(
-                  'flex min-h-0 flex-1 flex-col',
-                  shown !== 'left' && 'hidden',
-                )}
-              >
-                {left.node}
-              </div>
-            )}
-            {right && (
-              <div
-                className={cn(
-                  'flex min-h-0 flex-1 flex-col',
-                  shown !== 'right' && 'hidden',
-                )}
-              >
-                {right}
-              </div>
-            )}
+            {inspector.node}
           </BottomSheet>
         </AtlasZoneContext.Provider>
       )}

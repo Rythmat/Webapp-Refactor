@@ -5,13 +5,16 @@
  * (data/guitar/modes), the rest of Theory on generated grips
  * (data/guitar/scales). `:mode` is the tile's slug ('ionian#5').
  *
- * The guitar counterpart of the piano mode lessons at /learn/:mode/:key. A
- * tile with no guitar content goes back to Theory. The premium gate (C Ionian
- * free, the rest Premium) is the route's, as for piano (ClassroomPages).
+ * The guitar counterpart of the keyboard mode lessons at
+ * /learn/keyboard/:mode/:key. A tile with no guitar content goes back to
+ * Theory. The premium gate (C Ionian free, the rest Premium) is the route's,
+ * as for piano (ClassroomPages).
  * Opening it (from the overview or a shared link) makes guitar this device's
  * Learn instrument, so Theory shows guitar on return.
  *
  * `?section=A|B|D` opens that chapter; the Practice Track comes back to it.
+ * A diatonic mode opens on its Overview (`?section=O`, the default): the
+ * scale's seven positions on the neck.
  */
 
 import { useCallback, useEffect, useMemo } from 'react';
@@ -41,10 +44,13 @@ export default function GuitarModeLesson() {
   );
 
   // A section the flow doesn't have (guitar has no C; pentatonic and blues
-  // have no B) opens the first.
+  // have no B) opens the first. A diatonic lesson opens on its Overview (the
+  // scale's seven positions) unless the link names a section.
   const requested = searchParams.get('section');
   const section: ActivitySectionId =
     flow.sections.find((s) => s.id === requested)?.id ?? 'A';
+  const overview =
+    entry?.family === 'diatonic' && (requested === null || requested === 'O');
 
   const practiceReturnTo = useCallback(
     (sectionId: ActivitySectionId) =>
@@ -65,11 +71,12 @@ export default function GuitarModeLesson() {
   return (
     <GenreLessonContainerV2
       // A new key or ?section= starts the lesson there.
-      key={`${guitarMode}|${key}|${section}`}
+      key={`${guitarMode}|${key}|${overview ? 'O' : section}`}
       flow={flow}
       genre={flow.genre}
       level={1}
       initialSection={section}
+      openOnOverview={overview}
       displayName={`Guitar · ${entry.title}`}
       overviewRoute={LearnRoutes.guitarOverview({ mode: guitarMode })}
       rootCrumb={ROOT_CRUMB}

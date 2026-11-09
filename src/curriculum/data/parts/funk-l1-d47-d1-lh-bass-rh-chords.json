@@ -45,6 +45,7 @@
       "velocity": 96
     },
     {
+      "hand": "lh",
       "tick": 360,
       "duration": 120,
       "midi": 50,
@@ -100,6 +101,7 @@
       "velocity": 96
     },
     {
+      "hand": "lh",
       "tick": 1320,
       "duration": 120,
       "midi": 50,
@@ -152,6 +154,7 @@
       "velocity": 96
     },
     {
+      "hand": "lh",
       "tick": 2280,
       "duration": 120,
       "midi": 50,
@@ -207,6 +210,7 @@
       "velocity": 96
     },
     {
+      "hand": "lh",
       "tick": 3240,
       "duration": 120,
       "midi": 50,

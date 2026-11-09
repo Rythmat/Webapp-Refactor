@@ -23,6 +23,8 @@ export interface GrandStaffProps {
   fitHeight?: boolean;
   /** Break to a new system when the next bar will not fit the width. */
   wrapToFit?: boolean;
+  /** Measures that close with a double bar (see StaffViewProps). */
+  doubleBarEnds?: StaffViewProps['doubleBarEnds'];
   /** Called with the drawn layout, for positioning an overlay. */
   onLayout?: StaffViewProps['onLayout'];
   /** Drawn over the staves, scrolling with them — chord symbols, markers. */

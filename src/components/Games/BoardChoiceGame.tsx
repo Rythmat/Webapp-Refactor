@@ -8,6 +8,10 @@ import { startTone } from '@/audio/core/toneBridge';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import {
+  formatNoteName,
+  MIDI_ROOT_TO_KEY,
+} from '@/curriculum/engine/genreGeneration/enharmonicEngine';
+import {
   formatChord,
   useChordNotation,
   type ChordNotation,
@@ -22,7 +26,7 @@ const COUNT_IN_BEATS = 4;
 const BPM_OPTIONS = [60, 70, 80, 90, 100, 110, 120];
 const DEFAULT_BPM = 100;
 
-type ChordType = 'maj' | 'min' | 'dim' | 'aug' | '7' | 'maj7' | 'min7';
+export type ChordType = 'maj' | 'min' | 'dim' | 'aug' | '7' | 'maj7' | 'min7';
 type GameLevel = 1 | 2 | 3 | 4;
 
 const LEVEL_CONFIG: Record<
@@ -73,20 +77,13 @@ const CHORD_INTERVALS: Record<ChordType, number[]> = {
   min7: [0, 3, 7, 10],
 };
 
-const PITCH_CLASS_NAMES = [
-  'C',
-  'C#',
-  'D',
-  'D#',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'G#',
-  'A',
-  'A#',
-  'B',
-];
+/**
+ * A chord's root as the app spells it: the twelve key centers (C D♭ D E♭ E F
+ * F♯ G A♭ A B♭ B) for every quality, with the ♭ and ♯ glyphs.
+ */
+function rootName(rootPc: number) {
+  return formatNoteName(MIDI_ROOT_TO_KEY[((rootPc % 12) + 12) % 12]);
+}
 
 type CreateRoundArgs = {
   chordPool: ChordType[];
@@ -121,8 +118,8 @@ function buildChord(rootMidi: number, type: ChordType) {
   return CHORD_INTERVALS[type].map((interval) => rootMidi + interval);
 }
 
-function chordName(rootPc: number, type: ChordType) {
-  const root = PITCH_CLASS_NAMES[((rootPc % 12) + 12) % 12];
+export function chordName(rootPc: number, type: ChordType) {
+  const root = rootName(rootPc);
   switch (type) {
     case 'maj':
       return `${root} Major`;
@@ -142,19 +139,19 @@ function chordName(rootPc: number, type: ChordType) {
 }
 
 /**
- * The chord's name as the game shows it. Jazz writes a chord symbol ("C♯−"),
- * rooted on the game's own sharp spelling. Hybrid keeps the game's name, and so
- * does Roman: it needs a key and this game has none. Display only — answers go
- * by option.isCorrect.
+ * The chord's name as the game shows it. Jazz writes a chord symbol ("D♭−"),
+ * its root spelled as the app spells a key center. Hybrid keeps the game's
+ * name, and so does Roman: it needs a key and this game has none. Display
+ * only — answers go by option.isCorrect.
  */
-function displayChordName(
+export function displayChordName(
   { rootPc, type }: ChordSpec,
   label: string,
   notation: ChordNotation,
 ) {
   if (notation !== 'jazz') return label;
   return formatChord(
-    { root: PITCH_CLASS_NAMES[((rootPc % 12) + 12) % 12], quality: type },
+    { root: ((rootPc % 12) + 12) % 12, quality: type },
     'jazz',
   );
 }

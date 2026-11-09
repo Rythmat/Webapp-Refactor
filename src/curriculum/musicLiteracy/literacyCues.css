@@ -1,0 +1,78 @@
+/*
+ * The hub's turn cues (turnCues.ts): LISTEN, GET READY, GO!, big enough for
+ * a child to read at a glance. Each is lit from within in its own color
+ * (--cue-base, --cue-shine, --cue-glow, set by LiteracyCallPanel), pops in
+ * as it takes over, and a band of light sweeps across it now and then.
+ * Without motion it's the same text, still and lit.
+ */
+
+.literacy-cue {
+  display: inline-block;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--cue-base);
+  background-image: linear-gradient(
+    100deg,
+    var(--cue-base) 0%,
+    var(--cue-base) 40%,
+    var(--cue-shine) 50%,
+    var(--cue-base) 60%,
+    var(--cue-base) 100%
+  );
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 var(--cue-glow-size, 6px) var(--cue-glow));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .literacy-cue {
+    animation:
+      literacy-cue-in 240ms cubic-bezier(0.2, 0.9, 0.3, 1.25) both,
+      literacy-cue-sheen 2.4s ease-in-out 240ms infinite;
+  }
+
+  /* Go! lands harder, and its light sweeps on the beat it's held for. */
+  .literacy-cue[data-literacy-cue='go'] {
+    animation:
+      literacy-cue-go 300ms cubic-bezier(0.2, 0.9, 0.3, 1.4) both,
+      literacy-cue-sheen 1.2s ease-out 120ms infinite;
+  }
+}
+
+@keyframes literacy-cue-in {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes literacy-cue-go {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes literacy-cue-sheen {
+  0% {
+    background-position: 100% 0;
+  }
+  55%,
+  100% {
+    background-position: 0% 0;
+  }
+}

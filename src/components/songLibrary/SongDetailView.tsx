@@ -121,7 +121,10 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
   // chart, the key line and the Studio hand-off all read `displaySong`, while
   // the recording, the beat grid and the song's id stay with the original.
   const [semitones, setSemitones] = useState(0);
-  const onGuitar = useLearnInstrument() === 'guitar';
+  // Guitar and ukulele show the song's chords as boxes.
+  const learnInstrument = useLearnInstrument();
+  const onGuitar =
+    learnInstrument === 'guitar' || learnInstrument === 'ukulele';
   const [savingVersion, setSavingVersion] = useState(false);
   /** The chart on the whole screen, fitted a page at a time. */
   const [fullPage, setFullPage] = useState(false);

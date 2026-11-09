@@ -101,3 +101,23 @@ describe('chordSymbolTones — double accidentals', () => {
     });
   });
 });
+
+describe('jazz alterations (Peter’s ICP jazz sheets)', () => {
+  const ints = (s: string) => chordSymbolTones(s)?.intervals;
+
+  it('lets an altered 9 stand in for the natural 9 under a 13', () => {
+    expect(ints('G7b9b13')).toEqual([0, 1, 4, 7, 8, 10]);
+    expect(ints('A7b9b13')).toEqual([0, 1, 4, 7, 8, 10]);
+    expect(ints('F13b9')).toEqual([0, 1, 4, 7, 9, 10]);
+    // An unaltered 13 still implies its 9.
+    expect(ints('F13')).toEqual([0, 2, 4, 7, 9, 10]);
+  });
+
+  it('reads m7♭6 as a ♭6 over a minor 7th, not a sixth chord', () => {
+    expect(ints('Amin7b6')).toEqual([0, 3, 8, 10]);
+    expect(ints('Am7b6')).toEqual([0, 3, 8, 10]);
+    // Sixth chords are unchanged.
+    expect(ints('Cm6')).toEqual([0, 3, 7, 9]);
+    expect(ints('Cm6/9')).toEqual([0, 2, 3, 7, 9]);
+  });
+});

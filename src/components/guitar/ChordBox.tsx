@@ -73,6 +73,7 @@ import type { ChordToneLabel, VoicingInfo } from '@/lib/guitar/theory/types';
 import { classifyVoicing } from '@/lib/guitar/theory/voicing';
 import type { GuitarBarre, GuitarStringNumber } from '@/lib/guitar/types';
 import { FretDiagram } from './FretDiagram';
+import { useFrettedInstrument } from './frettedInstrumentContext';
 import type {
   ChordBoxProps,
   DiagramInfoNote,
@@ -372,6 +373,7 @@ export const ChordBox = memo(function ChordBox({
   toneLabels,
 }: ChordBoxProps) {
   const storedMode = useGuitarDisplaySettings((s) => s.chordBoxLabels);
+  const inst = useFrettedInstrument();
   // A Book One chord shape carries its own degree and quality.
   const book = shape as { degree?: ScaleDegree; quality?: BookChordQuality };
   const quality = qualityProp ?? book.quality;
@@ -379,10 +381,11 @@ export const ChordBox = memo(function ChordBox({
 
   const theory = useMemo(
     () =>
-      withTheory && quality
+      // The voicing families and popover notes describe guitar grips.
+      withTheory && quality && inst.id === 'guitar'
         ? chordTheory({ shape, name, rootPc, quality, degree, centerId })
         : null,
-    [withTheory, shape, name, rootPc, quality, degree, centerId],
+    [withTheory, shape, name, rootPc, quality, degree, centerId, inst.id],
   );
   // Chord-tone labels come from the theory layer, or are given (song chords).
   const chordTones =
@@ -395,14 +398,14 @@ export const ChordBox = memo(function ChordBox({
     const muted: GuitarStringNumber[] = [];
     const open: GuitarStringNumber[] = [];
     const dots: FretDiagramDot[] = [];
-    parseShape(shape.frets).forEach((fret, i) => {
-      const string = GUITAR_STRINGS_LOW_TO_HIGH[i];
+    parseShape(shape.frets, inst).forEach((fret, i) => {
+      const string = inst.stringsLowToHigh[i];
       if (fret === null) {
         muted.push(string);
         return;
       }
       if (fret === 0) open.push(string);
-      const pc = midiAt(string, fret) % 12;
+      const pc = midiAt(string, fret, inst) % 12;
       const finger = shape.fingering.find(
         (f) => f.string === string && f.fret === fret,
       )?.finger;
@@ -456,6 +459,7 @@ export const ChordBox = memo(function ChordBox({
     const barres = shape.barre ? [shape.barre] : undefined;
     return { muted, open, dots, barres, extras, label };
   }, [
+    inst,
     shape,
     name,
     rootPc,

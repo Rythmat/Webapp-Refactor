@@ -1,22 +1,40 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { AtlasRoutes } from '@/constants/routes';
+import { GlobeRoutes } from '@/constants/routes';
 
 /**
- * The globe deep link must target `/atlas/globe`, never `/atlas`.
+ * The Globe lives at `/globe`, and nothing points at its old addresses.
  *
- * `/atlas` is the Globe Dashboard. It renders happily and ignores `?event=`,
- * so a link pointed there does not fail — it just lands on the dashboard and
- * the song is never selected. `useSongActions.openInGlobe` did exactly that:
- * the route moved, `songDeepLinks.songGlobeRoute` was extracted and updated,
- * and the original kept the old path. Nothing caught it because nothing broke.
+ * Until 2026-10-29 the Globe was `/atlas/globe`, under an `/atlas` dashboard
+ * that rendered happily and ignored `?event=` — a link pointed there did not
+ * fail, it just landed on the dashboard and the song was never selected
+ * (`useSongActions.openInGlobe` did exactly that once). The owner then removed
+ * the dashboard and every `/atlas` address, with no redirects, so a link to
+ * one now lands on the app's not-found page.
  *
- * This scans the source rather than calling the hook, because the failure is a
- * hardcoded string and that is what needs to be impossible to reintroduce.
+ * This scans the source rather than calling the routes, because the failure is
+ * a hardcoded string and that is what needs to be impossible to reintroduce.
  */
 
 const SRC = path.resolve('src');
+
+/** Files allowed to name an old address. */
+const EXEMPT = [
+  // This file, which names them to look for them.
+  'globeDeepLink.test.ts',
+  // The server's API paths (/atlas/cities, /atlas/events …), not app routes.
+  'musicAtlas.generated.ts',
+  // Proves the old addresses map to no table.
+  'tableIds.test.ts',
+];
+
+/** The old addresses: `/atlas/globe`, a bare `/atlas…` link, the mirror's. */
+const OLD = [
+  /\/atlas\/?globe/g,
+  /['"`]\/atlas(?=['"`?#/])/g,
+  /console\/content\/atlas\b/g,
+];
 
 function* walk(dir: string): Generator<string> {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -31,20 +49,19 @@ function* walk(dir: string): Generator<string> {
 }
 
 describe('globe deep links', () => {
-  it('resolves the globe to /atlas/globe', () => {
-    expect(AtlasRoutes.globe()).toBe('/atlas/globe');
-    expect(AtlasRoutes.root()).toBe('/atlas');
+  it('resolves the globe to /globe', () => {
+    expect(GlobeRoutes.root()).toBe('/globe');
   });
 
-  it('never points an ?event= link at the dashboard', () => {
+  it('never points at an old Globe address', () => {
     const offenders: string[] = [];
     for (const file of walk(SRC)) {
-      if (file.endsWith('globeDeepLink.test.ts')) continue;
+      if (EXEMPT.some((name) => file.endsWith(name))) continue;
       const src = fs.readFileSync(file, 'utf8');
-      // `/atlas?…` is the dashboard with params it will silently drop.
-      // `/atlas/globe?…` is the one that works.
-      for (const m of src.matchAll(/['"`]\/atlas\?[^'"`]*/g)) {
-        offenders.push(`${path.relative(SRC, file)}: ${m[0]}`);
+      for (const pattern of OLD) {
+        for (const m of src.matchAll(pattern)) {
+          offenders.push(`${path.relative(SRC, file)}: ${m[0]}`);
+        }
       }
     }
     expect(offenders).toEqual([]);

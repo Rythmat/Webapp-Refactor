@@ -1,0 +1,165 @@
+{
+  "id": "jazz-pianist-1-l3-a7-9-dm6-in-one-bar-take-141",
+  "name": "Jazz-Pianist-1 · L3 · A7♭9 Dm6 in one bar take 141",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 9,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 120,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "notes": [
+    {
+      "tick": 0,
+      "offset": 34,
+      "duration": 120,
+      "midi": 45,
+      "velocity": 46
+    },
+    {
+      "tick": 0,
+      "offset": 23,
+      "duration": 120,
+      "midi": 55,
+      "velocity": 69
+    },
+    {
+      "tick": 0,
+      "offset": 29,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "offset": 29,
+      "duration": 120,
+      "midi": 61,
+      "velocity": 95
+    },
+    {
+      "tick": 0,
+      "offset": 29,
+      "duration": 240,
+      "midi": 64,
+      "velocity": 75
+    },
+    {
+      "tick": 840,
+      "offset": 14,
+      "duration": 720,
+      "midi": 38,
+      "velocity": 46
+    },
+    {
+      "tick": 840,
+      "offset": 25,
+      "duration": 600,
+      "midi": 53,
+      "velocity": 78
+    },
+    {
+      "tick": 840,
+      "offset": 25,
+      "duration": 600,
+      "midi": 57,
+      "velocity": 84
+    },
+    {
+      "tick": 840,
+      "offset": 25,
+      "duration": 600,
+      "midi": 59,
+      "velocity": 96
+    },
+    {
+      "tick": 840,
+      "offset": 25,
+      "duration": 720,
+      "midi": 62,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "offset": 31,
+      "duration": 120,
+      "midi": 45,
+      "velocity": 71
+    },
+    {
+      "tick": 1920,
+      "offset": 31,
+      "duration": 120,
+      "midi": 55,
+      "velocity": 58
+    },
+    {
+      "tick": 1920,
+      "offset": 31,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 88
+    },
+    {
+      "tick": 1920,
+      "offset": 26,
+      "duration": 120,
+      "midi": 61,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "offset": 31,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 78
+    },
+    {
+      "tick": 2760,
+      "offset": -6,
+      "duration": 720,
+      "midi": 38,
+      "velocity": 44
+    },
+    {
+      "tick": 2760,
+      "offset": -1,
+      "duration": 720,
+      "midi": 53,
+      "velocity": 60
+    },
+    {
+      "tick": 2760,
+      "offset": -1,
+      "duration": 720,
+      "midi": 57,
+      "velocity": 96
+    },
+    {
+      "tick": 2760,
+      "offset": -1,
+      "duration": 720,
+      "midi": 59,
+      "velocity": 101
+    },
+    {
+      "tick": 2760,
+      "offset": -1,
+      "duration": 720,
+      "midi": 62,
+      "velocity": 91
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "chordSymbols": ["A7b9 Dmin6", "A7b9 Dmin6", "A7b9 Dmin6", "A7b9 Dmin6"]
+}

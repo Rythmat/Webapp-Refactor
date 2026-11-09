@@ -8,10 +8,9 @@ import {
 } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { SearchInput } from '@/components/songLibrary/SearchInput';
-import { HexAvatarSVG } from '@/components/ui/HexAvatarSVG';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/components/utilities';
-import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
+import { ResultThumb } from './ResultThumb';
 import type { SearchResult } from './types';
 import { useGlobalSearch } from './useGlobalSearch';
 
@@ -145,62 +144,6 @@ export function SearchPage() {
           No results for &ldquo;{debounced}&rdquo;.
         </p>
       ) : null}
-    </div>
-  );
-}
-
-const THUMB_SIZE = 48;
-
-/**
- * Row thumbnail. Prefers an image (artist portrait, learn hex tile, or globe
- * video still), falls back to a generative HexAvatar (songs/artists), then to
- * the category icon.
- */
-function ResultThumb({ result }: { result: SearchResult }) {
-  const [broken, setBroken] = useState(false);
-  const thumb = result.thumb;
-
-  if (thumb?.src && !broken) {
-    return (
-      <div
-        className={cn(
-          'relative shrink-0 overflow-hidden',
-          thumb.shape === 'circle' && 'rounded-full bg-white/[0.04]',
-          thumb.shape === 'rounded' && 'rounded-lg bg-white/[0.04]',
-        )}
-        style={{ width: THUMB_SIZE, height: THUMB_SIZE }}
-      >
-        <img
-          src={thumb.src}
-          alt=""
-          loading="lazy"
-          onError={() => setBroken(true)}
-          className={cn(
-            'h-full w-full',
-            thumb.shape === 'hex' ? 'object-contain' : 'object-cover',
-          )}
-        />
-      </div>
-    );
-  }
-
-  if (thumb?.avatarSeed) {
-    return (
-      <HexAvatarSVG
-        config={defaultAvatarConfig(thumb.avatarSeed)}
-        size={THUMB_SIZE}
-        className="shrink-0 rounded-full"
-      />
-    );
-  }
-
-  const RowIcon = result.icon;
-  return (
-    <div
-      className="flex shrink-0 items-center justify-center rounded-lg bg-white/[0.05]"
-      style={{ width: THUMB_SIZE, height: THUMB_SIZE }}
-    >
-      <RowIcon className="h-5 w-5 text-white/55" />
     </div>
   );
 }

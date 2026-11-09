@@ -17,6 +17,7 @@ import type {
   GuitarPracticeNotesProps,
 } from '../GuitarLoopStatus';
 import type { GuitarStepKind } from '../useGuitarLessonEvaluation';
+import type { Zones } from './GuitarActionBar';
 
 // ── The guitar lesson layout's contract ────────────────────────────────────
 // GenreLessonContainerV2 keeps every hook, timer and handler; on guitar it
@@ -71,6 +72,39 @@ export interface NavStep {
   /** "A1: Major Scale" — the step list groups by this. */
   subsection: string;
   status: GuitarStepStatus;
+  /**
+   * More passes of the step, each with its own mark after the step's
+   * (Music Literacy's "Create" pass). Shown once tried; left out, none.
+   */
+  passes?: readonly { label: string; status: GuitarStepStatus }[];
+}
+
+/**
+ * A button on a step list group's header, beside its name (Music
+ * Literacy's "Create Your Own ▸", once the module is passed).
+ */
+export interface NavGroupAction {
+  label: string;
+  /** Its own mark: passed once what it opens is done. */
+  status?: GuitarStepStatus;
+  onPick: () => void;
+}
+
+/**
+ * One section of a lesson's whole outline, for the lesson rail (Theory's,
+ * owner 2026-10-26: every section open in one list).
+ */
+export interface NavOutlineSection {
+  id: ActivitySectionId;
+  name: string;
+  active: boolean;
+  done: boolean;
+  /** Its items (grouped by `subsection`; an empty one has no heading). */
+  steps: NavStep[];
+  /** The current item's index, or -1. */
+  index: number;
+  /** Opens the item: a step, an Overview tab, the Practice Track. */
+  onPick: (index: number) => void;
 }
 
 export interface StepNavModel {
@@ -80,10 +114,27 @@ export interface StepNavModel {
   index: number;
   /** Stops anything sounding and opens that step at its preview. */
   goToStep: (index: number) => void;
+  /** A group's header button, by its subsection; left out, none. */
+  groupAction?: (subsection: string) => NavGroupAction | null;
+  /**
+   * The ‹ 3 / 12 › pager, its step list and the step line under them; false
+   * when the lesson's tab row pages its steps instead (Theory's Melody and
+   * Chords; the lesson rail still lists them). Shown by default.
+   */
+  pager?: boolean;
+  /**
+   * The lesson's whole outline: the rail lists every section's items at
+   * once instead of the current section's steps. Left out, it does that.
+   */
+  outline?: NavOutlineSection[];
   /** The ♪ Practice Track button, exactly as today; null when not offered. */
   practiceTrack: { onOpen: () => void } | null;
-  /** Beside ♪ Practice Track: piano's roll / notation / falling switch. */
-  extra?: ReactNode;
+  /**
+   * On the tool rail (owner, 2026-10-26): piano's note views (Roll /
+   * Notation / Falling) and, with `hands`, the book's hands over the keys.
+   * Left out, none.
+   */
+  noteViews?: { hands?: boolean };
 }
 
 // ── Running the step ───────────────────────────────────────────────────────
@@ -237,7 +288,19 @@ export interface GuitarLessonLayoutProps {
   /** The section-complete offer (wins over the result). */
   offer: SectionCompleteModel | null;
   theory: TheoryModel;
+  /**
+   * The tab row under the nav: the section's exercise groups and its
+   * Practice Track, as the keyboard lessons have it. Left out, none.
+   */
+  subNav?: ReactNode;
   slots: LayoutSlots;
+  /**
+   * The lesson's Overview (guitar's diatonic lessons: the scale's seven
+   * positions), in place of the visuals; the TAB stays mounted, hidden.
+   */
+  overview?: ReactNode;
+  /** The bar's words and buttons on the Overview (its "Start Melody"). */
+  barCustom?: Zones | null;
 }
 
 /**

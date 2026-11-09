@@ -23,3 +23,9 @@
 .blackKeyContainer > * {
   pointer-events: auto;
 }
+
+/* Compact: a picture of the keys in a small box (a lesson's chord card),
+   so the keys shrink with it instead of holding the dock's minimum width. */
+.compact > * {
+  min-width: 0;
+}

@@ -14,6 +14,7 @@
  * `buildStudentView.test.ts` exists to prevent.
  */
 import type { MindMapBoard } from '@/content/graph/mindMapBoard';
+import type { EchoInteractionConfig, EchoResponsePayload } from './echo/types';
 import type { PhaseKey } from './phases';
 import type { SlideDeck } from './slides/types';
 
@@ -122,6 +123,12 @@ export interface Interaction {
      */
     board?: MindMapBoard;
   };
+  /**
+   * Echo played by the class, connected (docs/echo-classroom.md): where it
+   * starts and the Teacher Settings. Results are teacher-only (Rule 2), so
+   * an `echo` interaction is never shareable.
+   */
+  echo?: EchoInteractionConfig;
 }
 
 export type InteractionType =
@@ -131,7 +138,8 @@ export type InteractionType =
   | 'draw'
   | 'check-in'
   | 'atlas'
-  | 'showcase';
+  | 'showcase'
+  | 'echo';
 
 /**
  * Discriminated payload for a single student response. Persistence is on the
@@ -155,7 +163,12 @@ export type InteractionResponsePayload =
       // (Rule 2: hard-refused from the projector like check-ins).
       kind: 'showcase';
       artifact: { projectId: string; roomId?: string; name: string };
-    };
+    }
+  /**
+   * A student's Echo rounds on a slide, upserted once a round. Teacher-only
+   * (Rule 2: hard-refused from the projector like check-ins).
+   */
+  | EchoResponsePayload;
 
 export interface InteractionResponse {
   id: string;

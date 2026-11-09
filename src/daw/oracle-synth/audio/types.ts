@@ -55,6 +55,8 @@ export interface ModTarget {
     | 'mix'
     | 'pan'
     | 'detune'
+    /** Coarse pitch, in cents (±48 semitones): sweeps, kicks, risers. */
+    | 'pitch'
     | 'blend'
     | 'cutoff'
     | 'resonance'
@@ -136,6 +138,11 @@ export interface OscillatorParams {
   warpMode: OscWarpMode; // 'none' = bypass
   warpAmount: number; // 0..1
   enabled: boolean;
+  /**
+   * Follows the keys (true, the default when absent) or plays its pitch
+   * from middle C whatever the key (false: a kick's, a tom's).
+   */
+  keyTrack?: boolean;
 }
 
 export interface SubOscillatorParams {
@@ -206,6 +213,12 @@ export interface LFOParams {
    */
   sync: boolean;
   bars: [LFONode[], LFONode[], LFONode[], LFONode[]];
+  /**
+   * One-shot: each note-on plays bar 1 once, then the LFO holds its last
+   * value (Serum's envelope-mode LFO, for risers and drops). Absent or
+   * false: the 4-bar loop, locked to the song.
+   */
+  once?: boolean;
 }
 
 // --- FX ---
@@ -289,6 +302,11 @@ export interface RoutingConfig {
   filterRouting: {
     filter1Sources: SourceId[];
     filter2Sources: SourceId[];
+    /**
+     * Filter 1 feeds Filter 2 (series, Serum's default) instead of both
+     * going to the output side by side. Absent: parallel, as before.
+     */
+    serial?: boolean;
   };
   envelopeRouting: {
     env1Sources: SourceId[];

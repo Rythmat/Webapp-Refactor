@@ -7,7 +7,8 @@ import type {
   GuitarCenter,
   GuitarScalePosition,
 } from '@/curriculum/data/guitar/types';
-import { GUITAR_STRINGS_LOW_TO_HIGH, fretToMidi } from '@/lib/guitar/fretboard';
+import { fretToMidi } from '@/lib/guitar/fretboard';
+import { GUITAR, type FrettedInstrument } from '@/lib/guitar/instrument';
 import type { FingerNumber, FretPosition } from '@/lib/guitar/types';
 
 export interface ScaleStep {
@@ -19,23 +20,29 @@ export interface ScaleStep {
 }
 
 /** The step between each pair of neighbouring notes, in play order. */
-export function stepSizes(playOrder: readonly FretPosition[]): ScaleStep[] {
+export function stepSizes(
+  playOrder: readonly FretPosition[],
+  inst: FrettedInstrument = GUITAR,
+): ScaleStep[] {
   return playOrder.slice(1).map((to, i) => {
     const from = playOrder[i];
-    const semitones = fretToMidi(to) - fretToMidi(from);
+    const semitones = fretToMidi(to, inst) - fretToMidi(from, inst);
     const size = semitones === 2 ? 'W' : semitones === 1 ? 'H' : null;
     return { from, to, semitones, size };
   });
 }
 
 /** The low and high tonic: a position runs tonic to tonic. */
-export function octavePairs(position: GuitarScalePosition): {
+export function octavePairs(
+  position: GuitarScalePosition,
+  inst: FrettedInstrument = GUITAR,
+): {
   low: FretPosition;
   high: FretPosition;
 } {
   const low = position.playOrder[0];
   const high = position.playOrder[position.playOrder.length - 1];
-  if (fretToMidi(high) - fretToMidi(low) !== 12) {
+  if (fretToMidi(high, inst) - fretToMidi(low, inst) !== 12) {
     throw new Error(`Position ${position.id} does not span an octave`);
   }
   return { low, high };
@@ -119,6 +126,7 @@ function stretchFingers(
 export function pentatonicGhosts(
   center: GuitarCenter,
   position: GuitarScalePosition,
+  inst: FrettedInstrument = GUITAR,
 ): FretPosition[] {
   const pentatonic =
     center.pentatonics[position.id === 'pentatonic2' ? 1 : 0] ??
@@ -127,10 +135,10 @@ export function pentatonicGhosts(
     .filter((_, i) => !pentatonic.degrees.includes((i + 1) as never))
     .map((s) => (center.tonicPc + s) % 12);
   const ghosts: FretPosition[] = [];
-  for (const string of GUITAR_STRINGS_LOW_TO_HIGH) {
+  for (const string of inst.stringsLowToHigh) {
     if (position.unusedStrings.includes(string)) continue;
     for (let fret = position.fretStart; fret <= position.fretEnd; fret++) {
-      if (ghostPcs.includes(fretToMidi({ string, fret }) % 12)) {
+      if (ghostPcs.includes(fretToMidi({ string, fret }, inst) % 12)) {
         ghosts.push({ string, fret });
       }
     }

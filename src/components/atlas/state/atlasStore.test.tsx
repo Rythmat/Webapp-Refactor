@@ -28,17 +28,17 @@ const event: HistoricalEvent = {
 
 function setup() {
   const store = createAtlasStore();
-  const renders = { spin: 0, width: 0, pin: 0 };
+  const renders = { spin: 0, states: 0, pin: 0 };
 
   const Spin = () => {
     renders.spin += 1;
     const rotating = useAtlasSelector((s) => s.globeRotating);
     return <span data-testid="spin">{String(rotating)}</span>;
   };
-  const Width = () => {
-    renders.width += 1;
-    const width = useAtlasSelector((s) => s.detailsPanelWidth);
-    return <span data-testid="width">{width ?? 'none'}</span>;
+  const States = () => {
+    renders.states += 1;
+    const hidden = useAtlasSelector((s) => s.cards.hidden);
+    return <span data-testid="states">{String(hidden)}</span>;
   };
   // Selects a derived object; the equality keeps it from re-rendering when
   // the object is rebuilt with the same contents.
@@ -54,7 +54,7 @@ function setup() {
   render(
     <AtlasStoreProvider store={store}>
       <Spin />
-      <Width />
+      <States />
       <Pin />
     </AtlasStoreProvider>,
   );
@@ -64,24 +64,24 @@ function setup() {
 describe('atlas store', () => {
   it('re-renders only the component whose field changed', () => {
     const { store, renders } = setup();
-    expect(renders).toEqual({ spin: 1, width: 1, pin: 1 });
+    expect(renders).toEqual({ spin: 1, states: 1, pin: 1 });
 
     act(() =>
-      store.dispatch({ type: 'SET_DETAILS_PANEL_WIDTH', payload: 512 }),
+      store.dispatch({ type: 'SET_CARD_PREFS', payload: { hidden: true } }),
     );
-    expect(screen.getByTestId('width')).toHaveTextContent('512');
-    expect(renders).toEqual({ spin: 1, width: 2, pin: 1 });
+    expect(screen.getByTestId('states')).toHaveTextContent('true');
+    expect(renders).toEqual({ spin: 1, states: 2, pin: 1 });
 
     act(() => store.dispatch({ type: 'SET_GLOBE_ROTATING', payload: true }));
     expect(screen.getByTestId('spin')).toHaveTextContent('true');
-    expect(renders).toEqual({ spin: 2, width: 2, pin: 1 });
+    expect(renders).toEqual({ spin: 2, states: 2, pin: 1 });
   });
 
   it('notifies nobody when the reducer returns the same state', () => {
     const { store, renders } = setup();
     act(() => store.dispatch({ type: 'SET_GLOBE_ROTATING', payload: false }));
     act(() => store.dispatch({ type: 'EXIT_TOUR' }));
-    expect(renders).toEqual({ spin: 1, width: 1, pin: 1 });
+    expect(renders).toEqual({ spin: 1, states: 1, pin: 1 });
   });
 
   it('keeps a selected object when the equality says it is the same', () => {

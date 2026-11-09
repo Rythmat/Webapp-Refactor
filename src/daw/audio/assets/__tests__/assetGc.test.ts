@@ -66,7 +66,7 @@ beforeEach(() => {
   drafts.clear();
   clearAssets();
   useStore.setState(useStore.getInitialState(), true);
-  vox = s().addTrack('audio', 'vocal-fx', 'Vox');
+  vox = s().addTrack('audio', 'audio-input', 'Vox');
   resetHistory();
   release = startHistory();
 });

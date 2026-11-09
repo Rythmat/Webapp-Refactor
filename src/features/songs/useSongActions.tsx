@@ -1,10 +1,14 @@
 import { useCallback, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AtlasRoutes } from '@/constants/routes';
+import { GlobeRoutes } from '@/constants/routes';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
 import { useUISound } from '@/hooks/useUISound';
-import { songGuitarLessonRoute, songLessonRoute } from './songLessonRoute';
+import {
+  songGuitarLessonRoute,
+  songLessonRoute,
+  songUkuleleLessonRoute,
+} from './songLessonRoute';
 import { studioSongUrl } from './studioSongUrl';
 import { useSavedSongsStore } from './useSavedSongsStore';
 
@@ -40,16 +44,22 @@ export function useSongActions(
   const { play } = useUISound();
   const isSaved = useSavedSongsStore((s) => Boolean(s.savedIds[song.id]));
   const toggleSavedInStore = useSavedSongsStore((s) => s.toggleSaved);
-  const onGuitar = useLearnInstrument() === 'guitar';
+  const learnInstrument = useLearnInstrument();
 
   const openInLesson = useCallback<SongActions['openInLesson']>(
     (e) => {
       stopAndPrevent(e);
       play('click');
       // The lesson on the student's instrument, in the song's key.
-      navigate(onGuitar ? songGuitarLessonRoute(song) : songLessonRoute(song));
+      navigate(
+        learnInstrument === 'guitar'
+          ? songGuitarLessonRoute(song)
+          : learnInstrument === 'ukulele'
+            ? songUkuleleLessonRoute(song)
+            : songLessonRoute(song),
+      );
     },
-    [navigate, play, onGuitar, song],
+    [navigate, play, learnInstrument, song],
   );
 
   // The editor opens the song itself (openSession's 'song' intent): it keeps
@@ -71,12 +81,9 @@ export function useSongActions(
     (e) => {
       stopAndPrevent(e);
       play('click');
-      // `/atlas` is the Globe Dashboard and ignores `?event=`; the full globe
-      // lives at `/atlas/globe` and is what consumes the param and flies to
-      // the pin. Hardcoding `/atlas` here is what made this open the
-      // dashboard instead of the song — see songDeepLinks.songGlobeRoute,
-      // which was extracted from this function and got it right.
-      navigate(`${AtlasRoutes.globe()}?event=song-${song.id}`);
+      // The Globe reads `?event=` and flies to the pin (as
+      // songDeepLinks.songGlobeRoute, which was extracted from this).
+      navigate(`${GlobeRoutes.root()}?event=song-${song.id}`);
     },
     [navigate, play, song.id],
   );

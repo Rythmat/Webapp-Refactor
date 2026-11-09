@@ -1,6 +1,6 @@
 // ── Loading the editor early (milestone 1.12a) ─────────────────────────────
 //
-// The editor is its own chunk, fetched when /studio/editor first renders.
+// The editor is its own chunk, fetched when /studio first renders.
 // These start that fetch sooner: when the app boots on an editor URL (so it
 // downloads beside sign-in instead of after it), when the Studio dashboard
 // is idle, and when a student points at, focuses or presses something there.
@@ -43,7 +43,11 @@ export function prefersSavingData(): boolean {
 /** True on an editor URL, where the boot should fetch the editor at once. */
 export function isEditorPath(pathname: string): boolean {
   return (
-    pathname === '/studio/editor' || pathname.startsWith('/studio/editor/')
+    pathname === '/studio' ||
+    pathname === '/studio/' ||
+    // The old address, on its way to /studio.
+    pathname === '/studio/editor' ||
+    pathname.startsWith('/studio/editor/')
   );
 }
 

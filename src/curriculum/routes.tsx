@@ -25,6 +25,7 @@ import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { buildAppliedTheoryFundamentalsFlow } from '@/curriculum/data/activityFlows/appliedTheoryFundamentals';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import {
+  MusicLiteracyBandRoute,
   MusicLiteracyIndexRoute,
   MusicLiteracyLessonRoute,
 } from '@/curriculum/musicLiteracy/MusicLiteracyRoutes';
@@ -36,12 +37,9 @@ import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 
-const GenreOverviewRoute = () => {
+/** A genre course's overview (LearnRoutes.genreCourse). */
+export const GenreOverviewRoute = () => {
   const { genre } = useParams<{ genre: string }>();
-  // Piano Fundamentals is free — everything else requires premium
-  if (genre === 'piano-fundamentals') {
-    return <FundamentalsOverview />;
-  }
   // Rich genre overview for genres with a profile (Funk first)
   const profile = getGenreProfile(genre ?? '');
   if (profile) {
@@ -92,6 +90,10 @@ const AppliedTheoryFundamentalsLessonRoute = () => {
       level={1}
       displayName="Applied Theory Fundamentals"
       overviewRoute={CurriculumRoutes.appliedTheoryFundamentals()}
+      // Back to this key's lesson: it is no genre course's level.
+      practiceReturnTo={() =>
+        CurriculumRoutes.appliedTheoryFundamentalsLesson({ key: key ?? 'c' })
+      }
     />
   );
 };
@@ -102,16 +104,19 @@ const FundamentalsLessonRoute = () => {
   return <FundamentalsLessonContainer sectionId={sectionId ?? '1'} />;
 };
 
-const GenreLessonRoute = () => {
+/** A genre course's level (LearnRoutes.genreLesson). */
+export const GenreLessonRoute = () => {
   const { genre, level } = useParams<{ genre: string; level: string }>();
   const [searchParams] = useSearchParams();
   const genreSlug = genre ?? '';
   const levelNum = parseInt(level ?? '1');
-  const initialSection = (searchParams.get('section') ?? 'A') as
+  // No section named: the lesson opens on its Overview (as Theory's).
+  const initialSection = (searchParams.get('section') ?? undefined) as
     | 'A'
     | 'B'
     | 'C'
-    | 'D';
+    | 'D'
+    | undefined;
   const [flow, setFlow] = useState<ActivityFlow | null>(null);
 
   useEffect(() => {
@@ -156,6 +161,10 @@ export function curriculumPages() {
     ),
     children: [
       {
+        path: CurriculumRoutes.pianoFundamentals.definition,
+        element: <FundamentalsOverview />,
+      },
+      {
         path: CurriculumRoutes.fundamentalsSection.definition,
         element: <FundamentalsLessonRoute />,
       },
@@ -180,17 +189,14 @@ export function curriculumPages() {
         path: CurriculumRoutes.musicLiteracy.definition,
         element: <MusicLiteracyIndexRoute />,
       },
+      // Part 3, before a lesson's ':id' (a static segment ranks first anyway).
+      {
+        path: CurriculumRoutes.musicLiteracyBand.definition,
+        element: <MusicLiteracyBandRoute />,
+      },
       {
         path: CurriculumRoutes.musicLiteracyLesson.definition,
         element: <MusicLiteracyLessonRoute />,
-      },
-      {
-        path: CurriculumRoutes.genre.definition,
-        element: <GenreOverviewRoute />,
-      },
-      {
-        path: CurriculumRoutes.genreLevel.definition,
-        element: <GenreLessonRoute />,
       },
     ],
   };

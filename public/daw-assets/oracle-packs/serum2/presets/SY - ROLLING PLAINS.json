@@ -10,7 +10,7 @@
       "fine": 0,
       "wtPosition": 0.044283818511758,
       "pan": 0,
-      "level": 0.75,
+      "level": 1,
       "unisonVoices": 1,
       "unisonDetune": 0.25,
       "unisonBlend": 0.5,
@@ -26,7 +26,7 @@
       "fine": 0,
       "wtPosition": 0,
       "pan": 0,
-      "level": 0.75,
+      "level": 1,
       "unisonVoices": 3,
       "unisonDetune": 0.026323905955977445,
       "unisonBlend": 0.5,
@@ -373,7 +373,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.7172080278396606,
+      "amount": 0.819660551663388,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -418,7 +418,7 @@
         "source": "flt2",
         "param": "level"
       },
-      "amount": 0.49894535541534424,
+      "amount": 0.9978907108306885,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -443,7 +443,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.30540677512182507,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -465,7 +465,7 @@
     },
     "compressor": {
       "enabled": true,
-      "threshold": 0,
+      "threshold": -13.596299947796073,
       "ratio": 20,
       "attack": 0.01,
       "release": 0.2

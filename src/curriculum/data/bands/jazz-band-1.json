@@ -1,10 +1,10 @@
 {
   "id": "jazz-band-1",
   "name": "Jazz Band 1",
-  "description": "Swing ride with feathered kick, and a walking bass one chord per bar.",
+  "description": "Swing drums, walking or two-feel bass, and rootless piano comping from Peter’s ICP voicings.",
   "genre": "jazz",
   "style": "Swing",
-  "status": "draft",
+  "status": "live",
   "order": 50,
   "timeSignature": [4, 4],
   "tempo": 120,
@@ -28,9 +28,411 @@
         "id": "walking-1-chord-per-bar"
       },
       "player": "jazz-bassist-1"
+    },
+    {
+      "id": "keys",
+      "name": "Keys comping",
+      "instrument": "keys",
+      "player": "jazz-pianist-1",
+      "sound": "soundfont:0"
     }
   ],
   "preview": {
-    "chart": "| Dm7 | G7 | Cmaj7 | Cmaj7 |"
-  }
+    "chart": "Cmin7"
+  },
+  "variations": [
+    {
+      "id": "l1-blues",
+      "name": "L1 · Blues",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l1-blues"
+        }
+      },
+      "tempo": 100,
+      "style": "jazz-l1-blues",
+      "swing": 66
+    },
+    {
+      "id": "l1-c7",
+      "name": "L1 · C7 vamp",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "part",
+          "id": "jazz-bassist-1-blues-line"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l1-c7"
+        }
+      },
+      "tempo": 100,
+      "swing": 66,
+      "style": "jazz-l1-blues"
+    },
+    {
+      "id": "l1-cm7",
+      "name": "L1 · Cm7 vamp",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l1-cm7"
+        }
+      },
+      "tempo": 100,
+      "swing": 66,
+      "style": "jazz-l1-blues"
+    },
+    {
+      "id": "l2-cjam",
+      "name": "L2 · C Jam Blues",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l2-cjam"
+        }
+      },
+      "tempo": 110,
+      "style": "jazz-l2-transfer",
+      "swing": 67
+    },
+    {
+      "id": "l2-cmaj9",
+      "name": "L2 · Cmaj9 vamp",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered-jimmy-cobb"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l2-cmaj9"
+        }
+      },
+      "tempo": 110,
+      "swing": 66
+    },
+    {
+      "id": "l2-dmin9",
+      "name": "L2 · Dmin9 vamp",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l2-dmin9"
+        }
+      },
+      "tempo": 110,
+      "swing": 67
+    },
+    {
+      "id": "l2-esus4b9",
+      "name": "L2 · Esus4♭9 vamp",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l2-esus4b9"
+        }
+      },
+      "tempo": 110,
+      "swing": 67
+    },
+    {
+      "id": "l2-fmaj7s11",
+      "name": "L2 · Fmaj7♯11 vamp",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l2-fmaj7s11"
+        }
+      },
+      "tempo": 110,
+      "swing": 66
+    },
+    {
+      "id": "l2-g13sus4",
+      "name": "L2 · G13sus4 vamp",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered-jimmy-cobb"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l2-g13sus4-vamp-take-139"
+        }
+      },
+      "tempo": 110,
+      "swing": 66
+    },
+    {
+      "id": "l2-amin7b6",
+      "name": "L2 · Amin7♭6 vamp",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l2-amin7b6"
+        }
+      },
+      "tempo": 110,
+      "swing": 67
+    },
+    {
+      "id": "l2-iivi",
+      "name": "L2 · ii–V–I, 7-3-5 area code",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1-jimmy-cobb"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l2-iivi"
+        }
+      },
+      "tempo": 110,
+      "swing": 66
+    },
+    {
+      "id": "l3-iivi-f",
+      "name": "L3 · ii–V–I in F",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1-jimmy-cobb"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l3-iivi-f"
+        }
+      },
+      "tempo": 120,
+      "style": "jazz-l3-ii-v-i",
+      "swing": 66
+    },
+    {
+      "id": "l3-iivi-f-2bar",
+      "name": "L3 · ii–V in one bar, F",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1-jimmy-cobb"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-2-chords-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l3-iivi-f-2bar"
+        }
+      },
+      "tempo": 120,
+      "swing": 66
+    },
+    {
+      "id": "l3-v-i",
+      "name": "L3 · V–I in C",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-1-jimmy-cobb"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-2-chords-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l3-v-i"
+        }
+      },
+      "tempo": 120,
+      "swing": 66
+    },
+    {
+      "id": "l3-a7-dm",
+      "name": "L3 · A7♭9 – Dm6, D minor",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l3-a7-9-dm6-d-minor-take-140"
+        }
+      },
+      "tempo": 120,
+      "swing": 66,
+      "style": "jazz-l3-ii-v-i"
+    },
+    {
+      "id": "l3-a7-dm-half",
+      "name": "L3 · A7♭9 Dm6 in one bar",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-2-chords-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l3-a7-9-dm6-in-one-bar-take-141"
+        }
+      },
+      "tempo": 120,
+      "swing": 66,
+      "style": "jazz-l3-ii-v-i"
+    },
+    {
+      "id": "l3-iivi-c",
+      "name": "L3 · ii–V–I in C",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l3-ii-v-i-in-c-take-142"
+        }
+      },
+      "tempo": 120,
+      "swing": 67,
+      "style": "jazz-l3-ii-v-i"
+    },
+    {
+      "id": "l3-i-vi-ii-v",
+      "name": "L3 · I–VI–ii–V in C",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-kick-on-4-jimmy-cobb"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-2-chords-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l3-i-vi-ii-v-in-c-take-143"
+        }
+      },
+      "tempo": 120,
+      "style": "jazz-l3-ii-v-i",
+      "swing": 66,
+      "sounds": {
+        "drums": "drum-machine:jazzy_custom_natural"
+      }
+    },
+    {
+      "id": "l3-quartal",
+      "name": "L3 · Quartal pedal on Cm7",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-modern-4-bar"
+        },
+        "bass": {
+          "kind": "part",
+          "id": "jazz-bassist-1-walking-fast-iivi"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l3-quartal-pedal-on-cm7-take-145"
+        }
+      },
+      "tempo": 140,
+      "style": "jazz-l3-ii-v-i",
+      "swing": 66
+    }
+  ]
 }

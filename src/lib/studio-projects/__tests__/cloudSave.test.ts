@@ -163,7 +163,7 @@ function holdNextReconcile(): () => void {
 function trackProject(name = 'Beat Tape'): void {
   resetSessionToEmpty();
   s().setProjectName(name);
-  const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  const keys = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(keys, {
     id: 'clip-1',
     startTick: 0,
@@ -659,7 +659,7 @@ describe('saves', () => {
 
     await openFromCloud('p1');
     // A take recorded into Project Y, its bytes not uploaded yet.
-    const guitar = s().addTrack('audio', 'guitar-fx', 'Guitar');
+    const guitar = s().addTrack('audio', 'audio-input', 'Guitar');
     s().updateTrack(guitar, {
       audioClips: [
         {

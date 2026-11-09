@@ -88,6 +88,7 @@ const IS_VALID: {
   timelineTripletMode: isBoolean,
   followPlayhead: isBoolean,
   chordRulerShowNotes: isBoolean,
+  chordAutoAnalyze: isBoolean,
   singleKeyShortcuts: isBoolean,
   inspectorOpenByView: isInspectorOpenByView,
   inspectorWidth: isInspectorWidth,
@@ -96,6 +97,7 @@ const IS_VALID: {
   dockHeights: isDockHeights,
   readoutMode: isReadoutMode,
   hoverHints: isBoolean,
+  recordArmExclusive: isBoolean,
 };
 
 /**

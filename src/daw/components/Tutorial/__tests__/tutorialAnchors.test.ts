@@ -10,13 +10,15 @@ import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 import { FX_CATALOG } from '@/daw/data/libraryItems';
 import { defaultReturns } from '@/daw/store/returnsSlice';
+import { MAX_TOTAL_TRACKS } from '@/daw/store/tracksSlice';
 import { TUTORIALS } from '../tutorials';
 import { ANCHOR_ALIASES, currentAnchorId } from '../anchorRegistry';
 
 /**
  * Anchor inventory for the Studio lessons (milestone 1.0 baseline). Every id
- * a lesson step spotlights (`target` in tutorials.ts) must be rendered by the
- * editor as a `data-tutorial-id`, so a renamed or removed anchor fails here,
+ * a lesson step spotlights (`target` in tutorials.ts), and every id its demo's
+ * cursor goes to (`demo[].target`), must be rendered by the editor as a
+ * `data-tutorial-id`, so a renamed or removed anchor fails here,
  * without a browser, before a student meets a lesson that points at nothing.
  *
  * The test reads every source file under src/daw that is not a test, parses
@@ -30,7 +32,11 @@ import { ANCHOR_ALIASES, currentAnchorId } from '../anchorRegistry';
  *   tab list, the FX catalog, the return buses, …), so `chanstrip-tab-prism`
  *   passes and a typo such as `chanstrip-tab-prsim` does not;
  * - a string literal passed to `useTutorialAnchor(…)` or `registerAnchor(…)`
- *   (anchorRegistry.ts) is an exact id too.
+ *   (anchorRegistry.ts) is an exact id too, and so is a
+ *   `'data-tutorial-id': '…'` handed on in an object (DawDialog's `data`);
+ * - a Segmented option's `anchor` (the control renders it as the segment's
+ *   `data-tutorial-id`) is an exact id, read from the option lists
+ *   SEGMENT_ANCHORS names.
  *
  * A step's id is looked up through ANCHOR_ALIASES (renamed anchors), and
  * each alias must point at an id the editor renders, from one it no longer
@@ -59,9 +65,21 @@ const EDITOR_ENTRY = join(DAW, 'DawApp.tsx');
 /**
  * Step target ids missing from the editor today, as
  * `'<lesson id>/<step id>/<target id>': '<audit finding id>: why'`.
- * Empty: every id the lessons use is rendered.
+ *
+ * Studio Basics was written for the shell before Stage B; its nine lessons
+ * are rewritten for the Stage B shell in a phase of their own. Until then
+ * the controls it names that Stage B has no place for are listed here (the
+ * moved ones resolve through ANCHOR_ALIASES or their new controls).
+ * Lessons 1 to 5 are rewritten and name none.
  */
-const KNOWN_MISSING: Readonly<Record<string, string>> = {};
+const KNOWN_MISSING: Readonly<Record<string, string>> = {
+  // The dock's tab bar became the bottom rail's Instrument · FX ·
+  // Automation · Edit (2026-10-21); the owner hasn't placed Prism and
+  // Grooves yet. Each step still opens its panel (requires); the grooves
+  // moved into the drums' Instrument tab (2026-10-22).
+  'make-first-track/open-prism/chanstrip-tab-prism':
+    'dock views: Prism has no button until the owner places it',
+};
 
 const SKIPPED_DIRS = new Set(['node_modules', '__tests__', '__mocks__']);
 
@@ -150,6 +168,15 @@ function collectAnchors(files: string[]): Anchors {
           collectValue(value.expression, path, anchors);
         }
       }
+      // An attribute handed on as an object ({ 'data-tutorial-id': … }), as
+      // DawDialog's `data` takes it.
+      if (
+        ts.isPropertyAssignment(node) &&
+        ts.isStringLiteral(node.name) &&
+        node.name.text === 'data-tutorial-id'
+      ) {
+        collectValue(node.initializer, path, anchors);
+      }
       ts.forEachChild(node, visit);
     };
     visit(source);
@@ -204,12 +231,86 @@ function constValues(file: string, name: string, prop: string): string[] {
   return values;
 }
 
+/**
+ * The option lists a Segmented control renders, each option's `anchor` as
+ * its segment's `data-tutorial-id` (ui/Segmented.tsx): file under src/daw
+ * and the list's const name.
+ */
+const SEGMENT_ANCHORS: readonly [file: string, list: string][] = [
+  ['shell/bottombar/ClickToggle.tsx', 'COUNT_IN_CHOICES'],
+  ['shell/export/ExportDialog.tsx', 'SONG_NOTATION_FORMATS'],
+  ['shell/export/ExportDialog.tsx', 'TRACK_NOTATION_FORMATS'],
+];
+
+for (const [file, list] of SEGMENT_ANCHORS) {
+  for (const id of constValues(file, list, 'anchor')) {
+    add(ANCHORS.exact, id, join(DAW, file));
+  }
+}
+
+/**
+ * The `id` of every menu item (`{ type: 'item', id: '…' }`) written out in
+ * `file` under src/daw: the items a menu model builds.
+ */
+function menuItemIds(file: string): string[] {
+  const source = parse(join(DAW, file));
+  const ids: string[] = [];
+  const visit = (node: ts.Node) => {
+    if (ts.isObjectLiteralExpression(node)) {
+      let type: string | null = null;
+      let id: string | null = null;
+      for (const p of node.properties) {
+        if (!ts.isPropertyAssignment(p)) continue;
+        const value = unwrap(p.initializer);
+        if (!ts.isStringLiteralLike(value)) continue;
+        if (p.name.getText(source) === 'type') type = value.text;
+        if (p.name.getText(source) === 'id') id = value.text;
+      }
+      if (type === 'item' && id) ids.push(id);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return ids;
+}
+
 /** Effects the FX browser offers, and so the slots the effect rack can show. */
 const AUDIO_EFFECTS = FX_CATALOG.flatMap((item) =>
   item.dragPayload.kind === 'audio-effect' ? [item.dragPayload.effectType] : [],
 );
 
 const RETURN_IDS = defaultReturns().map((bus) => bus.id);
+
+/** A track's place, top track 0, as the per-track anchors number it. */
+const TRACK_INDEXES = Array.from({ length: MAX_TOTAL_TRACKS }, (_, i) =>
+  String(i),
+);
+
+/** The numbers 0 … n-1, as an id's suffix spells them. */
+const upTo = (n: number) => Array.from({ length: n }, (_, i) => String(i));
+
+/** Every `a-b` of two lists: a clip of a track, a chord of a bar. */
+const pairs = (a: string[], b: string[]) =>
+  a.flatMap((x) => b.map((y) => `${x}-${y}`));
+
+/** A track row's per-track controls (TrackRow.tsx), by track index. */
+const TRACK_HEADER_TEMPLATES = Object.fromEntries(
+  [
+    'track-header-',
+    'track-name-',
+    'track-instrument-',
+    'track-mute-',
+    'track-solo-',
+    'track-arm-',
+    'track-volume-',
+  ].map((prefix) => [
+    prefix,
+    {
+      file: 'shell/tracklist/TrackRow.tsx',
+      suffixes: () => TRACK_INDEXES,
+    },
+  ]),
+);
 
 interface TemplateSource {
   /** The file under src/daw whose template renders these ids. */
@@ -220,26 +321,54 @@ interface TemplateSource {
 
 /** The template anchors the lessons can use, by the text before `${`. */
 const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
+  ...TRACK_HEADER_TEMPLATES,
+  'rail-': {
+    file: 'shell/inspector/SideRail.tsx',
+    suffixes: () =>
+      constValues('shell/inspector/railPanels.ts', 'RAIL_PANELS', 'id'),
+  },
+  'clip-menu-': {
+    file: 'shell/canvas/clipMenu/CanvasMenu.tsx',
+    suffixes: () => menuItemIds('shell/canvas/clipMenu/clipMenuModel.ts'),
+  },
+  'timeline-lane-': {
+    file: 'components/Timeline/TimelineAnchors.tsx',
+    suffixes: () => TRACK_INDEXES,
+  },
+  'timeline-lane-end-': {
+    file: 'components/Timeline/TimelineAnchors.tsx',
+    suffixes: () => TRACK_INDEXES,
+  },
+  'timeline-clip-': {
+    file: 'components/Timeline/TimelineAnchors.tsx',
+    // A track's clips, in time order: a lesson's song has a handful.
+    suffixes: () => pairs(TRACK_INDEXES, upTo(16)),
+  },
+  'piano-roll-tool-': {
+    file: 'components/PianoRoll/PianoRoll.tsx',
+    suffixes: () => ['select', 'draw', 'erase'],
+  },
+  'leadsheet-chord-': {
+    file: 'components/LeadSheet/LeadSheetMeasure.tsx',
+    // A bar's chords, by bar and place in it.
+    suffixes: () => pairs(upTo(64), upTo(4)),
+  },
   'add-track-': {
-    file: 'shell/tracklist/AddTrackSheet.tsx',
-    // One tile per choice and per category with a second step
-    // (trackTemplates.ts); Import and the library chip are exact ids.
-    suffixes: () => [
-      ...constValues(
+    file: 'shell/tracklist/AddTrackMenu.tsx',
+    // One row per MIDI instrument in Add MIDI's submenu (trackTemplates.ts);
+    // Add Audio, Add MIDI and Upload are exact ids.
+    suffixes: () =>
+      constValues(
         'shell/tracklist/trackTemplates.ts',
         'TRACK_CHOICES',
         'anchor',
       ),
-      ...constValues(
-        'shell/tracklist/trackTemplates.ts',
-        'TRACK_CATEGORIES',
-        'anchor',
-      ),
-    ],
   },
+  // The bottom rail's dock views (2026-10-21): Instrument, FX and Edit.
+  // Prism and Grooves have no button until the owner places them.
   'chanstrip-tab-': {
-    file: 'shell/dock/Dock.tsx',
-    suffixes: () => constValues('shell/dock/dockTabs.ts', 'DOCK_TABS', 'id'),
+    file: 'shell/bottombar/DockViews.tsx',
+    suffixes: () => constValues('shell/dock/dockViews.ts', 'DOCK_VIEWS', 'tab'),
   },
   'view-switch-': {
     file: 'shell/topbar/ViewTabs.tsx',
@@ -249,11 +378,12 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     ],
   },
   'fx-add-': {
-    file: 'shell/inspector/panels/FxBody.tsx',
+    file: 'shell/dock/EffectPicker.tsx',
     suffixes: () => AUDIO_EFFECTS,
   },
+  // One effect card per slot in a rack's row (the floating frame).
   'fx-slot-': {
-    file: 'components/Effects/EffectsPanel.tsx',
+    file: 'components/Effects/FxCards.tsx',
     suffixes: () => AUDIO_EFFECTS,
   },
   'mixer-sends-': {
@@ -267,15 +397,6 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
   'return-fx-': {
     file: 'shell/mix/RackDock.tsx',
     suffixes: () => RETURN_IDS,
-  },
-  'sampler-mode-': {
-    file: 'components/Controls/SamplerChopsView.tsx',
-    suffixes: () =>
-      constValues(
-        'components/Controls/SamplerChopsView.tsx',
-        'PLAYBACK_MODES',
-        'id',
-      ),
   },
 };
 
@@ -431,7 +552,12 @@ describe('tutorial anchor inventory', () => {
   for (const lesson of TUTORIALS) {
     describe(lesson.id, () => {
       for (const step of lesson.steps) {
-        for (const id of targetsOf(step.target)) {
+        // The step's own target, and the ones its demo's cursor goes to.
+        const ids = new Set([
+          ...targetsOf(step.target),
+          ...(step.demo ?? []).flatMap((beat) => targetsOf(beat.target)),
+        ]);
+        for (const id of ids) {
           const key = `${lesson.id}/${step.id}/${id}`;
           const finding = KNOWN_MISSING[key];
           const test = finding ? it.fails : it;

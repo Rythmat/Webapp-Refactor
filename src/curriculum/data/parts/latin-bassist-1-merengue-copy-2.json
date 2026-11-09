@@ -1,0 +1,122 @@
+{
+  "id": "latin-bassist-1-merengue-copy-2",
+  "name": "Latin-Bassist-1 Bachata 1-5-1",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "bass-electric:finger",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 50
+    },
+    {
+      "tick": 720,
+      "duration": 120,
+      "midi": 40,
+      "velocity": 59
+    },
+    {
+      "tick": 960,
+      "duration": 240,
+      "midi": 47,
+      "velocity": 49
+    },
+    {
+      "tick": 1440,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 57
+    },
+    {
+      "tick": 1920,
+      "duration": 240,
+      "midi": 33,
+      "velocity": 50
+    },
+    {
+      "tick": 2640,
+      "duration": 120,
+      "midi": 33,
+      "velocity": 59
+    },
+    {
+      "tick": 2880,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 49
+    },
+    {
+      "tick": 3360,
+      "duration": 240,
+      "midi": 33,
+      "velocity": 57
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 35,
+      "velocity": 50
+    },
+    {
+      "tick": 4560,
+      "duration": 120,
+      "midi": 35,
+      "velocity": 59
+    },
+    {
+      "tick": 4800,
+      "duration": 240,
+      "midi": 42,
+      "velocity": 49
+    },
+    {
+      "tick": 5280,
+      "duration": 240,
+      "midi": 35,
+      "velocity": 57
+    },
+    {
+      "tick": 5760,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 50
+    },
+    {
+      "tick": 6480,
+      "duration": 120,
+      "midi": 40,
+      "velocity": 59
+    },
+    {
+      "tick": 6720,
+      "duration": 240,
+      "midi": 47,
+      "velocity": 49
+    },
+    {
+      "tick": 7200,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 57
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "latin",
+  "chordSymbols": ["Em", "Am", "B7", "Em"],
+  "style": "Bachata"
+}

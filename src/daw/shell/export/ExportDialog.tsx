@@ -18,6 +18,8 @@ import {
   planProjectMidi,
 } from '@/daw/commands/projectCommands';
 import { FX_LABEL } from '@/daw/data/libraryItems';
+import { instrumentLabel } from '@/daw/instruments/simpleInstruments';
+import { saveLibraryAudio } from '@/daw/library/audioLibrary';
 import { notice } from '@/daw/shell/notice';
 import { useStore, type Track } from '@/daw/store';
 import { Button } from '@/daw/ui/Button';
@@ -63,13 +65,46 @@ const FORMATS: { id: AudioExportFormat; label: string; hint: string }[] = [
 ];
 const BIT_DEPTHS: WavBitDepth[] = [16, 24];
 
-const AMP_TRACKS = new Set(['guitar-fx', 'bass-fx']);
+/**
+ * The Notation side's formats, for the whole song and for one track. Each
+ * segment carries a lesson anchor (export-notation-<format>), so Save and
+ * Export can point at the MusicXML one.
+ */
+const SONG_NOTATION_FORMATS: {
+  value: NotationFormat;
+  label: string;
+  anchor: string;
+}[] = [
+  { value: 'midi', label: 'MIDI file', anchor: 'export-notation-midi' },
+  {
+    value: 'leadsheet',
+    label: 'MusicXML: lead sheet',
+    anchor: 'export-notation-leadsheet',
+  },
+  {
+    value: 'score',
+    label: 'MusicXML: full score',
+    anchor: 'export-notation-score',
+  },
+];
+const TRACK_NOTATION_FORMATS: {
+  value: NotationFormat;
+  label: string;
+  anchor: string;
+}[] = [
+  { value: 'midi', label: 'MIDI file', anchor: 'export-notation-midi' },
+  {
+    value: 'score',
+    label: 'MusicXML: its part',
+    anchor: 'export-notation-score',
+  },
+];
 
-/** Whether the amp a guitar or bass track plays through names a model this
- *  build doesn't bundle: the export can't load it (pedalChainBuilder), so
- *  that amp passes the signal through. */
+/** Whether the amp an Audio track plays through names a model this build
+ *  doesn't bundle: the export can't load it (pedalChainBuilder), so that
+ *  amp passes the signal through. */
 function ampModelLeftOut(t: Track): boolean {
-  if (!AMP_TRACKS.has(t.instrument) || t.audioClips.length === 0) return false;
+  if (t.instrument !== 'audio-input' || t.audioClips.length === 0) return false;
   // The first amp is the one that gets a model, live and in an export.
   const amp = t.guitarChain?.find((b) => b.type === 'nam-amp');
   if (!amp?.enabled || !amp.namModelId) return false;
@@ -376,8 +411,23 @@ export function ExportDialog({
           overall: 0,
         },
       });
+      // Each stem is also kept in the Studio Library's Stems.
+      const project = useStore.getState().projectName;
       return exportStems(
-        base,
+        {
+          ...base,
+          onStem: ({ track, bytes, contentType }) =>
+            void saveLibraryAudio({
+              kind: 'stem',
+              name: `${project} (${track.name})`,
+              tag: instrumentLabel(track),
+              project,
+              color: track.color,
+              contentType,
+              size: bytes.byteLength,
+              blob: new Blob([bytes], { type: contentType }),
+            }),
+        },
         (p) => setProgress({ kind: 'stems', p }),
         controller.signal,
       );
@@ -398,8 +448,11 @@ export function ExportDialog({
       const result = await runAudio();
       const { blob, filename } = result;
       downloadAudioBlob(blob, filename);
-      // Session-only: the lesson engine watches for a finished bounce.
+      // Session-only: the lesson engine watches for a finished bounce, and
+      // a course lesson's Export Audio step for the done moment (a stem or
+      // one track's file counts, as the bounce does).
       useStore.getState().markAudioExported();
+      useStore.getState().markDone('exportAudio');
       const skipped = (result as { skipped?: string[] }).skipped ?? [];
       notice({
         title: `Exported ${filename}`,
@@ -468,6 +521,9 @@ export function ExportDialog({
           }),
           file.filename,
         );
+        // A lesson's MusicXML step watches for it (exportProjectMidi marks
+        // a MIDI file's own).
+        useStore.getState().markDone('exportMusicXml');
         filename = file.filename;
       }
       notice({ title: filename ? `Exported ${filename}` : 'Exported' });
@@ -484,17 +540,8 @@ export function ExportDialog({
     }
   };
 
-  const notationOptions: { value: NotationFormat; label: string }[] =
-    whatNow === 'track'
-      ? [
-          { value: 'midi', label: 'MIDI file' },
-          { value: 'score', label: 'MusicXML: its part' },
-        ]
-      : [
-          { value: 'midi', label: 'MIDI file' },
-          { value: 'leadsheet', label: 'MusicXML: lead sheet' },
-          { value: 'score', label: 'MusicXML: full score' },
-        ];
+  const notationOptions =
+    whatNow === 'track' ? TRACK_NOTATION_FORMATS : SONG_NOTATION_FORMATS;
   const notationNow: NotationFormat =
     whatNow === 'track' && notation === 'leadsheet' ? 'midi' : notation;
 
@@ -511,7 +558,7 @@ export function ExportDialog({
       parts.push(`Track ${index + 1} of ${total} · ${trackName}`);
     }
     if (progress.p.stage === 'encode') parts.push('encoding');
-    progressLabel = stopping ? 'Cancelling…' : parts.join(' · ');
+    progressLabel = stopping ? 'Canceling…' : parts.join(' · ');
   }
 
   const masteringNames = masteringChain.map((fx) => FX_LABEL[fx] ?? fx);
@@ -572,6 +619,7 @@ export function ExportDialog({
             <Button
               variant="primary"
               data-testid="export-notation-run"
+              data-tutorial-id="export-notation-run"
               title={blocked ?? undefined}
               onClick={() => void handleNotation()}
               disabled={busy || blocked !== null}

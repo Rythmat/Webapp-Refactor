@@ -2,7 +2,7 @@
 
 Stage A of the Studio editor overhaul set out to stop the editor losing work, make it reload
 correctly and take the lag out of playback and editing, without a visible redesign
-(`docs/prompts/studio-overhaul/reference/plan.md`). This report compares the baseline recorded
+(`docs/prompts/studio-overhaul/reference/plan.md`, retired 2026-10-21 and kept in git at `487930ff`). This report compares the baseline recorded
 before any fix (2026-10-06, commit `f96b3ecc`, `baselines/2026-10-06/`) with the final run at the
 end of milestone 1.17a, for every Stage A exit criterion in the plan.
 
@@ -242,7 +242,7 @@ slot included, so they don't count against the criterion. Their source hasn't be
 ## Audit ledger
 
 The ledger now records each finding's status after Stage A, with the commits that closed it:
-`docs/prompts/studio-overhaul/reference/phase-map.json`. The original ledger is on
+`docs/prompts/studio-overhaul/reference/phase-map.json`, retired 2026-10-21 and kept in git at `487930ff`. The original ledger is on
 `studio/audit-archive` (PR #188), which isn't merged.
 
 The statuses come from the finding ids that the Stage A commits and the status log cite. Findings

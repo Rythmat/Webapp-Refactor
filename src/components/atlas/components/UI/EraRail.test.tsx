@@ -23,7 +23,7 @@ function Sync() {
   return null;
 }
 
-function setup(path = '/atlas/globe?view=timeline') {
+function setup(path = '/globe?view=timeline') {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <AtlasStoreProvider>
@@ -53,13 +53,15 @@ describe('EraRail', () => {
       screen.getByRole('button', { name: 'Postwar & Revolution' }),
     );
     const [from, to] = screen.getAllByRole('slider');
+    // Both ends land with the flight's last frame; under load one end can
+    // read its final year a frame before the other.
     await waitFor(
-      () => expect(from.getAttribute('aria-valuenow')).toBe('1946'),
-      {
-        timeout: 2000,
+      () => {
+        expect(from.getAttribute('aria-valuenow')).toBe('1946');
+        expect(to.getAttribute('aria-valuenow')).toBe('1979');
       },
+      { timeout: 2000 },
     );
-    expect(to.getAttribute('aria-valuenow')).toBe('1979');
   });
 
   it('moves one end with the arrow keys', async () => {
@@ -70,11 +72,5 @@ describe('EraRail', () => {
     await waitFor(() =>
       expect(from.getAttribute('aria-valuenow')).toBe('1910'),
     );
-  });
-
-  it('lets all of time back in on the globe', () => {
-    setup('/atlas/globe?from=1946&to=1979');
-    fireEvent.click(screen.getByRole('button', { name: 'Show all years' }));
-    expect(screen.queryByRole('button', { name: 'Show all years' })).toBeNull();
   });
 });

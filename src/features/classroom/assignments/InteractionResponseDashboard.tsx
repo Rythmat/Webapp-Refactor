@@ -70,7 +70,33 @@ const AggregateBody = ({ aggregate }: { aggregate: ResponseAggregate }) => {
       return <AtlasBody aggregate={aggregate} />;
     case 'showcase':
       return <ShowcaseBody aggregate={aggregate} />;
+    case 'echo':
+      return <EchoBody aggregate={aggregate} />;
   }
+};
+
+/** Echo (class): good echoes of rounds, and the best streak, per student. */
+const EchoBody = ({
+  aggregate,
+}: {
+  aggregate: Extract<ResponseAggregate, { kind: 'echo' }>;
+}) => {
+  if (aggregate.rows.length === 0) return <EmptyRow label="No echoes yet." />;
+  return (
+    <ul className="flex flex-col gap-2">
+      {aggregate.rows.map((r) => (
+        <li
+          key={r.enrollmentId}
+          className="flex items-center justify-between gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-sm text-white/80"
+        >
+          <span className="truncate">{r.displayName}</span>
+          <span className="shrink-0 text-xs tabular-nums text-white/50">
+            {r.good} of {r.rounds} good · best streak {r.bestStreak}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
 };
 
 const ShowcaseBody = ({

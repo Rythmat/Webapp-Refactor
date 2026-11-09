@@ -6,7 +6,7 @@ import { getChordScales } from '../chordScaleData';
 import { getNoteSpelling } from '../noteSpellingLookup';
 
 /**
- * Insight's chord cards link into `/learn/:mode/:key`. Insight and Theory used
+ * Insight's chord cards link into `/learn/keyboard/:mode/:key`. Insight and Theory used
  * to keep separate mode vocabularies — Insight emitted kebab-case
  * ('phrygian-dominant'), Theory keys off the Prism API spelling
  * ('phrygiandominant') — so 25 of the 35 links resolved to nothing and
@@ -34,11 +34,11 @@ describe('Insight → Theory lesson links', () => {
   it('percent-encodes accidentals so they never become URL fragments', () => {
     // 'ionian#5' must not ship a bare '#', which a browser reads as a fragment
     // delimiter and would strip from the route param entirely.
-    const path = LearnRoutes.lesson({
+    const path = LearnRoutes.keyboardLesson({
       mode: MODE_TO_SLUG.ionianSharp5,
       key: 'c',
     });
-    expect(path).toBe('/learn/ionian%235/c');
+    expect(path).toBe('/learn/keyboard/ionian%235/c');
     expect(path).not.toContain('#');
   });
 

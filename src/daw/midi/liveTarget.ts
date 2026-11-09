@@ -1,3 +1,4 @@
+import { monitorsInput } from '@/daw/model/monitoring';
 import { useStore, type AllSlices } from '@/daw/store';
 
 // ── Where live notes and takes go (milestone 1.15) ─────────────────────────
@@ -6,9 +7,31 @@ import { useStore, type AllSlices } from '@/daw/store';
 // notes sound on that track and takes land there, whatever the Studio has
 // armed, monitored or selected since (practice-tutorial-11). Elsewhere a take
 // records onto the first record-armed MIDI track, and notes sound on the
-// monitored tracks (liveNotes.liveMidiTargets). Kept apart from liveNotes,
+// tracks monitoring their input: armed and monitoring (model/monitoring,
+// the record button's middle state). Nothing else hears them, the selected
+// track neither (owner, 2026-10-22: a selected track played whatever its
+// monitoring said): a MIDI device's notes and the computer keyboard's alike
+// (liveNotes.liveMidiTargets). Clicking the dock's own keys and pads plays
+// their track directly (auditionNote), not through here.
+// Kept apart from liveNotes,
 // which reaches the instruments, so the take recorder can ask without
 // loading them.
+//
+// A note from a MIDI device (`source`, its input id) only reaches a track
+// listening to that device or to All Devices (the track's midiInputId, set
+// from the ▾ in its header, 2026-10-21). The computer keyboard and the
+// on-screen keys have no source and reach every target.
+
+/**
+ * Whether a track hears notes from `source` (no source: every track does).
+ * A track this state doesn't hold has no input set: it hears everything.
+ */
+export function trackHearsInput(
+  track: { midiInputId: string | null } | undefined,
+  source?: string | null,
+): boolean {
+  return !source || !track?.midiInputId || track.midiInputId === source;
+}
 
 let practiceTrackId: string | null = null;
 
@@ -36,28 +59,35 @@ export function practiceLiveTrackId(
  */
 export function recordTargetTrackId(
   state: AllSlices = useStore.getState(),
+  source?: string | null,
 ): string | null {
-  return (
-    practiceLiveTrackId(state) ??
-    state.tracks.find((t) => t.recordArmed && t.type === 'midi')?.id ??
-    null
-  );
+  const practice = practiceLiveTrackId(state);
+  if (practice !== null) return practice;
+  const armed = state.tracks.find((t) => t.recordArmed && t.type === 'midi');
+  // The armed track takes only its own device's notes into the take.
+  return armed && trackHearsInput(armed, source) ? armed.id : null;
 }
 
 /**
- * Track ids live MIDI drives: the practice screen's track, else the
- * monitored MIDI tracks, else the selected one.
+ * Track ids live MIDI drives: the practice screen's track, else the MIDI
+ * tracks monitoring their input (armed and monitoring); none while no
+ * track does.
  */
 export function liveMidiTargetIds(
   state: AllSlices = useStore.getState(),
+  source?: string | null,
 ): string[] {
   const practice = practiceLiveTrackId(state);
   if (practice !== null) return [practice];
+  const hears = (id: string) =>
+    trackHearsInput(
+      state.tracks.find((t) => t.id === id),
+      source,
+    );
   const monitored = state.tracks
-    .filter((t) => t.monitoring && t.type === 'midi')
+    .filter((t) => monitorsInput(t) && t.type === 'midi')
     .map((t) => t.id);
-  if (monitored.length > 0) return monitored;
-  return state.selectedTrackId ? [state.selectedTrackId] : [];
+  return monitored.filter(hears);
 }
 
 /**

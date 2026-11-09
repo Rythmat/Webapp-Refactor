@@ -16,7 +16,8 @@ import type { ProducerOption } from './types';
 export const GENRE_TUTORIAL: Readonly<Record<string, string>> = {
   jazz: 'jazz-color-your-chords',
   'hip-hop': 'hiphop-build-the-beat',
-  pop: 'pop-flip-a-sample',
+  // Pop's lesson (Flip a sample, on the Chops sampler) went with the
+  // sampler (owner, 2026-10-22): pop takes DEFAULT_TUTORIAL.
   electronic: 'edm-design-the-drop',
   rnb: 'rnb-mix-and-polish',
   funk: 'rnb-mix-and-polish',

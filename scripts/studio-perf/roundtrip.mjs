@@ -1284,7 +1284,17 @@ async function openAt(page, base, query) {
  * the way React Router does and let the router hear a popstate.
  */
 async function spaNavigate(page, to) {
-  await page.evaluate((url) => {
+  await page.evaluate((link) => {
+    // The editor is /studio since 2026-10-24 and was /studio/editor before
+    // (a --prev-base build). A link into the editor names /studio/editor;
+    // from inside the editor it goes to the editor's own path, so the
+    // editor stays mounted on either build, and from elsewhere to
+    // /studio/editor, which both builds open (the new one forwards it).
+    const isEditor = (p) => p === '/studio' || p === '/studio/editor';
+    const url = link.replace(
+      /^\/studio\/editor(?=[?#]|$)/,
+      isEditor(location.pathname) ? location.pathname : '/studio/editor',
+    );
     // The boundary the editor's next open must move past (harness.mjs
     // markOpenBoundary): set for every navigation that opens something (any
     // link into the editor from elsewhere, any editor link with keys) and
@@ -1292,9 +1302,9 @@ async function spaNavigate(page, to) {
     // own. A key-less in-editor navigation opens nothing, so it sets none.
     const target = new URL(url, location.href);
     const opens =
-      target.pathname !== '/studio/editor' ||
+      !isEditor(target.pathname) ||
       target.search !== '' ||
-      location.pathname !== '/studio/editor';
+      !isEditor(location.pathname);
     if (opens && window.__MA_SESSION__) {
       window.__RT_PREV_OUTCOME__ = window.__MA_SESSION__.getState().lastOutcome;
     }
@@ -1307,14 +1317,17 @@ async function spaNavigate(page, to) {
   }, to);
 }
 
-/** In-app from the editor to the Studio Dashboard (the editor unmounts). */
+/**
+ * In-app from the editor to Home (the editor unmounts). It went to the
+ * Studio Dashboard at /studio, which is the editor since 2026-10-24.
+ */
 async function leaveEditor(page) {
-  await spaNavigate(page, '/studio');
+  await spaNavigate(page, '/home');
   await page.waitForSelector('[data-tutorial-id="file-menu"]', {
     state: 'detached',
     timeout: 30_000,
   });
-  await page.waitForFunction(() => location.pathname === '/studio');
+  await page.waitForFunction(() => location.pathname === '/home');
 }
 
 async function fingerprint(page) {
@@ -1652,7 +1665,8 @@ async function spaReturn(run) {
       window.history.pushState(
         { usr: null, key: 'rt-leave', idx },
         '',
-        '/studio',
+        // Out of the editor: Home (/studio is the editor since 2026-10-24).
+        '/home',
       );
       window.dispatchEvent(
         new PopStateEvent('popstate', { state: window.history.state }),

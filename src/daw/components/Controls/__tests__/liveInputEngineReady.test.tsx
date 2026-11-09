@@ -1,4 +1,12 @@
 // @vitest-environment jsdom
+/**
+ * An Audio track's view (GuitarBassView on 'audio-input', the one live-input
+ * track) and the engine starting after it: the view connects the input,
+ * plays its chain and loads its amp's model once the track's adapter is
+ * ready, and again for a rebuilt adapter, but not when another track's
+ * instrument finishes its init. The input device and channel are picked in
+ * the track list (TrackInputMenu); the view follows the store.
+ */
 import { StrictMode } from 'react';
 import {
   describe,
@@ -100,9 +108,7 @@ import {
 import type { AudioInputChannel } from '@/daw/store/tracksSlice';
 import { applyStoredPedalChain } from '@/daw/audio/applyPedalChain';
 import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
-import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 import { GuitarBassView } from '../GuitarBassView';
-import { VocalView } from '../VocalView';
 
 const INTERFACE = { id: 'iface-1', label: 'Interface', groupId: 'g1' };
 const INPUT_1: AudioInputChannel = { mode: 'mono', channel: 0 };
@@ -116,29 +122,6 @@ const settle = () =>
 
 const trackById = (id: string) =>
   useStore.getState().tracks.find((t) => t.id === id);
-
-/** Opens the input device menu and picks the device with this label. */
-function pickDevice(label: string) {
-  fireEvent.click(screen.getByText(label));
-  const items = screen.getAllByText(label);
-  fireEvent.click(items[items.length - 1]);
-}
-
-function fakeVocalAdapter() {
-  const adapter = new VocalFxAdapter();
-  return {
-    adapter,
-    setDevice: vi.spyOn(adapter, 'setDevice').mockResolvedValue(),
-    setChannelConfig: vi
-      .spyOn(adapter, 'setChannelConfig')
-      .mockImplementation(() => {}),
-    syncChain: vi.spyOn(adapter, 'syncChain').mockImplementation(() => {}),
-    // A freshly built chain has no processors, so the param fast path fails.
-    updateChainParams: vi
-      .spyOn(adapter, 'updateChainParams')
-      .mockReturnValue(false),
-  };
-}
 
 function fakeGuitarAdapter() {
   const adapter = new GuitarFxAdapter();
@@ -220,24 +203,11 @@ function fakeStream() {
 }
 
 /**
- * A vocal track as a reload brings it back: its saved chain, and no channel
+ * An Audio track as a reload brings it back: its saved amp, and no channel
  * unless one is given (older saves and cloud opens have none).
  */
-function reloadedVocalTrack(channel: AudioInputChannel | null = null) {
-  const id = useStore.getState().addTrack('audio', 'vocal-fx', 'Vocals');
-  useStore.getState().updateTrack(id, {
-    audioInputChannel: channel,
-    vocalChain: [{ type: 'reverb', enabled: true, params: { mix: 0.3 } }],
-  });
-  return id;
-}
-
-/**
- * A guitar track as a reload brings it back: its saved amp, and no channel
- * unless one is given (older saves and cloud opens have none).
- */
-function reloadedGuitarTrack(channel: AudioInputChannel | null = null) {
-  const id = useStore.getState().addTrack('audio', 'guitar-fx', 'Guitar');
+function reloadedAudioTrack(channel: AudioInputChannel | null = null) {
+  const id = useStore.getState().addTrack('audio', 'audio-input', 'Audio');
   useStore.getState().updateTrack(id, {
     audioInputChannel: channel,
     guitarChain: [
@@ -252,8 +222,19 @@ function reloadedGuitarTrack(channel: AudioInputChannel | null = null) {
   return id;
 }
 
+/** Opens the Add audio effect picker and picks `item` (an amp's model id, or
+ *  'pitch-correction'). */
+function pickAudioEffect(item: string) {
+  fireEvent.click(screen.getByTestId('audio-fx-add'));
+  fireEvent.click(screen.getByTestId(`audio-effect-${item}`));
+}
+
+/** The chain's cards in the dock (amp, pitch correction). */
+const chainCards = (container: HTMLElement) =>
+  container.querySelectorAll('[data-testid^="audio-fx-card-"]').length;
+
 beforeAll(() => {
-  // jsdom has no media devices: the views listen for device changes, and the
+  // jsdom has no media devices: the view listens for device changes, and the
   // real adapter opens the input.
   Object.defineProperty(navigator, 'mediaDevices', {
     configurable: true,
@@ -283,142 +264,15 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('VocalView after a reload (live-input-02, live-input-03)', () => {
-  it('connects the input on channel 1 and applies the saved chain once the engine is ready', async () => {
-    const id = reloadedVocalTrack();
-    const fake = fakeVocalAdapter();
-    render(<VocalView trackId={id} />);
-    await settle();
-    expect(fake.setDevice).not.toHaveBeenCalled();
-
-    act(() => engine.ready(id, fake.adapter));
-
-    expect(fake.setChannelConfig).toHaveBeenLastCalledWith(INPUT_1);
-    expect(fake.setDevice).toHaveBeenCalledWith(INTERFACE.id);
-    expect(fake.setDevice).not.toHaveBeenCalledWith(null);
-    expect(fake.syncChain).toHaveBeenCalledWith([
-      { type: 'reverb', enabled: true, params: { mix: 0.3 } },
-    ]);
-  });
-
-  it('keeps a saved channel', () => {
-    const stereo: AudioInputChannel = { mode: 'stereo', left: 0, right: 1 };
-    const id = reloadedVocalTrack(stereo);
-    const fake = fakeVocalAdapter();
-    render(<VocalView trackId={id} />);
-
-    act(() => engine.ready(id, fake.adapter));
-
-    expect(fake.setChannelConfig).toHaveBeenLastCalledWith(stereo);
-  });
-
-  it('re-applies nothing when another track finishes loading', () => {
-    const id = reloadedVocalTrack();
-    const fake = fakeVocalAdapter();
-    render(<VocalView trackId={id} />);
-    act(() => engine.ready(id, fake.adapter));
-    vi.clearAllMocks();
-
-    act(() => {
-      engine.ready();
-      engine.ready('other-track', new VocalFxAdapter());
-    });
-
-    expect(fake.setDevice).not.toHaveBeenCalled();
-    expect(fake.setChannelConfig).not.toHaveBeenCalled();
-    expect(fake.updateChainParams).not.toHaveBeenCalled();
-    expect(fake.syncChain).not.toHaveBeenCalled();
-  });
-
-  it('keeps the newest channel when the device finishes opening late', async () => {
-    const id = reloadedVocalTrack(INPUT_1);
-    const fake = fakeVocalAdapter();
-    let finishOpening = () => {};
-    fake.setDevice.mockImplementationOnce(
-      () =>
-        new Promise<void>((resolve) => {
-          finishOpening = resolve;
-        }),
-    );
-    engine.ready(id, fake.adapter);
-    render(<VocalView trackId={id} />);
-
-    // Input 2 is picked while input 1's device is still opening.
-    act(() =>
-      useStore.getState().updateTrack(id, { audioInputChannel: INPUT_2 }),
-    );
-    await act(async () => finishOpening());
-
-    expect(fake.setChannelConfig).toHaveBeenLastCalledWith(INPUT_2);
-  });
-
-  it('still drops the input when no device is selected', async () => {
-    inputs.devices = [];
-    useStore.setState({ inputDeviceId: null });
-    const id = reloadedVocalTrack();
-    const fake = fakeVocalAdapter();
-    render(<VocalView trackId={id} />);
-    await settle();
-
-    act(() => engine.ready(id, fake.adapter));
-
-    expect(fake.setDevice).toHaveBeenCalledWith(null);
-    expect(fake.setChannelConfig).not.toHaveBeenCalled();
-  });
-
-  it('applies the input again when the device in use is picked again', async () => {
-    const id = reloadedVocalTrack(INPUT_1);
-    const fake = fakeVocalAdapter();
-    engine.ready(id, fake.adapter);
-    render(<VocalView trackId={id} />);
-    await settle();
-    expect(fake.setDevice).toHaveBeenCalledTimes(1);
-
-    // The pick leaves the store as it was: same device, same channel.
-    pickDevice(INTERFACE.label);
-    await settle();
-
-    expect(fake.setDevice).toHaveBeenCalledTimes(2);
-    expect(fake.setDevice).toHaveBeenLastCalledWith(INTERFACE.id);
-  });
-
-  it('marks input 1 in the channel menu for a track with no saved channel', async () => {
-    const id = reloadedVocalTrack();
-    render(<VocalView trackId={id} />);
-    await settle();
-
-    fireEvent.click(screen.getByText('1'));
-
-    const [, input1] = screen.getAllByText('1');
-    expect(input1.style.color).toBe('var(--daw-accent)');
-    expect(screen.getByText('2').style.color).toBe('var(--daw-text)');
-  });
-
-  it('logs an input that fails to open instead of leaving it unhandled', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const id = reloadedVocalTrack();
-    const fake = fakeVocalAdapter();
-    const failure = new Error('resume failed');
-    fake.setDevice.mockRejectedValueOnce(failure);
-    engine.ready(id, fake.adapter);
-    render(<VocalView trackId={id} />);
-    await settle();
-
-    expect(warn).toHaveBeenCalledWith(
-      '[LiveInput] Could not open input:',
-      failure,
-    );
-  });
-});
-
 describe('GuitarBassView after a reload (live-input-02, live-input-03)', () => {
   it('connects the input, builds the chain, then restores the saved amp model once', async () => {
     const model = { name: 'AC15' };
     nam.fetchBundledModel.mockResolvedValue(model);
-    const id = reloadedGuitarTrack();
+    const id = reloadedAudioTrack();
     const fake = fakeGuitarAdapter();
-    render(<GuitarBassView trackId={id} instrument="guitar-fx" />);
+    render(<GuitarBassView trackId={id} />);
     await settle();
+    expect(fake.setDevice).not.toHaveBeenCalled();
     expect(fake.syncChain).not.toHaveBeenCalled();
     expect(nam.fetchBundledModel).not.toHaveBeenCalled();
 
@@ -427,6 +281,7 @@ describe('GuitarBassView after a reload (live-input-02, live-input-03)', () => {
 
     expect(fake.setChannelConfig).toHaveBeenLastCalledWith(INPUT_1);
     expect(fake.setDevice).toHaveBeenCalledWith(INTERFACE.id);
+    expect(fake.setDevice).not.toHaveBeenCalledWith(null);
     expect(fake.syncChain).toHaveBeenCalledTimes(1);
     expect(fake.syncChain.mock.calls[0][0]).toEqual([
       expect.objectContaining({ type: 'nam-amp', namModelId: 'nam-vox-ac15' }),
@@ -441,66 +296,151 @@ describe('GuitarBassView after a reload (live-input-02, live-input-03)', () => {
       fake.loadNamModel.mock.invocationCallOrder[0],
     );
     expect(fake.setAmpSimMode).toHaveBeenCalledWith('nam');
+  });
 
-    // Other tracks finishing their init neither rewire nor re-download.
+  it('keeps a saved channel', () => {
+    const stereo: AudioInputChannel = { mode: 'stereo', left: 0, right: 1 };
+    const id = reloadedAudioTrack(stereo);
+    const fake = fakeGuitarAdapter();
+    render(<GuitarBassView trackId={id} />);
+
+    act(() => engine.ready(id, fake.adapter));
+
+    expect(fake.setChannelConfig).toHaveBeenLastCalledWith(stereo);
+  });
+
+  it('re-applies nothing when another track finishes loading', async () => {
+    nam.fetchBundledModel.mockResolvedValue({ name: 'AC15' });
+    const id = reloadedAudioTrack();
+    const fake = fakeGuitarAdapter();
+    render(<GuitarBassView trackId={id} />);
+    act(() => engine.ready(id, fake.adapter));
+    await settle();
+    vi.clearAllMocks();
+
     act(() => {
       engine.ready();
       engine.ready('other-track', new GuitarFxAdapter());
     });
     await settle();
-    expect(fake.syncChain).toHaveBeenCalledTimes(1);
-    expect(nam.fetchBundledModel).toHaveBeenCalledTimes(1);
+
+    expect(fake.setDevice).not.toHaveBeenCalled();
+    expect(fake.setChannelConfig).not.toHaveBeenCalled();
+    expect(fake.syncChain).not.toHaveBeenCalled();
+    expect(nam.fetchBundledModel).not.toHaveBeenCalled();
   });
 
-  it.each([
-    ['guitar-fx', '/daw-assets/nam-models/clean-twin.nam', 'nam-clean-twin'],
-    ['bass-fx', '/daw-assets/nam-models/ampeg-svt.nam', 'nam-ampeg-svt'],
-  ] as const)(
-    'gives a new %s track its first amp model once the engine is ready',
-    async (instrument, url, modelId) => {
-      const model = { name: modelId };
-      nam.fetchBundledModel.mockResolvedValue(model);
-      const id = useStore.getState().addTrack('audio', instrument, 'Amp');
-      const fake = fakeGuitarAdapter();
-      render(<GuitarBassView trackId={id} instrument={instrument} />);
-      await settle();
-      expect(nam.fetchBundledModel).not.toHaveBeenCalled();
+  it('keeps the newest channel when the device finishes opening late', async () => {
+    const id = reloadedAudioTrack(INPUT_1);
+    const fake = fakeGuitarAdapter();
+    let finishOpening = () => {};
+    fake.setDevice.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          finishOpening = resolve;
+        }),
+    );
+    engine.ready(id, fake.adapter);
+    render(<GuitarBassView trackId={id} />);
 
-      act(() => engine.ready(id, fake.adapter));
-      await settle();
+    // Input 2 is picked (in the track list) while input 1's device is still
+    // opening.
+    act(() =>
+      useStore.getState().updateTrack(id, { audioInputChannel: INPUT_2 }),
+    );
+    await act(async () => finishOpening());
 
-      expect(nam.fetchBundledModel).toHaveBeenCalledTimes(1);
-      expect(nam.fetchBundledModel).toHaveBeenCalledWith(url);
-      expect(fake.loadNamModel).toHaveBeenCalledWith(model, 1);
-      expect(fake.setAmpSimMode).toHaveBeenCalledWith('nam');
-      expect(trackById(id)?.guitarChain).toEqual([
-        expect.objectContaining({ type: 'nam-amp', namModelId: modelId }),
-      ]);
+    expect(fake.setChannelConfig).toHaveBeenLastCalledWith(INPUT_2);
+  });
 
-      act(() => {
-        engine.ready();
-        engine.ready('other-track', new GuitarFxAdapter());
-      });
-      await settle();
-      expect(nam.fetchBundledModel).toHaveBeenCalledTimes(1);
-    },
-  );
+  it('still drops the input when no device is selected', async () => {
+    inputs.devices = [];
+    useStore.setState({ inputDeviceId: null });
+    const id = reloadedAudioTrack();
+    const fake = fakeGuitarAdapter();
+    render(<GuitarBassView trackId={id} />);
+    await settle();
 
-  it('restores the amp model when a pedal inserted before the amp rebuilds it', async () => {
-    const model = { name: 'AC15' };
-    nam.fetchBundledModel.mockResolvedValue(model);
-    const id = reloadedGuitarTrack();
+    act(() => engine.ready(id, fake.adapter));
+
+    expect(fake.setDevice).toHaveBeenCalledWith(null);
+    expect(fake.setChannelConfig).not.toHaveBeenCalled();
+  });
+
+  it('picks the first input the browser lists when none is chosen', async () => {
+    useStore.setState({ inputDeviceId: null });
+    const id = reloadedAudioTrack();
     const fake = fakeGuitarAdapter();
     engine.ready(id, fake.adapter);
-    render(<GuitarBassView trackId={id} instrument="guitar-fx" />);
+    render(<GuitarBassView trackId={id} />);
+    await settle();
+
+    expect(useStore.getState().inputDeviceId).toBe(INTERFACE.id);
+    expect(fake.setDevice).toHaveBeenLastCalledWith(INTERFACE.id);
+  });
+
+  it('logs an input that fails to open instead of leaving it unhandled', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const id = reloadedAudioTrack();
+    const fake = fakeGuitarAdapter();
+    const failure = new Error('resume failed');
+    fake.setDevice.mockRejectedValueOnce(failure);
+    engine.ready(id, fake.adapter);
+    render(<GuitarBassView trackId={id} />);
+    await settle();
+
+    expect(warn).toHaveBeenCalledWith(
+      '[LiveInput] Could not open input:',
+      failure,
+    );
+  });
+
+  it('loads the model of an amp picked once the engine is ready', async () => {
+    const model = { name: 'Quartz' };
+    nam.fetchBundledModel.mockResolvedValue(model);
+    const id = useStore.getState().addTrack('audio', 'audio-input', 'Audio');
+    const fake = fakeGuitarAdapter();
+    render(<GuitarBassView trackId={id} />);
+    await settle();
+    // A new Audio track's chain starts empty: no amp, no model to load.
+    expect(trackById(id)?.guitarChain).toEqual([]);
+
+    pickAudioEffect('nam-clean-twin');
+    await settle();
+    expect(nam.fetchBundledModel).not.toHaveBeenCalled();
+
+    act(() => engine.ready(id, fake.adapter));
+    await settle();
+
+    expect(nam.fetchBundledModel).toHaveBeenCalledTimes(1);
+    expect(nam.fetchBundledModel).toHaveBeenCalledWith(
+      '/daw-assets/nam-models/clean-twin.nam',
+    );
+    expect(fake.loadNamModel).toHaveBeenCalledWith(model, 1);
+    expect(fake.setAmpSimMode).toHaveBeenCalledWith('nam');
+    expect(trackById(id)?.guitarChain).toEqual([
+      expect.objectContaining({
+        type: 'nam-amp',
+        namModelId: 'nam-clean-twin',
+      }),
+    ]);
+  });
+
+  it('restores the amp model when pitch correction inserted before the amp rebuilds it', async () => {
+    const model = { name: 'AC15' };
+    nam.fetchBundledModel.mockResolvedValue(model);
+    const id = reloadedAudioTrack();
+    const fake = fakeGuitarAdapter();
+    engine.ready(id, fake.adapter);
+    render(<GuitarBassView trackId={id} />);
     await settle();
     expect(fake.loadNamModel).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Overdrive' }));
+    pickAudioEffect('pitch-correction');
     await settle();
 
     expect(fake.syncChain).toHaveBeenLastCalledWith([
-      expect.objectContaining({ type: 'overdrive' }),
+      expect.objectContaining({ type: 'pitch-correction' }),
       expect.objectContaining({ type: 'nam-amp', namModelId: 'nam-vox-ac15' }),
     ]);
     expect(fake.loadNamModel).toHaveBeenCalledTimes(2);
@@ -511,9 +451,9 @@ describe('GuitarBassView after a reload (live-input-02, live-input-03)', () => {
 
   it('re-applies everything to a rebuilt adapter', async () => {
     nam.fetchBundledModel.mockResolvedValue({ name: 'AC15' });
-    const id = reloadedGuitarTrack();
+    const id = reloadedAudioTrack();
     const first = fakeGuitarAdapter();
-    render(<GuitarBassView trackId={id} instrument="guitar-fx" />);
+    render(<GuitarBassView trackId={id} />);
     act(() => engine.ready(id, first.adapter));
     await settle();
 
@@ -527,7 +467,7 @@ describe('GuitarBassView after a reload (live-input-02, live-input-03)', () => {
   });
 
   it('starts one model download while a restore is under way', () => {
-    const id = reloadedGuitarTrack();
+    const id = reloadedAudioTrack();
     const fake = fakeGuitarAdapter();
     engine.ready(id, fake.adapter);
 
@@ -535,7 +475,7 @@ describe('GuitarBassView after a reload (live-input-02, live-input-03)', () => {
     // restore while the model is still downloading.
     render(
       <StrictMode>
-        <GuitarBassView trackId={id} instrument="guitar-fx" />
+        <GuitarBassView trackId={id} />
       </StrictMode>,
     );
 
@@ -543,10 +483,13 @@ describe('GuitarBassView after a reload (live-input-02, live-input-03)', () => {
   });
 
   it('mutes monitoring while the tuner runs, on whichever adapter is current', () => {
-    const id = reloadedGuitarTrack();
-    useStore.getState().updateTrack(id, { monitoring: true });
+    const id = reloadedAudioTrack();
+    // Heard: armed and monitoring (the record button's middle state).
+    useStore
+      .getState()
+      .updateTrack(id, { recordArmed: true, monitoring: true });
     const first = fakeGuitarAdapter();
-    render(<GuitarBassView trackId={id} instrument="guitar-fx" />);
+    render(<GuitarBassView trackId={id} />);
 
     // The tuner is switched on before the engine has started.
     act(() => tuner.setActive(true));
@@ -562,26 +505,11 @@ describe('GuitarBassView after a reload (live-input-02, live-input-03)', () => {
     act(() => tuner.setActive(false));
     expect(rebuilt.setMonitoring).toHaveBeenLastCalledWith(true);
   });
-
-  it('applies the input again when the device in use is picked again', async () => {
-    const id = reloadedGuitarTrack(INPUT_1);
-    const fake = fakeGuitarAdapter();
-    engine.ready(id, fake.adapter);
-    render(<GuitarBassView trackId={id} instrument="guitar-fx" />);
-    await settle();
-    expect(fake.setDevice).toHaveBeenCalledTimes(1);
-
-    pickDevice(INTERFACE.label);
-    await settle();
-
-    expect(fake.setDevice).toHaveBeenCalledTimes(2);
-    expect(fake.setDevice).toHaveBeenLastCalledWith(INTERFACE.id);
-  });
 });
 
 describe('GuitarBassView on a real adapter', () => {
   it('routes the newest channel when the device finishes opening late', async () => {
-    const id = reloadedGuitarTrack(INPUT_1);
+    const id = reloadedAudioTrack(INPUT_1);
     const { adapter, ctx } = await realGuitarAdapter();
     let finishOpening: (stream: MediaStream) => void = () => {};
     media.getUserMedia.mockImplementationOnce(
@@ -591,7 +519,7 @@ describe('GuitarBassView on a real adapter', () => {
         }),
     );
     engine.ready(id, adapter);
-    render(<GuitarBassView trackId={id} instrument="guitar-fx" />);
+    render(<GuitarBassView trackId={id} />);
 
     // Input 2 is picked while the device is still opening.
     act(() =>
@@ -605,64 +533,19 @@ describe('GuitarBassView on a real adapter', () => {
     expect(splitter.connect).toHaveBeenLastCalledWith(input, 1);
     expect(splitter.connect).not.toHaveBeenCalledWith(input, 0);
   });
-
-  it('asks the adapter again when a device that failed to open is picked again', async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const id = reloadedGuitarTrack(INPUT_1);
-    const { adapter } = await realGuitarAdapter();
-    const setDevice = vi.spyOn(adapter, 'setDevice');
-    media.getUserMedia
-      .mockRejectedValueOnce(new DOMException('Dismissed', 'NotAllowedError'))
-      .mockResolvedValue(fakeStream());
-    engine.ready(id, adapter);
-    render(<GuitarBassView trackId={id} instrument="guitar-fx" />);
-    await settle();
-    expect(media.getUserMedia).toHaveBeenCalledTimes(1);
-    expect(adapter.getPitchDetectSourceNode()).toBeNull();
-
-    pickDevice(INTERFACE.label);
-    await settle();
-
-    expect(setDevice).toHaveBeenCalledTimes(2);
-    expect(setDevice).toHaveBeenLastCalledWith(INTERFACE.id);
-  });
-
-  // live-input-07. The adapters forget a device that failed to open or went
-  // away, so the view's retry above reaches the browser again.
-  it('opens a device that failed to open when it is picked again', async () => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const id = reloadedGuitarTrack(INPUT_1);
-    const { adapter } = await realGuitarAdapter();
-    media.getUserMedia
-      .mockRejectedValueOnce(new DOMException('Dismissed', 'NotAllowedError'))
-      .mockResolvedValue(fakeStream());
-    engine.ready(id, adapter);
-    render(<GuitarBassView trackId={id} instrument="guitar-fx" />);
-    await settle();
-
-    pickDevice(INTERFACE.label);
-    await settle();
-
-    expect(media.getUserMedia).toHaveBeenCalledTimes(2);
-    expect(adapter.getPitchDetectSourceNode()).not.toBeNull();
-  });
 });
 
 // ── The chain the engine plays, and the open view ─────────────────────────
 // The engine applies a track's stored chain itself as soon as its adapter is
-// ready (trackReconciler, through applyPedalChain), so the views no longer
-// have to be opened for a saved tone to play. A view opening on that chain
+// ready (trackReconciler, through applyPedalChain), so the view no longer
+// has to be opened for a saved tone to play. The view opening on that chain
 // changes nothing, and an undo while it is open reaches the view and the
 // sound alike, rather than being written back over by the next edit.
 
-/** The pedals on the board (each one can be dragged to another slot). */
-const pedalsOnBoard = (container: HTMLElement) =>
-  container.querySelectorAll('[draggable="true"]').length;
-
 describe('a view opening on the chain the engine applied', () => {
-  it('changes nothing in the guitar chain or its amp model', async () => {
+  it('changes nothing in the chain or its amp model', async () => {
     nam.fetchBundledModel.mockResolvedValue({ name: 'AC15' });
-    const id = reloadedGuitarTrack();
+    const id = reloadedAudioTrack();
     const fake = fakeGuitarAdapter();
     // What the engine does once the adapter is ready.
     await applyStoredPedalChain(fake.adapter, trackById(id)!, 120);
@@ -670,28 +553,13 @@ describe('a view opening on the chain the engine applied', () => {
     engine.ready(id, fake.adapter);
     vi.clearAllMocks();
 
-    render(<GuitarBassView trackId={id} instrument="guitar-fx" />);
+    render(<GuitarBassView trackId={id} />);
     await settle();
 
     expect(fake.syncChain).not.toHaveBeenCalled();
     expect(fake.loadNamModel).not.toHaveBeenCalled();
     expect(fake.setAmpSimMode).not.toHaveBeenCalled();
     expect(nam.fetchBundledModel).not.toHaveBeenCalled();
-  });
-
-  it('changes nothing in the vocal chain', async () => {
-    const id = reloadedVocalTrack();
-    const fake = fakeVocalAdapter();
-    await applyStoredPedalChain(fake.adapter, trackById(id)!, 120);
-    expect(fake.syncChain).toHaveBeenCalledTimes(1);
-    engine.ready(id, fake.adapter);
-    vi.clearAllMocks();
-
-    render(<VocalView trackId={id} />);
-    await settle();
-
-    expect(fake.syncChain).not.toHaveBeenCalled();
-    expect(fake.updateChainParams).not.toHaveBeenCalled();
   });
 });
 
@@ -706,19 +574,17 @@ describe('an undo while the view is open (live-input-08)', () => {
     resetHistory();
   });
 
-  it('reaches the guitar view and its sound, and the next edit builds on it', async () => {
+  it('reaches the view and its sound, and the next edit builds on it', async () => {
     nam.fetchBundledModel.mockResolvedValue({ name: 'AC15' });
-    const id = reloadedGuitarTrack();
+    const id = reloadedAudioTrack();
     const fake = fakeGuitarAdapter();
     engine.ready(id, fake.adapter);
-    const { container } = render(
-      <GuitarBassView trackId={id} instrument="guitar-fx" />,
-    );
+    const { container } = render(<GuitarBassView trackId={id} />);
     await settle();
-    const pedals = pedalsOnBoard(container);
-    fireEvent.click(screen.getByRole('button', { name: 'Overdrive' }));
+    expect(chainCards(container)).toBe(1);
+    pickAudioEffect('pitch-correction');
     await settle();
-    expect(pedalsOnBoard(container)).toBe(pedals + 1);
+    expect(chainCards(container)).toBe(2);
 
     act(() => {
       undo();
@@ -726,58 +592,28 @@ describe('an undo while the view is open (live-input-08)', () => {
     await settle();
 
     expect(trackById(id)?.guitarChain?.map((b) => b.type)).toEqual(['nam-amp']);
-    expect(pedalsOnBoard(container)).toBe(pedals);
+    expect(chainCards(container)).toBe(1);
     expect(fake.syncChain).toHaveBeenLastCalledWith([
       expect.objectContaining({ type: 'nam-amp', namModelId: 'nam-vox-ac15' }),
     ]);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Chorus' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Fire Opal on' }));
     await settle();
-    expect(trackById(id)?.guitarChain?.map((b) => b.type)).toEqual([
-      'chorus',
-      'nam-amp',
+    expect(trackById(id)?.guitarChain).toEqual([
+      expect.objectContaining({ type: 'nam-amp', enabled: false }),
     ]);
   });
 
-  it("doesn't make the first amp model a new track gets an undo step", async () => {
-    nam.fetchBundledModel.mockResolvedValue({ name: 'Quartz' });
-    const id = useStore.getState().addTrack('audio', 'guitar-fx', 'Amp');
+  it("doesn't make the empty chain a new track's view fills in an undo step", async () => {
+    const id = useStore.getState().addTrack('audio', 'audio-input', 'Audio');
     flushHistory();
     const steps = historyLabels().length;
-    const fake = fakeGuitarAdapter();
-    render(<GuitarBassView trackId={id} instrument="guitar-fx" />);
-    act(() => engine.ready(id, fake.adapter));
+    render(<GuitarBassView trackId={id} />);
+    act(() => engine.ready(id, fakeGuitarAdapter().adapter));
     await settle();
 
-    expect(trackById(id)?.guitarChain).toEqual([
-      expect.objectContaining({
-        type: 'nam-amp',
-        namModelId: 'nam-clean-twin',
-      }),
-    ]);
+    expect(trackById(id)?.guitarChain).toEqual([]);
     flushHistory();
     expect(historyLabels()).toHaveLength(steps);
-  });
-
-  it('reaches the vocal view and its sound', async () => {
-    const id = reloadedVocalTrack();
-    const fake = fakeVocalAdapter();
-    engine.ready(id, fake.adapter);
-    const { container } = render(<VocalView trackId={id} />);
-    await settle();
-    fireEvent.click(screen.getByRole('button', { name: 'Chorus' }));
-    await settle();
-    expect(pedalsOnBoard(container)).toBe(2);
-
-    act(() => {
-      undo();
-    });
-    await settle();
-
-    expect(trackById(id)?.vocalChain?.map((b) => b.type)).toEqual(['reverb']);
-    expect(pedalsOnBoard(container)).toBe(1);
-    expect(fake.syncChain).toHaveBeenLastCalledWith([
-      expect.objectContaining({ type: 'reverb' }),
-    ]);
   });
 });

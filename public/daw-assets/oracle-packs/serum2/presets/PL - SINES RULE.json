@@ -947,7 +947,7 @@
       },
       "target": {
         "source": "osc1",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.19749999046325684,
       "polarity": "unipolar",
@@ -979,7 +979,7 @@
         "source": "osc1",
         "param": "level"
       },
-      "amount": 0.3026316165924072,
+      "amount": 0.6052632331848145,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1011,10 +1011,10 @@
     },
     "compressor": {
       "enabled": true,
-      "threshold": 0,
+      "threshold": -6.330843105061464,
       "ratio": 3.3529333459951274,
-      "attack": 1,
-      "release": 1
+      "attack": 0.09009100715319826,
+      "release": 0.36252279687217415
     },
     "drive": {
       "enabled": false,

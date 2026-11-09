@@ -177,7 +177,12 @@ export const PresetSelector: React.FC = React.memo(() => {
         createPortal(
           <>
             <div className={styles.backdrop} onClick={() => setIsOpen(false)} />
-            <div className={styles.dropdown} style={menuStyle}>
+            {/* A lesson's coach card keeps clear of it. */}
+            <div
+              className={styles.dropdown}
+              style={menuStyle}
+              data-tutorial-avoid=""
+            >
               <div className={styles.sectionLabel}>FACTORY</div>
               {factoryPresets.map((p) => (
                 <button
@@ -241,7 +246,11 @@ export const PresetSelector: React.FC = React.memo(() => {
               className={styles.backdrop}
               onClick={() => setShowSaveDialog(false)}
             />
-            <div className={styles.saveDialog} style={menuStyle}>
+            <div
+              className={styles.saveDialog}
+              style={menuStyle}
+              data-tutorial-avoid=""
+            >
               <span className={styles.sectionLabel}>SAVE PRESET</span>
               <input
                 className={styles.saveInput}

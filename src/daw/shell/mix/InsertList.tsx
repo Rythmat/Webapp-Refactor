@@ -72,7 +72,7 @@ export function InsertList({
   className,
 }: {
   target: RackTarget;
-  /** Whose effects these are, in words ('Rhodes', 'Return A', 'Master'). */
+  /** Whose effects these are, in words ('Rhodes', 'Send A', 'Master'). */
   owner: string;
   className?: string;
 }) {

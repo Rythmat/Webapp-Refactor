@@ -16,7 +16,8 @@ import '@/components/learn/learn.css';
 type LessonContainerProps = {
   modeSlug: PrismModeSlug;
   rootKey?: string;
-  startAtActivityKey?: string;
+  /** The chapter (`?section=`) to open at; unset resumes. */
+  startAtSection?: string;
 };
 
 type KeyOption = { label: string; midi: number };
@@ -64,7 +65,7 @@ export const LessonContainer = (props: LessonContainerProps) => {
 const LessonContainerInner = ({
   modeSlug,
   rootKey,
-  startAtActivityKey,
+  startAtSection,
 }: LessonContainerProps) => {
   const [searchParams] = useSearchParams();
   const origin = useMemo(() => readLessonOrigin(searchParams), [searchParams]);
@@ -93,16 +94,16 @@ const LessonContainerInner = ({
     // The lesson draws its own header (TheoryLessonLayout: Theory › mode ›
     // key, the step's name), so no "Lesson" bar over it.
     <div
-      className="learn-root flex min-h-screen w-full flex-col"
+      className="learn-root flex h-full w-full flex-col"
       style={{ backgroundColor: '#101012', color: 'var(--color-text)' }}
     >
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col">
         <ActivityFlow
           mode={modeSlug}
           rootKey={keyOption.label}
           rootMidi={keyOption.midi}
           scaleMidis={scaleMidis}
-          startAtActivityKey={startAtActivityKey}
+          startAtSection={startAtSection}
           onComplete={reportCompletion}
           origin={origin}
         />

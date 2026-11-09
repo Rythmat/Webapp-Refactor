@@ -230,6 +230,42 @@ export function useGenreProgress(
   };
 }
 
+// ── Reading it elsewhere ─────────────────────────────────────────────────────
+
+export interface GenreLevelProgressSummary {
+  /** Any step tried. */
+  started: boolean;
+  /** Steps passed so far. */
+  passedSteps: number;
+  /** The first section not yet complete; null when every one is. */
+  resumeSection: ActivitySectionId | null;
+}
+
+/**
+ * A level's saved progress, read once, as the lesson saves it (the genre
+ * course page's Continue).
+ */
+export function readGenreProgress(
+  genre: string,
+  level: number,
+): GenreLevelProgressSummary {
+  let progress = initProgress(genre, level);
+  try {
+    const stored = localStorage.getItem(`genre_progress_${genre}_${level}`);
+    if (stored) progress = JSON.parse(stored) as GenreProgress;
+  } catch {
+    // Private browsing or corrupted data: nothing saved
+  }
+  const steps = Object.values(progress.completedSteps ?? {});
+  const sectionIds: ActivitySectionId[] = ['A', 'B', 'C', 'D'];
+  return {
+    started: steps.length > 0,
+    passedSteps: steps.filter((s) => s.score?.passed).length,
+    resumeSection:
+      sectionIds.find((id) => !progress.sections?.[id]?.completed) ?? null,
+  };
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function initProgress(genre: string, level: number): GenreProgress {

@@ -1,0 +1,259 @@
+{
+  "id": "blues-pianist-1-triad-pair-groove-f7",
+  "name": "Blues-Pianist-1 · I–IV triad pair groove over F7",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 2,
+  "tags": ["blues", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 5,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "blues",
+  "chordSymbols": ["F7", "F7", "F7", "F7"],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 80
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 80
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 70,
+      "velocity": 80
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 74,
+      "velocity": 80
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 80
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 80
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 70,
+      "velocity": 80
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 74,
+      "velocity": 80
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 80
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 80
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 2640,
+      "duration": 1200,
+      "midi": 69,
+      "velocity": 80
+    },
+    {
+      "tick": 2640,
+      "duration": 1200,
+      "midi": 72,
+      "velocity": 80
+    },
+    {
+      "tick": 2640,
+      "duration": 1200,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 4080,
+      "duration": 240,
+      "midi": 69,
+      "velocity": 80
+    },
+    {
+      "tick": 4080,
+      "duration": 240,
+      "midi": 72,
+      "velocity": 80
+    },
+    {
+      "tick": 4080,
+      "duration": 240,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 4320,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 80
+    },
+    {
+      "tick": 4320,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 80
+    },
+    {
+      "tick": 4320,
+      "duration": 240,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 4560,
+      "duration": 720,
+      "midi": 69,
+      "velocity": 80
+    },
+    {
+      "tick": 4560,
+      "duration": 720,
+      "midi": 72,
+      "velocity": 80
+    },
+    {
+      "tick": 4560,
+      "duration": 720,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 70,
+      "velocity": 80
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 74,
+      "velocity": 80
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 69,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 72,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 77,
+      "velocity": 80
+    }
+  ]
+}

@@ -122,6 +122,37 @@ const RIDE_BELL: DrumStaffPosition = {
   notehead: 'x3',
   voice: 'hands',
 };
+// Latin hand percussion, on the same staff: the high bongo in the top space,
+// the low bongo in the second, the timbales above the staff, so a bongo part
+// with a side stick (an x in the snare's space) reads drum by drum.
+const BONGO_HIGH: DrumStaffPosition = {
+  label: 'High Bongo',
+  letter: 'e',
+  octave: 5,
+  notehead: 'normal',
+  voice: 'hands',
+};
+const BONGO_LOW: DrumStaffPosition = {
+  label: 'Low Bongo',
+  letter: 'a',
+  octave: 4,
+  notehead: 'normal',
+  voice: 'hands',
+};
+const TIMBALE_HIGH: DrumStaffPosition = {
+  label: 'High Timbale',
+  letter: 'g',
+  octave: 5,
+  notehead: 'normal',
+  voice: 'hands',
+};
+const TIMBALE_LOW: DrumStaffPosition = {
+  label: 'Low Timbale',
+  letter: 'f',
+  octave: 5,
+  notehead: 'normal',
+  voice: 'hands',
+};
 const CLAP: DrumStaffPosition = {
   label: 'Hand Clap',
   letter: 'c',
@@ -160,6 +191,10 @@ const DRUM_STAFF_MAP: Record<number, DrumStaffPosition> = {
   56: HH_CLOSED, // Cowbell
   57: CRASH, // Crash Cymbal 2
   59: RIDE, // Ride Cymbal 2
+  60: BONGO_HIGH, // Hi Bongo
+  61: BONGO_LOW, // Low Bongo
+  65: TIMBALE_HIGH, // High Timbale
+  66: TIMBALE_LOW, // Low Timbale
 };
 
 /** Everything unmapped reads as a kick, matching the drum control's fallback. */

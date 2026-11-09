@@ -30,11 +30,10 @@ import {
 } from './globeLayers';
 
 /**
- * What the globe shows, whichever engine draws it (three.js in BaseGlobe,
- * MapLibre in MapLibreGlobe): the cities, an artist's points, a pinned
- * event's arcs, and what is selected. Each value keeps its identity until
- * what it depends on changes, which react-globe.gl relies on (a new array
- * rebuilds a layer) and MapLibre's sources are spared a needless setData.
+ * What the map shows (MapLibreGlobe): the cities, an artist's points, a
+ * pinned event's arcs, and what is selected. Each value keeps its identity
+ * until what it depends on changes, so MapLibre's sources are spared a
+ * needless setData.
  */
 
 export function useGlobeScene() {
@@ -53,7 +52,6 @@ export function useGlobeScene() {
   );
 
   // City data — all cities, or only the focus set during a sequence.
-  const countryColors = layers.countryColors;
   // Every selectable city: the music cities and the towns events make cities
   // of (Aspen, Colorado Springs).
   const allCityPoints: CityPoint[] = useMemo(() => {
@@ -66,9 +64,9 @@ export function useGlobeScene() {
       id: city.id,
       name: city.name,
       town: towns.has(city),
-      color: cityBaseColor(CITY_COUNTRY_TO_ISO[city.country], countryColors),
+      color: cityBaseColor(CITY_COUNTRY_TO_ISO[city.country]),
     }));
-  }, [focusCities, countryColors]);
+  }, [focusCities]);
   const cityPoints = useMemo(
     () => visibleCityPoints(layers, allCityPoints),
     [layers, allCityPoints],
@@ -132,9 +130,9 @@ export function useGlobeScene() {
 }
 
 /**
- * What a click on the globe does, the same from either engine: a country or
- * state flies to its centre and becomes the stop; a city opens; an artist's
- * point or an arc opens its event.
+ * What a click on the globe does: a country or state flies to its centre
+ * and becomes the stop; a city opens; an artist's point or a pinned event's
+ * influence opens its event; a link opens its far place.
  */
 export function useGlobeClicks() {
   const dispatch = useAtlasDispatch();
@@ -171,5 +169,12 @@ export function useGlobeClicks() {
     (eventId: string) => navigate.toEvent(eventId),
     [navigate],
   );
-  return useMemo(() => ({ region, city, event }), [region, city, event]);
+  const place = useCallback(
+    (to: SelectedLocation) => navigate.toPlace(to),
+    [navigate],
+  );
+  return useMemo(
+    () => ({ region, city, event, place }),
+    [region, city, event, place],
+  );
 }

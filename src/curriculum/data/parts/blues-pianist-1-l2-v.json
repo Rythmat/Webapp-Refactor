@@ -1,0 +1,61 @@
+{
+  "id": "blues-pianist-1-l2-v",
+  "name": "Blues-Pianist-1 · L2 · V vamp (G7 in C)",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 2,
+  "tags": ["blues"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 1,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "blues",
+  "chordSymbols": ["G7"],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 53,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 59,
+      "velocity": 82
+    },
+    {
+      "tick": 0,
+      "duration": 660,
+      "midi": 62,
+      "velocity": 82
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 53,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 59,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 62,
+      "velocity": 70
+    }
+  ]
+}

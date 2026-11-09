@@ -15,6 +15,8 @@ export const PIANO_ROLL_LANE_COLORS = {
   beatLine: 'rgba(200,200,200,0.16)',
   barLine: 'rgba(255,255,255,0.22)',
   firstBarLine: 'rgba(200,200,255,0.45)',
+  /** The real downbeat after a pickup (Music Literacy). */
+  doubleBarLine: 'rgba(220,220,255,0.75)',
 } as const;
 
 export const isBlackKeyPitch = (midi: number): boolean =>

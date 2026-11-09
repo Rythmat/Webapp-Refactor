@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import { HexWaveBackground } from '@/components/ui/hex-wave-background';
 import {
-  AtlasRoutes,
+  GlobeRoutes,
   GameRoutes,
   LearnRoutes,
   StudioRoutes,
 } from '@/constants/routes';
 import { InstrumentSelector } from './InstrumentSelector';
+import { StartHereCard } from './StartHereCard';
 
 interface Tile {
   key: string;
@@ -32,7 +33,7 @@ const TILES: Tile[] = [
     key: 'globe',
     label: 'Globe',
     iconSrc: '/icons/globe-icon.svg',
-    to: AtlasRoutes.root(),
+    to: GlobeRoutes.root(),
   },
   {
     key: 'arcade',
@@ -43,7 +44,8 @@ const TILES: Tile[] = [
 ];
 
 /**
- * Quick Start banner — section header + 4-tile launcher over the honeycomb
+ * Quick Start banner — section header, the "Start here" card (the Music
+ * Literacy path's next stop), then the 4-tile launcher over the honeycomb
  * background. Header sits at the same horizontal position as Pathways / Songs
  * headers so all three read as peers in the vertical stack.
  */
@@ -64,6 +66,8 @@ export const QuickStartSection = () => {
         </div>
         <InstrumentSelector />
       </div>
+
+      <StartHereCard />
 
       <div className="relative isolate overflow-hidden rounded-2xl">
         <HexWaveBackground

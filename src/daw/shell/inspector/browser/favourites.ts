@@ -18,9 +18,6 @@ const MAX_ID_LENGTH = 160;
 /** More than this many favourites aren't a student's. */
 export const MAX_FAVOURITES = 500;
 
-/** The favourite id of a groove in the Grooves library. */
-export const grooveFavouriteId = (grooveId: string) => `groove:${grooveId}`;
-
 /** Whether `id` names a Library item (a kind, a colon, a name). */
 export function isFavouriteId(id: unknown): id is string {
   if (typeof id !== 'string' || id.length > MAX_ID_LENGTH) return false;

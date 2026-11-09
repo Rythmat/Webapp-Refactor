@@ -41,6 +41,72 @@
     {
       "kind": "part",
       "id": "latin-bassist-1-l2-merengue-bachata-take-1"
+    },
+    {
+      "kind": "part",
+      "id": "latin-bassist-1-merengue-copy"
+    },
+    {
+      "kind": "part",
+      "id": "latin-bassist-1-merengue-copy-2"
+    },
+    {
+      "kind": "part",
+      "id": "latin-bassist-1-bachata-1-5-1-copy"
+    },
+    {
+      "kind": "part",
+      "id": "latin-bassist-1-bachata-1-5-1-copy-2"
+    },
+    {
+      "kind": "part",
+      "id": "latin-bassist-1-l3-afro-cuban-take-6"
+    },
+    {
+      "kind": "part",
+      "id": "latin-bassist-1-l3-afro-cuban-take-7"
+    },
+    {
+      "kind": "part",
+      "id": "latin-bassist-1-l3-tango-take-8"
+    }
+  ],
+  "families": [
+    {
+      "id": "afro-cuban-bass",
+      "name": "Afro-Cuban bass",
+      "style": "latin-afro-cuban",
+      "versions": [
+        {
+          "part": "latin-bassist-1-l3-afro-cuban-take-6",
+          "use": "band",
+          "levels": [3]
+        }
+      ]
+    },
+    {
+      "id": "afro-cuban-bass-2",
+      "name": "Afro-Cuban bass",
+      "style": "latin-afro-cuban",
+      "versions": [
+        {
+          "part": "latin-bassist-1-l3-afro-cuban-take-7",
+          "use": "band",
+          "levels": [3]
+        }
+      ]
+    },
+    {
+      "id": "tango-bass",
+      "name": "Tango bass",
+      "style": "latin-tango",
+      "versions": [
+        {
+          "part": "latin-bassist-1-l3-tango-take-8",
+          "use": "both",
+          "levels": [3]
+        }
+      ]
     }
   ]
 }

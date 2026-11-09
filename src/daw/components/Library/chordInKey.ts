@@ -38,6 +38,18 @@ export function keyName(tonic: string, mode: string): string {
   return `${tonic} ${MODE_DISPLAY[mode] ?? mode}`;
 }
 
+/**
+ * Where a chord outside the song's key comes from, so its lessons open the
+ * scale it was taken from (owner, 2026-10-24): a borrowed chord's source
+ * mode on the song's tonic (A♭ in C major, from C Aeolian, is A♭ Lydian of
+ * E♭ major), or the key a secondary dominant points at (D7 in C major, the
+ * 5 of 5, is D Mixolydian of G major; E7, the 5 of 6, is E Phrygian Dominant
+ * of A harmonic minor).
+ */
+export type ChordSource =
+  | { kind: 'borrowed'; mode: string }
+  | { kind: 'tonicizes'; rootPc: number; minor: boolean };
+
 export function chordModeContext({
   chordRootPc,
   quality,
@@ -45,6 +57,7 @@ export function chordModeContext({
   rootNote,
   mode,
   tonicName,
+  source,
 }: {
   chordRootPc: number;
   quality: string;
@@ -55,6 +68,8 @@ export function chordModeContext({
   mode: string;
   /** Spelled song tonic, e.g. "E♭". */
   tonicName: string;
+  /** Where the chord comes from, when it's outside the key. */
+  source?: ChordSource | null;
 }): ChordModeContext {
   const inKey = placeInKey(chordRootPc, intervals, rootNote, mode);
   if (inKey) {
@@ -68,7 +83,20 @@ export function chordModeContext({
     };
   }
 
-  // Outside the key: the quality's typical mode, read from the chord root.
+  // Outside the key: placed in the scale it comes from, when that holds it.
+  const from = placeInSource(chordRootPc, intervals, rootNote, source);
+  if (from) {
+    return {
+      chordRootMode: from.chordRootMode,
+      sessionMode: from.scaleMode,
+      parentRootPc: from.parentRootPc,
+      parentMode: from.parentMode,
+      isSessionParent: false,
+      degreeSentence: null,
+    };
+  }
+
+  // Else the quality's typical mode, read from the chord root.
   const chordRootMode = getChordTheory(quality).mode;
   const info = PARENT_SCALE_INFO[chordRootMode];
   const family = info?.family ?? 'Ionian';
@@ -87,7 +115,41 @@ export function chordModeContext({
   };
 }
 
-/** The chord placed in the song's scale, or null when a tone falls outside. */
+/**
+ * The scale a chord from outside the key is read in — its borrowed source on
+ * the song's tonic, or the key it tonicizes (a minor target in its harmonic
+ * minor, whose 5 chord is major, else natural minor) — with the chord placed
+ * in it. Null when the chord doesn't fit there either.
+ */
+export function placeInSource(
+  chordRootPc: number,
+  intervals: readonly number[],
+  rootNote: number,
+  source: ChordSource | null | undefined,
+):
+  | (NonNullable<ReturnType<typeof placeInKey>> & {
+      scaleRootPc: number;
+      scaleMode: string;
+    })
+  | null {
+  if (!source) return null;
+  const scales: [number, string][] =
+    source.kind === 'borrowed'
+      ? [[rootNote, source.mode]]
+      : source.minor
+        ? [
+            [source.rootPc, 'harmonicMinor'],
+            [source.rootPc, 'aeolian'],
+          ]
+        : [[source.rootPc, 'ionian']];
+  for (const [scaleRootPc, scaleMode] of scales) {
+    const placed = placeInKey(chordRootPc, intervals, scaleRootPc, scaleMode);
+    if (placed) return { ...placed, scaleRootPc, scaleMode };
+  }
+  return null;
+}
+
+/** The chord placed in a scale, or null when a tone falls outside. */
 function placeInKey(
   chordRootPc: number,
   intervals: readonly number[],
@@ -101,7 +163,9 @@ function placeInKey(
 
   const parentRootPc = (rootNote + info.offset) % 12;
   const scale = new Set(familyIntervals.map((i) => (parentRootPc + i) % 12));
-  if (intervals.some((i) => !scale.has((chordRootPc + i) % 12))) return null;
+  // Slash chords' basses sit below the root, at negative intervals.
+  if (intervals.some((i) => !scale.has((((chordRootPc + i) % 12) + 12) % 12)))
+    return null;
 
   const familyIdx = familyIntervals.indexOf(
     (chordRootPc - parentRootPc + 12) % 12,
@@ -117,20 +181,21 @@ function placeInKey(
   };
 }
 
-/** Qualities whose description would only restate the degree sentence. */
+/** Qualities whose description would only restate where the chord sits. */
 const PLAIN_TRIADS = new Set(['major', 'minor']);
 
 /**
- * A card's theory line: where the chord sits in the key, then what it is —
- * "Built on the 2nd degree of C major. Minor 7th with natural 9th — smooth,
- * soulful". A plain triad in the key needs only the first half.
+ * A card's theory line: what the chord is — "Minor 7th with natural 9th —
+ * smooth, soulful". The degree sentence ("Built on the 2nd degree of C
+ * major") no longer leads it (owner, 2026-10-24): the card's number and its
+ * Mode / Parent scale lessons say where it sits. A plain triad in the key
+ * has nothing more to say, so it gets no line.
  */
 export function chordDescription(
   quality: string,
   context: Pick<ChordModeContext, 'degreeSentence'>,
 ): string {
   const character = getChordTheory(quality).description;
-  if (!context.degreeSentence) return character;
-  if (PLAIN_TRIADS.has(quality)) return context.degreeSentence;
-  return `${context.degreeSentence}. ${character}`;
+  if (context.degreeSentence && PLAIN_TRIADS.has(quality)) return '';
+  return character;
 }

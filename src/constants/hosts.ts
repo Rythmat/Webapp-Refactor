@@ -1,8 +1,7 @@
 /**
  * The site is split across two hosts served by one Vercel build:
  * - `musicatlas.io` (and `www.`, which Vercel redirects to it) serves only
- *   the public pages: landing, `/features/*`, `/blog`, `/for-teachers` and
- *   `/documents/*`.
+ *   the public pages: landing, `/features/*` and `/documents/*`.
  * - `app.musicatlas.io` serves everything, including sign-in and the app.
  *
  * Sign-in state is per origin (Auth0 callback and cache, the single app
@@ -20,12 +19,7 @@ export const APP_ORIGIN = 'https://app.musicatlas.io';
 const MARKETING_HOSTS = new Set(['musicatlas.io', 'www.musicatlas.io']);
 
 /** First path segments the marketing host serves (besides `/`). */
-export const MARKETING_PATH_PREFIXES = [
-  'features',
-  'for-teachers',
-  'blog',
-  'documents',
-] as const;
+export const MARKETING_PATH_PREFIXES = ['features', 'documents'] as const;
 
 const currentHostname = () =>
   typeof window === 'undefined' ? '' : window.location.hostname;

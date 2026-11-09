@@ -1,0 +1,254 @@
+{
+  "id": "merengue_3_2_copy",
+  "name": "Bachata 1",
+  "description": "Basic Bachata groove",
+  "genre": "latin",
+  "style": "Salsa",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 2,
+  "tempo": 148,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "32n",
+  "kit": "latin_percussion_kit",
+  "padGains": {
+    "38": 0.5,
+    "41": 1.5,
+    "42": 1.5,
+    "45": 1.5
+  },
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 720,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 1920,
+      "note": 44,
+      "velocity": 112
+    },
+    {
+      "tick": 2640,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 2880,
+      "note": 44,
+      "velocity": 112
+    },
+    {
+      "tick": 0,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 240,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 480,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 960,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 1200,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 1440,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 1920,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 2160,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 2400,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 3360,
+      "note": 46,
+      "velocity": 96
+    },
+    {
+      "tick": 1680,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 2880,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 3120,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 3600,
+      "note": 44,
+      "velocity": 96
+    },
+    {
+      "tick": 1800,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 720,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 2640,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 3360,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 1440,
+      "note": 38,
+      "velocity": 96
+    },
+    {
+      "tick": 3360,
+      "note": 38,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "note": 48,
+      "velocity": 112
+    },
+    {
+      "tick": 2880,
+      "note": 48,
+      "velocity": 112
+    },
+    {
+      "tick": 0,
+      "note": 48,
+      "velocity": 112
+    },
+    {
+      "tick": 960,
+      "note": 48,
+      "velocity": 112
+    },
+    {
+      "tick": 240,
+      "note": 45,
+      "velocity": 70
+    },
+    {
+      "tick": 480,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 720,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 1200,
+      "note": 45,
+      "velocity": 70
+    },
+    {
+      "tick": 1440,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 1680,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 2160,
+      "note": 45,
+      "velocity": 70
+    },
+    {
+      "tick": 2400,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 2640,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 3120,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 3360,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 3600,
+      "note": 45,
+      "velocity": 38
+    },
+    {
+      "tick": 3660,
+      "note": 45,
+      "velocity": 70
+    },
+    {
+      "tick": 3720,
+      "note": 45,
+      "velocity": 96
+    },
+    {
+      "tick": 3780,
+      "note": 45,
+      "velocity": 96
+    }
+  ]
+}

@@ -16,7 +16,7 @@ import {
   resolvedBackground,
 } from '@/daw/__tests__/dawTokens';
 import { frameTaskNames } from '@/daw/engine/engineClock';
-import { CoachCard } from '../CoachCard';
+import { CoachCard, computeCardPos } from '../CoachCard';
 import {
   anchorEl,
   flushFrame,
@@ -154,5 +154,63 @@ describe('CoachCard position', () => {
     expect(card().style.transition).toBe('none');
     expect(card().style.opacity).not.toBe('0');
     expect(card().querySelector('[style*="tutorialDot"]')).toBeNull();
+  });
+});
+
+// ── Keeping clear of where the student clicks ───────────────────────────────
+// The card avoids the target and any open menu, popover or dialog; when no
+// place avoids the target, it covers as little of it as it can.
+
+describe('computeCardPos', () => {
+  const VW = 1233;
+  const VH = 781;
+  const W = 380;
+  const H = 240;
+  const overlap = (
+    a: { top: number; left: number },
+    b: { top: number; left: number; width: number; height: number },
+  ) =>
+    Math.max(
+      0,
+      Math.min(a.left + W, b.left + b.width) - Math.max(a.left, b.left),
+    ) *
+    Math.max(0, Math.min(a.top + H, b.top + b.height) - Math.max(a.top, b.top));
+
+  it('sits in the larger gap, centred on the target', () => {
+    const target = { top: 100, left: 500, width: 100, height: 40 };
+    expect(computeCardPos(target, W, H, VW, VH)).toEqual({
+      top: 156,
+      left: 360,
+    });
+  });
+
+  it('moves off an open menu that would sit under it', () => {
+    // The Add track menu's Add MIDI row, with its submenu open below-right.
+    const row = { top: 288, left: 28, width: 220, height: 40 };
+    const submenu = { top: 288, left: 250, width: 208, height: 120 };
+    const menu = { top: 240, left: 20, width: 230, height: 130 };
+    const pos = computeCardPos(row, W, H, VW, VH, [menu, submenu]);
+    expect(overlap(pos, row)).toBe(0);
+    expect(overlap(pos, submenu)).toBe(0);
+    expect(overlap(pos, menu)).toBe(0);
+  });
+
+  it('covers as little as it can of a target nearly the window', () => {
+    const mixer = { top: 44, left: 8, width: 880, height: 661 };
+    const pos = computeCardPos(mixer, W, H, VW, VH);
+    // The right edge: only the last 51 px of the mixer's width.
+    expect(pos.left).toBe(VW - W - 16);
+    expect(overlap(pos, mixer)).toBeLessThanOrEqual(
+      (mixer.left + mixer.width + 12 - pos.left) * H,
+    );
+  });
+
+  it('never leaves the window', () => {
+    const target = { top: 0, left: 0, width: VW, height: VH };
+    const pos = computeCardPos(target, W, H, VW, VH);
+    expect(pos.left).toBeGreaterThanOrEqual(16);
+    expect(pos.top).toBeGreaterThanOrEqual(16);
+    expect(pos.left + W).toBeLessThanOrEqual(VW - 16);
+    expect(pos.top + H).toBeLessThanOrEqual(VH - 16);
   });
 });

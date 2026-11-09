@@ -26,14 +26,6 @@ export const ScoreViewPart = lazyPart(
   { name: 'Score', fallback: view('Loading the Score') },
 );
 
-export const LeadSheetViewPart = lazyPart(
-  () =>
-    import('@/daw/components/LeadSheet/LeadSheetView').then(
-      (m) => m.LeadSheetView,
-    ),
-  { name: 'Lead Sheet', fallback: view('Loading the Lead Sheet') },
-);
-
 export const StudioViewPart = lazyPart(
   () => import('@/daw/shell/mix/MixView').then((m) => m.MixView),
   { name: 'Mix view', fallback: view('Loading the Mix view') },
@@ -50,7 +42,8 @@ export const PracticeTrackViewPart = lazyPart(
 /** The chunk of each view but Create (arrange), which is always loaded. */
 const VIEW_PARTS: Partial<Record<ViewType, { preload(): Promise<unknown> }>> = {
   score: ScoreViewPart,
-  leadsheet: LeadSheetViewPart,
+  // The Lead sheet is the Score's one editor (2026-10-21).
+  leadsheet: ScoreViewPart,
   studio: StudioViewPart,
   practice: PracticeTrackViewPart,
 };
@@ -77,15 +70,15 @@ export const EffectsPanelPart = lazyPart(
   { name: 'FX panel', fallback: dock('Loading FX') },
 );
 
-export const GroovesBrowserPart = lazyPart(
+/** The side rail's Library: the browser (milestone 2.14). */
+export const LibraryPart = lazyPart(
   () =>
-    import('@/daw/components/Controls/GroovesBrowser').then(
-      (m) => m.GroovesBrowser,
+    import('@/daw/shell/inspector/library/LibraryPanel').then(
+      (m) => m.LibraryPanel,
     ),
-  { name: 'Grooves browser', fallback: dock('Loading Grooves') },
+  { name: 'Library', fallback: dock('Loading the Library') },
 );
 
-/** The side rail's Library: the browser (milestone 2.14). */
 export const BrowserPart = lazyPart(
   () =>
     import('@/daw/shell/inspector/browser/BrowserPanel').then(
@@ -107,12 +100,6 @@ export const ClipPianoRollPart = lazyPart(
   { name: 'piano roll', fallback: dock('Loading the piano roll') },
 );
 
-/** Master in the dock's slot (2.9): the mastering rack's parts. */
-export const DockMasterPart = lazyPart(
-  () => import('@/daw/shell/dock/DockMaster').then((m) => m.DockMaster),
-  { name: 'Master', fallback: dock('Loading Master') },
-);
-
 // The Instrument tab's frame (TrackControlsPanel) is small and stays in the
 // editor's chunk; the instrument view inside it loads (below), so opening
 // the tab is one fetch, not two in a row.
@@ -120,7 +107,6 @@ const TAB_PARTS: Partial<
   Record<ChannelStripTabId, { preload(): Promise<unknown> }>
 > = {
   fx: EffectsPanelPart,
-  grooves: GroovesBrowserPart,
   prism: PrismPanelPart,
   'piano-roll': ClipPianoRollPart,
 };
@@ -144,25 +130,12 @@ export function preloadDockTab(
 
 const instrument = () => <PartPlaceholder label="Loading the instrument" />;
 
-export const KeyboardViewPart = lazyPart(
-  () =>
-    import('@/daw/components/Controls/KeyboardView').then(
-      (m) => m.KeyboardView,
-    ),
-  { name: 'keyboard', fallback: instrument() },
-);
-
-export const OrganViewPart = lazyPart(
-  () => import('@/daw/components/Controls/OrganView').then((m) => m.OrganView),
-  { name: 'organ', fallback: instrument() },
-);
-
 export const GuitarBassViewPart = lazyPart(
   () =>
     import('@/daw/components/Controls/GuitarBassView').then(
       (m) => m.GuitarBassView,
     ),
-  { name: 'amp and pedals', fallback: instrument() },
+  { name: 'audio track', fallback: instrument() },
 );
 
 export const OracleSynthInlinePart = lazyPart(
@@ -203,35 +176,12 @@ export const DrumPadsViewPart = lazyPart(
   { name: 'drum kit', fallback: instrument() },
 );
 
-export const SamplerChopsViewPart = lazyPart(
-  () =>
-    import('@/daw/components/Controls/SamplerChopsView').then(
-      (m) => m.SamplerChopsView,
-    ),
-  { name: 'sampler', fallback: instrument() },
-);
-
-export const VocalViewPart = lazyPart(
-  () => import('@/daw/components/Controls/VocalView').then((m) => m.VocalView),
-  { name: 'vocal chain', fallback: instrument() },
-);
-
 /** The view each instrument's Controls tab shows (TrackControlsPanel). */
 function instrumentPart(
   instrumentId: string,
 ): { preload(): Promise<unknown> } | null {
   switch (instrumentId) {
-    case 'piano-sampler':
-    case 'electric-piano':
-    case 'bass-electric':
-    case 'guitar-acoustic':
-    case 'cello':
-    case 'organ':
-      return KeyboardViewPart;
-    case 'tonewheel-organ':
-      return OrganViewPart;
-    case 'guitar-fx':
-    case 'bass-fx':
+    case 'audio-input':
       return GuitarBassViewPart;
     case 'oracle-synth':
       return OracleSynthInlinePart;
@@ -239,10 +189,6 @@ function instrumentPart(
       return SoundFontViewPart;
     case 'drum-machine':
       return DrumPadsViewPart;
-    case 'sampler':
-      return SamplerChopsViewPart;
-    case 'vocal-fx':
-      return VocalViewPart;
     default:
       return null;
   }
@@ -343,13 +289,15 @@ export function ChordAnalysisPromptHost() {
  */
 export function TutorialLayerHost() {
   const activeId = useStore((s) => s.activeTutorialId);
+  // A course lesson's end card, once the lesson is over.
+  const finishedId = useStore((s) => s.finishedTutorialId);
   useEffect(() => {
     const tutorial = getTutorial(activeId);
     if (!tutorial) return;
     const instruments = useStore.getState().tracks.map((t) => t.instrument);
     preloadForLesson(tutorial.steps, instruments);
   }, [activeId]);
-  return activeId ? <TutorialLayerPart /> : null;
+  return activeId || finishedId ? <TutorialLayerPart /> : null;
 }
 
 // ── Lessons ─────────────────────────────────────────────────────────────────
@@ -357,7 +305,8 @@ export function TutorialLayerHost() {
 /**
  * Fetch what a lesson's steps open (their views and dock tabs, and the
  * Controls tab's view for each instrument in the project), so a step that
- * switches to one shows it at once rather than a placeholder.
+ * switches to one shows it at once rather than a placeholder. A demo that
+ * points at a view tab (view-switch-<view>) is taken to open that view.
  */
 export function preloadForLesson(
   steps: readonly TutorialStep[],
@@ -366,6 +315,12 @@ export function preloadForLesson(
   TutorialLayerPart.preload().catch(() => {});
   const instruments = [...instrumentIds];
   for (const step of steps) {
+    for (const beat of step.demo ?? []) {
+      for (const id of [beat.target ?? []].flat()) {
+        const view = /^view-switch-(\w+)$/.exec(id)?.[1];
+        if (view) preloadView(view as ViewType);
+      }
+    }
     const { view: stepView, channelStripTab } = step.requires ?? {};
     if (stepView) preloadView(stepView);
     if (channelStripTab === 'controls') preloadInstrumentViews(instruments);

@@ -104,6 +104,28 @@ describe('buildDesignedDrums', () => {
     );
     expect(notes.map((n) => n.onset)).toEqual([0, 1920, 3840]);
   });
+
+  it('plays none of the hits a shortened groove keeps past its end', () => {
+    // A 2-bar groove cut to 1 bar keeps its bar-2 snare for the designer.
+    const shortened = resizeLoop(
+      groove({
+        bars: 2,
+        hits: [
+          { tick: 0, note: 36, velocity: 90 },
+          { tick: 1920 + 960, note: 38, velocity: 90 },
+        ],
+      }),
+      1,
+    );
+    expect(shortened.hits).toHaveLength(2);
+    const notes = buildDesignedDrums(shortened, 4);
+    expect(notes.map((n) => [n.onset, n.note])).toEqual([
+      [0, 36],
+      [1920, 36],
+      [3840, 36],
+      [5760, 36],
+    ]);
+  });
 });
 
 describe('resizeLoop', () => {

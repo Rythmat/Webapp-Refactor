@@ -14,7 +14,10 @@ import { ArpPanel } from '@/daw/oracle-synth/components/arp/ArpPanel';
 import { PresetSelector } from '@/daw/oracle-synth/components/preset/PresetSelector';
 import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
 import { KeyScaleBar } from '@/daw/oracle-synth/components/keyboard/KeyScaleBar';
+import { typingKeyFor } from '@/daw/commands/musicalTypingMap';
+import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import { useLiveChordColor } from '@/daw/hooks/useLiveChordColor';
+import { useSoundingNotes } from '@/daw/hooks/useSoundingNotes';
 import { WheelControl } from '@/daw/oracle-synth/components/controls/WheelControl';
 import { Knob } from '@/daw/oracle-synth/components/controls/Knob';
 import { NumberStepper } from '@/daw/oracle-synth/components/controls/NumberStepper';
@@ -29,17 +32,26 @@ import { COLOR } from '@/daw/ui/tokens';
 
 interface DawSynthLayoutProps {
   engine: SynthEngine;
+  /** The synth's track: its keyboard holds down what the track sounds. */
+  trackId?: string | null;
 }
 
-export const DawSynthLayout: FC<DawSynthLayoutProps> = ({ engine }) => {
+export const DawSynthLayout: FC<DawSynthLayoutProps> = ({
+  engine,
+  trackId,
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scale, offsetX, offsetY } = useContainerScale(containerRef);
 
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
+  const typingOctave = useMusicalTypingStore((s) => s.octave);
+  const typing = useMusicalTypingStore((s) => s.enabled);
   const hwActiveNotes = useStore((s) => s.hwActiveNotes);
+  // The timeline's notes hold their keys down too (useSoundingNotes).
+  const sounding = useSoundingNotes(trackId);
   const mergedNotes = useMemo(
-    () => new Set([...activeNotes, ...hwActiveNotes]),
-    [activeNotes, hwActiveNotes],
+    () => new Set([...activeNotes, ...hwActiveNotes, ...sounding]),
+    [activeNotes, hwActiveNotes, sounding],
   );
   const chordColor = useLiveChordColor(mergedNotes);
 
@@ -188,6 +200,12 @@ export const DawSynthLayout: FC<DawSynthLayoutProps> = ({ engine }) => {
             <PianoKeyboard
               startNote={36}
               endNote={96}
+              // The computer keyboard's letters (while Typing keys is on)
+              // and each C's name, as the dock's piano shows them.
+              keyLabel={
+                typing ? (note) => typingKeyFor(note, typingOctave) : undefined
+              }
+              octaveLabels
               activeNotes={mergedNotes}
               activeColor={chordColor ?? undefined}
               onNoteOn={handleNoteOn}

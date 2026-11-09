@@ -52,8 +52,18 @@ describe('useMidiInputRouting — wheels and controllers', () => {
     engine.noteOn.mockClear();
     engine.noteOff.mockClear();
     trackEngineRegistry.set('t1', { trackEngine: engine } as never);
+    // A device's notes and wheels reach the track that monitors it (armed
+    // and monitoring), not just the selected one (2026-10-22).
     useStore.setState({
-      tracks: [],
+      tracks: [
+        {
+          id: 't1',
+          type: 'midi',
+          recordArmed: true,
+          monitoring: true,
+          midiInputId: null,
+        },
+      ],
       selectedTrackId: 't1',
       inputs: [{ id: 'kbd', name: 'Keyboard', type: 'input' }],
     } as never);
@@ -65,7 +75,7 @@ describe('useMidiInputRouting — wheels and controllers', () => {
     setActiveSynthTrack(null);
   });
 
-  it('sends pitch bend and the mod wheel to the selected track', () => {
+  it('sends pitch bend and the mod wheel to the track monitoring the device', () => {
     renderHook(() => useMidiInputRouting());
     handlers.onPitchBend?.(0.5);
     handlers.onCC?.(1, 100);

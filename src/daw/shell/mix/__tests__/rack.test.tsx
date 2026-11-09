@@ -17,7 +17,7 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { useStore } from '@/daw/store';
-import { FxBody } from '@/daw/shell/inspector/panels/FxBody';
+import { EffectPickerBody } from '@/daw/shell/dock/EffectPicker';
 import { FxRack } from '../FxRack';
 import { RackDock } from '../RackDock';
 import { openRack, rackTargetOf } from '../rackTarget';
@@ -77,8 +77,8 @@ describe('which rack the library fills', () => {
     useStore.setState({
       remoteUsers: new Map([[7, { selectedTrackId: synth } as never]]) as never,
     });
-    render(<FxBody />);
-    fireEvent.click(screen.getByTestId('inspector-fx-eq'));
+    render(<EffectPickerBody />);
+    fireEvent.click(screen.getByTestId('effect-picker-eq'));
     expect(s().tracks[0].activeEffects).not.toContain('eq');
     expect(s().mixRack).toBeNull();
     expect(screen.getByTestId('effects-library-slot').textContent).toContain(
@@ -89,13 +89,13 @@ describe('which rack the library fills', () => {
   it('adds to a return’s rack in Mix, without the sidechain', () => {
     s().setCurrentView('studio');
     openRack({ kind: 'return', id: 'A' });
-    render(<FxBody />);
+    render(<EffectPickerBody />);
     expect(screen.getByTestId('effects-library-target').textContent).toContain(
-      'Return A',
+      'Send A',
     );
-    expect(screen.queryByTestId('inspector-fx-ducker')).toBeNull();
+    expect(screen.queryByTestId('effect-picker-ducker')).toBeNull();
     const before = s().returns.find((r) => r.id === 'A')!.fxChain.length;
-    fireEvent.click(screen.getByTestId('inspector-fx-compressor'));
+    fireEvent.click(screen.getByTestId('effect-picker-compressor'));
     const ret = s().returns.find((r) => r.id === 'A')!;
     expect(ret.fxChain).toContain('compressor');
     expect(ret.fxChain.length).toBe(before + 1);
@@ -103,7 +103,7 @@ describe('which rack the library fills', () => {
     // The anchors say which rack they add to.
     expect(
       screen
-        .getByTestId('inspector-fx-eq')
+        .getByTestId('effect-picker-eq')
         .getAttribute('data-tutorial-target'),
     ).toBe('return:A');
   });
@@ -111,21 +111,21 @@ describe('which rack the library fills', () => {
   it('adds to the master in Mix, stamped for the lesson’s master step', () => {
     s().setCurrentView('studio');
     openRack({ kind: 'master' });
-    render(<FxBody />);
+    render(<EffectPickerBody />);
     expect(
       screen
-        .getByTestId('inspector-fx-compressor')
+        .getByTestId('effect-picker-compressor')
         .getAttribute('data-tutorial-target'),
     ).toBe('master');
-    fireEvent.click(screen.getByTestId('inspector-fx-compressor'));
+    fireEvent.click(screen.getByTestId('effect-picker-compressor'));
     expect(s().masteringFxChain).toContain('compressor');
     expect(s().tracks[0].activeEffects).not.toContain('compressor');
   });
 
   it('opens the track’s rack in Mix when it adds to the selected track', () => {
     s().setCurrentView('studio');
-    render(<FxBody />);
-    fireEvent.click(screen.getByTestId('inspector-fx-eq'));
+    render(<EffectPickerBody />);
+    fireEvent.click(screen.getByTestId('effect-picker-eq'));
     expect(s().tracks[0].activeEffects).toContain('eq');
     expect(s().mixRack).toEqual({ kind: 'track', id: synth });
   });
@@ -154,7 +154,7 @@ describe('the RackDock', () => {
     const body = screen.getByTestId('rack-dock-body');
     expect(body.getAttribute('data-tutorial-id')).toBe('return-fx-A');
     expect(screen.getByTestId('fx-rack').dataset.rack).toBe('return:A');
-    expect(screen.getByText('Effects · Return A')).toBeTruthy();
+    expect(screen.getByText('Effects · Send A')).toBeTruthy();
 
     fireEvent.click(screen.getByTestId('rack-dock-toggle'));
     expect(s().mixRack).toBeNull();
@@ -162,6 +162,30 @@ describe('the RackDock', () => {
     // The bar's button opens the last rack again.
     fireEvent.click(screen.getByTestId('rack-dock-toggle'));
     expect(s().mixRack).toEqual({ kind: 'return', id: 'A' });
+  });
+
+  it('gives Master no EQ by default, and the track’s EQ card once added (2026-10-22)', () => {
+    s().setCurrentView('studio');
+    render(<RackDock />);
+    act(() => openRack({ kind: 'master' }));
+    expect(screen.getByTestId('fx-rack').dataset.rack).toBe('master');
+    expect(s().masteringFxChain).not.toContain('eq');
+    expect(screen.queryByTestId('fx-card-eq')).toBeNull();
+
+    act(() => s().addMasteringFx('eq'));
+    expect(s().masteringFxChain).toEqual(['eq']);
+    expect(s().masteringEffects.eq.enabled).toBe(true);
+    expect(screen.getByTestId('fx-card-eq')).toBeTruthy();
+  });
+
+  it('lists an EQ a fixed Master EQ turned on, so it never plays unseen', () => {
+    s().setCurrentView('studio');
+    s().updateMasteringEffects({
+      eq: { ...s().masteringEffects.eq, enabled: true },
+    });
+    render(<RackDock />);
+    act(() => openRack({ kind: 'master' }));
+    expect(screen.getByTestId('fx-card-eq')).toBeTruthy();
   });
 
   it('shows a deleted track’s rack as shut', () => {
@@ -191,8 +215,8 @@ describe('the RackDock', () => {
 });
 
 describe('FxRack', () => {
-  // Each kind of rack writes its own slice and only it: a power switch in
-  // the side layout's chain list turns the effect off where it lives.
+  // Each kind of rack writes its own slice and only it: an effect card's
+  // on switch turns the effect off where it lives.
   const effectOf = (
     kind: 'track' | 'return' | 'master',
   ): { enabled: boolean } =>
@@ -201,36 +225,46 @@ describe('FxRack', () => {
       : kind === 'return'
         ? s().returns.find((r) => r.id === 'A')!.effects
         : s().masteringEffects
-    ).eq as { enabled: boolean };
+    ).delay as { enabled: boolean };
 
   it.each([
     ['track' as const, () => ({ kind: 'track' as const, id: synth })],
     ['return' as const, () => ({ kind: 'return' as const, id: 'A' as const })],
     ['master' as const, () => ({ kind: 'master' as const })],
   ])('switches an effect off in the %s rack and nowhere else', (kind, t) => {
-    s().addActiveEffect(synth, 'eq');
-    s().addReturnFx('A', 'eq');
-    s().addMasteringFx('eq');
+    // The delay: Master's EQ is its fixed card, never in its chain.
+    s().addActiveEffect(synth, 'delay');
+    s().addReturnFx('A', 'delay');
+    s().addMasteringFx('delay');
     const before = {
       track: effectOf('track').enabled,
       return: effectOf('return').enabled,
       master: effectOf('master').enabled,
     };
-    render(<FxRack target={t()} layout="side" />);
-    fireEvent.click(screen.getByRole('button', { name: 'EQ on' }));
+    render(<FxRack target={t()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Delay on' }));
     for (const k of ['track', 'return', 'master'] as const) {
       expect(effectOf(k).enabled, k).toBe(k === kind ? !before[k] : before[k]);
     }
   });
 
-  it('lists the chain beside the controls in the side layout', () => {
+  it('shows the chain as cards, the Add effect card after them', () => {
     s().addMasteringFx('compressor');
-    render(<FxRack target={{ kind: 'master' }} layout="side" />);
-    expect(screen.getByTestId('fx-rack').dataset.layout).toBe('side');
-    expect(screen.getByText('1 of 5')).toBeTruthy();
-    // Its Add effect arms the library, as the dock's slot does.
+    s().addMasteringFx('delay');
+    render(<FxRack target={{ kind: 'master' }} />);
+    const row = screen.getByRole('group', { name: 'Effects chain' });
+    expect(
+      [...row.children].map((card) => (card as HTMLElement).dataset.testid),
+    ).toEqual(['fx-card-compressor', 'fx-card-delay', 'fx-add-slot']);
+    // No In and Out ends: the row is the chain.
+    expect(screen.queryByText('In')).toBeNull();
+    expect(screen.queryByText('Out')).toBeNull();
+    expect(screen.getByText('2 of 5')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Delay' }));
+    expect(s().masteringFxChain).toEqual(['compressor']);
+    // Its Add effect opens the picker, as the dock's slot does.
     fireEvent.click(screen.getByTestId('fx-add-slot'));
-    expect(s().libraryOpen && s().inspectorPanel === 'fx').toBe(true);
+    expect(s().effectPickerOpen).toBe(true);
   });
 });
 
@@ -268,23 +302,15 @@ describe('the RackDock’s height', () => {
 });
 
 describe('one implementation', () => {
-  // The dock's Master and the Mix view's master column are built from the
-  // same modules, so the two can't drift apart.
+  // The dock's Effects (a track's or Master's) and the Mix view's racks are
+  // built from the same modules, so they can't drift apart.
   const read = (path: string) =>
     readFileSync(resolve(__dirname, '..', path), 'utf8');
 
-  it('the dock’s Master and Effects tab use FxRack and the master parts', () => {
-    const dockMaster = read('../dock/DockMaster.tsx');
-    expect(dockMaster).toContain("from '@/daw/shell/mix/FxRack'");
-    expect(dockMaster).toContain(
-      "from '@/daw/shell/mix/master/MasterGainFader'",
-    );
-    expect(dockMaster).toContain(
-      "from '@/daw/shell/mix/master/MasterOutputMeter'",
-    );
-    expect(read('../dock/DockEffects.tsx')).toContain(
-      "from '@/daw/shell/mix/FxRack'",
-    );
+  it('the dock’s Effects, a track’s or Master’s, is the FxRack', () => {
+    const effects = read('../dock/DockEffects.tsx');
+    expect(effects).toContain("from '@/daw/shell/mix/FxRack'");
+    expect(effects).toContain("kind: 'master'");
   });
 
   it('the Mix master column uses the same master parts', () => {
@@ -292,8 +318,9 @@ describe('one implementation', () => {
     expect(column).toMatch(
       /from '(\.\/|@\/daw\/shell\/mix\/)master\/MasterGainFader'/,
     );
+    // Its level is in its volume pill, as a track strip's is (2026-10-21).
     expect(column).toMatch(
-      /from '(\.\/|@\/daw\/shell\/mix\/)master\/MasterOutputMeter'/,
+      /from '(\.\/|@\/daw\/shell\/mix\/)master\/MasterBypass'/,
     );
   });
 });

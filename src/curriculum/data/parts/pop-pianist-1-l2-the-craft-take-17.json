@@ -1,0 +1,368 @@
+{
+  "id": "pop-pianist-1-l2-the-craft-take-17",
+  "name": "Pop-Pianist-1 · L2 · The Craft take 17",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": [],
+  "status": "draft",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 8,
+  "tempo": 118,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "offset": 6,
+      "duration": 960,
+      "midi": 60,
+      "velocity": 80
+    },
+    {
+      "tick": 0,
+      "offset": 1,
+      "duration": 960,
+      "midi": 64,
+      "velocity": 106
+    },
+    {
+      "tick": 0,
+      "offset": 6,
+      "duration": 960,
+      "midi": 67,
+      "velocity": 88
+    },
+    {
+      "tick": 1200,
+      "offset": 23,
+      "duration": 600,
+      "midi": 60,
+      "velocity": 104
+    },
+    {
+      "tick": 1200,
+      "offset": 23,
+      "duration": 600,
+      "midi": 64,
+      "velocity": 127
+    },
+    {
+      "tick": 1200,
+      "offset": 23,
+      "duration": 600,
+      "midi": 67,
+      "velocity": 115
+    },
+    {
+      "tick": 1920,
+      "offset": 26,
+      "duration": 960,
+      "midi": 59,
+      "velocity": 95
+    },
+    {
+      "tick": 1920,
+      "offset": 26,
+      "duration": 960,
+      "midi": 62,
+      "velocity": 104
+    },
+    {
+      "tick": 1920,
+      "offset": 21,
+      "duration": 960,
+      "midi": 67,
+      "velocity": 102
+    },
+    {
+      "tick": 3120,
+      "offset": 15,
+      "duration": 480,
+      "midi": 59,
+      "velocity": 108
+    },
+    {
+      "tick": 3120,
+      "offset": 15,
+      "duration": 600,
+      "midi": 62,
+      "velocity": 113
+    },
+    {
+      "tick": 3120,
+      "offset": 15,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 108
+    },
+    {
+      "tick": 3840,
+      "offset": 19,
+      "duration": 960,
+      "midi": 60,
+      "velocity": 103
+    },
+    {
+      "tick": 3840,
+      "offset": 19,
+      "duration": 960,
+      "midi": 64,
+      "velocity": 126
+    },
+    {
+      "tick": 3840,
+      "offset": 19,
+      "duration": 960,
+      "midi": 69,
+      "velocity": 114
+    },
+    {
+      "tick": 5040,
+      "offset": 8,
+      "duration": 600,
+      "midi": 60,
+      "velocity": 104
+    },
+    {
+      "tick": 5040,
+      "offset": 8,
+      "duration": 600,
+      "midi": 64,
+      "velocity": 121
+    },
+    {
+      "tick": 5040,
+      "offset": 8,
+      "duration": 600,
+      "midi": 69,
+      "velocity": 115
+    },
+    {
+      "tick": 5760,
+      "offset": 28,
+      "duration": 960,
+      "midi": 60,
+      "velocity": 87
+    },
+    {
+      "tick": 5760,
+      "offset": 28,
+      "duration": 960,
+      "midi": 65,
+      "velocity": 120
+    },
+    {
+      "tick": 5760,
+      "offset": 28,
+      "duration": 960,
+      "midi": 69,
+      "velocity": 110
+    },
+    {
+      "tick": 6960,
+      "offset": 22,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 102
+    },
+    {
+      "tick": 6960,
+      "offset": 22,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 119
+    },
+    {
+      "tick": 6960,
+      "offset": 22,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 113
+    },
+    {
+      "tick": 7680,
+      "offset": 4,
+      "duration": 960,
+      "midi": 60,
+      "velocity": 89
+    },
+    {
+      "tick": 7680,
+      "offset": 4,
+      "duration": 960,
+      "midi": 64,
+      "velocity": 110
+    },
+    {
+      "tick": 7680,
+      "offset": 9,
+      "duration": 960,
+      "midi": 67,
+      "velocity": 112
+    },
+    {
+      "tick": 8880,
+      "offset": 4,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 108
+    },
+    {
+      "tick": 8880,
+      "offset": 9,
+      "duration": 480,
+      "midi": 64,
+      "velocity": 120
+    },
+    {
+      "tick": 8880,
+      "offset": 4,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 114
+    },
+    {
+      "tick": 9600,
+      "offset": 7,
+      "duration": 960,
+      "midi": 59,
+      "velocity": 91
+    },
+    {
+      "tick": 9600,
+      "offset": 7,
+      "duration": 960,
+      "midi": 62,
+      "velocity": 110
+    },
+    {
+      "tick": 9600,
+      "offset": 13,
+      "duration": 120,
+      "midi": 65,
+      "velocity": 87
+    },
+    {
+      "tick": 9600,
+      "offset": 7,
+      "duration": 960,
+      "midi": 67,
+      "velocity": 82
+    },
+    {
+      "tick": 10800,
+      "offset": -15,
+      "duration": 600,
+      "midi": 59,
+      "velocity": 82
+    },
+    {
+      "tick": 10800,
+      "offset": -15,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 108
+    },
+    {
+      "tick": 10800,
+      "offset": -20,
+      "duration": 600,
+      "midi": 67,
+      "velocity": 109
+    },
+    {
+      "tick": 11520,
+      "offset": 11,
+      "duration": 960,
+      "midi": 57,
+      "velocity": 74
+    },
+    {
+      "tick": 11520,
+      "offset": 5,
+      "duration": 960,
+      "midi": 60,
+      "velocity": 109
+    },
+    {
+      "tick": 11520,
+      "offset": 11,
+      "duration": 960,
+      "midi": 64,
+      "velocity": 110
+    },
+    {
+      "tick": 12720,
+      "offset": 16,
+      "duration": 600,
+      "midi": 57,
+      "velocity": 96
+    },
+    {
+      "tick": 12720,
+      "offset": 16,
+      "duration": 600,
+      "midi": 60,
+      "velocity": 108
+    },
+    {
+      "tick": 12720,
+      "offset": 11,
+      "duration": 600,
+      "midi": 64,
+      "velocity": 119
+    },
+    {
+      "tick": 13440,
+      "offset": 3,
+      "duration": 1080,
+      "midi": 57,
+      "velocity": 88
+    },
+    {
+      "tick": 13440,
+      "offset": 3,
+      "duration": 1080,
+      "midi": 60,
+      "velocity": 105
+    },
+    {
+      "tick": 13440,
+      "offset": 9,
+      "duration": 1080,
+      "midi": 65,
+      "velocity": 104
+    },
+    {
+      "tick": 14640,
+      "offset": 36,
+      "duration": 360,
+      "midi": 57,
+      "velocity": 108
+    },
+    {
+      "tick": 14640,
+      "offset": 36,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 106
+    },
+    {
+      "tick": 14640,
+      "offset": 36,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 119
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "pop",
+  "chordSymbols": ["C", "G", "Am", "F", "C", "G", "Am", "F"]
+}

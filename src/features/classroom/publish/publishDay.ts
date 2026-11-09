@@ -122,6 +122,26 @@ const projectAtlas = (
   ...(atlas.board ? { board: projectMindMapBoard(atlas.board) } : {}),
 });
 
+/** An Echo slide's setup, whitelist-copied field by field like the rest. */
+const projectEcho = (
+  echo: NonNullable<Interaction['echo']>,
+): NonNullable<Interaction['echo']> => ({
+  level: echo.level,
+  key: { tonic: echo.key.tonic, mode: echo.key.mode },
+  leader: echo.leader,
+  ...(echo.tempo !== undefined ? { tempo: echo.tempo } : {}),
+  settings: {
+    playOn: echo.settings.playOn,
+    sound: echo.settings.sound,
+    afterRound: echo.settings.afterRound,
+    lights: echo.settings.lights,
+    classProgress: echo.settings.classProgress,
+    projector: echo.settings.projector,
+    snapCall: echo.settings.snapCall,
+    grading: echo.settings.grading,
+  },
+});
+
 const projectInteraction = (interaction: Interaction): Interaction => {
   // Whitelist copy — do NOT spread `interaction` in case future extensions
   // sneak teacher-only fields onto the Interaction type. Every field the
@@ -130,8 +150,12 @@ const projectInteraction = (interaction: Interaction): Interaction => {
     id: interaction.id,
     type: interaction.type,
     question: interaction.question,
-    // Rule 2 belt: `check-in` is hard-`false` regardless of the source value.
-    shareable: interaction.type === 'check-in' ? false : interaction.shareable,
+    // Rule 2 belt: `check-in` and `echo` are hard-`false` regardless of the
+    // source value.
+    shareable:
+      interaction.type === 'check-in' || interaction.type === 'echo'
+        ? false
+        : interaction.shareable,
   };
   if (interaction.choice) out.choice = interaction.choice;
   if (interaction.number) out.number = interaction.number;
@@ -139,6 +163,7 @@ const projectInteraction = (interaction: Interaction): Interaction => {
   if (interaction.draw) out.draw = interaction.draw;
   if (interaction.checkIn) out.checkIn = interaction.checkIn;
   if (interaction.atlas) out.atlas = projectAtlas(interaction.atlas);
+  if (interaction.echo) out.echo = projectEcho(interaction.echo);
   return out;
 };
 

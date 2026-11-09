@@ -1,8 +1,20 @@
-import { Lock, Play } from 'lucide-react';
-import { useMemo, type FC } from 'react';
-import { HexWaveBackground } from '@/components/ui/hex-wave-background';
-import { generateStudioTileSvg } from '@/lib/studioProjectTile';
-import type { ArcadeGame } from '../arcadeGames';
+import { useReducedMotion } from 'framer-motion';
+import { Play } from 'lucide-react';
+import type { FC } from 'react';
+import { CymaticsCover } from '@/components/art/cymatics/CymaticsCover';
+import { SpectrumRim } from '@/components/art/light/SpectrumLight';
+import { GLOW_VARS } from '@/components/kit/HeroArt';
+import {
+  GoButton,
+  PROMPT_FRAME,
+  PROMPT_WASH,
+} from '@/components/promptBox/PromptBoxParts';
+import { cn } from '@/components/utilities';
+import type { ChladniMode } from '@/lib/art';
+import { artForGame, type ArcadeGame } from '../arcadeGames';
+
+/** A game that names no figure (none in the catalog). */
+const DEFAULT_MODE = { n: 3, m: 1, sign: 1 } as const;
 
 const relativeTime = (ts: number): string => {
   const diff = Date.now() - ts;
@@ -17,150 +29,102 @@ const relativeTime = (ts: number): string => {
 
 interface GameCardProps {
   game: ArcadeGame;
-  /** Show the "Free" badge — only meaningful to free users, so premium users
-   *  never see it (every game is unlocked for them). */
+  /** Say "Free" — only to free users (every game is unlocked for premium). */
   showFreeBadge: boolean;
   locked: boolean;
   onLaunch: () => void;
-  /** Wider layout used by the "Jump back in" row. */
-  wide?: boolean;
-  /** When set (jump-back-in), shows a "last played" subtitle instead of the blurb. */
+  /** "Jump back in": when it was last played, in the corner. */
   lastPlayedAt?: number;
-  /** Genre-card-style portrait tile (aspect-[3/4], full-bleed art + title
-   *  overlay, no blurb) used by the category shelves' dashboard variant. */
-  portrait?: boolean;
+  /** The figures this card morphs through: the page keeps every card's
+   *  apart (left out, the game's own and its near resonances). */
+  figures?: readonly ChladniMode[];
 }
 
 /**
- * A single Arcade game "cover-art" card — an interactive HexWaveBackground tile
- * (the same hex art used across the app: lessons, studio projects, the Arcade
- * hero) seeded deterministically per game, under a legibility wash, with a
- * Free/Premium badge, hover-to-play, and title + one-liner. Shared by the
- * category shelves and the "Jump back in" row.
+ * A game as the featured Jam Room card is drawn (owner, 2026-10-28: "apply
+ * the UI style used by the Jam Room card to the rest of the cards"): the
+ * prompt box's card (PROMPT_FRAME + PROMPT_WASH), the game's own Chladni
+ * figure in one of the page glow's colours (the page sets --home-glow-a/-b;
+ * they ease as the glow eases), that light leaking along its foot, and the prompt box's
+ * Go pill to play it. Hovered or focused, its light rims the whole card
+ * (the waves keep the glow's colours: owner, 2026-10-28, no rainbow).
+ * Its name and a quiet note ("Free", "2h ago") sit at the foot beside the
+ * pill; a click anywhere on the card is the pill's. Its locked state is the
+ * shelf's (LockedFeatureOverlay round it).
  */
 export const GameCard: FC<GameCardProps> = ({
   game,
   showFreeBadge,
   locked,
   onLaunch,
-  wide = false,
   lastPlayedAt,
-  portrait = false,
+  figures,
 }) => {
-  const tile = useMemo(
-    () =>
-      generateStudioTileSvg(
-        `arcade:${game.title}`,
-        portrait ? 360 : 480,
-        portrait ? 480 : 280,
-      ),
-    [game.title, portrait],
-  );
-
-  const subtitle =
+  const reduce = useReducedMotion() ?? false;
+  const art = artForGame(game);
+  const corner =
     lastPlayedAt != null
-      ? `Last played ${relativeTime(lastPlayedAt)}`
-      : game.blurb;
-
-  // Genre-card-style portrait tile: full-bleed hex art in an aspect-[3/4] tile
-  // with a title overlay (dashboard font), keeping the badge + hover-play.
-  if (portrait) {
-    return (
-      <button
-        type="button"
-        onClick={locked ? undefined : onLaunch}
-        aria-label={`Play ${game.title}`}
-        className="group relative flex aspect-[3/4] w-[220px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] text-left transition-transform hover:-translate-y-px hover:border-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7ecfcf]/60"
-      >
-        <HexWaveBackground
-          src={tile}
-          drain={false}
-          ambient
-          backgroundColor="#101012"
-          colorThreshold={0.05}
-          brushRadius={40}
-          className="pointer-events-none absolute inset-0 h-full w-full"
-        />
-        {/* Legibility wash so the title, badge, and play button read over art. */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/20" />
-
-        {/* Title overlay — Genre-card chip, dashboard font. */}
-        <div className="relative z-10 m-3 rounded-lg bg-black/70 px-4 py-3 backdrop-blur-sm md:rounded-xl">
-          <div className="text-base font-medium text-white md:text-xl">
-            {game.title}
-          </div>
-        </div>
-
-        {locked ? (
-          <span className="absolute bottom-3 left-3 z-10 inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/45 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-white/70 backdrop-blur-sm">
-            <Lock className="h-3 w-3" /> Premium
-          </span>
-        ) : showFreeBadge ? (
-          <span className="absolute bottom-3 left-3 z-10 rounded-full border border-emerald-400/40 bg-emerald-400/15 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-sm">
-            Free
-          </span>
-        ) : null}
-
-        {!locked && (
-          <span className="pointer-events-none absolute inset-0 z-10 grid place-items-center">
-            <span className="grid h-12 w-12 place-items-center rounded-full bg-[#7ecfcf] text-[#06201f] opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100">
-              <Play className="h-5 w-5" fill="currentColor" />
-            </span>
-          </span>
-        )}
-      </button>
-    );
-  }
+      ? relativeTime(lastPlayedAt)
+      : showFreeBadge
+        ? 'Free'
+        : null;
+  const open = locked ? undefined : onLaunch;
 
   return (
-    <button
-      type="button"
-      onClick={locked ? undefined : onLaunch}
-      aria-label={`Play ${game.title}`}
-      className={`group relative flex shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] text-left transition-all duration-200 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7ecfcf]/60 ${
-        wide ? 'w-[300px]' : 'w-[236px]'
-      }`}
+    <div
+      onClick={open}
+      title={game.blurb}
+      data-arcade-tile={game.title}
+      className={cn(
+        PROMPT_FRAME,
+        PROMPT_WASH,
+        'art-host group isolate aspect-square cursor-pointer overflow-hidden',
+      )}
     >
-      <div
-        className={`relative overflow-hidden ${wide ? 'h-[150px]' : 'h-[138px]'}`}
-      >
-        {/* Interactive hex tile — pointer-events-none so the card click still
-            launches the game while the canvas paints toward the cursor. */}
-        <HexWaveBackground
-          src={tile}
-          drain={false}
-          ambient
-          backgroundColor="#101012"
-          colorThreshold={0.05}
-          brushRadius={40}
-          className="pointer-events-none absolute inset-0 h-full w-full"
+      {/* The figure on its own square, the whole card (a Chladni plate is
+          square: owner, 2026-10-28), darkening toward the foot so the name
+          and the pill read over it. */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        {/* Drawn exactly, morphing through its plate's resonances. */}
+        <CymaticsCover
+          seed={art.seed}
+          mode={art.mode ?? DEFAULT_MODE}
+          modes={figures}
+          // Its figure in one of the glow's two colours, the games
+          // alternating; easing as the glow eases.
+          color={GLOW_VARS[art.hue]}
+          phase={art.phase}
+          lineWidth={2}
         />
-        {/* Legibility wash so badges + the hover play button read over the art. */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/20" />
-
-        {locked ? (
-          <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/45 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-white/70 backdrop-blur-sm">
-            <Lock className="h-3 w-3" /> Premium
-          </span>
-        ) : showFreeBadge ? (
-          <span className="absolute left-3 top-3 z-10 rounded-full border border-emerald-400/40 bg-emerald-400/15 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-sm">
-            Free
-          </span>
-        ) : null}
-
-        {!locked && (
-          <span className="absolute bottom-3 right-3 z-10 grid h-10 w-10 translate-y-2 place-items-center rounded-full bg-[#7ecfcf] text-[#06201f] opacity-0 shadow-lg transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100">
-            <Play className="h-4 w-4" fill="currentColor" />
-          </span>
-        )}
+        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/60 via-black/35 to-transparent" />
       </div>
-
-      <div className="flex flex-col gap-0.5 px-4 pb-4 pt-3">
-        <span className="text-[15.5px] font-bold leading-tight tracking-tight text-white">
-          {game.title}
+      <SpectrumRim state="on" edge="bottom" colors={GLOW_VARS} />
+      {corner && (
+        <span className="pointer-events-none absolute left-4 top-3.5 text-xs text-white/45">
+          {corner}
         </span>
-        <span className="truncate text-[12.5px] text-white/45">{subtitle}</span>
+      )}
+      {/* The foot: its name, and the prompt box's Go pill. */}
+      <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 p-3 pl-4">
+        <h3 className="min-w-0 truncate text-lg text-[#e8e8f0]">
+          {game.title}
+        </h3>
+        <GoButton
+          type="button"
+          disabled={false}
+          sweep={0}
+          reduce={reduce}
+          aria-label={`Play ${game.title}`}
+          icon={<Play className="size-4" fill="currentColor" />}
+          onClick={(event) => {
+            // The card hears the click too; the pill's is the one.
+            event.stopPropagation();
+            open?.();
+          }}
+        >
+          Play
+        </GoButton>
       </div>
-    </button>
+    </div>
   );
 };

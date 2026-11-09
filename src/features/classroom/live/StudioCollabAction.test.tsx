@@ -72,7 +72,7 @@ describe('StudioCollabAction', () => {
       screen.getByRole('button', { name: /Open our shared Studio/ }),
     );
     expect(openSpy).toHaveBeenCalledWith(
-      `/studio/editor?collab=${CODE}&host=1`,
+      `/studio?collab=${CODE}&host=1`,
       '_blank',
     );
   });
@@ -84,7 +84,7 @@ describe('StudioCollabAction', () => {
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Join Ana's Studio/ }));
     expect(openSpy).toHaveBeenCalledWith(
-      `/studio/editor?collab=${CODE}&pair=1`,
+      `/studio?collab=${CODE}&pair=1`,
       '_blank',
     );
   });
@@ -111,7 +111,7 @@ describe('StudioCollabAction', () => {
     );
     const trioCode = pairRoomCode(SESSION, ['enr-cy', 'enr-ana', 'enr-ben']);
     expect(openSpy).toHaveBeenLastCalledWith(
-      `/studio/editor?collab=${trioCode}&host=1`,
+      `/studio?collab=${trioCode}&host=1`,
       '_blank',
     );
   });
@@ -127,7 +127,7 @@ describe('StudioCollabAction', () => {
   it('opens a fresh project for solo work', () => {
     renderAs('enr-ana', { grouping: 'solo' });
     fireEvent.click(screen.getByRole('button', { name: /Open the Studio/ }));
-    expect(openSpy).toHaveBeenCalledWith('/studio/editor?new=1', '_blank');
+    expect(openSpy).toHaveBeenCalledWith('/studio?new=1', '_blank');
   });
 
   it('offers a link in this tab when the browser blocks the new one', () => {
@@ -136,6 +136,6 @@ describe('StudioCollabAction', () => {
     fireEvent.click(screen.getByRole('button', { name: /Join Ana's Studio/ }));
     expect(
       screen.getByRole('link', { name: /open here instead/ }),
-    ).toHaveAttribute('href', `/studio/editor?collab=${CODE}&pair=1`);
+    ).toHaveAttribute('href', `/studio?collab=${CODE}&pair=1`);
   });
 });

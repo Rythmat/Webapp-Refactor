@@ -85,7 +85,7 @@ export function ArtistPanel({ name }: { name: string }) {
       onClose={navigate.home}
     >
       {hit && <FeaturedHit hit={hit} />}
-      <ol className="space-y-0.5">
+      <ol className="space-y-2">
         {events.map((event) => (
           <li key={event.id}>
             <PanelRow
@@ -93,6 +93,7 @@ export function ArtistPanel({ name }: { name: string }) {
               badgeDot={atlasVar('song')}
               presentation={describeStop({ kind: 'event', eventId: event.id })}
               subtitle={`${event.year} · ${eventPlaceName(event)}`}
+              tile
               title={event.title}
               onClick={() => navigate.toEvent(event)}
             />

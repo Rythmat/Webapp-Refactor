@@ -70,9 +70,10 @@ export function RollViewToggle({
 }
 
 /**
- * The same switch at a lesson's nav-row size, beside the section pills and
- * ♪ Practice Track: an icon and a word per view, the choice a white pill, on
- * the device's saved Learn view (so the roll it drives follows).
+ * The same switch at a sheet row's size (Echo's settings): an icon and a word
+ * per view, the choice a white pill, on the device's saved Learn view (so the
+ * roll it drives follows). Lessons have it on their tool rail
+ * (LessonToolRail).
  */
 export function SavedRollViewSwitch() {
   const [view, setView] = useRollView('learn');

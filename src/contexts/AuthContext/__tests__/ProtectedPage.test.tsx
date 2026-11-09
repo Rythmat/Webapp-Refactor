@@ -2,7 +2,7 @@
 /**
  * A signed-out student who follows a link is sent to sign in, and comes back
  * to the whole link afterwards: its query and hash too. A Studio link is all
- * query (`/studio/editor?project=…`); with only the pathname kept they landed
+ * query (`/studio?project=…`); with only the pathname kept they landed
  * on a bare editor that resumed something else (1.4, P21).
  */
 import { cleanup, render, screen } from '@testing-library/react';
@@ -62,21 +62,21 @@ afterEach(() => {
 
 describe('ProtectedPage', () => {
   it('keeps the link’s query and hash for after sign-in', () => {
-    renderAt('/studio/editor?project=p1&interactionId=i9&utm_source=x#top');
+    renderAt('/studio?project=p1&interactionId=i9&utm_source=x#top');
     expect(screen.getByTestId('continue').textContent).toBe(
-      '/studio/editor?project=p1&interactionId=i9&utm_source=x#top',
+      '/studio?project=p1&interactionId=i9&utm_source=x#top',
     );
   });
 
   it('keeps a bare pathname as it is', () => {
-    renderAt('/studio/editor');
-    expect(screen.getByTestId('continue').textContent).toBe('/studio/editor');
+    renderAt('/studio');
+    expect(screen.getByTestId('continue').textContent).toBe('/studio');
   });
 
   it('shows the page to a signed-in user', () => {
     auth.value.isAuth0Authenticated = true;
     auth.value.appUser = { id: 'u1' };
-    renderAt('/studio/editor?project=p1');
+    renderAt('/studio?project=p1');
     expect(screen.getByText('the page')).toBeTruthy();
   });
 });

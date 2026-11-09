@@ -27,6 +27,12 @@ export interface MasteringSlice {
   masteringEffects: TrackEffectState;
   // Master bus output volume (0–1), driving the audio engine's master gain.
   masterVolume: number;
+  /**
+   * The Master strip's mute (owner, 2026-10-22): the whole mix silent on
+   * this computer, after the master chain; the click still sounds. This
+   * student's own, as a track's mute is: never saved or shared.
+   */
+  masterMuted: boolean;
   /** Master-bus automation lanes, same shape as Track.automation. Only
    *  'volume' is offered (see MASTER_AUTOMATION_PARAMS). */
   masterAutomation: AutomationLanes;
@@ -37,6 +43,7 @@ export interface MasteringSlice {
   removeMasteringFx: (effectType: EffectSlotType) => void;
   updateMasteringEffects: (effects: Partial<TrackEffectState>) => void;
   setMasterVolume: (value: number) => void;
+  toggleMasterMute: () => void;
   upsertMasterAutomationPoint: (
     paramId: string,
     point: AutomationPoint,
@@ -75,6 +82,7 @@ export const createMasteringSlice: StateCreator<
   masteringFxChain: [],
   masteringEffects: structuredClone(DEFAULT_EFFECTS),
   masterVolume: 0.8,
+  masterMuted: false,
   masterAutomation: {},
 
   toggleMasteringBypass: () =>
@@ -112,6 +120,8 @@ export const createMasteringSlice: StateCreator<
 
   setMasterVolume: (value) =>
     set({ masterVolume: Math.max(0, Math.min(1, value)) }),
+
+  toggleMasterMute: () => set((s) => ({ masterMuted: !s.masterMuted })),
 
   // Fresh lanes object on every edit (like track automation) so the undo,
   // collab diff and playback re-assert all see the change by reference.

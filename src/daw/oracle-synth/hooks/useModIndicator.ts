@@ -73,14 +73,11 @@ function isSourceBipolar(route: ModRoute): boolean {
 function routeExtremes(route: ModRoute): [number, number] {
   const bipolar = isSourceBipolar(route);
   const range = getModRange(route.target.param);
-  const legacyCutoff =
-    route.target.param === 'cutoff' && route.polarity === 'unipolar';
   const { gain, offset } = computeGainOffset(
     route.polarity,
     bipolar,
     route.amount,
     range,
-    legacyCutoff,
   );
   const srcLo = bipolar ? -1 : 0;
   const a = srcLo * gain + offset;
@@ -144,14 +141,11 @@ export function useModIndicator(
     const buf = new Float32Array(analyser.fftSize);
     const bipolar = isSourceBipolar(lfoRoute);
     const range = getModRange(lfoRoute.target.param);
-    const legacyCutoff =
-      lfoRoute.target.param === 'cutoff' && lfoRoute.polarity === 'unipolar';
     const { gain, offset } = computeGainOffset(
       lfoRoute.polarity,
       bipolar,
       lfoRoute.amount,
       range,
-      legacyCutoff,
     );
     // Smaller moves than this don't show on the ring: no render for them.
     const [lo, hi] = routeExtremes(lfoRoute);

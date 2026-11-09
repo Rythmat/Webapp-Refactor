@@ -52,7 +52,8 @@ const CHOSEN = {
   timelineGridSize: '1/8T',
   timelineTripletMode: true,
   followPlayhead: false,
-  chordRulerShowNotes: true,
+  chordRulerShowNotes: false,
+  chordAutoAnalyze: false,
   singleKeyShortcuts: false,
   inspectorOpenByView: { arrange: false, score: true },
   inspectorWidth: 280,
@@ -64,6 +65,7 @@ const CHOSEN = {
   dockHeights: { fx: 0.5, 'piano-roll': 0.6 },
   readoutMode: 'time',
   hoverHints: false,
+  recordArmExclusive: false,
 } as const;
 
 const DEFAULTS = Object.fromEntries(
@@ -304,12 +306,13 @@ describe('writing changes', () => {
     const stop = start(A);
     s().toggleChordRulerLabels();
     stop();
-    expect(stored(A)!.chordRulerShowNotes).toBe(true);
+    // Names is the default: the toggle picked Numbers.
+    expect(stored(A)!.chordRulerShowNotes).toBe(false);
 
     s().toggleChordRulerLabels();
     vi.advanceTimersByTime(1000);
     window.dispatchEvent(new Event('pagehide'));
-    expect(stored(A)!.chordRulerShowNotes).toBe(true);
+    expect(stored(A)!.chordRulerShowNotes).toBe(false);
   });
 
   it('carries on when storage is full', () => {

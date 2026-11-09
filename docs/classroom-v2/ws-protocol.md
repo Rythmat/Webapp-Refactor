@@ -192,6 +192,22 @@ like every other SessionState field. The PartyKit party relays `pairs`
 (teacher only); the Music Atlas API must POST these to the party's onRequest
 for the socket path (the local-mock dev loop already routes them end-to-end).
 
+**Echo in the classroom (docs/echo-classroom.md)**: two additive mechanisms.
+
+- `echo` (`SessionState.echo`) — the class's round: its call as data, its
+  start on the server's clock, the Teacher Settings, and the last round's
+  result as counts only. All-role fan-out, no identifiers (first names ride
+  it only when the teacher deliberately puts them on the projector, like a
+  featured showcase). Carried through the merged state PATCH once a session
+  has one; the party relays `{type:'echo', echo}` to every role.
+- A student's rounds ride the normal `response` event with
+  `payload.kind:'echo'`, authored `shareable:false`, upserted per student and
+  interaction: teacher-only (buildProjectorView hard-refuses `echo` like
+  `check-in` and `showcase`).
+- The clock check uses the existing heartbeat: a device sends
+  `{type:'ping', t}` five times on joining and every 30 s, and takes the
+  median offset of the `pong {t, at}` replies.
+
 ### `presence` — see §Presence above
 
 ### `hello` — server → new subscriber, immediately after handshake

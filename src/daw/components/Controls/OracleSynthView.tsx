@@ -22,5 +22,5 @@ export function OracleSynthView() {
     );
   }
 
-  return <DawSynthLayout engine={engine} />;
+  return <DawSynthLayout engine={engine} trackId={trackId} />;
 }

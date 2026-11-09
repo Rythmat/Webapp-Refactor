@@ -20,16 +20,14 @@ const marketingPrefix = '/features';
 
 /**
  * Public marketing pages (renders for logged-out and logged-in visitors). Module
- * pages live under `/features/*` because `/studio`, `/learn`, `/arcade`, `/atlas`
- * are taken by the authenticated app; `/blog` and `/for-teachers` are top-level.
+ * pages live under `/features/*` because `/studio`, `/learn`, `/arcade`, `/globe`
+ * are taken by the authenticated app.
  */
 export const MarketingRoutes = {
   studio: createRouteDefinition('/studio', { prefix: marketingPrefix }),
   learn: createRouteDefinition('/learn', { prefix: marketingPrefix }),
   arcade: createRouteDefinition('/arcade', { prefix: marketingPrefix }),
   globe: createRouteDefinition('/globe', { prefix: marketingPrefix }),
-  blog: createRouteDefinition('/blog'),
-  teachers: createRouteDefinition('/for-teachers'),
 };
 
 const authPrefix = '/auth';
@@ -762,8 +760,15 @@ export const StudioRoutes = {
 
   picker: createRouteDefinition('/', { prefix: studioPrefix }),
 
-  /** The DAW editor. The `/studio` index now shows the Studio Dashboard. */
-  editor: createRouteDefinition('/editor', { prefix: studioPrefix }),
+  /**
+   * The DAW editor: `/studio` itself (owner, 2026-10-24; the Studio Dashboard
+   * and its Templates / Demos tabs are gone). The old `/studio/editor`
+   * forwards here with its query, so links and bookmarks still open.
+   */
+  editor: createRouteDefinition(studioPrefix),
+
+  /** Where the editor used to live, kept only to forward old links. */
+  legacyEditor: createRouteDefinition('/editor', { prefix: studioPrefix }),
 
   /** The Production tab — step-by-step DAW lessons, each opening the editor. */
   production: createRouteDefinition('/production', { prefix: studioPrefix }),
@@ -812,6 +817,8 @@ export const GameRoutes = {
     prefix: gamesPrefix,
   }),
 
+  echo: createRouteDefinition('/echo', { prefix: gamesPrefix }),
+
   jamLobby: createRouteDefinition('/jam', { prefix: gamesPrefix }),
 
   jamLocal: createRouteDefinition('/jam/local', { prefix: gamesPrefix }),
@@ -858,42 +865,205 @@ export const SettingsRoutes = {
 
 const learnPrefix = '/learn';
 
+/** A Theory lesson's chapter: O(verview) on keyboard, A Melody, B Chords,
+ *  D Practice Track (C is the genre flows', which guitar is built on). A
+ *  chapter the lesson lacks opens its first. */
+export type LearnSection = 'O' | 'A' | 'B' | 'C' | 'D';
+
 export const LearnRoutes = {
   root: createRouteDefinition(learnPrefix),
 
-  overview: createRouteDefinition<{
-    mode: string;
-  }>('/:mode', { prefix: learnPrefix }),
+  // The instrument is the first segment: /learn/keyboard/… and
+  // /learn/guitar/…. Theory tiles go by their slug ('ionian', 'ionian#5',
+  // encoded here). The tabs' pages (/learn/keyboard/songs…) are static, so
+  // they outrank '/:mode'; so do 'relative', 'parallel' and 'genre' (the
+  // genre courses, /learn/keyboard/genre/pop).
 
-  lesson: createRouteDefinition<{
-    mode: string;
-    key: string;
-  }>('/:mode/:key', { prefix: learnPrefix }),
+  /** The Learn page on keyboard (owner, 2026-10-24). */
+  keyboard: createRouteDefinition('/keyboard', { prefix: learnPrefix }),
 
+  /** Learn → Audio: not tied to an instrument, so no instrument segment. */
+  audio: createRouteDefinition('/audio', { prefix: learnPrefix }),
+
+  /** A course's page: its lessons in order. Static anatomy paths outrank it. */
+  audioCourse: createRouteDefinition<{ module: string }>('/audio/:module', {
+    prefix: learnPrefix,
+  }),
+
+  /**
+   * A lab in the Audio section, opening where the student left off;
+   * `?topic=<id>&step=predict|reveal|try` opens any of it.
+   */
+  audioLesson: createRouteDefinition<
+    { module: string; lesson: string },
+    { topic?: string; step?: 'predict' | 'reveal' | 'try' }
+  >('/audio/:module/:lesson', { prefix: learnPrefix }),
+
+  /**
+   * Audio → Piano Anatomy; `?tab=build`, `?kind=upright` and `?part=<term>`
+   * open any of it. Static, so it outranks '/audio/:module/:lesson'. Every
+   * lesson under /audio/anatomy moved from Technique (anatomyMoves.ts).
+   */
+  pianoAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; kind?: 'upright'; part?: string }
+  >('/audio/anatomy/piano', { prefix: learnPrefix }),
+
+  /** A trial song lesson, registered in DEV only. Static, like Piano Anatomy. */
+  linusAndLucy: createRouteDefinition('/keyboard/technique/linus-and-lucy', {
+    prefix: learnPrefix,
+  }),
+
+  /** Audio → Keyboard Anatomy; `?tab=build`, `?part=<term>`. Static. */
+  keyboardAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; part?: string }
+  >('/audio/anatomy/keyboard', { prefix: learnPrefix }),
+
+  /** Audio → Synth Anatomy; `?tab=build`, `?part=<term>`. Static. */
+  synthAnatomy: createRouteDefinition<void, { tab?: 'build'; part?: string }>(
+    '/audio/anatomy/synth',
+    { prefix: learnPrefix },
+  ),
+
+  /** Audio → Headphone Anatomy. */
+  headphoneAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; part?: string }
+  >('/audio/anatomy/headphones', { prefix: learnPrefix }),
+
+  /** Audio → Microphone Anatomy. */
+  microphoneAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; part?: string }
+  >('/audio/anatomy/microphone', { prefix: learnPrefix }),
+
+  /** Audio → Combo Amp Anatomy. */
+  comboAmpAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; kind?: 'solid-state'; part?: string }
+  >('/audio/anatomy/combo-amp', { prefix: learnPrefix }),
+
+  /** A Theory tile's keyboard overview: the keys. */
+  keyboardOverview: createRouteDefinition<{
+    mode: string;
+  }>('/keyboard/:mode', { prefix: learnPrefix }),
+
+  /** A key's keyboard lesson; `?section=O|A|B` opens that chapter. */
+  keyboardLesson: createRouteDefinition<
+    { mode: string; key: string },
+    { section?: LearnSection }
+  >('/keyboard/:mode/:key', { prefix: learnPrefix }),
+
+  /** A genre course's overview, on keyboard (was /curriculum/:genre). */
+  genreCourse: createRouteDefinition<{
+    genre: string;
+  }>('/keyboard/genre/:genre', { prefix: learnPrefix }),
+
+  /** A genre course's level; `?section=A|B|C|D` opens that chapter. */
+  genreLesson: createRouteDefinition<
+    { genre: string; level: string },
+    { section?: LearnSection }
+  >('/keyboard/genre/:genre/:level', { prefix: learnPrefix }),
+
+  /** The seven diatonic modes of one major key, on keyboard. */
   relativeOverview: createRouteDefinition<{
     key: string;
-  }>('/relative/:key', { prefix: learnPrefix }),
+  }>('/keyboard/relative/:key', { prefix: learnPrefix }),
 
+  /** The seven diatonic modes on one tonic, on keyboard. */
   parallelOverview: createRouteDefinition<{
     key: string;
-  }>('/parallel/:key', { prefix: learnPrefix }),
+  }>('/keyboard/parallel/:key', { prefix: learnPrefix }),
 
-  // Guitar: Theory's tiles on guitar, by their slug ('ionian', 'ionian#5',
-  // encoded here). Static first segment, so these outrank '/:mode' and
-  // '/:mode/:key'.
-  /** Bare '/learn/guitar': not a page; sends the student to Theory. */
+  /** The Learn page on guitar (owner, 2026-10-24). */
   guitar: createRouteDefinition('/guitar', { prefix: learnPrefix }),
+
+  /**
+   * Audio → Guitar Anatomy; `?tab=build`, `?kind=acoustic` and
+   * `?part=<term>` open any of it.
+   */
+  guitarAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; kind?: 'acoustic'; part?: string }
+  >('/audio/anatomy/guitar', { prefix: learnPrefix }),
+
+  /**
+   * Technique → Guitar Harmonics; `?tab=ratios|geometry|play` opens that
+   * activity. Static, so it outranks the lessons' '/guitar/:mode/:key'.
+   */
+  guitarHarmonics: createRouteDefinition<
+    void,
+    { tab?: 'ratios' | 'geometry' | 'play' }
+  >('/guitar/technique/harmonics', { prefix: learnPrefix }),
+
+  /**
+   * The seven modes of one major key on guitar: its seven positions on the
+   * neck, named Ionian … Locrian. Static 'relative', so it outranks
+   * '/guitar/:mode/:key'.
+   */
+  guitarRelativeOverview: createRouteDefinition<{
+    key: string;
+  }>('/guitar/relative/:key', { prefix: learnPrefix }),
 
   /** A Theory tile's guitar overview: the keys, the scale box. */
   guitarOverview: createRouteDefinition<{
     mode: string;
   }>('/guitar/:mode', { prefix: learnPrefix }),
 
-  /** A key's guitar lesson; `?section=A|B|D` opens that chapter. */
-  guitarLesson: createRouteDefinition<{
+  /**
+   * A key's guitar lesson; `?section=A|B|D` opens that chapter, `O` (a
+   * diatonic mode's default) its Overview.
+   */
+  guitarLesson: createRouteDefinition<
+    { mode: string; key: string },
+    { section?: LearnSection }
+  >('/guitar/:mode/:key', { prefix: learnPrefix }),
+
+  /** The Learn page on bass: Theory, from The Bass Atlas (2026-10-27). */
+  bass: createRouteDefinition('/bass', { prefix: learnPrefix }),
+
+  /**
+   * Audio → Bass Anatomy; `?tab=build`, `?kind=acoustic` and
+   * `?part=<term>` open any of it.
+   */
+  bassAnatomy: createRouteDefinition<
+    void,
+    { tab?: 'build'; kind?: 'acoustic'; part?: string }
+  >('/audio/anatomy/bass', { prefix: learnPrefix }),
+
+  /** A Theory tile's bass overview: the keys. */
+  bassOverview: createRouteDefinition<{
     mode: string;
-    key: string;
-  }>('/guitar/:mode/:key', { prefix: learnPrefix }),
+  }>('/bass/:mode', { prefix: learnPrefix }),
+
+  /** A key's bass lesson; `?section=A|B|D` opens that chapter. */
+  bassLesson: createRouteDefinition<
+    { mode: string; key: string },
+    { section?: LearnSection }
+  >('/bass/:mode/:key', { prefix: learnPrefix }),
+
+  /** The Learn page on ukulele: Theory, from The Ukulele Atlas (2026-10-27). */
+  ukulele: createRouteDefinition('/ukulele', { prefix: learnPrefix }),
+
+  /**
+   * Audio → Ukulele Anatomy; `?tab=build` and `?part=<term>` open any of it.
+   */
+  ukuleleAnatomy: createRouteDefinition<void, { tab?: 'build'; part?: string }>(
+    '/audio/anatomy/ukulele',
+    { prefix: learnPrefix },
+  ),
+
+  /** A Theory tile's ukulele overview: the keys. */
+  ukuleleOverview: createRouteDefinition<{
+    mode: string;
+  }>('/ukulele/:mode', { prefix: learnPrefix }),
+
+  /** A key's ukulele lesson; `?section=A|B|D` opens that chapter. */
+  ukuleleLesson: createRouteDefinition<
+    { mode: string; key: string },
+    { section?: LearnSection }
+  >('/ukulele/:mode/:key', { prefix: learnPrefix }),
 };
 
 const connectPrefix = '/connect';
@@ -908,13 +1078,14 @@ export const LibraryRoutes = {
   root: createRouteDefinition(libraryPrefix),
 };
 
-const atlasPrefix = '/atlas';
+const globePrefix = '/globe';
 
-export const AtlasRoutes = {
-  root: createRouteDefinition(atlasPrefix),
-
-  /** The full interactive 3D globe. The `/atlas` index now shows the Globe Dashboard. */
-  globe: createRouteDefinition('/globe', { prefix: atlasPrefix }),
+/**
+ * The Globe: the interactive map and its timeline, one full-window page
+ * (owner, 2026-10-29; the /atlas dashboard and its addresses are gone).
+ */
+export const GlobeRoutes = {
+  root: createRouteDefinition(globePrefix),
 };
 
 const songsPrefix = '/songs';
@@ -953,7 +1124,8 @@ const curriculumPrefix = '/curriculum';
 export const CurriculumRoutes = {
   root: createRouteDefinition(curriculumPrefix),
 
-  genre: createRouteDefinition<{ genre: string }>('/:genre', {
+  /** Piano Fundamentals' overview (Learn → Technique). */
+  pianoFundamentals: createRouteDefinition('/piano-fundamentals', {
     prefix: curriculumPrefix,
   }),
 
@@ -975,7 +1147,7 @@ export const CurriculumRoutes = {
   // Legacy: guitar lived here as a twin of Applied Theory Fundamentals. It is
   // now Learn → Theory → Ionian (Major) on guitar (LearnRoutes.guitarOverview /
   // guitarLesson); these paths only redirect there, so old links keep
-  // working. Static segments, so they rank above '/:genre/:level'.
+  // working.
   guitarAppliedTheoryFundamentals: createRouteDefinition(
     '/guitar/applied-theory-fundamentals',
     { prefix: curriculumPrefix },
@@ -988,18 +1160,23 @@ export const CurriculumRoutes = {
   }),
 
   // Music Literacy: call-and-response lessons on scale degrees (Learn →
-  // Technique). Static segments, so they rank above '/:genre/:level'.
+  // Start Here).
   musicLiteracy: createRouteDefinition('/music-literacy', {
     prefix: curriculumPrefix,
   }),
 
-  musicLiteracyLesson: createRouteDefinition<{ id: string }>(
-    '/music-literacy/:id',
+  /**
+   * Part 3, Hear It with Your Band: a Band plays the student's progression
+   * in the Studio. A static segment, so it ranks above a lesson's ':id'.
+   */
+  musicLiteracyBand: createRouteDefinition(
+    '/music-literacy/hear-it-with-your-band',
     { prefix: curriculumPrefix },
   ),
 
-  genreLevel: createRouteDefinition<{ genre: string; level: string }>(
-    '/:genre/:level',
+  /** A lesson; `?step=<tag>` opens it on that step (Continue). */
+  musicLiteracyLesson: createRouteDefinition<{ id: string }, { step?: string }>(
+    '/music-literacy/:id',
     { prefix: curriculumPrefix },
   ),
 };

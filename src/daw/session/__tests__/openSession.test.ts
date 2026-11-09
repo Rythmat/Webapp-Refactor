@@ -123,7 +123,7 @@ const trackNames = () => s().tracks.map((t) => t.name);
 async function liveWork(name = 'Mine'): Promise<string> {
   const opened = await openSession({ kind: 'new' }, { source: 'menu' });
   if (opened.status !== 'ready') throw new Error('no live session');
-  s().addTrack('midi', 'piano-sampler', name);
+  s().addTrack('midi', 'soundfont', name);
   s().setProjectName(`${name} project`);
   notice.mockClear();
   errorToast.mockClear();
@@ -135,7 +135,7 @@ async function liveWork(name = 'Mine'): Promise<string> {
 function draftText(name: string): string {
   const saved = useStore.getState();
   useStore.setState(useStore.getInitialState(), true);
-  s().addTrack('midi', 'piano-sampler', name);
+  s().addTrack('midi', 'soundfont', name);
   const text = JSON.stringify(serializeSession());
   useStore.setState(saved, true);
   return text;
@@ -163,7 +163,7 @@ function cloudProject(
         ordinal: 0,
         name,
         type: 'midi',
-        instrument: 'piano-sampler',
+        instrument: 'soundfont',
         color: '#ffffff',
         mute: false,
         solo: false,
@@ -428,6 +428,30 @@ describe('a link that replaces the session', () => {
     );
     expect(outcome.status).toBe('ready');
     expect(s().activeTutorialId).toBe(lesson.id);
+  });
+
+  it('opens a course lesson on its demo song: one seeded open, one baseline', async () => {
+    await liveWork();
+    const lesson = 'studio-basics-your-tracks';
+    const outcome = await openSession(
+      { kind: 'tutorial', tutorialId: lesson },
+      { source: 'link' },
+    );
+    expect(outcome.status).toBe('ready');
+    expect(s().activeTutorialId).toBe(lesson);
+    expect(trackNames()).toEqual(['Melody', 'Chords', 'Bass', 'Drums']);
+    expect(s().projectName).toBe('Studio Basics Song');
+    // The song and the lesson went in together: nothing to undo or save.
+    expect(canUndo()).toBe(false);
+    expect(isDocumentDirty()).toBe(false);
+    expect(env.drafts.begun.at(-1)?.[1]).toMatchObject({
+      source: 'tutorial',
+      ref: lesson,
+      reopenable: true,
+    });
+    expect(
+      env.drafts.log.filter((entry) => entry.startsWith('begin:')),
+    ).toHaveLength(1);
   });
 
   it('builds a Theory practice track on its practice screen', async () => {

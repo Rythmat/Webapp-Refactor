@@ -30,20 +30,14 @@
     },
     {
       "tick": 840,
-      "duration": 240,
-      "midi": 43,
+      "duration": 120,
+      "midi": 47,
       "velocity": 96
     },
     {
       "tick": 1200,
       "duration": 480,
       "midi": 45,
-      "velocity": 100
-    },
-    {
-      "tick": 1680,
-      "duration": 120,
-      "midi": 40,
       "velocity": 100
     },
     {
@@ -60,8 +54,8 @@
     },
     {
       "tick": 2760,
-      "duration": 240,
-      "midi": 48,
+      "duration": 120,
+      "midi": 52,
       "velocity": 96
     },
     {

@@ -8,10 +8,12 @@ import { FACTORY_PRESETS, INITIALIZE } from '../presets/factoryPresets';
 import { DEFAULT_FX } from './fxSlice';
 import { DEFAULT_ROUTING } from './routingSlice';
 import { DEFAULT_ARP } from './arpSlice';
+import { defaultLFO } from './lfoSlice';
 import { defaultMacros } from './macroSlice';
 import { DEFAULT_KEYSCALE } from './keyScaleSlice';
 import { withUniqueModRouteIds } from './modulationSlice';
 import { migrateModRoute } from '../../audio/modMath';
+import { migrateDefaultShapes } from '../../components/modules/oscOptions';
 import type { SynthStore } from '../storeTypes';
 import {
   getLocalStoreUserKey,
@@ -112,10 +114,38 @@ function extractPresetData(state: SynthStore, name: string): PresetData {
   };
 }
 
-/** Apply preset data to store (returns partial state for set()) */
-export function applyPresetData(data: PresetData): Partial<SynthStore> {
+/** The patch fields every version migration touches. */
+type MigratedFields = Pick<
+  PresetData,
+  | 'lfos'
+  | 'oscillators'
+  | 'fx'
+  | 'fxRoutes'
+  | 'routing'
+  | 'arp'
+  | 'modRoutes'
+  | 'macros'
+  | 'keyScale'
+>;
+
+/**
+ * A patch's fields brought up to the current version: a preset's, or a
+ * track patch saved in an older project (synthTrackState's normalize), so
+ * both go through the same migrations. Missing sections take defaults; the
+ * result shares nothing with `data`.
+ */
+export function migratePatchFields(
+  data: Partial<MigratedFields>,
+): Required<MigratedFields> {
   // Migrate LFO data: old presets may lack the `smooths` field
-  const lfos = structuredClone(data.lfos);
+  const lfos = data.lfos
+    ? structuredClone(data.lfos)
+    : ([
+        defaultLFO(),
+        defaultLFO(),
+        defaultLFO(),
+        defaultLFO(),
+      ] as Required<MigratedFields>['lfos']);
   for (const lfo of lfos) {
     if (!lfo.smooths) {
       lfo.smooths = [0, 0, 0, 0];
@@ -135,10 +165,13 @@ export function applyPresetData(data: PresetData): Partial<SynthStore> {
   // Migrate oscillators: pre-v3 presets lack warpMode/warpAmount. Backfill
   // an inert warp so they sound identical (a set key must not remain
   // undefined, which would trip the engine's `!== undefined` guards).
-  const oscillators = structuredClone(data.oscillators);
+  const oscillators = structuredClone(
+    data.oscillators as PresetData['oscillators'],
+  );
   for (const o of oscillators) {
     if (o.warpMode === undefined) o.warpMode = 'none';
     if (o.warpAmount === undefined) o.warpAmount = 0;
+    Object.assign(o, migrateDefaultShapes(o.wavetable, o.wtPosition));
   }
 
   // Migrate FX data: old presets may lack the `fx` field entirely, and v2
@@ -162,7 +195,7 @@ export function applyPresetData(data: PresetData): Partial<SynthStore> {
   // Migrate mod routes: v1 routes carry {lfoIndex, depthMin, depthMax}. A
   // user preset saved while route ids could repeat gets unique ones.
   const modRoutes = withUniqueModRouteIds(
-    structuredClone(data.modRoutes).map(migrateModRoute),
+    structuredClone(data.modRoutes ?? []).map(migrateModRoute),
   );
 
   // v2 fields: default when loading v1 presets
@@ -170,6 +203,33 @@ export function applyPresetData(data: PresetData): Partial<SynthStore> {
   const keyScale = data.keyScale
     ? structuredClone(data.keyScale)
     : structuredClone(DEFAULT_KEYSCALE);
+
+  return {
+    lfos,
+    oscillators,
+    fx,
+    fxRoutes,
+    routing,
+    arp,
+    modRoutes,
+    macros,
+    keyScale,
+  };
+}
+
+/** Apply preset data to store (returns partial state for set()) */
+export function applyPresetData(data: PresetData): Partial<SynthStore> {
+  const {
+    lfos,
+    oscillators,
+    fx,
+    fxRoutes,
+    routing,
+    arp,
+    modRoutes,
+    macros,
+    keyScale,
+  } = migratePatchFields(data);
 
   return {
     presetName: data.name,
@@ -186,6 +246,8 @@ export function applyPresetData(data: PresetData): Partial<SynthStore> {
     glide: data.glide,
     spread: data.spread,
     masterVolume: data.masterVolume,
+    // A preset that saved its mod wheel rests it there; others leave it.
+    ...(data.modWheel !== undefined ? { modWheel: data.modWheel } : {}),
     fx,
     fxRoutes,
     routing,
@@ -222,6 +284,41 @@ export interface PresetSlice {
     isFactory: boolean;
     isPack?: boolean;
   }[];
+}
+
+// While a preset is applied: the store's dirty watcher leaves it alone, so
+// a preset just loaded doesn't show as edited (audit 2026-10-21: every
+// load showed "NAME *").
+let applying = false;
+
+/** Whether a preset is being applied right now (the dirty watcher asks). */
+export function isApplyingPreset(): boolean {
+  return applying;
+}
+
+/** Applies a preset with the dirty watcher held off (isApplyingPreset). */
+function applyQuietly(
+  set: (partial: Partial<SynthStore>) => void,
+  data: PresetData,
+): void {
+  applying = true;
+  try {
+    set(applyPresetData(data) as Partial<SynthStore>);
+  } finally {
+    applying = false;
+  }
+}
+
+/** The first of `name`, `name 2`, `name 3`… that `taken` doesn't hold. */
+export function freePresetName(
+  name: string,
+  taken: (candidate: string) => boolean,
+): string {
+  if (!taken(name)) return name;
+  for (let n = 2; ; n++) {
+    const candidate = `${name} ${n}`;
+    if (!taken(candidate)) return candidate;
+  }
 }
 
 export const createPresetSlice: StateCreator<
@@ -270,28 +367,26 @@ export const createPresetSlice: StateCreator<
     markDirty: () => set({ isDirty: true }),
 
     loadPreset: (name) => {
-      // Check factory presets first
-      const factory = FACTORY_PRESETS.find((p) => p.name === name);
-      if (factory) {
-        set(applyPresetData(factory) as Partial<SynthStore>);
-        return;
-      }
       const state = get();
-      // Then extension-pack presets
-      const pack = state.packPresets.find((p) => p.name === name);
-      if (pack) {
-        set(applyPresetData(pack.data) as Partial<SynthStore>);
-        return;
-      }
-      // Then user presets
-      const user = state.userPresets.find((p) => p.name === name);
-      if (user) {
-        set(applyPresetData(user.data) as Partial<SynthStore>);
-      }
+      const data =
+        // Factory presets first, then the extension packs', then the user's.
+        FACTORY_PRESETS.find((p) => p.name === name) ??
+        state.packPresets.find((p) => p.name === name)?.data ??
+        state.userPresets.find((p) => p.name === name)?.data;
+      if (data) applyQuietly(set, data);
     },
 
-    savePreset: (name) => {
+    savePreset: (requested) => {
       const state = get();
+      // A factory or pack preset's name stays theirs: the user's copy is
+      // saved as "NAME 2", or it could never be loaded again (factory and
+      // pack presets are looked up first; audit 2026-10-21).
+      const name = freePresetName(
+        requested,
+        (candidate) =>
+          FACTORY_PRESETS.some((p) => p.name === candidate) ||
+          state.packPresets.some((p) => p.name === candidate),
+      );
       const data = extractPresetData(state, name);
       const stored: StoredPreset = { name, data, isFactory: false };
 
@@ -318,7 +413,7 @@ export const createPresetSlice: StateCreator<
       try {
         const data = JSON.parse(json) as PresetData;
         if (!data.name || !data.version || !data.oscillators) return false;
-        set(applyPresetData(data) as Partial<SynthStore>);
+        applyQuietly(set, data);
         return true;
       } catch {
         return false;
@@ -326,7 +421,7 @@ export const createPresetSlice: StateCreator<
     },
 
     initPreset: () => {
-      set(applyPresetData(INITIALIZE) as Partial<SynthStore>);
+      applyQuietly(set, INITIALIZE);
     },
 
     getPresetList: () => {

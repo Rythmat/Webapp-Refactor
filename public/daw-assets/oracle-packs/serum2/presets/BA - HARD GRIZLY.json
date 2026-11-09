@@ -10,7 +10,7 @@
       "fine": 0,
       "wtPosition": 0.6015625237487257,
       "pan": 0,
-      "level": 0.6971727067739408,
+      "level": 0.929563609031921,
       "unisonVoices": 1,
       "unisonDetune": 0.25,
       "unisonBlend": 0.5,
@@ -26,7 +26,7 @@
       "fine": 0,
       "wtPosition": 0,
       "pan": 0,
-      "level": 0.75,
+      "level": 1,
       "unisonVoices": 2,
       "unisonDetune": 0.08695284507461398,
       "unisonBlend": 0.387885183095932,
@@ -373,7 +373,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.671728253364563,
+      "amount": 0.7676840321756294,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -478,7 +478,7 @@
         "source": "flt1",
         "param": "level"
       },
-      "amount": -0.10515624284744263,
+      "amount": -0.21031248569488525,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -488,7 +488,7 @@
   "voiceCount": 8,
   "glide": 0.00009434272633951386,
   "spread": 0,
-  "masterVolume": 0.13241165261934026,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -516,7 +516,7 @@
       "release": 0.2
     },
     "drive": {
-      "enabled": true,
+      "enabled": false,
       "amount": 0.3,
       "mix": 0.5
     },
@@ -587,5 +587,6 @@
     "rootPc": 0,
     "mode": "ionian",
     "snapMode": "nearest"
-  }
+  },
+  "modWheel": 0.0078125
 }

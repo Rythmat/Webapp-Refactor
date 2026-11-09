@@ -10,7 +10,7 @@
       "fine": 0,
       "wtPosition": 0,
       "pan": 0,
-      "level": 0.7869995702664347,
+      "level": 1,
       "unisonVoices": 5,
       "unisonDetune": 0.13824515018987515,
       "unisonBlend": 0.5,
@@ -22,11 +22,11 @@
       "waveform": "sawtooth",
       "wavetable": "S2/RCM Bass 1",
       "octave": 1,
-      "semitone": 0,
+      "semitone": 7,
       "fine": 0,
       "wtPosition": 0,
       "pan": 0,
-      "level": 0.40316670261348975,
+      "level": 0.5122832563644217,
       "unisonVoices": 4,
       "unisonDetune": 0.14480602928799513,
       "unisonBlend": 0.4271347224712372,
@@ -789,7 +789,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.2548656463623047,
+      "amount": 0.2912729754665757,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -817,7 +817,7 @@
       },
       "target": {
         "source": "osc1",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.8537445068359375,
       "polarity": "unipolar",
@@ -832,7 +832,7 @@
       },
       "target": {
         "source": "osc2",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.5351715087890625,
       "polarity": "unipolar",
@@ -849,7 +849,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.5722484588623047,
+      "amount": 0.6539936382090542,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -864,7 +864,7 @@
         "source": "flt2",
         "param": "cutoff"
       },
-      "amount": 0.08994662761688232,
+      "amount": 0.10279542273779073,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -879,7 +879,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.19257128238677979,
+      "amount": 0.38514256477355957,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -909,7 +909,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.5597074031829834,
+      "amount": 0.6396611039685816,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -919,7 +919,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.5455386713952105,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -962,8 +962,8 @@
   "fxRoutes": [],
   "routing": {
     "filterRouting": {
-      "filter1Sources": ["osc1", "osc2", "noise", "sub"],
-      "filter2Sources": []
+      "filter1Sources": ["osc1", "sub"],
+      "filter2Sources": ["osc2", "noise"]
     },
     "envelopeRouting": {
       "env1Sources": ["osc1", "osc2", "sub", "noise"],

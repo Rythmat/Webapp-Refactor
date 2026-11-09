@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 import {
-  act,
   cleanup,
   fireEvent,
   render,
@@ -87,9 +86,7 @@ describe('GuitarAboutStepSheet: opening', () => {
 
     setOpen(true);
     expect(
-      screen.getByRole('dialog', {
-        name: /^About this step\s?: Major Scale Ascending$/,
-      }),
+      screen.getByRole('dialog', { name: 'About this step' }),
     ).toBeInTheDocument();
     // Opening is reading: the step's intro notes are seen, the dot clears.
     expect(dismissed()).toEqual(['a1.steps', 'a1.fingers']);
@@ -118,32 +115,23 @@ describe('GuitarAboutStepSheet: opening', () => {
     expect(document.activeElement).toBe(
       screen.getByRole('heading', { level: 2 }),
     );
-    expect(document.activeElement).toHaveTextContent(
-      /^About this step: ?Major Scale Ascending$/,
-    );
+    expect(document.activeElement).toHaveTextContent(/^About this step$/);
     setOpen(false);
     await waitFor(() => expect(document.activeElement).toBe(trigger));
   });
 
-  it('closes on a press on the dimmed lesson, however it was opened', async () => {
-    // Safari leaves focus on the page when the About button is clicked.
-    const { props, setOpen } = renderLesson('C', 'A1.1');
-    (document.activeElement as HTMLElement | null)?.blur();
-    setOpen(true);
-    // Radix listens for presses outside from the tick after it opens.
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    });
-    fireEvent.pointerDown(document.body);
-    expect(props.onOpenChange).toHaveBeenCalledWith(false);
-  });
-
-  it('is modal: the lesson behind it waits', () => {
-    renderLesson('C', 'A1.1', {}, true);
-    // Hidden from assistive tech while the sheet is open.
+  it("isn't modal: the lesson stays in reach; Escape or its close closes it", () => {
+    const { props } = renderLesson('C', 'A1.1', {}, true);
+    // The Studio's Insight panel: beside the lesson, not over it.
     expect(
-      screen.queryByRole('button', { name: 'About this step' }),
-    ).toBeNull();
+      screen.getByRole('button', { name: 'About this step' }),
+    ).toBeInTheDocument();
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+    expect(props.onOpenChange).toHaveBeenLastCalledWith(false);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Close About this step' }),
+    );
+    expect(props.onOpenChange).toHaveBeenCalledTimes(2);
   });
 });
 

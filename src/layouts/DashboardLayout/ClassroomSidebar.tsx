@@ -3,25 +3,24 @@ import {
   GraduationCap,
   Home,
   Laptop,
-  Search,
   Settings,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/components/utilities';
 import {
-  AtlasRoutes,
+  GlobeRoutes,
   ClassroomRoutes,
   GameRoutes,
   LearnRoutes,
   OfficeRoutes,
   ProfileRoutes,
-  SearchRoutes,
   SettingsRoutes,
   StudioRoutes,
 } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import { useLearnPageRoute } from '@/features/learn/useInstrumentStore';
 import { isRouteActive, SidebarMainNavItem } from './SidebarMainNavItem';
 
 interface SidebarProps {
@@ -41,9 +40,14 @@ interface SidebarProps {
   footer?: ReactNode;
 }
 
+/** The rail's width: Suno's collapsed sidebar. */
+const RAIL_WIDTH = '4.625rem';
+
 /**
- * Persistent left-rail sidebar for the classroom dashboard.
- * Always renders in the collapsed (icon-only) state — no expand affordance.
+ * Persistent left rail for the classroom dashboard: Suno's collapsed sidebar,
+ * 4.625rem of icons with their names in tooltips, the logo centred on top.
+ * It stays collapsed (owner, 2026-10-23: no expand button). The layout
+ * hides it below `md`, where MobileTabBar carries the same nav.
  */
 export const ClassroomSidebar = ({
   className,
@@ -59,6 +63,10 @@ export const ClassroomSidebar = ({
   // bounce. There is no dual admin+teacher account: `UserRole` is scalar.
   // The console shows it to everyone: there Office is the curriculum.
   const canManage = role === 'teacher' || !!showAllSections;
+  // Learn opens on the instrument chosen on Home (owner, 2026-10-24), and
+  // stays current anywhere under /learn. The console's copy keeps /learn.
+  const learnPage = useLearnPageRoute();
+  const { pathname } = useLocation();
   /** An item's link: the app path as it is, or the console's copy of it. */
   const nav = (appTo: string, activePaths?: string[]) =>
     lens
@@ -74,114 +82,92 @@ export const ClassroomSidebar = ({
   return (
     <aside
       className={cn(
-        'relative flex h-full w-[72px] flex-col bg-[#101012] text-white',
+        'relative flex h-full shrink-0 flex-col overflow-hidden bg-[#101012] text-white',
         'border-r border-white/[0.06]',
         className,
       )}
+      style={{ width: RAIL_WIDTH }}
     >
-      <div className="flex flex-1 flex-col p-2">
-        {/* 1. Logo */}
-        <div className="flex items-center justify-center py-2">
-          <Link
-            to={nav(ProfileRoutes.root()).to}
-            aria-label="Music Atlas home"
-            className="rounded-md outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-white/40"
-          >
-            <Logo className="size-8" />
-          </Link>
-        </div>
+      {/* 1. The logo, centred over the icons (Suno's 72px row). */}
+      <div className="flex h-[4.5rem] shrink-0 items-center justify-center py-4">
+        <Link
+          to={nav(ProfileRoutes.root()).to}
+          aria-label="Music Atlas home"
+          className="flex shrink-0 items-center rounded-md outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-white/40"
+        >
+          <Logo className="size-7" />
+        </Link>
+      </div>
 
+      <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden">
         {/* 2. Primary nav */}
-        <ul className="mt-2 flex flex-col gap-1">
+        <ul className="flex flex-col gap-px px-3">
           <SidebarMainNavItem
             icon={Home}
             label="Home"
             {...nav(ProfileRoutes.root())}
-            isCollapsed
-            glyphClassName="h-[23px] w-[23px]"
           />
           <SidebarMainNavItem
             iconSrc="/icons/learn-icon.svg"
             label="Learn"
-            {...nav(LearnRoutes.root())}
-            isCollapsed
-            glyphClassName="h-7 w-7"
+            {...(lens
+              ? nav(LearnRoutes.root())
+              : {
+                  to: learnPage,
+                  active: isRouteActive(pathname, LearnRoutes.root()),
+                })}
           />
           <SidebarMainNavItem
             iconSrc="/icons/studio-icon.svg"
             label="Studio"
             {...nav(StudioRoutes.root())}
-            isCollapsed
-            glyphClassName="h-7 w-7"
           />
           <SidebarMainNavItem
             iconSrc="/icons/globe-icon.svg"
+            // Globe and Arcade draw small in their boxes: 24px (owner,
+            // 2026-10-25).
+            glyphClassName="size-[24px]"
             label="Globe"
-            {...nav(AtlasRoutes.root())}
-            isCollapsed
-            glyphClassName="h-7 w-7"
+            {...nav(GlobeRoutes.root())}
           />
           <SidebarMainNavItem
             iconSrc="/icons/arcade-icon.svg"
+            glyphClassName="size-[24px]"
             label="Arcade"
             {...nav(GameRoutes.root())}
-            isCollapsed
-            glyphClassName="h-7 w-7"
           />
-        </ul>
-
-        {/* Divider between primary nav and secondary nav */}
-        <hr
-          className="mx-2 mt-6 border-0 border-t border-white/15"
-          role="separator"
-        />
-
-        {/* 3. Secondary nav */}
-        <ul className="mt-6 flex flex-col gap-1">
-          <SidebarMainNavItem
-            chip
-            icon={Search}
-            label="Search"
-            {...nav(SearchRoutes.root())}
-            isCollapsed
-            glyphClassName="h-5 w-5"
-          />
+          {/* Classroom and Office in the same list, at the same spacing
+            (owner, 2026-10-26). */}
           <SidebarMainNavItem
             icon={Laptop}
             label="Classroom"
             {...nav(ClassroomRoutes.root())}
-            isCollapsed
-            glyphClassName="h-7 w-7"
           />
           {canManage && (
             <SidebarMainNavItem
               icon={GraduationCap}
               label="Office"
               {...nav(OfficeRoutes.root(), [OfficeRoutes.root()])}
-              isCollapsed
-              glyphClassName="h-6 w-6"
             />
           )}
         </ul>
 
         {extraSection}
 
-        {/* 4. Flex spacer + system nav */}
-        <ul className="mt-auto flex flex-col gap-1 pt-6">
+        {/* 3. Flex spacer + system nav (Suno's bottom group: 40px rows) */}
+        <ul className="mt-auto flex flex-col gap-px px-3 pt-6 pb-3">
           <SidebarMainNavItem
             external
             icon={CircleHelp}
             label="Support"
             to="mailto:aaron@musicatlas.io"
             variant="dim"
-            isCollapsed
           />
           <SidebarMainNavItem
             icon={Settings}
             label="System"
             {...nav(SettingsRoutes.root())}
             variant="dim"
-            isCollapsed
           />
         </ul>
         {footer}

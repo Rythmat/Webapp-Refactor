@@ -242,7 +242,7 @@ describe('duplicateTrackEdit', () => {
     const live: Track = {
       ...other('src', 'Guitar'),
       type: 'audio',
-      instrument: 'guitar-fx',
+      instrument: 'audio-input',
     };
     const { copy } = run(state({ tracks: [live] }));
     expect(copy.audioInputChannel).toEqual({ mode: 'mono', channel: 0 });

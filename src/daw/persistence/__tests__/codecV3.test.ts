@@ -863,7 +863,7 @@ describe('loading a draft into the store', () => {
   it('starts its own undo history', () => {
     const release = initUndoTracking();
     withTransaction('Add track', () =>
-      s().addTrack('midi', 'piano-sampler', 'Keys'),
+      s().addTrack('midi', 'soundfont', 'Keys'),
     );
     expect(canUndo()).toBe(true);
     deserializeSession(allFields());

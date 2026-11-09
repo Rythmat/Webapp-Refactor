@@ -175,7 +175,7 @@ function holdUpdate(): () => void {
 function trackProject(name = 'Beat Tape'): void {
   resetSessionToEmpty();
   s().setProjectName(name);
-  const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  const keys = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(keys, {
     id: 'clip-1',
     startTick: 0,
@@ -257,7 +257,7 @@ describe('a first save', () => {
 
   it('PUTs after uploads stamped assets the POST could not carry', async () => {
     trackProject();
-    const vox = s().addTrack('audio', 'vocal-fx', 'Vox');
+    const vox = s().addTrack('audio', 'audio-input', 'Vox');
     s().addAudioClip(vox, {
       id: 'take',
       startTick: 0,
@@ -362,7 +362,7 @@ describe('a save of a linked project', () => {
   });
 
   it('re-creates a project deleted elsewhere that still has audio to upload, and uploads it there', async () => {
-    const vox = s().addTrack('audio', 'vocal-fx', 'Vox');
+    const vox = s().addTrack('audio', 'audio-input', 'Vox');
     const clip = (id: string, assetId: string | null) => ({
       id,
       startTick: 0,
@@ -435,7 +435,7 @@ describe('a save of a linked project', () => {
   });
 
   it('keeps an upload failure when the project is still there', async () => {
-    const vox = s().addTrack('audio', 'vocal-fx', 'Vox');
+    const vox = s().addTrack('audio', 'audio-input', 'Vox');
     s().addAudioClip(vox, {
       id: 'take',
       startTick: 0,
@@ -630,7 +630,7 @@ describe('Save As', () => {
   });
 
   it('whose PUTs fail undoes its stamps and removes the copy', async () => {
-    const vox = s().addTrack('audio', 'vocal-fx', 'Vox');
+    const vox = s().addTrack('audio', 'audio-input', 'Vox');
     s().addAudioClip(vox, {
       id: 'take',
       startTick: 0,

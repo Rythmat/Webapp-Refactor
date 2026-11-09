@@ -15,12 +15,6 @@ const ArcadePage = lazy(() =>
 const GlobePage = lazy(() =>
   import('./pages/GlobePage').then((m) => ({ default: m.GlobePage })),
 );
-const TeachersPage = lazy(() =>
-  import('./pages/TeachersPage').then((m) => ({ default: m.TeachersPage })),
-);
-const BlogPage = lazy(() =>
-  import('./pages/BlogPage').then((m) => ({ default: m.BlogPage })),
-);
 
 /**
  * Public marketing pages. A pathless layout route (shared nav + footer via
@@ -39,8 +33,6 @@ export const marketingPages = () => {
       { path: MarketingRoutes.learn.definition, element: <LearnPage /> },
       { path: MarketingRoutes.arcade.definition, element: <ArcadePage /> },
       { path: MarketingRoutes.globe.definition, element: <GlobePage /> },
-      { path: MarketingRoutes.blog.definition, element: <BlogPage /> },
-      { path: MarketingRoutes.teachers.definition, element: <TeachersPage /> },
     ],
   };
 };

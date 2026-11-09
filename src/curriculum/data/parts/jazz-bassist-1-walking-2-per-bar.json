@@ -1,0 +1,127 @@
+{
+  "id": "jazz-bassist-1-walking-2-per-bar",
+  "name": "Jazz-Bassist-1 · Walking, I–VI–ii–V",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 3,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "bass-electric:upright",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 36,
+      "velocity": 80
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 34,
+      "velocity": 80
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 33,
+      "velocity": 80
+    },
+    {
+      "tick": 1440,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 80
+    },
+    {
+      "tick": 1680,
+      "duration": 240,
+      "midi": 39,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 38,
+      "velocity": 80
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 42,
+      "velocity": 80
+    },
+    {
+      "tick": 2880,
+      "duration": 480,
+      "midi": 43,
+      "velocity": 80
+    },
+    {
+      "tick": 3360,
+      "duration": 480,
+      "midi": 37,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 36,
+      "velocity": 80
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 34,
+      "velocity": 80
+    },
+    {
+      "tick": 4800,
+      "duration": 480,
+      "midi": 33,
+      "velocity": 80
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 40,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 38,
+      "velocity": 80
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 42,
+      "velocity": 80
+    },
+    {
+      "tick": 6720,
+      "duration": 480,
+      "midi": 43,
+      "velocity": 80
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 37,
+      "velocity": 80
+    }
+  ],
+  "chordSymbols": ["Cmaj7 A7", "Dm7 G7"]
+}

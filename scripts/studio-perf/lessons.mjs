@@ -114,6 +114,28 @@ import { startRecording, stopRecording } from './probes.mjs';
 
 /** tutorials.ts as the dev server serves it to the page. */
 const TUTORIALS_MODULE = '/src/daw/components/Tutorial/tutorials.ts';
+/** The anchor registry, for its ANCHOR_ALIASES (renamed anchors). */
+const ANCHORS_MODULE = '/src/daw/components/Tutorial/anchorRegistry.ts';
+
+/**
+ * The app's ANCHOR_ALIASES (old id → current id), read with the lessons. A
+ * step that names an old id is spotlit on the control that renders the new
+ * one (anchorRegistry's resolveAnchor), so the walkthrough looks for that
+ * one too, in the page (window.__MA_ANCHOR_ALIASES__) and in the drivers'
+ * clicks; the step's own id is what it reports.
+ */
+let anchorAliases = {};
+
+/** The id an anchor renders today, following anchorAliases. */
+function currentAnchor(id) {
+  const seen = new Set();
+  let current = id;
+  while (anchorAliases[current] && !seen.has(current)) {
+    seen.add(current);
+    current = anchorAliases[current];
+  }
+  return current;
+}
 
 /** The dev auth bypass module, at the URL the app imports it from. */
 const BYPASS_MODULE = '/src/auth/devBypass.ts';
@@ -204,10 +226,23 @@ function measureAnchor(ids, rack = null) {
     ].join('');
   };
   const inRack = rack ?? 'track';
-  const find = (id) =>
-    document.querySelectorAll(
+  // A renamed id resolves as the spotlight resolves it (ANCHOR_ALIASES).
+  const aliases = window.__MA_ANCHOR_ALIASES__ ?? {};
+  const current = (id) => {
+    const seen = new Set();
+    let at = id;
+    while (aliases[at] && !seen.has(at)) {
+      seen.add(at);
+      at = aliases[at];
+    }
+    return at;
+  };
+  const find = (stepId) => {
+    const id = current(stepId);
+    return document.querySelectorAll(
       `[data-tutorial-id="${id}"]:not([data-tutorial-target]), [data-tutorial-id="${id}"][data-tutorial-target="${inRack}"]`,
     );
+  };
   const vw = document.documentElement.clientWidth;
   const vh = document.documentElement.clientHeight;
   const state = window.__MA_STORE__?.getState();
@@ -429,6 +464,16 @@ function measureAnchor(ids, rack = null) {
     const grid = [1 / 6, 1 / 2, 5 / 6];
     const cover = new Map();
     let missed = 0;
+    // An anchor the pointer passes through (the selected track's ring, the
+    // boxes over the timeline's canvas) frames what is under it: a hit on
+    // that, inside the nearest ancestor that takes the pointer, is no cover.
+    let frame = null;
+    if (style.pointerEvents === 'none') {
+      frame = el.parentElement;
+      while (frame && getComputedStyle(frame).pointerEvents === 'none') {
+        frame = frame.parentElement;
+      }
+    }
     grid.forEach((fy, iy) =>
       grid.forEach((fx, ix) => {
         const hit = document.elementFromPoint(
@@ -436,6 +481,7 @@ function measureAnchor(ids, rack = null) {
           v.t + fy * (v.b - v.t),
         );
         if (hit && (hit === el || el.contains(hit))) return;
+        if (hit && frame?.contains(hit) && !card?.contains(hit)) return;
         missed += 1;
         if (ix === 1 && iy === 1) out.centreCovered = true;
         const who = !hit
@@ -704,6 +750,10 @@ async function readLessons(browser, base) {
   try {
     const page = await context.newPage();
     await page.goto(`${base}/@vite/client`, { waitUntil: 'domcontentloaded' });
+    anchorAliases = await page.evaluate(async (path) => {
+      const { ANCHOR_ALIASES } = await import(path);
+      return { ...(ANCHOR_ALIASES ?? {}) };
+    }, ANCHORS_MODULE);
     return await page.evaluate(async (path) => {
       const { TUTORIALS } = await import(path);
       const idsOf = (t) => (!t ? [] : Array.isArray(t) ? t : [t]);
@@ -738,6 +788,46 @@ const tutorialState = (page) =>
       celebrate: s.tutorialStepCelebrate,
     };
   });
+
+/** The longest a step's demo may play before the walkthrough skips it. */
+const DEMO_TIMEOUT = 60_000;
+
+/**
+ * A step with a demo (TutorialStep.demo) plays it as it arrives, and the
+ * student acts on their turn: the walkthrough watches it the same way, so
+ * its driver never meets the blocker over the Studio. A demo that doesn't
+ * end in DEMO_TIMEOUT is the step's problem, and Skip moves it on. Returns
+ * how long the step waited (0 for a step with no demo).
+ */
+async function waitForTurn(page, lessonId, index, res) {
+  const started = Date.now();
+  const turn = ({ id, i }) => {
+    const s = window.__MA_STORE__.getState();
+    return (
+      s.activeTutorialId !== id ||
+      s.tutorialStepIndex !== i ||
+      (s.tutorialStepPrepared && s.tutorialDemoPhase === 'turn')
+    );
+  };
+  try {
+    await page.waitForFunction(
+      turn,
+      { id: lessonId, i: index },
+      { timeout: DEMO_TIMEOUT, polling: 100 },
+    );
+  } catch {
+    res.problems.push(`its demo did not end in ${DEMO_TIMEOUT / 1000} s`);
+    await page
+      .getByTestId('tutorial-coach-card')
+      .getByRole('button', { name: /Skip/ })
+      .click()
+      .catch(() => {});
+    await page
+      .waitForFunction(turn, { id: lessonId, i: index }, { timeout: 5000 })
+      .catch(() => {});
+  }
+  return Date.now() - started;
+}
 
 /** True once the lesson has moved past step `index` (or ended). */
 async function waitForAdvance(page, lessonId, index, timeout) {
@@ -900,12 +990,15 @@ function makeDriverContext(page, res, actionTimeout) {
   };
   // An anchor stamped with its rack (the FX list's fx-add-* rows) in `rack`
   // only, the track dock's by default; an older build stamps none.
-  const anchorLocator = (id, rack = 'track') =>
-    page
+  const anchorLocator = (stepId, rack = 'track') => {
+    // A renamed id clicks the control that renders the new one.
+    const id = currentAnchor(stepId);
+    return page
       .locator(
         `[data-tutorial-id="${id}"]:not([data-tutorial-target]), [data-tutorial-id="${id}"][data-tutorial-target="${rack}"]`,
       )
       .first();
+  };
   const ctx = {
     page,
     click: (locator, label) =>
@@ -1163,6 +1256,7 @@ async function runStep(env, step, index) {
       { timeout: 20_000, polling: 100 },
     )
     .catch(() => {});
+  res.ms.demo = await waitForTurn(page, lesson.id, index, res);
   let state = await tutorialState(page);
   const driver = driverFor(lesson.id, step.id);
   res.driver = driver
@@ -1423,7 +1517,7 @@ async function runLesson(env) {
     await applyPersona(page, persona);
     // Both before the editor loads, so the trace sees its first step.
     await page.addInitScript({
-      content: `window.__MA_MEASURE_ANCHOR__ = ${measureAnchor};`,
+      content: `window.__MA_MEASURE_ANCHOR__ = ${measureAnchor}; window.__MA_ANCHOR_ALIASES__ = ${JSON.stringify(anchorAliases)};`,
     });
     await page.addInitScript(
       installLessonTrace,

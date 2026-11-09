@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../../audio/wavetableImport', () => ({
   registerPackTables: vi.fn(),
+  setTableRegistrar: vi.fn(),
 }));
 
 import { useSynthStore } from '../../index';

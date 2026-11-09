@@ -65,7 +65,7 @@ export const StandVideo: FC<{
         }}
         className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-xs transition-colors ${
           isPlaying
-            ? 'border-[#7ecfcf]/50 text-[#7ecfcf]'
+            ? 'border-white/40 bg-white/10 text-white'
             : 'border-white/15 text-white/60 hover:border-white/30'
         }`}
         title={open ? 'Hide the recording' : 'Listen to the recording'}
@@ -75,7 +75,7 @@ export const StandVideo: FC<{
         {isPlaying && !open && (
           <span
             aria-hidden
-            className="h-1.5 w-1.5 rounded-full bg-[#7ecfcf]"
+            className="h-1.5 w-1.5 rounded-full bg-white"
             title="Playing"
           />
         )}
@@ -88,7 +88,7 @@ export const StandVideo: FC<{
       {/* Rendered from the start so the player has something to replace, and
           only hidden when shut — never unmounted. */}
       <div
-        className="absolute right-0 top-full z-20 mt-2 w-[min(28rem,80vw)] overflow-hidden rounded-xl border border-white/10 bg-[#161618] shadow-2xl"
+        className="absolute right-0 top-full z-20 mt-2 w-[min(28rem,80vw)] overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#161618]/80 shadow-[0_8px_28px_rgba(0,0,0,0.36)] backdrop-blur-xl"
         style={{ display: open ? 'block' : 'none' }}
       >
         <div className="aspect-video w-full bg-black">

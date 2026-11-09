@@ -8,6 +8,7 @@ import {
   GuitarSheet,
   SettingsSection,
 } from '@/curriculum/guitar/layout/settingsControls';
+import { ShowTourAgainRow } from '@/features/learnTour/ShowTourAgainRow';
 
 // ── PianoSettingsSheet ─────────────────────────────────────────────────────
 // The gear's sheet on piano: the Sound rows guitar has (the metronome, the
@@ -52,6 +53,7 @@ export function PianoSettingsSheet({
           }}
         />
       </SettingsSection>
+      <ShowTourAgainRow className="pt-5" onClose={() => onOpenChange(false)} />
     </GuitarSheet>
   );
 }

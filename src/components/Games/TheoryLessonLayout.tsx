@@ -1,10 +1,16 @@
 import { useId, useState, type ReactNode } from 'react';
 import {
+  PROMPT_FRAME,
+  PROMPT_WASH,
+} from '@/components/promptBox/PromptBoxParts';
+import { cn } from '@/components/utilities';
+import {
   GuitarActionBar,
   type GuitarActionBarProps,
 } from '@/curriculum/guitar/layout/GuitarActionBar';
 import { GuitarLessonHeader } from '@/curriculum/guitar/layout/GuitarLessonHeader';
 import { GuitarStepNav } from '@/curriculum/guitar/layout/GuitarStepNav';
+import { LessonFrame } from '@/curriculum/guitar/layout/LessonFrame';
 import type {
   HeaderModel,
   StepNavModel,
@@ -67,32 +73,44 @@ export function TheoryLessonLayout({
   });
 
   return (
-    <div
+    // In the lesson frame (rail, glow), as every lesson: the column scrolls
+    // in its own box, the bar pinned under it.
+    <LessonFrame
+      header={header}
+      nav={nav}
+      tools={{
+        about: {
+          open: aboutOpen,
+          onToggle: () => setAboutOpen(!aboutOpen),
+        },
+        // Settings is not modal, so its button stays in reach and toggles.
+        settings: {
+          open: settingsOpen,
+          onToggle: () => setSettingsOpen(!settingsOpen),
+        },
+      }}
       data-piano-layout
       data-theory-layout
       data-bar-state={bar.state}
-      className="flex min-h-full flex-1 flex-col bg-[#101012] text-[#e8e8f0]"
     >
-      <div
-        data-theory-column
-        className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-4 px-6 pb-4 pt-5 max-[639px]:px-4"
-      >
-        <GuitarLessonHeader
-          header={header}
-          aboutHasNews={false}
-          aboutOpen={aboutOpen}
-          onOpenAbout={() => setAboutOpen(true)}
-          settingsOpen={settingsOpen}
-          onOpenSettings={() => setSettingsOpen((open) => !open)}
-        />
-        <GuitarStepNav nav={nav} keyColor={header.keyColor} />
-        {subNav}
-        {/* Kept mounted under a result: Restart and Try Again remount it
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
+        <div
+          data-theory-column
+          className="mx-auto flex w-full max-w-[1184px] flex-auto flex-col gap-4 px-6 pb-4 pt-5 max-[639px]:px-4"
+        >
+          <GuitarLessonHeader
+            header={header}
+            section={nav.sections.find((s) => s.active)?.name}
+          />
+          <GuitarStepNav nav={nav} keyColor={header.keyColor} />
+          {subNav}
+          {/* Kept mounted under a result: Restart and Try Again remount it
             themselves, by key. */}
-        <div data-theory-content hidden={!!panel} className="min-w-0">
-          {content}
+          <div data-theory-content hidden={!!panel} className="min-w-0">
+            {content}
+          </div>
+          {panel}
         </div>
-        {panel}
       </div>
 
       <div
@@ -117,7 +135,7 @@ export function TheoryLessonLayout({
         onOpenChange={setAboutOpen}
         about={about}
       />
-    </div>
+    </LessonFrame>
   );
 }
 
@@ -150,7 +168,12 @@ export function TheoryResultPanel({
     <section
       aria-labelledby={headingId}
       data-theory-result
-      className="flex min-h-[240px] flex-col justify-center gap-3 rounded-xl border border-white/[0.08] bg-[#151518] p-6"
+      // The prompt box's card, as Home's and Learn's.
+      className={cn(
+        PROMPT_FRAME,
+        PROMPT_WASH,
+        'flex min-h-[240px] flex-col justify-center gap-3 p-6',
+      )}
     >
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
         <h2

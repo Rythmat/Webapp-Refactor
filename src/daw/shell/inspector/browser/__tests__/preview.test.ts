@@ -115,6 +115,7 @@ vi.mock('@/daw/midi/loadGrooveEvents', () => ({
 }));
 vi.mock('../presetData', () => ({ presetData: async () => undefined }));
 
+import hipHop1 from '@/curriculum/data/drumGrooves/studio/groove-hiphop-1.json';
 import { listLiveParts } from '@/curriculum/engine/parts/registry';
 import { GROOVES } from '@/daw/data/groovesLibrary';
 import { PRESETS } from '@/daw/data/instrumentPresets';
@@ -130,6 +131,9 @@ const state = () => useBrowserStore.getState().preview;
 
 /** Hip Hop 1, played at 60 BPM: a beat (480 ticks) is a second. */
 const HIPHOP = grooveItem(GROOVES.find((g) => g.id === 'groove-hiphop-1')!);
+/** A beat of Hip Hop 1 in seconds, at the tempo its designed groove plays
+ *  (the console's, which wins over the catalog's). */
+const HIPHOP_BEAT = 60 / hipHop1.tempo;
 const hit = (
   note: number,
   startTick: number,
@@ -318,8 +322,8 @@ describe('a preview', () => {
     await play(2000);
     const [adapter] = h.adapters;
     expect(adapter.on.map((n) => n.note)).toEqual([36, 38]);
-    // A beat at the groove's 60 BPM is a second.
-    expect(adapter.on[1].time - adapter.on[0].time).toBeCloseTo(1, 6);
+    // A beat at the groove's own tempo.
+    expect(adapter.on[1].time - adapter.on[0].time).toBeCloseTo(HIPHOP_BEAT, 6);
   });
 
   it('plays nothing and clears for a groove that doesn’t load', async () => {
@@ -366,14 +370,14 @@ describe('a preview’s notes and voices', () => {
     expect(adapter.noteOff).not.toHaveBeenCalled();
     const t0 = adapter.on[0].time;
 
-    await play(900);
+    // A beat at the groove's own tempo: not booked until it is 100 ms off.
+    await play(HIPHOP_BEAT * 1000 - 150);
     expect(adapter.noteOff).not.toHaveBeenCalled();
     await play(100);
     expect(adapter.noteOff).toHaveBeenCalledTimes(1);
     const [note, time] = adapter.noteOff.mock.calls[0] as [number, number];
     expect(note).toBe(36);
-    // A second at the groove's 60 BPM.
-    expect(time).toBeCloseTo(t0 + 1, 6);
+    expect(time).toBeCloseTo(t0 + HIPHOP_BEAT, 6);
   });
 
   it('starts every note of a chord before any is released', async () => {

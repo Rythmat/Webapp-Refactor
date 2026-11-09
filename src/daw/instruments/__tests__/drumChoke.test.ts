@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DrumMachineEngine } from '../DrumMachineEngine';
+import { resolveCustomKit } from '../drumKits';
 
 // ── A stop or loop chokes ringing one-shots (instruments-18) ──────────────
 // allNotesOff and panic used to do nothing on drums, so a crash or open hat
@@ -120,5 +121,70 @@ describe('DrumMachineEngine choke', () => {
     log.length = 0;
     engine.noteOn(36, 127, 21);
     expect(events('cancel')).toEqual([]);
+  });
+});
+
+// ── A hit stops the pads it cuts (padStops) ───────────────────────────────
+// The closed and pedal hats stop the open hat on every kit; a custom kit can
+// name more of its own — a timbale roll that stops when the timbale is hit.
+
+const ROLL = '/daw-assets/samples/drums/uploads/timbale-roll.mp3';
+const HIT = '/daw-assets/samples/drums/uploads/timbale-hit.mp3';
+
+async function timbaleKit(): Promise<DrumMachineEngine> {
+  const engine = await loadedEngine();
+  await engine.loadKitConfig(
+    resolveCustomKit({
+      id: 'timbales',
+      label: 'Timbales',
+      base: 'natural',
+      samples: { 38: HIT, 40: ROLL },
+      stoppedBy: { 40: 38 },
+    }),
+  );
+  log.length = 0;
+  return engine;
+}
+
+describe('DrumMachineEngine pad stops', () => {
+  it('a closed hat stops the open hat on a stock kit', async () => {
+    const engine = await loadedEngine();
+    engine.noteOn(42, 100, 2);
+    expect(events('stop')).toContainEqual([
+      'stop',
+      '/daw-assets/samples/drums/808/hihat-open.wav',
+      2,
+    ]);
+  });
+
+  it('a snare leaves a stock kit’s clap ringing', async () => {
+    const engine = await loadedEngine();
+    engine.noteOn(38, 100, 2);
+    expect(events('stop').map(([, url]) => url)).toEqual([
+      '/daw-assets/samples/drums/808/snare.wav',
+    ]);
+  });
+
+  it('the timbale hit stops the roll, at the hit', async () => {
+    const engine = await timbaleKit();
+    engine.noteOn(38, 100, 3);
+    expect(events('stop')).toContainEqual(['stop', ROLL, 3]);
+    expect(events('start')).toEqual([['start', HIT, 3]]);
+  });
+
+  it('the roll leaves the hit ringing', async () => {
+    const engine = await timbaleKit();
+    engine.noteOn(40, 100, 3);
+    expect(events('stop').map(([, url]) => url)).toEqual([ROLL]);
+  });
+
+  it('the kit’s own stops keep the hi-hat’s', async () => {
+    const engine = await timbaleKit();
+    engine.noteOn(44, 100, 4);
+    expect(events('stop')).toContainEqual([
+      'stop',
+      '/daw-assets/samples/drums/natural/hihat-open.wav',
+      4,
+    ]);
   });
 });

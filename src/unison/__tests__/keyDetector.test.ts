@@ -111,4 +111,58 @@ describe('detectKey', () => {
     const result = detectKey(events);
     expect(result.rootPc).toBe(10); // Bb
   });
+
+  describe('the tonic from the bass (2026-10-21)', () => {
+    const prog = (chords: number[][]) =>
+      chords.flatMap((c, i) => c.map((p) => note(p, i * 1920, 1920, 90)));
+
+    it('reads I–V–vi–IV as C major, surely, not A minor', () => {
+      const result = detectKey(
+        prog([
+          [48, 60, 64, 67],
+          [43, 59, 62, 67],
+          [45, 57, 60, 64],
+          [41, 57, 60, 65],
+          [48, 60, 64, 67],
+        ]),
+      );
+      expect(result.rootPc).toBe(0);
+      expect(result.mode).toBe('ionian');
+      expect(result.confidence).toBeGreaterThan(0.9);
+      // The alternates are other tonics, and less sure.
+      expect(result.alternateKeys[0].rootPc).not.toBe(0);
+      expect(result.alternateKeys[0].confidence).toBeLessThan(
+        result.confidence,
+      );
+    });
+
+    it('reads the same chords from A as A minor', () => {
+      const result = detectKey(
+        prog([
+          [45, 57, 60, 64],
+          [41, 57, 60, 65],
+          [48, 60, 64, 67],
+          [43, 59, 62, 67],
+          [45, 57, 60, 64],
+        ]),
+      );
+      expect(result.rootPc).toBe(9);
+      expect(result.mode).toBe('aeolian');
+      expect(result.confidence).toBeGreaterThan(0.9);
+    });
+
+    it('reads a Dm7–G7 vamp as D Dorian', () => {
+      const result = detectKey(
+        prog([
+          [50, 62, 65, 69, 72],
+          [43, 59, 62, 65, 67],
+          [50, 62, 65, 69, 72],
+          [43, 59, 62, 65, 67],
+          [50, 62, 65, 69, 72],
+        ]),
+      );
+      expect(result.rootPc).toBe(2);
+      expect(result.mode).toBe('dorian');
+    });
+  });
 });

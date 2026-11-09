@@ -3,6 +3,19 @@ import type {
   InteractionResponsePayload,
   StudentLanguage,
 } from '../../types';
+import type { SessionState } from '../sessionsStore';
+import type { SessionClock } from '../useServerClock';
+
+/**
+ * What a live session gives an interaction that plays along with the class
+ * (Echo): the session's state, the server's clock and the slide it's on.
+ * Absent outside a live session (a preview, an assignment).
+ */
+export interface InteractionLive {
+  state: SessionState;
+  clock: SessionClock;
+  slideId: string;
+}
 
 /**
  * Shared prop shape for every interaction input component. Each variant
@@ -22,4 +35,6 @@ export interface InteractionInputProps<T extends Interaction = Interaction> {
   enrollmentId?: string;
   sessionId?: string;
   assignmentId?: string;
+  /** In a live session: what a class-wide interaction (Echo) follows. */
+  live?: InteractionLive;
 }

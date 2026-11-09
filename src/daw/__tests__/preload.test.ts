@@ -105,9 +105,13 @@ describe('the dashboard prefetch', () => {
 
 describe('isEditorPath', () => {
   it('is the editor and nothing else', () => {
+    // /studio is the editor since 2026-10-24; /studio/editor forwards to it.
+    expect(isEditorPath('/studio')).toBe(true);
+    expect(isEditorPath('/studio/')).toBe(true);
     expect(isEditorPath('/studio/editor')).toBe(true);
     expect(isEditorPath('/studio/editor/')).toBe(true);
-    expect(isEditorPath('/studio')).toBe(false);
+    expect(isEditorPath('/studio/production')).toBe(false);
     expect(isEditorPath('/studio/editorial')).toBe(false);
+    expect(isEditorPath('/studios')).toBe(false);
   });
 });

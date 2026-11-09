@@ -13,9 +13,9 @@ import * as Tone from 'tone';
 import { swingOnset } from '@/curriculum/engine/genreGeneration/swing';
 import { applyFeel, type FeelProfile } from '@/curriculum/engine/parts/feel';
 import { partTicks, type InstrumentPart } from '@/curriculum/engine/parts/part';
-import { createInstrument } from '@/daw/hooks/usePlaybackEngine';
 import type { InstrumentAdapter } from '@/daw/instruments/InstrumentAdapter';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
+import { createSoundInstrument } from '@/daw/instruments/soundString';
 import { FACTORY_PRESETS } from '@/daw/oracle-synth/store/presets/factoryPresets';
 import {
   applySynthStateToEngine,
@@ -88,9 +88,9 @@ export function usePartPlayer() {
     if (instrumentRef.current?.key === sound)
       return instrumentRef.current.adapter;
     instrumentRef.current?.adapter.dispose?.();
-    const { type, gmProgram, drumKit, bassVoice, synthPatch } =
-      parseSound(sound);
-    const adapter = createInstrument(type, gmProgram, drumKit, bassVoice);
+    const { synthPatch } = parseSound(sound);
+    // Every sound a part names, sampled ones included (soundString).
+    const adapter = createSoundInstrument(sound);
     if (!adapter) throw new Error(`No instrument for "${sound}".`);
     setLoading(true);
     try {

@@ -19,6 +19,7 @@ import {
 } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
+import { ANATOMY_MOVES } from '@/curriculum/audio/anatomyMoves';
 import { curriculumPages } from '@/curriculum/routes';
 import { learnPages } from '@/features/classroom/ClassroomPages';
 
@@ -32,6 +33,50 @@ vi.mock('@/components/ui/RequirePremium', async () => {
 vi.mock('@/curriculum/pages/GuitarModeLesson', async () => {
   const { createElement } = await import('react');
   return { default: () => createElement('p', null, 'guitar lesson') };
+});
+vi.mock('@/curriculum/anatomy/ComboAmpAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'combo amp anatomy') };
+});
+vi.mock('@/curriculum/anatomy/HeadphoneAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'headphone anatomy') };
+});
+vi.mock('@/curriculum/anatomy/MicrophoneAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'microphone anatomy') };
+});
+vi.mock('@/curriculum/anatomy/KeyboardAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'keyboard anatomy') };
+});
+vi.mock('@/curriculum/anatomy/SynthAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'synth anatomy') };
+});
+vi.mock('@/curriculum/anatomy/PianoAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'piano anatomy') };
+});
+vi.mock('@/curriculum/anatomy/UkuleleAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'ukulele anatomy') };
+});
+vi.mock('@/curriculum/anatomy/BassAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'bass anatomy') };
+});
+vi.mock('@/curriculum/anatomy/GuitarAnatomyPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'guitar anatomy') };
+});
+vi.mock('@/curriculum/guitar/harmonics/GuitarHarmonicsPage', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'guitar harmonics') };
+});
+vi.mock('@/components/learn/GuitarRelativeModesOverview', async () => {
+  const { createElement } = await import('react');
+  return { default: () => createElement('p', null, 'guitar relative modes') };
 });
 vi.mock('@/components/learn/GuitarModeOverview', async () => {
   const { createElement } = await import('react');
@@ -54,6 +99,14 @@ vi.mock('@/components/learn/ModeOverview', async () => {
   return {
     ModeOverview: (props: { mode: string }) =>
       createElement('p', null, `piano overview ${props.mode}`),
+  };
+});
+
+vi.mock('@/components/learn/LearnPage', async () => {
+  const { createElement } = await import('react');
+  return {
+    LearnPage: (props: { tab?: string }) =>
+      createElement('p', null, `learn page ${props.tab ?? 'home'}`),
   };
 });
 
@@ -118,19 +171,21 @@ describe('curriculum routes: legacy guitar paths', () => {
     ).toBe(CurriculumRoutes.guitarAppliedTheoryFundamentalsLesson.definition);
   });
 
-  it('leaves the piano and genre routes where they were', () => {
+  it('leaves the piano routes where they were', () => {
     expect(curriculumPath('/curriculum/applied-theory-fundamentals')).toBe(
       CurriculumRoutes.appliedTheoryFundamentals.definition,
     );
     expect(curriculumPath('/curriculum/applied-theory-fundamentals/c')).toBe(
       CurriculumRoutes.appliedTheoryFundamentalsLesson.definition,
     );
-    expect(curriculumPath('/curriculum/funk/1')).toBe(
-      CurriculumRoutes.genreLevel.definition,
-    );
     expect(curriculumPath('/curriculum/piano-fundamentals')).toBe(
-      CurriculumRoutes.genre.definition,
+      CurriculumRoutes.pianoFundamentals.definition,
     );
+  });
+
+  it('no longer serves the genre courses (owner, 2026-10-27)', () => {
+    expect(curriculumPath('/curriculum/funk')).toBeUndefined();
+    expect(curriculumPath('/curriculum/funk/1')).toBeUndefined();
   });
 
   it('sends the old key picker to the guitar Ionian overview', async () => {
@@ -163,18 +218,45 @@ describe('learn routes: guitar', () => {
     );
   });
 
-  it('leaves the piano Theory paths where they were', () => {
-    expect(learnPath('/learn/ionian')).toBe(LearnRoutes.overview.definition);
-    expect(learnPath('/learn/ionian/c')).toBe(LearnRoutes.lesson.definition);
-    expect(learnPath('/learn/dorian/fsharp')).toBe(
-      LearnRoutes.lesson.definition,
+  it('puts the keyboard Theory paths under /learn/keyboard', () => {
+    expect(learnPath('/learn/keyboard/ionian')).toBe(
+      LearnRoutes.keyboardOverview.definition,
     );
-    expect(learnPath('/learn/relative/c')).toBe(
+    expect(learnPath('/learn/keyboard/ionian/c')).toBe(
+      LearnRoutes.keyboardLesson.definition,
+    );
+    expect(learnPath('/learn/keyboard/dorian/fsharp')).toBe(
+      LearnRoutes.keyboardLesson.definition,
+    );
+    expect(learnPath('/learn/keyboard/relative/c')).toBe(
       LearnRoutes.relativeOverview.definition,
     );
-    expect(learnPath('/learn/parallel/c')).toBe(
+    expect(learnPath('/learn/keyboard/parallel/c')).toBe(
       LearnRoutes.parallelOverview.definition,
     );
+  });
+
+  it('puts the genre courses under /learn/keyboard/genre', () => {
+    expect(learnPath('/learn/keyboard/genre/african')).toBe(
+      LearnRoutes.genreCourse.definition,
+    );
+    expect(learnPath('/learn/keyboard/genre/pop/2')).toBe(
+      LearnRoutes.genreLesson.definition,
+    );
+    expect(learnPath('/learn/keyboard/genre')).not.toBe(
+      LearnRoutes.genreCourse.definition,
+    );
+  });
+
+  it('no longer serves the old /learn/:mode paths (owner, 2026-10-25)', () => {
+    for (const old of [
+      '/learn/ionian',
+      '/learn/ionian/c',
+      '/learn/relative/c',
+      '/learn/parallel/c',
+    ]) {
+      expect(learnPath(old) ?? '').not.toMatch(/:mode|:key/);
+    }
   });
 
   it('builds the guitar paths', () => {
@@ -189,9 +271,66 @@ describe('learn routes: guitar', () => {
     ).toBe('/learn/guitar/ionian/bflat?section=B');
   });
 
-  it('sends bare /learn/guitar to the Theory tab', async () => {
+  it('opens the guitar Learn page at bare /learn/guitar', async () => {
     renderRoute(learnPages(), '/learn/guitar');
-    expect(await location()).toBe('/learn?tab=Theory');
+    expect(await screen.findByText('learn page home')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['/learn/guitar/songs', 'Songs'],
+    ['/learn/guitar/genre', 'Genre'],
+    ['/learn/guitar/theory', 'Theory'],
+    ['/learn/guitar/technique', 'Technique'],
+    ['/learn/keyboard/songs', 'Songs'],
+    ['/learn/keyboard/technique', 'Technique'],
+  ])('opens %s as its tab’s page, not a guitar lesson', async (url, tab) => {
+    expect(learnPath(url)).toBe(url);
+    renderRoute(learnPages(), url);
+    expect(await screen.findByText(`learn page ${tab}`)).toBeInTheDocument();
+  });
+
+  it.each([
+    ['piano', 'piano anatomy'],
+    ['keyboard', 'keyboard anatomy'],
+    ['synth', 'synth anatomy'],
+    ['guitar', 'guitar anatomy'],
+    ['bass', 'bass anatomy'],
+    ['ukulele', 'ukulele anatomy'],
+    ['microphone', 'microphone anatomy'],
+    ['combo-amp', 'combo amp anatomy'],
+    ['headphones', 'headphone anatomy'],
+  ])('opens Audio → Anatomy → %s behind Premium', async (path, text) => {
+    renderRoute(learnPages(), `/learn/audio/anatomy/${path}?tab=build`);
+    const gate = await screen.findByTestId('premium-gate');
+    expect(within(gate).getByText(text)).toBeInTheDocument();
+  });
+
+  it.each(ANATOMY_MOVES.map(({ from, to }) => [from, to()]))(
+    'sends the old %s on to %s, its query kept',
+    async (from, to) => {
+      expect(learnPath(from)).toBe(from);
+      renderRoute(learnPages(), `${from}?tab=build&part=frets`);
+      expect(await location()).toBe(`${to}?tab=build&part=frets`);
+    },
+  );
+
+  it('opens Technique → Guitar Harmonics, free, not as a guitar lesson', async () => {
+    renderRoute(learnPages(), '/learn/guitar/technique/harmonics?tab=play');
+    expect(await screen.findByText('guitar harmonics')).toBeInTheDocument();
+    expect(screen.queryByTestId('premium-gate')).not.toBeInTheDocument();
+    expect(screen.queryByText('guitar lesson')).not.toBeInTheDocument();
+  });
+
+  it('opens a Relative key’s guitar page behind Premium, not as a lesson', async () => {
+    renderRoute(learnPages(), '/learn/guitar/relative/c');
+    const gate = await screen.findByTestId('premium-gate');
+    expect(within(gate).getByText('guitar relative modes')).toBeInTheDocument();
+    expect(screen.queryByText('guitar lesson')).not.toBeInTheDocument();
+  });
+
+  it('forwards an old ?tab= link on an instrument page to its tab’s page', async () => {
+    renderRoute(learnPages(), '/learn/guitar?tab=Songs&q=jolene');
+    expect(await location()).toBe('/learn/guitar/songs?q=jolene');
     expect(navigationType()).toBe('REPLACE');
   });
 
@@ -234,11 +373,7 @@ describe('learn routes: guitar', () => {
     ).toBeInTheDocument();
   });
 
-  it.each([
-    '/learn/guitar/harmonicMinor',
-    '/learn/guitar/superlocrian/d',
-    '/learn/guitar/relative/c',
-  ])(
+  it.each(['/learn/guitar/harmonicMinor', '/learn/guitar/superlocrian/d'])(
     'sends %s, a mode with no guitar content, back to Theory, ungated',
     async (url) => {
       renderRoute(learnPages(), url);
@@ -249,10 +384,10 @@ describe('learn routes: guitar', () => {
   );
 });
 
-describe('learn routes: piano (unchanged)', () => {
+describe('learn routes: keyboard', () => {
   it.each([
-    ['/learn/ionian', 'piano overview ionian'],
-    ['/learn/ionian/c', 'piano lesson ionian c'],
+    ['/learn/keyboard/ionian', 'piano overview ionian'],
+    ['/learn/keyboard/ionian/c', 'piano lesson ionian c'],
   ])('keeps %s free', async (url, page) => {
     renderRoute(learnPages(), url);
     expect(await screen.findByText(page)).toBeInTheDocument();
@@ -260,9 +395,9 @@ describe('learn routes: piano (unchanged)', () => {
   });
 
   it.each([
-    ['/learn/dorian', 'piano overview dorian'],
-    ['/learn/ionian/d', 'piano lesson ionian d'],
-    ['/learn/dorian/c', 'piano lesson dorian c'],
+    ['/learn/keyboard/dorian', 'piano overview dorian'],
+    ['/learn/keyboard/ionian/d', 'piano lesson ionian d'],
+    ['/learn/keyboard/dorian/c', 'piano lesson dorian c'],
   ])('keeps %s behind Premium', async (url, page) => {
     renderRoute(learnPages(), url);
     const gate = await screen.findByTestId('premium-gate');

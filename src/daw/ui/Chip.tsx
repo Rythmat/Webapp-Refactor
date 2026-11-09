@@ -14,7 +14,16 @@ export interface ChipProps extends HTMLAttributes<HTMLSpanElement> {
    * or with `fill` the chip's background with readable ink on it.
    */
   color?: string;
-  fill?: boolean;
+  /**
+   * With `color`: true fills the chip with it; 'tint' gives it a pale
+   * version of the colour with near-black text (the prompt bar's target).
+   */
+  fill?: boolean | 'tint';
+  /**
+   * What `color` means, for the design probe: a track's or a key's colour.
+   * Set by default whenever `color` is.
+   */
+  meaning?: 'track-colour' | 'key-colour' | 'colour';
   /** A dashed outline and no fill: something not set yet (no key chosen). */
   dashed?: boolean;
   /** A leading icon, 14 px. */
@@ -42,6 +51,7 @@ export const Chip = forwardRef<HTMLSpanElement, ChipProps>(function Chip(
     tone = 'neutral',
     color,
     fill = false,
+    meaning,
     dashed = false,
     icon,
     size = 'sm',
@@ -54,11 +64,13 @@ export const Chip = forwardRef<HTMLSpanElement, ChipProps>(function Chip(
   ref,
 ) {
   const Component = asChild ? Slot : 'span';
-  const filled = Boolean(color && fill);
+  const filled = Boolean(color && fill === true);
+  const tinted = Boolean(color && fill === 'tint');
   return (
     <Component
       ref={ref}
       data-tone={tone}
+      data-meaning={color ? (meaning ?? 'colour') : undefined}
       className={cn(
         'inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2 [&_svg]:size-3.5 [&_svg]:shrink-0',
         size === 'md' ? 'h-6' : 'h-5',
@@ -74,11 +86,17 @@ export const Chip = forwardRef<HTMLSpanElement, ChipProps>(function Chip(
       style={
         filled && color
           ? { backgroundColor: color, color: onColor(color), ...style }
-          : style
+          : tinted && color
+            ? {
+                backgroundColor: `color-mix(in srgb, ${color} 55%, var(--daw-primary))`,
+                color: 'var(--daw-on-primary)',
+                ...style,
+              }
+            : style
       }
       {...props}
     >
-      {color && !fill && (
+      {color && fill === false && (
         <span
           aria-hidden
           className="size-2 shrink-0 rounded-full"
@@ -90,3 +108,21 @@ export const Chip = forwardRef<HTMLSpanElement, ChipProps>(function Chip(
     </Component>
   );
 });
+
+export interface ColorChipProps
+  extends Omit<ChipProps, 'color' | 'fill' | 'meaning' | 'tone'> {
+  /** The track's or key's colour. */
+  color: string;
+  meaning: 'track-colour' | 'key-colour';
+}
+
+/**
+ * A chip in a pale version of a meaning colour, with near-black text: what
+ * the prompt bar is about to act on ('Bass', '4 bars · Keys'). 24 px, so it
+ * can be a control (wrap a button with `asChild`).
+ */
+export const ColorChip = forwardRef<HTMLSpanElement, ColorChipProps>(
+  function ColorChip({ size = 'md', ...props }, ref) {
+    return <Chip ref={ref} fill="tint" size={size} {...props} />;
+  },
+);

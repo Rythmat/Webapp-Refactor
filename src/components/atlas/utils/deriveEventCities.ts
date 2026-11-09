@@ -6,8 +6,7 @@ import { matchMusicCity } from './musicCityMatch';
 /**
  * Working out the towns events happened in that no music city (cities.ts)
  * claims, as a pure function of the events: what eventCities.ts does with
- * the published content, and scripts/buildCityOutlines.mjs with the bundled
- * events. It imports nothing that needs the app running.
+ * the published content. It imports nothing that needs the app running.
  *
  * The towns:
  * Aspen ("Take Me Home, Country Roads"), Colorado Springs ("Counting
@@ -78,8 +77,7 @@ export interface DerivedCities {
 }
 
 /**
- * The towns in `events` that no music city claims. Pure: the outline build
- * (scripts/buildCityOutlines.mjs) runs it on the bundled events.
+ * The towns in `events` that no music city claims. Pure.
  * `subdivisionAt` names a US state or Canadian province from a point, when
  * the state outlines are at hand.
  */

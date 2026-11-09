@@ -31,7 +31,7 @@ let keys = '';
 beforeEach(() => {
   vi.useFakeTimers();
   useStore.setState(useStore.getInitialState(), true);
-  keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  keys = s().addTrack('midi', 'soundfont', 'Keys');
   resetUndoHistory();
 });
 

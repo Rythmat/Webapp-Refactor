@@ -10,7 +10,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 /**
  * Every song's "Open in Globe" must land somewhere.
  *
- * `useSongActions.openInGlobe` navigates to `/atlas/globe?event=song-<id>`, and
+ * `useSongActions.openInGlobe` navigates to `/globe?event=song-<id>`, and
  * `useAtlasUrlSync` resolves that with
  * `MUSIC_HISTORY.find((e) => e.id === stop.eventId)` guarded by `if (event)`.
  * So a song whose event is missing does not error — the globe opens and sits

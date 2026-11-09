@@ -8,13 +8,13 @@ const s = () => useStore.getState();
 /** Two tracks: one with a MIDI clip, one with an audio clip. */
 function tracks(): Track[] {
   useStore.setState({ tracks: [] });
-  const midi = s().addTrack('midi', 'piano-sampler', 'Keys');
+  const midi = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(midi, {
     id: 'm1',
     startTick: 0,
     events: [{ note: 60, velocity: 100, startTick: 0, durationTicks: 480 }],
   } as never);
-  const audio = s().addTrack('audio', 'vocal-fx', 'Vocals');
+  const audio = s().addTrack('audio', 'audio-input', 'Vocals');
   s().addAudioClip(audio, {
     id: 'a1',
     startTick: 1920,
@@ -122,6 +122,15 @@ describe('timelineNeedsRedraw', () => {
     expect(timelineNeedsRedraw(s(), prev)).toBe(false);
 
     s().setTimelineScrollLeft(prev.timelineScrollLeft + 100);
+    expect(timelineNeedsRedraw(s(), prev)).toBe(true);
+  });
+
+  it('redraws when another track is selected: its lane is lit', () => {
+    tracks();
+    const [first, second] = s().tracks;
+    s().setSelectedTrackId(first.id);
+    const prev = s();
+    s().setSelectedTrackId(second.id);
     expect(timelineNeedsRedraw(s(), prev)).toBe(true);
   });
 });

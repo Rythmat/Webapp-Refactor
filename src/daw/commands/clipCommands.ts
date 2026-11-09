@@ -8,6 +8,7 @@ import {
 } from '@/daw/editor/viewport';
 import { openClipMenu } from '@/daw/shell/canvas/clipMenu/canvasMenuStore';
 import { addMarkerAtPlayhead } from '@/daw/shell/canvas/markerActions';
+import { deleteSelectedChords } from '@/daw/shell/canvas/chordActions';
 import {
   copyClip,
   cutClip,
@@ -159,7 +160,18 @@ export function useArrangeKeymap(): void {
     'clip.copy': withClip(copyClip),
     'clip.paste': (e) => onTimeline(e) && pasteClipboard(),
     'clip.duplicate': withClip(duplicateClip),
-    'clip.delete': withClip(deleteClipStep),
+    // Chords picked on the chord ruler (with no clip picked since) go first.
+    'clip.delete': (e) => {
+      const { selectedClipId, selectedChordIds } = useStore.getState();
+      if (
+        onTimeline(e) &&
+        selectedClipId === null &&
+        selectedChordIds.length > 0
+      ) {
+        return deleteSelectedChords();
+      }
+      return withClip(deleteClipStep)(e);
+    },
     'clip.rename': withClip((ref) => {
       void renameClip(ref);
     }),

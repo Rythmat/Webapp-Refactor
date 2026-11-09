@@ -1,0 +1,381 @@
+{
+  "id": "pop-pianist-1-l3-artistry-take-21",
+  "name": "Pop-Pianist-1 · L3 · Power Pop Piano 1",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 10,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 46,
+      "velocity": 100
+    },
+    {
+      "tick": 0,
+      "duration": 1800,
+      "midi": 58,
+      "velocity": 93
+    },
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 65,
+      "velocity": 57
+    },
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 85
+    },
+    {
+      "offset": -1,
+      "tick": 480,
+      "duration": 240,
+      "midi": 65,
+      "velocity": 70
+    },
+    {
+      "offset": -1,
+      "tick": 480,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 96
+    },
+    {
+      "offset": 4,
+      "tick": 480,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 86
+    },
+    {
+      "offset": 21,
+      "tick": 960,
+      "duration": 120,
+      "midi": 65,
+      "velocity": 76
+    },
+    {
+      "offset": 21,
+      "tick": 960,
+      "duration": 120,
+      "midi": 70,
+      "velocity": 101
+    },
+    {
+      "offset": 21,
+      "tick": 960,
+      "duration": 120,
+      "midi": 74,
+      "velocity": 99
+    },
+    {
+      "offset": -1,
+      "tick": 1200,
+      "duration": 360,
+      "midi": 65,
+      "velocity": 51
+    },
+    {
+      "offset": -1,
+      "tick": 1200,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 56
+    },
+    {
+      "offset": -1,
+      "tick": 1200,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 38
+    },
+    {
+      "offset": -9,
+      "tick": 1440,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 56
+    },
+    {
+      "offset": -9,
+      "tick": 1440,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 50
+    },
+    {
+      "offset": -3,
+      "tick": 1680,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 78
+    },
+    {
+      "offset": -7,
+      "tick": 1680,
+      "duration": 480,
+      "midi": 70,
+      "velocity": 95
+    },
+    {
+      "offset": -3,
+      "tick": 1680,
+      "duration": 480,
+      "midi": 74,
+      "velocity": 95
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 39,
+      "velocity": 100
+    },
+    {
+      "tick": 1920,
+      "duration": 2040,
+      "midi": 51,
+      "velocity": 70
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 67,
+      "velocity": 78
+    },
+    {
+      "offset": -12,
+      "tick": 2400,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 95
+    },
+    {
+      "offset": -8,
+      "tick": 2400,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 87
+    },
+    {
+      "tick": 2880,
+      "duration": 240,
+      "midi": 67,
+      "velocity": 97
+    },
+    {
+      "tick": 2880,
+      "duration": 840,
+      "midi": 70,
+      "velocity": 112
+    },
+    {
+      "tick": 2880,
+      "duration": 840,
+      "midi": 74,
+      "velocity": 110
+    },
+    {
+      "offset": -3,
+      "tick": 3120,
+      "duration": 600,
+      "midi": 67,
+      "velocity": 99
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 43,
+      "velocity": 100
+    },
+    {
+      "offset": 20,
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 42
+    },
+    {
+      "offset": 11,
+      "tick": 3840,
+      "duration": 240,
+      "midi": 65,
+      "velocity": 89
+    },
+    {
+      "offset": 11,
+      "tick": 3840,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 105
+    },
+    {
+      "offset": 11,
+      "tick": 3840,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 98
+    },
+    {
+      "offset": 14,
+      "tick": 4320,
+      "duration": 240,
+      "midi": 65,
+      "velocity": 85
+    },
+    {
+      "offset": 18,
+      "tick": 4320,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 101
+    },
+    {
+      "offset": 18,
+      "tick": 4320,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 101
+    },
+    {
+      "offset": 30,
+      "tick": 4800,
+      "duration": 120,
+      "midi": 65,
+      "velocity": 95
+    },
+    {
+      "offset": 40,
+      "tick": 4800,
+      "duration": 120,
+      "midi": 70,
+      "velocity": 105
+    },
+    {
+      "offset": 35,
+      "tick": 4800,
+      "duration": 120,
+      "midi": 74,
+      "velocity": 110
+    },
+    {
+      "offset": -1,
+      "tick": 5040,
+      "duration": 360,
+      "midi": 65,
+      "velocity": 49
+    },
+    {
+      "offset": -5,
+      "tick": 5040,
+      "duration": 360,
+      "midi": 70,
+      "velocity": 59
+    },
+    {
+      "offset": -10,
+      "tick": 5040,
+      "duration": 360,
+      "midi": 74,
+      "velocity": 50
+    },
+    {
+      "offset": 7,
+      "tick": 5520,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 103
+    },
+    {
+      "offset": 2,
+      "tick": 5520,
+      "duration": 480,
+      "midi": 70,
+      "velocity": 93
+    },
+    {
+      "tick": 5520,
+      "duration": 720,
+      "midi": 72,
+      "velocity": 102
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 41,
+      "velocity": 100
+    },
+    {
+      "tick": 5760,
+      "duration": 2040,
+      "midi": 53,
+      "velocity": 38
+    },
+    {
+      "tick": 6000,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 85
+    },
+    {
+      "tick": 6000,
+      "duration": 480,
+      "midi": 70,
+      "velocity": 106
+    },
+    {
+      "tick": 6000,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 102
+    },
+    {
+      "tick": 6480,
+      "duration": 960,
+      "midi": 65,
+      "velocity": 88
+    },
+    {
+      "tick": 6480,
+      "duration": 480,
+      "midi": 70,
+      "velocity": 97
+    },
+    {
+      "tick": 6480,
+      "duration": 960,
+      "midi": 72,
+      "velocity": 110
+    },
+    {
+      "tick": 6960,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 99
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "pop",
+  "chordSymbols": ["Bb", "Ebmaj7", "Gm7", "Fsus"]
+}

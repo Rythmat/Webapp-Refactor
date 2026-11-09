@@ -4,7 +4,7 @@
   "oscillators": [
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Saw",
       "octave": -2,
       "semitone": 0,
       "fine": 0,
@@ -107,41 +107,17 @@
             "curve": -0.07691865808823528
           },
           {
-            "time": 0.25,
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
             "value": 0
           },
           {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.07691865808823528
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.07691865808823528
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
+            "time": 0,
             "value": 1,
             "curve": -0.07691865808823528
           },
@@ -161,45 +137,6 @@
             "curve": -0.07691865808823528
           },
           {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.07691865808823528
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.07691865808823528
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1,
-            "curve": -0.07691865808823528
-          },
-          {
             "time": 1,
             "value": 0
           }
@@ -211,99 +148,6 @@
           },
           {
             "time": 0,
-            "value": 1,
-            "curve": -0.07691865808823528
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.07691865808823528
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.07691865808823528
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1,
-            "curve": -0.07691865808823528
-          },
-          {
-            "time": 1,
-            "value": 0
-          }
-        ],
-        [
-          {
-            "time": 0,
-            "value": 0
-          },
-          {
-            "time": 0,
-            "value": 1,
-            "curve": -0.07691865808823528
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1,
-            "curve": -0.07691865808823528
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1,
-            "curve": -0.07691865808823528
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
             "value": 1,
             "curve": -0.07691865808823528
           },
@@ -312,7 +156,8 @@
             "value": 0
           }
         ]
-      ]
+      ],
+      "once": true
     },
     {
       "rateDivs": [
@@ -789,7 +634,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.5554413795471191,
+      "amount": 0.6347856826806826,
       "polarity": "bipolar",
       "curve": "linear",
       "enabled": true
@@ -819,7 +664,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.3203125,
+      "amount": 0.36606885347548596,
       "polarity": "bipolar",
       "curve": "linear",
       "enabled": true
@@ -859,7 +704,7 @@
   "voiceCount": 8,
   "glide": 0.013082952691483131,
   "spread": 0,
-  "masterVolume": 0.17003566936167547,
+  "masterVolume": 0.09658026019743166,
   "fx": {
     "chorus": {
       "enabled": false,

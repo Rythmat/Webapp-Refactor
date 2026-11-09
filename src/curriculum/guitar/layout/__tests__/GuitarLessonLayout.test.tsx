@@ -116,9 +116,11 @@ describe('GuitarLessonLayout — structure', () => {
     const { container } = render(<GuitarLessonLayout {...p} />);
     const root = container.firstElementChild as HTMLElement;
     expect(root).toHaveAttribute('data-guitar-layout');
+    // The lesson frame: full height, the rail (from `lg`) beside a column.
     expect(root.className).toMatch(/\bflex\b/);
-    expect(root.className).toMatch(/\bflex-col\b/);
     expect(root.className).toMatch(/\bh-full\b/);
+    const column = root.lastElementChild as HTMLElement;
+    expect(column.className).toMatch(/\bflex-col\b/);
     // In the markup as on screen (no CSS order), so focus and reading order
     // follow it: the fretboard over the TAB.
     const order = [
@@ -409,6 +411,20 @@ describe('GuitarLessonLayout — sheets', () => {
     expect(screen.getByRole('dialog', { name: 'Settings sheet' })).toBeTruthy();
     fireEvent.click(gear);
     expect(screen.queryByRole('dialog')).toBeNull();
+    expect(gear).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('opens About this step or Settings, one at a time', () => {
+    render(<GuitarLessonLayout {...props()} />);
+    const about = screen.getByRole('button', { name: 'About this step' });
+    const gear = screen.getByRole('button', { name: 'Lesson settings' });
+    fireEvent.click(about);
+    expect(about).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.click(gear);
+    expect(gear).toHaveAttribute('aria-expanded', 'true');
+    expect(about).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(about);
+    expect(about).toHaveAttribute('aria-expanded', 'true');
     expect(gear).toHaveAttribute('aria-expanded', 'false');
   });
 

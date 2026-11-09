@@ -59,6 +59,8 @@ export type DraftSourceKind =
   | 'progression'
   | 'practiceMode'
   | 'practiceGenre'
+  | 'echoSong'
+  | 'prompt'
   | 'jam'
   | 'collab'
   | 'project'

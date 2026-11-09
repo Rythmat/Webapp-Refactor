@@ -17,15 +17,18 @@
  * Variations: a genre's Band is one lineup — its members, their sounds and
  * levels — that plays every style its Learn genre teaches. Each variation
  * says what every member plays in one style (Funk Band 1: The Pocket,
- * Syncopation & Sauce, Deep Groove), and may set its own meter and tempo. A
- * member a variation gives nothing plays as the lesson does: the lesson's
- * own backing for that part. Lessons in a style play the variation made for
- * it. A band without variations is one arrangement, its members' own items.
+ * Syncopation & Sauce, Deep Groove), and may set its own meter and tempo, and
+ * its own sound for a member (a salsa kit for the Cha-cha-chá, where the rest
+ * play the band's). A member a variation gives nothing plays as the lesson
+ * does: the lesson's own backing for that part. Lessons in a style play the
+ * variation made for it. A band without variations is one arrangement, its
+ * members' own items.
  */
 
 import type { TimeSignature } from '../bassLines/harmony';
 import type { BackingNote } from '../genreGeneration/backingPatterns';
 import type { ChordSymbolTones } from '../genreGeneration/chordSymbolTones';
+import type { SwingUnit } from '../genreGeneration/swing';
 
 /** What a layer plays: the instrument a student would name. */
 export type BandInstrument =
@@ -92,11 +95,20 @@ export interface BandVariation {
   timeSignature?: TimeSignature;
   /** Its own preview tempo; lessons keep their own. */
   tempo?: number;
+  /** Its own preview swing, when not the band's; lessons keep their own. */
+  swing?: number;
+  /** What its swing moves, when not the band's. */
+  swingUnit?: SwingUnit;
   /**
    * What each member plays, by member id. A member not named plays as the
    * lesson does — its own backing for that part.
    */
   plays: Record<string, BandSource>;
+  /**
+   * A member's sound in this style, by member id, when not the band's — the
+   * drums on another kit. A member not named plays the band's sound.
+   */
+  sounds?: Record<string, string>;
 }
 
 export interface Band {
@@ -116,15 +128,29 @@ export interface Band {
   timeSignature: TimeSignature;
   /** The tempo it is previewed at; lessons keep their own. */
   tempo: number;
+  /**
+   * The swing it is previewed at (swing.ts: 50 straight … 75, 66 a triplet
+   * feel); straight when left out. Lessons keep their own, as they swing
+   * the student's notes with it.
+   */
+  swing?: number;
+  /** What the swing moves: the off-beat 8th of each beat ('8n', the default) or 16th of each 8th. */
+  swingUnit?: SwingUnit;
   /** The members, in the order they are stacked. */
   layers: BandMember[];
   /** The styles it plays; left out, it is one arrangement. */
   variations?: BandVariation[];
   /**
    * What the editor plays it over: a preset progression and key, or a typed
-   * chart ('| Am | Dm | E7 | Am |'). Editor only; lessons play their own.
+   * chart ('| Am | Dm | E7 | Am |') and the key set for it, if any (the
+   * console's ChartChoice). Editor only; lessons play their own.
    */
-  preview?: { progression?: string; key?: number; chart?: string };
+  preview?: {
+    progression?: string;
+    key?: number;
+    chart?: string;
+    chartKey?: { tonic: number; minor: boolean };
+  };
 }
 
 /** A band as one variation plays it: every member with what it plays. */
@@ -161,10 +187,13 @@ export function bandVariation(band: Band, variationId?: string): PlayableBand {
     ...rest,
     timeSignature: variation.timeSignature ?? band.timeSignature,
     tempo: variation.tempo ?? band.tempo,
+    ...(variation.swing !== undefined ? { swing: variation.swing } : {}),
+    ...(variation.swingUnit ? { swingUnit: variation.swingUnit } : {}),
     variation,
     layers: layers.flatMap((l) => {
       const source = variation.plays[l.id];
-      return source ? [{ ...l, source }] : [];
+      const sound = variation.sounds?.[l.id];
+      return source ? [{ ...l, source, ...(sound ? { sound } : {}) }] : [];
     }),
   };
 }
@@ -205,6 +234,22 @@ export interface RealizeContext {
   timeSignature: TimeSignature;
   /** The genre it plays in: bass lines walk and approach by its rules. */
   genre?: string;
+  /**
+   * Captured parts follow this chart's chords ("Follows the chords",
+   * parts/followChords.ts) instead of playing as written, moved to the key.
+   * Set where the chart isn't the one they were captured over: Music
+   * Literacy's Hear It with Your Band plays the student's own progression.
+   * The key is the chart's (a Part key: tonic pitch class, Prism mode name):
+   * passing notes, and the colors a chord doesn't name (a 7th over a triad),
+   * come from its scale. Left out, parts play as written.
+   */
+  followChords?: { tonic: number; mode: string };
+  /**
+   * The chart's key as pitch classes, when it's known (a lesson's, a band
+   * chart's): approaches set diatonic to the key step through it. Left out,
+   * the followed key's, else the key the chart's chords suggest.
+   */
+  approachKey?: readonly number[];
 }
 
 /** One layer's notes, with the layer they came from. */

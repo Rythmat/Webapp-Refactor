@@ -205,6 +205,10 @@ export function openErrorTitle(intent: OpenIntent | null): string {
       return 'Couldn’t build your practice track';
     case 'song':
       return 'Couldn’t open the song';
+    case 'echoSong':
+      return 'Couldn’t open your song';
+    case 'prompt':
+      return 'Couldn’t build your song idea';
     case 'progression':
       return 'Couldn’t open the progression';
     case 'resume':

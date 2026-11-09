@@ -1,657 +1,347 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+// ── Groove Lab ──────────────────────────────────────────────────────────────
+// The owner's drum grooves, two ways (Peter, 2026-10-21):
+//
+//   Grid   hear the groove, click it in on three rows (kick, snare, and the
+//          hi-hat or ride), check it
+//   Pads   the Studio's finger drumming on the same three drums: hear it,
+//          then play it back in time
+//
+// The grooves are the owner's pick of his designs in the console's Drum
+// Grooves designer (curriculum/engine/grooveLab), climbing by complexity: a
+// bar of 8ths, a bar of 16ths, two bars of 8ths, two of 16ths, then the
+// advanced two bars of 16ths, at a learning tempo on Levels 1–5 and the
+// groove's own on Levels 6–10. A streak clears a level; each view climbs
+// on its own, saved to the player's account. Loop (on or off) is shared.
+
+import { Grid3x3, Lock } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { cn } from '@/components/utilities';
+import {
+  FIRST_FULL_TEMPO_LEVEL,
+  GROOVE_LAB_LEVELS,
+  LAST_GROOVE_LAB_LEVEL,
+  LEVEL_SPECS,
+  levelPool,
+  type GrooveLabLevel,
+} from '@/curriculum/engine/grooveLab/levels';
 import { ArcadeGameHeader } from '../ArcadeGameHeader';
 import { VolumeDial } from '../VolumeDial';
-import { DrumEngine } from './DrumEngine';
+import { useArcadeStreak, winXpLine } from '../scoring/ArcadeStreak';
+import { GridPlay } from './GridPlay';
+import { GrooveLabAudio } from './GrooveLabAudio';
+import { PadsPlay } from './PadsPlay';
+import {
+  useGrooveLabProgress,
+  type GrooveLabView,
+} from './useGrooveLabProgress';
+import { useLabGrooves } from './useLabGrooves';
 
-// --- Constants ---
+const VIEW_KEY = 'groove-lab-view';
 
-const INSTRUMENTS = ['rim', 'hihat', 'snare', 'kick'] as const;
-type Instrument = (typeof INSTRUMENTS)[number];
+function savedView(): GrooveLabView {
+  try {
+    return localStorage.getItem(VIEW_KEY) === 'pads' ? 'pads' : 'grid';
+  } catch {
+    return 'grid';
+  }
+}
 
-const INSTRUMENT_COLORS: Record<Instrument, string> = {
-  kick: '#E5585C',
-  snare: '#F2AA3C',
-  hihat: '#38bdf8',
-  rim: '#a78bfa',
-};
+function saveView(view: GrooveLabView) {
+  try {
+    localStorage.setItem(VIEW_KEY, view);
+  } catch {
+    // A private window: this visit only.
+  }
+}
 
-const INSTRUMENT_LABELS: Record<Instrument, string> = {
-  kick: 'Kick',
-  snare: 'Snare',
-  hihat: 'Hi-Hat',
-  rim: 'Rim',
-};
+/** The finger-drumming kit's icon: a big drum with two small ones. */
+function PadsIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+      <circle
+        cx="12"
+        cy="15"
+        r="6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <circle
+        cx="5"
+        cy="7"
+        r="3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <circle
+        cx="19"
+        cy="7"
+        r="3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+    </svg>
+  );
+}
 
-const STEPS = 16;
-const DEFAULT_BPM = 100;
-// Dial default — matches the DrumEngine master gain used before the dial.
-const DEFAULT_VOLUME = 0.5;
-
-// Preset grooves for match mode
-const PRESET_GROOVES: Record<string, Record<Instrument, boolean[]>> = {
-  'Basic Rock': {
-    kick: [
-      true,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-    ],
-    snare: [
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-    ],
-    hihat: [
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-    ],
-    rim: new Array(STEPS).fill(false),
-  },
-  Funk: {
-    kick: [
-      true,
-      false,
-      false,
-      true,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      true,
-      false,
-      false,
-    ],
-    snare: [
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-    ],
-    hihat: [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-    ],
-    rim: [
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      true,
-      false,
-    ],
-  },
-  'Hip-Hop': {
-    kick: [
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-    ],
-    snare: [
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      true,
-    ],
-    hihat: [
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-    ],
-    rim: [
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-    ],
-  },
-  'Bossa Nova': {
-    kick: [
-      true,
-      false,
-      false,
-      true,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      true,
-      false,
-      true,
-      false,
-      false,
-      false,
-    ],
-    snare: [
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-    ],
-    hihat: [
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-    ],
-    rim: [
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-    ],
-  },
-};
-
-/**
- * Groove Lab — "Program the beat. Feel the pocket."
- *
- * Drum machine step sequencer. Match a target groove or freestyle your own.
- */
 export type GrooveLabProps = {
   onCorrect?: () => void;
   onWrong?: () => void;
+  /** A new level or view: the streak starts over. */
+  onRestart?: () => void;
 };
 
-export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
-  const drumRef = useRef<DrumEngine | null>(null);
-  const playbackRef = useRef<number | null>(null);
-  const stepRef = useRef(0);
+export default function GrooveLab({
+  onCorrect,
+  onWrong,
+  onRestart,
+}: GrooveLabProps = {}) {
+  const streak = useArcadeStreak();
+  const grooves = useLabGrooves();
+  const { progress, clearLevel } = useGrooveLabProgress();
+  const [view, setView] = useState<GrooveLabView>(savedView);
+  const [level, setLevel] = useState<GrooveLabLevel>(1);
+  const [cleared, setCleared] = useState<{
+    view: GrooveLabView;
+    level: GrooveLabLevel;
+  } | null>(null);
+  const [volume, setVolume] = useState(0.8);
+  const [loop, setLoop] = useState(false);
 
-  const [grid, setGrid] = useState<Record<Instrument, boolean[]>>(() => {
-    const empty: Record<string, boolean[]> = {};
-    INSTRUMENTS.forEach((inst) => (empty[inst] = new Array(STEPS).fill(false)));
-    return empty as Record<Instrument, boolean[]>;
-  });
-
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentStep, setCurrentStep] = useState(-1);
-  const [bpm, setBpm] = useState(DEFAULT_BPM);
-  const [targetGroove, setTargetGroove] = useState<string>('Basic Rock');
-  const [showResult, setShowResult] = useState(false);
-  const [matchAccuracy, setMatchAccuracy] = useState(0);
-  const [volume, setVolume] = useState(DEFAULT_VOLUME);
-
-  // Grid ref for playback loop (avoids stale closure)
-  const gridRef = useRef(grid);
-  gridRef.current = grid;
-
-  // Mirrors `volume` so a lazily-created DrumEngine starts at the dial's
-  // current setting rather than the default.
-  const volumeRef = useRef(volume);
-
-  const initAudio = useCallback(() => {
-    if (!drumRef.current) drumRef.current = new DrumEngine(volumeRef.current);
-    drumRef.current.resume();
+  const audioRef = useRef<GrooveLabAudio | null>(null);
+  const audio = useMemo(() => {
+    audioRef.current ??= new GrooveLabAudio();
+    return audioRef.current;
   }, []);
-
-  // Push dial changes at the live engine so turning the knob mid-groove is
-  // heard on the next hit.
+  useEffect(() => () => audioRef.current?.close(), []);
+  // The game plays at the dial's level from the start.
   useEffect(() => {
-    volumeRef.current = volume;
-    drumRef.current?.setVolume(volume);
-  }, [volume]);
+    audio.setVolume(volume);
+    // Once, as it opens; the dial sets it after that.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audio]);
 
-  const toggleCell = useCallback((instrument: Instrument, step: number) => {
-    setGrid((prev) => {
-      const next = { ...prev };
-      next[instrument] = [...prev[instrument]];
-      next[instrument][step] = !next[instrument][step];
-      return next;
-    });
-  }, []);
-
-  const clearGrid = useCallback(() => {
-    const empty: Record<string, boolean[]> = {};
-    INSTRUMENTS.forEach((inst) => (empty[inst] = new Array(STEPS).fill(false)));
-    setGrid(empty as Record<Instrument, boolean[]>);
-  }, []);
-
-  const stopPlayback = useCallback(() => {
-    if (playbackRef.current !== null) {
-      clearInterval(playbackRef.current);
-      playbackRef.current = null;
-    }
-    setIsPlaying(false);
-    setCurrentStep(-1);
-    stepRef.current = 0;
-  }, []);
-
-  const startPlayback = useCallback(() => {
-    initAudio();
-    if (isPlaying) {
-      stopPlayback();
-      return;
-    }
-
-    stepRef.current = 0;
-    setIsPlaying(true);
-
-    const intervalMs = (60 / bpm / 4) * 1000; // 16th note interval
-
-    const tick = () => {
-      const step = stepRef.current;
-      const g = gridRef.current;
-      const drum = drumRef.current;
-      if (!drum) return;
-
-      const time = drum.currentTime;
-      INSTRUMENTS.forEach((inst) => {
-        if (g[inst][step]) drum.playSound(inst, time);
-      });
-
-      setCurrentStep(step);
-      stepRef.current = (step + 1) % STEPS;
-    };
-
-    tick(); // Play first step immediately
-    playbackRef.current = window.setInterval(tick, intervalMs);
-  }, [bpm, initAudio, isPlaying, stopPlayback]);
-
-  // Play target groove for match mode
-  const playTarget = useCallback(() => {
-    initAudio();
-    const target = PRESET_GROOVES[targetGroove];
-    if (!target || !drumRef.current) return;
-
-    let step = 0;
-    const intervalMs = (60 / bpm / 4) * 1000;
-
-    const tick = () => {
-      const drum = drumRef.current;
-      if (!drum) return;
-      const time = drum.currentTime;
-      INSTRUMENTS.forEach((inst) => {
-        if (target[inst][step]) drum.playSound(inst, time);
-      });
-      step++;
-      if (step >= STEPS) clearInterval(id);
-    };
-
-    tick();
-    const id = window.setInterval(tick, intervalMs);
-  }, [bpm, initAudio, targetGroove]);
-
-  // Compute match accuracy
-  const checkMatch = useCallback(() => {
-    const target = PRESET_GROOVES[targetGroove];
-    if (!target) return;
-
-    let correct = 0;
-    let total = 0;
-    INSTRUMENTS.forEach((inst) => {
-      for (let i = 0; i < STEPS; i++) {
-        total++;
-        if (grid[inst][i] === target[inst][i]) correct++;
-      }
-    });
-
-    const acc = correct / total;
-    if (acc >= 0.8) onCorrect?.();
-    else onWrong?.();
-    setMatchAccuracy(acc);
-    setShowResult(true);
-  }, [grid, targetGroove, onCorrect, onWrong]);
-
-  const newTarget = useCallback(() => {
-    const names = Object.keys(PRESET_GROOVES).filter((n) => n !== targetGroove);
-    const next = names[Math.floor(Math.random() * names.length)];
-    setTargetGroove(next);
-    clearGrid();
-    setShowResult(false);
-  }, [clearGrid, targetGroove]);
-
-  // Cleanup
+  // A returning player starts where they got to.
+  const openedRef = useRef(false);
   useEffect(() => {
-    return () => {
-      if (playbackRef.current !== null) clearInterval(playbackRef.current);
-      drumRef.current?.close();
-    };
-  }, []);
+    if (openedRef.current || progress.open[view] <= 1) return;
+    openedRef.current = true;
+    setLevel(progress.open[view]);
+  }, [progress, view]);
 
-  const accuracyPct = Math.round(matchAccuracy * 100);
+  const pool = useMemo(
+    () => (grooves ? levelPool(level, grooves) : []),
+    [grooves, level],
+  );
+
+  // A streak won: the level is cleared, and what's next is offered.
+  const lastWinRef = useRef(streak?.win?.id ?? 0);
+  useEffect(() => {
+    const win = streak?.win;
+    if (!win || win.id <= lastWinRef.current) return;
+    lastWinRef.current = win.id;
+    clearLevel(view, level);
+    setCleared({ view, level });
+  }, [streak?.win, clearLevel, view, level]);
+
+  const choose = (nextView: GrooveLabView, nextLevel: GrooveLabLevel) => {
+    setCleared(null);
+    setView(nextView);
+    setLevel(nextLevel);
+    saveView(nextView);
+    onRestart?.();
+  };
+
+  const open = progress.open[view];
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#101012] overflow-hidden">
+    <div className="flex h-full w-full flex-col overflow-hidden bg-[#101012]">
       <ArcadeGameHeader
         title="Groove Lab"
         controls={
           <>
-            <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.02] rounded border border-white/10">
-              <button
-                onClick={() => setBpm((b) => Math.max(60, b - 5))}
-                className="text-zinc-400 hover:text-white px-1"
-              >
-                -
-              </button>
-              <span className="text-xs text-zinc-500">BPM</span>
-              <span className="text-sm text-zinc-200 tabular-nums w-8 text-center">
-                {bpm}
-              </span>
-              <button
-                onClick={() => setBpm((b) => Math.min(200, b + 5))}
-                className="text-zinc-400 hover:text-white px-1"
-              >
-                +
-              </button>
+            <div
+              role="radiogroup"
+              aria-label="View"
+              className="flex h-8 items-center rounded-full ring-1 ring-inset ring-white/10"
+            >
+              {(
+                [
+                  ['grid', 'Grid', Grid3x3],
+                  ['pads', 'Pads', PadsIcon],
+                ] as const
+              ).map(([id, label, Icon]) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="radio"
+                  aria-checked={view === id}
+                  data-view={id}
+                  onClick={() =>
+                    view !== id &&
+                    choose(
+                      id,
+                      Math.min(level, progress.open[id]) as GrooveLabLevel,
+                    )
+                  }
+                  className={cn(
+                    'inline-flex h-full items-center gap-1.5 rounded-full px-3 text-xs transition-colors',
+                    view === id
+                      ? 'bg-white text-[#101012]'
+                      : 'text-white/60 hover:text-white',
+                  )}
+                >
+                  <Icon className="size-3.5" />
+                  {label}
+                </button>
+              ))}
             </div>
-            <button
-              onClick={playTarget}
-              className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-purple-300 transition-colors"
+            <div
+              role="group"
+              aria-label="Level"
+              className="flex items-center gap-1"
             >
-              Listen
-            </button>
-            <button
-              onClick={newTarget}
-              className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-purple-300 transition-colors"
-            >
-              New Target
-            </button>
+              {GROOVE_LAB_LEVELS.map((n) => {
+                const locked = n > open;
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    disabled={locked}
+                    aria-label={`Level ${n}`}
+                    aria-pressed={level === n}
+                    title={`Level ${n}: ${LEVEL_SPECS[n].title}${locked ? ' (clear the level before it)' : ''}`}
+                    data-level={n}
+                    onClick={() => level !== n && choose(view, n)}
+                    className={cn(
+                      'inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-xs transition-colors',
+                      // The second five: the same at full tempo.
+                      n === FIRST_FULL_TEMPO_LEVEL && 'ml-2',
+                      level === n
+                        ? 'bg-[#7ecfcf] font-semibold text-[#101012]'
+                        : 'border border-white/10 text-white/70 hover:text-white',
+                      locked && 'cursor-not-allowed opacity-40',
+                    )}
+                  >
+                    {locked && <Lock className="size-3" aria-hidden />}L{n}
+                  </button>
+                );
+              })}
+            </div>
           </>
         }
         right={
-          <div className="flex items-center gap-6 rounded-xl border border-white/5 bg-black/20 px-5 py-3 backdrop-blur-sm">
-            <VolumeDial value={volume} onChange={setVolume} />
-            <div className="h-8 w-px bg-white/10" />
-            <div className="flex flex-col items-end">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-                Target
-              </span>
-              <span className="text-xl font-medium text-white">
-                {targetGroove}
-              </span>
-            </div>
+          <div className="flex items-center rounded-xl border border-white/5 bg-black/20 px-5 py-3 backdrop-blur-sm">
+            <VolumeDial
+              value={volume}
+              onChange={(v) => {
+                setVolume(v);
+                audio.setVolume(v);
+              }}
+            />
           </div>
         }
       />
 
-      {/* Body */}
-      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-        {/* Step sequencer grid — vertically centered in the available space */}
-        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col justify-center">
-          <div className="p-4">
-            <div className="flex flex-col gap-1">
-              {INSTRUMENTS.map((inst) => (
-                <div key={inst} className="flex items-center gap-2">
-                  <div className="w-16 text-right text-xs text-zinc-500 font-medium shrink-0">
-                    {INSTRUMENT_LABELS[inst]}
-                  </div>
-                  <div className="flex gap-0.5 flex-1">
-                    {Array.from({ length: STEPS }, (_, step) => {
-                      const isActive = grid[inst][step];
-                      const isCurrent = step === currentStep && isPlaying;
-                      const isBeatStart = step % 4 === 0;
-                      const color = INSTRUMENT_COLORS[inst];
+      <p className="pt-3 text-center text-xs uppercase tracking-wider text-white/40">
+        Level {level} · {LEVEL_SPECS[level].title}
+        {LEVEL_SPECS[level].fullTempo ? '' : ' · learning tempo'}
+      </p>
 
-                      return (
-                        <button
-                          key={step}
-                          onClick={() => toggleCell(inst, step)}
-                          className={`flex-1 aspect-square rounded-sm transition-all ${
-                            isBeatStart ? 'ml-1' : ''
-                          }`}
-                          style={{
-                            background: isActive
-                              ? color
-                              : isCurrent
-                                ? 'rgba(255,255,255,0.08)'
-                                : 'rgba(255,255,255,0.03)',
-                            border: isCurrent
-                              ? '1px solid rgba(255,255,255,0.3)'
-                              : '1px solid rgba(255,255,255,0.05)',
-                            opacity: isActive ? 1 : 0.7,
-                            boxShadow: isActive ? `0 0 8px ${color}40` : 'none',
-                          }}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Beat numbers */}
-            <div className="flex items-center gap-2 mt-2">
-              <div className="w-16 shrink-0" />
-              <div className="flex gap-0.5 flex-1">
-                {Array.from({ length: STEPS }, (_, step) => (
-                  <div
-                    key={step}
-                    className={`flex-1 text-center text-[10px] tabular-nums ${
-                      step % 4 === 0 ? 'text-zinc-400 ml-1' : 'text-zinc-600'
-                    }`}
-                  >
-                    {step % 4 === 0 ? step / 4 + 1 : '·'}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Result overlay */}
-        {showResult && (
-          <div className="p-6 bg-white/[0.02] border-t border-white/10 flex items-center justify-center gap-6">
-            <div className="text-center">
-              <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
-                Match Accuracy
-              </div>
-              <div
-                className="text-4xl font-light"
-                style={{
-                  color:
-                    accuracyPct >= 90
-                      ? '#34d399'
-                      : accuracyPct >= 70
-                        ? '#fbbf24'
-                        : '#ef4444',
-                }}
-              >
-                {accuracyPct}%
-              </div>
-            </div>
-            <button
-              onClick={newTarget}
-              className="px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-white text-sm rounded transition-colors"
-            >
-              Next Groove
-            </button>
-          </div>
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
+        {view === 'grid' ? (
+          <GridPlay
+            key={`grid-${level}`}
+            audio={audio}
+            level={level}
+            pool={pool}
+            active={!cleared}
+            loop={loop}
+            onLoop={setLoop}
+            onCorrect={onCorrect}
+            onWrong={onWrong}
+          />
+        ) : (
+          <PadsPlay
+            key={`pads-${level}`}
+            audio={audio}
+            level={level}
+            pool={pool}
+            active={!cleared}
+            loop={loop}
+            onLoop={setLoop}
+            onCorrect={onCorrect}
+            onWrong={onWrong}
+          />
         )}
 
-        {/* Footer controls — Play, Clear, Check Match. Left unfilled so the bar
-            reads as the same surface as the sequencer grid above it. */}
-        <div className="border-t border-white/10 p-3 flex items-center justify-center gap-2">
-          <button
-            onClick={startPlayback}
-            className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
-              isPlaying
-                ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-            }`}
-          >
-            {isPlaying ? 'Stop' : 'Play'}
-          </button>
-          <button
-            onClick={clearGrid}
-            className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-300 transition-colors"
-          >
-            Clear
-          </button>
-          <button
-            onClick={checkMatch}
-            className="px-4 py-1.5 rounded text-sm font-medium bg-purple-600 hover:bg-purple-500 text-white transition-colors"
-          >
-            Check Match
-          </button>
-        </div>
+        {cleared && (
+          <div className="absolute inset-0 z-20 grid place-items-center bg-black/55 p-4">
+            <div
+              role="status"
+              data-testid="groove-cleared"
+              className="w-full max-w-md rounded-2xl border border-white/10 bg-[#151518] p-6 text-center text-white shadow-2xl"
+            >
+              <p className="text-sm uppercase tracking-wider text-[#7ecfcf]">
+                Streak complete!
+              </p>
+              <h2 className="mt-2 text-3xl font-semibold">
+                Level {cleared.level} cleared!
+              </h2>
+              {streak?.win && (
+                <p className="mt-2 text-sm text-white/70">
+                  {winXpLine(streak.win)}
+                </p>
+              )}
+              <p className="mt-4 text-sm text-white/80">
+                {cleared.level < LAST_GROOVE_LAB_LEVEL
+                  ? `Next up: Level ${cleared.level + 1}, ${LEVEL_SPECS[(cleared.level + 1) as GrooveLabLevel].title.toLowerCase()}.`
+                  : `You’ve mastered Groove Lab on the ${cleared.view === 'grid' ? 'grid' : 'pads'}!`}
+              </p>
+              <div className="mt-6 flex flex-wrap justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => choose(cleared.view, cleared.level)}
+                  className="inline-flex h-10 items-center rounded-full border border-white/15 px-5 text-sm text-white/85 hover:bg-white/[0.06]"
+                >
+                  Play again
+                </button>
+                {cleared.level < LAST_GROOVE_LAB_LEVEL ? (
+                  <button
+                    type="button"
+                    data-testid="groove-next-level"
+                    onClick={() =>
+                      choose(
+                        cleared.view,
+                        (cleared.level + 1) as GrooveLabLevel,
+                      )
+                    }
+                    className="inline-flex h-10 items-center rounded-full bg-white px-5 text-sm font-semibold text-[#101012]"
+                  >
+                    Next level
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      choose(
+                        cleared.view === 'grid' ? 'pads' : 'grid',
+                        progress.open[
+                          cleared.view === 'grid' ? 'pads' : 'grid'
+                        ],
+                      )
+                    }
+                    className="inline-flex h-10 items-center rounded-full bg-white px-5 text-sm font-semibold text-[#101012]"
+                  >
+                    Try the {cleared.view === 'grid' ? 'pads' : 'grid'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

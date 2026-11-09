@@ -9,7 +9,9 @@ import { downloadFile, fileSlug, songSlug } from '@/daw/utils/exportFiles';
 // ── File ▸ Export MIDI and File ▸ Analyze, from the menu and the keys ──────
 //
 // One command each, so ⇧⌘E and ⇧⌘U do exactly what the menu items do (the key
-// used to skip Analyze's chord step and number the tracks differently).
+// used to skip Analyze's chord step and number the tracks differently). The
+// sheets' printing is here too, so the Score and the Lead sheet share it and
+// its done moment (doneMomentsSlice.ts).
 
 const OUR_PPQ = 480;
 
@@ -48,35 +50,16 @@ export interface ProjectMidiPlan {
   key: MidiKey | null;
 }
 
-/** General MIDI programs (0-based) of the bass voices. */
-const BASS_VOICE_PROGRAMS = {
-  finger: 33, // Electric Bass (finger)
-  fretless: 35, // Fretless Bass
-  upright: 32, // Acoustic Bass
-  '808': 38, // Synth Bass 1
-} as const;
-
 /**
  * The General MIDI program (0-based) nearest the track's instrument, where
- * one is plain; undefined for a sound with no GM match (the Oracle synth, the
- * Chops sampler), which the file leaves at program 0 as it always has. A
+ * one is plain; undefined for a sound with no GM match (the Oracle synth),
+ * which the file leaves at program 0 as it always has. A
  * SoundFont track plays a GM program already, so the file names that one.
  */
 export function gmProgramOf(track: Track): number | undefined {
   switch (track.instrument) {
     case 'soundfont':
       return track.gmProgram ?? 0;
-    case 'piano-sampler':
-      return 0; // Acoustic Grand Piano
-    case 'electric-piano':
-      return 4; // Electric Piano 1
-    case 'bass-electric':
-      return BASS_VOICE_PROGRAMS[track.bassVoice ?? 'finger'];
-    case 'cello':
-      return 42; // Cello
-    case 'organ':
-    case 'tonewheel-organ':
-      return 16; // Drawbar Organ
     case 'drum-machine':
       return 0; // Standard kit (channel 10)
     default:
@@ -204,6 +187,9 @@ export async function exportProjectMidi(
   const file = await buildProjectMidi(useStore.getState(), opts);
   if (!file) return false;
   downloadFile(file.blob, file.filename);
+  // Every MIDI download comes through here (⇧⌘E, the menu, the dialog): a
+  // lesson's MIDI step watches for it.
+  useStore.getState().markDone('exportMidi');
   return true;
 }
 
@@ -222,6 +208,17 @@ export async function exportProjectMidiOrSay(
   const written = await exportProjectMidi(opts);
   if (!written) notice({ title: NO_MIDI_NOTES_NOTICE });
   return written;
+}
+
+/**
+ * Opens the browser's print dialog for the Score page in the layout it
+ * shows, the full score or the lead sheet (each prints through
+ * leadsheet-print.css), and counts it as the done moment a lesson's Print
+ * step watches for.
+ */
+export function printSheet(moment: 'printScore' | 'printLeadSheet'): void {
+  useStore.getState().markDone(moment);
+  window.print();
 }
 
 /** Analyzes the song and its chords, and opens the panel that shows them. */

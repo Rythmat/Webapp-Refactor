@@ -1,0 +1,2381 @@
+{
+  "about": "The owner's chord comping patterns (Chord_Comping_1Bar_Patterns.csv, Chord_Comping_2Bar_Patterns.csv), as Echo's chord calls strike them: a one-bar pattern in each of the call's two bars, a two-bar pattern across both. hits: [onset, duration] in ticks, 480 a quarter. Written by scripts/echo/importRhythms.mjs; its tiers and what it leaves out are in its comment.",
+  "source": [
+    "Chord_Comping_1Bar_Patterns.csv",
+    "Chord_Comping_2Bar_Patterns.csv"
+  ],
+  "tiers": {
+    "1": "on the beats, from beat 1",
+    "2": "on the eighths, from beat 1",
+    "3": "eighths off the beat, or a few 16ths from beat 1",
+    "4": "the rest, three strikes a beat at most"
+  },
+  "rhythms": [
+    {
+      "id": "comp_pop_01",
+      "name": "Quarter Note Chunking",
+      "bars": 1,
+      "tier": 1,
+      "style": "Pop, Rock, Ballad, Jam Band, R&B, Hip-Hop",
+      "grid": "x---x---x---x---",
+      "hits": [
+        [0, 480],
+        [480, 480],
+        [960, 480],
+        [1440, 480]
+      ],
+      "sameAs": ["comp_reg_05", "comp_folk_01", "comp_folk_06"]
+    },
+    {
+      "id": "comp_rnb_01",
+      "name": "Sustained Whole",
+      "bars": 1,
+      "tier": 1,
+      "style": "",
+      "grid": "x---------------",
+      "hits": [[0, 1920]],
+      "sameAs": ["comp_elec_01", "comp_elec_09"]
+    },
+    {
+      "id": "comp_rnb_02",
+      "name": "Sustained Halves",
+      "bars": 1,
+      "tier": 1,
+      "style": "",
+      "grid": "x-------x-------",
+      "hits": [
+        [0, 960],
+        [960, 960]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_rnb_08",
+      "name": "Ballad Swell",
+      "bars": 1,
+      "tier": 1,
+      "style": "",
+      "grid": "x-----------x---",
+      "hits": [
+        [0, 1440],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_neo_01",
+      "name": "Pocket Hold",
+      "bars": 1,
+      "tier": 1,
+      "style": "",
+      "grid": "x-------........",
+      "hits": [[0, 960]],
+      "sameAs": ["comp_elec_02"]
+    },
+    {
+      "id": "comp_neo_07",
+      "name": "Pocket Anticipation",
+      "bars": 1,
+      "tier": 1,
+      "style": "",
+      "grid": "x---........x---",
+      "hits": [
+        [0, 480],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_elec_04",
+      "name": "Four-on-Floor Stabs",
+      "bars": 1,
+      "tier": 1,
+      "style": "",
+      "grid": "x...x...x...x...",
+      "hits": [
+        [0, 120],
+        [480, 120],
+        [960, 120],
+        [1440, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_afr_03",
+      "name": "Afrobeat Chord Stab",
+      "bars": 1,
+      "tier": 1,
+      "style": "",
+      "grid": "x---....x---....",
+      "hits": [
+        [0, 480],
+        [960, 480]
+      ],
+      "sameAs": ["comp_hh_01"]
+    },
+    {
+      "id": "comp_hh_04",
+      "name": "Lofi Sustained",
+      "bars": 1,
+      "tier": 1,
+      "style": "",
+      "grid": "x-----------....",
+      "hits": [[0, 1440]],
+      "sameAs": []
+    },
+    {
+      "id": "comp_hh_06",
+      "name": "Half-Time Trap",
+      "bars": 1,
+      "tier": 1,
+      "style": "",
+      "grid": "x-------....x---",
+      "hits": [
+        [0, 960],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_pop_03",
+      "name": "Build + Resolve",
+      "bars": 2,
+      "tier": 1,
+      "style": "Pop / Rock / Hip-Hop (Shared)",
+      "grid": "x---....x---.... | x---x---x---x---",
+      "hits": [
+        [0, 480],
+        [960, 480],
+        [1920, 480],
+        [2400, 480],
+        [2880, 480],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_rnb_01",
+      "name": "Ballad Sustain",
+      "bars": 2,
+      "tier": 1,
+      "style": "R&B",
+      "grid": "x--------------- | x---------------",
+      "hits": [
+        [0, 1920],
+        [1920, 1920]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_rnb_05",
+      "name": "Build + Release",
+      "bars": 2,
+      "tier": 1,
+      "style": "R&B",
+      "grid": "x-------........ | x---x---x---x---",
+      "hits": [
+        [0, 960],
+        [1920, 480],
+        [2400, 480],
+        [2880, 480],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_neo_01",
+      "name": "Pocket Space",
+      "bars": 2,
+      "tier": 1,
+      "style": "Neo Soul",
+      "grid": "x-------........ | ....x-----------",
+      "hits": [
+        [0, 960],
+        [2400, 1440]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_neo_04",
+      "name": "Rhodes Breathe",
+      "bars": 2,
+      "tier": 1,
+      "style": "Neo Soul",
+      "grid": "x-----------.... | ....x-----------",
+      "hits": [
+        [0, 1440],
+        [2400, 1440]
+      ],
+      "sameAs": ["comp2_hh_03"]
+    },
+    {
+      "id": "comp2_elec_06",
+      "name": "Half-Bar Alternating",
+      "bars": 2,
+      "tier": 1,
+      "style": "Electronic",
+      "grid": "x-------........ | ........x-------",
+      "hits": [
+        [0, 960],
+        [2880, 960]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_folk_03",
+      "name": "Sus Embellishment 2-Bar",
+      "bars": 2,
+      "tier": 1,
+      "style": "Folk",
+      "grid": "x---x---x---x--- | x---x---x---x---",
+      "hits": [
+        [0, 480],
+        [480, 480],
+        [960, 480],
+        [1440, 480],
+        [1920, 480],
+        [2400, 480],
+        [2880, 480],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_hh_05",
+      "name": "Half-Time Build",
+      "bars": 2,
+      "tier": 1,
+      "style": "Hip-Hop (Additional)",
+      "grid": "x-------....x--- | x---x---x---x---",
+      "hits": [
+        [0, 960],
+        [1440, 480],
+        [1920, 480],
+        [2400, 480],
+        [2880, 480],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_pop_02",
+      "name": "Eighth Note Chunking",
+      "bars": 1,
+      "tier": 2,
+      "style": "Pop, Ballad, Jam Band, R&B, Hip-Hop",
+      "grid": "x-x-x-x-x-x-x-x-",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [480, 240],
+        [720, 240],
+        [960, 240],
+        [1200, 240],
+        [1440, 240],
+        [1680, 240]
+      ],
+      "sameAs": ["comp_folk_05"]
+    },
+    {
+      "id": "comp_pop_04",
+      "name": "Staccato Eighth Chunking",
+      "bars": 1,
+      "tier": 2,
+      "style": "Pop, Hip-Hop",
+      "grid": "x.x.x.x.x.x.x.x.",
+      "hits": [
+        [0, 120],
+        [240, 120],
+        [480, 120],
+        [720, 120],
+        [960, 120],
+        [1200, 120],
+        [1440, 120],
+        [1680, 120]
+      ],
+      "sameAs": ["comp_afr_06"]
+    },
+    {
+      "id": "comp_pop_05",
+      "name": "Quarter Note 3+3+2",
+      "bars": 1,
+      "tier": 2,
+      "style": "Pop, Rock, Jam Band",
+      "grid": "x-----x-----x---",
+      "hits": [
+        [0, 720],
+        [720, 720],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_01",
+      "name": "Jazz 1 (Sparse)",
+      "bars": 1,
+      "tier": 2,
+      "style": "Jazz 1 (Sparse)",
+      "grid": "x---..x-........",
+      "hits": [
+        [0, 480],
+        [720, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_01a",
+      "name": "Jazz 1a",
+      "bars": 1,
+      "tier": 2,
+      "style": "Jazz 1a",
+      "grid": "x---..x-....x---",
+      "hits": [
+        [0, 480],
+        [720, 240],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_01b",
+      "name": "Jazz 1b",
+      "bars": 1,
+      "tier": 2,
+      "style": "Jazz 1b",
+      "grid": "x---..x-..x---..",
+      "hits": [
+        [0, 480],
+        [720, 240],
+        [1200, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_03",
+      "name": "Jazz 3 (Very Sparse)",
+      "bars": 1,
+      "tier": 2,
+      "style": "Jazz 3 (Very Sparse)",
+      "grid": "x-........x-....",
+      "hits": [
+        [0, 240],
+        [1200, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_04",
+      "name": "Jazz 4",
+      "bars": 1,
+      "tier": 2,
+      "style": "Jazz 4",
+      "grid": "x-x-x-x...x.....",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [480, 240],
+        [720, 120],
+        [1200, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_funk_02a",
+      "name": "Funk 2a",
+      "bars": 1,
+      "tier": 2,
+      "style": "Funk 2a",
+      "grid": "x...x.x.x.......",
+      "hits": [
+        [0, 120],
+        [480, 120],
+        [720, 120],
+        [960, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_latin_06",
+      "name": "Cumbia Pattern",
+      "bars": 1,
+      "tier": 2,
+      "style": "",
+      "grid": "x---..x-x---..x-",
+      "hits": [
+        [0, 480],
+        [720, 240],
+        [960, 480],
+        [1680, 240]
+      ],
+      "sameAs": ["comp_folk_03"]
+    },
+    {
+      "id": "comp_rnb_05",
+      "name": "Smooth Quarter Pulse",
+      "bars": 1,
+      "tier": 2,
+      "style": "",
+      "grid": "x---x---x---..x-",
+      "hits": [
+        [0, 480],
+        [480, 480],
+        [960, 480],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_rnb_06",
+      "name": "Gospel Push",
+      "bars": 1,
+      "tier": 2,
+      "style": "",
+      "grid": "x-----..x---..x-",
+      "hits": [
+        [0, 720],
+        [960, 480],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_rnb_07",
+      "name": "Rhythmic Anticipation",
+      "bars": 1,
+      "tier": 2,
+      "style": "",
+      "grid": "x-....x-..x-..x-",
+      "hits": [
+        [0, 240],
+        [720, 240],
+        [1200, 240],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_neo_02",
+      "name": "Pocket Eighth + Hold",
+      "bars": 1,
+      "tier": 2,
+      "style": "",
+      "grid": "x-x-----........",
+      "hits": [
+        [0, 240],
+        [240, 720]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_neo_04",
+      "name": "Erykah Pulse",
+      "bars": 1,
+      "tier": 2,
+      "style": "",
+      "grid": "x-....x-....x-..",
+      "hits": [
+        [0, 240],
+        [720, 240],
+        [1440, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_elec_06",
+      "name": "Trance Gate",
+      "bars": 1,
+      "tier": 2,
+      "style": "",
+      "grid": "x.x.....x.x.....",
+      "hits": [
+        [0, 120],
+        [240, 120],
+        [960, 120],
+        [1200, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_elec_10",
+      "name": "EDM Chord Rhythm",
+      "bars": 1,
+      "tier": 2,
+      "style": "",
+      "grid": "x-x-....x-x-....",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [960, 240],
+        [1200, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_afr_07",
+      "name": "Soukous Rhythm",
+      "bars": 1,
+      "tier": 2,
+      "style": "",
+      "grid": "x.x-x.x-x.x-x.x-",
+      "hits": [
+        [0, 120],
+        [240, 240],
+        [480, 120],
+        [720, 240],
+        [960, 120],
+        [1200, 240],
+        [1440, 120],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_hh_05",
+      "name": "Drill Stab",
+      "bars": 1,
+      "tier": 2,
+      "style": "",
+      "grid": "x.......x.x.....",
+      "hits": [
+        [0, 120],
+        [960, 120],
+        [1200, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_pop_01",
+      "name": "Quarter Chunk + Anticipation",
+      "bars": 2,
+      "tier": 2,
+      "style": "Pop / Rock / Hip-Hop (Shared)",
+      "grid": "x---x---x---x--- | x---x---x---..x-",
+      "hits": [
+        [0, 480],
+        [480, 480],
+        [960, 480],
+        [1440, 480],
+        [1920, 480],
+        [2400, 480],
+        [2880, 480],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_pop_02",
+      "name": "8ths Bar 1, Quarters Bar 2",
+      "bars": 2,
+      "tier": 2,
+      "style": "Pop / Rock / Hip-Hop (Shared)",
+      "grid": "x-x-x-x-x-x-x-x- | x---x---x---x---",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [480, 240],
+        [720, 240],
+        [960, 240],
+        [1200, 240],
+        [1440, 240],
+        [1680, 240],
+        [1920, 480],
+        [2400, 480],
+        [2880, 480],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_pop_05",
+      "name": "Eighth Drive + Open",
+      "bars": 2,
+      "tier": 2,
+      "style": "Pop / Rock / Hip-Hop (Shared)",
+      "grid": "x-x-x-x-x-x-x-x- | x-------x-------",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [480, 240],
+        [720, 240],
+        [960, 240],
+        [1200, 240],
+        [1440, 240],
+        [1680, 240],
+        [1920, 960],
+        [2880, 960]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_pop_06",
+      "name": "Staccato + Sustained",
+      "bars": 2,
+      "tier": 2,
+      "style": "Pop / Rock / Hip-Hop (Shared)",
+      "grid": "x.x.x.x.x.x.x.x. | x---x---x---x---",
+      "hits": [
+        [0, 120],
+        [240, 120],
+        [480, 120],
+        [720, 120],
+        [960, 120],
+        [1200, 120],
+        [1440, 120],
+        [1680, 120],
+        [1920, 480],
+        [2400, 480],
+        [2880, 480],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_jam_04",
+      "name": "Open Groove",
+      "bars": 2,
+      "tier": 2,
+      "style": "Jam Band",
+      "grid": "x---..x-x-...... | ..x-x-..x---x---",
+      "hits": [
+        [0, 480],
+        [720, 240],
+        [960, 240],
+        [2160, 240],
+        [2400, 240],
+        [2880, 480],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_jam_05",
+      "name": "Jam Build",
+      "bars": 2,
+      "tier": 2,
+      "style": "Jam Band",
+      "grid": "x---....x---.... | x-x-x-x-x-x-x-x-",
+      "hits": [
+        [0, 480],
+        [960, 480],
+        [1920, 240],
+        [2160, 240],
+        [2400, 240],
+        [2640, 240],
+        [2880, 240],
+        [3120, 240],
+        [3360, 240],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_jazz_01",
+      "name": "Charleston 2-Bar",
+      "bars": 2,
+      "tier": 2,
+      "style": "Jazz (Straight Grid, Swing Applied by App)",
+      "grid": "x---..x-........ | x---..x-........",
+      "hits": [
+        [0, 480],
+        [720, 240],
+        [1920, 480],
+        [2640, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_latin_06",
+      "name": "Cumbia 2-Bar",
+      "bars": 2,
+      "tier": 2,
+      "style": "Latin",
+      "grid": "x---..x-x---..x- | x---..x-x-------",
+      "hits": [
+        [0, 480],
+        [720, 240],
+        [960, 480],
+        [1680, 240],
+        [1920, 480],
+        [2640, 240],
+        [2880, 960]
+      ],
+      "sameAs": ["comp2_folk_01"]
+    },
+    {
+      "id": "comp2_rnb_02",
+      "name": "Anticipated Changes",
+      "bars": 2,
+      "tier": 2,
+      "style": "R&B",
+      "grid": "x-----------..x- | x-----------..x-",
+      "hits": [
+        [0, 1440],
+        [1680, 240],
+        [1920, 1440],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_rnb_03",
+      "name": "Gospel 2-Bar",
+      "bars": 2,
+      "tier": 2,
+      "style": "R&B",
+      "grid": "x-----..x---..x- | x-------x---..x-",
+      "hits": [
+        [0, 720],
+        [960, 480],
+        [1680, 240],
+        [1920, 960],
+        [2880, 480],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_rnb_04",
+      "name": "Smooth Pulse",
+      "bars": 2,
+      "tier": 2,
+      "style": "R&B",
+      "grid": "x-....x-..x-..x- | x---x---x---..x-",
+      "hits": [
+        [0, 240],
+        [720, 240],
+        [1200, 240],
+        [1680, 240],
+        [1920, 480],
+        [2400, 480],
+        [2880, 480],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_rnb_06",
+      "name": "Rhythmic Push",
+      "bars": 2,
+      "tier": 2,
+      "style": "R&B",
+      "grid": "x---....x---..x- | x-....x-....x---",
+      "hits": [
+        [0, 480],
+        [960, 480],
+        [1680, 240],
+        [1920, 240],
+        [2640, 240],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_elec_04",
+      "name": "Trance Lift",
+      "bars": 2,
+      "tier": 2,
+      "style": "Electronic",
+      "grid": "x.x.....x.x..... | x-x-x-x-x-x-x-x-",
+      "hits": [
+        [0, 120],
+        [240, 120],
+        [960, 120],
+        [1200, 120],
+        [1920, 240],
+        [2160, 240],
+        [2400, 240],
+        [2640, 240],
+        [2880, 240],
+        [3120, 240],
+        [3360, 240],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_folk_05",
+      "name": "Gentle Build",
+      "bars": 2,
+      "tier": 2,
+      "style": "Folk",
+      "grid": "x-------x------- | x-x-x-x-x-x-x-x-",
+      "hits": [
+        [0, 960],
+        [960, 960],
+        [1920, 240],
+        [2160, 240],
+        [2400, 240],
+        [2640, 240],
+        [2880, 240],
+        [3120, 240],
+        [3360, 240],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_hh_01",
+      "name": "Boom Bap 2-Bar",
+      "bars": 2,
+      "tier": 2,
+      "style": "Hip-Hop (Additional)",
+      "grid": "x---....x---.... | x---....x-....x-",
+      "hits": [
+        [0, 480],
+        [960, 480],
+        [1920, 480],
+        [2880, 240],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_hh_04",
+      "name": "Drill 2-Bar",
+      "bars": 2,
+      "tier": 2,
+      "style": "Hip-Hop (Additional)",
+      "grid": "x.......x.x..... | x.......x.......",
+      "hits": [
+        [0, 120],
+        [960, 120],
+        [1200, 120],
+        [1920, 120],
+        [2880, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_pop_06",
+      "name": "Eighth Note 3+3+2",
+      "bars": 1,
+      "tier": 3,
+      "style": "Pop, Rock, Jam Band",
+      "grid": "x--x--x-x--x--x-",
+      "hits": [
+        [0, 360],
+        [360, 360],
+        [720, 240],
+        [960, 360],
+        [1320, 360],
+        [1680, 240]
+      ],
+      "sameAs": ["comp_afr_02"]
+    },
+    {
+      "id": "comp_pop_07",
+      "name": "3+3+3+3+2+2",
+      "bars": 1,
+      "tier": 3,
+      "style": "Pop, Rock, Jam Band",
+      "grid": "x--x--x--x--x-x-",
+      "hits": [
+        [0, 360],
+        [360, 360],
+        [720, 360],
+        [1080, 360],
+        [1440, 240],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jam_02",
+      "name": "Jam Band 2",
+      "bars": 1,
+      "tier": 3,
+      "style": "Jam Band 2",
+      "grid": "x-x-..x-x-.x--x-",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [720, 240],
+        [960, 240],
+        [1320, 360],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_02a",
+      "name": "Jazz 2a",
+      "bars": 1,
+      "tier": 3,
+      "style": "Jazz 2a",
+      "grid": "x--x..x--x..x---",
+      "hits": [
+        [0, 360],
+        [360, 120],
+        [720, 360],
+        [1080, 120],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_funk_01",
+      "name": "Funk 1 (Staccato 8ths + Tail)",
+      "bars": 1,
+      "tier": 3,
+      "style": "Funk 1 (Staccato 8ths + Tail)",
+      "grid": "x.x.x.x.x.x.xx--",
+      "hits": [
+        [0, 120],
+        [240, 120],
+        [480, 120],
+        [720, 120],
+        [960, 120],
+        [1200, 120],
+        [1440, 120],
+        [1560, 360]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_funk_02",
+      "name": "Funk 2 (Sparse Stabs)",
+      "bars": 1,
+      "tier": 3,
+      "style": "Funk 2 (Sparse Stabs)",
+      "grid": "x..x....x..x....",
+      "hits": [
+        [0, 120],
+        [360, 120],
+        [960, 120],
+        [1320, 120]
+      ],
+      "sameAs": ["comp_hh_03"]
+    },
+    {
+      "id": "comp_latin_04",
+      "name": "Son Montuno",
+      "bars": 1,
+      "tier": 3,
+      "style": "",
+      "grid": "x-x..x-.x-x..x-.",
+      "hits": [
+        [0, 240],
+        [240, 120],
+        [600, 240],
+        [960, 240],
+        [1200, 120],
+        [1560, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_latin_07",
+      "name": "Reggaeton Dembow",
+      "bars": 1,
+      "tier": 3,
+      "style": "Reggaeton Dembow",
+      "grid": "x--x..x-x--x..x-",
+      "hits": [
+        [0, 360],
+        [360, 120],
+        [720, 240],
+        [960, 360],
+        [1320, 120],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_rnb_04",
+      "name": "Beat 1 + Anticipated 3",
+      "bars": 1,
+      "tier": 3,
+      "style": "",
+      "grid": "x-------.x------",
+      "hits": [
+        [0, 960],
+        [1080, 840]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_neo_03",
+      "name": "Displaced Quarter",
+      "bars": 1,
+      "tier": 3,
+      "style": "",
+      "grid": "..x---..x---....",
+      "hits": [
+        [240, 480],
+        [960, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_neo_06",
+      "name": "Rhodes Swell",
+      "bars": 1,
+      "tier": 3,
+      "style": "",
+      "grid": "....x-----------",
+      "hits": [[480, 1440]],
+      "sameAs": []
+    },
+    {
+      "id": "comp_elec_05",
+      "name": "Sidechain Pump",
+      "bars": 1,
+      "tier": 3,
+      "style": "",
+      "grid": "..x---..x---..x-",
+      "hits": [
+        [240, 480],
+        [960, 480],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_afr_01",
+      "name": "3+3+2 Chord Clave (Eighths)",
+      "bars": 1,
+      "tier": 3,
+      "style": "",
+      "grid": "x--x--x-........",
+      "hits": [
+        [0, 360],
+        [360, 360],
+        [720, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_reg_01",
+      "name": "Offbeat Skank",
+      "bars": 1,
+      "tier": 3,
+      "style": "",
+      "grid": "..x-..x-..x-..x-",
+      "hits": [
+        [240, 240],
+        [720, 240],
+        [1200, 240],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_reg_02",
+      "name": "Staccato Skank",
+      "bars": 1,
+      "tier": 3,
+      "style": "",
+      "grid": "..x...x...x...x.",
+      "hits": [
+        [240, 120],
+        [720, 120],
+        [1200, 120],
+        [1680, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_reg_06",
+      "name": "One Drop Comp",
+      "bars": 1,
+      "tier": 3,
+      "style": "",
+      "grid": "........x-......",
+      "hits": [[960, 240]],
+      "sameAs": []
+    },
+    {
+      "id": "comp_reg_07",
+      "name": "Offbeat skank with added on-beat hits",
+      "bars": 1,
+      "tier": 3,
+      "style": "Rockers Skank",
+      "grid": "..x-..x-x-x-..x-",
+      "hits": [
+        [240, 240],
+        [720, 240],
+        [960, 240],
+        [1200, 240],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_reg_08",
+      "name": "Dub Space",
+      "bars": 1,
+      "tier": 3,
+      "style": "",
+      "grid": "..x-............",
+      "hits": [[240, 240]],
+      "sameAs": []
+    },
+    {
+      "id": "comp_hh_02",
+      "name": "Trap Stab",
+      "bars": 1,
+      "tier": 3,
+      "style": "",
+      "grid": "x..............x",
+      "hits": [
+        [0, 120],
+        [1800, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_pop_04",
+      "name": "3+3+2 Two Bar Phrase",
+      "bars": 2,
+      "tier": 3,
+      "style": "Pop / Rock / Hip-Hop (Shared)",
+      "grid": "x--x--x-x--x--x- | x-----x-----x---",
+      "hits": [
+        [0, 360],
+        [360, 360],
+        [720, 240],
+        [960, 360],
+        [1320, 360],
+        [1680, 240],
+        [1920, 720],
+        [2640, 720],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_funk_01",
+      "name": "Stab + Sustain",
+      "bars": 2,
+      "tier": 3,
+      "style": "Funk",
+      "grid": "x..x....x..x.... | x.x.x.x.x.x.xx--",
+      "hits": [
+        [0, 120],
+        [360, 120],
+        [960, 120],
+        [1320, 120],
+        [1920, 120],
+        [2160, 120],
+        [2400, 120],
+        [2640, 120],
+        [2880, 120],
+        [3120, 120],
+        [3360, 120],
+        [3480, 360]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_funk_03",
+      "name": "One Chord Vamp",
+      "bars": 2,
+      "tier": 3,
+      "style": "Funk",
+      "grid": "x..x....x..x.... | x...x.x.x.......",
+      "hits": [
+        [0, 120],
+        [360, 120],
+        [960, 120],
+        [1320, 120],
+        [1920, 120],
+        [2400, 120],
+        [2640, 120],
+        [2880, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_funk_05",
+      "name": "James Brown On-The-One",
+      "bars": 2,
+      "tier": 3,
+      "style": "Funk",
+      "grid": "x--------------- | x..x....x..x....",
+      "hits": [
+        [0, 1920],
+        [1920, 120],
+        [2280, 120],
+        [2880, 120],
+        [3240, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_latin_03",
+      "name": "Son Clave Comp (3-2)",
+      "bars": 2,
+      "tier": 3,
+      "style": "Latin",
+      "grid": "x--x--x-........ | x---..x-........",
+      "hits": [
+        [0, 360],
+        [360, 360],
+        [720, 240],
+        [1920, 480],
+        [2640, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_latin_04",
+      "name": "Son Clave Comp (2-3)",
+      "bars": 2,
+      "tier": 3,
+      "style": "Latin",
+      "grid": "x---..x-........ | x--x--x-........",
+      "hits": [
+        [0, 480],
+        [720, 240],
+        [1920, 360],
+        [2280, 360],
+        [2640, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_neo_05",
+      "name": "Displaced Groove",
+      "bars": 2,
+      "tier": 3,
+      "style": "Neo Soul",
+      "grid": "..x---..x---.... | x---..x---......",
+      "hits": [
+        [240, 480],
+        [960, 480],
+        [1920, 480],
+        [2640, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_elec_03",
+      "name": "Sidechain 2-Bar",
+      "bars": 2,
+      "tier": 3,
+      "style": "Electronic",
+      "grid": "..x---..x---..x- | ..x---..x---..x-",
+      "hits": [
+        [240, 480],
+        [960, 480],
+        [1680, 240],
+        [2160, 480],
+        [2880, 480],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_afr_01",
+      "name": "3+3+2 Repeating",
+      "bars": 2,
+      "tier": 3,
+      "style": "African (Straight Grid)",
+      "grid": "x--x--x-x--x--x- | x--x--x-x--x--x-",
+      "hits": [
+        [0, 360],
+        [360, 360],
+        [720, 240],
+        [960, 360],
+        [1320, 360],
+        [1680, 240],
+        [1920, 360],
+        [2280, 360],
+        [2640, 240],
+        [2880, 360],
+        [3240, 360],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_afr_05",
+      "name": "Call + Response Afro",
+      "bars": 2,
+      "tier": 3,
+      "style": "African (Straight Grid)",
+      "grid": "x--x--x-........ | ........x--x--x-",
+      "hits": [
+        [0, 360],
+        [360, 360],
+        [720, 240],
+        [2880, 360],
+        [3240, 360],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_reg_01",
+      "name": "Skank 2-Bar",
+      "bars": 2,
+      "tier": 3,
+      "style": "Reggae",
+      "grid": "..x-..x-..x-..x- | ..x-..x-..x-..x-",
+      "hits": [
+        [240, 240],
+        [720, 240],
+        [1200, 240],
+        [1680, 240],
+        [2160, 240],
+        [2640, 240],
+        [3120, 240],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_reg_04",
+      "name": "One Drop 2-Bar",
+      "bars": 2,
+      "tier": 3,
+      "style": "Reggae",
+      "grid": "........x-...... | ........x-..x---",
+      "hits": [
+        [960, 240],
+        [2880, 240],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_reg_06",
+      "name": "Rockers 2-Bar",
+      "bars": 2,
+      "tier": 3,
+      "style": "Reggae",
+      "grid": "..x-..x-x-x-..x- | ..x-..x-..x-x---",
+      "hits": [
+        [240, 240],
+        [720, 240],
+        [960, 240],
+        [1200, 240],
+        [1680, 240],
+        [2160, 240],
+        [2640, 240],
+        [3120, 240],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_hh_02",
+      "name": "Trap 2-Bar",
+      "bars": 2,
+      "tier": 3,
+      "style": "Hip-Hop (Additional)",
+      "grid": "x..............x | x..x....x..x....",
+      "hits": [
+        [0, 120],
+        [1800, 120],
+        [1920, 120],
+        [2280, 120],
+        [2880, 120],
+        [3240, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jam_01",
+      "name": "Jam Band 1",
+      "bars": 1,
+      "tier": 4,
+      "style": "Jam Band 1",
+      "grid": "x--x.x.xx---....",
+      "hits": [
+        [0, 360],
+        [360, 120],
+        [600, 120],
+        [840, 120],
+        [960, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jam_01a",
+      "name": "Jam Band 1a",
+      "bars": 1,
+      "tier": 4,
+      "style": "Jam Band 1a",
+      "grid": "x--x.x.xx--x..x-",
+      "hits": [
+        [0, 360],
+        [360, 120],
+        [600, 120],
+        [840, 120],
+        [960, 360],
+        [1320, 120],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jam_01b",
+      "name": "Jam Band 1b",
+      "bars": 1,
+      "tier": 4,
+      "style": "Jam Band 1b",
+      "grid": "x--x.x.x.xx-x-..",
+      "hits": [
+        [0, 360],
+        [360, 120],
+        [600, 120],
+        [840, 120],
+        [1080, 120],
+        [1200, 240],
+        [1440, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jam_03",
+      "name": "Jam Band 3 (Latin)",
+      "bars": 1,
+      "tier": 4,
+      "style": "Jam Band 3 (Latin)",
+      "grid": "x-x-.x-x-..x-x-.",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [600, 240],
+        [840, 240],
+        [1320, 240],
+        [1560, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jam_03a",
+      "name": "Jam Band 3a (Latin)",
+      "bars": 1,
+      "tier": 4,
+      "style": "Jam Band 3a (Latin)",
+      "grid": "x-x-.x-x-x--x-x-",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [600, 240],
+        [840, 240],
+        [1080, 360],
+        [1440, 240],
+        [1680, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_02",
+      "name": "Jazz 2",
+      "bars": 1,
+      "tier": 4,
+      "style": "Jazz 2",
+      "grid": "x--x....x--x.x--",
+      "hits": [
+        [0, 360],
+        [360, 120],
+        [960, 360],
+        [1320, 120],
+        [1560, 360]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_02b",
+      "name": "Jazz 2b",
+      "bars": 1,
+      "tier": 4,
+      "style": "Jazz 2b",
+      "grid": "x--x...x...x....",
+      "hits": [
+        [0, 360],
+        [360, 120],
+        [840, 120],
+        [1320, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_06",
+      "name": "Jazz 6 (Offbeat Entry)",
+      "bars": 1,
+      "tier": 4,
+      "style": "Jazz 6 (Offbeat Entry)",
+      "grid": ".x..x---.x..x---",
+      "hits": [
+        [120, 120],
+        [480, 480],
+        [1080, 120],
+        [1440, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_06a",
+      "name": "Jazz 6a",
+      "bars": 1,
+      "tier": 4,
+      "style": "Jazz 6a",
+      "grid": ".x.x.x.x---..x..",
+      "hits": [
+        [120, 120],
+        [360, 120],
+        [600, 120],
+        [840, 480],
+        [1560, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_06b",
+      "name": "Jazz 6b",
+      "bars": 1,
+      "tier": 4,
+      "style": "Jazz 6b",
+      "grid": ".x..x--x..x---..",
+      "hits": [
+        [120, 120],
+        [480, 360],
+        [840, 120],
+        [1200, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_07",
+      "name": "Jazz 7",
+      "bars": 1,
+      "tier": 4,
+      "style": "Jazz 7",
+      "grid": "..x-xx..x-xx....",
+      "hits": [
+        [240, 240],
+        [480, 120],
+        [600, 120],
+        [960, 240],
+        [1200, 120],
+        [1320, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_jazz_07a",
+      "name": "Jazz 7a",
+      "bars": 1,
+      "tier": 4,
+      "style": "Jazz 7a",
+      "grid": "..x-xx..x-xx.x--",
+      "hits": [
+        [240, 240],
+        [480, 120],
+        [600, 120],
+        [960, 240],
+        [1200, 120],
+        [1320, 120],
+        [1560, 360]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_funk_03",
+      "name": "Funk 3",
+      "bars": 1,
+      "tier": 4,
+      "style": "Funk 3",
+      "grid": "x.x.xx..x.xx....",
+      "hits": [
+        [0, 120],
+        [240, 120],
+        [480, 120],
+        [600, 120],
+        [960, 120],
+        [1200, 120],
+        [1320, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_funk_03a",
+      "name": "Funk 3a",
+      "bars": 1,
+      "tier": 4,
+      "style": "Funk 3a",
+      "grid": "x.x.xx..x.xx.x..",
+      "hits": [
+        [0, 120],
+        [240, 120],
+        [480, 120],
+        [600, 120],
+        [960, 120],
+        [1200, 120],
+        [1320, 120],
+        [1560, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_funk_03b",
+      "name": "Funk 3b (No Downbeat)",
+      "bars": 1,
+      "tier": 4,
+      "style": "Funk 3b (No Downbeat)",
+      "grid": "..x.xx..x.xx.x.x",
+      "hits": [
+        [240, 120],
+        [480, 120],
+        [600, 120],
+        [960, 120],
+        [1200, 120],
+        [1320, 120],
+        [1560, 120],
+        [1800, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_funk_03c",
+      "name": "Funk 3c",
+      "bars": 1,
+      "tier": 4,
+      "style": "Funk 3c",
+      "grid": "..x.xx..x.xx..xx",
+      "hits": [
+        [240, 120],
+        [480, 120],
+        [600, 120],
+        [960, 120],
+        [1200, 120],
+        [1320, 120],
+        [1680, 120],
+        [1800, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_funk_05",
+      "name": "Funk 5 (Upbeat Drive)",
+      "bars": 1,
+      "tier": 4,
+      "style": "Funk 5 (Upbeat Drive)",
+      "grid": "..x.x.x.x.x.x.xx",
+      "hits": [
+        [240, 120],
+        [480, 120],
+        [720, 120],
+        [960, 120],
+        [1200, 120],
+        [1440, 120],
+        [1680, 120],
+        [1800, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_latin_01",
+      "name": "Bossa Nova 1",
+      "bars": 1,
+      "tier": 4,
+      "style": "",
+      "grid": "x-x-.x-x-x--x-x.",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [600, 240],
+        [840, 240],
+        [1080, 360],
+        [1440, 240],
+        [1680, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_latin_02",
+      "name": "Samba 1",
+      "bars": 1,
+      "tier": 4,
+      "style": "",
+      "grid": ".x--x-x-x-x-.x.x",
+      "hits": [
+        [120, 360],
+        [480, 240],
+        [720, 240],
+        [960, 240],
+        [1200, 240],
+        [1560, 120],
+        [1800, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_latin_05",
+      "name": "Salsa Piano Montuno",
+      "bars": 1,
+      "tier": 4,
+      "style": "",
+      "grid": ".x.x.x-..x.x.x-.",
+      "hits": [
+        [120, 120],
+        [360, 120],
+        [600, 240],
+        [1080, 120],
+        [1320, 120],
+        [1560, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_neo_05",
+      "name": "Ghost Comp",
+      "bars": 1,
+      "tier": 4,
+      "style": "",
+      "grid": ".x..x-....x-....",
+      "hits": [
+        [120, 120],
+        [480, 240],
+        [1200, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_elec_03",
+      "name": "Offbeat Stabs",
+      "bars": 1,
+      "tier": 4,
+      "style": "",
+      "grid": ".x...x...x...x..",
+      "hits": [
+        [120, 120],
+        [600, 120],
+        [1080, 120],
+        [1560, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_elec_08",
+      "name": "Arpeggiated Stabs",
+      "bars": 1,
+      "tier": 4,
+      "style": "",
+      "grid": "x..x..x..x..x..x",
+      "hits": [
+        [0, 120],
+        [360, 120],
+        [720, 120],
+        [1080, 120],
+        [1440, 120],
+        [1800, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_afr_05",
+      "name": "Afrobeat Offbeat",
+      "bars": 1,
+      "tier": 4,
+      "style": "",
+      "grid": ".x-..x-..x-..x-.",
+      "hits": [
+        [120, 240],
+        [600, 240],
+        [1080, 240],
+        [1560, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_reg_03",
+      "name": "Bubble Organ (Offbeat 8ths)",
+      "bars": 1,
+      "tier": 4,
+      "style": "",
+      "grid": ".x.x.x.x.x.x.x.x",
+      "hits": [
+        [120, 120],
+        [360, 120],
+        [600, 120],
+        [840, 120],
+        [1080, 120],
+        [1320, 120],
+        [1560, 120],
+        [1800, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_reg_04",
+      "name": "Double Skank",
+      "bars": 1,
+      "tier": 4,
+      "style": "",
+      "grid": "..xx..xx..xx..xx",
+      "hits": [
+        [240, 120],
+        [360, 120],
+        [720, 120],
+        [840, 120],
+        [1200, 120],
+        [1320, 120],
+        [1680, 120],
+        [1800, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_folk_02",
+      "name": "Fingerpick Arpeggio",
+      "bars": 1,
+      "tier": 4,
+      "style": "",
+      "grid": "x-.x-.x-.x-.x-.x",
+      "hits": [
+        [0, 240],
+        [360, 240],
+        [720, 240],
+        [1080, 240],
+        [1440, 240],
+        [1800, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp_folk_07",
+      "name": "Travis Pick Pattern",
+      "bars": 1,
+      "tier": 4,
+      "style": "",
+      "grid": "x..x.x..x..x.x..",
+      "hits": [
+        [0, 120],
+        [360, 120],
+        [600, 120],
+        [960, 120],
+        [1320, 120],
+        [1560, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_jam_01",
+      "name": "Syncopated Call + Response",
+      "bars": 2,
+      "tier": 4,
+      "style": "Jam Band",
+      "grid": "x--x.x.xx---.... | ....x--x.x.xx---",
+      "hits": [
+        [0, 360],
+        [360, 120],
+        [600, 120],
+        [840, 120],
+        [960, 480],
+        [2400, 360],
+        [2760, 120],
+        [3000, 120],
+        [3240, 120],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_jam_02",
+      "name": "Dense + Sparse",
+      "bars": 2,
+      "tier": 4,
+      "style": "Jam Band",
+      "grid": "x--x.x.xx--x..x- | x---........x---",
+      "hits": [
+        [0, 360],
+        [360, 120],
+        [600, 120],
+        [840, 120],
+        [960, 360],
+        [1320, 120],
+        [1680, 240],
+        [1920, 480],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_jam_03",
+      "name": "Latin Jam 2-Bar",
+      "bars": 2,
+      "tier": 4,
+      "style": "Jam Band",
+      "grid": "x-x-.x-x-..x-x-. | x-x-.x-x-x--x-x-",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [600, 240],
+        [840, 240],
+        [1320, 240],
+        [1560, 240],
+        [1920, 240],
+        [2160, 240],
+        [2520, 240],
+        [2760, 240],
+        [3000, 360],
+        [3360, 240],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_jazz_03",
+      "name": "Offbeat Phrase",
+      "bars": 2,
+      "tier": 4,
+      "style": "Jazz (Straight Grid, Swing Applied by App)",
+      "grid": ".x..x---.x..x--- | .x..x--x..x---..",
+      "hits": [
+        [120, 120],
+        [480, 480],
+        [1080, 120],
+        [1440, 480],
+        [2040, 120],
+        [2400, 360],
+        [2760, 120],
+        [3120, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_jazz_04",
+      "name": "Rhythmic Motif + Variation",
+      "bars": 2,
+      "tier": 4,
+      "style": "Jazz (Straight Grid, Swing Applied by App)",
+      "grid": "x--x....x--x.x-- | x--x..x--x..x---",
+      "hits": [
+        [0, 360],
+        [360, 120],
+        [960, 360],
+        [1320, 120],
+        [1560, 360],
+        [1920, 360],
+        [2280, 120],
+        [2640, 360],
+        [3000, 120],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_jazz_05",
+      "name": "Long Tones + Stabs",
+      "bars": 2,
+      "tier": 4,
+      "style": "Jazz (Straight Grid, Swing Applied by App)",
+      "grid": "x---..x-....x--- | ..x-xx..x-xx....",
+      "hits": [
+        [0, 480],
+        [720, 240],
+        [1440, 480],
+        [2160, 240],
+        [2400, 120],
+        [2520, 120],
+        [2880, 240],
+        [3120, 120],
+        [3240, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_funk_02",
+      "name": "Call + Response Funk",
+      "bars": 2,
+      "tier": 4,
+      "style": "Funk",
+      "grid": "x.x.xx..x.xx.... | ..x.xx..x.xx.x.x",
+      "hits": [
+        [0, 120],
+        [240, 120],
+        [480, 120],
+        [600, 120],
+        [960, 120],
+        [1200, 120],
+        [1320, 120],
+        [2160, 120],
+        [2400, 120],
+        [2520, 120],
+        [2880, 120],
+        [3120, 120],
+        [3240, 120],
+        [3480, 120],
+        [3720, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_funk_06",
+      "name": "Syncopated Groove",
+      "bars": 2,
+      "tier": 4,
+      "style": "Funk",
+      "grid": "..x.xx..x.xx..xx | x.x.xx..x.xx....",
+      "hits": [
+        [240, 120],
+        [480, 120],
+        [600, 120],
+        [960, 120],
+        [1200, 120],
+        [1320, 120],
+        [1680, 120],
+        [1800, 120],
+        [1920, 120],
+        [2160, 120],
+        [2400, 120],
+        [2520, 120],
+        [2880, 120],
+        [3120, 120],
+        [3240, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_latin_01",
+      "name": "Bossa Nova 2-Bar",
+      "bars": 2,
+      "tier": 4,
+      "style": "Latin",
+      "grid": "x-x-.x-x-x--x-x. | x-x-.x-x-x--x---",
+      "hits": [
+        [0, 240],
+        [240, 240],
+        [600, 240],
+        [840, 240],
+        [1080, 360],
+        [1440, 240],
+        [1680, 120],
+        [1920, 240],
+        [2160, 240],
+        [2520, 240],
+        [2760, 240],
+        [3000, 360],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_latin_05",
+      "name": "Salsa Drive",
+      "bars": 2,
+      "tier": 4,
+      "style": "Latin",
+      "grid": ".x.x.x-..x.x.x-. | x-x..x-.x-x..x-.",
+      "hits": [
+        [120, 120],
+        [360, 120],
+        [600, 240],
+        [1080, 120],
+        [1320, 120],
+        [1560, 240],
+        [1920, 240],
+        [2160, 120],
+        [2520, 240],
+        [2880, 240],
+        [3120, 120],
+        [3480, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_neo_06",
+      "name": "Sparse Pocket",
+      "bars": 2,
+      "tier": 4,
+      "style": "Neo Soul",
+      "grid": ".x..x-.......... | ........x-..x-..",
+      "hits": [
+        [120, 120],
+        [480, 240],
+        [2880, 240],
+        [3360, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_elec_05",
+      "name": "Offbeat Stab 2-Bar",
+      "bars": 2,
+      "tier": 4,
+      "style": "Electronic",
+      "grid": ".x...x...x...x.. | .x...x...x..x.x.",
+      "hits": [
+        [120, 120],
+        [600, 120],
+        [1080, 120],
+        [1560, 120],
+        [2040, 120],
+        [2520, 120],
+        [3000, 120],
+        [3360, 120],
+        [3600, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_afr_04",
+      "name": "Offbeat Afrobeat",
+      "bars": 2,
+      "tier": 4,
+      "style": "African (Straight Grid)",
+      "grid": ".x-..x-..x-..x-. | x---..x-..x-..x-",
+      "hits": [
+        [120, 240],
+        [600, 240],
+        [1080, 240],
+        [1560, 240],
+        [1920, 480],
+        [2640, 240],
+        [3120, 240],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_reg_02",
+      "name": "Skank + Accent",
+      "bars": 2,
+      "tier": 4,
+      "style": "Reggae",
+      "grid": "..x-..x-..x-..x- | ..x-..x-..xx..x-",
+      "hits": [
+        [240, 240],
+        [720, 240],
+        [1200, 240],
+        [1680, 240],
+        [2160, 240],
+        [2640, 240],
+        [3120, 120],
+        [3240, 120],
+        [3600, 240]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_reg_03",
+      "name": "Bubble 2-Bar",
+      "bars": 2,
+      "tier": 4,
+      "style": "Reggae",
+      "grid": ".x.x.x.x.x.x.x.x | .x.x.x.x.x.x.x.x",
+      "hits": [
+        [120, 120],
+        [360, 120],
+        [600, 120],
+        [840, 120],
+        [1080, 120],
+        [1320, 120],
+        [1560, 120],
+        [1800, 120],
+        [2040, 120],
+        [2280, 120],
+        [2520, 120],
+        [2760, 120],
+        [3000, 120],
+        [3240, 120],
+        [3480, 120],
+        [3720, 120]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_folk_02",
+      "name": "Arpeggio + Chunk",
+      "bars": 2,
+      "tier": 4,
+      "style": "Folk",
+      "grid": "x-.x-.x-.x-.x-.x | x---x---x---x---",
+      "hits": [
+        [0, 240],
+        [360, 240],
+        [720, 240],
+        [1080, 240],
+        [1440, 240],
+        [1800, 120],
+        [1920, 480],
+        [2400, 480],
+        [2880, 480],
+        [3360, 480]
+      ],
+      "sameAs": []
+    },
+    {
+      "id": "comp2_folk_04",
+      "name": "Travis Pick 2-Bar",
+      "bars": 2,
+      "tier": 4,
+      "style": "Folk",
+      "grid": "x..x.x..x..x.x.. | x..x.x..x..x.x..",
+      "hits": [
+        [0, 120],
+        [360, 120],
+        [600, 120],
+        [960, 120],
+        [1320, 120],
+        [1560, 120],
+        [1920, 120],
+        [2280, 120],
+        [2520, 120],
+        [2880, 120],
+        [3240, 120],
+        [3480, 120]
+      ],
+      "sameAs": []
+    }
+  ],
+  "leftOut": [
+    {
+      "id": "comp_pop_03",
+      "why": "4 strikes in a beat"
+    },
+    {
+      "id": "comp_jazz_05",
+      "why": "4 strikes in a beat"
+    },
+    {
+      "id": "comp_jazz_05a",
+      "why": "4 strikes in a beat"
+    },
+    {
+      "id": "comp_funk_04",
+      "why": "4 strikes in a beat"
+    },
+    {
+      "id": "comp_latin_03",
+      "why": "the grid (0 240 600 840 1080 1440 1680) and the array (0 240 600 840 1080 1320 1560) disagree"
+    },
+    {
+      "id": "comp_rnb_03",
+      "why": "bar 1's chord is not struck before its last beat"
+    },
+    {
+      "id": "comp_neo_08",
+      "why": "the grid (0 240 720 960 1680) and the array (0 240 720 840 1800) disagree"
+    },
+    {
+      "id": "comp_elec_07",
+      "why": "no rhythm"
+    },
+    {
+      "id": "comp_afr_04",
+      "why": "the grid (0 240 720 960 1200 1680) and the array (0 240 720 960 1200 1560) disagree"
+    },
+    {
+      "id": "comp_afr_t01",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp_afr_t02",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp_afr_t03",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp_folk_04",
+      "why": "not 4/4"
+    },
+    {
+      "id": "comp_blues_01",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp_blues_02",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp_blues_03",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp_blues_04",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp_blues_05",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp_blues_06",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp_blues_07",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp_blues_08",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp2_jazz_02",
+      "why": "4 strikes in a beat"
+    },
+    {
+      "id": "comp2_jazz_06",
+      "why": "4 strikes in a beat"
+    },
+    {
+      "id": "comp2_funk_04",
+      "why": "4 strikes in a beat"
+    },
+    {
+      "id": "comp2_latin_02",
+      "why": "the grid (0 240 600 840 1080 1440 1680 2040 2280 2520 3000 3240 3480) and the array (0 240 600 840 1080 1320 1560 2040 2280 2520 3000 3240 3480) disagree"
+    },
+    {
+      "id": "comp2_neo_02",
+      "why": "the grid does not read"
+    },
+    {
+      "id": "comp2_neo_03",
+      "why": "the grid (0 240 720 960 1680 2160 2400 2880 3120) and the array (0 240 720 840 1800 2160 2400 2880 3000) disagree"
+    },
+    {
+      "id": "comp2_elec_01",
+      "why": "bar 2's chord is not struck before its last beat"
+    },
+    {
+      "id": "comp2_elec_02",
+      "why": "bar 1's chord is not struck before its last beat"
+    },
+    {
+      "id": "comp2_afr_02",
+      "why": "the grid (0 960 1920 2160 2640 2880 3120 3600) and the array (0 960 1920 2160 2640 2880 3120 3480) disagree"
+    },
+    {
+      "id": "comp2_afr_03",
+      "why": "the grid (0 240 720 960 1200 1680 1920 2160 2640 2880) and the array (0 240 720 960 1200 1560 1920 2160 2640 2880) disagree"
+    },
+    {
+      "id": "comp2_reg_05",
+      "why": "bar 2's chord is not struck before its last beat"
+    },
+    {
+      "id": "comp2_blues_01",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp2_blues_02",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp2_blues_03",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp2_blues_04",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp2_blues_05",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    },
+    {
+      "id": "comp2_blues_06",
+      "why": "a shuffle or 12/8 feel: Echo's groove is straight"
+    }
+  ]
+}

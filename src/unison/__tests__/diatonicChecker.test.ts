@@ -198,6 +198,27 @@ describe('isDiatonic', () => {
     expect(isDiatonic(7, 'dominant13', 0, 'ionian')).toBe(true); // G13 ≈ G7 (V)
   });
 
+  // ── Variations whose notes stay in the key (owner, 2026-10-24) ─────────
+  // A chord is diatonic when its notes are: a sus or add chord on a degree
+  // is as diatonic as the triad it varies, and an altered tone makes even a
+  // familiar chord leave the key.
+  it('counts a sus chord on a degree as diatonic when its notes are in the key', () => {
+    // G minor: F sus4 is F, B♭, C — the ♭7 chord, its 3rd lifted to the 4th.
+    expect(isDiatonic(5, 'sus4', 7, 'aeolian')).toBe(true);
+    expect(isDiatonic(5, 'dominant7sus4', 7, 'aeolian')).toBe(true); // F7sus4
+    expect(isDiatonic(5, 'sus2', 7, 'aeolian')).toBe(true); // F G C
+    expect(isDiatonic(0, 'sus2', 0, 'ionian')).toBe(true); // Csus2 (I)
+    expect(isDiatonic(7, 'sus4', 0, 'ionian')).toBe(true); // Gsus4 (V)
+    expect(isDiatonic(0, 'major6add9', 0, 'ionian')).toBe(true); // C6/9
+  });
+
+  it('keeps a variation out when one of its notes leaves the key', () => {
+    // B sus4 in C major is B, E, F♯; F♯ isn't in C major.
+    expect(isDiatonic(11, 'sus4', 0, 'ionian')).toBe(false);
+    // G7♭9 in C major has an A♭, though its base G7 is diatonic.
+    expect(isDiatonic(7, 'dominant7b9', 0, 'ionian')).toBe(false);
+  });
+
   // ── Non-diatonic mode families ─────────────────────────────────────────
   it('works with harmonic minor', () => {
     // C harmonic minor: Cm, Ddim, Ebaug, Fm, G, Ab, Bdim

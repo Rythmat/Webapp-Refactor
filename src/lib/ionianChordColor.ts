@@ -1,16 +1,8 @@
-import { KEY_OF_COLORS } from '@/constants/theme';
+import type { PrismModeSlug } from '@/hooks/data';
+import { colorForKeyMode } from '@/lib/modeColorShift';
 
-type NoteEvent = {
-  id: string;
-  pitchName: string;
-  startTicks: number;
-  durationTicks: number;
-  velocity?: number;
-  color?: string;
-};
-
-/** ASCII-normalized key labels indexed by pitch class 0–11 */
-const PC_TO_KEY: string[] = [
+/** Key labels indexed by pitch class 0–11, as colorForKeyMode reads them. */
+const PC_TO_KEY = [
   'C',
   'Db',
   'D',
@@ -23,75 +15,57 @@ const PC_TO_KEY: string[] = [
   'A',
   'Bb',
   'B',
+] as const;
+
+/**
+ * A chord with no key around it takes the color of the mode its quality
+ * makes of its root, which is the color of that mode's parent Ionian key, as
+ * the Studio's Prism colors a chord on its own root: a major or major 7th
+ * chord is its own key's (F → F), a dominant 7th Mixolydian's (F7 → B♭), a
+ * minor or minor 7th Aeolian's (Am → C), a diminished triad Locrian's
+ * (B° → C), an augmented one Lydian's.
+ */
+const QUALITY_MODES: { intervals: number[]; mode: PrismModeSlug }[] = [
+  { intervals: [0, 4, 7, 10], mode: 'mixolydian' },
+  { intervals: [0, 4, 7, 11], mode: 'ionian' },
+  { intervals: [0, 3, 7, 10], mode: 'aeolian' },
+  { intervals: [0, 3, 6, 10], mode: 'locrian' },
+  { intervals: [0, 4, 7], mode: 'ionian' },
+  { intervals: [0, 3, 7], mode: 'aeolian' },
+  { intervals: [0, 3, 6], mode: 'locrian' },
+  { intervals: [0, 4, 8], mode: 'lydian' },
 ];
 
-/**
- * Offsets from chord root pitch class to parent Ionian key root, grouped by quality.
- * major chords are I, IV, or V → parent key is root-0, root-5, root-7
- * minor chords are ii, iii, or vi → parent key is root-2, root-4, root-9
- * diminished chords are vii° → parent key is root-11
- */
-const PARENT_KEY_OFFSETS: Record<string, number[]> = {
-  major: [0, 5, 7],
-  minor: [2, 4, 9],
-  diminished: [11],
-};
+const pc = (midi: number) => ((midi % 12) + 12) % 12;
 
-function detectQuality(midis: number[]): string {
-  if (midis.length < 3) return 'major';
-  const root = midis[0];
-  const i1 = (((midis[1] - root) % 12) + 12) % 12;
-  const i2 = (((midis[2] - root) % 12) + 12) % 12;
-  if (i1 === 3 && i2 === 6) return 'diminished';
-  if (i1 === 3 && i2 === 7) return 'minor';
-  return 'major';
+/**
+ * The chord's root and the mode its quality names, in any inversion: the
+ * root is the pitch class the notes stack in thirds from, not the bass.
+ */
+export function chordRootMode(
+  chordMidis: number[],
+): { rootPc: number; mode: PrismModeSlug } | null {
+  const pcs = [...new Set(chordMidis.map(pc))];
+  for (const { intervals, mode } of QUALITY_MODES) {
+    if (intervals.length !== pcs.length) continue;
+    for (const root of pcs) {
+      const shape = pcs.map((p) => pc(p - root)).sort((a, b) => a - b);
+      if (shape.every((s, i) => s === intervals[i]))
+        return { rootPc: root, mode };
+    }
+  }
+  return null;
 }
 
 /**
- * Given a chord's MIDI notes, determine which Ionian keys contain it
- * as a diatonic chord, and return a randomly chosen parent key's color.
+ * A chord's color in the Atlas color scheme: its mode's parent Ionian key
+ * (F7, F Mixolydian, in B♭'s color). Inversions take their root's color; a
+ * chord the scheme can't name takes its bass note's key.
  */
 export function ionianChordColor(chordMidis: number[]): string {
-  if (chordMidis.length === 0) return KEY_OF_COLORS.C;
-
-  const rootPc = ((chordMidis[0] % 12) + 12) % 12;
-  const quality = detectQuality(chordMidis);
-  const offsets = PARENT_KEY_OFFSETS[quality] ?? [0];
-
-  const parentColors = offsets.map((offset) => {
-    const keyPc = (((rootPc - offset) % 12) + 12) % 12;
-    const keyName = PC_TO_KEY[keyPc];
-    return (
-      (KEY_OF_COLORS as Record<string, string>)[keyName] ?? KEY_OF_COLORS.C
-    );
-  });
-
-  return parentColors[Math.floor(Math.random() * parentColors.length)];
-}
-
-/**
- * Build a stable color map for an array of triads.
- * Call inside useMemo so colors don't re-randomize on every render.
- */
-export function buildChordColorMap(triads: number[][]): string[] {
-  return triads.map((chord) => ionianChordColor(chord));
-}
-
-/**
- * Apply per-chord colors to a sequence of NoteEvents.
- * Events are divided evenly among chords based on chordOrder length.
- */
-export function applyChordColors(
-  events: NoteEvent[],
-  chordOrder: number[],
-  chordColors: string[],
-): NoteEvent[] {
-  const numChords = chordOrder.length;
-  if (numChords === 0 || events.length === 0) return events;
-  const groupSize = Math.ceil(events.length / numChords);
-  return events.map((e, i) => {
-    const chordPos = Math.min(Math.floor(i / groupSize), numChords - 1);
-    const triadIdx = chordOrder[chordPos];
-    return { ...e, color: chordColors[triadIdx] ?? e.color };
-  });
+  if (chordMidis.length === 0) return colorForKeyMode('C', 'ionian');
+  const found = chordRootMode(chordMidis);
+  if (found) return colorForKeyMode(PC_TO_KEY[found.rootPc], found.mode);
+  const bass = Math.min(...chordMidis);
+  return colorForKeyMode(PC_TO_KEY[pc(bass)], 'ionian');
 }

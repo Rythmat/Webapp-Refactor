@@ -1,14 +1,14 @@
-import { AtlasRoutes } from '@/constants/routes';
+import { GlobeRoutes } from '@/constants/routes';
 import { applyFrameToSearchParams, type AtlasFrame } from './atlasFrame';
 import { applyStopToSearchParams, type AtlasStop } from './atlasStop';
 
 /**
  * A link into the Globe page: a stop, seen through a frame. For pages outside
- * the Globe (the /atlas dashboard, slides, search), which cannot use the
- * page's navigate — the URL is the whole of what they hand over.
+ * the Globe (Home, slides, search), which cannot use the page's navigate —
+ * the URL is the whole of what they hand over.
  *
- *   atlasHref({ view: 'timeline', lens: 'pathways' }, { kind: 'pathway', pathwayId: 'blues-to-rock' })
- *   → /atlas/globe?view=timeline&lens=pathways&pathway=blues-to-rock
+ *   atlasHref({ view: 'timeline' }, { kind: 'pathway', pathwayId: 'blues-to-rock' })
+ *   → /globe?pathway=blues-to-rock&view=timeline
  */
 export function atlasHref(
   frame: Partial<AtlasFrame> = {},
@@ -19,5 +19,5 @@ export function atlasHref(
     frame,
   );
   const query = params.toString();
-  return query ? `${AtlasRoutes.globe()}?${query}` : AtlasRoutes.globe();
+  return query ? `${GlobeRoutes.root()}?${query}` : GlobeRoutes.root();
 }

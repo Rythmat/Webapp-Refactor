@@ -41,11 +41,18 @@ const SIZE: Record<ToggleSize, string> = {
   lg: 'h-8 min-w-8 px-2.5 [&_svg]:size-4',
 };
 
+/**
+ * The on look keys on aria-pressed as well as Radix's data-state: an
+ * icon-only toggle sits inside its Tooltip, whose trigger writes its own
+ * data-state ('closed') over the toggle's 'on', so a data-state style alone
+ * never showed (the metronome and Loop looked off while on, 2026-10-21).
+ * The data-state classes stay to override the kit's own accent.
+ */
 const TONE: Record<ToggleTone, string> = {
   neutral:
-    'data-[state=on]:bg-daw-selected data-[state=on]:text-daw-text data-[state=on]:hover:bg-daw-selected',
+    'data-[state=on]:bg-daw-selected data-[state=on]:text-daw-text data-[state=on]:hover:bg-daw-selected aria-pressed:bg-daw-selected aria-pressed:text-daw-text aria-pressed:hover:bg-daw-selected',
   record:
-    'data-[state=on]:bg-daw-danger data-[state=on]:text-daw-on-danger data-[state=on]:hover:bg-daw-danger-hover',
+    'data-[state=on]:bg-daw-danger data-[state=on]:text-daw-on-danger data-[state=on]:hover:bg-daw-danger-hover aria-pressed:bg-daw-danger aria-pressed:text-daw-on-danger aria-pressed:hover:bg-daw-danger-hover',
 };
 
 /**

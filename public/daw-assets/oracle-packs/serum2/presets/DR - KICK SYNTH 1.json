@@ -4,27 +4,28 @@
   "oscillators": [
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Sine",
       "octave": 2,
-      "semitone": 0,
+      "semitone": 7,
       "fine": 0,
-      "wtPosition": 0.11458327478612773,
+      "wtPosition": 0,
       "pan": 0,
-      "level": 0.03339702387752741,
+      "level": 0.0790306575968863,
       "unisonVoices": 1,
       "unisonDetune": 0.25,
       "unisonBlend": 0.5,
       "warpMode": "none",
       "warpAmount": 0,
-      "enabled": true
+      "enabled": true,
+      "keyTrack": false
     },
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Triangle",
       "octave": 3,
-      "semitone": 0,
+      "semitone": 2,
       "fine": 0,
-      "wtPosition": 0.26894873729906976,
+      "wtPosition": 0,
       "pan": 0,
       "level": 0,
       "unisonVoices": 2,
@@ -32,7 +33,8 @@
       "unisonBlend": 0.5,
       "warpMode": "none",
       "warpAmount": 0,
-      "enabled": true
+      "enabled": true,
+      "keyTrack": false
     }
   ],
   "subOscillator": {
@@ -371,7 +373,7 @@
       },
       "target": {
         "source": "osc1",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.1875,
       "polarity": "unipolar",
@@ -386,7 +388,7 @@
       },
       "target": {
         "source": "osc2",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.1875,
       "polarity": "unipolar",
@@ -403,7 +405,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.49707603454589844,
+      "amount": 0.9941520690917969,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -428,7 +430,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.4838270726250509,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -450,7 +452,7 @@
     },
     "compressor": {
       "enabled": true,
-      "threshold": 0,
+      "threshold": -4.277596493032415,
       "ratio": 20,
       "attack": 0.01,
       "release": 0.2

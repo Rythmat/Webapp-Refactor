@@ -13,6 +13,14 @@
     {
       "kind": "bassLine",
       "id": "octave-disco"
+    },
+    {
+      "kind": "bassLine",
+      "id": "octave-disco-copy"
+    },
+    {
+      "kind": "bassLine",
+      "id": "driving-dance-pop-1-copy"
     }
   ]
 }

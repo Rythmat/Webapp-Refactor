@@ -1,0 +1,55 @@
+{
+  "about": "Echo's starter set: the contours its melody calls are made from, by level. Each id is a contour in contourLibrary.json (its values, 0-based). A level's calls draw on its own contours and every earlier level's. Prune or add here; the tests check every id is in the library, at its level's tier, and inside the pad window at the zero points it takes.",
+  "padWindow": {
+    "low": 0,
+    "high": 7,
+    "about": "Scale positions from the 1 (0): the 1 up to the 1 above it (7), eight pads, at every level. The owner's rule: the melody always has a bottom 1 and a top 1, a full octave. Every call stays inside it."
+  },
+  "rules": [
+    "Level 1 is Tier 1 common, Level 2 is Tier 2 common, Level 3 is Tier 3 (all uncommon or rare there; uncommon chosen).",
+    "About 12 a level: four of 3 notes, five of 4, three of 5.",
+    "Every motion at each level: rising, falling, arch, valley, and a repeated note (a wave too from Level 2). The motion is the contour's own (echo/contours.ts contourMotion).",
+    "Inside the pad window, the 1 to the 1 above: Level 1's on the 1 (values 0 to 7); Level 2's and Level 3's on at least two of the 1, the 3 and the 5 (values 0 to 7 on the 1, -2 to 5 on the 3, -4 to 3 on the 5).",
+    "Singable shapes over clever ones: home (the 0) at the start or the end where the tier offers it."
+  ],
+  "contours": [
+    { "id": "0,1,2", "level": 1, "motion": "rising" },
+    { "id": "2,1,0", "level": 1, "motion": "falling" },
+    { "id": "0,1,0", "level": 1, "motion": "arch" },
+    { "id": "1,0,1", "level": 1, "motion": "valley" },
+    { "id": "0,0,1,2", "level": 1, "motion": "repeated" },
+    { "id": "3,2,1,0", "level": 1, "motion": "falling" },
+    { "id": "0,2,1,0", "level": 1, "motion": "arch" },
+    { "id": "0,1,2,4", "level": 1, "motion": "rising" },
+    { "id": "1,0,1,2", "level": 1, "motion": "valley" },
+    { "id": "0,1,2,3,4", "level": 1, "motion": "rising" },
+    { "id": "1,2,3,2,0", "level": 1, "motion": "arch" },
+    { "id": "0,2,4,6,7", "level": 1, "motion": "rising" },
+
+    { "id": "-2,0,2", "level": 2, "motion": "rising" },
+    { "id": "2,0,-2", "level": 2, "motion": "falling" },
+    { "id": "0,3,0", "level": 2, "motion": "arch" },
+    { "id": "0,-2,0", "level": 2, "motion": "valley" },
+    { "id": "-2,0,1,2", "level": 2, "motion": "rising" },
+    { "id": "5,4,3,0", "level": 2, "motion": "falling" },
+    { "id": "-2,0,2,0", "level": 2, "motion": "arch" },
+    { "id": "0,-2,-1,0", "level": 2, "motion": "valley" },
+    { "id": "0,0,0,-2", "level": 2, "motion": "repeated" },
+    { "id": "-1,1,2,1,0", "level": 2, "motion": "arch" },
+    { "id": "1,-1,-2,-1,0", "level": 2, "motion": "valley" },
+    { "id": "0,-1,1,2,1", "level": 2, "motion": "wave" },
+
+    { "id": "0,4,5", "level": 3, "motion": "rising" },
+    { "id": "5,4,0", "level": 3, "motion": "falling" },
+    { "id": "0,4,0", "level": 3, "motion": "arch" },
+    { "id": "4,0,4", "level": 3, "motion": "valley" },
+    { "id": "0,2,4,0", "level": 3, "motion": "arch" },
+    { "id": "0,-2,1,2", "level": 3, "motion": "valley" },
+    { "id": "0,0,0,4", "level": 3, "motion": "repeated" },
+    { "id": "0,-1,2,0", "level": 3, "motion": "wave" },
+    { "id": "4,2,4,0", "level": 3, "motion": "wave" },
+    { "id": "0,1,2,4,0", "level": 3, "motion": "arch" },
+    { "id": "3,2,1,-2,0", "level": 3, "motion": "valley" },
+    { "id": "2,-1,1,2,0", "level": 3, "motion": "wave" }
+  ]
+}

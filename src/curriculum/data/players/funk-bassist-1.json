@@ -25,6 +25,10 @@
     {
       "kind": "bassLine",
       "id": "heavy-funk"
+    },
+    {
+      "kind": "bassLine",
+      "id": "funk-copy"
     }
   ]
 }

@@ -38,16 +38,7 @@ import {
   sameMeter,
   type BassSwingOn,
 } from '@/curriculum/engine/bassLines/bassLine';
-import {
-  chordSpans,
-  chordSymbol,
-  KEYS,
-  keyPrefersFlats,
-  pcName,
-  progressionById,
-  PROGRESSIONS,
-  realizePreset,
-} from '@/curriculum/engine/bassLines/harmony';
+import { chordSpans, chordSymbol } from '@/curriculum/engine/bassLines/harmony';
 import {
   COMPING_GRIDS,
   compingBars,
@@ -57,8 +48,13 @@ import {
   type CompingTones,
 } from '@/curriculum/engine/chordComping/chordComping';
 import type { DrumGroove } from '@/curriculum/engine/drumGrooves/drumGroove';
+import { keyNotes } from '@/curriculum/engine/parts/followChords';
+import { ApproachFields, ApproachMenu } from '../approach/ApproachMenu';
+import { applyApproach } from '../approach/approachEdit';
 import { feelFor } from '../bassLines/BassLineEditor';
 import { useBassLineList } from '../bassLines/bassLineSession';
+import { ChartPicker } from '../chart/ChartPicker';
+import { chosenChart, type ChartChoice } from '../chart/chartChoice';
 import { useUnsavedChanges } from '../content/mirror/UnsavedChangesGuard';
 import { useGrooveList } from '../drumGrooves/grooveSession';
 import { useUndoable } from '../drumGrooves/useUndoable';
@@ -72,6 +68,7 @@ import { RealizedChords } from './RealizedChords';
 import { CAN_WRITE_FILES, downloadComping, saveComping } from './compingFiles';
 import {
   hitsPastEnd,
+  newHitId,
   previewHarmony,
   rollGeometry,
   TONE_ROWS,
@@ -116,11 +113,14 @@ const toPattern = (d: Draft): ChordComping => ({
 interface Props {
   pattern: ChordComping;
   onDuplicate: (pattern: ChordComping) => void;
+  /** The chart it opens on: its band's, when opened in one. */
+  chart?: ChartChoice;
 }
 
 export const ChordCompingEditor: FC<Props> = ({
   pattern: initial,
   onDuplicate,
+  chart,
 }) => {
   const history = useUndoable<Draft>(toDraft(initial));
   const draft = history.value;
@@ -167,17 +167,11 @@ export const ChordCompingEditor: FC<Props> = ({
   const cellW = zoom ?? fitW;
   const pxPerQuarter = cellW / geometry.stepQ;
 
-  // ── what to hear it over (not saved) ──
-  const [progressionId, setProgressionId] = useState(
-    ts[0] === 3 ? 'turnaround' : (PROGRESSIONS[0]?.id ?? ''),
-  );
-  const [keyPc, setKeyPc] = useState(0);
-  const progression = progressionById(progressionId);
-  const chartBars = useMemo(
-    () => realizePreset(progression, keyPc),
-    [progression, keyPc],
-  );
-  const flats = keyPrefersFlats(keyPc, Boolean(progression.minor));
+  // ── what to hear it over (not saved; its band's chart, in a band) ──
+  const [choice, setChoice] = useState<ChartChoice>(() => chart ?? {});
+  const chosen = useMemo(() => chosenChart(choice, ts), [choice, ts]);
+  const chartBars = chosen.bars;
+  const flats = chosen.flats;
 
   const allGrooves = useGrooveList();
   const paired = draft.grooves
@@ -221,8 +215,12 @@ export const ChordCompingEditor: FC<Props> = ({
   );
   const chordNotes = useMemo(
     () =>
-      harmony ? realizeComping(pattern, harmony.chordAt, harmony.bars, ts) : [],
-    [pattern, harmony, ts],
+      harmony
+        ? realizeComping(pattern, harmony.chordAt, harmony.bars, ts, {
+            approachKey: keyNotes(chosen.key),
+          })
+        : [],
+    [pattern, harmony, ts, chosen.key],
   );
   const realizedBass = useMemo(() => {
     if (!harmony || !bassLine) return null;
@@ -231,8 +229,9 @@ export const ChordCompingEditor: FC<Props> = ({
       passes: Math.max(1, Math.round(harmony.loopQ / harmony.chartQ)),
       seed: hashSeed(bassLine.name || 'line', String(chartBars.length)),
       genre: pairedGenre,
+      approachKey: keyNotes(chosen.key),
     });
-  }, [harmony, bassLine, chartBars, ts, pairedGenre]);
+  }, [harmony, bassLine, chartBars, ts, pairedGenre, chosen.key]);
 
   // Chords along the top of the grid, over the pattern's own length.
   const chordMarks = useMemo<ChordMark[]>(() => {
@@ -245,7 +244,8 @@ export const ChordCompingEditor: FC<Props> = ({
           out.push({
             q: base + s.start,
             end: Math.min(geometry.totalQ, base + s.end),
-            label: chordSymbol(s.chord, s.chord.flats ?? flats),
+            label:
+              s.chord.symbol ?? chordSymbol(s.chord, s.chord.flats ?? flats),
           });
       });
     return out;
@@ -554,38 +554,7 @@ export const ChordCompingEditor: FC<Props> = ({
           'flex flex-wrap items-end gap-x-5 gap-y-3 p-4',
         )}
       >
-        <Field label="Changes">
-          <select
-            value={progressionId}
-            onChange={(e) => setProgressionId(e.target.value)}
-            className={control}
-            aria-label="Progression"
-          >
-            {[...new Set(PROGRESSIONS.map((p) => p.group))].map((group) => (
-              <optgroup key={group} label={group}>
-                {PROGRESSIONS.filter((p) => p.group === group).map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-          <select
-            value={keyPc}
-            onChange={(e) => setKeyPc(Number(e.target.value))}
-            className={control}
-            aria-label="Key"
-          >
-            {KEYS.map((k) => (
-              <option key={k.pc} value={k.pc}>
-                {progression.minor
-                  ? `${pcName(k.pc, keyPrefersFlats(k.pc, true))} minor`
-                  : k.name}
-              </option>
-            ))}
-          </select>
-        </Field>
+        <ChartPicker value={choice} onChange={setChoice} timeSignature={ts} />
         <Field label="Drums">
           <select
             value={grooveId}
@@ -852,6 +821,43 @@ export const ChordCompingEditor: FC<Props> = ({
             >
               Delete
             </Button>
+            {sel.approach && (
+              <ApproachFields
+                approach={sel.approach}
+                goal={sel.goal}
+                onChange={(p) => patchSel(p)}
+                clearLabel="Not an approach"
+                clearHint="Play the chord under it, as any other hit"
+                onClear={() =>
+                  patchSel({ approach: undefined, goal: undefined })
+                }
+              />
+            )}
+            <ApproachMenu
+              noun="chord"
+              defaultQ={geometry.stepQ}
+              onApply={(choice, lengthQ) =>
+                edit((hs) =>
+                  applyApproach(
+                    hs,
+                    sel._id,
+                    choice,
+                    lengthQ,
+                    geometry.totalQ,
+                    ts,
+                    // Each plays what its goal plays: the full chord, the
+                    // upper notes or the top note.
+                    (shared, goal) => ({
+                      ...shared,
+                      _id: newHitId(),
+                      ...(goal.tones && goal.tones !== 'full'
+                        ? { tones: goal.tones }
+                        : {}),
+                    }),
+                  ),
+                )
+              }
+            />
           </>
         ) : (
           <span className="text-sm italic text-muted-foreground">

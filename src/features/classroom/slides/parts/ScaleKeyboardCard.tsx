@@ -2,7 +2,8 @@
  * ScaleKeyboardCard — the Learn Overview "Scale" section, reusable inside a
  * classroom slide's `media` block. Renders a highlighted piano for a mode in a
  * key, the interval / notes / key-signature text, and a Play Scale button —
- * matching `/learn/:mode/:key` (see components/learn/LessonOverview.tsx).
+ * matching `/learn/keyboard/:mode/:key` (see
+ * components/learn/LessonOverview.tsx).
  *
  * Deliberately lightweight and provider-free: `PianoKeyboard` highlights purely
  * by MIDI note (PianoContext has a safe default), the text reuses the pure

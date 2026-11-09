@@ -82,23 +82,20 @@ describe('the bar’s way into the Table', () => {
     ['/console/content/songs', '/console/table/songs'],
     ['/console/content/learn?tab=Songs', '/console/table/songs'],
     [
-      '/console/content/atlas/globe?event=evt-woodstock',
+      '/console/content/globe?event=evt-woodstock',
       '/console/table/events/evt-woodstock',
     ],
     // A song's own globe event is the song.
+    ['/console/content/globe?event=song-africa', '/console/table/songs/africa'],
     [
-      '/console/content/atlas/globe?event=song-africa',
-      '/console/table/songs/africa',
-    ],
-    [
-      '/console/content/atlas/globe?artist=Marvin%20Gaye',
+      '/console/content/globe?artist=Marvin%20Gaye',
       '/console/table/artists/marvin-gaye',
     ],
     [
-      '/console/content/atlas/globe?place=city%3Adetroit',
+      '/console/content/globe?place=city%3Adetroit',
       '/console/table/locations/detroit',
     ],
-    ['/console/content/atlas/globe', '/console/table/events'],
+    ['/console/content/globe', '/console/table/events'],
     // Lessons are in no category: their list is one of the other records.
     ['/console/content/curriculum', '/console/content/records/activity_flow'],
     // Music Literacy's list is its own page.
@@ -106,6 +103,8 @@ describe('the bar’s way into the Table', () => {
       '/console/content/curriculum/music-literacy/music-literacy-part-1',
       '/console/music-literacy',
     ],
+    // Learn → Start Here is the Music Literacy path, not Learn's songs.
+    ['/console/content/learn?tab=StartHere', '/console/music-literacy'],
   ])('%s → %s', (path, table) => {
     renderAt(path);
     expect(tableToggle()).toBe(table);
@@ -152,12 +151,12 @@ describe('the bar’s way into the Table', () => {
   });
 
   it('opens an event’s row to edit it, and a song’s event on its page', () => {
-    renderAt('/console/content/atlas/globe?event=evt-woodstock');
+    renderAt('/console/content/globe?event=evt-woodstock');
     expect(
       screen.getByRole('link', { name: 'Edit event' }).getAttribute('href'),
     ).toBe('/console/table/events/evt-woodstock');
     cleanup();
-    renderAt('/console/content/atlas/globe?event=song-africa');
+    renderAt('/console/content/globe?event=song-africa');
     expect(
       screen.getByRole('link', { name: 'Edit song' }).getAttribute('href'),
     ).toBe('/console/content/songs/africa?edit=1');
@@ -176,6 +175,34 @@ describe('the bar’s way into the Table', () => {
     expect(
       screen.getByRole('link', { name: 'Edit lessons' }).getAttribute('href'),
     ).toBe('/console/music-literacy');
+  });
+
+  it('edits the Bands from Part 3, Hear It with Your Band, not a lesson', () => {
+    renderAt(
+      '/console/content/curriculum/music-literacy/hear-it-with-your-band',
+    );
+    expect(
+      screen.getByRole('link', { name: 'Edit Bands' }).getAttribute('href'),
+    ).toBe('/console/bands');
+    expect(screen.queryByRole('link', { name: 'Edit lesson' })).toBeNull();
+  });
+
+  it('edits Music Literacy from Learn → Start Here, its path', () => {
+    renderAt('/console/content/learn?tab=StartHere');
+    expect(
+      screen
+        .getByRole('link', { name: 'Edit Music Literacy' })
+        .getAttribute('href'),
+    ).toBe('/console/music-literacy');
+    // The Records menu's Table: no table holds the path.
+    expect(menuLinks(openRecords())[0]).toEqual([
+      'Table',
+      '/console/table/artists',
+    ]);
+    cleanup();
+    // The other Learn tabs offer no editor of their own.
+    renderAt('/console/content/learn?tab=Songs');
+    expect(screen.queryByRole('link', { name: /^Edit/ })).toBeNull();
   });
 });
 

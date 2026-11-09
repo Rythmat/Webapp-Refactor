@@ -17,7 +17,7 @@ export const MIRRORED_PREFIXES = [
   '/songs',
   '/curriculum',
   '/studio',
-  '/atlas',
+  '/globe',
   '/arcade',
   '/search',
   '/classrooms',
@@ -124,7 +124,7 @@ export function segmentForKind(kind: string): string | null {
     case 'release':
     case 'studio':
     case 'label':
-      return '/atlas';
+      return '/globe';
     default:
       return null;
   }

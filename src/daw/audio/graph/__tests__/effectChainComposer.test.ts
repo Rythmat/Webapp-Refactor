@@ -274,22 +274,33 @@ describe('EffectChain composes its modules', () => {
     expect(last(comp.ratio)).toBe(1);
   });
 
-  it('the crush joins the path when first turned up, then holds a straight line', () => {
-    const { chain, m, edges } = build();
+  it('the crush is in the path only while it is above 0', () => {
+    const { chain, m, edges, reachable } = build();
     chain.update(withComp(true));
     expect(edges()).not.toContain('comp>crush');
-    expect(m.compressor.crushNode.curve).toEqual(new Float32Array([-1, 1]));
 
     chain.update(withComp(true, 0.5));
     expect(edges()).toContain('comp>crush');
     expect(edges()).toContain('crush>makeup');
     expect(edges()).not.toContain('comp>makeup');
     expect(m.compressor.crushNode.curve).toBe(generateCrushCurve(0.5));
+    const onEdges = edges().sort();
 
+    // Back at 0 it leaves: no curve clips beyond ±1, no 2x oversampling
+    // holds the sound back.
     chain.update(withComp(true, 0));
-    expect(edges()).toContain('comp>crush');
-    expect(edges()).toContain('crush>makeup');
-    expect(m.compressor.crushNode.curve).toEqual(new Float32Array([-1, 1]));
+    expect(edges()).toContain('comp>makeup');
+    expect(edges().some((e) => e.includes('crush'))).toBe(false);
+    expect(reachable()).not.toContain(m.compressor.crushNode);
+    expect(reachable().some((n) => n.kind === 'waveshaper')).toBe(false);
+
+    // The compressor switched off takes the crush with it, and back on with
+    // the crush up the same edges return.
+    chain.update(withComp(true, 0.5));
+    chain.update(withComp(false, 0.5));
+    expect(reachable()).not.toContain(m.compressor.crushNode);
+    chain.update(withComp(true, 0.5));
+    expect(edges().sort()).toEqual(onEdges);
   });
 
   it("the EQ's filters join the path once, the first time it is on", () => {
@@ -309,13 +320,27 @@ describe('EffectChain composes its modules', () => {
     expect(r.connects.length).toBe(connects);
   });
 
-  it('the compressor is as late (6 ms) whether it is on or off', () => {
-    const { chain, m } = build();
-    expect(m.compressor.latencySeconds).toBe(0.006);
+  it('the path holds sound back by the look-ahead, on or off', () => {
+    const { chain, m, reachable } = build();
+    // What on the path holds sound back: a delay, the compressor's
+    // look-ahead, or an oversampling waveshaper.
+    const late = () =>
+      reachable().filter(
+        (n) =>
+          n.kind === 'delay' ||
+          n.kind === 'compressor' ||
+          (n.kind === 'waveshaper' && n.oversample !== 'none'),
+      );
     chain.update(withComp(false));
-    expect(m.compressor.latencySeconds).toBe(0.006);
+    expect(late()).toEqual([m.compressor.pad]);
+    expect(m.compressor.pad.delayTime).toMatchObject({ value: 0.006 });
     chain.update(withComp(true));
-    expect(m.compressor.latencySeconds).toBe(0.006);
+    expect(late()).toEqual([m.compressor.compressor]);
+    chain.update(withComp(true, 0.4));
+    chain.update(withComp(true, 0));
+    expect(late()).toEqual([m.compressor.compressor]);
+    chain.update(withComp(false));
+    expect(late()).toEqual([m.compressor.compressor]);
   });
 
   it('routes automation to the slot that owns the parameter', () => {

@@ -4,8 +4,8 @@
  * Every member of a pair works the code out for themselves from the session
  * and the pair's members, so the host and partners land in one room with no
  * code read aloud and nothing added to the session contract. In-app invites
- * no longer exist (see `daw/collab/ui/InviteModal.tsx`), so the code is the
- * whole handshake.
+ * no longer exist (the People panel's room code is the only invite), so the
+ * code is the whole handshake.
  *
  *  - The members are sorted, so every member computes the same code.
  *  - A pair is identified by its members, not its id: `PairingPanel` numbers

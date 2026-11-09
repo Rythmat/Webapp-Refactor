@@ -1,4 +1,10 @@
-import type { LiteracyStep, MusicLiteracyLesson } from './schemas';
+import type {
+  LiteracyMelodicEchoStep,
+  LiteracyStep,
+  LiteracyStepKind,
+  LiteracyWords,
+  MusicLiteracyLesson,
+} from './schemas';
 
 /**
  * Where a new Music Literacy lesson and a new step start: what the console's
@@ -7,7 +13,10 @@ import type { LiteracyStep, MusicLiteracyLesson } from './schemas';
  * notes on the root, and a call of three with a rest after.
  */
 
-export function blankLiteracyStep(tag: string, title: string): LiteracyStep {
+export function blankLiteracyStep(
+  tag: string,
+  title: string,
+): LiteracyMelodicEchoStep & { words: LiteracyWords } {
   return {
     tag,
     title,
@@ -30,6 +39,49 @@ export function blankLiteracyStep(tag: string, title: string): LiteracyStep {
       })),
     },
   };
+}
+
+/**
+ * A new step of a kind, for the editor's Add step: an echo as above; a
+ * choose step as the seed's gate has it (told "Pick a color on the circle.
+ * Its note is your 1.", "Pick one. It sets your 3."); a choose-chords step
+ * on `| 1 | X |`, saved under a name from its tag; a replay of
+ * `progression` (left out: one to name). A replay or a chord call needs a
+ * progression saved before it to pass. Titles are the caller's, in Title
+ * Case (`titleCase`).
+ */
+export function blankStepOfKind(
+  kind: LiteracyStepKind,
+  tag: string,
+  title: string,
+  progression = 'my-progression',
+): LiteracyStep {
+  switch (kind) {
+    case 'echo':
+      return blankLiteracyStep(tag, title);
+    case 'chooseKey':
+      return {
+        kind,
+        tag,
+        title,
+        direction: 'Pick a color on the circle. Its note is your 1.',
+      };
+    case 'chooseMode':
+      return { kind, tag, title, direction: 'Pick one. It sets your 3.' };
+    case 'chooseChords':
+      return {
+        kind,
+        tag,
+        title,
+        direction: 'Pick a chord.',
+        template: ['1', 'X'],
+        distinct: 1,
+        harmony: 'triads',
+        saveAs: tag,
+      };
+    case 'replay':
+      return { kind, tag, title, progression };
+  }
 }
 
 export function blankLiteracyLesson(

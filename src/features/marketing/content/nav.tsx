@@ -7,7 +7,7 @@ import { moduleIcon } from '@/features/landing/sections/moduleIcons';
 const ICON = 'size-5';
 
 /**
- * Home, module + audience pages surfaced in the nav "Features" menu. Icons match
+ * Home + module pages surfaced in the nav "Features" menu. Icons match
  * the landing's module bento (the Music Atlas logo for Home).
  */
 export const featureLinks = [
@@ -41,24 +41,12 @@ export const featureLinks = [
     description: 'Explore the world of music',
     icon: moduleIcon('globe', ICON),
   },
-  {
-    label: 'Teachers',
-    href: MarketingRoutes.teachers(),
-    description: 'Teach music in real time',
-    icon: moduleIcon('teach', ICON),
-  },
 ] as const;
 
 /**
- * Show the Features menu and the top-level links (Blog) in the nav. Hidden
- * until those pages are fully built; flip to `true` to bring them back.
+ * Show the Features menu in the nav. Hidden until those pages are fully built; flip to `true` to bring them back.
  */
 export const SHOW_NAV_PAGES: boolean = false;
-
-/** Top-level nav links (besides the Features menu). */
-export const navLinks = [
-  { label: 'Blog', href: MarketingRoutes.blog() },
-] as const;
 
 /** The nav's single "Open" CTA (sign-in doubles as sign-up). */
 export const OPEN_APP_HREF = appHref(AuthRoutes.signIn());

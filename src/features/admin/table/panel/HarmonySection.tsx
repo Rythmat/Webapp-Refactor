@@ -2,7 +2,7 @@ import { ArrowUpRight, AudioLines } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { CurriculumRoutes, SongRoutes } from '@/constants/routes';
+import { LearnRoutes, SongRoutes } from '@/constants/routes';
 import { canonicalGenre } from '@/content/flowStore';
 import {
   type HarmonyMatch,
@@ -41,7 +41,7 @@ function lessonHref(source: HarmonySource): string | null {
   if (source.kind === 'activity') {
     const genre = SLUG_BY_CANONICAL.get(canonicalGenre(source.genre));
     if (!genre) return null;
-    const href = CurriculumRoutes.genreLevel({
+    const href = LearnRoutes.genreLesson({
       genre,
       level: String(source.level),
     });
@@ -53,7 +53,7 @@ function lessonHref(source: HarmonySource): string | null {
         source.genre as keyof typeof CURRICULUM_GENRE_SLUGS
       ];
     if (!genre) return null;
-    return CurriculumRoutes.genreLevel({
+    return LearnRoutes.genreLesson({
       genre,
       level: source.level.replace(/^L/i, ''),
     });

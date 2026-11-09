@@ -10,7 +10,7 @@
       "fine": 0,
       "wtPosition": 0.6217219263780862,
       "pan": 0,
-      "level": 0.14086795652244266,
+      "level": 0.6026662352099103,
       "unisonVoices": 2,
       "unisonDetune": 0.06585912693177765,
       "unisonBlend": 0.5,
@@ -26,7 +26,7 @@
       "fine": 0,
       "wtPosition": 0.1654888092307374,
       "pan": 0,
-      "level": 0.23374124563885346,
+      "level": 1,
       "unisonVoices": 2,
       "unisonDetune": 0.013998388999256983,
       "unisonBlend": 0.5,
@@ -2114,19 +2114,49 @@
       "id": "serum-1",
       "source": {
         "type": "lfo",
+        "index": 0
+      },
+      "target": {
+        "source": "osc2",
+        "param": "pitch"
+      },
+      "amount": 1,
+      "polarity": "bipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-2",
+      "source": {
+        "type": "lfo",
         "index": 2
       },
       "target": {
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.3903416395187378,
+      "amount": 0.4461015927956785,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
     },
     {
-      "id": "serum-2",
+      "id": "serum-3",
+      "source": {
+        "type": "lfo",
+        "index": 0
+      },
+      "target": {
+        "source": "osc1",
+        "param": "pitch"
+      },
+      "amount": 1,
+      "polarity": "bipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-4",
       "source": {
         "type": "macro",
         "index": 5
@@ -2141,7 +2171,7 @@
       "enabled": true
     },
     {
-      "id": "serum-3",
+      "id": "serum-5",
       "source": {
         "type": "modwheel",
         "index": 0
@@ -2156,7 +2186,7 @@
       "enabled": true
     },
     {
-      "id": "serum-4",
+      "id": "serum-6",
       "source": {
         "type": "macro",
         "index": 2
@@ -2171,7 +2201,7 @@
       "enabled": true
     },
     {
-      "id": "serum-5",
+      "id": "serum-7",
       "source": {
         "type": "lfo",
         "index": 1
@@ -2186,7 +2216,7 @@
       "enabled": true
     },
     {
-      "id": "serum-6",
+      "id": "serum-8",
       "source": {
         "type": "lfo",
         "index": 1
@@ -2205,7 +2235,7 @@
   "voiceCount": 16,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.3125038294846206,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -2227,14 +2257,14 @@
     },
     "compressor": {
       "enabled": true,
-      "threshold": 0,
+      "threshold": -8.115042231920564,
       "ratio": 1.3176725970547902,
-      "attack": 1,
-      "release": 1
+      "attack": 0.11878902089268639,
+      "release": 0.33267475932161694
     },
     "drive": {
       "enabled": true,
-      "amount": 0.34514081478118896,
+      "amount": 0.3,
       "mix": 0.5
     },
     "reverb": {

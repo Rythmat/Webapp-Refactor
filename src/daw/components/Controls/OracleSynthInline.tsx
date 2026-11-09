@@ -2,22 +2,18 @@ import { useEffect, useRef, useMemo } from 'react';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { useOracleSynthInstance } from '@/daw/hooks/useOracleSynthInstance';
 import { useStoreBridge } from '@/daw/hooks/useStoreBridge';
-import { SubOscillatorModule } from '@/daw/oracle-synth/components/modules/SubOscillatorModule';
-import { OscillatorModule } from '@/daw/oracle-synth/components/modules/OscillatorModule';
-import { FilterModule } from '@/daw/oracle-synth/components/modules/FilterModule';
-import { EnvelopeModule } from '@/daw/oracle-synth/components/modules/EnvelopeModule';
-import { NoiseModule } from '@/daw/oracle-synth/components/modules/NoiseModule';
-import { LFOArea } from '@/daw/oracle-synth/components/layout/LFOArea';
-import { ModulationPanel } from '@/daw/oracle-synth/components/modulation/ModulationPanel';
-import { FXPanel } from '@/daw/oracle-synth/components/fx/FXPanel';
-import { ArpPanel } from '@/daw/oracle-synth/components/arp/ArpPanel';
-import { RoutingPanel } from '@/daw/oracle-synth/components/routing/RoutingPanel';
-import { PresetSelector } from '@/daw/oracle-synth/components/preset/PresetSelector';
+import { useSynthStore } from '@/daw/oracle-synth/store';
+import { FACTORY_PRESETS } from '@/daw/oracle-synth/store/presets/factoryPresets';
+import { OracleSynthCard } from './OracleSynthCard';
+import { SoundBrowser } from './SoundBrowser';
+import { synthPatchCategories } from './synthPatchCategories';
 
 // ── OracleSynthInline ────────────────────────────────────────────────────
-// Compact horizontal layout of all Oracle Synth sections for the 33vh
-// channel strip. Scrolls horizontally. The expand button in
-// TrackControlsPanel opens the full DawSynthLayout in a pop-out overlay.
+// The synth in the dock: its main controls on one card, as the floating
+// frame's dock shows its synth (OracleSynthCard); the card's expand opens
+// every module (the maximized dock's full synth, OracleSynthView). The
+// patches are in the dock's sound column at the left (SoundBrowser), by
+// category, with the patch menu (save, init, import, export) at its top.
 
 export function OracleSynthInline() {
   const { isVisible, engine, trackId } = useOracleSynthInstance();
@@ -29,18 +25,21 @@ export function OracleSynthInline() {
 
   useStoreBridge(engine, trackId);
 
-  const analysers = useMemo(() => {
-    if (!engine) return null;
-    return {
-      osc1: engine.getOscAnalyser(0),
-      osc2: engine.getOscAnalyser(1),
-      noise: engine.getNoiseAnalyser(),
-      filter1: engine.getFilter(0),
-      filter2: engine.getFilter(1),
-    };
-  }, [engine]);
+  const presetName = useSynthStore((s) => s.presetName);
+  const loadPreset = useSynthStore((s) => s.loadPreset);
+  const packPresets = useSynthStore((s) => s.packPresets);
+  const userPresets = useSynthStore((s) => s.userPresets);
+  const categories = useMemo(
+    () =>
+      synthPatchCategories(
+        FACTORY_PRESETS.map((p) => p.name),
+        packPresets,
+        userPresets.map((p) => p.name),
+      ),
+    [packPresets, userPresets],
+  );
 
-  if (!isVisible || !engine || !analysers) {
+  if (!isVisible || !engine) {
     return (
       <div className="flex h-full items-center justify-center">
         <span className="text-xs" style={{ color: 'var(--daw-text-3)' }}>
@@ -50,109 +49,20 @@ export function OracleSynthInline() {
     );
   }
 
-  // Fixed widths prevent modules with CSS `flex:1` from growing/drifting.
-  // overflow:hidden contains each module — content can never spill across
-  // the gap onto a neighbor (widths below are sized to fit min-content).
-  const slot = (w: number): React.CSSProperties => ({
-    width: w,
-    minWidth: w,
-    maxWidth: w,
-    flexShrink: 0,
-    overflow: 'hidden',
-  });
-  const panelSlot = (w: number): React.CSSProperties => ({
-    ...slot(w),
-    background: '#242424',
-    border: '1px solid #333',
-    borderRadius: 4,
-  });
-
   return (
-    <div
-      className="flex h-full overflow-x-auto"
-      style={{
-        gap: 6,
-        padding: 6,
-        scrollbarWidth: 'thin',
-        scrollbarColor: 'rgba(255,255,255,0.15) transparent',
-      }}
+    <SoundBrowser
+      label="Synth patches"
+      categories={categories}
+      selectedId={presetName}
+      onPick={loadPreset}
+      // The lessons' patch anchor, on the patches' list. Save, init, import
+      // and export are the full synth's patch menu.
+      anchor="synth-preset-selector"
+      data-testid="synth-sounds"
     >
-      {/* Patch picker — the same PresetSelector as the pop-out layout, so
-          presets are reachable without expanding (and the tutorial can
-          spotlight it via its data-tutorial-id). */}
-      <div
-        className="flex flex-col justify-center gap-1.5 px-2"
-        style={panelSlot(280)}
-      >
-        <span
-          style={{
-            fontSize: 9,
-            fontWeight: 600,
-            letterSpacing: 1,
-            textTransform: 'uppercase',
-            color: 'var(--daw-text-3)',
-          }}
-        >
-          Patch
-        </span>
-        <PresetSelector />
-      </div>
-
-      <div className="[&>*]:h-full" style={slot(130)}>
-        <SubOscillatorModule />
-      </div>
-      <div className="[&>*]:h-full" style={slot(240)}>
-        <OscillatorModule
-          index={0}
-          accent="#e87070"
-          analyser={analysers.osc1}
-        />
-      </div>
-      <div className="[&>*]:h-full" style={slot(240)}>
-        <OscillatorModule
-          index={1}
-          accent="#d05050"
-          analyser={analysers.osc2}
-        />
-      </div>
-      <div className="[&>*]:h-full" style={slot(170)}>
-        <FilterModule
-          index={0}
-          accent="#e8a040"
-          liveFilter={analysers.filter1}
-        />
-      </div>
-      <div className="[&>*]:h-full" style={slot(170)}>
-        <FilterModule
-          index={1}
-          accent="#d08830"
-          liveFilter={analysers.filter2}
-        />
-      </div>
-      <div className="[&>*]:h-full" style={slot(150)}>
-        <EnvelopeModule index={0} accent="#e8c840" />
-      </div>
-      <div className="[&>*]:h-full" style={slot(150)}>
-        <EnvelopeModule index={1} accent="#d0b030" />
-      </div>
-      <div className="[&>*]:h-full" style={slot(130)}>
-        <NoiseModule analyser={analysers.noise} />
-      </div>
-      <div style={panelSlot(660)}>
-        <LFOArea />
-      </div>
-      <div style={panelSlot(260)}>
-        <ModulationPanel />
-      </div>
-      <div style={panelSlot(250)}>
-        <FXPanel />
-      </div>
-      <div style={panelSlot(155)}>
-        <ArpPanel />
-      </div>
-      <div style={panelSlot(170)}>
-        <RoutingPanel />
-      </div>
-    </div>
+      {/* The synth as the floating frame's dock shows it: its main
+          controls on one card; the full synth is a click away. */}
+      <OracleSynthCard engine={engine} />
+    </SoundBrowser>
   );
 }

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { KEY_OF_COLORS } from '@/constants/theme';
-import { getLiveMusicLiteracy } from '../registry';
+import { LITERACY_FIXTURE } from '../__fixtures__/literacyFixture';
 import { stepKeyColor, stepMode, tonicPitchClass } from '../stepColor';
 
-const lesson = getLiveMusicLiteracy('music-literacy-part-1')!;
+const lesson = LITERACY_FIXTURE;
 const step = (tag: string) => lesson.steps.find((s) => s.tag === tag)!;
 
-describe('the house colour rule, from the first lesson', () => {
+describe('the house color rule, from the first lesson', () => {
   it('reads Part 1’s major steps in C’s red', () => {
     for (const tag of [
       'note-called-c',
@@ -19,7 +19,7 @@ describe('the house colour rule, from the first lesson', () => {
     }
   });
 
-  it('makes a figure with ♭3 minor, in its relative major’s colour (C minor: E♭)', () => {
+  it('makes a figure with ♭3 minor, in its relative major’s color (C minor: E♭)', () => {
     for (const tag of ['flat-the-3', 'minor-triad']) {
       expect(stepMode(lesson, step(tag))).toBe('minor');
       expect(stepKeyColor(lesson, step(tag))).toBe(KEY_OF_COLORS.Eb);

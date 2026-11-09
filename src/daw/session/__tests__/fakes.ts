@@ -380,7 +380,7 @@ export interface FakeEnv {
   unregister: () => void;
 }
 
-/** Register fake deps; the editor's URL is /studio/editor`search`. */
+/** Register fake deps; the editor's URL is /studio`search`. */
 export function installFakeDeps(
   opts: {
     user?: SessionUser | null;
@@ -392,9 +392,9 @@ export function installFakeDeps(
   const collab = createFakeCollab(drafts.log);
   const navigate = vi.fn((search: string, opts?: { replace: boolean }) => {
     if (opts?.replace === false) {
-      window.history.pushState(null, '', `/studio/editor${search}`);
+      window.history.pushState(null, '', `/studio${search}`);
     } else {
-      window.history.replaceState(null, '', `/studio/editor${search}`);
+      window.history.replaceState(null, '', `/studio${search}`);
     }
   });
   const openProjectsDialog = vi.fn();
@@ -420,7 +420,7 @@ export function installFakeDeps(
   return env;
 }
 
-/** Put the page on `/studio/editor` + `search`. */
+/** Put the page on `/studio` + `search`. */
 export function setEditorUrl(search: string): void {
-  window.history.replaceState(null, '', `/studio/editor${search}`);
+  window.history.replaceState(null, '', `/studio${search}`);
 }

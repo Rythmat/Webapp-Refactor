@@ -6,6 +6,7 @@ import { useStore } from '@/daw/store';
 import { withTransaction } from '@/daw/store/history';
 import { isTrackLockedByRemote } from '@/daw/store/trackLock';
 import { duplicateTrack } from './duplicateTrack';
+import { deleteTrack } from './TrackMenu';
 import { requestTrackMenu } from './trackMenuRequests';
 import { requestTrackRename } from './useTrackRename';
 
@@ -14,11 +15,28 @@ import { requestTrackRename } from './useTrackRename';
 // While focus is on a track's name (the row's selector): ↑ and ↓ select the
 // track above or below (Home and End, the first and last), ⌥↑ and ⌥↓ move
 // it, Enter opens it in the dock and puts focus there, F2 or N renames it, M
-// and S mute and solo it, and ⌘D duplicates it, focus going to the copy
-// (milestone 2.15). They are the 'tracks' region scope (keymaps.ts), so the
+// and S mute and solo it, ⌘D duplicates it, focus going to the copy
+// (milestone 2.15), and Delete or Backspace deletes it (one undo step, with
+// Undo on its toast, as the menu's Delete track), the track that takes its
+// place selected (owner, 2026-10-22). A click anywhere on a row puts focus
+// on its name (TrackRow), so a selected track takes these keys. They are the 'tracks' region scope (keymaps.ts), so the
 // shortcut sheet lists them and musical typing, when on, takes the letters
 // first. On the row's other controls (the fader's arrows, a toggle's Enter)
 // the keys stay theirs.
+
+/**
+ * Selects a track from the track list: it takes the list's one selection
+ * from Master (the dock goes back from Master to the track), unless a
+ * collaborator holds it.
+ */
+export function selectTrackInList(trackId: string): void {
+  const s = useStore.getState();
+  s.setSelectedTrackId(trackId);
+  const after = useStore.getState();
+  if (after.selectedTrackId === trackId && after.dockMaster) {
+    after.setDockMaster(false);
+  }
+}
 
 /** The track whose name has focus inside `list`, if one has. */
 function focusedTrackId(
@@ -69,7 +87,7 @@ export function useTrackListKeys(list: RefObject<HTMLElement>): void {
         all[Math.max(0, Math.min(all.length - 1, pick(index, all.length)))];
       // A track a collaborator holds can't be selected (setSelectedTrackId
       // says so); focus moves to it anyway, so the keys carry on past it.
-      useStore.getState().setSelectedTrackId(next);
+      selectTrackInList(next);
       focusTrackRow(next);
     };
 
@@ -100,7 +118,7 @@ export function useTrackListKeys(list: RefObject<HTMLElement>): void {
     'tracks.moveUp': move(-1),
     'tracks.moveDown': move(1),
     'tracks.edit': onTrack((id) => {
-      useStore.getState().setSelectedTrackId(id);
+      selectTrackInList(id);
       editInDock();
     }),
     'tracks.rename': onTrack((id) => {
@@ -119,6 +137,21 @@ export function useTrackListKeys(list: RefObject<HTMLElement>): void {
     },
     'tracks.mute': onTrack((id) => useStore.getState().toggleMute(id)),
     'tracks.solo': onTrack((id) => useStore.getState().toggleSolo(id)),
+    'tracks.delete': onTrack((id) => {
+      const state = useStore.getState();
+      if (isTrackLockedByRemote(state.remoteUsers, id)) return;
+      const track = state.tracks.find((t) => t.id === id);
+      if (!track) return;
+      const index = state.tracks.indexOf(track);
+      deleteTrack(track);
+      const rest = useStore.getState().tracks;
+      if (rest.some((t) => t.id === id)) return;
+      // The track below takes its place (the one above at the end).
+      const next = rest[Math.min(index, rest.length - 1)];
+      if (!next) return;
+      useStore.getState().setSelectedTrackId(next.id);
+      focusTrackRow(next.id);
+    }),
   };
   useKeymap(TRACKS_SCOPE.id, handlers, { element: list });
 }

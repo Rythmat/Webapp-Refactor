@@ -37,6 +37,10 @@ import {
   LessonLevelEditor,
   type LessonFlowBody,
 } from '../visual/LessonLevelEditor';
+import {
+  describeFingerWrite,
+  writeLessonFingersToFiles,
+} from './lessonFingerFiles';
 
 /**
  * A genre's lessons, all levels in one place.
@@ -160,6 +164,8 @@ const LessonCourse = () => {
   const [dirty, setDirty] = useState(false);
   const [showJson, setShowJson] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // On a dev server: what a save wrote into the lesson files (the fingers).
+  const [filesNote, setFilesNote] = useState<string | null>(null);
   // Editors only: abandon a sent-back draft and start again from the live body.
   const [restartFromLive, setRestartFromLive] = useState(false);
 
@@ -213,6 +219,7 @@ const LessonCourse = () => {
   const onSave = async () => {
     if (!draft) return;
     setError(null);
+    setFilesNote(null);
     try {
       await save.mutateAsync({
         kind: 'activity_flow',
@@ -224,6 +231,18 @@ const LessonCourse = () => {
       setDirty(false);
     } catch (cause) {
       setError((cause as Error).message);
+      return;
+    }
+    // An admin's fingers also go into the lesson files, where Learn reads
+    // them (a dev server only; a proposal waits for review).
+    if (isEditor) return;
+    try {
+      const report = await writeLessonFingersToFiles(draft);
+      if (report) setFilesNote(describeFingerWrite(report));
+    } catch (cause) {
+      setError(
+        `Saved, but the fingers weren't written to the lesson files: ${(cause as Error).message}`,
+      );
     }
   };
 
@@ -337,6 +356,7 @@ const LessonCourse = () => {
           {error ?? save.error?.message}
         </ConsoleCallout>
       )}
+      {filesNote && <ConsoleCallout tone="success">{filesNote}</ConsoleCallout>}
 
       {detail.data?.editState && (
         <EditReviewBanner

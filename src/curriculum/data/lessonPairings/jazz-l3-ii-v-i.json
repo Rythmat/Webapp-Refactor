@@ -1,0 +1,37 @@
+{
+  "id": "jazz-l3-ii-v-i",
+  "band": "jazz-band-1",
+  "variation": "l3-iivi-f",
+  "overrides": [
+    {
+      "steps": [4, 5, 6, 7],
+      "band": "jazz-band-1",
+      "variation": "l3-iivi-f-2bar"
+    },
+    {
+      "steps": [17],
+      "band": "jazz-band-1",
+      "variation": "l3-a7-dm-half"
+    },
+    {
+      "steps": [18, 19, 20, 21],
+      "band": "jazz-band-1",
+      "variation": "l3-a7-dm"
+    },
+    {
+      "steps": [27],
+      "band": "jazz-band-1",
+      "variation": "l3-quartal"
+    },
+    {
+      "steps": [31],
+      "band": "jazz-band-1",
+      "variation": "l3-iivi-c"
+    },
+    {
+      "steps": [33],
+      "band": "jazz-band-1",
+      "variation": "l3-i-vi-ii-v"
+    }
+  ]
+}

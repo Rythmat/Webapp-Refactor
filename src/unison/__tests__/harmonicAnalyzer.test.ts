@@ -330,4 +330,21 @@ describe('analyzeHarmony', () => {
     expect(result[0].inversion).toBe(0);
     expect(result[0].bassNote).toBeUndefined();
   });
+
+  it('reads a ♭7 sus4 in G minor as diatonic, not chromatic', () => {
+    const gMinor: KeyDetection = {
+      rootPc: 7,
+      rootName: 'G',
+      mode: 'aeolian',
+      modeDisplay: 'Aeolian',
+      confidence: 1,
+      alternateKeys: [],
+    };
+    const [fSus4] = analyzeHarmony(
+      [region({ name: '7 sus4', noteName: 'F sus4', degreeKey: '7 sus4' })],
+      gMinor,
+    );
+    expect(fSus4.isDiatonic).toBe(true);
+    expect(fSus4.modalInterchange).toBeNull();
+  });
 });

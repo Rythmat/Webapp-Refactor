@@ -7,7 +7,8 @@
  *
  * Rankings:
  *   1. Exact quality match > partial match
- *   2. Same family as primary mode preferred
+ *   2. Same family as primary mode preferred; in a minor key, the same-tonic
+ *      harmonic minor first (its V and vii°)
  *   3. Diatonic family preferred over exotic families
  *   4. Simpler/brighter mode preferred (earlier in brightness order)
  */
@@ -57,6 +58,12 @@ const FAMILY_PRIORITY: Record<string, number> = {
 function familyPriority(familyLabel: string): number {
   return FAMILY_PRIORITY[familyLabel] ?? 5;
 }
+
+/** A minor mode's own leading-tone scale: the same notes, its 7th raised. */
+const MINOR_KEYS_OWN: Record<string, string> = {
+  aeolian: 'harmonicMinor',
+  dorian: 'melodicMinor',
+};
 
 // ── Core ─────────────────────────────────────────────────────────────────────
 
@@ -120,9 +127,22 @@ export function findBorrowedSources(
     });
   }
 
-  // Sort: confidence desc, then family priority asc, then brightness rank asc
+  // A minor key's V, V7 and vii° take the raised leading tone from its own
+  // same-tonic minor scale, one note away — natural minor's from harmonic
+  // minor, Dorian's from melodic minor — not from a parallel major mode:
+  // D major in G minor is the V of G harmonic minor, not borrowed from
+  // G Lydian (owner, 2026-10-24).
+  const ownMinor = MINOR_KEYS_OWN[primaryMode];
+  const minorKeysOwn = (r: BorrowedChordInfo) =>
+    ownMinor && r.sourceMode === ownMinor ? 0 : 1;
+
+  // Sort: confidence desc, then a minor key's harmonic minor, then family
+  // priority asc, then brightness rank asc
   results.sort((a, b) => {
     if (b.confidence !== a.confidence) return b.confidence - a.confidence;
+    const ownA = minorKeysOwn(a);
+    const ownB = minorKeysOwn(b);
+    if (ownA !== ownB) return ownA - ownB;
     const famA = familyPriority(a.sourceModeFamily);
     const famB = familyPriority(b.sourceModeFamily);
     if (famA !== famB) return famA - famB;

@@ -16,7 +16,7 @@ import {
 } from '../../lessonPairings/registry';
 import { barTicks } from '../../meter';
 import { type Band, bandVariation } from '../band';
-import { realizeBand } from '../realize';
+import { layerSound, realizeBand } from '../realize';
 import { ALL_ITEMS, LIVE_ITEMS, rememberBand } from '../registry';
 
 /**
@@ -197,7 +197,69 @@ describe('a band assigned to a style', () => {
   });
 });
 
+describe('a variation’s preview swing', () => {
+  it('is its own, else the band’s', () => {
+    const band: Band = {
+      id: 'b',
+      name: 'b',
+      status: 'live',
+      timeSignature: [4, 4],
+      tempo: 96,
+      swing: 67,
+      swingUnit: '8n',
+      layers: [],
+      variations: [
+        { id: 'shuffle', name: 'Shuffle', plays: {} },
+        { id: 'jazz', name: 'Jazz blues', plays: {}, swing: 64 },
+        { id: 'boom-bap', name: 'Boom bap', plays: {}, swingUnit: '16n' },
+      ],
+    };
+    const feel = (v: string) => {
+      const { swing, swingUnit } = bandVariation(band, v);
+      return [swing, swingUnit];
+    };
+    expect(feel('shuffle')).toEqual([67, '8n']);
+    expect(feel('jazz')).toEqual([64, '8n']);
+    expect(feel('boom-bap')).toEqual([67, '16n']);
+  });
+});
+
 describe('a layer', () => {
+  it('plays a variation’s own sound there, and the band’s in the rest', () => {
+    const band: Band = {
+      id: 'b',
+      name: 'b',
+      status: 'live',
+      timeSignature: [4, 4],
+      tempo: 96,
+      layers: [
+        {
+          id: 'drums',
+          name: 'Drums',
+          instrument: 'drums',
+          sound: 'drum-machine:natural',
+        },
+      ],
+      variations: [
+        {
+          id: 'salsa',
+          name: 'Salsa',
+          plays: { drums: { kind: 'groove', id: 'groove_funk_03' } },
+          sounds: { drums: 'drum-machine:salsa_kit_2' },
+        },
+        {
+          id: 'bolero',
+          name: 'Bolero',
+          plays: { drums: { kind: 'groove', id: 'groove_funk_03' } },
+        },
+      ],
+    };
+    const soundIn = (v: string) =>
+      layerSound(bandVariation(band, v).layers[0], ALL_ITEMS);
+    expect(soundIn('salsa')).toBe('drum-machine:salsa_kit_2');
+    expect(soundIn('bolero')).toBe('drum-machine:natural');
+  });
+
   it('leaves a muted layer out, and keeps it for the editor on asking', () => {
     const band: Band = {
       id: 'b',

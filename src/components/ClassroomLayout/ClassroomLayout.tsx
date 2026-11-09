@@ -10,7 +10,7 @@ import { Button } from '../ui/button';
  * Thin wrapper for `/classrooms` and `/classrooms/:id`. Provides:
  *   - loading / not-found / empty state branches
  *   - optional slim back link + invite pill (rendered only when useful)
- *   - standard app page shell (`max-w-[1720px]` inset) around children
+ *   - standard app page shell (`max-w-[107.5rem]` inset) around children
  *
  * The old auto-hiding top chrome (Logo, clock, avatar dropdown) and the
  * nested rounded `bg-surface-box` box were redundant with the outer app
@@ -84,7 +84,7 @@ export const ClassroomLayout = ({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1720px] flex-col gap-4 px-6 py-6 md:gap-6 md:px-10 md:py-10">
+    <div className="mx-auto flex w-full max-w-[107.5rem] flex-col gap-4 px-6 py-6 md:gap-6 md:px-10 md:py-10">
       {(back || classroom) && (
         <div className="flex items-center justify-between">
           {back ? (

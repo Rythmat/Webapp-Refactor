@@ -1,4 +1,3 @@
-import * as Tone from 'tone';
 import type { MidiNoteEvent, MidiCCEvent } from '@prism/engine';
 import { ticksHeardAt } from './heardTime';
 
@@ -78,7 +77,9 @@ export class MidiRecorder {
 
   stopRecording(): RecordingResult {
     this.recording = false;
-    const endTick = Math.round(Tone.getTransport().ticks);
+    // Notes still held end where the student heard the Stop, on the same
+    // clock as their starts.
+    const endTick = Math.round(ticksHeardAt(undefined, this.transportStart()));
 
     // Close any still-active notes
     for (const [, active] of this.activeNotes) {
@@ -92,7 +93,9 @@ export class MidiRecorder {
         note: n.note,
         velocity: n.velocity,
         startTick: n.startTick,
-        durationTicks: (n.endTick ?? endTick) - n.startTick,
+        // A note let go within a tick of its start (or one whose end reads
+        // earlier, across a seek) still lasts a tick.
+        durationTicks: Math.max(1, (n.endTick ?? endTick) - n.startTick),
         channel: 1,
       })),
       ccEvents: this.ccEvents.map((e) => ({ ...e, channel: 1 })),
@@ -105,7 +108,7 @@ export class MidiRecorder {
       note: n.note,
       velocity: n.velocity,
       startTick: n.startTick,
-      durationTicks: (n.endTick ?? currentTick) - n.startTick,
+      durationTicks: Math.max(1, (n.endTick ?? currentTick) - n.startTick),
       channel: 1,
     }));
     for (const [, active] of this.activeNotes) {

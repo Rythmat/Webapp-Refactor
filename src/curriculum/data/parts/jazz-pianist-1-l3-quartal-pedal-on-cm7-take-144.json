@@ -1,0 +1,252 @@
+{
+  "id": "jazz-pianist-1-l3-quartal-pedal-on-cm7-take-144",
+  "name": "Jazz-Pianist-1 · L3 · Quartal pedal on Cm7 take 144",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 3,
+  "tags": [],
+  "status": "draft",
+  "key": {
+    "tonic": 0,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 140,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1080,
+      "midi": 36,
+      "velocity": 79
+    },
+    {
+      "tick": 0,
+      "offset": -14,
+      "duration": 960,
+      "midi": 36,
+      "velocity": 90
+    },
+    {
+      "tick": 0,
+      "duration": 1080,
+      "midi": 43,
+      "velocity": 93
+    },
+    {
+      "tick": 0,
+      "offset": -7,
+      "duration": 960,
+      "midi": 43,
+      "velocity": 102
+    },
+    {
+      "tick": 960,
+      "offset": 28,
+      "duration": 480,
+      "midi": 53,
+      "velocity": 99
+    },
+    {
+      "tick": 960,
+      "offset": 21,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 103
+    },
+    {
+      "tick": 960,
+      "offset": 28,
+      "duration": 600,
+      "midi": 63,
+      "velocity": 100
+    },
+    {
+      "tick": 1080,
+      "offset": -45,
+      "duration": 600,
+      "midi": 53,
+      "velocity": 95
+    },
+    {
+      "tick": 1080,
+      "offset": -45,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 112
+    },
+    {
+      "tick": 1080,
+      "offset": 7,
+      "duration": 120,
+      "midi": 59,
+      "velocity": 49
+    },
+    {
+      "tick": 1080,
+      "offset": -45,
+      "duration": 600,
+      "midi": 63,
+      "velocity": 106
+    },
+    {
+      "tick": 1800,
+      "offset": 47,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 102
+    },
+    {
+      "tick": 1800,
+      "duration": 2040,
+      "midi": 55,
+      "velocity": 93
+    },
+    {
+      "tick": 1800,
+      "offset": 47,
+      "duration": 1920,
+      "midi": 60,
+      "velocity": 113
+    },
+    {
+      "tick": 1800,
+      "duration": 1920,
+      "midi": 60,
+      "velocity": 115
+    },
+    {
+      "tick": 1800,
+      "duration": 2040,
+      "midi": 65,
+      "velocity": 108
+    },
+    {
+      "tick": 1920,
+      "offset": -60,
+      "duration": 1920,
+      "midi": 65,
+      "velocity": 93
+    },
+    {
+      "tick": 3840,
+      "offset": 49,
+      "duration": 840,
+      "midi": 36,
+      "velocity": 66
+    },
+    {
+      "tick": 3840,
+      "offset": 15,
+      "duration": 960,
+      "midi": 36,
+      "velocity": 73
+    },
+    {
+      "tick": 3840,
+      "offset": 49,
+      "duration": 840,
+      "midi": 43,
+      "velocity": 93
+    },
+    {
+      "tick": 3840,
+      "offset": 15,
+      "duration": 960,
+      "midi": 43,
+      "velocity": 95
+    },
+    {
+      "tick": 4800,
+      "offset": 6,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 86
+    },
+    {
+      "tick": 4800,
+      "offset": 4,
+      "duration": 360,
+      "midi": 48,
+      "velocity": 85
+    },
+    {
+      "tick": 4800,
+      "offset": 6,
+      "duration": 600,
+      "midi": 53,
+      "velocity": 112
+    },
+    {
+      "tick": 4800,
+      "offset": 11,
+      "duration": 360,
+      "midi": 53,
+      "velocity": 112
+    },
+    {
+      "tick": 4800,
+      "offset": 6,
+      "duration": 600,
+      "midi": 58,
+      "velocity": 103
+    },
+    {
+      "tick": 4800,
+      "offset": -2,
+      "duration": 360,
+      "midi": 58,
+      "velocity": 102
+    },
+    {
+      "tick": 5640,
+      "offset": -22,
+      "duration": 1920,
+      "midi": 50,
+      "velocity": 89
+    },
+    {
+      "tick": 5640,
+      "offset": 9,
+      "duration": 1920,
+      "midi": 50,
+      "velocity": 102
+    },
+    {
+      "tick": 5640,
+      "offset": -22,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 108
+    },
+    {
+      "tick": 5640,
+      "offset": 9,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 112
+    },
+    {
+      "tick": 5640,
+      "offset": -35,
+      "duration": 1920,
+      "midi": 60,
+      "velocity": 87
+    },
+    {
+      "tick": 5640,
+      "offset": 9,
+      "duration": 1920,
+      "midi": 60,
+      "velocity": 107
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "style": "The ii–V–I",
+  "chordSymbols": ["Cmin7", "Cmin7", "Cmin7", "Cmin7"]
+}

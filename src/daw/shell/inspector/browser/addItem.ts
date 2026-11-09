@@ -50,6 +50,7 @@ import { presetData } from './presetData';
 import { moveForSong, preparedEvents } from './partInSong';
 import { stopPreview } from './preview';
 import { songContextOf } from './songFit';
+import { armNewTrack } from '@/daw/shell/tracklist/recordArm';
 
 const BAR_ONE: DropTarget = { trackId: null, tick: 0 };
 
@@ -91,7 +92,9 @@ function trackFor(item: BrowserItem, synthPatch?: PresetData): Made {
       const made = soundSettings(item.sound);
       const { instrument, bassVoice, gmProgram, presetName } = made.settings;
       return {
-        instrument: instrument ?? 'piano-sampler',
+        // A part's sound as a Studio track (trackSound): an Instruments
+        // track when the sound isn't a track type of its own.
+        instrument: instrument ?? 'soundfont',
         init: {
           bassVoice,
           gmProgram,
@@ -339,6 +342,7 @@ function commitAdd(
         defined(made.init),
       );
       if (!trackId) return false;
+      armNewTrack(trackId);
       if (made.synthPatch) {
         // Seeded before the instrument finishes loading, which applies it.
         setTrackSynthState(

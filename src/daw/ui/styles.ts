@@ -20,6 +20,7 @@ export const TYPE_CLASS = {
   label:
     'text-[length:var(--daw-font-label)] leading-[var(--daw-leading-label)]',
   body: 'text-[length:var(--daw-font-body)] leading-[var(--daw-leading-body)]',
+  item: 'text-[length:var(--daw-font-item)] leading-[var(--daw-leading-item)]',
   title:
     'text-[length:var(--daw-font-title)] leading-[var(--daw-leading-title)] font-bold',
   coach:
@@ -47,12 +48,13 @@ export const OVERLAY_MOTION = {
 
 /**
  * The surface every floating panel shares: menus, popovers, selects and
- * tooltips. Opaque (never glass), with a hairline and a soft shadow, above
- * dialogs in the stacking order. It fades in and goes at once: while a
+ * tooltips. Opaque (never glass), a lighter borderless card with a small
+ * shadow (the floating frame's menus, S0), above dialogs in the stacking
+ * order. It fades in and goes at once: while a
  * modal menu fades out Radix keeps the page from taking clicks, so the
  * first click after Escape was lost (decision 16's guard).
  */
-export const FLOATING_SURFACE = `z-[var(--daw-z-popover)] rounded-[var(--daw-radius-md)] border border-daw-hairline bg-daw-popover text-daw-text shadow-xl shadow-black/40 data-[state=closed]:!animate-none ${OVERLAY_MOTION.fast}`;
+export const FLOATING_SURFACE = `z-[var(--daw-z-popover)] rounded-[var(--daw-radius-card)] border-0 bg-daw-menu text-daw-text [box-shadow:var(--daw-shadow-menu)] data-[state=closed]:!animate-none ${OVERLAY_MOTION.fast}`;
 
 /**
  * A secondary control in a busy bar: dimmer text until hovered or focused

@@ -63,8 +63,8 @@ export const mayRevealOn = (
   if (surface === 'teacher') return true;
 
   // ── Projected surfaces ──────────────────────────────────────────────────
-  // These three refusals mirror `buildProjectorView` EXACTLY (live/buildProjectorView.ts:
-  // check-in, showcase, and `shareable === false` are hard-refused there).
+  // These refusals mirror `buildProjectorView` EXACTLY (live/buildProjectorView.ts:
+  // check-in, showcase, echo, and `shareable === false` are hard-refused there).
   //
   // They are repeated here on purpose. Gating only by VARIANT was wrong: a
   // slide with a text question AND a feelings check-in outside the reflect
@@ -77,7 +77,11 @@ export const mayRevealOn = (
   //
   // Keyed on the INTERACTION, not the slide's variant, because that is what
   // the rule is actually about.
-  if (interaction.type === 'check-in' || interaction.type === 'showcase') {
+  if (
+    interaction.type === 'check-in' ||
+    interaction.type === 'showcase' ||
+    interaction.type === 'echo'
+  ) {
     return false;
   }
   if (!interaction.shareable) return false;

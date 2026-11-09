@@ -1,4 +1,5 @@
 import { RotateCcw } from 'lucide-react';
+import { useTrackColor } from '@/daw/harmony/trackColor';
 import type { NotationStaffSetting } from '@/daw/store/tracksSlice';
 import { PartStaffSelect } from './PartStaffControls';
 import type { PartStaffState } from './partStaff';
@@ -28,6 +29,8 @@ export interface ScorePartsPanelProps {
 }
 
 function PartDot({ color }: { color: string }) {
+  // Harmony Color: the key centre's colour in the part's own place.
+  color = useTrackColor(color);
   return (
     <span
       aria-hidden

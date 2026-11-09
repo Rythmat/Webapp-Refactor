@@ -373,7 +373,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.18421053886413574,
+      "amount": 0.21052484920224973,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -403,7 +403,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.7105263471603394,
+      "amount": 0.8120243988889304,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -433,7 +433,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.08771932125091553,
+      "amount": 0.10024994765415174,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -448,7 +448,7 @@
         "source": "osc1",
         "param": "level"
       },
-      "amount": -0.12719303369522095,
+      "amount": -0.2543860673904419,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -463,7 +463,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.4035087823867798,
+      "amount": 0.8070175647735596,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -473,7 +473,7 @@
   "voiceCount": 16,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.5385041123281894,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -572,5 +572,6 @@
     "rootPc": 0,
     "mode": "ionian",
     "snapMode": "nearest"
-  }
+  },
+  "modWheel": 0.4950000047683716
 }

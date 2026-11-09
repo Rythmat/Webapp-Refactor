@@ -1,24 +1,28 @@
 import type { Feature } from 'geojson';
 import { describe, expect, it } from 'vitest';
-import type { ArcDatum } from '@/components/atlas/data';
-import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import { regionColor, type CityPoint } from './globeLayers';
 import {
   altitudeToMapZoom,
-  arcCollection,
   cityPointCollection,
-  cssColor,
   distanceKm,
+  flightDuration,
   flyZoom,
   greatCircle,
+  MAP_MAX_ZOOM,
   mapZoomToAltitude,
   regionCollection,
-  statesInViewAt,
   zoomToAltitude,
 } from './mapGeometry';
 
 /** A laptop's map area, under the app bar and the Globe's top bar. */
 const H = 775;
+
+describe('camera flights', () => {
+  it('cut under reduced motion, and fly for 1.5 s otherwise', () => {
+    expect(flightDuration(true)).toBe(0);
+    expect(flightDuration(false)).toBe(1500);
+  });
+});
 
 describe('zoom mapping', () => {
   it('keeps the three.js altitudes for the page zooms', () => {
@@ -74,14 +78,7 @@ describe('zoom mapping', () => {
 
   it('stays within the map’s zoom range', () => {
     expect(altitudeToMapZoom(1e6, H)).toBe(0);
-    expect(altitudeToMapZoom(1e-9, H)).toBe(18);
-  });
-
-  it('shows the states from zoom 3 and hides them below 2.8', () => {
-    expect(statesInViewAt(2.9, false)).toBe(false);
-    expect(statesInViewAt(3, false)).toBe(true);
-    expect(statesInViewAt(2.9, true)).toBe(true);
-    expect(statesInViewAt(2.7, true)).toBe(false);
+    expect(altitudeToMapZoom(1e-9, H)).toBe(MAP_MAX_ZOOM);
   });
 });
 
@@ -176,7 +173,7 @@ describe('sources', () => {
         ],
       },
     };
-    const [feature] = regionCollection([square], 'country', true).features;
+    const [feature] = regionCollection([square], 'country').features;
     expect(feature.id).toBe(0);
     expect(feature.properties).toMatchObject({
       _layer: 'country',
@@ -184,10 +181,8 @@ describe('sources', () => {
       ISO_A3: 'USA',
       clat: 5,
       clng: 5,
-      color: regionColor(square, true),
+      color: regionColor(square),
     });
-    const plain = regionCollection([square], 'country', false).features[0];
-    expect(plain.properties.color).toBe(ATLAS_SCENE.landPlain);
   });
 
   it('gives a state its country’s colour', () => {
@@ -196,36 +191,9 @@ describe('sources', () => {
       properties: { name: 'Ontario', iso_a2: 'CA' },
       geometry: { type: 'Point', coordinates: [-85, 50] },
     };
-    const [state] = regionCollection([ontario], 'state', true).features;
+    const [state] = regionCollection([ontario], 'state').features;
     expect(state.properties.color).toBe(
-      regionColor({ properties: { ISO_A3: 'CAN' } }, true),
+      regionColor({ properties: { ISO_A3: 'CAN' } }),
     );
-  });
-
-  it('draws arcs as great circles in rgba colours MapLibre reads', () => {
-    const arc: ArcDatum = {
-      startLat: 6.5,
-      startLng: 3.4,
-      endLat: 29.95,
-      endLng: -90.07,
-      label: 'Griots',
-      eventId: 'evt-1',
-      direction: 'downstream',
-      color: '#cc4455',
-    };
-    const [line] = arcCollection([arc]).features;
-    expect(line.geometry.coordinates.length).toBeGreaterThan(2);
-    expect(line.properties).toMatchObject({
-      eventId: 'evt-1',
-      label: 'Griots',
-      head: 'rgba(255, 255, 255, 0.902)',
-      tail: 'rgba(255, 255, 255, 0.4)',
-    });
-  });
-
-  it('converts only eight-digit hex colours', () => {
-    expect(cssColor('#ffffff66')).toBe('rgba(255, 255, 255, 0.4)');
-    expect(cssColor('#123456')).toBe('#123456');
-    expect(cssColor('rgba(1, 2, 3, 0.5)')).toBe('rgba(1, 2, 3, 0.5)');
   });
 });

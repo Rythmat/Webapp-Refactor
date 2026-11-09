@@ -107,6 +107,11 @@ export function useStoreBridge(
   // it used to follow the detected key even over the student's.
   const projectKey = useEffectiveKey();
   const followProjectKey = useSynthStore((s) => s.keyScale.followProjectKey);
+  // A preset load resets the key to C ionian with follow still on: the
+  // mirror runs again then too, not only when the project key moves (audit
+  // 2026-10-21: the lock snapped to C major).
+  const synthRoot = useSynthStore((s) => s.keyScale.rootPc);
+  const synthMode = useSynthStore((s) => s.keyScale.mode);
 
   useEffect(() => {
     if (!followProjectKey || !projectKey) return;
@@ -126,7 +131,7 @@ export function useStoreBridge(
         }
       });
     }
-  }, [followProjectKey, projectKey]);
+  }, [followProjectKey, projectKey, synthRoot, synthMode]);
 
   // Chord-aware arp: feed the live-detected chord's pitch classes to the
   // arpeggiator. Held notes remain the seed, so a lagging bus only delays

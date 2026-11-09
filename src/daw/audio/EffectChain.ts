@@ -3,12 +3,21 @@
 // destination. Each slot is a module in graph/effects/ that owns its nodes and
 // its bypass wiring; this class only composes them, in one fixed order:
 //
-//   input → EQ → EQ makeup → Gate → Compressor → Crush →
-//   Makeup (+ pre/post meter taps) → Presence → De-esser → Reverb → Delay →
-//   Saturator → Multiband → Ducker → output
+//   input → Wah → Overdrive → Amp → EQ → EQ makeup → Gate → Compressor →
+//   Crush → Makeup (+ pre/post meter taps) → Chorus → Phaser → Flanger →
+//   Presence → De-esser → Reverb → Delay → Saturator → Multiband → Ducker →
+//   output
 //
-// The EQ and the compressor (with its crush) are always in the path; the
-// other slots bypass by rewiring when they're off.
+// The guitar pedals (Wah, Overdrive, Amp, Chorus, Phaser, Flanger; owner,
+// 2026-10-22) sit where a guitarist's board has them: the wah and the drive
+// first, the modulation after the dynamics (graph/effects/pedalEffects).
+//
+// Nothing colours a chain that hasn't used it. The EQ's filters join the
+// path when the EQ is first turned on and stay (neutral when off). Until the
+// compressor is first turned on, a delay as long as its look-ahead stands in
+// its place, so every chain is equally late; then it stays (neutral when
+// off). The crush is in the path only while it is above 0, the gate and the
+// ducker only while on, and the other slots bypass by rewiring when off.
 
 import type { AutomationTarget } from './automation';
 import { CompressorModule } from './graph/effects/compressor';
@@ -18,6 +27,12 @@ import { DuckerModule } from './graph/effects/ducker';
 import { EqModule } from './graph/effects/eq';
 import { GateModule } from './graph/effects/gate';
 import { MultibandModule } from './graph/effects/multiband';
+import {
+  pedalEffectDef,
+  type PedalEffectParams,
+  type PedalSlot,
+} from './graph/effects/pedalEffects';
+import { PedalEffectModule } from './graph/effects/pedalModule';
 import { PresenceModule } from './graph/effects/presence';
 import { ReverbModule } from './graph/effects/reverb';
 import { SaturatorModule } from './graph/effects/saturator';
@@ -146,7 +161,8 @@ export type EffectSlotType =
   | 'de-esser'
   | 'saturator'
   | 'multiband'
-  | 'ducker';
+  | 'ducker'
+  | PedalSlot;
 
 export interface TrackEffectState {
   reverb: ReverbParams;
@@ -159,6 +175,16 @@ export interface TrackEffectState {
   saturator: SaturatorParams;
   multiband: MultibandParams;
   ducker: DuckerParams;
+  // The guitar pedals as effects (2026-10-22): each knob 0–1. Absent until
+  // the pedal is first added, so a chain that never had one saves as it
+  // always has (no new slots in the document); off and at its defaults
+  // then (pedalKnobValues).
+  overdrive?: PedalEffectParams;
+  amp?: PedalEffectParams;
+  chorus?: PedalEffectParams;
+  phaser?: PedalEffectParams;
+  flanger?: PedalEffectParams;
+  wah?: PedalEffectParams;
 }
 
 export const DEFAULT_EFFECTS: TrackEffectState = {
@@ -254,8 +280,16 @@ export class EffectChain {
   private readonly saturator: SaturatorModule;
   private readonly multiband: MultibandModule;
   private readonly ducker: DuckerModule;
-  /** The modules in signal order. */
-  private readonly modules: EffectModule<unknown>[];
+  /** The guitar pedals as effects, by slot. */
+  private readonly pedals: Record<PedalSlot, PedalEffectModule>;
+  /** Every module, in signal order. */
+  private readonly order: EffectModule<unknown>[];
+  /**
+   * The pedals in the path: each joins when it is first switched on and
+   * stays (neutral when off), so a chain that never used one has none of
+   * their nodes, as the EQ's filters join (2026-10-22).
+   */
+  private readonly pedalsInPath = new Set<EffectModule<unknown>>();
   /** Each slot's module, for its automation targets. */
   private readonly bySlot: Record<EffectSlotType, EffectModule<unknown>>;
 
@@ -280,11 +314,27 @@ export class EffectChain {
     this.saturator = new SaturatorModule(ctx);
     this.multiband = new MultibandModule(ctx, initial.multiband);
     this.ducker = new DuckerModule(ctx, initial.ducker);
+    const pedal = (slot: PedalSlot) =>
+      new PedalEffectModule(ctx, pedalEffectDef(slot)!);
+    this.pedals = {
+      wah: pedal('wah'),
+      overdrive: pedal('overdrive'),
+      amp: pedal('amp'),
+      chorus: pedal('chorus'),
+      phaser: pedal('phaser'),
+      flanger: pedal('flanger'),
+    };
 
-    this.modules = [
+    this.order = [
+      this.pedals.wah,
+      this.pedals.overdrive,
+      this.pedals.amp,
       this.eq,
       this.gate,
       this.compressor,
+      this.pedals.chorus,
+      this.pedals.phaser,
+      this.pedals.flanger,
       this.presence,
       this.deEsser,
       this.reverb,
@@ -304,6 +354,7 @@ export class EffectChain {
       saturator: this.saturator,
       multiband: this.multiband,
       ducker: this.ducker,
+      ...this.pedals,
     } as Record<EffectSlotType, EffectModule<unknown>>;
 
     this.buildChain();
@@ -327,9 +378,12 @@ export class EffectChain {
    * this after its last update, before it starts.
    */
   whenDynamicsReady(): Promise<void> {
-    return Promise.all([this.gate.whenReady(), this.ducker.whenReady()]).then(
-      () => undefined,
-    );
+    return Promise.all([
+      this.gate.whenReady(),
+      this.ducker.whenReady(),
+      // A pedal on (the wah's worklet; 2026-10-22).
+      ...Object.values(this.pedals).map((pedal) => pedal.whenReady()),
+    ]).then(() => undefined);
   }
 
   /** Current sidechain gain reduction in dB (≤ 0) for the GR meter. */
@@ -396,6 +450,14 @@ export class EffectChain {
     return this.eq.filterGroups;
   }
 
+  /** The modules in the path, in signal order. */
+  private get modules(): EffectModule<unknown>[] {
+    return this.order.filter(
+      (module) =>
+        !(module instanceof PedalEffectModule) || this.pedalsInPath.has(module),
+    );
+  }
+
   // ── Build the full signal chain ──────────────────────────────────────
   // Neighbouring modules meet at a boundary node that one of them owns: the
   // earlier one's output, or else the later one's input. The first module
@@ -404,11 +466,12 @@ export class EffectChain {
   private buildChain(): void {
     // Disconnect everything first
     this.inputNode.disconnect();
-    for (const module of this.modules) module.unwire();
+    for (const module of this.order) module.unwire();
 
     let source: AudioNode = this.inputNode;
-    this.modules.forEach((module, i) => {
-      const next = this.modules[i + 1];
+    const modules = this.modules;
+    modules.forEach((module, i) => {
+      const next = modules[i + 1];
       const destination =
         module.output ?? next?.input ?? (this.outputNode as AudioNode);
       module.wire(source, destination);
@@ -448,12 +511,23 @@ export class EffectChain {
     this.saturator.update(newState.saturator, moduleOpts);
     this.multiband.update(newState.multiband, moduleOpts);
     this.ducker.update(newState.ducker, moduleOpts);
+    let joined = false;
+    for (const [slot, module] of Object.entries(this.pedals)) {
+      const state = newState[slot as PedalSlot];
+      if (state?.enabled && !this.pedalsInPath.has(module)) {
+        this.pedalsInPath.add(module);
+        joined = true;
+      }
+      module.update(state, moduleOpts);
+    }
+    // A pedal switched on for the first time joins the path.
+    if (joined) this.buildChain();
     this.hasUpdated = true;
   }
 
   dispose(): void {
     this.inputNode.disconnect();
     this.outputNode.disconnect();
-    for (const module of this.modules) module.dispose();
+    for (const module of this.order) module.dispose();
   }
 }

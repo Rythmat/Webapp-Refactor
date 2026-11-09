@@ -110,7 +110,7 @@ beforeEach(() => {
     isRecording: false,
     automationOpenTrackId: null,
   });
-  rhodes = s().addTrack('midi', 'piano-sampler', 'Rhodes');
+  rhodes = s().addTrack('midi', 'soundfont', 'Rhodes');
   drums = s().addTrack('midi', 'drum-machine', 'Drums');
   vox = s().addTrack('audio', 'none', 'Vox');
   s().addMidiClip(rhodes, {
@@ -202,7 +202,8 @@ describe('the ⋯ menu’s items', () => {
       'Colour',
       'Role for chord analysis',
       'Duplicate track',
-      'Monitor input',
+      // The track's input, with the device it listens to (2026-10-22).
+      'MIDI inputAll Devices',
       'Test sound',
       'Show automation',
       'Export track',
@@ -327,12 +328,7 @@ describe('the name field', () => {
     render(<TrackList />);
     const menu = openMenu('Rhodes');
     expect(nameField()).toBeDisabled();
-    for (const text of [
-      'Colour',
-      'Role for chord analysis',
-      'Monitor input',
-      'Delete track',
-    ]) {
+    for (const text of ['Colour', 'Role for chord analysis', 'Delete track']) {
       expect(itemNamed(menu, text)).toHaveAttribute('data-disabled');
     }
     // Duplicate and Export leave the track as it is.

@@ -1,11 +1,13 @@
 import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { cn } from '@/components/utilities';
+import './spotlight.css';
 
 /**
  * Glass card whose fill and 1px border glow follow the pointer (Linear-style).
  * Pointer position is written straight to CSS variables (`--mx`/`--my`) so
- * hovering never re-renders React. Styles live in `landing.css`
- * (`.spotlight-card`); `accent` tints the glow.
+ * hovering never re-renders React. Styles live in `spotlight.css`
+ * (`.spotlight-card`, inside `.landing-root` or `.spotlight-scope`);
+ * `accent` tints the glow.
  */
 export const SpotlightCard = ({
   accent = '#e8e8f0',

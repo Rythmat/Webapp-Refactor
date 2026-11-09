@@ -517,7 +517,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.44298255443573,
+      "amount": 0.5062622152177318,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -602,7 +602,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.28138446039861265,
+  "masterVolume": 0.30755321521568363,
   "fx": {
     "chorus": {
       "enabled": false,

@@ -1,5 +1,10 @@
 import { Hand } from 'lucide-react';
 import { useId } from 'react';
+import {
+  PROMPT_FRAME,
+  PROMPT_WASH,
+} from '@/components/promptBox/PromptBoxParts';
+import { cn } from '@/components/utilities';
 import { GuitarTroubleshootList } from '@/learn/components/guitar/GuitarTroubleshootList';
 import type { ResultModel } from './types';
 
@@ -72,7 +77,12 @@ export function GuitarResultPanel({
       aria-labelledby={headingId}
       data-guitar-result
       data-passed={result.passed}
-      className="my-auto flex max-h-full min-h-0 gap-8 overflow-y-auto rounded-xl border border-white/[0.08] bg-[#151518] p-5 max-[639px]:flex-col max-[639px]:gap-4"
+      // The prompt box's card, as Home's and Learn's.
+      className={cn(
+        PROMPT_FRAME,
+        PROMPT_WASH,
+        'my-auto flex max-h-full min-h-0 gap-8 overflow-y-auto p-5 max-[639px]:flex-col max-[639px]:gap-4',
+      )}
     >
       <div className="flex min-w-0 max-w-[420px] shrink-0 flex-col gap-2 max-[639px]:max-w-none">
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">

@@ -11,6 +11,8 @@ import type {
 } from '@/curriculum/types/activity.v2';
 import { stepKeyRoot, stepMode } from '@/curriculum/utils/flowKey';
 import type { GuitarStringNumber } from '@/lib/guitar/types';
+import { nearestHand } from '@/lib/learn/pianoFingering/hands';
+import { isPianoFinger } from '@/lib/learn/pianoFingering/types';
 import { barTicks as meterBarTicks, stepTimeSignature } from '../meter';
 import {
   barsSpanned,
@@ -40,8 +42,9 @@ export function toMidiEvents(notes: readonly PartNote[]): MidiNoteEvent[] {
 
 /**
  * Edited clip events back into part notes. Clip events are the WRITTEN
- * notes; a note keeps its hand, tab position, played feel, grace flag and
- * finger when its written time and pitch are unchanged — a moved note is a
+ * notes; a note keeps its hand, tab position, played feel, grace flag,
+ * finger and approach mark when its written time and pitch are unchanged —
+ * a moved note is a
  * new decision and loses them.
  */
 export function fromMidiEvents(
@@ -58,6 +61,8 @@ export function fromMidiEvents(
         ...(was?.offset ? { offset: was.offset } : {}),
         ...(was?.grace ? { grace: true } : {}),
         ...(was?.finger ? { finger: was.finger } : {}),
+        ...(was?.approach ? { approach: was.approach } : {}),
+        ...(was?.goal ? { goal: true } : {}),
         tick: Math.max(0, Math.round(e.startTick)),
         duration: Math.max(1, Math.round(e.durationTicks)),
         midi: e.note,
@@ -153,6 +158,7 @@ export function partFromLessonStep(
       midi: n.midi,
       velocity: DEFAULT_VELOCITY,
       ...(n.hand && instrument === 'piano' ? { hand: n.hand } : {}),
+      ...(n.finger && instrument === 'piano' ? { finger: n.finger } : {}),
       ...(n.fretPosition
         ? { string: n.fretPosition.string, fret: n.fretPosition.fret }
         : {}),
@@ -236,6 +242,10 @@ export function writePartToStep(
       onset: n.tick + tickOffset,
       duration: n.duration,
       ...(n.hand ? { hand: n.hand } : hands !== 'both' ? { hand: hands } : {}),
+      // A fingering for one key is not a fingering for another.
+      ...(part.instrument === 'piano' && isPianoFinger(n.finger) && shift === 0
+        ? { finger: n.finger }
+        : {}),
       ...(n.string !== undefined && n.fret !== undefined && shift === 0
         ? {
             fretPosition: {
@@ -250,11 +260,7 @@ export function writePartToStep(
   // takes the hand of the nearest note by pitch.
   const handed = written.filter((n) => n.hand);
   if (handed.length && handed.length < written.length)
-    for (const n of written)
-      if (!n.hand)
-        n.hand = handed.reduce((best, h) =>
-          Math.abs(h.midi - n.midi) < Math.abs(best.midi - n.midi) ? h : best,
-        ).hand;
+    for (const n of written) if (!n.hand) n.hand = nearestHand(n.midi, handed);
 
   const merge = (existing: TargetNote[] | undefined) => {
     const kept =

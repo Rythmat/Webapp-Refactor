@@ -3,23 +3,8 @@ import type {
   HistoricalEvent,
   SelectedLocation,
 } from '@/components/atlas/types';
-import { sameCountry } from './country';
+import { countryKey, normCountry, sameCountry } from './country';
 import { eventSubdivision, matchCity } from './resolveEventRegion';
-
-// Map GeoJSON country names (as they arrive from a country click) to the
-// CITIES/event country codes used in the datasets.
-const COUNTRY_ALIASES: Record<string, string> = {
-  'United States of America': 'US',
-  'United Kingdom': 'UK',
-  'Republic of Korea': 'South Korea',
-  Korea: 'South Korea',
-  'Dem. Rep. Korea': 'North Korea',
-  'Czech Republic': 'Czechia',
-  // NB: no "Côte d'Ivoire" entry. There used to be one mapping it to
-  // 'Ivory Coast', but Natural Earth, CITIES and the events all spell it
-  // "Côte d'Ivoire" — so the alias rewrote a name that matched into one that
-  // did not, and clicking the country listed nothing.
-};
 
 /**
  * All events for a selected region, sorted by year.
@@ -39,10 +24,10 @@ export function getEventsForLocation(
   if (!selectedLocation) return [];
 
   if (selectedLocation.type === 'country') {
-    const resolved =
-      COUNTRY_ALIASES[selectedLocation.name] ?? selectedLocation.name;
-    return MUSIC_HISTORY.filter((e) =>
-      sameCountry(e.location.country, resolved),
+    // Natural Earth's name, as the events spell it (utils/country.ts).
+    const key = countryKey(selectedLocation.name);
+    return MUSIC_HISTORY.filter(
+      (e) => normCountry(e.location.country) === key,
     ).sort((a, b) => a.year - b.year);
   }
 

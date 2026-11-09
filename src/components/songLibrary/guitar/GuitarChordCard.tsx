@@ -5,8 +5,13 @@
 // play its bass names the bass under it.
 
 import { ChordBox } from '@/components/guitar';
+import { FrettedInstrumentContext } from '@/components/guitar/frettedInstrumentContext';
 import type { Song } from '@/curriculum/types/songLibrary';
-import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
+import {
+  useInstrumentStore,
+  useLearnInstrument,
+} from '@/features/learn/useInstrumentStore';
+import { GUITAR, UKULELE } from '@/lib/guitar/instrument';
 import { GuitarLabelToggle } from './GuitarLabelToggle';
 import { songGuitarBox } from './songGuitarShapes';
 import { useSongGuitarHear } from './useSongGuitarHear';
@@ -29,9 +34,10 @@ export default function GuitarChordCard({
   degree,
   keyColor,
 }: GuitarChordCardProps) {
-  const box = songGuitarBox(song, chordName);
+  const instrument = useLearnInstrument() === 'ukulele' ? 'ukulele' : 'guitar';
+  const box = songGuitarBox(song, chordName, instrument);
   const mirrored = useInstrumentStore((s) => s.leftHanded);
-  const hear = useSongGuitarHear();
+  const hear = useSongGuitarHear(instrument);
   return (
     <div
       data-testid="guitar-chord-card"
@@ -51,19 +57,27 @@ export default function GuitarChordCard({
       <div className="flex flex-col items-center gap-2 px-5 pb-5">
         {box ? (
           <>
-            <ChordBox
-              shape={box.shape}
-              name={title}
-              rootPc={box.chord.rootPc}
-              keyColor={keyColor}
-              mirrored={mirrored}
-              toneLabels={box.toneLabels}
-              onHear={() => hear(box.shape.frets)}
-            />
+            <FrettedInstrumentContext.Provider
+              value={instrument === 'ukulele' ? UKULELE : GUITAR}
+            >
+              <ChordBox
+                shape={box.shape}
+                name={title}
+                rootPc={box.chord.rootPc}
+                keyColor={keyColor}
+                mirrored={mirrored}
+                toneLabels={box.toneLabels}
+                onHear={() => hear(box.shape.frets)}
+              />
+            </FrettedInstrumentContext.Provider>
             {box.bassNote && (
               <p
                 className="text-sm text-white/55"
-                title={`Bass note ${box.bassNote}: the bass plays it, or add it on your lowest string.`}
+                title={
+                  instrument === 'ukulele'
+                    ? `Bass note ${box.bassNote}: the bass or guitar plays it.`
+                    : `Bass note ${box.bassNote}: the bass plays it, or add it on your lowest string.`
+                }
               >
                 Bass: {box.bassNote}
               </p>
@@ -71,7 +85,7 @@ export default function GuitarChordCard({
           </>
         ) : (
           <p className="py-6 text-sm text-white/45">
-            No guitar box for this chord yet.
+            No {instrument} box for this chord yet.
           </p>
         )}
       </div>

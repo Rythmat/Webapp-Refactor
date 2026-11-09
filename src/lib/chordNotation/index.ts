@@ -20,6 +20,8 @@ export {
   getSelectedChordNotation,
   setChordNotation,
   setChordNotationSwitcherEnabled,
+  chooseChordNotation,
+  getChordNotationChosen,
   subscribeChordNotation,
   useChordNotation,
   useChordNotationSwitcher,

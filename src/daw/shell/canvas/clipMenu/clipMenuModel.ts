@@ -27,7 +27,7 @@ import {
 //   Cut · Copy · Paste · Delete · Duplicate
 //   Rename… · Split at playhead · Mute clip · Add comment
 //   Transpose ▸ · Quantize ▸ (MIDI) · Fade in · Fade out (audio)
-//   Prism ▸ (Premium)
+//   Prism (Premium): the prompt bar on bars of the track
 //
 // What can't act now stays in its place, off, with the reason as its hint,
 // so the menu reads the same every time. An empty lane, a marker, the ruler
@@ -92,6 +92,8 @@ export type MenuState = Pick<
   | 'loopStart'
   | 'loopEnd'
   | 'isRecording'
+  | 'chordRegions'
+  | 'selectedChordIds'
 >;
 
 /** Why the clipboard's clip can't be pasted on `track`, or undefined. */
@@ -114,12 +116,12 @@ const COMMENT: MenuItemModel = {
   disabled: 'Comments come in a later update',
 };
 
-/** Prism's sub-menu, or its locked item without Premium. */
-function prismEntry(
-  ctx: MenuContext,
-  items: MenuItemModel[],
-  locked?: string,
-): MenuEntry {
+/**
+ * Prism, or its locked item without Premium. The prompt bar is the new
+ * Prism (owner, 2026-10-24): it opens on bars of the track right-clicked,
+ * highlighted, its suggestions and the part it writes that track's.
+ */
+function prismEntry(ctx: MenuContext, locked?: string): MenuEntry {
   if (!ctx.premium) {
     return {
       type: 'item',
@@ -128,13 +130,7 @@ function prismEntry(
       premium: true,
     };
   }
-  return {
-    type: 'sub',
-    id: 'prism',
-    label: 'Prism',
-    disabled: locked,
-    items,
-  };
+  return { type: 'item', id: 'prism', label: 'Prism', disabled: locked };
 }
 
 const step = (
@@ -301,17 +297,7 @@ function clipMenu(
         },
       ];
 
-  const prismItems: MenuItemModel[] = [
-    { type: 'item', id: 'prism:suggest', label: 'Suggest chords here' },
-  ];
-  if (found.midi && !isDrumTrack(found.track)) {
-    prismItems.push({
-      type: 'item',
-      id: 'prism:open',
-      label: 'Open Prism for this track',
-    });
-  }
-  return [edit, clipItems, sound, [prismEntry(ctx, prismItems)]];
+  return [edit, clipItems, sound, [prismEntry(ctx, locked)]];
 }
 
 function laneMenu(
@@ -339,15 +325,7 @@ function laneMenu(
       disabled: locked,
     });
   }
-  return [
-    make,
-    [COMMENT],
-    [
-      prismEntry(ctx, [
-        { type: 'item', id: 'prism:suggest', label: 'Suggest chords here' },
-      ]),
-    ],
-  ];
+  return [make, [COMMENT], [prismEntry(ctx, locked)]];
 }
 
 /** The kinds as a section's sub-menu lists them, the current one checked. */
@@ -424,6 +402,11 @@ function sectionMenu(
       },
       {
         type: 'item',
+        id: 'prompt:section',
+        label: 'Write chords for this section…',
+      },
+      {
+        type: 'item',
         id: 'loopSection',
         label: 'Loop this section',
         checked:
@@ -442,6 +425,35 @@ function sectionMenu(
         command: 'sections.delete',
       },
       { type: 'item', id: 'learnSections', label: 'About song sections' },
+    ],
+  ];
+}
+
+/**
+ * A chord on the chord ruler (owner, 2026-10-21): type another over it, put
+ * one in, delete it (or every selected chord, when it is one of them).
+ */
+function chordMenu(
+  state: MenuState,
+  target: Extract<CanvasMenuTarget, { kind: 'chord' }>,
+): MenuModel {
+  if (!state.chordRegions.some((r) => r.id === target.chordId)) return [];
+  const selected = state.selectedChordIds.includes(target.chordId)
+    ? state.selectedChordIds.length
+    : 1;
+  return [
+    [
+      { type: 'item', id: 'editChord', label: 'Edit chord…' },
+      { type: 'item', id: 'insertChord', label: 'Insert chord here' },
+    ],
+    [
+      {
+        type: 'item',
+        id: 'deleteChord',
+        label: selected > 1 ? `Delete ${selected} chords` : 'Delete chord',
+        command: 'clip.delete',
+        danger: true,
+      },
     ],
   ];
 }
@@ -474,6 +486,12 @@ export function canvasMenuModel(
       return [[{ type: 'item', id: 'addMarker', label: 'Add marker here' }]];
     case 'section':
       return sectionMenu(state, target);
+    case 'chord':
+      return chordMenu(state, target);
+    case 'chordLane':
+      return [
+        [{ type: 'item', id: 'insertChord', label: 'Insert chord here' }],
+      ];
   }
 }
 

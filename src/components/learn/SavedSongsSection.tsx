@@ -1,5 +1,5 @@
-import { Heart } from 'lucide-react';
 import { ActivityCard } from '@/components/ClassroomLayout/dashboard/ActivityCard';
+import { HeartIcon } from '@/components/icons/HeartIcon';
 import { useSavedSongsActivity } from '@/hooks/data/useLearnActivity';
 
 /**
@@ -12,7 +12,7 @@ export const SavedSongsSection = () => {
   return (
     <section aria-label="Saved Songs" className="flex flex-col gap-4 md:gap-5">
       <div className="flex items-center gap-2 md:gap-3">
-        <Heart className="h-6 w-6 text-white/85 md:h-7 md:w-7" />
+        <HeartIcon className="h-6 w-6 text-white/85 md:h-7 md:w-7" />
         <h2 className="text-xl font-medium text-white md:text-2xl">
           Saved Songs
         </h2>

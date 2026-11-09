@@ -1,7 +1,7 @@
 /* eslint-disable import/order */
 /* eslint-disable no-duplicate-imports */
-import { lazy } from 'react';
-import { Navigate } from 'react-router-dom';
+import { lazy, useLayoutEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import {
   ClassroomRoutes,
   GameRoutes,
@@ -10,7 +10,7 @@ import {
   LearnRoutes,
   ConnectRoutes,
   LibraryRoutes,
-  AtlasRoutes,
+  GlobeRoutes,
   SongRoutes,
   UserRoutes,
   SettingsRoutes,
@@ -22,9 +22,29 @@ import { isEditorPath, preloadDaw } from '@/daw/preload';
 import { EditorRouteBoundary } from '@/daw/shell/errors/EditorRouteBoundary';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
+import { GlobeSkeleton } from '@/layouts/DashboardLayout/GlobeSkeleton';
 import { LibraryInlet } from '@/components/Library/libraryInlet';
-import { LearnInlet } from '@/components/learn/LearnInlet';
+import { LearnPage } from '@/components/learn/LearnPage';
+import {
+  LEARN_TABS,
+  learnTabRedirect,
+  learnTabRoute,
+  type LearnTab,
+} from '@/features/learn/learnPaths';
+import {
+  isLearnInstrumentEnabled,
+  useChooseAudio,
+  useInstrumentStore,
+  useLearnChoice,
+  useLearnInstrument,
+  useLearnPageRoute,
+  type LearnInstrument,
+} from '@/features/learn/useInstrumentStore';
+import { ANATOMY_MOVES } from '@/curriculum/audio/anatomyMoves';
+import { isBassTheorySlug } from '@/curriculum/data/bass/theoryCatalog';
+import { isUkuleleTheorySlug } from '@/curriculum/data/ukulele/theoryCatalog';
 import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
+import { GenreLessonRoute, GenreOverviewRoute } from '@/curriculum/routes';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
 import { SettingsHub } from '@/features/settings/SettingsHub';
@@ -41,9 +61,8 @@ import { RequirePremium } from '@/components/ui/RequirePremium';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
 import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
-// Lazy on purpose. This was a static import while its sibling GlobeInlet was
-// already lazy(), which put the whole atlas chunk on the eager boot graph for
-// every user on every route.
+// Lazy on purpose: a static import put the whole atlas chunk on the eager
+// boot graph for every user on every route.
 const Atlas = lazy(() => import('@/components/atlas/atlas'));
 const SongDetailPage = lazy(() =>
   import('@/components/songLibrary/SongDetailPage').then((m) => ({
@@ -74,8 +93,68 @@ import { ParallelModesOverview } from '@/components/learn/ParallelModesOverview'
 const GuitarModeOverview = lazy(
   () => import('@/components/learn/GuitarModeOverview'),
 );
+const BassModeOverview = lazy(
+  () => import('@/components/learn/BassModeOverview'),
+);
+const BassModeLesson = lazy(() => import('@/curriculum/pages/BassModeLesson'));
+const UkuleleModeOverview = lazy(
+  () => import('@/components/learn/UkuleleModeOverview'),
+);
+const UkuleleModeLesson = lazy(
+  () => import('@/curriculum/pages/UkuleleModeLesson'),
+);
 const GuitarModeLesson = lazy(
   () => import('@/curriculum/pages/GuitarModeLesson'),
+);
+const AudioHub = lazy(() =>
+  import('@/curriculum/audio/AudioHub').then((m) => ({ default: m.AudioHub })),
+);
+const AudioCoursePage = lazy(() =>
+  import('@/curriculum/audio/CoursePage').then((m) => ({
+    default: m.CoursePage,
+  })),
+);
+const AudioLessonRoute = lazy(() =>
+  import('@/curriculum/audio/AudioLessonRoute').then((m) => ({
+    default: m.AudioLessonRoute,
+  })),
+);
+const BassAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/BassAnatomyPage'),
+);
+const KeyboardAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/KeyboardAnatomyPage'),
+);
+const SynthAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/SynthAnatomyPage'),
+);
+const ComboAmpAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/ComboAmpAnatomyPage'),
+);
+const HeadphoneAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/HeadphoneAnatomyPage'),
+);
+const MicrophoneAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/MicrophoneAnatomyPage'),
+);
+const PianoAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/PianoAnatomyPage'),
+);
+const UkuleleAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/UkuleleAnatomyPage'),
+);
+// The song isn't licensed: this, its route and its tile stay out of production.
+const LinusAndLucyLesson = import.meta.env.DEV
+  ? lazy(() => import('@/curriculum/pages/LinusAndLucyLesson'))
+  : null;
+const GuitarAnatomyPage = lazy(
+  () => import('@/curriculum/anatomy/GuitarAnatomyPage'),
+);
+const GuitarHarmonicsPage = lazy(
+  () => import('@/curriculum/guitar/harmonics/GuitarHarmonicsPage'),
+);
+const GuitarRelativeModesOverview = lazy(
+  () => import('@/components/learn/GuitarRelativeModesOverview'),
 );
 
 const ClassroomPickerPage = lazy(() =>
@@ -190,6 +269,12 @@ const SignalFlowPage = lazy(() =>
   })),
 );
 
+const EchoPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ EchoPage }) => ({
+    default: EchoPage,
+  })),
+);
+
 const DawApp = lazy(() =>
   preloadDaw().then(({ DawApp }) => ({
     default: DawApp,
@@ -202,21 +287,22 @@ if (typeof window !== 'undefined' && isEditorPath(window.location.pathname)) {
   preloadDaw().catch(() => {});
 }
 
-const StudioInlet = lazy(() =>
-  import('@/components/ClassroomLayout/studio/StudioInlet').then(
-    ({ StudioInlet }) => ({
-      default: StudioInlet,
+const StudioProductionPage = lazy(() =>
+  import('@/components/ClassroomLayout/studio/StudioProductionPage').then(
+    ({ StudioProductionPage }) => ({
+      default: StudioProductionPage,
     }),
   ),
 );
 
-const GlobeInlet = lazy(() =>
-  import('@/components/ClassroomLayout/globe/GlobeInlet').then(
-    ({ GlobeInlet }) => ({
-      default: GlobeInlet,
-    }),
-  ),
-);
+/**
+ * The editor's old address, `/studio/editor`, forwards to `/studio` with its
+ * query and hash: links, bookmarks, lessons and kept drafts still open.
+ */
+function LegacyEditorRedirect() {
+  const { search, hash } = useLocation();
+  return <Navigate to={`${StudioRoutes.editor()}${search}${hash}`} replace />;
+}
 
 const HomeInlet = lazy(() =>
   import('@/components/ClassroomLayout/HomeInlet').then(({ HomeInlet }) => ({
@@ -353,12 +439,10 @@ export const gamesPages = () => {
         ),
       },
       {
+        // Free to play its levels (Peter, 2026-10-21); the Circle, any key
+        // at all, is what upgrading opens, inside the game.
         path: GameRoutes.majorArcanum.definition,
-        element: (
-          <RequirePremium>
-            <MajorArcanumPage />
-          </RequirePremium>
-        ),
+        element: <MajorArcanumPage />,
       },
       {
         path: GameRoutes.constellations.definition,
@@ -387,6 +471,11 @@ export const gamesPages = () => {
       {
         path: GameRoutes.harmonicStrings.definition,
         element: <HarmonicStringsPage />,
+      },
+      {
+        // Free: the last stop of Start Here.
+        path: GameRoutes.echo.definition,
+        element: <EchoPage />,
       },
       {
         path: GameRoutes.signalFlow.definition,
@@ -435,27 +524,25 @@ export const studioPages = () => {
       </AppContext>
     ),
     children: [
-      // `/studio` now lands on the Studio Dashboard; the DAW editor moves to
-      // `/studio/editor` (opened with ?project=/?new=1/?template=/?demo=/?collab=).
+      // `/studio` is the DAW editor (owner, 2026-10-24: the Studio Dashboard
+      // and its Templates / Demos tabs are gone), opened with
+      // ?project=/?new=1/?template=/?demo=/?collab=. No content gate: the
+      // editor paints at once, and a ?song= open waits for the song library
+      // itself (openSession's prepareSong).
       {
-        element: <StudioInlet />,
         index: true,
-      },
-      // The Production tab: the dashboard shell, showing the DAW lessons.
-      {
-        path: 'production',
-        element: <StudioInlet />,
-      },
-      {
-        path: 'editor',
-        // No content gate: the editor paints at once, and a ?song= open
-        // waits for the song library itself (openSession's prepareSong).
         element: (
           <EditorRouteBoundary>
             <DawApp />
           </EditorRouteBoundary>
         ),
       },
+      // The DAW lessons, which the tutorials start from.
+      {
+        path: 'production',
+        element: <StudioProductionPage />,
+      },
+      { path: 'editor/*', element: <LegacyEditorRedirect /> },
     ],
   };
 };
@@ -538,7 +625,8 @@ const LessonRoute = () => {
     key: string;
   }>();
   const [searchParams] = useSearchParams();
-  const startActivity = searchParams.get('activity') ?? undefined;
+  // ?section=O|A|B opens that chapter; none resumes where the student was.
+  const section = searchParams.get('section') ?? undefined;
 
   // Free users can access C Ionian only
   const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
@@ -546,7 +634,7 @@ const LessonRoute = () => {
     <LessonContainer
       modeSlug={mode ?? 'ionian'}
       rootKey={keyParam}
-      startAtActivityKey={startActivity}
+      startAtSection={section}
     />
   );
 
@@ -591,6 +679,140 @@ const GuitarLessonRoute = () => {
   return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
 };
 
+// Bass teaches every Theory tile its catalog has live, from The Bass Atlas;
+// as on guitar, C Ionian is free and the rest Premium.
+const BassOverviewRoute = () => {
+  const { mode } = useParams<{ mode: string }>();
+  if (!isBassTheorySlug(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  const inner = <BassModeOverview />;
+  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
+const BassLessonRoute = () => {
+  const { mode, key: keyParam } = useParams<{ mode: string; key: string }>();
+  if (!isBassTheorySlug(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
+  const inner = <BassModeLesson />;
+  return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
+// Ukulele teaches every Theory tile its catalog has live, from The Ukulele
+// Atlas; as on guitar, C Ionian is free and the rest Premium.
+const UkuleleOverviewRoute = () => {
+  const { mode } = useParams<{ mode: string }>();
+  if (!isUkuleleTheorySlug(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  const inner = <UkuleleModeOverview />;
+  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
+const UkuleleLessonRoute = () => {
+  const { mode, key: keyParam } = useParams<{ mode: string; key: string }>();
+  if (!isUkuleleTheorySlug(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
+  const inner = <UkuleleModeLesson />;
+  return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
+/**
+ * Bare /learn: the Learn page for the chosen instrument; an old ?tab= link
+ * its tab's page there (/learn?tab=Songs → /learn/keyboard/songs).
+ */
+const LearnIndexRoute = () => {
+  const instrument = useLearnInstrument();
+  const to = useLearnPageRoute();
+  const { search } = useLocation();
+  return (
+    <Navigate
+      replace
+      to={learnTabRedirect(instrument, search) ?? `${to}${search}`}
+    />
+  );
+};
+
+/**
+ * /learn/keyboard and /learn/guitar, and their tabs' pages
+ * (/learn/keyboard/songs…): the Learn page on that instrument. The address
+ * chooses it, so a shared link opens on its instrument; guitar sends to
+ * keyboard while its rollout flag is off. A ?tab= left on one (a link
+ * written for the old hub) opens that tab's page.
+ */
+const LearnInstrumentRoute = ({
+  instrument,
+  tab,
+}: {
+  instrument: LearnInstrument;
+  tab?: LearnTab;
+}) => {
+  const { search } = useLocation();
+  const current = useLearnChoice();
+  const setInstrument = useInstrumentStore((s) => s.setInstrument);
+  const available = isLearnInstrumentEnabled(instrument);
+  useLayoutEffect(() => {
+    if (available && current !== instrument) setInstrument(instrument);
+  }, [available, current, instrument, setInstrument]);
+  if (!available) {
+    return (
+      <Navigate
+        replace
+        to={tab ? learnTabRoute('piano', tab) : LearnRoutes.keyboard()}
+      />
+    );
+  }
+  const tabLink = learnTabRedirect(instrument, search);
+  if (tabLink) return <Navigate replace to={tabLink} />;
+  // With no tab, the Learn page shows the student's Cortex on every instrument.
+  if (!tab) return <LearnPage />;
+  // Bass teaches Theory and Technique so far: its page is the Theory tab.
+  if (instrument === 'bass' && tab !== 'Theory' && tab !== 'Technique') {
+    return <Navigate replace to={learnTabRoute('bass', 'Theory')} />;
+  }
+  // Ukulele teaches Theory and Technique, and Songs show its chord boxes.
+  if (
+    instrument === 'ukulele' &&
+    tab !== 'Theory' &&
+    tab !== 'Songs' &&
+    tab !== 'Technique'
+  ) {
+    return <Navigate replace to={learnTabRoute('ukulele', 'Theory')} />;
+  }
+  return <LearnPage tab={tab} />;
+};
+
+/** An old link, sent on with its query, so ?tab=build&part=frets still opens
+ *  what it did. */
+const MovedTo = ({ to }: { to: string }) => {
+  const { search, hash } = useLocation();
+  return <Navigate replace to={{ pathname: to, search, hash }} />;
+};
+
+/** /learn/audio: Audio's page, chosen by the address as an instrument's is. */
+const AudioRoute = () => {
+  useChooseAudio();
+  return (
+    <LearnPage section="Audio">
+      <AudioHub />
+    </LearnPage>
+  );
+};
+
+/** Each tab's page on each instrument. Static paths, so /learn/guitar/songs
+ *  outranks the guitar lessons' '/learn/guitar/:mode'. */
+const learnTabPages = (['piano', 'guitar', 'bass', 'ukulele'] as const).flatMap(
+  (instrument) =>
+    LEARN_TABS.map((tab) => ({
+      path: learnTabRoute(instrument, tab),
+      element: <LearnInstrumentRoute instrument={instrument} tab={tab} />,
+    })),
+);
+
 export const learnPages = () => {
   return {
     path: LearnRoutes.root.definition,
@@ -607,15 +829,71 @@ export const learnPages = () => {
     children: [
       {
         index: true,
-        element: <LearnInlet />,
+        element: <LearnIndexRoute />,
       },
       {
-        path: LearnRoutes.overview.definition,
+        path: LearnRoutes.keyboard.definition,
+        element: <LearnInstrumentRoute instrument="piano" />,
+      },
+      ...learnTabPages,
+      // Audio: one page whatever the instrument, and its labs.
+      {
+        path: LearnRoutes.audio.definition,
+        element: <AudioRoute />,
+      },
+      // The Anatomy lessons, Premium like everything in Audio past Sound Basics.
+      // Static, so they outrank the labs' '/audio/:module/:lesson'.
+      ...(
+        [
+          [LearnRoutes.pianoAnatomy, PianoAnatomyPage],
+          [LearnRoutes.keyboardAnatomy, KeyboardAnatomyPage],
+          [LearnRoutes.synthAnatomy, SynthAnatomyPage],
+          [LearnRoutes.guitarAnatomy, GuitarAnatomyPage],
+          [LearnRoutes.bassAnatomy, BassAnatomyPage],
+          [LearnRoutes.ukuleleAnatomy, UkuleleAnatomyPage],
+          [LearnRoutes.microphoneAnatomy, MicrophoneAnatomyPage],
+          [LearnRoutes.comboAmpAnatomy, ComboAmpAnatomyPage],
+          [LearnRoutes.headphoneAnatomy, HeadphoneAnatomyPage],
+        ] as const
+      ).map(([route, Page]) => ({
+        path: route.definition,
+        element: (
+          <RequirePremium>
+            <Page />
+          </RequirePremium>
+        ),
+      })),
+      // Where they used to be, under Technique and Gear. These stay registered,
+      // or an old link would fall through to '/:mode/:key' as a lesson.
+      ...ANATOMY_MOVES.map(({ from, to }) => ({
+        path: from,
+        element: <MovedTo to={to()} />,
+      })),
+      {
+        path: LearnRoutes.audioCourse.definition,
+        element: <AudioCoursePage />,
+      },
+      {
+        path: LearnRoutes.audioLesson.definition,
+        element: <AudioLessonRoute />,
+      },
+      {
+        path: LearnRoutes.keyboardOverview.definition,
         element: <OverviewRoute />,
       },
       {
-        path: LearnRoutes.lesson.definition,
+        path: LearnRoutes.keyboardLesson.definition,
         element: <LessonRoute />,
+      },
+      // The genre courses: static 'genre' segment, so these outrank
+      // '/:mode' and '/:mode/:key'.
+      {
+        path: LearnRoutes.genreCourse.definition,
+        element: <GenreOverviewRoute />,
+      },
+      {
+        path: LearnRoutes.genreLesson.definition,
+        element: <GenreLessonRoute />,
       },
       {
         path: LearnRoutes.relativeOverview.definition,
@@ -637,7 +915,31 @@ export const learnPages = () => {
       // these outrank '/:mode' and '/:mode/:key'.
       {
         path: LearnRoutes.guitar.definition,
-        element: <Navigate replace to={THEORY_TAB_ROUTE} />,
+        element: <LearnInstrumentRoute instrument="guitar" />,
+      },
+      ...(LinusAndLucyLesson
+        ? [
+            {
+              path: LearnRoutes.linusAndLucy.definition,
+              element: <LinusAndLucyLesson />,
+            },
+          ]
+        : []),
+      // Technique → Guitar Harmonics. Free on purpose (every Technique tile
+      // shows unlocked); static, so it outranks '/guitar/:mode/:key'.
+      {
+        path: LearnRoutes.guitarHarmonics.definition,
+        element: <GuitarHarmonicsPage />,
+      },
+      // Theory → Relative Modes on guitar: a key's seven positions. Premium,
+      // as on keyboard; static 'relative', so it outranks '/guitar/:mode/:key'.
+      {
+        path: LearnRoutes.guitarRelativeOverview.definition,
+        element: (
+          <RequirePremium>
+            <GuitarRelativeModesOverview />
+          </RequirePremium>
+        ),
       },
       {
         path: LearnRoutes.guitarOverview.definition,
@@ -646,6 +948,33 @@ export const learnPages = () => {
       {
         path: LearnRoutes.guitarLesson.definition,
         element: <GuitarLessonRoute />,
+      },
+      // Bass: Theory, from The Bass Atlas. Static 'bass' segment, so these
+      // outrank '/:mode' and '/:mode/:key'.
+      {
+        path: LearnRoutes.bass.definition,
+        element: <LearnInstrumentRoute instrument="bass" />,
+      },
+      {
+        path: LearnRoutes.bassOverview.definition,
+        element: <BassOverviewRoute />,
+      },
+      {
+        path: LearnRoutes.bassLesson.definition,
+        element: <BassLessonRoute />,
+      },
+      // Ukulele: Theory, from The Ukulele Atlas, as bass's.
+      {
+        path: LearnRoutes.ukulele.definition,
+        element: <LearnInstrumentRoute instrument="ukulele" />,
+      },
+      {
+        path: LearnRoutes.ukuleleOverview.definition,
+        element: <UkuleleOverviewRoute />,
+      },
+      {
+        path: LearnRoutes.ukuleleLesson.definition,
+        element: <UkuleleLessonRoute />,
       },
     ],
   };
@@ -689,9 +1018,9 @@ export const libraryPages = () => {
   };
 };
 
-export const atlasPages = () => {
+export const globePages = () => {
   return {
-    path: AtlasRoutes.root.definition,
+    path: GlobeRoutes.root.definition,
     element: (
       <AppContext>
         <ProtectedPage>
@@ -700,22 +1029,14 @@ export const atlasPages = () => {
       </AppContext>
     ),
     children: [
-      // `/atlas` now lands on the Globe Dashboard; the full interactive globe
-      // moves to `/atlas/globe` (opened from the dashboard's Explore tab).
-      // Both children read MUSIC_HISTORY, which is hydrated from the published
-      // CDN bundle — ContentGate holds the render until it has landed.
+      // The Globe, one full-window page (owner, 2026-10-29: the /atlas
+      // dashboard and its addresses are gone). It reads MUSIC_HISTORY, which
+      // is hydrated from the published CDN bundle — ContentGate holds the
+      // render until it has landed.
       {
         index: true,
         element: (
-          <ContentGate>
-            <GlobeInlet />
-          </ContentGate>
-        ),
-      },
-      {
-        path: 'globe',
-        element: (
-          <ContentGate>
+          <ContentGate fallback={<GlobeSkeleton />}>
             <Atlas />
           </ContentGate>
         ),

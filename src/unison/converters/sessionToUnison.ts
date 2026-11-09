@@ -8,6 +8,8 @@
  *   - Key/mode (detected or user-set)
  */
 
+import { keyFrame } from '@/daw/harmony/keyFrame';
+import { laneDegreeKey } from '@/daw/harmony/laneDegree';
 import { MODE_DISPLAY } from '@/daw/prism-engine/data/modes';
 import { NOTES } from '@/daw/prism-engine/data/notes';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
@@ -74,12 +76,18 @@ export function sessionToUnison(snapshot: SessionSnapshot): UnisonDocument {
   // 2. Detect key (or use existing if user has set one)
   const key = resolveKey(pitchedEvents, snapshot.rootNote, snapshot.mode);
 
-  // 3. Enrich existing chord regions with Hybrid Numbers + roman numerals
-  const chordTimeline = analyzeHarmony(
-    snapshot.chordRegions,
-    key,
-    pitchedEvents,
-  );
+  // 3. Enrich existing chord regions with Hybrid Numbers + roman numerals,
+  //    each chord's degree read as Insight's chord cards read it
+  //    (laneDegreeKey), so the progression matched is the cards' chords.
+  const frame = keyFrame(key.rootPc, key.mode);
+  const songKey = snapshot.rootNote !== null;
+  const lane = snapshot.chordRegions.map((region) => {
+    const degreeKey = laneDegreeKey(region, frame, songKey);
+    return degreeKey && degreeKey !== region.degreeKey
+      ? { ...region, degreeKey }
+      : region;
+  });
+  const chordTimeline = analyzeHarmony(lane, key, pitchedEvents);
 
   // 3.5 Voice leading analysis
   const voiceLeading = analyzeVoiceLeading(chordTimeline, pitchedEvents);
@@ -95,7 +103,7 @@ export function sessionToUnison(snapshot: SessionSnapshot): UnisonDocument {
   );
 
   // 4. Match progressions against library
-  const progressionMatches = matchProgressions(chordTimeline);
+  const progressionMatches = matchProgressions(chordTimeline, key.mode);
 
   // 5. Aggregate vibes and styles from top matches
   const vibes = aggregateTags(progressionMatches.map((m) => m.vibes));
@@ -175,18 +183,31 @@ function resolveKey(
   rootNote: number | null,
   mode: string,
 ): KeyDetection {
-  // Always run detection for confidence score
   const detected = detectKey(events);
 
-  // If user has set a root note, prefer it but keep detection metadata
+  // The key the student set is the key: certain, with no alternates
+  // (2026-10-21: it showed the detector's doubt, '43%', beside the
+  // student's own choice). What the notes alone suggest is kept apart, for
+  // a hint when the two disagree.
   if (rootNote !== null) {
     const effectiveMode = mode || detected.mode;
     return {
-      ...detected,
       rootPc: rootNote,
       rootName: NOTES[rootNote],
       mode: effectiveMode,
       modeDisplay: mode ? (MODE_DISPLAY[mode] ?? mode) : detected.modeDisplay,
+      confidence: 1,
+      alternateKeys: [],
+      fromNotes:
+        events.length > 0
+          ? {
+              rootPc: detected.rootPc,
+              rootName: detected.rootName,
+              mode: detected.mode,
+              modeDisplay: detected.modeDisplay,
+              confidence: detected.confidence,
+            }
+          : undefined,
     };
   }
 

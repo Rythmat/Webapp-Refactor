@@ -129,7 +129,7 @@ describe('the graph’s right-click menu', () => {
     ).toBe('/console/table/artists/toto');
     expect(
       screen.getByRole('menuitem', { name: 'Open page' }).getAttribute('href'),
-    ).toBe('/console/content/atlas/globe?artist=Toto');
+    ).toBe('/console/content/globe?artist=Toto');
   });
 
   it('opens the row it names', () => {

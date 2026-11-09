@@ -629,7 +629,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.5701754093170166,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -644,7 +644,7 @@
         "source": "osc2",
         "param": "level"
       },
-      "amount": 0.4824560880661011,
+      "amount": 0.9649121761322021,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -654,7 +654,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.47047074600159633,
+  "masterVolume": 0.029639656998100568,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -697,8 +697,8 @@
   "fxRoutes": [],
   "routing": {
     "filterRouting": {
-      "filter1Sources": ["osc1", "osc2", "noise", "sub"],
-      "filter2Sources": []
+      "filter1Sources": ["osc1", "osc2", "sub"],
+      "filter2Sources": ["noise"]
     },
     "envelopeRouting": {
       "env1Sources": ["osc1", "osc2", "sub", "noise"],
@@ -753,5 +753,6 @@
     "rootPc": 0,
     "mode": "ionian",
     "snapMode": "nearest"
-  }
+  },
+  "modWheel": 0.8550000190734863
 }

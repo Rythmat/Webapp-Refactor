@@ -1,0 +1,428 @@
+{
+  "id": "pop-l1-d2-2-8-bar-power-chord-jam-3-3-2-chunking-moving-bass-in-b-ionian",
+  "name": "Pop L1 · D2.2: 8-Bar Power Chord Jam — 3-3-2 Chunking + Moving Bass · in B♭ ionian",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 10,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 8,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 34,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 39,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 43,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4560,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4560,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 41,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6480,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6480,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 1920,
+      "midi": 34,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 8400,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 8400,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 9120,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 9120,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 9600,
+      "duration": 1920,
+      "midi": 39,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 9600,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 9600,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 10320,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 10320,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 11040,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 11040,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 11520,
+      "duration": 1920,
+      "midi": 43,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 11520,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 11520,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 12240,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 12240,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 12960,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 12960,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 13440,
+      "duration": 1920,
+      "midi": 41,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 13440,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 13440,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 14160,
+      "duration": 720,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 14160,
+      "duration": 720,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 14880,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 14880,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "description": "LH plays whole-note bass through an 8-bar 1 maj - 5 maj - 6 min - 4 maj ×2 loop. RH uses the 3-3-2 rhythm.",
+  "genre": "pop",
+  "chordSymbols": [
+    "Bbmaj",
+    "Ebmaj7",
+    "Gmin7",
+    "Fsus4 F",
+    "Bbmaj",
+    "Ebmaj7",
+    "Gmin7",
+    "Fsus4 F"
+  ],
+  "stayInKey": "rh"
+}

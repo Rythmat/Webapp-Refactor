@@ -32,7 +32,7 @@ export const CommentLaneSlot = memo(function CommentLaneSlot({
     <div
       data-ds="v2"
       data-testid="comment-lane"
-      className="grid shrink-0 grid-cols-[200px_minmax(0,1fr)] bg-daw-surface-1 shadow-[inset_0_-1px_0_var(--daw-hairline)]"
+      className="grid shrink-0 grid-cols-[260px_minmax(0,1fr)] bg-daw-surface-1 shadow-[inset_0_-1px_0_var(--daw-hairline)]"
       style={{ height: COMMENT_LANE_PX }}
     >
       <div

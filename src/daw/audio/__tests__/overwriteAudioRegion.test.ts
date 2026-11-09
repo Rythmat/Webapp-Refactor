@@ -81,7 +81,7 @@ function recordOver(earlier: Partial<AudioClip> = {}) {
 
 beforeEach(() => {
   useStore.setState({ tracks: [], bpm: BPM, remoteUsers: new Map() });
-  trackId = useStore.getState().addTrack('audio', 'vocal-fx', 'Vox');
+  trackId = useStore.getState().addTrack('audio', 'audio-input', 'Vox');
   resetUndoHistory();
 });
 

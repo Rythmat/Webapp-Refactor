@@ -10,7 +10,7 @@
       "fine": 0,
       "wtPosition": 0.16916665562894195,
       "pan": 0,
-      "level": 0.75,
+      "level": 1,
       "unisonVoices": 1,
       "unisonDetune": 0.25,
       "unisonBlend": 0.5,
@@ -22,7 +22,7 @@
       "waveform": "sawtooth",
       "wavetable": "S2/Analog_BD_Sin",
       "octave": 0,
-      "semitone": 0,
+      "semitone": 7,
       "fine": 46.70217037200928,
       "wtPosition": 0,
       "pan": 0,
@@ -373,7 +373,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.34409260749816895,
+      "amount": 0.39324592801169206,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -403,7 +403,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.24841463565826416,
+      "amount": 0.28390044366657974,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -428,7 +428,7 @@
   "voiceCount": 2,
   "glide": 0.04529499693394859,
   "spread": 0,
-  "masterVolume": 0.8,
+  "masterVolume": 1,
   "fx": {
     "chorus": {
       "enabled": false,

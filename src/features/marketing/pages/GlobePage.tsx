@@ -7,7 +7,7 @@ import {
   Globe as GlobeIcon,
 } from 'lucide-react';
 import { appHref } from '@/constants/hosts';
-import { AtlasRoutes, AuthRoutes, MarketingRoutes } from '@/constants/routes';
+import { GlobeRoutes, AuthRoutes, MarketingRoutes } from '@/constants/routes';
 import { MODULE_ICONS } from '@/features/landing/sections/moduleIcons';
 import { ProductPageTemplate } from '../ProductPageTemplate';
 import type { ProductPageData } from '../content/types';
@@ -28,7 +28,7 @@ const data: ProductPageData = {
     primaryCta: { label: 'Start free', href: appHref(AuthRoutes.signIn()) },
     secondaryCta: {
       label: 'Open the Globe',
-      href: appHref(AtlasRoutes.root()),
+      href: appHref(GlobeRoutes.root()),
     },
   },
   featuresHeading: 'A living map of music',
@@ -106,7 +106,7 @@ const data: ProductPageData = {
     primaryCta: { label: 'Start free', href: appHref(AuthRoutes.signIn()) },
     secondaryCta: {
       label: 'Open the Globe',
-      href: appHref(AtlasRoutes.root()),
+      href: appHref(GlobeRoutes.root()),
     },
   },
 };

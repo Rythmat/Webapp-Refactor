@@ -2,9 +2,9 @@ import type { EffectSlotType } from '@/daw/audio/EffectChain';
 
 // ── Effect icons (SVG, matching GuitarBassView's pedals) ───────────────────
 //
-// One per effect type: the dock's chain, the Mix view's racks and the side
-// rail's Effects library draw them. Kept apart from EffectsPanel so the
-// library, which is part of the editor's first load, doesn't bring the
+// One per effect type: the dock's chain, the Mix view's racks and the Add
+// effect picker draw them. Kept apart from EffectsPanel so the
+// picker, which is part of the editor's first load, doesn't bring the
 // dock's effect controls with it.
 
 export function FxBlockIcon({
@@ -130,6 +130,53 @@ export function FxBlockIcon({
         <svg {...props}>
           {/* A pumping envelope: level dips on each trigger, then recovers */}
           <path d="M2,8 L5,8 L6,17 L9,9 L10,17 L13,9 L14,17 L17,9 L18,8 L22,8" />
+        </svg>
+      );
+    // The guitar pedals (2026-10-22), drawn as GuitarBassView's pedals are.
+    case 'overdrive':
+      return (
+        <svg {...props}>
+          <polyline points="2,16 6,16 9,8 12,18 15,6 18,16 22,16" />
+          <line x1="2" y1="20" x2="22" y2="20" opacity="0.5" />
+        </svg>
+      );
+    case 'amp':
+      return (
+        <svg {...props}>
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <circle cx="12" cy="13" r="3.5" />
+          <line x1="6" y1="8" x2="9" y2="8" />
+        </svg>
+      );
+    case 'chorus':
+      return (
+        <svg {...props}>
+          <path d="M2,12 Q6,6 10,12 Q14,18 18,12 Q20,9 22,12" />
+          <path d="M2,14 Q6,8 10,14 Q14,20 18,14 Q20,11 22,14" opacity="0.5" />
+        </svg>
+      );
+    case 'phaser':
+      return (
+        <svg {...props}>
+          <path d="M2,12 C5,4 8,20 12,12 C16,4 19,20 22,12" />
+          <circle cx="12" cy="12" r="1.5" />
+        </svg>
+      );
+    case 'flanger':
+      return (
+        <svg {...props}>
+          <line x1="5" y1="6" x2="5" y2="18" />
+          <line x1="9" y1="8" x2="9" y2="16" />
+          <line x1="13" y1="4" x2="13" y2="20" />
+          <line x1="17" y1="9" x2="17" y2="15" />
+          <line x1="21" y1="7" x2="21" y2="17" />
+        </svg>
+      );
+    case 'wah':
+      return (
+        <svg {...props}>
+          <path d="M4,18 L10,6 L20,6" />
+          <path d="M4,18 L20,18 L20,6" />
         </svg>
       );
   }

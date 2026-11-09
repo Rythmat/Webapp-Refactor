@@ -1,6 +1,7 @@
-import { ArrowRight, Heart } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { HeartIcon } from '@/components/icons/HeartIcon';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { useSongActions } from '@/features/songs/useSongActions';
 
@@ -155,8 +156,8 @@ export const FeaturedSongCard = ({ song }: FeaturedSongCardProps) => {
             className="transition-colors hover:text-white"
             style={{ color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.6)' }}
           >
-            <Heart
-              fill={isSaved ? 'currentColor' : 'none'}
+            <HeartIcon
+              filled={isSaved}
               style={{
                 width: 'var(--dash-icon-sz, 1.15rem)',
                 height: 'var(--dash-icon-sz, 1.15rem)',

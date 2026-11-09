@@ -51,18 +51,21 @@ export function chordSymbolTones(symbol: string): ChordSymbolTones | null {
         : minor
           ? 3
           : 4;
-  const fifth = altered
-    ? undefined
-    : dim || halfDim || has('b5')
-      ? 6
-      : has('#5') || has('aug') || has('+')
-        ? 8
-        : 7;
+  // A ♭6 (m7♭6, Peter's Amin7♭6 = A–C–F–G) takes the 5th's place.
+  const flatSix = /b6|♭6/.test(q);
+  const fifth =
+    altered || flatSix
+      ? undefined
+      : dim || halfDim || has('b5')
+        ? 6
+        : has('#5') || has('aug') || has('+')
+          ? 8
+          : 7;
 
   let seventh: number | undefined;
   if (/maj(7|9|11|13)|δ|△/.test(q)) seventh = 11;
   else if (dim && has('7')) seventh = 9;
-  else if (/(^|[^1])6/.test(q))
+  else if (/(^|[^1b#♭♯])6/.test(q))
     seventh = 9; // a sixth takes the seventh's place
   else if (
     altered ||
@@ -74,11 +77,13 @@ export function chordSymbolTones(symbol: string): ChordSymbolTones | null {
     seventh = 10;
 
   const tensions: number[] = [];
+  // An 11 or 13 implies the natural 9 — unless the symbol alters it (G7♭9♭13,
+  // F13♭9), when the altered 9 stands in its place.
+  const alteredNine = has('b9') || has('#9');
   if (
     /(^|[^#b])9/.test(q) ||
     has('funk') ||
-    has('11') ||
-    has('13') ||
+    ((has('11') || has('13')) && !alteredNine) ||
     has('add2')
   )
     tensions.push(2);
@@ -87,7 +92,7 @@ export function chordSymbolTones(symbol: string): ChordSymbolTones | null {
   if (has('b9')) tensions.push(1);
   if (has('#9')) tensions.push(3);
   if (has('#11')) tensions.push(6);
-  if (has('b13')) tensions.push(8);
+  if (has('b13') || flatSix) tensions.push(8);
   if (altered) tensions.push(1, 3, 6, 8);
 
   const intervals = [

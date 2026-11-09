@@ -73,6 +73,22 @@
     {
       "kind": "part",
       "id": "hip-hop-l1-c27-c1-the-trap-bass-pattern-copy"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-c4-c1-boom-bap-bass-in-c-aeolian"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-c4-c1-boom-bap-bass-in-c-aeolian-in-c-aeolian"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l3-c2-c1-roots-copy"
+    },
+    {
+      "kind": "bassLine",
+      "id": "hip-hop-conscious"
     }
   ]
 }

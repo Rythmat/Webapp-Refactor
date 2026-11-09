@@ -2,7 +2,7 @@ import { StudioRoutes } from '@/constants/routes';
 
 /**
  * The editor link that opens a song's chart as a new Studio project:
- * `/studio/editor?song=<id>[&transpose=<n>]`. The editor opens it
+ * `/studio?song=<id>[&transpose=<n>]`. The editor opens it
  * (openSession's 'song' intent): it keeps the work it replaces, looks the
  * song up and seeds `transposeSong(song, n)`, the same chart the Song page
  * shows for that transposition.

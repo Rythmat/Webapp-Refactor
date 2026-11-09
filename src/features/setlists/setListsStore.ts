@@ -814,6 +814,8 @@ export function duplicateSetList(
         [made.setListId]: {
           ...made.blob.setLists[made.setListId],
           entries: list.entries.map((e) => ({ ...e, id: uid('e') })),
+          // The set's own date (its card's) comes along.
+          ...(list.date ? { date: list.date } : {}),
         },
       },
     },
@@ -842,6 +844,74 @@ export const renameArtist = (
         now,
       )
     : blob;
+
+/**
+ * Where a set list is played, as its card shows it: its group and date; ''
+ * for either it has none of. Its title is its show. A set filed under a show
+ * (before the card held these) reads the show's band and date.
+ */
+export function setListPlace(
+  blob: SetListsBlob,
+  id: string,
+): { group: string; date: string } {
+  const list = blob.setLists[id];
+  const parent = list?.parent;
+  const show = parent?.kind === 'show' ? blob.shows[parent.id] : undefined;
+  const artistId = parent?.kind === 'artist' ? parent.id : show?.artistId;
+  return {
+    group: (artistId && blob.artists[artistId]?.title) || '',
+    date: list?.date ?? show?.date ?? '',
+  };
+}
+
+const sameName = (a: string, b: string) =>
+  a.trim().toLowerCase() === b.trim().toLowerCase();
+
+/**
+ * Files a set list where its card says it is played (owner, 2026-10-25: the
+ * card holds Group and Date beside its title, which is the show, in place of
+ * the bands and shows columns). The group is found by name, or made, and the
+ * set filed under it; a blank group unfiles the set. The date is the set's
+ * own.
+ */
+export function placeSetList(
+  blob: SetListsBlob,
+  id: string,
+  place: { group: string; date: string },
+  now = 0,
+): SetListsBlob {
+  const list = blob.setLists[id];
+  if (!list || list.role) return blob;
+  let next = blob;
+  const groupName = place.group.trim();
+  const date = place.date.trim();
+
+  let artistId: string | undefined;
+  if (groupName) {
+    artistId = next.order.artists.find((a) =>
+      sameName(next.artists[a]?.title ?? '', groupName),
+    );
+    if (!artistId) {
+      const made = createArtist(next, groupName, now);
+      if (!made.artistId) return blob;
+      next = made.blob;
+      artistId = made.artistId;
+    }
+  }
+
+  next = fileSetList(
+    next,
+    id,
+    artistId ? { kind: 'artist', id: artistId } : undefined,
+    now,
+  );
+  const filed = next.setLists[id];
+  if ((filed.date ?? '') === date) return next;
+  const dated: SetList = { ...filed, updatedAt: now };
+  if (date) dated.date = clamp(date, LIMITS.title);
+  else delete dated.date;
+  return touch({ ...next, setLists: { ...next.setLists, [id]: dated } }, now);
+}
 
 export const renameShow = (
   blob: SetListsBlob,

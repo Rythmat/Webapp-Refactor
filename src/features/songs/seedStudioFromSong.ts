@@ -68,10 +68,13 @@ export const applySong = (song: Song): void => {
   if (fermatas && fermatas.length > 0) store.setMeasureFermatas(fermatas);
   const clip = chordRegionsToMidiClip(regions);
   if (clip) {
+    // On a piano: an Instruments track's grand (the sampled piano track
+    // went, 2026-10-22).
     const trackId = store.addTrack(
       'midi',
-      'piano-sampler',
+      'soundfont',
       `${song.title} — Chords`,
+      { gmProgram: 0 },
     );
     store.addMidiClip(trackId, clip);
     store.setLoopRange(

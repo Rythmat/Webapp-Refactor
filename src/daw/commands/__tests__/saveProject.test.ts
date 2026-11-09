@@ -131,7 +131,7 @@ function holdNextPut(): () => void {
 function trackProject(name = 'Beat Tape'): void {
   resetSessionToEmpty();
   s().setProjectName(name);
-  const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  const keys = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(keys, {
     id: 'clip-1',
     startTick: 0,
@@ -425,6 +425,17 @@ describe('saveProject', () => {
       error: { kind: 'signed-out' },
     });
     expect(api.create).not.toHaveBeenCalled();
+    // Nothing for a lesson's Save step to count.
+    expect(s().doneMoments.save).toBe(0);
+  });
+
+  it('counts a save the cloud took as a done moment for the lessons', async () => {
+    trackProject();
+    expect(s().doneMoments.save).toBe(0);
+    await saveProject({ source: 'menu' });
+    expect(s().doneMoments.save).toBe(1);
+    await saveProject({ source: 'shortcut' });
+    expect(s().doneMoments.save).toBe(2);
   });
 
   it('words a server failure plainly, with no ids or codes', async () => {

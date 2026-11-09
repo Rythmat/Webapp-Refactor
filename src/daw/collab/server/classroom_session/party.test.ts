@@ -175,3 +175,54 @@ describe('presence fan-out (Rule 2)', () => {
     expect(last.joined).toBe(2);
   });
 });
+
+describe('Echo’s round fan-out', () => {
+  /** The API's POST to the party, as it relays a persisted state change. */
+  const relay = async (
+    party: Awaited<ReturnType<typeof bootParty>>,
+    body: unknown,
+  ) => {
+    (party as unknown as { env: Record<string, string> }).env = {
+      PARTYKIT_WEBHOOK_SECRET: 'secret',
+    };
+    return party.onRequest(
+      new Request('https://party/parties/classroom_session/sess-1', {
+        method: 'POST',
+        headers: { authorization: 'Bearer secret' },
+        body: JSON.stringify(body),
+      }),
+    );
+  };
+
+  it('relays the round to every role, the projector included', async () => {
+    const teacher = makeConn('c-teacher', 'teacher');
+    const student = makeConn('c-student', 'student');
+    const projector = makeConn('c-projector', 'projector');
+    const party = await bootParty([teacher, student, projector]);
+    const echo = { slideId: 's1', run: 3, classResult: { run: 2, good: 5 } };
+    const res = await relay(party, { type: 'echo', echo });
+    expect(res.status).toBe(200);
+    for (const conn of [teacher, student, projector]) {
+      expect(messagesOf(conn, 'echo')).toEqual([{ type: 'echo', echo }]);
+    }
+  });
+
+  it('keeps a student’s Echo results to the teacher (Rule 2)', async () => {
+    const teacher = makeConn('c-teacher', 'teacher');
+    const student = makeConn('c-student', 'student');
+    const projector = makeConn('c-projector', 'projector');
+    const party = await bootParty([teacher, student, projector]);
+    await relay(party, {
+      type: 'response',
+      at: '2026-01-01T00:00:00.000Z',
+      interactionId: 'ix-echo',
+      sessionId: 'sess-1',
+      enrollmentId: 'enr-c-student',
+      displayName: 'Ana P.',
+      payload: { kind: 'echo', slideId: 's1', rounds: [], bestStreak: 0 },
+    });
+    expect(messagesOf(teacher, 'response')).toHaveLength(1);
+    expect(messagesOf(student, 'response')).toHaveLength(0);
+    expect(messagesOf(projector, 'response')).toHaveLength(0);
+  });
+});

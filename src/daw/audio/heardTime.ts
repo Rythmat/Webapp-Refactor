@@ -74,12 +74,20 @@ export function contextTimeHeardAt(
     // Fall through to the latency sum.
   }
   const delay = (perfNow() - perfTime) / 1000;
-  return (
-    clock.currentTime -
-    (clock.baseLatency || 0) -
-    (clock.outputLatency || 0) -
-    delay
-  );
+  return clock.currentTime - outputDelayOf(clock) - delay;
+}
+
+/**
+ * How far the context's clock runs ahead of the speakers when the browser
+ * gives no output timestamp: baseLatency (the context's own buffering) plus
+ * outputLatency (the device's). An audio take subtracts the same sum
+ * (takePlacement), so audio and MIDI takes agree.
+ */
+export function outputDelayOf(clock: {
+  baseLatency?: number;
+  outputLatency?: number;
+}): number {
+  return (clock.baseLatency || 0) + (clock.outputLatency || 0);
 }
 
 /** The transport's tick at context time `time`, held at `transportStart`'s

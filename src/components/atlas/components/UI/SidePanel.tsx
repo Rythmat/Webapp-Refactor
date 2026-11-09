@@ -55,6 +55,7 @@ export function PanelRow({
   subtitle,
   badge,
   badgeDot,
+  tile = false,
   onClick,
 }: {
   presentation: StopPresentation;
@@ -63,11 +64,17 @@ export function PanelRow({
   badge?: string;
   /** A CSS colour for the dot leading the badge: its entity kind's. */
   badgeDot?: string;
+  /** An event's floating tile, as in the details card. */
+  tile?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
-      className={`flex w-full items-center gap-3 px-2 py-1.5 text-left ${ATLAS_ROW}`}
+      className={`flex w-full items-center gap-3 text-left ${ATLAS_ROW} ${
+        tile
+          ? 'rounded-2xl border border-white/10 bg-white/[0.04] p-2 [box-shadow:var(--daw-shadow-float)] hover:bg-white/[0.08]'
+          : 'px-2 py-1.5'
+      }`}
       type="button"
       onClick={onClick}
     >

@@ -53,7 +53,7 @@ const track = () => useStore.getState().tracks.find((t) => t.id === trackId)!;
 
 beforeEach(() => {
   useStore.setState({ tracks: [], remoteUsers: new Map(), selectedNotes: [] });
-  trackId = useStore.getState().addTrack('midi', 'piano-sampler', 'Keys');
+  trackId = useStore.getState().addTrack('midi', 'soundfont', 'Keys');
   for (const clip of [intro, verse, chorus]) {
     useStore.getState().addMidiClip(trackId, clip);
   }

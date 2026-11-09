@@ -41,16 +41,19 @@ describe('canonicalLessonKeyParam', () => {
 describe('resolveActivityRefHref — learn', () => {
   it('resolves mode/key with canonicalization', () => {
     expect(resolveActivityRefHref('learn', 'learn:ionian:c')).toBe(
-      '/learn/ionian/c',
+      '/learn/keyboard/ionian/c',
     );
     expect(resolveActivityRefHref('learn', 'learn:dorian:D minor')).toBe(
-      '/learn/dorian/d',
+      '/learn/keyboard/dorian/d',
     );
   });
-  it('honors an optional activity segment', () => {
+  it('honors an optional section segment', () => {
+    expect(resolveActivityRefHref('learn', 'learn:ionian:c:B')).toBe(
+      '/learn/keyboard/ionian/c?section=B',
+    );
     expect(
       resolveActivityRefHref('learn', 'learn:ionian:c:scale-degrees'),
-    ).toBe('/learn/ionian/c?activity=scale-degrees');
+    ).toBe('/learn/keyboard/ionian/c');
   });
   it('returns null when mode or key is missing', () => {
     expect(resolveActivityRefHref('learn', 'learn:ionian')).toBeNull();
@@ -62,52 +65,52 @@ describe('resolveActivityRefHref — curriculum', () => {
     // The key still has a space; the slug does not, so the URL needs no
     // percent-encoding to carry it.
     expect(resolveActivityRefHref('learn', 'curriculum:HIP HOP:L1:B')).toBe(
-      '/curriculum/hip-hop/1?section=B',
+      '/learn/keyboard/genre/hip-hop/1?section=B',
     );
   });
   it('maps R&B to the rnb slug and accepts bare levels', () => {
     expect(resolveActivityRefHref('learn', 'curriculum:R&B:L2')).toBe(
-      '/curriculum/rnb/2',
+      '/learn/keyboard/genre/rnb/2',
     );
     expect(resolveActivityRefHref('learn', 'curriculum:jazz:1')).toBe(
-      '/curriculum/jazz/1',
+      '/learn/keyboard/genre/jazz/1',
     );
   });
   it('drops an invalid section', () => {
     expect(resolveActivityRefHref('learn', 'curriculum:POP:L1:Z')).toBe(
-      '/curriculum/pop/1',
+      '/learn/keyboard/genre/pop/1',
     );
   });
 });
 
 describe('resolveActivityRefHref — globe', () => {
-  it('resolves event and pathway namespaces to /atlas/globe', () => {
+  it('resolves event and pathway namespaces to /globe', () => {
     expect(resolveActivityRefHref('globe', 'globe:event:evt-x')).toBe(
-      '/atlas/globe?event=evt-x',
+      '/globe?event=evt-x',
     );
     expect(resolveActivityRefHref('globe', 'globe:pathway:p1')).toBe(
-      '/atlas/globe?pathway=p1',
+      '/globe?pathway=p1',
     );
   });
   it('resolves region/city to their guided tours and era to the timeline', () => {
     expect(resolveActivityRefHref('globe', 'globe:region:west-africa')).toBe(
-      '/atlas/globe?tour=region-west-africa',
+      '/globe?tour=region-west-africa',
     );
     expect(resolveActivityRefHref('globe', 'globe:city:new-orleans')).toBe(
-      '/atlas/globe?tour=city-new-orleans',
+      '/globe?tour=city-new-orleans',
     );
     expect(resolveActivityRefHref('globe', 'globe:era:postwar')).toBe(
-      '/atlas/globe?era=postwar',
+      '/globe?era=postwar',
     );
   });
   it("opens the Globe's mind map for a Promoter", () => {
     expect(resolveActivityRefHref('globe', 'globe:mindmap')).toBe(
-      '/atlas/globe?mindmap=1',
+      '/globe?mindmap=1',
     );
   });
   it('treats a legacy bare globe ref as an event id', () => {
     expect(resolveActivityRefHref('globe', 'evt-funk-la-1975')).toBe(
-      '/atlas/globe?event=evt-funk-la-1975',
+      '/globe?event=evt-funk-la-1975',
     );
   });
 });
@@ -115,16 +118,16 @@ describe('resolveActivityRefHref — globe', () => {
 describe('resolveActivityRefHref — studio', () => {
   it('resolves template and song namespaces', () => {
     expect(resolveActivityRefHref('studio', 'studio:template:t1')).toBe(
-      '/studio/editor?template=t1',
+      '/studio?template=t1',
     );
     expect(resolveActivityRefHref('studio', 'studio:song:s1')).toBe(
-      '/studio/editor?song=s1',
+      '/studio?song=s1',
     );
   });
   it('opens a tutorial in the editor, and the project library', () => {
     expect(
       resolveActivityRefHref('studio', 'studio:tutorial:house-make-it-pump'),
-    ).toBe('/studio/editor?tutorial=house-make-it-pump');
+    ).toBe('/studio?tutorial=house-make-it-pump');
     expect(resolveActivityRefHref('studio', 'studio:library')).toBe(
       '/studio?tab=Library',
     );
@@ -141,7 +144,7 @@ describe('resolveActivityRefHref — song', () => {
     const getSong = () => songFixture({ key: 'B♭ major', mode: 'major' });
     expect(
       resolveActivityRefHref('learn', 'song:test_song:lesson', { getSong }),
-    ).toBe('/learn/ionian/bflat');
+    ).toBe('/learn/keyboard/ionian/bflat');
   });
   it('returns null for a lesson ref without getSong', () => {
     expect(resolveActivityRefHref('learn', 'song:test_song:lesson')).toBeNull();

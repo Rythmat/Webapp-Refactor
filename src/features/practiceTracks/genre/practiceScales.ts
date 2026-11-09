@@ -75,6 +75,58 @@ function isScale(intervals: readonly number[]): boolean {
 }
 
 /**
+ * One scale on its tonic, as the switcher shows it: `rootLabel` is the
+ * tonic's letter ('A', 'Bb'), `mode` the Prism mode its notes are spelled
+ * in. Null for no notes.
+ */
+export function practiceScale(
+  id: string,
+  intervals: readonly number[],
+  rootLabel: string,
+  mode: string,
+): PracticeScale | null {
+  const steps = normalize(intervals);
+  if (steps.length === 0) return null;
+  return {
+    id,
+    title: scaleTitle(id),
+    intervals: steps,
+    degrees: steps.map((step) => displayDegree(DEGREES[step] ?? String(step))),
+    names: spellScaleNames(rootLabel, steps, mode),
+    tonicPc: parseKeyRoot(rootLabel) % 12,
+    tonicLabel: displayAccidentals(rootLabel),
+  };
+}
+
+/** A major or natural minor key's scale, then its pentatonic. */
+const KEY_SCALES: Readonly<
+  Record<'ionian' | 'aeolian', readonly [string, number[]][]>
+> = {
+  ionian: [
+    ['major', [0, 2, 4, 5, 7, 9, 11]],
+    ['major_pentatonic', [0, 2, 4, 7, 9]],
+  ],
+  aeolian: [
+    ['minor', [0, 2, 3, 5, 7, 8, 10]],
+    ['minor_pentatonic', [0, 3, 5, 7, 10]],
+  ],
+};
+
+/**
+ * The scales of a key a Practice Track is played in instead of its flow's
+ * (Music Literacy's Hear It with Your Band, in the student's key): its
+ * major or natural minor, then that scale's pentatonic.
+ */
+export function keyPracticeScales(
+  rootLabel: string,
+  mode: 'ionian' | 'aeolian',
+): PracticeScale[] {
+  return KEY_SCALES[mode].flatMap(
+    ([id, intervals]) => practiceScale(id, intervals, rootLabel, mode) ?? [],
+  );
+}
+
+/**
  * The scales one flow teaches, in the order the switcher offers them: the
  * level's own default scale first — it is the level's home, whatever order the
  * steps happen to introduce things in — then every other scale its steps name,
@@ -106,22 +158,14 @@ export function flowPracticeScales(
     rootLabel: string,
     mode: string,
   ) => {
-    const steps = normalize(intervals);
-    if (steps.length === 0) return;
-    const tonicPc = parseKeyRoot(rootLabel) % 12;
-    const signature = `${tonicPc}:${steps.join(',')}`;
+    const scale = practiceScale(id, intervals, rootLabel, mode);
+    if (!scale) return;
+    const signature = `${scale.tonicPc}:${scale.intervals.join(',')}`;
     if (seen.has(signature)) return;
     seen.add(signature);
     scales.push({
+      ...scale,
       id: scales.some((sc) => sc.id === id) ? `${id}_${rootLabel}` : id,
-      title: scaleTitle(id),
-      intervals: steps,
-      degrees: steps.map((step) =>
-        displayDegree(DEGREES[step] ?? String(step)),
-      ),
-      names: spellScaleNames(rootLabel, steps, mode),
-      tonicPc,
-      tonicLabel: displayAccidentals(rootLabel),
     });
   };
   const steps = flow.sections.flatMap((section) => section.steps);

@@ -1,4 +1,3 @@
-import { Lock } from 'lucide-react';
 import { memo, useState } from 'react';
 import { cn } from '@/components/utilities';
 import { hintText } from '@/daw/shell/help/hintSource';
@@ -9,16 +8,17 @@ import { Tooltip } from '@/daw/ui/Tooltip';
 import { keyText, useKeyPopover } from '../song/keyPopover';
 import { KeyCircle, MetreChoices, TempoField } from '../song/SongParts';
 
-// ── The song, at the bottom rail's right (B4a) ─────────────────────────────
+// ── The song, in the top bar's right-hand pill (B4a; S0) ────────────────────
 //
 // Key, Tempo and Metre as three controls, as Soundtrap lays them out (owner,
 // 2026-10-16); they replaced the top bar's Song chip. Key and Metre open
 // popovers; the tempo is a field. With no key set the Key button has a
 // neutral dashed outline; the key colour's dot is meaning, so it stays in
-// colour.
+// colour. A locked key shows no lock (owner, 2026-10-21): the button's name
+// still says so to a screen reader.
 
 const RAIL_BUTTON = cn(
-  'inline-flex h-7 items-center gap-1.5 rounded-[var(--daw-radius-sm)] px-2 font-bold tabular-nums text-daw-text hover:bg-daw-hover [&_svg]:size-3.5',
+  'inline-flex h-8 items-center gap-1.5 rounded-[var(--daw-radius-md)] px-2.5 text-daw-pill-text hover:bg-daw-chip hover:text-daw-text [&_svg]:size-3.5',
   TYPE_CLASS.body,
   TRANSITION,
   FOCUS_RING,
@@ -26,15 +26,21 @@ const RAIL_BUTTON = cn(
 
 export const SongControls = memo(function SongControls({
   short = false,
+  compactTempo = false,
+  hideMetre = false,
 }: {
   /** A narrow window's short key ('C', not 'C major'). */
   short?: boolean;
+  /** A narrower window's tempo: the number only (TempoField). */
+  compactTempo?: boolean;
+  /** The narrowest window's: the time signature is in the Settings menu. */
+  hideMetre?: boolean;
 }) {
   return (
     <div className="flex items-center gap-1">
       <KeyButton short={short} />
-      <TempoField />
-      <MetreButton />
+      <TempoField compact={compactTempo} />
+      {hideMetre ? null : <MetreButton />}
     </div>
   );
 });
@@ -50,7 +56,7 @@ function KeyButton({ short }: { short: boolean }) {
   const [open, onOpenChange] = useKeyPopover();
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
-      <Tooltip content="Key" side="top">
+      <Tooltip content="Key" side="bottom">
         <PopoverTrigger asChild>
           <button
             type="button"
@@ -77,12 +83,11 @@ function KeyButton({ short }: { short: boolean }) {
               />
             ) : null}
             {short ? brief : full}
-            {locked ? <Lock aria-hidden className="text-daw-text-3" /> : null}
           </button>
         </PopoverTrigger>
       </Tooltip>
       <PopoverContent
-        side="top"
+        side="bottom"
         align="end"
         sideOffset={8}
         data-testid="key-popover"
@@ -101,7 +106,7 @@ function MetreButton() {
   const [open, setOpen] = useState(false);
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Tooltip content="Time signature" side="top">
+      <Tooltip content="Time signature" side="bottom">
         <PopoverTrigger asChild>
           <button
             type="button"
@@ -118,12 +123,12 @@ function MetreButton() {
         </PopoverTrigger>
       </Tooltip>
       <PopoverContent
-        side="top"
+        side="bottom"
         align="end"
         sideOffset={8}
         data-testid="metre-popover"
         data-ds="v2"
-        className="w-[280px]"
+        className="w-[184px] p-0"
       >
         <MetreChoices onPicked={() => setOpen(false)} />
       </PopoverContent>

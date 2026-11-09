@@ -1,4 +1,5 @@
 import { Guitar, MicOff } from 'lucide-react';
+import { useFrettedInstrument } from '@/components/guitar/frettedInstrumentContext';
 import { cn } from '@/components/utilities';
 import type {
   GuitarInputHandle,
@@ -56,6 +57,7 @@ export function GuitarInputIndicator({
   className,
 }: GuitarInputIndicatorProps) {
   const attention = guitarInputAttention(handle);
+  const instrumentName = useFrettedInstrument().id;
   if (attention === null) return null;
 
   if (attention === 'setup') {
@@ -67,7 +69,7 @@ export function GuitarInputIndicator({
         className={cn(pill, className)}
       >
         <Guitar className="size-4 text-white/55" />
-        Set up guitar
+        Set up {instrumentName}
       </button>
     );
   }

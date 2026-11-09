@@ -277,7 +277,7 @@ describe('the row panel, beside the grid or beside the graph', () => {
     expect(waysOut()).toEqual(['Local graph', 'Open page', 'Open in Table']);
     expect(hrefOf('Open in Table')).toBe('/console/table/artists/david-paich');
     expect(hrefOf('Open page')).toBe(
-      '/console/content/atlas/globe?artist=David%20Paich',
+      '/console/content/globe?artist=David%20Paich',
     );
     // The suggestions are there; the step to the next row is not.
     expect(

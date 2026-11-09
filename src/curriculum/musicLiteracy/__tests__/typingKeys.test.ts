@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
+import { LOWER_KEY_RANGE, UPPER_KEY_RANGE } from '../literacyKeyRange';
 import {
   HIGHEST_TYPING_OCTAVE,
   LOWEST_TYPING_OCTAVE,
@@ -9,6 +10,7 @@ import {
   shiftedTypingOctave,
   typingLetterFor,
   typingOctaveLabel,
+  typingOctavesFor,
 } from '../typingKeys';
 
 describe('the computer keyboard as the lesson’s piano', () => {
@@ -23,22 +25,56 @@ describe('the computer keyboard as the lesson’s piano', () => {
     expect(literacyTypingNote('KeyQ', 4)).toBeNull();
   });
 
-  it('moves an octave on Z and X, between C3 and C4 for the A key', () => {
-    expect(shiftedTypingOctave('KeyZ', 4)).toBe(3);
-    expect(shiftedTypingOctave('KeyZ', 3)).toBe(3);
-    expect(shiftedTypingOctave('KeyX', 3)).toBe(4);
-    expect(shiftedTypingOctave('KeyX', 4)).toBe(4);
+  it('moves an octave on Z and X, between the two the keyboard shows', () => {
+    const lower = typingOctavesFor(LOWER_KEY_RANGE);
+    expect(lower).toEqual({ low: 3, high: 4, start: 4 });
+    expect(shiftedTypingOctave('KeyZ', 4, lower)).toBe(3);
+    expect(shiftedTypingOctave('KeyZ', 3, lower)).toBe(3);
+    expect(shiftedTypingOctave('KeyX', 3, lower)).toBe(4);
+    expect(shiftedTypingOctave('KeyX', 4, lower)).toBe(4);
+    const upper = typingOctavesFor(UPPER_KEY_RANGE);
+    expect(upper).toEqual({ low: 4, high: 5, start: 4 });
+    expect(shiftedTypingOctave('KeyX', 4, upper)).toBe(5);
+    expect(shiftedTypingOctave('KeyX', 5, upper)).toBe(5);
+    expect(shiftedTypingOctave('KeyZ', 4, upper)).toBe(4);
+    // A keyboard widened below C4–C6 reaches down to A = C3 too.
+    expect(typingOctavesFor({ low: 59, high: 84 })).toEqual({
+      low: 3,
+      high: 5,
+      start: 4,
+    });
     expect(shiftedTypingOctave('KeyA', 4)).toBeNull();
     expect(literacyTypingNote('KeyA', 3)).toBe(48);
+    expect([LOWEST_TYPING_OCTAVE, HIGHEST_TYPING_OCTAVE]).toEqual([3, 5]);
   });
 
-  it('reaches every key of C3–C5 from one of its two octaves', () => {
-    for (let midi = 48; midi <= 72; midi++) {
-      const reachable = [LOWEST_TYPING_OCTAVE, HIGHEST_TYPING_OCTAVE].some(
-        (octave) => typingLetterFor(midi, octave) !== null,
-      );
-      expect(reachable, `MIDI ${midi}`).toBe(true);
+  it('reaches every key of a keyboard from one of its octaves', () => {
+    // Two octaves, or one widened past them (A3–D6).
+    const widened = { low: 57, high: 86 };
+    for (const range of [LOWER_KEY_RANGE, UPPER_KEY_RANGE, widened]) {
+      const { low, high } = typingOctavesFor(range);
+      const octaves = Array.from({ length: high - low + 1 }, (_, i) => low + i);
+      for (let midi = range.low; midi <= range.high; midi++) {
+        const reachable = octaves.some(
+          (octave) => typingLetterFor(midi, octave) !== null,
+        );
+        expect(reachable, `MIDI ${midi}`).toBe(true);
+      }
     }
+  });
+
+  it('starts each step on the octave that reaches most of its notes', () => {
+    // Part 1 in C: C4–G4, A = C4.
+    expect(typingOctavesFor(UPPER_KEY_RANGE, [60, 64, 67]).start).toBe(4);
+    // B major's 5-4-6-5: F♯5, E5, G♯5, A = C5.
+    expect(typingOctavesFor(UPPER_KEY_RANGE, [78, 76, 80]).start).toBe(5);
+    // C's 1 chord in Part 2, C5 E5 G5: A = C5.
+    expect(typingOctavesFor(UPPER_KEY_RANGE, [72, 76, 79]).start).toBe(5);
+    // B's 1 chord and 4, B3 D♯4 F♯4 then E4 G♯4 B4: A = C3 reaches B3 to
+    // E4, A = C4 the rest; the lower reaches more.
+    expect(
+      typingOctavesFor(LOWER_KEY_RANGE, [59, 63, 66, 64, 68, 71]).start,
+    ).toBe(4);
   });
 
   it('names the letter for a note, for the answer’s hint', () => {

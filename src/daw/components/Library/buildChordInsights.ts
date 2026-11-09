@@ -12,12 +12,22 @@ import {
   resolveDegreeKey,
   getChordColor,
 } from '@prism/engine';
+import { noteNameToPitchClass } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { UnisonChordRegion, UnisonDocument } from '@/unison/types/schema';
 import {
+  getExpectedQualities,
+  getScaleDegree,
+  isDiatonic,
+} from '@/unison/engine/diatonicChecker';
+import { getBestBorrowedSource } from '@/unison/engine/modalInterchange';
+import { detectSecondaryDominant } from '@/unison/engine/secondaryDominant';
+import {
   chordDescription,
   chordModeContext,
+  placeInSource,
   type ChordModeContext,
+  type ChordSource,
 } from './chordInKey';
 import {
   INVERSION_LABELS,
@@ -29,6 +39,11 @@ import {
   type ChordInsight,
   type ChordInterpretation,
 } from './insightConstants';
+
+/** Whether a pitch class is in the key's scale. */
+function inScale(pc: number, rootNote: number, mode: string): boolean {
+  return getScaleDegree(pc, rootNote, mode) !== null;
+}
 
 /** A UNISON document's chord timeline keyed by hybrid name (first wins). */
 export function unisonChordLookup(
@@ -53,6 +68,9 @@ function chordKeyFacts(
   quality: string,
   rootNote: number,
   mode: string,
+  source: ChordSource | null = null,
+  /** The scale it comes from, for spelling its parent; worked out if absent. */
+  from: { scaleRootPc: number; scaleMode: string } | null = null,
 ): {
   color: string;
   context: ChordModeContext;
@@ -67,17 +85,80 @@ function chordKeyFacts(
     rootNote,
     mode,
     tonicName: displayAccidentals(noteNameInKey(rootNote, rootNote, mode)),
+    source,
   });
+  const scale =
+    context.degreeSentence === null
+      ? (from ??
+        placeInSource(chordRootPc, CHORDS[quality] ?? [], rootNote, source))
+      : null;
   return {
     color: rgbString(r, g, b),
     context,
+    // A chord from outside the key names its parent as the scale it comes
+    // from spells it: E♭ minor's parent is G♭ major, not F♯.
     parentKeyLetter: displayAccidentals(
-      noteNameInKey(context.parentRootPc, rootNote, mode),
+      scale
+        ? noteNameInKey(
+            context.parentRootPc,
+            scale.scaleRootPc,
+            scale.scaleMode,
+          )
+        : noteNameInKey(context.parentRootPc, rootNote, mode),
     ),
     alternatives: findAllInterpretations(degreeName).filter(
       (i) => i.chordRootMode !== context.chordRootMode,
     ),
   };
+}
+
+/**
+ * Where a chord outside the key comes from: the analysis's word when it has
+ * one (borrowed from a mode, or the 5 or 7 of a degree), else the same rules
+ * without the song around it — the live chord, or before an analysis runs.
+ * Null for a chord in the key, or one no rule places.
+ */
+export function chordSource(
+  chordRootPc: number,
+  quality: string,
+  rootNote: number,
+  mode: string,
+  region?: UnisonChordRegion,
+): ChordSource | null {
+  const tonicizes = (targetPc: number): ChordSource | null => {
+    const degree = getScaleDegree(targetPc, rootNote, mode);
+    if (degree === null) return null;
+    const triad = getExpectedQualities(degree, mode).triad;
+    return {
+      kind: 'tonicizes',
+      rootPc: targetPc,
+      minor: triad === 'minor' || triad === 'diminished',
+    };
+  };
+  const mi = region?.modalInterchange;
+  if (mi?.type === 'secondary-dominant')
+    return tonicizes((chordRootPc + 5) % 12);
+  if (mi?.type === 'secondary-leading-tone')
+    return tonicizes((chordRootPc + 1) % 12);
+  const borrowedMode = mi?.sourceMode ?? region?.sourceMode;
+  if (borrowedMode) return { kind: 'borrowed', mode: borrowedMode };
+  if (region) return null;
+
+  if (isDiatonic(chordRootPc, quality, rootNote, mode)) return null;
+  const secondary = detectSecondaryDominant(
+    chordRootPc,
+    quality,
+    null,
+    null,
+    rootNote,
+    mode,
+  );
+  if (secondary?.type === 'secondary-dominant')
+    return tonicizes((chordRootPc + 5) % 12);
+  const borrowed = getBestBorrowedSource(chordRootPc, quality, rootNote, mode);
+  if (borrowed) return { kind: 'borrowed', mode: borrowed.sourceMode };
+  if (secondary) return tonicizes((chordRootPc + 1) % 12);
+  return null;
 }
 
 /**
@@ -96,17 +177,31 @@ export function buildChordInsights(
   unisonChordMap: Map<string, UnisonChordRegion>,
 ): ChordInsight[] {
   const rootMidi = rootNote + 48;
+  // Each chord's place: where one from outside the key comes from, and its
+  // root spelled in that scale — the leading tone of A harmonic minor is G♯,
+  // not A♭; E♭ minor's 6 is C♭ (owner, 2026-10-24).
+  const placed = new Map(
+    degreeKeys.map((degreeName) => {
+      const quality = unstepChord(degreeName);
+      const rootPc = degreeMidi(rootMidi, degreeName) % 12;
+      const unisonRegion = unisonChordMap.get(degreeName);
+      const source = chordSource(rootPc, quality, rootNote, mode, unisonRegion);
+      const from = inScale(rootPc, rootNote, mode)
+        ? null
+        : placeInSource(rootPc, CHORDS[quality] ?? [], rootNote, source);
+      const root = from
+        ? noteNameInKey(rootPc, from.scaleRootPc, from.scaleMode)
+        : noteNameInKey(rootPc, rootNote, mode);
+      return [degreeName, { unisonRegion, source, from, root }] as const;
+    }),
+  );
   // Leading diminished chords are named by where they resolve (Priority 1).
   const leadingRoots = new Map<string, string>();
   respellLeadingChords(
-    degreeKeys.map((degree) => {
-      const root = noteNameInKey(
-        degreeMidi(rootMidi, degree) % 12,
-        rootNote,
-        mode,
-      );
-      return `${root} ${unstepChord(degree).replace(/^diminished/, 'dim')}`;
-    }),
+    degreeKeys.map(
+      (degree) =>
+        `${placed.get(degree)!.root} ${unstepChord(degree).replace(/^diminished/, 'dim')}`,
+    ),
   ).forEach((name, i) => {
     if (!leadingRoots.has(degreeKeys[i])) {
       leadingRoots.set(degreeKeys[i], name.split(' ')[0]);
@@ -122,9 +217,9 @@ export function buildChordInsights(
     const quality = unstepChord(degreeName);
     const bassMidi = degreeMidi(rootMidi, degreeName);
     const pitchedNotes = generateChord(bassMidi, quality);
+    const { unisonRegion, source, from } = placed.get(degreeName)!;
     const chordRoot =
-      leadingRoots.get(degreeName) ??
-      noteNameInKey(bassMidi % 12, rootNote, mode);
+      leadingRoots.get(degreeName) ?? placed.get(degreeName)!.root;
     const chordTones = chordToneNames(chordRoot, CHORDS[quality] ?? []);
     const noteNames = pitchedNotes.map((n) =>
       displayAccidentals(
@@ -140,11 +235,10 @@ export function buildChordInsights(
       quality,
       rootNote,
       mode,
+      source,
+      from,
     );
     const { chordRootMode, sessionMode, parentMode, isSessionParent } = context;
-
-    // UNISON enrichment lookup
-    const unisonRegion = unisonChordMap.get(degreeName);
 
     results.push({
       degreeName,
@@ -170,6 +264,30 @@ export function buildChordInsights(
   }
 
   return results;
+}
+
+/**
+ * The chord cards of an analyzed selection, read in the analysis's key: the
+ * session key, or — for notes in a session with none set — the key the
+ * notes suggest.
+ */
+export function selectionChordInsights(doc: UnisonDocument): ChordInsight[] {
+  const { rootPc, mode } = doc.analysis.key;
+  return buildChordInsights(
+    doc.analysis.chordTimeline.map((c) => c.hybridName),
+    rootPc,
+    mode,
+    unisonChordLookup(doc),
+  );
+}
+
+/**
+ * Which chord a card is, whatever key it's read in: its root's pitch class
+ * and its quality. Picked notes that make a chord the song's cards already
+ * show point at that card, not a second one (owner, 2026-10-24).
+ */
+export function chordMatchKey(chord: ChordInsight): string {
+  return `${noteNameToPitchClass(chord.rootLetter) ?? chord.rootLetter}:${chord.quality}`;
 }
 
 /** The chord being played live (MIDI keys or detected audio notes). */
@@ -211,18 +329,27 @@ export function buildLiveChord(
   if (!match) return null;
 
   const { quality, rootPc, inversion } = match;
-  const keyMode = rootNote !== null ? mode : undefined;
+  const intervals = CHORDS[quality];
+  // A chord from outside the key is spelled in the scale it comes from, as
+  // the cards spell it.
+  const source =
+    rootNote !== null ? chordSource(rootPc, quality, rootNote, mode) : null;
+  const from =
+    rootNote !== null && !inScale(rootPc, rootNote, mode)
+      ? placeInSource(rootPc, intervals ?? [], rootNote, source)
+      : null;
+  const spellPc = from ? from.scaleRootPc : (rootNote ?? 0);
+  const keyMode = from ? from.scaleMode : rootNote !== null ? mode : undefined;
   const rootLetter = displayAccidentals(
     rootNote !== null
-      ? noteNameInKey(rootPc, rootNote, mode)
+      ? noteNameInKey(rootPc, spellPc, keyMode)
       : noteNameLetter(rootPc + 48),
   );
-  const intervals = CHORDS[quality];
   // Chord tones as one unit from the root (Rule 3): D major in G minor is D F# A.
   const chordTones = chordToneNamesInKey(
     rootPc,
     intervals ?? [],
-    rootNote ?? 0,
+    spellPc,
     keyMode,
   );
   const inversionLabel = INVERSION_LABELS[inversion];
@@ -234,7 +361,7 @@ export function buildLiveChord(
     rootNote !== null ? resolveDegreeKey(rootPc, quality, rootNote) : null;
   const inKey =
     rootNote !== null && degreeName
-      ? chordKeyFacts(degreeName, rootPc, quality, rootNote, mode)
+      ? chordKeyFacts(degreeName, rootPc, quality, rootNote, mode, source, from)
       : null;
 
   return {
@@ -245,7 +372,7 @@ export function buildLiveChord(
     rootLetter,
     noteNames: sorted.map((n) =>
       displayAccidentals(
-        chordTones.get(n % 12) ?? noteNameInKey(n % 12, rootNote ?? 0, keyMode),
+        chordTones.get(n % 12) ?? noteNameInKey(n % 12, spellPc, keyMode),
       ),
     ),
     intervals: intervals ? intervalsToString(intervals) : '',

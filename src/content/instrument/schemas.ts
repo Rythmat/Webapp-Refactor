@@ -72,6 +72,15 @@ export const partNoteSchema = z
     offset: int.optional(),
     grace: z.boolean().optional(),
     finger: int.min(1).max(5).optional(),
+    approach: z
+      .object({
+        step: int,
+        motion: z.enum(['chromatic', 'diatonic']),
+        scale: z.enum(['key', 'goal']).optional(),
+      })
+      .strict()
+      .optional(),
+    goal: z.boolean().optional(),
   })
   .strict();
 
@@ -127,6 +136,7 @@ export const instrumentPartBodySchema = z
     swing,
     feel: kebab('feel').optional(),
     chordSymbols: z.array(z.string()).optional(),
+    stayInKey: z.enum(['lh', 'rh', 'both']).optional(),
     sound: z.string().min(1),
     notes: z.array(partNoteSchema),
     source: partSourceSchema,

@@ -16,7 +16,7 @@ import {
   centralAngle,
   rgb,
 } from '@/components/ui/globeMath';
-import { AtlasRoutes } from '@/constants/routes';
+import { GlobeRoutes } from '@/constants/routes';
 import { ContentGate } from '@/content/ContentGate';
 import { MUSIC_HISTORY } from '@/content/contentStore';
 
@@ -172,11 +172,12 @@ const shuffle = <T,>(arr: T[]): T[] => {
 };
 
 /**
- * Globe preview — a lightweight cobe teaser for the full Atlas globe. A featured
- * event advances once per full globe rotation; the globe draws that event's real
- * influence flight paths (matching the main globe). Home dashboard only.
+ * The Globe preview's state: a featured event that advances once per full
+ * globe rotation, and the globe data for it (that event's real influence
+ * flight paths, matching the main globe). Shared by this section and Home's
+ * HomeGlobeCard; render it inside <ContentGate> (see GlobeSection below).
  */
-const GlobeSectionInner = () => {
+export const useGlobePreview = () => {
   // Shuffle once per page load so the events (and their order) vary each visit.
   const [events] = useState(() => shuffle(featuredEvents()));
   const [index, setIndex] = useState(0);
@@ -197,6 +198,16 @@ const GlobeSectionInner = () => {
     [event],
   );
 
+  return { event, markers, arcs, arcHeight, advance };
+};
+
+/**
+ * Globe preview — a lightweight cobe teaser for the full Atlas globe, in the
+ * old dashboard's look (the console's Home mirror shows it).
+ */
+const GlobeSectionInner = () => {
+  const { event, markers, arcs, arcHeight, advance } = useGlobePreview();
+
   if (!event) return null;
 
   return (
@@ -214,7 +225,7 @@ const GlobeSectionInner = () => {
           </h2>
         </div>
         <Link
-          to={`${AtlasRoutes.root()}?tab=Pathways`}
+          to={`${GlobeRoutes.root()}?panel=pathways`}
           className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/25 hover:text-white md:text-base"
         >
           <span>View Pathways</span>
@@ -270,7 +281,7 @@ const GlobeSectionInner = () => {
             {event.description}
           </p>
           <Link
-            to={`${AtlasRoutes.globe()}?event=${encodeURIComponent(event.id)}`}
+            to={`${GlobeRoutes.root()}?event=${encodeURIComponent(event.id)}`}
             className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/25 hover:bg-white/10 hover:text-white"
           >
             <span>View on Globe</span>

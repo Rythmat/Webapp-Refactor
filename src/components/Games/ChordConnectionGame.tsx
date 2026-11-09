@@ -16,6 +16,10 @@ import {
 } from '@/components/PianoKeyboard/useExpandedRange';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import {
+  formatNoteName,
+  MIDI_ROOT_TO_KEY,
+} from '@/curriculum/engine/genreGeneration/enharmonicEngine';
+import {
   formatChord,
   useChordNotation,
   type ChordNotation,
@@ -67,20 +71,13 @@ const CHORD_INTERVALS: Record<ChordType, number[]> = {
   min7: [0, 3, 7, 10],
 };
 
-const PITCH_CLASS_NAMES = [
-  'C',
-  'C#',
-  'D',
-  'D#',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'G#',
-  'A',
-  'A#',
-  'B',
-];
+/**
+ * A chord's root as the app spells it: the twelve key centers (C D♭ D E♭ E F
+ * F♯ G A♭ A B♭ B) for every quality, with the ♭ and ♯ glyphs.
+ */
+function rootName(rootPc: number) {
+  return formatNoteName(MIDI_ROOT_TO_KEY[((rootPc % 12) + 12) % 12]);
+}
 
 const DEFAULT_CHORD_POOL: ChordType[] = ['maj', 'min', 'dim', 'aug'];
 
@@ -106,8 +103,8 @@ function buildChord(rootMidi: number, type: ChordType) {
   return CHORD_INTERVALS[type].map((interval) => rootMidi + interval);
 }
 
-function chordName(rootPc: number, type: ChordType) {
-  const root = PITCH_CLASS_NAMES[((rootPc % 12) + 12) % 12];
+export function chordName(rootPc: number, type: ChordType) {
+  const root = rootName(rootPc);
   switch (type) {
     case 'maj':
       return `${root} Major`;
@@ -129,10 +126,10 @@ function chordName(rootPc: number, type: ChordType) {
 }
 
 /**
- * The chord's name as the button shows it. Jazz writes a chord symbol ("C♯−"),
- * rooted on the game's own sharp spelling. Hybrid keeps the game's name, and so
- * does Roman: it needs a key and this game has none. Display only — matching
- * goes by chordSignature.
+ * The chord's name as the button shows it. Jazz writes a chord symbol ("D♭−"),
+ * its root spelled as the app spells a key center. Hybrid keeps the game's
+ * name, and so does Roman: it needs a key and this game has none. Display
+ * only — matching goes by chordSignature.
  */
 function displayChordName(
   { rootPc, type }: ChordSpec,
@@ -141,7 +138,7 @@ function displayChordName(
 ) {
   if (notation !== 'jazz') return label;
   return formatChord(
-    { root: PITCH_CLASS_NAMES[((rootPc % 12) + 12) % 12], quality: type },
+    { root: ((rootPc % 12) + 12) % 12, quality: type },
     'jazz',
   );
 }

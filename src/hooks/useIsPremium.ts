@@ -5,6 +5,7 @@ import {
 } from '@/features/settings/subscription/subscriptionUtils';
 import { useMySubscription } from '@/hooks/data/subscription/useMySubscription';
 import { PremiumPreviewContext } from './PremiumPreviewContext';
+import { useTourPremiumPreview } from './tourPremiumPreview';
 
 /**
  * Returns whether the current user has premium (paid) access.
@@ -20,10 +21,13 @@ import { PremiumPreviewContext } from './PremiumPreviewContext';
  */
 export function useIsPremium() {
   const preview = useContext(PremiumPreviewContext);
+  const tourPreview = useTourPremiumPreview((s) => s.on);
   const { data: subscription, isLoading } = useMySubscription();
   // The console's mirror previews the app as a chosen persona (see
   // PremiumPreviewContext); everywhere else `preview` is null.
   if (preview !== null) return { isPremium: preview, isLoading: false };
+  // A Learn tour showing a free player a Premium course (tourPremiumPreview).
+  if (tourPreview) return { isPremium: true, isLoading: false };
   const uiState = getBillingUiState(subscription);
   const isPremium = isLoading ? false : isActivePaidState(uiState);
   return { isPremium, isLoading };

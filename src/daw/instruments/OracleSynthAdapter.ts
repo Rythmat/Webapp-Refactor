@@ -1,4 +1,7 @@
 import { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
+// For its side effect: every engine's pack tables can wait for the pack
+// to register (wavetableImport's registrar), playback and export alike.
+import '@/daw/oracle-synth/store/presets/packLoader';
 import type { InstrumentAdapter } from './InstrumentAdapter';
 
 /**

@@ -1,0 +1,99 @@
+/* SpotlightCard's styles. Scoped to the landing (and marketing / auth)
+   pages' `.landing-root`, or any `.spotlight-scope` wrapper elsewhere in the
+   app (Home's instrument bento). `:is()` keeps the specificity of a single
+   scope class, so the cascade is the same either way. */
+
+/* ── Glass card with a pointer-tracking spotlight (SpotlightCard) ───── */
+:is(.landing-root, .spotlight-scope) .spotlight-card {
+  --card-accent: #e8e8f0;
+  --mx: 50%;
+  --my: 50%;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 40%),
+    var(--landing-surface-raised, #151518);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+  transition:
+    transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 300ms ease,
+    border-color 300ms ease;
+}
+
+/* Spotlight fill that follows the pointer. */
+:is(.landing-root, .spotlight-scope) .spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    420px circle at var(--mx) var(--my),
+    color-mix(in srgb, var(--card-accent) 16%, transparent),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+/* Border glow that follows the pointer (masked to the 1px ring). */
+:is(.landing-root, .spotlight-scope) .spotlight-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    260px circle at var(--mx) var(--my),
+    color-mix(in srgb, var(--card-accent) 70%, transparent),
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+:is(.landing-root, .spotlight-scope) .spotlight-card:hover::before,
+:is(.landing-root, .spotlight-scope) .spotlight-card:hover::after,
+:is(.landing-root, .spotlight-scope) .spotlight-card:focus-within::before,
+:is(.landing-root, .spotlight-scope) .spotlight-card:focus-within::after {
+  opacity: 1;
+}
+
+:is(.landing-root, .spotlight-scope)
+  .spotlight-card[data-interactive='true']:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    var(--glass-highlight),
+    var(--glass-shadow-deep),
+    0 24px 60px -24px color-mix(in srgb, var(--card-accent) 45%, transparent);
+}
+
+/* Flat bento cell: no card chrome, just the spotlight glow (Attio row). */
+:is(.landing-root, .spotlight-scope) .spotlight-card.spotlight-flat {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.landing-root, .spotlight-scope) .spotlight-card,
+  :is(.landing-root, .spotlight-scope) .spotlight-card::before,
+  :is(.landing-root, .spotlight-scope) .spotlight-card::after {
+    transition-duration: 0.001ms !important;
+  }
+
+  :is(.landing-root, .spotlight-scope)
+    .spotlight-card[data-interactive='true']:hover {
+    transform: none;
+  }
+}

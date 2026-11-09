@@ -31,7 +31,7 @@ export interface Rect {
 }
 
 /**
- * Which effect rack an anchor belongs to. The side rail's Effects library
+ * Which effect rack an anchor belongs to. The Add effect picker
  * adds to one rack at a time (a track's, the master's or a return's;
  * shell/mix/rackTarget.ts) with the same `fx-add-*` ids, so each row says
  * which rack it adds to.
@@ -58,9 +58,24 @@ export const ANCHOR_FRAME_TASK = 'tutorial-anchors';
  * Renamed anchors, old id → current id. When a `data-tutorial-id` has to
  * change (a control is renamed or moved), add the old id here so lessons,
  * classroom slides and saved content that still name it keep resolving. Only
- * real renames go here; it is empty while no anchor has been renamed.
+ * real renames go here.
  */
-export const ANCHOR_ALIASES: Readonly<Record<string, string>> = {};
+export const ANCHOR_ALIASES: Readonly<Record<string, string>> = {
+  // The Add-track picker became + Add track's menu (Audio, MIDI › an
+  // instrument, Upload; 2026-10-21): its category tiles, live-input choices
+  // and Import chip point at the menu's rows.
+  'add-track-cat-keys': 'add-track-midi',
+  'add-track-cat-drums': 'add-track-midi',
+  'add-track-cat-amp': 'add-track-audio',
+  'add-track-vocal-fx': 'add-track-audio',
+  'add-track-guitar-fx': 'add-track-audio',
+  'add-track-bass-fx': 'add-track-audio',
+  'add-track-import': 'add-track-upload',
+  // Add MIDI's Sampler and Organ went (2026-10-21): their old ids point at
+  // Add MIDI. The Flip a sample lesson still asks for a Sampler track.
+  'add-track-sampler': 'add-track-midi',
+  'add-track-tonewheel-organ': 'add-track-midi',
+};
 
 /** The id an anchor renders today, following ANCHOR_ALIASES. */
 export function currentAnchorId(id: string): string {
@@ -148,6 +163,9 @@ interface Candidate {
   rack: string | null;
 }
 
+/** A device preview (EffectPreview): its controls are pictures. */
+const PREVIEW_SELECTOR = '[data-fx-preview]';
+
 function candidatesOf(id: string): Candidate[] {
   const out: Candidate[] = [];
   const seen = new Set<Element>();
@@ -157,6 +175,8 @@ function candidatesOf(id: string): Candidate[] {
     out.push({ el, rack: meta.rack ?? el.getAttribute(RACK_ATTR) });
   }
   for (const el of document.querySelectorAll(selectorOf(id))) {
+    // The Add effect picker's device previews are pictures, never targets.
+    if (el.closest(PREVIEW_SELECTOR)) continue;
     if (!seen.has(el)) out.push({ el, rack: el.getAttribute(RACK_ATTR) });
   }
   return out;

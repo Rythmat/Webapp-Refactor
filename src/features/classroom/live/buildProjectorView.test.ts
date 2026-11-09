@@ -176,6 +176,36 @@ describe('buildProjectorView firewall (Rule 2b)', () => {
     expect(view.responses).toEqual([]);
   });
 
+  it('refuses a student’s Echo rounds on the projector at all', () => {
+    // Rule 2: a student's Echo results are identified and teacher-only. The
+    // projector gets the class's counts from state.echo, never this path.
+    const echoInteraction: Interaction = {
+      id: 'ix-echo',
+      type: 'echo',
+      question: { en: 'Echo Atlas!' },
+      shareable: true, // Deliberately wrong. The selector must refuse regardless.
+    };
+    const responses = [
+      makeResponse({
+        interactionId: 'ix-echo',
+        enrollmentId: 'en-alice',
+        payload: {
+          kind: 'echo',
+          slideId: 's-echo',
+          rounds: [
+            { run: 1, passed: true, score: 100, asked: ['1'], played: ['1'] },
+          ],
+          bestStreak: 1,
+        },
+      }),
+    ];
+    const view = buildProjectorView(echoInteraction, responses, 'sess-abc');
+    expect(view.emit).toBe(false);
+    expect(view.reason).toBe('echo');
+    expect(view.responses).toEqual([]);
+    expect(JSON.stringify(view)).not.toContain('en-alice');
+  });
+
   it('respects the `shareable === false` flag on non-check-in interactions', () => {
     const responses = [
       makeResponse({

@@ -17,7 +17,7 @@ import {
 
 afterEach(cleanup);
 
-function setup(initial = '/atlas/globe?era=jazz-age') {
+function setup(initial = '/globe?era=jazz-age') {
   const renders = { navigator: 0, artist: 0, stop: 0 };
   const navigates: AtlasNavigate[] = [];
   let search = '';
@@ -88,23 +88,25 @@ describe('useAtlasNavigate', () => {
   });
 
   it('changes the frame in place, keeping the stop', () => {
-    const { navigate, search } = setup('/atlas/globe?event=evt-1');
+    const { navigate, search } = setup('/globe?event=evt-1');
     act(() => navigate().toSection('regions'));
     expect(search()).toBe(
       '?event=evt-1&view=timeline&open=americas%2Ceurope%2Cafrica-me%2Casia-pacific',
     );
-    act(() => navigate().toSection('pathways'));
+    act(() => navigate().setFrame({ panel: 'pathways' }));
     expect(search()).toBe(
-      '?event=evt-1&view=timeline&open=americas%2Ceurope%2Cafrica-me%2Casia-pacific&lens=pathways',
+      '?event=evt-1&view=timeline&open=americas%2Ceurope%2Cafrica-me%2Casia-pacific&panel=pathways',
     );
     act(() => navigate().toSection('eras'));
+    expect(search()).toBe('?event=evt-1&view=timeline&panel=pathways');
+    act(() => navigate().setFrame({ panel: null }));
     expect(search()).toBe('?event=evt-1&view=timeline');
     act(() => navigate().toSection('explore'));
     expect(search()).toBe('?event=evt-1');
   });
 
   it('goes to a stop and a frame in one step', () => {
-    const { navigate, search } = setup('/atlas/globe');
+    const { navigate, search } = setup('/globe');
     act(() =>
       navigate().go(
         { kind: 'place', place: { type: 'city', id: 'memphis' } },
@@ -112,6 +114,20 @@ describe('useAtlasNavigate', () => {
       ),
     );
     expect(search()).toBe('?place=city%3Amemphis&view=timeline');
+  });
+
+  it('opens a new stop on its details, closing a chosen panel', () => {
+    const { navigate, search } = setup('/globe?panel=layers&view=timeline');
+    act(() => navigate().toEvent('evt-1'));
+    expect(search()).toBe('?view=timeline&event=evt-1');
+  });
+
+  it('follows a Globe link, keeping a lesson’s mind map', () => {
+    const { navigate, search } = setup(
+      '/globe?mindmap=1&event=evt-1&view=timeline',
+    );
+    act(() => navigate().toLink('?pathway=blues-to-rock&panel=pathways'));
+    expect(search()).toBe('?pathway=blues-to-rock&panel=pathways&mindmap=1');
   });
 
   it('reads the latest URL when two navigations follow each other', () => {

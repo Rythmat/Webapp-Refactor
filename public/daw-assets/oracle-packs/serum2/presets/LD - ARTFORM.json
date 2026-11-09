@@ -4,11 +4,11 @@
   "oscillators": [
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Sine",
       "octave": 0,
       "semitone": 0,
       "fine": 0,
-      "wtPosition": 0.08177727498696186,
+      "wtPosition": 0,
       "pan": 0,
       "level": 0,
       "unisonVoices": 1,
@@ -20,11 +20,11 @@
     },
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Pulse 25%",
       "octave": -1,
       "semitone": 0,
       "fine": 0,
-      "wtPosition": 0.6163960371632129,
+      "wtPosition": 0,
       "pan": 0,
       "level": 0,
       "unisonVoices": 1,
@@ -1288,7 +1288,7 @@
         "source": "osc1",
         "param": "level"
       },
-      "amount": 0.7902960777282715,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1303,7 +1303,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.5064761638641357,
+      "amount": 0.5788258298330741,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1333,7 +1333,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.45223402976989746,
+      "amount": 0.9044680595397949,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1348,7 +1348,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.4173862934112549,
+      "amount": 0.47700955125210803,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1363,7 +1363,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": -0.4071580171585083,
+      "amount": -0.46532017490596644,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1378,7 +1378,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.2414165735244751,
+      "amount": 0.27590271463050914,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1393,7 +1393,7 @@
         "source": "osc2",
         "param": "level"
       },
-      "amount": 0.39953410625457764,
+      "amount": 0.7990682125091553,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1408,7 +1408,7 @@
         "source": "flt2",
         "param": "cutoff"
       },
-      "amount": -0.494779109954834,
+      "amount": -0.5654578622588488,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1418,7 +1418,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.8,
+  "masterVolume": 0.13360000000000002,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -1461,8 +1461,8 @@
   "fxRoutes": [],
   "routing": {
     "filterRouting": {
-      "filter1Sources": ["osc1", "osc2", "noise", "sub"],
-      "filter2Sources": []
+      "filter1Sources": ["osc1", "noise", "sub"],
+      "filter2Sources": ["osc2"]
     },
     "envelopeRouting": {
       "env1Sources": ["osc1", "osc2", "sub", "noise"],

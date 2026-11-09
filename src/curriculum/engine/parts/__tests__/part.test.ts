@@ -19,6 +19,7 @@ import {
   resizePart,
   shiftBetween,
   splitPlayed,
+  transposeChordSymbol,
   transposePart,
   type InstrumentPart,
 } from '../part';
@@ -65,6 +66,27 @@ describe('transposition', () => {
   it('leaves drums alone', () => {
     const drums = part({ instrument: 'drums' });
     expect(transposePart(drums, 7)).toBe(drums);
+  });
+
+  it('moves its chords with it, spelled as the new key spells', () => {
+    const funk = part({
+      key: { tonic: 9, mode: 'dorian' },
+      chordSymbols: ['Am7 D7', 'Am7 . . E7#9', 'C/E'],
+    });
+    // A dorian → C dorian: up a minor third, in flats.
+    expect(transposePart(funk, 0).chordSymbols).toEqual([
+      'Cm7 F7',
+      'Cm7 . . G7#9',
+      'Eb/G',
+    ]);
+    // → B dorian, in sharps.
+    expect(transposePart(funk, 11).chordSymbols).toEqual([
+      'Bm7 E7',
+      'Bm7 . . F#7#9',
+      'D/F#',
+    ]);
+    expect(transposeChordSymbol('Bbmaj7/D', 2, false)).toBe('Cmaj7/E');
+    expect(transposeChordSymbol('N.C.', 2, true)).toBe('N.C.');
   });
 });
 
@@ -314,5 +336,102 @@ describe('writing a part back into a lesson step', () => {
     const p = transposePart(partFromLessonStep(flow, step, { id: 'x' })!, 0);
     const out = writePartToStep(p, step, 9).targetNotes!;
     expect(out.map((n) => n.midi)).toEqual([45, 67, 71]);
+  });
+
+  describe('piano fingers', () => {
+    const fingered = {
+      ...step,
+      targetNotes: [
+        { midi: 45, onset: 1920, duration: 960, hand: 'lh', finger: 5 },
+        { midi: 67, onset: 1920, duration: 960, hand: 'rh', finger: 1 },
+        { midi: 71, onset: 1920, duration: 960, hand: 'rh', finger: 3 },
+      ],
+    } as unknown as ActivityStepV2;
+
+    it('round-trips every finger', () => {
+      const p = partFromLessonStep(flow, fingered, { id: 'x' })!;
+      expect(p.notes.map((n) => n.finger)).toEqual([5, 1, 3]);
+      expect(writePartToStep(p, fingered, 9).targetNotes).toEqual(
+        fingered.targetNotes,
+      );
+    });
+
+    it('round-trips fingers on a step with no hands, adding none', () => {
+      // A finger never needs a hand, and a hand would turn the staff grand.
+      const oneHand = {
+        ...step,
+        targetNotes: [60, 62, 64].map((midi, i) => ({
+          midi,
+          onset: 1920 + i * 480,
+          duration: 480,
+          finger: i + 1,
+        })),
+      } as unknown as ActivityStepV2;
+      const p = partFromLessonStep(flow, oneHand, { id: 'x' })!;
+      expect(writePartToStep(p, oneHand, 9).targetNotes).toEqual(
+        oneHand.targetNotes,
+      );
+    });
+
+    it('keeps the fingers of the hand that was not edited', () => {
+      const rh = partFromLessonStep(flow, fingered, { id: 'x', hands: 'lh' })!;
+      const out = writePartToStep(rh, fingered, 9).targetNotes!;
+      expect(out.map((n) => n.finger)).toEqual([5, 1, 3]);
+    });
+
+    it('keeps them through a Studio clip edit, unless the note moved', () => {
+      const p = partFromLessonStep(flow, fingered, { id: 'x' })!;
+      const events = toMidiEvents(p.notes).map((e) =>
+        e.note === 71 ? { ...e, note: 72 } : e,
+      );
+      const edited = { ...p, notes: fromMidiEvents(events, p.notes) };
+      expect(
+        writePartToStep(edited, fingered, 9).targetNotes!.map((n) => [
+          n.midi,
+          n.finger,
+        ]),
+      ).toEqual([
+        [45, 5],
+        [67, 1],
+        [72, undefined],
+      ]);
+    });
+
+    it('drops them when the part changes key', () => {
+      const p = partFromLessonStep(flow, fingered, { id: 'x' })!;
+      expect(transposePart(p, 4).notes.some((n) => n.finger)).toBe(false);
+      // Back in the lesson's key, the fingers chosen for E don't return.
+      const out = writePartToStep(
+        transposePart(p, 4),
+        fingered,
+        9,
+      ).targetNotes!;
+      expect(out.some((n) => n.finger)).toBe(false);
+      // Written into a step in another key, as is: dropped too.
+      expect(
+        writePartToStep(p, fingered, 4).targetNotes!.some((n) => n.finger),
+      ).toBe(false);
+    });
+
+    it('keeps them when transposing to the same key', () => {
+      const p = partFromLessonStep(flow, fingered, { id: 'x' })!;
+      expect(transposePart(p, 9).notes.map((n) => n.finger)).toEqual([5, 1, 3]);
+    });
+
+    it('never puts a finger on a guitar or bass note', () => {
+      const guitarFlow = {
+        ...flow,
+        params: { ...flow.params, instrument: 'guitar' },
+      } as unknown as ActivityFlowV2;
+      const p = partFromLessonStep(guitarFlow, fingered, { id: 'x' })!;
+      expect(p.notes.some((n) => n.finger)).toBe(false);
+      const bass = partFromLessonStep(
+        flow,
+        { ...fingered, section: 'C' } as ActivityStepV2,
+        { id: 'x', hands: 'lh' },
+      )!;
+      expect(bass.instrument).toBe('bass');
+      expect(bass.notes.some((n) => n.finger)).toBe(false);
+    });
   });
 });

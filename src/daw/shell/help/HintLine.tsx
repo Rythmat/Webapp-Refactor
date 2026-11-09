@@ -7,9 +7,9 @@ import { getHint, listenForHints, subscribeHint } from './hintSource';
 
 // ── The hover hint line (milestone 2.11) ───────────────────────────────────
 //
-// In the bottom rail's Master zone, after Master: what the control under
-// the pointer (or the keyboard focus) does, and its key (hintSource.ts finds
-// the words). There is no row of its own for it; it takes the zone's free
+// In the bottom rail, centred in the space right of the view tabs (owner,
+// 2026-10-22): what the control under the pointer (or the keyboard focus)
+// does, and its key (hintSource.ts finds the words). There is no row of its own for it; it takes the zone's free
 // width and shows only when that is at least MIN_HINT_PX, so at 1366 it has
 // about 170 px and on a smaller window it simply isn't there. The student
 // turns it off in '⋯' (Hover hints). It is aria-hidden: the words are each
@@ -21,13 +21,18 @@ import { getHint, listenForHints, subscribeHint } from './hintSource';
 /** Below this much free width the line shows nothing. */
 export const MIN_HINT_PX = 160;
 
-export const HintLine = memo(function HintLine() {
+export const HintLine = memo(function HintLine({
+  align = 'start',
+}: {
+  /** Where the words sit in the free width: its start, or its middle. */
+  align?: 'start' | 'center';
+}) {
   const on = useStore((s) => s.hoverHints);
-  return on ? <HintBox /> : null;
+  return on ? <HintBox align={align} /> : null;
 });
 
 /** The free width; the words (and their listener) only when it is enough. */
-function HintBox() {
+function HintBox({ align }: { align: 'start' | 'center' }) {
   const ref = useRef<HTMLDivElement>(null);
   const roomy = useRoomy(ref, MIN_HINT_PX);
   return (
@@ -36,7 +41,10 @@ function HintBox() {
       data-testid="hint-line"
       data-roomy={roomy || undefined}
       aria-hidden
-      className="flex min-w-0 flex-1 items-center"
+      className={cn(
+        'flex min-w-0 flex-1 items-center',
+        align === 'center' && 'justify-center',
+      )}
     >
       {roomy ? <HintText /> : null}
     </div>

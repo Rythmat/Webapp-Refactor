@@ -1,0 +1,57 @@
+{
+  "id": "blues-l3-jazz-blues",
+  "band": "blues-band-1",
+  "variation": "l3-jazz-blues-f",
+  "overrides": [
+    {
+      "steps": [4, 5, 6, 7],
+      "band": "blues-band-1",
+      "variation": "l3-f7"
+    },
+    {
+      "steps": [8, 9, 10, 11, 12],
+      "band": "blues-band-1",
+      "variation": "l3-ii-v-iv"
+    },
+    {
+      "steps": [13, 14, 15, 16],
+      "band": "blues-band-1",
+      "variation": "l3-four-bar-f"
+    },
+    {
+      "steps": [23, 30, 32, 34],
+      "band": "blues-band-1",
+      "variation": "l3-jazz-blues-bb"
+    },
+    {
+      "steps": [35],
+      "band": "blues-band-1",
+      "variation": "l3-c-jam"
+    },
+    {
+      "steps": [36],
+      "band": "blues-band-1",
+      "variation": "l3-bags"
+    },
+    {
+      "steps": [37],
+      "band": "blues-band-1",
+      "variation": "l3-freddie"
+    },
+    {
+      "steps": [38],
+      "band": "blues-band-1",
+      "variation": "l3-five-spot"
+    },
+    {
+      "steps": [39],
+      "band": "blues-band-1",
+      "variation": "l3-blues-by-five"
+    },
+    {
+      "steps": [40],
+      "band": "blues-band-1",
+      "variation": "l3-blue-seven"
+    }
+  ]
+}

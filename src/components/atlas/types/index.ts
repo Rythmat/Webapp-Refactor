@@ -79,19 +79,25 @@ export interface MapInsets {
   left: number;
 }
 
+/**
+ * The zones that stand over the map, each reporting what it covers: the
+ * Inspector, the floating cards and, on a phone, the sheet and its bar.
+ */
+export type MapZone = 'inspector' | 'cards' | 'phone';
+
 // --- Search fly target ---
 /**
- * What a flight frames, for an engine that can fit it exactly: the MapLibre
- * engine fits a country's or a state's outline, centres a city at a street-map
- * zoom, and fits a set of points (components/Globe/mapFraming.ts). The
- * three.js globe flies to the target's lat/lng/zoom and ignores this.
+ * What a flight frames: the map fits a country's or a state's outline,
+ * centres a city with the region around it, and fits a set of points
+ * (components/Globe/mapFraming.ts).
  */
 export type FlyFrame =
   /** A country's or a US/Canada state's outline. */
   | { kind: 'region'; place: SelectedLocation }
   /**
-   * A city: fitted to its outline when it has one (`cityId`), else at a
-   * street-map zoom (navigation/flyFrames.ts).
+   * A city (`cityId` when it is one of the map's), centred at a street-map
+   * zoom, which the map compresses to its own (capFrameZoom;
+   * navigation/flyFrames.ts).
    */
   | { kind: 'city'; zoom: number; cityId?: string }
   /** Every one of these points: an artist's events. */
@@ -126,18 +132,32 @@ export interface TourProgress {
 
 // --- Globe layers (the Layers control) ---
 /** What the globe draws; each one the viewer can switch off. */
+/** The viewer's choices for the floating cards (state/cardsStorage.ts). */
+export interface CardPrefs {
+  /** The floating card hidden (the bottom rail's Cards pill). */
+  hidden: boolean;
+}
+
+/**
+ * What colours the land: how much music each country holds in the years
+ * shown (lit from dark), its continent's colour, or one plain dark.
+ */
+export type LandColor = 'music' | 'continent' | 'plain';
+
 export interface GlobeLayers {
-  /** Countries in their continent's colours; off, the land is one plain grey. */
-  countryColors: boolean;
+  landColor: LandColor;
   /** US and Canada state outlines, once the camera is close enough. */
   states: boolean;
-  /** A column on each music city. */
+  /** The music cities. */
   cities: boolean;
   /** An artist's moments, as points, while their panel is open. */
   artistPoints: boolean;
   /** A pinned event's influence arcs (directions as visibleArcDirections). */
   arcs: boolean;
 }
+
+/** The layers a switch turns on and off (all but the land's colour). */
+export type LayerSwitch = Exclude<keyof GlobeLayers, 'landColor'>;
 
 // --- App State ---
 export interface AppState {
@@ -155,38 +175,20 @@ export interface AppState {
   /** Which influence arc directions are visible on the globe */
   visibleArcDirections: Set<'upstream' | 'downstream'>;
   /**
-   * Rendered width (px) of the DetailsCard while it shows an expanded event, or
-   * null. The globe shifts right by half of this so the region clears the card.
-   */
-  detailsPanelWidth: number | null;
-  /**
-   * Height (px) of the phone bottom sheet over the globe's lower part, or
-   * null. The globe shifts up by half of this so the region clears the sheet.
-   */
-  sheetOcclusion: number | null;
-  /**
    * True while the globe is spinning. Only ever set by the user, from the spin
    * control on the globe page — nothing starts it automatically.
    */
   globeRotating: boolean;
   /** Which of the globe's layers are drawn. Per viewer, kept in localStorage. */
   layers: GlobeLayers;
+  /** The floating cards' state. Per viewer, kept in localStorage. */
+  cards: CardPrefs;
+  /** What each zone covers of the map, as it last reported (SET_ZONE_INSETS). */
+  zoneInsets: Partial<Record<MapZone, MapInsets>>;
   /**
-   * True while the camera is close enough for state outlines (BaseGlobe's
-   * altitude band), so the legend lists them only when they can show.
+   * What the page's overlays cover of the map: the zones' insets combined,
+   * the deepest on each edge (combineInsets).
    */
-  statesInView: boolean;
-  /** Whether the legend card is open: closed until the viewer opens it. */
-  legendOpen: boolean;
-  /** Whether the Layers popover is open. */
-  layersOpen: boolean;
-  /**
-   * True once the viewer has first pressed, scrolled or keyed on the map
-   * itself: the map's credit (MapCredit), open when the map first appears,
-   * folds up then.
-   */
-  mapTouched: boolean;
-  /** What the page's overlays cover of the map (MapInsets). */
   mapInsets: MapInsets;
 }
 
@@ -206,13 +208,14 @@ export type AppAction =
   | { type: 'TOUR_STEP'; payload: number }
   | { type: 'EXIT_TOUR' }
   | { type: 'SET_WINDOW'; payload: TimeWindow | null }
-  | { type: 'SET_DETAILS_PANEL_WIDTH'; payload: number | null }
-  | { type: 'SET_SHEET_OCCLUSION'; payload: number | null }
   | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' }
   | { type: 'OPEN_INFLUENCE_ARCS' }
-  | { type: 'SET_LAYER'; payload: { layer: keyof GlobeLayers; on: boolean } }
-  | { type: 'SET_STATES_IN_VIEW'; payload: boolean }
-  | { type: 'SET_LEGEND_OPEN'; payload: boolean }
-  | { type: 'SET_LAYERS_OPEN'; payload: boolean }
-  | { type: 'MAP_TOUCHED' }
+  | { type: 'SET_LAYER'; payload: { layer: LayerSwitch; on: boolean } }
+  | { type: 'SET_LAND_COLOR'; payload: LandColor }
+  | { type: 'SET_CARD_PREFS'; payload: Partial<CardPrefs> }
+  | {
+      type: 'SET_ZONE_INSETS';
+      payload: { zone: MapZone; insets: MapInsets | null };
+    }
+  /** The combined insets at once, skipping the zones (tests). */
   | { type: 'SET_MAP_INSETS'; payload: MapInsets };

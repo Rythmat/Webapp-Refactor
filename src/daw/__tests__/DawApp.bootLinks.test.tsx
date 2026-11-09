@@ -13,7 +13,7 @@
  *   turn into a resume). A change is announced instead, and the
  *   registration goes when the editor unmounts.
  * - user() answers null until auth knows who the student is.
- * - navigate() acts only on /studio/editor.
+ * - navigate() acts only on /studio.
  * - useSessionBoot opens what the URL names, a tick after mount.
  * - The Opening overlay is a direct child of .daw-root; while it shows,
  *   every other direct child is inert (no wrapper, so the lead sheet still
@@ -198,9 +198,9 @@ function WhereAmI() {
 }
 
 function boot(query = '') {
-  window.history.replaceState({}, '', `/studio/editor${query}`);
+  window.history.replaceState({}, '', `/studio${query}`);
   return render(
-    <MemoryRouter initialEntries={[`/studio/editor${query}`]}>
+    <MemoryRouter initialEntries={[`/studio${query}`]}>
       <DawApp />
       <WhereAmI />
     </MemoryRouter>,
@@ -263,7 +263,7 @@ describe('SessionDeps', () => {
 
     signIn();
     view.rerender(
-      <MemoryRouter initialEntries={['/studio/editor']}>
+      <MemoryRouter initialEntries={['/studio']}>
         <DawApp />
         <WhereAmI />
       </MemoryRouter>,
@@ -311,7 +311,7 @@ describe('SessionDeps', () => {
     signIn();
     h.auth.error = null;
     view.rerender(
-      <MemoryRouter initialEntries={['/studio/editor']}>
+      <MemoryRouter initialEntries={['/studio']}>
         <DawApp />
         <WhereAmI />
       </MemoryRouter>,
@@ -361,11 +361,11 @@ describe('SessionDeps', () => {
     const deps = getSessionDeps()!;
 
     act(() => deps.navigate('?draft=d1', { replace: true }));
-    expect(routed).toBe('/studio/editor?draft=d1');
+    expect(routed).toBe('/studio?draft=d1');
 
     window.history.replaceState({}, '', '/studio');
     act(() => deps.navigate('', { replace: true }));
-    expect(routed).toBe('/studio/editor?draft=d1');
+    expect(routed).toBe('/studio?draft=d1');
   });
 
   it('go when the editor unmounts', async () => {

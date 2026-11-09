@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/daw/ui/Popover';
 import { useStore } from '@/daw/store';
 import {
   KEY_COLORS,
@@ -86,22 +87,6 @@ export function CircleOfFifths({
   const setMode = useStore((s) => s.setMode);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    if (!dropdownOpen) return;
-    function handleClick(e: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [dropdownOpen]);
 
   const scale = size / DEFAULT_SIZE;
   const CX = size / 2;
@@ -272,72 +257,75 @@ export function CircleOfFifths({
 
       {/* Mode selector */}
       {showModeSelector && (
-        <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setDropdownOpen((v) => !v)}
-            className="flex cursor-pointer items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors hover:bg-white/10"
-            style={{
-              color: 'var(--daw-text-3)',
-              border: 'none',
-              background: 'none',
-            }}
-          >
-            {MODE_DISPLAY[mode] ?? mode}
-            <ChevronDown
-              size={10}
-              strokeWidth={2}
+        // A popover on <body>, not a box inside the card: in the dock the
+        // card sits at the bottom of a scrolling panel, which clipped the
+        // list to its first row. It flips above when there's no room below.
+        <Popover open={dropdownOpen} onOpenChange={setDropdownOpen}>
+          <PopoverTrigger asChild>
+            <button
+              className="flex cursor-pointer items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors hover:bg-white/10"
               style={{
-                transform: dropdownOpen ? 'rotate(180deg)' : undefined,
-                transition: 'transform 0.15s',
-              }}
-            />
-          </button>
-
-          {dropdownOpen && (
-            <div
-              className="absolute left-1/2 z-50 mt-1 overflow-y-auto rounded-md border"
-              style={{
-                transform: 'translateX(-50%)',
-                maxHeight: 260,
-                width: 180,
-                backgroundColor: 'var(--daw-popover)',
-                borderColor: 'var(--daw-hairline)',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                color: 'var(--daw-text-3)',
+                border: 'none',
+                background: 'none',
               }}
             >
-              {MODE_GROUPS.map((group) => (
-                <div key={group.label}>
-                  {/* Group label */}
-                  <div
-                    className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
+              {MODE_DISPLAY[mode] ?? mode}
+              <ChevronDown
+                size={10}
+                strokeWidth={2}
+                style={{
+                  transform: dropdownOpen ? 'rotate(180deg)' : undefined,
+                  transition: 'transform 0.15s',
+                }}
+              />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="center"
+            sideOffset={4}
+            className="overflow-y-auto rounded-md border p-0"
+            style={{
+              maxHeight:
+                'min(260px, var(--radix-popover-content-available-height))',
+              width: 180,
+              backgroundColor: 'var(--daw-popover)',
+              borderColor: 'var(--daw-hairline)',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+            }}
+          >
+            {MODE_GROUPS.map((group) => (
+              <div key={group.label}>
+                {/* Group label */}
+                <div
+                  className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
+                  style={{
+                    color: 'var(--daw-text-3)',
+                    backgroundColor: 'var(--daw-popover)',
+                  }}
+                >
+                  {group.label}
+                </div>
+                {group.modes.map((modeKey) => (
+                  <button
+                    key={modeKey}
+                    onClick={() => handleModeSelect(modeKey)}
+                    className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
                     style={{
-                      color: 'var(--daw-text-3)',
-                      backgroundColor: 'var(--daw-popover)',
+                      color: modeKey === mode ? '#fff' : 'var(--daw-text-2)',
+                      background:
+                        modeKey === mode ? 'rgba(255,255,255,0.08)' : 'none',
+                      border: 'none',
+                      fontWeight: modeKey === mode ? 600 : 400,
                     }}
                   >
-                    {group.label}
-                  </div>
-                  {group.modes.map((modeKey) => (
-                    <button
-                      key={modeKey}
-                      onClick={() => handleModeSelect(modeKey)}
-                      className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
-                      style={{
-                        color: modeKey === mode ? '#fff' : 'var(--daw-text-2)',
-                        background:
-                          modeKey === mode ? 'rgba(255,255,255,0.08)' : 'none',
-                        border: 'none',
-                        fontWeight: modeKey === mode ? 600 : 400,
-                      }}
-                    >
-                      {MODE_DISPLAY[modeKey] ?? modeKey}
-                    </button>
-                  ))}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                    {MODE_DISPLAY[modeKey] ?? modeKey}
+                  </button>
+                ))}
+              </div>
+            ))}
+          </PopoverContent>
+        </Popover>
       )}
 
       {selectedIndex !== null && (

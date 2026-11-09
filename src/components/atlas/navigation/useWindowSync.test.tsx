@@ -65,25 +65,25 @@ const rest = () =>
 
 describe('useWindowSync', () => {
   it('reads an era link as its years and rewrites it as them', () => {
-    const page = setup('/atlas/globe?era=postwar&event=e1');
+    const page = setup('/globe?era=postwar&event=e1');
     expect(page.window).toEqual({ from: 1946, to: 1979 });
     expect(page.search).toBe('?event=e1&from=1946&to=1979');
   });
 
   it('reads from and to', () => {
-    const page = setup('/atlas/globe?from=1950&to=1960');
+    const page = setup('/globe?from=1950&to=1960');
     expect(page.window).toEqual({ from: 1950, to: 1960 });
   });
 
   it('leaves all of time unfiltered', () => {
-    const page = setup('/atlas/globe');
+    const page = setup('/globe');
     rest();
     expect(page.window).toBeNull();
     expect(page.search).toBe('');
   });
 
   it('writes a moved window to the URL once it rests', () => {
-    const page = setup('/atlas/globe?place=city:memphis');
+    const page = setup('/globe?place=city:memphis');
     act(() =>
       page.dispatch({
         type: 'SET_WINDOW',
@@ -101,7 +101,7 @@ describe('useWindowSync', () => {
   });
 
   it('never snaps a moving window back to its own last write', () => {
-    const page = setup('/atlas/globe');
+    const page = setup('/globe');
     act(() =>
       page.dispatch({ type: 'SET_WINDOW', payload: { from: 1950, to: 1970 } }),
     );
@@ -116,7 +116,7 @@ describe('useWindowSync', () => {
   });
 
   it('applies a window that arrives from outside, like Back', () => {
-    const page = setup('/atlas/globe?from=1950&to=1970');
+    const page = setup('/globe?from=1950&to=1970');
     act(() => page.navigate!.setFrame({ window: { from: 1990, to: 1999 } }));
     expect(page.window).toEqual({ from: 1990, to: 1999 });
     act(() => page.navigate!.setFrame({ window: null }));

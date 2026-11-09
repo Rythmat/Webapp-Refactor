@@ -65,7 +65,7 @@ describe('AppRouteLaunch', () => {
     fireEvent.click(screen.getByRole('button', { name: /Launch/ }));
     await vi.waitFor(() => expect(openSpy).toHaveBeenCalled());
     const [url, target] = openSpy.mock.calls[0] as [string, string];
-    expect(url).toMatch(/^\/atlas\/globe\?mindmap=1&/);
+    expect(url).toMatch(/^\/globe\?mindmap=1&/);
     expect(url).toContain('interactionId=ix-promoter');
     expect(target).toBe('_blank');
     expect(readMindMapHandoff('ix-promoter')?.board).toEqual(

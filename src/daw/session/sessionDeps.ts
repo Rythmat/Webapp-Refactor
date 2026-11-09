@@ -12,14 +12,16 @@ import type { CollabPort, DraftSessionPort, SessionUser } from './types';
 export interface SessionDeps {
   /** Who is signed in; null until auth knows. */
   user(): SessionUser | null;
+  /** The signed-in student's name, a new project's composer; null if none. */
+  userName?(): string | null;
   token(): string | null;
   /** Whether the student may open this lesson now. */
   lessonAccess(tutorialId: string): 'open' | 'wait' | 'upgrade';
   collab: CollabPort;
   drafts: DraftSessionPort;
   /**
-   * Replace or push the editor's search (on /studio/editor). A no-op unless
-   * the page is on /studio/editor.
+   * Replace or push the editor's search (on /studio). A no-op unless
+   * the page is on /studio.
    */
   navigate(search: string, opts: { replace: boolean }): void;
   openProjectsDialog(opts?: {

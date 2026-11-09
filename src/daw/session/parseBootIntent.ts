@@ -3,13 +3,22 @@ import { getTutorial } from '@/daw/components/Tutorial/tutorials';
 import { getDemoProject } from '@/daw/data/demoProjects';
 import { getProjectTemplate } from '@/daw/data/projectTemplates';
 import { readPendingJam } from '@/daw/jam-import/importJamSession';
+import {
+  BAND_REF_KEYS,
+  bandRefFromParams,
+} from '@/features/practiceTracks/genre/bandPracticeRef';
+import {
+  ECHO_SONG_KEYS,
+  echoSongRefFromParams,
+} from '@/features/practiceTracks/genre/echoSongRef';
+import { PROMPT_TEXT_MAX } from '@/features/promptSong/parseMusicPrompt';
 import { isScaleLesson } from '@/lib/learn/scaleLessons';
 import { isDiatonicMode } from '@prism/engine';
 import type { OpenError, OpenIntent } from './types';
 
 // ── What an editor URL asks to open (milestone 1.4) ────────────────────────
 //
-// `/studio/editor?…` names at most one thing to open. parseBootIntent reads
+// `/studio?…` names at most one thing to open. parseBootIntent reads
 // it, in the order the boot has always checked the parameters (seeded first,
 // a bare URL last), and says which keys the open consumes: openSession strips
 // exactly those once it is done, and leaves every other key where it is (an
@@ -54,6 +63,13 @@ export const BOOT_KEYS: readonly string[] = Object.freeze([
   'practiceGenre',
   'practiceLevel',
   'practiceSection',
+  // A band's track (bandPracticeRef.ts).
+  ...Object.values(BAND_REF_KEYS),
+  // A song made in Echo (echoSongRef.ts).
+  ...Object.values(ECHO_SONG_KEYS),
+  // A song idea from a Home prompt (features/promptSong).
+  'prompt',
+  'promptSeed',
   'practiceMode',
   'practiceRoot',
   'practiceOpen',
@@ -86,6 +102,13 @@ function readTranspose(raw: string | null): number {
   const steps = Math.trunc(n);
   // `-0` would read as a transposition in a deep equal.
   return Math.max(-11, Math.min(11, steps)) || 0;
+}
+
+/** A prompt's seed: a whole number from 0 to 2³² − 1, else none. */
+function readSeed(raw: string | null): number | null {
+  if (raw === null || !/^\d{1,10}$/.test(raw.trim())) return null;
+  const n = Number(raw);
+  return n <= 0xffffffff ? n : null;
 }
 
 /** What `params` asks the editor to open (never throws). */
@@ -145,15 +168,29 @@ export function parseBootIntent(params: URLSearchParams): ParsedBoot {
     });
   }
 
+  const prompt = get('prompt')?.trim().slice(0, PROMPT_TEXT_MAX);
+  if (prompt) {
+    return parsed({
+      kind: 'prompt',
+      text: prompt,
+      seed: readSeed(get('promptSeed')),
+    });
+  }
+
+  const echoSong = echoSongRefFromParams(get);
+  if (echoSong) return parsed({ kind: 'echoSong', song: echoSong });
+
   const genre = get('practiceGenre');
   if (genre) {
     const level = Number(get('practiceLevel'));
     const section = get('practiceSection') as ActivitySectionId | null;
+    const band = bandRefFromParams(get);
     return parsed({
       kind: 'practiceGenre',
       genre,
       level: Number.isFinite(level) && level > 0 ? level : 1,
       section: section && SECTIONS.includes(section) ? section : 'A',
+      ...(band ? { band } : {}),
     });
   }
 

@@ -1,0 +1,250 @@
+{
+  "id": "latin-guitarist-1-l3-tango-take-7",
+  "name": "Tango Guitar 1",
+  "instrument": "guitar",
+  "role": "comping",
+  "level": 4,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "sample:acoustic-guitar",
+  "notes": [
+    {
+      "offset": -2,
+      "tick": 240,
+      "duration": 240,
+      "midi": 60,
+      "velocity": 68
+    },
+    {
+      "offset": 8,
+      "tick": 480,
+      "duration": 240,
+      "midi": 59,
+      "velocity": 37
+    },
+    {
+      "offset": 5,
+      "tick": 720,
+      "duration": 240,
+      "midi": 67,
+      "velocity": 101
+    },
+    {
+      "offset": -12,
+      "tick": 960,
+      "duration": 120,
+      "midi": 66,
+      "velocity": 56
+    },
+    {
+      "offset": -16,
+      "tick": 1080,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 26
+    },
+    {
+      "offset": -6,
+      "tick": 1200,
+      "duration": 720,
+      "midi": 67,
+      "velocity": 101
+    },
+    {
+      "offset": -9,
+      "tick": 1440,
+      "duration": 240,
+      "midi": 60,
+      "velocity": 63
+    },
+    {
+      "offset": 2,
+      "tick": 1680,
+      "duration": 240,
+      "midi": 59,
+      "velocity": 46
+    },
+    {
+      "offset": -4,
+      "tick": 2160,
+      "duration": 240,
+      "midi": 60,
+      "velocity": 40
+    },
+    {
+      "offset": 11,
+      "tick": 2400,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 38
+    },
+    {
+      "offset": -15,
+      "tick": 2640,
+      "duration": 360,
+      "midi": 66,
+      "velocity": 118
+    },
+    {
+      "offset": -9,
+      "tick": 2880,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 49
+    },
+    {
+      "offset": -13,
+      "tick": 3000,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 55
+    },
+    {
+      "offset": -12,
+      "tick": 3120,
+      "duration": 720,
+      "midi": 66,
+      "velocity": 118
+    },
+    {
+      "offset": -30,
+      "tick": 3360,
+      "duration": 240,
+      "midi": 59,
+      "velocity": 49
+    },
+    {
+      "offset": -9,
+      "tick": 3600,
+      "duration": 240,
+      "midi": 57,
+      "velocity": 44
+    },
+    {
+      "offset": 17,
+      "tick": 4080,
+      "duration": 240,
+      "midi": 59,
+      "velocity": 82
+    },
+    {
+      "offset": 14,
+      "tick": 4320,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 42
+    },
+    {
+      "offset": 29,
+      "tick": 4560,
+      "duration": 240,
+      "midi": 66,
+      "velocity": 117
+    },
+    {
+      "offset": 12,
+      "tick": 4800,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 58
+    },
+    {
+      "offset": 17,
+      "tick": 4920,
+      "duration": 120,
+      "midi": 63,
+      "velocity": 77
+    },
+    {
+      "offset": 23,
+      "tick": 5040,
+      "duration": 720,
+      "midi": 66,
+      "velocity": 117
+    },
+    {
+      "offset": 1,
+      "tick": 5280,
+      "duration": 240,
+      "midi": 59,
+      "velocity": 49
+    },
+    {
+      "offset": 7,
+      "tick": 5520,
+      "duration": 240,
+      "midi": 57,
+      "velocity": 37
+    },
+    {
+      "offset": 1,
+      "tick": 6000,
+      "duration": 240,
+      "midi": 60,
+      "velocity": 49
+    },
+    {
+      "offset": 2,
+      "tick": 6240,
+      "duration": 360,
+      "midi": 59,
+      "velocity": 54
+    },
+    {
+      "offset": -10,
+      "tick": 6480,
+      "duration": 360,
+      "midi": 67,
+      "velocity": 113
+    },
+    {
+      "offset": 19,
+      "tick": 6720,
+      "duration": 120,
+      "midi": 66,
+      "velocity": 60
+    },
+    {
+      "offset": 15,
+      "tick": 6840,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 38
+    },
+    {
+      "offset": 11,
+      "tick": 6960,
+      "duration": 720,
+      "midi": 67,
+      "velocity": 113
+    },
+    {
+      "offset": 4,
+      "tick": 7200,
+      "duration": 240,
+      "midi": 60,
+      "velocity": 41
+    },
+    {
+      "offset": 10,
+      "tick": 7440,
+      "duration": 240,
+      "midi": 59,
+      "velocity": 46
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "latin",
+  "style": "Tango",
+  "chordSymbols": ["Em", "Am", "B7", "Em"]
+}

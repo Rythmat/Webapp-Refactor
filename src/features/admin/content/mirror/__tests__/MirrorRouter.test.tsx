@@ -51,9 +51,7 @@ const Learn = () => {
     <div>
       <span data-testid="tab">{params.get('tab') ?? 'none'}</span>
       <button onClick={() => setParams({ tab: 'Songs' })}>Songs tab</button>
-      <button onClick={() => navigate('/atlas/globe?artist=Toto')}>
-        Globe
-      </button>
+      <button onClick={() => navigate('/globe?artist=Toto')}>Globe</button>
       <button onClick={() => navigate(-1)}>Back</button>
     </div>
   );
@@ -65,7 +63,7 @@ const MirrorApp = () => (
       <Route path="/songs" element={<Navigate replace to="/learn" />} />
       <Route path="/songs/:songId" element={<Song />} />
       <Route path="/learn" element={<Learn />} />
-      <Route path="/atlas/globe" element={<span data-testid="globe" />} />
+      <Route path="/globe" element={<span data-testid="globe" />} />
       <Route path="*" element={<span data-testid="not-mirrored" />} />
     </Routes>
   </MirrorRouter>
@@ -120,7 +118,7 @@ describe('MirrorRouter', () => {
   it('routes a programmatic navigate through the console', () => {
     mount('/console/content/learn');
     fireEvent.click(screen.getByText('Globe'));
-    expect(outerPath()).toBe('/console/content/atlas/globe?artist=Toto');
+    expect(outerPath()).toBe('/console/content/globe?artist=Toto');
     expect(screen.getByTestId('globe')).toBeTruthy();
   });
 
@@ -132,7 +130,7 @@ describe('MirrorRouter', () => {
   it('goes back through the console history', async () => {
     mount('/console/content/learn');
     fireEvent.click(screen.getByText('Globe'));
-    expect(outerPath()).toBe('/console/content/atlas/globe?artist=Toto');
+    expect(outerPath()).toBe('/console/content/globe?artist=Toto');
     await act(async () => {
       await outerRouter.navigate(-1);
     });

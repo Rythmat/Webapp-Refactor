@@ -39,6 +39,7 @@ import {
   shapeNotes,
   shapePitchClasses,
 } from '@/lib/guitar/fretboard';
+import { GUITAR, type FrettedInstrument } from '@/lib/guitar/instrument';
 import type { FretPosition } from '@/lib/guitar/types';
 import {
   SCALE_LESSONS,
@@ -71,6 +72,7 @@ import { guitarScaleEntry } from '../guitar/theoryCatalog';
 import type {
   BookChordQuality,
   GuitarCenter,
+  GuitarCenterId,
   GuitarMode,
   GuitarPentatonicScale,
   GuitarScaleKey,
@@ -107,7 +109,50 @@ export function guitarModeGenre(mode: GuitarMode): string {
     ? GUITAR_APPLIED_THEORY_GENRE
     : `guitar-mode-${mode}`;
 }
-const MODULE = 'applied_theory_guitar_l1';
+// ── The instrument a flow is built for ────────────────────────────────────
+// The ukulele lessons are this lesson on a ukulele center (data/ukulele):
+// the same steps, words and timing, with ukulele frets, pitches, ids and
+// progress. A build sets the target for its duration (builds are
+// synchronous), so every helper below reads it instead of taking it.
+
+export interface FrettedFlowTarget {
+  instrument: 'guitar' | 'ukulele';
+  inst: FrettedInstrument;
+  getCenter: (id: GuitarCenterId) => GuitarCenter;
+  module: string;
+  /** Tag prefix and family: 'guitar_fund' / 'applied_theory_guitar'. */
+  tagPrefix: string;
+  tagFamily: string;
+  modeGenre: (mode: GuitarMode) => string;
+  scaleGenre: (scale: GuitarScaleKey) => string;
+  /** What titles say after the dash: 'Guitar'. */
+  label: string;
+}
+
+export const GUITAR_FLOW_TARGET: FrettedFlowTarget = {
+  instrument: 'guitar',
+  inst: GUITAR,
+  getCenter: getGuitarCenter,
+  module: 'applied_theory_guitar_l1',
+  tagPrefix: 'guitar_fund',
+  tagFamily: 'applied_theory_guitar',
+  modeGenre: guitarModeGenre,
+  scaleGenre: (scale) => guitarScaleEntry(scale).genre,
+  label: 'Guitar',
+};
+
+let target: FrettedFlowTarget = GUITAR_FLOW_TARGET;
+
+function withTarget<T>(next: FrettedFlowTarget, build: () => T): T {
+  const previous = target;
+  target = next;
+  try {
+    return build();
+  } finally {
+    target = previous;
+  }
+}
+
 const OOT_SPACING = 960; // out-of-time chord spacing, as piano's B2.1/B4.1
 /** Music Maps are played twice: the book prints repeat signs around them. */
 export const MUSIC_MAP_PASSES = 2;
@@ -134,7 +179,7 @@ const ENGINE_QUALITY: Record<BookChordQuality, DetectorChordQuality> = {
 type Assessment = ActivityStepV2['assessment'];
 
 function tag(suffix: string): string {
-  return `guitar_fund:${suffix} | applied_theory_guitar`;
+  return `${target.tagPrefix}:${suffix} | ${target.tagFamily}`;
 }
 
 // ── Chords ────────────────────────────────────────────────────────────────
@@ -178,11 +223,11 @@ function chordTarget(
   durationTicks: number,
   attack: ChordTarget['attack'],
 ): ChordTarget {
-  const notes = shapeNotes(chord.frets);
+  const notes = shapeNotes(chord.frets, target.inst);
   return {
     rootPc: chordRootPc(center, chord.degree),
     quality: ENGINE_QUALITY[chord.quality],
-    pitchClasses: shapePitchClasses(chord.frets),
+    pitchClasses: shapePitchClasses(chord.frets, target.inst),
     bassPc: Math.min(...notes.map((n) => n.midi)) % 12,
     onsetTick,
     durationTicks,
@@ -198,7 +243,7 @@ function note(
   duration: number,
 ): TargetNote {
   return {
-    midi: fretToMidi(position),
+    midi: fretToMidi(position, target.inst),
     onset,
     duration,
     fretPosition: position,
@@ -207,7 +252,9 @@ function note(
 
 /** Every string of a shape at once — a strum. */
 function strumNotes(chord: GuitarChord, onset: number, duration: number) {
-  return shapeNotes(chord.frets).map((n) => note(n.position, onset, duration));
+  return shapeNotes(chord.frets, target.inst).map((n) =>
+    note(n.position, onset, duration),
+  );
 }
 
 /**
@@ -236,7 +283,7 @@ function chordSequence(
 
 /** Pick a shape string by string, lowest first, one note per beat. */
 function arpeggio(center: GuitarCenter, chord: GuitarChord) {
-  const notes = shapeNotes(chord.frets);
+  const notes = shapeNotes(chord.frets, target.inst);
   const targetNotes = notes.map((n, i) =>
     note(n.position, i * TICKS_PER_BEAT, NORMAL_DURATION),
   );
@@ -250,7 +297,7 @@ function arpeggio(center: GuitarCenter, chord: GuitarChord) {
 
 // ── Scales and melodies ───────────────────────────────────────────────────
 
-type Direction = 'ascending' | 'descending' | 'ascending_descending';
+export type Direction = 'ascending' | 'descending' | 'ascending_descending';
 
 /** The position's notes in the order generateScale plays piano's. */
 function scaleNotes(position: GuitarScalePosition, direction: Direction) {
@@ -281,17 +328,19 @@ function contourNotes(
 
 // ── Music Maps ────────────────────────────────────────────────────────────
 
-const RHYTHM: Record<MusicMapRhythm, { ticks: number; rest: boolean }> = {
-  whole: { ticks: WHOLE_NOTE, rest: false },
-  'dotted-half': { ticks: HALF_NOTE + QUARTER_NOTE, rest: false },
-  half: { ticks: HALF_NOTE, rest: false },
-  'dotted-quarter': { ticks: QUARTER_NOTE + EIGHTH_NOTE, rest: false },
-  quarter: { ticks: QUARTER_NOTE, rest: false },
-  eighth: { ticks: EIGHTH_NOTE, rest: false },
-  'half-rest': { ticks: HALF_NOTE, rest: true },
-  'quarter-rest': { ticks: QUARTER_NOTE, rest: true },
-  'eighth-rest': { ticks: EIGHTH_NOTE, rest: true },
-};
+/** A Music Map value's length and whether it sounds (shared with bass). */
+export const RHYTHM: Record<MusicMapRhythm, { ticks: number; rest: boolean }> =
+  {
+    whole: { ticks: WHOLE_NOTE, rest: false },
+    'dotted-half': { ticks: HALF_NOTE + QUARTER_NOTE, rest: false },
+    half: { ticks: HALF_NOTE, rest: false },
+    'dotted-quarter': { ticks: QUARTER_NOTE + EIGHTH_NOTE, rest: false },
+    quarter: { ticks: QUARTER_NOTE, rest: false },
+    eighth: { ticks: EIGHTH_NOTE, rest: false },
+    'half-rest': { ticks: HALF_NOTE, rest: true },
+    'quarter-rest': { ticks: QUARTER_NOTE, rest: true },
+    'eighth-rest': { ticks: EIGHTH_NOTE, rest: true },
+  };
 
 /** A map played `passes` times: every strum in its rhythm, rests silent. */
 function mapNotes(
@@ -352,7 +401,7 @@ function createStepFactory() {
   let stepNumber = 0;
   return (input: StepInput): ActivityStepV2 => ({
     stepNumber: ++stepNumber,
-    module: MODULE,
+    module: target.module,
     section: input.section,
     subsection: input.subsection,
     activity: input.activity,
@@ -375,7 +424,8 @@ type Step = ReturnType<typeof createStepFactory>;
 
 // ── Section A: Melody ─────────────────────────────────────────────────────
 
-const SCALE_STEPS: {
+/** A1/A4's six scale steps: the words are the instrument's own (shared with bass). */
+export const SCALE_STEPS: {
   direction: Direction;
   timed: boolean;
   suffix: string;
@@ -509,133 +559,143 @@ function buildPentatonicSteps(center: GuitarCenter, step: Step) {
  * mode, the chord that carries its colour note (Dorian's IV, Lydian's II,
  * harmonic minor's V).
  */
-function pairDegree(center: GuitarCenter): number {
+export function pairDegree(center: GuitarCenter): number {
   if (center.mode === 'ionian') return 4;
   if (center.family === 'diatonic') return COLOUR_CHORD[center.mode];
   if (isPentatonicScale(center.mode)) return 4;
   return COLOUR[center.mode].chord;
 }
 
+/** A2-A3's eight melody steps, as data (shared with bass). */
+export interface MelodyStepSpec {
+  subsection: string;
+  activity: string;
+  direction: string;
+  suffix: string;
+  assessment: Assessment;
+  successFeedback: string;
+  degrees: readonly number[];
+  durations: readonly number[];
+}
+
+const normal3 = [NORMAL_DURATION, NORMAL_DURATION, NORMAL_DURATION];
+const normal6 = Array(6).fill(NORMAL_DURATION) as number[];
+const staccato3 = Array(3).fill(STACCATO_DURATION) as number[];
+const legato3 = Array(3).fill(LEGATO_DURATION) as number[];
+const mixed3 = [STACCATO_DURATION, LEGATO_DURATION, STACCATO_DURATION];
+const mixed6 = [
+  STACCATO_DURATION,
+  LEGATO_DURATION,
+  STACCATO_DURATION,
+  LEGATO_DURATION,
+  STACCATO_DURATION,
+  LEGATO_DURATION,
+];
+
+export const MELODY_STEPS: readonly MelodyStepSpec[] = [
+  {
+    subsection: 'A2: Melody',
+    activity: 'A2.1: 3 Note Contour (Out of Time)',
+    direction: 'Play this short melodic phrase, at your own pace.',
+    suffix: 'contour_a_oot',
+    assessment: 'pitch_only',
+    successFeedback: 'Nice shape — that melodic phrase is yours now.',
+    degrees: CONTOUR_A_DEGREES,
+    durations: normal3,
+  },
+  {
+    subsection: 'A2: Melody',
+    activity: 'A2.2: 3 Note Contour (In Time)',
+    direction: 'In a steady tempo, play this short melodic phrase.',
+    suffix: 'contour_a_it',
+    assessment: 'pitch_order_timing',
+    successFeedback: 'Right in time — that phrase locked in nicely.',
+    degrees: CONTOUR_A_DEGREES,
+    durations: normal3,
+  },
+  {
+    subsection: 'A2: Melody',
+    activity: 'A2.3: Connect Two 3 Note Contours (Out of Time)',
+    direction: 'Play this longer melodic phrase, at your own pace.',
+    suffix: 'contour_connected_oot',
+    assessment: 'pitch_only',
+    successFeedback: 'You connected both phrases smoothly — nice work.',
+    degrees: CONTOUR_CONNECTED_DEGREES,
+    durations: normal6,
+  },
+  {
+    subsection: 'A2: Melody',
+    activity: 'A2.4: Connect Two 3 Note Contours (In Time)',
+    direction: 'In a steady tempo, play this longer melodic phrase.',
+    suffix: 'contour_connected_it',
+    assessment: 'pitch_order_timing',
+    successFeedback: 'Both phrases, locked in time — great work.',
+    degrees: CONTOUR_CONNECTED_DEGREES,
+    durations: normal6,
+  },
+  {
+    subsection: 'A3: Melody Articulation',
+    activity: 'A3.1: 3 Note Contour (Staccato)',
+    direction:
+      'In a steady tempo, play this short melodic phrase with short, detached articulations ("staccato") — lift the finger or mute each note after you pick it.',
+    suffix: 'contour_a_staccato',
+    assessment: 'pitch_order_timing_duration',
+    successFeedback: 'Crisp and detached — that’s staccato.',
+    degrees: CONTOUR_A_DEGREES,
+    durations: staccato3,
+  },
+  {
+    subsection: 'A3: Melody Articulation',
+    activity: 'A3.2: 3 Note Contour (Legato)',
+    direction:
+      'In a steady tempo, play this short melodic phrase with long, connected articulations ("legato").',
+    suffix: 'contour_a_legato',
+    assessment: 'pitch_order_timing_duration',
+    successFeedback: 'Smooth and connected — that’s legato.',
+    degrees: CONTOUR_A_DEGREES,
+    durations: legato3,
+  },
+  {
+    subsection: 'A3: Melody Articulation',
+    activity: 'A3.3: 3 Note Contour (Mixed Articulation)',
+    direction:
+      'In a steady tempo, play this short melodic phrase with mixed articulations (staccato and legato).',
+    suffix: 'contour_a_mixed',
+    assessment: 'pitch_order_timing_duration',
+    successFeedback: 'Nice control mixing short and long notes.',
+    degrees: CONTOUR_A_DEGREES,
+    durations: mixed3,
+  },
+  {
+    subsection: 'A3: Melody Articulation',
+    activity: 'A3.4: Connect Two 3 Note Contours (Mixed Articulation)',
+    direction:
+      'In a steady tempo, play this longer melodic phrase with mixed articulations.',
+    suffix: 'contour_connected_mixed',
+    assessment: 'pitch_order_timing_duration',
+    successFeedback:
+      'Great control over the full phrase, short and long notes alike.',
+    degrees: CONTOUR_CONNECTED_DEGREES,
+    durations: mixed6,
+  },
+];
+
 function buildMelodySteps(center: GuitarCenter, step: Step) {
   const position = center.majorScale;
-  const normal3 = [NORMAL_DURATION, NORMAL_DURATION, NORMAL_DURATION];
-  const normal6 = Array(6).fill(NORMAL_DURATION) as number[];
-  const staccato3 = Array(3).fill(STACCATO_DURATION) as number[];
-  const legato3 = Array(3).fill(LEGATO_DURATION) as number[];
-  const mixed3 = [STACCATO_DURATION, LEGATO_DURATION, STACCATO_DURATION];
-  const mixed6 = [
-    STACCATO_DURATION,
-    LEGATO_DURATION,
-    STACCATO_DURATION,
-    LEGATO_DURATION,
-    STACCATO_DURATION,
-    LEGATO_DURATION,
-  ];
   const guitar = { keyCenter: center.id, scalePosition: 'major' as const };
-  const melody = (
-    subsection: string,
-    activity: string,
-    direction: string,
-    suffix: string,
-    assessment: Assessment,
-    successFeedback: string,
-    degrees: readonly number[],
-    durations: readonly number[],
-  ) =>
+  return MELODY_STEPS.map((m) =>
     step({
       section: 'A',
-      subsection,
-      activity,
-      direction,
-      suffix,
-      assessment,
-      successFeedback,
-      targetNotes: contourNotes(position, degrees, durations),
+      subsection: m.subsection,
+      activity: m.activity,
+      direction: m.direction,
+      suffix: m.suffix,
+      assessment: m.assessment,
+      successFeedback: m.successFeedback,
+      targetNotes: contourNotes(position, m.degrees, m.durations),
       guitar,
-    });
-
-  return [
-    melody(
-      'A2: Melody',
-      'A2.1: 3 Note Contour (Out of Time)',
-      'Play this short melodic phrase, at your own pace.',
-      'contour_a_oot',
-      'pitch_only',
-      'Nice shape — that melodic phrase is yours now.',
-      CONTOUR_A_DEGREES,
-      normal3,
-    ),
-    melody(
-      'A2: Melody',
-      'A2.2: 3 Note Contour (In Time)',
-      'In a steady tempo, play this short melodic phrase.',
-      'contour_a_it',
-      'pitch_order_timing',
-      'Right in time — that phrase locked in nicely.',
-      CONTOUR_A_DEGREES,
-      normal3,
-    ),
-    melody(
-      'A2: Melody',
-      'A2.3: Connect Two 3 Note Contours (Out of Time)',
-      'Play this longer melodic phrase, at your own pace.',
-      'contour_connected_oot',
-      'pitch_only',
-      'You connected both phrases smoothly — nice work.',
-      CONTOUR_CONNECTED_DEGREES,
-      normal6,
-    ),
-    melody(
-      'A2: Melody',
-      'A2.4: Connect Two 3 Note Contours (In Time)',
-      'In a steady tempo, play this longer melodic phrase.',
-      'contour_connected_it',
-      'pitch_order_timing',
-      'Both phrases, locked in time — great work.',
-      CONTOUR_CONNECTED_DEGREES,
-      normal6,
-    ),
-    melody(
-      'A3: Melody Articulation',
-      'A3.1: 3 Note Contour (Staccato)',
-      'In a steady tempo, play this short melodic phrase with short, detached articulations ("staccato") — lift the finger or mute each note after you pick it.',
-      'contour_a_staccato',
-      'pitch_order_timing_duration',
-      'Crisp and detached — that’s staccato.',
-      CONTOUR_A_DEGREES,
-      staccato3,
-    ),
-    melody(
-      'A3: Melody Articulation',
-      'A3.2: 3 Note Contour (Legato)',
-      'In a steady tempo, play this short melodic phrase with long, connected articulations ("legato").',
-      'contour_a_legato',
-      'pitch_order_timing_duration',
-      'Smooth and connected — that’s legato.',
-      CONTOUR_A_DEGREES,
-      legato3,
-    ),
-    melody(
-      'A3: Melody Articulation',
-      'A3.3: 3 Note Contour (Mixed Articulation)',
-      'In a steady tempo, play this short melodic phrase with mixed articulations (staccato and legato).',
-      'contour_a_mixed',
-      'pitch_order_timing_duration',
-      'Nice control mixing short and long notes.',
-      CONTOUR_A_DEGREES,
-      mixed3,
-    ),
-    melody(
-      'A3: Melody Articulation',
-      'A3.4: Connect Two 3 Note Contours (Mixed Articulation)',
-      'In a steady tempo, play this longer melodic phrase with mixed articulations.',
-      'contour_connected_mixed',
-      'pitch_order_timing_duration',
-      'Great control over the full phrase, short and long notes alike.',
-      CONTOUR_CONNECTED_DEGREES,
-      mixed6,
-    ),
-  ];
+    }),
+  );
 }
 
 // ── Section B: Chords ─────────────────────────────────────────────────────
@@ -1117,8 +1177,21 @@ export function buildGuitarModeFlow(
   keyName: string,
   mode: GuitarMode,
 ): ActivityFlowV2 {
+  return buildFrettedModeFlow(GUITAR_FLOW_TARGET, keyName, mode);
+}
+
+/** buildGuitarModeFlow for any fretted target (the ukulele's). */
+export function buildFrettedModeFlow(
+  flowTarget: FrettedFlowTarget,
+  keyName: string,
+  mode: GuitarMode,
+): ActivityFlowV2 {
+  return withTarget(flowTarget, () => modeFlow(keyName, mode));
+}
+
+function modeFlow(keyName: string, mode: GuitarMode): ActivityFlowV2 {
   const key = toBookKey(keyName) ?? 'C';
-  const center = getGuitarCenter(centerId(key, mode));
+  const center = target.getCenter(centerId(key, mode));
   const ionian = mode === 'ionian';
   const step = createStepFactory();
 
@@ -1143,12 +1216,12 @@ export function buildGuitarModeFlow(
   };
 
   return {
-    genre: guitarModeGenre(mode),
+    genre: target.modeGenre(mode),
     level: 1,
     version: 'v2',
     title: ionian
-      ? 'Ionian (Major) — Guitar'
-      : `${GUITAR_MODE_NAME[mode]} — Guitar`,
+      ? `Ionian (Major) — ${target.label}`
+      : `${GUITAR_MODE_NAME[mode]} — ${target.label}`,
     params: {
       defaultKey: ionian
         ? `${key} Major (Ionian)`
@@ -1158,7 +1231,7 @@ export function buildGuitarModeFlow(
       tempoRange: [60, 100],
       swing: 0,
       grooves: [],
-      instrument: 'guitar',
+      instrument: target.instrument,
     },
     sections: [sectionA, sectionB, sectionD],
   };
@@ -1348,9 +1421,22 @@ export function buildGuitarScaleFlow(
   keyName: string,
   scale: GuitarScaleKey,
 ): ActivityFlowV2 {
-  if (isGuitarMode(scale)) return buildGuitarModeFlow(keyName, scale);
+  return buildFrettedScaleFlow(GUITAR_FLOW_TARGET, keyName, scale);
+}
+
+/** buildGuitarScaleFlow for any fretted target (the ukulele's). */
+export function buildFrettedScaleFlow(
+  flowTarget: FrettedFlowTarget,
+  keyName: string,
+  scale: GuitarScaleKey,
+): ActivityFlowV2 {
+  return withTarget(flowTarget, () => scaleFlow(keyName, scale));
+}
+
+function scaleFlow(keyName: string, scale: GuitarScaleKey): ActivityFlowV2 {
+  if (isGuitarMode(scale)) return modeFlow(keyName, scale);
   const key = toBookKey(keyName) ?? 'C';
-  const center = getGuitarCenter(centerId(key, scale));
+  const center = target.getCenter(centerId(key, scale));
   const entry = guitarScaleEntry(scale);
   const step = createStepFactory();
   const melody = [
@@ -1385,10 +1471,10 @@ export function buildGuitarScaleFlow(
   }
 
   return {
-    genre: entry.genre,
+    genre: target.scaleGenre(scale),
     level: 1,
     version: 'v2',
-    title: `${entry.title} — Guitar`,
+    title: `${entry.title} — ${target.label}`,
     params: {
       defaultKey: `${key} ${entry.name}`,
       defaultScale: [...center.steps],
@@ -1396,7 +1482,7 @@ export function buildGuitarScaleFlow(
       tempoRange: [60, 100],
       swing: 0,
       grooves: [],
-      instrument: 'guitar',
+      instrument: target.instrument,
       practiceTrack: { chords: practiceChords },
     },
     sections,

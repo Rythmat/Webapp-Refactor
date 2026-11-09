@@ -2,15 +2,13 @@ import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { MUSIC_HISTORY } from '@/components/atlas/data';
 import { getEventsForArtist } from '@/components/atlas/data/artists';
-// Each hook by its own file: the hooks barrel also carries three.js's
-// lighting hook, which would then load with the route.
 import { useStartPathway } from '@/components/atlas/hooks/useStartPathway';
 import { useStartTour } from '@/components/atlas/hooks/useStartTour';
 import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
-import { frameFromSearchParams } from './atlasFrame';
+import { frameFromSearchParams, isTimelineView } from './atlasFrame';
 import { stopFromSearchParams, stopKey } from './atlasStop';
 import { consumeFlown, flyToFit, focusEvent } from './focusEvent';
 import { cancelPendingNavigation } from './pendingNavigation';
@@ -56,7 +54,7 @@ export function useAtlasUrlSync(): void {
   // An event opened on the timeline shows on its stage there; the hidden
   // map waits, and goes to it only once it is shown ("Show on the globe"),
   // rather than being left zoomed in on a moment the user never saw on it.
-  const onTimeline = frameFromSearchParams(params).view === 'timeline';
+  const onTimeline = isTimelineView(frameFromSearchParams(params));
   const runKey = stop.kind === 'event' && onTimeline ? `${key}|timeline` : key;
 
   useEffect(() => {
@@ -85,7 +83,7 @@ export function useAtlasUrlSync(): void {
 
       case 'artist': {
         // The artist panel replaces the details card, so clear the region; the
-        // artist's own pins are drawn by BaseGlobe from the same URL.
+        // artist's own points are drawn by the map from the same URL.
         dispatch({ type: 'SELECT_LOCATION', payload: null });
         const fly = flyToFit(
           getEventsForArtist(stop.artist).map((e) => e.location),

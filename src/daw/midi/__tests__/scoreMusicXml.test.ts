@@ -10,6 +10,7 @@ const track = (
   id: string,
   instrument: string,
   events: [note: number, start: number, length: number][],
+  extra: Partial<Track> = {},
 ): Track =>
   ({
     id,
@@ -17,6 +18,7 @@ const track = (
     type: 'midi',
     instrument,
     color: '#fff',
+    ...extra,
     midiClips: [
       {
         id: `${id}-c`,
@@ -34,20 +36,30 @@ const track = (
 const parts = buildScoreParts({
   tracks: [
     // Two bars: C E G A (quarters), then a held B♭ tied across the barline.
-    track('Lead', 'piano-sampler', [
-      [72, 0, 480],
-      [76, 480, 480],
-      [79, 960, 480],
-      [81, 1440, 480],
-      [82, BAR, BAR * 1.5],
-    ]),
+    track(
+      'Lead',
+      'soundfont',
+      [
+        [72, 0, 480],
+        [76, 480, 480],
+        [79, 960, 480],
+        [81, 1440, 480],
+        [82, BAR, BAR * 1.5],
+      ],
+      { gmProgram: 0 },
+    ),
     // Grand staff: a low bass note under a treble chord.
-    track('Piano', 'piano-sampler', [
-      [36, 0, BAR],
-      [64, 0, BAR],
-      [67, 0, BAR],
-      [72, 0, BAR],
-    ]),
+    track(
+      'Piano',
+      'soundfont',
+      [
+        [36, 0, BAR],
+        [64, 0, BAR],
+        [67, 0, BAR],
+        [72, 0, BAR],
+      ],
+      { gmProgram: 0 },
+    ),
     track('Drums', 'drum-machine', [
       [36, 0, 0],
       [38, 480, 0],
@@ -181,12 +193,13 @@ describe('buildScoreXml slurs and marks', () => {
   const EIGHTH = 240;
   const melody = track(
     'Mel',
-    'piano-sampler',
+    'soundfont',
     Array.from({ length: NOTE_COUNT }, (_, i) => [
       PITCHES[i % PITCHES.length],
       i * EIGHTH,
       EIGHTH,
     ]),
+    { gmProgram: 0 },
   );
   const [part] = buildScoreParts({
     tracks: [melody],

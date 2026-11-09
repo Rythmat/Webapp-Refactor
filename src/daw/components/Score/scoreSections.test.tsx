@@ -110,7 +110,7 @@ beforeEach(() => {
   uninstallKeys = installKeyDispatcher();
   useStore.setState(useStore.getInitialState(), true);
   useStore.setState({ currentView: 'score' } as Partial<AllSlices>);
-  const id = st().addTrack('midi', 'piano-sampler', 'Piano');
+  const id = st().addTrack('midi', 'soundfont', 'Piano');
   st().addMidiClip(id, {
     id: 'clip',
     startTick: 0,

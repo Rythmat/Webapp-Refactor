@@ -1,0 +1,31 @@
+/* The chosen instrument's "Go to Keyboard" / "Go to Guitar": a rainbow (the
+   12 key-center colors, the landing's brand motif) sweeps across its text
+   and leaves it white. The strip is three text-widths wide, white | rainbow
+   | white (--sweep, set inline), slid right to left. It plays when the
+   button appears (an instrument chosen) and again each time the pointer
+   comes onto it (HomeInstrumentsRow gives the text a new key then), never
+   as the pointer leaves (owner, 2026-10-24). */
+.home-lessons-sweep {
+  background-image: var(--sweep);
+  background-size: 300% 100%;
+  background-position: 0% 0%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: home-lessons-sweep 1.1s cubic-bezier(0.45, 0, 0.25, 1) both;
+}
+
+@keyframes home-lessons-sweep {
+  from {
+    background-position: 100% 0%;
+  }
+  to {
+    background-position: 0% 0%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-lessons-sweep {
+    animation: none;
+  }
+}

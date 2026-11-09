@@ -5,7 +5,10 @@
 // disappears; saved projects keep full params and degrade to basic
 // waveforms via the oscillator's missing-table fallback).
 
-import { registerPackTables } from '../../audio/wavetableImport';
+import {
+  registerPackTables,
+  setTableRegistrar,
+} from '../../audio/wavetableImport';
 import { useSynthStore } from '../index';
 import type { PresetData } from './PresetData';
 
@@ -49,6 +52,10 @@ export function loadOraclePacks(): Promise<void> {
   loading ??= loadPacks();
   return loading;
 }
+
+// A table asked for before the manifest arrived waits for it (any engine,
+// export included), instead of falling back for good.
+setTableRegistrar(loadOraclePacks);
 
 async function loadPacks(): Promise<void> {
   if (loadAttempted) return;

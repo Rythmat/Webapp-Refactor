@@ -6,8 +6,8 @@ import { FEATURED_CITY_IDS } from './featured';
 /**
  * Curated notable music cities for a region: the marquee featured cities in that
  * region first, then the region guided-tour's city stops — deduped, resolved to
- * City objects. Reuses existing curation so all 18 regions are covered. Shared by
- * the Globe dashboard "Regions & Cities" shelf and the slide-deck content picker.
+ * City objects. Reuses existing curation so all 18 regions are covered. Used by
+ * the slide-deck content picker.
  */
 export function regionCities(regionId: string): City[] {
   const featured = FEATURED_CITY_IDS.filter(

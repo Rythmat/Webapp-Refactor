@@ -1326,7 +1326,7 @@ async function instrumentIcon(kit, page, ids) {
         () =>
           document
             .querySelector(
-              '[data-testid^="dock-tab-"][data-state="active"], [data-testid^="dock-tab-"][aria-selected="true"]',
+              '[data-testid^="dock-tab-"][data-state="active"], [data-testid^="dock-tab-"][aria-selected="true"], [data-testid^="dock-tab-"][aria-pressed="true"]',
             )
             ?.getAttribute('data-testid') ?? null,
       ),

@@ -1,13 +1,14 @@
 import { X } from 'lucide-react';
 import { memo, useEffect } from 'react';
 import { cn } from '@/components/utilities';
-import { InsightContent } from '@/daw/components/Library/InsightContent';
+import {
+  InsightContent,
+  InsightReanalyzeButton,
+} from '@/daw/components/Library/InsightContent';
 import { DevProfiler } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
 import { TYPE_CLASS } from '@/daw/ui/styles';
-import { ChatBody } from './panels/ChatBody';
-import { FxBody } from './panels/FxBody';
 import { LessonsBody } from './panels/LessonsBody';
 import { LibraryBody } from './panels/LibraryBody';
 import { PeopleBody } from './panels/PeopleBody';
@@ -35,13 +36,14 @@ export const InspectorPanel = memo(function InspectorPanel() {
     <div
       data-testid="inspector-panel"
       data-panel={panel}
-      className="flex min-h-0 flex-col overflow-hidden border-l border-daw-hairline bg-daw-surface-1 duration-daw-fast animate-in fade-in-0 motion-reduce:animate-none"
+      className="flex min-h-0 flex-col overflow-hidden rounded-[var(--daw-radius-lg)] bg-daw-surface-1 duration-daw-fast animate-in fade-in-0 motion-reduce:animate-none"
       style={{ width: 'var(--daw-insp-w, 300px)' }}
     >
       <div className="flex h-10 shrink-0 items-center gap-2 border-b border-daw-hairline pl-3 pr-1.5">
         <h2 className={cn(TYPE_CLASS.title, 'flex-1 truncate text-daw-text')}>
           {title}
         </h2>
+        {panel === 'insight' ? <InsightReanalyzeButton /> : null}
         <IconButton
           label={`Close ${title}`}
           icon={<X />}
@@ -51,11 +53,7 @@ export const InspectorPanel = memo(function InspectorPanel() {
           onClick={close}
         />
       </div>
-      <div
-        key={panel}
-        className="flex min-h-0 flex-1 flex-col"
-        data-ds={panel === 'insight' ? 'legacy' : 'v2'}
-      >
+      <div key={panel} className="flex min-h-0 flex-1 flex-col" data-ds="v2">
         <DevProfiler id={`Inspector:${panel}`}>
           <Body panel={panel} />
         </DevProfiler>
@@ -68,14 +66,10 @@ function Body({ panel }: { panel: string }) {
   switch (panel) {
     case 'library':
       return <LibraryBody />;
-    case 'fx':
-      return <FxBody />;
     case 'lessons':
       return <LessonsBody />;
     case 'people':
       return <PeopleBody />;
-    case 'chat':
-      return <ChatBody />;
     default:
       return (
         <div

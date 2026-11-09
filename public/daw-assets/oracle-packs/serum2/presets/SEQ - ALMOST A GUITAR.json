@@ -6,7 +6,7 @@
       "waveform": "sawtooth",
       "wavetable": "SAWTOOTH",
       "octave": 0,
-      "semitone": 0,
+      "semitone": 4,
       "fine": -0.5737364292144775,
       "wtPosition": 0,
       "pan": 0,
@@ -22,7 +22,7 @@
       "waveform": "sawtooth",
       "wavetable": "SAWTOOTH",
       "octave": 0,
-      "semitone": 0,
+      "semitone": 4,
       "fine": -3.200274705886841,
       "wtPosition": 0,
       "pan": 0,
@@ -677,7 +677,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.3886375427246094,
+      "amount": 0.44415406730217505,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -717,7 +717,7 @@
   "voiceCount": 8,
   "glide": 0.11500048517083195,
   "spread": 0,
-  "masterVolume": 0.14177126597287878,
+  "masterVolume": 0.16998374790148169,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -739,10 +739,10 @@
     },
     "compressor": {
       "enabled": true,
-      "threshold": -18,
+      "threshold": -12.041199826559248,
       "ratio": 4,
-      "attack": 1,
-      "release": 1
+      "attack": 0.028094712913416652,
+      "release": 0.0899290729568833
     },
     "drive": {
       "enabled": true,

@@ -4,7 +4,7 @@
   "oscillators": [
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Saw",
       "octave": -1,
       "semitone": 0,
       "fine": -3.4999489784240723,
@@ -1427,7 +1427,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.3247077465057373,
+      "amount": 0.37109195700437536,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1442,7 +1442,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": -0.3797413110733032,
+      "amount": -0.4339870169346559,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1457,7 +1457,7 @@
         "source": "flt2",
         "param": "cutoff"
       },
-      "amount": 0.8798482418060303,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1517,7 +1517,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": -0.39962393045425415,
+      "amount": -0.456709850670068,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1532,7 +1532,7 @@
         "source": "sub",
         "param": "level"
       },
-      "amount": -0.7473339140415192,
+      "amount": -1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1542,7 +1542,7 @@
   "voiceCount": 10,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.21852044976093055,
+  "masterVolume": 0.8264443409958393,
   "fx": {
     "chorus": {
       "enabled": false,

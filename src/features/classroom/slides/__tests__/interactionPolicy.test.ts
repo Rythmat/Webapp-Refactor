@@ -136,6 +136,13 @@ describe('mayRevealOn', () => {
     ).toBe(false);
   });
 
+  it.each(PROJECTED)('refuses a student’s Echo rounds on %s', (surface) => {
+    // Shareable set on purpose: an echo interaction is refused regardless.
+    expect(
+      mayRevealOn('question', surface, interaction({ type: 'echo' })),
+    ).toBe(false);
+  });
+
   it.each(PROJECTED)('refuses a non-shareable interaction on %s', (surface) => {
     expect(
       mayRevealOn('question', surface, interaction({ shareable: false })),
@@ -149,6 +156,7 @@ describe('mayRevealOn', () => {
       for (const i of [
         interaction({ type: 'check-in' }),
         interaction({ type: 'showcase' }),
+        interaction({ type: 'echo' }),
         interaction({ shareable: false }),
       ]) {
         expect(mayRevealOn(variant, 'projector', i)).toBe(false);

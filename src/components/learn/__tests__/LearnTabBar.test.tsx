@@ -55,6 +55,11 @@ function renderAt(url: string, instrument: LearnInstrument) {
 }
 
 const location = () => screen.getByTestId('location').textContent;
+/** The sub-tabs' names, in order. */
+const tabNames = () =>
+  screen
+    .getAllByRole('link', { name: /^Open / })
+    .map((link) => link.getAttribute('aria-label')!.replace(/^Open /, ''));
 const pick = (name: 'Piano' | 'Guitar') =>
   fireEvent.click(screen.getByRole('menuitem', { name: new RegExp(name) }));
 
@@ -64,40 +69,62 @@ describe('LearnTabBar', () => {
     useInstrumentStore.setState({ instrument: 'piano', leftHanded: false });
   });
 
-  it('shows all five tabs on piano', () => {
+  it('shows all six tabs on piano, Start Here first', () => {
     renderAt('/learn?tab=Theory', 'piano');
-    for (const name of [
+    expect(tabNames()).toEqual([
+      'Start Here',
       'Songs',
       'Genre',
       'Theory',
       'Technique',
       'World Harmony',
-    ]) {
-      expect(
-        screen.getByRole('link', { name: `Open ${name}` }),
-      ).toBeInTheDocument();
-    }
-  });
-
-  it('hides Technique on guitar', () => {
-    renderAt('/learn?tab=Theory', 'guitar');
+    ]);
     expect(
-      screen.queryByRole('link', { name: 'Open Technique' }),
-    ).not.toBeInTheDocument();
-    for (const name of ['Songs', 'Genre', 'Theory', 'World Harmony']) {
-      expect(
-        screen.getByRole('link', { name: `Open ${name}` }),
-      ).toBeInTheDocument();
-    }
+      screen
+        .getByRole('link', { name: 'Open Start Here' })
+        .getAttribute('href'),
+    ).toBe('/learn?tab=StartHere');
   });
 
-  it('opens Theory when switching to guitar', () => {
+  it('shows Technique on guitar too (Harmonics), Start Here first', () => {
+    renderAt('/learn?tab=Theory', 'guitar');
+    expect(tabNames()).toEqual([
+      'Start Here',
+      'Songs',
+      'Genre',
+      'Theory',
+      'Technique',
+      'World Harmony',
+    ]);
+  });
+
+  it('marks Start Here current on its tab', () => {
+    renderAt('/learn?tab=StartHere', 'piano');
+    expect(
+      screen
+        .getByRole('link', { name: 'Open Start Here' })
+        .getAttribute('aria-current'),
+    ).toBe('page');
+  });
+
+  it('stays on Start Here when switching instrument either way', () => {
+    renderAt('/learn?tab=StartHere', 'piano');
+    pick('Guitar');
+    expect(location()).toBe('/learn?tab=StartHere');
+    expect(useInstrumentStore.getState().instrument).toBe('guitar');
+    pick('Piano');
+    expect(location()).toBe('/learn?tab=StartHere');
+  });
+
+  it('stays on Technique when switching instrument either way', () => {
     renderAt('/learn?tab=Technique', 'piano');
     pick('Guitar');
-    expect(location()).toBe('/learn?tab=Theory');
+    expect(location()).toBe('/learn?tab=Technique');
     expect(
-      screen.queryByRole('link', { name: 'Open Technique' }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('link', { name: 'Open Technique' }),
+    ).toBeInTheDocument();
+    pick('Piano');
+    expect(location()).toBe('/learn?tab=Technique');
   });
 
   it('opens Theory when switching to guitar from another tab', () => {
@@ -129,5 +156,60 @@ describe('LearnTabBar', () => {
     pick('Piano');
     expect(location()).toBe('/learn?tab=Songs');
     expect(useInstrumentStore.getState().instrument).toBe('piano');
+  });
+});
+
+describe('LearnTabBar on the Learn page', () => {
+  afterEach(() => {
+    cleanup();
+    useInstrumentStore.setState({ instrument: 'piano', leftHanded: false });
+  });
+
+  const renderLearnPageBar = (instrument: LearnInstrument) => {
+    useInstrumentStore.setState({ instrument });
+    render(
+      <MemoryRouter initialEntries={['/learn']}>
+        <LearnTabBar
+          only={['Songs', 'Genre', 'Theory', 'Technique']}
+          extras={false}
+          instrumentHeading
+        />
+      </MemoryRouter>,
+    );
+  };
+  const heading = () => screen.getByRole('heading', { level: 2 }).textContent;
+
+  it('names the keyboard in its heading for screen readers only, and keeps only its four tabs', () => {
+    renderLearnPageBar('piano');
+    expect(heading()).toBe('Keyboard');
+    expect(screen.getByRole('heading', { level: 2 }).className).toContain(
+      'sr-only',
+    );
+    expect(tabNames()).toEqual(['Songs', 'Genre', 'Theory', 'Technique']);
+    expect(screen.queryByText('Instrument:')).toBeNull();
+  });
+
+  it('links each tab to its page on the instrument', () => {
+    renderLearnPageBar('guitar');
+    const hrefs = screen
+      .getAllByRole('link', { name: /^Open / })
+      .map((link) => link.getAttribute('href'));
+    expect(hrefs).toEqual([
+      '/learn/guitar/songs',
+      '/learn/guitar/genre',
+      '/learn/guitar/theory',
+      '/learn/guitar/technique',
+    ]);
+  });
+
+  it('names the guitar in its heading, Technique kept', () => {
+    renderLearnPageBar('guitar');
+    expect(heading()).toBe('Guitar');
+    expect(tabNames()).toEqual(['Songs', 'Genre', 'Theory', 'Technique']);
+  });
+
+  it('still says Learn without the option', () => {
+    renderAt('/learn', 'guitar');
+    expect(heading()).toBe('Learn');
   });
 });

@@ -32,10 +32,10 @@ export function registerLiveRecorder(next: LiveRecorder): () => void {
 
 /**
  * Track ids this user's live MIDI is driving: the practice screen's track,
- * else the monitored MIDI tracks, else the selected one.
+ * else the MIDI tracks monitoring their input (armed and monitoring).
  */
-export function liveMidiTargets(): string[] {
-  return liveMidiTargetIds();
+export function liveMidiTargets(source?: string | null): string[] {
+  return liveMidiTargetIds(useStore.getState(), source);
 }
 
 function relay(
@@ -56,9 +56,9 @@ function relay(
   }
 }
 
-function recordingArmedMidi(): boolean {
+function recordingArmedMidi(source?: string | null): boolean {
   const state = useStore.getState();
-  return state.isRecording && recordTargetTrackId(state) !== null;
+  return state.isRecording && recordTargetTrackId(state, source) !== null;
 }
 
 // ── Held notes ─────────────────────────────────────────────────────────────
@@ -116,9 +116,16 @@ function releaseDroppedTargets(targets: readonly string[]): void {
   stopWatchingIfIdle();
 }
 
-/** Sounds a note (velocity 0–127) and shows it. */
-export function playLiveNote(note: number, velocity: number): void {
-  const targets = liveMidiTargets();
+/**
+ * Sounds a note (velocity 0–127) and shows it. `source` is the MIDI device
+ * it came from: only tracks listening to it play it.
+ */
+export function playLiveNote(
+  note: number,
+  velocity: number,
+  source?: string | null,
+): void {
+  const targets = liveMidiTargets(source);
   for (const id of targets) {
     trackEngineRegistry.get(id)?.trackEngine.noteOn(note, velocity);
   }
@@ -152,11 +159,18 @@ export function captureLiveNoteOn(
   note: number,
   velocity: number,
   timestamp?: number,
+  source?: string | null,
 ): void {
-  if (recordingArmedMidi()) recorder?.captureNoteOn(note, velocity, timestamp);
+  if (recordingArmedMidi(source)) {
+    recorder?.captureNoteOn(note, velocity, timestamp);
+  }
 }
 
 /** Puts a note's end into the take, when one is being recorded. */
-export function captureLiveNoteOff(note: number, timestamp?: number): void {
-  if (recordingArmedMidi()) recorder?.captureNoteOff(note, timestamp);
+export function captureLiveNoteOff(
+  note: number,
+  timestamp?: number,
+  source?: string | null,
+): void {
+  if (recordingArmedMidi(source)) recorder?.captureNoteOff(note, timestamp);
 }

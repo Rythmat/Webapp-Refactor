@@ -1,87 +1,86 @@
-import { layers as basemapLayers, namedFlavor } from '@protomaps/basemaps';
 import type {
   ExpressionSpecification,
   LayerSpecification,
   SourceSpecification,
   StyleSpecification,
 } from 'maplibre-gl';
-import { ATLAS_BASEMAP, ATLAS_SCENE } from '@/components/atlas/theme/tokens';
-import { BASEMAP_ATTRIBUTION, type Basemap } from './basemapConfig';
-import { COUNTRY_TINT, STATES_MIN_ZOOM } from './mapGeometry';
+import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
+import type { LandColor } from '@/components/atlas/types';
+import {
+  LAND_LAYER,
+  LAND_SOURCE,
+  landLabelLayers,
+  landLayers,
+  landSources,
+} from './landLayers';
+import { LIFT_LAYER, liftLayerSpecs, liftSources } from './liftLayers';
+import { mapFontFaces } from './mapFonts';
+import {
+  NETWORK_LAYER,
+  NETWORK_SOURCE,
+  networkLineLayers,
+  networkPillLayer,
+  networkSources,
+} from './networkLayers';
+import { PLACE_LAYER, SUN_SOURCE, placeLayers } from './placeLayers';
 
 /**
- * The MapLibre engine's style, built in code: a Protomaps vector basemap
- * (when one is configured) with the Globe's own layers on it — the coloured
- * countries, the state outlines, the city dots, an artist's points and
- * the influence arcs. Pure: the same inputs give the same style, and the
- * tests read it without a map.
+ * The map's style, built in code: the Globe's own layers (the coloured
+ * countries, the state outlines, the places, an artist's points and the
+ * links between places) on the sea, with no basemap under them. Pure: the same
+ * inputs give the same style, and the tests read it without a map.
  */
-
-/* ── Where the basemap comes from (basemapConfig.ts) ───────────────────── */
-
-export {
-  BASEMAP_ATTRIBUTION,
-  DEFAULT_ASSETS_URL,
-  assetsUrlFromEnv,
-  basemapFromEnv,
-  basemapLang,
-  type Basemap,
-  type BasemapEnv,
-} from './basemapConfig';
-
-export function basemapSource(
-  basemap: NonNullable<Basemap>,
-): SourceSpecification {
-  return {
-    type: 'vector',
-    url:
-      basemap.kind === 'pmtiles'
-        ? `pmtiles://${basemap.url}`
-        : `https://api.protomaps.com/tiles/v4.json?key=${encodeURIComponent(basemap.key)}`,
-    attribution: BASEMAP_ATTRIBUTION,
-  };
-}
 
 /* ── Ids ─────────────────────────────────────────────────────────────────── */
 
 export const SOURCE = {
-  basemap: 'protomaps',
-  countries: 'atlas-countries',
-  states: 'atlas-states',
+  countries: LAND_SOURCE.countries,
+  states: LAND_SOURCE.states,
+  countryLabels: LAND_SOURCE.countryLabels,
+  regionLabels: LAND_SOURCE.regionLabels,
   cityPoints: 'atlas-city-points',
-  /** The selected city's outline (data/cityOutlines.ts), or nothing. */
-  cityOutline: 'atlas-city-outline',
   artistPoints: 'atlas-artist-points',
-  arcs: 'atlas-arcs',
+  ...NETWORK_SOURCE,
 } as const;
 
 export const LAYER = {
-  countriesFill: 'atlas-countries-fill',
-  countriesLine: 'atlas-countries-line',
-  statesFill: 'atlas-states-fill',
-  statesLine: 'atlas-states-line',
-  cityOutline: 'atlas-city-outline',
-  arcsCasing: 'atlas-arcs-casing',
-  arcsTrace: 'atlas-arcs-trace',
-  arcsDash: 'atlas-arcs-dash',
-  arcsHit: 'atlas-arcs-hit',
-  cityLabels: 'atlas-city-labels',
+  countriesFill: LAND_LAYER.countriesFill,
+  countriesGlow: LAND_LAYER.countriesGlow,
+  countriesLine: LAND_LAYER.countriesLine,
+  statesFill: LAND_LAYER.statesFill,
+  statesGlow: LAND_LAYER.statesGlow,
+  statesLine: LAND_LAYER.statesLine,
+  regionLabels: LAND_LAYER.regionLabels,
+  linksGlow: NETWORK_LAYER.glow,
+  linksRoots: NETWORK_LAYER.roots,
+  linksRoutes: NETWORK_LAYER.routes,
+  linksHit: NETWORK_LAYER.solidHit,
+  linksDottedHit: NETWORK_LAYER.dottedHit,
+  linkPills: NETWORK_LAYER.pills,
+  liftLid: LIFT_LAYER.lid,
+  liftDotsHit: LIFT_LAYER.dotsHit,
+  placeHalo: PLACE_LAYER.halo,
+  placeDot: PLACE_LAYER.dot,
+  placeHit: PLACE_LAYER.hit,
+  cityLabels: PLACE_LAYER.labels,
   artistPoints: 'atlas-artist-points',
 } as const;
 
 /** What a click can land on, most specific first: the first hit wins. */
 export const CLICK_LAYERS = [
-  LAYER.arcsHit,
+  LAYER.liftDotsHit,
+  LAYER.linksHit,
+  LAYER.linksDottedHit,
   LAYER.artistPoints,
   LAYER.cityLabels,
+  LAYER.placeHit,
+  // A click on the raised region lands on it, not the land under it.
+  LAYER.liftLid,
   LAYER.statesFill,
   LAYER.countriesFill,
 ] as const;
 
 /* ── The Globe's own layers ──────────────────────────────────────────────── */
-
-/** Where the towns events make cities of get their names on the map. */
-export const TOWN_NAMES_FROM = 5;
 
 const zoomRamp = (
   ...stops: (readonly [number, number])[]
@@ -93,12 +92,6 @@ const zoomRamp = (
     ...stops.flat(),
   ] as unknown as ExpressionSpecification;
 
-const selected: ExpressionSpecification = [
-  'boolean',
-  ['feature-state', 'selected'],
-  false,
-];
-
 const emptyCollection = (): SourceSpecification => ({
   type: 'geojson',
   data: { type: 'FeatureCollection', features: [] },
@@ -107,138 +100,25 @@ const emptyCollection = (): SourceSpecification => ({
 /** The Globe's sources, empty until MapLibreGlobe feeds them. */
 export function overlaySources(): Record<string, SourceSpecification> {
   return {
-    [SOURCE.countries]: emptyCollection(),
-    [SOURCE.states]: emptyCollection(),
+    ...landSources(),
     // Ids by city, for the hover feature-state on a city's name.
     [SOURCE.cityPoints]: {
       ...emptyCollection(),
       promoteId: 'cityId',
     } as SourceSpecification,
-    [SOURCE.cityOutline]: emptyCollection(),
     [SOURCE.artistPoints]: emptyCollection(),
-    [SOURCE.arcs]: emptyCollection(),
+    ...networkSources(),
+    ...liftSources(),
+    [SUN_SOURCE]: emptyCollection(),
   };
 }
 
-/**
- * The country colours: from orbit the whole land, as on the three.js globe;
- * with a basemap, a tint on its land at every zoom, drawn just under its sea
- * (whose detailed coastline trims the coarse outlines) and its roads,
- * buildings and labels.
- */
-export function countryTintLayer(withBasemap: boolean): LayerSpecification {
-  return {
-    id: LAYER.countriesFill,
-    type: 'fill',
-    source: SOURCE.countries,
-    paint: {
-      'fill-color': ['get', 'color'],
-      'fill-opacity': withBasemap ? zoomRamp(...COUNTRY_TINT) : 0.86,
-    },
-  };
-}
-
-/**
- * The layers that sit under the basemap's labels: outlines, arcs and an
- * artist's points.
- */
+/** The links and points over the land: the links, then an artist's points. */
 export function overlayLayersBelowLabels(): LayerSpecification[] {
   return [
-    {
-      // Clicks only: the states keep their country's colour, as before.
-      id: LAYER.statesFill,
-      type: 'fill',
-      source: SOURCE.states,
-      minzoom: STATES_MIN_ZOOM,
-      paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0 },
-    },
-    {
-      id: LAYER.statesLine,
-      type: 'line',
-      source: SOURCE.states,
-      minzoom: STATES_MIN_ZOOM,
-      paint: {
-        'line-color': [
-          'case',
-          selected,
-          ATLAS_SCENE.strokeSelected,
-          ATLAS_SCENE.strokeState,
-        ],
-        'line-width': ['case', selected, 2, 0.75],
-      },
-    },
-    {
-      id: LAYER.countriesLine,
-      type: 'line',
-      source: SOURCE.countries,
-      paint: {
-        'line-color': [
-          'case',
-          selected,
-          ATLAS_SCENE.strokeSelected,
-          ATLAS_SCENE.strokeCountry,
-        ],
-        'line-width': ['case', selected, 2.25, 0.75],
-      },
-    },
-    {
-      // The selected city's boundary, in the selected country's or state's
-      // bright, warm line.
-      id: LAYER.cityOutline,
-      type: 'line',
-      source: SOURCE.cityOutline,
-      layout: { 'line-join': 'round' },
-      paint: {
-        'line-color': ATLAS_SCENE.strokeSelected,
-        'line-width': 2.25,
-      },
-    },
-    {
-      // A dark edge, so a white arc still reads on the palest land.
-      id: LAYER.arcsCasing,
-      type: 'line',
-      source: SOURCE.arcs,
-      layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: {
-        'line-color': ATLAS_SCENE.pointRim,
-        'line-width': 5,
-        'line-opacity': 0.55,
-      },
-    },
-    {
-      // The whole arc, faint, in its tail's colour…
-      id: LAYER.arcsTrace,
-      type: 'line',
-      source: SOURCE.arcs,
-      layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: { 'line-color': ['get', 'tail'], 'line-width': 2 },
-    },
-    {
-      // …with dashes in its head's colour walking along it (MapLibreGlobe
-      // steps line-dasharray through ARC_DASH_STEPS).
-      id: LAYER.arcsDash,
-      type: 'line',
-      source: SOURCE.arcs,
-      layout: { 'line-join': 'round' },
-      paint: {
-        'line-color': ['get', 'head'],
-        'line-width': 3,
-        'line-dasharray': [0, 4, 3],
-      },
-    },
-    {
-      // A wide, invisible band, so a 2 px line is easy to hover and click.
-      id: LAYER.arcsHit,
-      type: 'line',
-      source: SOURCE.arcs,
-      paint: {
-        'line-color': ATLAS_SCENE.highlight,
-        'line-width': 14,
-        'line-opacity': 0,
-      },
-    },
-    // An artist's points go last, still under the basemap's labels, so a
-    // name reads over a point rather than under it.
+    ...networkLineLayers(),
+    // An artist's points go last, under the city names, so a name reads
+    // over a point rather than under it.
     {
       id: LAYER.artistPoints,
       type: 'circle',
@@ -254,165 +134,100 @@ export function overlayLayersBelowLabels(): LayerSpecification[] {
   ];
 }
 
-/**
- * The cities, as their names: no dot, the name is the city, and it is what
- * a click selects. Over everything, the basemap's labels included (which
- * skip the names shown here: basemapLayersFor), so a name is never shown
- * twice. A name turns warm while hovered, and while its city is selected or
- * holds the pinned event. Where names crowd, the selected city's wins, then
- * the music cities', then the towns events make cities of, which appear
- * only from TOWN_NAMES_FROM.
- */
-export function overlayLayersOnTop(): LayerSpecification[] {
-  const highlight: ExpressionSpecification = [
-    'any',
-    ['boolean', ['get', 'highlight'], false],
-    ['boolean', ['feature-state', 'hover'], false],
-  ];
+/* ── What rises with a lifted region ─────────────────────────────────────── */
+
+const TRANSLATE: Record<string, readonly string[]> = {
+  fill: ['fill-translate'],
+  line: ['line-translate'],
+  circle: ['circle-translate'],
+  symbol: ['text-translate', 'icon-translate'],
+};
+
+/** Anchored to the screen: "up" is up, however the camera is turned. */
+function anchored<L extends LayerSpecification>(layer: L): L {
+  const paint: Record<string, unknown> = { ...layer.paint };
+  for (const prop of TRANSLATE[layer.type] ?? []) {
+    paint[`${prop}-anchor`] = 'viewport';
+  }
+  return { ...layer, paint };
+}
+
+/** The lifted region's layers and all that sits on it: links, places. */
+function raisedLayers(textScale: number): LayerSpecification[] {
   return [
-    {
-      id: LAYER.cityLabels,
-      type: 'symbol',
-      source: SOURCE.cityPoints,
-      filter: [
-        'any',
-        ['!', ['boolean', ['get', 'town'], false]],
-        ['boolean', ['get', 'highlight'], false],
-        ['>=', ['zoom'], TOWN_NAMES_FROM],
-      ],
-      layout: {
-        'text-field': ['get', 'name'],
-        'text-font': ['Noto Sans Medium'],
-        'text-size': zoomRamp([2, 12], [8, 14], [12, 16]),
-        'symbol-sort-key': [
-          'case',
-          ['boolean', ['get', 'highlight'], false],
-          0,
-          ['boolean', ['get', 'town'], false],
-          2,
-          1,
-        ],
-        'text-padding': 4,
-      },
-      paint: {
-        'text-color': [
-          'case',
-          highlight,
-          ATLAS_SCENE.strokeSelected,
-          ATLAS_SCENE.label,
-        ],
-        'text-halo-color': ATLAS_SCENE.labelHalo,
-        'text-halo-width': ['case', highlight, 2, 1.5],
-      },
-    },
+    ...liftLayerSpecs().filter((l) => l.id !== LIFT_LAYER.ground),
+    ...overlayLayersBelowLabels(),
+    networkPillLayer(textScale),
+    ...placeLayers(SOURCE.cityPoints, textScale),
   ];
 }
+
+/**
+ * The raised things the pointer reads. MapLibre tests a viewport translate
+ * in the tile's plane, so under a tilt a raised layer answers short of where
+ * it is drawn (14 to 20 px for a lift of 22). These hit layers stay on the
+ * ground, and are asked at the pointer's spot less the lift.
+ */
+export const RAISED_HITS: readonly string[] = [
+  LAYER.liftDotsHit,
+  LAYER.linksHit,
+  LAYER.linksDottedHit,
+  LAYER.placeHit,
+];
+
+/** Each raised layer and the properties that raise it. */
+export const RAISED_LAYERS: readonly {
+  id: string;
+  props: readonly string[];
+}[] = raisedLayers(1)
+  .filter((l) => !RAISED_HITS.includes(l.id))
+  .map((l) => ({
+    id: l.id,
+    props: TRANSLATE[l.type] ?? [],
+  }));
 
 /* ── The style ───────────────────────────────────────────────────────────── */
 
 export interface StyleOptions {
-  basemap: Basemap;
-  lang: 'en' | 'es';
-  assetsUrl: string;
-  /** The names the Globe shows for its cities, which the basemap then skips. */
-  cityNames?: readonly string[];
-}
-
-/**
- * The basemap's layers, in the Atlas flavor (ATLAS_BASEMAP in tokens.ts).
- * Some of its labels (countries, places of interest) take their halo from
- * the land colour; on tinted land that halo is lost, so they get the dark
- * label halo too. Its town and city labels skip the names the Globe shows
- * itself (`cityNames`), whether it names a place in English or in its own
- * language, so no city's name is shown twice.
- */
-function basemapLayersFor(
-  lang: 'en' | 'es',
-  cityNames: readonly string[],
-): LayerSpecification[] {
-  const flavor = { ...namedFlavor('dark'), ...ATLAS_BASEMAP };
-  const base = basemapLayers(SOURCE.basemap, flavor, {
-    lang,
-  }) as LayerSpecification[];
-  return base.map((layer) => {
-    if (layer.type !== 'symbol') return layer;
-    let out = layer;
-    if (layer.paint?.['text-halo-color'] === ATLAS_BASEMAP.earth) {
-      out = {
-        ...out,
-        paint: { ...layer.paint, 'text-halo-color': ATLAS_SCENE.labelHalo },
-      };
-    }
-    if (layer.id === 'places_locality' && cityNames.length > 0) {
-      const names: ExpressionSpecification = ['literal', [...cityNames]];
-      out = {
-        ...out,
-        filter: [
-          'all',
-          ['==', ['get', 'kind'], 'locality'],
-          ['!', ['in', ['coalesce', ['get', 'name:en'], ''], names]],
-          ['!', ['in', ['coalesce', ['get', 'name'], ''], names]],
-        ],
-      };
-    }
-    return out;
-  });
+  /** The page's origin, which serves the map's font files (mapFonts.ts). */
+  origin: string;
+  /** How the land is coloured to start with (Layers; the map follows it). */
+  land?: LandColor;
+  /** The page's rem over 16 px, so the map's text keeps the app's scale. */
+  textScale?: number;
 }
 
 export function buildStyle({
-  basemap,
-  lang,
-  assetsUrl,
-  cityNames = [],
+  origin,
+  land = 'music',
+  textScale = 1,
 }: StyleOptions): StyleSpecification {
-  const tint = countryTintLayer(basemap !== null);
-  const below = overlayLayersBelowLabels();
-  const onTop = overlayLayersOnTop();
-  let layers: LayerSpecification[];
-  if (basemap) {
-    const base = basemapLayersFor(lang, cityNames);
-    // The tint goes over the basemap's land and land use, under its sea;
-    // the outlines and arcs between its shapes and its labels.
-    const sea = base.findIndex((layer) => layer.id === 'water');
-    const firstLabel = base.findIndex((layer) => layer.type === 'symbol');
-    const cut = firstLabel === -1 ? base.length : firstLabel;
-    layers = [
-      ...base.slice(0, sea),
-      tint,
-      ...base.slice(sea, cut),
-      ...below,
-      ...base.slice(cut),
-      ...onTop,
-    ];
-  } else {
-    layers = [
+  return {
+    version: 8,
+    projection: { type: 'globe' },
+    // Outside the globe the canvas stays clear, so the page's ground (its
+    // dot grid) shows; a faint halo at the limb from orbit, gone by zoom
+    // 4.5.
+    sky: {
+      'sky-color': 'rgba(0, 0, 0, 0)',
+      'horizon-color': ATLAS_SCENE.atmosphere,
+      'fog-color': ATLAS_SCENE.atmosphere,
+      'atmosphere-blend': zoomRamp([0, 0.3], [3, 0.15], [4.5, 0]) as never,
+    },
+    'font-faces': mapFontFaces(origin),
+    sources: overlaySources(),
+    layers: [
       {
         id: 'background',
         type: 'background',
         paint: { 'background-color': ATLAS_SCENE.ocean },
       },
-      tint,
-      ...below,
-      ...onTop,
-    ];
-  }
-  return {
-    version: 8,
-    projection: { type: 'globe' },
-    // The halo around the planet, gone once the camera is down among the
-    // streets (by zoom 7).
-    sky: {
-      'sky-color': ATLAS_SCENE.space,
-      'horizon-color': ATLAS_SCENE.atmosphere,
-      'fog-color': ATLAS_SCENE.atmosphere,
-      'atmosphere-blend': zoomRamp([0, 1], [5, 1], [7, 0]) as never,
-    },
-    glyphs: `${assetsUrl}/fonts/{fontstack}/{range}.pbf`,
-    ...(basemap ? { sprite: `${assetsUrl}/sprites/v4/dark` } : {}),
-    sources: {
-      ...(basemap ? { [SOURCE.basemap]: basemapSource(basemap) } : {}),
-      ...overlaySources(),
-    },
-    layers,
+      ...landLayers(land),
+      ...landLabelLayers(textScale),
+      ...liftLayerSpecs().map(anchored),
+      ...overlayLayersBelowLabels().map(anchored),
+      anchored(networkPillLayer(textScale)),
+      ...placeLayers(SOURCE.cityPoints, textScale).map(anchored),
+    ],
   };
 }

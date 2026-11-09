@@ -62,4 +62,22 @@ describe('MidiRecorder', () => {
     expect(note.startTick).toBe(1440);
     expect(note.durationTicks).toBe(240);
   });
+
+  it('gives a note let go on the tick it started a tick', () => {
+    const recorder = new MidiRecorder();
+    recorder.startRecording();
+    recorder.captureNoteOn(60, 100, 1250);
+    recorder.captureNoteOff(60, 1250);
+    expect(recorder.stopRecording().notes[0].durationTicks).toBe(1);
+  });
+
+  it('ends a note still held at Stop at the tick heard then', () => {
+    const recorder = new MidiRecorder();
+    recorder.startRecording();
+    recorder.captureNoteOn(64, 100, 1250); // 1200
+    // Stop now (1500 ms → heard 11.5 s → 1440), not the transport's tick.
+    const [note] = recorder.stopRecording().notes;
+    expect(note.startTick).toBe(1200);
+    expect(note.durationTicks).toBe(240);
+  });
 });

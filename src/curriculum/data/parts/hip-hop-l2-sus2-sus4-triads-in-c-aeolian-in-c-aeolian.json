@@ -1,0 +1,326 @@
+{
+  "id": "hip-hop-l2-sus2-sus4-triads-in-c-aeolian-in-c-aeolian",
+  "name": "Hip Hop L2 · sus2 sus4 triads · in C aeolian · in C aeolian",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 2,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1440,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 90,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 90,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 240,
+      "duration": 90,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 240,
+      "duration": 90,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 240,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 480,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 100
+    },
+    {
+      "tick": 480,
+      "duration": 120,
+      "midi": 74,
+      "velocity": 100
+    },
+    {
+      "tick": 480,
+      "duration": 120,
+      "midi": 79,
+      "velocity": 100
+    },
+    {
+      "tick": 720,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 100
+    },
+    {
+      "tick": 720,
+      "duration": 120,
+      "midi": 74,
+      "velocity": 100
+    },
+    {
+      "tick": 720,
+      "duration": 120,
+      "midi": 79,
+      "velocity": 100
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 100
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 75,
+      "velocity": 100
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 79,
+      "velocity": 100
+    },
+    {
+      "tick": 1200,
+      "duration": 90,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 90,
+      "midi": 75,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 1440,
+      "duration": 90,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 1440,
+      "duration": 90,
+      "midi": 75,
+      "velocity": 96
+    },
+    {
+      "tick": 1440,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 1680,
+      "duration": 90,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 1680,
+      "duration": 90,
+      "midi": 75,
+      "velocity": 96
+    },
+    {
+      "tick": 1680,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 1440,
+      "midi": 43,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 90,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 90,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 2160,
+      "duration": 90,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 2160,
+      "duration": 90,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 2160,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 2400,
+      "duration": 90,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 2400,
+      "duration": 90,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 2400,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 2640,
+      "duration": 90,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 2640,
+      "duration": 90,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 2640,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 2880,
+      "duration": 90,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "tick": 2880,
+      "duration": 90,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 2880,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 3120,
+      "duration": 90,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "tick": 3120,
+      "duration": 90,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 3120,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 3360,
+      "duration": 90,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "tick": 3360,
+      "duration": 90,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 3360,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 3600,
+      "duration": 90,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "tick": 3600,
+      "duration": 90,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 3600,
+      "duration": 90,
+      "midi": 79,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "description": "Left hand plays root–5–♭7. Right hand plays the sus2 progression, two chords a bar.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Csus2 Cmin", "Gsus4 G7"]
+}

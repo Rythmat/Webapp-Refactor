@@ -167,7 +167,7 @@ export const isStrongMatch = (m: Pick<HarmonyMatch, 'tier' | 'placement'>) =>
 export const TIER_TEXT: Record<MatchTier, string> = {
   exact: 'same chords',
   family: 'same chord families',
-  loose: 'same roots, other colours',
+  loose: 'same roots, other colors',
 };
 
 export const PLACEMENT_TEXT: Record<Placement, string> = {

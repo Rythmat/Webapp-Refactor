@@ -199,7 +199,9 @@ export const createTransportSlice: StateCreator<
 
   record: () =>
     set((state) => {
-      if (state.isCountingIn) return {};
+      // A take already running: a second record never starts a count-in
+      // inside it (requestRecord stops the take instead).
+      if (state.isCountingIn || state.isRecording) return {};
       if (state.countInBars > 0) {
         return { isCountingIn: true, countInIsRecording: true };
       }

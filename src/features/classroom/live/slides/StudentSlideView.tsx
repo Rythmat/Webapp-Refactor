@@ -20,6 +20,7 @@ import { StudioCollabAction } from '../StudioCollabAction';
 import { InteractionInput } from '../interactions';
 import { AppRouteLaunch } from '../interactions/AppRouteLaunch';
 import type { SessionState } from '../sessionsStore';
+import { LOCAL_SESSION_CLOCK, type SessionClock } from '../useServerClock';
 
 interface StudentSlideViewProps {
   snapshot: DaySnapshot;
@@ -39,6 +40,8 @@ interface StudentSlideViewProps {
   onNext?: () => void;
   /** Whether the current slide is complete enough to advance (lock-until-complete). */
   canAdvance?: boolean;
+  /** The server's clock (the clock check): what Echo's round starts follow. */
+  clock?: SessionClock;
 }
 
 /**
@@ -61,6 +64,7 @@ export const StudentSlideView = ({
   onPrev,
   onNext,
   canAdvance = true,
+  clock = LOCAL_SESSION_CLOCK,
 }: StudentSlideViewProps) => {
   // Rule 11's reading column, chosen by width AND pointer — a touch device
   // cannot hit the scaled canvas's controls. See the hook.
@@ -86,6 +90,7 @@ export const StudentSlideView = ({
   }
 
   const interactions = interactionsForSlide(snapshot, slide);
+  const live = { state, clock, slideId: slide.id };
 
   const inputSlot = (interaction: Interaction) => (
     <InteractionInput
@@ -94,8 +99,20 @@ export const StudentSlideView = ({
       onSubmit={onSubmit(interaction.id)}
       submittedPayload={submissions[interaction.id] ?? null}
       disabled={state.status === 'ended'}
+      live={live}
     />
   );
+
+  // Echo (class) is a play screen, not a slide: it takes the whole column,
+  // unscaled, so the pads stay finger-sized on an iPad.
+  const echo = interactions.find((i) => i.type === 'echo');
+  if (echo) {
+    return (
+      <div className="mx-auto flex w-full flex-col gap-3" data-echo-slide>
+        {inputSlot(echo)}
+      </div>
+    );
+  }
 
   const launchSlot = (interaction: Interaction) => (
     <AppRouteLaunch

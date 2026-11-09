@@ -55,7 +55,7 @@ describe('the Tailwind config', () => {
     expect(css).toContain('line-height: var(--daw-leading-micro)');
     expect(css).toContain('letter-spacing: var(--daw-tracking-micro)');
     expect(css).toContain('z-index: var(--daw-z-popover)');
-    expect(css).toContain('background-color: var(--daw-popover)');
+    expect(css).toContain('background-color: var(--daw-menu)');
   }, 30_000);
 
   it("keeps the app's own theme", async () => {

@@ -12,26 +12,31 @@
       "id": "drums",
       "name": "Drums",
       "instrument": "drums",
-      "player": "latin-drummer-1"
+      "player": "latin-drummer-1",
+      "sound": "drum-machine:custom_custom_natural_01"
     },
     {
       "id": "bass",
       "name": "Bass",
       "instrument": "bass",
-      "player": "latin-bassist-1"
+      "player": "latin-bassist-1",
+      "sound": "bass-electric:upright"
     },
     {
       "id": "keys",
       "name": "Keys comping",
       "instrument": "keys",
-      "player": "latin-pianist-1"
+      "player": "latin-pianist-1",
+      "sound": "soundfont:0",
+      "volume": 0.9
     },
     {
       "id": "guitar-comping",
       "name": "Guitar comping",
       "instrument": "guitar",
       "player": "latin-guitarist-1",
-      "sound": "sample:acoustic-guitar"
+      "sound": "sample:acoustic-guitar",
+      "volume": 0.55
     }
   ],
   "preview": {
@@ -52,9 +57,12 @@
           "id": "cumbia-1-copy-2"
         },
         "keys": {
-          "kind": "comping",
-          "id": "reggaeton-tresillo"
+          "kind": "part",
+          "id": "latin-l1-d1-2-reggaeton-full-groove-play-along"
         }
+      },
+      "sounds": {
+        "drums": "drum-machine:custom_808_01"
       }
     },
     {
@@ -103,12 +111,15 @@
           "id": "latin-guitarist-1-l1-mariachi-take-3"
         }
       },
-      "tempo": 110
+      "tempo": 110,
+      "sounds": {
+        "drums": "drum-machine:go_go_kit"
+      }
     },
     {
       "id": "l2-merengue-bachata",
-      "name": "L2 · Merengue & Bachata",
-      "style": "latin-l2-merengue-bachata",
+      "name": "L2 · Merengue",
+      "style": "latin-l2-merengue",
       "plays": {
         "drums": {
           "kind": "groove",
@@ -126,37 +137,182 @@
           "kind": "part",
           "id": "latin-guitarist-1-l2-merengue-bachata-take-4"
         }
+      },
+      "sounds": {
+        "drums": "drum-machine:salsa_kit"
       }
     },
     {
       "id": "l2-cha-cha",
       "name": "L2 · Cha-cha-chá",
       "style": "latin-l2-cha-cha",
-      "plays": {}
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "bachata_1_copy"
+        },
+        "bass": {
+          "kind": "part",
+          "id": "latin-bassist-1-bachata-1-5-1-copy"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "latin-pianist-1-l2-cha-cha-ch-take-12"
+        }
+      },
+      "tempo": 130,
+      "sounds": {
+        "drums": "drum-machine:salsa_kit_2"
+      }
     },
     {
       "id": "l2-bolero",
       "name": "L2 · Bolero",
       "style": "latin-l2-bolero",
-      "plays": {}
+      "plays": {
+        "keys": {
+          "kind": "part",
+          "id": "latin-pianist-1-l2-bolero-take-13"
+        },
+        "bass": {
+          "kind": "part",
+          "id": "latin-bassist-1-bachata-1-5-1-copy-2"
+        },
+        "drums": {
+          "kind": "groove",
+          "id": "latin_mariachi_4_4_copy"
+        },
+        "guitar-comping": {
+          "kind": "part",
+          "id": "latin-guitarist-1-l2-bolero-take-6"
+        }
+      },
+      "sounds": {
+        "drums": "drum-machine:salsa_kit_2"
+      }
     },
     {
       "id": "l3-bossa-samba",
       "name": "L3 · Bossa & Samba",
       "style": "latin-l3-bossa-samba",
-      "plays": {}
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "bossa-nova"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "bossa"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "latin-pianist-1-l3-bossa-simpler-voicings-in-e-aeolian"
+        }
+      },
+      "tempo": 110,
+      "sounds": {
+        "drums": "drum-machine:custom_natural_2"
+      }
     },
     {
       "id": "l3-tango",
       "name": "L3 · Tango",
       "style": "latin-l3-tango",
-      "plays": {}
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "latin_reggaeton_01_copy"
+        },
+        "bass": {
+          "kind": "part",
+          "id": "latin-bassist-1-l3-tango-take-8"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "latin-pianist-1-l3-tango-take-17"
+        },
+        "guitar-comping": {
+          "kind": "part",
+          "id": "latin-guitarist-1-l3-tango-take-7"
+        }
+      },
+      "sounds": {
+        "drums": "drum-machine:jazzy_custom_natural"
+      },
+      "tempo": 100
     },
     {
       "id": "l3-afro-cuban",
-      "name": "L3 · Afro-Cuban",
+      "name": "L3 · Afro-Cuban 2-3",
       "style": "latin-l3-afro-cuban",
-      "plays": {}
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "salsa-2-3"
+        },
+        "bass": {
+          "kind": "part",
+          "id": "latin-bassist-1-l3-afro-cuban-take-7"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "latin-pianist-1-l3-afro-cuban-take-14"
+        }
+      },
+      "sounds": {
+        "drums": "drum-machine:salsa_kit"
+      },
+      "tempo": 160
+    },
+    {
+      "id": "l2-merengue-copy",
+      "name": "L2 · Bachata",
+      "style": "latin-l2-bachata",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "merengue_3_2_copy"
+        },
+        "bass": {
+          "kind": "part",
+          "id": "latin-bassist-1-merengue-copy-2"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "latin-pianist-1-merengue-montuno-copy"
+        },
+        "guitar-comping": {
+          "kind": "part",
+          "id": "latin-guitarist-1-l2-merengue-chunking-copy"
+        }
+      },
+      "tempo": 148,
+      "sounds": {
+        "drums": "drum-machine:latin_percussion_kit"
+      }
+    },
+    {
+      "id": "l3-afro-cuban-copy",
+      "name": "L3 · Afro-Cuban 3-2",
+      "style": "latin-l3-afro-cuban",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "salsa-3-2"
+        },
+        "bass": {
+          "kind": "part",
+          "id": "latin-bassist-1-l3-afro-cuban-take-7"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "latin-pianist-1-l3-afro-cuban-3-2-take-16"
+        }
+      },
+      "sounds": {
+        "drums": "drum-machine:salsa_kit"
+      },
+      "tempo": 160
     }
   ]
 }

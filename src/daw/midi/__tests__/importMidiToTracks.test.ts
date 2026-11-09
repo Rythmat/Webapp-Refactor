@@ -162,7 +162,7 @@ describe('importMidiToTracks', () => {
   });
 
   it("keeps a begun project's tempo and metre and says what the file's were", async () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().addMidiClip(keys, {
       id: 'k',
       startTick: 0,
@@ -204,7 +204,7 @@ describe('importMidiToTracks', () => {
 
   it('keeps the tempo when the track limit lets nothing in', async () => {
     for (let i = 0; i < MAX_TOTAL_TRACKS; i++) {
-      s().addTrack('midi', 'piano-sampler', `T${i}`);
+      s().addTrack('midi', 'soundfont', `T${i}`);
     }
     const bpm = s().bpm;
     const added = await importMidiToTracks(
@@ -257,7 +257,7 @@ describe('importMidiToTracks', () => {
 
   it('imports what fits and says how many parts were left out', async () => {
     for (let i = 0; i < MAX_TOTAL_TRACKS - 3; i++) {
-      s().addTrack('midi', 'piano-sampler', `T${i}`);
+      s().addTrack('midi', 'soundfont', `T${i}`);
     }
     const added = await importMidiToTracks(
       midiFile(

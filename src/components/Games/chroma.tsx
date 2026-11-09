@@ -5,91 +5,54 @@ import {
   useRef,
   useCallback,
 } from 'react';
-import {
-  initJamSynth,
-  jamNoteOn,
-  jamNoteOff,
-  jamProgramChange,
-  getLocalChannel,
-} from '@/components/JamRoom/jamSoundFont';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
-import { useGameAudio, type GameAudioEngine } from './useGameAudio';
+import {
+  CHROMA_FRESH,
+  CHROMA_INTERVALS,
+  CHROMA_ROOT,
+  chromaInterval,
+  intervalLabel,
+  pickIntervals,
+  roundNotes,
+  type ChromaLevel,
+  type IntervalNaming,
+} from './chromaRounds';
+import { useChromaSound } from './chromaSound';
+import { useArcadeStreak, useStreakCelebration } from './scoring/ArcadeStreak';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-// Hoisted so the warm-up effect isn't restarted by a new array each render.
-const JAM_SYNTH_ONLY: GameAudioEngine[] = ['jam-synth'];
-
-const CHROMATIC_NOTES = [
-  'C',
-  'C#',
-  'D',
-  'D#',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'G#',
-  'A',
-  'A#',
-  'B',
-];
-const EASY_INTERVALS: { label: string; semitones: number }[] = [
-  { label: 'Perfect Unison', semitones: 0 },
-  { label: 'Major 2nd', semitones: 2 },
-  { label: 'Major 3rd', semitones: 4 },
-  { label: 'Perfect 4th', semitones: 5 },
-  { label: 'Perfect 5th', semitones: 7 },
-  { label: 'Major 6th', semitones: 9 },
-  { label: 'Major 7th', semitones: 11 },
-];
-
-const ALL_INTERVALS: { label: string; semitones: number }[] = [
-  { label: 'Perfect Unison', semitones: 0 },
-  { label: 'Minor 2nd', semitones: 1 },
-  { label: 'Major 2nd', semitones: 2 },
-  { label: 'Minor 3rd', semitones: 3 },
-  { label: 'Major 3rd', semitones: 4 },
-  { label: 'Perfect 4th', semitones: 5 },
-  { label: 'Tritone', semitones: 6 },
-  { label: 'Perfect 5th', semitones: 7 },
-  { label: 'Minor 6th', semitones: 8 },
-  { label: 'Major 6th', semitones: 9 },
-  { label: 'Minor 7th', semitones: 10 },
-  { label: 'Major 7th', semitones: 11 },
-];
-
-const EASY_SEMITONE_SET = EASY_INTERVALS.map((i) => i.semitones);
-
 const NOTE_DURATION_S = 0.6;
-const NOTE_GAP_MS = 1100;
+/** From the root to its interval note. */
+const ROOT_GAP_MS = 750;
+/** From an interval note to the next root. */
+const PAIR_GAP_MS = 1250;
+/** An answer sounds as the root, then the interval chosen. */
+const ANSWER_GAP_MS = 450;
+/** The answer's root ends before the interval chosen starts. */
+const ANSWER_ROOT_S = 0.4;
 const FLASH_MS = 700;
 const POST_FLASH_MS = 500;
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+const NAMING_KEY = 'chroma-interval-naming';
 
-type Difficulty = 'easy' | 'medium' | 'hard';
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 type Phase = 'select' | 'playing' | 'input' | 'wrong' | 'success' | 'game-over';
 
-interface DiffConfig {
+interface LevelConfig {
   label: string;
   attempts: number;
   color: string;
-  extraNotes: () => number;
 }
 
-// ── Difficulty config ─────────────────────────────────────────────────────────
+// ── Level config ──────────────────────────────────────────────────────────────
 
-const DIFF: Record<Difficulty, DiffConfig> = {
-  easy: { label: 'Easy', attempts: 2, color: '#22c55e', extraNotes: () => 1 },
-  medium: {
-    label: 'Medium',
-    attempts: 2,
-    color: '#f59e0b',
-    extraNotes: () => 2 + Math.floor(Math.random() * 2),
-  },
-  hard: { label: 'Hard', attempts: 3, color: '#ef4444', extraNotes: () => 5 },
+/** A level is how many intervals a round asks for. */
+const LEVELS: Record<ChromaLevel, LevelConfig> = {
+  1: { label: 'Level 1', attempts: 2, color: '#22c55e' },
+  2: { label: 'Level 2', attempts: 2, color: '#f59e0b' },
+  3: { label: 'Level 3', attempts: 3, color: '#ef4444' },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -98,58 +61,21 @@ function wait(ms: number) {
   return new Promise<void>((r) => setTimeout(r, ms));
 }
 
-// ── Crystal soundfont (shared Jam Room SpessaSynth) ──────────────────────────
-// Chroma always plays through the GM "Crystal" instrument. This is fixed — the
-// player cannot change it.
-const CRYSTAL_PROGRAM = 98; // GM program: "FX 3 (crystal)"
-const CRYSTAL_CHANNEL = getLocalChannel();
-const MIDI_C4 = 60; // CHROMATIC_NOTES[0] ('C') at octave 4
-
-/** Initialise the shared synth and lock its channel to the Crystal instrument. */
-async function ensureCrystalSynth() {
-  await initJamSynth();
-  // Re-assert Crystal on every start in case another feature touched the channel.
-  jamProgramChange(CRYSTAL_CHANNEL, CRYSTAL_PROGRAM);
-}
-
-/** Play one note `offset` semitones above C4 for `durationS` seconds. */
-function playCrystalNote(
-  offset: number,
-  durationS: number,
-  velocity01: number,
-) {
-  const midi = MIDI_C4 + offset;
-  const velocity = Math.round(Math.max(0, Math.min(1, velocity01)) * 127);
-  jamNoteOn(CRYSTAL_CHANNEL, midi, velocity);
-  window.setTimeout(
-    () => jamNoteOff(CRYSTAL_CHANNEL, midi),
-    Math.max(0, durationS) * 1000,
-  );
-}
-
-// Notes are stored as ABSOLUTE semitone offsets from C (root in 0–11, later
-// notes as root + interval, which may exceed 11 / span into higher octaves).
-// Use `% 12` whenever a pitch class is needed (note name, interval-from-root).
-function generateSequence(difficulty: Difficulty): number[] {
-  const root = Math.floor(Math.random() * 12);
-  const extra = DIFF[difficulty].extraNotes();
-
-  // Pick an interval (semitones above the root) for each extra note...
-  const intervals: number[] = [];
-  for (let i = 0; i < extra; i++) {
-    intervals.push(
-      difficulty === 'easy'
-        ? EASY_SEMITONE_SET[
-            Math.floor(Math.random() * EASY_SEMITONE_SET.length)
-          ]
-        : 1 + Math.floor(Math.random() * 11),
-    );
+/** The naming the player last chose; words until they choose. */
+function savedNaming(): IntervalNaming {
+  try {
+    return localStorage.getItem(NAMING_KEY) === 'numbers' ? 'numbers' : 'words';
+  } catch {
+    return 'words';
   }
+}
 
-  // ...then sort ascending and keep them as absolute offsets above the root so
-  // the sequence only ever rises in pitch through time (never wraps downward).
-  intervals.sort((a, b) => a - b);
-  return [root, ...intervals.map((interval) => root + interval)];
+function saveNaming(naming: IntervalNaming) {
+  try {
+    localStorage.setItem(NAMING_KEY, naming);
+  } catch {
+    // Private windows and blocked storage: the choice lasts the visit.
+  }
 }
 
 // ── Crystal SVG ───────────────────────────────────────────────────────────────
@@ -297,8 +223,10 @@ function NoteSlot({
   return (
     <div
       style={{
-        width: 38,
+        minWidth: 38,
         height: 38,
+        padding: '0 8px',
+        boxSizing: 'border-box',
         borderRadius: 7,
         border: `2px solid ${borderColor}`,
         backgroundColor: bg,
@@ -348,11 +276,11 @@ function AttemptPips({
 // ── Interval Buttons ─────────────────────────────────────────────────────────
 
 function IntervalButtons({
-  intervals,
+  naming,
   onSelect,
   disabled,
 }: {
-  intervals: { label: string; semitones: number }[];
+  naming: IntervalNaming;
   onSelect: (semitones: number) => void;
   disabled: boolean;
 }) {
@@ -369,9 +297,11 @@ function IntervalButtons({
         transition: 'opacity 0.3s ease',
       }}
     >
-      {intervals.map(({ label, semitones }) => (
+      {CHROMA_INTERVALS.map(({ semitones, words, number }) => (
         <button
           key={semitones}
+          type="button"
+          title={naming === 'numbers' ? words : number}
           onClick={() => onSelect(semitones)}
           style={{
             padding: '8px 14px',
@@ -394,12 +324,19 @@ function IntervalButtons({
             e.currentTarget.style.borderColor = 'rgba(167,139,250,0.4)';
           }}
         >
-          {label}
+          {naming === 'numbers' ? number : words}
         </button>
       ))}
     </div>
   );
 }
+
+// ── Streak win ───────────────────────────────────────────────────────────────
+
+/** The win's arpeggio on the lead, after the answer that won it has sounded. */
+const WIN_JINGLE_DELAY_MS = 1100;
+const WIN_JINGLE = [72, 76, 79, 84];
+const WIN_JINGLE_STEP_MS = 140;
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
@@ -409,35 +346,77 @@ export type ChromaProps = {
 };
 
 export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
-  // The Crystal soundfont starts loading with the first render, and Start stays
-  // held until it can actually play — the sequence is the whole puzzle, so a
-  // silent round is an unplayable one.
-  const { ready: audioReady } = useGameAudio(JAM_SYNTH_ONLY);
+  // The lead starts loading with the first render, and Start stays held until
+  // it can actually play — the notes are the whole puzzle, so a silent round
+  // is an unplayable one.
+  const { ready: audioReady, play } = useChromaSound();
 
-  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
+  const [level, setLevel] = useState<ChromaLevel>(1);
+  const [naming, setNaming] = useState<IntervalNaming>(savedNaming);
   const [phase, setPhase] = useState<Phase>('select');
-  // A round's root is the first note of its sequence, the game's own state.
-  // The Studio's key (the DAW store's rootNote) belongs to the project open
-  // there: the game used to clear it on every Start and Play Again, wiping
-  // that project's key, key colour and key lock.
-  const [sequence, setSequence] = useState<number[]>([]);
+  // A round is its intervals, heard from the game's own root. The Studio's key
+  // (the DAW store's rootNote) belongs to the project open there: the game
+  // used to clear it on every Start and Play Again, wiping that project's key,
+  // key color and key lock.
+  const [intervals, setIntervals] = useState<number[]>([]);
   const [userInput, setUserInput] = useState<number[]>([]);
   const [attemptsLeft, setAttemptsLeft] = useState(2);
   const [crystalLit, setCrystalLit] = useState(false);
   const [flashRed, setFlashRed] = useState(false);
+  // The note sounding, as an index into roundNotes(intervals).
   const [playingIdx, setPlayingIdx] = useState<number | null>(null);
+
+  // Whether the game is still on screen: a round left mid-play stops sounding.
+  const aliveRef = useRef(true);
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => {
+      aliveRef.current = false;
+    };
+  }, []);
+
+  // A won streak (the page's, shown in the strip under the header): the
+  // crystal lights and the lead plays an arpeggio.
+  const playRef = useRef(play);
+  playRef.current = play;
+  const celebrating = useStreakCelebration(
+    useArcadeStreak()?.win ?? null,
+    () => {
+      const timers = WIN_JINGLE.map((midi, i) =>
+        window.setTimeout(
+          () => {
+            if (aliveRef.current)
+              playRef.current(
+                midi,
+                i === WIN_JINGLE.length - 1 ? 0.6 : 0.12,
+                0.8,
+              );
+          },
+          WIN_JINGLE_DELAY_MS + i * WIN_JINGLE_STEP_MS,
+        ),
+      );
+      return () => timers.forEach((t) => window.clearTimeout(t));
+    },
+  );
 
   // Stable refs for use inside async callbacks
   const phaseRef = useRef<Phase>('select');
-  const sequenceRef = useRef<number[]>([]);
+  const intervalsRef = useRef<number[]>([]);
   const userInputRef = useRef<number[]>([]);
   const attemptsRef = useRef(2);
-  const difficultyRef = useRef<Difficulty>('easy');
+  const levelRef = useRef<ChromaLevel>(1);
+  // The intervals heard lately, newest last: a new round leaves them out.
+  const recentRef = useRef<number[]>([]);
 
-  // Sync difficulty ref
+  // Sync level ref
   useEffect(() => {
-    difficultyRef.current = difficulty;
-  }, [difficulty]);
+    levelRef.current = level;
+  }, [level]);
+
+  const chooseNaming = useCallback((next: IntervalNaming) => {
+    setNaming(next);
+    saveNaming(next);
+  }, []);
 
   // Sync phase to both state and ref
   const sp = useCallback((p: Phase) => {
@@ -445,17 +424,21 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
     setPhase(p);
   }, []);
 
-  // ── Sequence playback ───────────────────────────────────────────────────
+  // ── Round playback: the root before every interval note ─────────────────
 
-  const playSeq = useCallback(async (seq: number[]) => {
-    await ensureCrystalSynth();
-    for (let i = 0; i < seq.length; i++) {
-      setPlayingIdx(i);
-      playCrystalNote(seq[i], NOTE_DURATION_S, 0.85);
-      await wait(NOTE_GAP_MS);
-    }
-    setPlayingIdx(null);
-  }, []);
+  const playRound = useCallback(
+    async (round: number[]) => {
+      const notes = roundNotes(round);
+      for (let i = 0; i < notes.length; i++) {
+        if (!aliveRef.current) return;
+        setPlayingIdx(i);
+        play(notes[i].midi, NOTE_DURATION_S, 0.85);
+        await wait(notes[i].isRoot ? ROOT_GAP_MS : PAIR_GAP_MS);
+      }
+      setPlayingIdx(null);
+    },
+    [play],
+  );
 
   // ── Interval input check ─────────────────────────────────────────────────
 
@@ -463,17 +446,15 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
     async (chosenInterval: number) => {
       if (phaseRef.current !== 'input') return;
 
-      const seq = sequenceRef.current;
-      const root = seq[0];
-      // The next slot to fill (skip slot 0 which is the root, always revealed)
-      const idx = userInputRef.current.length + 1;
-      const targetNote = seq[idx];
-      const expectedInterval = (((targetNote - root) % 12) + 12) % 12;
+      const round = intervalsRef.current;
+      const expectedInterval = round[userInputRef.current.length];
 
-      // Play audio for the chosen interval (absolute offset above the root, so
-      // it sounds at the same octave as the sequence note it answers).
-      const chosenNote = root + chosenInterval;
-      playCrystalNote(chosenNote, NOTE_DURATION_S, 0.75);
+      // The answer sounds as the round does: the root, then the interval chosen.
+      play(CHROMA_ROOT, ANSWER_ROOT_S, 0.75);
+      void wait(ANSWER_GAP_MS).then(() => {
+        if (aliveRef.current)
+          play(CHROMA_ROOT + chosenInterval, NOTE_DURATION_S, 0.75);
+      });
 
       if (chosenInterval !== expectedInterval) {
         onWrong?.();
@@ -496,7 +477,7 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
         userInputRef.current = [];
         setUserInput([]);
         sp('playing');
-        await playSeq(sequenceRef.current);
+        await playRound(intervalsRef.current);
         sp('input');
       } else {
         onCorrect?.();
@@ -504,42 +485,43 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
         userInputRef.current = newInput;
         setUserInput([...newInput]);
 
-        // All intervals identified (sequence length - 1 because root is given)
-        if (newInput.length >= seq.length - 1) {
+        // All intervals identified
+        if (newInput.length >= round.length) {
           setCrystalLit(true);
           sp('success');
         }
       }
     },
-    [sp, playSeq, onCorrect, onWrong],
+    [sp, play, playRound, onCorrect, onWrong],
   );
 
   // ── Start ───────────────────────────────────────────────────────────────
 
   const handleStart = useCallback(async () => {
-    const diff = difficultyRef.current;
-    const seq = generateSequence(diff);
-    const cfg = DIFF[diff];
+    const lvl = levelRef.current;
+    const round = pickIntervals(lvl, Math.random, recentRef.current);
+    recentRef.current = [...recentRef.current, ...round].slice(-CHROMA_FRESH);
+    const cfg = LEVELS[lvl];
 
-    sequenceRef.current = seq;
+    intervalsRef.current = round;
     userInputRef.current = [];
     attemptsRef.current = cfg.attempts;
 
-    setSequence(seq);
+    setIntervals(round);
     setUserInput([]);
     setAttemptsLeft(cfg.attempts);
     setCrystalLit(false);
 
     sp('playing');
-    await playSeq(seq);
+    await playRound(round);
     sp('input');
-  }, [sp, playSeq]);
+  }, [sp, playRound]);
 
   // ── Reset ───────────────────────────────────────────────────────────────
 
   const handleReset = useCallback(() => {
     setCrystalLit(false);
-    setSequence([]);
+    setIntervals([]);
     setUserInput([]);
     setPlayingIdx(null);
     sp('select');
@@ -552,12 +534,12 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
     phase === 'playing' || phase === 'input' || phase === 'wrong';
   const showPips =
     phase !== 'select' && phase !== 'success' && phase !== 'game-over';
-  const diffCfg = DIFF[difficulty];
+  const levelCfg = LEVELS[level];
 
   const statusLabel: Record<Phase, string> = {
     select: '',
     playing: 'Listen carefully…',
-    input: 'Name the interval',
+    input: intervals.length > 1 ? 'Name the intervals' : 'Name the interval',
     wrong: 'Not quite — listen again…',
     success: 'Crystal attuned!',
     'game-over': '',
@@ -616,7 +598,7 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
             gap: 10,
           }}
         >
-          <Crystal lit={crystalLit} />
+          <Crystal lit={crystalLit || celebrating !== null} />
           <div
             style={{
               fontSize: 11,
@@ -636,21 +618,18 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
           </div>
         </div>
 
-        {/* ── Note slots ── */}
-        {showSlots && sequence.length > 0 && (
+        {/* ── Note slots: Root → interval, once per interval ── */}
+        {showSlots && intervals.length > 0 && (
           <div
             style={{
               display: 'flex',
-              gap: 6,
+              gap: 14,
               flexWrap: 'wrap',
               justifyContent: 'center',
               alignItems: 'center',
             }}
           >
-            {/* Root note — always revealed */}
-            <NoteSlot label="Root" active={playingIdx === 0} reveal />
-            {/* Remaining slots — one per interval to identify */}
-            {sequence.slice(1).map((note, i) => {
+            {intervals.map((semitones, i) => {
               const isFilled = userInput[i] !== undefined;
               const isNext = i === userInput.length && phase === 'input';
               return (
@@ -658,6 +637,7 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
                   key={i}
                   style={{ display: 'flex', alignItems: 'center', gap: 6 }}
                 >
+                  <NoteSlot label="Root" active={playingIdx === i * 2} reveal />
                   <span
                     style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}
                   >
@@ -665,13 +645,11 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
                   </span>
                   <NoteSlot
                     label={
-                      phase === 'playing'
-                        ? undefined
-                        : isFilled
-                          ? CHROMATIC_NOTES[note % 12]
-                          : undefined
+                      phase !== 'playing' && isFilled
+                        ? intervalLabel(semitones, naming)
+                        : undefined
                     }
-                    active={playingIdx === i + 1 || isNext}
+                    active={playingIdx === i * 2 + 1 || isNext}
                     filled={isFilled}
                   />
                 </span>
@@ -682,7 +660,7 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
 
         {/* ── Attempt pips ── */}
         {showPips && (
-          <AttemptPips total={diffCfg.attempts} remaining={attemptsLeft} />
+          <AttemptPips total={levelCfg.attempts} remaining={attemptsLeft} />
         )}
 
         {/* ── Difficulty select + Start button ── */}
@@ -695,15 +673,18 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
               gap: 14,
             }}
           >
-            {/* Difficulty buttons */}
+            {/* Level buttons: how many intervals a round asks for */}
             <div style={{ display: 'flex', gap: 8 }}>
-              {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => {
-                const cfg = DIFF[d];
-                const selected = difficulty === d;
+              {([1, 2, 3] as ChromaLevel[]).map((lvl) => {
+                const cfg = LEVELS[lvl];
+                const selected = level === lvl;
                 return (
                   <button
-                    key={d}
-                    onClick={() => setDifficulty(d)}
+                    key={lvl}
+                    type="button"
+                    aria-pressed={selected}
+                    title={`${lvl} interval${lvl > 1 ? 's' : ''} a round`}
+                    onClick={() => setLevel(lvl)}
                     style={{
                       padding: '6px 16px',
                       borderRadius: 8,
@@ -725,7 +706,60 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
               })}
             </div>
 
-            {/* Start button — held until the soundfont can play the sequence */}
+            {/* Name the intervals in words or by number */}
+            <div
+              role="group"
+              aria-label="Name intervals by"
+              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+              <span
+                style={{
+                  fontSize: 10,
+                  color: 'rgba(255,255,255,0.45)',
+                  letterSpacing: 0.5,
+                }}
+              >
+                Name them by
+              </span>
+              {(
+                [
+                  ['words', 'Words'],
+                  ['numbers', 'Numbers'],
+                ] as [IntervalNaming, string][]
+              ).map(([value, text]) => {
+                const selected = naming === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={selected}
+                    title={
+                      value === 'numbers'
+                        ? 'Perfect 4th is 4, Minor 3rd ♭3, Tritone ♯4, Octave 8'
+                        : 'Perfect 4th, Minor 3rd, Tritone, Octave'
+                    }
+                    onClick={() => chooseNaming(value)}
+                    style={{
+                      padding: '4px 12px',
+                      borderRadius: 999,
+                      border: `1px solid ${selected ? '#a78bfa' : 'rgba(255,255,255,0.1)'}`,
+                      backgroundColor: selected
+                        ? 'rgba(167,139,250,0.14)'
+                        : 'transparent',
+                      color: selected ? '#ddd6fe' : 'rgba(255,255,255,0.45)',
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.18s ease',
+                    }}
+                  >
+                    {text}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Start button — held until the lead can play the round */}
             <button
               onClick={handleStart}
               disabled={!audioReady}
@@ -847,14 +881,10 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
                     color: 'rgba(221,214,254,0.7)',
                   }}
                 >
-                  {CHROMATIC_NOTES[sequence[0] % 12]}
+                  {chromaInterval(0).note}
                 </span>
               </div>
-              {sequence.slice(1).map((note, i) => {
-                const interval = (((note - sequence[0]) % 12) + 12) % 12;
-                const intervalLabel =
-                  ALL_INTERVALS.find((iv) => iv.semitones === interval)
-                    ?.label ?? `${interval} st`;
+              {intervals.map((semitones, i) => {
                 return (
                   <div
                     key={i}
@@ -878,7 +908,7 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
                         letterSpacing: 0.5,
                       }}
                     >
-                      {intervalLabel}
+                      {intervalLabel(semitones, naming)}
                     </span>
                     <span
                       style={{
@@ -886,7 +916,7 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
                         color: 'rgba(252,165,165,0.7)',
                       }}
                     >
-                      {CHROMATIC_NOTES[note % 12]}
+                      {chromaInterval(semitones).note}
                     </span>
                   </div>
                 );
@@ -915,7 +945,7 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
 
         {/* ── Interval buttons ── */}
         <IntervalButtons
-          intervals={difficulty === 'easy' ? EASY_INTERVALS : ALL_INTERVALS}
+          naming={naming}
           onSelect={handleIntervalInput}
           disabled={!isInputActive}
         />

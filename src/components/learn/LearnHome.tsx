@@ -160,23 +160,24 @@ export const LearnHome = () => {
         <LearnQuickStart />
       </div>
 
-      <div className="px-6 md:px-10">
+      {/* data-learn-home: what the How to Navigate tour points at. */}
+      <div className="px-6 md:px-10" data-learn-home="continue">
         {resume ? <ContinueBar item={resume} /> : <StartLearningBar />}
       </div>
 
-      <div className="px-6 md:px-10">
+      <div className="px-6 md:px-10" data-learn-home="streak">
         <StreakGoalCard />
       </div>
 
-      <div className="px-6 md:px-10">
+      <div className="px-6 md:px-10" data-learn-home="xp">
         <XpTrackerCard />
       </div>
 
-      <div className="px-6 md:px-10">
+      <div className="px-6 md:px-10" data-learn-home="recent">
         <RecentLessonsSection />
       </div>
 
-      <div className="px-6 md:px-10">
+      <div className="px-6 md:px-10" data-learn-home="saved">
         <SavedSongsSection />
       </div>
     </div>

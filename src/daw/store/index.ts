@@ -17,6 +17,10 @@ import {
 } from './sectionsSlice';
 import { createAudioIOSlice, type AudioIOSlice } from './audioIOSlice';
 import {
+  createDoneMomentsSlice,
+  type DoneMomentsSlice,
+} from './doneMomentsSlice';
+import {
   createPrismSuggestionSlice,
   type PrismSuggestionSlice,
 } from './prismSuggestionSlice';
@@ -45,6 +49,7 @@ export type AllSlices = TransportSlice &
   MarkersSlice &
   SectionsSlice &
   AudioIOSlice &
+  DoneMomentsSlice &
   PrismSuggestionSlice &
   UnisonSlice &
   MusicIntelligenceSlice &
@@ -65,6 +70,7 @@ export const useStore = create<AllSlices>()(
       ...createMarkersSlice(set, get, api),
       ...createSectionsSlice(set, get, api),
       ...createAudioIOSlice(set, get, api),
+      ...createDoneMomentsSlice(set, get, api),
       ...createPrismSuggestionSlice(set, get, api),
       ...createUnisonSlice(set, get, api),
       ...createMusicIntelligenceSlice(set, get, api),
@@ -138,6 +144,11 @@ export type { MarkersSlice, Marker } from './markersSlice';
 export type { SectionsSlice } from './sectionsSlice';
 export { leadSheetSectionsOf } from './sectionsSlice';
 export type { AudioIOSlice } from './audioIOSlice';
+export type {
+  DoneMoment,
+  DoneMoments,
+  DoneMomentsSlice,
+} from './doneMomentsSlice';
 export type { PrismSuggestionSlice } from './prismSuggestionSlice';
 export type { UnisonSlice } from './unisonSlice';
 export type { MusicIntelligenceSlice } from './musicIntelligenceSlice';

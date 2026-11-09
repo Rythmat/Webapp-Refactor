@@ -24,6 +24,7 @@ vi.mock('tone', () => ({
 import {
   contextTimeHeardAt,
   nativeContextOf,
+  outputDelayOf,
   ticksAtContextTime,
   ticksHeardAt,
 } from '../heardTime';
@@ -82,5 +83,14 @@ describe('ticksHeardAt', () => {
     expect(ticksHeardAt(undefined, 11.5)).toBeCloseTo(1440, 6);
     expect(ticksAtContextTime(11, 11.5)).toBeCloseTo(1440, 6);
     expect(ticksAtContextTime(12, 11.5)).toBeCloseTo(1920, 6);
+  });
+});
+
+describe('outputDelayOf', () => {
+  it('is baseLatency + outputLatency, the sum an audio take subtracts', () => {
+    expect(
+      outputDelayOf({ baseLatency: 0.01, outputLatency: 0.04 }),
+    ).toBeCloseTo(0.05, 12);
+    expect(outputDelayOf({})).toBe(0);
   });
 });

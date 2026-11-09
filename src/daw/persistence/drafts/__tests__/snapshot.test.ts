@@ -37,7 +37,7 @@ describe('snapshotLiveSession', () => {
   });
 
   it('describes the session its body holds', () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().addMidiClip(keys, { id: 'c1', startTick: 0, events: [] });
     s().setProjectName('Blue Hour');
     s().setProjectId('project-1');
@@ -66,7 +66,7 @@ describe('snapshotLiveSession', () => {
 
 describe('bodyContent', () => {
   it('tells two writes of one project apart only by content', () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Keys');
     vi.useFakeTimers();
     try {
       vi.setSystemTime(1_000);

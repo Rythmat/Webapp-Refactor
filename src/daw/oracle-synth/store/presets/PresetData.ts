@@ -45,6 +45,8 @@ export interface PresetData {
   glide: number;
   spread: number;
   masterVolume: number;
+  /** Where the mod wheel rests on load (0..1); absent: left where it is. */
+  modWheel?: number;
   fx?: FXParams; // Optional for backward compat with old presets
   fxRoutes?: FXRoute[]; // Optional for backward compat
   routing?: RoutingConfig; // Optional for backward compat

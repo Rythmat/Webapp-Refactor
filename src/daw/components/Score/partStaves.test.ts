@@ -97,7 +97,9 @@ function stavesWhileWriting(
 describe('writing notes one by one', () => {
   it('keeps an empty bass part on its bass clef, high notes and all', () => {
     // C2, then up past the treble staff: ledger lines, not a new clef.
-    const seen = stavesWhileWriting('bass-electric', [36, 60, 72, 84, 96]);
+    const seen = stavesWhileWriting('soundfont', [36, 60, 72, 84, 96], {
+      gmProgram: 33,
+    });
     expect(seen).toEqual(seen.map(() => ['bass8vb']));
   });
 
@@ -118,7 +120,9 @@ describe('writing notes one by one', () => {
   });
 
   it('keeps a keyboard on its grand staff from the first note', () => {
-    const seen = stavesWhileWriting('electric-piano', [72, 74, 76]);
+    const seen = stavesWhileWriting('soundfont', [72, 74, 76], {
+      gmProgram: 4,
+    });
     expect(seen).toEqual(seen.map(() => ['treble', 'bass']));
   });
 
@@ -138,22 +142,29 @@ describe('writing notes one by one', () => {
 describe('notes far from the staff', () => {
   it('are written on the part’s one staff', () => {
     const [bass] = build([
-      track('bass', 'bass-electric', [ev(28, 0), ev(84, 480), ev(96, 960)]),
+      track('bass', 'soundfont', [ev(28, 0), ev(84, 480), ev(96, 960)], {
+        gmProgram: 33,
+      }),
     ]);
     expect(pitchesOn(bass.score)).toEqual({ bass8vb: [28, 84, 96] });
   });
 
   it('are shared out on a grand staff by the usual split', () => {
     const [piano] = build([
-      track('piano', 'piano-sampler', [
-        ev(36, 0),
-        ev(84, 480),
-        // A chord of four within a hand's reach stays in one clef.
-        ev(55, 960),
-        ev(59, 960),
-        ev(62, 960),
-        ev(65, 960),
-      ]),
+      track(
+        'piano',
+        'soundfont',
+        [
+          ev(36, 0),
+          ev(84, 480),
+          // A chord of four within a hand's reach stays in one clef.
+          ev(55, 960),
+          ev(59, 960),
+          ev(62, 960),
+          ev(65, 960),
+        ],
+        { gmProgram: 0 },
+      ),
     ]);
     expect(piano.score.staves).toEqual(['treble', 'bass']);
     expect(pitchesOn(piano.score)).toEqual({
@@ -164,7 +175,9 @@ describe('notes far from the staff', () => {
 });
 
 describe("a part's setting", () => {
-  const keys = track('keys', 'electric-piano', [ev(72, 0), ev(48, 480)]);
+  const keys = track('keys', 'soundfont', [ev(72, 0), ev(48, 480)], {
+    gmProgram: 4,
+  });
 
   it('writes the part on the staff it names', () => {
     const on = (notationStaff: Track['notationStaff']) =>
@@ -180,7 +193,7 @@ describe("a part's setting", () => {
 
   it('rebuilds the part it changes, and only that one, from the cache', () => {
     const cache = new ScorePartsCache();
-    const bass = track('bass', 'bass-electric', [ev(40, 0)]);
+    const bass = track('bass', 'soundfont', [ev(40, 0)], { gmProgram: 33 });
     const before = cache.build({ ...base, tracks: [keys, bass] });
     const after = cache.build({
       ...base,
@@ -209,8 +222,8 @@ describe('the Lead Sheet’s melody staves', () => {
   it('follow the same instrument rule and setting', () => {
     const tracks = [
       track('lead', 'oracle-synth', [ev(72, 0)], { name: 'Lead' }),
-      track('bass', 'bass-electric', [ev(40, 0)]),
-      track('keys', 'piano-sampler', []),
+      track('bass', 'soundfont', [ev(40, 0)], { gmProgram: 33 }),
+      track('keys', 'soundfont', [], { gmProgram: 0 }),
     ];
     const staves = (list: Track[]) =>
       melodyScoreParts(list, base).map((part) => part.score.staves);
@@ -248,7 +261,7 @@ describe('the MusicXML export', () => {
   it('writes each part on its instrument’s clef', () => {
     const xml = xmlOf(
       build([
-        track('Keys', 'electric-piano', [ev(60, 0)]),
+        track('Keys', 'soundfont', [ev(60, 0)], { gmProgram: 4 }),
         track('Bass', 'soundfont', [ev(84, 0)], { gmProgram: 33 }),
         track('Lead', 'oracle-synth', [ev(40, 0)], { name: 'Lead' }),
         track('Cello', 'soundfont', [ev(48, 0)], { gmProgram: 42 }),
@@ -286,7 +299,9 @@ describe('the MusicXML export', () => {
     // C2 and E1, the bass guitar's lowest E. MuseScore reads <pitch> as the
     // sounding pitch under an octave clef, so no <transpose> goes with it.
     const xml = xmlOf(
-      build([track('Bass', 'bass-electric', [ev(36, 0), ev(28, 480)])]),
+      build([
+        track('Bass', 'soundfont', [ev(36, 0), ev(28, 480)], { gmProgram: 33 }),
+      ]),
     );
     expect(xml).toContain('<clef-octave-change>-1</clef-octave-change>');
     expect(xml).not.toContain('<transpose>');
@@ -297,7 +312,10 @@ describe('the MusicXML export', () => {
   it('writes a part on the staff it was set to', () => {
     const xml = xmlOf(
       build([
-        track('Keys', 'electric-piano', [ev(60, 0)], { notationStaff: 'bass' }),
+        track('Keys', 'soundfont', [ev(60, 0)], {
+          gmProgram: 4,
+          notationStaff: 'bass',
+        }),
       ]),
     );
     expect(attributesOf(xml)).toEqual([{ staves: '1', clefs: ['F'] }]);
@@ -320,21 +338,25 @@ describe('a staff written an octave above its sound', () => {
   it('draws a bass an octave up and keeps the pitch it sounds', () => {
     // MIDI C2 is written on the C3 space; the low E string, E1, on E2.
     const [bass] = build([
-      track('bass', 'bass-electric', [ev(36, 0), ev(28, 480), ev(43, 960)]),
+      track('bass', 'soundfont', [ev(36, 0), ev(28, 480), ev(43, 960)], {
+        gmProgram: 33,
+      }),
     ]);
     expect(bass.score.staves).toEqual(['bass8vb']);
     expect(keysOf(bass.score)).toEqual(['c3=36', 'e2=28', 'g3=43']);
   });
 
   it('writes the plain bass clef where it sounds', () => {
-    const [cello] = build([track('cello', 'cello', [ev(36, 0)])]);
+    const [cello] = build([
+      track('cello', 'soundfont', [ev(36, 0)], { gmProgram: 42 }),
+    ]);
     expect(cello.score.staves).toEqual(['bass']);
     expect(keysOf(cello.score)).toEqual(['c2=36']);
   });
 
   it('keeps a pinned spelling on its letter, an octave up', () => {
     // A♯1 (MIDI 34) pinned as B♭: written B♭2 on the bass clef with an 8.
-    const bass = track('bass', 'bass-electric', [ev(34, 0)]);
+    const bass = track('bass', 'soundfont', [ev(34, 0)], { gmProgram: 33 });
     const id = `bass:bass-c:0:34`;
     const [part] = buildScoreParts({
       ...base,

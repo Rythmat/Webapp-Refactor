@@ -10,8 +10,9 @@ import { FOCUS_RING, TRANSITION, TYPE_CLASS } from './styles';
  * - secondary: a white/15 outline;
  * - ghost: no fill until hovered;
  * - danger: red, for actions that destroy work;
- * - quiet: dim text only, for low-stakes extras.
- * Sizes are 24, 28 (the default) and 32 px high. A press shrinks it a touch
+ * - quiet: dim text only, for low-stakes extras;
+ * - pill: a pill on the page (the bars' controls), white/50 until hovered.
+ * Sizes are 24, 28 (the default) and 32 px high, and 36 for a bar's pill. A press shrinks it a touch
  * in CSS, not in framer-motion, and not at all under reduced motion.
  */
 export const buttonVariants = cva(
@@ -33,11 +34,13 @@ export const buttonVariants = cva(
         ghost: 'bg-transparent text-daw-text hover:bg-daw-hover',
         danger: 'bg-daw-danger text-daw-on-danger hover:bg-daw-danger-hover',
         quiet: 'bg-transparent text-daw-text-3 hover:text-daw-text',
+        pill: 'bg-daw-pill font-normal text-daw-pill-text hover:text-daw-text',
       },
       size: {
         sm: 'h-6 px-2.5',
         md: 'h-7 px-3',
         lg: 'h-8 px-4',
+        pill: 'h-9 px-3.5',
       },
     },
     defaultVariants: { variant: 'secondary', size: 'md' },

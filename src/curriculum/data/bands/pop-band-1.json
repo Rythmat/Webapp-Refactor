@@ -12,23 +12,29 @@
       "id": "drums",
       "name": "Drums",
       "instrument": "drums",
-      "player": "pop-drummer-1"
+      "player": "pop-drummer-1",
+      "sound": "drum-machine:custom_custom_natural_01",
+      "volume": 0.8
     },
     {
       "id": "bass",
       "name": "Bass",
       "instrument": "bass",
-      "player": "pop-bassist-1"
+      "player": "pop-bassist-1",
+      "sound": "bass-electric:finger",
+      "volume": 1
     },
     {
       "id": "keys-comping",
       "name": "Keys comping",
       "instrument": "keys",
-      "player": "pop-pianist-1"
+      "player": "pop-pianist-1",
+      "volume": 0.85
     }
   ],
   "preview": {
-    "chart": "| C | G | Am | F |"
+    "chart": "| Bbmaj | Ebmaj7 | Gmin7 | F |",
+    "key": 10
   },
   "variations": [
     {
@@ -46,7 +52,7 @@
         },
         "keys-comping": {
           "kind": "part",
-          "id": "pop-l1-d2-2-8-bar-power-chord-jam-3-3-2-chunking-moving-bass"
+          "id": "pop-l1-d2-2-8-bar-power-chord-jam-3-3-2-chunking-moving-bass-in-b-ionian"
         }
       },
       "tempo": 96
@@ -55,13 +61,41 @@
       "id": "l2-craft",
       "name": "L2 · The Craft",
       "style": "pop-l2-craft",
-      "plays": {}
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "dance-pop"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "octave-disco-copy"
+        },
+        "keys-comping": {
+          "kind": "part",
+          "id": "pop-pianist-1-l2-dance-pop-groove-1-copy"
+        }
+      },
+      "tempo": 112
     },
     {
       "id": "l3-artistry",
       "name": "L3 · Artistry",
       "style": "pop-l3-artistry",
-      "plays": {}
+      "plays": {
+        "keys-comping": {
+          "kind": "part",
+          "id": "pop-pianist-1-l3-artistry-take-21"
+        },
+        "drums": {
+          "kind": "part",
+          "id": "pop-drummer-1-l3-artistry-take-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "driving-dance-pop-1-copy"
+        }
+      },
+      "tempo": 108
     }
   ]
 }

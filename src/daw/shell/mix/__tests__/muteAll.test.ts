@@ -20,9 +20,9 @@ let stopHistory: () => void;
 beforeEach(() => {
   useStore.setState({ tracks: [], muteAllSet: null, remoteUsers: new Map() });
   ids = [
-    s().addTrack('midi', 'piano-sampler', 'Rhodes'),
+    s().addTrack('midi', 'soundfont', 'Rhodes'),
     s().addTrack('midi', 'drum-machine', 'Drums'),
-    s().addTrack('audio', 'vocal-fx', 'Vox'),
+    s().addTrack('audio', 'audio-input', 'Vox'),
   ];
   resetHistory();
   stopHistory = startHistory();

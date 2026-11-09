@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode, type RefObject } from 'react';
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
 import { cn } from '@/components/utilities';
 import {
   GuitarActionBar,
@@ -6,6 +7,7 @@ import {
 } from '@/curriculum/guitar/layout/GuitarActionBar';
 import { GuitarLessonHeader } from '@/curriculum/guitar/layout/GuitarLessonHeader';
 import { GuitarStepNav } from '@/curriculum/guitar/layout/GuitarStepNav';
+import { LessonFrame } from '@/curriculum/guitar/layout/LessonFrame';
 import { TempoStepper } from '@/curriculum/guitar/layout/TempoStepper';
 import { SettingsSection } from '@/curriculum/guitar/layout/settingsControls';
 import type {
@@ -19,6 +21,10 @@ import {
 } from '@/curriculum/piano/layout/PianoAboutStepSheet';
 import { PianoSettingsSheet } from '@/curriculum/piano/layout/PianoSettingsSheet';
 import { useElementSize } from '@/hooks/useElementSize';
+import {
+  LiteracyGrooveSettings,
+  type LiteracyGrooveSettingsProps,
+} from './LiteracyGrooveSettings';
 import '@/curriculum/guitar/layout/guitarLayout.css';
 
 // ── The Music Literacy lesson screen ───────────────────────────────────────
@@ -46,9 +52,18 @@ export interface MusicLiteracyLayoutProps {
   about: PianoAboutModel;
   audio: { outputLatencyMs: number; openAudioTiming: () => void };
   tempo: { bpm: number; onChange: (bpm: number) => void };
+  /** Settings → Play along: the drum groove. */
+  groove: LiteracyGrooveSettingsProps;
   /** Said once when a result arrives. */
   announcement: string;
+  /** Over the step pager: a module's round, while the student plays it. */
+  banner?: ReactNode;
   slots: {
+    /**
+     * In place of both panels (Part 2's choose steps, and a step waiting
+     * for a choice); null for the call and the response.
+     */
+    full?: ((stacked: boolean) => ReactNode) | null;
     /** The call panel; `stacked`: draw its compact row. */
     call: (stacked: boolean) => ReactNode;
     /** The response panel, measured by the player (the keyboard's room). */
@@ -69,7 +84,9 @@ export function MusicLiteracyLayout({
   about,
   audio,
   tempo,
+  groove,
   announcement,
+  banner,
   slots,
 }: MusicLiteracyLayoutProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -86,11 +103,23 @@ export function MusicLiteracyLayout({
   });
 
   return (
-    <div
+    <LessonFrame
+      header={header}
+      nav={nav}
+      tools={{
+        about: {
+          open: aboutOpen,
+          onToggle: () => setAboutOpen(!aboutOpen),
+        },
+        // Settings is not modal, so its button stays in reach and toggles.
+        settings: {
+          open: settingsOpen,
+          onToggle: () => setSettingsOpen(!settingsOpen),
+        },
+      }}
       data-piano-layout
       data-literacy-layout
       data-bar-state={bar.state}
-      className="flex h-full min-h-0 flex-col bg-[#101012] text-[#e8e8f0]"
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
         <div
@@ -99,52 +128,69 @@ export function MusicLiteracyLayout({
         >
           <GuitarLessonHeader
             header={header}
-            aboutHasNews={false}
-            aboutOpen={aboutOpen}
-            onOpenAbout={() => setAboutOpen(true)}
-            settingsOpen={settingsOpen}
-            onOpenSettings={() => setSettingsOpen((open) => !open)}
+            section={nav.sections.find((s) => s.active)?.name}
           />
+          {banner}
           <GuitarStepNav nav={nav} keyColor={header.keyColor} />
 
+          {/* The panels stay mounted (and measured) under a full-width
+              screen, so the roll and keyboard keep their sizes. */}
           <div
             ref={panelsRef}
-            data-literacy-panels
-            data-stacked={stacked || undefined}
-            className={cn(
-              'grid min-h-0 flex-1 gap-4',
-              stacked
-                ? 'grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] max-[639px]:flex-none max-[639px]:grid-rows-[auto_auto]'
-                : 'grid-cols-[minmax(0,5fr)_minmax(0,7fr)] grid-rows-[minmax(0,1fr)]',
-            )}
+            data-literacy-stage
+            className="flex min-h-0 flex-1 flex-col max-[639px]:flex-none"
           >
-            {slots.call(stacked)}
-            <section
-              ref={slots.responseRef}
-              aria-label="Your answer"
-              data-literacy-response
-              className="flex min-h-0 min-w-0 flex-col gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3"
-            >
+            {slots.full && (
               <div
-                data-literacy-roll-slot
-                className="grid min-h-[140px] flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)] max-[639px]:h-[300px] max-[639px]:flex-none"
+                data-literacy-full
+                data-stacked={stacked || undefined}
+                className="flex min-h-0 flex-1 flex-col"
               >
-                {/* Kept mounted (and measured) under the result: no display
-                    utility here, it would beat [hidden]. */}
+                {slots.full(stacked)}
+              </div>
+            )}
+            <div
+              data-literacy-panels
+              data-stacked={stacked || undefined}
+              className={cn(
+                'min-h-0 flex-1 gap-4',
+                slots.full ? 'hidden' : 'grid',
+                stacked
+                  ? 'grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] max-[639px]:flex-none max-[639px]:grid-rows-[auto_auto]'
+                  : 'grid-cols-[minmax(0,5fr)_minmax(0,7fr)] grid-rows-[minmax(0,1fr)]',
+              )}
+            >
+              {slots.call(stacked)}
+              <section
+                ref={slots.responseRef}
+                aria-label="Your answer"
+                data-literacy-response
+                className={cn(
+                  PROMPT_SURFACE,
+                  'flex min-h-0 min-w-0 flex-col gap-3 p-3',
+                )}
+              >
                 <div
-                  ref={slots.rollRef}
-                  hidden={slots.result !== null}
-                  data-literacy-roll
-                  className="relative h-full min-h-0 overflow-hidden rounded-lg"
+                  data-literacy-roll-slot
+                  className="grid min-h-[140px] flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)] max-[639px]:h-[300px] max-[639px]:flex-none"
                 >
-                  {slots.roll}
+                  {/* Kept mounted (and measured) under the result: no display
+                    utility here, it would beat [hidden]. */}
+                  <div
+                    ref={slots.rollRef}
+                    hidden={slots.result !== null}
+                    data-literacy-roll
+                    className="relative h-full min-h-0 overflow-hidden rounded-lg"
+                  >
+                    {slots.roll}
+                  </div>
+                  {slots.result}
                 </div>
-                {slots.result}
-              </div>
-              <div data-literacy-keyboard className="shrink-0">
-                {slots.keyboard}
-              </div>
-            </section>
+                <div data-literacy-keyboard className="shrink-0">
+                  {slots.keyboard}
+                </div>
+              </section>
+            </div>
           </div>
         </div>
       </div>
@@ -181,12 +227,13 @@ export function MusicLiteracyLayout({
             <TempoStepper bpm={tempo.bpm} onChange={tempo.onChange} />
           </div>
         </SettingsSection>
+        <LiteracyGrooveSettings {...groove} />
       </PianoSettingsSheet>
       <PianoAboutStepSheet
         open={aboutOpen}
         onOpenChange={setAboutOpen}
         about={about}
       />
-    </div>
+    </LessonFrame>
   );
 }

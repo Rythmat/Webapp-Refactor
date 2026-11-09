@@ -16,7 +16,9 @@ import { partStaff, type PartStaff } from './partStaff';
 // (partStaff.ts), never from its notes: writing notes never changes it.
 
 export const TICKS_PER_QUARTER = 480;
-const MIN_MEASURES = 4;
+/** The fewest bars a score shows. */
+export const SCORE_MIN_MEASURES = 4;
+const MIN_MEASURES = SCORE_MIN_MEASURES;
 
 export interface ScoreTrackPart {
   id: string;

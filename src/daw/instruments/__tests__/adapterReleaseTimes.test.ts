@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PianoSampler } from '../PianoSampler';
 import { SamplerInstrument } from '../SamplerInstrument';
-import { ChopsSampler } from '../ChopsSampler';
 import { EightOhEightInstrument } from '../EightOhEightInstrument';
 
 // ── Releases land on the time they are given (instruments-18) ─────────────
@@ -41,7 +40,6 @@ vi.mock('tone', () => {
   return {
     Gain: Node,
     Filter: Node,
-    ToneAudioBuffer: class {},
     Sampler,
     Frequency: (note: number) => ({ toNote: () => `n${note}` }),
     immediate: () => 5,
@@ -77,12 +75,6 @@ const samplers = {
     });
     await sampler.init({} as AudioContext, {} as AudioNode);
     return sampler;
-  },
-  ChopsSampler: async () => {
-    const chops = new ChopsSampler();
-    await chops.init({} as AudioContext, {} as AudioNode);
-    chops.setSample('s1', {} as AudioBuffer, 'C4');
-    return chops;
   },
 };
 

@@ -1,10 +1,15 @@
 /**
- * Studio tab — the DAW project-template starters. Selecting one emits a
- * `studio:template:<id>` launch tile that opens the Studio editor seeded with
- * that template.
+ * Studio tab — the Studio Basics lessons, then the DAW project-template
+ * starters. A lesson emits a `studio:tutorial:<id>` launch tile that opens the
+ * editor on the course's demo song with that lesson running; a template, a
+ * `studio:template:<id>` tile that opens the editor seeded with it.
  */
 import { PickerResultList } from './PickerResultList';
-import { studioTemplateItems, type PickedTile } from './catalog';
+import {
+  studioLessonItems,
+  studioTemplateItems,
+  type PickedTile,
+} from './catalog';
 
 interface StudioTabProps {
   onSelect: (tile: PickedTile) => void;
@@ -13,7 +18,7 @@ interface StudioTabProps {
 export const StudioTab = ({ onSelect }: StudioTabProps) => (
   <div className="flex flex-col pt-1">
     <PickerResultList
-      items={studioTemplateItems()}
+      items={[...studioLessonItems(), ...studioTemplateItems()]}
       onPick={(item) =>
         onSelect({
           module: item.module,
@@ -21,7 +26,7 @@ export const StudioTab = ({ onSelect }: StudioTabProps) => (
           label: { en: item.title },
         })
       }
-      emptyText="No Studio templates."
+      emptyText="No Studio lessons or templates."
     />
   </div>
 );

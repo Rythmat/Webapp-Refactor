@@ -39,7 +39,6 @@ describe('instrument presets', () => {
       'Analog Lead',
       'Warm Pad',
       'Bongos',
-      'Grand Piano',
       'Rhodes',
       'Wurlitzer',
       'Hammond B3',
@@ -49,16 +48,17 @@ describe('instrument presets', () => {
     }
   });
 
-  it('keep the preset each keyboard instrument shows by default', () => {
-    const first = (type: string) =>
-      PRESETS.find((p) => p.instrumentType === type)?.name;
-    expect(PRESETS.find((p) => p.name === 'Studio Grand')?.instrumentType).toBe(
-      'piano-sampler',
-    );
-    expect(first('electric-piano')).toBe('Mellow EP');
-    expect(first('organ')).toBe('Church Organ');
-    expect(first('bass-electric')).toBe('Bass Guitar');
-    expect(first('cello')).toBe('Cello');
+  it('play the keyboards, bass and cello as Instruments tracks', () => {
+    const program = (name: string) => {
+      const preset = PRESETS.find((p) => p.name === name);
+      return preset && [preset.instrumentType, preset.gmProgram];
+    };
+    expect(program('Grand Piano')).toEqual(['soundfont', 0]);
+    expect(program('Electric Piano')).toEqual(['soundfont', 4]);
+    expect(program('Drawbar Organ')).toEqual(['soundfont', 16]);
+    expect(program('Church Organ')).toEqual(['soundfont', 19]);
+    expect(program('Electric Bass')).toEqual(['soundfont', 33]);
+    expect(program('Cello')).toEqual(['soundfont', 42]);
   });
 
   it('only offer categories that hold presets, each once', () => {

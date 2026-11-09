@@ -110,6 +110,9 @@ export function chordHint(
   const shape = getGuitarShape(target.shapeId);
   const center = centerOfShapeId(target.shapeId);
   if (!shape || !center) return null;
+  // The rules read guitar strings and voicings; a ukulele strum is scored
+  // the same way but gets no string-by-string hint.
+  if (center.instrument === 'ukulele') return null;
   const diagnosis = diagnoseChord({
     target: {
       rootName: chordRootName(center, shape.degree),

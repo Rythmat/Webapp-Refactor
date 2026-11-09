@@ -27,21 +27,41 @@ import { sectionFrame, type AtlasSectionId } from './sections';
 
 type SetSearchParams = ReturnType<typeof useSearchParams>[1];
 
+/** Kept across a link followed in the page: a lesson's mind map. */
+const KEPT_PARAMS = ['mindmap'] as const;
+
 function buildNavigate(setSearchParams: SetSearchParams) {
-  /** Go to a stop (a step of its own), optionally changing the frame too. */
+  /**
+   * Go to a stop (a step of its own), optionally changing the frame too. The
+   * Inspector's chosen panel goes, so a new stop opens on its details.
+   */
   const go = (
     stop: AtlasStop,
     options?: { replace?: boolean; frame?: Partial<AtlasFrame> },
   ) =>
     setSearchParams(
-      (prev) => {
-        const next = applyStopToSearchParams(prev, stop);
-        return options?.frame
-          ? applyFrameToSearchParams(next, options.frame)
-          : next;
-      },
+      (prev) =>
+        applyFrameToSearchParams(applyStopToSearchParams(prev, stop), {
+          panel: null,
+          ...options?.frame,
+        }),
       { replace: options?.replace },
     );
+
+  /**
+   * Follow a link into the Globe made elsewhere (a Globe prompt: its query,
+   * `?pathway=…`, `?view=timeline&genres=…`, `?panel=instruments`): a step of
+   * its own, its stop and frame in place of the current ones.
+   */
+  const toLink = (search: string) =>
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(search);
+      for (const key of KEPT_PARAMS) {
+        const value = prev.get(key);
+        if (value !== null && !next.has(key)) next.set(key, value);
+      }
+      return next;
+    });
 
   /**
    * Change how the page looks at the stop — view, lens, years, lane —
@@ -55,7 +75,8 @@ function buildNavigate(setSearchParams: SetSearchParams) {
   return {
     go,
     setFrame,
-    /** Open one of the five sections (navigation/sections.ts). */
+    toLink,
+    /** Open one of the three views (navigation/sections.ts). */
     toSection: (id: AtlasSectionId) => setFrame(sectionFrame(id)),
     toEvent: (event: HistoricalEvent | string) =>
       go({

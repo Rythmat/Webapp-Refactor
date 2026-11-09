@@ -3,12 +3,12 @@
   "label": "Jazz ballad kit",
   "base": "natural",
   "samples": {
-    "36": "/daw-assets/samples/drums/uploads/muzqmfmv-bop-kick---snares-on---2.mp3",
-    "38": "/daw-assets/samples/drums/uploads/mv02w1lq-brush-swoopa-1.mp3",
-    "40": "/daw-assets/samples/drums/uploads/muzq9cx7-brush-snare-hit.mp3",
-    "42": "/daw-assets/samples/drums/uploads/muzss6qa-hihat---foot-close---3.mp3",
-    "44": "/daw-assets/samples/drums/uploads/muzsrqc3-hihat---foot-close---3.mp3",
-    "46": "/daw-assets/samples/drums/uploads/muzqc4c2-hihat---foot-open---2.mp3",
-    "51": "/daw-assets/samples/drums/uploads/mv02vd3f-brush-swoopa-1.mp3"
+    "36": "/daw-assets/samples/drums/uploads/MA_kick_bop_snares_on_2.mp3",
+    "38": "/daw-assets/samples/drums/uploads/MA_snare_brush_sweep_1.mp3",
+    "40": "/daw-assets/samples/drums/uploads/MA_snare_brush_hit.mp3",
+    "42": "/daw-assets/samples/drums/uploads/MA_hihat_pedal_closed_3.mp3",
+    "44": "/daw-assets/samples/drums/uploads/MA_hihat_pedal_closed_3.mp3",
+    "46": "/daw-assets/samples/drums/uploads/MA_hihat_pedal_open_2.mp3",
+    "51": "/daw-assets/samples/drums/uploads/MA_snare_brush_sweep_1.mp3"
   }
 }

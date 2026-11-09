@@ -206,7 +206,7 @@ export function BrowserPanel() {
             data-testid="library-empty"
             title={
               query.favouritesOnly && favouritesList.length === 0
-                ? 'No favourites yet'
+                ? 'No favorites yet'
                 : 'Nothing matches'
             }
             description={

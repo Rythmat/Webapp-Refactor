@@ -144,6 +144,7 @@ export const LFOArea: React.FC = React.memo(() => {
   const setLFOQuarterRateDiv = useSynthStore((s) => s.setLFOQuarterRateDiv);
   const setLFOBarSmooth = useSynthStore((s) => s.setLFOBarSmooth);
   const setLFONodes = useSynthStore((s) => s.setLFONodes);
+  const setLFOOnce = useSynthStore((s) => s.setLFOOnce);
 
   const handleBarLabelDoubleClick = useCallback((barIndex: number) => {
     setZoomedBar((prev) => (prev === barIndex ? null : barIndex));
@@ -196,6 +197,17 @@ export const LFOArea: React.FC = React.memo(() => {
             LFO {i + 1}
           </button>
         ))}
+        {/* One-shot: each note plays bar 1 once and holds its end (a
+            riser or a drop), instead of the 4-bar loop. */}
+        <button
+          type="button"
+          aria-pressed={lfo.once ?? false}
+          title="Play bar 1 once from each note, then hold"
+          className={`${styles.lfoTab} ${lfo.once ? styles.active : ''}`}
+          onClick={() => setLFOOnce(activeLFOIndex, !(lfo.once ?? false))}
+        >
+          ONCE
+        </button>
       </div>
 
       {/* Columns: bars (normal) or segments (zoomed) */}

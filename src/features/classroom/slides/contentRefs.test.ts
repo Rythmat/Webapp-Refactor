@@ -8,6 +8,7 @@ import {
   refFirewallCollision,
   songChartRef,
   songLessonRef,
+  studioTutorialRef,
 } from './contentRefs';
 import { resolveActivityRefHref } from './resolveContentHref';
 
@@ -29,14 +30,14 @@ describe('contentRefs — every builder round-trips through the resolver', () =>
       getSong,
     });
     expect(href).not.toBeNull();
-    expect(href).toBe('/learn/dorian/c');
+    expect(href).toBe('/learn/keyboard/dorian/c');
   });
 
   it('learnRef canonicalizes the key and resolves', () => {
     expect(learnRef('dorian', 'B♭ minor')).toBe('learn:dorian:bflat');
     expect(learnRef('lydian', 'F#')).toBe('learn:lydian:fsharp');
     expect(resolveActivityRefHref('learn', learnRef('dorian', 'bflat'))).toBe(
-      '/learn/dorian/bflat',
+      '/learn/keyboard/dorian/bflat',
     );
   });
 
@@ -53,10 +54,22 @@ describe('contentRefs — every builder round-trips through the resolver', () =>
     ).not.toBeNull();
   });
 
-  it('globePathwayRef → /atlas/globe?pathway=<id>', () => {
+  it('studioTutorialRef → the editor with the lesson running', () => {
+    expect(studioTutorialRef('studio-basics-record')).toBe(
+      'studio:tutorial:studio-basics-record',
+    );
+    expect(
+      resolveActivityRefHref(
+        'studio',
+        studioTutorialRef('studio-basics-record'),
+      ),
+    ).toBe('/studio?tutorial=studio-basics-record');
+  });
+
+  it('globePathwayRef → /globe?pathway=<id>', () => {
     expect(
       resolveActivityRefHref('globe', globePathwayRef('blues-to-rock')),
-    ).toBe('/atlas/globe?pathway=blues-to-rock');
+    ).toBe('/globe?pathway=blues-to-rock');
   });
 
   it('moduleForKind maps kinds to a valid LaunchTile module', () => {

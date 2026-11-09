@@ -274,7 +274,7 @@ describe('useSaveChipState', () => {
   });
 
   it('names audio the save left out in the partial tooltip', () => {
-    const vox = useStore.getState().addTrack('audio', 'vocal-fx', 'Vox');
+    const vox = useStore.getState().addTrack('audio', 'audio-input', 'Vox');
     useStore.getState().addAudioClip(vox, {
       id: 'take',
       startTick: 0,

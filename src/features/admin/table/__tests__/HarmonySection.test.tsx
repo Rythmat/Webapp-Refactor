@@ -120,7 +120,7 @@ describe('a progression’s Heard in', () => {
     renderIn(<ProgressionHeardIn progressionId={662} linked={[]} />);
     expect(
       screen.getByRole('link', { name: /pop L1 · C · C1.4: Four chords/ }),
-    ).toHaveAttribute('href', '/curriculum/pop/1?section=C');
+    ).toHaveAttribute('href', '/learn/keyboard/genre/pop/1?section=C');
   });
 });
 

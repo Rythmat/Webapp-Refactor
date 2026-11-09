@@ -13,6 +13,10 @@ import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
+import {
+  useActivityKeyboardFingering,
+  type ActivityFingering,
+} from '@/learn/fingering/activityFingering';
 import type { PlayedKeys } from '@/learn/keyboard/playedKeys';
 import {
   LESSON_BAR_RESERVE,
@@ -76,6 +80,8 @@ type NoteHoldProps = {
    * it waits to start, or the demo as it plays.
    */
   previewNotes?: PlaybackEvent[];
+  /** Hands and finger numbers over the keys (ActivityFlow's). */
+  fingering?: ActivityFingering;
 };
 
 export const NoteHold = ({
@@ -89,6 +95,7 @@ export const NoteHold = ({
   noteSpelling,
   bare = false,
   previewNotes,
+  fingering,
 }: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const activeMidiSetRef = useRef(new Set<number>());
@@ -205,6 +212,11 @@ export const NoteHold = ({
     );
     return keys;
   }, [activityColor, currentChordMidis, noteColorByMidi]);
+  const keyboardFingering = useActivityKeyboardFingering(
+    fingering,
+    nextTargetKeys,
+    activityColor,
+  );
 
   const isCurrentChordHeld = useMemo(() => {
     if (!currentChord || currentChordMidis.length === 0) {
@@ -552,6 +564,7 @@ export const NoteHold = ({
                 playingNotes={previewNotes}
                 playedKeys={playedKeys}
                 targetMidis={targetMidiSet}
+                fingering={keyboardFingering}
               />
             </div>
             {!bare && <LessonVolumeDial />}

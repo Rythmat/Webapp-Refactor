@@ -3,7 +3,7 @@
 // controller that drives a synth track's instrument in real time.
 //
 // Mounted once in DawApp. It reconciles a single active pairing:
-//   source guitar-fx/bass-fx track (clean signal)  →  ProbabilisticOrchestrator
+//   source Audio track, not a voice (clean signal)  →  ProbabilisticOrchestrator
 //     →  target MIDI/synth track's TrackEngine.noteOn/noteOff  (live sound)
 //
 // A MIDI (synth) track opts in via its `audioMidiSource` binding (set from the
@@ -20,6 +20,8 @@
 // MIDI track has an enabled `audioMidiSource` (a store subscription decides),
 // and the keyboard flush is an engineClock task only while a pairing is live.
 
+import type { Track } from '@/daw/store/tracksSlice';
+import { audioSourceOf } from '@/daw/audio/audioSource';
 import { useEffect } from 'react';
 import { useStore } from '@/daw/store';
 import { subscribeEngineReady, trackEngineRegistry } from './usePlaybackEngine';
@@ -28,7 +30,7 @@ import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
 import { NodeTapCapture } from '@/daw/audio/NodeTapCapture';
 import {
   orchestratorOptionsFor,
-  pitchProfileForInstrument,
+  pitchProfileForSource,
 } from '@/daw/audio/instrumentPitchProfiles';
 import { ProbabilisticOrchestrator } from '@/learn/audio/v2/ProbabilisticOrchestrator';
 import type { DetectionMode } from '@/learn/audio/v2/types';
@@ -46,8 +48,20 @@ interface ActivePairing {
   key: string;
   sourceNode: AudioNode;
   targetTrackId: string;
-  instrument: 'guitar-fx' | 'bass-fx';
+  /** What the source Audio track records (audioSource): its pitch range. */
+  source: 'guitar' | 'bass';
   mode: DetectionMode;
+}
+
+/**
+ * Whether a track can drive a synth: an Audio track, unless it holds a
+ * voice (pitch correction, no amp; audioSource).
+ */
+export function isMidiSourceTrack(t: {
+  instrument: Track['instrument'];
+  guitarChain?: Track['guitarChain'];
+}): boolean {
+  return t.instrument === 'audio-input' && audioSourceOf(t) !== 'voice';
 }
 
 /** Whether some MIDI track has opted in to a guitar/bass source. */
@@ -67,15 +81,15 @@ function resolvePairing(): ActivePairing | null {
   );
   if (!target?.audioMidiSource) return null;
 
-  // Resolve the source guitar/bass track (explicit, else first available).
-  const isAudioInstr = (i: string) => i === 'guitar-fx' || i === 'bass-fx';
+  // Resolve the source Audio track (explicit, else first available): any
+  // but a voice (audioSource).
   const src = target.audioMidiSource.sourceTrackId
     ? tracks.find(
         (t) =>
           t.id === target.audioMidiSource!.sourceTrackId &&
-          isAudioInstr(t.instrument),
+          isMidiSourceTrack(t),
       )
-    : tracks.find((t) => isAudioInstr(t.instrument));
+    : tracks.find(isMidiSourceTrack);
   if (!src) return null;
 
   // The source adapter must be initialized with a live input device.
@@ -84,8 +98,8 @@ function resolvePairing(): ActivePairing | null {
   const sourceNode = adapter.getPitchDetectSourceNode();
   if (!sourceNode) return null;
 
-  const instrument = src.instrument as 'guitar-fx' | 'bass-fx';
-  const profile = pitchProfileForInstrument(instrument);
+  const source = audioSourceOf(src) === 'bass' ? 'bass' : 'guitar';
+  const profile = pitchProfileForSource(source);
   const requested: DetectionMode =
     target.audioMidiSource.mode === 'poly' ? 'polyphonic' : 'monophonic';
   const mode: DetectionMode = profile.allowPolyphonic
@@ -95,8 +109,8 @@ function resolvePairing(): ActivePairing | null {
   // Key encodes everything that requires a rebuild (incl. device swap). The
   // tapped node is compared too (see reconcile): a reloaded project makes new
   // adapters under the same ids.
-  const key = `${src.id}:${src.audioInputId ?? ''}:${target.id}:${instrument}:${mode}`;
-  return { key, sourceNode, targetTrackId: target.id, instrument, mode };
+  const key = `${src.id}:${src.audioInputId ?? ''}:${target.id}:${source}:${mode}`;
+  return { key, sourceNode, targetTrackId: target.id, source, mode };
 }
 
 export function useGuitarMidiDetection(): void {
@@ -179,8 +193,8 @@ export function useGuitarMidiDetection(): void {
       currentNode = node;
       if (!pairing) return;
 
-      const { sourceNode, targetTrackId, instrument, mode } = pairing;
-      const profile = pitchProfileForInstrument(instrument);
+      const { sourceNode, targetTrackId, source, mode } = pairing;
+      const profile = pitchProfileForSource(source);
 
       capture = new NodeTapCapture(sourceNode, profile);
       orchestrator = new ProbabilisticOrchestrator(

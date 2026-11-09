@@ -5,8 +5,7 @@
  * `createInstrument` is this.
  */
 
-import type { InstrumentType, StudioBassVoice } from '@/daw/store/tracksSlice';
-import { ChopsSampler } from './ChopsSampler';
+import type { SoundType, StudioBassVoice } from '@/daw/store/tracksSlice';
 import type { DrumKitId } from './drumKits';
 import { DrumMachineEngine } from './DrumMachineEngine';
 import { EightOhEightInstrument } from './EightOhEightInstrument';
@@ -25,10 +24,14 @@ import {
 import { SamplerInstrument } from './SamplerInstrument';
 import { SoundFontAdapter } from './SoundFontAdapter';
 import { TonewheelOrganEngine } from './TonewheelOrganEngine';
-import { VocalFxAdapter } from './VocalFxAdapter';
 
+/**
+ * The instrument a sound plays on: a Studio track's (its InstrumentType),
+ * or one of the sampled and modelled sounds lessons, Practice Tracks and the
+ * console play (SoundType).
+ */
 export function createInstrument(
-  type: InstrumentType,
+  type: SoundType,
   gmProgram?: number,
   drumKit?: DrumKitId,
   bassVoice?: StudioBassVoice,
@@ -55,15 +58,11 @@ export function createInstrument(
       return new TonewheelOrganEngine();
     case 'drum-machine':
       return new DrumMachineEngine(drumKit);
-    case 'sampler':
-      return new ChopsSampler();
     case 'soundfont':
       return new SoundFontAdapter(gmProgram ?? 0);
-    case 'guitar-fx':
-    case 'bass-fx':
+    // An Audio track: live input through its chain (amp, pitch correction).
+    case 'audio-input':
       return new GuitarFxAdapter();
-    case 'vocal-fx':
-      return new VocalFxAdapter();
     default:
       return null;
   }

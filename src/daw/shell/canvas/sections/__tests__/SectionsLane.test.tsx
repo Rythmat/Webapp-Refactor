@@ -733,7 +733,7 @@ describe('the lane’s keys, with focus on a section', () => {
   });
 
   it('delete it with Delete or Backspace, keeping the clips, and move the focus on', async () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().addMidiClip(keys, {
       id: 'riff',
       startTick: 5 * BAR,

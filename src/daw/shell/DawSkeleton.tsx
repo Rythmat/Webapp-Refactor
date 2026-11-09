@@ -1,6 +1,6 @@
 // ── The editor's placeholder while its code loads (milestone 1.12a) ────────
 //
-// What /studio/editor shows until the editor's chunk has arrived, in the
+// What /studio shows until the editor's chunk has arrived, in the
 // shell's own proportions (milestones 2.4 and 2.5), so nothing jumps when
 // it replaces it: the 44 px top bar with its three zones, the 200 px track
 // headers beside the timeline, its rulers (62 px) and lanes (80 px), and

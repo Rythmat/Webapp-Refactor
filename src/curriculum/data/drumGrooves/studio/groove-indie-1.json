@@ -70,13 +70,7 @@
     {
       "tick": 4080,
       "note": 42,
-      "velocity": 60,
-      "offset": -10
-    },
-    {
-      "tick": 4320,
-      "note": 40,
-      "velocity": 127,
+      "velocity": 96,
       "offset": -10
     },
     {
@@ -1730,6 +1724,11 @@
     {
       "tick": 2880,
       "note": 44,
+      "velocity": 96
+    },
+    {
+      "tick": 4320,
+      "note": 38,
       "velocity": 96
     }
   ]

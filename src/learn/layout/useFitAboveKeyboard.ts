@@ -14,6 +14,10 @@ export const LESSON_BAR_RESERVE = 81;
  * visible. Measured, not guessed: the view's top edge and the keyboard row's
  * own height (which follows the window width) both come from the DOM.
  *
+ * In a lesson the keyboard docks on the bar (lessonKeyboardSlot), so the
+ * view runs down to the bar's top edge (past `max`), measured, whatever
+ * the keyboard and buttons make its height.
+ *
  * Returns `max` until measured, and never less than `min`.
  */
 export function useFitAboveKeyboard(
@@ -34,7 +38,21 @@ export function useFitAboveKeyboard(
 
   useEffect(() => {
     if (!viewEl || !keyboardEl) return;
+    // The lesson's bar, with the keyboard docked on it, if there is one.
+    const bar = viewEl
+      .closest('[data-piano-layout], [data-guitar-layout]')
+      ?.querySelector<HTMLElement>('[data-guitar-bar]');
     const measure = () => {
+      if (bar) {
+        const free =
+          bar.getBoundingClientRect().top -
+          viewEl.getBoundingClientRect().top -
+          keyboardEl.offsetHeight -
+          VIEW_KEYBOARD_GAP;
+        // No cap: the view fills the room down to the docked keys.
+        setHeight(Math.max(min, Math.floor(free)));
+        return;
+      }
       // Page-relative top, so a page that happens to be scrolled measures
       // the same as one at rest.
       const scroller = document.scrollingElement;
@@ -55,6 +73,7 @@ export function useFitAboveKeyboard(
         ? null
         : new ResizeObserver(measure);
     observer?.observe(keyboardEl);
+    if (bar) observer?.observe(bar);
     window.addEventListener('resize', measure);
     return () => {
       observer?.disconnect();

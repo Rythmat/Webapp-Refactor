@@ -55,9 +55,9 @@ beforeEach(() => {
     masteringFxChain: [],
   });
   ids = [
-    s().addTrack('midi', 'piano-sampler', 'Rhodes'),
+    s().addTrack('midi', 'soundfont', 'Rhodes'),
     s().addTrack('midi', 'drum-machine', 'Drums'),
-    s().addTrack('audio', 'vocal-fx', 'Vox'),
+    s().addTrack('audio', 'audio-input', 'Vox'),
   ];
   s().setSelectedTrackId(null);
   h.openRack.mockClear();
@@ -71,7 +71,7 @@ const stripOf = (name: string) =>
   screen.getByRole('group', { name: `${name} strip` });
 
 describe('MixView', () => {
-  it('shows a strip per track, then the returns, and the master column', () => {
+  it('shows a strip per track, then Send A, Send B and the Master pinned at the right', () => {
     render(<MixView isReady={false} />);
     const view = screen.getByTestId('mix-view');
     expect(view).toHaveAttribute('data-ds', 'v2');
@@ -80,18 +80,18 @@ describe('MixView', () => {
     expect(MIX_STRIP_PX).toBe(96);
     const returns = screen.getAllByTestId('return-strip');
     expect(returns.map((el) => el.dataset.returnId)).toEqual(['A', 'B']);
-    // The returns come after the tracks, in the one scrolling row.
+    // The tracks scroll; the sends sit beside the Master (2026-10-21).
     const row = screen.getByTestId('mix-strips');
     expect(
       Array.from(row.children).map((el) => el.getAttribute('data-testid')),
-    ).toEqual([
-      'mix-strip',
-      'mix-strip',
-      'mix-strip',
-      'return-strip',
-      'return-strip',
-    ]);
-    expect(screen.getByTestId('master-column').style.width).toBe('240px');
+    ).toEqual(['mix-strip', 'mix-strip', 'mix-strip']);
+    expect(
+      Array.from(screen.getByTestId('mix-pinned').children).map((el) =>
+        el.getAttribute('data-testid'),
+      ),
+    ).toEqual(['return-strip', 'return-strip', 'master-column']);
+    // The Master is a strip like the rest (owner, 2026-10-21).
+    expect(screen.getByTestId('master-column').style.width).toBe('96px');
   });
 
   it('keeps the lessons’ anchors', () => {
@@ -172,18 +172,18 @@ describe('MixView', () => {
 
   it('a return strip, its name or its effects open the return’s rack', () => {
     render(<MixView isReady={false} />);
-    const a = screen.getByRole('group', { name: 'Return A · Reverb strip' });
+    const a = screen.getByRole('group', { name: 'Send A · Reverb strip' });
     fireEvent.click(a);
     expect(h.openRack).toHaveBeenLastCalledWith({ kind: 'return', id: 'A' });
     h.openRack.mockClear();
     fireEvent.click(
-      within(a).getByRole('button', { name: /Return A · Reverb: show/ }),
+      within(a).getByRole('button', { name: /Send A · Reverb: show/ }),
     );
     expect(h.openRack).toHaveBeenCalledTimes(1);
     expect(h.openRack).toHaveBeenLastCalledWith({ kind: 'return', id: 'A' });
     h.openRack.mockClear();
     fireEvent.click(
-      within(a).getByRole('button', { name: /^Reverb on Return A/ }),
+      within(a).getByRole('button', { name: /^Reverb on Send A/ }),
     );
     expect(h.openRack).toHaveBeenCalledTimes(1);
     expect(h.openRack).toHaveBeenLastCalledWith(

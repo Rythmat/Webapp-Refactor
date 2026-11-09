@@ -10,10 +10,11 @@
 //     never drift apart when one turns it on. Once on, the compressor stays in
 //     the path; off, it sits at threshold 0 and ratio 1, which passes sound
 //     unchanged, so switching it never clicks.
-//   - The crush waveshaper joins the path only when the crush is first turned
-//     up. Before 1.11 it was always there, at drive 1 when the crush was 0:
-//     tanh(x)/tanh(1), which lifted every chain by about 2.4 dB and clipped
-//     peaks over full scale. With a crush of 0 it now holds a straight line.
+//   - The crush waveshaper is in the path only while the crush is above 0,
+//     and leaves it when the crush goes back to 0. Before 1.11 it was always
+//     there, at drive 1 when the crush was 0: tanh(x)/tanh(1), which lifted
+//     every chain by about 2.4 dB and clipped peaks over full scale. Even a
+//     straight curve would clip beyond ±1 and add 2x oversampling's delay.
 
 import type { AutomationTarget } from '../../automation';
 import type { CompressorParams } from '../../EffectChain';
@@ -112,8 +113,8 @@ export class CompressorModule implements EffectModule<CompressorParams> {
     this.postCompAnalyser.disconnect();
   }
 
-  /** Bring a node into the path for good (the compressor or the crush): only
-   *  the edges between the source and the makeup change. */
+  /** Bring the compressor into the path, or the crush into or out of it:
+   *  only the edges between the source and the makeup change. */
   private rewire(): void {
     const source = this.source;
     if (!source) return;
@@ -158,23 +159,24 @@ export class CompressorModule implements EffectModule<CompressorParams> {
       set(this.compressor.ratio, 1);
     }
 
-    // Crush (saturation): a straight line at 0, once it has been used.
+    // Crush (saturation): its curve is only made while it is above 0.
     const crush = c.enabled && c.crush > 0 ? c.crush : 0;
-    if (crushKey(crush) !== this.crushCurveKey) {
+    if (crush > 0 && crushKey(crush) !== this.crushCurveKey) {
       this.crushCurveKey = crushKey(crush);
-      this.crushNode.curve = (
-        crush > 0 ? generateCrushCurve(crush) : STRAIGHT
+      this.crushNode.curve = generateCrushCurve(
+        crush,
       ) as Float32Array<ArrayBuffer>;
     }
 
-    // Into the path for good, the first time each is used.
+    // The compressor comes into the path for good the first time it is on;
+    // the crush is in it exactly while it is above 0.
     let rewire = false;
     if (c.enabled && !this.compressorInPath) {
       this.compressorInPath = true;
       rewire = true;
     }
-    if (crush > 0 && !this.crushInPath) {
-      this.crushInPath = true;
+    if (crush > 0 !== this.crushInPath) {
+      this.crushInPath = crush > 0;
       rewire = true;
     }
     if (rewire) this.rewire();

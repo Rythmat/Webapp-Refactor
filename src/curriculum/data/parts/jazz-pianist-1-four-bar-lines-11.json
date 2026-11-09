@@ -1,0 +1,91 @@
+{
+  "id": "jazz-pianist-1-four-bar-lines-11",
+  "name": "Jazz-Pianist-1 · Four-bar ii–V–I lines 11",
+  "instrument": "piano",
+  "role": "melody",
+  "level": 3,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 5,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 1440,
+      "duration": 240,
+      "midi": 72,
+      "velocity": 80
+    },
+    {
+      "tick": 1680,
+      "duration": 240,
+      "midi": 71,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 80
+    },
+    {
+      "tick": 2160,
+      "duration": 240,
+      "midi": 74,
+      "velocity": 80
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 77,
+      "velocity": 80
+    },
+    {
+      "tick": 2640,
+      "duration": 240,
+      "midi": 81,
+      "velocity": 80
+    },
+    {
+      "tick": 2880,
+      "duration": 240,
+      "midi": 76,
+      "velocity": 80
+    },
+    {
+      "tick": 3120,
+      "duration": 240,
+      "midi": 72,
+      "velocity": 80
+    },
+    {
+      "tick": 3360,
+      "duration": 240,
+      "midi": 68,
+      "velocity": 80
+    },
+    {
+      "tick": 3600,
+      "duration": 240,
+      "midi": 64,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 67,
+      "velocity": 80
+    }
+  ],
+  "chordSymbols": ["Gm7", "C7", "Fmaj7", "Fmaj7"]
+}

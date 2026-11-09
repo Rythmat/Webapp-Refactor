@@ -56,9 +56,9 @@ export interface CollabSlice {
    *  was saved. */
   sessionDraftProjectId: string | null;
 
-  /** When true, an external flow (e.g. the Studio Dashboard "Start a Session")
-   *  has requested the Invite Collaborators modal be opened. CollabToolbar owns
-   *  the modal; it consumes + clears this flag. Avoids a second modal instance. */
+  /** When true, a flow away from the People panel (a ?collab=new boot) has
+   *  asked for the invite: InviteHost brings the People panel, where the
+   *  room code is copied, forward and clears this flag. */
   inviteRequested: boolean;
 
   // ── Chat ──
@@ -93,7 +93,7 @@ export interface CollabSlice {
   _appendChatMessage: (msg: ChatMessage) => void;
   /** Reset unread count (user opened chat panel). */
   markChatRead: () => void;
-  /** Request (or clear) opening the Invite Collaborators modal. */
+  /** Request (or clear) bringing the People panel's invite forward. */
   _setInviteRequested: (requested: boolean) => void;
 }
 

@@ -2,6 +2,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  ATLAS_FOCUS,
   AtlasChip,
   AtlasEyebrow,
   AtlasIconButton,
@@ -9,6 +10,7 @@ import {
   AtlasPanelBody,
   AtlasPillButton,
 } from '@/components/atlas/components/UI/primitives';
+import { FOCUS_RING } from '@/daw/ui/styles';
 
 afterEach(cleanup);
 
@@ -95,12 +97,18 @@ describe('AtlasPillButton', () => {
   });
 
   it('lets a caller override its surface', () => {
-    render(
-      <AtlasPillButton className="bg-atlas-panel/95">Spin</AtlasPillButton>,
-    );
+    render(<AtlasPillButton className="bg-atlas-panel">Spin</AtlasPillButton>);
     const button = screen.getByRole('button', { name: 'Spin' });
-    expect(button.className).toContain('bg-atlas-panel/95');
-    expect(button.className).not.toContain('bg-white/[0.04]');
+    expect(button.className).toContain('bg-atlas-panel');
+    expect(button.className).not.toContain('bg-atlas-pill');
+  });
+
+  it('wears the Studio’s focus outline', () => {
+    render(<AtlasPillButton>Share</AtlasPillButton>);
+    expect(screen.getByRole('button', { name: 'Share' }).className).toContain(
+      FOCUS_RING,
+    );
+    expect(ATLAS_FOCUS).toBe(FOCUS_RING);
   });
 });
 

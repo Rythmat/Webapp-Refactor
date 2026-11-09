@@ -13,6 +13,7 @@
 //     to see its lowest notes — at the cost of higher latency (~150 ms). Bass is
 //     monophonic, so this is an acceptable trade.
 
+import type { AudioSource } from './audioSource';
 import type { OrchestratorOptions } from '@/learn/audio/v2/ProbabilisticOrchestrator';
 import type { DetectionMode } from '@/learn/audio/v2/types';
 
@@ -60,11 +61,25 @@ export const BASS_PITCH_PROFILE: PitchDetectProfile = {
   allowPolyphonic: false,
 };
 
-/** Resolve a profile from a track's instrument type. */
-export function pitchProfileForInstrument(
-  instrument: string,
-): PitchDetectProfile {
-  return instrument === 'bass-fx' ? BASS_PITCH_PROFILE : GUITAR_PITCH_PROFILE;
+/**
+ * Ukulele (re-entrant G C E A): C4 (262 Hz) → ~C6 at the 15th fret of the A
+ * string; polyphonic (strummed chords). The analysers keep guitar's proven
+ * sizes; only the search range moves up two octaves, which keeps YIN off the
+ * sub-octave errors a guitar range would allow.
+ */
+export const UKULELE_PITCH_PROFILE: PitchDetectProfile = {
+  minFreq: 240, // a little below C4 for a flat C string
+  maxFreq: 1400, // ~F6, above the 15th fret on the A string (C6, 1047 Hz)
+  defaultMode: 'polyphonic',
+  onsetFftSize: 512,
+  fastFftSize: 2048,
+  hiResFftSize: 8192,
+  allowPolyphonic: true,
+};
+
+/** The profile for what an Audio track records: a bass's, else a guitar's. */
+export function pitchProfileForSource(source: AudioSource): PitchDetectProfile {
+  return source === 'bass' ? BASS_PITCH_PROFILE : GUITAR_PITCH_PROFILE;
 }
 
 /**

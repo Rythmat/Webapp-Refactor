@@ -3,7 +3,6 @@ import {
   CheckCircle2,
   ChevronRight,
   FileAudio,
-  Heart,
   LayoutGrid,
   MoreVertical,
   Music,
@@ -12,6 +11,7 @@ import {
   Sliders,
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { HeartIcon } from '@/components/icons/HeartIcon';
 // import { useNavigate } from "react-router-dom";
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
@@ -82,7 +82,7 @@ const LibraryItem: React.FC<LibraryItemProps> = ({
         )}
       </div>
       <div className="flex items-center gap-4 text-gray-500">
-        <Heart className="transition-colors hover:text-red-500" size={16} />
+        <HeartIcon className="transition-colors hover:text-red-500" size={16} />
         <Share2 className="transition-colors hover:text-white" size={16} />
         <MoreVertical
           className="transition-colors hover:text-white"

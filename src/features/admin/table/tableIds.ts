@@ -237,6 +237,7 @@ export function nodeIdForRow(table: TableId, row: string): string | null {
  *
  * Null for a page no table holds. The curriculum is one: lessons are not a
  * category, so its content stays under the content area's "Other records".
+ * The genre courses are curriculum, though they are Learn pages.
  */
 export function tableForAppPage(
   appPath: string,
@@ -244,23 +245,22 @@ export function tableForAppPage(
 ): TableTarget | null {
   const song = /^\/songs\/([^/]+)$/.exec(appPath);
   if (song && song[1] !== 'setlists') return { table: 'songs', row: song[1] };
+  if (/^\/learn\/keyboard\/genre\/[^/]/.test(appPath)) return null;
   if (/^\/(learn|songs)(\/|$)/.test(appPath)) return { table: 'songs' };
-  if (!/^\/atlas(\/|$)/.test(appPath)) return null;
+  if (!/^\/globe(\/|$)/.test(appPath)) return null;
 
   const params =
     typeof search === 'string' ? new URLSearchParams(search) : search;
-  if (appPath === '/atlas/globe') {
-    const event = params.get('event');
-    if (event) return tableRowForNode(`event:${event}`) ?? { table: 'events' };
-    const artist = params.get('artist');
-    // The globe names an artist as it is written; the row is its slug.
-    if (artist && artistSlug(artist)) {
-      return { table: 'artists', row: artistSlug(artist) };
-    }
-    const place = params.get('place');
-    if (place?.startsWith('city:') && place.length > 'city:'.length) {
-      return { table: 'locations', row: place.slice('city:'.length) };
-    }
+  const event = params.get('event');
+  if (event) return tableRowForNode(`event:${event}`) ?? { table: 'events' };
+  const artist = params.get('artist');
+  // The globe names an artist as it is written; the row is its slug.
+  if (artist && artistSlug(artist)) {
+    return { table: 'artists', row: artistSlug(artist) };
+  }
+  const place = params.get('place');
+  if (place?.startsWith('city:') && place.length > 'city:'.length) {
+    return { table: 'locations', row: place.slice('city:'.length) };
   }
   return { table: 'events' };
 }

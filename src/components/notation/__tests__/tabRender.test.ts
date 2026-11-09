@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { fretToMidi, shapeNotes } from '@/lib/guitar/fretboard';
+import { BASS } from '@/lib/guitar/instrument';
 import type { FretPosition, GuitarStringNumber } from '@/lib/guitar/types';
 import { buildTab, type TabNoteInput } from '@/lib/notation';
 import { renderTabSystem } from '../TabStaffView';
@@ -310,5 +311,68 @@ describe('TAB renders through VexFlow', () => {
         expect(px).toBeGreaterThanOrEqual(12 - 1e-9);
       }
     }
+  });
+});
+
+describe('four-string bass TAB', () => {
+  const bassNote = (
+    string: GuitarStringNumber,
+    fret: number,
+    startTick: number,
+  ): TabNoteInput => {
+    const fretPosition: FretPosition = { string, fret };
+    return {
+      id: `b${nextId++}`,
+      midi: fretToMidi(fretPosition, BASS),
+      startTick,
+      durationTicks: Q,
+      fretPosition,
+    };
+  };
+
+  async function drawBass(notes: TabNoteInput[]) {
+    const vf = await import('vexflow/bravura');
+    const score = buildTab(notes, { timeSignature: [4, 4], minMeasures: 1 });
+    host = document.createElement('div');
+    document.body.appendChild(host);
+    const rendered = renderTabSystem(vf, host, score, 900, 0, {
+      fitHeight: false,
+      stringNames: BASS.stringNames,
+    });
+    return { rendered, svg: host.innerHTML };
+  }
+
+  // C major arpeggio, root on the A string: C (A3), E (D2), G (D5), C (G5).
+  const arpeggio = () => [
+    bassNote(3, 3, 0),
+    bassNote(2, 2, Q),
+    bassNote(2, 5, 2 * Q),
+    bassNote(1, 5, 3 * Q),
+  ];
+
+  it('names four lines G D A E', async () => {
+    await drawBass(arpeggio());
+    const names = host.querySelector('.vf-string-names')!;
+    expect(
+      [...names.querySelectorAll('text')].map((t) => t.textContent),
+    ).toEqual(['G', 'D', 'A', 'E']);
+  });
+
+  it('draws four string lines and a shorter system than guitar', async () => {
+    const bass = await drawBass(arpeggio());
+    const guitar = await draw([fretted(3, 5, 0, Q)], 1);
+    expect(bass.rendered.systemHeight).toBeLessThan(
+      guitar.rendered.systemHeight,
+    );
+    expect(guitar.rendered.systemHeight - bass.rendered.systemHeight).toBe(26);
+  });
+
+  it('puts each note on its string line, bottom line 0', async () => {
+    const { rendered } = await drawBass(arpeggio());
+    expect(rendered.notes.map((n) => n.line)).toEqual([1, 2, 2, 3]);
+    const ys = rendered.notes.map((n) => n.y);
+    // A below D below G, 13px apart.
+    expect(ys[0] - ys[1]).toBeCloseTo(13);
+    expect(ys[1] - ys[3]).toBeCloseTo(13);
   });
 });

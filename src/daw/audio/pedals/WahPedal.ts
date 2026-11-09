@@ -25,6 +25,8 @@ export class WahPedal implements PedalProcessor {
   readonly type = 'wah';
 
   private ctx: BaseAudioContext;
+  /** Settles once the follower is in (or failed to load): a bounce waits. */
+  private ready: Promise<void> = Promise.resolve();
   private inputNode: GainNode;
   private outputNode: GainNode;
   private bypassNode: GainNode;
@@ -158,6 +160,10 @@ export class WahPedal implements PedalProcessor {
 
   // ── Private ──────────────────────────────────────────────────────────
 
+  whenReady(): Promise<void> {
+    return this.ready;
+  }
+
   /** The follower's AudioParams (its 'release' is the wah's decay). */
   private followerParams(): Record<string, number> {
     return {
@@ -171,7 +177,7 @@ export class WahPedal implements PedalProcessor {
   // its base frequency and Q. A follower that arrives after dispose is let go.
   private loadFollower(): void {
     if (!supportsWorklets(this.ctx)) return;
-    ensureWorklet(this.ctx, DYNAMICS_WORKLET_URL)
+    this.ready = ensureWorklet(this.ctx, DYNAMICS_WORKLET_URL)
       .then(() => {
         if (this.disposed) return;
         const node = createWorkletNode(this.ctx, DYNAMICS_PROCESSOR, {

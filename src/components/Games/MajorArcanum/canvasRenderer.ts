@@ -1,14 +1,5 @@
-import {
-  PIANO_HEIGHT,
-  FALL_SPEED,
-  NOTE_NAMES,
-  MELODY_KEYS,
-  MELODY_LABELS,
-  HARMONY_KEYS,
-  HARMONY_LABELS,
-  TOTAL_COLUMNS,
-} from './constants';
-import { getKeyGeometry } from './keyMapping';
+import { PIANO_HEIGHT, FALL_SPEED, noteNameInKey } from './constants';
+import { getKeyGeometry, totalColumns } from './keyMapping';
 import type { Note, Particle, GameState } from './types';
 
 /**
@@ -155,13 +146,27 @@ export function drawGameFrame(
 
   // Vertical lane lines (spans all columns, including the side buffers)
   ctx.strokeStyle = '#27272a';
-  const whiteKeyWidth = width / TOTAL_COLUMNS;
-  for (let i = 0; i <= TOTAL_COLUMNS; i++) {
+  const columns = totalColumns(st.display);
+  const whiteKeyWidth = width / columns;
+  for (let i = 0; i <= columns; i++) {
     ctx.beginPath();
     ctx.moveTo(i * whiteKeyWidth, 0);
     ctx.lineTo(i * whiteKeyWidth, hitY);
     ctx.stroke();
   }
+
+  // Each chord's symbol in the left margin, where its bar starts.
+  ctx.save();
+  ctx.font = "600 13px 'Glacial Indifference', system-ui, sans-serif";
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'bottom';
+  for (const label of st.chordLabels) {
+    const y = hitY - (label.time - songTime) * FALL_SPEED;
+    if (y < 0 || y > hitY + 2) continue;
+    ctx.fillStyle = 'rgba(244,244,245,0.75)';
+    ctx.fillText(label.symbol, 10, y - 4);
+  }
+  ctx.restore();
 
   // Falling notes
   notes.forEach((note) => {
@@ -173,7 +178,7 @@ export function drawGameFrame(
 
     if (y < -h || y - h > height) return;
 
-    const geom = getKeyGeometry(note.midi, width);
+    const geom = getKeyGeometry(note.midi, width, st.display);
     if (!geom) return;
 
     let color = getNoteColor(
@@ -220,7 +225,11 @@ export function drawGameFrame(
       ctx.font = "600 12px 'Glacial Indifference', system-ui, sans-serif";
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(NOTE_NAMES[note.midi % 12], geom.x + geom.width / 2, y - 15);
+      ctx.fillText(
+        noteNameInKey(note.midi, st.keyRootVal),
+        geom.x + geom.width / 2,
+        y - 15,
+      );
     }
   });
 
@@ -259,13 +268,27 @@ function drawPiano(
   ctx.fillStyle = '#101012';
   ctx.fillRect(0, hitY, width, PIANO_HEIGHT);
 
-  const currentKeys = st.gameMode === 'Harmony' ? HARMONY_KEYS : MELODY_KEYS;
-  const currentLabels =
-    st.gameMode === 'Harmony' ? HARMONY_LABELS : MELODY_LABELS;
+  const first = st.display.low;
+  const last = st.display.low + 12 * Math.ceil(st.display.whiteKeys / 7);
+  const label = (
+    midi: number,
+    x: number,
+    y: number,
+    active: boolean,
+    onBlack: boolean,
+  ) => {
+    const text = st.keyLabels[midi];
+    if (!text) return;
+    ctx.fillStyle = active ? '#fff' : onBlack ? '#d4d4d8' : '#a1a1aa';
+    ctx.font = `bold ${onBlack ? 12 : 14}px 'Glacial Indifference', system-ui, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(text, x, y);
+  };
 
   // White keys
-  for (let i = 48; i <= 72; i++) {
-    const geom = getKeyGeometry(i, width);
+  for (let i = first; i <= last; i++) {
+    const geom = getKeyGeometry(i, width, st.display);
     if (geom && !geom.isBlack) {
       const isActive = activeMidiNotes.has(i);
       ctx.fillStyle = isActive
@@ -275,36 +298,26 @@ function drawPiano(
 
       ctx.fillStyle = '#d4d4d8';
       ctx.fillRect(geom.x + 1, height - 10, geom.width - 2, 10);
-
-      const mappedKey = Object.keys(st.keyboardMapping).find(
-        (k) => st.keyboardMapping[k] === i,
-      );
-      if (mappedKey) {
-        const labelIdx = currentKeys.indexOf(mappedKey);
-        if (labelIdx > -1) {
-          ctx.fillStyle = isActive ? '#fff' : '#a1a1aa';
-          ctx.font = "bold 14px 'Glacial Indifference', system-ui, sans-serif";
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
-          ctx.fillText(
-            currentLabels[labelIdx],
-            geom.x + geom.width / 2,
-            height - 15,
-          );
-        }
-      }
+      label(i, geom.x + geom.width / 2, height - 15, isActive, false);
     }
   }
 
   // Black keys
-  for (let i = 48; i <= 72; i++) {
-    const geom = getKeyGeometry(i, width);
+  for (let i = first; i <= last; i++) {
+    const geom = getKeyGeometry(i, width, st.display);
     if (geom && geom.isBlack) {
       const isActive = activeMidiNotes.has(i);
       ctx.fillStyle = isActive
         ? getNoteColor(i, st.currentScaleNotes, st.currentKeyColor)
         : '#27272a';
       ctx.fillRect(geom.x, hitY, geom.width, PIANO_HEIGHT * 0.65);
+      label(
+        i,
+        geom.x + geom.width / 2,
+        hitY + PIANO_HEIGHT * 0.65 - 6,
+        isActive,
+        true,
+      );
     }
   }
 

@@ -33,8 +33,14 @@ vi.mock('@/daw/collab/studioRealtime', () => ({
 
 import { heldLiveNotes, playLiveNote, releaseLiveNote } from '../liveNotes';
 
+/** A MIDI track; `monitoring`: heard, armed and monitoring. */
 const track = (id: string, monitoring = false) =>
-  ({ id, type: 'midi', monitoring }) as unknown as Track;
+  ({
+    id,
+    type: 'midi',
+    recordArmed: monitoring,
+    monitoring,
+  }) as unknown as Track;
 
 const engine = (id: string) => engines.get(id)!;
 
@@ -44,7 +50,7 @@ beforeEach(() => {
   }
   sent.length = 0;
   useStore.setState({
-    tracks: [track('t1'), track('t2')],
+    tracks: [track('t1', true), track('t2')],
     selectedTrackId: 't1',
     hwActiveNotes: new Set(),
   } as never);
@@ -70,7 +76,7 @@ describe('live note-offs', () => {
 
   it('let go on a track that stops being a target, at once', () => {
     playLiveNote(60, 100);
-    useStore.setState({ selectedTrackId: 't2' });
+    useStore.setState({ tracks: [track('t1'), track('t2', true)] });
 
     expect(engine('t1').noteOff).toHaveBeenCalledWith(60);
     expect(useStore.getState().hwActiveNotes.has(60)).toBe(false);
@@ -93,5 +99,88 @@ describe('live note-offs', () => {
 
     releaseLiveNote(62);
     expect(engine('t2').noteOff).toHaveBeenCalledWith(62);
+  });
+});
+
+describe('a track’s MIDI input (the ▾ in its header)', () => {
+  const tracked = (id: string, midiInputId: string | null, monitoring = true) =>
+    ({
+      id,
+      type: 'midi',
+      recordArmed: monitoring,
+      monitoring,
+      midiInputId,
+    }) as unknown as Track;
+
+  it('plays a device’s notes only on the tracks listening to it or to All Devices', () => {
+    useStore.setState({
+      tracks: [tracked('t1', 'kbd-a'), tracked('t2', null)],
+    } as never);
+    playLiveNote(60, 100, 'kbd-b');
+    expect(engine('t1').noteOn).not.toHaveBeenCalled();
+    expect(engine('t2').noteOn).toHaveBeenCalledWith(60, 100);
+
+    playLiveNote(62, 90, 'kbd-a');
+    expect(engine('t1').noteOn).toHaveBeenCalledWith(62, 90);
+    expect(engine('t2').noteOn).toHaveBeenCalledWith(62, 90);
+  });
+
+  it('lets the computer keyboard (no device) play every target', () => {
+    useStore.setState({
+      tracks: [tracked('t1', 'kbd-a'), tracked('t2', 'kbd-b')],
+    } as never);
+    playLiveNote(64, 100);
+    expect(engine('t1').noteOn).toHaveBeenCalledWith(64, 100);
+    expect(engine('t2').noteOn).toHaveBeenCalledWith(64, 100);
+  });
+
+  it('leaves the selected track quiet for a device it isn’t listening to', () => {
+    useStore.setState({
+      tracks: [tracked('t1', 'kbd-a', false), tracked('t2', null, false)],
+      selectedTrackId: 't1',
+    } as never);
+    playLiveNote(60, 100, 'kbd-b');
+    expect(engine('t1').noteOn).not.toHaveBeenCalled();
+    expect(engine('t2').noteOn).not.toHaveBeenCalled();
+  });
+});
+
+describe('what is heard (the record button, 2026-10-22)', () => {
+  const t = (id: string, recordArmed: boolean, monitoring: boolean) =>
+    ({
+      id,
+      type: 'midi',
+      recordArmed,
+      monitoring,
+      midiInputId: null,
+    }) as unknown as Track;
+
+  it('sends a device’s notes only to tracks armed and monitoring', () => {
+    useStore.setState({
+      tracks: [t('t1', false, true), t('t2', true, false)],
+      selectedTrackId: 't1',
+    } as never);
+    // Monitoring without the arm, and armed with monitoring off: quiet,
+    // and the selected track doesn't take them either.
+    playLiveNote(60, 100, 'kbd');
+    expect(engine('t1').noteOn).not.toHaveBeenCalled();
+    expect(engine('t2').noteOn).not.toHaveBeenCalled();
+
+    useStore.setState({
+      tracks: [t('t1', false, true), t('t2', true, true)],
+    } as never);
+    playLiveNote(62, 100, 'kbd');
+    expect(engine('t1').noteOn).not.toHaveBeenCalled();
+    expect(engine('t2').noteOn).toHaveBeenCalledWith(62, 100);
+  });
+
+  it('never plays the selected track for being selected, from the computer keyboard either', () => {
+    useStore.setState({
+      tracks: [t('t1', false, false), t('t2', false, true)],
+      selectedTrackId: 't1',
+    } as never);
+    playLiveNote(64, 100);
+    expect(engine('t1').noteOn).not.toHaveBeenCalled();
+    expect(engine('t2').noteOn).not.toHaveBeenCalled();
   });
 });

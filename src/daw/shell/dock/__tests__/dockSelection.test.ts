@@ -48,7 +48,7 @@ beforeEach(() => {
 
 describe('openTrackInDock', () => {
   it('opens Instrument for a MIDI track and selects it', () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().setSelectedTrackId(null);
 
     expect(openTrackInDock(keys)).toBe(true);
@@ -72,7 +72,7 @@ describe('openTrackInDock', () => {
   });
 
   it('gives Master’s slot back to the track', () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     s().setChannelStripTab('controls');
     s().setDockMaster(true);
 
@@ -81,7 +81,7 @@ describe('openTrackInDock', () => {
   });
 
   it('puts focus in the dock', () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     const dock = document.createElement('div');
     dock.tabIndex = -1;
     dock.setAttribute('data-dock-content', '');
@@ -92,8 +92,8 @@ describe('openTrackInDock', () => {
   });
 
   it('refuses a track a collaborator holds, and changes nothing', () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
-    const bass = s().addTrack('midi', 'bass-electric', 'Bass');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
+    const bass = s().addTrack('midi', 'soundfont', 'Bass');
     s().setSelectedTrackId(keys);
     s().setChannelStripTab('fx');
     s().setDockMaster(true);
@@ -118,7 +118,7 @@ describe('openTrackInDock', () => {
   });
 
   it('works during a lesson: it is the student’s own choice', () => {
-    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const keys = s().addTrack('midi', 'soundfont', 'Keys');
     const take = s().addTrack('audio', 'none', 'Take');
     s().setSelectedTrackId(keys);
     s().setChannelStripTab('prism');

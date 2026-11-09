@@ -40,8 +40,8 @@ describe('Master volume automation', () => {
   });
 
   it('round-trips through a cloud save on a track settings blob', () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
-    s().addTrack('midi', 'piano-sampler', 'Pad');
+    s().addTrack('midi', 'soundfont', 'Keys');
+    s().addTrack('midi', 'soundfont', 'Pad');
     s().upsertMasterAutomationPoint('volume', { tick: 480, value: 0.3 });
 
     const input = serializeSessionForCloud();

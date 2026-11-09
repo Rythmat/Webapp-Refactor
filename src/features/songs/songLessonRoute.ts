@@ -1,8 +1,10 @@
 // ── A song's lesson ────────────────────────────────────────────────────────
 // Where "Open in Lesson" goes: the Theory lesson of the song's mode in its
-// key, on piano (/learn/:mode/:key) or on guitar (/learn/guitar/:mode/:key).
+// key, on keyboard (/learn/keyboard/:mode/:key), on guitar
+// (/learn/guitar/:mode/:key) or on ukulele (/learn/ukulele/:mode/:key).
 
 import { guitarLessonRoute } from '@/components/learn/guitarTheory';
+import { ukuleleLessonRoute } from '@/components/learn/ukuleleTheory';
 import { LearnRoutes } from '@/constants/routes';
 import type { Song, SongMode } from '@/curriculum/types/songLibrary';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
@@ -18,7 +20,7 @@ export const normalizeLessonMode = (mode: SongMode): string => {
 const tonicOf = (song: Song): string => song.key.trim().split(/\s+/)[0] ?? '';
 
 /**
- * The piano Theory lesson (`/learn/:mode/:key`).
+ * The keyboard Theory lesson (`/learn/keyboard/:mode/:key`).
  *
  * `song.key` is a full label ('C major', 'B♭ minor'); the Lesson page parses
  * `:key` as a bare letter+accidental token (`urlParamToKeyLabel`), so it MUST
@@ -26,7 +28,7 @@ const tonicOf = (song: Song): string => song.key.trim().split(/\s+/)[0] ?? '';
  * to the wrong note (e.g. 'B♭ major' → 'B' natural).
  */
 export const songLessonRoute = (song: Song): string =>
-  LearnRoutes.lesson({
+  LearnRoutes.keyboardLesson({
     mode: normalizeLessonMode(song.mode),
     key: keyLabelToUrlParam(tonicOf(song)),
   });
@@ -34,3 +36,7 @@ export const songLessonRoute = (song: Song): string =>
 /** The guitar Theory lesson (`/learn/guitar/:mode/:key`). */
 export const songGuitarLessonRoute = (song: Song): string =>
   guitarLessonRoute(normalizeLessonMode(song.mode), tonicOf(song));
+
+/** The ukulele Theory lesson (`/learn/ukulele/:mode/:key`). */
+export const songUkuleleLessonRoute = (song: Song): string =>
+  ukuleleLessonRoute(normalizeLessonMode(song.mode), tonicOf(song));

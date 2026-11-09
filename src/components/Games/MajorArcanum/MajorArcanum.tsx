@@ -1,11 +1,43 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+// ── Major Arcanum ───────────────────────────────────────────────────────────
+// Notes fall onto the keys; the player plays them in time. Four modes of six
+// levels, each level's keys cleared with a streak in Melody and in Chords
+// (curriculum/engine/majorArcanum). A run is generated phrase by phrase from
+// the owner's melodies, rhythms and progressions, with a band under it; a
+// phrase played without a miss adds to the streak, a miss starts it over,
+// and a won streak clears the part, saves it to the player's account and
+// offers what's next.
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ProfileRoutes } from '@/constants/routes';
+import {
+  MODES,
+  type ArcanumLevel,
+  type ArcanumMode,
+} from '@/curriculum/engine/majorArcanum/levels';
+import {
+  levelAfter,
+  levelCleared,
+  levelTasks,
+  modeCleared,
+  nextTask,
+  type ArcanumTask,
+} from '@/curriculum/engine/majorArcanum/progress';
+import {
+  buildRun,
+  type BackingNote,
+} from '@/curriculum/engine/majorArcanum/song';
+import { useIsPremium } from '@/hooks/useIsPremium';
+import { ArcadeStreakContext } from '../scoring/ArcadeStreak';
+import { useArcadeStreakReward } from '../scoring/useArcadeStreakReward';
 import { useGameScore } from '../scoring/useGameScore';
 import { useGameAudio, type GameAudioEngine } from '../useGameAudio';
 import { AudioEngine } from './AudioEngine';
 import { CircleOfFifthsSelector } from './CircleOfFifthsSelector';
 import { GameHeader } from './GameHeader';
-import { StartScreen, GameOverScreen } from './GameOverlay';
 import { GameToolbar } from './GameToolbar';
+import { LevelMap, taskTitle } from './LevelMap';
+import { RunResult, type RunOutcome } from './RunResult';
 import {
   getNoteColor,
   drawCountIn,
@@ -16,28 +48,57 @@ import {
   PIANO_HEIGHT,
   INPUT_WINDOW,
   HOLD_SCORE_INTERVAL,
-  ROOTS,
-  DIFFICULTY_PRESETS,
   DRUM_PATTERNS,
 } from './constants';
-import { getKeyGeometry, buildKeyMapping } from './keyMapping';
-import { generateSong, getSongDuration } from './songGenerator';
-import type { Note, Particle, GameState, NavigatorWithMIDI } from './types';
-
-// --- Main Component ---
+import {
+  DEFAULT_DISPLAY,
+  getKeyGeometry,
+  keyLook,
+  runKeyboard,
+} from './keyMapping';
+import type { Note, Particle, GameState } from './types';
+import { useArcanumProgress } from './useArcanumProgress';
+import { useMidiKeyboard } from './useMidiKeyboard';
 
 // Hoisted so the warm-up effect isn't restarted by a new array each render.
 const JAM_SYNTH_ONLY: GameAudioEngine[] = ['jam-synth'];
 
+/** After a phrase's last note, how long before it's judged. */
+const PHRASE_SETTLE_S = INPUT_WINDOW + 0.1;
+
 interface MajorArcanumProps {
   onComplete?: (result: { score: number; maxStreak: number }) => void;
 }
+
+type Screen = 'map' | 'playing' | 'result';
+
+/** How the run's phrases are going, for the streak. */
+interface PhraseTrack {
+  /** Each phrase's end, in song seconds. */
+  ends: number[];
+  failed: Set<number>;
+  judged: Set<number>;
+  /** Phrases in a row without a miss, and the most this run. */
+  run: number;
+  best: number;
+}
+
+const freshTrack = (): PhraseTrack => ({
+  ends: [],
+  failed: new Set(),
+  judged: new Set(),
+  run: 0,
+  best: 0,
+});
 
 export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
   // Warm the shared soundfont from the first render instead of waiting for the
   // AudioEngine that `initGame` builds. Not gated on: the engine's oscillator
   // fallback covers the gap, so the game is never silent while it loads.
   useGameAudio(JAM_SYNTH_ONLY);
+  const navigate = useNavigate();
+  const { isPremium } = useIsPremium();
+  const { progress, loading, saveFailed, clear } = useArcanumProgress();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,6 +108,11 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
   const notesRef = useRef<Note[]>([]);
   const particlesRef = useRef<Particle[]>([]);
   const drumPatternRef = useRef({ patternIndex: 0, lastBarChanged: -1 });
+  const backingRef = useRef<{ notes: BackingNote[]; next: number }>({
+    notes: [],
+    next: 0,
+  });
+  const trackRef = useRef<PhraseTrack>(freshTrack());
 
   // Shared scoring integration — destructure to get individually stable refs
   const {
@@ -54,8 +120,33 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     miss: scoringMiss,
     addScore: scoringAddScore,
     resetScore: scoringReset,
-    completeRound: scoringComplete,
   } = useGameScore('majorArcanum');
+
+  // The part being played, and whether it's free play on the Circle.
+  const [task, setTask] = useState<ArcanumTask>({
+    mode: 'novice',
+    level: 1,
+    keyPc: 0,
+    part: 'melody',
+  });
+  const taskRef = useRef(task);
+  const freeRef = useRef(false);
+  const [free, setFree] = useState(false);
+  const target = MODES[task.mode].streakPhrases[task.part];
+  const reward = useArcadeStreakReward('major_arcanum', target);
+  const rewardRef = useRef(reward);
+  rewardRef.current = reward;
+  /** The streak's last win before this run: a later one is this run's. */
+  const runWinFromRef = useRef(0);
+
+  const [screen, setScreen] = useState<Screen>('map');
+  const screenRef = useRef<Screen>('map');
+  const [outcome, setOutcome] = useState<RunOutcome | null>(null);
+  const [mapFocus, setMapFocus] = useState<{
+    mode: ArcanumMode;
+    level: ArcanumLevel;
+  } | null>(null);
+  const [showCircle, setShowCircle] = useState(false);
 
   // Game state (refs for performance in render loop)
   const gameState = useRef<GameState>({
@@ -72,11 +163,14 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     currentKeyColor: '#fff',
     keyRootVal: 0,
     keyboardMapping: {},
+    keyLabels: {},
+    display: DEFAULT_DISPLAY,
+    chordLabels: [],
     canvasWidth: 0,
     canvasHeight: 0,
     lastBeatScheduled: -1,
     metronomeEnabled: true,
-    gameMode: 'Melody',
+    gameMode: 'melody',
     bpm: 80,
     totalNotes: 0,
     hits: 0,
@@ -88,31 +182,25 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     isPaused: false,
     pauseStartTime: 0,
     totalPausedDuration: 0,
-    difficulty: 3,
   });
 
   const [uiState, setUiState] = useState({
     score: 0,
     streak: 0,
     multiplier: 1,
-    keyName: 'C Major',
-    gameOver: false,
-    gameStarted: false,
+    keyColor: keyLook(0).keyColor,
     countInNumber: 0,
-    midiStatus: 'MIDI: Standby',
     feedbackText: '',
     feedbackColor: '#fff',
     feedbackVisible: false,
     metronomeEnabled: true,
-    gameMode: 'Melody' as 'Melody' | 'Harmony',
     bpm: 80,
-    showKeySelector: false,
     showVolumePanel: false,
     isPaused: false,
-    difficulty: 3,
     melodyVolume: 1.0,
     drumVolume: 1.0,
     metronomeVolume: 1.0,
+    backingVolume: 1.0,
   });
 
   // Ref-based showFeedback to avoid stale closure in renderFrame
@@ -132,11 +220,11 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
   };
 
   const spawnParticles = useCallback((midi: number) => {
-    const geom = getKeyGeometry(midi, gameState.current.canvasWidth);
+    const st = gameState.current;
+    const geom = getKeyGeometry(midi, st.canvasWidth, st.display);
     if (!geom) return;
     const x = geom.x + geom.width / 2;
-    const y = gameState.current.canvasHeight - PIANO_HEIGHT;
-    const st = gameState.current;
+    const y = st.canvasHeight - PIANO_HEIGHT;
     const color = getNoteColor(midi, st.currentScaleNotes, st.currentKeyColor);
 
     for (let i = 0; i < 6; i++) {
@@ -149,6 +237,15 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         color,
       });
     }
+  }, []);
+
+  /** A phrase with a miss in it: the streak starts over. */
+  const failPhrase = useCallback((phrase: number) => {
+    const track = trackRef.current;
+    if (track.failed.has(phrase)) return;
+    track.failed.add(phrase);
+    track.run = 0;
+    rewardRef.current.registerWrong();
   }, []);
 
   const handleNoteOn = useCallback(
@@ -225,6 +322,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
           note.completed = true;
         } else if (songTime < noteEndTime - tolerance) {
           note.lost = true;
+          failPhrase(note.phrase);
           const scoreState = scoringMiss();
           st.score = scoreState.score;
           st.streak = scoreState.streak;
@@ -233,6 +331,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
           showFeedbackRef.current('Early Release', '#ef4444');
         } else if (songTime > noteEndTime + tolerance) {
           note.lost = true;
+          failPhrase(note.phrase);
           const scoreState = scoringMiss();
           st.score = scoreState.score;
           st.streak = scoreState.streak;
@@ -250,7 +349,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         }
       }
     },
-    [spawnParticles, scoringMiss, scoringAddScore],
+    [spawnParticles, scoringMiss, scoringAddScore, failPhrase],
   );
 
   // Stable refs for callbacks used in game loop / event listeners.
@@ -260,6 +359,17 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
   const handleNoteOffRef = useRef(handleNoteOff);
   handleNoteOffRef.current = handleNoteOff;
 
+  const midi = useMidiKeyboard(
+    (note) => {
+      activeMidiNotes.current.add(note);
+      handleNoteOnRef.current(note);
+    },
+    (note) => {
+      activeMidiNotes.current.delete(note);
+      handleNoteOffRef.current(note);
+    },
+  );
+
   const toggleMetronome = useCallback(() => {
     gameState.current.metronomeEnabled = !gameState.current.metronomeEnabled;
     setUiState((prev) => ({
@@ -268,21 +378,18 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     }));
   }, []);
 
-  const changeBPM = useCallback((delta: number) => {
-    if (gameState.current.isPlaying) return;
-    const newBPM = Math.max(40, Math.min(240, gameState.current.bpm + delta));
-    gameState.current.bpm = newBPM;
-    setUiState((prev) => ({ ...prev, bpm: newBPM }));
-  }, []);
-
   const changeVolume = useCallback(
-    (category: 'melody' | 'drums' | 'metronome', value: number) => {
+    (category: 'melody' | 'drums' | 'metronome' | 'backing', value: number) => {
       audioRef.current?.setVolume(category, value);
       const key = `${category}Volume` as
         | 'melodyVolume'
         | 'drumVolume'
-        | 'metronomeVolume';
-      setUiState((prev) => ({ ...prev, [key]: value }));
+        | 'metronomeVolume'
+        | 'backingVolume';
+      setUiState((prev) => ({
+        ...prev,
+        [category === 'drums' ? 'drumVolume' : key]: value,
+      }));
       try {
         const stored = JSON.parse(localStorage.getItem('ma:volumes') ?? '{}');
         stored[category] = value;
@@ -294,50 +401,63 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     [],
   );
 
-  const changeKey = useCallback((rootIndex: number) => {
-    const { keyName, keyColor, scaleNotes, keyboardMapping } = buildKeyMapping(
-      rootIndex,
-      gameState.current.gameMode,
-    );
+  // ── Ending a run ─────────────────────────────────────────────────────────
 
-    gameState.current.currentKeyColor = keyColor;
-    gameState.current.currentScaleNotes = scaleNotes;
-    gameState.current.keyboardMapping = keyboardMapping;
-    gameState.current.keyRootVal = rootIndex;
-    setUiState((prev) => ({ ...prev, keyName, showKeySelector: false }));
-
+  const stopRun = useCallback(() => {
     const st = gameState.current;
-    notesRef.current = generateSong(
-      st.bpm,
-      st.gameMode,
-      keyboardMapping,
-      scaleNotes,
-      rootIndex,
-      st.difficulty,
-    );
-    st.totalNotes = notesRef.current.length;
-    st.songDuration = getSongDuration(st.bpm, st.difficulty);
+    st.isPlaying = false;
+    st.isCountingIn = false;
+    st.isPaused = false;
+    if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    audioRef.current?.suspend();
+    setUiState((prev) => ({ ...prev, isPaused: false }));
   }, []);
 
-  const toggleMode = useCallback(
-    (mode: 'Melody' | 'Harmony') => {
-      gameState.current.gameMode = mode;
-      setUiState((prev) => ({ ...prev, gameMode: mode }));
-      changeKey(gameState.current.keyRootVal);
+  const finishRun = useCallback(
+    (kind: 'won' | 'over') => {
+      if (screenRef.current !== 'playing') return;
+      stopRun();
+      const st = gameState.current;
+      const done = taskRef.current;
+      const isFree = freeRef.current;
+      onComplete?.({ score: st.score, maxStreak: st.maxStreak });
+      if (kind === 'won') {
+        const now = isFree ? progress : clear(done);
+        const levelDone = !isFree && levelCleared(now, done.mode, done.level);
+        setOutcome({
+          kind: 'won',
+          task: done,
+          free: isFree,
+          next: isFree ? null : nextTask(now, done.mode, done.level),
+          levelDone,
+          after: levelDone ? levelAfter(done.mode, done.level) : null,
+          modeDone: !isFree && levelDone && modeCleared(now, done.mode),
+        });
+      } else {
+        const attempted = st.hits + st.misses;
+        setOutcome({
+          kind: 'over',
+          task: done,
+          free: isFree,
+          bestPhrases: trackRef.current.best,
+          target: MODES[done.mode].streakPhrases[done.part],
+          accuracy: attempted > 0 ? Math.round((st.hits / attempted) * 100) : 0,
+        });
+      }
+      screenRef.current = 'result';
+      setScreen('result');
     },
-    [changeKey],
+    [stopRun, onComplete, progress, clear],
   );
+  const finishRunRef = useRef(finishRun);
+  finishRunRef.current = finishRun;
 
-  const changeDifficulty = useCallback(
-    (diff: number) => {
-      gameState.current.difficulty = diff;
-      const preset = DIFFICULTY_PRESETS[diff];
-      gameState.current.bpm = preset.bpm;
-      setUiState((prev) => ({ ...prev, difficulty: diff, bpm: preset.bpm }));
-      changeKey(gameState.current.keyRootVal);
-    },
-    [changeKey],
-  );
+  // A streak won during the run ends it: congratulations, and what's next.
+  useEffect(() => {
+    if (!reward.win || reward.win.id <= runWinFromRef.current) return;
+    runWinFromRef.current = reward.win.id;
+    finishRunRef.current('won');
+  }, [reward.win]);
 
   // --- Render Loop ---
   const renderFrame = useCallback(() => {
@@ -392,11 +512,8 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     // --- Playing phase ---
     if (st.isPlaying) {
       const songTime = currentTime - st.startTime;
-      if (songTime > st.songDuration + 2) {
-        st.isPlaying = false;
-        scoringComplete(st.difficulty, ['majorArcanum']);
-        setUiState((prev) => ({ ...prev, gameOver: true }));
-        onComplete?.({ score: st.score, maxStreak: st.maxStreak });
+      if (songTime > st.songDuration + 1) {
+        finishRunRef.current('over');
         return;
       }
 
@@ -444,12 +561,27 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         st.lastBeatScheduled = nextBeatIndex;
       }
 
+      // The band: every note whose time has come.
+      const band = backingRef.current;
+      while (
+        band.next < band.notes.length &&
+        band.notes[band.next].beat * currentBeatTime <= songTime + 0.02
+      ) {
+        const n = band.notes[band.next++];
+        audioRef.current.playBacking(
+          n.voice,
+          n.midi,
+          n.duration * currentBeatTime * 0.95,
+        );
+      }
+
       // Process note states
       notesRef.current.forEach((note) => {
         // Miss detection
         if (!note.hit && !note.missed && songTime > note.time + INPUT_WINDOW) {
           note.missed = true;
           st.misses += 1;
+          failPhrase(note.phrase);
           if (st.streak > 0) {
             const scoreState = scoringMiss();
             st.score = scoreState.score;
@@ -481,6 +613,18 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
             note.lastParticleTime = songTime;
           }
         }
+      });
+
+      // Judge each phrase once it's over: played clean, the streak grows.
+      const track = trackRef.current;
+      track.ends.forEach((end, phrase) => {
+        if (track.judged.has(phrase) || songTime < end + PHRASE_SETTLE_S)
+          return;
+        track.judged.add(phrase);
+        if (track.failed.has(phrase)) return;
+        track.run += 1;
+        track.best = Math.max(track.best, track.run);
+        rewardRef.current.registerCorrect();
       });
 
       // Update particles
@@ -518,13 +662,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     }
 
     requestRef.current = requestAnimationFrame(() => renderFrameRef.current());
-  }, [
-    onComplete,
-    spawnParticles,
-    scoringMiss,
-    scoringAddScore,
-    scoringComplete,
-  ]);
+  }, [spawnParticles, scoringMiss, scoringAddScore, failPhrase]);
 
   const renderFrameRef = useRef(renderFrame);
   renderFrameRef.current = renderFrame;
@@ -565,116 +703,149 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
   const togglePauseRef = useRef(togglePause);
   togglePauseRef.current = togglePause;
 
-  const initGame = useCallback(() => {
-    if (!audioRef.current) audioRef.current = new AudioEngine();
-    audioRef.current.resume();
+  // ── Starting a run ───────────────────────────────────────────────────────
 
-    // Restore saved volume preferences
-    try {
-      const stored = JSON.parse(localStorage.getItem('ma:volumes') ?? '{}');
-      if (stored.melody != null)
-        audioRef.current.setVolume('melody', stored.melody);
-      if (stored.drums != null)
-        audioRef.current.setVolume('drums', stored.drums);
-      if (stored.metronome != null)
-        audioRef.current.setVolume('metronome', stored.metronome);
-    } catch {
-      /* ignore */
-    }
-
-    changeKey(gameState.current.keyRootVal);
-    scoringReset();
-
-    const st = gameState.current;
-    const currentBeatTime = 60 / st.bpm;
-    st.score = 0;
-    st.streak = 0;
-    st.maxStreak = 0;
-    st.multiplier = 1;
-    st.hits = 0;
-    st.misses = 0;
-    st.holdCompletions = 0;
-    st.holdAttempts = 0;
-    st.missFlashTime = 0;
-    st.isPaused = false;
-    st.totalPausedDuration = 0;
-    st.startTime = audioRef.current.ctx.currentTime + 4 * currentBeatTime;
-    st.isPlaying = false;
-    st.isCountingIn = true;
-    st.lastBeatScheduled = -5;
-    st.countInNumber = 4;
-    st.uiDirty = false;
-
-    drumPatternRef.current = { patternIndex: 0, lastBarChanged: -1 };
-
-    setUiState((prev) => ({
-      ...prev,
-      score: 0,
-      streak: 0,
-      multiplier: 1,
-      gameStarted: true,
-      gameOver: false,
-      countInNumber: 4,
-      isPaused: false,
-    }));
-    requestRef.current = requestAnimationFrame(() => renderFrameRef.current());
-  }, [changeKey, scoringReset]);
-
-  const handleStart = useCallback(async () => {
-    setUiState((prev) => ({ ...prev, midiStatus: 'Requesting Access...' }));
-    const nav = navigator as unknown as NavigatorWithMIDI;
-    if (nav.requestMIDIAccess) {
+  const startRun = useCallback(
+    (next: ArcanumTask, isFree = false) => {
+      if (MODES[next.mode].midiRequired && !midi.connected) return;
+      if (!audioRef.current) audioRef.current = new AudioEngine();
+      const audio = audioRef.current;
+      audio.resume();
+      // Restore saved volume preferences
       try {
-        const access = await nav.requestMIDIAccess();
-        let midiConnected = false;
-        access.inputs.forEach((input) => {
-          midiConnected = true;
-          input.onmidimessage = (msg) => {
-            const [cmd, note, vel] = msg.data;
-            if (cmd >= 144 && cmd <= 159 && vel > 0) {
-              activeMidiNotes.current.add(note);
-              handleNoteOnRef.current(note);
-            } else if (
-              (cmd >= 128 && cmd <= 143) ||
-              (cmd >= 144 && cmd <= 159 && vel === 0)
-            ) {
-              activeMidiNotes.current.delete(note);
-              handleNoteOffRef.current(note);
-            }
-          };
-        });
-        if (midiConnected)
-          setUiState((prev) => ({ ...prev, midiStatus: 'MIDI Active' }));
-        else setUiState((prev) => ({ ...prev, midiStatus: 'MIDI Ready' }));
+        const stored = JSON.parse(localStorage.getItem('ma:volumes') ?? '{}');
+        for (const category of [
+          'melody',
+          'drums',
+          'metronome',
+          'backing',
+        ] as const)
+          if (stored[category] != null)
+            audio.setVolume(category, stored[category]);
       } catch {
-        setUiState((prev) => ({
-          ...prev,
-          midiStatus: 'Use Keyboard (A-L)',
-        }));
+        /* ignore */
       }
-    } else {
+
+      const run = buildRun({ ...next, rng: Math.random });
+      const keyboard = runKeyboard(run);
+      const beat = 60 / run.bpm;
+      const st = gameState.current;
+      st.bpm = run.bpm;
+      st.gameMode = run.part;
+      st.keyRootVal = run.keyPc;
+      st.currentKeyColor = keyboard.keyColor;
+      st.currentScaleNotes = keyboard.scaleNotes;
+      st.keyboardMapping = keyboard.keyboardMapping;
+      st.keyLabels = keyboard.keyLabels;
+      st.display = keyboard.display;
+      st.chordLabels = run.chords.map((c) => ({
+        time: c.beat * beat,
+        symbol: c.symbol,
+      }));
+      st.songDuration = run.totalBeats * beat;
+      notesRef.current = run.notes.map((n) => ({
+        time: n.beat * beat,
+        midi: n.midi,
+        phrase: n.phrase,
+        duration: n.duration,
+        isChord: n.isChord,
+        hit: false,
+        missed: false,
+        lost: false,
+        completed: false,
+        isHolding: false,
+        lastHoldScoreTime: 0,
+        lastParticleTime: 0,
+      }));
+      st.totalNotes = notesRef.current.length;
+      backingRef.current = {
+        notes: [...run.backing].sort((a, b) => a.beat - b.beat),
+        next: 0,
+      };
+      trackRef.current = {
+        ...freshTrack(),
+        ends: run.phrases.map((p) => {
+          const last = run.notes
+            .filter((n) => n.phrase === p.index)
+            .reduce((end, n) => Math.max(end, n.beat), p.startBeat);
+          return last * beat;
+        }),
+      };
+
+      taskRef.current = next;
+      freeRef.current = isFree;
+      setTask(next);
+      setFree(isFree);
+      rewardRef.current.reset();
+      runWinFromRef.current = rewardRef.current.win?.id ?? 0;
+
+      scoringReset();
+      st.score = 0;
+      st.streak = 0;
+      st.maxStreak = 0;
+      st.multiplier = 1;
+      st.hits = 0;
+      st.misses = 0;
+      st.holdCompletions = 0;
+      st.holdAttempts = 0;
+      st.missFlashTime = 0;
+      st.isPaused = false;
+      st.totalPausedDuration = 0;
+      st.startTime = audio.ctx.currentTime + 4 * beat;
+      st.isPlaying = false;
+      st.isCountingIn = true;
+      st.lastBeatScheduled = -5;
+      st.countInNumber = 4;
+      st.uiDirty = false;
+      drumPatternRef.current = { patternIndex: 0, lastBarChanged: -1 };
+      particlesRef.current = [];
+
       setUiState((prev) => ({
         ...prev,
-        midiStatus: 'Use Keyboard (A-L)',
+        score: 0,
+        streak: 0,
+        multiplier: 1,
+        countInNumber: 4,
+        isPaused: false,
+        bpm: run.bpm,
+        keyColor: keyboard.keyColor,
       }));
-    }
-    initGame();
-  }, [initGame]);
+      setOutcome(null);
+      screenRef.current = 'playing';
+      setScreen('playing');
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      requestRef.current = requestAnimationFrame(() =>
+        renderFrameRef.current(),
+      );
+    },
+    [midi.connected, scoringReset],
+  );
 
-  // Dismiss the score screen and return to the initial Start screen.
-  const returnToStart = useCallback(() => {
-    const st = gameState.current;
-    st.isPlaying = false;
-    st.isCountingIn = false;
-    st.isPaused = false;
-    if (requestRef.current) cancelAnimationFrame(requestRef.current);
-    audioRef.current?.suspend();
-    setUiState((prev) => ({
-      ...prev,
-      gameOver: false,
-      gameStarted: false,
-      isPaused: false,
-    }));
+  const openMap = useCallback(
+    (focus?: { mode: ArcanumMode; level: ArcanumLevel }) => {
+      stopRun();
+      if (focus) setMapFocus(focus);
+      screenRef.current = 'map';
+      setScreen('map');
+    },
+    [stopRun],
+  );
+
+  // In development only: the run's notes and clock, for a test to play along.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const w = window as unknown as Record<string, unknown>;
+    w.__arcanum = {
+      notes: () => notesRef.current,
+      songTime: () =>
+        audioRef.current
+          ? audioRef.current.ctx.currentTime - gameState.current.startTime
+          : null,
+      bpm: () => gameState.current.bpm,
+    };
+    return () => {
+      delete w.__arcanum;
+    };
   }, []);
 
   // --- Effects (mount-only — all callbacks accessed via stable refs) ---
@@ -693,19 +864,19 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
       if (gameState.current.isPaused) return;
 
       const mapping = gameState.current.keyboardMapping;
-      if (mapping[e.code]) {
-        const midi = mapping[e.code];
-        activeMidiNotes.current.add(midi);
-        handleNoteOnRef.current(midi);
+      if (mapping[e.code] && screenRef.current === 'playing') {
+        const note = mapping[e.code];
+        activeMidiNotes.current.add(note);
+        handleNoteOnRef.current(note);
       }
     };
     const handleUp = (e: KeyboardEvent) => {
       if (gameState.current.isPaused) return;
       const mapping = gameState.current.keyboardMapping;
       if (mapping[e.code]) {
-        const midi = mapping[e.code];
-        activeMidiNotes.current.delete(midi);
-        handleNoteOffRef.current(midi);
+        const note = mapping[e.code];
+        activeMidiNotes.current.delete(note);
+        handleNoteOffRef.current(note);
       }
     };
 
@@ -740,10 +911,6 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     if (containerRef.current) resizeObserver.observe(containerRef.current);
     onResize();
 
-    // Initialize with random key
-    const root = ROOTS[0]; // Default to C Major
-    changeKey(root.val);
-
     return () => {
       window.removeEventListener('keydown', handleDown);
       window.removeEventListener('keyup', handleUp);
@@ -755,89 +922,124 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
   }, []);
 
   // --- Render ---
+  const where = free
+    ? 'The Circle'
+    : `${MODES[task.mode].label} · Level ${task.level}`;
+
   return (
-    <div className="flex w-full h-full bg-[#101012] text-zinc-100 overflow-hidden font-sans">
-      {uiState.showKeySelector && (
-        <CircleOfFifthsSelector
-          onSelect={changeKey}
-          currentRoot={gameState.current.keyRootVal}
-          onClose={() => setUiState((s) => ({ ...s, showKeySelector: false }))}
-        />
-      )}
-
-      <div className="flex-1 min-h-0 min-w-0 flex flex-col relative bg-[#101012]">
-        <GameHeader
-          gameMode={uiState.gameMode}
-          keyName={uiState.keyName}
-          keyColor={gameState.current.currentKeyColor}
-          score={uiState.score}
-          streak={uiState.streak}
-          multiplier={uiState.multiplier}
-          onToggleMode={toggleMode}
-          onOpenKeySelector={() =>
-            setUiState((s) => ({ ...s, showKeySelector: true }))
-          }
-        />
-
-        <GameToolbar
-          bpm={uiState.bpm}
-          metronomeEnabled={uiState.metronomeEnabled}
-          midiStatus={uiState.midiStatus}
-          showVolumePanel={uiState.showVolumePanel}
-          melodyVolume={uiState.melodyVolume}
-          drumVolume={uiState.drumVolume}
-          metronomeVolume={uiState.metronomeVolume}
-          onChangeBPM={changeBPM}
-          onToggleMetronome={toggleMetronome}
-          onToggleVolumePanel={() =>
-            setUiState((s) => ({
-              ...s,
-              showVolumePanel: !s.showVolumePanel,
-            }))
-          }
-          onChangeVolume={changeVolume}
-        />
-
-        {/* Canvas */}
-        <div
-          ref={containerRef}
-          className="flex-1 min-h-0 relative bg-[#101012]"
-        >
-          <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-
-          {/* Feedback overlay */}
-          <div
-            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-bold tracking-tight transition-opacity duration-200 pointer-events-none"
-            style={{
-              opacity: uiState.feedbackVisible ? 1 : 0,
-              color: uiState.feedbackColor,
-              textShadow: '0 4px 20px rgba(0,0,0,0.5)',
-              transform: uiState.feedbackVisible
-                ? 'translate(-50%, -50%) scale(1)'
-                : 'translate(-50%, -50%) scale(0.9)',
+    <ArcadeStreakContext.Provider
+      value={{
+        count: reward.streak,
+        target,
+        win: reward.win,
+        sessionXp: reward.sessionXp,
+        unit: 'phrases',
+      }}
+    >
+      <div className="flex w-full h-full bg-[#101012] text-zinc-100 overflow-hidden font-sans">
+        {showCircle && (
+          <CircleOfFifthsSelector
+            onSelect={(keyPc) => {
+              setShowCircle(false);
+              const at = mapFocus ?? { mode: task.mode, level: task.level };
+              startRun({ ...at, keyPc, part: 'melody' }, true);
             }}
+            currentRoot={task.keyPc}
+            onClose={() => setShowCircle(false)}
+          />
+        )}
+
+        <div className="flex-1 min-h-0 min-w-0 flex flex-col relative bg-[#101012]">
+          <GameHeader
+            where={where}
+            what={taskTitle(task)}
+            keyColor={uiState.keyColor}
+            score={uiState.score}
+            streak={uiState.streak}
+            multiplier={uiState.multiplier}
+            onOpenMap={() => openMap({ mode: task.mode, level: task.level })}
+          />
+
+          <GameToolbar
+            bpm={uiState.bpm}
+            metronomeEnabled={uiState.metronomeEnabled}
+            midiStatus={midi.status}
+            showVolumePanel={uiState.showVolumePanel}
+            melodyVolume={uiState.melodyVolume}
+            drumVolume={uiState.drumVolume}
+            metronomeVolume={uiState.metronomeVolume}
+            backingVolume={uiState.backingVolume}
+            onToggleMetronome={toggleMetronome}
+            onToggleVolumePanel={() =>
+              setUiState((s) => ({
+                ...s,
+                showVolumePanel: !s.showVolumePanel,
+              }))
+            }
+            onChangeVolume={changeVolume}
+          />
+
+          {/* Canvas */}
+          <div
+            ref={containerRef}
+            className="flex-1 min-h-0 relative bg-[#101012]"
           >
-            {uiState.feedbackText}
+            <canvas
+              ref={canvasRef}
+              className="absolute inset-0 h-full w-full"
+            />
+
+            {/* Feedback overlay */}
+            <div
+              className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-bold tracking-tight transition-opacity duration-200 pointer-events-none"
+              style={{
+                opacity: uiState.feedbackVisible ? 1 : 0,
+                color: uiState.feedbackColor,
+                textShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                transform: uiState.feedbackVisible
+                  ? 'translate(-50%, -50%) scale(1)'
+                  : 'translate(-50%, -50%) scale(0.9)',
+              }}
+            >
+              {uiState.feedbackText}
+            </div>
+
+            {screen === 'map' && (
+              <LevelMap
+                progress={progress}
+                loading={loading}
+                saveFailed={saveFailed}
+                midiConnected={midi.connected}
+                isPremium={isPremium}
+                focus={mapFocus}
+                onChoose={(mode, level) => setMapFocus({ mode, level })}
+                onPlay={(next) => startRun(next)}
+                onOpenCircle={() => setShowCircle(true)}
+                onUpgrade={() => navigate(ProfileRoutes.plan.definition)}
+              />
+            )}
+
+            {screen === 'result' && outcome && (
+              <RunResult
+                outcome={outcome}
+                win={outcome.kind === 'won' ? reward.win : null}
+                onPlay={(next) => startRun(next, outcome.free)}
+                onLevel={(mode, level) => {
+                  // The level's next part, or from the top to play it again;
+                  // the map if it needs a MIDI keyboard and none is connected.
+                  const first =
+                    nextTask(progress, mode, level) ??
+                    levelTasks(mode, level)[0];
+                  if (MODES[mode].midiRequired && !midi.connected)
+                    openMap({ mode, level });
+                  else startRun(first);
+                }}
+                onMap={() => openMap({ mode: task.mode, level: task.level })}
+              />
+            )}
           </div>
-
-          {/* Overlays */}
-          {!uiState.gameStarted && (
-            <StartScreen
-              difficulty={uiState.difficulty}
-              onChangeDifficulty={changeDifficulty}
-              onStart={handleStart}
-            />
-          )}
-
-          {uiState.gameOver && (
-            <GameOverScreen
-              score={uiState.score}
-              gameState={gameState.current}
-              onPlayAgain={returnToStart}
-            />
-          )}
         </div>
       </div>
-    </div>
+    </ArcadeStreakContext.Provider>
   );
 }

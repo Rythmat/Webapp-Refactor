@@ -7,6 +7,7 @@ import { GuitarResultPanel, resultSummary } from './GuitarResultPanel';
 import { GuitarSectionCompletePanel } from './GuitarSectionCompletePanel';
 import { GuitarSettingsSheet, type SettingsGroup } from './GuitarSettingsSheet';
 import { GuitarStepNav } from './GuitarStepNav';
+import { LessonFrame } from './LessonFrame';
 import { deriveBarState } from './deriveBarState';
 import type { GuitarLessonLayoutProps } from './types';
 import { useGuitarStepKeys } from './useGuitarStepKeys';
@@ -37,7 +38,10 @@ export function GuitarLessonLayout({
   result,
   offer,
   theory,
+  subNav,
   slots,
+  overview,
+  barCustom,
 }: GuitarLessonLayoutProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   /** Where Settings opens: the top from the gear, Input from the indicator. */
@@ -61,7 +65,11 @@ export function GuitarLessonLayout({
 
   useGuitarStepKeys({
     enabled:
-      barState === 'preview' && !settingsOpen && !aboutOpen && !setupOpen,
+      barState === 'preview' &&
+      !overview &&
+      !settingsOpen &&
+      !aboutOpen &&
+      !setupOpen,
     index: nav.index,
     count: nav.steps.length,
     goToStep: nav.goToStep,
@@ -77,18 +85,33 @@ export function GuitarLessonLayout({
         ? resultSummary(result, run.listen.passMarkPct)
         : '';
 
-  const slotTakenBy =
-    barState === 'result' && result ? (
-      <GuitarResultPanel result={result} passMarkPct={run.listen.passMarkPct} />
-    ) : barState === 'sectionComplete' && offer ? (
-      <GuitarSectionCompletePanel offer={offer} />
-    ) : null;
+  const slotTakenBy = overview ? (
+    <div data-guitar-overview>{overview}</div>
+  ) : barState === 'result' && result ? (
+    <GuitarResultPanel result={result} passMarkPct={run.listen.passMarkPct} />
+  ) : barState === 'sectionComplete' && offer ? (
+    <GuitarSectionCompletePanel offer={offer} />
+  ) : null;
 
   return (
-    <div
+    <LessonFrame
+      header={header}
+      nav={nav}
+      tools={{
+        about: {
+          open: aboutOpen,
+          hasNews: aboutHasNews,
+          onToggle: () => setAboutOpen(!aboutOpen),
+        },
+        // Settings is not modal, so its button stays in reach and toggles.
+        settings: {
+          open: settingsOpen,
+          onToggle: () =>
+            settingsOpen ? setSettingsOpen(false) : openSettings(),
+        },
+      }}
       data-guitar-layout
       data-bar-state={barState}
-      className="flex h-full min-h-0 flex-col bg-[#101012] text-[#e8e8f0]"
     >
       {/* Scrolls only when the window is too short (or on a phone). */}
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
@@ -102,14 +125,7 @@ export function GuitarLessonLayout({
         >
           <GuitarLessonHeader
             header={header}
-            aboutHasNews={aboutHasNews}
-            aboutOpen={aboutOpen}
-            onOpenAbout={() => setAboutOpen(true)}
-            settingsOpen={settingsOpen}
-            // The gear toggles: Settings is not modal, so it stays in reach.
-            onOpenSettings={() =>
-              settingsOpen ? setSettingsOpen(false) : openSettings()
-            }
+            section={nav.sections.find((s) => s.active)?.name}
             inputIndicator={
               <GuitarInputIndicator
                 handle={input.handle}
@@ -120,6 +136,7 @@ export function GuitarLessonLayout({
           />
 
           <GuitarStepNav nav={nav} keyColor={header.keyColor} />
+          {subNav}
 
           {/* Above the TAB in the markup as on screen, so focus and reading
               order follow what the student sees. */}
@@ -136,6 +153,9 @@ export function GuitarLessonLayout({
           <div
             ref={slots.tabViewportRef}
             data-guitar-stage
+            // Hidden, never unmounted, on the Overview: the container
+            // measures this box.
+            hidden={overview != null}
             // No border of its own: the TAB (or notation) face draws the one
             // hairline, 1px inside this box would read as a double line.
             className="relative overflow-y-auto overflow-x-hidden rounded-xl bg-[#151518]"
@@ -167,6 +187,7 @@ export function GuitarLessonLayout({
         input={input}
         result={result}
         offer={offer}
+        custom={overview ? barCustom : undefined}
       />
 
       <GuitarSettingsSheet
@@ -183,6 +204,6 @@ export function GuitarLessonLayout({
         instruction={run.instruction}
       />
       {slots.setupModal}
-    </div>
+    </LessonFrame>
   );
 }

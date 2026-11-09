@@ -158,6 +158,16 @@ function OverlayFrame({
           onPointerDownOutside={(event) => {
             if (!dismissible || !closable) event.preventDefault();
           }}
+          // A lesson's coach card sits above a modal it teaches: a click or
+          // focus there is part of the lesson, not a dismissal.
+          onInteractOutside={(event) => {
+            const target = event.target;
+            if (
+              target instanceof Element &&
+              target.closest('[data-tutorial-layer]')
+            )
+              event.preventDefault();
+          }}
           onEscapeKeyDown={(event) => {
             if (!closable) event.preventDefault();
           }}

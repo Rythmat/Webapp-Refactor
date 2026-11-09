@@ -118,7 +118,7 @@ beforeEach(() => {
     openPrismSuggestion: open,
   });
   useCanvasMenuStore.setState({ request: null });
-  keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  keys = s().addTrack('midi', 'soundfont', 'Keys');
   s().addMidiClip(keys, {
     id: 'keys-1',
     name: 'Riff',
@@ -185,7 +185,7 @@ describe('a right-click', () => {
     expect(screen.queryByRole('menu')).toBeNull();
   });
 
-  it('opens a lane’s menu on empty lane, where Prism suggests chords from the bar', async () => {
+  it('opens a lane’s menu on empty lane, where Prism opens the prompt bar on its bars', async () => {
     render(<ScrolledTimeline />);
     fireEvent.contextMenu(canvas(), { clientX: emptyX + 100, clientY: laneY });
     expect(

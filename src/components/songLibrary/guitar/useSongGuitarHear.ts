@@ -11,13 +11,24 @@ import {
   releaseGuitarVoice,
   strumGuitarChord,
 } from '@/learn/audio/guitar/guitarVoice';
+import {
+  loadUkuleleVoice,
+  strumUkuleleChord,
+} from '@/learn/audio/ukulele/ukuleleVoice';
 import { shapeNotes } from '@/lib/guitar/fretboard';
+import { UKULELE } from '@/lib/guitar/instrument';
+import type { SongBoxInstrument } from './songGuitarShapes';
 
 let users = 0;
 let loaded = false;
 
-/** A strum for a shape string ('X-3-2-0-1-0'); the voice loads on first use. */
-export function useSongGuitarHear(): (frets: string) => void {
+/**
+ * A strum for a shape string ('X-3-2-0-1-0', or a ukulele's '0-0-0-3'); the
+ * voice loads on first use.
+ */
+export function useSongGuitarHear(
+  instrument: SongBoxInstrument = 'guitar',
+): (frets: string) => void {
   useEffect(() => {
     users += 1;
     return () => {
@@ -29,19 +40,33 @@ export function useSongGuitarHear(): (frets: string) => void {
     };
   }, []);
 
-  return useCallback((frets: string) => {
-    // Inside the click, so the browser lets the audio start.
-    void startTone();
-    const notes = shapeNotes(frets);
-    void loadGuitarVoice().then(() => {
-      loaded = true;
-      strumGuitarChord(
-        notes.map((n) => n.midi),
-        1.6,
-        90,
-        undefined,
-        notes.map((n) => n.position),
-      );
-    });
-  }, []);
+  return useCallback(
+    (frets: string) => {
+      // Inside the click, so the browser lets the audio start.
+      void startTone();
+      if (instrument === 'ukulele') {
+        const uke = shapeNotes(frets, UKULELE);
+        void loadUkuleleVoice().then(() =>
+          strumUkuleleChord(
+            uke.map((n) => n.midi),
+            1.6,
+            90,
+          ),
+        );
+        return;
+      }
+      const notes = shapeNotes(frets);
+      void loadGuitarVoice().then(() => {
+        loaded = true;
+        strumGuitarChord(
+          notes.map((n) => n.midi),
+          1.6,
+          90,
+          undefined,
+          notes.map((n) => n.position),
+        );
+      });
+    },
+    [instrument],
+  );
 }

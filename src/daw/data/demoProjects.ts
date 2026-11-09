@@ -124,6 +124,12 @@ const PIANO = '#f9c74f';
  *  'soundfont' instrument (see gmPrograms.ts); 'oracle-synth' is a synth. */
 const ELECTRIC_BASS_FINGER = 33;
 
+/** GM programs 4 and 0, Electric Piano 1 and Acoustic Grand Piano, on the
+ *  'soundfont' instrument: the demos' keys since the sampled piano and
+ *  electric piano tracks went (2026-10-22). */
+const ELECTRIC_PIANO = 4;
+const GRAND_PIANO = 0;
+
 export interface DemoProject {
   id: string;
   label: string;
@@ -157,7 +163,8 @@ export const DEMO_PROJECTS: DemoProject[] = [
         demoTrack({
           name: 'Rhodes',
           type: 'midi',
-          instrument: 'electric-piano',
+          instrument: 'soundfont',
+          settings: { gmProgram: ELECTRIC_PIANO },
           color: RHODES,
           clips: [
             midiClip('Chords', [
@@ -196,7 +203,8 @@ export const DEMO_PROJECTS: DemoProject[] = [
         demoTrack({
           name: 'Keys',
           type: 'midi',
-          instrument: 'electric-piano',
+          instrument: 'soundfont',
+          settings: { gmProgram: ELECTRIC_PIANO },
           color: RHODES,
           clips: [
             // Voice-led upper-structure voicings — the bass carries the roots.
@@ -255,7 +263,8 @@ export const DEMO_PROJECTS: DemoProject[] = [
         demoTrack({
           name: 'Piano',
           type: 'midi',
-          instrument: 'piano-sampler',
+          instrument: 'soundfont',
+          settings: { gmProgram: GRAND_PIANO },
           color: PIANO,
           clips: [
             // Open pop voicings: root on the bottom, the 3rd lifted an octave
@@ -275,6 +284,85 @@ export const DEMO_PROJECTS: DemoProject[] = [
           settings: { gmProgram: ELECTRIC_BASS_FINGER },
           color: BASS,
           clips: [midiClip('Bass', bassLine([36, 31, 33, 29]))], // C G A F
+        }),
+      ],
+    }),
+  },
+  // The Studio Basics course's song (tutorialCatalog.ts TUTORIAL_COURSES'
+  // `seed`): a teacher arriving cold learns the Studio on it. Every track a
+  // lesson needs is here and plain: a melody for the Lead Sheet and the
+  // Score, chords and bass for Insight to name, drums under them, all on
+  // Instruments (no Oracle Synth). C major's 1 6 4 5, the progression Music
+  // Literacy's Hear It with Your Band starts a new student on.
+  {
+    id: 'demo-studio-basics',
+    label: 'Studio Basics Song',
+    description:
+      'A simple 1–6–4–5 song with melody, chords, bass and drums, for the Studio Basics lessons.',
+    accent: LEAD,
+    drumGrooveId: 'groove-rock-2',
+    bundle: demoBundle({
+      id: 'demo-studio-basics',
+      name: 'Studio Basics Song',
+      bpm: 96,
+      genre: 'Pop',
+      rootNote: 0, // C major
+      tracks: [
+        demoTrack({
+          name: 'Melody',
+          type: 'midi',
+          instrument: 'soundfont',
+          settings: { gmProgram: GRAND_PIANO },
+          color: LEAD,
+          clips: [
+            midiClip('Melody', [
+              // C: E G G E
+              { note: 64, start: 0, dur: 440 },
+              { note: 67, start: 480, dur: 440 },
+              { note: 67, start: 960, dur: 440 },
+              { note: 64, start: 1440, dur: 440 },
+              // Am: C A A–
+              { note: 72, start: BAR, dur: 440 },
+              { note: 69, start: BAR + 480, dur: 440 },
+              { note: 69, start: BAR + 960, dur: 900 },
+              // F: A F A C
+              { note: 69, start: 2 * BAR, dur: 440 },
+              { note: 65, start: 2 * BAR + 480, dur: 440 },
+              { note: 69, start: 2 * BAR + 960, dur: 440 },
+              { note: 72, start: 2 * BAR + 1440, dur: 440 },
+              // G: B A G–
+              { note: 71, start: 3 * BAR, dur: 440 },
+              { note: 69, start: 3 * BAR + 480, dur: 440 },
+              // Rings to the bar line, so every clip is exactly 4 bars and a
+              // Duplicate lands on bar 5 (Loop and Repeat).
+              { note: 67, start: 3 * BAR + 960, dur: 960 },
+            ]),
+          ],
+        }),
+        demoTrack({
+          name: 'Chords',
+          type: 'midi',
+          instrument: 'soundfont',
+          settings: { gmProgram: ELECTRIC_PIANO },
+          color: RHODES,
+          volume: 0.7,
+          clips: [
+            // Close voicings under the melody, each a step from the last.
+            midiClip('Chords', [
+              ...chordBar(0, [52, 55, 60]), // C: E3 G3 C4
+              ...chordBar(1, [52, 57, 60]), // Am: E3 A3 C4
+              ...chordBar(2, [53, 57, 60]), // F: F3 A3 C4
+              ...chordBar(3, [50, 55, 59]), // G: D3 G3 B3
+            ]),
+          ],
+        }),
+        demoTrack({
+          name: 'Bass',
+          type: 'midi',
+          instrument: 'soundfont',
+          settings: { gmProgram: ELECTRIC_BASS_FINGER },
+          color: BASS,
+          clips: [midiClip('Bass', bassLine([36, 33, 29, 31]))], // C A F G
         }),
       ],
     }),

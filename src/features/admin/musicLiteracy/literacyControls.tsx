@@ -1,9 +1,10 @@
 /* eslint-disable react/jsx-sort-props */
-import { X } from 'lucide-react';
-import type { FC } from 'react';
+import { ChevronDown, GripVertical, Plus, X } from 'lucide-react';
+import type { FC, ReactNode } from 'react';
 import { cn } from '@/components/utilities';
 import {
   LITERACY_DEGREES,
+  LITERACY_SCALE_DEGREES,
   type LiteracyDegree,
 } from '@/content/musicLiteracy/schemas';
 import {
@@ -14,13 +15,18 @@ import {
   lengthLabel,
   lengthOf,
   NOTE_LENGTHS,
+  pickupLabel,
+  pickupLengths,
   type NoteShape,
 } from './literacyChips';
+import type { ChipReorder } from './useChipReorder';
 
 /**
  * The Music Literacy editor's small parts: a note's length drawn as a note
- * (or a rest), the degree and length pickers every chip has, and a strip
- * that shows a segment's rhythm against its bars.
+ * (or a rest), the degree and length pickers every chip has, a chip's top
+ * line that drags it, the "+ rest before / after" pickers, the words'
+ * pickup and the double bar that ends it, and a strip that shows a
+ * segment's rhythm against its bars.
  */
 
 export const control =
@@ -165,39 +171,66 @@ const OCTAVE_GROUPS: { octave: number; label: string; mark: string }[] = [
 export const pitchLabel = (degree: LiteracyDegree, octave: number) =>
   `${degreeLabel(degree)}${OCTAVE_GROUPS.find((g) => g.octave === octave)?.mark ?? ''}`;
 
+/** What a degree picker says it is, by the lesson's numbering. */
+const DEGREE_TITLE = {
+  chromatic: 'The note, as a degree of the key (↑ an octave up, ↓ down)',
+  scale:
+    'The note, 1–7 of the student’s major or minor: in minor, 3, 6 and 7 are ♭3, ♭6 and ♭7 (↑ an octave up, ↓ down)',
+};
+
 /**
  * Which note: the twelve degrees around the lesson's 1, then the same an
  * octave up and down (two octaves only when a note is already there).
+ * Under scale numbering (`scale`), the plain 1–7 only, which follow major
+ * or minor; a sharp or flat already there stays listed, to be changed.
  */
 export const DegreeSelect: FC<{
   degree: LiteracyDegree;
   octave: number;
   onChange: (degree: LiteracyDegree, octave: number) => void;
   label: string;
-}> = ({ degree, octave, onChange, label }) => (
-  <select
-    aria-label={label}
-    title="The note, as a degree of the key (↑ an octave up, ↓ down)"
-    value={`${degree}|${octave}`}
-    onChange={(e) => {
-      const [d, o] = e.target.value.split('|');
-      onChange(d as LiteracyDegree, Number(o));
-    }}
-    className={cn(control, 'w-full font-medium tabular-nums')}
-  >
-    {OCTAVE_GROUPS.filter(
-      (group) => Math.abs(group.octave) < 2 || group.octave === octave,
-    ).map((group) => (
-      <optgroup key={group.octave} label={group.label}>
-        {LITERACY_DEGREES.map((d) => (
-          <option key={d} value={`${d}|${group.octave}`}>
-            {pitchLabel(d, group.octave)}
-          </option>
-        ))}
-      </optgroup>
-    ))}
-  </select>
-);
+  scale?: boolean;
+  invalid?: boolean;
+}> = ({ degree, octave, onChange, label, scale, invalid }) => {
+  const degrees: readonly LiteracyDegree[] = scale
+    ? LITERACY_SCALE_DEGREES
+    : LITERACY_DEGREES;
+  return (
+    <select
+      aria-label={label}
+      aria-invalid={invalid || undefined}
+      title={DEGREE_TITLE[scale ? 'scale' : 'chromatic']}
+      value={`${degree}|${octave}`}
+      onChange={(e) => {
+        const [d, o] = e.target.value.split('|');
+        onChange(d as LiteracyDegree, Number(o));
+      }}
+      className={cn(
+        control,
+        'w-full font-medium tabular-nums',
+        invalid && 'border-red-400/60 text-red-200',
+      )}
+    >
+      {OCTAVE_GROUPS.filter(
+        (group) => Math.abs(group.octave) < 2 || group.octave === octave,
+      ).map((group) => (
+        <optgroup key={group.octave} label={group.label}>
+          {(group.octave === octave && !degrees.includes(degree)
+            ? LITERACY_DEGREES.filter(
+                (d) => degrees.includes(d) || d === degree,
+              )
+            : degrees
+          ).map((d) => (
+            <option key={d} value={`${d}|${group.octave}`}>
+              {pitchLabel(d, group.octave)}
+              {!degrees.includes(d) && ' (use 1–7)'}
+            </option>
+          ))}
+        </optgroup>
+      ))}
+    </select>
+  );
+};
 
 /** How long: the eight lengths a teacher writes, and any other a note has. */
 export const LengthSelect: FC<{
@@ -252,6 +285,63 @@ export const BarsSelect: FC<{
   </label>
 );
 
+/**
+ * The words' pickup: none, or how long, sung at the end of the count-in
+ * into the words' downbeat.
+ */
+export const PickupSelect: FC<{
+  pickup: number;
+  timeSignature: readonly [number, number];
+  onChange: (ticks: number) => void;
+  label: string;
+}> = ({ pickup, timeSignature, onChange, label }) => (
+  <label
+    className="flex items-center gap-1.5 text-xs text-white/60"
+    title="Syllables sung at the end of the count-in, leading into the downbeat (‖)"
+  >
+    Pickup
+    <select
+      aria-label={label}
+      value={pickup}
+      onChange={(e) => onChange(Number(e.target.value))}
+      className={control}
+    >
+      <option value={0}>None</option>
+      {pickupLengths(timeSignature, pickup).map((ticks) => (
+        <option key={ticks} value={ticks}>
+          {pickupLabel(ticks, timeSignature)}
+        </option>
+      ))}
+    </select>
+  </label>
+);
+
+/**
+ * The double bar in a row of chips: the words' downbeat, bar 1, with the
+ * pickup's chips before it.
+ */
+export const DownbeatMark: FC = () => (
+  <div
+    role="separator"
+    aria-orientation="vertical"
+    aria-label="Double bar: the downbeat, bar 1. The pickup is before it."
+    title="The downbeat, bar 1: the pickup before it is sung at the end of the count-in"
+    data-downbeat-mark
+    className="flex shrink-0 flex-col items-center gap-1 self-stretch px-1 py-0.5"
+  >
+    <span
+      aria-hidden="true"
+      className="w-[7px] flex-1 border-x-2 border-sky-300/70"
+    />
+    <span
+      aria-hidden="true"
+      className="text-[10px] tabular-nums leading-none text-sky-200/70"
+    >
+      1·1
+    </span>
+  </div>
+);
+
 /** A rest's chip: its length, and a way to take it out. */
 export const RestChip: FC<{
   ticks: number;
@@ -284,6 +374,94 @@ export const RestChip: FC<{
   </div>
 );
 
+// ── Moving chips and adding rests ──────────────────────────────────────────
+
+/**
+ * A chip's top line, which drags it (`useChipReorder`): a grip, which also
+ * takes Alt+← / Alt+→, then what the chip is and where it falls. It runs to
+ * the chip's edges, so a finger has room to take hold of it.
+ */
+export const ChipHandle: FC<{
+  reorder: ChipReorder;
+  index: number;
+  /** The grip's name: "Move “Hey” (syllable 1)". */
+  label: string;
+  children: ReactNode;
+}> = ({ reorder, index, label, children }) => (
+  <div
+    {...reorder.handle(index)}
+    className="-mx-1.5 -mt-1.5 flex cursor-grab touch-none select-none items-baseline gap-1 rounded-t-lg px-1.5 pb-0.5 pt-1.5 transition-colors [-webkit-touch-callout:none] hover:bg-white/[0.04] active:cursor-grabbing"
+  >
+    <button
+      type="button"
+      {...reorder.grip(index)}
+      aria-label={label}
+      title="Drag to move it, or Alt+← / Alt+→"
+      className="-ml-0.5 shrink-0 self-center rounded text-white/25 outline-none transition-colors hover:text-white/60 focus-visible:text-white focus-visible:ring-1 focus-visible:ring-[#60a5fa]"
+    >
+      <GripVertical className="size-3" />
+    </button>
+    {children}
+  </div>
+);
+
+/** Where a dragged chip would land: a bar in the gap on that side of this one. */
+export const DropMark: FC<{ side: 'before' | 'after' | null }> = ({ side }) =>
+  side ? (
+    <span
+      aria-hidden="true"
+      data-drop-mark={side}
+      className={cn(
+        'pointer-events-none absolute -inset-y-1 z-10 w-[3px] rounded-full bg-sky-300 shadow-[0_0_0_3px_rgba(125,211,252,0.2)]',
+        side === 'before' ? '-left-[4.5px]' : '-right-[4.5px]',
+      )}
+    />
+  ) : null;
+
+/** A screen reader's word on the last move. */
+export const ReorderStatus: FC<{ reorder: ChipReorder }> = ({ reorder }) => (
+  <span role="status" className="sr-only">
+    {reorder.said}
+  </span>
+);
+
+/**
+ * "+ rest before" or "+ rest after": picking a length puts a rest that long
+ * on that side of the note. The picker is the plain select, so an iPad
+ * shows its own wheel.
+ */
+export const AddRest: FC<{
+  side: 'before' | 'after';
+  label: string;
+  onAdd: (ticks: number) => void;
+}> = ({ side, label, onAdd }) => (
+  <label
+    className="relative inline-flex cursor-pointer items-center gap-0.5 self-start rounded px-1 text-[11px] text-white/35 transition-colors focus-within:text-white focus-within:ring-1 focus-within:ring-[#60a5fa] hover:bg-white/10 hover:text-white"
+    title={`A rest ${side} this note: pick how long`}
+  >
+    <Plus className="size-3" /> rest {side}
+    <ChevronDown className="size-2.5 opacity-60" />
+    <select
+      aria-label={label}
+      value=""
+      onChange={(e) => {
+        const ticks = Number(e.target.value);
+        if (ticks > 0) onAdd(ticks);
+      }}
+      className="absolute inset-0 cursor-pointer opacity-0"
+    >
+      <option value="" disabled>
+        A rest {side}: how long?
+      </option>
+      {NOTE_LENGTHS.map((length) => (
+        <option key={length.ticks} value={length.ticks}>
+          {length.label} rest
+        </option>
+      ))}
+    </select>
+  </label>
+);
+
 // ── The rhythm strip ───────────────────────────────────────────────────────
 
 export interface StripItem {
@@ -303,23 +481,30 @@ const BLOCK = 16;
 /**
  * A segment's rhythm and the shape of its melody against its bars: each
  * note a block where it falls and as high as it sits, beats and bar lines
- * behind, and anything past the last bar in red.
+ * behind, and anything past the last bar in red. A pickup (the words')
+ * comes first, before a double bar at the downbeat; items start from the
+ * downbeat, so a pickup's are below zero.
  */
 export const RhythmStrip: FC<{
   items: readonly StripItem[];
   bars: number;
   timeSignature: readonly [number, number];
-}> = ({ items, bars, timeSignature }) => {
+  /** The words' pickup, in ticks: 0 for none. */
+  pickup?: number;
+}> = ({ items, bars, timeSignature, pickup = 0 }) => {
   const bar = barTicks(timeSignature);
   const beat = bar / timeSignature[0];
   const length = bars * bar;
   const end = items.reduce((m, i) => Math.max(m, i.start + i.duration), 0);
-  const total = Math.max(length, end);
+  const total = Math.max(length, end) + pickup;
   const pct = (ticks: number) => `${(ticks / total) * 100}%`;
+  /** Where a tick from the downbeat sits across the strip. */
+  const at = (tick: number) => pct(tick + pickup);
+  const firstBeat = -Math.floor(pickup / beat) * beat;
   const lines = Array.from(
-    { length: Math.ceil(total / beat) + 1 },
-    (_, i) => i * beat,
-  );
+    { length: Math.ceil((total - pickup - firstBeat) / beat) + 1 },
+    (_, i) => firstBeat + i * beat,
+  ).filter((tick) => !(pickup > 0 && tick === 0));
   const pitches = items.flatMap((i) =>
     i.pitch === undefined ? [] : [i.pitch],
   );
@@ -335,10 +520,16 @@ export const RhythmStrip: FC<{
       style={{ height: STRIP }}
       aria-hidden="true"
     >
+      {pickup > 0 && (
+        <div
+          className="absolute inset-y-0 left-0 bg-white/[0.03]"
+          style={{ width: pct(pickup) }}
+        />
+      )}
       {end > length && (
         <div
           className="absolute inset-y-0 bg-red-400/10"
-          style={{ left: pct(length), right: 0 }}
+          style={{ left: at(length), right: 0 }}
         />
       )}
       {lines.map((tick) => (
@@ -348,9 +539,16 @@ export const RhythmStrip: FC<{
             'absolute inset-y-0 w-px',
             tick % bar === 0 ? 'bg-white/25' : 'bg-white/[0.07]',
           )}
-          style={{ left: pct(tick) }}
+          style={{ left: at(tick) }}
         />
       ))}
+      {pickup > 0 && (
+        <div
+          data-strip-double-bar
+          className="absolute inset-y-0 w-[5px] translate-x-[-3px] border-x border-sky-300/70"
+          style={{ left: at(0) }}
+        />
+      )}
       {items
         .filter((item) => !item.rest)
         .map((item, i) => (
@@ -365,7 +563,7 @@ export const RhythmStrip: FC<{
                   : 'bg-white/20 text-white/85',
             )}
             style={{
-              left: pct(item.start),
+              left: at(item.start),
               width: `calc(${pct(item.duration)} - 2px)`,
               top: top(item.pitch),
               height: BLOCK,

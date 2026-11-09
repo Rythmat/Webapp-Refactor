@@ -16,7 +16,7 @@ export const ShowcaseProjectorFrame = ({
   showcase: SessionShowcase;
 }) => {
   const href = showcase.artifact.roomId
-    ? `/studio/editor?collab=${encodeURIComponent(showcase.artifact.roomId)}`
+    ? `/studio?collab=${encodeURIComponent(showcase.artifact.roomId)}`
     : null;
 
   return (

@@ -18,7 +18,7 @@ import {
 const hand = () =>
   openGenrePracticeTrack(funkL2, 'A', {
     genreLabel: 'Funk',
-    returnTo: '/curriculum/funk/2?section=A',
+    returnTo: '/learn/keyboard/genre/funk/2?section=A',
   });
 
 afterEach(() => {
@@ -28,7 +28,7 @@ afterEach(() => {
 describe('resolvePracticeTrack', () => {
   it('reads the handed-over track and leaves it in the box', async () => {
     expect(hand()).toBe(
-      `/studio/editor?practiceGenre=${funkL2.genre}&practiceLevel=${funkL2.level}&practiceSection=A`,
+      `/studio?practiceGenre=${funkL2.genre}&practiceLevel=${funkL2.level}&practiceSection=A`,
     );
     const handed = peekPracticeTrack(funkL2.genre, funkL2.level, 'A')!;
 
@@ -39,7 +39,7 @@ describe('resolvePracticeTrack', () => {
     expect(first?.track).toBe(handed.track);
     expect(again?.track).toBe(handed.track);
     expect(first?.genreLabel).toBe('Funk');
-    expect(first?.returnTo).toBe('/curriculum/funk/2?section=A');
+    expect(first?.returnTo).toBe('/learn/keyboard/genre/funk/2?section=A');
     expect(peekPracticeTrack(funkL2.genre, funkL2.level, 'A')).toBe(handed);
   });
 

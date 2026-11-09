@@ -842,7 +842,7 @@ describe('GraphSettingsPanel: Groups', () => {
     for (const input of queryInputs()) {
       expect(input).toHaveAttribute('placeholder', 'Enter query…');
     }
-    const swatch = screen.getByLabelText('Group 2 colour') as HTMLInputElement;
+    const swatch = screen.getByLabelText('Group 2 color') as HTMLInputElement;
     expect(swatch.type).toBe('color');
     expect(swatch.value).toBe('#3987e5');
     expect(swatch.className).toContain('rounded-full');
@@ -871,7 +871,7 @@ describe('GraphSettingsPanel: Groups', () => {
       ],
       groupCounts: [12, 3, 4, null],
     });
-    const list = screen.getByRole('list', { name: 'Colour groups' });
+    const list = screen.getByRole('list', { name: 'Color groups' });
     const titles = within(list)
       .getAllByRole('listitem')
       .map((row) => row.querySelector('[data-group-title]')?.textContent);
@@ -901,7 +901,7 @@ describe('GraphSettingsPanel: Groups', () => {
     expect(queryInputs()[2]).toHaveAccessibleDescription('4 items');
   });
 
-  it('reports an edited query and a new colour', () => {
+  it('reports an edited query and a new color', () => {
     const { onGroupsChange } = renderOpen();
     fireEvent.change(queryInputs()[1], { target: { value: 'kind:artists' } });
     expect(onGroupsChange).toHaveBeenLastCalledWith([
@@ -909,7 +909,7 @@ describe('GraphSettingsPanel: Groups', () => {
       { query: 'kind:artists', color: '#3987e5' },
       GROUPS[2],
     ]);
-    fireEvent.change(screen.getByLabelText('Group 3 colour'), {
+    fireEvent.change(screen.getByLabelText('Group 3 color'), {
       target: { value: '#123456' },
     });
     expect(onGroupsChange).toHaveBeenLastCalledWith([
@@ -919,7 +919,7 @@ describe('GraphSettingsPanel: Groups', () => {
     ]);
   });
 
-  it('gives the native swatch a #rrggbb even for short or translucent colours', () => {
+  it('gives the native swatch a #rrggbb even for short or translucent colors', () => {
     renderOpen({
       groups: [
         { query: 'a', color: '#abc' },
@@ -928,13 +928,13 @@ describe('GraphSettingsPanel: Groups', () => {
       ],
     });
     expect(
-      (screen.getByLabelText('Group 1 colour') as HTMLInputElement).value,
+      (screen.getByLabelText('Group 1 color') as HTMLInputElement).value,
     ).toBe('#aabbcc');
     expect(
-      (screen.getByLabelText('Group 2 colour') as HTMLInputElement).value,
+      (screen.getByLabelText('Group 2 color') as HTMLInputElement).value,
     ).toBe('#112233');
     expect(
-      (screen.getByLabelText('Group 3 colour') as HTMLInputElement).value,
+      (screen.getByLabelText('Group 3 color') as HTMLInputElement).value,
     ).toBe('#000000');
   });
 
@@ -1009,7 +1009,7 @@ describe('GraphSettingsPanel: Groups', () => {
     expect(onGroupHover).toHaveBeenLastCalledWith(1);
     fireEvent.pointerEnter(rows[2]);
     expect(onGroupHover).toHaveBeenLastCalledWith(2);
-    fireEvent.pointerLeave(screen.getByRole('list', { name: 'Colour groups' }));
+    fireEvent.pointerLeave(screen.getByRole('list', { name: 'Color groups' }));
     expect(onGroupHover).toHaveBeenLastCalledWith(null);
 
     fireEvent.focus(queryInputs()[0]);

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
@@ -12,12 +12,7 @@ import {
 import { cn } from '@/components/utilities';
 import { LANDING_FRAME } from '@/features/landing/frame';
 import { MagneticButton } from '@/features/landing/motion/MagneticButton';
-import {
-  featureLinks,
-  navLinks,
-  OPEN_APP_HREF,
-  SHOW_NAV_PAGES,
-} from '../content/nav';
+import { featureLinks, OPEN_APP_HREF, SHOW_NAV_PAGES } from '../content/nav';
 
 /** Nav link with an underline that grows in from the left on hover/focus. */
 const linkCls = cn(
@@ -30,10 +25,10 @@ const linkCls = cn(
  * Sticky marketing nav, shared by the landing (`/`) and every `/features/*`
  * page. Transparent over the hero, then a blurred glass bar once the window
  * scrolls (Linear-style). Logo + wordmark left; a Features mega-menu (Home,
- * module pages + Teachers; neutral white — color is reserved for the music
- * color system), Blog and a magnetic "Open" CTA right. Collapses to an animated drawer
+ * module pages; neutral white — color is reserved for the music
+ * color system) and a magnetic "Open" CTA right. Collapses to an animated drawer
  * on mobile; the Open CTA stays visible. While `SHOW_NAV_PAGES` is off, only
- * the logo and Open show (no Features, Blog or drawer).
+ * the logo and Open show (no Features or drawer).
  *
  * `solid` forces the glass bar on regardless of scroll. `framed` fits the whole
  * bar to the landing's framed column (`LANDING_FRAME`), rails included, so it
@@ -139,12 +134,6 @@ export const MarketingNav = ({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          {SHOW_NAV_PAGES &&
-            navLinks.map((l) => (
-              <Link key={l.href} to={l.href} className={linkCls}>
-                {l.label}
-              </Link>
-            ))}
           <MagneticButton
             to={OPEN_APP_HREF}
             tone="light"
@@ -209,18 +198,6 @@ export const MarketingNav = ({
                         {description}
                       </span>
                     </span>
-                  </Link>
-                </li>
-              ))}
-              <li aria-hidden className="my-2 h-px bg-white/10" />
-              {navLinks.map((l) => (
-                <li key={l.href}>
-                  <Link
-                    to={l.href}
-                    className="flex items-center justify-between rounded-xl px-2 py-3 text-base text-white/85 hover:bg-white/5 hover:text-white"
-                  >
-                    {l.label}
-                    <ArrowRight className="size-4 text-white/40" />
                   </Link>
                 </li>
               ))}

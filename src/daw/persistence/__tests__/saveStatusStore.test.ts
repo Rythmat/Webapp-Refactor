@@ -145,9 +145,9 @@ interface Project {
  * notes, an Oracle synth and a guitar, baselined.
  */
 function openProject(): Project {
-  const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+  const keys = s().addTrack('midi', 'soundfont', 'Keys');
   const synth = s().addTrack('midi', 'oracle-synth', 'Lead');
-  const guitar = s().addTrack('audio', 'guitar-fx', 'Guitar');
+  const guitar = s().addTrack('audio', 'audio-input', 'Guitar');
   const clip = 'clip-keys';
   s().addMidiClip(keys, {
     id: clip,
@@ -235,7 +235,7 @@ describe('documentVersion', () => {
 
   it('moves when a track is added, removed or moved', () => {
     const { keys, synth } = openProject();
-    expect(bumpsOf(() => s().addTrack('midi', 'organ', 'Organ'))).toBe(1);
+    expect(bumpsOf(() => s().addTrack('midi', 'soundfont', 'Organ'))).toBe(1);
     expect(bumpsOf(() => s().removeTrack(synth))).toBe(1);
     expect(
       bumpsOf(() => useStore.setState({ tracks: [...s().tracks].reverse() })),
@@ -536,7 +536,7 @@ describe('isDocumentDirty', () => {
 
   it('compares with the empty project before any baseline', () => {
     useSaveStatusStore.setState(useSaveStatusStore.getInitialState(), true);
-    const id = s().addTrack('midi', 'organ', 'Organ');
+    const id = s().addTrack('midi', 'soundfont', 'Organ');
     expect(isDocumentDirty()).toBe(true);
     s().removeTrack(id);
     expect(isDocumentDirty()).toBe(false);
@@ -974,6 +974,9 @@ describe('hasWorkToKeep', () => {
       },
     ]);
     s().setMode('dorian');
+    // Harmony Color is the student's switch: chords no longer turn it on
+    // (2026-10-22).
+    s().setClipColorMode('prism');
     const sent = documentSnapshot();
     const left = cloudSaveGaps();
     markDocumentBaseline({ snapshot: sent, savedComplete: left.length === 0 });
@@ -1110,7 +1113,7 @@ describe('cloudSaveGaps', () => {
     s().updateTrack(guitar, { audioClips: [{ ...take, assetId: 'asset-1' }] });
     expect(cloudSaveGaps()).toEqual([]);
 
-    const chops = s().addTrack('midi', 'sampler', 'Chops');
+    const chops = s().addTrack('midi', 'soundfont', 'Chops');
     const sample = {
       sampleId: 'sample-1',
       assetId: null,
@@ -1138,7 +1141,7 @@ describe('cloudSaveGaps', () => {
     });
     expect(cloudSaveGaps()).toEqual(['masterAutomation']);
     expect(cloudSaveGaps(s(), 'document')).toEqual([]);
-    s().addTrack('midi', 'organ', 'Organ');
+    s().addTrack('midi', 'soundfont', 'Organ');
     expect(cloudSaveGaps()).toEqual([]);
   });
 

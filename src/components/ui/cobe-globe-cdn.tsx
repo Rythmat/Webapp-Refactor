@@ -39,6 +39,17 @@ interface GlobeCdnProps {
   arcAnimationMs?: number;
   /** Global arc altitude. Raise it so long, far-reaching arcs clear the globe. */
   arcHeight?: number;
+  /**
+   * Up to 12 RGB colours (0–1). Given, arcs draw on along their own paths
+   * (rather than growing by moving their end, which reshapes them) with
+   * these colours running behind the head, then settle on their own colour.
+   */
+  arcRainbow?: [number, number, number][];
+  /**
+   * How the land is drawn: cobe's dots (default), or `solid` — each country
+   * a filled polygon in its colour, with thin borders, on a dark ocean.
+   */
+  land?: 'dots' | 'solid';
   /** Fires once each time the globe completes a full auto-rotation (2π). */
   onRotationComplete?: () => void;
   /**
@@ -100,6 +111,9 @@ const TWO_PI = Math.PI * 2;
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
+/** With `arcRainbow`: how far (in arc progress) the rainbow trails the head. */
+const ARC_RAINBOW_TAIL = 0.45;
+
 const lerpPoint = (
   a: [number, number],
   b: [number, number],
@@ -109,10 +123,18 @@ const lerpPoint = (
 // Built once and shared across mounts, but only from the first mount: at module
 // scope this fired the 839 KB GeoJSON fetch plus a 2048x1024 raster the moment
 // the chunk evaluated, even on pages where no globe ever rendered.
-let countryTexturePromise: Promise<HTMLCanvasElement | null> | null = null;
-const getCountryTexture = () => {
-  countryTexturePromise ??= buildCountryTexture().catch(() => null);
-  return countryTexturePromise;
+const countryTexturePromises = new Map<
+  boolean,
+  Promise<HTMLCanvasElement | null>
+>();
+/** `borders`: the solid globe's outlined countries. */
+const getCountryTexture = (borders: boolean) => {
+  let promise = countryTexturePromises.get(borders);
+  if (!promise) {
+    promise = buildCountryTexture({ borders }).catch(() => null);
+    countryTexturePromises.set(borders, promise);
+  }
+  return promise;
 };
 
 export function GlobeCdn({
@@ -122,6 +144,8 @@ export function GlobeCdn({
   speed = 0.003,
   arcAnimationMs = 3500,
   arcHeight = 0.28,
+  arcRainbow,
+  land = 'dots',
   onRotationComplete,
   paused = false,
   focus = null,
@@ -147,6 +171,10 @@ export function GlobeCdn({
   durationRef.current = arcAnimationMs;
   const arcHeightRef = useRef(arcHeight);
   arcHeightRef.current = arcHeight;
+  const arcRainbowRef = useRef(arcRainbow);
+  arcRainbowRef.current = arcRainbow;
+  // Read once, at creation (the land's look is fixed for the globe's life).
+  const solidRef = useRef(land === 'solid');
   const onRotationCompleteRef = useRef(onRotationComplete);
   onRotationCompleteRef.current = onRotationComplete;
   const markersRef = useRef(toCobeMarkers(markers));
@@ -221,7 +249,8 @@ export function GlobeCdn({
       const width = canvas.offsetWidth;
       if (width === 0 || globeRef.current) return;
       // Land dots take their colour from this per-country map (null → fallback).
-      const mapTexture = (await getCountryTexture()) ?? undefined;
+      const solid = solidRef.current;
+      const mapTexture = (await getCountryTexture(solid)) ?? undefined;
       if (disposed || globeRef.current || canvas.offsetWidth === 0) return;
 
       // Dark-theme palette — echoes the Atlas globe's warm, low-key base while
@@ -247,11 +276,28 @@ export function GlobeCdn({
         glowColor: [0.12, 0.1, 0.08],
         markerElevation: 0.01,
         mapTexture,
+        // Solid: the countries filled, a touch under their full colour so
+        // they sit quietly on the page, on an ocean just above its black.
+        ...(solid && mapTexture
+          ? {
+              mapSolid: true,
+              mapBrightness: 0.82,
+              baseColor: [0.075, 0.075, 0.09] as [number, number, number],
+              diffuse: 0.9,
+            }
+          : {}),
         markers: markersRef.current,
         arcs: [],
         arcColor: [1, 0.85, 0.55],
         arcWidth: 0.4,
         arcHeight: arcHeightRef.current,
+        ...(arcRainbowRef.current
+          ? {
+              arcRainbow: arcRainbowRef.current,
+              arcRainbowTail: ARC_RAINBOW_TAIL,
+              arcProgress: 0,
+            }
+          : {}),
       });
 
       function animate(t: number) {
@@ -300,15 +346,24 @@ export function GlobeCdn({
 
         // Grow arcs from origin toward destination over durationRef.current.
         let arcsUpdate: ReturnType<typeof toCobeArcs> | undefined;
+        let arcProgress: number | undefined;
         if (arcAnimatingRef.current) {
-          if (arcAnimStartRef.current == null) arcAnimStartRef.current = t;
+          const starting = arcAnimStartRef.current == null;
+          if (starting) arcAnimStartRef.current = t;
           const d = durationRef.current;
-          const p = d > 0 ? Math.min(1, (t - arcAnimStartRef.current) / d) : 1;
+          const p = d > 0 ? Math.min(1, (t - arcAnimStartRef.current!) / d) : 1;
           const e = easeOutCubic(p);
-          arcsUpdate = targetArcsRef.current.map((a) => ({
-            ...a,
-            to: lerpPoint(a.from, a.to, e),
-          }));
+          if (arcRainbowRef.current) {
+            // Drawn on: the whole arcs go up once, and the shader shows each
+            // up to its head, the rainbow trailing it off the end.
+            if (starting) arcsUpdate = targetArcsRef.current;
+            arcProgress = e * (1 + ARC_RAINBOW_TAIL);
+          } else {
+            arcsUpdate = targetArcsRef.current.map((a) => ({
+              ...a,
+              to: lerpPoint(a.from, a.to, e),
+            }));
+          }
           if (p >= 1) arcAnimatingRef.current = false;
         }
 
@@ -320,6 +375,7 @@ export function GlobeCdn({
             thetaExtraRef.current +
             dragOffset.current.theta,
           ...(arcsUpdate ? { arcs: arcsUpdate } : {}),
+          ...(arcProgress !== undefined ? { arcProgress } : {}),
         });
         // Guarded: a frame already queued when stop() ran would otherwise
         // re-arm the loop and defeat the pause.

@@ -9,62 +9,77 @@
  * to fetch.
  */
 
-import { trackSound } from '@/daw/instruments/trackSound';
+import { soundSettings, trackSound } from '@/daw/instruments/trackSound';
 import { useStore } from '@/daw/store';
-import type { InstrumentType } from '@/daw/store/tracksSlice';
 import type {
   GenrePracticeTrackResult,
   StudentPart,
 } from './buildGenrePracticeTrack';
 
 /**
- * The instrument each part plays.
+ * The sound each part plays (soundString.ts).
  *
- * The backing matches the lesson the student just finished: `drum-machine` is
- * literally the same engine the lesson plays (DrumMachineEngine), and
- * `electric-piano` and `bass-electric` are the same FluidR3 EP1 and sampled
- * bass guitar the lesson's chords and bass come out of. So the Practice Track
- * sounds like the thing it grew out of rather than a General MIDI impression
- * of it.
+ * The backing matches the lesson the student just finished: the drums play on
+ * the lesson's own drum machine, and the chords and bass on the electric
+ * piano and bass guitar the lesson's come out of. Those are no longer Studio
+ * track types (2026-10-22), so they open as Instruments tracks playing the
+ * same instruments, in General MIDI (trackSound's soundSettings).
  *
  * The student's own part follows the instrument it is: a bass line plays on a
  * bass, and everything else on the Rhodes.
  */
-const BACKING_INSTRUMENTS = {
+export const BACKING_SOUNDS = {
   drums: 'drum-machine',
   bass: 'bass-electric',
   chords: 'electric-piano',
-} satisfies Record<string, InstrumentType>;
+} as const;
 
-const STUDENT_INSTRUMENT: Record<StudentPart, InstrumentType> = {
+const STUDENT_SOUND: Record<StudentPart, string> = {
   melody: 'electric-piano',
   chords: 'electric-piano',
   bass: 'bass-electric',
 };
 
-/**
- * A guitar lesson's student plays the sampled steel-string acoustic
- * (GUITAR_ACOUSTIC_CONFIG), not the Rhodes; a bass part stays on the bass.
- */
-const GUITAR_STUDENT_INSTRUMENT: InstrumentType = 'guitar-acoustic';
+/** A guitar lesson's student plays a steel-string acoustic, not the Rhodes. */
+const GUITAR_STUDENT_SOUND = 'guitar-acoustic';
 
 /**
- * The lesson's kit and bass sound on a new track: the drums get the
- * play-along's kit (Hip Hop's 808 or house), a bass track its bass (Pop
- * Fretless, Funk and Hip Hop Finger electric, Hip Hop's 808 or Upright).
+ * A part's sound with the lesson's in it: the drums get the play-along's kit
+ * (Hip Hop's 808 or house), a bass its voice (Pop Fretless, Funk and Hip Hop
+ * Finger electric, Hip Hop's 808 or Upright).
  */
-function applyLessonSound(
-  trackId: string,
-  instrument: InstrumentType,
+function lessonSound(sound: string, track: GenrePracticeTrackResult): string {
+  if (sound === 'drum-machine') return `drum-machine:${track.drumKit}`;
+  if (sound === 'bass-electric' && track.bassVoice) {
+    return `bass-electric:${track.bassVoice}`;
+  }
+  return sound;
+}
+
+/**
+ * The sound a backing part plays in, with the lesson's kit or bass voice: a
+ * Studio prompt's part takes the same (promptSong/applyPromptPart.ts).
+ */
+export function backingPartSound(
+  part: keyof typeof BACKING_SOUNDS,
   track: GenrePracticeTrackResult,
-): void {
+): string {
+  return lessonSound(BACKING_SOUNDS[part], track);
+}
+
+/** A new track playing `sound` (with the lesson's kit or bass voice). */
+function addSoundTrack(
+  sound: string,
+  name: string,
+  track: GenrePracticeTrackResult,
+): string {
   const store = useStore.getState();
-  if (instrument === 'drum-machine' && track.drumKit !== 'natural') {
-    store.setDrumKit(trackId, track.drumKit);
-  }
-  if (instrument === 'bass-electric' && track.bassVoice) {
-    store.updateTrack(trackId, { bassVoice: track.bassVoice });
-  }
+  const { settings, drumKit } = soundSettings(lessonSound(sound, track));
+  const trackId = store.addTrack('midi', settings.instrument ?? 'none', name, {
+    gmProgram: settings.gmProgram,
+  });
+  if (drumKit && drumKit !== 'natural') store.setDrumKit(trackId, drumKit);
+  return trackId;
 }
 
 /**
@@ -75,13 +90,13 @@ const BAND_MARK = ' (band)';
 const layerTrackName = (name: string) => `${name}${BAND_MARK}`;
 
 /** The style's band layers on tracks of their own, each on its sound and level. */
-function addLayerTracks(track: GenrePracticeTrackResult): void {
+function addLayerTracks(track: GenrePracticeTrackResult, mark = true): void {
   const store = useStore.getState();
   for (const layer of track.layerClips) {
     const trackId = store.addTrack(
       'midi',
-      'electric-piano',
-      layerTrackName(layer.name),
+      'soundfont',
+      mark ? layerTrackName(layer.name) : layer.name,
     );
     const { settings, drumKit } = trackSound(trackId, layer.sound, track.bpm);
     store.updateTrack(trackId, { ...settings, volume: layer.volume });
@@ -102,6 +117,20 @@ function studentTrackName(
   return part === 'melody' ? 'Melody' : part === 'chords' ? 'Chords' : 'Bass';
 }
 
+/** How a caller other than a lesson's Practice Track names what it adds. */
+export interface ApplyPracticeTrackOptions {
+  /** The empty track's name, in place of the section's ('Melody'). */
+  studentTrackName?: string;
+  /** The empty track's sound (a sound string), in place of the section's. */
+  studentSound?: string;
+  /**
+   * Mark the band layers' tracks ' (band)' so the style switch can find them
+   * (`swapGenrePracticeBacking`). Default true; a project with no style
+   * switch (a Studio prompt's song) leaves the names plain.
+   */
+  markBandLayers?: boolean;
+}
+
 /**
  * Apply a built genre Practice Track to the project just reset. Resolves to
  * the id of the student's track — the one selected, armed and monitored.
@@ -114,11 +143,15 @@ function studentTrackName(
 export function applyGenrePracticeTrack(
   track: GenrePracticeTrackResult,
   genreLabel: string,
+  /** The project's name, when not the lesson's ("Funk L2 — Melody …"). */
+  projectName?: string,
+  options: ApplyPracticeTrackOptions = {},
 ): string {
   const store = useStore.getState();
 
   store.setProjectName(
-    `${genreLabel} L${track.level} — ${track.sectionName} Practice Track`,
+    projectName ??
+      `${genreLabel} L${track.level} — ${track.sectionName} Practice Track`,
   );
   store.setRootNote(track.keyRootPc);
   store.setMode(track.mode);
@@ -127,28 +160,25 @@ export function applyGenrePracticeTrack(
   store.setTimeSignature(...(track.timeSignature ?? [4, 4]));
   store.setChordRegions(track.chordRegions, false, 'given');
 
-  for (const [part, instrument] of Object.entries(BACKING_INSTRUMENTS)) {
-    const clip = track.clips[part as keyof typeof BACKING_INSTRUMENTS];
+  for (const [part, sound] of Object.entries(BACKING_SOUNDS)) {
+    const clip = track.clips[part as keyof typeof BACKING_SOUNDS];
     if (!clip) continue;
-    const trackId = store.addTrack('midi', instrument, clip.name ?? part);
+    const trackId = addSoundTrack(sound, clip.name ?? part, track);
     store.addMidiClip(trackId, clip);
-    applyLessonSound(trackId, instrument, track);
   }
 
-  addLayerTracks(track);
+  addLayerTracks(track, options.markBandLayers ?? true);
 
   // The student's part: an empty track, which is the whole invitation.
   const studentPart = track.studentParts[0];
   const onGuitar = !!track.guitar && studentPart !== 'bass';
-  const studentInstrument = onGuitar
-    ? GUITAR_STUDENT_INSTRUMENT
-    : STUDENT_INSTRUMENT[studentPart];
-  const studentTrackId = store.addTrack(
-    'midi',
-    studentInstrument,
-    studentTrackName(track.studentParts, track.sectionName, !!track.guitar),
+  const studentTrackId = addSoundTrack(
+    options.studentSound ??
+      (onGuitar ? GUITAR_STUDENT_SOUND : STUDENT_SOUND[studentPart]),
+    options.studentTrackName ??
+      studentTrackName(track.studentParts, track.sectionName, !!track.guitar),
+    track,
   );
-  applyLessonSound(studentTrackId, studentInstrument, track);
 
   store.setLoopRange(0, track.loopTicks);
   store.setLoopEnabled(true);
@@ -165,38 +195,74 @@ export function applyGenrePracticeTrack(
   return studentTrackId;
 }
 
+/** The backing tracks' names, as `buildGenrePracticeTrack` names its clips. */
+const PART_NAMES: Record<keyof typeof BACKING_SOUNDS, string> = {
+  drums: 'Drums',
+  bass: 'Bass',
+  chords: 'Chords',
+};
+
 /**
  * The groove toggle (D-088): the backing of an open Practice Track swapped for
  * a rebuilt one — another style's drums, bass and comping, another
  * progression, and its meter — leaving the student's track and take alone.
  * The backing tracks are found by the names `applyGenrePracticeTrack` gave
  * them; one the student has since deleted stays deleted.
+ *
+ * On a band's track (`band: true`, Hear It with Your Band) one style can
+ * cover a part the last left to the lesson, or the other way round (Funk
+ * Band 1's Pocket comps on a keyboard of its own, its Deep Groove on the
+ * lesson's chords): a part the new style doesn't play falls silent rather
+ * than play the old progression on, and a part it plays with no track yet
+ * gets one. `tempo` moves to the new track's tempo (a band's style plays at
+ * its own).
  */
 export function swapGenrePracticeBacking(
   track: GenrePracticeTrackResult,
+  { tempo = false, band = false }: { tempo?: boolean; band?: boolean } = {},
 ): void {
   const store = useStore.getState();
   // A style in another key (Latin L1's Mariachi, G major) brings it along.
   store.setRootNote(track.keyRootPc);
   store.setMode(track.mode);
+  if (tempo) store.setBpm(track.bpm);
   store.setTimeSignature(...(track.timeSignature ?? [4, 4]));
   store.setChordRegions(track.chordRegions);
-  for (const [part, instrument] of Object.entries(BACKING_INSTRUMENTS)) {
-    const clip = track.clips[part as keyof typeof BACKING_INSTRUMENTS];
-    if (!clip) continue;
+  for (const [part, sound] of Object.entries(BACKING_SOUNDS)) {
+    const key = part as keyof typeof BACKING_SOUNDS;
+    const clip = track.clips[key];
+    const name = clip?.name ?? PART_NAMES[key];
+    // The backing track by its name and its kind of instrument (the bass and
+    // the chords are both Instruments tracks, so the name tells them apart).
+    const { settings, drumKit } = soundSettings(lessonSound(sound, track));
     const target = useStore
       .getState()
       .tracks.find(
         (t) =>
-          t.instrument === instrument && t.name === clip.name && !t.recordArmed,
+          t.instrument === settings.instrument &&
+          t.name === name &&
+          !t.recordArmed,
       );
-    if (!target) continue;
+    if (!clip) {
+      if (band && target)
+        for (const old of target.midiClips)
+          store.removeMidiClip(target.id, old.id);
+      continue;
+    }
+    if (!target) {
+      if (!band) continue;
+      const trackId = addSoundTrack(sound, name, track);
+      store.addMidiClip(trackId, clip);
+      store.updateTrack(trackId, { recordArmed: false, monitoring: false });
+      continue;
+    }
     for (const old of target.midiClips) store.removeMidiClip(target.id, old.id);
     store.addMidiClip(target.id, clip);
-    if (instrument === 'drum-machine')
-      store.setDrumKit(target.id, track.drumKit);
-    if (instrument === 'bass-electric')
-      store.updateTrack(target.id, { bassVoice: track.bassVoice });
+    // The new style's kit, or its bass voice as the bass's program.
+    if (drumKit) store.setDrumKit(target.id, drumKit);
+    if (settings.gmProgram !== undefined) {
+      store.updateTrack(target.id, { gmProgram: settings.gmProgram });
+    }
   }
   // The band's own layers: the old style's go, the new style's come in.
   for (const t of useStore.getState().tracks)

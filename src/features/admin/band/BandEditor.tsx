@@ -9,8 +9,9 @@
  *
  * A genre's band plays every style its lessons teach as variations: the tabs
  * above the lanes. The members — who plays, on what sound, how loud — are
- * the band's; what each plays, and the meter and tempo, are the open
- * variation's. A member the variation gives nothing plays as the lesson does.
+ * the band's; what each plays, the meter, tempo and swing, and any sound picked
+ * while it is open (each style its own kit) are the open variation's. A
+ * member the variation gives nothing plays as the lesson does.
  *
  * What it plays over (the preview chart and key) is saved with the band for
  * the next session, but lessons play their own chords.
@@ -38,8 +39,10 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
 import {
+  getLessonStyle,
   LESSON_STYLES,
   type LessonStyle,
+  styleKey,
 } from '@/curriculum/data/lessonStyles';
 import {
   BAND_INSTRUMENTS,
@@ -61,28 +64,33 @@ import {
 } from '@/curriculum/engine/band/realize';
 import { ALL_ITEMS } from '@/curriculum/engine/band/registry';
 import { lineBars } from '@/curriculum/engine/bassLines/bassLine';
-import {
-  chordSymbol,
-  KEYS,
-  PROGRESSIONS,
-  parseChart,
-  progressionById,
-  quartersPerBar,
-  realizePreset,
-} from '@/curriculum/engine/bassLines/harmony';
+import { quartersPerBar } from '@/curriculum/engine/bassLines/harmony';
 import { compingBars } from '@/curriculum/engine/chordComping/chordComping';
 import { preloadStudioGroove } from '@/curriculum/engine/drumGrooves/registry';
-import { barTicks } from '@/curriculum/engine/meter';
+import {
+  applySwing,
+  swingPercent,
+  type SwingUnit,
+} from '@/curriculum/engine/genreGeneration/swing';
+import { barTicks, isCompound, meterSwing } from '@/curriculum/engine/meter';
+import {
+  canFollowChords,
+  followsChords,
+  keyNotes,
+} from '@/curriculum/engine/parts/followChords';
 import {
   blankPart,
   type InstrumentPart,
   type PartInstrument,
+  type PartLevel,
   type PartNote,
   uniquePartId,
 } from '@/curriculum/engine/parts/part';
 import { getSampleInstrument } from '@/daw/instruments/sampleInstruments';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { useBassLineList } from '../bassLines/bassLineSession';
+import { ChartPicker } from '../chart/ChartPicker';
+import { chosenChart, takeChordSymbols } from '../chart/chartChoice';
 import { previewHarmony } from '../chordComping/compingGrid';
 import { useCompingList } from '../chordComping/compingSession';
 import { useUnsavedChanges } from '../content/mirror/UnsavedChangesGuard';
@@ -91,13 +99,13 @@ import { useInstrumentStore } from '../drumGrooves/instrumentStore';
 import { useUndoable } from '../drumGrooves/useUndoable';
 import { usePartList } from '../parts/partFiles';
 import { type CaptureQuantize, useLiveCapture } from '../parts/useLiveCapture';
-import { fileItem } from '../players/playerFiles';
+import { fileItem, fileVersion } from '../players/playerFiles';
 import { usePlayerList } from '../players/playerSession';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { UndoRedo } from '../ui/UndoRedo';
 import { CONSOLE_LABEL, CONSOLE_PANEL } from '../ui/styles';
 import { BandAssignments } from './BandAssignments';
-import { BandCapture, type Take } from './BandCapture';
+import { BandCapture, type Take, type TakeFiling } from './BandCapture';
 import { LaneStrip } from './LaneStrip';
 import { LayerItemEditor } from './LayerItemEditor';
 import { SampleInstrumentMaker } from './SampleInstrumentMaker';
@@ -181,6 +189,14 @@ const PART_INSTRUMENT_OF: Record<BandInstrument, PartInstrument> = {
 const isDrums = (layer: Pick<BandLayer, 'instrument'>) =>
   layer.instrument === 'drums' || layer.instrument === 'percussion';
 
+/** A variation with a member's own sound taken out: it plays the band's. */
+const dropSound = (v: BandVariation, memberId: string): BandVariation => {
+  if (!v.sounds?.[memberId]) return v;
+  const sounds = { ...v.sounds };
+  delete sounds[memberId];
+  return { ...v, sounds: Object.keys(sounds).length ? sounds : undefined };
+};
+
 /** The layers a band starts a new one from. */
 const NEW_LAYERS: {
   label: string;
@@ -207,6 +223,8 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   const [saved, setSaved] = useState<Band>(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** A teaching version just kept: the layer plays on, so say where it went. */
+  const [kept, setKept] = useState<{ id: string; name: string } | null>(null);
   const [selected, setSelected] = useState<string | null>(
     initial.layers[0]?.id ?? null,
   );
@@ -291,6 +309,36 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     else delete plays[memberId];
     setVariation({ plays });
   };
+  /** The sound a member plays in the open variation: its own, else the band's. */
+  const soundOf = (l: BandMember): string | undefined =>
+    variation?.sounds?.[l.id] ?? l.sound;
+  /**
+   * A sound picked with a variation open is that variation's, so each style
+   * keeps its own kit; nothing picked, it plays the band's again.
+   */
+  const setSound = (memberId: string, sound: string | undefined) => {
+    if (!variation) {
+      setLayer(memberId, { sound });
+      return;
+    }
+    setVariation({
+      sounds: sound
+        ? { ...variation.sounds, [memberId]: sound }
+        : dropSound(variation, memberId).sounds,
+    });
+  };
+  /** The open variation's own sound for a member, as the band's sound. */
+  const soundToBand = (memberId: string) => {
+    const sound = variation?.sounds?.[memberId];
+    if (!variation || !sound) return;
+    setDraft((b) => ({
+      ...b,
+      layers: b.layers.map((l) => (l.id === memberId ? { ...l, sound } : l)),
+      variations: b.variations?.map((v) =>
+        v.id === variation.id ? dropSound(v, memberId) : v,
+      ),
+    }));
+  };
   const variationIdFor = (name: string) => {
     const base = bandIdFrom(name);
     const taken = new Set(variations.map((v) => v.id));
@@ -348,20 +396,23 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   /** The band as the open variation plays it. */
   const playable = bandVariation(draft, variation?.id);
   const tempo = playable.tempo;
+  // Swung as lessons swing the band: every layer, off-beats only, straight
+  // in a compound meter (its 8ths are already in threes).
+  const swing = swingPercent(playable.swing);
+  const swingUnit: SwingUnit = playable.swingUnit ?? '8n';
 
   // ── the chart it plays over ──
+  // Every layer follows it: bass lines and comping by their chord tones, as
+  // in lessons, and captured parts by the numbers they were played as over
+  // their own chords (parts/followChords.ts), in the chart's key.
   const ts = playable.timeSignature;
   const preview = draft.preview ?? {};
-  const progression = progressionById(
-    preview.progression ?? (ts[0] === 3 ? 'turnaround' : PROGRESSIONS[0].id),
-  );
-  const keyPc = preview.key ?? 0;
-  const typed = preview.chart?.trim() ? parseChart(preview.chart) : null;
-  const chartBars = useMemo(
-    () => (typed?.bars.length ? typed.bars : realizePreset(progression, keyPc)),
+  const chart = useMemo(
+    () => chosenChart(preview, ts),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [preview.chart, progression, keyPc],
+    [preview.progression, preview.key, preview.chart, ts[0], ts[1]],
   );
+  const chartBars = chart.bars;
 
   // The longest layer, so a long groove or line is heard in full.
   const longestBars = Math.max(
@@ -449,14 +500,49 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               bars,
               timeSignature: ts,
               genre: draft.genre,
+              followChords: chart.key,
+              approachKey: keyNotes(chart.key),
             },
-            { includeMuted: true },
+            // A part that can't follow plays as written; bass lines walk as
+            // lessons walk them.
+            {
+              includeMuted: true,
+              keepUnfollowable: true,
+              bassLinesInKey: false,
+            },
           )
         : [],
+    // The open variation too: switching it changes what every layer plays
+    // without changing the band.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [draft, harmony, bars, ts, grooves, items, studioLoaded],
+    [
+      draft,
+      variation?.id,
+      harmony,
+      bars,
+      ts,
+      grooves,
+      items,
+      studioLoaded,
+      chart.key,
+    ],
   );
-  const notesOf = new Map(realized.map((r) => [r.layer.id, r.notes]));
+  const notesOf = new Map(
+    realized.map((r) => [
+      r.layer.id,
+      applySwing(r.notes, meterSwing(swing, ts), swingUnit),
+    ]),
+  );
+  /** Part layers that name no chords to follow: they play as written. */
+  const asWritten = new Set(
+    playable.layers
+      .filter((l) => {
+        if (l.source.kind !== 'part') return false;
+        const part = items.part(l.source.id);
+        return part && followsChords(part) && !canFollowChords(part);
+      })
+      .map((l) => l.id),
+  );
   const playerLayers: PlayerLayer[] = playable.layers.map((l) => ({
     id: l.id,
     sound: layerSound(l, items),
@@ -492,7 +578,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   useEffect(() => {
     if (player.playing) playBand();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notesKey, realized, tempo]);
+  }, [notesKey, realized, tempo, swing, swingUnit]);
   const mixKey = JSON.stringify(
     playerLayers.map((l) => [l.id, l.volume, l.muted]),
   );
@@ -511,25 +597,34 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   /** The sound a layer's take is heard on while it's played in. */
   const monitorSoundOf = (l: BandMember) =>
     playerLayers.find((x) => x.id === l.id)?.sound ??
-    l.sound ??
+    soundOf(l) ??
     blankPart('take', 'take', PART_INSTRUMENT_OF[l.instrument]).sound;
 
   /**
    * Keeps a take as a new part: the band's meter, tempo, length, key and
-   * chords; filed under the layer's player; played by the layer in the open
-   * variation; opened in its editor to tidy and publish.
+   * chords, and the open variation's style and level; filed under the
+   * layer's player, in one of their families when `filing` says which.
+   * A band take (or one that is both) is played by the layer in the open
+   * variation and opened in its editor to tidy and publish; a teaching
+   * version leaves the layer playing what it played.
    */
-  const keepTake = async (l: BandMember, notes: PartNote[]) => {
+  const keepTake = async (
+    l: BandMember,
+    notes: PartNote[],
+    filing?: TakeFiling,
+  ) => {
     const who = players.find((p) => p.id === l.player);
     const count =
       (who?.items.filter((i) => i.kind === 'part').length ?? parts.length) + 1;
     const name = `${who?.name ?? l.name} · ${variation?.name ?? draft.name} take ${count}`;
-    // A typed chart is in its first chord's key; a preset, in the key picked.
-    const first = typed?.bars[0]?.[0];
-    const tonic = first && !first.nc ? first.root : keyPc;
-    const minor = first
-      ? /^m(?!aj)/.test(first.quality)
-      : Boolean(progression.minor);
+    const style = variation?.style
+      ? getLessonStyle(variation.style)
+      : undefined;
+    const levels = filing?.levels.length
+      ? filing.levels
+      : style
+        ? [style.level]
+        : [];
     const part: InstrumentPart = {
       ...blankPart(
         uniquePartId(name, new Set(parts.map((x) => x.id))),
@@ -537,22 +632,39 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
         PART_INSTRUMENT_OF[l.instrument],
       ),
       ...(draft.genre ? { genre: draft.genre } : {}),
-      key: { tonic, mode: minor ? 'aeolian' : 'ionian' },
+      ...(style ? { style: style.name } : {}),
+      ...(levels.length ? { level: levels[0] as PartLevel } : {}),
+      // The chart's key and every chord of each bar, so the take follows
+      // any other chart the way it was played over this one.
+      key: chart.key,
       timeSignature: ts,
       bars,
       tempo,
       sound: monitorSoundOf(l),
-      chordSymbols: Array.from({ length: bars }, (_, b) => {
-        const chord = chartBars[b % chartBars.length]?.[0];
-        return chord ? chordSymbol(chord) : '';
-      }),
+      chordSymbols: takeChordSymbols(chartBars, ts, bars, chart.flats),
       notes,
     };
     try {
       await store.save('instrument_part', part);
-      if (l.player) await fileItem({ kind: 'part', id: part.id }, l.player);
-      setSource(l.id, { kind: 'part', id: part.id });
+      if (l.player && filing)
+        await fileVersion(
+          l.player,
+          'id' in filing.family
+            ? filing.family
+            : {
+                ...filing.family,
+                ...(style ? { style: styleKey(style) } : {}),
+              },
+          { part: part.id, use: filing.use, levels },
+        );
+      else if (l.player)
+        await fileItem({ kind: 'part', id: part.id }, l.player);
       setTake(() => null);
+      if (filing?.use === 'teaching') {
+        setKept({ id: part.id, name });
+        return;
+      }
+      setSource(l.id, { kind: 'part', id: part.id });
       editLayer(l.id);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -608,12 +720,17 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   const remove = (id: string) => {
     set({
       layers: draft.layers.filter((l) => l.id !== id),
-      variations: draft.variations?.map((v) => ({
-        ...v,
-        plays: Object.fromEntries(
-          Object.entries(v.plays).filter(([member]) => member !== id),
+      variations: draft.variations?.map((v) =>
+        dropSound(
+          {
+            ...v,
+            plays: Object.fromEntries(
+              Object.entries(v.plays).filter(([member]) => member !== id),
+            ),
+          },
+          id,
         ),
-      })),
+      ),
     });
     if (selected === id) setSelected(null);
   };
@@ -648,8 +765,9 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     ? itemsFor(layerSource.kind).find((i) => i.id === layerSource.id)?.name
     : undefined;
   /** The open layer's sampled sound, which "Edit the sound" reopens. */
-  const sampleSound = layer?.sound?.startsWith(SAMPLE_PREFIX)
-    ? getSampleInstrument(layer.sound.slice(SAMPLE_PREFIX.length))
+  const layerSoundHere = layer ? soundOf(layer) : undefined;
+  const sampleSound = layerSoundHere?.startsWith(SAMPLE_PREFIX)
+    ? getSampleInstrument(layerSoundHere.slice(SAMPLE_PREFIX.length))
     : undefined;
 
   // ── the keyboard ──
@@ -767,6 +885,21 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
         )}
       </div>
       {error && <p className="text-sm text-red-300">{error}</p>}
+      {kept && (
+        <p className="flex items-center gap-2 text-sm text-emerald-200">
+          Kept {kept.name} as a teaching version, filed for lessons.
+          <Link to={LIBRARY_HREF.part(kept.id)} className="underline">
+            Open it
+          </Link>
+          <button
+            type="button"
+            className="text-muted-foreground hover:text-white"
+            onClick={() => setKept(null)}
+          >
+            Dismiss
+          </button>
+        </p>
+      )}
       {!CAN_WRITE_FILES && (
         <p className="text-xs text-amber-200/80">
           The live console can&rsquo;t save bands yet: they&rsquo;re files in
@@ -834,69 +967,53 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
             className={cn(input, 'w-20 tabular-nums')}
           />
         </label>
+        <div className="flex flex-col gap-1">
+          <span className={CONSOLE_LABEL}>
+            Swing {isCompound(ts) ? '(straight)' : `${swing}%`}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <input
+              type="range"
+              min={50}
+              max={75}
+              step={1}
+              value={swing}
+              disabled={isCompound(ts)}
+              onChange={(e) => {
+                const next = Number(e.target.value);
+                if (variation) setVariation({ swing: next });
+                else set({ swing: next });
+              }}
+              title={
+                isCompound(ts)
+                  ? 'A compound meter plays straight: its 8ths are already in threes.'
+                  : '50 is straight, 66 a triplet feel. Lessons swing at their own.'
+              }
+              aria-label="Swing"
+              className="w-24"
+            />
+            <select
+              value={swingUnit}
+              disabled={isCompound(ts)}
+              onChange={(e) => {
+                const next = e.target.value as SwingUnit;
+                if (variation) setVariation({ swingUnit: next });
+                else set({ swingUnit: next });
+              }}
+              className={input}
+              aria-label="Swing on"
+            >
+              <option value="8n">8ths</option>
+              <option value="16n">16ths</option>
+            </select>
+          </div>
+        </div>
         <div className="mx-1 h-10 w-px bg-white/10" />
-        <label className="flex flex-col gap-1">
-          <span className={CONSOLE_LABEL}>Plays over</span>
-          <select
-            value={progression.id}
-            onChange={(e) =>
-              set({
-                preview: {
-                  ...preview,
-                  progression: e.target.value,
-                  chart: undefined,
-                },
-              })
-            }
-            className={input}
-            disabled={Boolean(typed?.bars.length)}
-          >
-            {[...new Set(PROGRESSIONS.map((p) => p.group))].map((group) => (
-              <optgroup key={group} label={group}>
-                {PROGRESSIONS.filter((p) => p.group === group).map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className={CONSOLE_LABEL}>Key</span>
-          <select
-            value={keyPc}
-            onChange={(e) =>
-              set({ preview: { ...preview, key: Number(e.target.value) } })
-            }
-            className={input}
-            disabled={Boolean(typed?.bars.length)}
-          >
-            {KEYS.map((k) => (
-              <option key={k.pc} value={k.pc}>
-                {k.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex min-w-64 flex-1 flex-col gap-1">
-          <span className={CONSOLE_LABEL}>Or type a chart</span>
-          <input
-            value={preview.chart ?? ''}
-            onChange={(e) =>
-              set({
-                preview: { ...preview, chart: e.target.value || undefined },
-              })
-            }
-            className={input}
-            placeholder="| Am | Dm | E7 | Am |"
-          />
-          {typed && typed.bad.length > 0 && (
-            <span className="text-xs text-amber-300">
-              Not chords: {typed.bad.join(', ')}
-            </span>
-          )}
-        </label>
+        <ChartPicker
+          value={preview}
+          onChange={(next) => set({ preview: next })}
+          timeSignature={ts}
+        />
       </div>
 
       {/* ── its variations ── */}
@@ -1007,6 +1124,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
         </Button>
         <span className="text-xs text-muted-foreground tabular-nums">
           {bars} bar{bars === 1 ? '' : 's'} · {ts.join('/')} · {tempo} bpm
+          {meterSwing(swing, ts) > 50 && ` · swing ${swing}%`}
         </span>
       </div>
 
@@ -1131,14 +1249,26 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                     colour="#fb7185"
                   />
                 ) : src ? (
-                  <LaneStrip
-                    notes={notesOf.get(l.id) ?? []}
-                    totalTicks={totalTicks}
-                    barTicks={barTicks(ts)}
-                    drums={src.kind === 'groove'}
-                    muted={Boolean(l.muted) || (player.solo !== null && !solo)}
-                    colour={COLOUR[l.instrument]}
-                  />
+                  <>
+                    <LaneStrip
+                      notes={notesOf.get(l.id) ?? []}
+                      totalTicks={totalTicks}
+                      barTicks={barTicks(ts)}
+                      drums={src.kind === 'groove'}
+                      muted={
+                        Boolean(l.muted) || (player.solo !== null && !solo)
+                      }
+                      colour={COLOUR[l.instrument]}
+                    />
+                    {asWritten.has(l.id) && (
+                      <span
+                        className="pointer-events-none absolute right-1.5 top-1 rounded bg-amber-400/90 px-1.5 text-[11px] font-semibold text-black"
+                        title="This part doesn't say what chords it was played over, so it can't follow the chart: it plays as written, in the chart's key. Add its chords in its editor."
+                      >
+                        As written: no chords
+                      </span>
+                    )}
+                  </>
                 ) : (
                   <span className="flex h-full items-center px-3 text-xs italic text-muted-foreground">
                     As in the lesson: its own backing plays this part (silent
@@ -1210,11 +1340,23 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               <select
                 value={layer.instrument}
                 onChange={(e) =>
-                  setLayer(layer.id, {
-                    instrument: e.target.value as BandInstrument,
-                    // A sound picked for another instrument would not fit.
-                    sound: undefined,
-                  })
+                  // A sound picked for another instrument would not fit, the
+                  // band's or a variation's.
+                  setDraft((b) => ({
+                    ...b,
+                    layers: b.layers.map((l) =>
+                      l.id === layer.id
+                        ? {
+                            ...l,
+                            instrument: e.target.value as BandInstrument,
+                            sound: undefined,
+                          }
+                        : l,
+                    ),
+                    variations: b.variations?.map((v) =>
+                      dropSound(v, layer.id),
+                    ),
+                  }))
                 }
                 className={input}
               >
@@ -1312,27 +1454,38 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               </select>
             </label>
             <label className="flex flex-col gap-1">
-              <span className={CONSOLE_LABEL}>Sound</span>
+              <span className={CONSOLE_LABEL}>
+                {variation ? `Sound in ${variation.name}` : 'Sound'}
+              </span>
               <select
-                value={layer.sound ?? ''}
+                value={
+                  (variation ? variation.sounds?.[layer.id] : layer.sound) ?? ''
+                }
                 onChange={(e) =>
-                  setLayer(layer.id, { sound: e.target.value || undefined })
+                  setSound(layer.id, e.target.value || undefined)
                 }
                 className={cn(input, 'max-w-[16rem]')}
               >
-                <option value="">
-                  As in lessons (
-                  {layerSource
-                    ? soundLabel(
-                        layerSound(
-                          { ...layer, source: layerSource, sound: undefined },
-                          items,
-                        ),
-                        layer.instrument,
-                      )
-                    : 'its item’s sound'}
-                  )
-                </option>
+                {variation && layer.sound ? (
+                  <option value="">
+                    The band&rsquo;s (
+                    {soundLabel(layer.sound, layer.instrument)})
+                  </option>
+                ) : (
+                  <option value="">
+                    As in lessons (
+                    {layerSource
+                      ? soundLabel(
+                          layerSound(
+                            { ...layer, source: layerSource, sound: undefined },
+                            items,
+                          ),
+                          layer.instrument,
+                        )
+                      : 'its item’s sound'}
+                    )
+                  </option>
+                )}
                 {soundGroups(layer.instrument).map((group) => (
                   <optgroup key={group.label} label={group.label}>
                     {group.options.map((o) => (
@@ -1344,6 +1497,17 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                 ))}
               </select>
             </label>
+            {variation?.sounds?.[layer.id] && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="self-end"
+                onClick={() => soundToBand(layer.id)}
+                title="Every variation without a sound of its own plays it"
+              >
+                Make it the band&rsquo;s sound
+              </Button>
+            )}
             <div className="ml-auto flex items-center gap-1">
               <Button
                 size="icon"
@@ -1389,6 +1553,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               <LayerItemEditor
                 source={layerSource}
                 band={{ playing: player.playing, toggle, onDraft: onPartDraft }}
+                chart={preview}
                 onReplace={(source) => {
                   setSource(layer.id, source);
                   // The copy belongs to whoever plays the layer.
@@ -1413,12 +1578,12 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               </div>
               <SynthLayerPanel
                 engine={synth.engine}
-                patch={layer.sound?.slice(SYNTH_PREFIX.length)}
+                patch={layerSoundHere?.slice(SYNTH_PREFIX.length)}
                 onPatch={(name) => {
                   const sound = `${SYNTH_PREFIX}${name}`;
                   // The voice already plays it: keep it, rename the sound.
                   player.renameSound(layer.id, sound);
-                  setLayer(layer.id, { sound });
+                  setSound(layer.id, sound);
                 }}
               />
             </div>
@@ -1463,7 +1628,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                   part with the band
                 </Button>
               )}
-              {layer.sound?.startsWith(SYNTH_PREFIX) ? (
+              {layerSoundHere?.startsWith(SYNTH_PREFIX) ? (
                 <Button
                   size="sm"
                   variant="secondary"
@@ -1535,7 +1700,28 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                 setTakeClick(click);
                 playBand(click);
               }}
-              onKeep={(notes) => keepTake(layer, notes)}
+              filing={(() => {
+                const who = players.find((p) => p.id === layer.player);
+                if (!who) return undefined;
+                const style = variation?.style
+                  ? getLessonStyle(variation.style)
+                  : undefined;
+                const key = style && styleKey(style);
+                // This style's families first: the one a take most often
+                // joins.
+                const families = [...(who.families ?? [])].sort(
+                  (a, b) =>
+                    Number(b.style === key) - Number(a.style === key) ||
+                    a.name.localeCompare(b.name),
+                );
+                return {
+                  playerName: who.name,
+                  families,
+                  newName: `${style?.name ?? variation?.name ?? draft.name} ${layer.name.toLowerCase()}`,
+                  level: style?.level,
+                };
+              })()}
+              onKeep={(notes, filing) => keepTake(layer, notes, filing)}
             />
           )}
           {sampling?.layerId === layer.id && (
@@ -1545,8 +1731,9 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               instrument={layer.instrument}
               editing={sampling.edit ? sampleSound : undefined}
               onMade={(sound) => {
-                if (sound === layer.sound) player.reloadSound(sound);
-                setLayer(layer.id, { sound });
+                // The same sound, re-sampled: reload it where it plays.
+                if (sound === layerSoundHere) player.reloadSound(sound);
+                else setSound(layer.id, sound);
                 setSampling(null);
               }}
               onCancel={() => setSampling(null)}

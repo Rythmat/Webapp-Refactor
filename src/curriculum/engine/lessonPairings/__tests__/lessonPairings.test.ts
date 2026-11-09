@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { lessonStyleFor } from '../../../data/lessonStyles';
 import type { ActivityStepV2 } from '../../../types/activity.v2';
+import { getBand } from '../../band/registry';
 import {
   buildBackingNotes,
   stepBassVoice,
   stepDrumKit,
 } from '../../genreGeneration/backingPatterns';
 import { qualityFromIntervals } from '../pairedBacking';
-import { pairingFor, pairingsReady } from '../registry';
+import { listPairings, pairingFor, pairingsReady } from '../registry';
 
 const step = (styleRef: string, chordSymbols: string[]): ActivityStepV2 =>
   ({
@@ -34,7 +35,7 @@ describe('lesson styles', () => {
     expect(lessonStyleFor('latin', 1, 'l1b')?.name).toBe('Cumbia');
     expect(lessonStyleFor('latin', 1, 'l1c')?.name).toBe('Mariachi');
     expect(lessonStyleFor('funk', 2, 'l2b')?.name).toBe('Syncopation & Sauce');
-    expect(lessonStyleFor('jazz', 1, 'l1a')).toBeUndefined();
+    expect(lessonStyleFor('rock', 1, 'l1a')).toBeUndefined();
   });
 });
 
@@ -64,9 +65,35 @@ describe('lesson pairings', () => {
     expect(stepBassVoice(s, 'l1b', 'latin', 1)).toBe('finger');
   });
 
+  it('names only variations its bands have', () => {
+    // A variation the band lacks plays the band's first instead (Ryan, 5 Nov
+    // 2026: Jazz L2's Esus4♭9 and Amin7♭6 steps).
+    const missing = listPairings().flatMap((p) =>
+      [
+        { band: p.band, variation: p.variation, at: 'variation' },
+        ...(p.overrides ?? []).map((o, i) => ({
+          band: o.band,
+          variation: o.variation,
+          at: `overrides[${i}]`,
+        })),
+      ]
+        .filter(
+          ({ band, variation }) =>
+            band &&
+            variation &&
+            !getBand(band)?.variations?.some((v) => v.id === variation),
+        )
+        .map(
+          ({ band, variation, at }) =>
+            `${p.id} ${at}: ${band} has no ${variation}`,
+        ),
+    );
+    expect(missing).toEqual([]);
+  });
+
   it('leaves genres without lesson styles alone', () => {
     // Pairings are content the back office edits, so test a genre with none.
-    expect(pairingFor('jazz', 1, 'l1a')).toBeUndefined();
+    expect(pairingFor('rock', 1, 'l1a')).toBeUndefined();
   });
 });
 

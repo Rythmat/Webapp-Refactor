@@ -10,6 +10,12 @@
  * a quarter), so the two editors share a grid.
  */
 
+import {
+  approachVoicing,
+  chordScale,
+  resolveApproaches,
+  type ApproachStep,
+} from '../approach/approach';
 import { quartersToTime, timeToQuarters } from '../bassLines/bassLine';
 import type { BackingNote } from '../genreGeneration/backingPatterns';
 import type { ChordSymbolTones } from '../genreGeneration/chordSymbolTones';
@@ -35,6 +41,15 @@ export interface ChordCompingHit {
   velocity: number;
   /** Defaults to 'full'. */
   tones?: CompingTones;
+  /**
+   * An approach into the next hit (its goal — the next that isn't an
+   * approach, or one marked `goal`): the goal's chord moved this many steps,
+   * chromatic (the shape exactly: C9 B9 into B♭9) or diatonic (planing), so
+   * it lands wherever the goal does (approach/approach.ts).
+   */
+  approach?: ApproachStep;
+  /** An approach that is also a goal: the approach before it leads into it. */
+  goal?: boolean;
 }
 
 export type CompingGridId = '8n' | '16n' | '8t';
@@ -185,13 +200,22 @@ function hitNotes(
 
 /**
  * The pattern over `bars` bars of the lesson's chords, as backing chord
- * notes (ticks at 480 per quarter). Unswung: the caller swings it.
+ * notes (ticks at 480 per quarter). Unswung: the caller swings it. Each hit
+ * voices the chord under it, led from the last; an approach plays its
+ * goal's notes moved (`ChordCompingHit.approach`).
  */
 export function realizeComping(
   pattern: Pick<ChordComping, 'timeSignature' | 'length' | 'hits' | 'ceiling'>,
   chordAt: (tick: number) => ChordSymbolTones,
   bars: number,
   timeSignature: TimeSignature = pattern.timeSignature ?? [4, 4],
+  options: {
+    /**
+     * The key's notes, which approaches diatonic to the key step through.
+     * Left out, they step through their goal chord's own scale.
+     */
+    approachKey?: readonly number[];
+  } = {},
 ): BackingNote[] {
   const tplTs = pattern.timeSignature ?? timeSignature;
   const loop = compingBars(pattern) * barTicks(tplTs);
@@ -206,36 +230,73 @@ export function realizeComping(
   const ceiling = pattern.ceiling ?? DEFAULT_CEILING;
   const notes: BackingNote[] = [];
   if (!hits.length || loop <= 0) return notes;
-  let previous: number[] | null = null;
-  let previousKey = '';
-  for (let start = 0; start < total; start += loop) {
+
+  // Every hit across the chart, the chord under it.
+  const struck: { onset: number; hit: (typeof hits)[number] }[] = [];
+  for (let start = 0; start < total; start += loop)
     for (const hit of hits) {
       const onset = start + hit.tick;
       if (onset >= total) break;
-      const chord = chordAt(onset);
-      const key = `${chord.rootPc}:${chord.bassPc}:${chord.intervals.join(',')}`;
-      // The same chord keeps its voicing; a new one leads from the last.
-      const voicing: number[] =
-        key === previousKey && previous
-          ? previous
-          : voiceChord(chord, ceiling, previous);
-      previous = voicing;
-      previousKey = key;
-      const duration = Math.max(30, Math.round(hit.dur * PPQ));
-      const velocity = Math.max(
-        1,
-        Math.min(127, Math.round(hit.velocity * 127)),
-      );
-      for (const note of hitNotes(voicing, chord, hit.tones ?? 'full')) {
-        notes.push({
-          note,
-          onset,
-          duration: Math.min(duration, total - onset),
-          velocity,
-          part: 'chords',
-        });
-      }
+      struck.push({ onset, hit });
     }
-  }
+  const chords = struck.map(({ onset }) => chordAt(onset));
+
+  // The hits that aren't approaches, voiced in order as they always were.
+  const played: number[][] = [];
+  let previous: number[] | null = null;
+  let previousKey = '';
+  struck.forEach(({ hit }, i) => {
+    if (hit.approach) return;
+    const chord = chords[i];
+    const key = `${chord.rootPc}:${chord.bassPc}:${chord.intervals.join(',')}`;
+    // The same chord keeps its voicing; a new one leads from the last.
+    const voicing: number[] =
+      key === previousKey && previous
+        ? previous
+        : voiceChord(chord, ceiling, previous);
+    previous = voicing;
+    previousKey = key;
+    played[i] = hitNotes(voicing, chord, hit.tones ?? 'full');
+  });
+
+  // The approaches: their goals' notes, moved.
+  const sounding = resolveApproaches(
+    struck.map(({ hit }) => hit),
+    (i) => played[i],
+    (i, goal, g) => {
+      const { approach, tones } = struck[i].hit;
+      const scale =
+        approach!.motion === 'diatonic'
+          ? approach!.scale === 'goal' || !options.approachKey
+            ? chordScale(chords[g])
+            : options.approachKey
+          : undefined;
+      const moved = approachVoicing(
+        goal,
+        approach!.step,
+        approach!.motion,
+        scale,
+      );
+      // A top-note approach is the moved top note; 'upper' drops the bottom.
+      return tones === 'top'
+        ? moved.slice(-1)
+        : tones === 'upper' && moved.length > 1
+          ? moved.slice(1)
+          : moved;
+    },
+  );
+
+  struck.forEach(({ onset, hit }, i) => {
+    const duration = Math.max(30, Math.round(hit.dur * PPQ));
+    const velocity = Math.max(1, Math.min(127, Math.round(hit.velocity * 127)));
+    for (const note of sounding[i] ?? [])
+      notes.push({
+        note,
+        onset,
+        duration: Math.min(duration, total - onset),
+        velocity,
+        part: 'chords',
+      });
+  });
   return notes;
 }

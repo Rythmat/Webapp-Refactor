@@ -1,9 +1,10 @@
 // ── AudioWorklet modules, loaded once per context ───────────────────────────
 // A worklet module has to be added to every context that makes its nodes:
 // the live AudioContext, each export's OfflineAudioContext, the pedals'
-// native context. ensureWorklet() adds a module to a context once and hands
-// every caller the same promise; a failed load is forgotten, so the next
-// call tries again.
+// native context. ensureWorklet() adds a module to each native context once
+// (Tone's wrapper and its native context count as one) and hands every
+// caller the same load; a failed load is forgotten, so the next call tries
+// again.
 //
 // The track and bus chains live on Tone's context, a standardized-audio-
 // context wrapper, and a node in that graph has to be made by the wrapper's
@@ -53,48 +54,66 @@ function loadWrappedFactory(): Promise<void> {
 }
 
 /**
- * Adds the worklet module at `url` to `ctx`, once. Every call for the same
- * context and url gets the same promise until it settles; a rejected load
- * is dropped, so a later call loads it again.
+ * The native context behind `ctx`. Tone's wrapper adds a module to its
+ * native context, so a module is loaded once per NATIVE context, whichever
+ * door it came in by: the live chains' gate (through the wrapper) and the
+ * pedals' wah (on the native context) share one AudioWorkletGlobalScope,
+ * where registering a processor name twice is an error.
+ */
+function nativeOf(ctx: BaseAudioContext): BaseAudioContext {
+  return (ctx as { _nativeContext?: BaseAudioContext })._nativeContext ?? ctx;
+}
+
+/**
+ * Adds the worklet module at `url` to `ctx`'s native context, once: through
+ * the wrapper when `ctx` is wrapped (so the wrapper knows the processor),
+ * else on the context itself. Every call for the same native context and url
+ * shares the load until it settles; a rejected load is dropped, so a later
+ * call loads it again. A wrapped context also needs Tone's node factory.
  */
 export function ensureWorklet(
   ctx: BaseAudioContext,
   url: string,
 ): Promise<void> {
-  let byUrl = modules.get(ctx);
+  const native = nativeOf(ctx);
+  let byUrl = modules.get(native);
   if (!byUrl) {
     byUrl = new Map();
-    modules.set(ctx, byUrl);
+    modules.set(native, byUrl);
   }
-  const cached = byUrl.get(url);
-  if (cached) return cached;
-
-  const worklet = (ctx as { audioWorklet?: AudioWorklet }).audioWorklet;
-  const loading: Promise<void> = worklet
-    ? Promise.all([
-        worklet.addModule(url),
-        isWrapped(ctx) ? loadWrappedFactory() : undefined,
-      ]).then(() => {
-        let urls = ready.get(ctx);
-        if (!urls) {
-          urls = new Set();
-          ready.set(ctx, urls);
-        }
-        urls.add(url);
-      })
-    : Promise.reject(
-        new Error('AudioWorklet is not available (it needs a secure context)'),
-      );
-  byUrl.set(url, loading);
-  loading.catch(() => {
-    if (byUrl.get(url) === loading) byUrl.delete(url);
-  });
-  return loading;
+  let loading = byUrl.get(url);
+  if (!loading) {
+    const worklet = (ctx as { audioWorklet?: AudioWorklet }).audioWorklet;
+    const added: Promise<void> = worklet
+      ? worklet.addModule(url).then(() => {
+          let urls = ready.get(native);
+          if (!urls) {
+            urls = new Set();
+            ready.set(native, urls);
+          }
+          urls.add(url);
+        })
+      : Promise.reject(
+          new Error(
+            'AudioWorklet is not available (it needs a secure context)',
+          ),
+        );
+    const map = byUrl;
+    map.set(url, added);
+    added.catch(() => {
+      if (map.get(url) === added) map.delete(url);
+    });
+    loading = added;
+  }
+  return isWrapped(ctx)
+    ? Promise.all([loading, loadWrappedFactory()]).then(() => undefined)
+    : loading;
 }
 
-/** Whether the module at `url` has finished loading on `ctx`. */
+/** Whether the module at `url` has finished loading for `ctx`. */
 export function isWorkletReady(ctx: BaseAudioContext, url: string): boolean {
-  return ready.get(ctx)?.has(url) ?? false;
+  if (isWrapped(ctx) && !wrappedFactory) return false;
+  return ready.get(nativeOf(ctx))?.has(url) ?? false;
 }
 
 /** Whether `ctx` can run AudioWorklets at all. */

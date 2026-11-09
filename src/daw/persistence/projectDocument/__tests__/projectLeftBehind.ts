@@ -66,7 +66,7 @@ export function leaveAProjectBehind(
   keys: readonly string[] = Object.keys(storeData()),
 ): Record<string, unknown> {
   s().addTrack('midi', 'drum-machine', 'Drums');
-  s().addTrack('audio', 'guitar-fx', 'Guitar');
+  s().addTrack('audio', 'audio-input', 'Guitar');
   s().insertChordRegion(0, '1 maj', 'C maj');
   s().addMarker(1920, 'Verse');
   s().setReturnVolume('A', 0.3);

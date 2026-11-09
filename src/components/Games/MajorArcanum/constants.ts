@@ -1,78 +1,36 @@
+import {
+  buildSpellingMap,
+  MIDI_ROOT_TO_KEY,
+} from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import type { KeyRoot } from './types';
 
 export const PIANO_HEIGHT = 140;
 export const FALL_SPEED = 300;
 
 // --- Timeroll column layout ---
-export const NUM_WHITE_KEYS = 15; // playable white-key columns (C3–C5)
 export const BUFFER_COLUMNS = 2; // empty buffer columns on each side of the timeroll
-export const TOTAL_COLUMNS = NUM_WHITE_KEYS + BUFFER_COLUMNS * 2; // 19
 export const INPUT_WINDOW = 0.15;
 export const HOLD_SCORE_INTERVAL = 0.25; // Award 1 point per 0.25s of hold
 
-export const NOTE_NAMES = [
-  'C',
-  'C#',
-  'D',
-  'Eb',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'Ab',
-  'A',
-  'Bb',
-  'B',
-];
+const MAJOR_STEPS = [0, 2, 4, 5, 7, 9, 11];
+const spellings = new Map<number, Map<number, string>>();
 
-// Keyboard mappings per mode
-export const MELODY_KEYS = [
-  'KeyA',
-  'KeyS',
-  'KeyD',
-  'KeyF',
-  'KeyH',
-  'KeyJ',
-  'KeyK',
-  'KeyL',
-];
-export const MELODY_LABELS = ['A', 'S', 'D', 'F', 'H', 'J', 'K', 'L'];
-
-export const HARMONY_KEYS = [
-  'KeyA',
-  'KeyS',
-  'KeyD',
-  'KeyF',
-  'KeyG',
-  'KeyH',
-  'KeyJ',
-  'KeyK',
-  'KeyL',
-];
-export const HARMONY_LABELS = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
-
-// Colors based on Circle of 5ths
-export const KEY_COLORS: Record<number, string> = {
-  0: '#E5585C', // C - Red
-  1: '#5DA5EA', // Db - Sky Blue
-  2: '#F2AA3C', // D - Yellow-Orange
-  3: '#9E75D8', // Eb - Purple
-  4: '#A8D06B', // E - Lime
-  5: '#F68F9F', // F - Pink
-  6: '#43B3A6', // F# - Teal
-  7: '#EB8246', // G - Orange
-  8: '#6B76D1', // Ab - Indigo
-  9: '#F8CD2E', // A - Yellow
-  10: '#DA8BC3', // Bb - Magenta
-  11: '#72C374', // B - Green
-};
+/**
+ * A note's name as the major key it's played in spells it: F♯ in D, B♭ in
+ * F, E♯ in F♯, with the ♭ and ♯ glyphs (the app's enharmonic engine).
+ */
+export function noteNameInKey(midi: number, keyRootVal: number): string {
+  const key = ((keyRootVal % 12) + 12) % 12;
+  let names = spellings.get(key);
+  if (!names) {
+    names = buildSpellingMap(MIDI_ROOT_TO_KEY[key], MAJOR_STEPS);
+    spellings.set(key, names);
+  }
+  return names.get(((midi % 12) + 12) % 12) ?? '';
+}
 
 // Circle of Fifths clockwise from C
 export const FIFTHS_ORDER = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5];
-
-export const SCALE_DEFS: Record<string, number[]> = {
-  Major: [0, 2, 4, 5, 7, 9, 11],
-};
 
 export const ROOTS: KeyRoot[] = [
   { name: 'C', val: 0 },
@@ -88,51 +46,6 @@ export const ROOTS: KeyRoot[] = [
   { name: 'Bb', val: 10 },
   { name: 'B', val: 11 },
 ];
-
-// --- Difficulty presets ---
-export interface DifficultyPreset {
-  label: string;
-  bpm: number;
-  totalBeats: number;
-  eighthNoteChance: number; // 0-1, probability of 8th notes in generation
-  holdNoteChance: number; // 0-1, probability of hold (duration >= 2) notes
-  description: string;
-}
-
-export const DIFFICULTY_PRESETS: Record<number, DifficultyPreset> = {
-  1: {
-    label: 'Beginner',
-    bpm: 80,
-    totalBeats: 80,
-    eighthNoteChance: 0,
-    holdNoteChance: 0.05,
-    description: 'Quarter notes only, slower tempo',
-  },
-  2: {
-    label: 'Standard',
-    bpm: 100,
-    totalBeats: 100,
-    eighthNoteChance: 0.15,
-    holdNoteChance: 0.1,
-    description: 'Some eighth notes, moderate tempo',
-  },
-  3: {
-    label: 'Advanced',
-    bpm: 120,
-    totalBeats: 120,
-    eighthNoteChance: 0.35,
-    holdNoteChance: 0.15,
-    description: 'Mixed rhythms, faster tempo',
-  },
-  4: {
-    label: 'Expert',
-    bpm: 140,
-    totalBeats: 140,
-    eighthNoteChance: 0.5,
-    holdNoteChance: 0.2,
-    description: 'Dense patterns, high speed',
-  },
-};
 
 // --- Drum patterns ---
 export interface DrumHit {

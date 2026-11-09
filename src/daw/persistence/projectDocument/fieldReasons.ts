@@ -93,13 +93,13 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
 
   // ── tracks ──
   nextColorIndex:
-    'The palette colour the next new track takes; a load derives it from the track count.',
+    'The palette color the next new track takes; a load derives it from the track count.',
 
   // ── harmony ──
   rootLocked:
     'The key lock guards this student’s own key changes: saved with the project, never shared.',
   rootTrackColor:
-    'The key colour: derived from rootNote and mode, and recomputed on load.',
+    'The key color: derived from rootNote and mode, and recomputed on load.',
 
   // ── prism ──
   chordSeq: BUILDER,
@@ -128,6 +128,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
     'The two return buses. Today’s cloud payload sends them at its top level, but nobody has confirmed that music-atlas-api stores that field (its StudioProjectInput type has no `returns`). The 1.5 document carries them either way.',
   masteringBypass:
     'A/B listening on this device; an export always runs the stored chain.',
+  masterMuted:
+    'The Master strip’s mute (2026-10-22): listening on this device for now, as a track’s mute is this student’s own; a project opens heard, and an export is never silent.',
 
   // ── view ──
   clipColorMode:
@@ -145,9 +147,13 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   readoutMode: LAYOUT,
   hoverHints:
     'Whether the bottom rail says what the control under the pointer does: the student’s own choice on every project, kept per user by prefsStore (milestone 2.11).',
+  recordArmExclusive:
+    'Whether arming a track disarms the others: the student’s own choice on every project, kept per user by prefsStore (owner, 2026-10-23).',
   activeTool: 'The editing tool: every project opens with the cursor.',
   scoreNoteInput:
     'The Score’s note input mode, like the editing tool: every project opens selecting, not writing.',
+  scoreHiddenTrackIds:
+    'Which tracks the Score leaves off its staves: a way of looking at the song, so every project opens with every staff.',
   selectedClipId: SELECTION,
   selectedClipTrackId: SELECTION,
   parkedClipSelection:
@@ -164,6 +170,12 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   tutorialStepCelebrate: STEP,
   tutorialStepPrepared:
     'Whether the running step’s preconditions are in place; a resumed lesson finds them in its draft’s view.',
+  tutorialDemoPhase:
+    'Whether the step’s demo is playing or it is the student’s turn; a resumed step is the student’s turn, with the demo a click away.',
+  tutorialDemoRun:
+    'How many times the step’s demo has started, so a replay starts it over.',
+  finishedTutorialId:
+    'The course lesson whose end card is showing: gone with the session, as the card is.',
 
   // ── analysis (the music-intelligence bus) ──
   detectedKeyRootPc: ANALYSIS,
@@ -223,11 +235,13 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   recordingLimitModalOpen: 'A notice about a take in the previous project.',
   lastAudioExportAt:
     'When this project was last exported. A lesson detects an export by it, so a new project starts without one.',
+  doneMoments:
+    'How many saves, exports and prints the student has finished on this page, for a lesson step to notice; they are things the student did, not part of any project, so a load leaves them and they only ever count up.',
   leadSheetSelectedChordIdx: SELECTION,
   selectedChordIds: SELECTION,
   selectedNotes: SELECTION,
-  fxLibraryReturn:
-    'Where the armed effect slot’s × puts the Inspector back: a moment in this session, never saved (milestone 2.8).',
+  effectPickerOpen:
+    'The Add effect picker showing: a moment in this session, never saved.',
   dockEffect: SELECTION,
   dockMaster:
     'Master shown in the dock’s slot: a moment of this session; a project opens with its tracks (milestone 2.9).',
@@ -267,7 +281,7 @@ export const TRACK_FIELD_REASONS: Reasons<Track> = Object.freeze({
   id: 'Stable across cloud loads: the cloud payload carries it as settings.sourceTrackId (decision D4).',
   type: 'A live input instrument makes an audio track. An imported audio file has no instrument, so its caller passes the type.',
   color:
-    'A new track takes the next palette colour, or the key colour while a key is set.',
+    'A new track takes the next palette color, or the key color while a key is set.',
   mute: 'Saved with the project and to the cloud; each collaborator mutes on their own.',
   solo: 'Saved with the project and to the cloud; each collaborator solos on their own.',
   recordArmed: OWN_INPUT,

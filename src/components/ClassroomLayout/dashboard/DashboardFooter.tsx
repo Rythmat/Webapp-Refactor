@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { LegalRoutes, MarketingRoutes } from '@/constants/routes';
+import { LegalRoutes } from '@/constants/routes';
 import { SOCIAL_LINKS } from '@/constants/social';
 
 interface Column {
@@ -8,13 +8,6 @@ interface Column {
 }
 
 const COLUMNS: Column[] = [
-  {
-    title: 'Company',
-    links: [
-      { label: 'Blog', href: MarketingRoutes.blog() },
-      { label: 'For Teachers', href: MarketingRoutes.teachers() },
-    ],
-  },
   {
     title: 'Support',
     links: [
@@ -41,7 +34,7 @@ export const DashboardFooter = ({
   return (
     <footer className="mt-8 border-t border-white/15 pt-8 text-base text-white/70 md:mt-12 md:pt-10 md:text-lg">
       <div className="flex flex-wrap items-start gap-6 md:gap-10">
-        <div className="grid min-w-0 flex-1 grid-cols-2 gap-6 sm:grid-cols-4 md:gap-10">
+        <div className="grid min-w-0 flex-1 grid-cols-2 gap-6 sm:mx-auto sm:flex sm:max-w-3xl sm:justify-between md:gap-10">
           {COLUMNS.map((col) => (
             <div key={col.title} className="flex flex-col gap-2">
               <h3 className="text-sm uppercase tracking-wider text-white/50 md:text-base">
@@ -96,7 +89,7 @@ export const DashboardFooter = ({
       </div>
       <div className="mt-8 border-t border-white/15 pt-4 md:mt-10 md:pt-6">
         <span className="text-sm text-white/50 md:text-base">
-          ©2026 Music Atlas IO | Denver, CO
+          ©2026 Music Atlas IO
         </span>
       </div>
     </footer>

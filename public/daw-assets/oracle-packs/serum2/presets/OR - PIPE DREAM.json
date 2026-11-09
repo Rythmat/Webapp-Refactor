@@ -373,7 +373,7 @@
         "source": "osc2",
         "param": "level"
       },
-      "amount": 0.8684210777282715,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -388,7 +388,7 @@
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.28947365283966064,
+      "amount": 0.5789473056793213,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -403,7 +403,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.4736841917037964,
+      "amount": 0.5413495538465437,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -413,7 +413,7 @@
   "voiceCount": 12,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.14993193921786865,
+  "masterVolume": 0.4563928229791922,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -512,5 +512,6 @@
     "rootPc": 0,
     "mode": "ionian",
     "snapMode": "nearest"
-  }
+  },
+  "modWheel": 1
 }

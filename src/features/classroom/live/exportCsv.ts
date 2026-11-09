@@ -60,6 +60,10 @@ const serializePayload = (payload: InteractionResponsePayload): string => {
       return `OFFER:${payload.artifact.name}${
         payload.artifact.roomId ? ` (room ${payload.artifact.roomId})` : ''
       }`;
+    case 'echo':
+      return `ECHO:${payload.rounds.filter((r) => r.passed).length}/${
+        payload.rounds.length
+      } good|best streak ${payload.bestStreak}`;
   }
 };
 

@@ -31,13 +31,13 @@
       "permanent": true
     },
     {
-      "source": "/:old(platforms|about|team|contact)",
+      "source": "/:old(platforms|about|team|contact|blog|for-teachers)",
       "has": [{ "type": "host", "value": "(?:www\\.)?musicatlas\\.io" }],
       "destination": "/",
       "permanent": true
     },
     {
-      "source": "/:path((?!(?:features|for-teachers|blog|documents)(?:/|$))[^.]+)",
+      "source": "/:path((?!(?:features|documents)(?:/|$))[^.]+)",
       "has": [{ "type": "host", "value": "(?:www\\.)?musicatlas\\.io" }],
       "destination": "https://app.musicatlas.io/:path",
       "permanent": false

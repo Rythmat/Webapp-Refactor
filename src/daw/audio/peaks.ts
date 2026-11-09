@@ -430,3 +430,92 @@ export function readPeaks(
   }
   return out;
 }
+
+// ── Per channel ─────────────────────────────────────────────────────────────
+// A stereo clip draws each side in its own half (left over right). Each
+// channel reads through a one-channel view of the pyramid, kept per pyramid,
+// so its points are cached as a whole waveform's are.
+
+const channelViews = new WeakMap<PeakPyramid, PeakPyramid[]>();
+
+/** Channels the pyramid holds: 2 for a stereo pair, 1 for mono. */
+export function peakChannelCount(pyramid: PeakPyramid): number {
+  return pyramid.levels[0]?.min.length ?? 0;
+}
+
+function channelView(pyramid: PeakPyramid, channel: number): PeakPyramid {
+  let views = channelViews.get(pyramid);
+  if (!views) {
+    views = Array.from({ length: peakChannelCount(pyramid) }, (_, c) => ({
+      length: pyramid.length,
+      levels: pyramid.levels.map((level) => ({
+        bucketSize: level.bucketSize,
+        min: [level.min[c]],
+        max: [level.max[c]],
+      })),
+    }));
+    channelViews.set(pyramid, views);
+  }
+  return views[channel];
+}
+
+/**
+ * readPeaks for each channel of the pyramid apart: one array per channel
+ * (left, then right; a mono buffer gives one). They share one scale, the
+ * loudest sample of either channel in the window, so a quieter side draws
+ * smaller.
+ */
+export function readChannelPeaks(
+  pyramid: PeakPyramid,
+  source: Pick<AudioBuffer, 'getChannelData'>,
+  numPoints: number,
+  windowStart: number,
+  windowEnd: number,
+  firstPoint = 0,
+  lastPoint = numPoints - 1,
+): number[][] {
+  const count = peakChannelCount(pyramid);
+  if (count < 2) {
+    return [
+      readPeaks(
+        pyramid,
+        source,
+        numPoints,
+        windowStart,
+        windowEnd,
+        firstPoint,
+        lastPoint,
+      ),
+    ];
+  }
+  const start = Math.min(Math.max(0, Math.floor(windowStart)), pyramid.length);
+  const end = Math.min(Math.max(start, Math.floor(windowEnd)), pyramid.length);
+  const perChannel = Array.from({ length: count }, (_, c) => {
+    const view = channelView(pyramid, c);
+    const one = { getChannelData: () => source.getChannelData(c) };
+    const amps = readPeaks(
+      view,
+      one,
+      numPoints,
+      windowStart,
+      windowEnd,
+      firstPoint,
+      lastPoint,
+    );
+    // readPeaks scaled the channel to its own loudest sample; the waveform
+    // it read is cached, so its scale costs nothing here.
+    const scale =
+      end > start
+        ? pointsFor(view, numPoints, start, end, () => [
+            source.getChannelData(c),
+          ]).scale
+        : 0;
+    return { amps, scale };
+  });
+  const loudest = Math.max(...perChannel.map((ch) => ch.scale));
+  return perChannel.map(({ amps, scale }) =>
+    loudest > 0 && scale !== loudest
+      ? amps.map((a) => (a * scale) / loudest)
+      : amps,
+  );
+}

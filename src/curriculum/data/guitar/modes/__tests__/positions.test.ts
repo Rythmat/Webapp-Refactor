@@ -21,7 +21,7 @@ const mod12 = (n: number) => ((n % 12) + 12) % 12;
 
 /** A position a hand can play: in order, inside its box, one finger a fret. */
 function expectPlayable(position: GuitarScalePosition, pcs: number[]) {
-  const midis = position.playOrder.map(fretToMidi);
+  const midis = position.playOrder.map((p) => fretToMidi(p));
   expect(midis).toEqual([...midis].sort((a, b) => a - b));
   expect(new Set(midis.map(mod12))).toEqual(new Set(pcs));
   expect(() => octavePairs(position)).not.toThrow();

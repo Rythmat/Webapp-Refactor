@@ -10,7 +10,14 @@ import {
   Save,
   Square,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FC,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/components/utilities';
@@ -25,6 +32,16 @@ import {
   type FeelProfile,
 } from '@/curriculum/engine/parts/feel';
 import {
+  canFollowChords,
+  followChords,
+  followsChords,
+  keyNotes,
+  keyShift,
+  partChordAt,
+  suggestStayInKey,
+} from '@/curriculum/engine/parts/followChords';
+import {
+  barTicks,
   keyLabel,
   MODES,
   PART_INSTRUMENTS,
@@ -33,6 +50,7 @@ import {
   partIdFrom,
   partTicks,
   PITCH_NAMES,
+  PPQ,
   resizePart,
   transposePart,
   type InstrumentPart,
@@ -49,6 +67,18 @@ import {
 } from '@/daw/components/PianoRoll/pianoRollHost';
 import { DRUM_PADS } from '@/daw/instruments/drumKits';
 import '@/daw/daw.css';
+import { ApproachMenu } from '../approach/ApproachMenu';
+import { LaneStrip } from '../band/LaneStrip';
+import { ChartPicker } from '../chart/ChartPicker';
+import {
+  chosenChart,
+  formatPartChords,
+  OWN_CHORDS,
+  parsePartChords,
+  takeChordSymbols,
+  type ChartChoice,
+} from '../chart/chartChoice';
+import { previewHarmony } from '../chordComping/compingGrid';
 import { useUnsavedChanges } from '../content/mirror/UnsavedChangesGuard';
 import { useInstrumentStore } from '../drumGrooves/instrumentStore';
 import { useUndoable } from '../drumGrooves/useUndoable';
@@ -57,7 +87,21 @@ import { ConsoleCallout } from '../ui/ConsoleCallout';
 import { UndoRedo } from '../ui/UndoRedo';
 import { CONSOLE_LABEL, CONSOLE_PANEL, consoleTabClass } from '../ui/styles';
 import { StudioScoreBridge } from './StudioScoreBridge';
+import { copiedCount, copyNotes, pasteNotes } from './noteClipboard';
+import {
+  clearApproach,
+  describeApproach,
+  layApproach,
+  markApproach,
+} from './partApproach';
 import { downloadPartJson, downloadPartMidi } from './partFiles';
+import {
+  carryHands,
+  guessHands,
+  handCounts,
+  setHands,
+  splitHands,
+} from './partHands';
 import { SOUND_OPTIONS } from './sounds';
 import {
   QUANTIZE_OPTIONS,
@@ -81,17 +125,35 @@ const fieldLabel = CONSOLE_LABEL;
 const control =
   'rounded-md border border-white/10 bg-white/5 px-2 py-1 text-sm outline-none placeholder:italic placeholder:text-white/25 focus:ring-1 focus:ring-[#60a5fa]';
 
-const Field: FC<{ label: string; children: React.ReactNode }> = ({
-  label,
-  children,
-}) => (
-  <div className="flex flex-col gap-1">
+const Field: FC<{
+  label: string;
+  children: React.ReactNode;
+  hidden?: boolean;
+}> = ({ label, children, hidden }) => (
+  <div className={cn('flex flex-col gap-1', hidden && 'hidden')}>
     <span className={fieldLabel}>{label}</span>
     <div className="flex items-center gap-1.5">{children}</div>
   </div>
 );
 
 const DRUM_LABELS = new Map(DRUM_PADS.map((p) => [p.note, p.label]));
+
+const HAND_NAME = { lh: 'Left hand', rh: 'Right hand' } as const;
+const HAND_SHORT = { lh: 'LH', rh: 'RH' } as const;
+/** Each hand's notes on the roll, and a note given neither. */
+const HAND_COLOR = { lh: '#a78bfa', rh: '#34d399' } as const;
+const NO_HAND_COLOR = '#9ca3af';
+/** Where the hands can be split: C2 to C6. */
+const SPLIT_KEYS = Array.from({ length: 49 }, (_, i) => 36 + i);
+const pitchName = (midi: number) =>
+  `${PITCH_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`;
+
+/** A tick as 'bar 3, beat 2' (beats of the meter's own note value). */
+const barBeat = (tick: number, ts: [number, number]) => {
+  const bar = barTicks(ts);
+  const beat = (PPQ * 4) / ts[1];
+  return `bar ${Math.floor(tick / bar) + 1}, beat ${Math.floor((tick % bar) / beat) + 1}`;
+};
 
 /**
  * Editing a lesson step's notes rather than a library part: the editor commits
@@ -109,6 +171,13 @@ export interface LessonTarget {
    * on leaving a page, cannot see Back: ask here before uncommitted notes go.
    */
   askOnBack?: boolean;
+  /**
+   * Beside the lesson, in the console's in-place lesson editor: every edit
+   * goes up as it is made, and the lesson editor saves. The part's filing,
+   * key, swing and chart give way to the step's own, edited beside it; the
+   * loop length and tempo stay, for recording.
+   */
+  embedded?: { onDraft: (part: InstrumentPart) => void };
 }
 
 interface Props {
@@ -123,6 +192,13 @@ interface Props {
     playing: boolean;
     toggle: () => void;
     onDraft: (part: InstrumentPart) => void;
+    /**
+     * The band's chart: the part is shown in its key, every edit kept in
+     * the part's own.
+     */
+    chart?: ChartChoice;
+    /** File a new part as this band's, and play it in this layer. */
+    adopt?: (part: InstrumentPart) => Promise<void>;
   };
 }
 
@@ -172,6 +248,157 @@ export const PartEditor: FC<Props> = ({
   );
   const setNotes = useCallback((notes: PartNote[]) => set({ notes }), [set]);
 
+  // ── what it plays over: its own chords, as captured, or another chart,
+  // whose chords it follows (parts/followChords.ts) as it would in a band ──
+  const [over, setOver] = useState<ChartChoice>({
+    progression: OWN_CHORDS,
+    key: initial.key.tonic,
+  });
+  const ts = draft.timeSignature;
+  const chart = useMemo(() => chosenChart(over, ts), [over, ts]);
+  // The chords field as typed; set again when undo changes the chords.
+  const [chordsText, setChordsText] = useState(() =>
+    formatPartChords(initial.chordSymbols),
+  );
+  useEffect(() => {
+    setChordsText((text) =>
+      JSON.stringify(parsePartChords(text)) ===
+      JSON.stringify(draft.chordSymbols)
+        ? text
+        : formatPartChords(draft.chordSymbols),
+    );
+  }, [draft.chordSymbols]);
+  const follows = followsChords(draft);
+  const canFollow = useMemo(() => canFollowChords(draft), [draft]);
+  // Which hands Stay in Key over another chart, and which look like they
+  // should: a hand that holds its notes through its own chord changes.
+  const hasHands = draft.notes.some((n) => n.hand);
+  const lhStays = draft.stayInKey === 'lh' || draft.stayInKey === 'both';
+  const rhStays = draft.stayInKey === 'rh' || draft.stayInKey === 'both';
+  const setStays = (lh: boolean, rh: boolean) =>
+    set({
+      stayInKey: lh && rh ? 'both' : lh ? 'lh' : rh ? 'rh' : undefined,
+    });
+  const suggested = useMemo(() => suggestStayInKey(draft), [draft]);
+  const [suggestionSeen, setSuggestionSeen] = useState(false);
+
+  // ── in a band: shown in the band's key ──
+  // The roll and staff show the part moved to the key of the band's chart,
+  // as the band plays it; every edit goes back into the part's own key, so
+  // a part other bands and lessons play keeps its key.
+  const bandChart = useMemo(
+    () => (band?.chart ? chosenChart(band.chart, ts) : null),
+    [band?.chart, ts],
+  );
+  const viewKey = bandChart?.key ?? draft.key;
+  const viewShift =
+    bandChart && draft.instrument !== 'drums'
+      ? keyShift(draft.key.tonic, bandChart.key.tonic)
+      : 0;
+  const viewNotes = useMemo(
+    () =>
+      viewShift
+        ? draft.notes.map((n) => ({ ...n, midi: n.midi + viewShift }))
+        : draft.notes,
+    [draft.notes, viewShift],
+  );
+  const setViewNotes = useCallback(
+    (notes: PartNote[]) =>
+      setNotes(
+        viewShift
+          ? notes.map((n) => ({ ...n, midi: n.midi - viewShift }))
+          : notes,
+      ),
+    [setNotes, viewShift],
+  );
+  // ── approaches marked in the roll (partApproach.ts) ──
+  /** The roll forgets its selection when notes come and go under it. */
+  const [rollGeneration, setRollGeneration] = useState(0);
+  const viewScale = useMemo(() => keyNotes(viewKey), [viewKey]);
+  /** The part's own chords where they sound, moved as the roll shows it. */
+  const viewChordAt = useMemo(() => {
+    const own = partChordAt(draft);
+    if (!own) return undefined;
+    return (tick: number) => {
+      const c = own(tick);
+      return {
+        ...c,
+        rootPc: (((c.rootPc + viewShift) % 12) + 12) % 12,
+        bassPc: (((c.bassPc + viewShift) % 12) + 12) % 12,
+      };
+    };
+  }, [draft, viewShift]);
+  const approachNotes = draft.notes.filter((n) => n.approach).length;
+  /** Why marking did nothing, when it didn't. */
+  const [approachNote, setApproachNote] = useState<string | null>(null);
+  /**
+   * A new part of exactly what the band plays: this one following the
+   * band's chords in its key, those chords its own — to edit note for note.
+   */
+  const adoptForBand = async () => {
+    if (!band?.adopt || !bandChart) return;
+    const harmony = previewHarmony(
+      bandChart.bars,
+      ts,
+      draft.bars * (barTicks(ts) / PPQ),
+    );
+    const notes =
+      harmony &&
+      followChords(
+        draft,
+        harmony.chordAt,
+        harmony.bars * barTicks(ts),
+        bandChart.key,
+      );
+    if (!harmony || !notes) return;
+    await band.adopt({
+      ...draft,
+      name: `${draft.name} · in ${keyLabel(bandChart.key)}`,
+      status: 'draft',
+      key: bandChart.key,
+      bars: harmony.bars,
+      // The band's chords as the copy plays them: G7 under a sus voicing
+      // is Gsus4, so the copy follows other charts as the original did.
+      chordSymbols: takeChordSymbols(
+        bandChart.bars,
+        ts,
+        harmony.bars,
+        bandChart.flats,
+        notes.filter((n) => n.role === 'chord'),
+      ),
+      notes: notes.map(
+        ({ source: _source, role: _role, chord: _chord, ...n }) => n,
+      ),
+      source: { kind: 'scratch' },
+    });
+  };
+
+  /** The part as it follows the chart: null over its own chords. */
+  const followed = useMemo((): InstrumentPart | null => {
+    if (band || chart.own || !follows || !canFollow) return null;
+    const harmony = previewHarmony(
+      chart.bars,
+      ts,
+      draft.bars * (barTicks(ts) / PPQ),
+    );
+    if (!harmony) return null;
+    const notes = followChords(
+      draft,
+      harmony.chordAt,
+      harmony.bars * barTicks(ts),
+      chart.key,
+    );
+    return notes
+      ? {
+          ...draft,
+          bars: harmony.bars,
+          notes: notes.map(
+            ({ source: _source, role: _role, chord: _chord, ...n }) => n,
+          ),
+        }
+      : null;
+  }, [band, chart, follows, canFollow, draft, ts]);
+
   const length = partTicks(draft);
   const beyondEnd = draft.notes.filter((n) => n.tick >= length).length;
   const sounds = SOUND_OPTIONS[draft.instrument];
@@ -182,20 +409,33 @@ export const PartEditor: FC<Props> = ({
     onBandDraft?.(draft);
   }, [draft, onBandDraft]);
 
-  // Hear every edit on the next pass.
+  // Beside the lesson, every edit goes into it, once; opening the step is no
+  // edit. Read through a ref: the lesson editor's callback is new each
+  // render, and the notes are handed up when they change, not when it does.
+  const embedded = lesson?.embedded;
+  const seed = useRef(initial).current;
+  const onLessonDraft = useRef(embedded?.onDraft);
+  onLessonDraft.current = embedded?.onDraft;
+  useEffect(() => {
+    if (draft !== seed) onLessonDraft.current?.(draft);
+  }, [draft, seed]);
+
+  // Hear every edit on the next pass: over the chart picked, except while
+  // capturing, which plays the part as written, on its own clock.
+  const heard = armed ? draft : (followed ?? draft);
   useEffect(() => {
     if (player.playing)
-      void player.play(draft, feel, { click: clickWhile(armed) });
+      void player.play(heard, feel, { click: clickWhile(armed) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draft, feel, metronome, armed]);
+  }, [heard, feel, metronome, armed]);
 
   const togglePlay = useCallback(() => {
     if (player.playing) {
       player.stop();
       setArmed(false);
-    } else void player.play(draft, feel, { click: clickWhile(false) });
+    } else void player.play(heard, feel, { click: clickWhile(false) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [player, draft, feel, metronome]);
+  }, [player, heard, feel, metronome]);
 
   /** Arm, count in a bar, then run the loop recording. */
   const record = () => {
@@ -262,13 +502,73 @@ export const PartEditor: FC<Props> = ({
   // only the Studio editor switches on otherwise.
   useKeyDispatcher();
 
-  // Space plays, ⌘Z/⌘⇧Z undo/redo (Roll view — the Score has its own), ⌘S saves.
+  // What the roll has selected (indices into the notes), and where the
+  // playhead is, for copy and paste: read when the keys go down. Only notes
+  // that are still there: the roll reports its selection after a delete has
+  // already taken notes away, so for a moment it can name the deleted ones.
+  const [rollSelection, setSelection] = useState<number[]>([]);
+  const selection = useMemo(
+    () => rollSelection.filter((i) => i >= 0 && i < viewNotes.length),
+    [rollSelection, viewNotes.length],
+  );
+  // A note about marking approaches is about the selection it was for.
+  useEffect(() => setApproachNote(null), [selection]);
+
+  // ── hands (partHands.ts): which plays each note of a piano part ──
+  const isPiano = draft.instrument === 'piano';
+  const hands = handCounts(viewNotes);
+  /** Below it the left hand, from it up the right. */
+  const [split, setSplit] = useState(60);
+  /** The roll shows each hand in its colour once a note has one. */
+  const noteColors = useMemo(
+    () =>
+      isPiano && viewNotes.some((n) => n.hand)
+        ? viewNotes.map((n) => (n.hand ? HAND_COLOR[n.hand] : NO_HAND_COLOR))
+        : undefined,
+    [isPiano, viewNotes],
+  );
+  /** The notes the hand buttons change: the roll's selection, else all. */
+  const handTargets = view === 'roll' ? selection : [];
+  const [clipStatus, setClipStatus] = useState<string | null>(null);
+  const pasteRef = useRef({ selection, notes: viewNotes, at: 0 });
+  pasteRef.current = {
+    selection,
+    notes: viewNotes,
+    at: player.position,
+  };
+  useEffect(() => {
+    if (!clipStatus) return;
+    const id = window.setTimeout(() => setClipStatus(null), 4000);
+    return () => window.clearTimeout(id);
+  }, [clipStatus]);
+
+  // Space plays, ⌘Z/⌘⇧Z undo/redo (Roll view — the Score has its own), ⌘S
+  // saves, ⌘C copies the roll's selected notes and ⌘V pastes them at the
+  // playhead (noteClipboard.ts).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       const typing = ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName);
       const mod = e.metaKey || e.ctrlKey;
-      if (e.code === 'Space' && !typing && view !== 'staff') {
+      const { selection: picked, notes, at } = pasteRef.current;
+      if (mod && !typing && view === 'roll' && e.code === 'KeyC') {
+        const n = copyNotes(notes, picked);
+        if (!n) return;
+        e.preventDefault();
+        setClipStatus(
+          `${n} note${n === 1 ? '' : 's'} copied · ⌘V pastes at the playhead`,
+        );
+      } else if (mod && !typing && view === 'roll' && e.code === 'KeyV') {
+        if (!copiedCount()) return;
+        e.preventDefault();
+        const { notes: next, pasted } = pasteNotes(notes, at);
+        if (pasted) setViewNotes(next);
+        setClipStatus(
+          pasted
+            ? `${pasted} note${pasted === 1 ? '' : 's'} pasted at ${barBeat(at, draft.timeSignature)}`
+            : 'Those notes are already there',
+        );
+      } else if (e.code === 'Space' && !typing && view !== 'staff') {
         e.preventDefault();
         if (band) band.toggle();
         else togglePlay();
@@ -289,15 +589,24 @@ export const PartEditor: FC<Props> = ({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [togglePlay, history, dirty, save, view, band]);
+  }, [
+    togglePlay,
+    history,
+    dirty,
+    save,
+    view,
+    band,
+    setViewNotes,
+    draft.timeSignature,
+  ]);
 
   // The content area's guard: leaving with unsaved edits asks first.
   useUnsavedChanges(dirty);
 
   const rollHost = useMemo<PianoRollHost>(
     () => ({
-      rootNote: draft.key.tonic,
-      mode: draft.key.mode,
+      rootNote: viewKey.tonic,
+      mode: viewKey.mode,
       beatsPerBar: draft.timeSignature[0],
       position: player.position,
       loop: player.loop.enabled
@@ -307,7 +616,8 @@ export const PartEditor: FC<Props> = ({
       seek: player.seek,
     }),
     [
-      draft.key,
+      viewKey.tonic,
+      viewKey.mode,
       draft.timeSignature,
       player.position,
       player.loop,
@@ -316,11 +626,16 @@ export const PartEditor: FC<Props> = ({
       length,
     ],
   );
-  const rollEvents = useMemo(() => toMidiEvents(draft.notes), [draft.notes]);
+  const rollEvents = useMemo(() => toMidiEvents(viewNotes), [viewNotes]);
 
   return (
     <div className="flex min-w-0 max-w-full flex-col gap-4 [contain:inline-size]">
-      <div className="flex flex-wrap items-center gap-3">
+      <div
+        className={cn(
+          'flex flex-wrap items-center gap-3',
+          embedded && 'hidden',
+        )}
+      >
         <Button asChild size="sm" variant="ghost">
           <Link
             to={lesson ? lesson.backHref : AdminRoutes.parts()}
@@ -369,21 +684,34 @@ export const PartEditor: FC<Props> = ({
 
       {/* ── header ── */}
       <div className="flex flex-wrap items-center gap-2">
-        <input
-          value={draft.name}
-          onChange={(e) => set({ name: e.target.value })}
-          className="min-w-0 flex-[1_1_18rem] bg-transparent text-[2rem] leading-[1.1] tracking-[-0.02em] text-white outline-none"
-          aria-label="Part name"
-        />
+        {!embedded && (
+          <input
+            value={draft.name}
+            onChange={(e) => set({ name: e.target.value })}
+            className="min-w-0 flex-[1_1_18rem] bg-transparent text-[2rem] leading-[1.1] tracking-[-0.02em] text-white outline-none"
+            aria-label="Part name"
+          />
+        )}
         {band ? (
           // In a band, the band's transport: this part as edited, with it.
-          <Button
-            onClick={band.toggle}
-            className={band.playing ? 'bg-rose-500 hover:bg-rose-400' : ''}
-          >
-            {band.playing ? <Square /> : <Play />}
-            {band.playing ? 'Stop the band' : 'Play with the band'}
-          </Button>
+          <>
+            <Button
+              onClick={band.toggle}
+              className={band.playing ? 'bg-rose-500 hover:bg-rose-400' : ''}
+            >
+              {band.playing ? <Square /> : <Play />}
+              {band.playing ? 'Stop the band' : 'Play with the band'}
+            </Button>
+            {band.adopt && bandChart && follows && canFollow && (
+              <Button
+                variant="outline"
+                onClick={() => void adoptForBand()}
+                title={`A new part of exactly what the band plays: this one over the band's chords, in ${keyLabel(bandChart.key)}, to edit note for note. This part stays as it is for its other bands and lessons.`}
+              >
+                <Copy /> Make it this band&rsquo;s
+              </Button>
+            )}
+          </>
         ) : (
           <>
             <Button
@@ -413,10 +741,12 @@ export const PartEditor: FC<Props> = ({
         <UndoRedo history={history} />
         {lesson ? (
           <>
-            <Button onClick={() => void save()} disabled={saving || !dirty}>
-              {saving ? <Loader2 className="animate-spin" /> : <Save />}
-              {dirty ? 'Commit to lesson' : 'Committed'}
-            </Button>
+            {!embedded && (
+              <Button onClick={() => void save()} disabled={saving || !dirty}>
+                {saving ? <Loader2 className="animate-spin" /> : <Save />}
+                {dirty ? 'Commit to lesson' : 'Committed'}
+              </Button>
+            )}
             {canSave && (
               <Button
                 variant="ghost"
@@ -463,7 +793,7 @@ export const PartEditor: FC<Props> = ({
         value={draft.description ?? ''}
         onChange={(e) => set({ description: e.target.value || undefined })}
         placeholder="What it teaches or where it comes from — style, era, reference records"
-        className={`${control} w-full`}
+        className={cn(control, 'w-full', embedded && 'hidden')}
         aria-label="Description"
       />
 
@@ -472,6 +802,7 @@ export const PartEditor: FC<Props> = ({
         className={cn(
           CONSOLE_PANEL,
           'flex flex-wrap items-end gap-x-5 gap-y-3 p-4',
+          embedded && 'hidden',
         )}
       >
         <Field label="Instrument">
@@ -573,7 +904,7 @@ export const PartEditor: FC<Props> = ({
           'flex flex-wrap items-end gap-x-5 gap-y-3 p-4',
         )}
       >
-        <Field label="Written in">
+        <Field label="Written in" hidden={!!embedded}>
           <select
             value={draft.key.tonic}
             onChange={(e) =>
@@ -603,7 +934,7 @@ export const PartEditor: FC<Props> = ({
             ))}
           </select>
         </Field>
-        {draft.instrument !== 'drums' && (
+        {draft.instrument !== 'drums' && !embedded && (
           <Field label="Transpose to">
             <select
               value={transposeTo}
@@ -662,7 +993,7 @@ export const PartEditor: FC<Props> = ({
             className={`${control} w-16`}
           />
         </Field>
-        <Field label={`Swing ${draft.swing}`}>
+        <Field label={`Swing ${draft.swing}`} hidden={!!embedded}>
           <input
             type="range"
             min={50}
@@ -672,7 +1003,7 @@ export const PartEditor: FC<Props> = ({
             className="w-24 accent-white"
           />
         </Field>
-        <Field label="Feel">
+        <Field label="Feel" hidden={!!embedded}>
           <select
             value={draft.feel ?? ''}
             onChange={(e) => set({ feel: e.target.value || undefined })}
@@ -732,17 +1063,91 @@ export const PartEditor: FC<Props> = ({
             </>
           )}
         </Field>
-        <Field label="Chords (one per bar)">
+        <Field label="Chords (| between bars)" hidden={!!embedded}>
           <input
-            value={(draft.chordSymbols ?? []).join(' ')}
+            value={chordsText}
             onChange={(e) => {
-              const chords = e.target.value.split(/\s+/).filter(Boolean);
-              set({ chordSymbols: chords.length ? chords : undefined });
+              setChordsText(e.target.value);
+              set({ chordSymbols: parsePartChords(e.target.value) });
             }}
-            placeholder="Dm9 G13"
-            className={`${control} w-44`}
+            placeholder="Dm7 G7 | Cmaj7"
+            className={`${control} w-64`}
+            title="The chords it was played over, a bar each, looping: two in a bar split it (Dm7 G7), a . carries the chord before on (C . . G7). A part that names them follows any other chart."
           />
         </Field>
+        {follows && !embedded && (
+          <Field label="Over other charts">
+            {(hasHands ? (['lh', 'rh'] as const) : (['both'] as const)).map(
+              (hand) => {
+                const stays =
+                  hand === 'lh'
+                    ? lhStays
+                    : hand === 'rh'
+                      ? rhStays
+                      : draft.stayInKey === 'both';
+                return (
+                  <select
+                    key={hand}
+                    value={stays ? 'key' : 'chords'}
+                    onChange={(e) => {
+                      const key = e.target.value === 'key';
+                      if (hand === 'lh') setStays(key, rhStays);
+                      else if (hand === 'rh') setStays(lhStays, key);
+                      else setStays(key, key);
+                    }}
+                    className={control}
+                    aria-label={
+                      hand === 'both'
+                        ? 'Over other charts'
+                        : `${HAND_NAME[hand]} over other charts`
+                    }
+                    title="Follow the Chords: every note moves to the chords it plays over. Stay in Key: the same degrees of the key whatever the chord — 1–5 of the key held over a moving bass, an ostinato."
+                  >
+                    <option value="chords">
+                      {hand === 'both' ? '' : `${HAND_SHORT[hand]}: `}Follow the
+                      Chords
+                    </option>
+                    <option value="key">
+                      {hand === 'both' ? '' : `${HAND_SHORT[hand]}: `}Stay in
+                      Key
+                    </option>
+                  </select>
+                );
+              },
+            )}
+          </Field>
+        )}
+        {follows &&
+          suggested &&
+          suggested !== draft.stayInKey &&
+          !suggestionSeen && (
+            <p className="flex w-full flex-wrap items-center gap-2 text-xs text-white/70">
+              {suggested === 'both'
+                ? 'It keeps the same notes through every chord change.'
+                : `The ${HAND_NAME[suggested].toLowerCase()} keeps the same notes through every chord change.`}
+              <button
+                type="button"
+                className="underline"
+                onClick={() =>
+                  setStays(
+                    suggested !== 'rh' || lhStays,
+                    suggested !== 'lh' || rhStays,
+                  )
+                }
+              >
+                {suggested === 'both'
+                  ? 'Stay in Key'
+                  : `${HAND_NAME[suggested]}: Stay in Key`}
+              </button>
+              <button
+                type="button"
+                className="text-white/45 underline"
+                onClick={() => setSuggestionSeen(true)}
+              >
+                Keep it following
+              </button>
+            </p>
+          )}
       </section>
 
       {/* ── capture settings, shown while capture is in use ── */}
@@ -810,6 +1215,86 @@ export const PartEditor: FC<Props> = ({
         </ConsoleCallout>
       )}
 
+      {/* ── what it plays over ── */}
+      {!band && !embedded && follows && (
+        <section
+          className={cn(CONSOLE_PANEL, 'flex flex-col gap-3 p-4')}
+          aria-label="What it plays over"
+        >
+          <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
+            <ChartPicker
+              value={over}
+              onChange={setOver}
+              timeSignature={ts}
+              ownChords
+            />
+          </div>
+          {!chart.own && !canFollow ? (
+            <p className="text-xs text-amber-300/90">
+              It doesn&rsquo;t say what chords it was played over, so it
+              can&rsquo;t follow these: it plays as written. Write them under
+              Chords above.
+            </p>
+          ) : followed ? (
+            <>
+              <p className="text-xs text-white/55">
+                Play hears it over these chords in{' '}
+                {PITCH_NAMES[chart.key.tonic]} {chart.key.mode}:{' '}
+                {draft.stayInKey === 'both'
+                  ? 'it stays in key'
+                  : draft.stayInKey
+                    ? `the ${HAND_NAME[draft.stayInKey].toLowerCase()} stays in key, the other follows the chords`
+                    : 'it follows the chords'}
+                , in its own rhythm and voicings. The roll keeps the notes as
+                written.
+                {armed && ' Capturing plays it as written.'}
+              </p>
+              <div className="relative overflow-hidden rounded-md border border-white/[0.06] bg-black/20 text-white">
+                {/* The chart's chords, a bar each. */}
+                <div className="flex border-b border-white/[0.06] text-xs text-white/60">
+                  {takeChordSymbols(
+                    chart.bars,
+                    ts,
+                    followed.bars,
+                    chart.flats,
+                  ).map((bar, b) => (
+                    <span
+                      key={b}
+                      className="min-w-0 flex-1 truncate px-1.5 py-0.5"
+                    >
+                      {bar}
+                    </span>
+                  ))}
+                </div>
+                <LaneStrip
+                  notes={followed.notes.map((n) => ({
+                    note: n.midi,
+                    onset: n.tick,
+                    duration: n.duration,
+                    velocity: n.velocity,
+                    part: 'chords' as const,
+                  }))}
+                  totalTicks={partTicks(followed)}
+                  barTicks={barTicks(ts)}
+                  drums={false}
+                  muted={false}
+                  colour="#60a5fa"
+                  height={72}
+                />
+                {player.playing && !armed && (
+                  <span
+                    className="pointer-events-none absolute inset-y-0 w-px bg-white/70"
+                    style={{
+                      left: `${((player.position % partTicks(followed)) / partTicks(followed)) * 100}%`,
+                    }}
+                  />
+                )}
+              </div>
+            </>
+          ) : null}
+        </section>
+      )}
+
       {/* ── views ── */}
       <div className="flex items-center gap-2">
         <div
@@ -844,12 +1329,212 @@ export const PartEditor: FC<Props> = ({
           ))}
         </div>
         <span className="text-xs text-muted-foreground">
-          {draft.notes.length} notes · {keyLabel(draft.key)} ·{' '}
+          {draft.notes.length} notes ·{' '}
+          {approachNotes > 0 && `${approachNotes} approach notes · `}
+          {bandChart && viewKey.tonic !== draft.key.tonic
+            ? `shown in ${keyLabel(viewKey)}, the band’s key (kept in ${keyLabel(draft.key)})`
+            : keyLabel(draft.key)}{' '}
+          ·{' '}
           {view === 'staff'
             ? 'the Studio’s Score editor — click a note, then type or use the palettes'
-            : 'draw with the pencil, drag to move, drag edges to resize; Select and drag a box round notes, then Delete'}
+            : 'draw with the pencil, drag to move, drag edges to resize; Select and drag a box round notes, then Delete, or ⌘C and ⌘V at the playhead'}
         </span>
+        {clipStatus && (
+          <span role="status" className="ml-auto text-xs text-white/70">
+            {clipStatus}
+          </span>
+        )}
       </div>
+
+      {/* ── hands: which plays each note (partHands.ts) ── */}
+      {isPiano && view !== 'tab' && (
+        <section
+          className={cn(
+            CONSOLE_PANEL,
+            'flex flex-wrap items-center gap-2 p-3 text-sm',
+          )}
+          aria-label="Hands"
+        >
+          <span className={CONSOLE_LABEL}>Hands</span>
+          {(['lh', 'rh'] as const).map((hand) => (
+            <span
+              key={hand}
+              className="flex items-center gap-1.5 text-xs text-white/70 tabular-nums"
+            >
+              <span
+                className="size-2.5 rounded-full"
+                style={{ background: HAND_COLOR[hand] }}
+              />
+              {HAND_SHORT[hand]} {hands[hand]}
+            </span>
+          ))}
+          {hands.none > 0 && hands.none < viewNotes.length && (
+            <span
+              className="flex items-center gap-1.5 text-xs text-white/55 tabular-nums"
+              title="A note without a hand plays with the hand nearest it in pitch"
+            >
+              <span
+                className="size-2.5 rounded-full"
+                style={{ background: NO_HAND_COLOR }}
+              />
+              {hands.none} without a hand
+            </span>
+          )}
+          <div className="mx-1 h-6 w-px bg-white/10" />
+          {handTargets.length > 0 ? (
+            <>
+              <span className="text-xs text-white/55">
+                {handTargets.length} selected:
+              </span>
+              {(['lh', 'rh'] as const).map((hand) => (
+                <Button
+                  key={hand}
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    setViewNotes(setHands(viewNotes, handTargets, hand))
+                  }
+                >
+                  {HAND_NAME[hand]}
+                </Button>
+              ))}
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  setViewNotes(setHands(viewNotes, handTargets, null))
+                }
+              >
+                No hand
+              </Button>
+              <div className="mx-1 h-6 w-px bg-white/10" />
+            </>
+          ) : (
+            view === 'roll' && (
+              <span className="text-xs text-white/55">
+                Select notes to give them a hand, or
+              </span>
+            )
+          )}
+          <label className="flex items-center gap-1.5 text-xs text-white/55">
+            split {handTargets.length ? 'them' : 'every note'} at
+            <select
+              value={split}
+              onChange={(e) => setSplit(Number(e.target.value))}
+              className={control}
+              aria-label="Split point"
+            >
+              {SPLIT_KEYS.map((m) => (
+                <option key={m} value={m}>
+                  {pitchName(m)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              setViewNotes(splitHands(viewNotes, split, handTargets))
+            }
+            title={`Below ${pitchName(split)} the left hand, from it up the right`}
+          >
+            Split
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setViewNotes(guessHands(viewNotes, handTargets))}
+            title="As the grand staff splits them: treble the right hand, bass the left"
+          >
+            Guess from the staff
+          </Button>
+        </section>
+      )}
+
+      {/* ── approaches: the notes selected in the roll ── */}
+      {view === 'roll' && follows && selection.length > 0 && (
+        <section
+          className={cn(CONSOLE_PANEL, 'flex flex-col gap-2 p-3')}
+          aria-label="Approaches"
+        >
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className={CONSOLE_LABEL}>{selection.length} selected</span>
+            {describeApproach(viewNotes, selection) && (
+              <span className="text-xs text-white/70">
+                an approach: {describeApproach(viewNotes, selection)}
+              </span>
+            )}
+            <span className="text-xs text-white/55">
+              Mark as an approach into the hand&rsquo;s next chord:
+            </span>
+            {(
+              [
+                ['chromatic', 'key', 'Chromatic'],
+                ['diatonic', 'key', 'Diatonic to the key'],
+                ['diatonic', 'goal', 'Diatonic to the goal'],
+              ] as const
+            ).map(([motion, scale, label]) => (
+              <Button
+                key={label}
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const marked = markApproach(
+                    viewNotes,
+                    selection,
+                    motion,
+                    scale,
+                    viewScale,
+                    viewChordAt,
+                  );
+                  if (selection.some((i) => marked[i].approach))
+                    setViewNotes(marked);
+                  else
+                    setApproachNote(
+                      'Nothing to lead into: select only the approach notes, and leave the chord they lead into unselected.',
+                    );
+                }}
+                title="Each note keeps the distance it was played at from the chord it leads into, wherever that chord goes"
+              >
+                {label}
+              </Button>
+            ))}
+            {describeApproach(viewNotes, selection) && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  setViewNotes(clearApproach(viewNotes, selection))
+                }
+              >
+                Not an approach
+              </Button>
+            )}
+          </div>
+          {approachNote && (
+            <p className="text-xs text-amber-300/90">{approachNote}</p>
+          )}
+          <ApproachMenu
+            noun="chord"
+            defaultQ={0.5}
+            onApply={(choice, lengthQ) => {
+              setViewNotes(
+                layApproach(
+                  viewNotes,
+                  selection,
+                  choice,
+                  Math.round(lengthQ * PPQ),
+                  length,
+                  viewScale,
+                  viewChordAt,
+                ),
+              );
+              setRollGeneration((g) => g + 1);
+            }}
+          />
+        </section>
+      )}
 
       <div className="daw-root h-[560px] overflow-hidden rounded-lg border border-white/[0.08]">
         {view === 'roll' && (
@@ -861,14 +1546,19 @@ export const PartEditor: FC<Props> = ({
                 timelineStartTick={0}
                 clipColor={INSTRUMENT_COLOR[draft.instrument]}
                 onChange={(events) =>
-                  setNotes(fromMidiEvents(events, draft.notes))
+                  setViewNotes(
+                    carryHands(fromMidiEvents(events, viewNotes), viewNotes),
+                  )
                 }
+                noteColors={noteColors}
                 noteLabels={
                   draft.instrument === 'drums' ? DRUM_LABELS : undefined
                 }
                 onAuditionNote={(note, velocity) =>
                   void player.audition(draft.sound, note, velocity)
                 }
+                onSelectionChange={setSelection}
+                clipId={`${draft.id}:${rollGeneration}`}
                 loopScope="editor"
               />
             </div>
@@ -876,7 +1566,14 @@ export const PartEditor: FC<Props> = ({
         )}
         {view === 'staff' && (
           <div className="h-full overflow-auto">
-            <StudioScoreBridge part={draft} onNotes={setNotes} />
+            <StudioScoreBridge
+              part={
+                viewShift || bandChart
+                  ? { ...draft, key: viewKey, notes: viewNotes }
+                  : draft
+              }
+              onNotes={(notes) => setViewNotes(carryHands(notes, viewNotes))}
+            />
           </div>
         )}
       </div>

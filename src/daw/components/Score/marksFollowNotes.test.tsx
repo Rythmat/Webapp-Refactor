@@ -105,7 +105,7 @@ beforeEach(() => {
     scoreSpellings: [],
     scoreSlashNotes: [],
   } as Partial<AllSlices>);
-  trackId = st().addTrack('midi', 'piano-sampler', 'Piano');
+  trackId = st().addTrack('midi', 'soundfont', 'Piano');
   // C5 (spelled B♯4 by hand) then E5.
   st().addMidiClip(trackId, {
     id: 'clip',

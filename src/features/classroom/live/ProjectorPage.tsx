@@ -10,6 +10,7 @@ import { buildProjectorView } from './buildProjectorView';
 import type { SessionState } from './sessionsStore';
 import { ProjectorDeckView } from './slides/ProjectorDeckView';
 import { useLiveResponses } from './useLiveResponses';
+import type { SessionClock } from './useServerClock';
 import { useSessionSync } from './useSessionSync';
 
 export const ProjectorPage = () => {
@@ -22,11 +23,20 @@ export const ProjectorPage = () => {
 
   // ONE socket. The surface receives the session it needs as props rather than
   // calling `useSessionSync` again, which would open a second connection.
-  const { state, connectionStatus } = useSessionSync(sid, 'projector', cid);
+  const { state, connectionStatus, clock } = useSessionSync(
+    sid,
+    'projector',
+    cid,
+  );
 
   return (
     <>
-      <ProjectorSurface classroomId={cid} sessionId={sid} state={state} />
+      <ProjectorSurface
+        classroomId={cid}
+        sessionId={sid}
+        state={state}
+        clock={clock}
+      />
       {/* NO SILENT MOCKS. A healthy projected board stays chrome-free; a
           practice or dropped session is unmissable from the back of the room. */}
       {connectionStatus !== 'connected' && (
@@ -42,6 +52,8 @@ interface ProjectorSurfaceProps {
   classroomId: string;
   sessionId: string;
   state: SessionState | null;
+  /** The server's clock: Echo's rounds are drawn on it. */
+  clock: SessionClock;
 }
 
 /**
@@ -52,6 +64,7 @@ const ProjectorSurface = ({
   classroomId: cid,
   sessionId: sid,
   state,
+  clock,
 }: ProjectorSurfaceProps) => {
   const { responsesByEnrollment } = useLiveResponses(sid);
   const { getPublishedDay } = usePublishedDays(cid);
@@ -130,6 +143,7 @@ const ProjectorSurface = ({
         state={state}
         sessionId={sid}
         responsesByEnrollment={responsesByEnrollment}
+        clock={clock}
       />
     );
   }

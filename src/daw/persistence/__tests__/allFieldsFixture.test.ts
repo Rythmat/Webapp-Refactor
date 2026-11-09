@@ -11,6 +11,11 @@
  * migration from it: fixtures/v3-all-fields to v7-all-fields are the v3
  * to v7 ones).
  *
+ * The committed fixture predates the Studio track types of 2026-10-22, so
+ * its tracks still hold removed instruments (piano-sampler, guitar-fx,
+ * vocal-fx, bass-electric, sampler, tonewheel-organ), which load unchanged;
+ * a rewrite puts them on today's ('soundfont', 'audio-input').
+ *
  * Run: WRITE_FIXTURES=1 npx vitest run src/daw/persistence/__tests__/allFieldsFixture.test.ts
  */
 import { execFileSync } from 'node:child_process';
@@ -70,7 +75,7 @@ function allFieldsProject(): ProjectSnapshot {
     track({
       id: 'trk-keys',
       name: 'Keys',
-      instrument: 'piano-sampler',
+      instrument: 'soundfont',
       gmProgram: 4,
       color: '#3d8bff',
       mute: true,
@@ -216,7 +221,7 @@ function allFieldsProject(): ProjectSnapshot {
       id: 'trk-guitar',
       name: 'Guitar',
       type: 'audio',
-      instrument: 'guitar-fx',
+      instrument: 'audio-input',
       color: '#fea92a',
       audioInputId: 'interface-1',
       audioInputChannel: { mode: 'stereo', left: 2, right: 3 },
@@ -247,7 +252,7 @@ function allFieldsProject(): ProjectSnapshot {
       id: 'trk-vocal',
       name: 'Vocal',
       type: 'audio',
-      instrument: 'vocal-fx',
+      instrument: 'audio-input',
       color: '#c785d3',
       audioInputChannel: { mode: 'mono', channel: 1 },
       vocalChain: [
@@ -261,7 +266,7 @@ function allFieldsProject(): ProjectSnapshot {
     track({
       id: 'trk-bass',
       name: 'Bass',
-      instrument: 'bass-electric',
+      instrument: 'soundfont',
       color: '#7fc783',
       bassVoice: 'upright',
       trackRole: 'bass',
@@ -271,7 +276,7 @@ function allFieldsProject(): ProjectSnapshot {
     track({
       id: 'trk-chops',
       name: 'Chops',
-      instrument: 'sampler',
+      instrument: 'soundfont',
       color: '#62b4f7',
       samplerSample: {
         sampleId: 'smp-chop-1',
@@ -293,7 +298,7 @@ function allFieldsProject(): ProjectSnapshot {
     track({
       id: 'trk-organ',
       name: 'Organ',
-      instrument: 'tonewheel-organ',
+      instrument: 'soundfont',
       color: '#7885cb',
       trackRole: 'chords',
       organState: {

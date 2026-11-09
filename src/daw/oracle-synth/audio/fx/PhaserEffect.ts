@@ -11,6 +11,7 @@ export class PhaserEffect extends FXProcessor {
   private lfoGain: GainNode;
   private filters: BiquadFilterNode[];
   private feedbackGain: GainNode;
+  private feedbackDelay: DelayNode;
 
   private static readonly NUM_STAGES = 4;
   private static readonly BASE_FREQ = 1000; // Hz center
@@ -47,11 +48,18 @@ export class PhaserEffect extends FXProcessor {
       this.filters[i - 1].connect(this.filters[i]);
     }
 
-    // Feedback: last filter → feedback gain → first filter
+    // Feedback: last filter → feedback gain → delay → first filter. Web
+    // Audio mutes any cycle without a DelayNode in it, so without the delay
+    // the whole allpass chain rendered silence: the wet path was silent and
+    // a phaser at full mix silenced its track (audit 2026-10-21). The
+    // shortest delay the loop allows (one render quantum) keeps the sweep.
     this.feedbackGain = ctx.createGain();
     this.feedbackGain.gain.value = 0.4;
+    this.feedbackDelay = ctx.createDelay(0.01);
+    this.feedbackDelay.delayTime.value = 128 / ctx.sampleRate;
     this.filters[this.filters.length - 1].connect(this.feedbackGain);
-    this.feedbackGain.connect(this.filters[0]);
+    this.feedbackGain.connect(this.feedbackDelay);
+    this.feedbackDelay.connect(this.filters[0]);
 
     // Last filter → wet path
     this.connectWetPath(this.filters[this.filters.length - 1]);
@@ -100,6 +108,7 @@ export class PhaserEffect extends FXProcessor {
     this.lfo.disconnect();
     this.lfoGain.disconnect();
     this.feedbackGain.disconnect();
+    this.feedbackDelay.disconnect();
     for (const f of this.filters) f.disconnect();
     super.dispose();
   }

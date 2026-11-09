@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { cn } from '@/components/utilities';
-import { AtlasRoutes, SongRoutes } from '@/constants/routes';
+import { GlobeRoutes, SongRoutes } from '@/constants/routes';
 import { MUSIC_HISTORY } from '@/content/contentStore';
 import { getSong } from '@/content/songStore';
 import {
@@ -158,7 +158,7 @@ const DayLinks = ({
         return (
           <Link
             key={id}
-            to={`${AtlasRoutes.globe()}?event=${encodeURIComponent(id)}`}
+            to={`${GlobeRoutes.root()}?event=${encodeURIComponent(id)}`}
             title={id}
             className="rounded-full border border-white/10 px-2.5 py-1 text-white/55 hover:border-white/30"
           >

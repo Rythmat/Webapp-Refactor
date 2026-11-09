@@ -63,7 +63,7 @@
     {
       "type": "lowpass",
       "cutoff": 20,
-      "resonance": 3.5941622663306574,
+      "resonance": 3,
       "pan": 0,
       "gain": 0,
       "mix": 0,
@@ -102,39 +102,17 @@
             "value": 0
           },
           {
-            "time": 0.25,
+            "time": 1,
             "value": 1
           },
           {
-            "time": 0.25,
+            "time": 1,
             "value": 0
-          },
+          }
+        ],
+        [
           {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
+            "time": 0,
             "value": 0
           },
           {
@@ -152,42 +130,6 @@
             "value": 0
           },
           {
-            "time": 0.25,
-            "value": 1
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
             "time": 1,
             "value": 1
           },
@@ -199,92 +141,6 @@
         [
           {
             "time": 0,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 1,
-            "value": 1
-          },
-          {
-            "time": 1,
-            "value": 0
-          }
-        ],
-        [
-          {
-            "time": 0,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 1
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.25,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 1
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.5,
-            "value": 0
-          },
-          {
-            "time": 0.75,
-            "value": 1
-          },
-          {
-            "time": 0.75,
-            "value": 0
-          },
-          {
-            "time": 0.75,
             "value": 0
           },
           {
@@ -296,7 +152,8 @@
             "value": 0
           }
         ]
-      ]
+      ],
+      "once": true
     },
     {
       "rateDivs": [
@@ -931,7 +788,7 @@
       },
       "target": {
         "source": "osc1",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.1875,
       "polarity": "bipolar",
@@ -946,7 +803,7 @@
       },
       "target": {
         "source": "osc2",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.18421876430511475,
       "polarity": "bipolar",
@@ -1008,7 +865,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": -0.42365676164627075,
+      "amount": -0.48417575025322945,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -1018,7 +875,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.13373417074490515,
+  "masterVolume": 0.31387409873829236,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -1040,10 +897,10 @@
     },
     "compressor": {
       "enabled": true,
-      "threshold": 0,
+      "threshold": -6.21612122810418,
       "ratio": 3.00977089098726,
-      "attack": 1,
-      "release": 1
+      "attack": 0.04575989314503011,
+      "release": 0.4723133394000993
     },
     "drive": {
       "enabled": true,
@@ -1062,7 +919,8 @@
   "routing": {
     "filterRouting": {
       "filter1Sources": ["osc1", "osc2", "noise", "sub"],
-      "filter2Sources": []
+      "filter2Sources": [],
+      "serial": true
     },
     "envelopeRouting": {
       "env1Sources": ["osc1", "osc2", "sub", "noise"],

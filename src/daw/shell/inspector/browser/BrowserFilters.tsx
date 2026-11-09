@@ -1,4 +1,5 @@
-import { ChevronDown, Heart, Search, X } from 'lucide-react';
+import { HeartIcon } from '@/components/icons/HeartIcon';
+import { ChevronDown, Search, X } from 'lucide-react';
 import { cn } from '@/components/utilities';
 import { Button } from '@/daw/ui/Button';
 import { IconButton } from '@/daw/ui/IconButton';
@@ -114,15 +115,12 @@ export function BrowserFilters({
         variant={query.favouritesOnly ? 'secondary' : 'ghost'}
         data-testid="library-filter-favourites"
         aria-pressed={query.favouritesOnly}
-        title="Show only your favourites"
-        aria-label={`Favourites only, ${favouriteCount}`}
+        title="Show only your favorites"
+        aria-label={`Favorites only, ${favouriteCount}`}
         className={cn(query.favouritesOnly && 'bg-daw-hover')}
         onClick={() => setQuery({ favouritesOnly: !query.favouritesOnly })}
       >
-        <Heart
-          aria-hidden
-          fill={query.favouritesOnly ? 'currentColor' : 'none'}
-        />
+        <HeartIcon filled={query.favouritesOnly} />
         <span className="tabular-nums">{favouriteCount}</span>
       </Button>
       {FACETS.map(({ facet, any, values, label }) => {

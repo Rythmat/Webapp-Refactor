@@ -1,12 +1,15 @@
 // ── AudioMidiSourcePanel ───────────────────────────────────────────────────
 // Compact control shown atop a MIDI (synth) track's controls: turns a live
-// guitar or bass audio track into a MIDI controller that plays THIS synth.
+// guitar or bass Audio track into a MIDI controller that plays THIS synth.
 //
-// Only renders when the project has at least one guitar-fx/bass-fx track (i.e.
-// there is something to source MIDI from). Writes the binding to the MIDI
+// Only renders when the project has at least one Audio track that isn't a
+// voice (isMidiSourceTrack; a bass amp makes it a bass, audioSource), i.e.
+// there is something to source MIDI from. Writes the binding to the MIDI
 // track's `audioMidiSource`; the detection engine is driven by
 // useGuitarMidiDetection, which reconciles this binding.
 
+import { audioSourceOf } from '@/daw/audio/audioSource';
+import { isMidiSourceTrack } from '@/daw/hooks/useGuitarMidiDetection';
 import { useStore, type AudioMidiSource } from '@/daw/store';
 
 export function AudioMidiSourcePanel({ trackId }: { trackId: string }) {
@@ -14,9 +17,7 @@ export function AudioMidiSourcePanel({ trackId }: { trackId: string }) {
   const updateTrack = useStore((s) => s.updateTrack);
 
   const track = tracks.find((t) => t.id === trackId);
-  const audioTracks = tracks.filter(
-    (t) => t.instrument === 'guitar-fx' || t.instrument === 'bass-fx',
-  );
+  const audioTracks = tracks.filter(isMidiSourceTrack);
   if (!track || audioTracks.length === 0) return null;
 
   const cfg: AudioMidiSource = track.audioMidiSource ?? {
@@ -26,7 +27,7 @@ export function AudioMidiSourcePanel({ trackId }: { trackId: string }) {
   };
   const effectiveSourceId = cfg.sourceTrackId ?? audioTracks[0]?.id ?? null;
   const sourceTrack = audioTracks.find((t) => t.id === effectiveSourceId);
-  const isBass = sourceTrack?.instrument === 'bass-fx';
+  const isBass = !!sourceTrack && audioSourceOf(sourceTrack) === 'bass';
   const hasDevice = Boolean(sourceTrack?.audioInputId);
 
   const patch = (p: Partial<AudioMidiSource>) =>
@@ -37,7 +38,7 @@ export function AudioMidiSourcePanel({ trackId }: { trackId: string }) {
     // Bass is monophonic-only — force mono when a bass source is chosen.
     patch({
       sourceTrackId: id,
-      mode: next?.instrument === 'bass-fx' ? 'mono' : cfg.mode,
+      mode: next && audioSourceOf(next) === 'bass' ? 'mono' : cfg.mode,
     });
   };
 

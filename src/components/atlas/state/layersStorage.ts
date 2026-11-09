@@ -1,4 +1,8 @@
-import type { GlobeLayers } from '@/components/atlas/types';
+import type {
+  GlobeLayers,
+  LandColor,
+  LayerSwitch,
+} from '@/components/atlas/types';
 import { DEFAULT_LAYERS } from './appReducer';
 
 /**
@@ -8,6 +12,14 @@ import { DEFAULT_LAYERS } from './appReducer';
  */
 export const LAYERS_STORAGE_KEY = 'atlas-layers-v1';
 
+const LAND_COLORS: readonly LandColor[] = ['music', 'continent', 'plain'];
+const SWITCHES: readonly LayerSwitch[] = [
+  'states',
+  'cities',
+  'artistPoints',
+  'arcs',
+];
+
 /** The stored choices over the defaults; the defaults when nothing usable is stored. */
 export function loadLayers(): GlobeLayers {
   try {
@@ -15,8 +27,15 @@ export function loadLayers(): GlobeLayers {
     if (!raw) return DEFAULT_LAYERS;
     const stored = JSON.parse(raw) as Partial<Record<string, unknown>>;
     const layers = { ...DEFAULT_LAYERS };
-    for (const key of Object.keys(DEFAULT_LAYERS) as (keyof GlobeLayers)[]) {
+    for (const key of SWITCHES) {
       if (typeof stored[key] === 'boolean') layers[key] = stored[key];
+    }
+    if (LAND_COLORS.includes(stored.landColor as LandColor)) {
+      layers.landColor = stored.landColor as LandColor;
+    } else if (stored.countryColors === false) {
+      // Before 2026-10-29 the land was continent colours or plain: someone
+      // who had turned the colours off keeps plain land.
+      layers.landColor = 'plain';
     }
     return layers;
   } catch {

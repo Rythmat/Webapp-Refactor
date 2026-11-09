@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { LITERACY_FIXTURE } from '../__fixtures__/literacyFixture';
 import {
   degreeLabel,
   degreeOfMidi,
@@ -48,21 +49,29 @@ describe('degrees and pitches', () => {
   });
 });
 
-describe('a step on its timeline', () => {
-  const lesson = getLiveMusicLiteracy('music-literacy-part-1');
-
-  it('is Part 1, live, in C, with its seven verses', () => {
-    expect(lesson).toBeDefined();
+describe('the registry', () => {
+  // The real file, as the console last saved it: that it is there and live,
+  // never what it says. The tests below play the fixture.
+  it('serves Part 1, live', () => {
+    const live = getLiveMusicLiteracy('music-literacy-part-1');
+    expect(live).toMatchObject({ part: 1, status: 'live' });
     expect(listMusicLiteracy().map((l) => l.id)).toContain(
       'music-literacy-part-1',
     );
-    expect(lesson?.key).toEqual({ tonic: 'C', mode: 'major' });
-    expect(lesson?.steps).toHaveLength(7);
+  });
+});
+
+describe('a step on its timeline', () => {
+  const lesson = LITERACY_FIXTURE;
+
+  it('is the fixture’s Part 1, in C, with its seven verses', () => {
+    expect(lesson.key).toEqual({ tonic: 'C', mode: 'major' });
+    expect(lesson.steps).toHaveLength(7);
   });
 
   it('runs count-in, words, call, then the student’s bar', () => {
-    const step = lesson!.steps[0];
-    expect(stepTimeline(lesson!, step)).toMatchObject({
+    const step = lesson.steps[0];
+    expect(stepTimeline(lesson, step)).toMatchObject({
       countIn: { start: 0, length: 1920 },
       words: { start: 1920, length: 3840 },
       call: { start: 5760, length: 1920 },
@@ -73,7 +82,7 @@ describe('a step on its timeline', () => {
   });
 
   it('echoes the call: C C C, then the student plays C C C', () => {
-    const { call, response } = stepNotes(lesson!, lesson!.steps[0]);
+    const { call, response } = stepNotes(lesson, lesson.steps[0]);
     expect(call.map((n) => [n.midi, n.onset])).toEqual([
       [60, 5760],
       [60, 6240],
@@ -87,8 +96,8 @@ describe('a step on its timeline', () => {
   });
 
   it('sings Minor on the flat 3', () => {
-    const minor = lesson!.steps.find((s) => s.tag === 'flat-the-3')!;
-    const { words, call } = stepNotes(lesson!, minor);
+    const minor = lesson.steps.find((s) => s.tag === 'flat-the-3')!;
+    const { words, call } = stepNotes(lesson, minor);
     expect(words.filter((w) => w.midi === 63).map((w) => w.text)).toEqual([
       'Mi-',
       'nor',

@@ -75,10 +75,6 @@
       "id": "funk-l3-d3-3-full-capstone-cm9-f13-ab13-g7alt-cm9"
     },
     {
-      "kind": "comping",
-      "id": "reggaeton-tresillo"
-    },
-    {
       "kind": "part",
       "id": "funk-l1-d46-d1-lh-bass-rh-chords-2"
     },
@@ -105,6 +101,10 @@
     {
       "kind": "part",
       "id": "funk-pianist-1-l2-syncopation-sauce-take-24"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l3-d2-2-lh-rootless-voicings-rh-motivic-phrase-copy"
     }
   ]
 }

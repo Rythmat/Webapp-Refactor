@@ -213,7 +213,7 @@ describe('time limits', () => {
 
 describe('prepare changes nothing; apply writes the session', () => {
   it('claims a new draft for a seed, and only claims', async () => {
-    s().addTrack('midi', 'piano-sampler', 'Live');
+    s().addTrack('midi', 'soundfont', 'Live');
     const before = JSON.stringify(serializeSession().data);
     const prepared = await prepare({
       kind: 'template',
@@ -241,6 +241,43 @@ describe('prepare changes nothing; apply writes the session', () => {
     apply(prepared);
     expect(s().projectId).toBeNull();
     expect(s().tracks.map((t) => t.name)).toContain('Drums');
+  });
+
+  it('opens a course lesson on its demo song, the lesson running, in one apply', async () => {
+    const lesson = 'studio-basics-your-tracks';
+    const prepared = await prepare({ kind: 'tutorial', tutorialId: lesson });
+    // Prepared: the song's drums fetched, nothing changed yet.
+    expect(loadGrooveEvents).toHaveBeenCalled();
+    expect(s().tracks).toEqual([]);
+    expect(s().activeTutorialId).toBeNull();
+    expect(prepared.name).toBe('Your Tracks');
+    expect(prepared.baseline).toEqual({
+      source: 'tutorial',
+      ref: lesson,
+      reopenable: true,
+    });
+    apply(prepared);
+    expect(s().projectName).toBe('Studio Basics Song');
+    expect(s().projectId).toBeNull();
+    expect(s().tracks.map((t) => t.name)).toEqual([
+      'Melody',
+      'Chords',
+      'Bass',
+      'Drums',
+    ]);
+    expect(s().activeTutorialId).toBe(lesson);
+    expect(s().tutorialStepIndex).toBe(0);
+  });
+
+  it('opens any other lesson on a blank project, as before', async () => {
+    const prepared = await prepare({
+      kind: 'tutorial',
+      tutorialId: 'pop-flip-a-sample',
+    });
+    expect(loadGrooveEvents).not.toHaveBeenCalled();
+    apply(prepared);
+    expect(s().tracks).toEqual([]);
+    expect(s().activeTutorialId).toBe('pop-flip-a-sample');
   });
 
   it('refuses a demo that is not there', async () => {

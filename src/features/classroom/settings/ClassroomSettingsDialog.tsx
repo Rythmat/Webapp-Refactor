@@ -150,7 +150,7 @@ export const ClassroomSettingsDialog = ({
                     moduleUrls: { ...config.moduleUrls, [m]: e.target.value },
                   })
                 }
-                placeholder={`/${m === 'globe' ? 'atlas/globe' : m}`}
+                placeholder={`/${m}`}
                 className="flex-1 rounded-md border border-white/10 bg-white/[0.02] px-2 py-1 text-white placeholder:text-white/30 focus:border-white/25 focus:outline-none"
               />
             </label>

@@ -29,7 +29,7 @@
     }
   ],
   "preview": {
-    "chart": "| Am7 | D7 | Am7 | D7 |"
+    "chart": "| Cm7 | F7 |"
   },
   "variations": [
     {
@@ -43,7 +43,7 @@
         },
         "bass": {
           "kind": "bassLine",
-          "id": "funk"
+          "id": "funk-copy"
         },
         "keys-comping": {
           "kind": "part",
@@ -78,6 +78,14 @@
         "drums": {
           "kind": "groove",
           "id": "groove_funk_03"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "heavy-funk"
+        },
+        "keys-comping": {
+          "kind": "part",
+          "id": "funk-l3-d2-2-lh-rootless-voicings-rh-motivic-phrase-copy"
         }
       }
     }

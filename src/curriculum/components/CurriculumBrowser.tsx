@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { CurriculumRoutes } from '@/constants/routes';
+import { LearnRoutes } from '@/constants/routes';
 
 // ---------------------------------------------------------------------------
 // Genre metadata
@@ -52,8 +52,8 @@ export const CurriculumBrowser: React.FC<CurriculumBrowserProps> = ({
   const handleClick = (genreId: string, level?: number) => {
     if (onNavigate) {
       const path = level
-        ? CurriculumRoutes.genreLevel({ genre: genreId, level: String(level) })
-        : CurriculumRoutes.genre({ genre: genreId });
+        ? LearnRoutes.genreLesson({ genre: genreId, level: String(level) })
+        : LearnRoutes.genreCourse({ genre: genreId });
       onNavigate(path);
     }
   };

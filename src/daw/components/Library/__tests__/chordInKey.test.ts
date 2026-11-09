@@ -22,9 +22,9 @@ describe('chordModeContext in C major', () => {
     expect(g.chordRootMode).toBe('mixolydian');
     expect(g.parentRootPc).toBe(0);
     expect(g.isSessionParent).toBe(true);
-    expect(chordDescription('major', g)).toBe(
-      'Built on the 5th degree of C major',
-    );
+    // The degree sentence no longer leads the card's line; a plain triad
+    // in the key has none.
+    expect(chordDescription('major', g)).toBe('');
   });
 
   it('places the 4 chord in Lydian', () => {
@@ -38,9 +38,7 @@ describe('chordModeContext in C major', () => {
     expect(am7.chordRootMode).toBe('aeolian');
     expect(am7.sessionMode).toBe('ionian');
     expect(am7.isSessionParent).toBe(true);
-    expect(chordDescription('minor7', am7)).toMatch(
-      /^Built on the 6th degree of C major\. /,
-    );
+    expect(chordDescription('minor7', am7)).not.toMatch(/Built on/);
   });
 
   it('falls back to the quality for chords outside the key', () => {

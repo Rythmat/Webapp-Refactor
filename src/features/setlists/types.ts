@@ -100,6 +100,12 @@ export interface SetList {
    * only says where else it shows up. Unset means it is not filed at all.
    */
   parent?: SetListParent;
+  /**
+   * When it is played, as yyyy-mm-dd (owner, 2026-10-25: a set list's title
+   * is its show, so the date is the set's own). A set filed under a show
+   * before this reads the show's date until it is given one.
+   */
+  date?: string;
   role?: SetListRole;
   createdAt: number;
   updatedAt: number;

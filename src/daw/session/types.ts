@@ -4,6 +4,8 @@ import type {
   PracticeLevel,
   PracticeOpenTrack,
 } from '@/features/practiceTracks/generatePracticeTrack';
+import type { BandPracticeRef } from '@/features/practiceTracks/genre/bandPracticeRef';
+import type { EchoSongRef } from '@/features/practiceTracks/genre/echoSongRef';
 import type {
   DraftBaseline,
   DraftBody,
@@ -84,6 +86,33 @@ export type OpenIntent =
       genre: string;
       level: number;
       section: ActivitySectionId;
+      /**
+       * A Band playing a student's chart (Music Literacy's Hear It with
+       * Your Band): the link names the band, its style and the chart, so a
+       * refresh or a shared link builds it again.
+       */
+      band?: BandPracticeRef;
+    }
+  | {
+      /**
+       * A song made in Echo's Make Your Song: the student's Melody and
+       * Chords over the band they chose, open on the Create view. The link
+       * names the band, the key, the tempo and both takes, so a refresh or
+       * a shared link builds it again (echoSongRef.ts).
+       */
+      kind: 'echoSong';
+      song: EchoSongRef;
+    }
+  | {
+      /**
+       * A song idea from a prompt typed on Home ("a sad lo-fi beat in D
+       * Dorian"): a band from the console plays a progression the library
+       * tags for it (features/promptSong). `seed` fixes every choice; left
+       * out, each open makes a new idea.
+       */
+      kind: 'prompt';
+      text: string;
+      seed: number | null;
     }
   | { kind: 'jam' }
   | {

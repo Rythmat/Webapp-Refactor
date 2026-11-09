@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { insetsFrom } from './mapInsets';
+import { combineInsets, insetsFrom, NO_MAP_INSETS } from './mapInsets';
 
 const box = (left: number, top: number, width: number, height: number) => ({
   left,
@@ -41,5 +41,21 @@ describe('what the overlays cover of the map', () => {
         bottom: [box(80, 700, 360, 100), box(72, 500, 375, 400)],
       }).bottom,
     ).toBe(400);
+  });
+});
+
+describe('combining the zones', () => {
+  it('keeps the deepest inset on each edge', () => {
+    const cards = { top: 0, right: 0, bottom: 40, left: 307 };
+    const inspector = { top: 0, right: 408, bottom: 40, left: 0 };
+    const phone = { top: 0, right: 0, bottom: 350, left: 0 };
+    expect(combineInsets([cards, inspector])).toEqual({
+      top: 0,
+      right: 408,
+      bottom: 40,
+      left: 307,
+    });
+    expect(combineInsets([cards, inspector, phone]).bottom).toBe(350);
+    expect(combineInsets([])).toEqual(NO_MAP_INSETS);
   });
 });

@@ -11,7 +11,7 @@
     "mode": "ionian"
   },
   "timeSignature": [4, 4],
-  "bars": 9,
+  "bars": 8,
   "tempo": 90,
   "swing": 50,
   "sound": "piano-sampler",
@@ -407,27 +407,6 @@
       "midi": 67,
       "velocity": 96,
       "hand": "rh"
-    },
-    {
-      "tick": 15360,
-      "duration": 120,
-      "midi": 36,
-      "velocity": 96,
-      "hand": "lh"
-    },
-    {
-      "tick": 15360,
-      "duration": 120,
-      "midi": 60,
-      "velocity": 96,
-      "hand": "rh"
-    },
-    {
-      "tick": 15360,
-      "duration": 120,
-      "midi": 67,
-      "velocity": 96,
-      "hand": "rh"
     }
   ],
   "source": {
@@ -443,5 +422,6 @@
   },
   "description": "LH plays whole-note bass through an 8-bar 1 maj - 5 maj - 6 min - 4 maj ×2 loop. RH uses the 3-3-2 rhythm.",
   "genre": "pop",
-  "chordSymbols": ["C", "G", "Am", "F", "C", "G", "Am", "F"]
+  "chordSymbols": ["C", "G", "Am", "F", "C", "G", "Am", "F"],
+  "stayInKey": "rh"
 }

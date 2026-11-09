@@ -48,6 +48,12 @@ import { useStore } from '@/daw/store';
 import { trackEngineRegistry } from '../usePlaybackEngine';
 import { notifyEngineReady } from '@/daw/engine/trackAudio';
 import { frameTaskNames } from '@/daw/engine/engineClock';
+import {
+  resetHistory,
+  startHistory,
+  undo,
+  undoLabel,
+} from '@/daw/store/history';
 
 let now = 0;
 const frames = (n: number) => vi.advanceTimersByTime(16 * n);
@@ -59,8 +65,9 @@ function adapter() {
 function guitarTrack(recordArmed: boolean) {
   return {
     id: 'g',
+    name: 'Guitar',
     type: 'audio',
-    instrument: 'guitar-fx',
+    instrument: 'audio-input',
     recordArmed,
     audioClips: [],
   };
@@ -175,6 +182,8 @@ describe('useAudioChordDetection', () => {
       proposeChordSymbols: propose,
       rootNote: 0,
       mode: 'ionian',
+      // Auto chords off: the take's chords are proposed, not written.
+      chordAutoAnalyze: false,
     } as never);
     trackEngineRegistry.set('g', { instrument: adapter() } as never);
     const { unmount } = renderHook(() => useAudioChordDetection());
@@ -195,6 +204,47 @@ describe('useAudioChordDetection', () => {
     // At the live playhead (less 288 ticks of vote latency, on the beat
     // grid), not at the parked position (0).
     expect(regions[0].startTick).toBe(9600);
+    unmount();
+  });
+
+  it('with Auto chords on, writes the take’s chords on the ruler as it plays and as one undo step at the end', () => {
+    const propose = vi.fn();
+    useStore.setState({
+      tracks: [guitarTrack(true)],
+      proposeChordSymbols: propose,
+      rootNote: 0,
+      mode: 'ionian',
+      chordAutoAnalyze: true,
+      chordRecordMode: 'replace',
+      chordRegions: [],
+    } as never);
+    resetHistory();
+    const release = startHistory();
+    trackEngineRegistry.set('g', { instrument: adapter() } as never);
+    const { unmount } = renderHook(() => useAudioChordDetection());
+    const perf = vi.spyOn(performance, 'now');
+    let clock = 0;
+    perf.mockImplementation(() => (clock += 100));
+
+    det.result = { rootPc: 0, quality: 'major', confidence: 0.9 };
+    playhead.tick = 10000;
+    useStore.setState({ isPlaying: true, isRecording: true });
+    frames(20);
+    // Live: on the ruler while the take plays.
+    expect(useStore.getState().chordRegions.length).toBeGreaterThan(0);
+    expect(useStore.getState().chordRegions[0].startTick).toBe(9600);
+
+    useStore.setState({ isPlaying: false, isRecording: false });
+    expect(propose).not.toHaveBeenCalled();
+    const lane = useStore.getState().chordRegions;
+    expect(lane[0].startTick).toBe(9600);
+    expect(lane[0].noteName).toMatch(/^C/);
+    // One step takes the take's chords away.
+    expect(undoLabel()).toBe('Chords from take');
+    undo();
+    expect(useStore.getState().chordRegions).toEqual([]);
+    perf.mockRestore();
+    release();
     unmount();
   });
 });

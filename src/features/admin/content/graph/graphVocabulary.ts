@@ -126,19 +126,15 @@ export function appPageFor(node: {
     case 'song':
       return toConsolePath(`/songs/${slug}`);
     case 'event':
-      return toConsolePath(`/atlas/globe?event=${encodeURIComponent(slug)}`);
+      return toConsolePath(`/globe?event=${encodeURIComponent(slug)}`);
     case 'artist':
-      return toConsolePath(
-        `/atlas/globe?artist=${encodeURIComponent(node.label)}`,
-      );
+      return toConsolePath(`/globe?artist=${encodeURIComponent(node.label)}`);
     case 'place':
       return slug.startsWith('region-')
         ? null
-        : toConsolePath(
-            `/atlas/globe?place=${encodeURIComponent(`city:${slug}`)}`,
-          );
+        : toConsolePath(`/globe?place=${encodeURIComponent(`city:${slug}`)}`);
     case 'pathway':
-      return toConsolePath(`/atlas/globe?pathway=${encodeURIComponent(slug)}`);
+      return toConsolePath(`/globe?pathway=${encodeURIComponent(slug)}`);
     case 'teach_day': {
       const unit = slug.replace(/-day-\d+$/, '');
       return toConsolePath(

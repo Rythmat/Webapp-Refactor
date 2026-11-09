@@ -11,7 +11,7 @@ import {
   chordName,
   degreeLabelsBySemitone,
   chordRootPc,
-  getGuitarCenter,
+  getFrettedCenter,
   getGuitarShape,
 } from '@/curriculum/data/guitar/centers';
 import {
@@ -37,6 +37,7 @@ import {
   shapePositions,
   type FretWindow,
 } from '@/lib/guitar/fretboard';
+import { GUITAR, type FrettedInstrument } from '@/lib/guitar/instrument';
 import {
   chordToneLabel,
   spokenToneLabel,
@@ -139,6 +140,7 @@ function display(text: string): string {
 function visualChord(
   center: GuitarCenter,
   shapeId: string,
+  inst: FrettedInstrument,
 ): GuitarVisualChord | null {
   const shape = getGuitarShape(shapeId);
   if (!shape) return null;
@@ -148,7 +150,7 @@ function visualChord(
     name: display(chordName(center, shape.degree, shape.quality)),
     hybridLabel: display(hybridLabel(shape.degree, shape.quality)),
     rootPc: chordRootPc(center, shape.degree),
-    positions: shapePositions(shape.frets),
+    positions: shapePositions(shape.frets, inst),
   };
 }
 
@@ -192,9 +194,10 @@ export function keyNumberLabelsOf(center: GuitarCenter): string[] | undefined {
  */
 function halfStepBrackets(
   position: GuitarScalePosition,
-  wide = false,
+  wide: boolean,
+  inst: FrettedInstrument,
 ): FretBracket[] {
-  return stepSizes(position.playOrder).flatMap(
+  return stepSizes(position.playOrder, inst).flatMap(
     ({ from, to, size, semitones }) => {
       if (from.string !== to.string) return [];
       const bracket = {
@@ -215,11 +218,16 @@ function halfStepBrackets(
 export function guitarVisualModel(
   step: ActivityStepV2,
   keyCenter: GuitarCenterId,
+  /** The lesson's instrument: guitar, or a ukulele (its own centers). */
+  inst: FrettedInstrument = GUITAR,
 ): GuitarVisualModel {
-  const center = getGuitarCenter(keyCenter);
+  const center = getFrettedCenter(
+    keyCenter,
+    inst.id === 'ukulele' ? 'ukulele' : 'guitar',
+  );
   const prefix = guitarStepPrefix(step);
   const chords = (step.guitar?.shapeIds ?? []).flatMap(
-    (id) => visualChord(center, id) ?? [],
+    (id) => visualChord(center, id, inst) ?? [],
   );
   const scalePosition = step.guitar?.scalePosition;
   let scale: GuitarVisualScale | null = null;
@@ -232,10 +240,13 @@ export function guitarVisualModel(
       fingers,
       anchor,
       ghosts:
-        scalePosition === 'major' ? [] : pentatonicGhosts(center, position),
+        scalePosition === 'major'
+          ? []
+          : pentatonicGhosts(center, position, inst),
       halfSteps: halfStepBrackets(
         position,
         center.family !== 'diatonic' && center.family !== 'pentatonic-blues',
+        inst,
       ),
     };
   }

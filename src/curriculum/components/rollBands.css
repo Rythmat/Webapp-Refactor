@@ -1,0 +1,36 @@
+/*
+ * A shining roll band (GenrePianoRoll's RollBand.shine): the student's to
+ * play, as Music Literacy's Response. A band of light (--band-shine, set
+ * with the band's color) sweeps across its tint and its label now and then,
+ * as the turn cues' sheen does. Without motion it's the brighter tint alone.
+ */
+
+.roll-band-shine {
+  background-image: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 30%,
+    var(--band-shine) 50%,
+    transparent 70%,
+    transparent 100%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  background-position: 100% 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .roll-band-shine {
+    animation: roll-band-sheen 2.4s ease-in-out infinite;
+  }
+}
+
+@keyframes roll-band-sheen {
+  0% {
+    background-position: 100% 0;
+  }
+  55%,
+  100% {
+    background-position: 0% 0;
+  }
+}

@@ -1,67 +1,55 @@
+import { Map as MapIcon } from 'lucide-react';
 import { ArcadeGameHeader } from '../ArcadeGameHeader';
 
 interface GameHeaderProps {
-  gameMode: 'Melody' | 'Harmony';
-  keyName: string;
+  /** 'Novice · Level 2', or 'The Circle'. */
+  where: string;
+  /** 'Melody in G'. */
+  what: string;
   keyColor: string;
   score: number;
   streak: number;
   multiplier: number;
-  onToggleMode: (mode: 'Melody' | 'Harmony') => void;
-  onOpenKeySelector: () => void;
+  onOpenMap: () => void;
 }
 
 export function GameHeader({
-  gameMode,
-  keyName,
+  where,
+  what,
   keyColor,
   score,
   streak,
   multiplier,
-  onToggleMode,
-  onOpenKeySelector,
+  onOpenMap,
 }: GameHeaderProps) {
   return (
     <ArcadeGameHeader
       title="Major Arcanum"
       controls={
         <>
-          <button
-            onClick={() => onToggleMode('Melody')}
-            className={`px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider transition-all ${
-              gameMode === 'Melody'
-                ? 'bg-white text-black'
-                : 'text-zinc-500 hover:text-white'
-            }`}
-          >
-            Melody
-          </button>
-          <button
-            onClick={() => onToggleMode('Harmony')}
-            className={`px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider transition-all ${
-              gameMode === 'Harmony'
-                ? 'bg-white text-black'
-                : 'text-zinc-500 hover:text-white'
-            }`}
-          >
-            Harmony
-          </button>
-          <div className="w-px h-3 bg-white/10 mx-1" />
-          <button
-            onClick={onOpenKeySelector}
-            className="px-3 py-1 rounded text-xs font-medium uppercase tracking-wider transition-all text-zinc-400 hover:text-white hover:bg-white/[0.08] border border-white/10 flex items-center gap-2"
-          >
-            <div
-              className="w-2 h-2 rounded-full"
+          <span className="rounded-full bg-white/[0.08] px-3 py-1 text-xs font-medium uppercase tracking-wider text-zinc-200">
+            {where}
+          </span>
+          <span className="flex items-center gap-2 rounded border border-white/10 px-3 py-1 text-xs font-medium uppercase tracking-wider text-zinc-300">
+            <span
+              className="h-2 w-2 rounded-full"
               style={{ background: keyColor }}
             />
-            {keyName}
+            {what}
+          </span>
+          <div className="mx-1 h-3 w-px bg-white/10" />
+          <button
+            type="button"
+            onClick={onOpenMap}
+            className="flex items-center gap-1.5 rounded px-3 py-1 text-xs font-medium uppercase tracking-wider text-zinc-400 transition-all hover:bg-white/[0.08] hover:text-white"
+          >
+            <MapIcon size={13} /> Level map
           </button>
         </>
       }
       stats={[
         { label: 'Score', value: score.toLocaleString() },
-        { label: 'Streak', value: streak, valueClassName: 'text-cyan-400' },
+        { label: 'Notes', value: streak, valueClassName: 'text-cyan-400' },
         {
           label: 'Multiplier',
           value: `x${multiplier}`,

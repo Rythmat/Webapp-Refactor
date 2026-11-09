@@ -176,7 +176,7 @@ function Knob({
 
 describe('a knob drag on a track', () => {
   it('makes one store write and one undo step, and is heard as it moves', () => {
-    const id = useStore.getState().addTrack('midi', 'piano-sampler', 'Keys');
+    const id = useStore.getState().addTrack('midi', 'soundfont', 'Keys');
     resetHistory();
     let trackWrites = 0;
     const stop = useStore.subscribe((state, prev) => {

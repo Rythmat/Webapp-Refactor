@@ -82,3 +82,10 @@ export function formatValue(value: number, step?: number): string {
   const text = Math.abs(value).toFixed(decimals);
   return Number(text) !== 0 && value < 0 ? `${MINUS}${text}` : text;
 }
+
+/** A pan, −1 to 1, in words: 'Centre', 'L40', 'R100'. */
+export function formatPan(pan: number): string {
+  return Math.abs(pan) < 0.005
+    ? 'Centre'
+    : `${pan < 0 ? 'L' : 'R'}${Math.round(Math.abs(pan) * 100)}`;
+}

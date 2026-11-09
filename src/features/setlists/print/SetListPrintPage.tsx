@@ -1,7 +1,13 @@
 import { Printer } from 'lucide-react';
 import { useEffect, useMemo, type FC } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { HomeGlow } from '@/components/ClassroomLayout/home/HomeGlow';
+import {
+  GO_PILL,
+  GO_PILL_ENABLED,
+} from '@/components/promptBox/PromptBoxParts';
 import { ChordChart } from '@/components/songLibrary/ChordChart';
+import { cn } from '@/components/utilities';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { entryChart } from '../entryChart';
 import { getStavesPerPage } from '../setViewPreference';
@@ -51,7 +57,10 @@ export const SetListPrintPage: FC = () => {
     );
 
   return (
-    <div className="setlist-print p-6 md:p-10">
+    // On screen, the Learn page's look (owner, 2026-10-25): Home's glow
+    // behind; the paper stays white (setlist-print.css).
+    <div className="setlist-print relative isolate p-6 md:p-10">
+      <HomeGlow />
       <div className="setlist-print-toolbar mb-6 flex items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold">{list.title}</h1>
@@ -62,7 +71,7 @@ export const SetListPrintPage: FC = () => {
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center gap-1.5 rounded-full bg-[#7ecfcf] px-3 py-1.5 text-sm font-semibold text-[#191919]"
+          className={cn(GO_PILL, GO_PILL_ENABLED)}
         >
           <Printer size={15} /> Print
         </button>

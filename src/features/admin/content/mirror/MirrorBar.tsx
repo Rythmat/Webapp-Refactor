@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AdminRoutes } from '@/constants/routes';
+import { AdminRoutes, CurriculumRoutes } from '@/constants/routes';
 import { artistSlug } from '@/content/graph/slugs';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
@@ -47,11 +47,15 @@ import {
  * so it uses the console's router and kit.
  */
 
+/** A genre course's page (/learn/keyboard/genre/pop[/2]): genre, level. */
+const GENRE_COURSE_PAGE = /^\/learn\/keyboard\/genre\/([^/]+)(?:\/(\d+))?\/?$/;
+
 /**
- * The curriculum: in no category of the Table, since its lessons are one of
- * the other records.
+ * The curriculum (and the genre courses): in no category of the Table, since
+ * its lessons are one of the other records.
  */
-const isCurriculum = (appPath: string) => /^\/curriculum(\/|$)/.test(appPath);
+const isCurriculum = (appPath: string) =>
+  /^\/curriculum(\/|$)/.test(appPath) || GENRE_COURSE_PAGE.test(appPath);
 
 /** The app page an app section opens on, as a console path. */
 const mirrorPathFor = (segment: string) =>
@@ -65,6 +69,19 @@ const songSlugOf = (appPath: string): string | null => {
   return song && song[1] !== 'setlists' ? song[1] : null;
 };
 
+/** A genre level's lesson (`/learn/keyboard/genre/jazz/2`), which edits in place too. */
+const isLessonPage = (appPath: string) =>
+  /^\/learn\/keyboard\/genre\/[^/]+\/\d+$/.test(appPath);
+
+/** This page's URL with Edit on or off, its other parameters kept. */
+const withEdit = (pathname: string, params: URLSearchParams, on: boolean) => {
+  const next = new URLSearchParams(params);
+  if (on) next.set('edit', '1');
+  else next.delete('edit');
+  const query = next.toString();
+  return query ? `${pathname}?${query}` : pathname;
+};
+
 /**
  * A Music Literacy page (`/curriculum/music-literacy[/:id…]`) and its
  * lesson's id, which is kebab-case, so never needs decoding.
@@ -73,12 +90,27 @@ const MUSIC_LITERACY_PAGE =
   /^\/curriculum\/music-literacy(?:\/([a-z0-9-]+))?(?:\/|$)/;
 
 /**
+ * Learn → Start Here, the Music Literacy path. The tab's slug is spelled
+ * here rather than imported (musicLiteracy/literacyPath.ts): this bar is
+ * eager console chrome, and that module reads the lessons.
+ */
+const isStartHere = (appPath: string, search: URLSearchParams) =>
+  appPath === '/learn' && search.get('tab') === 'StartHere';
+
+/**
  * What the page showing can be edited as, where it has no in-place editor
  * yet. A song page has one (Preview | Edit); a course, a Music Literacy
- * lesson and a globe event open their editors; a song's globe event opens
- * the song's page in Edit.
+ * lesson (and Start Here, its path) and a globe event open their editors; a
+ * song's globe event opens the song's page in Edit.
  */
 function contextActions(appPath: string, search: URLSearchParams): Action[] {
+  if (isStartHere(appPath, search)) {
+    return [{ label: 'Edit Music Literacy', to: AdminRoutes.musicLiteracy() }];
+  }
+  // Part 3 is no lesson: its bands are the back office's.
+  if (appPath === CurriculumRoutes.musicLiteracyBand()) {
+    return [{ label: 'Edit Bands', to: AdminRoutes.bands() }];
+  }
   // Before the courses: `music-literacy` would read as a course's genre.
   const literacy = MUSIC_LITERACY_PAGE.exec(appPath);
   if (literacy) {
@@ -91,7 +123,9 @@ function contextActions(appPath: string, search: URLSearchParams): Action[] {
         : { label: 'Edit lessons', to: AdminRoutes.musicLiteracy() },
     ];
   }
-  const course = /^\/curriculum\/([^/]+)(?:\/(\d+))?/.exec(appPath);
+  const course =
+    GENRE_COURSE_PAGE.exec(appPath) ??
+    /^\/curriculum\/([^/]+)(?:\/(\d+))?/.exec(appPath);
   if (course) {
     return [
       {
@@ -103,7 +137,7 @@ function contextActions(appPath: string, search: URLSearchParams): Action[] {
       },
     ];
   }
-  const event = appPath === '/atlas/globe' ? search.get('event') : null;
+  const event = appPath === '/globe' ? search.get('event') : null;
   if (event) {
     const song = songIdForEvent(event);
     return song
@@ -120,7 +154,7 @@ function graphFocusFor(
 ): string | null {
   const song = /^\/songs\/([^/]+)$/.exec(appPath);
   if (song && song[1] !== 'setlists') return `song:${song[1]}`;
-  if (appPath === '/atlas/globe') {
+  if (appPath === '/globe') {
     const event = search.get('event');
     if (event) return `event:${event}`;
     const artist = search.get('artist');
@@ -191,20 +225,25 @@ export const MirrorBar = () => {
   const recordsItem = Boolean(records?.[2]);
   const section = consoleAppPath(pathname);
 
+  const params = new URLSearchParams(search);
+  // Start Here is Music Literacy's, which is in no table: not Learn's songs.
+  const startHere = appPath !== null && isStartHere(appPath, params);
   // Where the page showing is in the Table: its row when the page is about
   // one thing (a song page, the globe with an event, an artist or a city
   // open), its table otherwise.
-  const inTable = appPath ? tableForAppPage(appPath, search) : null;
+  const inTable =
+    appPath && !startHere ? tableForAppPage(appPath, search) : null;
   const inTableHref = inTable ? tableHref(inTable.table, inTable.row) : null;
   // Page | Table: the same content as the page, or as rows — the course's
-  // lessons for the curriculum, the Music Literacy lessons for theirs. A
-  // list under Other records keeps its way back to its page, and is the
-  // table itself. An item's full editor is neither: its Table is the item's
-  // row (`ItemRowLink`; the kind's table until the item has loaded, or for a
-  // new one), or for an other record its list under Other records.
+  // lessons for the curriculum, the Music Literacy lessons for theirs and
+  // for Start Here, their path. A list under Other records keeps its way
+  // back to its page, and is the table itself. An item's full editor is
+  // neither: its Table is the item's row (`ItemRowLink`; the kind's table
+  // until the item has loaded, or for a new one), or for an other record its
+  // list under Other records.
   const tableLink =
     inTableHref ??
-    (appPath && MUSIC_LITERACY_PAGE.test(appPath)
+    (appPath && (startHere || MUSIC_LITERACY_PAGE.test(appPath))
       ? AdminRoutes.musicLiteracy()
       : appPath && isCurriculum(appPath)
         ? AdminRoutes.contentKind({ kind: 'activity_flow' })
@@ -232,9 +271,9 @@ export const MirrorBar = () => {
         ? { mirror: mirrorPathFor(mirrorSegment), table: recordsTable }
         : null;
 
-  const params = new URLSearchParams(search);
   const actions = appPath ? contextActions(appPath, params) : [];
   const songSlug = appPath ? songSlugOf(appPath) : null;
+  const inPlace = !!songSlug || (!!appPath && isLessonPage(appPath));
   const editing = params.get('edit') === '1';
   const focus = appPath ? graphFocusFor(appPath, params) : null;
 
@@ -275,14 +314,17 @@ export const MirrorBar = () => {
         </div>
       )}
 
-      {songSlug && (
+      {inPlace && (
         <div
           role="group"
           aria-label="Mode"
           className="flex shrink-0 items-center gap-1"
         >
           {editing ? (
-            <Link to={pathname} className={consoleTabClass(false, 'sm')}>
+            <Link
+              to={withEdit(pathname, params, false)}
+              className={consoleTabClass(false, 'sm')}
+            >
               Preview
             </Link>
           ) : (
@@ -296,7 +338,7 @@ export const MirrorBar = () => {
             </span>
           ) : (
             <Link
-              to={`${pathname}?edit=1`}
+              to={withEdit(pathname, params, true)}
               className={consoleTabClass(false, 'sm')}
             >
               Edit

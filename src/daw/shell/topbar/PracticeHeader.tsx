@@ -1,6 +1,5 @@
 import { DevProfiler } from '@/daw/dev/DevProfiler';
 import { AvatarMenu } from './AvatarMenu';
-import { MusicalTypingChip } from './MusicalTypingChip';
 import { SaveStatusChip } from './SaveStatusChip';
 
 // ── The practice screen's header (milestone 1.4) ───────────────────────────
@@ -19,12 +18,15 @@ export interface PracticeHeaderProps {
   /** Shown as given (the caller formats accidentals). */
   projectName: string;
   onBack(): void;
+  /** The back button's words, when it doesn't go back to a lesson. */
+  backLabel?: string;
   onTakeToStudio(): void;
 }
 
 export function PracticeHeader({
   projectName,
   onBack,
+  backLabel = 'Back to lesson',
   onTakeToStudio,
 }: PracticeHeaderProps) {
   return (
@@ -38,7 +40,7 @@ export function PracticeHeader({
         className="justify-self-start rounded-full px-4 py-1.5 text-sm transition-colors hover:bg-white/5"
         style={{ border: '1px solid var(--daw-hairline)' }}
       >
-        &larr; Back to lesson
+        &larr; {backLabel}
       </button>
       <h1
         className="min-w-0 truncate text-center text-sm font-medium"
@@ -47,7 +49,6 @@ export function PracticeHeader({
         {projectName}
       </h1>
       <div className="flex items-center gap-3 justify-self-end">
-        <MusicalTypingChip />
         <DevProfiler id="PracticeHeaderChip">
           <SaveStatusChip />
         </DevProfiler>

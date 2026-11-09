@@ -27,8 +27,8 @@ export function useStartTour() {
 
         dispatch({ type: 'START_TOUR', payload: { tourId } });
 
-        // Fly to the first stop. GlobeController applies the fly target once the
-        // globe reports ready, so this works even on a cold deep-link load.
+        // Fly to the first stop. The map applies the fly target once it is
+        // ready, so this works even on a cold deep-link load.
         const first = stops[0];
         dispatch({
           type: 'EXECUTE_SEARCH',

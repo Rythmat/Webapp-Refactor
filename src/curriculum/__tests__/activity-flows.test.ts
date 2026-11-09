@@ -20,7 +20,7 @@ import type { AssessmentType } from '../types/activity';
  * statement about content that does not exist yet rather than a bug. The list
  * is asserted below, so it stays honest as genres get written.
  */
-const AUTHORED_GENRES = ['funk', 'pop', 'hipHop', 'latin'];
+const AUTHORED_GENRES = ['funk', 'pop', 'hipHop', 'latin', 'jazz', 'blues'];
 
 const GENRES = [
   'african',
@@ -118,6 +118,34 @@ describe('Activity Flow Data', () => {
         if (totalSteps <= 4) continue;
         expect(totalSteps).toBeGreaterThanOrEqual(10);
         expect(totalSteps).toBeLessThanOrEqual(80);
+      }
+    }
+  });
+
+  it('no two steps in a level share a tag', async () => {
+    // A student's progress is kept by tag, so steps that share one share
+    // completion. Pop's repeats have been live since Oct 2026: retagging one
+    // resets what students passed there, so whether to is the owner's call.
+    const KNOWN: Record<string, string[]> = {
+      'pop 1': ['pop:chords_playalong_l1 | pop'],
+      'pop 3': [
+        'pop:melody_8note_playalong | pop',
+        'pop:two_hand_bass_chords_it | pop',
+        'pop:two_hand_bass_chords_oot | pop',
+        'pop:two_hand_full_playalong_l3 | pop',
+      ],
+    };
+    for (const genre of GENRES) {
+      for (const level of LEVELS) {
+        const flow = await getActivityFlow(genre, level);
+        if (!flow) continue;
+        const count = new Map<string, number>();
+        for (const step of flow.sections.flatMap((s) => s.steps))
+          count.set(step.tag, (count.get(step.tag) ?? 0) + 1);
+        const shared = [...count].filter(([, n]) => n > 1).map(([t]) => t);
+        expect(shared.sort(), `${genre} ${level}`).toEqual(
+          KNOWN[`${genre} ${level}`] ?? [],
+        );
       }
     }
   });

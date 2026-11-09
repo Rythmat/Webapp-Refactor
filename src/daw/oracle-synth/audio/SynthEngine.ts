@@ -30,6 +30,11 @@ import {
   TransformProvider,
 } from './ModulationMatrix';
 import { migrateModRoute } from './modMath';
+import {
+  CONTROL_RATE_PARAMS,
+  liveOffsets,
+  type ModSourceRead,
+} from './liveModulation';
 import { ensureFramesLoaded } from './wavetableImport';
 import { ScaleQuantizer, SnapMode } from './ScaleQuantizer';
 import {
@@ -130,6 +135,13 @@ export class SynthEngine {
   private audioModOscs: OscillatorNode[] = [];
   private modSourceProviders = new Map<string, ModSourceProvider>();
   private lfoAnalysers: (AnalyserNode | null)[] = [];
+  private lfoReadBuffers = new Map<number, Float32Array>();
+  /** The routes as the matrix has them (migrated). */
+  private modRoutes: ModRoute[] = [];
+  /** The control-rate driver for wtPos and blend (when a route aims at them). */
+  private controlRateTimer: ReturnType<typeof setInterval> | null = null;
+  /** What the driver last set on each voice, so it writes only changes. */
+  private controlRateApplied = new WeakMap<Voice, number[]>();
 
   // Key/Scale lock — applied at the rawNoteOn/rawNoteOff choke point so it
   // covers every input path (sequenced, live MIDI, on-screen keys, arp)
@@ -185,8 +197,8 @@ export class SynthEngine {
       new Filter(this.ctx, this.vizSink),
     ];
 
-    // Wavetable bank
-    this.wavetableBank = new WavetableBank(this.ctx);
+    // Wavetable bank, shared by the context's synths
+    this.wavetableBank = WavetableBank.forContext(this.ctx);
 
     // Voice manager with wavetable bank
     this.voiceManager = new VoiceManager(
@@ -348,6 +360,7 @@ export class SynthEngine {
    */
   releaseResources(): void {
     this.initToken++;
+    this.stopControlRate();
     this.heldKeys.clear();
     this.midiHandler?.dispose();
     this.midiHandler = null;
@@ -498,6 +511,14 @@ export class SynthEngine {
     if (voice && this.modMatrix) {
       this.modMatrix.connectVoice(voice);
     }
+    // One-shot LFOs start over with each note (Serum's envelope mode).
+    const at = time ?? this.ctx?.currentTime ?? 0;
+    for (const lfo of this.lfos) lfo.trigger(at);
+    // A new note starts at its modulated position, not a tick late.
+    if (voice && this.controlRateTimer) {
+      this.controlRateApplied.delete(voice);
+      this.tickControlRate();
+    }
   }
 
   private rawNoteOff(note: number, time?: number): void {
@@ -512,6 +533,11 @@ export class SynthEngine {
 
   setOscillatorParams(index: 0 | 1, params: Partial<OscillatorParams>): void {
     Object.assign(this.voiceSeed.osc[index], params);
+    // The patch's own values went to every voice: the control-rate driver
+    // writes its offsets afresh on the next tick.
+    if (params.wtPosition !== undefined || params.unisonBlend !== undefined) {
+      this.controlRateApplied = new WeakMap();
+    }
     this.voiceManager?.updateAllVoices((voice) => {
       voice.setOscillatorParams(index, params);
     });
@@ -625,6 +651,11 @@ export class SynthEngine {
     }
   }
 
+  /** An LFO loops (false) or plays once from each note-on (true). */
+  setLFOOnce(lfoIndex: number, once: boolean): void {
+    this.lfos[lfoIndex]?.setOnce(once);
+  }
+
   setLFONodes(lfoIndex: number, barIndex: number, nodes: LFONode[]): void {
     this.lfos[lfoIndex]?.setBarNodes(barIndex, nodes);
   }
@@ -639,11 +670,151 @@ export class SynthEngine {
 
   setModRoutes(routes: ModRoute[]): void {
     if (!this.modMatrix) return;
-    this.modMatrix.setRoutes(routes.map(migrateModRoute));
+    this.modRoutes = routes.map(migrateModRoute);
+    this.updateControlRate();
+    // An amount drag retunes the live connections; other edits rebuild.
+    if (this.modMatrix.updateAmounts(this.modRoutes)) return;
+    this.modMatrix.setRoutes(this.modRoutes);
     // Apply edits to already-sounding notes, not just the next note-on
     if (this.voiceManager) {
       this.modMatrix.reconnectActiveVoices(this.voiceManager.getActiveVoices());
     }
+  }
+
+  // --- Control-rate modulation (wtPos, blend) and the live readout ---
+  //
+  // A wavetable's position and unison blend aren't AudioParams, so the
+  // matrix can't reach them: while a route aims at one, a ~30 Hz driver
+  // works out each sounding voice's offset (liveModulation.ts) and sets the
+  // voice's oscillator, leaving the patch's own value as the base.
+
+  private static readonly CONTROL_RATE_MS = 33;
+
+  private updateControlRate(): void {
+    const needed = this.modRoutes.some(
+      (r) =>
+        r.enabled && !r.transform && CONTROL_RATE_PARAMS.has(r.target.param),
+    );
+    if (needed && !this.controlRateTimer) {
+      this.controlRateTimer = setInterval(
+        () => this.tickControlRate(),
+        SynthEngine.CONTROL_RATE_MS,
+      );
+    } else if (!needed && this.controlRateTimer) {
+      this.stopControlRate();
+      // Back to the patch's own values.
+      for (const index of [0, 1] as const) {
+        const base = this.voiceSeed.osc[index];
+        this.voiceManager?.updateAllVoices((voice) =>
+          voice.setOscillatorParams(index, {
+            wtPosition: base.wtPosition,
+            unisonBlend: base.unisonBlend,
+          }),
+        );
+      }
+    }
+  }
+
+  private stopControlRate(): void {
+    if (this.controlRateTimer) clearInterval(this.controlRateTimer);
+    this.controlRateTimer = null;
+  }
+
+  /** A global source's value now: an LFO's, a macro's or the mod wheel's. */
+  private readGlobalSource(route: ModRoute): number | null {
+    switch (route.source.type) {
+      case 'lfo': {
+        const analyser = this.getLFOAnalyser(route.source.index);
+        if (!analyser) return null;
+        let buf = this.lfoReadBuffers.get(route.source.index);
+        if (!buf || buf.length !== analyser.fftSize) {
+          buf = new Float32Array(analyser.fftSize);
+          this.lfoReadBuffers.set(route.source.index, buf);
+        }
+        analyser.getFloatTimeDomainData(buf as Float32Array<ArrayBuffer>);
+        return buf[buf.length - 1];
+      }
+      case 'macro':
+        return this.macroNodes[route.source.index]?.offset.value ?? null;
+      case 'modwheel':
+        return this.modWheelNode?.offset.value ?? null;
+      default:
+        return null;
+    }
+  }
+
+  /** Reads every route's source for `voice` at context time `time`. */
+  private sourceReader(voice: Voice, time: number): ModSourceRead {
+    return (route) => {
+      switch (route.source.type) {
+        case 'envelope':
+          return voice.modSourceValueAt(
+            route.source.index === 0 ? 'env1' : 'env2',
+            time,
+          );
+        case 'velocity':
+          return voice.modSourceValueAt('velocity', time);
+        case 'keytrack':
+          return voice.modSourceValueAt('keytrack', time);
+        default:
+          return this.readGlobalSource(route);
+      }
+    };
+  }
+
+  private tickControlRate(): void {
+    if (!this.ctx || !this.voiceManager) return;
+    const now = this.ctx.currentTime;
+    const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+    for (const voice of this.voiceManager.getActiveVoices()) {
+      const offsets = liveOffsets(
+        this.modRoutes,
+        this.sourceReader(voice, now),
+        (r) => CONTROL_RATE_PARAMS.has(r.target.param),
+      );
+      const last = this.controlRateApplied.get(voice) ?? [];
+      const next: number[] = [];
+      for (const index of [0, 1] as const) {
+        const base = this.voiceSeed.osc[index];
+        const source = index === 0 ? 'osc1' : 'osc2';
+        const position = clamp01(
+          (base.wtPosition ?? 0) + (offsets.get(`${source}:wtPos`) ?? 0),
+        );
+        const blend = clamp01(
+          (base.unisonBlend ?? 0) + (offsets.get(`${source}:blend`) ?? 0),
+        );
+        next.push(position, blend);
+        const params: Partial<OscillatorParams> = {};
+        if (Math.abs(position - (last[index * 2] ?? -1)) > 0.001) {
+          params.wtPosition = position;
+        }
+        if (Math.abs(blend - (last[index * 2 + 1] ?? -1)) > 0.001) {
+          params.unisonBlend = blend;
+        }
+        if (Object.keys(params).length) {
+          voice.setOscillatorParams(index, params);
+        }
+      }
+      this.controlRateApplied.set(voice, next);
+    }
+  }
+
+  /**
+   * What the routes add to each destination right now ('flt1:cutoff' →
+   * cents, 'osc1:wtPos' → 0..1), as the latest sounding note has it; null
+   * while no note sounds. The synth card draws its controls moving from it.
+   */
+  getLiveModulation(): Map<string, number> | null {
+    if (!this.ctx || !this.voiceManager) return null;
+    const now = this.ctx.currentTime;
+    let focus: Voice | null = null;
+    for (const voice of this.voiceManager.getActiveVoices()) {
+      // A note scheduled ahead (a clip playing) hasn't started yet.
+      if (voice.noteOnAt > now || voice.stateAt(now) === 'free') continue;
+      if (!focus || voice.noteOnAt > focus.noteOnAt) focus = voice;
+    }
+    if (!focus) return null;
+    return liveOffsets(this.modRoutes, this.sourceReader(focus, now));
   }
 
   // --- Modulation source registry ---

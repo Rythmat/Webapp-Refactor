@@ -1,13 +1,14 @@
-import { useMemo } from 'react';
+import { lazy, useMemo } from 'react';
 import {
   Navigate,
   type RouteObject,
   useLocation,
   useRoutes,
 } from 'react-router-dom';
+import { LearnRoutes } from '@/constants/routes';
 import { curriculumPages } from '@/curriculum/routes';
 import {
-  atlasPages,
+  globePages,
   gamesPages,
   learnPages,
   songsPages,
@@ -16,8 +17,8 @@ import {
 import { searchPages } from '@/features/search/routes';
 import { NotMirroredYet } from './NotMirroredYet';
 import { ClassroomMirror } from './segments/ClassroomMirror';
-import { HomeMirror } from './segments/HomeMirror';
 import { LearnMirror } from './segments/LearnMirror';
+import { LessonMirrorPage } from './segments/LessonMirrorPage';
 import { SongMirrorPage } from './segments/SongMirrorPage';
 import { TeachMirror } from './segments/TeachMirror';
 
@@ -31,6 +32,13 @@ import { TeachMirror } from './segments/TeachMirror';
  * in the console without anyone remembering to add it. Only the exceptions
  * are listed: pages that show a student's own data rather than content.
  */
+
+/** The app's Home, as students see it (their own parts as placeholders). */
+const HomeInlet = lazy(() =>
+  import('@/components/ClassroomLayout/HomeInlet').then((m) => ({
+    default: m.HomeInlet,
+  })),
+);
 
 type Factory = () => { path?: string; children?: RouteObject[] };
 
@@ -56,12 +64,17 @@ const notMirrored = (child: RouteObject): RouteObject => ({
 });
 
 const buildRoutes = (): RouteObject[] => [
-  { path: '/', element: <HomeMirror /> },
+  { path: '/', element: <HomeInlet /> },
   // Home: the dashboard only; awards and the plan page are per-student.
-  { path: '/home', element: <HomeMirror /> },
-  // Learn, always on a tab (LearnMirror explains why).
+  { path: '/home', element: <HomeInlet /> },
+  // Learn, always on a tab (LearnMirror explains why); a genre course's
+  // level is its lesson, with its Edit mode (`?edit=1`).
   segment(learnPages, (child) =>
-    child.index ? { ...child, element: <LearnMirror /> } : child,
+    child.index
+      ? { ...child, element: <LearnMirror /> }
+      : child.path === LearnRoutes.genreLesson.definition
+        ? { ...child, element: <LessonMirrorPage preview={child.element} /> }
+        : child,
   ),
   // Songs: the song pages, each with its Edit mode (`?edit=1`); set lists
   // are a student's own.
@@ -73,7 +86,7 @@ const buildRoutes = (): RouteObject[] => [
         : child,
   ),
   segment(curriculumPages),
-  segment(atlasPages),
+  segment(globePages),
   // Studio: the dashboard and its Production lessons; the editor opens a
   // student's own project.
   segment(studioPages, (child) =>

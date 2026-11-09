@@ -22,6 +22,18 @@
 @tailwind utilities;
 
 @layer base {
+  /* The app's scale (owner, 2026-10-24: everything as it looked at 110%
+     browser zoom). Every rem-sized thing — Tailwind's text, spacing and
+     widths, and the container-query breakpoints — grows with it; a size
+     that should follow belongs in rem, not px. A percentage, so a reader's
+     own browser font-size setting still counts. (CSS `zoom` would match
+     browser zoom more literally, but it makes 100vh overflow and puts
+     getBoundingClientRect in zoomed pixels, which the pointer math in the
+     Studio and elsewhere doesn't expect.) */
+  html {
+    font-size: 110%;
+  }
+
   :root {
     --background: 40 13% 95%;
     --foreground: 33 25% 6%;

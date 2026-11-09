@@ -47,7 +47,7 @@ function track(
     id,
     name: id,
     type: 'midi',
-    instrument: 'piano-sampler',
+    instrument: 'soundfont',
     color: '#888888',
     mute: false,
     solo: false,
@@ -115,7 +115,7 @@ function kitchenSink() {
   ]);
   const guitar = track('trk-guitar', [], {
     type: 'audio',
-    instrument: 'guitar-fx',
+    instrument: 'audio-input',
   });
   const drums = track(
     'trk-drums',

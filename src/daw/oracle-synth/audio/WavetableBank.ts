@@ -13,9 +13,28 @@ import type { OscWarpMode } from './types';
  *
  * Beyond the built-in procedural tables, imported tables (wavetable packs)
  * are built lazily from the shared frame cache on first access — frames are
- * fetched once app-wide, PeriodicWaves are built per engine/AudioContext.
+ * fetched once app-wide, PeriodicWaves are built once per AudioContext
+ * (forContext: every synth track on it shares one bank).
  */
+const banksByContext = new WeakMap<BaseAudioContext, WavetableBank>();
+/** The start phases a one-frame table keeps (getPhasedWave). */
+const PHASE_STEPS = 64;
+
 export class WavetableBank {
+  /**
+   * The context's bank, made on first use. Each synth track built its own,
+   * with every built-in and pack table's waves again (audit 2026-10-21); an
+   * export's offline context gets one of its own.
+   */
+  static forContext(ctx: AudioContext): WavetableBank {
+    let bank = banksByContext.get(ctx);
+    if (!bank) {
+      bank = new WavetableBank(ctx);
+      banksByContext.set(ctx, bank);
+    }
+    return bank;
+  }
+
   private ctx: AudioContext;
   private tables: Map<string, PeriodicWave[]> = new Map();
 
@@ -26,6 +45,10 @@ export class WavetableBank {
   private framePartials: Map<string, { real: number[]; imag: number[] }[]> =
     new Map();
   private frameStore: Map<string, Float32Array[]> = new Map();
+  /** One-frame tables' waves at a start phase (getPhasedWave). */
+  private phasedWaves = new Map<string, PeriodicWave>();
+  /** Tables whose frames each play at full scale (normalized one by one). */
+  private perFrameTables = new Set<string>();
 
   constructor(ctx: AudioContext) {
     this.ctx = ctx;
@@ -36,26 +59,47 @@ export class WavetableBank {
    * Builds an imported table from raw 2048-sample frames. Frames are
    * normalized by the table-global peak (per-frame normalization would
    * flatten intentional loudness differences across a morph), then
-   * converted to PeriodicWaves with normalization disabled.
+   * converted to PeriodicWaves with normalization disabled. `perFrame`
+   * normalizes each frame on its own instead: a warped copy of a procedural
+   * table, whose unwarped frames the browser normalizes one by one.
+   *
+   * The peak is taken without each frame's DC, which frameToPartials drops:
+   * a DC-heavy frame measured with it played up to ~2× full scale (audit
+   * 2026-10-21: Default Shapes frames 5-8 peaked at 1.94).
    */
-  loadWavetableFromFrames(name: string, frames: Float32Array[]): void {
+  loadWavetableFromFrames(
+    name: string,
+    frames: Float32Array[],
+    perFrame = false,
+  ): void {
     if (frames.length === 0) return;
     // Keep the raw frames so a phase warp can be baked from them later.
     this.frameStore.set(
       name,
       frames.map((f) => Float32Array.from(f)),
     );
-    let peak = 0;
-    for (const frame of frames) {
+    if (perFrame) this.perFrameTables.add(name);
+    const peakOf = (frame: Float32Array) => {
+      let mean = 0;
+      for (let i = 0; i < frame.length; i++) mean += frame[i];
+      mean /= frame.length || 1;
+      let peak = 0;
       for (let i = 0; i < frame.length; i++) {
-        const a = Math.abs(frame[i]);
+        const a = Math.abs(frame[i] - mean);
         if (a > peak) peak = a;
       }
+      return peak;
+    };
+    let tablePeak = 0;
+    if (!perFrame) {
+      for (const frame of frames)
+        tablePeak = Math.max(tablePeak, peakOf(frame));
     }
-    const scale = peak > 0 ? 1 / peak : 1;
     const waves: PeriodicWave[] = [];
     const scaled = new Float32Array(frames[0].length);
     for (const frame of frames) {
+      const peak = perFrame ? peakOf(frame) : tablePeak;
+      const scale = peak > 0 ? 1 / peak : 1;
       for (let i = 0; i < frame.length; i++) scaled[i] = frame[i] * scale;
       const { real, imag } = frameToPartials(scaled);
       waves.push(
@@ -81,8 +125,36 @@ export class WavetableBank {
     if (this.tables.has(derived)) return derived;
     const base = this.getTimeDomainFrames(baseName);
     if (!base || base.length === 0) return baseName;
-    this.loadWavetableFromFrames(derived, warpFrames(base, mode, q / 20));
+    // A procedural table plays each frame browser-normalized: its warped
+    // copy keeps that, rather than drop up to 28 dB (audit 2026-10-21).
+    this.loadWavetableFromFrames(
+      derived,
+      warpFrames(base, mode, q / 20),
+      this.framePartials.has(baseName),
+    );
     return derived;
+  }
+
+  /**
+   * A table's frames to draw (the dock's synth card plots them), unwarped:
+   * time-domain, one per WT position step, or null when none are obtainable
+   * yet (a pack table still loading). Never on the audio path.
+   */
+  getDisplayFrames(name: string): readonly Float32Array[] | null {
+    return this.getTimeDomainFrames(name);
+  }
+
+  /**
+   * How a table's frames play relative to each other: 'frame' when each is
+   * brought to full scale (procedural tables, which the browser normalizes,
+   * and their warped copies), 'table' when the table's own loudness
+   * contour across its frames is kept (imported tables). A plot scales its
+   * frames the same way, so it shows what plays.
+   */
+  getDisplayScaling(name: string): 'frame' | 'table' {
+    return this.framePartials.has(name) || this.perFrameTables.has(name)
+      ? 'frame'
+      : 'table';
   }
 
   /** Time-domain frames for a table (imported cache, stored, or synthesized
@@ -265,6 +337,13 @@ export class WavetableBank {
     return { real, imag };
   }
 
+  /**
+   * A pulse, high for `dutyCycle` of the period from its start: cosine
+   * terms sin(2πkd)/(kπ) and sine terms 2·sin²(πkd)/(kπ). At d = 0.5 it is
+   * the square. The old terms put a centred pulse's cosine series on the
+   * sines, which is its Hilbert transform: spikes, ~10 dB quieter (audit
+   * 2026-10-21).
+   */
   private pwmPartials(
     n: number,
     dutyCycle: number,
@@ -272,7 +351,9 @@ export class WavetableBank {
     const real = new Array(n).fill(0);
     const imag = new Array(n).fill(0);
     for (let i = 1; i < n; i++) {
-      imag[i] = (2 / (i * Math.PI)) * Math.sin(i * Math.PI * dutyCycle);
+      const k = i * Math.PI;
+      real[i] = Math.sin(2 * k * dutyCycle) / k;
+      imag[i] = (2 * Math.sin(k * dutyCycle) ** 2) / k;
     }
     return { real, imag };
   }
@@ -315,6 +396,64 @@ export class WavetableBank {
     if (!table) return null;
     const idx = Math.max(0, Math.min(frameIndex, table.length - 1));
     return table[idx];
+  }
+
+  /**
+   * A one-frame table's wave starting `phase` (0..1) into its cycle, for
+   * Position on a basic shape (owner, 2026-10-22: Position still sets where
+   * a sine, square, triangle or saw starts). Phases are kept in 64 steps.
+   * A procedural wave turns its partials (each harmonic k by k·θ), so the
+   * browser's normalization, and the level, are unchanged; an imported one
+   * rotates its samples and is levelled as loadWavetableFromFrames does.
+   * Null for a table with more than one frame, or none.
+   */
+  getPhasedWave(tableName: string, phase: number): PeriodicWave | null {
+    const table = this.resolveTable(tableName);
+    if (!table || table.length !== 1) return null;
+    const q = Math.round((((phase % 1) + 1) % 1) * PHASE_STEPS) % PHASE_STEPS;
+    if (q === 0) return table[0];
+    const key = `${tableName}@phase${q}`;
+    const cached = this.phasedWaves.get(key);
+    if (cached) return cached;
+    const theta = (2 * Math.PI * q) / PHASE_STEPS;
+    let wave: PeriodicWave | null = null;
+    const partials = this.framePartials.get(tableName)?.[0];
+    if (partials) {
+      const len = Math.min(partials.real.length, partials.imag.length);
+      const real = new Float32Array(len);
+      const imag = new Float32Array(len);
+      for (let k = 1; k < len; k++) {
+        const a = partials.real[k];
+        const b = partials.imag[k];
+        const c = Math.cos(k * theta);
+        const s = Math.sin(k * theta);
+        real[k] = a * c + b * s;
+        imag[k] = b * c - a * s;
+      }
+      wave = this.ctx.createPeriodicWave(real, imag, {
+        disableNormalization: false,
+      });
+    } else {
+      const frame = this.getTimeDomainFrames(tableName)?.[0];
+      if (!frame) return table[0];
+      const n = frame.length;
+      const shift = Math.round((q / PHASE_STEPS) * n);
+      let mean = 0;
+      for (let i = 0; i < n; i++) mean += frame[i];
+      mean /= n || 1;
+      let peak = 0;
+      for (let i = 0; i < n; i++)
+        peak = Math.max(peak, Math.abs(frame[i] - mean));
+      const scale = peak > 0 ? 1 / peak : 1;
+      const rotated = new Float32Array(n);
+      for (let i = 0; i < n; i++) rotated[i] = frame[(i + shift) % n] * scale;
+      const { real, imag } = frameToPartials(rotated);
+      wave = this.ctx.createPeriodicWave(real, imag, {
+        disableNormalization: true,
+      });
+    }
+    this.phasedWaves.set(key, wave);
+    return wave;
   }
 
   getTableSize(tableName: string): number {

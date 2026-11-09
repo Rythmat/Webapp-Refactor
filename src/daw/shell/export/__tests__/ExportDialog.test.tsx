@@ -90,7 +90,7 @@ const dialogState = () => useExportDialogStore.getState();
 /** A track with one note (or none), as the store keeps it. */
 function addTrack(
   name: string,
-  instrument: 'piano-sampler' | 'soundfont' | 'drum-machine' = 'piano-sampler',
+  instrument: 'soundfont' | 'soundfont' | 'drum-machine' = 'soundfont',
   withNotes = true,
 ): string {
   const id = s().addTrack('midi', instrument, name);
@@ -447,7 +447,7 @@ describe('stems', () => {
 
     fireEvent.click(screen.getByTestId('export-cancel'));
     expect(signal?.aborted).toBe(true);
-    expect(screen.getByRole('status')).toHaveTextContent('Cancelling…');
+    expect(screen.getByRole('status')).toHaveTextContent('Canceling…');
 
     await act(async () => {
       fail(new DOMException('Stopped', 'AbortError'));
@@ -483,7 +483,7 @@ describe('stems', () => {
   });
 
   it('is off while no track plays anything', () => {
-    addTrack('Keys', 'piano-sampler', false);
+    addTrack('Keys', 'soundfont', false);
     render(<ExportDialogHost />);
     open();
     pick('What to export', 'Each track');
@@ -505,6 +505,8 @@ describe('an audio export', () => {
     const { blob } = await h.exportProjectAudio.mock.results[0].value;
     expect(h.downloadAudioBlob).toHaveBeenCalledWith(blob, 'song.wav');
     expect(s().lastAudioExportAt).toEqual(expect.any(Number));
+    // A course lesson's Export Audio step (doneMomentsSlice.ts).
+    expect(s().doneMoments.exportAudio).toBe(1);
     expect(h.notice).toHaveBeenCalledWith({ title: 'Exported song.wav' });
     expect(dialogState().isOpen).toBe(false);
     expect(screen.queryByRole('dialog')).toBeNull();
@@ -524,13 +526,14 @@ describe('an audio export', () => {
       variant: 'destructive',
     });
     expect(h.downloadAudioBlob).not.toHaveBeenCalled();
+    expect(s().doneMoments.exportAudio).toBe(0);
     expect(dialogState().isOpen).toBe(true);
   });
 });
 
 describe('a song where nothing plays', () => {
   it('still exports, saying the file will be silent (a lesson bounces what is there)', () => {
-    addTrack('Synth', 'piano-sampler', false);
+    addTrack('Synth', 'soundfont', false);
     render(<ExportDialogHost />);
     open();
     expect(audioRun()).toBeEnabled();
@@ -539,7 +542,7 @@ describe('a song where nothing plays', () => {
 
   it('counts a soloed empty track as what plays, as Play does', () => {
     addTrack('Keys');
-    const empty = addTrack('Empty', 'piano-sampler', false);
+    const empty = addTrack('Empty', 'soundfont', false);
     act(() => s().toggleSolo(empty));
     render(<ExportDialogHost />);
     open();
@@ -616,6 +619,7 @@ describe('a notation export', () => {
     expect(filename).toBe('night-drive-lead-sheet.musicxml');
     expect(blob).toBeInstanceOf(Blob);
     expect((blob as Blob).type).toBe('application/vnd.recordare.musicxml+xml');
+    expect(s().doneMoments.exportMusicXml).toBe(1);
     expect(dialogState().isOpen).toBe(false);
   });
 
@@ -644,6 +648,7 @@ describe('a notation export', () => {
       title: 'The song has no chord symbols to write yet',
     });
     expect(h.downloadFile).not.toHaveBeenCalled();
+    expect(s().doneMoments.exportMusicXml).toBe(0);
     expect(dialogState().isOpen).toBe(true);
   });
 
@@ -713,7 +718,7 @@ describe('why Export is off', () => {
 
   it('says a track without notes has nothing to write down', () => {
     addTrack('Keys');
-    const empty = addTrack('Vox', 'piano-sampler', false);
+    const empty = addTrack('Vox', 'soundfont', false);
     render(<ExportDialogHost />);
     open({ tab: 'notation', trackId: empty });
 
@@ -728,7 +733,7 @@ describe('why Export is off', () => {
   });
 
   it('says a track without clips has nothing to play', () => {
-    const empty = addTrack('Vox', 'piano-sampler', false);
+    const empty = addTrack('Vox', 'soundfont', false);
     render(<ExportDialogHost />);
     open({ trackId: empty });
     expect(audioRun()).toBeDisabled();
@@ -765,7 +770,7 @@ describe('warnings', () => {
   /** A guitar (or vocal) track with one take and its stored pedals. */
   function addAmpTrack(
     name: string,
-    instrument: 'guitar-fx' | 'vocal-fx',
+    instrument: 'audio-input' | 'audio-input',
     namModelId: string | null,
   ): string {
     const id = s().addTrack('audio', instrument, name);
@@ -776,7 +781,7 @@ describe('warnings', () => {
       fadeInTicks: 0,
       fadeOutTicks: 0,
     });
-    if (instrument === 'guitar-fx') {
+    if (instrument === 'audio-input') {
       s().setGuitarChain(id, [
         { type: 'overdrive', enabled: true, params: {} },
         { type: 'nam-amp', enabled: true, params: {}, namModelId },
@@ -790,8 +795,8 @@ describe('warnings', () => {
   }
 
   it('no longer says guitar and vocal tracks export dry (1.11)', () => {
-    addAmpTrack('Lead Gtr', 'guitar-fx', 'nam-crunch-plexi');
-    addAmpTrack('Vox', 'vocal-fx', null);
+    addAmpTrack('Lead Gtr', 'audio-input', 'nam-crunch-plexi');
+    addAmpTrack('Vox', 'audio-input', null);
     render(<ExportDialogHost />);
     open();
     expect(screen.queryByText(/amp and pedals/)).toBeNull();
@@ -799,8 +804,8 @@ describe('warnings', () => {
   });
 
   it('names a track whose amp model this build does not have', () => {
-    addAmpTrack('Lead Gtr', 'guitar-fx', 'nam-from-a-newer-client');
-    addAmpTrack('Rhythm Gtr', 'guitar-fx', 'nam-crunch-plexi');
+    addAmpTrack('Lead Gtr', 'audio-input', 'nam-from-a-newer-client');
+    addAmpTrack('Rhythm Gtr', 'audio-input', 'nam-crunch-plexi');
     render(<ExportDialogHost />);
     open();
     expect(

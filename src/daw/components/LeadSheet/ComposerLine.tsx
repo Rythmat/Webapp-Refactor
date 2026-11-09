@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from '@/daw/store';
+import { composerNameOf } from '@/daw/model/composerName';
 import { useMe } from '@/hooks/data/auth/useMe';
 
 // ── The composer line under a sheet's title ────────────────────────────────
@@ -7,14 +8,17 @@ import { useMe } from '@/hooks/data/auth/useMe';
 // edited in place with a double-click. The composer is part of the project
 // (saved, synced to collaborators, carried onto set-list charts), so opening
 // a sheet never writes it: filling it in with whoever opened the sheet made
-// viewing an edit, and put a guest's name on someone else's song. The
-// signed-in name is only the field's placeholder, and reaches the project
-// only when typed. Emptying the field clears the composer.
+// viewing an edit, and put a guest's name on someone else's song. A new
+// project starts with its creator as composer (the session's new and
+// template opens, owner 2026-10-22). A sheet with none offers the signed-in
+// name, faint and never printed, in place of the old "Double-click to add
+// composer"; it is the field's placeholder, and reaches the project only
+// when typed. Emptying the field clears the composer.
 
 /** Who the sheet suggests as composer: the signed-in user, if any. */
 function useSuggestedComposer(): string {
   const { data: me } = useMe();
-  return me?.nickname || me?.username || me?.fullName || '';
+  return composerNameOf(me);
 }
 
 export function ComposerLine() {
@@ -100,8 +104,10 @@ export function ComposerLine() {
       {composerName ? (
         `by ${composerName}`
       ) : (
-        // The prompt is for the screen; a sheet with no composer prints none.
-        <span className="print:hidden">Double-click to add composer</span>
+        // The offer is for the screen; a sheet with no composer prints none.
+        <span data-testid="composer-offer" className="opacity-60 print:hidden">
+          {suggestion ? `by ${suggestion}` : 'Composer'}
+        </span>
       )}
     </div>
   );

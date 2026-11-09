@@ -21,6 +21,10 @@ export class CompressorEffect extends FXProcessor {
     // Wire: input → compressor → wet path
     this.input.connect(this.compressor);
     this.connectWetPath(this.compressor);
+    // An insert: all wet. The base's 50/50 dry+wet blend summed the dry
+    // signal with the compressor's look-ahead-delayed copy, a comb filter
+    // (audit 2026-10-21), and was never the patch's choice.
+    this.setMix(1);
   }
 
   setThreshold(threshold: number): void {

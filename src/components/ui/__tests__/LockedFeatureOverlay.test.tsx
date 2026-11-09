@@ -18,7 +18,7 @@ function Where() {
 
 function renderLock(locked: boolean, label?: string) {
   return render(
-    <MemoryRouter initialEntries={['/studio/editor']}>
+    <MemoryRouter initialEntries={['/studio']}>
       <Routes>
         <Route
           path="*"
@@ -82,5 +82,26 @@ describe('LockedFeatureOverlay', () => {
     expect(
       screen.queryByRole('button', { name: 'Subscribe to unlock content' }),
     ).toBeNull();
+  });
+
+  it('leaves nothing inert once it unlocks (premium arriving late)', () => {
+    // A tile's own divs where the lock's were: the content of a card, as
+    // Learn's tiles are.
+    const card = (locked: boolean) => (
+      <MemoryRouter>
+        <LockedFeatureOverlay locked={locked}>
+          <div data-testid="card">
+            <div data-testid="art">
+              <button type="button">Open</button>
+            </div>
+          </div>
+        </LockedFeatureOverlay>
+      </MemoryRouter>
+    );
+    const { rerender, container } = render(card(true));
+    rerender(card(false));
+    expect(container.querySelector('[inert]')).toBeNull();
+    expect(screen.getByTestId('art')).not.toHaveAttribute('inert');
+    expect(screen.getByRole('button', { name: 'Open' })).toBeVisible();
   });
 });

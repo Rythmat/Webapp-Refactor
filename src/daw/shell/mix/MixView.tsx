@@ -11,8 +11,8 @@ import { ReturnStrip } from './ReturnStrip';
 // ── The Mix view (milestone 2.10) ──────────────────────────────────────────
 //
 // Mixer first, the height of the main region: a row of 96 px strips that
-// scrolls sideways (each track, then Return A and B), and the 240 px master
-// column pinned at the right. The racks open in the RackDock under it (the
+// scrolls sideways (each track), and Send A, Send B and the Master strip
+// pinned at the right. The racks open in the RackDock under it (the
 // shell's dock area), from a strip's effects, a return or the master's
 // chain. The selected track's strip scrolls into view when the selection
 // changes. With no tracks yet, the row says how to start; the returns and
@@ -21,7 +21,8 @@ import { ReturnStrip } from './ReturnStrip';
 // It replaces the old Studio view (components/Studio/StudioView.tsx): its
 // view id stays 'studio' and its profiler id 'StudioView'.
 
-export function MixView({ isReady }: { isReady: boolean }) {
+// `isReady` fed the master spectrum, gone with it (2026-10-21).
+export function MixView(_props: { isReady: boolean }) {
   const trackIds = useTrackIds();
   const returnIds = useStore(
     useShallow((s) => s.returns.map((r) => r.id as ReturnId)),
@@ -65,11 +66,20 @@ export function MixView({ isReady }: { isReady: boolean }) {
         ) : (
           trackIds.map((id) => <MixStrip key={id} trackId={id} />)
         )}
+      </div>
+      {/* Send A and B beside the Master, pinned at the right (owner,
+          2026-10-21): the tracks scroll past them. */}
+      <div
+        data-testid="mix-pinned"
+        role="group"
+        aria-label="Sends and Master"
+        className="flex min-h-0 shrink-0 overflow-y-auto border-l border-daw-hairline"
+      >
         {returnIds.map((id) => (
           <ReturnStrip key={id} returnId={id} />
         ))}
+        <MasterColumn />
       </div>
-      <MasterColumn isReady={isReady} />
     </div>
   );
 }

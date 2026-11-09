@@ -1,4 +1,5 @@
 import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import { useFrettedInstrument } from '@/components/guitar/frettedInstrumentContext';
 import { CountOff, countOffBeatIndex } from '@/components/notation/CountOff';
 import type { NoteStyle, StaffLayout } from '@/components/notation/StaffView';
 import { TabStaffView } from '@/components/notation/TabStaffView';
@@ -285,6 +286,7 @@ export function LearnTabView({
   noteAnnotations,
   stepChips,
 }: LearnTabViewProps) {
+  const inst = useFrettedInstrument();
   const [layout, setLayout] = useState<StaffLayout | null>(null);
   // Rebuild only when the notes themselves change, not on every playhead frame.
   const signature = events
@@ -306,9 +308,9 @@ export function LearnTabView({
         continue;
       }
       // Scoring hears `midi` while the TAB shows the fret: they must agree.
-      if (import.meta.env.DEV && fretToMidi(e.fretPosition) !== midi) {
+      if (import.meta.env.DEV && fretToMidi(e.fretPosition, inst) !== midi) {
         console.warn(
-          `[LearnTabView] note ${e.id} is MIDI ${midi} but string ${e.fretPosition.string} fret ${e.fretPosition.fret} sounds ${fretToMidi(e.fretPosition)}`,
+          `[LearnTabView] note ${e.id} is MIDI ${midi} but string ${e.fretPosition.string} fret ${e.fretPosition.fret} sounds ${fretToMidi(e.fretPosition, inst)}`,
         );
       }
       notes.push({
@@ -451,6 +453,7 @@ export function LearnTabView({
           playheadTick={inTime && playheadTick >= 0 ? playheadTick : null}
           focusTick={inTime ? inTimeFocusTick : focusTick}
           fitHeight
+          stringNames={inst.stringNames}
           className="min-h-0 flex-1 px-2 pt-2"
           onLayout={setLayout}
           overlay={

@@ -49,20 +49,18 @@ afterEach(cleanup);
 
 describe('studioSongUrl', () => {
   it('names the song, and the transposition when there is one', () => {
-    expect(studioSongUrl('africa')).toBe('/studio/editor?song=africa');
-    expect(studioSongUrl('africa', 0)).toBe('/studio/editor?song=africa');
-    expect(studioSongUrl('africa', 2)).toBe(
-      '/studio/editor?song=africa&transpose=2',
-    );
+    expect(studioSongUrl('africa')).toBe('/studio?song=africa');
+    expect(studioSongUrl('africa', 0)).toBe('/studio?song=africa');
+    expect(studioSongUrl('africa', 2)).toBe('/studio?song=africa&transpose=2');
     expect(studioSongUrl('africa', -11)).toBe(
-      '/studio/editor?song=africa&transpose=-11',
+      '/studio?song=africa&transpose=-11',
     );
   });
 
   it('folds whole octaves away and encodes the id', () => {
-    expect(studioSongUrl('a b', 12)).toBe('/studio/editor?song=a%20b');
-    expect(studioSongUrl('x', 14)).toBe('/studio/editor?song=x&transpose=2');
-    expect(studioSongUrl('x', Number.NaN)).toBe('/studio/editor?song=x');
+    expect(studioSongUrl('a b', 12)).toBe('/studio?song=a%20b');
+    expect(studioSongUrl('x', 14)).toBe('/studio?song=x&transpose=2');
+    expect(studioSongUrl('x', Number.NaN)).toBe('/studio?song=x');
   });
 });
 
@@ -74,7 +72,7 @@ describe('useSongActions.openInStudio', () => {
   it('carries the Song page’s transposition', () => {
     const shown = transposeSong(song, 2);
     expect(openInStudio(shown, 2)).toBe(
-      `/studio/editor?song=${encodeURIComponent(song.id)}&transpose=2`,
+      `/studio?song=${encodeURIComponent(song.id)}&transpose=2`,
     );
   });
 

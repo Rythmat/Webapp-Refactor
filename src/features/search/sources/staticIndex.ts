@@ -1,8 +1,7 @@
 import { COURSES_GENRE_OPTIONS } from '@/components/learn/learnFilterOptions';
 import {
-  AtlasRoutes,
+  GlobeRoutes,
   ClassroomRoutes,
-  CurriculumRoutes,
   GameRoutes,
   LearnRoutes,
   ProfileRoutes,
@@ -20,7 +19,11 @@ import {
   getTheoryTileImage,
 } from '@/curriculum/data/learnTileImages';
 import { getAllSongs } from '@/curriculum/data/songs';
-import { isGuitarLearnEnabled } from '@/features/learn/useInstrumentStore';
+import {
+  isBassLearnEnabled,
+  isGuitarLearnEnabled,
+  isUkuleleLearnEnabled,
+} from '@/features/learn/useInstrumentStore';
 import { CATEGORY_META } from '../categories';
 import type { SearchCategory, SearchResult } from '../types';
 
@@ -81,8 +84,9 @@ function buildArtists(): IndexEntry[] {
       category: 'artists',
       title: name,
       subtitle: 'Artist',
-      // Jump to the Song Library filtered to this artist (it reads `?q=`).
-      to: SongRoutes.root(undefined, { q: name }),
+      // Learn's Songs tab filtered to this artist (it reads `?q=`). Not
+      // /songs: that redirects to Learn and drops the query.
+      to: LearnRoutes.root(undefined, { tab: 'Songs', q: name }),
       icon,
       thumb: { src: image, avatarSeed: name, shape: 'circle' },
     },
@@ -100,7 +104,7 @@ function buildCourses(): IndexEntry[] {
       category: 'courses',
       title: o.label,
       subtitle: 'Course',
-      to: CurriculumRoutes.genre({ genre: o.value }),
+      to: LearnRoutes.genreCourse({ genre: o.value }),
       icon,
       thumb: { src: getGenreTileImage(o.value), shape: 'hex' },
     },
@@ -153,7 +157,7 @@ function buildTheory(): IndexEntry[] {
       subtitle: 'Scale & Mode',
       // Theory's slugs are lowercase ('melodicminor'); the ids keep their
       // old spelling.
-      to: LearnRoutes.overview({ mode: m.slug.toLowerCase() }),
+      to: LearnRoutes.keyboardOverview({ mode: m.slug.toLowerCase() }),
       icon,
       thumb: { src: getTheoryTileImage(m.slug.toLowerCase()), shape: 'hex' },
     },
@@ -210,6 +214,200 @@ function buildGuitar(): IndexEntry[] {
       },
     },
     ...others,
+    {
+      category: 'theory',
+      keywords: [
+        'Guitar Anatomy',
+        'parts of the guitar',
+        'guitar parts',
+        'electric guitar parts',
+        'acoustic guitar parts',
+        'exploded diagram',
+      ],
+      result: {
+        id: 'technique-guitar-anatomy',
+        category: 'theory',
+        title: 'Guitar Anatomy',
+        subtitle: 'Audio · Anatomy',
+        to: LearnRoutes.guitarAnatomy(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
+    {
+      category: 'theory',
+      keywords: [
+        'Guitar Harmonics',
+        'natural harmonics',
+        'harmonics',
+        'harmonic nodes',
+        'overtones',
+        'partials',
+      ],
+      result: {
+        id: 'technique-guitar-harmonics',
+        category: 'theory',
+        title: 'Guitar Harmonics',
+        subtitle: 'Technique on guitar',
+        to: LearnRoutes.guitarHarmonics(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
+  ];
+}
+
+/* ── Gear, on every instrument ───────────────────────────────────────── */
+function buildGear(): IndexEntry[] {
+  const entry = (
+    title: string,
+    keywords: string[],
+    id: string,
+    to: string,
+  ): IndexEntry => ({
+    category: 'theory',
+    keywords: [title, ...keywords],
+    result: {
+      id,
+      category: 'theory',
+      title,
+      subtitle: 'Audio · Anatomy',
+      to,
+      icon: CATEGORY_META.theory.icon,
+      thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+    },
+  });
+  return [
+    entry(
+      'Combo Amp Anatomy',
+      [
+        'parts of an amp',
+        'amp parts',
+        'guitar amp',
+        'tube amp',
+        'solid state amp',
+        'amplifier',
+      ],
+      'technique-combo-amp-anatomy',
+      LearnRoutes.comboAmpAnatomy(),
+    ),
+    entry(
+      'Headphone Anatomy',
+      ['parts of headphones', 'headphone parts', 'headphones'],
+      'technique-headphone-anatomy',
+      LearnRoutes.headphoneAnatomy(),
+    ),
+    entry(
+      'Microphone Anatomy',
+      ['parts of a microphone', 'microphone parts', 'microphone', 'mic'],
+      'technique-microphone-anatomy',
+      LearnRoutes.microphoneAnatomy(),
+    ),
+  ];
+}
+
+/* ── Piano ─────────────────────────────────────────────────────────── */
+function buildPiano(): IndexEntry[] {
+  return [
+    {
+      category: 'theory',
+      keywords: ['Keyboard Anatomy', 'parts of a keyboard', 'keyboard parts'],
+      result: {
+        id: 'technique-keyboard-anatomy',
+        category: 'theory',
+        title: 'Keyboard Anatomy',
+        subtitle: 'Audio · Anatomy',
+        to: LearnRoutes.keyboardAnatomy(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
+    {
+      category: 'theory',
+      keywords: [
+        'Synth Anatomy',
+        'parts of a synth',
+        'synthesizer parts',
+        'oscillator',
+        'filter',
+        'envelope',
+        'LFO',
+      ],
+      result: {
+        id: 'technique-synth-anatomy',
+        category: 'theory',
+        title: 'Synth Anatomy',
+        subtitle: 'Audio · Anatomy',
+        to: LearnRoutes.synthAnatomy(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
+    {
+      category: 'theory',
+      keywords: [
+        'Piano Anatomy',
+        'parts of the piano',
+        'piano parts',
+        'grand piano parts',
+        'upright piano parts',
+      ],
+      result: {
+        id: 'technique-piano-anatomy',
+        category: 'theory',
+        title: 'Piano Anatomy',
+        subtitle: 'Audio · Anatomy',
+        to: LearnRoutes.pianoAnatomy(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
+  ];
+}
+
+/* ── Bass, while its rollout flag is on ──────────────────────────────── */
+function buildBass(): IndexEntry[] {
+  if (!isBassLearnEnabled()) return [];
+  return [
+    {
+      category: 'theory',
+      keywords: [
+        'Bass Anatomy',
+        'parts of the bass',
+        'bass parts',
+        'electric bass parts',
+        'acoustic bass parts',
+      ],
+      result: {
+        id: 'technique-bass-anatomy',
+        category: 'theory',
+        title: 'Bass Anatomy',
+        subtitle: 'Audio · Anatomy',
+        to: LearnRoutes.bassAnatomy(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
+  ];
+}
+
+/* ── Ukulele, while its rollout flag is on ─────────────────────────────── */
+function buildUkulele(): IndexEntry[] {
+  if (!isUkuleleLearnEnabled()) return [];
+  return [
+    {
+      category: 'theory',
+      keywords: ['Ukulele Anatomy', 'parts of the ukulele', 'ukulele parts'],
+      result: {
+        id: 'technique-ukulele-anatomy',
+        category: 'theory',
+        title: 'Ukulele Anatomy',
+        subtitle: 'Audio · Anatomy',
+        to: LearnRoutes.ukuleleAnatomy(),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: '/learn-tiles/beginner-hex.svg', shape: 'hex' },
+      },
+    },
   ];
 }
 
@@ -229,7 +427,7 @@ function buildGlobe(): IndexEntry[] {
         ? `${e.year} · ${e.location.city}`
         : String(e.year),
       // atlas.tsx resolves `?event=<id>` against MUSIC_HISTORY by exact id.
-      to: AtlasRoutes.root(undefined, { event: e.id }),
+      to: GlobeRoutes.root(undefined, { event: e.id }),
       icon,
       thumb: e.videoId
         ? {
@@ -381,7 +579,7 @@ const PAGES: { id: string; label: string; to: string; keywords: string[] }[] = [
   {
     id: 'globe',
     label: 'Globe',
-    to: AtlasRoutes.root(),
+    to: GlobeRoutes.root(),
     keywords: ['globe', 'atlas', 'world', 'map', 'history'],
   },
   {
@@ -442,7 +640,11 @@ export function getStaticIndex(): IndexEntry[] {
       ...buildArtists(),
       ...buildCourses(),
       ...buildTheory(),
+      ...buildPiano(),
+      ...buildGear(),
       ...buildGuitar(),
+      ...buildBass(),
+      ...buildUkulele(),
       ...buildGlobe(),
       ...buildArcade(),
       ...buildPages(),

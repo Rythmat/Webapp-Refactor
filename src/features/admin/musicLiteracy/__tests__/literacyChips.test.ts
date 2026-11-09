@@ -1,20 +1,34 @@
 import { describe, expect, it } from 'vitest';
-import type {
-  LiteracyNote,
-  LiteracyWord,
+import {
+  isMelodicEcho,
+  type LiteracyNote,
+  type LiteracyWord,
 } from '@/content/musicLiteracy/schemas';
+import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import { listMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
 import {
   barBeat,
+  downbeatSlot,
+  dropIndex,
   figureChips,
   figureNotes,
+  insertRest,
   lengthLabel,
   lineText,
+  moveItem,
+  moveSyllable,
+  notesEnd,
   overlaps,
   overrun,
+  pickupLabel,
+  pickupLengths,
+  restBefore,
   retypeLine,
   spanWords,
   splitSyllables,
+  syllableStarts,
+  withPickup,
+  withRestBefore,
   wordsLine,
   wordsNotes,
   type FigureChip,
@@ -34,6 +48,18 @@ const word = (
   text: string,
   degree: LiteracyNote['degree'] = '1',
 ): LiteracyWord => ({ tick, duration, degree, text });
+
+/**
+ * Every step the round trips run over: the fixture's, and every real
+ * lesson's as the owner has written it. A round trip holds for any content,
+ * so the real files catch editor bugs without pinning their words.
+ */
+// Every melody's step (a chord call or a choose step has no chips).
+const ALL_STEPS = [LITERACY_FIXTURE, ...listMusicLiteracy()].flatMap((lesson) =>
+  lesson.steps
+    .filter(isMelodicEcho)
+    .map((step) => ({ ...step, tag: `${lesson.id}/${step.tag}` })),
+);
 
 describe('the words line', () => {
   it('splits typed text into syllables at spaces and hyphens', () => {
@@ -73,14 +99,13 @@ describe('the words line', () => {
     expect(lineText(line)).toBe('That’s mu-si-cal gra-vi-ty');
   });
 
-  it('turns every seeded step’s words into a line and back, tick for tick', () => {
-    const lessons = listMusicLiteracy();
-    expect(lessons.length).toBeGreaterThan(0);
-    for (const lesson of lessons)
-      for (const step of lesson.steps)
-        expect(wordsNotes(wordsLine(step.words.notes)), step.tag).toEqual(
-          step.words.notes,
-        );
+  it('turns every step’s words into a line and back, tick for tick', () => {
+    for (const step of ALL_STEPS)
+      if (step.words)
+        expect(
+          wordsNotes(wordsLine(step.words.notes, step.words.pickup)),
+          step.tag,
+        ).toEqual(step.words.notes);
   });
 
   it('keeps a rest before the first syllable, between two, and an octave', () => {
@@ -138,7 +163,7 @@ describe('the words line', () => {
   });
 
   it('gives a line typed from empty a note per syllable', () => {
-    const line = retypeLine({ lead: 0, syllables: [] }, 'one two');
+    const line = retypeLine({ pickup: 0, lead: 0, syllables: [] }, 'one two');
     expect(wordsNotes(line)).toEqual([
       word(0, 480, 'one'),
       word(480, 480, 'two'),
@@ -147,12 +172,13 @@ describe('the words line', () => {
 });
 
 describe('a figure’s chips', () => {
-  it('turns every seeded call into chips and back, tick for tick', () => {
-    for (const lesson of listMusicLiteracy())
-      for (const step of lesson.steps)
-        expect(figureNotes(figureChips(step.call.notes)), step.tag).toEqual(
-          step.call.notes,
-        );
+  it('turns every call and response into chips and back, tick for tick', () => {
+    for (const step of ALL_STEPS)
+      for (const figure of [step.call, step.response])
+        if (figure)
+          expect(figureNotes(figureChips(figure.notes)), step.tag).toEqual(
+            figure.notes,
+          );
   });
 
   it('makes a rest of every gap, and none after the last note', () => {
@@ -215,5 +241,263 @@ describe('positions and lengths', () => {
   it('sees notes that overlap', () => {
     expect(overlaps([word(0, 480, 'a'), word(240, 240, 'b')])).toBe(true);
     expect(overlaps([word(0, 480, 'a'), word(480, 240, 'b')])).toBe(false);
+  });
+});
+
+describe('reordering', () => {
+  it('moves an item to where it is dropped', () => {
+    const items = ['a', 'b', 'c', 'd'];
+    // Dropped in the gap before "a", and in the gap after the last.
+    expect(moveItem(items, 2, dropIndex(2, 0))).toEqual(['c', 'a', 'b', 'd']);
+    expect(moveItem(items, 0, dropIndex(0, 4))).toEqual(['b', 'c', 'd', 'a']);
+    // Either side of itself, it stays.
+    expect(dropIndex(1, 1)).toBe(1);
+    expect(dropIndex(1, 2)).toBe(1);
+    expect(moveItem(items, 1, 1)).toEqual(items);
+  });
+});
+
+describe('dragging a syllable', () => {
+  const line = () =>
+    wordsLine([
+      word(0, 480, 'Hey'),
+      word(480, 240, 'there', '3'),
+      // A quarter rest, then "you" on the 5.
+      { tick: 1200, duration: 720, degree: '5', octave: 1, text: 'you' },
+      word(1920, 480, 'all', '2'),
+    ]);
+
+  it('moves its note, its length and the rest before it with it', () => {
+    const moved = moveSyllable(line(), 2, 0);
+    expect(lineText(moved)).toBe('you Hey there all');
+    expect(wordsNotes(moved)).toEqual([
+      // The rest that was before "you" still is, so the line starts late.
+      { tick: 480, duration: 720, degree: '5', octave: 1, text: 'you' },
+      word(1200, 480, 'Hey'),
+      word(1680, 240, 'there', '3'),
+      word(1920, 480, 'all', '2'),
+    ]);
+    // Nothing lost: the line ends where it did.
+    expect(notesEnd(wordsNotes(moved))).toBe(notesEnd(wordsNotes(line())));
+  });
+
+  it('takes the line’s opening rest with the first syllable', () => {
+    const late = withRestBefore(line(), 0, 240);
+    const moved = moveSyllable(late, 0, 3);
+    expect(lineText(moved)).toBe('there you all Hey');
+    expect(moved.lead).toBe(0);
+    expect(wordsNotes(moved).map((n) => [n.text, n.tick])).toEqual([
+      ['there', 0],
+      ['you', 720],
+      ['all', 1440],
+      ['Hey', 2160],
+    ]);
+    expect(moveSyllable(moved, 3, 0)).toEqual(late);
+  });
+
+  it('turns back into exactly the ticks it shows', () => {
+    for (const [from, to] of [
+      [0, 3],
+      [3, 0],
+      [1, 2],
+      [2, 1],
+    ]) {
+      const notes = wordsNotes(moveSyllable(line(), from, to));
+      expect(wordsNotes(wordsLine(notes))).toEqual(notes);
+    }
+  });
+});
+
+describe('a rest before or after a syllable', () => {
+  const line = () =>
+    wordsLine([word(0, 480, 'one'), word(480, 480, 'two', '3')]);
+
+  it('is the gap ahead of it: the line’s lead for the first', () => {
+    const late = withRestBefore(line(), 0, 240);
+    expect(restBefore(late, 0)).toBe(240);
+    expect(wordsNotes(late)).toEqual([
+      word(240, 480, 'one'),
+      word(720, 480, 'two', '3'),
+    ]);
+  });
+
+  it('after one syllable is before the next, the same gap', () => {
+    const after = { ...line(), syllables: line().syllables.slice() };
+    after.syllables[0] = { ...after.syllables[0], rest: 960 };
+    const before = withRestBefore(line(), 1, 960);
+    expect(before).toEqual(after);
+    expect(restBefore(before, 1)).toBe(960);
+    expect(wordsNotes(before)).toEqual([
+      word(0, 480, 'one'),
+      word(1440, 480, 'two', '3'),
+    ]);
+    expect(wordsLine(wordsNotes(before))).toEqual(before);
+  });
+});
+
+describe('a rest before or after a figure’s note', () => {
+  const notes: LiteracyNote[] = [
+    { tick: 0, duration: 480, degree: '1' },
+    { tick: 480, duration: 480, degree: '3' },
+  ];
+
+  it('puts a rest chip on that side, and the notes after it move up', () => {
+    const chips = figureChips(notes);
+    // Before note 2 (chip 1), and after it.
+    expect(figureNotes(insertRest(chips, 1, 240))).toEqual([
+      { tick: 0, duration: 480, degree: '1' },
+      { tick: 720, duration: 480, degree: '3' },
+    ]);
+    // Before the first: the figure starts late.
+    expect(figureNotes(insertRest(chips, 0, 960))).toEqual([
+      { tick: 960, duration: 480, degree: '1' },
+      { tick: 1440, duration: 480, degree: '3' },
+    ]);
+    // After note 1, which is before note 2: the same ticks.
+    expect(figureNotes(insertRest(chips, 1, 480))).toEqual(
+      figureNotes(insertRest(insertRest(chips, 1, 240), 1, 240)),
+    );
+  });
+
+  it('joins a rest put next to another, and reads back tick for tick', () => {
+    const chips = insertRest(insertRest(figureChips(notes), 1, 480), 1, 240);
+    const stored = figureNotes(chips);
+    expect(figureChips(stored)).toEqual<FigureChip[]>([
+      { kind: 'note', degree: '1', octave: 0, duration: 480 },
+      { kind: 'rest', duration: 720 },
+      { kind: 'note', degree: '3', octave: 0, duration: 480 },
+    ]);
+    expect(figureNotes(figureChips(stored))).toEqual(stored);
+  });
+
+  it('moves a note or a rest chip alone when it is dragged', () => {
+    const chips = insertRest(figureChips(notes), 1, 480);
+    // The rest to the front: the figure starts late.
+    expect(figureNotes(moveItem(chips, 1, 0))).toEqual([
+      { tick: 480, duration: 480, degree: '1' },
+      { tick: 960, duration: 480, degree: '3' },
+    ]);
+    // The second note to the front: the rest stays put, last, where it is
+    // the silence before the bar line.
+    expect(figureNotes(moveItem(chips, 2, 0))).toEqual([
+      { tick: 0, duration: 480, degree: '3' },
+      { tick: 480, duration: 480, degree: '1' },
+    ]);
+    // The first note to the end: it sounds after the rest.
+    expect(figureNotes(moveItem(chips, 0, 2))).toEqual([
+      { tick: 480, duration: 480, degree: '3' },
+      { tick: 960, duration: 480, degree: '1' },
+    ]);
+  });
+});
+
+describe('a pickup', () => {
+  /** "When I" on 4 and its "and", "play add go" from the downbeat. */
+  const notes: LiteracyWord[] = [
+    word(-480, 240, 'When'),
+    word(-240, 240, 'I'),
+    word(0, 480, 'play'),
+    word(480, 480, 'add', '3'),
+    word(960, 960, 'go', '5'),
+  ];
+  const words = { bars: 1, pickup: 480, notes };
+  const line = () => wordsLine(notes, 480);
+  const texts = (ws: readonly LiteracyWord[]) =>
+    ws.map((w) => `${w.text}@${w.tick}`);
+
+  it('reads the line from the pickup’s start and back, tick for tick', () => {
+    expect(line()).toMatchObject({ pickup: 480, lead: 0 });
+    expect(wordsNotes(line())).toEqual(notes);
+    expect(syllableStarts(line())).toEqual([-480, -240, 0, 480, 960]);
+    // A rest ahead of the pickup's first syllable is the line's lead.
+    const late = [word(-240, 240, 'I'), ...notes.slice(2)];
+    expect(wordsLine(late, 480).lead).toBe(240);
+    expect(wordsNotes(wordsLine(late, 480))).toEqual(late);
+  });
+
+  it('counts the pickup’s beats as its bar’s, not below zero', () => {
+    expect(barBeat(-480, FOUR)).toBe('4');
+    expect(barBeat(-240, FOUR)).toBe('4&');
+    expect(barBeat(-720, FOUR)).toBe('3&');
+    expect(barBeat(-1440, FOUR)).toBe('2');
+    expect(barBeat(-120, FOUR)).toBe('4a');
+    expect(barBeat(-480, [3, 4])).toBe('3');
+    expect(barBeat(0, FOUR)).toBe('1·1');
+  });
+
+  it('moves the line when the pickup changes, keeping its rhythm', () => {
+    const plain = withPickup(words, 0);
+    expect(plain).toEqual({
+      bars: 1,
+      notes: notes.map((n) => ({ ...n, tick: n.tick + 480 })),
+    });
+    expect('pickup' in plain).toBe(false);
+    // From none to a quarter: "When I" go back before the downbeat.
+    expect(withPickup(plain, 480)).toEqual(words);
+    // A half: "play" joins the pickup.
+    expect(texts(withPickup(words, 960).notes)).toEqual([
+      'When@-960',
+      'I@-720',
+      'play@-480',
+      'add@0',
+      'go@480',
+    ]);
+  });
+
+  it('takes a chip dragged across the double bar into the pickup, or out', () => {
+    // "play" to the front: it is the pickup now, "When I" the downbeat.
+    const into = moveSyllable(line(), 2, 0);
+    expect(into.pickup).toBe(480);
+    expect(texts(wordsNotes(into))).toEqual([
+      'play@-480',
+      'When@0',
+      'I@240',
+      'add@480',
+      'go@960',
+    ]);
+    expect(downbeatSlot(into)).toEqual({ index: 1, inRest: false });
+    // "When" after "play": "I" alone leads in, "play" across the bar line.
+    const out = moveSyllable(line(), 0, 2);
+    expect(texts(wordsNotes(out))).toEqual([
+      'I@-480',
+      'play@-240',
+      'When@240',
+      'add@480',
+      'go@960',
+    ]);
+    expect(downbeatSlot(out)).toEqual({ index: 2, inRest: false });
+    // The line still lasts as long, so it fits its bars as it did.
+    expect(overrun(wordsNotes(out), 1, FOUR)).toBe(0);
+  });
+
+  it('puts the double bar where the downbeat falls among the chips', () => {
+    expect(downbeatSlot(line())).toEqual({ index: 2, inRest: false });
+    expect(downbeatSlot(wordsLine(notes.slice(2)))).toBeNull();
+    // A rest from the pickup into bar 1: the bar goes inside its chip.
+    const rest = [word(240, 240, 'and'), word(480, 480, 'go')];
+    expect(downbeatSlot(wordsLine(rest, 480))).toEqual({
+      index: 0,
+      inRest: true,
+    });
+    // All pickup: after the last chip.
+    expect(downbeatSlot(wordsLine(notes.slice(0, 2), 480))).toEqual({
+      index: 2,
+      inRest: false,
+    });
+  });
+
+  it('still warns of a line run past its bars', () => {
+    expect(overrun(withPickup(words, 0).notes, 1, FOUR)).toBe(480);
+    expect(overrun(notes, 1, FOUR)).toBe(0);
+  });
+
+  it('offers the pickups that fit the bar, and names them', () => {
+    expect(pickupLengths(FOUR)).toEqual([240, 480, 720, 960, 1440]);
+    expect(pickupLengths([3, 4])).toEqual([240, 480, 720, 960]);
+    expect(pickupLengths(FOUR, 1200)).toEqual([240, 480, 720, 960, 1200, 1440]);
+    expect(pickupLabel(480, FOUR)).toBe('Quarter · from 4');
+    expect(pickupLabel(240, FOUR)).toBe('Eighth · from 4&');
+    expect(pickupLabel(1440, FOUR)).toBe('Dotted half · from 2');
+    expect(pickupLabel(1200, FOUR)).toBe('Half + eighth · from 2&');
   });
 });

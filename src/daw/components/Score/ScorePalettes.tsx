@@ -549,6 +549,7 @@ function AddNotesButton({ on, onClick }: { on: boolean; onClick: () => void }) {
     >
       <button
         type="button"
+        data-tutorial-id="score-note-input"
         onClick={onClick}
         aria-pressed={on}
         title={

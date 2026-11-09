@@ -58,8 +58,9 @@ beforeEach(() => {
   engines.clear();
   useStore.setState({
     tracks: [
-      track('drums', { monitoring: true }),
+      // Keys first: the first armed track records; Drums hears its input.
       track('keys', { recordArmed: true }),
+      track('drums', { recordArmed: true, monitoring: true }),
       track('melody'),
     ],
     selectedTrackId: 'drums',

@@ -68,6 +68,33 @@ export function normCountry(x: string | undefined | null): string {
   return ALIASES[s] ?? s;
 }
 
+/**
+ * Natural Earth's names (as a country click hands them over) where the
+ * datasets spell the country another way, before folding.
+ */
+const NATURAL_EARTH_NAMES: Record<string, string> = {
+  'United States of America': 'US',
+  'United Kingdom': 'UK',
+  'Republic of Korea': 'South Korea',
+  Korea: 'South Korea',
+  'Dem. Rep. Korea': 'North Korea',
+  'Czech Republic': 'Czechia',
+  // NB: no "Côte d'Ivoire" entry. There used to be one mapping it to
+  // 'Ivory Coast', but Natural Earth, CITIES and the events all spell it
+  // "Côte d'Ivoire" — so the alias rewrote a name that matched into one that
+  // did not, and clicking the country listed nothing.
+};
+
+/**
+ * A country, by Natural Earth's name (a country click, a polygon's NAME),
+ * as the events' key: an event is in it when normCountry of its own country
+ * is this. The country panel lists by it and the map lights the land by it,
+ * so the two always agree.
+ */
+export function countryKey(naturalEarthName: string): string {
+  return normCountry(NATURAL_EARTH_NAMES[naturalEarthName] ?? naturalEarthName);
+}
+
 export function sameCountry(
   a: string | undefined | null,
   b: string | undefined | null,

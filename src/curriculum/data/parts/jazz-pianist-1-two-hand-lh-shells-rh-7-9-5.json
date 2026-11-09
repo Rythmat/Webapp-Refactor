@@ -1,0 +1,165 @@
+{
+  "id": "jazz-pianist-1-two-hand-lh-shells-rh-7-9-5",
+  "name": "Jazz-Pianist-1 · LH shells + RH 7-9-5 / 3-13-9",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 3,
+  "tags": ["jazz", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 110,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "jazz",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 50,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 53,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 43,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 53,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 48,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 52,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 48,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 52,
+      "velocity": 80,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 60,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 64,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 69,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 59,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 64,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 69,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 59,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 67,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 59,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 67,
+      "velocity": 80,
+      "hand": "rh"
+    }
+  ],
+  "chordSymbols": ["Dm9", "G13", "Cmaj9", "Cmaj9"]
+}

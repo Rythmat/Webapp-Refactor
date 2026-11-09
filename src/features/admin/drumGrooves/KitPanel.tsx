@@ -19,6 +19,7 @@ import {
   saveKitFile,
   uploadSample,
 } from './devFiles';
+import { kitCopyName } from './kitCopy';
 
 const STOCK = ['natural', '808', 'house'];
 
@@ -132,6 +133,45 @@ export const KitPanel: FC<Props> = ({
     }
   };
 
+  // A kit already saved, opened with Edit this kit: Save kit changes it
+  // everywhere it plays; Save as new kit keeps it and saves the changes as a
+  // kit of their own (kitCopy.ts names it).
+  const editingSaved =
+    !!customKit && savedKits.some((k) => k.id === customKit.id);
+
+  /** A pad as the Stopped by menu names it: 'Snare (MA_timbale_hit)'. */
+  const padName = (note: number) => {
+    const label = padLabel(note, customKit?.base ?? 'natural');
+    const url = customKit?.samples[note];
+    return url ? `${label} (${sampleName(url).replace(/\.\w+$/, '')})` : label;
+  };
+
+  const saveAsNewKit = async () => {
+    if (!customKit) return;
+    const { id, label } = kitCopyName(
+      customKit,
+      savedKits,
+      DRUM_KITS.map((k) => k.id),
+    );
+    setBusy(true);
+    try {
+      const file = {
+        ...customKit,
+        samples: { ...customKit.samples },
+        id,
+        label,
+      };
+      await saveKitFile(file);
+      setSavedKits((ks) => [...ks.filter((k) => k.id !== id), file]);
+      onCustomKit(file);
+      onKit(id);
+    } catch (err) {
+      onError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <section className={cn(CONSOLE_PANEL, 'p-4')}>
       <div className="flex flex-wrap items-center gap-3">
@@ -210,12 +250,32 @@ export const KitPanel: FC<Props> = ({
               >
                 Close
               </Button>
+              {editingSaved && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={saveAsNewKit}
+                  disabled={busy}
+                  title="Keep this kit as it is, and save your changes as a new kit"
+                >
+                  Save as new kit
+                </Button>
+              )}
               <Button size="sm" onClick={saveKit} disabled={busy}>
                 {busy && <Loader2 className="animate-spin" />}
                 Save kit
               </Button>
             </div>
           </div>
+          {editingSaved && (
+            <p className="text-xs text-muted-foreground">
+              <span className="font-medium text-white/70">Save kit</span>{' '}
+              changes this kit everywhere it plays.{' '}
+              <span className="font-medium text-white/70">Save as new kit</span>{' '}
+              keeps it as it is and saves your changes as a second kit, named as
+              you type it above (or &ldquo;copy&rdquo;).
+            </p>
+          )}
 
           {DRUM_PADS.map((pad) => {
             const url = customKit.samples[pad.note];
@@ -247,6 +307,37 @@ export const KitPanel: FC<Props> = ({
                     ),
                   )}
                 </select>
+                {pad.note === 46 ? (
+                  <span className="w-48 shrink-0 text-xs text-white/40">
+                    Stopped by the closed and pedal hats
+                  </span>
+                ) : (
+                  <select
+                    value={customKit.stoppedBy?.[pad.note] ?? ''}
+                    onChange={(e) => {
+                      const stoppedBy = { ...customKit.stoppedBy };
+                      if (e.target.value)
+                        stoppedBy[pad.note] = Number(e.target.value);
+                      else delete stoppedBy[pad.note];
+                      onCustomKit({
+                        ...customKit,
+                        stoppedBy: Object.keys(stoppedBy).length
+                          ? stoppedBy
+                          : undefined,
+                      });
+                    }}
+                    className="w-48 shrink-0 rounded-md border border-white/10 bg-white/5 px-2 py-1"
+                    aria-label={`${pad.label} stopped by`}
+                    title="Stop this pad ringing when another pad is hit, as the closed hi-hat stops the open one"
+                  >
+                    <option value="">Rings on</option>
+                    {DRUM_PADS.filter((p) => p.note !== pad.note).map((p) => (
+                      <option key={p.note} value={p.note}>
+                        Stopped by {padName(p.note)}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 <Button
                   size="sm"
                   variant="outline"
@@ -280,6 +371,8 @@ export const KitPanel: FC<Props> = ({
           <p className="text-xs text-muted-foreground">
             One-shots up to 5MB. Uploads go to
             public/daw-assets/samples/drums/uploads/ — commit them with the kit.
+            Stopped by cuts a pad off when another is hit, as the closed hi-hat
+            cuts the open one: a timbale roll stopped by the timbale hit.
           </p>
         </div>
       )}

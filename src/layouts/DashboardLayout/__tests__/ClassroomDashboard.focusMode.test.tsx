@@ -5,20 +5,32 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ClassroomDashboard } from '../ClassroomDashboard';
 
 // ── Focus mode (milestone 2.5, owner decision 7) ───────────────────────────
-// The Studio editor gets the whole window: no sidebar, no TopRail and no
-// chord-notation bar on /studio/editor. Every other page, the Studio
-// dashboard included, keeps them.
+// The Studio editor gets the whole window: no sidebar or mobile tab bar, no
+// TopRail and no chord-notation bar on /studio. The Globe has its own rails in
+// the Studio's frame (owner, 2026-10-29), with the app's sidebar at its left
+// (owner, 2026-10-30). Every other page, the Studio's Production lessons
+// included, keeps them all.
 //
 // Run: npx vitest run src/layouts/DashboardLayout/__tests__/ClassroomDashboard.focusMode.test.tsx
 
 vi.mock('@/hooks/data', () => ({ useProgressBootstrap: () => {} }));
+// The Learn tours' layer reads the account; its own tests cover it.
+vi.mock('@/features/learnTour/LearnTourLayer', () => ({
+  LearnTourLayer: () => null,
+}));
 vi.mock('@/hooks/data/useAwards', () => ({ useStampEarnedAwards: () => {} }));
 vi.mock('@/hooks/data/useStreak', () => ({ useStreakPing: () => {} }));
+vi.mock('@/features/cortex/useCortexCapture', () => ({
+  useCortexCapture: () => {},
+}));
 vi.mock('@/hooks/useChallengeWatcher', () => ({
   useChallengeWatcher: () => {},
 }));
 vi.mock('../ClassroomSidebar', () => ({
   ClassroomSidebar: () => <nav data-testid="sidebar" />,
+}));
+vi.mock('../MobileTabBar', () => ({
+  MobileTabBar: () => <nav data-testid="tabbar" />,
 }));
 vi.mock('@/components/ClassroomLayout/TopRail', () => ({
   TopRail: () => <header data-testid="toprail" />,
@@ -43,17 +55,31 @@ function at(path: string) {
 
 describe('focus mode', () => {
   it('hides the app chrome in the editor', () => {
-    at('/studio/editor');
+    at('/studio');
     expect(screen.getByTestId('page')).toBeInTheDocument();
     expect(screen.queryByTestId('sidebar')).toBeNull();
+    expect(screen.queryByTestId('tabbar')).toBeNull();
     expect(screen.queryByTestId('toprail')).toBeNull();
     expect(screen.queryByTestId('chord-bar')).toBeNull();
   });
 
-  it('keeps it on the Studio dashboard and elsewhere', () => {
-    for (const path of ['/studio', '/learn']) {
+  it('keeps only the app’s sidebar on the Globe', () => {
+    for (const path of ['/globe', '/globe?pathway=blues-to-rock']) {
+      at(path);
+      expect(screen.getByTestId('page')).toBeInTheDocument();
+      expect(screen.getByTestId('sidebar')).toBeInTheDocument();
+      expect(screen.queryByTestId('tabbar')).toBeNull();
+      expect(screen.queryByTestId('toprail')).toBeNull();
+      expect(screen.queryByTestId('chord-bar')).toBeNull();
+      cleanup();
+    }
+  });
+
+  it('keeps it on the Studio lessons and elsewhere', () => {
+    for (const path of ['/studio/production', '/learn', '/globes']) {
       at(path);
       expect(screen.getByTestId('sidebar')).toBeInTheDocument();
+      expect(screen.getByTestId('tabbar')).toBeInTheDocument();
       expect(screen.getByTestId('toprail')).toBeInTheDocument();
       cleanup();
     }

@@ -1,6 +1,7 @@
 import { ChevronRight } from 'lucide-react';
 import { useMemo, useRef, type RefObject } from 'react';
 import { FixedDigits } from '@/components/common/FixedDigits';
+import { useFrettedInstrument } from '@/components/guitar/frettedInstrumentContext';
 import { cn } from '@/components/utilities';
 import {
   GuitarLabelModeToggle,
@@ -12,6 +13,7 @@ import { CHANGE_PREFIXES } from '@/curriculum/components/guitar/theory/theoryUi'
 import { theoryString } from '@/curriculum/data/guitar/theoryNotes';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
+import { ShowTourAgainRow } from '@/features/learnTour/ShowTourAgainRow';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
 import { GuitarInputChip } from '@/learn/components/guitar/GuitarInputChip';
@@ -25,6 +27,7 @@ import {
   SettingsSection,
   SettingsSlider,
   SettingsSwitchRow,
+  useSettingsPanel,
 } from './settingsControls';
 import type { InputModel, TheoryModel } from './types';
 
@@ -153,6 +156,10 @@ export function GuitarSettingsSheet({
             </div>
           </SettingsSection>
         )}
+        <ShowTourAgainRow
+          className={GROUP}
+          onClose={() => onOpenChange(false)}
+        />
       </div>
     </GuitarSheet>
   );
@@ -187,9 +194,10 @@ function DisplaySettings({
 
   // What the step shows decides which rows apply.
   const { displayStep, keyCenter } = theory;
+  const inst = useFrettedInstrument();
   const model = useMemo(
-    () => guitarVisualModel(displayStep, keyCenter),
-    [displayStep, keyCenter],
+    () => guitarVisualModel(displayStep, keyCenter, inst),
+    [displayStep, keyCenter, inst],
   );
   const labelMode = useGuitarLabelMode(model.labelKind ?? 'scale');
   const legend = model.labelKind ? labelLegend(labelMode) : null;
@@ -285,15 +293,19 @@ export function MetronomeRow() {
 export function VolumeRow() {
   const { volume, setVolume } = useLessonVolume();
   const percent = Math.round(volume * 100);
+  // In the 300px panel the slider goes under its words, the row's width.
+  const panel = useSettingsPanel();
   return (
     <SettingsRow
       label="Volume"
       helper="Metronome and playback."
       forControl={false}
+      stacked={panel}
     >
       {({ labelId, helperId }) => (
-        <div className="flex items-center gap-3">
+        <div className={cn('flex items-center gap-3', panel && 'w-full')}>
           <SettingsSlider
+            className={panel ? 'w-auto flex-1' : undefined}
             value={percent}
             onValueChange={(next) => setVolume(next / 100)}
             labelledBy={labelId}

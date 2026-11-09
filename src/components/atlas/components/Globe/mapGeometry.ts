@@ -1,8 +1,6 @@
-import type { Feature, FeatureCollection, LineString, Point } from 'geojson';
-import type { ArcDatum } from '@/components/atlas/data';
+import type { Feature, FeatureCollection, Point } from 'geojson';
 import { getCentroid } from './globeLabels';
 import {
-  arcColors,
   isCityHighlighted,
   regionColor,
   type ArtistPoint,
@@ -43,9 +41,13 @@ const EARTH_RADIUS_M = 6_371_008.8;
 const TILE_SIZE = 512;
 /** three.js's default camera, which globe.gl keeps: 50° vertically. */
 const THREE_FOV_RAD = (50 * Math.PI) / 180;
-/** MapLibre's zoom range on this page: the whole planet to street level. */
+/**
+ * MapLibre's zoom range on this page: the whole planet to a region around a
+ * city. There are no streets to see (no basemap), and Natural Earth's
+ * 1:110m coasts turn to blobs much past zoom 7.
+ */
 export const MAP_MIN_ZOOM = 0;
-export const MAP_MAX_ZOOM = 18;
+export const MAP_MAX_ZOOM = 8;
 
 const clampZoom = (z: number) =>
   Math.min(MAP_MAX_ZOOM, Math.max(MAP_MIN_ZOOM, z));
@@ -99,35 +101,9 @@ export const flyZoom = (
 ): number => altitudeToMapZoom(zoomToAltitude(zoom), viewportHeight, lat);
 
 /**
- * US/Canada state outlines show from this zoom (about the three.js globe's
- * altitude 2.1 on a laptop screen). Hysteresis: the camera has to travel back
- * past STATES_LEAVE_ZOOM to hide them, so a fly that settles near the
- * threshold cannot flicker.
+ * US/Canada state outlines show from this zoom.
  */
 export const STATES_MIN_ZOOM = 3;
-export const STATES_LEAVE_ZOOM = 2.8;
-
-export function statesInViewAt(zoom: number, wasInView: boolean): boolean {
-  return wasInView ? zoom >= STATES_LEAVE_ZOOM : zoom >= STATES_MIN_ZOOM;
-}
-
-/**
- * How strongly the country colours tint the street basemap's land, by zoom:
- * as the three.js globe painted them from orbit, lighter among the streets
- * so parks, roads and buildings read through.
- */
-export const COUNTRY_TINT: readonly (readonly [number, number])[] = [
-  [0, 0.86],
-  [5, 0.86],
-  [9, 0.62],
-  [14, 0.45],
-];
-
-/**
- * Countries and states answer clicks below this zoom. Further in, a click
- * among the streets should not open the country it lands in.
- */
-export const REGION_CLICK_MAX_ZOOM = 6;
 
 /* ── Geometry ────────────────────────────────────────────────────────────── */
 
@@ -199,17 +175,6 @@ export function greatCircle(
   return points;
 }
 
-/* ── Colours ─────────────────────────────────────────────────────────────── */
-
-/** `#rrggbbaa` (the arcs' translucent ends) as `rgba()`; anything else as is. */
-export function cssColor(color: string): string {
-  const hex = /^#([0-9a-f]{6})([0-9a-f]{2})$/i.exec(color);
-  if (!hex) return color;
-  const n = parseInt(hex[1], 16);
-  const alpha = +(parseInt(hex[2], 16) / 255).toFixed(3);
-  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
-}
-
 /* ── Sources ─────────────────────────────────────────────────────────────── */
 
 /** Properties of a country or state outline, as the map's sources hold them. */
@@ -221,7 +186,7 @@ export interface RegionProps {
   ISO_A3?: string;
   iso_a3?: string;
   iso_a2?: string;
-  /** The fill colour (regionColor). */
+  /** Its continent colour (regionColor), for Continent mode. */
   color: string;
   /** The whole outline's centroid; a clicked feature is clipped to a tile. */
   clat: number | null;
@@ -236,7 +201,6 @@ export interface RegionProps {
 export function regionCollection(
   features: readonly Feature[],
   layer: RegionProps['_layer'],
-  countryColors: boolean,
 ): FeatureCollection<Feature['geometry'], RegionProps> {
   return {
     type: 'FeatureCollection',
@@ -255,7 +219,7 @@ export function regionCollection(
           ISO_A3: p.ISO_A3,
           iso_a3: p.iso_a3,
           iso_a2: p.iso_a2,
-          color: regionColor(tagged, countryColors),
+          color: regionColor(tagged),
           clat: centroid?.lat ?? null,
           clng: centroid?.lng ?? null,
         },
@@ -324,62 +288,3 @@ export function artistPointCollection(
     })),
   };
 }
-
-export interface ArcProps {
-  eventId: string;
-  label: string;
-  direction: ArcDatum['direction'];
-  /** The arc's colour at its head (the dashes) and its tail (the trace). */
-  head: string;
-  tail: string;
-}
-
-/** Influence arcs as great circles on the surface, head to tail. */
-export function arcCollection(
-  arcs: readonly ArcDatum[],
-): FeatureCollection<LineString, ArcProps> {
-  return {
-    type: 'FeatureCollection',
-    features: arcs.map((arc) => {
-      const [head, tail] = arcColors(arc);
-      return {
-        type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: greatCircle(
-            { lat: arc.startLat, lng: arc.startLng },
-            { lat: arc.endLat, lng: arc.endLng },
-          ),
-        },
-        properties: {
-          eventId: arc.eventId,
-          label: arc.label,
-          direction: arc.direction,
-          head: cssColor(head),
-          tail: cssColor(tail),
-        },
-      };
-    }),
-  };
-}
-
-/**
- * The steps of the arcs' dash animation: line-dasharray patterns that walk a
- * dash along the line, one per tick (MapLibre's "animate a line" example).
- */
-export const ARC_DASH_STEPS: readonly (readonly number[])[] = [
-  [0, 4, 3],
-  [0.5, 4, 2.5],
-  [1, 4, 2],
-  [1.5, 4, 1.5],
-  [2, 4, 1],
-  [2.5, 4, 0.5],
-  [3, 4, 0],
-  [0, 0.5, 3, 3.5],
-  [0, 1, 3, 3],
-  [0, 1.5, 3, 2.5],
-  [0, 2, 3, 2],
-  [0, 2.5, 3, 1.5],
-  [0, 3, 3, 1],
-  [0, 3.5, 3, 0.5],
-];

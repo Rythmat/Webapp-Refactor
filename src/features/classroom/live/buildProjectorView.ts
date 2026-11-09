@@ -5,7 +5,8 @@
  * the teacher toggles the anonymous share overlay on for a particular
  * interaction. This selector guarantees:
  *
- *   1. `check-in` interactions NEVER surface on the projector, at any depth.
+ *   1. `check-in` interactions NEVER surface on the projector, at any depth;
+ *      nor do `showcase` offers or a student's `echo` rounds.
  *   2. Interactions whose `shareable === false` NEVER surface either.
  *   3. When a shareable interaction IS projected, participant identifiers
  *      (enrollmentId, displayName) are structurally absent — the selector
@@ -31,7 +32,7 @@ export interface ProjectorAnonymizedResponse {
 export interface ProjectorView {
   emit: boolean;
   interactionId: string;
-  reason?: 'not_shareable' | 'check_in' | 'showcase';
+  reason?: 'not_shareable' | 'check_in' | 'showcase' | 'echo';
   responses: ProjectorAnonymizedResponse[];
 }
 
@@ -77,6 +78,18 @@ export const buildProjectorView = (
       emit: false,
       interactionId: interaction.id,
       reason: 'showcase',
+      responses: [],
+    };
+  }
+
+  // Rule 2b: a student's Echo rounds are identified results — teacher-only.
+  // The projector gets the class's counts from `state.echo.classResult`
+  // (and first names only if the teacher chose to), never this path.
+  if (interaction.type === 'echo') {
+    return {
+      emit: false,
+      interactionId: interaction.id,
+      reason: 'echo',
       responses: [],
     };
   }

@@ -1,0 +1,326 @@
+{
+  "id": "blues-pianist-1-rootless-a-12bar-c",
+  "name": "Blues-Pianist-1 · Rootless A · 12-bar blues (C)",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 2,
+  "tags": ["blues", "icp"],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "mixolydian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 12,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "soundfont:0",
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "blues",
+  "chordSymbols": [
+    "C9",
+    "F13",
+    "C9",
+    "C9",
+    "F13",
+    "F13",
+    "C9",
+    "C9",
+    "G13",
+    "F13",
+    "C9",
+    "G13"
+  ],
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 52,
+      "velocity": 80
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 80
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 58,
+      "velocity": 80
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 51,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 57,
+      "velocity": 80
+    },
+    {
+      "tick": 1920,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 52,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 58,
+      "velocity": 80
+    },
+    {
+      "tick": 3840,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 52,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 58,
+      "velocity": 80
+    },
+    {
+      "tick": 5760,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80
+    },
+    {
+      "tick": 7680,
+      "duration": 1920,
+      "midi": 51,
+      "velocity": 80
+    },
+    {
+      "tick": 7680,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 80
+    },
+    {
+      "tick": 7680,
+      "duration": 1920,
+      "midi": 57,
+      "velocity": 80
+    },
+    {
+      "tick": 7680,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80
+    },
+    {
+      "tick": 9600,
+      "duration": 1920,
+      "midi": 51,
+      "velocity": 80
+    },
+    {
+      "tick": 9600,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 80
+    },
+    {
+      "tick": 9600,
+      "duration": 1920,
+      "midi": 57,
+      "velocity": 80
+    },
+    {
+      "tick": 9600,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80
+    },
+    {
+      "tick": 11520,
+      "duration": 1920,
+      "midi": 52,
+      "velocity": 80
+    },
+    {
+      "tick": 11520,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 80
+    },
+    {
+      "tick": 11520,
+      "duration": 1920,
+      "midi": 58,
+      "velocity": 80
+    },
+    {
+      "tick": 11520,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80
+    },
+    {
+      "tick": 13440,
+      "duration": 1920,
+      "midi": 52,
+      "velocity": 80
+    },
+    {
+      "tick": 13440,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 80
+    },
+    {
+      "tick": 13440,
+      "duration": 1920,
+      "midi": 58,
+      "velocity": 80
+    },
+    {
+      "tick": 13440,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80
+    },
+    {
+      "tick": 15360,
+      "duration": 1920,
+      "midi": 53,
+      "velocity": 80
+    },
+    {
+      "tick": 15360,
+      "duration": 1920,
+      "midi": 57,
+      "velocity": 80
+    },
+    {
+      "tick": 15360,
+      "duration": 1920,
+      "midi": 59,
+      "velocity": 80
+    },
+    {
+      "tick": 15360,
+      "duration": 1920,
+      "midi": 64,
+      "velocity": 80
+    },
+    {
+      "tick": 17280,
+      "duration": 1920,
+      "midi": 51,
+      "velocity": 80
+    },
+    {
+      "tick": 17280,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 80
+    },
+    {
+      "tick": 17280,
+      "duration": 1920,
+      "midi": 57,
+      "velocity": 80
+    },
+    {
+      "tick": 17280,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80
+    },
+    {
+      "tick": 19200,
+      "duration": 1920,
+      "midi": 52,
+      "velocity": 80
+    },
+    {
+      "tick": 19200,
+      "duration": 1920,
+      "midi": 55,
+      "velocity": 80
+    },
+    {
+      "tick": 19200,
+      "duration": 1920,
+      "midi": 58,
+      "velocity": 80
+    },
+    {
+      "tick": 19200,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 80
+    },
+    {
+      "tick": 21120,
+      "duration": 1920,
+      "midi": 53,
+      "velocity": 80
+    },
+    {
+      "tick": 21120,
+      "duration": 1920,
+      "midi": 57,
+      "velocity": 80
+    },
+    {
+      "tick": 21120,
+      "duration": 1920,
+      "midi": 59,
+      "velocity": 80
+    },
+    {
+      "tick": 21120,
+      "duration": 1920,
+      "midi": 64,
+      "velocity": 80
+    }
+  ]
+}

@@ -885,7 +885,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.6647477149963379,
+      "amount": 0.7597063301593241,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -930,7 +930,7 @@
         "source": "flt1",
         "param": "cutoff"
       },
-      "amount": 0.4142681360244751,
+      "amount": 0.47344596787795123,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -970,7 +970,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.13026016048093067,
+  "masterVolume": 0.6136556160256644,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -1069,5 +1069,6 @@
     "rootPc": 0,
     "mode": "ionian",
     "snapMode": "nearest"
-  }
+  },
+  "modWheel": 0.03937007874015748
 }

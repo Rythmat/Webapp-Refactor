@@ -25,9 +25,9 @@
  *   so its v2 parts are probed in subtree mode). The canvas itself is
  *   drawn, not probed.
  * - listQuiet: the track list makes no React commit in 3 s of playback.
- * - rulerEnd: Snap and the Grid menu sit at the ruler's right end over the
- *   canvas (inside ruler-end, in the canvas's right half and its 32 px
- *   ruler band), visible and at least 24×24.
+ * - rulerEnd: the ruler's right end is clear: Snap to grid and the timeline
+ *   display choices moved into the top bar's More menu (2026-10-21), so no
+ *   ruler-end group, Snap toggle or Grid button sits over the canvas.
  * - footerZoom: −, the zoom level, +, Fit and Follow sit in the footer in
  *   that order, left to right, the buttons among them at least 24×24.
  *
@@ -353,22 +353,6 @@ async function listAt(kit, run, viewport) {
   );
 }
 
-/** Snap or Grid: in ruler-end, in the canvas's right half and ruler band. */
-function atRulerEnd(control, { canvas, rulerTop }) {
-  return (
-    !!control &&
-    !!canvas &&
-    control.inFrame &&
-    control.visible &&
-    control.width >= 24 &&
-    control.height >= 24 &&
-    control.left >= canvas.left + canvas.width / 2 &&
-    control.right <= canvas.right + 0.5 &&
-    control.top >= rulerTop - 0.5 &&
-    control.bottom <= rulerTop + 32 + 0.5
-  );
-}
-
 /** A zoom or Follow control: in the footer's box; a button is 24×24. */
 function inFooter(control, footerBox) {
   return (
@@ -409,10 +393,7 @@ function judge(v) {
       v.sheet.open && !v.sheet.overflow && v.sheet.dialogFits && v.sheet.closed,
     canvasFloors: v.floors.length === 0,
     listQuiet: v.playingCommits === 0,
-    rulerEnd:
-      rulerEnd.found &&
-      atRulerEnd(rulerEnd.snap, v.controls) &&
-      atRulerEnd(rulerEnd.grid, v.controls),
+    rulerEnd: !rulerEnd.found && !rulerEnd.snap && !rulerEnd.grid,
     footerZoom:
       FOOTER_CONTROLS.every((id) =>
         inFooter(footer.controls[id], footer.box),

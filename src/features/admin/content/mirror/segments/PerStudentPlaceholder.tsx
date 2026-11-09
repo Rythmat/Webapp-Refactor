@@ -1,3 +1,5 @@
+import { cn } from '@/components/utilities';
+
 /**
  * Stands in for a part of a page that shows a student's own data — their
  * streak, their recent activity, their projects. It is not content, so the
@@ -7,12 +9,17 @@
 export const PerStudentPlaceholder = ({
   label,
   minHeight = 96,
+  className,
 }: {
   label: string;
   minHeight?: number;
+  className?: string;
 }) => (
   <div
-    className="flex items-center justify-center rounded-xl border border-dashed border-white/15 px-4 text-center text-xs text-white/40"
+    className={cn(
+      'flex items-center justify-center rounded-xl border border-dashed border-white/15 px-4 text-center text-xs text-white/40',
+      className,
+    )}
     style={{ minHeight }}
   >
     {label} · shown per student, not content

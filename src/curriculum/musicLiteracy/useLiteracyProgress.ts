@@ -6,6 +6,11 @@ import { useCallback, useState } from 'react';
 // progress is (useGenreProgress): a tag survives the step being edited or
 // moved, so progress does too. A best score only ever rises, and a pass is
 // never taken back by a weaker try.
+//
+// Per device for now: it is to move to the student's account, through the
+// progress API the Theory lessons use, with this as the offline cache
+// (docs/music-literacy-content-kind.md, "Planned: progress saved to the
+// student's account").
 
 export interface LiteracyStepProgress {
   /** Best score, 0–100. */

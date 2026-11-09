@@ -209,7 +209,7 @@ describe('a part that throws while it renders', () => {
 });
 
 describe('the editor crashing', () => {
-  it('writes the draft, then offers Reload editor and Back to Studio', async () => {
+  it('writes the draft, then offers Reload editor and Back to Home', async () => {
     const Crash = () => {
       throw new Error('boom');
     };
@@ -229,7 +229,7 @@ describe('the editor crashing', () => {
     ).toBeTruthy();
     act(() => screen.getByText('Reload editor').click());
     expect(flush.reload).toHaveBeenCalledTimes(1);
-    expect(screen.getByText('Back to Studio')).toBeTruthy();
+    expect(screen.getByText('Back to Home')).toBeTruthy();
   });
 
   it('says so when the draft could not be written', async () => {

@@ -95,7 +95,7 @@ function renderProvider() {
   });
   return render(
     <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={['/studio/editor']}>
+      <MemoryRouter initialEntries={['/studio']}>
         <AuthContextProvider>
           <Capture />
         </AuthContextProvider>
@@ -130,7 +130,7 @@ describe('AuthContext → userScope', () => {
     auth0.state.isLoading = false;
     view.rerender(
       <QueryClientProvider client={new QueryClient()}>
-        <MemoryRouter initialEntries={['/studio/editor']}>
+        <MemoryRouter initialEntries={['/studio']}>
           <AuthContextProvider>
             <Capture />
           </AuthContextProvider>

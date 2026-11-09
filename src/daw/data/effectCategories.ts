@@ -1,8 +1,9 @@
 import type { EffectSlotType } from '@/daw/audio/EffectChain';
+import { PEDAL_EFFECTS } from '@/daw/audio/graph/effects/pedalEffects';
 
 // ── The effects library's categories (milestone 2.8) ───────────────────────
 //
-// How the side rail's Effects library groups the audio effects, after
+// How the Add effect picker groups the audio effects, after
 // Soundtrap's: each category with a one-line purpose, each effect with a
 // line on what it does, in plain words for a student. Neutral: no colour
 // per category (owner decision 3; Soundtrap's colour-coded categories are
@@ -45,7 +46,15 @@ export const EFFECT_CATEGORIES: readonly EffectCategory[] = [
     id: 'distortion',
     label: 'Distortion',
     purpose: 'Adds grit and warmth',
-    effects: ['saturator'],
+    // The guitar pedals' drive and amp (2026-10-22).
+    effects: ['saturator', 'overdrive', 'amp'],
+  },
+  {
+    id: 'modulation',
+    label: 'Modulation',
+    purpose: 'Moves the sound: swirls, sweeps and wobbles',
+    // The guitar pedals' modulation and wah (2026-10-22).
+    effects: ['chorus', 'phaser', 'flanger', 'wah'],
   },
 ];
 
@@ -61,4 +70,8 @@ export const EFFECT_ABOUT: Readonly<Record<EffectSlotType, string>> = {
   reverb: 'The echo of a space, from a small room to a hall',
   delay: 'Repeats each sound in time with the song',
   saturator: 'Warms and drives the sound, like tape or a tube amp',
+  ...(Object.fromEntries(PEDAL_EFFECTS.map((d) => [d.slot, d.about])) as Record<
+    (typeof PEDAL_EFFECTS)[number]['slot'],
+    string
+  >),
 };

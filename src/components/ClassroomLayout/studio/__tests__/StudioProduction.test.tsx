@@ -13,7 +13,10 @@ import {
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfileRoutes, StudioRoutes } from '@/constants/routes';
-import { TUTORIAL_CATALOG } from '@/daw/components/Tutorial/tutorialCatalog';
+import {
+  TUTORIAL_CATALOG,
+  TUTORIAL_COURSES,
+} from '@/daw/components/Tutorial/tutorialCatalog';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
 import { StudioProduction } from '../StudioProduction';
 
@@ -204,5 +207,92 @@ describe('the Production tab', () => {
       expect(source, file).not.toMatch(/(Tutorial|\.)\/tutorials['"]/);
       expect(source, file).not.toMatch(/@prism\/engine|prism-engine/);
     }
+  });
+});
+
+// ── The Studio Basics course, first on the tab ─────────────────────────────
+// Stop 4 of Start Here: its nine free lessons in order, how far the student
+// is, and Start or Continue, which opens the first lesson not finished.
+
+const COURSE = TUTORIAL_COURSES[0];
+const courseSection = () =>
+  document.querySelector<HTMLElement>('[data-course="studio-basics"]')!;
+const courseAction = () =>
+  courseSection().querySelector<HTMLButtonElement>('[data-course-action]')!;
+const finish = (...ids: string[]) =>
+  act(() => {
+    for (const id of ids) useTutorialProgressStore.getState().markComplete(id);
+  });
+
+describe('the Studio Basics course on the Production tab', () => {
+  it('comes first, its nine lessons in order, then the other lessons', () => {
+    renderProduction();
+    const section = courseSection();
+    expect(within(section).getByText('Studio Basics')).toBeInTheDocument();
+    const tiles = Array.from(
+      section.querySelectorAll<HTMLElement>('[data-lesson-id]'),
+    );
+    expect(tiles.map((t) => t.dataset.lessonId)).toEqual(COURSE.lessonIds);
+    expect(
+      tiles.map((t) => t.querySelector('.text-base')?.textContent),
+    ).toEqual([
+      'Your Tracks',
+      'Add a Track',
+      'Record',
+      'The Piano Roll',
+      'Insight',
+      'The Score',
+      'The Lead Sheet',
+      'Loop and Repeat',
+      'Save and Export',
+    ]);
+    expect(tiles[2]).toHaveTextContent('Lesson 3');
+    // Free: no Premium chip, no upgrade prompt for a free student.
+    for (const tile of tiles)
+      expect(within(tile).queryByText('Premium')).toBeNull();
+    // It sits above every other lesson.
+    const first = document.querySelector('[data-lesson-id]');
+    expect(first?.getAttribute('data-lesson-id')).toBe(COURSE.lessonIds[0]);
+    expect(
+      section.compareDocumentPosition(tile('make-first-track')) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('starts at lesson 1 on the demo song’s link', () => {
+    renderProduction();
+    expect(courseSection()).toHaveTextContent('0 of 9 lessons done');
+    expect(courseAction()).toHaveTextContent('Start');
+    fireEvent.click(courseAction());
+    expect(location()).toBe(editorLink('studio-basics-your-tracks'));
+  });
+
+  it('continues at the first lesson not finished', () => {
+    finish('studio-basics-your-tracks', 'studio-basics-add-a-track');
+    renderProduction();
+    expect(courseSection()).toHaveTextContent('2 of 9 lessons done');
+    expect(courseSection()).toHaveTextContent('Next: Record');
+    expect(courseAction()).toHaveTextContent('Continue');
+    expect(
+      within(tile('studio-basics-add-a-track')).getByText('Completed'),
+    ).toBeInTheDocument();
+    fireEvent.click(courseAction());
+    expect(location()).toBe(editorLink('studio-basics-record'));
+  });
+
+  it('is done when every lesson is, and starts again at lesson 1', () => {
+    finish(...COURSE.lessonIds);
+    renderProduction();
+    expect(courseSection()).toHaveTextContent('All 9 lessons done');
+    expect(courseAction()).toHaveTextContent('Start again');
+    fireEvent.click(courseAction());
+    expect(location()).toBe(editorLink('studio-basics-your-tracks'));
+  });
+
+  it('opens any of its lessons from its tile, for a free student too', () => {
+    renderProduction();
+    fireEvent.click(tile('studio-basics-score'));
+    expect(location()).toBe(editorLink('studio-basics-score'));
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });

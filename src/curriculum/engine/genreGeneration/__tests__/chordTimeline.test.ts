@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   buildChordTimeline,
   chordAtTick,
+  halfBarChords,
+  timedChordTimeline,
   type TimedChord,
 } from '../chordTimeline';
 import type { GenreNoteEvent } from '../resolveStepContent';
@@ -46,6 +48,21 @@ describe('buildChordTimeline', () => {
     ).toEqual([
       [0, 'Afunk9'],
       [1800, 'Dfunk9'],
+    ]);
+  });
+
+  it('keeps a chord voiced past the match where the progression puts it (Jazz L1 B2.2)', () => {
+    const targets = [
+      ...strike([60, 65, 69], 0, 1920), // Dm7: C-F-A
+      ...strike([59, 65, 69], 1920, 1920), // G7 as 3-7-9: B-F-A
+      ...strike([59, 64, 67], 3840, 1920), // Cmaj7: B-E-G
+    ];
+    expect(
+      summary(buildChordTimeline(['Dm7', 'G7', 'Cmaj7'], targets, 3)),
+    ).toEqual([
+      [0, 'Dm7'],
+      [1920, 'G7'],
+      [3840, 'Cmaj7'],
     ]);
   });
 
@@ -95,5 +112,78 @@ describe('chordAtTick', () => {
     expect(chordAtTick(timeline, 1919)?.symbol).toBe('Dm7');
     expect(chordAtTick(timeline, 1920)?.symbol).toBe('G7');
     expect(chordAtTick([], 0)).toBeNull();
+  });
+});
+
+describe('timedChordTimeline', () => {
+  it('repeats the caller’s changes, half bars and all, across the bars', () => {
+    const timed = {
+      changes: [
+        { tick: 0, symbol: 'C' },
+        { tick: 960, symbol: 'F' },
+        { tick: 1920, symbol: 'Am' },
+        { tick: 2880, symbol: 'G' },
+      ],
+      length: 3840,
+    };
+    expect(summary(timedChordTimeline(timed, 4))).toEqual([
+      [0, 'C'],
+      [960, 'F'],
+      [1920, 'Am'],
+      [2880, 'G'],
+      [3840, 'C'],
+      [4800, 'F'],
+      [5760, 'Am'],
+      [6720, 'G'],
+    ]);
+    // Cut at the last bar.
+    expect(summary(timedChordTimeline(timed, 1))).toEqual([
+      [0, 'C'],
+      [960, 'F'],
+    ]);
+  });
+
+  it('starts on the downbeat, keeps a chord held across a repeat, and skips what can’t be read', () => {
+    const timed = {
+      changes: [
+        { tick: 2880, symbol: 'G' },
+        { tick: 240, symbol: 'G' },
+        { tick: 960, symbol: 'Xyz' },
+        { tick: 1920, symbol: 'Am' },
+        { tick: 5000, symbol: 'F' }, // past the pass: left out
+      ],
+      length: 3840,
+    };
+    expect(summary(timedChordTimeline(timed, 4))).toEqual([
+      [0, 'G'],
+      [1920, 'Am'],
+      [2880, 'G'],
+      [5760, 'Am'],
+      [6720, 'G'],
+    ]);
+    const timeline = timedChordTimeline(timed, 4);
+    expect(chordAtTick(timeline, 1000)?.symbol).toBe('G');
+    expect(timedChordTimeline({ changes: [], length: 3840 }, 4)).toEqual([]);
+    expect(
+      timedChordTimeline({ changes: [{ tick: 0, symbol: '?' }], length: 1 }, 4),
+    ).toEqual([]);
+  });
+});
+
+describe('two chords a bar (chordsPerBar: 2)', () => {
+  it('times each symbol to half a bar, looping the pass', () => {
+    // Gm7 C7 | Fmaj7: the ii and V share bar 1.
+    const timeline = timedChordTimeline(
+      halfBarChords(['Gm7', 'C7', 'Fmaj7', 'Fmaj7']),
+      4,
+    );
+    expect(timeline.map((c) => [c.symbol, c.tick])).toEqual([
+      ['Gm7', 0],
+      ['C7', 960],
+      ['Fmaj7', 1920],
+      ['Gm7', 3840],
+      ['C7', 4800],
+      ['Fmaj7', 5760],
+    ]);
   });
 });

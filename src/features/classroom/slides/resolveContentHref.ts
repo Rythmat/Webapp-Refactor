@@ -10,7 +10,7 @@
  *
  * activityRef conventions (namespaced, colon-delimited):
  *   song:<id>:lesson | song:<id>:chart
- *   learn:<mode>:<key>[:activity]
+ *   learn:<mode>:<key>[:O|A|B]
  *   curriculum:<GENRE>:<L#>[:A|B|C|D]
  *   globe:event:<id> | globe:pathway:<id> | globe:mindmap
  *   studio:song:<id> | studio:template:<id> | studio:tutorial:<id>
@@ -19,8 +19,7 @@
  * (e.g. an annual-plan globe LaunchTile whose activityRef is a bare event id).
  */
 import {
-  AtlasRoutes,
-  CurriculumRoutes,
+  GlobeRoutes,
   LearnRoutes,
   SongRoutes,
   StudioRoutes,
@@ -77,6 +76,12 @@ const isSection = (
 ): segment is 'A' | 'B' | 'C' | 'D' =>
   segment === 'A' || segment === 'B' || segment === 'C' || segment === 'D';
 
+/** A Theory lesson's keyboard chapter: O | A | B. */
+const isLearnSection = (
+  segment: string | undefined,
+): segment is 'O' | 'A' | 'B' =>
+  segment === 'O' || segment === 'A' || segment === 'B';
+
 /**
  * Resolve a `{ module, activityRef }` pair (atlas Interaction OR LaunchTile) to
  * an in-SPA href, or null when unresolvable (caller falls back).
@@ -95,7 +100,7 @@ export const resolveActivityRefHref = (
   // Legacy / bare refs: no recognized namespace → interpret via module.
   if (!KNOWN_NAMESPACES.has(ns) || parts.length < 2) {
     if (module === 'globe')
-      return `${AtlasRoutes.globe()}?event=${encodeURIComponent(ref)}`;
+      return `${GlobeRoutes.root()}?event=${encodeURIComponent(ref)}`;
     return null;
   }
 
@@ -111,11 +116,11 @@ export const resolveActivityRefHref = (
     case 'learn': {
       const mode = parts[1];
       const key = parts[2];
-      const activity = parts[3];
+      const section = parts[3];
       if (!mode || !key) return null;
-      return LearnRoutes.lesson(
+      return LearnRoutes.keyboardLesson(
         { mode, key: canonicalLessonKeyParam(key) },
-        activity ? { activity } : undefined,
+        isLearnSection(section) ? { section } : undefined,
       );
     }
     case 'curriculum': {
@@ -124,7 +129,7 @@ export const resolveActivityRefHref = (
       if (!genreId || !level) return null;
       const slug = CURRICULUM_GENRE_SLUGS[genreId];
       const section = parts[3];
-      return CurriculumRoutes.genreLevel(
+      return LearnRoutes.genreLesson(
         { genre: slug, level },
         isSection(section) ? { section } : undefined,
       );
@@ -133,23 +138,23 @@ export const resolveActivityRefHref = (
       const sub = parts[1];
       const id = parts.slice(2).join(':');
       if (sub === 'pathway' && id)
-        return `${AtlasRoutes.globe()}?pathway=${encodeURIComponent(id)}`;
+        return `${GlobeRoutes.root()}?pathway=${encodeURIComponent(id)}`;
       if (sub === 'event' && id)
-        return `${AtlasRoutes.globe()}?event=${encodeURIComponent(id)}`;
+        return `${GlobeRoutes.root()}?event=${encodeURIComponent(id)}`;
       // Regions & cities deep-link via guided tours. The atlas reads the FULL
       // tour id (`region-<id>` / `city-<id>`); synthesize the prefix inline so
       // this resolver stays pure (no `guidedTours`/`cities` import). A city
       // without a curated tour gracefully no-ops to the bare globe.
       if (sub === 'region' && id)
-        return `${AtlasRoutes.globe()}?tour=${encodeURIComponent(`region-${id}`)}`;
+        return `${GlobeRoutes.root()}?tour=${encodeURIComponent(`region-${id}`)}`;
       if (sub === 'city' && id)
-        return `${AtlasRoutes.globe()}?tour=${encodeURIComponent(`city-${id}`)}`;
+        return `${GlobeRoutes.root()}?tour=${encodeURIComponent(`city-${id}`)}`;
       if (sub === 'era' && id)
-        return `${AtlasRoutes.globe()}?era=${encodeURIComponent(id)}`;
+        return `${GlobeRoutes.root()}?era=${encodeURIComponent(id)}`;
       // A Cortex lesson's Promoter: the Globe with the mind-map panel open.
       // The board itself is handed over separately (msp/mindMapHandoff).
-      if (sub === 'mindmap') return `${AtlasRoutes.globe()}?mindmap=1`;
-      return AtlasRoutes.globe();
+      if (sub === 'mindmap') return `${GlobeRoutes.root()}?mindmap=1`;
+      return GlobeRoutes.root();
     }
     case 'studio': {
       const sub = parts[1];
@@ -181,7 +186,7 @@ export const resolveContentRefHref = (ref: ContentRef): string | null => {
       const mode = ref.topicId?.startsWith('modes_')
         ? ref.topicId.slice('modes_'.length)
         : undefined;
-      return mode ? LearnRoutes.overview({ mode }) : null;
+      return mode ? LearnRoutes.keyboardOverview({ mode }) : null;
     }
     case 'genre': {
       if (!ref.genre) return null;
@@ -190,12 +195,12 @@ export const resolveContentRefHref = (ref: ContentRef): string | null => {
       const slug = CURRICULUM_GENRE_SLUGS[genreId];
       const level = ref.level ? String(ref.level).replace(/^L/i, '') : null;
       return level
-        ? CurriculumRoutes.genreLevel({ genre: slug, level })
-        : CurriculumRoutes.genre({ genre: slug });
+        ? LearnRoutes.genreLesson({ genre: slug, level })
+        : LearnRoutes.genreCourse({ genre: slug });
     }
     case 'globe':
       // Origin strings are not event ids — land on the globe without a param.
-      return AtlasRoutes.globe();
+      return GlobeRoutes.root();
     case 'studio':
       return ref.studioPreset
         ? `${StudioRoutes.editor()}?template=${encodeURIComponent(ref.studioPreset)}`

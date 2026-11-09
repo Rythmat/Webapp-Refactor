@@ -1,5 +1,7 @@
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
+import { cn } from '@/components/utilities';
+import { CurriculumRoutes } from '@/constants/routes';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
 import { useUserRole } from '@/contexts/AuthContext/hooks/useUserRole';
 import {
@@ -9,14 +11,21 @@ import {
   listMusicLiteracy,
 } from '@/curriculum/engine/musicLiteracy/registry';
 import { isConsoleRole } from '@/features/admin/consoleRoles';
+import { HearItWithYourBand } from './HearItWithYourBand';
 import { MusicLiteracyPlayer } from './MusicLiteracyPlayer';
+import { startHereRoute } from './literacyPath';
 
 // ── Music Literacy's pages ─────────────────────────────────────────────────
 // /curriculum/music-literacy        the series: straight into its one lesson,
 //                                   or the list once there are more
-// /curriculum/music-literacy/:id    a lesson, in the player
+// /curriculum/music-literacy/:id    a lesson, in the player (`?step=<tag>`
+//                                   opens it on that step)
+// /curriculum/music-literacy/hear-it-with-your-band
+//                                   Part 3: a Band plays the student's
+//                                   progression in the Studio (a static
+//                                   segment, so no lesson id takes it)
 //
-// Free (no RequirePremium), like the rest of Learn → Technique. Students see
+// Free (no RequirePremium): the series is Learn → Start Here. Students see
 // published lessons only. A console role sees drafts too: they reach the app
 // only through the console's mirror (/console/content/curriculum/…), where
 // the Music Literacy editor's "Open in Learn" previews a lesson before it
@@ -42,11 +51,8 @@ export const MusicLiteracyIndexRoute = () => {
   return (
     <div className="mx-auto flex w-full max-w-[880px] flex-col gap-4 px-6 pb-8 pt-6 text-[#e8e8f0]">
       <p className="text-xs uppercase tracking-[0.14em] text-white/45">
-        <Link
-          to={`${LearnRoutes.root()}?tab=Technique`}
-          className="hover:text-[#e8e8f0]"
-        >
-          Technique
+        <Link to={startHereRoute()} className="hover:text-[#e8e8f0]">
+          Start Here
         </Link>
       </p>
       <h1 className="text-2xl font-normal leading-8">Music Literacy</h1>
@@ -60,7 +66,10 @@ export const MusicLiteracyIndexRoute = () => {
             <li key={lesson.id}>
               <Link
                 to={lessonRoute(lesson)}
-                className="flex flex-col gap-1 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 transition-colors hover:bg-white/[0.06]"
+                className={cn(
+                  PROMPT_SURFACE,
+                  'flex flex-col gap-1 px-4 py-3 transition-colors hover:bg-white/[0.06]',
+                )}
               >
                 <span className="text-base">
                   {lesson.name}
@@ -92,7 +101,7 @@ export const MusicLiteracyLessonRoute = () => {
     return (
       <div className="mx-auto flex w-full max-w-[880px] flex-col gap-3 px-6 pt-6 text-[#e8e8f0]">
         <h1 className="text-2xl font-normal leading-8">
-          This lesson isn’t here
+          This Lesson Isn’t Here
         </h1>
         <p className="text-[15px] text-white/55">
           It may not be published yet.{' '}
@@ -109,3 +118,6 @@ export const MusicLiteracyLessonRoute = () => {
   // A new lesson starts the player afresh.
   return <MusicLiteracyPlayer key={lesson.id} lesson={lesson} />;
 };
+
+/** Part 3 · Hear It with Your Band: free, as the series is. */
+export const MusicLiteracyBandRoute = () => <HearItWithYourBand />;

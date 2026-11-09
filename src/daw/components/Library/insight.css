@@ -1,0 +1,128 @@
+/* ── Insight's rainbow sweep (owner, 2026-10-24) ─────────────────────────
+   The prompt box's write-in (components/promptBox: RotatingSuggestion), over
+   Insight's text when it opens for the first time and on Re-analyze. Each
+   line in turn, top to bottom (InsightContent staggers their delays), gets
+   a strip three widths wide — the text's own colour | the 12 key-center
+   colours | clear — slid right to left behind text clipped to it. Each
+   line settles on --sweep-to, its own colour, so nothing jumps when the
+   class goes.
+   --insight-rainbow (the colour stops) is set on the panel from
+   PromptBoxParts' RAINBOW_STOPS, so the two stay one rainbow. */
+
+@keyframes insight-sweep {
+  from {
+    background-position: 100% 0%;
+  }
+  to {
+    background-position: 0% 0%;
+  }
+}
+
+.insight-sweep .insight-ink {
+  background-image: linear-gradient(
+    90deg,
+    var(--sweep-to, white) 0%,
+    var(--sweep-to, white) 33.4%,
+    var(--insight-rainbow),
+    transparent 66.6%,
+    transparent 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: insight-sweep 1.1s cubic-bezier(0.45, 0, 0.25, 1) both;
+}
+
+/* The colour dots and the arrows take the sweep too, in their turn: they
+   come in and run through the key-center colours (--rb-0…--rb-11, set with
+   --insight-rainbow), then settle on their own colour, which the last frame
+   leaves to them. Icons draw in currentColor; dots are filled. */
+@keyframes insight-sweep-mark {
+  0% {
+    opacity: 0;
+    color: var(--rb-0);
+  }
+  15% {
+    opacity: 1;
+    color: var(--rb-0);
+  }
+  30% {
+    color: var(--rb-2);
+  }
+  45% {
+    color: var(--rb-4);
+  }
+  60% {
+    color: var(--rb-6);
+  }
+  75% {
+    color: var(--rb-9);
+  }
+}
+
+@keyframes insight-sweep-dot {
+  0% {
+    opacity: 0;
+    background-color: var(--rb-0);
+  }
+  15% {
+    opacity: 1;
+    background-color: var(--rb-0);
+  }
+  30% {
+    background-color: var(--rb-2);
+  }
+  45% {
+    background-color: var(--rb-4);
+  }
+  60% {
+    background-color: var(--rb-6);
+  }
+  75% {
+    background-color: var(--rb-9);
+  }
+}
+
+.insight-sweep .insight-mark {
+  animation: insight-sweep-mark 1.1s cubic-bezier(0.45, 0, 0.25, 1) both;
+}
+
+.insight-sweep .insight-dot {
+  animation: insight-sweep-dot 1.1s cubic-bezier(0.45, 0, 0.25, 1) both;
+}
+
+/* The pills ("Chromatic", "Borrowed from …") come in the same way: their
+   fill and their words run through the key-center colours, then settle. */
+@keyframes insight-sweep-pill {
+  0% {
+    opacity: 0;
+    color: var(--rb-0);
+    background-color: color-mix(in srgb, var(--rb-0) 18%, transparent);
+  }
+  15% {
+    opacity: 1;
+    color: var(--rb-0);
+    background-color: color-mix(in srgb, var(--rb-0) 18%, transparent);
+  }
+  30% {
+    color: var(--rb-2);
+    background-color: color-mix(in srgb, var(--rb-2) 18%, transparent);
+  }
+  45% {
+    color: var(--rb-4);
+    background-color: color-mix(in srgb, var(--rb-4) 18%, transparent);
+  }
+  60% {
+    color: var(--rb-6);
+    background-color: color-mix(in srgb, var(--rb-6) 18%, transparent);
+  }
+  75% {
+    color: var(--rb-9);
+    background-color: color-mix(in srgb, var(--rb-9) 18%, transparent);
+  }
+}
+
+.insight-sweep .insight-pill {
+  animation: insight-sweep-pill 1.1s cubic-bezier(0.45, 0, 0.25, 1) both;
+}

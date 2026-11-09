@@ -27,7 +27,7 @@ function fakeContext(): AudioContext {
 describe('LFO rebuilds', () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it('builds nothing when a patch push repeats what it holds', () => {
+  it('builds once per push, and nothing when a push repeats what it holds', async () => {
     const build = vi
       .spyOn(LFOWaveformBuilder, 'buildBuffer')
       .mockReturnValue({} as AudioBuffer);
@@ -44,8 +44,10 @@ describe('LFO rebuilds', () => {
       lfo.setBarSmooth(bar, 0.2);
     }
     lfo.setBPM(97);
+    await Promise.resolve();
     const afterFirstPush = build.mock.calls.length;
-    expect(afterFirstPush).toBe(1 + 9);
+    // The 8 shape edits and the BPM change build one buffer between them.
+    expect(afterFirstPush).toBe(1 + 1);
 
     // The panel's mount sync pushes the same patch again, as fresh arrays.
     for (let bar = 0; bar < 4; bar++) {
@@ -56,10 +58,11 @@ describe('LFO rebuilds', () => {
       lfo.setBarSmooth(bar, 0.2);
     }
     lfo.setBPM(97);
+    await Promise.resolve();
     expect(build).toHaveBeenCalledTimes(afterFirstPush);
   });
 
-  it('still rebuilds after the caller edits its array in place', () => {
+  it('still rebuilds after the caller edits its array in place', async () => {
     const build = vi
       .spyOn(LFOWaveformBuilder, 'buildBuffer')
       .mockReturnValue({} as AudioBuffer);
@@ -70,9 +73,11 @@ describe('LFO rebuilds', () => {
       { time: 1, value: 1 },
     ];
     lfo.setBarNodes(0, nodes);
+    await Promise.resolve();
     const before = build.mock.calls.length;
     nodes[1].value = 0.5;
     lfo.setBarNodes(0, nodes);
+    await Promise.resolve();
     expect(build).toHaveBeenCalledTimes(before + 1);
   });
 });

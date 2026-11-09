@@ -4,7 +4,7 @@
   "oscillators": [
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Saw",
       "octave": -3,
       "semitone": 0,
       "fine": 0,
@@ -373,7 +373,7 @@
         "source": "osc2",
         "param": "level"
       },
-      "amount": 0.824561357498169,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -413,7 +413,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.14478300645851147,
+  "masterVolume": 0.4324668402915738,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -435,13 +435,13 @@
     },
     "compressor": {
       "enabled": true,
-      "threshold": 0,
+      "threshold": -19.27148009887689,
       "ratio": 20,
       "attack": 0.01,
       "release": 0.2
     },
     "drive": {
-      "enabled": true,
+      "enabled": false,
       "amount": 0.3,
       "mix": 0.5
     },

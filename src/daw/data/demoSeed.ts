@@ -1,4 +1,5 @@
 import type { MidiNoteEvent } from '@prism/engine';
+import { lessonSeed } from '@/daw/components/Tutorial/tutorialCatalog';
 import { getDemoProject, type DemoProject } from '@/daw/data/demoProjects';
 import { withDemoSynthPresets } from '@/daw/data/demoSynthPresets';
 import { GROOVES } from '@/daw/data/groovesLibrary';
@@ -20,6 +21,10 @@ import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
 //   synchronously after openSession's reset. The demo opens in one piece, so
 //   it has one baseline and the first Cmd+Z can't take its drums away. No
 //   reset, no baseline and no undo reset of its own: those are the opener's.
+//
+// A course lesson (`?tutorial=` for a Studio Basics lesson) opens on a demo
+// song the same way: prepareLessonSeed is its prepare, and the 'tutorial'
+// intent applies the demo and starts the lesson in the one seed.
 
 /** A demo ready to apply: its bundle, and its groove's notes once fetched. */
 export interface PreparedDemo {
@@ -107,4 +112,35 @@ export function applyDemo(prepared: PreparedDemo): void {
         durationTicks: Math.min(e.durationTicks, loopTicks - e.startTick),
       })),
   });
+}
+
+// ── A lesson's demo song ───────────────────────────────────────────────────
+
+/**
+ * The demo a course lesson opens on while its course's own song isn't in
+ * DEMO_PROJECTS yet (TUTORIAL_COURSES' `seed` names one still being
+ * written): an existing demo, so the lesson still starts on a real song.
+ */
+export const FALLBACK_LESSON_SEED = 'demo-sunset-keys';
+
+/**
+ * The demo lesson `lessonId` opens on from a cold start: its seed
+ * (tutorialCatalog.ts's lessonSeed), or FALLBACK_LESSON_SEED while that
+ * demo doesn't exist; null for a lesson that opens on a blank project.
+ */
+export function lessonSeedDemoId(
+  lessonId: string,
+  hasDemo: (id: string) => boolean = (id) => Boolean(getDemoProject(id)),
+): string | null {
+  const seed = lessonSeed(lessonId);
+  if (!seed) return null;
+  return hasDemo(seed) ? seed : FALLBACK_LESSON_SEED;
+}
+
+/** Prepare lesson `lessonId`'s demo song, or null when it opens blank. */
+export async function prepareLessonSeed(
+  lessonId: string,
+): Promise<PreparedDemo | null> {
+  const demoId = lessonSeedDemoId(lessonId);
+  return demoId ? prepareDemo(demoId) : null;
 }

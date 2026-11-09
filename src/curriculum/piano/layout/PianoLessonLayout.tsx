@@ -1,5 +1,8 @@
-import { useState, type ReactNode, type RefObject } from 'react';
-import { GuitarActionBar } from '@/curriculum/guitar/layout/GuitarActionBar';
+import { useContext, useState, type ReactNode, type RefObject } from 'react';
+import {
+  GuitarActionBar,
+  type Zones,
+} from '@/curriculum/guitar/layout/GuitarActionBar';
 import { GuitarLessonHeader } from '@/curriculum/guitar/layout/GuitarLessonHeader';
 import {
   GuitarResultPanel,
@@ -7,7 +10,13 @@ import {
 } from '@/curriculum/guitar/layout/GuitarResultPanel';
 import { GuitarSectionCompletePanel } from '@/curriculum/guitar/layout/GuitarSectionCompletePanel';
 import { GuitarStepNav } from '@/curriculum/guitar/layout/GuitarStepNav';
+import { LessonFrame } from '@/curriculum/guitar/layout/LessonFrame';
 import { deriveBarState } from '@/curriculum/guitar/layout/deriveBarState';
+import {
+  EditableText,
+  LessonTextEditingContext,
+  parseChordList,
+} from '@/curriculum/guitar/layout/lessonTextEditing';
 import type {
   HeaderModel,
   ResultModel,
@@ -33,6 +42,10 @@ import './pianoLayout.css';
 //
 //   header    eyebrow crumbs, the step's name and chords, About, settings
 //   nav       sections, ♪ Practice Track, ‹ 3 / 20 ›, the progress line
+//             (or, with the lesson's tab row, just the narrow-screen sections)
+//   subNav    the tab row: the Overview's tabs, or a section's exercise
+//             groups and its Practice Track (as Theory's)
+//   overview  the lesson's Overview, in place of the roll and keyboard
 //   roll      the piano roll / notation / cascade, taking what's left; the
 //             result or the section-complete offer take its place
 //   keyboard  the full-width lesson keyboard with the target notes
@@ -55,6 +68,15 @@ export interface PianoLessonLayoutProps {
   offer: SectionCompleteModel | null;
   about: PianoAboutModel;
   audio: { outputLatencyMs: number; openAudioTiming: () => void };
+  /** The tab row under the nav (Theory's): left out, none. */
+  subNav?: ReactNode;
+  /**
+   * The lesson's Overview: set, it takes the roll's and keyboard's place
+   * (it docks its own keyboard on the bar) and `barCustom` the bar's.
+   */
+  overview?: ReactNode;
+  /** The bar's words and buttons instead of its state's own. */
+  barCustom?: Zones | null;
   slots: {
     /** The roll's box: the container measures it; never remount it. */
     rollViewportRef: RefObject<HTMLDivElement>;
@@ -73,8 +95,13 @@ export function PianoLessonLayout({
   offer,
   about,
   audio,
+  subNav,
+  overview,
+  barCustom,
   slots,
 }: PianoLessonLayoutProps) {
+  // Given only by the console's lesson editor: the chords edit in place.
+  const editing = useContext(LessonTextEditingContext);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
 
@@ -86,7 +113,7 @@ export function PianoLessonLayout({
   });
 
   useGuitarStepKeys({
-    enabled: barState === 'preview' && !settingsOpen && !aboutOpen,
+    enabled: barState === 'preview' && !overview && !settingsOpen && !aboutOpen,
     index: nav.index,
     count: nav.steps.length,
     goToStep: nav.goToStep,
@@ -99,18 +126,31 @@ export function PianoLessonLayout({
         ? resultSummary(result, run.listen.passMarkPct)
         : '';
 
-  const slotTakenBy =
-    barState === 'result' && result ? (
-      <GuitarResultPanel result={result} passMarkPct={run.listen.passMarkPct} />
-    ) : barState === 'sectionComplete' && offer ? (
-      <GuitarSectionCompletePanel offer={offer} />
-    ) : null;
+  const slotTakenBy = overview ? (
+    <div data-piano-overview>{overview}</div>
+  ) : barState === 'result' && result ? (
+    <GuitarResultPanel result={result} passMarkPct={run.listen.passMarkPct} />
+  ) : barState === 'sectionComplete' && offer ? (
+    <GuitarSectionCompletePanel offer={offer} />
+  ) : null;
 
   return (
-    <div
+    <LessonFrame
+      header={header}
+      nav={nav}
+      tools={{
+        about: {
+          open: aboutOpen,
+          onToggle: () => setAboutOpen(!aboutOpen),
+        },
+        // Settings is not modal, so its button stays in reach and toggles.
+        settings: {
+          open: settingsOpen,
+          onToggle: () => setSettingsOpen(!settingsOpen),
+        },
+      }}
       data-piano-layout
       data-bar-state={barState}
-      className="flex h-full min-h-0 flex-col bg-[#101012] text-[#e8e8f0]"
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
         <div
@@ -119,25 +159,41 @@ export function PianoLessonLayout({
         >
           <GuitarLessonHeader
             header={header}
-            aboutHasNews={false}
-            aboutOpen={aboutOpen}
-            onOpenAbout={() => setAboutOpen(true)}
-            settingsOpen={settingsOpen}
-            onOpenSettings={() => setSettingsOpen((open) => !open)}
+            section={nav.sections.find((s) => s.active)?.name}
             titleAside={
-              chords.length > 0 ? (
+              chords.length > 0 || editing ? (
                 <span
                   data-piano-chords
                   className="text-sm font-normal"
                   style={{ color: header.keyColor }}
                 >
-                  {chords.join(' → ')}
+                  {editing ? (
+                    // In the console's lesson editor, the chords edit here.
+                    <EditableText
+                      value={editing.chordSymbols.join(' ')}
+                      onChange={(text) =>
+                        editing.setChordSymbols(parseChordList(text) ?? [])
+                      }
+                      valid={(text) => parseChordList(text) !== null}
+                      hint="Chords, one a bar: Dm7 G7 Cmaj7"
+                      label="Chord symbols"
+                    >
+                      {chords.length ? (
+                        chords.join(' → ')
+                      ) : (
+                        <span className="opacity-60">Add chords</span>
+                      )}
+                    </EditableText>
+                  ) : (
+                    chords.join(' → ')
+                  )}
                 </span>
               ) : undefined
             }
           />
 
           <GuitarStepNav nav={nav} keyColor={header.keyColor} />
+          {subNav}
 
           <div data-piano-roll-slot className="min-w-0">
             {/* Kept mounted (and measured) under the result: no display
@@ -153,9 +209,11 @@ export function PianoLessonLayout({
             {slotTakenBy}
           </div>
 
-          <div data-piano-keyboard className="shrink-0">
-            {slots.keyboard}
-          </div>
+          {!overview && (
+            <div data-piano-keyboard className="shrink-0">
+              {slots.keyboard}
+            </div>
+          )}
         </div>
       </div>
 
@@ -176,6 +234,7 @@ export function PianoLessonLayout({
         practice={{ presets: [] }}
         result={result}
         offer={offer}
+        custom={barCustom}
       />
 
       <PianoSettingsSheet
@@ -189,6 +248,6 @@ export function PianoLessonLayout({
         onOpenChange={setAboutOpen}
         about={about}
       />
-    </div>
+    </LessonFrame>
   );
 }

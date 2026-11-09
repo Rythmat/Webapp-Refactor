@@ -179,25 +179,20 @@ export const createUnisonSlice: StateCreator<
     try {
       const state = get();
 
-      // Pre-validation: check for MIDI content
-      const midiTracks = state.tracks.filter((t) => t.type === 'midi');
-      if (midiTracks.length === 0) {
-        set({
-          unisonLoading: false,
-          unisonError:
-            'No MIDI tracks found. Import MIDI or record some notes first.',
-        });
-        return;
-      }
-
-      const hasEvents = midiTracks.some((t) =>
-        t.midiClips.some((c) => c.events.length > 0),
+      // Something to read: notes, or chords in the chord lane. A song whose
+      // chords are only in the lane is analyzed from them, so Insight,
+      // the lane and the Score agree on it (owner, 2026-10-24); with
+      // neither, the last analysis goes, rather than describe old music.
+      const hasEvents = state.tracks.some(
+        (t) =>
+          t.type === 'midi' && t.midiClips.some((c) => c.events.length > 0),
       );
-      if (!hasEvents) {
+      if (!hasEvents && state.chordRegions.length === 0) {
         set({
+          unisonDoc: null,
           unisonLoading: false,
           unisonError:
-            'No MIDI events found. Record or import notes to analyze.',
+            'No notes or chords to analyze yet. Record, import or write some first.',
         });
         return;
       }

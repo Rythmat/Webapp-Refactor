@@ -13,8 +13,8 @@ export interface ArcadeTab {
 }
 
 /**
- * The Arcade dashboard's category tabs. Mirrors the Learn/Studio/Globe tab
- * pattern — Multiplayer is omitted (its only game is the featured hero).
+ * The Arcade dashboard's category tabs. Multiplayer is omitted (its only
+ * game is the featured hero).
  */
 export const ARCADE_TABS: ArcadeTab[] = [
   { slug: 'EarTraining', label: 'Ear Training', category: 'Ear Training' },
@@ -25,18 +25,22 @@ export const ARCADE_TABS: ArcadeTab[] = [
 ];
 
 /**
- * The Arcade hub's tab bar — the "Arcade" heading (which links back to the
- * default dashboard) plus the category sub-tabs, styled identically to the
- * Learn/Studio/Globe tab bars. Tabs navigate via the `?tab=` param ArcadeInlet
- * reads.
+ * The Arcade's navigation, as the Learn page's (LearnTabBar with
+ * `instrumentHeading`, owner 2026-10-28: "match /learn"): centred, the
+ * Arcade icon alone (its name for screen readers), which opens the whole
+ * Arcade, then the categories as plain words at the same size, the current
+ * one white. Tabs navigate by `?tab=`, which ArcadeInlet reads.
  */
 export const ArcadeTabBar = () => {
   const [params] = useSearchParams();
-  const active = params.get('tab') ?? '';
+  const tab = params.get('tab') ?? '';
+  const active = ARCADE_TABS.some((t) => t.slug === tab) ? tab : '';
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 md:gap-x-6">
-      {/* Arcade heading — also the way back to the default dashboard. */}
+    <nav
+      aria-label="Arcade"
+      className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:gap-x-6"
+    >
       <Link
         to={GameRoutes.root()}
         aria-current={active === '' ? 'page' : undefined}
@@ -48,10 +52,8 @@ export const ArcadeTabBar = () => {
           draggable={false}
           className="h-8 w-8 md:h-10 md:w-10"
         />
-        <h2 className="text-xl font-medium text-white md:text-2xl">Arcade</h2>
+        <h2 className="sr-only">Arcade</h2>
       </Link>
-
-      {/* Category tabs — plain text links at the same size as the heading. */}
       {ARCADE_TABS.map(({ slug, label }) => (
         <Link
           key={slug}
@@ -66,6 +68,6 @@ export const ArcadeTabBar = () => {
           {label}
         </Link>
       ))}
-    </div>
+    </nav>
   );
 };

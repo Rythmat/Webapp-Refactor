@@ -18,11 +18,12 @@ function transport(bpm: number, t0: number, tick0: number) {
 }
 
 describe('takeAnchor + placeTake', () => {
-  it('subtracts the input and output latency from the capture start', () => {
+  it('subtracts the input, base and output latency from the capture start', () => {
     const { ticksAtTime, ticksPerSecond } = transport(120, 10, 1920);
     const anchor = takeAnchor({
-      captureStart: 12.06,
+      captureStart: 12.07,
       inputLatency: 0.01,
+      baseLatency: 0.01,
       outputLatency: 0.05,
       transportStart: 10,
       ticksAtTime,
@@ -38,6 +39,7 @@ describe('takeAnchor + placeTake', () => {
     const anchor = takeAnchor({
       captureStart: 11.02,
       inputLatency: 0.005,
+      baseLatency: 0,
       outputLatency: 0.015,
       transportStart: 10,
       ticksAtTime,
@@ -52,6 +54,7 @@ describe('takeAnchor + placeTake', () => {
     const anchor = takeAnchor({
       captureStart: 9.9,
       inputLatency: 0.02,
+      baseLatency: 0,
       outputLatency: 0.03,
       transportStart: 10,
       ticksAtTime,
@@ -67,6 +70,7 @@ describe('takeAnchor + placeTake', () => {
     const anchor = takeAnchor({
       captureStart: 11,
       inputLatency: 0,
+      baseLatency: 0,
       outputLatency: 0,
       transportStart: 10,
       ticksAtTime,
@@ -105,7 +109,10 @@ describe('findLagSeconds', () => {
     const reference = source.subarray(lag, lag + rate * 2.5);
     const target = source.subarray(0, rate * 3);
     expect(
-      Math.abs(findLagSeconds(reference, target, rate) - 0.0373),
+      Math.abs(
+        findLagSeconds(reference, target, rate, { maxLagSeconds: 0.05 }) -
+          0.0373,
+      ),
     ).toBeLessThan(0.001);
   });
 
@@ -126,6 +133,74 @@ describe('findLagSeconds', () => {
   it('assumes no lag when the two are unrelated', () => {
     const other = signal(rate * 3, 777);
     expect(findLagSeconds(source.subarray(0, rate * 2), other, rate)).toBe(0);
+  });
+});
+
+/**
+ * A click track as a tap would hear it: a short broadband click on every
+ * beat over a faint hiss, from `seconds` into the song.
+ */
+function clickTrack(
+  bpm: number,
+  rate: number,
+  seconds: number,
+  seed: number,
+  firstClick = 0.07,
+) {
+  const out = signal(rate * seconds, seed);
+  for (let i = 0; i < out.length; i++) out[i] *= 0.002;
+  const click = signal(Math.round(0.012 * rate), seed + 1);
+  const beat = (60 / bpm) * rate;
+  for (let at = firstClick * rate; at + click.length < out.length; at += beat) {
+    const from = Math.round(at);
+    for (let i = 0; i < click.length; i++) {
+      out[from + i] += click[i] * Math.exp(-i / (0.003 * rate));
+    }
+  }
+  return out;
+}
+
+/** What a lossy codec hands back: a little smoothing and its own noise. */
+function codec(input: Float32Array, seed: number): Float32Array {
+  const hiss = signal(input.length, seed);
+  const out = new Float32Array(input.length);
+  let y = 0;
+  for (let i = 0; i < input.length; i++) {
+    y = 0.6 * input[i] + 0.4 * y;
+    out[i] = y + 0.01 * hiss[i];
+  }
+  return out;
+}
+
+describe('findLagSeconds on a take that opens with metronome clicks', () => {
+  const rate = 48000;
+  // The decoded audio starts 30 ms after the tap's first frame.
+  const truth = -0.03;
+  for (const bpm of [100, 120, 140, 160]) {
+    it(`finds the true lag, not one a beat away, at ${bpm} bpm`, () => {
+      // Wherever the tap starts against the beat.
+      for (const firstClick of [0.01, 0.07, 0.2, 0.35]) {
+        const song = clickTrack(bpm, rate, 4, bpm, firstClick);
+        const shift = Math.round(-truth * rate);
+        const reference = song.subarray(0, rate * 2.5);
+        const target = codec(song.subarray(shift, shift + rate * 3), 99);
+        expect(
+          Math.abs(findLagSeconds(reference, target, rate) - truth),
+        ).toBeLessThan(0.001);
+      }
+    });
+  }
+
+  it('prefers the nearest lag when a wide search ties a beat away', () => {
+    const song = clickTrack(120, rate, 5, 7);
+    const shift = Math.round(0.03 * rate);
+    const reference = song.subarray(0, rate * 2.5);
+    const target = codec(song.subarray(shift, shift + rate * 3.5), 5);
+    const lag = findLagSeconds(reference, target, rate, {
+      minLagSeconds: -0.6,
+      maxLagSeconds: 0.6,
+    });
+    expect(Math.abs(lag - truth)).toBeLessThan(0.001);
   });
 });
 

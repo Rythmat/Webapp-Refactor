@@ -88,7 +88,7 @@ function renderCard(events: HistoricalEvent[]) {
     selectedLocation: { type: 'country', name: COUNTRY, iso: 'TST' },
   });
   const wrap = ({ children }: { children: ReactNode }) => (
-    <MemoryRouter initialEntries={['/atlas/globe']}>
+    <MemoryRouter initialEntries={['/globe']}>
       <AtlasNavigationProvider>
         <AtlasStoreProvider store={store}>{children}</AtlasStoreProvider>
       </AtlasNavigationProvider>
@@ -155,36 +155,6 @@ describe('DetailsCard', () => {
       expect(toggle.getAttribute('aria-expanded')).toBe('false');
       expect(toggle.querySelector('button')).toBeNull();
     }
-  });
-
-  it('resizes from the keyboard through its separator', () => {
-    const { container } = renderCard(makeEvents(3));
-    const handle = screen.getByRole('separator', {
-      name: 'Resize the details panel',
-    });
-    const card = handle.parentElement!;
-    expect(handle.getAttribute('aria-orientation')).toBe('vertical');
-    expect(handle.getAttribute('aria-valuenow')).toBe('480');
-    expect(handle.getAttribute('aria-valuemin')).toBe('280');
-    expect(Number(handle.getAttribute('aria-valuemax'))).toBeGreaterThan(480);
-
-    fireEvent.keyDown(handle, { key: 'ArrowRight' });
-    expect(handle.getAttribute('aria-valuenow')).toBe('496');
-    expect(card.style.width).toContain('496px');
-
-    fireEvent.keyDown(handle, { key: 'ArrowLeft', shiftKey: true });
-    expect(handle.getAttribute('aria-valuenow')).toBe('432');
-
-    fireEvent.keyDown(handle, { key: 'Home' });
-    expect(handle.getAttribute('aria-valuenow')).toBe('280');
-    fireEvent.keyDown(handle, { key: 'ArrowLeft' });
-    expect(handle.getAttribute('aria-valuenow')).toBe('280');
-
-    fireEvent.keyDown(handle, { key: 'End' });
-    expect(handle.getAttribute('aria-valuenow')).toBe(
-      handle.getAttribute('aria-valuemax'),
-    );
-    expect(container.contains(handle)).toBe(true);
   });
 
   it('leaves Enlarge on Escape before anything closes', () => {

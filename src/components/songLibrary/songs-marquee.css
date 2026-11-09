@@ -33,3 +33,13 @@
     overflow-x: auto;
   }
 }
+
+/* The hand-scrolled strip (SongsMarquee `scrollable`): no drift, and no
+   scrollbar — a trackpad, a sideways wheel, a swipe or the arrow buttons
+   move it. */
+.song-marquee-scroller {
+  scrollbar-width: none;
+}
+.song-marquee-scroller::-webkit-scrollbar {
+  display: none;
+}

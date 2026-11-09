@@ -784,16 +784,14 @@ describe('Sound off pauses the visitor’s playback', () => {
     await expectPausedThenResumes();
   });
 
-  it('Songs demo, muted on a rest: Play turns Sound on and plays on', async () => {
+  it('Songs demo, a picked song muted: Play turns Sound on and plays on', async () => {
     await mount(SONGS_TOUR, SongsScene);
     await step(500);
-    await click(byText('Sweet Home Alabama'));
+    await click(byText('If I Ain’t Got You'));
     await click(button('Play'));
-    // Its 4th bar is a rest: 13 beats in at 98 BPM.
     await step(8200);
     await click(soundToggle());
     expect(button('Play')).toBeTruthy();
-    expect(host.textContent).toContain('Rest');
     const heard = env.chords.length;
 
     await click(button('Play'));

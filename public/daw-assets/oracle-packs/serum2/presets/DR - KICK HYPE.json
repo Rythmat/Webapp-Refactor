@@ -4,11 +4,11 @@
   "oscillators": [
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Sine",
       "octave": 3,
-      "semitone": 12,
+      "semitone": 5,
       "fine": 0,
-      "wtPosition": 0.12239729572320357,
+      "wtPosition": 0,
       "pan": 0,
       "level": 0.8075946238341345,
       "unisonVoices": 1,
@@ -16,15 +16,16 @@
       "unisonBlend": 0.5,
       "warpMode": "tube",
       "warpAmount": 0.13016857206821442,
-      "enabled": true
+      "enabled": true,
+      "keyTrack": false
     },
     {
       "waveform": "sawtooth",
-      "wavetable": "S2/Default Shapes",
+      "wavetable": "S2/Shape Sine",
       "octave": 3,
       "semitone": 12,
       "fine": 0,
-      "wtPosition": 0.17948676826199517,
+      "wtPosition": 0,
       "pan": 0,
       "level": 0,
       "unisonVoices": 1,
@@ -32,7 +33,8 @@
       "unisonBlend": 0.5,
       "warpMode": "none",
       "warpAmount": 0,
-      "enabled": true
+      "enabled": true,
+      "keyTrack": false
     }
   ],
   "subOscillator": {
@@ -371,7 +373,7 @@
       },
       "target": {
         "source": "osc1",
-        "param": "detune"
+        "param": "pitch"
       },
       "amount": 0.2411487102508545,
       "polarity": "bipolar",
@@ -382,13 +384,28 @@
       "id": "serum-2",
       "source": {
         "type": "macro",
+        "index": 1
+      },
+      "target": {
+        "source": "osc1",
+        "param": "pitch"
+      },
+      "amount": 0.477536678314209,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-3",
+      "source": {
+        "type": "macro",
         "index": 3
       },
       "target": {
         "source": "noise",
         "param": "level"
       },
-      "amount": 0.5982955694198608,
+      "amount": 1,
       "polarity": "unipolar",
       "curve": "linear",
       "enabled": true
@@ -398,7 +415,7 @@
   "voiceCount": 8,
   "glide": 0,
   "spread": 0,
-  "masterVolume": 0.12292251737381246,
+  "masterVolume": 0.49169006949524985,
   "fx": {
     "chorus": {
       "enabled": false,
@@ -420,13 +437,13 @@
     },
     "compressor": {
       "enabled": true,
-      "threshold": 0,
+      "threshold": -9.68243923037962,
       "ratio": 2.3442937076025183,
-      "attack": 1,
-      "release": 1
+      "attack": 0.047974426746936936,
+      "release": 0.08342411957504989
     },
     "drive": {
-      "enabled": true,
+      "enabled": false,
       "amount": 0.3,
       "mix": 0.5
     },
@@ -442,7 +459,8 @@
   "routing": {
     "filterRouting": {
       "filter1Sources": ["osc1", "osc2", "noise", "sub"],
-      "filter2Sources": []
+      "filter2Sources": [],
+      "serial": true
     },
     "envelopeRouting": {
       "env1Sources": ["osc1", "osc2", "sub", "noise"],

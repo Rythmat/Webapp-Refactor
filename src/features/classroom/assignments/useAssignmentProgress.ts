@@ -18,7 +18,12 @@
  * `*ForUser` helpers remain as the dev-only localStorage fallback used by
  * the simulation harness.
  */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
@@ -349,6 +354,54 @@ export const useAssignmentProgress = (
     getResponsesByEnrollment,
     isLoading,
   };
+};
+
+/**
+ * Progress for EVERY assignment of a class at once — the roster's "work
+ * done", the Assignments list and Today all need the whole class, while
+ * `useAssignmentProgress` reads one assignment. Same query keys, so the
+ * one-assignment pages and these share the cache.
+ */
+export const useClassAssignmentProgress = (
+  classroomId: string,
+  assignmentIds: readonly string[],
+) => {
+  const musicAtlas = useMusicAtlas();
+  const results = useQueries({
+    queries: assignmentIds.map((assignmentId) => ({
+      queryKey: [
+        'classroom',
+        classroomId,
+        'assignment',
+        assignmentId,
+        'progress',
+      ] as const,
+      queryFn: async () => {
+        const raw =
+          await musicAtlas.classrooms.getClassroomsByIdAssignmentsByAssignmentIdProgress(
+            classroomId,
+            assignmentId,
+          );
+        return (raw as RawProgress[]).map(normalizeProgress);
+      },
+      enabled: Boolean(classroomId),
+    })),
+  });
+
+  const byAssignment = new Map<string, AssignmentProgress[]>();
+  assignmentIds.forEach((id, i) =>
+    byAssignment.set(id, results[i]?.data ?? []),
+  );
+  const key = results.map((r) => r.dataUpdatedAt).join(',');
+
+  const listProgress = useCallback(
+    (aid: string) => byAssignment.get(aid) ?? [],
+    // `byAssignment` is rebuilt each render; the data's timestamps say when
+    // it actually changed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [key, assignmentIds.join(',')],
+  );
+  return { listProgress, isLoading: results.some((r) => r.isLoading) };
 };
 
 /** One enrollment's progress row, or undefined while the id is unknown. */

@@ -3,15 +3,27 @@ import { Navigate, Outlet } from 'react-router';
 import { OfficeRoutes, TeacherRoutes } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
-import { OfficePage } from '@/features/office/class/OfficePage';
+import { CalendarRedirect } from '@/features/office/class/plan/CalendarRedirect';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { LegacyClassroomRedirect } from './workspace/LegacyClassroomRedirect';
 
-const ClassroomStudentsPage = lazy(() =>
-  import('./ClassroomStudentsPage').then(({ ClassroomStudentsPage }) => ({
-    default: ClassroomStudentsPage,
+const StudentsPage = lazy(() =>
+  import('@/features/office/class/StudentsPage').then(({ StudentsPage }) => ({
+    default: StudentsPage,
   })),
+);
+
+const ClassPlanPage = lazy(() =>
+  import('@/features/office/class/plan/ClassPlanPage').then(
+    ({ ClassPlanPage }) => ({ default: ClassPlanPage }),
+  ),
+);
+
+const ClassAssignmentsPage = lazy(() =>
+  import('@/features/office/class/assignments/ClassAssignmentsPage').then(
+    ({ ClassAssignmentsPage }) => ({ default: ClassAssignmentsPage }),
+  ),
 );
 
 // The Office's frame and pages (owner, 2026-11-09: the Office rebuilt as an
@@ -72,12 +84,6 @@ const PresentationMode = lazy(() =>
   ),
 );
 
-const PlanPage = lazy(() =>
-  import('@/features/classroom/plan/PlanPage').then(({ PlanPage }) => ({
-    default: PlanPage,
-  })),
-);
-
 const DayEditor = lazy(() =>
   import('@/features/classroom/plan/deckEditor/SlideDeckEditor').then(
     ({ SlideDeckEditor }) => ({ default: SlideDeckEditor }),
@@ -94,18 +100,6 @@ const PreviewPage = lazy(() =>
   import('@/features/classroom/plan/PreviewPage').then(({ PreviewPage }) => ({
     default: PreviewPage,
   })),
-);
-
-const AssignmentsPage = lazy(() =>
-  import('@/features/classroom/assignments/AssignmentsPage').then(
-    ({ AssignmentsPage }) => ({ default: AssignmentsPage }),
-  ),
-);
-
-const AnnualPlanPage = lazy(() =>
-  import('@/features/classroom/annual/AnnualPlanPage').then(
-    ({ AnnualPlanPage }) => ({ default: AnnualPlanPage }),
-  ),
 );
 
 const AssignmentProgressPage = lazy(() =>
@@ -233,33 +227,21 @@ export const officePages = () => {
                   { index: true, element: <ClassOverviewPage /> },
                   {
                     path: TeacherRoutes.plan.definition,
-                    element: (
-                      <OfficePage>
-                        <PlanPage />
-                      </OfficePage>
-                    ),
+                    element: <ClassPlanPage />,
                   },
                   {
                     // The calendar is one of Plan's views now; its old tab
-                    // still opens it.
+                    // opens Plan on Month.
                     path: TeacherRoutes.annualPlan.definition,
-                    element: (
-                      <OfficePage>
-                        <AnnualPlanPage />
-                      </OfficePage>
-                    ),
+                    element: <CalendarRedirect />,
                   },
                   {
                     path: TeacherRoutes.assignments.definition,
-                    element: <AssignmentsPage />,
+                    element: <ClassAssignmentsPage />,
                   },
                   {
                     path: TeacherRoutes.students.definition,
-                    element: (
-                      <OfficePage>
-                        <ClassroomStudentsPage />
-                      </OfficePage>
-                    ),
+                    element: <StudentsPage />,
                   },
                   {
                     path: TeacherRoutes.progress.definition,

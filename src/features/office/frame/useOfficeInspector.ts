@@ -2,22 +2,28 @@ import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 // ── What the Inspector shows, in the URL (owner, 2026-11-09) ───────────────
-// `?inspect=lesson:<classroomId>/<dayId>` and the like: a selection is a
-// link a teacher can share or reload, and Back closes what was opened, as
-// a drawer in Linear or Common Planner does.
+// `?inspect=lesson:<classroomId>/<dayId>`, `student:<cid>/<enrollmentId>`,
+// `assignment:<cid>/<assignmentId>`: a selection is a link a teacher can
+// share or reload, and Back closes what was opened, as a drawer in Linear
+// or Common Planner does.
 
-export type InspectTarget = {
-  kind: 'lesson';
+export const INSPECT_KINDS = ['lesson', 'student', 'assignment'] as const;
+export type InspectKind = (typeof INSPECT_KINDS)[number];
+
+export interface InspectTarget {
+  kind: InspectKind;
   classroomId: string;
-  dayId: string;
-};
+  /** The lesson's day id, the student's enrollment id, the assignment's id. */
+  id: string;
+}
 
 export const INSPECT_PARAM = 'inspect';
 
-// One kind so far; students, assignments and submissions join it in later
-// phases, each with its own `kind:` prefix.
 export const formatInspect = (target: InspectTarget): string =>
-  `lesson:${target.classroomId}/${target.dayId}`;
+  `${target.kind}:${target.classroomId}/${target.id}`;
+
+const isKind = (value: string): value is InspectKind =>
+  (INSPECT_KINDS as readonly string[]).includes(value);
 
 export const parseInspect = (
   value: string | null | undefined,
@@ -27,21 +33,21 @@ export const parseInspect = (
   if (colon < 0) return null;
   const kind = value.slice(0, colon);
   const rest = value.slice(colon + 1);
-  if (kind === 'lesson') {
-    const slash = rest.indexOf('/');
-    if (slash <= 0 || slash === rest.length - 1) return null;
-    return {
-      kind,
-      classroomId: rest.slice(0, slash),
-      dayId: rest.slice(slash + 1),
-    };
-  }
-  return null;
+  const slash = rest.indexOf('/');
+  if (!isKind(kind) || slash <= 0 || slash === rest.length - 1) return null;
+  return { kind, classroomId: rest.slice(0, slash), id: rest.slice(slash + 1) };
 };
 
 /** The search string for a page with the Inspector opened on a target. */
 export const inspectSearch = (target: InspectTarget): string =>
   `?${new URLSearchParams({ [INSPECT_PARAM]: formatInspect(target) })}`;
+
+/** `search` with the Inspector opened on `target`, keeping its other params. */
+export const withInspect = (search: string, target: InspectTarget): string => {
+  const p = new URLSearchParams(search);
+  p.set(INSPECT_PARAM, formatInspect(target));
+  return `?${p}`;
+};
 
 export const useOfficeInspector = () => {
   const [params, setParams] = useSearchParams();

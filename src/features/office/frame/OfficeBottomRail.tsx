@@ -13,10 +13,13 @@ import type { OfficeNav } from './officeNav';
  */
 export const OfficeBottomRail = ({
   nav,
+  slotRef,
   className,
   style,
 }: {
   nav: OfficeNav;
+  /** The right-hand slot a page's controls portal into (`OfficeRailSlot`). */
+  slotRef: (el: HTMLElement | null) => void;
   className?: string;
   style?: React.CSSProperties;
 }) => {
@@ -24,9 +27,13 @@ export const OfficeBottomRail = ({
   const label = nav.scope === 'class' ? 'Class pages' : 'Office pages';
   return (
     <div
-      className={cn('flex min-w-0 items-center justify-center px-2', className)}
+      className={cn(
+        'grid min-w-0 grid-cols-[1fr_auto_1fr] items-center gap-2 px-2 max-sm:grid-cols-[auto] max-sm:justify-center',
+        className,
+      )}
       style={style}
     >
+      <span aria-hidden className="max-sm:hidden" />
       <nav
         aria-label={label}
         className={cn(
@@ -48,6 +55,10 @@ export const OfficeBottomRail = ({
           </Link>
         ))}
       </nav>
+      <div
+        ref={slotRef}
+        className="flex min-w-0 items-center justify-end gap-2 max-sm:hidden"
+      />
     </div>
   );
 };

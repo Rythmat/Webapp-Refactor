@@ -7,6 +7,7 @@ import { OfficeCommandPalette } from '../palette/OfficeCommandPalette';
 import { OfficeBottomRail } from './OfficeBottomRail';
 import { OfficeTopRail } from './OfficeTopRail';
 import { officeNav } from './officeNav';
+import { RailSlotContext } from './railSlot';
 
 // ── The Office in the Studio's frame (owner, 2026-11-09) ───────────────────
 // The rails, gutters and Inspector of the Studio and the Globe, so the
@@ -26,6 +27,7 @@ export const OfficeFrame = () => {
   const nav = officeNav(pathname) ?? officeNav('/office');
   const [paletteOpen, setPaletteOpen] = useState(false);
   const stageRef = useRef<HTMLElement>(null);
+  const [railSlot, setRailSlot] = useState<HTMLElement | null>(null);
 
   // ⌘K / Ctrl-K opens search from anywhere in the Office.
   useEffect(() => {
@@ -63,12 +65,18 @@ export const OfficeFrame = () => {
         className="relative mx-2 min-h-0 overflow-y-auto overflow-x-hidden rounded-[var(--daw-radius-lg)] bg-daw-surface-1 [scrollbar-width:thin]"
         style={{ gridArea: 'stage' }}
       >
-        <Suspense fallback={<DashboardContentSkeleton />}>
-          <Outlet />
-        </Suspense>
+        <RailSlotContext.Provider value={railSlot}>
+          <Suspense fallback={<DashboardContentSkeleton />}>
+            <Outlet />
+          </Suspense>
+        </RailSlotContext.Provider>
       </main>
       <OfficeInspector style={{ gridArea: 'insp' }} />
-      <OfficeBottomRail nav={nav} style={{ gridArea: 'bottom' }} />
+      <OfficeBottomRail
+        nav={nav}
+        slotRef={setRailSlot}
+        style={{ gridArea: 'bottom' }}
+      />
       <OfficeCommandPalette
         open={paletteOpen}
         onOpenChange={setPaletteOpen}

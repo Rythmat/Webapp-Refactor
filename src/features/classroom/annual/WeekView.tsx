@@ -10,8 +10,8 @@
  */
 import type { Feature } from 'geojson';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { TeacherRoutes } from '@/constants/routes';
+import { Link, useLocation } from 'react-router-dom';
+import { withInspect } from '@/features/office/frame/useOfficeInspector';
 import { LessonThumb } from '../plan/LessonThumb';
 import { StatusChip, type LessonStatusInfo } from '../plan/lessonStatus';
 import type { Day } from '../types';
@@ -31,8 +31,9 @@ const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
  *  neutral white hatch as the month view (CalendarView). */
 const HATCH_HOLIDAY =
   'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 7px)';
-/** App accent (teal) — the "today" highlight. */
-const TODAY_ACCENT = '#7ecfcf';
+// Today is marked in white: the app keeps colour for meaning (owner,
+// 2026-11-09; the old teal accent is retired).
+const TODAY_ACCENT = '#ffffff';
 
 /** Five equal Mon–Fri columns. */
 const FIVE_COLS = 'repeat(5, minmax(0, 1fr))';
@@ -142,7 +143,7 @@ export const WeekView = ({
                 dropIso === iso
                   ? 'ring-2 ring-white/40'
                   : isToday
-                    ? 'ring-1 ring-[#7ecfcf]/50'
+                    ? 'ring-1 ring-white/50'
                     : ''
               }`}
             >
@@ -253,8 +254,8 @@ interface WeekDayCardProps {
 }
 
 /** A large, readable lesson card — the Week view's "event". Mirrors the
- *  Lessons-page card (`LessonThumb` image banner + status chip), deep-links to
- *  the DayEditor, drag source. */
+ *  Lessons-page card (`LessonThumb` image banner + status chip), opens the
+ *  lesson in the Office Inspector, and is a drag source. */
 const WeekDayCard = ({
   classroomId,
   day,
@@ -265,11 +266,16 @@ const WeekDayCard = ({
   draggable = true,
 }: WeekDayCardProps) => {
   const [dragging, setDragging] = useState(false);
+  const { pathname, search } = useLocation();
   const { status, assignment } = statusFor(day);
 
   return (
     <Link
-      to={TeacherRoutes.dayEditor({ classroomId, dayId: day.id })}
+      to={`${pathname}${withInspect(search, {
+        kind: 'lesson',
+        classroomId,
+        id: day.id,
+      })}`}
       draggable={draggable}
       onDragStart={
         draggable

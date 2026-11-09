@@ -29,4 +29,4 @@ export const lessonInspectHref = (
   classroomId: string,
   dayId: string,
 ): string =>
-  `${pathname}${inspectSearch({ kind: 'lesson', classroomId, dayId })}`;
+  `${pathname}${inspectSearch({ kind: 'lesson', classroomId, id: dayId })}`;

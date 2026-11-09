@@ -32,7 +32,7 @@ export const OfficeTopRail = ({
 }) => (
   <header
     className={cn(
-      'grid min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-2',
+      'grid min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-2 max-sm:grid-cols-[minmax(0,1fr)_auto_auto] max-sm:gap-1',
       className,
     )}
     style={style}

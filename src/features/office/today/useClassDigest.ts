@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useWeekGridData } from '@/features/classroom/annual/useWeekGridData';
-import { useAssignmentProgress } from '@/features/classroom/assignments/useAssignmentProgress';
+import { useClassAssignmentProgress } from '@/features/classroom/assignments/useAssignmentProgress';
 import { useAssignments } from '@/features/classroom/assignments/useAssignments';
 import { useEnrollments } from '@/features/classroom/enrollments/useEnrollments';
 import { useLocalSessionStore } from '@/features/classroom/live/useLocalSessionStore';
@@ -24,7 +24,10 @@ export const useClassDigest = (classroom: DigestClassroom): ClassDigest => {
   const cid = classroom.id;
   const grid = useWeekGridData(cid);
   const { assignments } = useAssignments(cid);
-  const { listProgress } = useAssignmentProgress(cid);
+  const { listProgress } = useClassAssignmentProgress(
+    cid,
+    assignments.map((a) => a.id),
+  );
   const { pending, active } = useEnrollments(cid);
   const { store, getActiveSessionForClassroom } = useLocalSessionStore();
 

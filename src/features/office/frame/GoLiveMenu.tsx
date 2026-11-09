@@ -39,7 +39,7 @@ export const GoLiveMenu = ({ classroomId }: { classroomId: string }) => {
           })}
         >
           <span aria-hidden className="size-2 rounded-full bg-rose-500" />
-          Live now
+          <span className="max-sm:sr-only">Live now</span>
         </Link>
       </Button>
     );
@@ -58,7 +58,7 @@ export const GoLiveMenu = ({ classroomId }: { classroomId: string }) => {
           title={canEdit ? undefined : 'Viewers cannot start a live session'}
         >
           <Radio aria-hidden />
-          Go Live
+          <span className="max-sm:sr-only">Go Live</span>
         </Button>
       </MenuTrigger>
       <MenuContent align="end" sideOffset={6} className="w-72">

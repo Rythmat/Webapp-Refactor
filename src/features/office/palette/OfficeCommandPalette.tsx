@@ -157,7 +157,7 @@ export const OfficeCommandPalette = ({
                           {
                             kind: 'lesson',
                             classroomId: cid,
-                            dayId: day.id,
+                            id: day.id,
                           },
                         )}`,
                       )

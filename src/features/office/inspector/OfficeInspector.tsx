@@ -8,20 +8,45 @@ import {
   useOfficeInspector,
   type InspectTarget,
 } from '../frame/useOfficeInspector';
+import { AssignmentInspector } from './AssignmentInspector';
 import { LessonInspector } from './LessonInspector';
+import { StudentInspector } from './StudentInspector';
 
 const TITLE: Record<InspectTarget['kind'], string> = {
   lesson: 'Lesson',
+  student: 'Student',
+  assignment: 'Assignment',
 };
 
-// One kind so far (a lesson); each new kind adds its view here.
-const Body = ({ target }: { target: InspectTarget }) => (
-  <LessonInspector
-    key={`${target.classroomId}/${target.dayId}`}
-    classroomId={target.classroomId}
-    dayId={target.dayId}
-  />
-);
+const Body = ({ target }: { target: InspectTarget }) => {
+  const key = `${target.classroomId}/${target.id}`;
+  switch (target.kind) {
+    case 'lesson':
+      return (
+        <LessonInspector
+          key={key}
+          classroomId={target.classroomId}
+          dayId={target.id}
+        />
+      );
+    case 'student':
+      return (
+        <StudentInspector
+          key={key}
+          classroomId={target.classroomId}
+          enrollmentId={target.id}
+        />
+      );
+    case 'assignment':
+      return (
+        <AssignmentInspector
+          key={key}
+          classroomId={target.classroomId}
+          assignmentId={target.id}
+        />
+      );
+  }
+};
 
 /**
  * The Inspector, as the Studio's: a card beside the stage with its title and

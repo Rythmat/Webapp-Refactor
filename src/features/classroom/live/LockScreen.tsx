@@ -1,27 +1,36 @@
+import { Lock } from 'lucide-react';
+
 export interface LockScreenProps {
   classroom: { id: string; name: string };
   teacherLabel: string;
 }
 
+/**
+ * A student's device while the teacher has locked screens: eyes up front.
+ * Nothing on it can be pressed (the page underneath keeps its state).
+ */
 export const LockScreen = ({ classroom, teacherLabel }: LockScreenProps) => (
   <div
-    className="fixed inset-0 flex flex-col items-center justify-center gap-4 bg-black px-8 text-center"
+    className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-[#0b0b0d] px-8 text-center"
     style={{ pointerEvents: 'none' }}
   >
-    <div
+    <span
       aria-hidden
-      className="text-4xl font-medium tracking-wide text-white/85"
+      className="flex size-16 items-center justify-center rounded-full bg-white/[0.06] text-white/80"
     >
-      Music Atlas
-    </div>
+      <Lock className="size-7" strokeWidth={1.75} />
+    </span>
     <div
       role="status"
       aria-live="polite"
-      className="flex flex-col gap-1 text-white"
+      className="flex flex-col gap-2 text-white"
     >
-      <div className="text-2xl font-medium">{classroom.name}</div>
-      <div className="text-base text-white/70">
-        This device is locked by {teacherLabel}.
+      <div className="text-[clamp(1.75rem,4vw,2.75rem)] font-normal tracking-[-0.02em]">
+        Eyes up front
+      </div>
+      <div className="text-lg text-white/60">Mira al frente</div>
+      <div className="mt-2 text-base text-white/55">
+        {classroom.name} · This device is locked by {teacherLabel}.
       </div>
     </div>
   </div>

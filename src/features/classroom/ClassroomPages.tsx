@@ -161,15 +161,16 @@ const GuitarRelativeModesOverview = lazy(
   () => import('@/components/learn/GuitarRelativeModesOverview'),
 );
 
+// The student's Classroom in Learn's look (owner, 2026-11-09).
 const ClassroomPickerPage = lazy(() =>
-  import('./ClassroomPickerPage').then(({ ClassroomPickerPage }) => ({
-    default: ClassroomPickerPage,
+  import('./home/StudentClassesPage').then(({ StudentClassesPage }) => ({
+    default: StudentClassesPage,
   })),
 );
 
 const ClassroomHomePage = lazy(() =>
-  import('./ClassroomHomePage').then(({ ClassroomHomePage }) => ({
-    default: ClassroomHomePage,
+  import('./home/StudentClassPage').then(({ StudentClassPage }) => ({
+    default: StudentClassPage,
   })),
 );
 

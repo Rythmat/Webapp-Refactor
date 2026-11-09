@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ClassroomRoutes } from '@/constants/routes';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
-import { useMe } from '@/hooks/data';
+import { useClassroom, useMe } from '@/hooks/data';
 import { useUpdateActivityProgress } from '@/hooks/data/progress/useUpdateActivityProgress';
 import { useEnrollments } from '../enrollments/useEnrollments';
 import { usePublishedDays } from '../publish/usePublishedDays';
@@ -74,6 +74,7 @@ export const LiveSessionPage = () => {
     sessionId: string;
   }>();
   const cid = classroomId ?? '';
+  const { data: classroom } = useClassroom(cid);
   const sid = sessionId ?? '';
 
   const { myEnrollment, isSuccess: enrollmentsSuccess } = useEnrollments(cid);
@@ -192,14 +193,14 @@ export const LiveSessionPage = () => {
 
   if (!state) {
     return (
-      <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-6 py-10 text-white">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 md:px-8 md:py-8 text-white">
         <p className="text-sm text-white/60">Session not found.</p>
         <Link
           to={ClassroomRoutes.home({ classroomId: cid })}
           className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to classroom
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to class
         </Link>
       </div>
     );
@@ -208,7 +209,7 @@ export const LiveSessionPage = () => {
   if (state.locked) {
     return (
       <LockScreen
-        classroom={{ id: cid, name: 'Classroom' }}
+        classroom={{ id: cid, name: classroom?.name ?? 'Your class' }}
         teacherLabel="your teacher"
       />
     );
@@ -271,9 +272,9 @@ export const LiveSessionPage = () => {
         <header className="sticky top-0 z-10 -mx-4 flex flex-wrap items-center justify-between gap-3 bg-black/40 px-4 py-2 backdrop-blur md:mx-0 md:px-0">
           <Link
             to={ClassroomRoutes.home({ classroomId: cid })}
-            className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
+            className="inline-flex items-center gap-1.5 text-[0.8125rem] text-daw-text-3 hover:text-daw-text"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-3.5 w-3.5" />
             Back
           </Link>
           <div className="flex items-center gap-2">
@@ -320,14 +321,14 @@ export const LiveSessionPage = () => {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10 text-white">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-6 md:px-8 md:py-8 text-white">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
           to={ClassroomRoutes.home({ classroomId: cid })}
-          className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
+          className="inline-flex items-center gap-1.5 text-[0.8125rem] text-daw-text-3 hover:text-daw-text"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to classroom
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to class
         </Link>
         <div className="flex items-center gap-2">
           <ConnectionBadge status={connectionStatus} size="sm" />
@@ -351,7 +352,7 @@ export const LiveSessionPage = () => {
           <span className="text-xs uppercase tracking-wide text-white/40">
             {state.currentPhase}
           </span>
-          <h1 className="text-2xl font-medium md:text-3xl">
+          <h1 className="text-[clamp(1.75rem,3.2vw,2.5rem)] font-normal leading-tight tracking-[-0.02em] text-daw-text">
             <LocalizedRender text={title} language={language} />
           </h1>
           {prompt && (

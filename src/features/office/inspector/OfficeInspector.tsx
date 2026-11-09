@@ -10,12 +10,24 @@ import {
 } from '../frame/useOfficeInspector';
 import { AssignmentInspector } from './AssignmentInspector';
 import { LessonInspector } from './LessonInspector';
+import {
+  ActivityInspector,
+  GoalInspector,
+  IdeaInspector,
+  SeedInspector,
+  ThemeInspector,
+} from './LibraryInspectors';
 import { StudentInspector } from './StudentInspector';
 
 const TITLE: Record<InspectTarget['kind'], string> = {
   lesson: 'Lesson',
   student: 'Student',
   assignment: 'Assignment',
+  seed: 'Lesson seed',
+  activity: 'Activity',
+  theme: 'Theme',
+  goal: 'Learning goal',
+  idea: 'Idea',
 };
 
 const Body = ({ target }: { target: InspectTarget }) => {
@@ -45,6 +57,16 @@ const Body = ({ target }: { target: InspectTarget }) => {
           assignmentId={target.id}
         />
       );
+    case 'seed':
+      return <SeedInspector key={key} id={target.id} />;
+    case 'activity':
+      return <ActivityInspector key={key} id={target.id} />;
+    case 'theme':
+      return <ThemeInspector key={key} id={target.id} />;
+    case 'goal':
+      return <GoalInspector key={key} id={target.id} />;
+    case 'idea':
+      return <IdeaInspector key={key} id={target.id} />;
   }
 };
 

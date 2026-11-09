@@ -41,14 +41,15 @@ export const classCoverSpec = (classroomId: string) => {
   );
 };
 
-export const ClassCover = memo(function ClassCover({
-  classroomId,
+/** The cover any Office item wears, drawn from its id (a class, a seed). */
+export const IdCover = memo(function IdCover({
+  id,
   className,
 }: {
-  classroomId: string;
+  id: string;
   className?: string;
 }) {
-  const cover = useMemo(() => classCoverSpec(classroomId), [classroomId]);
+  const cover = useMemo(() => classCoverSpec(id), [id]);
   return (
     <span
       aria-hidden
@@ -61,3 +62,11 @@ export const ClassCover = memo(function ClassCover({
     </span>
   );
 });
+
+export const ClassCover = ({
+  classroomId,
+  className,
+}: {
+  classroomId: string;
+  className?: string;
+}) => <IdCover id={classroomId} className={className} />;

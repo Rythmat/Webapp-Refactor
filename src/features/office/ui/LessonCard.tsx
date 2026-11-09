@@ -23,7 +23,8 @@ export const LessonCard = ({
   songsReady,
 }: {
   day: Day;
-  status: LessonStatus;
+  /** Its state, where the page knows it. */
+  status?: LessonStatus;
   /** Small caps over the title ("Tuesday — Jazz Band"). */
   eyebrow: string;
   to: string;
@@ -46,9 +47,11 @@ export const LessonCard = ({
       <span className="truncate text-[0.875rem] font-medium text-daw-text">
         {day.label}
       </span>
-      <span>
-        <StatusChip status={status} />
-      </span>
+      {status && (
+        <span>
+          <StatusChip status={status} />
+        </span>
+      )}
     </div>
   </Link>
 );

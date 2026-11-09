@@ -52,9 +52,9 @@ const ClassesPage = lazy(() =>
   })),
 );
 
-const ComingSoonPage = lazy(() =>
-  import('@/features/office/ComingSoonPage').then(({ ComingSoonPage }) => ({
-    default: ComingSoonPage,
+const LibraryPage = lazy(() =>
+  import('@/features/office/library/LibraryPage').then(({ LibraryPage }) => ({
+    default: LibraryPage,
   })),
 );
 
@@ -224,7 +224,7 @@ export const officePages = () => {
               },
               {
                 path: OfficeRoutes.library.definition,
-                element: <ComingSoonPage page="library" />,
+                element: <LibraryPage />,
               },
               {
                 path: OfficeRoutes.review.definition,

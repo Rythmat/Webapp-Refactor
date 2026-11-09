@@ -7,7 +7,18 @@ import { useSearchParams } from 'react-router-dom';
 // share or reload, and Back closes what was opened, as a drawer in Linear
 // or Common Planner does.
 
-export const INSPECT_KINDS = ['lesson', 'student', 'assignment'] as const;
+export const INSPECT_KINDS = [
+  'lesson',
+  'student',
+  'assignment',
+  // The Library's items belong to no class: their `classroomId` is
+  // LIBRARY_SCOPE.
+  'seed',
+  'activity',
+  'theme',
+  'goal',
+  'idea',
+] as const;
 export type InspectKind = (typeof INSPECT_KINDS)[number];
 
 export interface InspectTarget {
@@ -18,6 +29,9 @@ export interface InspectTarget {
 }
 
 export const INSPECT_PARAM = 'inspect';
+
+/** The scope Library items carry in place of a class id. */
+export const LIBRARY_SCOPE = 'library';
 
 export const formatInspect = (target: InspectTarget): string =>
   `${target.kind}:${target.classroomId}/${target.id}`;

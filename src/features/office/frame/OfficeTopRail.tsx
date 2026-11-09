@@ -22,22 +22,31 @@ const isMac =
 export const OfficeTopRail = ({
   nav,
   onSearch,
+  actionsRef,
+  pageHasActions,
   className,
   style,
 }: {
   nav: OfficeNav;
   onSearch: () => void;
+  /** Where a page's own actions portal in (`OfficeTopActions`). */
+  actionsRef: (el: HTMLElement | null) => void;
+  /** A page holds the slot: the class's Go Live steps aside. */
+  pageHasActions: boolean;
   className?: string;
   style?: React.CSSProperties;
 }) => (
   <header
     className={cn(
-      'grid min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-2 max-sm:grid-cols-[minmax(0,1fr)_auto_auto] max-sm:gap-1',
+      // Crumb, then search centred in the space left, then the actions: a
+      // page with many actions (the editor, the live room) takes the room it
+      // needs and the search narrows, rather than the actions spilling over.
+      'flex min-w-0 items-center gap-2 px-2 max-sm:gap-1',
       className,
     )}
     style={style}
   >
-    <div className="flex min-w-0 items-center gap-1">
+    <div className="flex min-w-0 shrink items-center gap-1">
       {/* A phone has no app rail: the way home is here. */}
       <Link
         to={ProfileRoutes.root()}
@@ -83,7 +92,7 @@ export const OfficeTopRail = ({
       aria-label="Search the Office"
       onClick={onSearch}
       className={cn(
-        'flex h-9 items-center gap-2.5 rounded-full border border-white/10 bg-daw-pill pl-3 pr-1.5 text-left text-[0.8125rem] text-daw-pill-text hover:border-white/20 sm:w-[clamp(14rem,30vw,26rem)]',
+        'mx-auto flex h-9 min-w-9 items-center gap-2.5 rounded-full border border-white/10 bg-daw-pill pl-3 pr-1.5 text-left text-[0.8125rem] text-daw-pill-text hover:border-white/20 sm:w-full sm:max-w-[26rem] sm:flex-1',
         TRANSITION,
         FOCUS_RING,
       )}
@@ -97,9 +106,12 @@ export const OfficeTopRail = ({
       </kbd>
     </button>
 
-    <div className="flex min-w-0 items-center justify-end gap-2">
+    <div className="flex shrink-0 items-center justify-end gap-2">
       <PracticeBadge />
-      {nav.scope === 'class' && <GoLiveMenu classroomId={nav.classroomId} />}
+      <div ref={actionsRef} className="flex min-w-0 items-center gap-1.5" />
+      {nav.scope === 'class' && !pageHasActions && (
+        <GoLiveMenu classroomId={nav.classroomId} />
+      )}
       <AvatarMenu />
     </div>
   </header>

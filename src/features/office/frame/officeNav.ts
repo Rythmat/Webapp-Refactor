@@ -143,6 +143,13 @@ export const officeNav = (pathname: string): OfficeNav | null => {
 const PROJECTED =
   /^\/office\/[^/]+\/(present\/[^/]+|sessions\/[^/]+\/projector)\/?$/;
 
+/**
+ * Present: the lesson on the class screen without a session. It takes the
+ * whole window (owner, 2026-11-09), as a guided lesson does — no app rail.
+ */
+export const isOfficePresentPath = (pathname: string): boolean =>
+  /^\/office\/[^/]+\/present\/[^/]+\/?$/.test(pathname);
+
 /** A page drawn in the Office's frame (rails, stage, Inspector). */
 export const isOfficeFramePath = (pathname: string): boolean =>
   officeNav(pathname) !== null && !PROJECTED.test(pathname);

@@ -10,13 +10,19 @@
  * the firewall is preserved). Autosave + publish/session gating are lifted
  * verbatim from DayEditor.
  */
-import { Waypoints } from 'lucide-react';
+import { Check, Eye, Play, Radio, Waypoints } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
+import { Button } from '@/daw/ui/Button';
+import {
+  OfficeRailSlot,
+  OfficeTopActions,
+} from '@/features/office/frame/railSlot';
 import { useCanEditClassroom } from '@/hooks/data';
 import { insertActivityIntoCell } from '../../content/applySeed';
 import type { Activity } from '../../content/types';
+import { useGoLive } from '../../live/useGoLive';
 import { PHASE_FULL_NAMES, PHASES } from '../../phases';
 import { publishDay } from '../../publish/publishDay';
 import { useTeacherConfig } from '../../settings/useTeacherConfig';
@@ -78,6 +84,7 @@ export const SlideDeckEditor = () => {
   const navigate = useNavigate();
   const cid = classroomId ?? '';
   const { getDay, saveDay } = useLocalPlan(cid);
+  const goLive = useGoLive(cid);
   // Viewers may READ a deck but never write one. Gating the save path rather
   // than each control means a new button cannot silently become writable.
   const canEdit = useCanEditClassroom(cid);
@@ -330,6 +337,51 @@ export const SlideDeckEditor = () => {
 
   return (
     <div className="flex w-full flex-col">
+      {/* The lesson's verbs on the Office's top rail, in place of the class's
+          Go Live menu: saved state, then Preview, Present, Go Live (saved
+          first, so the class gets what's on screen). */}
+      <OfficeTopActions>
+        {savedLabel && (
+          <span className="inline-flex items-center gap-1 text-[0.75rem] text-daw-text-3 max-lg:sr-only">
+            <Check aria-hidden className="size-3.5" />
+            {savedLabel}
+          </span>
+        )}
+        <Button asChild size="pill" variant="pill" className="max-md:hidden">
+          <Link
+            to={TeacherRoutes.dayPreview({ classroomId: cid, dayId: draft.id })}
+          >
+            <Eye aria-hidden />
+            Preview
+          </Link>
+        </Button>
+        <Button asChild size="pill" variant="pill" className="max-md:hidden">
+          <Link
+            to={TeacherRoutes.present({ classroomId: cid, dayId: draft.id })}
+          >
+            <Play aria-hidden />
+            Present
+          </Link>
+        </Button>
+        <Button
+          size="pill"
+          variant="primary"
+          disabled={!canEdit}
+          title={canEdit ? undefined : 'Viewers cannot start a live session'}
+          onClick={() => {
+            saveDay(draft);
+            void goLive(draft);
+          }}
+        >
+          <Radio aria-hidden />
+          <span className="max-sm:sr-only">Go Live</span>
+        </Button>
+      </OfficeTopActions>
+      <OfficeRailSlot>
+        <span className="text-[0.8125rem] tabular-nums text-daw-text-3">
+          Slide {clampedIndex + 1} of {slides.length}
+        </span>
+      </OfficeRailSlot>
       <EditorTopBar
         classroomId={cid}
         label={draft.label}
@@ -348,7 +400,6 @@ export const SlideDeckEditor = () => {
             </button>
           ) : undefined
         }
-        savedLabel={savedLabel}
         language={language}
         onLanguageChange={setLanguage}
         chooseContent={

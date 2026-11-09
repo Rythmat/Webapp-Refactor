@@ -55,6 +55,14 @@ function at(path: string) {
 }
 
 describe('focus mode', () => {
+  it('gives Present the whole window', () => {
+    at('/office/c1/present/d1');
+    expect(screen.getByTestId('page')).toBeInTheDocument();
+    expect(screen.queryByTestId('sidebar')).toBeNull();
+    expect(screen.queryByTestId('toprail')).toBeNull();
+    expect(screen.queryByTestId('tabbar')).toBeNull();
+  });
+
   it('hides the app chrome in the editor', () => {
     at('/studio');
     expect(screen.getByTestId('page')).toBeInTheDocument();
@@ -88,13 +96,7 @@ describe('focus mode', () => {
   });
 
   it('keeps it on the Studio lessons and elsewhere', () => {
-    for (const path of [
-      '/studio/production',
-      '/learn',
-      '/globes',
-      // Projected to a class: the Office's frame steps aside.
-      '/office/c1/present/d1',
-    ]) {
+    for (const path of ['/studio/production', '/learn', '/globes']) {
       at(path);
       expect(screen.getByTestId('sidebar')).toBeInTheDocument();
       expect(screen.getByTestId('tabbar')).toBeInTheDocument();

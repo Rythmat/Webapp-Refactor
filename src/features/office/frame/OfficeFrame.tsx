@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { FRAME_PX } from '@/components/atlas/layout/frameGeometry';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
@@ -28,6 +28,12 @@ export const OfficeFrame = () => {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const stageRef = useRef<HTMLElement>(null);
   const [railSlot, setRailSlot] = useState<HTMLElement | null>(null);
+  const [topSlot, setTopSlot] = useState<HTMLElement | null>(null);
+  const [topClaims, claimTop] = useState(0);
+  const slots = useMemo(
+    () => ({ bottom: railSlot, top: topSlot, claimTop }),
+    [railSlot, topSlot],
+  );
 
   // ⌘K / Ctrl-K opens search from anywhere in the Office.
   useEffect(() => {
@@ -57,6 +63,8 @@ export const OfficeFrame = () => {
       <OfficeTopRail
         nav={nav}
         onSearch={() => setPaletteOpen(true)}
+        actionsRef={setTopSlot}
+        pageHasActions={topClaims > 0}
         style={{ gridArea: 'top' }}
       />
       <main
@@ -65,7 +73,7 @@ export const OfficeFrame = () => {
         className="relative mx-2 min-h-0 overflow-y-auto overflow-x-hidden rounded-[var(--daw-radius-lg)] bg-daw-surface-1 [scrollbar-width:thin]"
         style={{ gridArea: 'stage' }}
       >
-        <RailSlotContext.Provider value={railSlot}>
+        <RailSlotContext.Provider value={slots}>
           <Suspense fallback={<DashboardContentSkeleton />}>
             <Outlet />
           </Suspense>

@@ -1,4 +1,4 @@
-import { ArrowLeft, ClipboardCheck } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
@@ -24,21 +24,22 @@ export const SessionReportsListPage = () => {
   }, [store.sessions, store.responses, cid, getPublishedDay]);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10 text-white">
+    <div className="mx-auto flex w-full max-w-[86rem] flex-col gap-8 px-4 py-6 md:px-8 md:py-8 text-white">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
           to={TeacherRoutes.classroomDashboard({ classroomId: cid })}
-          className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
+          className="inline-flex items-center gap-1.5 text-[0.8125rem] text-daw-text-3 hover:text-daw-text"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to dashboard
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Overview
         </Link>
       </header>
 
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <ClipboardCheck className="h-6 w-6 text-white/85 md:h-7 md:w-7" />
-          <h1 className="text-xl font-medium md:text-2xl">Session reports</h1>
+          <h1 className="text-[clamp(1.75rem,3.2vw,2.5rem)] font-normal leading-tight tracking-[-0.02em] text-daw-text">
+            Session reports
+          </h1>
           <span className="rounded-full border border-white/10 px-2.5 py-0.5 text-xs text-white/60">
             {rows.length}
           </span>

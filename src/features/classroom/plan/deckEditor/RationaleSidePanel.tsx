@@ -47,7 +47,7 @@ export const RationaleSidePanel = ({
       <button
         type="button"
         onClick={onToggleCollapsed}
-        className="flex w-10 shrink-0 flex-col items-center gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] py-4 text-white/50 transition-colors hover:text-white"
+        className="flex w-10 shrink-0 flex-col items-center gap-2 rounded-[var(--daw-radius-lg)] border border-white/[0.06] bg-white/[0.03] py-4 text-daw-text-3 transition-colors hover:text-daw-text"
         aria-label="Open teacher notes"
       >
         <PanelRightOpen className="h-4 w-4" />
@@ -62,11 +62,15 @@ export const RationaleSidePanel = ({
   }
 
   return (
-    <aside className="flex w-80 shrink-0 flex-col gap-4 overflow-y-auto rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-white/70">
-          <Lock className="h-4 w-4" />
-          <span className="text-xs uppercase tracking-wider">Teacher-only</span>
+    // Drawn as the Office's Inspector card: a titled column beside the canvas.
+    <aside className="flex w-80 shrink-0 flex-col gap-4 overflow-y-auto rounded-[var(--daw-radius-lg)] border border-white/[0.06] bg-white/[0.03] p-4">
+      <div className="-mx-4 -mt-4 flex h-10 items-center justify-between gap-2 border-b border-daw-hairline px-4">
+        <div className="flex items-center gap-2 text-daw-text">
+          <Lock className="h-3.5 w-3.5 text-daw-text-3" />
+          <span className="text-[0.875rem] font-bold">Teacher notes</span>
+          <span className="text-[0.75rem] text-daw-text-3">
+            never shown to students
+          </span>
         </div>
         <button
           type="button"

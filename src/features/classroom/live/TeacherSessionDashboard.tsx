@@ -1,6 +1,10 @@
 import {
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
   Lock,
+  MonitorUp,
   Play,
   Share2,
   StopCircle,
@@ -8,7 +12,18 @@ import {
 } from 'lucide-react';
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { TeacherRoutes } from '@/constants/routes';
+import { Button } from '@/daw/ui/Button';
+import { IconButton } from '@/daw/ui/IconButton';
+import { PILL_ZONE } from '@/daw/ui/Pill';
+import { Segmented } from '@/daw/ui/Segmented';
+import {
+  OfficeRailSlot,
+  OfficeTopActions,
+} from '@/features/office/frame/railSlot';
+import { StatusPill } from '@/features/office/ui/StatusPill';
+import { useClassroom } from '@/hooks/data';
 import { InteractionResponseDashboard } from '../assignments/InteractionResponseDashboard';
 import { useEnrollments } from '../enrollments';
 import { useMspInboxEntries } from '../msp';
@@ -33,6 +48,7 @@ import { PhaseNavigator } from './PhaseNavigator';
 import { RosterPanel } from './RosterPanel';
 import { SessionPresentView } from './SessionPresentView';
 import { buildSlideProgress, submittedMindMap } from './buildSlideProgress';
+import type { SessionMode } from './sessionsStore';
 import { CurrentSlidePanel } from './slides/CurrentSlidePanel';
 import { MediaRemote } from './slides/MediaRemote';
 import { PairingPanel } from './slides/PairingPanel';
@@ -84,6 +100,7 @@ export const TeacherSessionDashboard = () => {
   const presence = useSessionPresence(sid);
   const { getPublishedDay } = usePublishedDays(cid);
   const { getEnrollment, active: activeEnrollments } = useEnrollments(cid);
+  const { data: classroom } = useClassroom(cid);
 
   const [presenting, setPresenting] = useState(false);
   const [confirmingEnd, setConfirmingEnd] = useState(false);
@@ -372,31 +389,102 @@ export const TeacherSessionDashboard = () => {
     );
   }
 
+  const joinCode = classroom?.code;
+  const startPresenting = () => {
+    if (slideIndex < 0 && deck?.slides[0]) sendNav(deck.slides[0].phase, 0);
+    setPresenting(true);
+  };
+  const step = (delta: -1 | 1) => {
+    if (!deck) return;
+    const next = Math.min(
+      deck.slides.length - 1,
+      Math.max(0, slideIndex + delta),
+    );
+    const target = deck.slides[next];
+    if (target && next !== slideIndex) sendNav(target.phase, next);
+  };
+
+  // The control room (owner, 2026-11-09), Pear Deck's teacher dashboard in
+  // the Office frame: Present and End on the top rail, the join code and the
+  // room's controls in one bar, the slides, then the current slide beside
+  // what the class is answering; the bottom rail steps through the deck.
   return (
-    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10 text-white">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <Link
-          to={TeacherRoutes.plan({ classroomId: cid })}
-          className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
+    <div className="flex w-full flex-col gap-4 px-4 py-4 text-white md:px-6">
+      <OfficeTopActions>
+        {/* NO SILENT MOCKS: says plainly whether students can actually join. */}
+        <ConnectionBadge status={connectionStatus} size="sm" />
+        {deck && (
+          <Button variant="primary" size="pill" onClick={startPresenting}>
+            <Play aria-hidden />
+            <span className="max-sm:sr-only">Present</span>
+          </Button>
+        )}
+        <Button
+          variant="danger"
+          size="pill"
+          onClick={() => setConfirmingEnd(true)}
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Lessons
-        </Link>
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Session LIFECYCLE, not transport. A practice session is "not
-              ended", but calling it Live next to the amber Practice badge is
-              the contradiction the no-silent-mocks rule exists to prevent —
-              so the word and the green only appear on a real server session. */}
-          <span
-            className={
-              connectionStatus === 'practice'
-                ? 'rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-white/60'
-                : 'rounded-full border border-emerald-400/30 bg-emerald-400/[0.08] px-3 py-1 text-xs text-emerald-200'
-            }
+          <StopCircle aria-hidden />
+          <span className="max-sm:sr-only">End</span>
+        </Button>
+      </OfficeTopActions>
+
+      {deck && deck.slides.length > 0 && (
+        <OfficeRailSlot>
+          <div className={`${PILL_ZONE} gap-1`}>
+            <IconButton
+              label="Previous slide"
+              icon={<ChevronLeft />}
+              disabled={slideIndex <= 0}
+              onClick={() => step(-1)}
+            />
+            <span className="min-w-[6.5rem] text-center text-[0.8125rem] tabular-nums text-daw-text-2">
+              {slideIndex < 0
+                ? 'Not started'
+                : `Slide ${slideIndex + 1} of ${deck.slides.length}`}
+            </span>
+            <IconButton
+              label="Next slide"
+              icon={<ChevronRight />}
+              disabled={slideIndex >= deck.slides.length - 1}
+              onClick={() => step(1)}
+            />
+          </div>
+        </OfficeRailSlot>
+      )}
+
+      <section
+        aria-label="Session controls"
+        className="flex flex-wrap items-center gap-2 rounded-[1.25rem] border border-white/[0.06] bg-white/[0.03] p-2"
+      >
+        {joinCode && (
+          <button
+            type="button"
+            onClick={() => {
+              void navigator.clipboard
+                ?.writeText(joinCode)
+                .then(() => toast.success(`Copied join code ${joinCode}`))
+                .catch(() => toast.error('Could not copy the code'));
+            }}
+            title="Students join the class with this code; enrolled students see the live session on their Classroom page."
+            className="inline-flex h-8 items-center gap-2 rounded-full bg-white/[0.06] px-3 text-[0.8125rem] text-daw-text hover:bg-white/[0.1]"
           >
-            {connectionStatus === 'practice' ? 'Practice' : 'Live'} ·{' '}
-            {countResponses()} response(s)
-          </span>
+            <span className="text-daw-text-3">Join code</span>
+            <span className="font-bold tracking-[0.12em]">{joinCode}</span>
+            <Copy aria-hidden className="size-3.5 text-daw-text-3" />
+          </button>
+        )}
+        {/* Session LIFECYCLE, not transport. "Live" and the green only appear
+            on a real server session; a practice session says Practice. */}
+        <StatusPill
+          tone={connectionStatus === 'practice' ? 'neutral' : 'success'}
+        >
+          {connectionStatus === 'practice' ? 'Practice' : 'Live'} ·{' '}
+          {countResponses()} {countResponses() === 1 ? 'response' : 'responses'}
+        </StatusPill>
+        <SnapshotRepairBadge stripped={repairedPaths} />
+
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           <RosterPanel
             classroomId={cid}
             currentInteractions={currentInteractions}
@@ -425,64 +513,40 @@ export const TeacherSessionDashboard = () => {
                 onPause={() => sendMedia(currentSlide.id, 'pause')}
               />
             )}
-          <button
-            type="button"
-            onClick={() =>
-              sendMode(
-                state.mode === 'teacher_paced'
-                  ? 'student_paced'
-                  : 'teacher_paced',
-              )
-            }
-            className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/80 hover:border-white/25 hover:text-white"
-          >
-            {state.mode === 'teacher_paced' ? 'Teacher-paced' : 'Student-paced'}
-          </button>
-          <button
-            type="button"
+          <Segmented<SessionMode>
+            label="Pacing"
+            options={[
+              { value: 'teacher_paced', label: 'You lead' },
+              { value: 'student_paced', label: 'Own pace' },
+            ]}
+            value={state.mode}
+            onValueChange={sendMode}
+          />
+          <Button
+            size="lg"
+            variant={state.locked ? 'primary' : 'secondary'}
+            aria-pressed={state.locked}
             onClick={() => sendLock(!state.locked)}
-            className={
-              'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-colors ' +
-              (state.locked
-                ? 'bg-white/15 text-white ring-1 ring-white/40 hover:bg-white/20'
-                : 'border border-white/10 text-white/80 hover:border-white/25 hover:text-white')
-            }
           >
-            {state.locked ? (
-              <Lock className="h-3.5 w-3.5" />
-            ) : (
-              <Unlock className="h-3.5 w-3.5" />
-            )}
-            {state.locked ? 'Unlock devices' : 'Lock devices'}
-          </button>
-          {deck && (
-            <button
-              type="button"
-              onClick={() => {
-                if (slideIndex < 0 && deck.slides[0]) {
-                  sendNav(deck.slides[0].phase, 0);
-                }
-                setPresenting(true);
-              }}
-              className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-white/85"
+            {state.locked ? <Lock aria-hidden /> : <Unlock aria-hidden />}
+            {state.locked ? 'Screens locked' : 'Lock screens'}
+          </Button>
+          <Button asChild size="lg" variant="ghost">
+            <a
+              href={TeacherRoutes.projector({
+                classroomId: cid,
+                sessionId: sid,
+              })}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open the class screen in a new window for the projector"
             >
-              <Play className="h-3.5 w-3.5" />
-              Present
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setConfirmingEnd(true)}
-            className="inline-flex items-center gap-1.5 rounded-full border border-red-400/40 px-3 py-1.5 text-xs text-red-200 hover:border-red-400 hover:text-red-100"
-          >
-            <StopCircle className="h-3.5 w-3.5" />
-            End
-          </button>
-          {/* NO SILENT MOCKS: says plainly whether students can actually join. */}
-          <ConnectionBadge status={connectionStatus} size="sm" />
-          <SnapshotRepairBadge stripped={repairedPaths} />
+              <MonitorUp aria-hidden />
+              Projector
+            </a>
+          </Button>
         </div>
-      </header>
+      </section>
 
       {endDialog}
 
@@ -502,73 +566,90 @@ export const TeacherSessionDashboard = () => {
             }}
             onNavigate={(index, phase) => sendNav(phase, index)}
           />
-          {currentSlide && (
-            <div className="aspect-[16/9] w-full overflow-hidden rounded-2xl border border-white/10">
-              <SlideRenderer
-                slide={currentSlide}
-                surface="teacher"
-                language="both"
-                interactions={currentSlideInteractions}
-              />
-            </div>
-          )}
-          {echoPanel ? (
-            echoPanel
-          ) : currentSlide && currentSlide.kind === 'studio-collab' ? (
-            <PairingPanel
-              grouping={currentSlide.grouping}
-              roster={activeEnrollments}
-              pairs={state.pairs}
-              onSetPairs={sendPairs}
-            />
-          ) : currentSlide && currentSlide.kind === 'showcase' ? (
-            <ShowcasePanel
-              slideId={currentSlide.id}
-              offers={aggregateRows
-                .filter(
-                  (r) =>
-                    r.kind === 'showcase' &&
+          <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+            {currentSlide ? (
+              <div className="aspect-[16/9] w-full overflow-hidden rounded-[1.25rem] border border-white/10">
+                <SlideRenderer
+                  slide={currentSlide}
+                  surface="teacher"
+                  language="both"
+                  interactions={currentSlideInteractions}
+                />
+              </div>
+            ) : (
+              <div className="flex aspect-[16/9] w-full flex-col items-center justify-center gap-3 rounded-[1.25rem] border border-dashed border-white/15 text-center">
+                <p className="text-[0.9375rem] text-daw-text-2">
+                  The class is waiting on the first slide.
+                </p>
+                <Button variant="primary" size="lg" onClick={() => step(1)}>
+                  Start the lesson
+                </Button>
+              </div>
+            )}
+            <section
+              aria-label="What the class is doing"
+              className="flex min-w-0 flex-col gap-3"
+            >
+              {echoPanel ? (
+                echoPanel
+              ) : currentSlide && currentSlide.kind === 'studio-collab' ? (
+                <PairingPanel
+                  grouping={currentSlide.grouping}
+                  roster={activeEnrollments}
+                  pairs={state.pairs}
+                  onSetPairs={sendPairs}
+                />
+              ) : currentSlide && currentSlide.kind === 'showcase' ? (
+                <ShowcasePanel
+                  slideId={currentSlide.id}
+                  offers={aggregateRows
+                    .filter(
+                      (r) =>
+                        r.kind === 'showcase' &&
+                        currentSlideInteractions.some(
+                          (i) => i.id === r.interactionId,
+                        ),
+                    )
+                    .flatMap((r) => (r.kind === 'showcase' ? r.offers : []))}
+                  showcase={state.showcase}
+                  onFeature={sendShowcase}
+                  onClear={() => sendShowcase(null)}
+                />
+              ) : currentSlide ? (
+                <CurrentSlidePanel
+                  slide={currentSlide}
+                  interactions={currentSlideInteractions}
+                  aggregateRows={aggregateRows.filter((row) =>
                     currentSlideInteractions.some(
-                      (i) => i.id === r.interactionId,
+                      (i) => i.id === row.interactionId,
                     ),
-                )
-                .flatMap((r) => (r.kind === 'showcase' ? r.offers : []))}
-              showcase={state.showcase}
-              onFeature={sendShowcase}
-              onClear={() => sendShowcase(null)}
-            />
-          ) : currentSlide ? (
-            <CurrentSlidePanel
-              slide={currentSlide}
-              interactions={currentSlideInteractions}
-              aggregateRows={aggregateRows.filter((row) =>
-                currentSlideInteractions.some(
-                  (i) => i.id === row.interactionId,
-                ),
+                  )}
+                  sharedInteractionIds={state.sharedInteractionIds}
+                  onToggleShare={(interactionId, on) =>
+                    sendShare(interactionId, on)
+                  }
+                  respondedCount={
+                    Object.values(responsesByEnrollment).filter((bag) =>
+                      currentSlideInteractions.some((i) => bag[i.id]),
+                    ).length
+                  }
+                  rosterCount={Math.max(
+                    activeEnrollments.length,
+                    Object.keys(responsesByEnrollment).length,
+                  )}
+                  appRouteProgress={appRouteProgress}
+                />
+              ) : (
+                <p className="text-[0.875rem] text-daw-text-3">
+                  Pick a slide in the strip, or use the arrows on the bottom
+                  rail, to start.
+                </p>
               )}
-              sharedInteractionIds={state.sharedInteractionIds}
-              onToggleShare={(interactionId, on) =>
-                sendShare(interactionId, on)
-              }
-              respondedCount={
-                Object.values(responsesByEnrollment).filter((bag) =>
-                  currentSlideInteractions.some((i) => bag[i.id]),
-                ).length
-              }
-              rosterCount={Math.max(
-                activeEnrollments.length,
-                Object.keys(responsesByEnrollment).length,
-              )}
-              appRouteProgress={appRouteProgress}
-            />
-          ) : (
-            <p className="text-sm text-white/50">
-              Use the strip above (or arrow keys) to start the first slide.
-            </p>
-          )}
-          <details className="mt-2">
-            <summary className="cursor-pointer text-xs uppercase tracking-wide text-white/40 hover:text-white/70">
-              All responses
+            </section>
+          </div>
+          <details className="rounded-[1.25rem] border border-white/[0.06] bg-white/[0.03] px-4 py-3">
+            <summary className="cursor-pointer text-[0.8125rem] font-medium text-daw-text-2 hover:text-daw-text">
+              Every response so far
             </summary>
             <div className="mt-3">
               <InteractionResponseDashboard aggregate={aggregateRows} />

@@ -84,7 +84,7 @@ export const PreviewPage = () => {
           onClick={() => navigate(TeacherRoutes.plan({ classroomId: cid }))}
           className="w-fit rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
         >
-          Back to Lessons
+          Plan
         </button>
       </div>
     );
@@ -96,14 +96,14 @@ export const PreviewPage = () => {
     };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
           to={TeacherRoutes.dayEditor({ classroomId: cid, dayId: day.id })}
           className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Editor
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Editor
         </Link>
         <div className="flex items-center gap-2">
           <SegmentedToggle
@@ -129,7 +129,7 @@ export const PreviewPage = () => {
         <span className="text-xs uppercase tracking-wide text-white/40">
           Student preview
         </span>
-        <h1 className="text-2xl font-medium text-white md:text-3xl">
+        <h1 className="text-[clamp(1.75rem,3.2vw,2.5rem)] font-normal leading-tight tracking-[-0.02em] text-daw-text">
           {day.label || 'Untitled Day'}
         </h1>
         <p className="text-xs text-white/40">

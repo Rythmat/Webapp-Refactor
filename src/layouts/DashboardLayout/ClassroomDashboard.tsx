@@ -7,7 +7,10 @@ import { isEditorPath } from '@/daw/preload';
 import { DawSkeleton } from '@/daw/shell/DawSkeleton';
 import { useCortexCapture } from '@/features/cortex/useCortexCapture';
 import { LearnTourLayer } from '@/features/learnTour/LearnTourLayer';
-import { isOfficeFramePath } from '@/features/office/frame/officeNav';
+import {
+  isOfficeFramePath,
+  isOfficePresentPath,
+} from '@/features/office/frame/officeNav';
 import { useProgressBootstrap } from '@/hooks/data';
 import { useStampEarnedAwards } from '@/hooks/data/useAwards';
 import { useStreakPing } from '@/hooks/data/useStreak';
@@ -46,7 +49,9 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   // A guided Audio lesson takes the whole window too (owner, 2026-11-01).
   // So does any other lesson that's gone guided (owner, 2026-11-02).
   // And Piano Fundamentals' lessons, on the same player (owner, 2026-11-05).
+  // And so does Present, the lesson on the class screen (owner, 2026-11-09).
   const isAudioPlayer =
+    isOfficePresentPath(pathname) ||
     isAudioPlayerPath(pathname) ||
     isGuidedLessonPath(pathname) ||
     isFundamentalsLessonPath(pathname);

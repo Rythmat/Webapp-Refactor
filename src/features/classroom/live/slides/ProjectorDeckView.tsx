@@ -11,6 +11,7 @@ import { resolveElements } from '../../slides/migrateDeckV1';
 import { revealContentHeight } from '../../slides/slideGrid';
 import { ParticipationPulse } from '../../slides/viz/ParticipationPulse';
 import type { Interaction, InteractionResponsePayload } from '../../types';
+import { JoinCard } from '../JoinCard';
 import type { SessionState } from '../sessionsStore';
 import { LOCAL_SESSION_CLOCK, type SessionClock } from '../useServerClock';
 import { ShowcaseProjectorFrame } from './ShowcaseProjectorFrame';
@@ -35,6 +36,8 @@ interface ProjectorDeckViewProps {
   >;
   /** The server's clock: Echo's rounds are drawn on it. */
   clock?: SessionClock;
+  /** The class's join code, shown while the class waits for the first slide. */
+  joinCode?: string;
 }
 
 /**
@@ -51,6 +54,7 @@ export const ProjectorDeckView = ({
   sessionId,
   responsesByEnrollment,
   clock = LOCAL_SESSION_CLOCK,
+  joinCode,
 }: ProjectorDeckViewProps) => {
   const reducedMotion = useReducedMotion();
   const deck = deckFromSnapshot(snapshot);
@@ -69,10 +73,11 @@ export const ProjectorDeckView = ({
 
   if (!slide) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-[#141416]">
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-8 bg-[#141416]">
         <p className="max-w-lg px-8 text-center text-3xl font-medium text-white/70">
           Get ready… · Prepárate…
         </p>
+        {joinCode && <JoinCard code={joinCode} />}
       </div>
     );
   }

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { isOfficeFramePath, officeNav } from '../officeNav';
+import {
+  isOfficeFramePath,
+  isOfficePresentPath,
+  officeNav,
+} from '../officeNav';
 
 describe('officeNav', () => {
   it('is null outside the Office', () => {
@@ -71,5 +75,13 @@ describe('isOfficeFramePath', () => {
   it('is false elsewhere', () => {
     expect(isOfficeFramePath('/teacher')).toBe(false);
     expect(isOfficeFramePath('/classrooms/c1')).toBe(false);
+  });
+});
+
+describe('isOfficePresentPath', () => {
+  it('is Present only', () => {
+    expect(isOfficePresentPath('/office/c1/present/d1')).toBe(true);
+    expect(isOfficePresentPath('/office/c1/plan/d1')).toBe(false);
+    expect(isOfficePresentPath('/office/c1/sessions/s1/projector')).toBe(false);
   });
 });

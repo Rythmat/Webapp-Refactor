@@ -1,20 +1,16 @@
 /**
- * ClassroomStudentsPage — the People tab of the classroom workspace.
+ * ClassroomStudentsPage — a class's Students tab in the Office.
  *
- * Three GC-style sections: Teachers (the classroom owner, plus an Invite
+ * Two GC-style sections: Teachers (the classroom owner, plus an Invite
  * Teachers action that invites another Teacher User to co-teach this classroom
- * — the accepted-co-teacher membership lands once the backend contract ships),
- * Students (the existing search + RosterTabs + invite flow), and Gradebook (the
- * former Grades tab, folded in here). The class title/header now lives in the
- * workspace hero, so this page is header-free.
+ * — the accepted-co-teacher membership lands once the backend contract ships)
+ * and Students (the existing search + RosterTabs + invite flow). The Gradebook
+ * moved to the class's Progress tab (Office overhaul, 2026-11-09).
  */
 import { Search, UserPlus, Users, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-import {
-  ClassroomGradebook,
-  GRADEBOOK_SECTION_ID,
-} from '@/features/classroom/grades/ClassroomGradebook';
+import { useState } from 'react';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
+import { TeacherRoutes } from '@/constants/routes';
 import {
   useCanManageClassroom,
   useClassroom,
@@ -30,15 +26,6 @@ export const ClassroomStudentsPage = () => {
   const { data: classroom } = useClassroom(classroomId);
   const { hash } = useLocation();
 
-  // `/grades` (the old Grades tab) redirects here with `#grades`; the router
-  // doesn't scroll to hashes, so bring the Gradebook section into view.
-  useEffect(() => {
-    if (hash !== `#${GRADEBOOK_SECTION_ID}`) return;
-    document
-      .getElementById(GRADEBOOK_SECTION_ID)
-      ?.scrollIntoView({ block: 'start' });
-  }, [hash]);
-
   const [searchQuery, setSearchQuery] = useState('');
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isInviteTeacherOpen, setIsInviteTeacherOpen] = useState(false);
@@ -50,6 +37,11 @@ export const ClassroomStudentsPage = () => {
   // role. Only the owner may change the staff list; editors manage students.
   const isOwner = isResolved && role === 'owner';
   const canEdit = useCanManageClassroom(classroomId);
+
+  // Old links to the Gradebook (`/students#grades`) land on Progress.
+  if (hash === '#grades' && classroomId) {
+    return <Navigate to={TeacherRoutes.progress({ classroomId })} replace />;
+  }
 
   return (
     <div className="flex flex-col gap-6 md:gap-8">
@@ -122,8 +114,6 @@ export const ClassroomStudentsPage = () => {
           </div>
         )}
       </section>
-
-      {classroomId && <ClassroomGradebook classroomId={classroomId} />}
 
       {classroom?.code && classroomId && (
         <InviteStudentDialog

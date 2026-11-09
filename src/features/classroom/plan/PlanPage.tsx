@@ -9,12 +9,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import {
-  Link,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useCountryFeatures } from '@/components/ClassroomLayout/globe/RegionPolygonThumb';
 import {
   FilterDropdown,
@@ -24,11 +19,8 @@ import { SearchInput } from '@/components/songLibrary/SearchInput';
 import { TeacherRoutes } from '@/constants/routes';
 import { useCanEditClassroom } from '@/hooks/data';
 import { useAssignments } from '../assignments/useAssignments';
+import { useGoLive } from '../live/useGoLive';
 import { useLocalSessionStore } from '../live/useLocalSessionStore';
-import {
-  confirmPracticeSession,
-  useStartClassroomSession,
-} from '../live/useStartClassroomSession';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import type { Day } from '../types';
 import { LessonThumb } from './LessonThumb';
@@ -93,7 +85,6 @@ interface LessonSection {
  */
 export const PlanPage = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const cid = classroomId ?? '';
   // Viewers get a read-only Lessons tab: no publishing, no Go Live, no tray
@@ -101,10 +92,9 @@ export const PlanPage = () => {
   const canEdit = useCanEditClassroom(cid);
   const { listDays, deleteDay, saveDay, listUnassignedDays, isHydrated } =
     useLocalPlan(cid);
-  const { publishedDays, publishDayToClassroom } = usePublishedDays(cid);
+  const { publishedDays } = usePublishedDays(cid);
   const { assignments } = useAssignments(cid);
-  const { getActiveSessionForClassroom, endSession } = useLocalSessionStore();
-  const startClassroomSession = useStartClassroomSession();
+  const { getActiveSessionForClassroom } = useLocalSessionStore();
   const {
     saved: savedSet,
     toggle: toggleSaved,
@@ -154,33 +144,7 @@ export const PlanPage = () => {
     }
   };
 
-  const handleStartSession = async (day: Day) => {
-    try {
-      const existing = publishedDays.find((pd) => pd.sourceRef === day.id);
-      const pd =
-        existing ?? (await publishDayToClassroom({ classroomId: cid, day }));
-      const started = await startClassroomSession({
-        classroomId: cid,
-        publishedDayId: pd.id,
-      });
-      // NO SILENT MOCKS: a local session is never presented as a real one.
-      if (started.transport === 'local') {
-        if (!confirmPracticeSession(started.reason)) {
-          // Declined — tear it down so it doesn't linger looking live.
-          endSession(started.sessionId);
-          return;
-        }
-      }
-      navigate(
-        TeacherRoutes.session({
-          classroomId: cid,
-          sessionId: started.sessionId,
-        }),
-      );
-    } catch (err) {
-      window.alert(err instanceof Error ? err.message : 'Start session failed');
-    }
-  };
+  const handleStartSession = useGoLive(cid);
 
   // Derive status once per day, then apply every active filter (AND).
   const query = search.trim().toLowerCase();

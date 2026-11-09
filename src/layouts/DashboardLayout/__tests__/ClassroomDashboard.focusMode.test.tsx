@@ -8,7 +8,8 @@ import { ClassroomDashboard } from '../ClassroomDashboard';
 // The Studio editor gets the whole window: no sidebar or mobile tab bar, no
 // TopRail and no chord-notation bar on /studio. The Globe has its own rails in
 // the Studio's frame (owner, 2026-10-29), with the app's sidebar at its left
-// (owner, 2026-10-30). Every other page, the Studio's Production lessons
+// (owner, 2026-10-30), and so does the Office (owner, 2026-11-09). Every
+// other page, the Studio's Production lessons
 // included, keeps them all.
 //
 // Run: npx vitest run src/layouts/DashboardLayout/__tests__/ClassroomDashboard.focusMode.test.tsx
@@ -75,8 +76,25 @@ describe('focus mode', () => {
     }
   });
 
+  it('keeps only the app’s sidebar in the Office’s frame', () => {
+    for (const path of ['/office', '/office/classes', '/office/c1/plan/d1']) {
+      at(path);
+      expect(screen.getByTestId('sidebar')).toBeInTheDocument();
+      expect(screen.queryByTestId('tabbar')).toBeNull();
+      expect(screen.queryByTestId('toprail')).toBeNull();
+      expect(screen.queryByTestId('chord-bar')).toBeNull();
+      cleanup();
+    }
+  });
+
   it('keeps it on the Studio lessons and elsewhere', () => {
-    for (const path of ['/studio/production', '/learn', '/globes']) {
+    for (const path of [
+      '/studio/production',
+      '/learn',
+      '/globes',
+      // Projected to a class: the Office's frame steps aside.
+      '/office/c1/present/d1',
+    ]) {
       at(path);
       expect(screen.getByTestId('sidebar')).toBeInTheDocument();
       expect(screen.getByTestId('tabbar')).toBeInTheDocument();

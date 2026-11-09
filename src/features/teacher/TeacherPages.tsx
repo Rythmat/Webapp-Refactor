@@ -3,27 +3,10 @@ import { Navigate, Outlet } from 'react-router';
 import { OfficeRoutes, TeacherRoutes } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
+import { OfficePage } from '@/features/office/class/OfficePage';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { LegacyClassroomRedirect } from './workspace/LegacyClassroomRedirect';
-
-const TeacherLanding = lazy(() =>
-  import('./TeacherLanding').then(({ TeacherLanding }) => ({
-    default: TeacherLanding,
-  })),
-);
-
-const TeacherDashboardPage = lazy(() =>
-  import('./TeacherDashboardPage').then(({ TeacherDashboardPage }) => ({
-    default: TeacherDashboardPage,
-  })),
-);
-
-const ClassroomSelectionPage = lazy(() =>
-  import('./ClassroomSelectionPage').then(({ ClassroomSelectionPage }) => ({
-    default: ClassroomSelectionPage,
-  })),
-);
 
 const ClassroomStudentsPage = lazy(() =>
   import('./ClassroomStudentsPage').then(({ ClassroomStudentsPage }) => ({
@@ -31,21 +14,48 @@ const ClassroomStudentsPage = lazy(() =>
   })),
 );
 
-// GC-style tabbed workspace shell (hero + breadcrumb + tab bar) that wraps the
-// four in-classroom tab pages. Deep pages stay siblings (chrome-free).
-const ClassroomWorkspaceLayout = lazy(() =>
-  import('./workspace/ClassroomWorkspaceLayout').then(
-    ({ ClassroomWorkspaceLayout }) => ({ default: ClassroomWorkspaceLayout }),
+// The Office's frame and pages (owner, 2026-11-09: the Office rebuilt as an
+// LMS in the Studio's frame).
+const OfficeFrame = lazy(() =>
+  import('@/features/office/frame/OfficeFrame').then(({ OfficeFrame }) => ({
+    default: OfficeFrame,
+  })),
+);
+
+const OfficeClassLayout = lazy(() =>
+  import('@/features/office/frame/OfficeClassLayout').then(
+    ({ OfficeClassLayout }) => ({ default: OfficeClassLayout }),
   ),
 );
 
-// Slim chrome that puts the classroom tab bar above the "deep" pages (Plan Days,
-// Day editor, Reports, live session, …) while each keeps its own container.
-// Full-screen projected surfaces (Presentation, Projector) stay outside it.
-const ClassroomDeepPageLayout = lazy(() =>
-  import('./workspace/ClassroomDeepPageLayout').then(
-    ({ ClassroomDeepPageLayout }) => ({ default: ClassroomDeepPageLayout }),
+const TodayPage = lazy(() =>
+  import('@/features/office/today/TodayPage').then(({ TodayPage }) => ({
+    default: TodayPage,
+  })),
+);
+
+const ClassesPage = lazy(() =>
+  import('@/features/office/classes/ClassesPage').then(({ ClassesPage }) => ({
+    default: ClassesPage,
+  })),
+);
+
+const ComingSoonPage = lazy(() =>
+  import('@/features/office/ComingSoonPage').then(({ ComingSoonPage }) => ({
+    default: ComingSoonPage,
+  })),
+);
+
+const ClassOverviewPage = lazy(() =>
+  import('@/features/office/class/ClassOverviewPage').then(
+    ({ ClassOverviewPage }) => ({ default: ClassOverviewPage }),
   ),
+);
+
+const ProgressPage = lazy(() =>
+  import('@/features/office/class/ProgressPage').then(({ ProgressPage }) => ({
+    default: ProgressPage,
+  })),
 );
 
 const GradesRedirect = lazy(() =>
@@ -146,8 +156,9 @@ export const teacherPages = () => {
         element: <ClassroomDashboard fallback={<DashboardContentSkeleton />} />,
         children: [
           {
+            // `/teacher` opens the Office on Today.
             index: true,
-            element: <TeacherLanding />,
+            element: <Navigate to={OfficeRoutes.root()} replace />,
           },
           {
             // Back-compat: the classroom picker now lives at the top-level
@@ -168,11 +179,14 @@ export const teacherPages = () => {
 };
 
 /**
- * The teacher "Office" — the classroom picker/home at `/office`, plus every
- * classroom under it at `/office/:classroomId/...`. It reproduces the same
- * guard + dashboard shell `/teacher` has (AppContext → ProtectedPage
- * teacherOnly → ClassroomDashboard), since React Router can't nest an absolute
- * `/office` child under the `/teacher` parent.
+ * The teacher's Office (owner, 2026-11-09): an LMS in the Studio's frame.
+ * Its own pages (Today, Classes, Planner, Library, Review) and every class
+ * under it at `/office/:classroomId/...` draw in `OfficeFrame` — top rail,
+ * stage, Inspector, bottom rail — inside the app's shell, which keeps its
+ * left rail. The projected surfaces (Present, Projector) leave the frame.
+ * It reproduces the guard `/teacher` has (AppContext → ProtectedPage
+ * teacherOnly → ClassroomDashboard), since React Router can't nest an
+ * absolute `/office` child under the `/teacher` parent.
  */
 export const officePages = () => {
   return {
@@ -190,90 +204,107 @@ export const officePages = () => {
       {
         element: <ClassroomDashboard fallback={<DashboardContentSkeleton />} />,
         children: [
-          { index: true, element: <ClassroomSelectionPage /> },
           {
-            // GC-style workspace: the tab pages nest under one layout
-            // (hero + tabs). Child paths are absolute and begin with the
-            // workspace path, so React Router keeps them here; the deep pages
-            // below stay siblings and render chrome-free.
-            path: TeacherRoutes.classroomDashboard.definition,
-            element: <ClassroomWorkspaceLayout />,
+            element: <OfficeFrame />,
             children: [
+              { index: true, element: <TodayPage /> },
               {
-                index: true,
-                element: <TeacherDashboardPage />,
+                path: OfficeRoutes.classes.definition,
+                element: <ClassesPage />,
               },
               {
-                path: TeacherRoutes.students.definition,
-                element: <ClassroomStudentsPage />,
+                path: OfficeRoutes.planner.definition,
+                element: <ComingSoonPage page="planner" />,
               },
               {
-                // "Lessons" tab: the merged lesson-plan list (replaces the old
-                // Classwork/Assignments tab). Assigning happens in the editor.
-                path: TeacherRoutes.plan.definition,
-                element: <PlanPage />,
+                path: OfficeRoutes.library.definition,
+                element: <ComingSoonPage page="library" />,
               },
               {
-                // Calendar tab: renders inside the workspace shell (hero +
-                // tab bar).
-                path: TeacherRoutes.annualPlan.definition,
-                element: <AnnualPlanPage />,
+                path: OfficeRoutes.review.definition,
+                element: <ComingSoonPage page="review" />,
               },
               {
-                // The Grades tab was folded into People (Gradebook section);
-                // keep the old URL working by landing on that section.
-                path: TeacherRoutes.grades.definition,
-                element: <GradesRedirect />,
+                // Every page of one class, behind its role guard. Child paths
+                // are absolute and begin with the class's path.
+                path: TeacherRoutes.classroomDashboard.definition,
+                element: <OfficeClassLayout />,
+                children: [
+                  { index: true, element: <ClassOverviewPage /> },
+                  {
+                    path: TeacherRoutes.plan.definition,
+                    element: (
+                      <OfficePage>
+                        <PlanPage />
+                      </OfficePage>
+                    ),
+                  },
+                  {
+                    // The calendar is one of Plan's views now; its old tab
+                    // still opens it.
+                    path: TeacherRoutes.annualPlan.definition,
+                    element: (
+                      <OfficePage>
+                        <AnnualPlanPage />
+                      </OfficePage>
+                    ),
+                  },
+                  {
+                    path: TeacherRoutes.assignments.definition,
+                    element: <AssignmentsPage />,
+                  },
+                  {
+                    path: TeacherRoutes.students.definition,
+                    element: (
+                      <OfficePage>
+                        <ClassroomStudentsPage />
+                      </OfficePage>
+                    ),
+                  },
+                  {
+                    path: TeacherRoutes.progress.definition,
+                    element: <ProgressPage />,
+                  },
+                  {
+                    // The retired Grades tab lands on Progress.
+                    path: TeacherRoutes.grades.definition,
+                    element: <GradesRedirect />,
+                  },
+                  // Deep pages: each brings its own column.
+                  {
+                    path: TeacherRoutes.deckWizard.definition,
+                    element: <DeckWizardPage />,
+                  },
+                  {
+                    path: TeacherRoutes.dayEditor.definition,
+                    element: <DayEditor />,
+                  },
+                  {
+                    path: TeacherRoutes.dayPreview.definition,
+                    element: <PreviewPage />,
+                  },
+                  {
+                    path: TeacherRoutes.assignmentProgress.definition,
+                    element: <AssignmentProgressPage />,
+                  },
+                  {
+                    path: TeacherRoutes.session.definition,
+                    element: <TeacherSessionDashboard />,
+                  },
+                  {
+                    path: TeacherRoutes.report.definition,
+                    element: <SessionReportPage />,
+                  },
+                  {
+                    path: TeacherRoutes.reports.definition,
+                    element: <SessionReportsListPage />,
+                  },
+                ],
               },
             ],
           },
           {
-            // Deep pages that KEEP the classroom tab bar. A pathless layout
-            // renders the bar as identical, full-width chrome; each page's own
-            // container renders below it. Their absolute paths are unchanged, so
-            // URL matching/ranking is the same as when they were siblings.
-            element: <ClassroomDeepPageLayout />,
-            children: [
-              {
-                path: TeacherRoutes.deckWizard.definition,
-                element: <DeckWizardPage />,
-              },
-              {
-                path: TeacherRoutes.dayEditor.definition,
-                element: <DayEditor />,
-              },
-              {
-                path: TeacherRoutes.dayPreview.definition,
-                element: <PreviewPage />,
-              },
-              {
-                // `TeacherRoutes.assignments` was defined but never registered,
-                // so the teacher's own assignments URL 404'd and the only way
-                // in was the student-side ClassroomRoutes path, which
-                // AssignmentsPage then re-branched on role.
-                path: TeacherRoutes.assignments.definition,
-                element: <AssignmentsPage />,
-              },
-              {
-                path: TeacherRoutes.assignmentProgress.definition,
-                element: <AssignmentProgressPage />,
-              },
-              {
-                path: TeacherRoutes.session.definition,
-                element: <TeacherSessionDashboard />,
-              },
-              {
-                path: TeacherRoutes.report.definition,
-                element: <SessionReportPage />,
-              },
-              {
-                path: TeacherRoutes.reports.definition,
-                element: <SessionReportsListPage />,
-              },
-            ],
-          },
-          {
-            // Full-screen surfaces projected to students — no tab bar.
+            // Projected to a class: the whole screen, no frame.
             path: TeacherRoutes.present.definition,
             element: <PresentationMode />,
           },

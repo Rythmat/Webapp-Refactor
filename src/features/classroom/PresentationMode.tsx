@@ -142,7 +142,7 @@ export const PresentationMode = () => {
       setFocusIndex(clamped);
       const phase = presentDeck.slides[clamped]?.phase ?? PHASES[0];
       // Rule: only someone who can edit this classroom may drive the class
-      // screen. PresentationMode sits OUTSIDE ClassroomDeepPageLayout, so it
+      // screen. PresentationMode sits OUTSIDE the Office's class guard, so it
       // inherited no ownership guard — a viewer (or anyone with the URL) could
       // navigate every connected student device.
       if (sessionId && sessionState && canEdit) sendNav(phase);

@@ -607,7 +607,17 @@ export const TeacherRoutes = {
     prefix: officePrefix,
   }),
 
-  /** Retired Grades tab — redirects to the Gradebook section of `students`. */
+  /**
+   * Progress — the class's students against its lessons and assignments
+   * (the Gradebook's home since the Office overhaul, 2026-11-09).
+   */
+  progress: createRouteDefinition<{
+    classroomId: string;
+  }>('/:classroomId/progress', {
+    prefix: officePrefix,
+  }),
+
+  /** Retired Grades tab — redirects to `progress`. */
   grades: createRouteDefinition<{
     classroomId: string;
   }>('/:classroomId/grades', {
@@ -647,11 +657,20 @@ export const TeacherRoutes = {
 };
 
 /**
- * Teacher "Office" — the standalone classroom picker/home, promoted to a
- * top-level URL (no `/teacher` prefix).
+ * Teacher "Office" — the teacher's LMS in the Studio frame (owner,
+ * 2026-11-09). Its static pages outrank `/office/:classroomId` in matching.
  */
 export const OfficeRoutes = {
+  /** Today: the next class, what needs the teacher, and the week ahead. */
   root: createRouteDefinition(officePrefix),
+  /** Every class the teacher runs, with create / edit / invite. */
+  classes: createRouteDefinition('/classes', { prefix: officePrefix }),
+  /** The week across every class. */
+  planner: createRouteDefinition('/planner', { prefix: officePrefix }),
+  /** Saved lessons, seeds, activities, learning goals and themes. */
+  library: createRouteDefinition('/library', { prefix: officePrefix }),
+  /** Work waiting for the teacher across every class. */
+  review: createRouteDefinition('/review', { prefix: officePrefix }),
 };
 
 /**

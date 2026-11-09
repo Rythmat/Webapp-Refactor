@@ -7,6 +7,7 @@ import { isEditorPath } from '@/daw/preload';
 import { DawSkeleton } from '@/daw/shell/DawSkeleton';
 import { useCortexCapture } from '@/features/cortex/useCortexCapture';
 import { LearnTourLayer } from '@/features/learnTour/LearnTourLayer';
+import { isOfficeFramePath } from '@/features/office/frame/officeNav';
 import { useProgressBootstrap } from '@/hooks/data';
 import { useStampEarnedAwards } from '@/hooks/data/useAwards';
 import { useStreakPing } from '@/hooks/data/useStreak';
@@ -49,13 +50,17 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
     isAudioPlayerPath(pathname) ||
     isGuidedLessonPath(pathname) ||
     isFundamentalsLessonPath(pathname);
-  const focus = isStudioEditor || isGlobe || isAudioPlayer;
+  // The Office draws the Studio's frame too (owner, 2026-11-09): its own top
+  // and bottom rails, the app's navigation at its left, as the Globe.
+  const isOffice = isOfficeFramePath(pathname);
+  const framed = isGlobe || isOffice;
+  const focus = isStudioEditor || framed || isAudioPlayer;
 
   return (
     <div
       className={cn(
         'dashboard-root flex w-full overflow-hidden',
-        isGlobe || isAudioPlayer ? 'h-dvh' : 'h-screen',
+        framed || isAudioPlayer ? 'h-dvh' : 'h-screen',
       )}
     >
       {isStudioEditor || isAudioPlayer ? null : (

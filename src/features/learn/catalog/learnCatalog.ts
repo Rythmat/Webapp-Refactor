@@ -7,7 +7,11 @@ import {
   type SigilSpec,
 } from '@/components/learn/sigil/sigilSpec';
 import { techniqueDataFor } from '@/components/learn/techniqueCatalog';
-import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
+import {
+  CurriculumRoutes,
+  LearnRoutes,
+  StudioRoutes,
+} from '@/constants/routes';
 import {
   AUDIO_MODULES,
   audioLessonRoute,
@@ -16,6 +20,12 @@ import {
 import { audioCoursePath } from '@/curriculum/audio/coursePath';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import { fundamentalsCoursePath } from '@/curriculum/piano/fundamentals/coursePath';
+import {
+  courseLessons,
+  listTutorialCatalog,
+  TUTORIAL_COURSES,
+  type TutorialCatalogEntry,
+} from '@/daw/components/Tutorial/tutorialCatalog';
 import type { GenreReadiness } from '@/features/learn/genreReadiness';
 import {
   coursePercent,
@@ -368,6 +378,28 @@ function instrumentSections(
   return sections;
 }
 
+/** The Production lessons' one accent (not A or D: yellow and amber). */
+const PRODUCTION_ACCENT_KEY = 'B';
+
+/**
+ * The intervals the Production lessons' covers draw, one colour each, so a
+ * shelf of sixteen still finds a cover no other card on the page has (the
+ * path's disc ratios share colours: 3:5, 7:8 and 8:9 are all amber).
+ */
+const PRODUCTION_RATIOS: readonly (readonly [number, number])[] = [
+  [2, 3],
+  [3, 4],
+  [4, 5],
+  [5, 6],
+  [5, 8],
+  [1, 2],
+  [8, 15],
+  [5, 7],
+  [9, 16],
+  [15, 16],
+  [8, 9],
+];
+
 function audioSections(inputs: CatalogInputs): CatalogSection[] {
   const { isPremium, completedAt } = inputs;
   const courses = AUDIO_MODULES.filter((module) => module.shelf);
@@ -430,8 +462,54 @@ function audioSections(inputs: CatalogInputs): CatalogSection[] {
   // A turn on from the courses, so the next shelf never opens on the
   // pattern above it.
   turn += 1;
+  // The Studio's Production lessons, as its Production tab lists them: the
+  // courses' lessons in order, then the rest. Each opens the editor with the
+  // lesson running; finishing one there marks it done here too.
+  const courseLessonsInOrder = TUTORIAL_COURSES.flatMap((course) =>
+    courseLessons(course).map((lesson, i) => ({
+      lesson,
+      place: `${course.title} · Lesson ${i + 1}`,
+    })),
+  );
+  const production: readonly {
+    lesson: TutorialCatalogEntry;
+    place: string | null;
+  }[] = [
+    ...courseLessonsInOrder,
+    ...listTutorialCatalog()
+      .filter((lesson) => !lesson.course)
+      .map((lesson) => ({ lesson, place: null })),
+  ];
+  const productionSection: CatalogSection = {
+    id: 'production',
+    title: 'Production Lessons',
+    blurb: 'Make a track in the Studio, step by step',
+    courses: production.map(({ lesson, place }, i): CatalogCourse => {
+      const ratio = PRODUCTION_RATIOS[i % PRODUCTION_RATIOS.length];
+      return {
+        id: `audio/production/${lesson.id}`,
+        slug: lesson.id,
+        kind: 'audio',
+        topic: 'audio',
+        section: 'production',
+        title: lesson.title,
+        blurb: lesson.subtitle,
+        route: `${StudioRoutes.editor()}?tutorial=${encodeURIComponent(lesson.id)}`,
+        cover: pickCover(`audio/production/${lesson.id}`, ratio, false),
+        sigil: sigilFor({ ratio }) ?? undefined,
+        accent: colorForKeyMode(PRODUCTION_ACCENT_KEY),
+        percent: completedAt[lesson.id] != null ? 100 : 0,
+        meta: `${place ?? lesson.difficulty} · ${lesson.estMinutes} min`,
+        next: null,
+        locked: lesson.requiresPremium && !isPremium,
+        comingSoon: false,
+      };
+    }),
+  };
+  turn += 1;
   return [
     courseSection,
+    productionSection,
     ...rest.map((module) => ({
       id: module.id,
       title: module.title,

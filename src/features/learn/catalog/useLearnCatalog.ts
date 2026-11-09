@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useStudioLessonsVersion } from '@/curriculum/engine/studioLessons/registry';
 import type { GenreReadiness } from '@/features/learn/genreReadiness';
 import { isLearnInstrumentEnabled } from '@/features/learn/useInstrumentStore';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
@@ -16,6 +17,8 @@ export function useLearnCatalog(
   const { data: summary } = useProgressSummary(true);
   const completedAt = useTutorialProgressStore((s) => s.completedAt);
   const lessons = summary?.lessons ?? NO_LESSONS;
+  // Audio lists the Studio's lessons, which a console save can change.
+  const studioLessons = useStudioLessonsVersion();
   return useMemo(
     () =>
       buildLearnCatalog({
@@ -25,6 +28,6 @@ export function useLearnCatalog(
         completedAt,
         genreReady,
       }),
-    [completedAt, genreReady, isPremium, lessons],
+    [completedAt, genreReady, isPremium, lessons, studioLessons],
   );
 }

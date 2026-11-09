@@ -1,6 +1,10 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
 import type { PathRow } from '@/components/learn/path/types';
+import {
+  listTutorialCatalog,
+  TUTORIAL_COURSES,
+} from '@/daw/components/Tutorial/tutorialCatalog';
 import { genreReadinessFrom } from '@/features/learn/genreReadiness';
 import {
   coursePercent,
@@ -151,5 +155,68 @@ describe('the catalog', () => {
       doneMin: 15,
       doneCount: 1,
     });
+  });
+});
+
+describe('Audio’s Production Lessons', () => {
+  const production = (premium: boolean, completedAt = {}) =>
+    buildLearnCatalog({
+      enabled: () => true,
+      isPremium: premium,
+      lessons: [],
+      completedAt,
+      genreReady: null,
+    })
+      .find((t) => t.id === 'audio')!
+      .sections.find((s) => s.id === 'production')!;
+
+  it('comes right after the courses', () => {
+    const audio = catalog().find((t) => t.id === 'audio')!;
+    expect(audio.sections.map((s) => s.id).slice(0, 2)).toEqual([
+      'courses',
+      'production',
+    ]);
+  });
+
+  it('lists every Studio lesson, the courses’ first and in order', () => {
+    const slugs = production(true).courses.map((c) => c.slug);
+    expect([...slugs].sort()).toEqual(
+      listTutorialCatalog()
+        .map((t) => t.id)
+        .sort(),
+    );
+    const first = TUTORIAL_COURSES[0];
+    expect(slugs.slice(0, first.lessonIds.length)).toEqual(first.lessonIds);
+  });
+
+  it('opens each in the Studio with the lesson running', () => {
+    for (const course of production(true).courses) {
+      expect(course.route).toBe(
+        `/studio?tutorial=${encodeURIComponent(course.slug)}`,
+      );
+    }
+  });
+
+  it('locks only the Premium lessons, and only for a free student', () => {
+    const premiumOnly = new Set(
+      listTutorialCatalog()
+        .filter((t) => t.requiresPremium)
+        .map((t) => t.id),
+    );
+    expect(premiumOnly.size).toBeGreaterThan(0);
+    for (const course of production(false).courses) {
+      expect(course.locked, course.slug).toBe(premiumOnly.has(course.slug));
+    }
+    expect(production(true).courses.some((c) => c.locked)).toBe(false);
+  });
+
+  it('shows a finished lesson as done', () => {
+    const courses = production(true, { 'hiphop-build-the-beat': 1 }).courses;
+    expect(
+      courses.find((c) => c.slug === 'hiphop-build-the-beat')!.percent,
+    ).toBe(100);
+    expect(courses.find((c) => c.slug === 'house-make-it-pump')!.percent).toBe(
+      0,
+    );
   });
 });

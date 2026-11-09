@@ -1,7 +1,13 @@
 // @vitest-environment jsdom
 import { Profiler } from 'react';
-import { act, cleanup, render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useStore } from '@/daw/store';
 import { PrismStudio } from '../PrismStudio';
 
@@ -77,5 +83,34 @@ describe('Create', () => {
     const create = screen.getByRole('button', { name: 'Create' });
     expect(create).toBeDisabled();
     expect(create.className).not.toMatch(/\bbg-white\b/);
+  });
+
+  // Create asks music-atlas-api for the take: one request at a time.
+  it('waits for the take before it can be pressed again', async () => {
+    let settle = () => {};
+    const generateToTracks = vi.fn(
+      () => new Promise<void>((resolve) => (settle = resolve)),
+    );
+    const real = s().generateToTracks;
+    useStore.setState({
+      chordSeq: [[60, 64, 67]],
+      stringSeq: ['1 major'],
+      generateToTracks,
+    });
+    try {
+      renderStudio();
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+      const busy = screen.getByRole('button', { name: 'Creating…' });
+      expect(busy).toBeDisabled();
+      expect(busy.getAttribute('aria-busy')).toBe('true');
+      fireEvent.click(busy);
+      expect(generateToTracks).toHaveBeenCalledTimes(1);
+
+      await act(async () => settle());
+      expect(screen.getByRole('button', { name: 'Create' })).toBeEnabled();
+    } finally {
+      useStore.setState({ generateToTracks: real });
+    }
   });
 });

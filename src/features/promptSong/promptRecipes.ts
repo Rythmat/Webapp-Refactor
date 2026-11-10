@@ -49,6 +49,10 @@ const GENRE_BANDS: Partial<Record<PromptGenre, string>> = {
   funk: 'funk-band-1',
   'hip-hop': 'hip-hop-band-1',
   latin: 'latin-band-1',
+  // Real pianists, whose 7ths, 9ths and 13ths follow the prompt's chords
+  // (owner, 2026-11-10: the combos played them as triads).
+  jazz: 'jazz-band-1',
+  blues: 'blues-band-1',
 };
 
 /** Latin flavors no written lesson plays: they're combos. */
@@ -89,6 +93,10 @@ function preferredVariations(plan: PromptPlan): string[] {
     }
     case 'funk':
       return [['l1-pocket', 'l2-syncopation', 'l3-deep-groove'][level - 1]];
+    case 'jazz':
+      return [['l2-iivi', 'l3-iivi-c', 'l3-i-vi-ii-v'][level - 1], 'l2-iivi'];
+    case 'blues':
+      return [['l1-c7', 'l2-cjam', 'l3-jazz-blues-f'][level - 1], 'l1-c7'];
     case 'latin': {
       if (flavor === 'reggaeton') return ['l1-reggaeton'];
       if (flavor === 'cumbia') return ['l1-cumbia'];
@@ -327,7 +335,10 @@ export async function recipeFor(
     plan.genre === 'latin' &&
     plan.flavor !== null &&
     LATIN_COMBO_FLAVORS.has(plan.flavor);
-  const band = bandId && !latinCombo ? getLiveBand(bandId) : undefined;
+  // A jazz ballad keeps its brushes and two-feel bass (COMBOS).
+  const jazzBallad = plan.genre === 'jazz' && plan.flavor === 'ballad';
+  const band =
+    bandId && !latinCombo && !jazzBallad ? getLiveBand(bandId) : undefined;
   if (band) {
     const styles = await bandStyles(band, loadFlow);
     if (styles.length) {

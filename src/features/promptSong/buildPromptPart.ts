@@ -45,6 +45,7 @@ import {
   namedKey,
   type PromptKey,
 } from './promptSettings';
+import { voicePromptChords } from './voicePromptChords';
 
 export {
   asksForMelody,
@@ -368,6 +369,7 @@ export async function buildPromptPart(
       key: { tonicPc: plan.tonicPc, mode: plan.mode, label: plan.tonicLabel },
       bpm,
       followChords: true,
+      studio: true,
       ...(followsLane && offBar
         ? { timedChords: { changes: context.chords, length } }
         : {}),
@@ -386,10 +388,16 @@ export async function buildPromptPart(
     );
   }
 
+  // The chords voiced from their symbols, for the Studio: the lane's chords,
+  // every tone, voice-led (voicePromptChords.ts).
+  const voiced = voicePromptChords(
+    built,
+    followsLane && offBar ? { changes: context.chords, length } : undefined,
+  );
   const styleName = styleNameOf(plan, recipe);
   const out: BuiltPart[] = [];
   for (const part of parts) {
-    const own = built.clips[part];
+    const own = voiced.clips[part];
     if (own?.events.length) {
       const name = `${styleName} ${PART_NOUN[part]}`;
       out.push({
@@ -399,7 +407,7 @@ export async function buildPromptPart(
         clip: cutToSpot(own, name, length),
       });
     }
-    for (const layer of built.layerClips) {
+    for (const layer of voiced.layerClips) {
       if (layer.part !== part || !layer.clip.events.length) continue;
       const name = `${styleName} ${layer.name}`;
       out.push({

@@ -30,6 +30,7 @@ import {
   type GrooveLoader,
 } from './promptGroove';
 import { recipeFor, type PromptRecipe } from './promptRecipes';
+import { voicePromptChords } from './voicePromptChords';
 
 export { FLAVOR_LABELS, GENRE_LABELS } from './parseMusicPrompt';
 
@@ -177,6 +178,7 @@ export async function buildPromptSong(
         key: { tonicPc: plan.tonicPc, mode: plan.mode, label: plan.tonicLabel },
         bpm,
         followChords: true,
+        studio: true,
         ...(recipe.kind === 'band'
           ? {
               styleId: recipe.style.styleId,
@@ -190,6 +192,8 @@ export async function buildPromptSong(
     if (picked.id === null) break;
   }
   if (!built || !picked) return null;
+  // Its chords voiced from their symbols, for the Studio (voicePromptChords).
+  built = { ...built, ...voicePromptChords(built) };
 
   // The drums: a groove of the style from the Grooves library, over the
   // whole loop, in place of the band's (promptGroove.ts).

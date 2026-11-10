@@ -1,10 +1,13 @@
+import { MICRO_LABEL } from '@/components/kit';
+import { Segmented } from '@/daw/ui/Segmented';
+import { Select } from '@/daw/ui/Select';
+import { OFFICE_CARD } from '@/features/office/ui/styles';
 import {
   FEELINGS_LEVELS,
   FEELINGS_LEVEL_HINT,
   FEELINGS_LEVEL_LABEL,
 } from '../../feelings/feelings';
 import type { CortexLessonChoices } from '../cortex/types';
-import { EYEBROW, FIELD, PANEL } from './wizardStyles';
 
 /**
  * The lesson's small settings, beside the preview: how students check in,
@@ -33,30 +36,16 @@ export const CortexOptions = ({
   /** The focus's vibes; the poll needs two to choose between. */
   vibes: readonly string[];
 }) => (
-  <section className={`${PANEL} flex flex-col gap-4 p-4`}>
+  <section className={`${OFFICE_CARD} flex flex-col gap-4 p-4`}>
     <div className="flex flex-col gap-2">
-      <span className={EYEBROW}>Feelings check-in</span>
-      <div
-        role="group"
-        aria-label="Feelings check-in level"
-        className="inline-flex w-fit items-center gap-0.5 rounded-full border border-white/10 p-0.5"
-      >
-        {LEVELS.map((s) => (
-          <button
-            key={s.value}
-            type="button"
-            aria-pressed={value.checkInLevel === s.value}
-            onClick={() => onChange({ ...value, checkInLevel: s.value })}
-            className={`h-8 rounded-full px-3 text-sm transition-colors ${
-              value.checkInLevel === s.value
-                ? 'bg-white text-[#101012]'
-                : 'text-white/55 hover:text-[#e8e8f0]'
-            }`}
-          >
-            {s.label}
-          </button>
-        ))}
-      </div>
+      <span className={MICRO_LABEL}>Feelings check-in</span>
+      <Segmented
+        label="Feelings check-in level"
+        value={value.checkInLevel}
+        onValueChange={(checkInLevel) => onChange({ ...value, checkInLevel })}
+        options={LEVELS}
+        className="w-fit"
+      />
       <p className="text-[0.8125rem] text-white/55">
         {FEELINGS_LEVEL_HINT[value.checkInLevel]}
       </p>
@@ -80,21 +69,18 @@ export const CortexOptions = ({
       </span>
     </label>
 
-    <label className="flex flex-col gap-2">
-      <span className={EYEBROW}>Individual Project time</span>
-      <select
-        value={value.projectMinutes}
-        onChange={(e) =>
-          onChange({ ...value, projectMinutes: Number(e.target.value) })
-        }
-        className={`${FIELD} w-fit`}
-      >
-        {MINUTES.map((m) => (
-          <option key={m} value={m}>
-            {m} minutes
-          </option>
-        ))}
-      </select>
-    </label>
+    <div className="flex flex-col gap-2">
+      <span className={MICRO_LABEL}>Individual Project time</span>
+      <Select
+        label="Individual Project time"
+        value={String(value.projectMinutes)}
+        onValueChange={(m) => onChange({ ...value, projectMinutes: Number(m) })}
+        options={MINUTES.map((m) => ({
+          value: String(m),
+          label: `${m} minutes`,
+        }))}
+        className="w-fit"
+      />
+    </div>
   </section>
 );

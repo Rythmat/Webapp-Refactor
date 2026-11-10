@@ -8,6 +8,7 @@
  */
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '@/daw/ui/Button';
 import type { InteractionType, LaunchTile } from '../../types';
 import { ContentPickerDialog } from './contentPicker/ContentPickerDialog';
 import type { SlideMediaEmbed } from './contentPicker/catalog';
@@ -35,14 +36,10 @@ export const ChooseContentButton = ({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setPickerOpen(true)}
-        className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-sm text-white/80 transition-colors hover:border-white/25 hover:text-white"
-      >
-        <Plus className="h-4 w-4" />
+      <Button variant="pill" size="pill" onClick={() => setPickerOpen(true)}>
+        <Plus aria-hidden />
         Choose content
-      </button>
+      </Button>
 
       <ContentPickerDialog
         open={pickerOpen}

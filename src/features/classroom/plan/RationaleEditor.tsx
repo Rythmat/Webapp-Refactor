@@ -1,8 +1,13 @@
 import { ChevronDown, Lock, Tag } from 'lucide-react';
 import { useState } from 'react';
+import { MICRO_LABEL, MicroLabel } from '@/components/kit';
+import { Select } from '@/daw/ui/Select';
 import { useCloBank } from '../content/hooks';
 import type { CellRationale, LocalizedText } from '../types';
 import { cloLabel, LearningGoalPicker } from './LearningGoalPicker';
+
+/** The "(none)" option's value: Radix Select takes no empty string. */
+const NONE = '__none';
 
 const INITIATION_STYLES = [
   'learn-to-apply',
@@ -158,9 +163,7 @@ export const RationaleEditor = ({
 
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-wide text-white/40">
-                Tagged objectives
-              </span>
+              <span className={MICRO_LABEL}>Tagged objectives</span>
               <button
                 type="button"
                 onClick={() => setPickerOpen(true)}
@@ -181,7 +184,7 @@ export const RationaleEditor = ({
                   return (
                     <li
                       key={id}
-                      className="flex items-start gap-2 text-[11px] text-white/60"
+                      className="flex items-start gap-2 text-[0.75rem] text-white/60"
                     >
                       <span className="text-white/25">•</span>
                       {clo ? (
@@ -251,9 +254,7 @@ const TinyField = ({
   onChange: (v: string) => void;
 }) => (
   <label className="flex flex-col gap-1">
-    <span className="text-[10px] uppercase tracking-wide text-white/40">
-      {label}
-    </span>
+    <span className={MICRO_LABEL}>{label}</span>
     <input
       type="text"
       value={value}
@@ -276,9 +277,7 @@ const TinyTextArea = ({
   onChange: (v: string) => void;
 }) => (
   <label className="flex flex-col gap-1">
-    <span className="text-[10px] uppercase tracking-wide text-white/40">
-      {label}
-    </span>
+    <span className={MICRO_LABEL}>{label}</span>
     <textarea
       value={value}
       placeholder={placeholder}
@@ -300,20 +299,17 @@ const TinySelectField = ({
   options: readonly string[];
   onChange: (v: string) => void;
 }) => (
-  <label className="flex flex-col gap-1">
-    <span className="text-[10px] uppercase tracking-wide text-white/40">
-      {label}
-    </span>
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-md border border-white/10 bg-[#1a1a1c] px-2 py-1 text-xs text-white focus:border-white/25 focus:outline-none"
-    >
-      {options.map((option) => (
-        <option key={option} value={option}>
-          {option === '' ? '(none)' : option}
-        </option>
-      ))}
-    </select>
-  </label>
+  <div className="flex flex-col gap-1">
+    <MicroLabel>{label}</MicroLabel>
+    {/* Radix Select takes no empty value, so "(none)" rides a sentinel. */}
+    <Select
+      label={label}
+      value={value === '' ? NONE : value}
+      onValueChange={(v) => onChange(v === NONE ? '' : v)}
+      options={options.map((option) => ({
+        value: option === '' ? NONE : option,
+        label: option === '' ? '(none)' : option,
+      }))}
+    />
+  </div>
 );

@@ -1,15 +1,25 @@
 /**
- * ActivityBankPicker — a right-side drawer to insert a canonical activity into
- * a phase cell from DayEditor. Filters the Activity Bank by phase, searchable.
+ * ActivityBankPicker — the Studio's side sheet, to insert a canonical activity
+ * into the selected slide's phase. Filters the Activity Bank by phase,
+ * searchable.
  * Inserting routes through `insertActivityIntoCell` (actionable text →
  * presentation, structured pedagogy → rationale).
  */
-import { Check, Plus, Search, X } from 'lucide-react';
+import { Check, Plus, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { MicroLabel, microLabel } from '@/components/kit';
+import { Button } from '@/daw/ui/Button';
+import { Sheet } from '@/daw/ui/DawDialog';
+import { OFFICE_CARD } from '@/features/office/ui/styles';
 import { useActivityBank } from '../content/hooks';
 import type { Activity } from '../content/types';
 import { usePersonalContent } from '../content/usePersonalContent';
-import { PHASE_FULL_NAMES, type PhaseKey } from '../phases';
+import type { PhaseKey } from '../phases';
+import { phaseSectionsLabel } from '../slides/sections';
+
+/** A text field in the Studio's look. */
+const FIELD =
+  'h-9 w-full rounded-full border border-daw-outline bg-transparent text-[0.875rem] text-daw-text placeholder:text-daw-text-3 focus:border-white/40 focus:outline-none';
 
 const newPersonalActivity = (
   phase: PhaseKey,
@@ -82,88 +92,67 @@ export const ActivityBankPicker = ({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex justify-end bg-black/50"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
+    <Sheet
+      open
+      onOpenChange={(open) => !open && onClose()}
+      title="Activity Bank"
+      description={`${phaseSectionsLabel(phase).en} activities`}
     >
-      <div
-        className="flex h-full w-full max-w-md flex-col gap-3 border-l border-white/10 bg-neutral-950 p-5 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-xs uppercase tracking-wider text-white/40">
-              Activity Bank
-            </span>
-            <span className="text-sm text-white/70">
-              {PHASE_FULL_NAMES[phase]}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-white/50 hover:bg-white/5 hover:text-white"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
+      <div className="flex min-h-0 flex-1 flex-col gap-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+          <Search
+            aria-hidden
+            className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-daw-text-3"
+          />
           <input
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search activities…"
-            className="w-full rounded-full border border-white/10 bg-white/[0.02] px-9 py-2 text-sm text-white placeholder:text-white/40 focus:border-white/25 focus:outline-none"
+            aria-label="Search activities"
+            className={`${FIELD} px-9`}
           />
         </div>
 
         {authoring ? (
-          <div className="flex flex-col gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+          <div className={`${OFFICE_CARD} flex flex-col gap-2 p-3`}>
             <input
               value={draftTitle}
               onChange={(e) => setDraftTitle(e.target.value)}
               placeholder="Activity title"
-              className="w-full rounded-md border border-white/10 bg-white/[0.02] px-2 py-1 text-sm text-white placeholder:text-white/30 focus:border-white/25 focus:outline-none"
+              aria-label="Activity title"
+              className={`${FIELD} px-3`}
             />
             <textarea
               value={draftDesc}
               onChange={(e) => setDraftDesc(e.target.value)}
               placeholder="What students do…"
+              aria-label="What students do"
               rows={2}
-              className="w-full resize-y rounded-md border border-white/10 bg-white/[0.02] px-2 py-1 text-xs text-white placeholder:text-white/30 focus:border-white/25 focus:outline-none"
+              className={`${FIELD} h-auto resize-y rounded-xl px-3 py-2`}
             />
             <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setAuthoring(false)}
-                className="rounded-full px-3 py-1 text-xs text-white/60 hover:text-white"
-              >
+              <Button variant="quiet" onClick={() => setAuthoring(false)}>
                 Cancel
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="primary"
                 onClick={saveActivity}
                 disabled={!draftTitle.trim()}
-                className="rounded-full bg-white px-3 py-1 text-xs font-medium text-black hover:bg-white/85 disabled:opacity-40"
               >
                 Save to my bank
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            className="w-fit"
             onClick={() => setAuthoring(true)}
-            className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/10 px-3 py-1 text-xs text-white/60 hover:border-white/25 hover:text-white"
           >
-            <Plus className="h-3 w-3" />
+            <Plus aria-hidden />
             Author your own
-          </button>
+          </Button>
         )}
 
         <ul className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
@@ -172,56 +161,42 @@ export const ActivityBankPicker = ({
             return (
               <li
                 key={a.id}
-                className="flex flex-col gap-1.5 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3"
+                className={`${OFFICE_CARD} flex flex-col gap-1.5 p-3`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex flex-col gap-0.5">
-                    <span className="flex items-center gap-1.5 text-sm font-medium text-white">
-                      {a.title.en}
-                      {a.source === 'personal' && (
-                        <span className="rounded-full border border-white/15 px-1.5 py-0 text-[9px] uppercase tracking-wide text-white/50">
-                          Yours
-                        </span>
+                    <MicroLabel>
+                      {microLabel(
+                        a.purpose,
+                        a.source === 'personal' && 'Yours',
                       )}
-                    </span>
-                    <span className="text-[10px] uppercase tracking-wide text-white/40">
-                      {a.purpose}
+                    </MicroLabel>
+                    <span className="text-[0.875rem] font-bold text-daw-text">
+                      {a.title.en}
                     </span>
                   </div>
-                  <button
-                    type="button"
+                  <Button
+                    variant={added ? 'quiet' : 'primary'}
                     onClick={() => add(a)}
                     disabled={added}
-                    className={`inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${
-                      added
-                        ? 'bg-emerald-400/10 text-emerald-300'
-                        : 'bg-white text-black hover:bg-white/85'
-                    }`}
                   >
-                    {added ? (
-                      <>
-                        <Check className="h-3 w-3" /> Added
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="h-3 w-3" /> Add
-                      </>
-                    )}
-                  </button>
+                    {added ? <Check aria-hidden /> : <Plus aria-hidden />}
+                    {added ? 'Added' : 'Add'}
+                  </Button>
                 </div>
-                <p className="line-clamp-2 text-xs text-white/60">
+                <p className="line-clamp-2 text-[0.8125rem] text-daw-text-2">
                   {a.description}
                 </p>
               </li>
             );
           })}
           {filtered.length === 0 && (
-            <li className="rounded-xl border border-dashed border-white/10 p-6 text-center text-xs text-white/40">
+            <li className="rounded-[1.25rem] border border-dashed border-white/10 p-6 text-center text-[0.8125rem] text-daw-text-3">
               No activities match “{query}”.
             </li>
           )}
         </ul>
       </div>
-    </div>
+    </Sheet>
   );
 };

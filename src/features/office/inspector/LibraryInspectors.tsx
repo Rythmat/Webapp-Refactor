@@ -13,6 +13,7 @@ import {
 } from '@/features/classroom/content/hooks';
 import { IDEA_BANK } from '@/features/classroom/content/ideaBank';
 import { PHASES } from '@/features/classroom/phases';
+import { phaseSectionsLabel } from '@/features/classroom/slides/sections';
 import {
   LIBRARY_SCOPE,
   withInspect,
@@ -128,14 +129,14 @@ export const SeedInspector = ({ id }: { id: string }) => {
       {seed.description && <Prose>{seed.description}</Prose>}
       <MakeLessonForm source={{ kind: 'seed', seed }} />
       {seed.kind === 'day' ? (
-        <InspectorSection title="What it fills in">
+        <InspectorSection title="The lesson it makes">
           <ol className="flex flex-col gap-2 px-0.5">
             {PHASES.map((phase) => {
               const p = seed.template[phase]?.presentation;
               return (
                 <li key={phase} className="flex flex-col">
                   <span className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>
-                    {phaseName(phase)}
+                    {phaseSectionsLabel(phase).en}
                   </span>
                   <span className="text-[0.875rem] text-daw-text">
                     {p?.title?.en || p?.prompt?.en || '—'}

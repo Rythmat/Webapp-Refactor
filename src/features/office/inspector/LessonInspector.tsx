@@ -1,4 +1,5 @@
 import { Eye, Pencil, Play, Radio } from 'lucide-react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { MicroLabel } from '@/components/kit';
 import { cn } from '@/components/utilities';
@@ -11,16 +12,21 @@ import { useGoLive } from '@/features/classroom/live/useGoLive';
 import { LessonThumb } from '@/features/classroom/plan/LessonThumb';
 import { StatusChip } from '@/features/classroom/plan/lessonStatus';
 import { useLocalPlan } from '@/features/classroom/plan/useLocalPlan';
+import { publishDay } from '@/features/classroom/publish/publishDay';
+import { SlideRenderer } from '@/features/classroom/slides/SlideRenderer';
+import { interactionsForSlide } from '@/features/classroom/slides/deck';
 import {
   SECTIONS,
+  SECTION_LABEL,
   groupSlidesBySection,
+  sectionNumber,
 } from '@/features/classroom/slides/sections';
 import { useCanEditClassroom, useClassroom } from '@/hooks/data';
 import { relativeDay } from '../today/todayModel';
 
 /**
- * A lesson in the Inspector, as Common Planner's lesson drawer: its picture,
- * when and where it's taught, its state, what's in it, and the four verbs
+ * A lesson in the Inspector, as Common Planner's lesson drawer: its opening
+ * slide, when and where it's taught, its state, its six sections, and the four verbs
  * (Go Live, Present, Preview, Edit) without leaving the page it was opened
  * from.
  */
@@ -37,6 +43,8 @@ export const LessonInspector = ({
   const canEdit = useCanEditClassroom(classroomId);
   const goLive = useGoLive(classroomId);
   const day = getDay(dayId);
+  // The student-safe projection the class would get: what the slides draw.
+  const snapshot = useMemo(() => (day ? publishDay(day) : null), [day]);
 
   if (!day) {
     return (
@@ -49,19 +57,32 @@ export const LessonInspector = ({
 
   const { status, assignment } = grid.statusFor(day);
   const slides = day.deck?.slides.length ?? 0;
-  const sectionsUsed = groupSlidesBySection(day.deck?.slides ?? []).filter(
-    (g) => g.slides.length > 0,
-  ).length;
+  const groups = groupSlidesBySection(day.deck?.slides ?? []);
+  const sectionsUsed = groups.filter((g) => g.slides.length > 0).length;
+  const firstSlide = day.deck?.slides[0];
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-3 [scrollbar-width:thin]">
-      <div className="mx-auto w-full max-w-48">
-        <LessonThumb
-          day={day}
-          countryFeatures={grid.countryFeatures}
-          songsReady={grid.songsReady}
-        />
-      </div>
+    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-3 [scrollbar-width:thin] [&>*]:shrink-0">
+      {firstSlide && snapshot ? (
+        // The lesson's real opening slide, drawn by the renderer the class
+        // sees, not a cover standing in for it.
+        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-white/[0.06]">
+          <SlideRenderer
+            slide={firstSlide}
+            surface="present"
+            language="en"
+            interactions={interactionsForSlide(snapshot, firstSlide)}
+          />
+        </div>
+      ) : (
+        <div className="mx-auto w-full max-w-48">
+          <LessonThumb
+            day={day}
+            countryFeatures={grid.countryFeatures}
+            songsReady={grid.songsReady}
+          />
+        </div>
+      )}
       <div className="flex flex-col gap-1.5">
         <h3 className="text-[1.125rem] font-semibold leading-6 text-daw-text">
           {day.label}
@@ -117,6 +138,39 @@ export const LessonInspector = ({
           </Button>
         </div>
       </div>
+
+      {groups.length > 0 && slides > 0 && (
+        <ol
+          aria-label="The lesson's sections"
+          className="flex flex-col gap-2.5"
+        >
+          {groups.map((g) => (
+            <li
+              key={g.section}
+              className={cn(
+                'flex flex-col gap-0.5',
+                g.slides.length === 0 && 'opacity-50',
+              )}
+            >
+              <span className="flex items-baseline gap-2">
+                <MicroLabel>
+                  {sectionNumber(g.section)} · {SECTION_LABEL[g.section].en}
+                </MicroLabel>
+                <span className="ml-auto text-[0.75rem] tabular-nums text-daw-text-3">
+                  {g.slides.length}
+                </span>
+              </span>
+              <span className="truncate text-[0.8125rem] text-daw-text-2">
+                {g.slides.length === 0
+                  ? 'Nothing yet'
+                  : g.slides
+                      .map(({ slide }) => slide.title.en || 'Untitled')
+                      .join(' · ')}
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 };

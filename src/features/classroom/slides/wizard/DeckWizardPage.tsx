@@ -7,7 +7,10 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
+import { MICRO_LABEL } from '@/components/kit';
 import { TeacherRoutes } from '@/constants/routes';
+import { Button } from '@/daw/ui/Button';
+import { OFFICE_CARD } from '@/features/office/ui/styles';
 import { useCanEditClassroom } from '@/hooks/data';
 import { useAnnualPlan } from '../../annual/useAnnualPlan';
 import { useLocalSessionStore } from '../../live/useLocalSessionStore';
@@ -35,9 +38,8 @@ import { CortexOptions, type CortexOptionValues } from './CortexOptions';
 import { CortexRoleStep } from './CortexRoleStep';
 import { DeckPreview } from './DeckPreview';
 import { focusContextForDay, recentFocusIds } from './cortexContext';
-import { EYEBROW, OUTLINE_PILL, PANEL, PRIMARY_PILL } from './wizardStyles';
 
-const STEPS = ['Focus', 'Group Project', 'Preview'] as const;
+const STEPS = ['Focus', 'Group Project', 'Check-in & Preview'] as const;
 
 /** One query for the page load: the graph is several megabytes. */
 export const LESSON_ATLAS_KEY = ['classroom', 'lesson-atlas'] as const;
@@ -225,11 +227,11 @@ export const DeckWizardPage = () => {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-4 py-6 text-[#e8e8f0] md:gap-8 md:px-10 md:py-10">
+    <div className="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-4 py-6 text-daw-text md:gap-8 md:px-10 md:py-10">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
           to={TeacherRoutes.plan({ classroomId: cid })}
-          className="inline-flex items-center gap-2 text-sm text-white/55 transition-colors hover:text-[#e8e8f0]"
+          className="inline-flex items-center gap-2 text-sm text-white/55 transition-colors hover:text-daw-text"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Lessons
@@ -250,24 +252,25 @@ export const DeckWizardPage = () => {
       <Stepper step={step} onStep={setStep} ready={Boolean(builtDay)} />
 
       {atlas.isPending && (
-        <p className={`${PANEL} p-5 text-sm text-white/55`} role="status">
+        <p className={`${OFFICE_CARD} p-5 text-sm text-white/55`} role="status">
           Loading the Atlas…
         </p>
       )}
       {atlas.isError && (
-        <div className={`${PANEL} flex flex-col gap-3 p-5`} role="alert">
+        <div className={`${OFFICE_CARD} flex flex-col gap-3 p-5`} role="alert">
           <p className="text-sm">The Atlas could not be loaded.</p>
-          <button
-            type="button"
-            className={`${OUTLINE_PILL} w-fit`}
+          <Button
+            variant="secondary"
+            size="pill"
+            className="w-fit"
             onClick={() => void atlas.refetch()}
           >
             Try again
-          </button>
+          </Button>
         </div>
       )}
       {lessonAtlas && !focus && (
-        <p className={`${PANEL} p-5 text-sm text-white/55`}>
+        <p className={`${OFFICE_CARD} p-5 text-sm text-white/55`}>
           The Atlas has no artist or city to suggest yet.
         </p>
       )}
@@ -297,14 +300,15 @@ export const DeckWizardPage = () => {
                 onTutorial={setTutorialId}
                 onPerformer={setPerformerRef}
               />
-              <button
-                type="button"
-                className={`${PRIMARY_PILL} self-end`}
+              <Button
+                variant="primary"
+                size="pill"
+                className="self-end"
                 disabled={!activeRole}
                 onClick={() => setStep(2)}
               >
-                Next: Preview
-              </button>
+                Next: Check-in & Preview
+              </Button>
             </div>
           )}
 
@@ -312,7 +316,7 @@ export const DeckWizardPage = () => {
             <div className="flex flex-col gap-5">
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
                 <div className="flex flex-col gap-2">
-                  <span className={EYEBROW}>
+                  <span className={MICRO_LABEL}>
                     {builtDay.deck?.slides.length} slides
                   </span>
                   <DeckPreview day={builtDay} />
@@ -324,27 +328,27 @@ export const DeckWizardPage = () => {
                 />
               </div>
               <div className="flex flex-wrap items-center justify-end gap-3">
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
+                  size="pill"
                   disabled={busy}
                   onClick={() => launch('save')}
-                  className={OUTLINE_PILL}
                 >
                   <Save className="h-4 w-4" />
                   Save to Plan
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <Button
+                  variant="primary"
+                  size="pill"
                   disabled={busy || !canEdit}
                   title={
                     canEdit ? undefined : 'Viewers cannot start a live session'
                   }
                   onClick={() => launch('live')}
-                  className={PRIMARY_PILL}
                 >
                   <Radio className="h-4 w-4" />
                   {busy ? 'Starting…' : 'Go Live'}
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -376,9 +380,9 @@ const Stepper = ({
             onClick={() => onStep(i)}
             className={`h-8 rounded-full px-3 text-sm transition-colors ${
               i === step
-                ? 'bg-white text-[#101012]'
+                ? 'bg-white text-black'
                 : reachable
-                  ? 'border border-white/15 bg-white/[0.04] text-[#e8e8f0] hover:bg-white/[0.08]'
+                  ? 'border border-white/15 bg-white/[0.04] text-daw-text hover:bg-white/[0.08]'
                   : 'border border-white/[0.08] text-white/45'
             }`}
           >

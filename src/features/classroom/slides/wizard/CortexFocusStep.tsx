@@ -1,17 +1,13 @@
 import { Check, Search, Shuffle, Video } from 'lucide-react';
 import { useState } from 'react';
+import { MICRO_LABEL } from '@/components/kit';
 import { cortexColor } from '@/content/graph/cortexPalette';
+import { Button } from '@/daw/ui/Button';
+import { OFFICE_CARD } from '@/features/office/ui/styles';
 import type { LessonCatalog } from '../cortex/catalog';
 import type { LessonGraph } from '../cortex/graphQueries';
 import { searchFocus } from '../cortex/suggestFocus';
 import type { CortexLessonPlan, LessonFocus } from '../cortex/types';
-import {
-  EYEBROW,
-  FIELD,
-  OUTLINE_PILL,
-  PANEL,
-  PRIMARY_PILL,
-} from './wizardStyles';
 
 /**
  * Step 1 — the Showcase's focus. The generator's suggestion, with why it was
@@ -67,7 +63,7 @@ export const CortexFocusStep = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <section className={`${PANEL} flex flex-col gap-4 p-5 md:flex-row`}>
+      <section className={`${OFFICE_CARD} flex flex-col gap-4 p-5 md:flex-row`}>
         {portrait ? (
           <img
             src={portrait}
@@ -93,7 +89,9 @@ export const CortexFocusStep = ({
               style={{ backgroundColor: kindColor(focus) }}
               aria-hidden
             />
-            <span className={EYEBROW}>{KIND_LABEL[focus.kind]} showcase</span>
+            <span className={MICRO_LABEL}>
+              {KIND_LABEL[focus.kind]} showcase
+            </span>
           </span>
           <h2 className="text-2xl font-bold tracking-[-0.01em]">
             {focus.label}
@@ -114,35 +112,35 @@ export const CortexFocusStep = ({
       </section>
 
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" className={PRIMARY_PILL} onClick={onAccept}>
+        <Button variant="primary" size="pill" onClick={onAccept}>
           <Check className="h-4 w-4" />
           Use {focus.label}
-        </button>
-        <button type="button" className={OUTLINE_PILL} onClick={onShuffle}>
+        </Button>
+        <Button variant="secondary" size="pill" onClick={onShuffle}>
           <Shuffle className="h-4 w-4" />
           Shuffle
-        </button>
-        <button
-          type="button"
-          className={OUTLINE_PILL}
+        </Button>
+        <Button
+          variant="secondary"
+          size="pill"
           aria-expanded={searching}
           onClick={() => setSearching((s) => !s)}
         >
           <Search className="h-4 w-4" />
           Search
-        </button>
+        </Button>
       </div>
 
       {searching && (
-        <section className={`${PANEL} flex flex-col gap-3 p-4`}>
+        <section className={`${OFFICE_CARD} flex flex-col gap-3 p-4`}>
           <label className="flex flex-col gap-2">
-            <span className={EYEBROW}>Find an artist or a city</span>
+            <span className={MICRO_LABEL}>Find an artist or a city</span>
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Marvin Gaye, Detroit…"
-              className={FIELD}
+              className="h-9 rounded-full border border-daw-outline bg-transparent px-4 text-[0.875rem] text-daw-text [color-scheme:dark] placeholder:text-daw-text-3 focus:border-white/40 focus:outline-none"
               autoFocus
             />
           </label>

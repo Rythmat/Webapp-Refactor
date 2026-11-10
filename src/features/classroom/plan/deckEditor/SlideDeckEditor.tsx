@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { Button } from '@/daw/ui/Button';
+import { ConfirmDialog } from '@/daw/ui/ConfirmDialog';
 import {
   OfficeRailSlot,
   OfficeTopActions,
@@ -114,6 +115,8 @@ export const SlideDeckEditor = () => {
   const { config: teacherConfig } = useTeacherConfig(cid);
   const agePreset: AgePreset = teacherConfig.agePresetDefault;
   const [rationaleCollapsed, setRationaleCollapsed] = useState(false);
+  // "Generate a new lesson?" — asked before the generator replaces slides.
+  const [confirmGenerate, setConfirmGenerate] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   // The Add-slide template awaiting a content pick (opens a scoped picker),
   // and the section the new slide goes into.
@@ -463,22 +466,27 @@ export const SlideDeckEditor = () => {
   // Open the lesson generator on this Day. Saved first, so no edit waits on
   // the autosave; a generated lesson's slides are replaced only when the
   // teacher saves the new one, but they are told before they go.
-  const openGenerator = () => {
-    if (
-      !isUngeneratedCortexDeck(draft.deck) &&
-      !window.confirm(
-        "Generating a lesson replaces this lesson's slides when you save it. Continue?",
-      )
-    )
-      return;
+  const goToGenerator = () => {
     saveDay(draft);
     navigate(
       `${TeacherRoutes.deckWizard({ classroomId: cid })}?day=${encodeURIComponent(draft.id)}`,
     );
   };
+  const openGenerator = () => {
+    if (isUngeneratedCortexDeck(draft.deck)) goToGenerator();
+    else setConfirmGenerate(true);
+  };
 
   return (
     <div className="flex w-full flex-col">
+      <ConfirmDialog
+        open={confirmGenerate}
+        onOpenChange={setConfirmGenerate}
+        title="Generate a new lesson?"
+        description="The generator replaces this lesson's slides when you save what it makes. Until then, nothing here changes."
+        confirmLabel="Open the generator"
+        onConfirm={goToGenerator}
+      />
       {/* The lesson's verbs on the Office's top rail, in place of the class's
           Go Live menu: saved state, then Preview, Present, Go Live (saved
           first, so the class gets what's on screen). */}
@@ -530,16 +538,12 @@ export const SlideDeckEditor = () => {
         onLabelChange={updateLabel}
         generate={
           canEdit ? (
-            <button
-              type="button"
-              onClick={openGenerator}
-              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-4 text-sm text-[#e8e8f0] transition-colors hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-            >
-              <Waypoints className="h-4 w-4" />
+            <Button variant="pill" size="pill" onClick={openGenerator}>
+              <Waypoints aria-hidden />
               {draft.deck?.templateRef?.focusId
                 ? 'Regenerate'
                 : 'Generate from Cortex'}
-            </button>
+            </Button>
           ) : undefined
         }
         language={language}

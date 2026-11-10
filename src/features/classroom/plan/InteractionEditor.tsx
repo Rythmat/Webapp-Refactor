@@ -12,11 +12,12 @@ import {
   Layout,
 } from 'lucide-react';
 import { useState } from 'react';
+import { MicroLabel } from '@/components/kit';
 import {
   LITERACY_TONICS,
   type LiteracyTonic,
 } from '@/content/musicLiteracy/schemas';
-import { Segmented } from '@/daw/ui';
+import { Segmented, Select } from '@/daw/ui';
 import { DEFAULT_ECHO_INTERACTION } from '../echo/types';
 import { FeelingsPreview } from '../feelings/FeelingsPicker';
 import {
@@ -261,7 +262,7 @@ const InteractionRow = ({
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
       <header className="flex items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.05] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-white/80">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.05] px-2 py-0.5 text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-white/80">
           {TypeIcon && <TypeIcon className="h-3 w-3" />}
           {interaction.type}
         </span>
@@ -520,7 +521,7 @@ const TypeSpecificFields = ({
             />
           </div>
           {!capability.embeddable && (
-            <p className="text-[10px] text-white/40">
+            <p className="text-[0.75rem] text-daw-text-3">
               Launches in a new tab — flow-back via /msp/response.
             </p>
           )}
@@ -584,7 +585,7 @@ const EchoFields = ({
           }
         />
       </div>
-      <p className="text-[10px] text-white/40">
+      <p className="text-[0.75rem] text-daw-text-3">
         Atlas leads. Students play on their own devices; the Teacher Settings
         open from the live session.
       </p>
@@ -733,20 +734,13 @@ const TinySelectField = ({
   options: string[];
   onChange: (v: string) => void;
 }) => (
-  <label className="flex flex-col gap-1">
-    <span className="text-xs uppercase tracking-wide text-white/40">
-      {label}
-    </span>
-    <select
+  <div className="flex flex-col gap-1">
+    <MicroLabel>{label}</MicroLabel>
+    <Select
+      label={label}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-md border border-white/10 bg-[#1a1a1c] px-2 py-1 text-xs text-white focus:border-white/25 focus:outline-none"
-    >
-      {options.map((option) => (
-        <option key={option} value={option}>
-          {option}
-        </option>
-      ))}
-    </select>
-  </label>
+      onValueChange={onChange}
+      options={options.map((option) => ({ value: option, label: option }))}
+    />
+  </div>
 );

@@ -11,12 +11,15 @@
  *     travelled solid and the rest dashed (`StoryPath`);
  *   - a marker at each place, and at the current one the Globe's own
  *     selected-place light and pulses (its `atlas-sun-*` styles);
- *   - the camera flying to each place as the slide moves on.
+ *   - the camera flying slowly to each place, the region it lies in lifted
+ *     as the Globe lifts a selection, and the globe breathing in and out
+ *     while it is read (`useStoryCamera`).
  *
  * In a frame because the Globe navigates by its page's address; here that
  * address is the frame's own, so the map never changes the lesson's. The
  * slide says where the story is (`?path=`, `?at=`, then messages) and how
- * much of the map its card covers (`?left=`), from the same origin only.
+ * much of the map its card and controls cover (`?left=`, `?foot=`), from the
+ * same origin only.
  *
  * Composed from the Globe's own pieces, as `components/atlas/atlas.tsx`
  * composes them; nothing in the Globe is changed for it.
@@ -25,6 +28,7 @@ import '@/components/atlas/index.css';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AtlasGlobe } from '@/components/atlas/components/Globe';
+import type { Ring } from '@/components/atlas/components/Globe/mapFraming';
 import {
   AtlasMapProvider,
   useAtlasMap,
@@ -43,7 +47,10 @@ import {
   createAtlasStore,
   useAtlasDispatch,
 } from '@/components/atlas/state/atlasStore';
-import { StageSignalsProvider } from '@/components/atlas/state/stageSignals';
+import {
+  StageSignalsProvider,
+  useStageSignals,
+} from '@/components/atlas/state/stageSignals';
 import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
 import {
   LESSON_KEYS,
@@ -51,11 +58,26 @@ import {
   decodePath,
   isSlideGlobeGo,
 } from './slideGlobeStops';
+import { insideRings } from './storyCamera';
+import { useStoryCamera } from './useStoryCamera';
 
-/** How close the camera comes to each place (the Globe's own zoom scale). */
-const STOP_ZOOM = 5;
 /** Points along each leg of the path. */
 const LEG_POINTS = 48;
+/** The path climbs onto a lifted region over this many points each side. */
+const RAMP_POINTS = 2;
+
+/** A moving average over `radius` points each side, the ends held. */
+const smoothed = (values: readonly number[], radius: number): number[] =>
+  values.map((_, i) => {
+    let sum = 0;
+    let n = 0;
+    for (let j = i - radius; j <= i + radius; j++) {
+      const v = values[Math.max(0, Math.min(values.length - 1, j))]!;
+      sum += v;
+      n += 1;
+    }
+    return sum / n;
+  });
 
 /** The map's handle, once the map is up. */
 const useMapHandle = (): AtlasMapHandle | null => {
@@ -130,16 +152,35 @@ export const greatCircle = (
   return out;
 };
 
-/** The story's path and places over the map, and the current place's light. */
+/** Re-render when the lifted region's lid rises or settles. */
+const useLiftPx = (): number => {
+  const { lift } = useStageSignals();
+  const [px, setPx] = useState(() => lift.get());
+  useEffect(() => lift.subscribe(() => setPx(lift.get())), [lift]);
+  return px;
+};
+
+/**
+ * The story's path and places over the map, and the current place's light.
+ * What lies in the lifted region rises with its lid, as the Globe's own
+ * place light does (SunFx).
+ */
 function StoryPath({
+  handle,
   path,
   at,
+  lifted,
 }: {
+  handle: AtlasMapHandle | null;
   path: readonly [number, number][];
   at: number;
+  /** The lifted region's outline, while one is lifted. */
+  lifted: readonly Ring[] | null;
 }) {
-  const handle = useMapHandle();
   useCameraFrame(handle);
+  const liftPx = useLiftPx();
+  const rise = (place: readonly [number, number]) =>
+    liftPx > 0 && lifted && insideRings(lifted, place) ? liftPx : 0;
   const legs = useMemo(
     () => path.slice(1).map((to, i) => greatCircle(path[i]!, to, LEG_POINTS)),
     [path],
@@ -151,21 +192,28 @@ function StoryPath({
     const points = handle.project(
       leg.map(([lat, lng], k) => ({ id: `${i}:${k}`, lat, lng })),
     );
+    // The lid's height along the leg, eased over a few points either side
+    // of the edge, so the path climbs onto a lifted region, not jumps.
+    const heights = smoothed(
+      leg.map((place) => rise(place)),
+      RAMP_POINTS,
+    );
     let d = '';
     let pen = false;
-    for (const p of points) {
+    points.forEach((p, k) => {
       if (!p.visible) {
         pen = false;
-        continue;
+        return;
       }
-      d += `${pen ? 'L' : 'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+      const y = p.y - (heights[k] ?? 0);
+      d += `${pen ? 'L' : 'M'}${p.x.toFixed(1)},${y.toFixed(1)}`;
       pen = true;
-    }
+    });
     return { d, travelled: i < at };
   });
-  const places = handle.project(
-    path.map(([lat, lng], i) => ({ id: String(i), lat, lng })),
-  );
+  const places = handle
+    .project(path.map(([lat, lng], i) => ({ id: String(i), lat, lng })))
+    .map((p, i) => ({ ...p, y: p.y - rise(path[i]!) }));
   const here = places[at];
 
   return (
@@ -248,6 +296,7 @@ function SlideGlobeStory() {
     Math.max(0, Math.min(Number(params.get('at')) || 0, path.length - 1)),
   );
   const share = Number(params.get('left'));
+  const foot = Number(params.get('foot'));
 
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
@@ -259,15 +308,15 @@ function SlideGlobeStory() {
     return () => window.removeEventListener('message', onMessage);
   }, [path.length]);
 
-  // The camera, to the place (the map takes it once it is up).
-  const here = path[at];
-  useEffect(() => {
-    if (!here) return;
-    dispatch({
-      type: 'EXECUTE_SEARCH',
-      payload: { lat: here[0], lng: here[1], zoom: STOP_ZOOM },
-    });
-  }, [dispatch, here]);
+  // The camera: slow flights, the region lifted, the globe breathing.
+  const handle = useMapHandle();
+  const { regions } = useStoryCamera({
+    handle,
+    path,
+    at,
+    cardShare: share > 0 && share < 1 ? share : 0,
+    footShare: foot > 0 && foot < 1 ? foot : 0,
+  });
 
   // What the slide's card covers, so the place lands beside it.
   useEffect(() => {
@@ -304,7 +353,14 @@ function SlideGlobeStory() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  return <StoryPath path={path} at={at} />;
+  return (
+    <StoryPath
+      handle={handle}
+      path={path}
+      at={at}
+      lifted={regions?.[at]?.rings ?? null}
+    />
+  );
 }
 
 function SlideGlobeLayout() {

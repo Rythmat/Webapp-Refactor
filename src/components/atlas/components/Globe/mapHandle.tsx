@@ -31,6 +31,12 @@ export interface AtlasMapHandle {
   container(): HTMLElement;
   /** Called on every frame the camera moves; returns an unsubscribe. */
   onCamera(listener: () => void): () => void;
+  /**
+   * The map itself, for a page that drives its own camera: the lesson
+   * slide's globe (features/classroom/slides/globe), which flies slowly from
+   * place to place. The Globe page never needs it.
+   */
+  map?(): MapLibreMap;
 }
 
 /** The handle for a map. */
@@ -50,6 +56,7 @@ export function handleFor(map: MapLibreMap): AtlasMapHandle {
       });
     },
     container: () => map.getContainer(),
+    map: () => map,
     onCamera(listener) {
       map.on('move', listener);
       return () => {

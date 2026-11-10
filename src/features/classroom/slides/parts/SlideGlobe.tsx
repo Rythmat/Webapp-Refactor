@@ -48,15 +48,27 @@ const CARD_W = 460;
 const CARD_M = 40;
 /** What the card covers of the map, as a share of its width. */
 const CARD_SHARE = ((CARD_M * 2 + CARD_W) / SLIDE_CANVAS.w).toFixed(3);
+/**
+ * What the place controls over the map's foot cover, as a share of its
+ * height: their 86 px band 40 px up, and room above it.
+ */
+const FOOT_SHARE = (144 / SLIDE_CANVAS.h).toFixed(3);
 
 type GlobeStop = NonNullable<GlobeMedia['stops']>[number];
 
-/** The page the frame opens: the story's places, from the first. */
-const firstSrc = (globe: GlobeMedia, withCard: boolean): string =>
+/**
+ * The page the frame opens: the story's places, from the first, and what the
+ * slide covers of the map (on a phone the card and the arrow sit under it).
+ */
+const firstSrc = (
+  globe: GlobeMedia,
+  overMap: { card: boolean; controls: boolean },
+): string =>
   GlobeRoutes.slide(undefined, {
     path: encodePath((globe.stops ?? []).map((s) => s.location)),
     at: '0',
-    ...(withCard ? { left: CARD_SHARE } : {}),
+    ...(overMap.card ? { left: CARD_SHARE } : {}),
+    ...(overMap.controls ? { foot: FOOT_SHARE } : {}),
   });
 
 /**
@@ -196,7 +208,11 @@ export const SlideGlobe = ({
   // On a fitted slide the card sits over the map's left; on a phone, below.
   const stacked = !(scale && scale > 0);
   const withCard = !stacked && stops.some((s) => s.story);
-  const src = useMemo(() => firstSrc(globe, withCard), [globe, withCard]);
+  const withControls = !stacked && !inert && stops.length > 1;
+  const src = useMemo(
+    () => firstSrc(globe, { card: withCard, controls: withControls }),
+    [globe, withCard, withControls],
+  );
   const here = stops[at];
 
   // The map's frame takes the keyboard once it is touched: the keys that

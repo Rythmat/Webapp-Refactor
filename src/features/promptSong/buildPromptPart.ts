@@ -221,6 +221,20 @@ const PART_NOUN: Record<PromptPart, string> = {
   chords: 'Chords',
 };
 
+/**
+ * A timed phrase cut to its first `length` ticks, looping there. A band
+ * style's changes arrive `push` ticks early: the one pushed ahead of the
+ * cut belongs to bars the spot doesn't hold, so the spot's own first chord
+ * comes round there instead.
+ */
+function trimmed(timed: TimedChords, length: number, push = 0): TimedChords {
+  const changes = timed.changes.filter((c) => c.tick < length - push);
+  const first = changes[0];
+  if (push && first && changes.at(-1)!.symbol !== first.symbol)
+    changes.push({ tick: length - push, symbol: first.symbol });
+  return { changes, length };
+}
+
 /** The symbols a timed phrase changes through in its first `length` ticks. */
 function changesIn(timed: TimedChords, length: number): string[] {
   const out: string[] = [];
@@ -434,6 +448,7 @@ export async function buildPromptPart(
           avoid: context.otherProgressions ?? [],
           role,
           recent,
+          harmony: recipe.kind === 'band' ? recipe.style.harmony : undefined,
         });
   // The chords the part plays over, timed: the lane's where it doesn't
   // change a bar each from the spot's start, else the picked phrase.
@@ -441,10 +456,7 @@ export async function buildPromptPart(
   // a hit pushed across its last bar line anticipates its own first chord.
   const timed: TimedChords | undefined = picked
     ? picked.timed.length > length
-      ? {
-          changes: picked.timed.changes.filter((c) => c.tick < length),
-          length,
-        }
+      ? trimmed(picked.timed, length, picked.push)
       : picked.timed
     : offBar
       ? { changes: context.chords, length: laneLength }

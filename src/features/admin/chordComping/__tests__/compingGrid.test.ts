@@ -8,6 +8,7 @@ import {
   newHit,
   nextVelocity,
   previewHarmony,
+  styledPreviewHarmony,
   resizedDur,
   rollGeometry,
   rowOfTones,
@@ -150,5 +151,27 @@ describe('preview harmony', () => {
       bars: 4,
     });
     expect(previewHarmony([], [4, 4], 4)).toBeNull();
+  });
+
+  it('plays the chart in a band style’s chord rhythm, pushes and all', () => {
+    const { bars } = parseChart('| Am | F | C | G |');
+    // Trap: two bars a chord.
+    const trap = styledPreviewHarmony(bars, [4, 4], 4, { barsPerChord: 2 })!;
+    expect(trap).toMatchObject({ chartQ: 32, bars: 8 });
+    expect(trap.chordAt(0).rootPc).toBe(9);
+    expect(trap.chordAt(7 * 480).rootPc).toBe(9);
+    expect(trap.chordAt(8 * 480).rootPc).toBe(5);
+    // Pushed an eighth: F arrives half a beat before bar 2, Am before the loop.
+    const pushed = styledPreviewHarmony(bars, [4, 4], 4, { push: 240 })!;
+    expect(pushed.chordAt(4 * 480 - 241).rootPc).toBe(9);
+    expect(pushed.chordAt(4 * 480 - 240).rootPc).toBe(5);
+    expect(pushed.chordAt(16 * 480 - 240).rootPc).toBe(9);
+    // Its own rhythm for four chords.
+    const own = styledPreviewHarmony(bars, [4, 4], 4, {
+      rhythms: { '4': [2, 2, 4, 8] },
+    })!;
+    expect(own.chartQ).toBe(16);
+    expect(own.chordAt(2 * 480).rootPc).toBe(5);
+    expect(own.chordAt(8 * 480).rootPc).toBe(7);
   });
 });

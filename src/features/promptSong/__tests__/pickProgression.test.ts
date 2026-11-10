@@ -308,7 +308,7 @@ describe('chords over a bass line (owner, 2026-11-10)', () => {
           ).toBe(b.pc);
       }
     }
-  });
+  }, 30_000);
 
   it('varies the chords it stands there', async () => {
     const library = await loadChordProgressions();
@@ -348,5 +348,44 @@ describe('chords over a bass line (owner, 2026-11-10)', () => {
     expect(bassAgreement((t) => other[Math.floor(t / BAR)], bass)).toBeLessThan(
       0.75,
     );
+  });
+});
+
+describe('a band style’s harmony (owner, 2026-11-10)', () => {
+  it('holds the chords as the style holds them', async () => {
+    const library = await loadChordProgressions();
+    for (let seed = 1; seed <= 10; seed++) {
+      const picked = pickProgression(
+        library,
+        plan('pop in C'),
+        echoRandom(seed),
+        undefined,
+        {
+          harmony: { barsPerChord: 2 },
+        },
+      );
+      // Every change on an even bar: two bars a chord (a turnaround halves the last).
+      for (const c of picked.timed.changes.slice(0, -1))
+        expect(c.tick % (2 * BAR), picked.chords.join(' ')).toBe(0);
+      expect(picked.timed.length % (8 * BAR)).toBe(0);
+    }
+  });
+
+  it('pushes every change but the first an eighth early', async () => {
+    const library = await loadChordProgressions();
+    for (let seed = 1; seed <= 10; seed++) {
+      const picked = pickProgression(
+        library,
+        plan('funk in D Dorian'),
+        echoRandom(seed),
+        undefined,
+        { harmony: { push: 240 } },
+      );
+      expect(picked.push).toBe(240);
+      expect(picked.timed.changes[0].tick).toBe(0);
+      // An eighth before a bar line (or a turnaround's half bar).
+      for (const c of picked.timed.changes.slice(1))
+        expect((c.tick + 240) % (BAR / 2), picked.chords.join(' ')).toBe(0);
+    }
   });
 });

@@ -2,6 +2,13 @@ import { parseDegreeChord } from '@/content/harmony/chordClass';
 import type { ChordProgressionEntry } from '@/curriculum/data/chordProgressionLibrary';
 import { filterByVibeAndStyle } from '@/curriculum/engine/algorithmFilter';
 import {
+  holdsFor,
+  PHRASE_HOLDS,
+  pushed,
+  timedHolds,
+  type StyleHarmony,
+} from '@/curriculum/engine/band/harmonicRhythm';
+import {
   pickOne,
   pickWeighted,
   type EchoRandom,
@@ -42,6 +49,8 @@ export interface PickedProgression {
   chords: string[];
   /** The phrase, timed: its changes, repeated every `length` ticks. */
   timed: TimedChords;
+  /** How early its changes arrive, in ticks (a band style's push). */
+  push?: number;
 }
 
 /** Where each mode's tonic sits in its parent major, in semitones. */
@@ -203,16 +212,8 @@ const BAR = 1920;
 /** The bars a phrase lasts. */
 export const PHRASE_BARS = 8;
 
-/**
- * Bars each chord of a longer loop holds, filling an eight-bar phrase: the
- * first and last held, the middle moving.
- */
-const HARMONIC_RHYTHM: Record<number, readonly number[]> = {
-  5: [2, 2, 1, 1, 2],
-  6: [2, 1, 1, 2, 1, 1],
-  7: [1, 1, 1, 1, 1, 1, 2],
-  8: [1, 1, 1, 1, 1, 1, 1, 1],
-};
+/** Bars each chord of a longer loop holds (harmonicRhythm.ts PHRASE_HOLDS). */
+const HARMONIC_RHYTHM = PHRASE_HOLDS;
 
 /**
  * A loop the library writes, as it loops: a phrase that ends by landing back
@@ -330,6 +331,8 @@ export interface PickOptions {
    * again brings new chords.
    */
   recent?: ReadonlySet<number>;
+  /** How the band style playing it changes chords (harmonicRhythm.ts). */
+  harmony?: StyleHarmony;
 }
 
 /** A chord as a sound, whatever its spelling: root pitch class and tones. */
@@ -377,46 +380,15 @@ function contrasting<T extends { p: PickedProgression }>(
   return fresh.filter((c) => score(c) <= best + CONTRAST_SLACK);
 }
 
-/**
- * The phrase a loop plays (the header's PHRASE): five chords or more held
- * over eight bars; up to four, a first half and an answer — one of `pool`'s
- * loops that opens on the same chord and shares another with it, or the
- * loop again with its last bar turning round to the start.
- */
-export function phraseOf(
-  picked: PickedProgression,
-  pool: readonly PickedProgression[],
+/** The chord turning a loop round to its start, after `last`; null if none does. */
+function turnaroundFor(
+  loop: readonly string[],
+  last: string,
   plan: PromptPlan,
-  rng: EchoRandom,
-): PickedProgression {
-  const loop = picked.chords;
-  const rhythm = HARMONIC_RHYTHM[loop.length];
-  if (rhythm) {
-    const timed = timedOf(loop.map((c, i) => [c, rhythm[i]] as const));
-    return { ...picked, chords: changesOf(timed), timed };
-  }
-  // The first half: the loop over four bars (a two-chord vamp twice).
-  const half = Array.from({ length: 4 }, (_, i) => loop[i % loop.length]);
-  const opening = chordKey(loop[0]);
-  const answers = pool.filter(
-    (p) =>
-      p.id !== picked.id &&
-      p.chords.length <= 4 &&
-      chordKey(p.chords[0]) === opening &&
-      !sameLoop(p.chords, loop) &&
-      overlap(p.chords, loop) * new Set(p.chords.map(chordKey)).size >= 2,
-  );
-  let answer: (readonly [string, number])[];
-  if (answers.length && rng() < 0.5) {
-    const other = pickOne(rng, answers).chords;
-    answer = Array.from(
-      { length: 4 },
-      (_, i) => [other[i % other.length], 1] as const,
-    );
-  } else {
-    const last = half[3];
-    const rootOf = (symbol: string) => chordSymbolTones(symbol)?.rootPc;
-    const turn = TURNAROUNDS[plan.mode]
+): string | null {
+  const rootOf = (symbol: string) => chordSymbolTones(symbol)?.rootPc;
+  return (
+    TURNAROUNDS[plan.mode]
       .map(
         (label) =>
           chordsInKey(
@@ -426,24 +398,126 @@ export function phraseOf(
           )?.[0],
       )
       .find(
-        (symbol) =>
-          symbol &&
+        (symbol): symbol is string =>
+          !!symbol &&
           rootOf(symbol) !== rootOf(last) &&
           rootOf(symbol) !== rootOf(loop[0]),
-      );
-    const turns = !!turn;
+      ) ?? null
+  );
+}
+
+/** The pool's loops that can answer `loop`: same opening, another chord shared. */
+function answersTo(
+  picked: PickedProgression,
+  pool: readonly PickedProgression[],
+  fits: (p: PickedProgression) => boolean,
+): PickedProgression[] {
+  const loop = picked.chords;
+  const opening = chordKey(loop[0]);
+  return pool.filter(
+    (p) =>
+      p.id !== picked.id &&
+      fits(p) &&
+      chordKey(p.chords[0]) === opening &&
+      !sameLoop(p.chords, loop) &&
+      overlap(p.chords, loop) * new Set(p.chords.map(chordKey)).size >= 2,
+  );
+}
+
+/**
+ * The phrase a loop plays (the header's PHRASE): five chords or more held
+ * over eight bars; up to four, a first half and an answer — one of `pool`'s
+ * loops that opens on the same chord and shares another with it, or the
+ * loop again with its last bar turning round to the start. In a band
+ * style's harmony (`harmony`, harmonicRhythm.ts) its chords are held as the
+ * style holds them, its last pass is the answer, and its changes are pushed
+ * as the style pushes them.
+ */
+export function phraseOf(
+  picked: PickedProgression,
+  pool: readonly PickedProgression[],
+  plan: PromptPlan,
+  rng: EchoRandom,
+  harmony?: StyleHarmony,
+): PickedProgression {
+  if (harmony) return styledPhrase(picked, pool, plan, rng, harmony);
+  const loop = picked.chords;
+  const rhythm = HARMONIC_RHYTHM[loop.length];
+  if (rhythm) {
+    const timed = timedOf(loop.map((c, i) => [c, rhythm[i]] as const));
+    return { ...picked, chords: changesOf(timed), timed };
+  }
+  // The first half: the loop over four bars (a two-chord vamp twice).
+  const half = Array.from({ length: 4 }, (_, i) => loop[i % loop.length]);
+  const answers = answersTo(picked, pool, (p) => p.chords.length <= 4);
+  let answer: (readonly [string, number])[];
+  if (answers.length && rng() < 0.5) {
+    const other = pickOne(rng, answers).chords;
+    answer = Array.from(
+      { length: 4 },
+      (_, i) => [other[i % other.length], 1] as const,
+    );
+  } else {
+    const last = half[3];
+    const turn = turnaroundFor(loop, last, plan);
     answer = [
       ...half.slice(0, 3).map((c) => [c, 1] as const),
-      ...(turns
+      ...(turn
         ? ([
             [last, 0.5],
-            [turn!, 0.5],
+            [turn, 0.5],
           ] as const)
         : ([[last, 1]] as const)),
     ];
   }
   const timed = timedOf([...half.map((c) => [c, 1] as const), ...answer]);
   return { ...picked, chords: changesOf(timed), timed };
+}
+
+/**
+ * A loop's phrase in a band style's harmony: the loop held as the style
+ * holds it, passes enough to fill the phrase when they go into it evenly,
+ * the last pass answered (another loop as long, held the same, or the loop
+ * turning round in its last chord's second half), every change pushed.
+ */
+function styledPhrase(
+  picked: PickedProgression,
+  pool: readonly PickedProgression[],
+  plan: PromptPlan,
+  rng: EchoRandom,
+  harmony: StyleHarmony,
+): PickedProgression {
+  const loop = picked.chords;
+  const holds = holdsFor(loop.length, harmony);
+  const pass = holds.reduce((a, b) => a + b, 0);
+  const phrase = PHRASE_BARS * 4;
+  const passes = pass < phrase && phrase % pass === 0 ? phrase / pass : 1;
+  const held: [string, number][] = [];
+  for (let p = 0; p < passes - 1; p++)
+    loop.forEach((c, i) => held.push([c, holds[i]]));
+  const answers =
+    passes > 1
+      ? answersTo(picked, pool, (p) => p.chords.length === loop.length)
+      : [];
+  if (answers.length && rng() < 0.5) {
+    pickOne(rng, answers).chords.forEach((c, i) => held.push([c, holds[i]]));
+  } else {
+    loop.forEach((c, i) => held.push([c, holds[i]]));
+    const last = held.at(-1)!;
+    const turn = passes > 1 ? turnaroundFor(loop, last[0], plan) : null;
+    // Half the last chord's hold, a beat at the least.
+    if (turn && last[1] >= 2) {
+      const half = last[1] / 2;
+      held.splice(-1, 1, [last[0], half], [turn, half]);
+    }
+  }
+  const timed = pushed(timedHolds(held), harmony.push);
+  return {
+    ...picked,
+    chords: changesOf(timed),
+    timed,
+    ...(harmony.push ? { push: harmony.push } : {}),
+  };
 }
 
 /**
@@ -500,7 +574,7 @@ export function pickProgression(
   plan: PromptPlan,
   rng: EchoRandom,
   skip: ReadonlySet<number> = new Set(),
-  { avoid = [], role = null, recent }: PickOptions = {},
+  { avoid = [], role = null, recent, harmony }: PickOptions = {},
 ): PickedProgression {
   if (plan.prompt.form === '12-bar') {
     // The blues' I is the tonic itself: spelled in the tonic's major.
@@ -574,6 +648,7 @@ export function pickProgression(
       pool.map((c) => c.p),
       plan,
       rng,
+      harmony,
     );
   }
 
@@ -589,6 +664,7 @@ export function pickProgression(
     [],
     plan,
     rng,
+    harmony,
   );
 }
 

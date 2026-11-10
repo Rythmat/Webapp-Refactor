@@ -38,6 +38,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
   getLessonStyle,
   LESSON_STYLES,
@@ -64,7 +65,11 @@ import {
 } from '@/curriculum/engine/band/realize';
 import { ALL_ITEMS } from '@/curriculum/engine/band/registry';
 import { lineBars } from '@/curriculum/engine/bassLines/bassLine';
-import { quartersPerBar } from '@/curriculum/engine/bassLines/harmony';
+import {
+  chordSpans,
+  chordSymbol,
+  quartersPerBar,
+} from '@/curriculum/engine/bassLines/harmony';
 import { compingBars } from '@/curriculum/engine/chordComping/chordComping';
 import { preloadStudioGroove } from '@/curriculum/engine/drumGrooves/registry';
 import {
@@ -91,8 +96,12 @@ import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { useBassLineList } from '../bassLines/bassLineSession';
 import { ChartPicker } from '../chart/ChartPicker';
 import { chosenChart, takeChordSymbols } from '../chart/chartChoice';
-import { previewHarmony } from '../chordComping/compingGrid';
+import {
+  previewHarmony,
+  styledPreviewHarmony,
+} from '../chordComping/compingGrid';
 import { useCompingList } from '../chordComping/compingSession';
+import { isConsoleAdmin } from '../consoleRoles';
 import { useUnsavedChanges } from '../content/mirror/UnsavedChangesGuard';
 import { useGrooveList } from '../drumGrooves/grooveSession';
 import { useInstrumentStore } from '../drumGrooves/instrumentStore';
@@ -106,6 +115,7 @@ import { UndoRedo } from '../ui/UndoRedo';
 import { CONSOLE_LABEL, CONSOLE_PANEL } from '../ui/styles';
 import { BandAssignments } from './BandAssignments';
 import { BandCapture, type Take, type TakeFiling } from './BandCapture';
+import { ChordRhythmPanel } from './ChordRhythmPanel';
 import { LaneStrip } from './LaneStrip';
 import { LayerItemEditor } from './LayerItemEditor';
 import { SampleInstrumentMaker } from './SampleInstrumentMaker';
@@ -432,9 +442,27 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
       return parts.find((p) => p.id === source.id)?.bars ?? 1;
     }),
   );
+  // Chord rhythm is the admins' (owner, 2026-11-10); an editor sees it.
+  const { role } = useAuthContext();
+  // In the open style's chord rhythm when it has one, as Prism lays a
+  // progression for that style (owner, 2026-11-10).
+  const styleHarmony = variation?.harmony;
   const harmony = useMemo(
-    () => previewHarmony(chartBars, ts, longestBars * quartersPerBar(ts)),
-    [chartBars, ts, longestBars],
+    () =>
+      (styleHarmony &&
+        styledPreviewHarmony(
+          chartBars,
+          ts,
+          longestBars * quartersPerBar(ts),
+          styleHarmony,
+        )) ||
+      previewHarmony(chartBars, ts, longestBars * quartersPerBar(ts)),
+    [chartBars, ts, longestBars, styleHarmony],
+  );
+  /** The chart's chords, one each, as the chord rhythm names them. */
+  const chartChords = useMemo(
+    () => chordSpans(chartBars, ts).spans.map((s) => chordSymbol(s.chord)),
+    [chartBars, ts],
   );
   const bars = harmony?.bars ?? longestBars;
   const totalTicks = bars * barTicks(ts);
@@ -1008,6 +1036,19 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
             </select>
           </div>
         </div>
+        {variation && (
+          <>
+            <div className="mx-1 h-10 w-px bg-white/10" />
+            <ChordRhythmPanel
+              harmony={variation.harmony}
+              onChange={(next) => setVariation({ harmony: next })}
+              chords={chartChords}
+              beatsPerBar={quartersPerBar(ts)}
+              inputClass={input}
+              readOnly={!isConsoleAdmin(role)}
+            />
+          </>
+        )}
         <div className="mx-1 h-10 w-px bg-white/10" />
         <ChartPicker
           value={preview}

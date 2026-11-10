@@ -5,6 +5,10 @@
  */
 
 import {
+  layHarmony,
+  type StyleHarmony,
+} from '@/curriculum/engine/band/harmonicRhythm';
+import {
   chartBarQuarters,
   chordSpans,
   QUALITIES,
@@ -269,5 +273,46 @@ export function previewHarmony(
     chartQ,
     loopQ,
     bars: Math.max(1, Math.round(loopQ / quartersPerBar(ts))),
+  };
+}
+
+/**
+ * The preview's chords in a band style's harmony (BandVariation.harmony,
+ * harmonicRhythm.ts): the chart's chords, one each, held and pushed as the
+ * style holds and pushes them, as Prism lays a progression for that style
+ * (owner, 2026-11-10), repeated so a long pattern is heard in full.
+ */
+export function styledPreviewHarmony(
+  chartBars: Chord[][],
+  ts: TimeSignature,
+  patternQ: number,
+  harmony: StyleHarmony,
+): PreviewHarmony | null {
+  if (!chartBars.length) return null;
+  const { spans } = chordSpans(chartBars, ts);
+  if (!spans.length) return null;
+  const tones = spans.map((s) => chartChordTones(s.chord));
+  const barQ = quartersPerBar(ts);
+  // Laid by index, so two spans of one chord stay two changes.
+  const timed = layHarmony(
+    tones.map((_, i) => String(i)),
+    harmony,
+    0,
+    barQ,
+  );
+  const chartQ = timed.length / PPQ;
+  if (chartQ <= 0) return null;
+  // The change sounding at a tick, the styled chart looping.
+  const indexAt = (tick: number) => {
+    const t = ((tick % timed.length) + timed.length) % timed.length;
+    const change = [...timed.changes].reverse().find((c) => c.tick <= t);
+    return Number((change ?? timed.changes[0]).symbol);
+  };
+  const loopQ = Math.max(1, Math.ceil(patternQ / chartQ - 1e-6)) * chartQ;
+  return {
+    chordAt: (tick) => tones[indexAt(tick)],
+    chartQ,
+    loopQ,
+    bars: Math.max(1, Math.round(loopQ / barQ)),
   };
 }

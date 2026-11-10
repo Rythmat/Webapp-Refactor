@@ -169,7 +169,9 @@ export async function buildPromptSong(
   let built: GenrePracticeTrackResult | null = null;
   let picked: PickedProgression | null = null;
   for (let attempt = 0; attempt < MAX_TRIES && !built; attempt++) {
-    const pick = pickProgression(library, plan, rng, tried);
+    const pick = pickProgression(library, plan, rng, tried, {
+      harmony: recipe.kind === 'band' ? recipe.style.harmony : undefined,
+    });
     picked = pick;
     if (pick.id !== null) tried.add(pick.id);
     const chords = pick.chords;

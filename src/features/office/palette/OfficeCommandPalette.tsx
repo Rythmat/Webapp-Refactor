@@ -27,6 +27,7 @@ import { OfficeRoutes, TeacherRoutes } from '@/constants/routes';
 import { useLocalPlan } from '@/features/classroom/plan/useLocalPlan';
 import { useMyClassrooms } from '@/hooks/data';
 import { inspectSearch } from '../frame/useOfficeInspector';
+import { OFFICE_LIBRARY_ENABLED } from '../officeFlags';
 import { ClassCover } from '../ui/ClassCover';
 
 /**
@@ -105,12 +106,14 @@ export const OfficeCommandPalette = ({
               >
                 <CalendarDays className="mr-2" /> Planner
               </CommandItem>
-              <CommandItem
-                value="library"
-                onSelect={() => go(OfficeRoutes.library())}
-              >
-                <Library className="mr-2" /> Library
-              </CommandItem>
+              {OFFICE_LIBRARY_ENABLED && (
+                <CommandItem
+                  value="library"
+                  onSelect={() => go(OfficeRoutes.library())}
+                >
+                  <Library className="mr-2" /> Library
+                </CommandItem>
+              )}
               <CommandItem
                 value="review"
                 onSelect={() => go(OfficeRoutes.review())}

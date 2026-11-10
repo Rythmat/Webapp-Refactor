@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { OFFICE_LIBRARY_ENABLED } from '../../officeFlags';
 import {
   isOfficeFramePath,
   isOfficePresentPath,
@@ -28,6 +29,15 @@ describe('officeNav', () => {
     expect(officeNav('/office/planner')?.active).toBe('planner');
     expect(officeNav('/office/library')?.active).toBe('library');
     expect(officeNav('/office/review')?.active).toBe('review');
+  });
+
+  it('hides the Library tab while it is switched off', () => {
+    const ids = officeNav('/office')?.tabs.map((t) => t.id);
+    expect(ids).toEqual(
+      OFFICE_LIBRARY_ENABLED
+        ? ['today', 'classes', 'planner', 'library', 'review']
+        : ['today', 'classes', 'planner', 'review'],
+    );
   });
 
   it('gives a class its own tabs, each linking inside it', () => {

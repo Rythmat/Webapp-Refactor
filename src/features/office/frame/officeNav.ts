@@ -1,4 +1,5 @@
 import { OfficeRoutes, TeacherRoutes } from '@/constants/routes';
+import { OFFICE_LIBRARY_ENABLED } from '../officeFlags';
 
 // ── The Office's navigation, from the URL alone (owner, 2026-11-09) ────────
 // Two levels, as the LMSs teachers like best have it: the Office's own
@@ -58,12 +59,16 @@ export const officeTabs = (): OfficeTab[] => [
     short: 'Plan',
     to: OfficeRoutes.planner(),
   },
-  {
-    id: 'library',
-    label: 'Library',
-    short: 'Library',
-    to: OfficeRoutes.library(),
-  },
+  ...(OFFICE_LIBRARY_ENABLED
+    ? [
+        {
+          id: 'library' as const,
+          label: 'Library',
+          short: 'Library',
+          to: OfficeRoutes.library(),
+        },
+      ]
+    : []),
   { id: 'review', label: 'Review', short: 'Review', to: OfficeRoutes.review() },
 ];
 

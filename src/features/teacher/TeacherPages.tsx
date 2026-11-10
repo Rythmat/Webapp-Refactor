@@ -4,6 +4,7 @@ import { OfficeRoutes, TeacherRoutes } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { CalendarRedirect } from '@/features/office/class/plan/CalendarRedirect';
+import { OFFICE_LIBRARY_ENABLED } from '@/features/office/officeFlags';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { LegacyClassroomRedirect } from './workspace/LegacyClassroomRedirect';
@@ -224,7 +225,11 @@ export const officePages = () => {
               },
               {
                 path: OfficeRoutes.library.definition,
-                element: <LibraryPage />,
+                element: OFFICE_LIBRARY_ENABLED ? (
+                  <LibraryPage />
+                ) : (
+                  <Navigate to={OfficeRoutes.root()} replace />
+                ),
               },
               {
                 path: OfficeRoutes.review.definition,

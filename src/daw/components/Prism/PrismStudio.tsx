@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Scissors, Lock, Unlock } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { formatChord, useChordNotation } from '@/lib/chordNotation';
@@ -58,7 +58,6 @@ export function PrismStudio() {
   // ── State ──
   const stringSeq = useStore((s) => s.stringSeq);
   const rootNote = useStore((s) => s.rootNote);
-  const chordSeq = useStore((s) => s.chordSeq);
   const genre = useStore((s) => s.genre);
   const availableFirstChords = useStore((s) => s.availableFirstChords);
   const availableNextChords = useStore((s) => s.availableNextChords);
@@ -81,10 +80,13 @@ export function PrismStudio() {
     (s) => s.tracks.find((t) => t.id === s.selectedTrackId)?.type === 'midi',
   );
 
+  // Create asks music-atlas-api for the take; one request at a time.
+  const [creating, setCreating] = useState(false);
+
   // ── Derived ──
   const chordOptions =
     stringSeq.length === 0 ? availableFirstChords : availableNextChords;
-  const canGenerate = chordSeq.length > 0 && isMidiTrack;
+  const canGenerate = stringSeq.length > 0 && isMidiTrack && !creating;
   const rootMidi = (rootNote ?? 0) + 48;
   const parentRoot = rootMidi - getModeOffset(mode);
 
@@ -94,8 +96,13 @@ export function PrismStudio() {
     [selectGenre],
   );
 
-  const handleGenerate = useCallback(() => {
-    generateToTracks();
+  const handleGenerate = useCallback(async () => {
+    setCreating(true);
+    try {
+      await generateToTracks();
+    } finally {
+      setCreating(false);
+    }
   }, [generateToTracks]);
 
   return (
@@ -208,13 +215,18 @@ export function PrismStudio() {
           data-tutorial-id="prism-create"
           onClick={handleGenerate}
           disabled={!canGenerate}
+          aria-busy={creating}
           className={`h-8 w-full rounded-full border-none text-xs font-semibold transition-colors ${
             canGenerate
               ? 'cursor-pointer bg-white text-[#101012] hover:bg-white/90 active:bg-white/80'
               : 'cursor-not-allowed bg-[var(--daw-surface-2)] text-[var(--daw-text-3)] opacity-50'
           }`}
         >
-          {!isMidiTrack ? 'Select a MIDI track' : 'Create'}
+          {!isMidiTrack
+            ? 'Select a MIDI track'
+            : creating
+              ? 'Creating…'
+              : 'Create'}
         </button>
       </div>
 

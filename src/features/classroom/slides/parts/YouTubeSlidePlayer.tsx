@@ -1,5 +1,5 @@
 /**
- * Thin slide-scale wrapper over `useYouTubeIframePlayer` — a rounded-3xl
+ * Thin slide-scale wrapper over `useYouTubeIframePlayer` — a rounded
  * 16:9 frame around the IFrame-API player. Default export so
  * SlideMediaPanel can `React.lazy` it (the IFrame API script only loads on
  * surfaces that actually play video, i.e. the projector).
@@ -52,7 +52,7 @@ const YouTubeSlidePlayer = ({
 
   return (
     <div
-      className={`relative aspect-video w-full overflow-hidden rounded-3xl border border-white/10 bg-black/40 ${className ?? ''}`}
+      className={`relative aspect-video w-full overflow-hidden rounded-[20px] border border-white/[0.08] bg-black/40 ${className ?? ''}`}
     >
       <div ref={containerRef} className="size-full" />
       {!isReady && (

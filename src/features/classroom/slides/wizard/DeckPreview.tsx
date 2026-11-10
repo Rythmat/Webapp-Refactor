@@ -93,7 +93,7 @@ export const DeckPreview = ({ day, language = 'both' }: DeckPreviewProps) => {
               onClick={() => setIndex(i)}
               className={
                 'h-1.5 rounded-full transition-all ' +
-                (i === clamped ? 'w-5 bg-[#7ecfcf]' : 'w-1.5 bg-white/25')
+                (i === clamped ? 'w-5 bg-white' : 'w-1.5 bg-white/25')
               }
             />
           ))}

@@ -66,7 +66,7 @@ export const RegionsCitiesTab = ({ onSelect }: RegionsCitiesTabProps) => {
             className={
               'rounded-full px-3 py-1 text-xs transition-colors ' +
               (surface === s.id
-                ? 'bg-[#7ecfcf] text-black'
+                ? 'bg-white text-black'
                 : 'border border-white/10 text-white/70 hover:border-white/25 hover:text-white')
             }
           >

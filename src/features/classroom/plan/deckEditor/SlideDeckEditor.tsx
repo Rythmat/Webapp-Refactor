@@ -43,9 +43,8 @@ import {
   revealForInteraction,
 } from '../../slides/deckFromCells';
 import {
-  SECTIONS,
-  SECTION_LABEL,
   SECTION_PHASE,
+  phaseSectionsLabel,
   sectionInsertIndex,
   sectionOf,
   sortSlidesBySection,
@@ -601,11 +600,7 @@ export const SlideDeckEditor = () => {
 
         <RationaleSidePanel
           slide={selected}
-          phaseFullName={SECTIONS.filter(
-            (sec) => SECTION_PHASE[sec] === selected.phase,
-          )
-            .map((sec) => SECTION_LABEL[sec].en)
-            .join(' & ')}
+          phaseFullName={phaseSectionsLabel(selected.phase).en}
           onSectionChange={canEdit ? changeSection : undefined}
           rationale={cell.rationale}
           onRationaleChange={(r) => updateRationale(selected.phase, r)}

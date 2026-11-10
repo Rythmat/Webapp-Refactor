@@ -12,6 +12,8 @@
  */
 import { CheckCircle2, Share2 } from 'lucide-react';
 import { useState } from 'react';
+import { WHITE_PILL_LG } from '@/components/kit';
+import { cn } from '@/components/utilities';
 import { useMe } from '@/hooks/data';
 import { readStudioCurrentProject } from '@/lib/studioCurrentProject';
 import { pickLocalized, secondaryLine } from '../../presentation/localized';
@@ -106,7 +108,10 @@ export const ShowcaseInput = ({
         type="button"
         disabled={disabled || busy}
         onClick={handleOffer}
-        className="inline-flex w-fit items-center gap-2.5 rounded-2xl border border-[#7ecfcf]/40 bg-[#7ecfcf]/[0.08] px-6 py-4 text-base font-semibold text-[#7ecfcf] transition-colors hover:border-[#7ecfcf]/70 hover:bg-[#7ecfcf]/[0.14] disabled:cursor-not-allowed disabled:opacity-50"
+        className={cn(
+          WHITE_PILL_LG,
+          'w-fit disabled:cursor-not-allowed disabled:opacity-50',
+        )}
       >
         <Share2 className="h-5 w-5" />
         <Bi text={COPY.offer} language={language} />

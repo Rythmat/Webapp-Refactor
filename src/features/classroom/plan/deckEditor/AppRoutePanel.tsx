@@ -48,7 +48,7 @@ export const AppRoutePanel = ({
       </span>
       {current?.atlas ? (
         <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm">
-          <span className="uppercase tracking-wide text-[#7ecfcf]">
+          <span className="uppercase tracking-wide text-white/60">
             {current.atlas.module}
           </span>
           <span className="min-w-0 flex-1 truncate text-white/80">

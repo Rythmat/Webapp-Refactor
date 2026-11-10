@@ -17,7 +17,6 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Switch } from '@/components/ui/switch';
 import { KEY_OF_COLORS } from '@/constants/theme';
-import { PHASE_ACCENT_HEX } from '../../presentation/phaseAccent';
 import { showsPhaseChip } from '../../slides/deck';
 import { PRESET_LIST, presetFor } from '../../slides/templates/presets';
 import type { Slide } from '../../slides/types';
@@ -59,7 +58,7 @@ export const SlideAppearanceMenu = ({
     return () => document.removeEventListener('mousedown', onDown);
   }, [open]);
 
-  const current = slide.accent ?? PHASE_ACCENT_HEX[slide.phase];
+  const current = slide.accent ?? '#ffffff';
 
   return (
     <div className="absolute right-3 top-3 z-20">
@@ -129,7 +128,7 @@ export const SlideAppearanceMenu = ({
               className="mt-3 inline-flex items-center gap-1.5 text-xs text-white/50 hover:text-white"
             >
               <RotateCcw className="h-3 w-3" />
-              Reset to phase default
+              Reset to white
             </button>
 
             {/*

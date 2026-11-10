@@ -237,8 +237,8 @@ interface SlideCommon {
   /** The layout preset this slide was built from; "Reset to standard" re-applies it. */
   presetId?: string;
   /**
-   * Per-slide accent override (a `#RRGGBB` hex) driving the radial glow + phase
-   * chip dot. Undefined ⇒ the phase default (`PHASE_ACCENT_HEX`). Student-safe:
+   * Per-slide accent override (a `#RRGGBB` hex): the accent bar's colour.
+   * Undefined ⇒ the neutral white every slide shares. Student-safe:
    * a hex string only (the UI never emits free text).
    */
   accent?: string;

@@ -269,7 +269,7 @@ export const LiveSessionPage = () => {
       // scale pinned at 0.72 on a laptop and 0.51 on an iPad, which put a
       // question at 20px and a Submit button at 23px tall on a touch device.
       <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-4 py-4 text-white md:gap-8 md:px-6 md:py-6">
-        <header className="sticky top-0 z-10 -mx-4 flex flex-wrap items-center justify-between gap-3 bg-black/40 px-4 py-2 backdrop-blur md:mx-0 md:px-0">
+        <header className="sticky top-0 z-10 -mx-4 flex flex-wrap items-center justify-between gap-3 bg-daw-bg px-4 py-2 md:mx-0 md:px-0">
           <Link
             to={ClassroomRoutes.home({ classroomId: cid })}
             className="inline-flex items-center gap-1.5 text-[0.8125rem] text-daw-text-3 hover:text-daw-text"

@@ -1,20 +1,29 @@
 /* ── Interactive Slides ───────────────────────────────────────────────
-   Per-surface type-scale tokens for the SlideRenderer, layered on the
-   conventions established in presentation.css (near-black field, white
-   ink, hairline borders). `data-surface` on .slide-frame selects the
-   scale: projector is sized for the back row, student for a phone,
-   teacher for a compact dashboard panel.
+   Per-surface type-scale tokens for the SlideRenderer, on the Studio's
+   surface tokens (near-black field, white ink, hairline borders).
+   `data-surface` on .slide-frame selects the scale: the room's screens
+   for the back row, the student's for arm's length, the reflow for a
+   phone.
    ────────────────────────────────────────────────────────────────────── */
 
+/* Every stage surface draws inside the fixed 1280×720 canvas, which one
+   transform fits to its box — so the canvas's type is in canvas px, NOT rem.
+   A rem would also carry the app's 110% root size (index.css) and then be
+   scaled again by the fit: every title 10% bigger than the zone the grid
+   gave it. The reflow is the one surface outside the canvas (real screen px
+   on a phone), so it alone stays in rem and follows the app's scale. */
 .slide-frame {
-  --slide-accent: #7ecfcf;
-  --slide-title-fz: 2.5rem;
-  --slide-prompt-fz: 1.25rem;
-  --slide-question-fz: 1.75rem;
-  --slide-body-fz: 1.125rem;
-  --slide-label-fz: 0.8125rem;
+  --slide-bg: var(--daw-surface-1, #151518);
+  /* Neutral by default (owner, 2026-11-09): a section is named by its chip,
+     not coloured. A teacher's own `slide.accent` still sets this inline. */
+  --slide-accent: #ffffff;
+  --slide-title-fz: 40px;
+  --slide-prompt-fz: 20px;
+  --slide-question-fz: 28px;
+  --slide-body-fz: 18px;
+  --slide-label-fz: 13px;
 
-  background: #141416;
+  background: var(--slide-bg);
   color: #ffffff;
   font-family: 'Glacial Indifference', 'Haskoy', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -31,14 +40,19 @@
   font-family: 'Glacial Indifference', 'Haskoy', system-ui, sans-serif;
 }
 
-.slide-frame[data-surface='projector'] {
-  /* Title matches the 'present' authoring scale (4rem) so a freeform layout
-     authored in the editor lands pixel-for-pixel on the projector. */
-  --slide-title-fz: 4rem;
-  --slide-prompt-fz: 2rem;
-  --slide-question-fz: 3rem;
-  --slide-body-fz: 1.5rem;
-  --slide-label-fz: 1.125rem;
+/* The projector, Present and the teacher's live preview are one scale: the
+   room reads the same slide the editor laid out ('present'), pixel for
+   pixel. The teacher's preview is that canvas fitted into a panel — it used
+   to carry a "compact" scale of its own, which the fit then shrank a second
+   time, leaving its text a few screen px tall. */
+.slide-frame[data-surface='projector'],
+.slide-frame[data-surface='present'],
+.slide-frame[data-surface='teacher'] {
+  --slide-title-fz: 64px;
+  --slide-prompt-fz: 32px;
+  --slide-question-fz: 48px;
+  --slide-body-fz: 24px;
+  --slide-label-fz: 18px;
 }
 
 .slide-frame[data-surface='student'] {
@@ -47,16 +61,15 @@
      between a wall and a Chromebook is the fit transform, which is already
      applied. Slightly tighter than the projector because a student reads at
      arm's length rather than from the back row. */
-  --slide-title-fz: 3.5rem;
-  --slide-prompt-fz: 1.75rem;
-  --slide-question-fz: 2.5rem;
-  --slide-body-fz: 1.375rem;
-  --slide-label-fz: 1rem;
+  --slide-title-fz: 56px;
+  --slide-prompt-fz: 28px;
+  --slide-question-fz: 40px;
+  --slide-body-fz: 22px;
+  --slide-label-fz: 16px;
 }
 
 /* The reflow is a natural-flow column, NOT the scaled canvas: nothing
-   multiplies these, so they are real screen px for a phone. These are the
-   values the student surface used everywhere before P2 put it on the stage. */
+   multiplies these, so they are real screen sizes for a phone, in rem. */
 .slide-frame[data-layout='reflow'] {
   --slide-title-fz: 1.5rem;
   --slide-prompt-fz: 1.0625rem;
@@ -65,111 +78,36 @@
   --slide-label-fz: 0.6875rem;
 }
 
-.slide-frame[data-surface='teacher'] {
-  --slide-title-fz: 1.375rem;
-  --slide-prompt-fz: 1rem;
-  --slide-question-fz: 1.125rem;
-  --slide-body-fz: 0.9375rem;
-  --slide-label-fz: 0.625rem;
-}
-
-/* Presentation Mode board (legacy phase cells converged onto this shell).
-   Projected like the projector, but the grade-band control (data-age on the
-   ancestor .presentation-root) drives the scale. Defaults to the 'high' preset;
-   values mirror the --pres-focus-* scale in presentation.css. */
-.slide-frame[data-surface='present'] {
-  --slide-title-fz: 4rem;
-  --slide-prompt-fz: 2rem;
-  --slide-question-fz: 3rem;
-  --slide-body-fz: 1.5rem;
-  --slide-label-fz: 1.125rem;
-}
-
+/* Presentation Mode: the grade-band control (data-age on the ancestor
+   .presentation-root) moves the Present scale. Defaults to 'high'. */
 .presentation-root[data-age='middle'] .slide-frame[data-surface='present'] {
-  --slide-title-fz: 3.25rem;
-  --slide-prompt-fz: 1.625rem;
-  --slide-body-fz: 1.375rem;
+  --slide-title-fz: 52px;
+  --slide-prompt-fz: 26px;
+  --slide-body-fz: 22px;
 }
 
 .presentation-root[data-age='college'] .slide-frame[data-surface='present'] {
-  --slide-title-fz: 4.75rem;
-  --slide-prompt-fz: 2.25rem;
-  --slide-body-fz: 1.625rem;
+  --slide-title-fz: 76px;
+  --slide-prompt-fz: 36px;
+  --slide-body-fz: 26px;
 }
 
-/* Welcome variant — the biggest type and a stronger glow. */
-.slide-frame--welcome[data-surface='projector'] {
-  --slide-title-fz: 5.5rem;
-  --slide-prompt-fz: 2.25rem;
+/* Welcome variant — the biggest type. */
+.slide-frame--welcome[data-surface='projector'],
+.slide-frame--welcome[data-surface='present'],
+.slide-frame--welcome[data-surface='teacher'] {
+  --slide-title-fz: 88px;
+  --slide-prompt-fz: 36px;
 }
 
 .slide-frame--welcome[data-surface='student'] {
-  /* Design px on the canvas, like the base student scale — 2rem here was the
-     old phone value and would now SHRINK a welcome title below an ordinary
-     one. */
-  --slide-title-fz: 4.5rem;
+  --slide-title-fz: 72px;
 }
 
 /* …but in the reflow it is a real phone size again, and must come after the
    `--welcome` rules or it loses to them on source order (equal specificity). */
 .slide-frame--welcome[data-layout='reflow'] {
   --slide-title-fz: 2rem;
-}
-
-.slide-frame--welcome[data-surface='teacher'] {
-  --slide-title-fz: 1.75rem;
-}
-
-/* Soft radial glow behind the focal area, tinted by --slide-accent. Deck
-   surfaces resolve the accent to teal (#7ecfcf) — visually identical to the
-   prior hardcoded value; the Presentation surface overrides --slide-accent
-   per phase so the glow + chip recolor together (no half-applied look). */
-.slide-frame__glow {
-  /* Fallback for browsers without color-mix(): the deck default teal, matching
-     the prior hardcoded value so no glow is lost. Overridden just below where
-     color-mix is supported (per-phase accent on the Presentation surface). */
-  background: radial-gradient(
-    ellipse 62% 48% at 50% 40%,
-    rgba(126, 207, 207, 0.09),
-    transparent 70%
-  );
-  background: radial-gradient(
-    ellipse 62% 48% at 50% 40%,
-    color-mix(in srgb, var(--slide-accent) 9%, transparent),
-    transparent 70%
-  );
-}
-
-.slide-frame--welcome .slide-frame__glow {
-  background: radial-gradient(
-    ellipse 70% 55% at 50% 42%,
-    rgba(126, 207, 207, 0.16),
-    transparent 72%
-  );
-  background: radial-gradient(
-    ellipse 70% 55% at 50% 42%,
-    color-mix(in srgb, var(--slide-accent) 16%, transparent),
-    transparent 72%
-  );
-}
-
-/* Phase-chip live dot. */
-.slide-frame__chip-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--slide-accent);
-  animation: slide-chip-pulse 1.4s ease-in-out infinite;
-}
-
-@keyframes slide-chip-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.35;
-  }
 }
 
 /* Lazy-media loading shimmer. */
@@ -188,7 +126,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .slide-frame__chip-dot,
   .slide-media__skeleton {
     animation: none;
   }
@@ -207,9 +144,9 @@
    ────────────────────────────────────────────────────────────────────── */
 .slide-band-scroll {
   background:
-    linear-gradient(#141416 40%, rgba(20, 20, 22, 0)) top / 100% 36px no-repeat
+    linear-gradient(var(--slide-bg) 40%, transparent) top / 100% 36px no-repeat
       local,
-    linear-gradient(rgba(20, 20, 22, 0), #141416 60%) bottom / 100% 36px
+    linear-gradient(transparent, var(--slide-bg) 60%) bottom / 100% 36px
       no-repeat local,
     radial-gradient(
         farthest-side at 50% 0,

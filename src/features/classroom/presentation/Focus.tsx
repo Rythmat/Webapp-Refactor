@@ -74,7 +74,7 @@ export const Focus = ({
         className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center"
         aria-hidden={false}
       >
-        <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-white/[0.06] bg-[#141416]/90 px-3 py-2 backdrop-blur">
+        <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-daw-edge bg-daw-pill px-3 py-2">
           <button
             type="button"
             onClick={onPrev}

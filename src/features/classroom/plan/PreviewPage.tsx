@@ -20,6 +20,7 @@
 import { ArrowLeft, Pencil } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { MicroLabel } from '@/components/kit';
 import { TeacherRoutes } from '@/constants/routes';
 import { buildStudentView, type StudentPhaseView } from '../buildStudentView';
 import { InteractionInput } from '../live/interactions';
@@ -27,6 +28,7 @@ import { publishDay } from '../publish/publishDay';
 import { useTeacherConfig } from '../settings/useTeacherConfig';
 import { SlideRenderer } from '../slides/SlideRenderer';
 import { deckFromSnapshot, interactionsForSlide } from '../slides/deck';
+import { phaseSectionsLabel } from '../slides/sections';
 import type {
   AgePreset,
   InteractionResponsePayload,
@@ -197,14 +199,12 @@ const PhasePreview = ({
       className="flex flex-col gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 md:p-6"
     >
       <header className="flex items-baseline gap-3">
-        <span
-          className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-widest text-black"
-          style={{
-            background: `var(--pres-accent-${phase.phaseKey}, rgba(255,255,255,0.15))`,
-          }}
-        >
-          <LocalizedRender text={phase.label} language={language} />
-        </span>
+        <MicroLabel>
+          <LocalizedRender
+            text={phaseSectionsLabel(phase.phaseKey)}
+            language={language}
+          />
+        </MicroLabel>
       </header>
 
       <div className="flex flex-col gap-1">

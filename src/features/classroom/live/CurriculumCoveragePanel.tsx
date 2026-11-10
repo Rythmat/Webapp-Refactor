@@ -35,7 +35,7 @@ export const CurriculumCoveragePanel = ({
     <section className="flex flex-col gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
       <div className="flex flex-col gap-0.5">
         <h2 className="inline-flex items-center gap-2 text-base font-medium">
-          <GraduationCap className="h-4 w-4 text-[#7ecfcf]" />
+          <GraduationCap className="h-4 w-4 text-white/60" />
           Curriculum coverage
         </h2>
         <p className="text-xs text-white/40">
@@ -60,7 +60,7 @@ export const CurriculumCoveragePanel = ({
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
               <div
-                className="h-full rounded-full bg-[#7ecfcf]"
+                className="h-full rounded-full bg-white"
                 style={{ width: `${row.pct}%` }}
               />
             </div>

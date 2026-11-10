@@ -17,6 +17,7 @@ import { Maximize2, Minimize2, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
+import { Segmented } from '@/daw/ui/Segmented';
 import { useCanEditClassroom } from '@/hooks/data';
 import { buildStudentView } from './buildStudentView';
 import { useSessionSync } from './live/useSessionSync';
@@ -24,7 +25,6 @@ import { PHASES } from './phases';
 import { newBlankDay } from './plan/newBlankDay';
 import { useLocalPlan } from './plan/useLocalPlan';
 import { Focus } from './presentation/Focus';
-import { SegmentedControl } from './presentation/SegmentedControl';
 import { SnapshotRepairBadge } from './publish/SnapshotRepairBadge';
 import { publishDay } from './publish/publishDay';
 import { useSanitizedStudentView } from './publish/useRuleOneReadGuard';
@@ -284,11 +284,11 @@ const PresentationChrome = ({
       </div>
 
       <div className="flex items-center gap-4 text-white/80">
-        <SegmentedControl
+        <Segmented
           label="Language"
           options={LANGUAGE_OPTIONS}
           value={language}
-          onChange={onLanguageChange}
+          onValueChange={onLanguageChange}
         />
         <button
           type="button"

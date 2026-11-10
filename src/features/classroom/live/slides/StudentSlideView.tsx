@@ -215,7 +215,7 @@ export const StudentSlideView = ({
               <ChevronRight className="h-4 w-4" />
             </button>
             {!canAdvance && slideIndex < total - 1 && (
-              <span className="text-[11px] text-amber-300/80">
+              <span className="text-[0.75rem] text-daw-text-3">
                 Finish this to continue · Termina para continuar
               </span>
             )}

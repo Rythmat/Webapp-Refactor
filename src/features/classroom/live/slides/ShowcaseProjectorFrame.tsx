@@ -21,7 +21,7 @@ export const ShowcaseProjectorFrame = ({
 
   return (
     <div className="flex flex-col items-center gap-6 text-center">
-      <span className="text-xl uppercase tracking-[0.3em] text-[#7ecfcf]">
+      <span className="text-xl font-bold uppercase tracking-[0.08em] text-white/60">
         Now presenting
       </span>
       <span className="text-6xl font-semibold text-white">
@@ -31,7 +31,7 @@ export const ShowcaseProjectorFrame = ({
       {href && (
         <a
           href={href}
-          className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#7ecfcf] px-6 py-3 text-lg font-medium text-black transition-colors hover:bg-[#7ecfcf]/85"
+          className="mt-2 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-lg font-medium text-black transition-colors hover:bg-white/85"
         >
           <PlayCircle className="h-6 w-6" />
           Open in Studio

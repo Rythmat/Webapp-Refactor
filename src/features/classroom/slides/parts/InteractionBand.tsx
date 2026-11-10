@@ -62,7 +62,6 @@ const IncomingChip = ({ language }: { language: StudentLanguage }) => (
     className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-white/60"
     style={{ fontSize: 'var(--slide-body-fz)' }}
   >
-    <span aria-hidden className="slide-frame__chip-dot" />
     {pickLocalized(RESPONSES_INCOMING, language)}
     {secondaryLine(RESPONSES_INCOMING, language) && (
       <span className="text-white/35">

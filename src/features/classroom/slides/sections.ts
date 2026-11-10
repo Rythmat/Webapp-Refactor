@@ -159,6 +159,17 @@ export const groupSlidesBySection = (
   return groups;
 };
 
+/** Every section a phase holds, named together: "Connect & Showcase" for
+ *  the first phase, the one section's name for the rest. For places that
+ *  speak about a whole phase (its notes, its block in a preview). */
+export const phaseSectionsLabel = (phase: PhaseKey): LocalizedText => {
+  const held = SECTIONS.filter((s) => SECTION_PHASE[s] === phase);
+  return {
+    en: held.map((s) => SECTION_LABEL[s].en).join(' & '),
+    es: held.map((s) => SECTION_LABEL[s].es).join(' y '),
+  };
+};
+
 /** A phase by its lesson section's name: for activities and seeds, which
  *  carry a phase ("Connect", "Group Project"…). */
 export const phaseSectionLabel = (phase: PhaseKey): LocalizedText =>

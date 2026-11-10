@@ -29,7 +29,8 @@ export interface AnimatedChoiceBarsProps {
   availableHeight?: number;
 }
 
-const TEAL = '#7ecfcf';
+/** The lead: white over neutral greys (no accent colour on results). */
+const LEAD = '#ffffff';
 
 const BAR_SPRING = { type: 'spring', stiffness: 120, damping: 20 } as const;
 
@@ -120,7 +121,7 @@ export const AnimatedChoiceBars = ({
                     : projector
                       ? 'text-xl md:text-2xl'
                       : 'text-xs'
-                } ${leading ? 'text-[#7ecfcf]' : 'text-white/60'}`}
+                } ${leading ? 'text-white' : 'text-white/60'}`}
                 style={
                   compressed
                     ? { fontSize: m.label * rowScale * 0.8, lineHeight: 1 }
@@ -140,7 +141,7 @@ export const AnimatedChoiceBars = ({
                 className={`h-full rounded-full ${
                   leading ? '' : 'bg-white/25'
                 }`}
-                style={leading ? { backgroundColor: TEAL } : undefined}
+                style={leading ? { backgroundColor: LEAD } : undefined}
                 initial={reduce ? false : { width: 0 }}
                 animate={{ width: `${widthPercent}%` }}
                 transition={reduce ? { duration: 0 } : BAR_SPRING}

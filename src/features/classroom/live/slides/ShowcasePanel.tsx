@@ -32,7 +32,7 @@ export const ShowcasePanel = ({
     <div className="flex flex-col gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="inline-flex items-center gap-2 text-sm font-medium text-white/90">
-          <Star className="h-4 w-4 text-[#7ecfcf]" />
+          <Star className="h-4 w-4 text-white/60" />
           Project offers
         </span>
         {showcase && (
@@ -79,7 +79,7 @@ export const ShowcasePanel = ({
                   className={
                     'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-colors ' +
                     (featured
-                      ? 'bg-[#7ecfcf] text-black'
+                      ? 'bg-white text-black'
                       : 'border border-white/10 text-white/80 hover:border-white/25 hover:text-white')
                   }
                 >

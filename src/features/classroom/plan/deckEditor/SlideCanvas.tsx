@@ -9,7 +9,6 @@
  */
 import type { ReactNode } from 'react';
 import { cn } from '@/components/utilities';
-import { PHASE_ACCENT_HEX } from '../../presentation/phaseAccent';
 import { resolveElements } from '../../slides/migrateDeckV1';
 import { SlideStage } from '../../slides/parts/SlideStage';
 import { hideBlock, showBlock } from '../../slides/slideLayout';
@@ -221,7 +220,7 @@ export const SlideCanvas = ({
           onPatch({ layout: hideBlock(slide, key) });
           onSelectBlock(null);
         }}
-        accent={slide.accent ?? PHASE_ACCENT_HEX[slide.phase]}
+        {...(slide.accent ? { accent: slide.accent } : {})}
         blocks={{}}
       />
       {editable && <SlideAppearanceMenu slide={slide} onPatch={onPatch} />}

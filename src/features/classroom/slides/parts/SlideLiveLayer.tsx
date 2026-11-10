@@ -124,7 +124,7 @@ const appRouteLayer = (
         />
         {interaction?.atlas && (
           <Chip>
-            <span className="text-[#7ecfcf]">{interaction.atlas.module}</span>
+            <span className="text-white/60">{interaction.atlas.module}</span>
             <span className="text-white/40">
               {href ?? interaction.atlas.activityRef}
             </span>

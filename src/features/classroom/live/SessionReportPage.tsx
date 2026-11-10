@@ -196,7 +196,7 @@ export const SessionReportPage = () => {
                       'rounded-full px-2 py-0.5 text-[11px] ' +
                       (item.completedCount >= item.totalCount &&
                       item.totalCount > 0
-                        ? 'bg-[#7ecfcf]/20 text-[#7ecfcf]'
+                        ? 'bg-white/10 text-white'
                         : 'bg-white/[0.06] text-white/60')
                     }
                   >

@@ -1,10 +1,13 @@
 import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { MicroLabel } from '@/components/kit';
 import { ClassroomRoutes } from '@/constants/routes';
 import { InteractionInput } from '../live/interactions';
+import { PHASES, type PhaseKey } from '../phases';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
+import { phaseSectionsLabel } from '../slides/sections';
 import type {
   Interaction,
   InteractionResponsePayload,
@@ -16,6 +19,9 @@ import {
   useStudentEnrollmentId,
 } from './useAssignmentProgress';
 import { useAssignments } from './useAssignments';
+
+const isPhaseKey = (key: string): key is PhaseKey =>
+  (PHASES as readonly string[]).includes(key);
 
 const LANGUAGE_OPTIONS: { value: StudentLanguage; label: string }[] = [
   { value: 'en', label: 'EN' },
@@ -193,14 +199,16 @@ const PhaseBlock = ({
   enrollmentId,
   assignmentId,
 }: PhaseBlockProps) => (
-  <section
-    className="flex flex-col gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 md:p-6"
-    style={{
-      borderLeftColor: `var(--pres-accent-${phaseKey}, transparent)`,
-      borderLeftWidth: 4,
-    }}
-  >
+  <section className="flex flex-col gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 md:p-6">
     <div className="flex flex-col gap-1">
+      {isPhaseKey(phaseKey) && (
+        <MicroLabel>
+          <LocalizedRender
+            text={phaseSectionsLabel(phaseKey)}
+            language={language}
+          />
+        </MicroLabel>
+      )}
       <h2 className="text-lg font-medium text-white md:text-xl">
         <LocalizedRender text={title} language={language} />
       </h2>

@@ -9,14 +9,14 @@
  */
 import { Maximize2, Minimize2, StopCircle, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Segmented, type SegmentedOption } from '@/daw/ui/Segmented';
 import { Focus } from '../presentation/Focus';
-import { SegmentedControl } from '../presentation/SegmentedControl';
 import type { SlideSlots } from '../slides/SlideRenderer';
 import type { Slide } from '../slides/types';
 import type { Interaction, StudentLanguage } from '../types';
 import '../presentation.css';
 
-const LANGUAGE_OPTIONS: { value: StudentLanguage; label: string }[] = [
+const LANGUAGE_OPTIONS: SegmentedOption<StudentLanguage>[] = [
   { value: 'en', label: 'EN' },
   { value: 'es', label: 'ES' },
   { value: 'both', label: 'EN / ES' },
@@ -107,11 +107,11 @@ export const SessionPresentView = ({
             <StopCircle className="h-4 w-4" />
             End
           </button>
-          <SegmentedControl
+          <Segmented<StudentLanguage>
             label="Language"
             options={LANGUAGE_OPTIONS}
             value={language}
-            onChange={setLanguage}
+            onValueChange={setLanguage}
           />
           <button
             type="button"

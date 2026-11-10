@@ -9,7 +9,8 @@ export interface ResponseRateRingProps {
   className?: string;
 }
 
-const TEAL = '#7ecfcf';
+/** The lead: white over neutral greys (no accent colour on results). */
+const LEAD = '#ffffff';
 const RADIUS = 15.5;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
@@ -40,7 +41,7 @@ export const ResponseRateRing = ({
         cy="18"
         r={RADIUS}
         fill="none"
-        stroke={TEAL}
+        stroke={LEAD}
         strokeWidth="3"
         strokeLinecap="round"
         strokeDasharray={CIRCUMFERENCE}

@@ -106,7 +106,7 @@ export const CurrentSlidePanel = ({
                     (!canShare
                       ? 'cursor-not-allowed border border-white/[0.06] text-white/30'
                       : shared
-                        ? 'bg-[#7ecfcf] text-black hover:bg-[#7ecfcf]/85'
+                        ? 'bg-white text-black hover:bg-white/85'
                         : 'border border-white/10 text-white/80 hover:border-white/25 hover:text-white')
                   }
                 >

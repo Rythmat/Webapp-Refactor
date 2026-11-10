@@ -5,7 +5,6 @@
  * dangling-interaction badge, and hover Duplicate / Delete controls.
  */
 import { AlertTriangle, Copy, Trash2 } from 'lucide-react';
-import { PHASE_ACCENT_HEX } from '../../presentation/phaseAccent';
 import { SlideRenderer } from '../../slides/SlideRenderer';
 import type { Slide } from '../../slides/types';
 import type { Interaction } from '../../types';
@@ -41,15 +40,11 @@ export const SlideThumbnail = ({
         onClick={onSelect}
         aria-label={`Slide ${index + 1}`}
         aria-pressed={selected}
-        className={`relative overflow-hidden rounded-lg border bg-[#141416] transition-colors ${
+        className={`relative overflow-hidden rounded-lg border bg-daw-surface-1 transition-colors ${
           selected
             ? 'border-white ring-2 ring-white/60'
             : 'border-white/10 hover:border-white/30'
         }`}
-        style={{
-          borderTopColor: slide.accent ?? PHASE_ACCENT_HEX[slide.phase],
-          borderTopWidth: 3,
-        }}
       >
         <div
           className="presentation-root relative aspect-[16/9] w-full overflow-hidden"
@@ -69,7 +64,7 @@ export const SlideThumbnail = ({
             interactions={interactions ?? []}
           />
         </div>
-        <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 text-[10px] font-medium text-white/80 backdrop-blur">
+        <span className="absolute bottom-1 left-1 rounded bg-black/80 px-1.5 text-[0.6875rem] font-bold tabular-nums text-white/80">
           {index + 1}
         </span>
         {dangling && (

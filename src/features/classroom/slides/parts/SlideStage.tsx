@@ -5,7 +5,7 @@
  *
  * It fits a fixed 1280×720 design canvas into its container with one uniform
  * transform (so rem type and px positions scale together, no drift), paints the
- * shared frame chrome (glow, optional accent bar, phase chip), then
+ * shared frame chrome (optional accent bar, section chip), then
  * absolutely-positions each ELEMENT at the rect its zone derives from
  * `SLIDE_GRID`. Hidden elements are skipped everywhere — that is how a removed
  * title disappears on every surface at once.
@@ -501,7 +501,7 @@ const BlockBox = ({
       }
       className={
         editable
-          ? `outline-dashed outline-offset-2 ${selected ? 'outline-2 outline-[#7ecfcf]' : 'outline-1 outline-white/15 hover:outline-white/40'}`
+          ? `outline-dashed outline-offset-2 ${selected ? 'outline-2 outline-white' : 'outline-1 outline-white/15 hover:outline-white/40'}`
           : undefined
       }
     >
@@ -511,7 +511,7 @@ const BlockBox = ({
         <>
           {/* Move bar + actions, floated above the block. */}
           <div
-            className="absolute left-0 flex items-center gap-1 rounded-md bg-[#7ecfcf] text-black"
+            className="absolute left-0 flex items-center gap-1 rounded-md bg-white text-black"
             style={{
               top: -px(30),
               height: px(26),
@@ -563,7 +563,7 @@ const BlockBox = ({
             <span
               key={h.edges.join('')}
               onPointerDown={begin(h.edges)}
-              className={`absolute rounded-full border border-[#7ecfcf] bg-white ${h.cls}`}
+              className={`absolute rounded-full border border-black/60 bg-white ${h.cls}`}
               style={{
                 width: px(12),
                 height: px(12),
@@ -636,7 +636,7 @@ const ZoneBox = ({
         onSelect
           ? 'cursor-text rounded-lg ring-offset-2 ring-offset-transparent'
           : ''
-      } ${selected ? 'ring-2 ring-[var(--slide-accent,#7ecfcf)]' : ''}`}
+      } ${selected ? 'ring-2 ring-white' : ''}`}
       style={{
         left: rect.x,
         top: rect.y,
@@ -718,7 +718,7 @@ const RevealBand = ({
     <div
       data-reveal-band
       className={`absolute flex items-center justify-center overflow-hidden rounded-2xl ${
-        scrim ? 'bg-black/70 backdrop-blur-sm' : ''
+        scrim ? 'bg-[rgba(16,16,18,0.94)]' : ''
       }`}
       style={{
         left: rect.x,

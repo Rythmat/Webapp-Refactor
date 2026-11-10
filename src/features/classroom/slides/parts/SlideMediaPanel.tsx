@@ -63,7 +63,7 @@ export const SlideMediaPanel = ({
       if (!interactive) {
         return (
           <div
-            className={`relative aspect-video w-full overflow-hidden rounded-3xl border border-white/10 bg-black/40 ${className ?? ''}`}
+            className={`relative aspect-video w-full overflow-hidden rounded-[20px] border border-white/[0.08] bg-black/40 ${className ?? ''}`}
           >
             <img
               src={`https://i.ytimg.com/vi/${media.videoId}/mqdefault.jpg`}
@@ -79,7 +79,7 @@ export const SlideMediaPanel = ({
         <Suspense
           fallback={
             <div
-              className={`slide-media__skeleton aspect-video w-full rounded-3xl border border-white/10 bg-white/[0.03] ${className ?? ''}`}
+              className={`slide-media__skeleton aspect-video w-full rounded-[20px] border border-white/[0.08] bg-white/[0.03] ${className ?? ''}`}
             />
           }
         >
@@ -125,7 +125,7 @@ export const SlideMediaPanel = ({
     case 'chordChart':
       return (
         <div
-          className={`flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-3xl border border-white/10 bg-white/[0.03] ${className ?? ''}`}
+          className={`flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-[20px] border border-white/[0.08] bg-white/[0.03] ${className ?? ''}`}
         >
           <p
             className="font-semibold text-white/80"
@@ -156,7 +156,7 @@ export const SlideMediaPanel = ({
 /**
  * Portrait card for a song's artist image — copies SongDetailPage's
  * SongArtwork treatment (image with generated hex-avatar + initials
- * fallback), simplified to a rounded-3xl portrait frame.
+ * fallback), simplified to a rounded portrait frame.
  */
 const ArtistImageCard = ({
   songId,
@@ -189,7 +189,7 @@ const ArtistImageCard = ({
 
   return (
     <div
-      className={`relative aspect-[3/4] w-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] ${className ?? ''}`}
+      className={`relative aspect-[3/4] w-full overflow-hidden rounded-[20px] border border-white/[0.08] bg-white/[0.03] ${className ?? ''}`}
     >
       {hasArtistImage ? (
         <img
@@ -208,10 +208,7 @@ const ArtistImageCard = ({
             className="absolute left-0 top-0 size-[120%] opacity-60"
           />
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span
-              className="font-bold text-white/20"
-              style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)' }}
-            >
+            <span className="font-bold text-white/20" style={{ fontSize: 40 }}>
               {initials}
             </span>
           </div>

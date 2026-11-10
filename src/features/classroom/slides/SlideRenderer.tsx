@@ -9,7 +9,6 @@
  * response hooks, the response aggregator, or the enrollment roster.
  */
 import type { ReactNode } from 'react';
-import { PHASE_ACCENT_HEX } from '../presentation/phaseAccent';
 import type { Interaction, StudentLanguage } from '../types';
 import { interactionVariant, mayRevealOn } from './interactionPolicy';
 import { resolveElements } from './migrateDeckV1';
@@ -137,7 +136,7 @@ export const SlideRenderer = ({
       // canvas, and the projector, the student device and Present all showed
       // the default. "Editing == presenting" failing in the one direction this
       // phase existed to fix.
-      accent={slide.accent ?? PHASE_ACCENT_HEX[slide.phase]}
+      {...(slide.accent ? { accent: slide.accent } : {})}
       {...(layoutMode ? { layoutMode } : {})}
       {...(revealed.length > 0
         ? {

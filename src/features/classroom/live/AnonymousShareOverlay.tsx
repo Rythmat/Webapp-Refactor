@@ -24,10 +24,7 @@ export const AnonymousShareOverlay = (props: AnonymousShareOverlayProps) => {
   const { projectorView, interaction } = props;
 
   return (
-    <div
-      className="fixed inset-0 flex flex-col items-center justify-start gap-6 overflow-y-auto px-8 py-10"
-      style={{ backgroundColor: '#F7F1E3', color: '#1a1a1a' }}
-    >
+    <div className="fixed inset-0 flex flex-col items-center justify-start gap-6 overflow-y-auto bg-daw-bg px-8 py-10 text-white">
       <h1 className="max-w-4xl text-center text-3xl font-medium md:text-5xl">
         {interaction.question.en}
       </h1>
@@ -35,9 +32,9 @@ export const AnonymousShareOverlay = (props: AnonymousShareOverlayProps) => {
         {projectorView.responses.map((r, i) => (
           <div
             key={`${r.anon}-${i}`}
-            className="rounded-2xl border border-black/10 bg-white/60 px-4 py-3"
+            className="rounded-[1.25rem] border border-white/[0.06] bg-white/[0.04] px-4 py-3"
           >
-            <div className="text-xs uppercase tracking-wide text-black/50">
+            <div className="text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-white/50">
               {r.anon}
             </div>
             <div className="mt-1 text-lg">{renderPayload(r.payload)}</div>

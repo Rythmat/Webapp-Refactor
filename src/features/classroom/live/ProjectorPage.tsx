@@ -137,7 +137,7 @@ const ProjectorSurface = ({
   }
 
   // Deck sessions get the full-slide projected surface; legacy sessions
-  // keep the cream anonymous-share overlay below. Guard on slides.length so an
+  // keep the anonymous-share overlay below. Guard on slides.length so an
   // empty deck (publishDay drops it; defensive here) falls through to the
   // legacy overlay instead of stranding the projector on "Get ready…".
   if (
@@ -159,15 +159,12 @@ const ProjectorSurface = ({
 
   if (!state || !sharedInteraction) {
     return (
-      <div
-        className="fixed inset-0 flex items-center justify-center"
-        style={{ backgroundColor: '#F7F1E3', color: '#1a1a1a' }}
-      >
+      <div className="fixed inset-0 flex items-center justify-center bg-daw-bg text-white">
         <div className="flex flex-col items-center gap-6">
           <p className="max-w-lg px-8 text-center text-2xl font-medium">
             Waiting for the teacher to share…
           </p>
-          {joinCode && <JoinCard code={joinCode} tone="light" />}
+          {joinCode && <JoinCard code={joinCode} />}
         </div>
       </div>
     );
@@ -177,15 +174,12 @@ const ProjectorSurface = ({
 
   if (!projectorView.emit) {
     return (
-      <div
-        className="fixed inset-0 flex items-center justify-center"
-        style={{ backgroundColor: '#F7F1E3', color: '#1a1a1a' }}
-      >
+      <div className="fixed inset-0 flex items-center justify-center bg-daw-bg text-white">
         <div className="flex flex-col items-center gap-6">
           <p className="max-w-lg px-8 text-center text-2xl font-medium">
             Waiting for the teacher to share…
           </p>
-          {joinCode && <JoinCard code={joinCode} tone="light" />}
+          {joinCode && <JoinCard code={joinCode} />}
         </div>
       </div>
     );

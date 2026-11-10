@@ -15,6 +15,7 @@ import type { Interaction, InteractionResponsePayload } from '../../types';
 import { JoinCard } from '../JoinCard';
 import type { SessionState } from '../sessionsStore';
 import { LOCAL_SESSION_CLOCK, type SessionClock } from '../useServerClock';
+import { ClassStepChip } from './ClassStepChip';
 import { ShowcaseProjectorFrame } from './ShowcaseProjectorFrame';
 import { TimerCountdown } from './TimerCountdown';
 import { buildRevealNode } from './revealNode';
@@ -114,9 +115,21 @@ export const ProjectorDeckView = ({
     });
 
   const firstInteractionId = interactions[0]?.id;
+  // The activity the class does together: the room sees the class's step,
+  // never who finished it (owner, 2026-11-10).
+  const classStep =
+    state.activity && state.activity.slideId === slide.id
+      ? state.activity
+      : null;
   // A feelings check-in shares the band with its faces or wheel, so the room
   // gets a one-line count rather than the pulse ring.
-  const statusChip = firstInteractionId ? (
+  const statusChip = classStep ? (
+    <ClassStepChip
+      step={classStep.step}
+      total={classStep.total}
+      title={classStep.title}
+    />
+  ) : firstInteractionId ? (
     interactions[0].checkIn?.style === 'feelings' ? (
       <AnsweredCount n={countFor(firstInteractionId)} />
     ) : (

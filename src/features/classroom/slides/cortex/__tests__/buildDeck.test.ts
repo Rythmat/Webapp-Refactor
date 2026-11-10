@@ -216,6 +216,8 @@ describe('each group role', () => {
       module: 'studio',
       activityRef: 'studio:tutorial:rnb-mix-and-polish',
       expects: 'completion',
+      // The class does it together, at the teacher's pace.
+      follow: true,
     });
   });
 
@@ -240,6 +242,7 @@ describe('each group role', () => {
       module: 'learn',
       activityRef: 'song:sunrise:lesson',
       expects: 'completion',
+      follow: true,
     });
     expect(content.cellCopy.groupPractice?.prompt.en).toBe(
       'Open the lesson and play it together as a class: “Sunrise” — D Dorian.',

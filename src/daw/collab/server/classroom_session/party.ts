@@ -78,6 +78,48 @@ type InboundMsg =
   | EndMsg
   | ResponseBroadcast;
 
+/** The class's step in an activity done together. No identifiers. */
+interface ClassActivity {
+  slideId: string;
+  ref: string;
+  step: number;
+  total?: number;
+  title?: string;
+}
+
+const MAX_TEXT = 300;
+const text = (v: unknown): string | null =>
+  typeof v === 'string' && v.length > 0 && v.length <= MAX_TEXT ? v : null;
+const count = (v: unknown): number | null =>
+  typeof v === 'number' && Number.isInteger(v) && v >= 0 && v < 10_000
+    ? v
+    : null;
+
+/**
+ * A teacher's activity message, field by field: anything else on it is
+ * dropped, and a malformed one is refused (null), never relayed.
+ */
+export const parseClassActivity = (
+  v: unknown,
+): ClassActivity | null | undefined => {
+  if (v === null) return null;
+  if (!v || typeof v !== 'object') return undefined;
+  const a = v as Record<string, unknown>;
+  const slideId = text(a.slideId);
+  const ref = text(a.ref);
+  const step = count(a.step);
+  if (!slideId || !ref || step === null) return undefined;
+  const total = count(a.total);
+  const title = text(a.title);
+  return {
+    slideId,
+    ref,
+    step,
+    ...(total !== null ? { total } : {}),
+    ...(title ? { title } : {}),
+  };
+};
+
 const PRESENCE_TICK_MS = 5_000;
 const ACTIVE_WINDOW_MS = 15_000;
 const IDLE_TIMEOUT_MS = 60_000;
@@ -89,6 +131,12 @@ export default class ClassroomSessionServer extends Server {
 
   private meta = new Map<string, ConnMeta>();
   private currentShare: { interactionId: string; on: boolean } | null = null;
+  /**
+   * The class's step in the activity it does together (owner, 2026-11-10),
+   * set by the teacher's socket. Kept so anyone who connects mid-activity
+   * (a late student, a reload) lands on the class's step at once.
+   */
+  private activity: ClassActivity | null = null;
   private ended = false;
   private presenceTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -219,6 +267,10 @@ export default class ClassroomSessionServer extends Server {
     conn.send(
       JSON.stringify({ type: 'hello', session: auth.session, role: auth.role }),
     );
+    // Mid-activity: straight onto the class's step.
+    if (this.activity) {
+      conn.send(JSON.stringify({ type: 'activity', activity: this.activity }));
+    }
 
     // Size the roster immediately for a non-teacher too. Presence otherwise
     // only emits on CHANGE, so a projector or student connecting after the
@@ -258,6 +310,9 @@ export default class ClassroomSessionServer extends Server {
         type?: string;
         t?: number;
         slideIndex?: number;
+        activity?: unknown;
+        slideId?: unknown;
+        step?: unknown;
       };
       if (data.type === 'ping') {
         sender.send(
@@ -270,6 +325,37 @@ export default class ClassroomSessionServer extends Server {
             { enrollmentId: meta.enrollmentId, state: 'active' },
           ]);
         }
+      } else if (data.type === 'activity' && meta.role === 'teacher') {
+        // The class's step: the teacher's alone to set, every role sees it
+        // (no identifiers). A malformed one is dropped, not relayed.
+        const activity = parseClassActivity(data.activity);
+        if (activity === undefined) return;
+        this.activity = activity;
+        this.broadcastTo({ type: 'activity', activity }, [
+          'teacher',
+          'student',
+          'projector',
+        ]);
+      } else if (
+        data.type === 'activityDone' &&
+        meta.role === 'student' &&
+        meta.enrollmentId
+      ) {
+        // Who finished the step is identified: teacher only (Rule 2).
+        const slideId = text(data.slideId);
+        const step = count(data.step);
+        if (!slideId || step === null) return;
+        this.broadcastTo(
+          {
+            type: 'activityDone',
+            at: this.nowIso(),
+            sessionId: this.name,
+            enrollmentId: meta.enrollmentId,
+            slideId,
+            step,
+          },
+          ['teacher'],
+        );
       } else if (
         data.type === 'position' &&
         meta.role === 'student' &&

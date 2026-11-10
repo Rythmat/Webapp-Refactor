@@ -89,12 +89,14 @@ export const applyGroupPick = (
   plan: CortexLessonPlan,
   role: GroupRole,
   ref: string,
+  /** The activity's name, from the picker (a Globe tour's title). */
+  label?: string,
 ): Day => {
   const slide = day.deck?.slides.find((s) => s.id === slideId);
   if (!slide) return day;
   const id =
     slide.kind === 'app-route' ? slide.interactionId : newInteractionId();
-  const activity = cortexGroupActivity(id, plan, role, ref);
+  const activity = cortexGroupActivity(id, plan, role, ref, label);
   if (!activity) return day;
   const routed: Slide =
     slide.kind === 'app-route'

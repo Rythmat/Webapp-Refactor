@@ -192,7 +192,12 @@ const GroupChooser = ({
 }: {
   focusId?: string;
   currentRef?: string;
-  onPick: (plan: CortexLessonPlan, role: GroupRole, ref: string) => void;
+  onPick: (
+    plan: CortexLessonPlan,
+    role: GroupRole,
+    ref: string,
+    label: string,
+  ) => void;
   onChooseShowcase: () => void;
 }) => {
   const { plan, related, loading } = useLessonPlan(focusId);
@@ -262,7 +267,9 @@ const GroupChooser = ({
                       <button
                         type="button"
                         className={ROW}
-                        onClick={() => onPick(plan, role, option.ref)}
+                        onClick={() =>
+                          onPick(plan, role, option.ref, option.label)
+                        }
                       >
                         <span className="flex min-w-0 flex-1 flex-col">
                           <span className="truncate text-[0.8125rem] text-daw-text">
@@ -304,7 +311,12 @@ export interface LessonContentPickerProps {
   /** The Group Project's activity now, to mark it. */
   currentGroupRef?: string;
   onShowcase: (plan: CortexLessonPlan) => void;
-  onGroup: (plan: CortexLessonPlan, role: GroupRole, ref: string) => void;
+  onGroup: (
+    plan: CortexLessonPlan,
+    role: GroupRole,
+    ref: string,
+    label: string,
+  ) => void;
   /** A link onto the slide, with media to embed beside it for some picks. */
   onLink: (tile: PickedTile, embed?: SlideMediaEmbed) => void;
   onAddResponse?: (type: InteractionType) => void;
@@ -384,8 +396,8 @@ export const LessonContentPicker = ({
             <GroupChooser
               focusId={focusId}
               currentRef={currentGroupRef}
-              onPick={(plan, role, ref) => {
-                onGroup(plan, role, ref);
+              onPick={(plan, role, ref, label) => {
+                onGroup(plan, role, ref, label);
                 close();
               }}
               onChooseShowcase={() => setChoosingShowcase(true)}

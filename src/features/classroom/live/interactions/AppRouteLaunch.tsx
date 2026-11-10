@@ -19,6 +19,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { WHITE_PILL_LG } from '@/components/kit';
 import { cn } from '@/components/utilities';
 import { getSong } from '@/curriculum/data/songs';
+import { appendFollowParams } from '../../follow/classFollow';
 import { writeMindMapHandoff } from '../../msp/mindMapHandoff';
 import { appendMspLaunchParams } from '../../msp/mspLaunchParams';
 import type { MspResultPayload } from '../../msp/mspResponseInbox';
@@ -132,7 +133,7 @@ export const AppRouteLaunch = ({
       // the fallback inbox token.
       token = undefined;
     }
-    return appendMspLaunchParams(href, {
+    const launched = appendMspLaunchParams(href, {
       ...(token ? { token } : {}),
       interactionId: interaction.id,
       enrollmentId: effectiveEnrollment,
@@ -140,6 +141,10 @@ export const AppRouteLaunch = ({
       activityRef: atlas.activityRef,
       expects: atlas.expects,
     });
+    // Done together: the tab follows the class's step (owner, 2026-11-10).
+    return atlas.follow && sessionId
+      ? appendFollowParams(launched, sessionId)
+      : launched;
   }, [atlas, href, mintToken, interaction.id, effectiveEnrollment, sessionId]);
 
   const handleLaunch = useCallback(async () => {

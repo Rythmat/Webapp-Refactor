@@ -507,11 +507,12 @@ export const SlideDeckEditor = () => {
     plan: CortexLessonPlan,
     role: GroupRole,
     ref: string,
+    label: string,
   ) => {
     const target = firstIn('groupProject');
     if (!target) return;
     setDraft((prev) =>
-      prev ? applyGroupPick(prev, target.id, plan, role, ref) : prev,
+      prev ? applyGroupPick(prev, target.id, plan, role, ref, label) : prev,
     );
   };
 

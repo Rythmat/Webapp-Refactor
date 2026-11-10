@@ -6,6 +6,7 @@ import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { useClassroom, useMe } from '@/hooks/data';
 import { useUpdateActivityProgress } from '@/hooks/data/progress/useUpdateActivityProgress';
 import { useEnrollments } from '../enrollments/useEnrollments';
+import { useFollowOutbox } from '../follow/classFollow';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
 import {
@@ -87,8 +88,21 @@ export const LiveSessionPage = () => {
   // no accountId, so a later refetch-success could resurrect progressKey — and
   // gating on success lets that refetch restore the cache instead of stranding.
   const { isSuccess: meSuccess } = useMe();
-  const { state, connectionStatus, sendResponse, sendPosition, clock } =
-    useSessionSync(sid, 'student', cid, myEnrollment?.id);
+  const {
+    state,
+    connectionStatus,
+    sendResponse,
+    sendPosition,
+    sendActivityDone,
+    clock,
+  } = useSessionSync(sid, 'student', cid, myEnrollment?.id);
+  // The activity the class does together, open in its own tab: pass on that
+  // this student finished the class's step (owner, 2026-11-10).
+  useFollowOutbox(sid, (note) => {
+    const activity = state?.activity;
+    if (note.kind !== 'done' || !activity || note.ref !== activity.ref) return;
+    sendActivityDone(activity.slideId, note.step);
+  });
   const { getPublishedDay } = usePublishedDays(cid);
   const token = useAuthToken();
   const updateProgress = useUpdateActivityProgress();

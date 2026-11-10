@@ -128,6 +128,13 @@ export interface Interaction {
      * handed to the student's Globe. Ids, names and edge kinds only.
      */
     board?: MindMapBoard;
+    /**
+     * The class does this together, at the teacher's pace (owner,
+     * 2026-11-10): a Group Project's Studio tutorial, Globe tour or Learn
+     * lesson. Every student's tab follows the teacher's step and none runs
+     * ahead. Absent: each student goes at their own speed.
+     */
+    follow?: true;
   };
   /**
    * Echo played by the class, connected (docs/echo-classroom.md): where it

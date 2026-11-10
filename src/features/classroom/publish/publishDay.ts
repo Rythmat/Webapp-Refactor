@@ -122,6 +122,7 @@ const projectAtlas = (
   activityRef: atlas.activityRef,
   expects: atlas.expects,
   ...(atlas.board ? { board: projectMindMapBoard(atlas.board) } : {}),
+  ...(atlas.follow === true ? { follow: true as const } : {}),
 });
 
 /** An Echo slide's setup, whitelist-copied field by field like the rest. */

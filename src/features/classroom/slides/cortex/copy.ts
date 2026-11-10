@@ -120,6 +120,11 @@ export const promoterHeadline = (focus: string): LocalizedText => ({
   es: `Mapea las conexiones de ${focus} en el Globo.`,
 });
 
+export const tourTask = (tour: string): LocalizedText => ({
+  en: `Open the Globe and travel the “${tour}” together.`,
+  es: `Abre el Globo y recorran juntos “${tour}”.`,
+});
+
 export const producerTask = (tutorial: string): LocalizedText => ({
   en: `Open the Studio and follow the “${tutorial}” tutorial together.`,
   es: `Abre el Studio y sigan juntos el tutorial “${tutorial}”.`,

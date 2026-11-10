@@ -43,6 +43,7 @@ export const GroupFocusBanner = ({
     plan,
     activity.role,
     related[activity.role][0]?.ref,
+    related[activity.role][0]?.label,
   );
   return (
     <div

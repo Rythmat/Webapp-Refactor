@@ -10,7 +10,7 @@ import {
   StopCircle,
   Unlock,
 } from 'lucide-react';
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { TeacherRoutes } from '@/constants/routes';
@@ -26,6 +26,7 @@ import { StatusPill } from '@/features/office/ui/StatusPill';
 import { useClassroom } from '@/hooks/data';
 import { InteractionResponseDashboard } from '../assignments/InteractionResponseDashboard';
 import { useEnrollments } from '../enrollments';
+import { useFollowOutbox } from '../follow/classFollow';
 import { useMspInboxEntries } from '../msp';
 import { PHASES } from '../phases';
 import { SnapshotRepairBadge } from '../publish/SnapshotRepairBadge';
@@ -53,6 +54,7 @@ import { RosterPanel } from './RosterPanel';
 import { SessionPresentView } from './SessionPresentView';
 import { buildSlideProgress, submittedMindMap } from './buildSlideProgress';
 import type { SessionMode } from './sessionsStore';
+import { ClassStepPanel } from './slides/ClassStepPanel';
 import { CurrentSlidePanel } from './slides/CurrentSlidePanel';
 import { MediaRemote } from './slides/MediaRemote';
 import { PairingPanel } from './slides/PairingPanel';
@@ -61,7 +63,9 @@ import { ShowcaseProjectorFrame } from './slides/ShowcaseProjectorFrame';
 import { SlideStrip } from './slides/SlideStrip';
 import { TimerControl } from './slides/TimerControl';
 import { buildRevealNode } from './slides/revealNode';
+import { useActivityOutline } from './useActivityOutline';
 import { useLiveResponses } from './useLiveResponses';
+import { useSessionActivityDone } from './useSessionActivityDone';
 import { useSessionPositions } from './useSessionPositions';
 import { useSessionPresence } from './useSessionPresence';
 import { useSessionSync } from './useSessionSync';
@@ -96,8 +100,10 @@ export const TeacherSessionDashboard = () => {
     sendTimer,
     sendMedia,
     sendEcho,
+    sendActivity,
     clock,
   } = useSessionSync(sid, 'teacher', cid);
+  const activityDone = useSessionActivityDone(sid);
   const { aggregate, countResponses, responsesByEnrollment } =
     useLiveResponses(sid);
   const positions = useSessionPositions(sid);
@@ -150,6 +156,76 @@ export const TeacherSessionDashboard = () => {
         : [],
     [snapshot, currentSlide],
   );
+
+  // A Group Project the class does together: its activity, and the class's
+  // step in it (owner, 2026-11-10).
+  const followInteraction =
+    currentSlide?.kind === 'app-route'
+      ? currentSlideInteractions.find((i) => i.atlas?.follow)
+      : undefined;
+  const followRef = followInteraction?.atlas?.activityRef;
+  const classActivity =
+    currentSlide && state?.activity?.slideId === currentSlide.id
+      ? state.activity
+      : undefined;
+  // The activity's steps, so every screen can say "Step 3 of 14 · …".
+  const outline = useActivityOutline(followRef);
+  const stepFields = (step: number) =>
+    outline
+      ? {
+          total: outline.total,
+          ...(outline.titles[step] ? { title: outline.titles[step] } : {}),
+        }
+      : classActivity?.total !== undefined
+        ? { total: classActivity.total }
+        : {};
+  // Arriving on the slide starts the class on step 1, once per arrival
+  // (until the socket echoes it back, the state still names the old slide).
+  const startedFor = useRef<string | null>(null);
+  const activitySlideId = state?.activity?.slideId;
+  const live = Boolean(state) && state?.status !== 'ended';
+  useEffect(() => {
+    if (!currentSlide || !followRef || !live) {
+      startedFor.current = null;
+      return;
+    }
+    if (activitySlideId === currentSlide.id) return;
+    if (startedFor.current === currentSlide.id) return;
+    startedFor.current = currentSlide.id;
+    sendActivity({
+      slideId: currentSlide.id,
+      ref: followRef,
+      step: 0,
+      ...(outline
+        ? { total: outline.total, title: outline.titles[0] ?? '' }
+        : {}),
+    });
+    // `outline` arriving later re-sends nothing: the next step carries it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSlide, followRef, live, activitySlideId, sendActivity]);
+  // The outline arrived after the class started: fill in the count and the
+  // step's name once, so the room sees "Step 1 of 14 · …".
+  useEffect(() => {
+    if (!outline || !classActivity || classActivity.total !== undefined) return;
+    sendActivity({
+      ...classActivity,
+      total: outline.total,
+      ...(outline.titles[classActivity.step]
+        ? { title: outline.titles[classActivity.step] }
+        : {}),
+    });
+  }, [outline, classActivity, sendActivity]);
+  // The teacher, leading from inside the activity's own tab.
+  useFollowOutbox(sid, (note) => {
+    if (note.kind !== 'step' || !currentSlide || note.ref !== followRef) return;
+    sendActivity({
+      slideId: currentSlide.id,
+      ref: note.ref,
+      step: note.step,
+      ...(note.total !== undefined ? { total: note.total } : {}),
+      ...(note.title ? { title: note.title } : {}),
+    });
+  });
 
   // Echo (class): the slide's echo interaction, and the class to show in its grid.
   const echoInteraction = currentSlideInteractions.find(
@@ -618,6 +694,24 @@ export const TeacherSessionDashboard = () => {
                   showcase={state.showcase}
                   onFeature={sendShowcase}
                   onClear={() => sendShowcase(null)}
+                />
+              ) : currentSlide && followInteraction ? (
+                <ClassStepPanel
+                  sessionId={sid}
+                  slideId={currentSlide.id}
+                  interaction={followInteraction}
+                  activity={classActivity}
+                  done={activityDone}
+                  rosterCount={Math.max(activeEnrollments.length, 0)}
+                  onStep={(step) =>
+                    followRef &&
+                    sendActivity({
+                      slideId: currentSlide.id,
+                      ref: followRef,
+                      step,
+                      ...stepFields(step),
+                    })
+                  }
                 />
               ) : currentSlide ? (
                 <CurrentSlidePanel

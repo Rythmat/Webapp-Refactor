@@ -59,6 +59,37 @@ describe('choosing the Group Project', () => {
     expect(findForbiddenKey(publishDay(next))).toBeNull();
   });
 
+  it("sends the Promoter on the subject's Globe tour, together", () => {
+    const day = newBlankDay('Lesson');
+    const group = slideIn(day, 'groupProject');
+    const tour = related.promoter.find((o) => o.ref.startsWith('globe:tour:'))!;
+    const next = applyGroupPick(
+      day,
+      group.id,
+      plan,
+      'promoter',
+      tour.ref,
+      tour.label,
+    );
+    const slide = next.deck!.slides.find((s) => s.id === group.id)!;
+    const [id] = slideInteractionIds(slide);
+    const ix = next.cells.groupPractice.presentation.interactions?.find(
+      (i) => i.id === id,
+    );
+    expect(ix?.atlas).toEqual({
+      module: 'globe',
+      activityRef: tour.ref,
+      expects: 'completion',
+      follow: true,
+    });
+    expect(slide.prompt?.en).toContain(tour.label);
+    // `follow` survives publish: the class's tabs need it.
+    const published = publishDay(
+      next,
+    ).cells.groupPractice.presentation.interactions?.find((i) => i.id === id);
+    expect(published?.atlas?.follow).toBe(true);
+  });
+
   it('swaps an activity in place, keeping its interaction', () => {
     const day = newBlankDay('Lesson');
     const group = slideIn(day, 'groupProject');

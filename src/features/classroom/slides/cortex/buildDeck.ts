@@ -20,6 +20,7 @@ import {
   promoterHeadline,
   promoterTask,
   todayWith,
+  tourTask,
 } from './copy';
 import { showcaseBody } from './showcase';
 import type { CortexLessonChoices, CortexLessonPlan, GroupRole } from './types';
@@ -242,6 +243,7 @@ const groupInteraction = (
       };
     }
     case 'producer': {
+      // Every Group Project activity but the mind map is done together.
       const option =
         plan.producer.find((o) => o.tutorial.id === choices.tutorialId) ??
         plan.producer[0];
@@ -259,6 +261,7 @@ const groupInteraction = (
             activityRef: `studio:tutorial:${option.tutorial.id}`,
             // The tutorial reports completion when its last step is done.
             expects: 'completion',
+            follow: true,
           },
         },
       };
@@ -280,6 +283,7 @@ const groupInteraction = (
             module: 'learn',
             activityRef: option.activityRef,
             expects: 'completion',
+            follow: true,
           },
         },
       };
@@ -451,6 +455,8 @@ export const cortexGroupActivity = (
   plan: CortexLessonPlan,
   role: GroupRole,
   ref?: string,
+  /** The activity's name, for a Globe tour ("North America tour"). */
+  label?: string,
 ): {
   interaction: Interaction;
   title: LocalizedText;
@@ -459,6 +465,26 @@ export const cortexGroupActivity = (
   const tutorialId = ref?.startsWith('studio:tutorial:')
     ? ref.slice('studio:tutorial:'.length)
     : undefined;
+  // A Promoter's Globe tour: the class travels it together.
+  if (role === 'promoter' && ref?.startsWith('globe:tour:')) {
+    const task = tourTask(label ?? 'tour');
+    return {
+      title: groupTitle(role),
+      prompt: task,
+      interaction: {
+        id,
+        type: 'atlas',
+        question: task,
+        shareable: false,
+        atlas: {
+          module: 'globe',
+          activityRef: ref,
+          expects: 'completion',
+          follow: true,
+        },
+      },
+    };
+  }
   const group = groupInteraction(id, plan, {
     role,
     ...(tutorialId ? { tutorialId } : {}),

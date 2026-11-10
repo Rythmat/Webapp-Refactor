@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ClassFollowBar } from './ClassFollowBar';
+import { useTutorialClassFollow } from './useTutorialClassFollow';
 import { createPortal } from 'react-dom';
 import { useInRouterContext } from 'react-router-dom';
 import { useStore } from '@/daw/store';
@@ -102,6 +104,18 @@ export function TutorialLayer() {
   const step = tutorial ? (tutorial.steps[stepIndex] ?? null) : null;
   const isLast = tutorial ? stepIndex >= total - 1 : false;
   const isValidated = !!(step?.check || step?.synthCheck || step?.promptCheck);
+  // A Group Project lesson the class does together: the teacher's step is
+  // the class's step (owner, 2026-11-10).
+  const classFollow = useTutorialClassFollow({
+    activeId,
+    stepIndex,
+    total,
+    status,
+    isLast,
+    stepTitle: step?.instruction,
+    goTo,
+  });
+  const holding = classFollow.holding;
 
   // The rainbow on the region of the step just done (a fresh key replays it),
   // or null once it is done. It keeps that step's target, so it stays put
@@ -233,6 +247,8 @@ export function TutorialLayer() {
   useEffect(() => {
     if (!tutorial || status !== 'done') return;
     if (celebrate) burst();
+    // With the class: done here waits for the teacher's next step.
+    if (holding) return;
     const delay = celebrate ? 950 : 300;
     const id = window.setTimeout(() => {
       if (isLast) finishLesson(tutorial.id);
@@ -248,6 +264,7 @@ export function TutorialLayer() {
     goTo,
     finishLesson,
     burst,
+    holding,
   ]);
 
   if (!tutorial || !step) {
@@ -276,6 +293,11 @@ export function TutorialLayer() {
     // Validated steps advance via detection; Next is only enabled once done.
     if (isValidated && status !== 'done') return;
     if (!isValidated) burst(); // free-form: celebrate on Next
+    if (holding) {
+      // At the class's step: tell the teacher, then wait for them.
+      classFollow.holdAtClassStep();
+      return;
+    }
     if (isLast) finishNow();
     else goTo(stepIndex + 1);
   };
@@ -296,6 +318,19 @@ export function TutorialLayer() {
           rack={rainbow.rack}
           reducedMotion={reducedMotion}
           onDone={endBurst}
+        />
+      )}
+      {classFollow.following && (
+        <ClassFollowBar
+          leading={classFollow.leading}
+          step={
+            classFollow.leading
+              ? stepIndex
+              : (classFollow.classStep ?? stepIndex)
+          }
+          total={total}
+          waiting={classFollow.waiting}
+          doneCount={classFollow.doneCount}
         />
       )}
       <CoachCard

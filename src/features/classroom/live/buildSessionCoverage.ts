@@ -5,6 +5,8 @@
  *
  * e.g. "Covered: Unit nov-jazz · JAZZ:L1 §A Melody (4/6) · Theory dorian / G (3/6)"
  */
+import { getSong } from '@/curriculum/data/songs';
+import { describeRef } from '../slides/describeRef';
 import type { SlideDeck } from '../slides/types';
 import type { Interaction, InteractionResponsePayload } from '../types';
 import { isAtlasResultComplete } from './buildSlideProgress';
@@ -52,8 +54,17 @@ const labelForActivityRef = (
   if (parts[0] === 'song' && parts[2] === 'lesson') {
     return { kind: 'song-lesson', label: 'Song theory lesson' };
   }
-  return { kind: 'other', label: ref };
+  // Globe, Studio, Arcade and the rest: by name, not by raw ref.
+  const { module, title } = describeRef(ref, { getSong });
+  return { kind: 'other', label: `${MODULE_NAME[module]} · ${title}` };
 };
+
+const MODULE_NAME = {
+  learn: 'Learn',
+  studio: 'Studio',
+  globe: 'Globe',
+  arcade: 'Arcade',
+} as const;
 
 export const buildSessionCoverage = (input: {
   deck: SlideDeck | null | undefined;

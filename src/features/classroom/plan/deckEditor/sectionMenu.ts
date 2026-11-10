@@ -28,6 +28,9 @@ export type SectionAddOption =
   | { kind: 'share'; label: string }
   /** The room reset checklist. */
   | { kind: 'reset'; label: string }
+  /** Open the lesson picker on this section: the Showcase's subject, or
+   *  the Group Project's activity, which is always about it. */
+  | { kind: 'lesson'; label: string }
   | { kind: 'blank'; label: string };
 
 const blank: SectionAddOption = { kind: 'blank', label: 'Blank slide' };
@@ -48,7 +51,8 @@ export const SECTION_ADD_OPTIONS: Readonly<
     blank,
   ],
   showcase: [
-    { kind: 'template', templateId: 'song', label: 'Song or artist' },
+    { kind: 'lesson', label: 'Choose the Showcase' },
+    { kind: 'template', templateId: 'song', label: 'Song to listen to' },
     { kind: 'template', templateId: 'pathways', label: 'Genre tour' },
     { kind: 'template', templateId: 'regionsCities', label: 'Region or city' },
     { kind: 'template', templateId: 'events', label: 'Event in history' },
@@ -57,10 +61,8 @@ export const SECTION_ADD_OPTIONS: Readonly<
     blank,
   ],
   groupProject: [
+    { kind: 'lesson', label: 'Class activity: Globe, Studio or Learn' },
     { kind: 'studio', grouping: 'pairs', label: 'Studio in pairs' },
-    { kind: 'template', templateId: 'theory', label: 'Learn lesson together' },
-    { kind: 'template', templateId: 'studio', label: 'Studio tutorial' },
-    { kind: 'template', templateId: 'pathways', label: 'Globe tour' },
     {
       kind: 'response',
       type: 'text',

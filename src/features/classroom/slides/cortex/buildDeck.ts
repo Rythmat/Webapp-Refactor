@@ -338,28 +338,7 @@ export const buildCortexLessonContent = (
       kind: 'content',
       phase: 'connectRegulate',
       section: 'showcase',
-      title: { en: focus.label, es: focus.label },
-      ...(showcase.facts.length > 0
-        ? { body: showcaseBody(showcase.facts) }
-        : {}),
-      // The globe on the left, flying to the subject's place, and the photo
-      // on the right (owner, 2026-11-10). With only one of the two, the older
-      // spotlight: the visual beside the copy.
-      ...(showcase.globe && showcase.portrait
-        ? {
-            presetId: 'showcase',
-            media: showcase.globe,
-            sideMedia: showcase.portrait,
-          }
-        : {
-            presetId: 'artist-spotlight',
-            prompt:
-              focus.kind === 'artist'
-                ? COPY.showcaseArtist
-                : COPY.showcasePlace,
-            ...(showcase.visual ? { media: showcase.visual } : {}),
-          }),
-      accent: showcase.accent,
+      ...showcaseSlideFields(plan),
     },
   ];
   if (showcase.listen) {
@@ -423,6 +402,40 @@ export const buildCortexLessonContent = (
       groupPractice: { title: groupTitle(choices.role), prompt: group.prompt },
       ...shared.cellCopy,
     },
+  };
+};
+
+/**
+ * The Showcase slide's fields for a plan's subject: its name and facts, and
+ * the globe on the left half with the photo on the right (owner,
+ * 2026-11-10). With only one of the two, the older spotlight: the visual
+ * beside the copy. The generator and the editor's Showcase pick share it.
+ */
+export const showcaseSlideFields = (
+  plan: CortexLessonPlan,
+): Pick<
+  Extract<Slide, { kind: 'content' }>,
+  'title' | 'body' | 'presetId' | 'prompt' | 'media' | 'sideMedia' | 'accent'
+> => {
+  const { focus, showcase } = plan;
+  return {
+    title: { en: focus.label, es: focus.label },
+    ...(showcase.facts.length > 0
+      ? { body: showcaseBody(showcase.facts) }
+      : {}),
+    ...(showcase.globe && showcase.portrait
+      ? {
+          presetId: 'showcase',
+          media: showcase.globe,
+          sideMedia: showcase.portrait,
+        }
+      : {
+          presetId: 'artist-spotlight',
+          prompt:
+            focus.kind === 'artist' ? COPY.showcaseArtist : COPY.showcasePlace,
+          ...(showcase.visual ? { media: showcase.visual } : {}),
+        }),
+    accent: showcase.accent,
   };
 };
 

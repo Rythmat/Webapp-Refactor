@@ -8,13 +8,14 @@ import {
   groupActivityOf,
   groupMatchesFocus,
   relatedForFocus,
+  relatedTutorialIds,
 } from '../lessonFocus';
 
 const graph = fixture();
 const catalog = fixtureCatalog();
 const [ana] = searchFocus(graph, catalog, 'Ana Lux');
 const plan = planCortexLesson(graph, catalog, ana);
-const related = relatedForFocus(plan);
+const related = relatedForFocus(plan, graph);
 
 const atlas = (module: 'globe' | 'studio' | 'learn', ref: string) =>
   ({
@@ -38,6 +39,14 @@ describe("the lesson's subject", () => {
     expect(related.performer.map((o) => o.ref)).toEqual(
       plan.performer.map((o) => o.activityRef),
     );
+  });
+
+  it("keeps the Producer to the subject's own sound", () => {
+    const sound = relatedTutorialIds(graph, ana.id);
+    expect(related.producer.length).toBeGreaterThan(0);
+    expect(related.producer.length).toBeLessThan(plan.producer.length);
+    for (const o of related.producer)
+      expect(sound.has(o.ref.replace('studio:tutorial:', ''))).toBe(true);
   });
 
   it("knows a Group Project that isn't about the subject", () => {

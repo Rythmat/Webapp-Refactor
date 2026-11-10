@@ -19,6 +19,7 @@
  * (e.g. an annual-plan globe LaunchTile whose activityRef is a bare event id).
  */
 import {
+  GameRoutes,
   GlobeRoutes,
   LearnRoutes,
   SongRoutes,
@@ -46,6 +47,7 @@ const KNOWN_NAMESPACES = new Set([
   'curriculum',
   'globe',
   'studio',
+  'arcade',
 ]);
 
 /**
@@ -151,6 +153,9 @@ export const resolveActivityRefHref = (
         return `${GlobeRoutes.root()}?tour=${encodeURIComponent(`city-${id}`)}`;
       if (sub === 'era' && id)
         return `${GlobeRoutes.root()}?era=${encodeURIComponent(id)}`;
+      // Any guided tour by its full id: `artist-…`, `city-…`, `region-…`.
+      if (sub === 'tour' && id)
+        return `${GlobeRoutes.root()}?tour=${encodeURIComponent(id)}`;
       // A Cortex lesson's Promoter: the Globe with the mind-map panel open.
       // The board itself is handed over separately (msp/mindMapHandoff).
       if (sub === 'mindmap') return `${GlobeRoutes.root()}?mindmap=1`;
@@ -169,6 +174,12 @@ export const resolveActivityRefHref = (
       // "Continue your project": the Studio Dashboard's project library.
       if (sub === 'library') return `${StudioRoutes.root()}?tab=Library`;
       return StudioRoutes.editor();
+    }
+    case 'arcade': {
+      // `arcade:<route key>`: a game by its route in GameRoutes.
+      const key = parts[1];
+      const build = (GameRoutes as Record<string, unknown>)[key];
+      return typeof build === 'function' ? (build as () => string)() : null;
     }
     default:
       return null;

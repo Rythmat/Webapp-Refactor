@@ -1,4 +1,5 @@
 import { ArrowUpRight, Settings } from 'lucide-react';
+import { getSong } from '@/curriculum/data/songs';
 import { IdCover } from '@/features/office/ui/ClassCover';
 import { useTeacherConfig } from '../settings/useTeacherConfig';
 import type { SlideSurface } from '../slides/types';
@@ -51,12 +52,30 @@ export const AppCard = ({
     : `Open ${module}`;
   const projected = surface === 'projector';
 
+  // A song's link wears its artist; anything else, a pattern from its ref.
+  const song = tile.activityRef.startsWith('song:')
+    ? getSong(tile.activityRef.split(':')[1] ?? '')
+    : undefined;
+  const photo =
+    song?.artistImageRef && song.artistImageSource !== 'none'
+      ? song.artistImageRef
+      : null;
+
   const body = (
     <>
-      <IdCover
-        id={tile.activityRef || tile.id}
-        className="size-[2.1em] rounded-[0.5em]"
-      />
+      {photo ? (
+        <img
+          src={photo}
+          alt=""
+          draggable={false}
+          className="size-[2.1em] shrink-0 rounded-[0.5em] object-cover"
+        />
+      ) : (
+        <IdCover
+          id={tile.activityRef || tile.id}
+          className="size-[2.1em] rounded-[0.5em]"
+        />
+      )}
       <span className="flex min-w-0 flex-1 flex-col gap-[0.1em]">
         <span
           className="truncate font-bold uppercase leading-none tracking-[0.08em] text-white/50"

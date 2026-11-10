@@ -10,7 +10,7 @@
  * the firewall is preserved). Autosave + publish/session gating are lifted
  * verbatim from DayEditor.
  */
-import { Check, Eye, Play, Radio, Waypoints } from 'lucide-react';
+import { Check, Eye, Play, Plus, Radio, Waypoints } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
@@ -26,8 +26,12 @@ import type { Activity } from '../../content/types';
 import { useGoLive } from '../../live/useGoLive';
 import { publishDay } from '../../publish/publishDay';
 import { useTeacherConfig } from '../../settings/useTeacherConfig';
-import { isUngeneratedCortexDeck } from '../../slides/cortex/buildDeck';
+import {
+  CORTEX_LESSON_TEMPLATE_ID,
+  isUngeneratedCortexDeck,
+} from '../../slides/cortex/buildDeck';
 import { COPY, RESET_CHECKLIST } from '../../slides/cortex/copy';
+import type { CortexLessonPlan, GroupRole } from '../../slides/cortex/types';
 import { slideInteractionIds } from '../../slides/deck';
 import {
   deleteSlideAt,
@@ -43,6 +47,11 @@ import {
   deckFromCells,
   revealForInteraction,
 } from '../../slides/deckFromCells';
+import { groupActivityOf } from '../../slides/focus/lessonFocus';
+import {
+  applyGroupPick,
+  applyShowcasePick,
+} from '../../slides/focus/lessonPicks';
 import {
   SECTION_PHASE,
   phaseSectionsLabel,
@@ -68,7 +77,6 @@ import type {
 } from '../../types';
 import { emptyInteraction } from '../InteractionEditor';
 import { useLocalPlan } from '../useLocalPlan';
-import { ChooseContentButton } from './ChooseContentButton';
 import { EditorTopBar } from './EditorTopBar';
 import { Filmstrip } from './Filmstrip';
 import { GroupFocusBanner, type GroupMatch } from './GroupFocusBanner';
@@ -77,6 +85,7 @@ import { SlideCanvas } from './SlideCanvas';
 import { TextFormatMenu } from './TextFormatMenu';
 import { ContentPickerDialog } from './contentPicker/ContentPickerDialog';
 import type { PickedTile, SlideMediaEmbed } from './contentPicker/catalog';
+import { LessonContentPicker } from './lessonPicker/LessonContentPicker';
 import type { SectionAddOption } from './sectionMenu';
 import '../../presentation.css';
 
@@ -87,6 +96,10 @@ const withDeck = (day: Day): Day =>
   day.deck && day.deck.slides.length > 0
     ? day
     : { ...day, deck: deckFromCells(day) };
+
+/** A launch tile's id: unique within the slide. */
+const tileUid = (): string =>
+  `lt-${Math.random().toString(36).slice(2, 8)}-${Date.now().toString(36).slice(-4)}`;
 
 export const SlideDeckEditor = () => {
   const { classroomId, dayId } = useParams<{
@@ -118,6 +131,7 @@ export const SlideDeckEditor = () => {
   const [rationaleCollapsed, setRationaleCollapsed] = useState(false);
   // "Generate a new lesson?" — asked before the generator replaces slides.
   const [confirmGenerate, setConfirmGenerate] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   // The Add-slide template awaiting a content pick (opens a scoped picker),
   // and the section the new slide goes into.
@@ -215,6 +229,14 @@ export const SlideDeckEditor = () => {
         case 'template':
           setPendingTemplate({ templateId: option.templateId, section });
           return;
+        case 'lesson': {
+          // Onto the section's first slide, or a new one, then the picker.
+          const at = slides.findIndex((s) => sectionOf(s) === section);
+          if (at >= 0) setSelectedIndex(at);
+          else insertIntoSection(stamp(newSlide('content', phase)));
+          setPickerOpen(true);
+          return;
+        }
         case 'blank':
           insertIntoSection(stamp(newSlide('content', phase)));
           return;
@@ -293,7 +315,7 @@ export const SlideDeckEditor = () => {
         }
       }
     },
-    [insertIntoSection],
+    [insertIntoSection, slides],
   );
 
   // Seed a template slide from the picked content and put it in the section
@@ -452,6 +474,47 @@ export const SlideDeckEditor = () => {
 
   // The lesson's subject: the Group Project keeps to it (owner, 2026-11-10).
   const focusId = draft.deck?.templateRef?.focusId;
+  // The picker's two lesson picks. Choosing the Showcase redraws the
+  // Showcase slide (the selected one, or the lesson's first) and sets the
+  // subject; choosing the Group Project makes the selected slide (or the
+  // lesson's first Group Project slide) run it.
+  const firstIn = (section: SlideSection) =>
+    sectionOf(selected) === section
+      ? selected
+      : draft.deck?.slides.find((s) => sectionOf(s) === section);
+  const chooseShowcase = (plan: CortexLessonPlan) => {
+    const target = firstIn('showcase');
+    setDraft((prev) =>
+      prev
+        ? target
+          ? applyShowcasePick(prev, target.id, plan)
+          : {
+              ...prev,
+              deck: prev.deck && {
+                ...prev.deck,
+                templateRef: {
+                  ...(prev.deck.templateRef ?? {
+                    templateId: CORTEX_LESSON_TEMPLATE_ID,
+                  }),
+                  focusId: plan.focus.id,
+                },
+              },
+            }
+        : prev,
+    );
+  };
+  const chooseGroup = (
+    plan: CortexLessonPlan,
+    role: GroupRole,
+    ref: string,
+  ) => {
+    const target = firstIn('groupProject');
+    if (!target) return;
+    setDraft((prev) =>
+      prev ? applyGroupPick(prev, target.id, plan, role, ref) : prev,
+    );
+  };
+
   const matchShowcase = (match: GroupMatch) => {
     setSelectedInteractions([match.interaction]);
     patchSelected({ title: match.title, prompt: match.prompt });
@@ -498,6 +561,24 @@ export const SlideDeckEditor = () => {
 
   return (
     <div className="flex w-full flex-col">
+      {pickerOpen && (
+        <LessonContentPicker
+          open
+          onOpenChange={setPickerOpen}
+          section={sectionOf(selected)}
+          focusId={focusId}
+          currentGroupRef={groupActivityOf(slideInteractions[0])?.ref}
+          onShowcase={chooseShowcase}
+          onGroup={chooseGroup}
+          onLink={(tile, embed) => {
+            patchSelected({
+              launchTiles: [...contentTiles, { id: tileUid(), ...tile }],
+              ...(embed ?? {}),
+            });
+          }}
+          onAddResponse={insertResponseSlide}
+        />
+      )}
       <ConfirmDialog
         open={confirmGenerate}
         onOpenChange={setConfirmGenerate}
@@ -568,16 +649,14 @@ export const SlideDeckEditor = () => {
         language={language}
         onLanguageChange={setLanguage}
         chooseContent={
-          <ChooseContentButton
-            tiles={contentTiles}
-            onChange={(tiles) =>
-              patchSelected({
-                launchTiles: tiles.length ? tiles : undefined,
-              })
-            }
-            onEmbedMedia={(embed) => patchSelected(embed)}
-            onAddResponse={insertResponseSlide}
-          />
+          <Button
+            variant="pill"
+            size="pill"
+            onClick={() => setPickerOpen(true)}
+          >
+            <Plus aria-hidden />
+            Content
+          </Button>
         }
         textTool={
           <TextFormatMenu

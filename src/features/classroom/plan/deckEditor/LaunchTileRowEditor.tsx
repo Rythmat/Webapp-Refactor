@@ -1,7 +1,7 @@
 /**
  * LaunchTileRowEditor — displays a content slide's Atlas launch tiles on the
  * canvas as removable chips. Adding tiles now lives in the editor toolbar
- * (`ChooseContentButton`, which opens the ContentPickerDialog); this component
+ * (the lesson's Content picker, `LessonContentPicker`); this component
  * only shows the already-chosen tiles where they present, each removable via its
  * ✕. Renders nothing when there are no tiles, so an empty content slide shows no
  * stray block.

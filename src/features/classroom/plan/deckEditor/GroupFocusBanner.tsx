@@ -12,7 +12,6 @@ import type { GroupRole } from '../../slides/cortex/types';
 import {
   groupActivityOf,
   groupMatchesFocus,
-  relatedForFocus,
   useLessonPlan,
 } from '../../slides/focus/lessonFocus';
 import type { Interaction, LocalizedText } from '../../types';
@@ -34,12 +33,17 @@ export const GroupFocusBanner = ({
   interaction: Interaction | undefined;
   onMatch: (match: GroupMatch) => void;
 }) => {
-  const { plan } = useLessonPlan(focusId);
+  const { plan, related } = useLessonPlan(focusId);
   const activity = groupActivityOf(interaction);
-  if (!plan || !activity || !interaction) return null;
-  if (groupMatchesFocus(activity.ref, relatedForFocus(plan))) return null;
+  if (!plan || !related || !activity || !interaction) return null;
+  if (groupMatchesFocus(activity.ref, related)) return null;
 
-  const match = cortexGroupActivity(interaction.id, plan, activity.role);
+  const match = cortexGroupActivity(
+    interaction.id,
+    plan,
+    activity.role,
+    related[activity.role][0]?.ref,
+  );
   return (
     <div
       role="status"

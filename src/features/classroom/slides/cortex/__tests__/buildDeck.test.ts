@@ -168,6 +168,11 @@ describe('a generated Cortex lesson', () => {
     expect(places).toMatchObject({ presetId: 'bleed' });
     expect(places.media?.type).toBe('globePreview');
     expect(places.media?.stops?.[0]?.label?.en).toBe('Motor City · 1950');
+    // Each place says why it matters to the subject, from where they began.
+    expect(
+      (places.media?.stops?.[0] as { story?: { title: { en: string } } }).story
+        ?.title.en,
+    ).toBe('Ana Lux is born in Motor City in 1950.');
     // Each place opens the Globe section's own map there.
     for (const stop of places.media?.stops ?? [])
       expect((stop as { ref?: string }).ref).toMatch(/^(place:|event:|at:)/);
@@ -175,6 +180,9 @@ describe('a generated Cortex lesson', () => {
     const published = publishDay(day).deck?.slides.find((s) =>
       s.id.endsWith('-slide-places'),
     ) as { media?: { stops?: { ref?: string }[] } } | undefined;
+    expect(
+      (published?.media?.stops?.[0] as { story?: unknown } | undefined)?.story,
+    ).toBeDefined();
     expect(published?.media?.stops?.[0]?.ref).toBe(
       (places.media?.stops?.[0] as { ref?: string }).ref,
     );

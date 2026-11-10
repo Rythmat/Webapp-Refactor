@@ -49,6 +49,19 @@ export type SlideMedia =
          * `event:<id>` or `at:<lat>,<lng>` (`slides/globe/slideGlobeStops.ts`).
          */
         ref?: string;
+        /**
+         * Why the place matters to the subject (owner, 2026-11-10: "the
+         * locations are meaningless without … how the location is relevant to
+         * the artist's story"): shown on the slide's card at this stop.
+         */
+        story?: {
+          title: LocalizedText;
+          body?: LocalizedText;
+          /** The event's video, for the card's picture. */
+          videoId?: string;
+          /** A song whose artist photo is the card's picture. */
+          songId?: string;
+        };
       }>;
     }
   /**

@@ -183,6 +183,26 @@ const isLatLng = (v: unknown): v is [number, number] =>
   v.length === 2 &&
   v.every((n) => typeof n === 'number' && Number.isFinite(n));
 
+type GlobeStopStory = NonNullable<
+  NonNullable<
+    Extract<SlideMedia, { type: 'globePreview' }>['stops']
+  >[number]['story']
+>;
+
+/** A globe stop's story: its words, and a picture by id only. */
+const projectStopStory = (story: GlobeStopStory): GlobeStopStory => ({
+  title: projectLocalized(story.title),
+  ...(story.body ? { body: projectLocalized(story.body) } : {}),
+  ...(typeof story.videoId === 'string' &&
+  /^[A-Za-z0-9_-]{6,20}$/.test(story.videoId)
+    ? { videoId: story.videoId }
+    : {}),
+  ...(typeof story.songId === 'string' &&
+  /^[a-z0-9_-]{1,80}$/.test(story.songId)
+    ? { songId: story.songId }
+    : {}),
+});
+
 const projectSlideMedia = (media: SlideMedia): SlideMedia => {
   switch (media.type) {
     case 'youtube':
@@ -225,6 +245,9 @@ const projectSlideMedia = (media: SlideMedia): SlideMedia => {
                     : {}),
                   // A place or an event by id, or a position; nothing else.
                   ...(isStopRef(stop.ref) ? { ref: stop.ref } : {}),
+                  ...(stop.story
+                    ? { story: projectStopStory(stop.story) }
+                    : {}),
                 })),
             }
           : {}),

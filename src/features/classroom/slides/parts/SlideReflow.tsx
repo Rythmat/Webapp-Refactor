@@ -140,12 +140,14 @@ const ReflowStage = ({
 }) => {
   const media = stageMedia(slide);
   if (!media) return null;
+  // The globe lays itself out: the map, then the place's story, then the
+  // arrow.
+  if (media.type === 'globePreview')
+    return <SlideGlobe globe={media} language={language} />;
   return (
     <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-[#0b0b0d]">
       {media.type === 'artistImage' ? (
         <ShowcasePhoto songId={media.songId} />
-      ) : media.type === 'globePreview' ? (
-        <SlideGlobe globe={media} language={language} live={false} />
       ) : media.type === 'youtube' ? (
         <img
           src={`https://i.ytimg.com/vi/${media.videoId}/hqdefault.jpg`}

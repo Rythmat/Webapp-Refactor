@@ -325,10 +325,45 @@ type GlobeStop = NonNullable<
   Extract<SlideMedia, { type: 'globePreview' }>['stops']
 >[number];
 
+/** At most this many words in a stop's story. */
+export const STORY_MAX_WORDS = 32;
+
+/**
+ * The sentence of an event's description that says what it has to do with
+ * the subject (the first naming them), else its first; past
+ * `STORY_MAX_WORDS`, without its asides between dashes, then cut at a word.
+ */
+export const storySentence = (description: string, subject: string): string => {
+  const sentences = description
+    .split(/(?<=[.!?][”"'’]?)\s+(?=[A-Z"“'‘])/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const surname = subject.split(/\s+/).pop() ?? subject;
+  const about =
+    sentences.find((s) => s.includes(subject)) ??
+    sentences.find((s) => surname.length > 3 && s.includes(surname)) ??
+    sentences[0] ??
+    '';
+  // A long sentence loses its asides between dashes first.
+  const trimmed =
+    about.split(/\s+/).length > STORY_MAX_WORDS
+      ? about.replace(/\s+[—–]\s+[^—–]+?\s+[—–]\s+/g, ' ')
+      : about;
+  const words = trimmed.split(/\s+/);
+  return words.length <= STORY_MAX_WORDS
+    ? trimmed
+    : `${words
+        .slice(0, STORY_MAX_WORDS)
+        .join(' ')
+        .replace(/[,;:—–-]+$/, '')}…`;
+};
+
 /**
  * The artist's places, in story order, for the full-screen globe (owner,
  * 2026-11-10): where they were born or based, then each event about them
- * that has a place, earliest first. Each named "Gary · 1958".
+ * that has a place, earliest first. Each named "Gary · 1958", and each with
+ * its story: why the place matters to them (the event, the sentence of it
+ * that names them, its video), shown on the slide's card at that stop.
  */
 const artistStops = (
   graph: LessonGraph,
@@ -336,6 +371,7 @@ const artistStops = (
   focus: GraphNode,
   home: GraphNode,
   homeAt: [number, number],
+  portraitSongId: string | undefined,
 ): GlobeStop[] => {
   const year =
     linked(graph, focus.id, 'born_year', 'out')[0] ??
@@ -355,12 +391,23 @@ const artistStops = (
     const at: [number, number] = [event.lat, event.lng];
     if (seen.has(spot(at))) continue;
     seen.add(spot(at));
-    const city = linked(graph, node.id, 'took_place_in', 'out')[0]?.label;
+    const city =
+      linked(graph, node.id, 'took_place_in', 'out')[0]?.label ?? event.city;
+    const body = event.description
+      ? storySentence(event.description, focus.label)
+      : '';
     later.push({
       stop: {
         location: at,
         label: named(city ?? event.title, event.year),
         ref: `event:${event.id}`,
+        story: {
+          title: { en: event.title, es: event.title },
+          ...(body ? { body: { en: body, es: body } } : {}),
+          ...(event.videoId ? { videoId: event.videoId } : {}),
+          // Their photo, when the event's video has no picture.
+          ...(portraitSongId ? { songId: portraitSongId } : {}),
+        },
       },
       year: event.year ?? Number.MAX_SAFE_INTEGER,
     });
@@ -373,8 +420,29 @@ const artistStops = (
     homeRecord && homeRecord.pin !== false
       ? `place:city:${homeRecord.id}`
       : atRef(homeAt);
+  // Where the story starts: born (or based) here, with their photo.
+  const born = linked(graph, focus.id, 'born_in', 'out')[0]?.id === home.id;
+  const when = year ? ` in ${year.label}` : '';
+  const whenEs = year ? ` en ${year.label}` : '';
+  const homeStory = {
+    title: born
+      ? {
+          en: `${focus.label} is born in ${home.label}${when}.`,
+          es: `${focus.label} nace en ${home.label}${whenEs}.`,
+        }
+      : {
+          en: `${focus.label} makes ${home.label} home.`,
+          es: `${focus.label} hace de ${home.label} su hogar.`,
+        },
+    ...(portraitSongId ? { songId: portraitSongId } : {}),
+  };
   return [
-    { location: homeAt, label: named(home.label, year?.label), ref: homeRef },
+    {
+      location: homeAt,
+      label: named(home.label, year?.label),
+      ref: homeRef,
+      story: homeStory,
+    },
     ...later.map((l) => l.stop),
   ].slice(0, MAX_STOPS);
 };
@@ -408,7 +476,14 @@ const artistMedia = (
         }
       : undefined;
   const stops = coordinates
-    ? artistStops(graph, catalog, focus, place!, coordinates)
+    ? artistStops(
+        graph,
+        catalog,
+        focus,
+        place!,
+        coordinates,
+        portrait ? slugOf(portrait.id) : undefined,
+      )
     : [];
   const globe: SlideMedia | undefined = coordinates
     ? {

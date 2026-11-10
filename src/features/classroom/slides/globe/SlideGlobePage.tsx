@@ -1,7 +1,10 @@
 /**
  * The Globe section's own map, alone, for a lesson slide (owner, 2026-11-10:
  * "the same Globe used in the main Globe"). A slide shows this page in a
- * frame: the map and its cards, without the rails, tabs or Inspector.
+ * frame: the map, without the rails, tabs, Inspector or the connections
+ * card. The slide draws its own card (each place's part in the subject's
+ * story) and says how much of the map it covers (`?left=`, a share of the
+ * width), so the map frames each place beside it.
  *
  * In a frame because the Globe navigates by its page's address (`?place=`,
  * `?event=`); here that address is the frame's own, so clicking the map
@@ -17,13 +20,15 @@ import { useSearchParams } from 'react-router-dom';
 import { AtlasGlobe } from '@/components/atlas/components/Globe';
 import { AtlasMapProvider } from '@/components/atlas/components/Globe/mapHandle';
 import { stateBoundariesData } from '@/components/atlas/data/loaders';
-import { CardsLayer } from '@/components/atlas/layout/CardsLayer';
 import { IntroProvider } from '@/components/atlas/layout/intro';
 import { AtlasPortalContext } from '@/components/atlas/layout/portalRoot';
 import { InspectorProvider } from '@/components/atlas/layout/useInspector';
 import { AtlasNavigationProvider } from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasUrlSync } from '@/components/atlas/navigation/useAtlasUrlSync';
-import { AtlasStoreProvider } from '@/components/atlas/state/atlasStore';
+import {
+  AtlasStoreProvider,
+  useAtlasDispatch,
+} from '@/components/atlas/state/atlasStore';
 import { StageSignalsProvider } from '@/components/atlas/state/stageSignals';
 import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
 import { stateAt } from '@/components/atlas/utils/stateAt';
@@ -91,8 +96,35 @@ function SlideGlobeSync() {
   return null;
 }
 
+/** What the slide's card covers of the map, so flights land beside it. */
+function CardInsets() {
+  const dispatch = useAtlasDispatch();
+  const [params] = useSearchParams();
+  const share = Number(params.get('left'));
+  useEffect(() => {
+    if (!(share > 0 && share < 1)) return;
+    const report = () =>
+      dispatch({
+        type: 'SET_ZONE_INSETS',
+        payload: {
+          zone: 'cards',
+          insets: {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: Math.round(window.innerWidth * share),
+          },
+        },
+      });
+    report();
+    window.addEventListener('resize', report);
+    return () => window.removeEventListener('resize', report);
+  }, [dispatch, share]);
+  return null;
+}
+
 function SlideGlobeLayout() {
-  // The root, for the cards' portals (layout/portalRoot).
+  // The root, for the map's portals (layout/portalRoot).
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
   return (
     <div
@@ -106,7 +138,7 @@ function SlideGlobeLayout() {
           <div className="absolute inset-0">
             <AtlasGlobe />
           </div>
-          <CardsLayer />
+          <CardInsets />
         </InspectorProvider>
         <SlideGlobeSync />
       </AtlasPortalContext.Provider>

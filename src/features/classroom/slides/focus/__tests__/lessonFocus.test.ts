@@ -32,7 +32,10 @@ describe("the lesson's subject", () => {
   });
 
   it('offers every role only what the subject relates to', () => {
-    expect(related.promoter.map((o) => o.ref)).toEqual(['globe:mindmap']);
+    // The Globe: the tour of the subject's region, then its mind map.
+    const promoter = related.promoter.map((o) => o.ref);
+    expect(promoter.at(-1)).toBe('globe:mindmap');
+    expect(promoter[0]).toMatch(/^globe:tour:region-/);
     expect(related.producer[0].ref).toBe(
       `studio:tutorial:${plan.producer[0].tutorial.id}`,
     );

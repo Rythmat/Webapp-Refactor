@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { getTour } from '@/components/atlas/data/guidedTours';
+import { REGIONS } from '@/components/atlas/data/regions';
 import type { EntityId } from '@/content/graph/types';
 import type { Interaction } from '../../types';
+import { globeTourRef } from '../contentRefs';
 import type { LessonGraph } from '../cortex/graphQueries';
 import { LESSON_ATLAS_KEY, loadLessonAtlas } from '../cortex/loadLessonAtlas';
 import { planCortexLesson } from '../cortex/planLesson';
@@ -67,6 +70,48 @@ export const relatedTutorialIds = (
   return ids;
 };
 
+/** Squared angular distance, enough to rank region centres. */
+const dist2 = (a: readonly [number, number], b: readonly [number, number]) => {
+  const dLng = Math.abs(a[1] - b[1]);
+  return (a[0] - b[0]) ** 2 + Math.min(dLng, 360 - dLng) ** 2;
+};
+
+/**
+ * The Globe's guided tours that are about the subject's place: the city's own
+ * tour when it has one, then the tour of the region it sits in (the region
+ * whose centre is nearest). Michael Jackson, born in Gary, gets North
+ * America. The tours are the Globe's own (`guidedTours.ts`), read here, never
+ * edited.
+ */
+export const relatedTours = (plan: CortexLessonPlan): RelatedOption[] => {
+  const out: RelatedOption[] = [];
+  const add = (tourId: string) => {
+    const tour = getTour(tourId);
+    const ref = globeTourRef(tourId);
+    if (!tour || out.some((o) => o.ref === ref)) return;
+    out.push({
+      role: 'promoter',
+      ref,
+      label: `${tour.title} tour`,
+      detail: tour.kind === 'city' ? 'City tour' : 'Region tour',
+    });
+  };
+  if (plan.focus.id.startsWith('place:'))
+    add(`city-${plan.focus.id.slice('place:'.length)}`);
+  const globe = plan.showcase.globe;
+  const at =
+    globe?.type === 'globePreview'
+      ? (globe.focus ?? globe.markers?.[0]?.location)
+      : undefined;
+  if (at) {
+    const nearest = [...REGIONS].sort(
+      (a, b) => dist2(a.center, at) - dist2(b.center, at),
+    )[0];
+    if (nearest) add(`region-${nearest.id}`);
+  }
+  return out;
+};
+
 /** Everything the Group Project may be, by role, for a plan's subject. */
 export const relatedForFocus = (
   plan: CortexLessonPlan,
@@ -77,16 +122,19 @@ export const relatedForFocus = (
   // Never empty: the generator's pick is related by construction.
   const producer = sound.length > 0 ? sound : plan.producer.slice(0, 1);
   return {
-    promoter: plan.promoter
-      ? [
-          {
-            role: 'promoter',
-            ref: 'globe:mindmap',
-            label: `${plan.focus.label}'s connections`,
-            detail: 'Mind map on the Globe',
-          },
-        ]
-      : [],
+    promoter: [
+      ...relatedTours(plan),
+      ...(plan.promoter
+        ? [
+            {
+              role: 'promoter' as const,
+              ref: 'globe:mindmap',
+              label: `${plan.focus.label}'s connections`,
+              detail: 'Mind map on the Globe',
+            },
+          ]
+        : []),
+    ],
     producer: producer.map((o) => ({
       role: 'producer' as const,
       ref: `studio:tutorial:${o.tutorial.id}`,

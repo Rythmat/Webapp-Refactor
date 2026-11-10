@@ -754,7 +754,7 @@ export function PathPage({ course }: { course: PathCourse }) {
           if (!next) setOpenLevel(null);
         }}
       >
-        <DialogContent className="max-w-[24rem] rounded-2xl border-white/10 bg-[#1b1b1f] p-7 text-white">
+        <DialogContent className="max-w-96 rounded-2xl border-white/10 bg-[#1b1b1f] p-7 text-white">
           <p
             className="text-center text-[0.6875rem] font-bold uppercase tracking-[0.12em]"
             style={{ color: accent }}

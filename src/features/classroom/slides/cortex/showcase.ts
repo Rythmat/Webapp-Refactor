@@ -4,6 +4,7 @@ import type { LocalizedText } from '../../types';
 import { atRef } from '../globe/slideGlobeStops';
 import { getYouTubeVideoId } from '../songDeepLinks';
 import type { SlideMedia } from '../types';
+import { ARTIST_STORIES } from './artistStories';
 import type { LessonCatalog } from './catalog';
 import { linked, listOf, slugOf, type LessonGraph } from './graphQueries';
 import type {
@@ -319,7 +320,7 @@ const firstOf = <T>(
 };
 
 /** How many places a globe slide visits. */
-const MAX_STOPS = 4;
+const MAX_STOPS = 10;
 
 type GlobeStop = NonNullable<
   Extract<SlideMedia, { type: 'globePreview' }>['stops']
@@ -361,7 +362,8 @@ export const storySentence = (description: string, subject: string): string => {
 /**
  * The artist's places, in story order, for the full-screen globe (owner,
  * 2026-11-10): where they were born or based, then each event about them
- * that has a place, earliest first. Each named "Gary · 1958", and each with
+ * that has a place and the lesson's own moments of it (artistStories.ts),
+ * earliest first. Each named "Gary · 1958", and each with
  * its story: why the place matters to them (the event, the sentence of it
  * that names them, its video), shown on the slide's card at that stop.
  */
@@ -382,15 +384,16 @@ const artistStops = (
   };
   const spot = ([lat, lng]: [number, number]) =>
     `${lat.toFixed(1)},${lng.toFixed(1)}`;
-  const seen = new Set([spot(homeAt)]);
+  // Events pinned on the home town are the songs' pins, not moments of the
+  // story; anywhere else, several moments may share a city (Los Angeles).
+  const home$ = spot(homeAt);
   const later: { stop: GlobeStop; year: number }[] = [];
   for (const node of linked(graph, focus.id, 'about', 'in')) {
     const event = catalog.events.get(slugOf(node.id));
     if (typeof event?.lat !== 'number' || typeof event.lng !== 'number')
       continue;
     const at: [number, number] = [event.lat, event.lng];
-    if (seen.has(spot(at))) continue;
-    seen.add(spot(at));
+    if (spot(at) === home$) continue;
     const city =
       linked(graph, node.id, 'took_place_in', 'out')[0]?.label ?? event.city;
     const body = event.description
@@ -410,6 +413,21 @@ const artistStops = (
         },
       },
       year: event.year ?? Number.MAX_SAFE_INTEGER,
+    });
+  }
+  // The lesson's own moments of the story (artistStories.ts).
+  for (const moment of ARTIST_STORIES[slugOf(focus.id)] ?? []) {
+    later.push({
+      stop: {
+        location: moment.location,
+        label: named(moment.place, moment.year),
+        story: {
+          title: moment.title,
+          body: moment.body,
+          ...(portraitSongId ? { songId: portraitSongId } : {}),
+        },
+      },
+      year: moment.year,
     });
   }
   later.sort((a, b) => a.year - b.year);

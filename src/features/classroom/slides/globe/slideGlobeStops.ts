@@ -41,19 +41,38 @@ export const stopParams = (ref: string): Record<string, string> | null => {
 export const atRef = ([lat, lng]: readonly [number, number]): string =>
   `at:${Number(lat.toFixed(4))},${Number(lng.toFixed(4))}`;
 
-/** A slide's message to its Globe: go to this stop. */
+/** A slide's message to its Globe: go to the story's stop `at`. */
 export const SLIDE_GLOBE_GO = 'slide-globe:go';
 
 export interface SlideGlobeGo {
   type: typeof SLIDE_GLOBE_GO;
-  ref: string;
+  at: number;
 }
 
 export const isSlideGlobeGo = (data: unknown): data is SlideGlobeGo =>
   typeof data === 'object' &&
   data !== null &&
   (data as { type?: unknown }).type === SLIDE_GLOBE_GO &&
-  typeof (data as { ref?: unknown }).ref === 'string';
+  Number.isInteger((data as { at?: unknown }).at) &&
+  ((data as { at: number }).at ?? -1) >= 0;
+
+/**
+ * The story's places, in order, for the framed Globe's address
+ * (`?path=lat,lng;lat,lng`): it draws the path between them and flies along
+ * it, the Globe's own places and events out of the way.
+ */
+export const encodePath = (
+  path: readonly (readonly [number, number])[],
+): string =>
+  path
+    .map(([lat, lng]) => `${Number(lat.toFixed(4))},${Number(lng.toFixed(4))}`)
+    .join(';');
+
+export const decodePath = (text: string | null): [number, number][] =>
+  (text ?? '')
+    .split(';')
+    .map((pair) => stopAt(`at:${pair}`))
+    .filter((p): p is [number, number] => p !== null);
 
 /** A stop ref the publish whitelist keeps: a place or an event, by id. */
 export const isStopRef = (ref: unknown): ref is string =>

@@ -1,106 +1,275 @@
 /**
  * The Globe section's own map, alone, for a lesson slide (owner, 2026-11-10:
  * "the same Globe used in the main Globe"). A slide shows this page in a
- * frame: the map, without the rails, tabs, Inspector or the connections
- * card. The slide draws its own card (each place's part in the subject's
- * story) and says how much of the map it covers (`?left=`, a share of the
- * width), so the map frames each place beside it.
+ * frame, with only the subject's story on it (owner: "non-related events do
+ * not need to be displayed"):
  *
- * In a frame because the Globe navigates by its page's address (`?place=`,
- * `?event=`); here that address is the frame's own, so clicking the map
- * never changes the lesson's. The slide moves it on with a message
- * (`slideGlobeStops.ts`), from the same origin only.
+ *   - the Globe's own land and borders, with its cities, artist points and
+ *     influence arcs switched off (this page's own store, never the
+ *     viewer's saved Layers);
+ *   - the story's path, drawn place to place along great circles, the part
+ *     travelled solid and the rest dashed (`StoryPath`);
+ *   - a marker at each place, and at the current one the Globe's own
+ *     selected-place light and pulses (its `atlas-sun-*` styles);
+ *   - the camera flying to each place as the slide moves on.
+ *
+ * In a frame because the Globe navigates by its page's address; here that
+ * address is the frame's own, so the map never changes the lesson's. The
+ * slide says where the story is (`?path=`, `?at=`, then messages) and how
+ * much of the map its card covers (`?left=`), from the same origin only.
  *
  * Composed from the Globe's own pieces, as `components/atlas/atlas.tsx`
  * composes them; nothing in the Globe is changed for it.
  */
 import '@/components/atlas/index.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AtlasGlobe } from '@/components/atlas/components/Globe';
-import { AtlasMapProvider } from '@/components/atlas/components/Globe/mapHandle';
-import { stateBoundariesData } from '@/components/atlas/data/loaders';
+import {
+  AtlasMapProvider,
+  useAtlasMap,
+  type AtlasMapHandle,
+} from '@/components/atlas/components/Globe/mapHandle';
 import { IntroProvider } from '@/components/atlas/layout/intro';
 import { AtlasPortalContext } from '@/components/atlas/layout/portalRoot';
 import { InspectorProvider } from '@/components/atlas/layout/useInspector';
 import { AtlasNavigationProvider } from '@/components/atlas/navigation/useAtlasNavigate';
-import { useAtlasUrlSync } from '@/components/atlas/navigation/useAtlasUrlSync';
+import {
+  DEFAULT_LAYERS,
+  initialAppState,
+} from '@/components/atlas/state/appReducer';
 import {
   AtlasStoreProvider,
+  createAtlasStore,
   useAtlasDispatch,
 } from '@/components/atlas/state/atlasStore';
 import { StageSignalsProvider } from '@/components/atlas/state/stageSignals';
 import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
-import { stateAt } from '@/components/atlas/utils/stateAt';
 import {
   LESSON_KEYS,
   SLIDE_GLOBE_KEY,
+  decodePath,
   isSlideGlobeGo,
-  stopAt,
-  stopParams,
 } from './slideGlobeStops';
 
+/** How close the camera comes to each place (the Globe's own zoom scale). */
+const STOP_ZOOM = 5;
+/** Points along each leg of the path. */
+const LEG_POINTS = 48;
+
+/** The map's handle, once the map is up. */
+const useMapHandle = (): AtlasMapHandle | null => {
+  const ref = useAtlasMap();
+  const [handle, setHandle] = useState<AtlasMapHandle | null>(null);
+  useEffect(() => {
+    if (handle) return;
+    let raf = 0;
+    const look = () => {
+      if (ref?.current) setHandle(ref.current);
+      else raf = requestAnimationFrame(look);
+    };
+    look();
+    return () => cancelAnimationFrame(raf);
+  }, [ref, handle]);
+  return handle;
+};
+
+/** Re-render on every frame the camera moves. */
+const useCameraFrame = (handle: AtlasMapHandle | null) => {
+  const [, setFrame] = useState(0);
+  useEffect(() => {
+    if (!handle) return;
+    let raf = 0;
+    const off = handle.onCamera(() => {
+      if (!raf)
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          setFrame((n) => n + 1);
+        });
+    });
+    return () => {
+      off();
+      cancelAnimationFrame(raf);
+    };
+  }, [handle]);
+};
+
+const toVector = ([lat, lng]: readonly [number, number]) => {
+  const φ = (lat * Math.PI) / 180;
+  const λ = (lng * Math.PI) / 180;
+  return [Math.cos(φ) * Math.cos(λ), Math.cos(φ) * Math.sin(λ), Math.sin(φ)];
+};
+
+/** Points along the great circle from `a` to `b`, both ends included. */
+export const greatCircle = (
+  a: readonly [number, number],
+  b: readonly [number, number],
+  n: number,
+): [number, number][] => {
+  const va = toVector(a);
+  const vb = toVector(b);
+  const dot = Math.min(
+    1,
+    Math.max(-1, va[0]! * vb[0]! + va[1]! * vb[1]! + va[2]! * vb[2]!),
+  );
+  const ω = Math.acos(dot);
+  if (ω < 1e-6) return [[a[0], a[1]]];
+  const out: [number, number][] = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    const ka = Math.sin((1 - t) * ω) / Math.sin(ω);
+    const kb = Math.sin(t * ω) / Math.sin(ω);
+    const x = ka * va[0]! + kb * vb[0]!;
+    const y = ka * va[1]! + kb * vb[1]!;
+    const z = ka * va[2]! + kb * vb[2]!;
+    out.push([
+      (Math.atan2(z, Math.hypot(x, y)) * 180) / Math.PI,
+      (Math.atan2(y, x) * 180) / Math.PI,
+    ]);
+  }
+  return out;
+};
+
+/** The story's path and places over the map, and the current place's light. */
+function StoryPath({
+  path,
+  at,
+}: {
+  path: readonly [number, number][];
+  at: number;
+}) {
+  const handle = useMapHandle();
+  useCameraFrame(handle);
+  const legs = useMemo(
+    () => path.slice(1).map((to, i) => greatCircle(path[i]!, to, LEG_POINTS)),
+    [path],
+  );
+  if (!handle) return null;
+
+  // Each leg as screen paths, broken where it goes behind the globe.
+  const drawn = legs.map((leg, i) => {
+    const points = handle.project(
+      leg.map(([lat, lng], k) => ({ id: `${i}:${k}`, lat, lng })),
+    );
+    let d = '';
+    let pen = false;
+    for (const p of points) {
+      if (!p.visible) {
+        pen = false;
+        continue;
+      }
+      d += `${pen ? 'L' : 'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+      pen = true;
+    }
+    return { d, travelled: i < at };
+  });
+  const places = handle.project(
+    path.map(([lat, lng], i) => ({ id: String(i), lat, lng })),
+  );
+  const here = places[at];
+
+  return (
+    <>
+      <svg
+        aria-hidden
+        className="pointer-events-none absolute inset-0 size-full"
+        style={{ zIndex: 5 }}
+      >
+        {drawn.map((leg, i) =>
+          leg.d ? (
+            <path
+              key={i}
+              d={leg.d}
+              fill="none"
+              stroke="white"
+              strokeLinecap="round"
+              strokeWidth={leg.travelled ? 2.5 : 1.5}
+              strokeOpacity={leg.travelled ? 0.85 : 0.35}
+              strokeDasharray={leg.travelled ? undefined : '4 6'}
+            />
+          ) : null,
+        )}
+        {places.map((p, i) =>
+          p.visible && i !== at ? (
+            <circle
+              key={p.id}
+              cx={p.x}
+              cy={p.y}
+              r={5}
+              fill={i < at ? 'white' : '#0b0b10'}
+              stroke="white"
+              strokeOpacity={0.8}
+              strokeWidth={2}
+            />
+          ) : null,
+        )}
+        {here?.visible && (
+          <>
+            <circle
+              cx={here.x}
+              cy={here.y}
+              r={22}
+              fill="rgb(255 236 214 / 0.18)"
+            />
+            <circle cx={here.x} cy={here.y} r={7} fill="white" />
+          </>
+        )}
+      </svg>
+      {/* The Globe's own selected-place burst and pulses, replayed per place. */}
+      {here?.visible && (
+        <div
+          key={at}
+          aria-hidden
+          className="atlas-sun-fx"
+          style={{
+            zIndex: 6,
+            transform: `translate(${here.x}px, ${here.y}px)`,
+          }}
+        >
+          <span className="atlas-sun-burst" />
+          <span className="atlas-sun-pulse" />
+          <span className="atlas-sun-pulse atlas-sun-pulse-late" />
+        </div>
+      )}
+    </>
+  );
+}
+
 /**
- * Applies the address to the map, and the slide's messages to the address.
- * A coordinate stop (`?at=lat,lng`) becomes the state it lies in, once the
- * Globe's state outlines have loaded; anywhere else the world stays in view.
+ * The story's state: where it is (`?at=`, then the slide's messages), the
+ * camera flying there, the card's share of the map, and the lesson's keys
+ * handed back to the slide.
  */
-function SlideGlobeSync() {
-  const [params, setParams] = useSearchParams();
-  const at = params.get('at');
+function SlideGlobeStory() {
+  const [params] = useSearchParams();
+  const dispatch = useAtlasDispatch();
+  const path = useMemo(() => decodePath(params.get('path')), [params]);
+  const [at, setAt] = useState(() =>
+    Math.max(0, Math.min(Number(params.get('at')) || 0, path.length - 1)),
+  );
+  const share = Number(params.get('left'));
 
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (e.origin !== window.location.origin) return;
       if (!isSlideGlobeGo(e.data)) return;
-      const next = stopParams(e.data.ref);
-      if (next) setParams(next, { replace: true });
+      if (e.data.at < path.length) setAt(e.data.at);
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, [setParams]);
+  }, [path.length]);
 
+  // The camera, to the place (the map takes it once it is up).
+  const here = path[at];
   useEffect(() => {
-    const position = at ? stopAt(`at:${at}`) : null;
-    if (!position) return;
-    let alive = true;
-    void stateBoundariesData.load().then((boundaries) => {
-      if (!alive || !boundaries) return;
-      const state = stateAt(boundaries, position[0], position[1]);
-      if (state)
-        setParams(
-          { place: `state:${state.name}:${state.country}` },
-          { replace: true },
-        );
+    if (!here) return;
+    dispatch({
+      type: 'EXECUTE_SEARCH',
+      payload: { lat: here[0], lng: here[1], zoom: STOP_ZOOM },
     });
-    return () => {
-      alive = false;
-    };
-  }, [at, setParams]);
+  }, [dispatch, here]);
 
-  // Framed in a lesson: the keys that move the lesson go back to it.
-  useEffect(() => {
-    if (window.parent === window) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (!LESSON_KEYS.includes(e.key)) return;
-      window.parent.postMessage(
-        { type: SLIDE_GLOBE_KEY, key: e.key },
-        window.location.origin,
-      );
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
-
-  useAtlasUrlSync();
-  return null;
-}
-
-/** What the slide's card covers of the map, so flights land beside it. */
-function CardInsets() {
-  const dispatch = useAtlasDispatch();
-  const [params] = useSearchParams();
-  const share = Number(params.get('left'));
+  // What the slide's card covers, so the place lands beside it.
   useEffect(() => {
     if (!(share > 0 && share < 1)) return;
     const report = () =>
@@ -120,7 +289,22 @@ function CardInsets() {
     window.addEventListener('resize', report);
     return () => window.removeEventListener('resize', report);
   }, [dispatch, share]);
-  return null;
+
+  // Framed in a lesson: the keys that move the lesson go back to it.
+  useEffect(() => {
+    if (window.parent === window) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (!LESSON_KEYS.includes(e.key)) return;
+      window.parent.postMessage(
+        { type: SLIDE_GLOBE_KEY, key: e.key },
+        window.location.origin,
+      );
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  return <StoryPath path={path} at={at} />;
 }
 
 function SlideGlobeLayout() {
@@ -138,17 +322,32 @@ function SlideGlobeLayout() {
           <div className="absolute inset-0">
             <AtlasGlobe />
           </div>
-          <CardInsets />
+          <SlideGlobeStory />
         </InspectorProvider>
-        <SlideGlobeSync />
       </AtlasPortalContext.Provider>
     </div>
   );
 }
 
+/**
+ * Only the story: the Globe's cities, artist points and influence arcs off,
+ * in a store of this page's own (never the viewer's saved Layers).
+ */
+const storyStore = () =>
+  createAtlasStore({
+    ...initialAppState,
+    layers: {
+      ...DEFAULT_LAYERS,
+      cities: false,
+      artistPoints: false,
+      arcs: false,
+    },
+  });
+
 export default function SlideGlobePage() {
+  const [store] = useState(storyStore);
   return (
-    <AtlasStoreProvider>
+    <AtlasStoreProvider store={store}>
       <AtlasNavigationProvider>
         <TimeCameraProvider>
           <AtlasMapProvider>

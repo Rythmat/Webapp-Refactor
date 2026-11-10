@@ -1140,7 +1140,7 @@ export const GlobeRoutes = {
   /** The Globe's map alone, framed in a lesson slide (slides/globe). */
   slide: createRouteDefinition<
     void,
-    { place?: string; event?: string; at?: string; left?: string }
+    { path?: string; at?: string; left?: string }
   >(`${globePrefix}/slide`),
 };
 

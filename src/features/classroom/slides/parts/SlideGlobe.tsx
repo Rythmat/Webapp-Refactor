@@ -27,8 +27,8 @@ import { pickLocalized } from '../../presentation/localized';
 import type { StudentLanguage } from '../../types';
 import {
   SLIDE_GLOBE_GO,
+  encodePath,
   isSlideGlobeKey,
-  stopParams,
 } from '../globe/slideGlobeStops';
 import { SLIDE_CANVAS } from '../slideLayout';
 import type { SlideMedia } from '../types';
@@ -51,15 +51,13 @@ const CARD_SHARE = ((CARD_M * 2 + CARD_W) / SLIDE_CANVAS.w).toFixed(3);
 
 type GlobeStop = NonNullable<GlobeMedia['stops']>[number];
 
-/** The page the frame opens: the first place, as the Globe's own address. */
-const firstSrc = (globe: GlobeMedia, withCard: boolean): string => {
-  const ref = globe.stops?.find((s) => s.ref)?.ref;
-  const params = ref ? stopParams(ref) : null;
-  return GlobeRoutes.slide(undefined, {
-    ...(params ?? {}),
+/** The page the frame opens: the story's places, from the first. */
+const firstSrc = (globe: GlobeMedia, withCard: boolean): string =>
+  GlobeRoutes.slide(undefined, {
+    path: encodePath((globe.stops ?? []).map((s) => s.location)),
+    at: '0',
     ...(withCard ? { left: CARD_SHARE } : {}),
   });
-};
 
 /**
  * The story's picture: the event's video still, or (when the video is gone,
@@ -194,7 +192,7 @@ export const SlideGlobe = ({
   const [loaded, setLoaded] = useState(false);
   const [at, setAt] = useState(0);
   // Opened once, on the first place; later places are messages, not reloads.
-  const stops = (globe.stops ?? []).filter((s) => s.ref);
+  const stops = globe.stops ?? [];
   // On a fitted slide the card sits over the map's left; on a phone, below.
   const stacked = !(scale && scale > 0);
   const withCard = !stacked && stops.some((s) => s.story);
@@ -222,7 +220,7 @@ export const SlideGlobe = ({
     const to = (at + 1) % stops.length;
     setAt(to);
     frame.current?.contentWindow?.postMessage(
-      { type: SLIDE_GLOBE_GO, ref: stops[to]!.ref },
+      { type: SLIDE_GLOBE_GO, at: to },
       window.location.origin,
     );
   };
@@ -249,7 +247,7 @@ export const SlideGlobe = ({
       >
         {stops.map((stop, i) => (
           <span
-            key={stop.ref}
+            key={i}
             aria-hidden
             className={`rounded-full transition-colors ${
               stacked ? 'size-2' : 'size-[12px]'

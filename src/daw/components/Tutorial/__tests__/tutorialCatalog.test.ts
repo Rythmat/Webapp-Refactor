@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   TUTORIAL_CATALOG,
   currentLessonId,
@@ -9,6 +9,7 @@ import {
   lessonNeedsUpgrade,
 } from '../tutorialCatalog';
 import { TUTORIALS, type TutorialStep } from '../tutorials';
+import { addPremiumLesson, PREMIUM_LESSON } from './premiumLessonFixture';
 
 /**
  * The Production lessons' catalog (tutorialCatalog.ts): the tile copy and the
@@ -57,22 +58,8 @@ describe('the lesson catalog', () => {
     }
   });
 
-  it('makes the lessons still in the old Prism Premium and leaves the rest free', () => {
-    const premium = (want: boolean) =>
-      TUTORIAL_CATALOG.filter((t) => t.requiresPremium === want).map(
-        (t) => t.id,
-      );
-    expect(premium(true)).toEqual([
-      'edm-design-the-drop',
-      'jazz-color-your-chords',
-      'rnb-mix-and-polish',
-    ]);
-    expect(premium(false)).toEqual([
-      'studio-basics',
-      'hiphop-build-the-beat',
-      'house-make-it-pump',
-      'indie-movement-and-dynamics',
-    ]);
+  it('makes every lesson free: none has a step in the old Prism', () => {
+    expect(TUTORIAL_CATALOG.filter((t) => t.requiresPremium)).toEqual([]);
   });
 
   it('opens a lesson that went by the one that took its place', () => {
@@ -110,23 +97,29 @@ describe('the lesson catalog', () => {
 });
 
 describe('lesson access', () => {
+  let removePremiumLesson = () => {};
+  beforeEach(() => {
+    removePremiumLesson = addPremiumLesson();
+  });
+  afterEach(() => removePremiumLesson());
+
   const free = { isPremium: false, isLoading: false };
   const premium = { isPremium: true, isLoading: false };
   // useIsPremium reports isPremium false while the subscription loads.
   const loading = { isPremium: false, isLoading: true };
 
   it('turns a free student away from a Premium lesson only', () => {
-    expect(lessonNeedsUpgrade('edm-design-the-drop', false)).toBe(true);
-    expect(lessonNeedsUpgrade('edm-design-the-drop', true)).toBe(false);
+    expect(lessonNeedsUpgrade(PREMIUM_LESSON, false)).toBe(true);
+    expect(lessonNeedsUpgrade(PREMIUM_LESSON, true)).toBe(false);
     expect(lessonNeedsUpgrade('studio-basics', false)).toBe(false);
     expect(lessonNeedsUpgrade('hiphop-build-the-beat', false)).toBe(false);
-    expect(lessonAccess('jazz-color-your-chords', free)).toBe('upgrade');
-    expect(lessonAccess('jazz-color-your-chords', premium)).toBe('open');
+    expect(lessonAccess(PREMIUM_LESSON, free)).toBe('upgrade');
+    expect(lessonAccess(PREMIUM_LESSON, premium)).toBe('open');
     expect(lessonAccess('house-make-it-pump', free)).toBe('open');
   });
 
   it('waits on a Premium lesson while the subscription loads, never on a free one', () => {
-    expect(lessonAccess('edm-design-the-drop', loading)).toBe('wait');
+    expect(lessonAccess(PREMIUM_LESSON, loading)).toBe('wait');
     expect(lessonAccess('house-make-it-pump', loading)).toBe('open');
   });
 

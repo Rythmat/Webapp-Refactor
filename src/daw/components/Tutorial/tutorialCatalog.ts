@@ -68,13 +68,14 @@ export const TUTORIAL_CATALOG = [
     courseOrder: 1,
   },
 
-  // ── Genre pack: one lesson per genre, each a different craft area ──────
+  // ── The skills: one craft each, in a genre (skills/) ──────────────────
   {
     id: 'hiphop-build-the-beat',
     title: 'Hip Hop — Build the beat',
-    subtitle: 'Program drums, slow the tempo, and find the pocket.',
+    subtitle:
+      'Beats: an 808 kit, a backbeat with ghost notes, and a deep synth bass.',
     difficulty: 'Beginner',
-    estMinutes: 4,
+    estMinutes: 12,
     requiresPremium: false,
     course: 'studio-production',
     courseOrder: 2,
@@ -82,9 +83,10 @@ export const TUTORIAL_CATALOG = [
   {
     id: 'house-make-it-pump',
     title: 'House — Make it pump',
-    subtitle: 'Sidechain the bass to the kick — the classic pumping groove.',
+    subtitle:
+      'Sidechain: four on the floor, and a bass that breathes with the kick.',
     difficulty: 'Intermediate',
-    estMinutes: 4,
+    estMinutes: 12,
     requiresPremium: false,
     course: 'studio-production',
     courseOrder: 3,
@@ -92,39 +94,43 @@ export const TUTORIAL_CATALOG = [
   {
     id: 'edm-design-the-drop',
     title: 'EDM — Design the drop',
-    subtitle: 'Wobble bass, minor keys, and saturation — our take on dubstep.',
+    subtitle:
+      'Sound design: shape a synth, wobble the bass, add weight, build to the drop.',
     difficulty: 'Intermediate',
-    estMinutes: 5,
-    requiresPremium: true,
+    estMinutes: 15,
+    requiresPremium: false,
     course: 'studio-production',
     courseOrder: 4,
   },
   {
     id: 'jazz-color-your-chords',
     title: 'Jazz — Color your chords',
-    subtitle: 'Modes, seventh chords, and swing — harmony with flavor.',
+    subtitle:
+      'Harmony: seventh chords, the ii–V–I, a walking bass and an electric piano.',
     difficulty: 'Beginner',
-    estMinutes: 4,
-    requiresPremium: true,
+    estMinutes: 12,
+    requiresPremium: false,
     course: 'studio-production',
     courseOrder: 5,
   },
   {
     id: 'rnb-mix-and-polish',
     title: 'R&B — Mix & polish',
-    subtitle: 'Reverb, balance, and a mastering touch — make it smooth.',
+    subtitle:
+      'Mixing: EQ, compression, faders, a shared reverb and the master, then bounce it.',
     difficulty: 'Intermediate',
-    estMinutes: 4,
-    requiresPremium: true,
+    estMinutes: 15,
+    requiresPremium: false,
     course: 'studio-production',
     courseOrder: 6,
   },
   {
     id: 'indie-movement-and-dynamics',
     title: 'Indie — Movement & dynamics',
-    subtitle: 'Automate volume, pan and sends so your mix breathes.',
+    subtitle:
+      'Arrangement: a verse and a chorus, then volume and pan automation that moves.',
     difficulty: 'Intermediate',
-    estMinutes: 3,
+    estMinutes: 12,
     requiresPremium: false,
     course: 'studio-production',
     courseOrder: 7,

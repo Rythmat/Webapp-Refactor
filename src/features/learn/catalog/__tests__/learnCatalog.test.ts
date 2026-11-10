@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
 import type { PathRow } from '@/components/learn/path/types';
+import { addPremiumLesson } from '@/daw/components/Tutorial/__tests__/premiumLessonFixture';
 import {
   listTutorialCatalog,
   TUTORIAL_COURSES,
@@ -198,6 +199,9 @@ describe('Audio’s Production Lessons', () => {
   });
 
   it('locks only the Premium lessons, and only for a free student', () => {
+    // Every Studio Production lesson is free; a console lesson in the old
+    // Prism is Premium.
+    const removePremiumLesson = addPremiumLesson();
     const premiumOnly = new Set(
       listTutorialCatalog()
         .filter((t) => t.requiresPremium)
@@ -208,6 +212,7 @@ describe('Audio’s Production Lessons', () => {
       expect(course.locked, course.slug).toBe(premiumOnly.has(course.slug));
     }
     expect(production(true).courses.some((c) => c.locked)).toBe(false);
+    removePremiumLesson();
   });
 
   it('shows a finished lesson as done', () => {

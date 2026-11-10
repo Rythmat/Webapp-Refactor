@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useLessonAccess } from '../useLessonAccess';
+import { addPremiumLesson, PREMIUM_LESSON } from './premiumLessonFixture';
 
 /**
  * The rule the Production tab and the editor's `?tutorial=` boot apply to a
@@ -22,15 +23,17 @@ vi.mock('@/contexts/AuthContext/hooks/useAuthContext', () => ({
   useAuthContext: () => plan.auth,
 }));
 
-const PREMIUM_LESSON = 'edm-design-the-drop';
 const FREE_LESSON = 'hiphop-build-the-beat';
 
 const accessOf = () => renderHook(() => useLessonAccess()).result.current;
 
+let removePremiumLesson = () => {};
 beforeEach(() => {
+  removePremiumLesson = addPremiumLesson();
   plan.premium = { isPremium: false, isLoading: false };
   plan.auth = { isAuth0Authenticated: true, token: 'token' };
 });
+afterEach(() => removePremiumLesson());
 
 describe('useLessonAccess', () => {
   it('waits on a Premium lesson while the subscription loads', () => {

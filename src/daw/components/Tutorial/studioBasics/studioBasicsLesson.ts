@@ -1,5 +1,5 @@
-import type { AllSlices } from '@/daw/store';
-import type { StepCheck, TutorialStep } from '../tutorials';
+import type { TutorialStep } from '../tutorials';
+import { newPartOn, notesOn, someTrackChanged } from '../lessonChecks';
 import { insightOpen } from './insightChecks';
 import {
   clipAdded,
@@ -52,37 +52,6 @@ const ARRANGE = 'Loop and repeat';
 const INSIGHT = 'Insight';
 const SCORE = 'The Score';
 const SHARE = 'Save and export';
-
-/** Every note on one track, across its clips. */
-const notesOn = (s: AllSlices, trackId: string | null | undefined): number =>
-  s.tracks
-    .find((t) => t.id === trackId)
-    ?.midiClips.reduce((n, c) => n + c.events.length, 0) ?? 0;
-
-/** The ids of every note clip in the song. */
-const clipIdsOf = (s: AllSlices): Set<string> =>
-  new Set(s.tracks.flatMap((t) => t.midiClips.map((c) => c.id)));
-
-/** A clip with notes appeared on a track playing `role` since the step began. */
-const newPartOn =
-  (role: 'chords' | 'bass'): StepCheck =>
-  (s, armed) => {
-    const had = clipIdsOf(armed);
-    return s.tracks.some(
-      (t) =>
-        t.trackRole === role &&
-        t.midiClips.some((c) => !had.has(c.id) && c.events.length > 0),
-    );
-  };
-
-/** Some track's value changed since the step began. */
-const someTrackChanged =
-  (read: (t: AllSlices['tracks'][number]) => unknown): StepCheck =>
-  (s, armed) =>
-    s.tracks.some((t) => {
-      const was = armed.tracks.find((a) => a.id === t.id);
-      return !!was && read(t) !== read(was);
-    });
 
 export const studioBasicsSteps: TutorialStep[] = [
   // ── 1. Find your way ────────────────────────────────────────────────────

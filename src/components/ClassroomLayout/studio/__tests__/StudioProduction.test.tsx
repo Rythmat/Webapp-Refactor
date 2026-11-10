@@ -14,6 +14,11 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfileRoutes, StudioRoutes } from '@/constants/routes';
 import {
+  addPremiumLesson,
+  PREMIUM_LESSON,
+  PREMIUM_LESSON_TITLE,
+} from '@/daw/components/Tutorial/__tests__/premiumLessonFixture';
+import {
   TUTORIAL_CATALOG,
   TUTORIAL_COURSES,
 } from '@/daw/components/Tutorial/tutorialCatalog';
@@ -22,7 +27,7 @@ import { StudioProduction } from '../StudioProduction';
 
 /**
  * The Production tab's Premium lessons (owner decision 8, audit ia-flows-14):
- * the lessons still on the old Prism wear a Premium chip, and for a free student their
+ * a lesson with steps in the old Prism wears a Premium chip, and for a free student their
  * tile opens the upgrade prompt instead of the editor. While the
  * subscription loads nobody is treated as free (the editor's boot decides),
  * and a premium student opens every lesson.
@@ -37,11 +42,9 @@ vi.mock('@/hooks/useIsPremium', () => ({
 const telemetry = vi.hoisted(() => ({ trackPaywallViewed: vi.fn() }));
 vi.mock('@/telemetry/hooks/useTelemetryProduct', () => telemetry);
 
-const PREMIUM_LESSONS = [
-  'edm-design-the-drop',
-  'jazz-color-your-chords',
-  'rnb-mix-and-polish',
-];
+// Every Studio Production lesson is free since the rebuild (2026-11-09);
+// the gate is held by a console lesson with a step in the old Prism.
+const PREMIUM_LESSONS = [PREMIUM_LESSON];
 const UPGRADE_TITLE = 'This lesson uses Prism, part of Premium';
 
 function Where() {
@@ -84,9 +87,15 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('the Production tab', () => {
+  let removePremiumLesson = () => {};
+  beforeEach(() => {
+    removePremiumLesson = addPremiumLesson();
+  });
+  afterEach(() => removePremiumLesson());
+
   it('lists every lesson, with a 12 px Premium chip on the Prism ones', () => {
     renderProduction();
-    for (const lesson of TUTORIAL_CATALOG) {
+    for (const lesson of [...TUTORIAL_CATALOG, { id: PREMIUM_LESSON }]) {
       const chip = within(tile(lesson.id)).queryByText('Premium');
       if (PREMIUM_LESSONS.includes(lesson.id)) {
         expect(chip, lesson.id).not.toBeNull();
@@ -113,13 +122,13 @@ describe('the Production tab', () => {
 
   it('shows a free student the upgrade prompt on a Premium lesson, and stays put', async () => {
     renderProduction();
-    const lessonTile = tile('jazz-color-your-chords');
+    const lessonTile = tile(PREMIUM_LESSON);
     expect(lessonTile).toHaveAttribute('aria-haspopup', 'dialog');
     fireEvent.click(lessonTile);
 
     const dialog = await screen.findByRole('dialog', { name: UPGRADE_TITLE });
     expect(dialog).toHaveTextContent(
-      '“Jazz — Color your chords” has steps in Prism',
+      `“${PREMIUM_LESSON_TITLE}” has steps in Prism`,
     );
     expect(location()).toBe(StudioRoutes.production.definition);
     // Reported once, with the existing paywall telemetry.
@@ -134,14 +143,14 @@ describe('the Production tab', () => {
     expect(location()).toBe(StudioRoutes.production.definition);
 
     // Each opening is a paywall view.
-    fireEvent.click(tile('edm-design-the-drop'));
+    fireEvent.click(tile(PREMIUM_LESSON));
     await screen.findByRole('dialog', { name: UPGRADE_TITLE });
     expect(telemetry.trackPaywallViewed).toHaveBeenCalledTimes(2);
   });
 
   it('takes a free student to the plans from the prompt', async () => {
     renderProduction();
-    fireEvent.click(tile('rnb-mix-and-polish'));
+    fireEvent.click(tile(PREMIUM_LESSON));
     const dialog = await screen.findByRole('dialog', { name: UPGRADE_TITLE });
     fireEvent.click(within(dialog).getByRole('button', { name: 'See plans' }));
     expect(location()).toBe(ProfileRoutes.plan.definition);
@@ -150,10 +159,10 @@ describe('the Production tab', () => {
   it('never treats a student as free while the subscription loads', () => {
     premium.state = { isPremium: false, isLoading: true };
     renderProduction();
-    expect(tile('jazz-color-your-chords')).not.toHaveAttribute('aria-haspopup');
-    fireEvent.click(tile('jazz-color-your-chords'));
+    expect(tile(PREMIUM_LESSON)).not.toHaveAttribute('aria-haspopup');
+    fireEvent.click(tile(PREMIUM_LESSON));
     // The editor's boot waits for the subscription and decides there.
-    expect(location()).toBe(editorLink('jazz-color-your-chords'));
+    expect(location()).toBe(editorLink(PREMIUM_LESSON));
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
@@ -163,18 +172,16 @@ describe('the Production tab', () => {
     for (const id of PREMIUM_LESSONS) {
       expect(within(tile(id)).getByText('Premium')).toBeInTheDocument();
     }
-    fireEvent.click(tile('jazz-color-your-chords'));
-    expect(location()).toBe(editorLink('jazz-color-your-chords'));
+    fireEvent.click(tile(PREMIUM_LESSON));
+    expect(location()).toBe(editorLink(PREMIUM_LESSON));
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('still marks a finished Premium lesson as Completed', () => {
     premium.state = { isPremium: true, isLoading: false };
-    act(() =>
-      useTutorialProgressStore.getState().markComplete('rnb-mix-and-polish'),
-    );
+    act(() => useTutorialProgressStore.getState().markComplete(PREMIUM_LESSON));
     renderProduction();
-    const lessonTile = tile('rnb-mix-and-polish');
+    const lessonTile = tile(PREMIUM_LESSON);
     expect(within(lessonTile).getByText('Completed')).toBeInTheDocument();
     expect(within(lessonTile).getByText('Premium')).toBeInTheDocument();
     expect(lessonTile).toHaveTextContent('Replay lesson');

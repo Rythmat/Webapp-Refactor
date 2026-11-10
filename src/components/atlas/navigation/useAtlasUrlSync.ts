@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useClassFollowTour } from '@/components/atlas/classroom/useClassFollowTour';
 import { MUSIC_HISTORY } from '@/components/atlas/data';
 import { getEventsForArtist } from '@/components/atlas/data/artists';
 import { useStartPathway } from '@/components/atlas/hooks/useStartPathway';
@@ -37,6 +38,8 @@ export function useAtlasUrlSync(): void {
   const dispatch = useAtlasDispatch();
   const startPathway = useStartPathway();
   const startTour = useStartTour();
+  // A tour the class does together keeps the teacher's stop (no-op otherwise).
+  useClassFollowTour();
 
   // The time window rides alongside whatever stop is showing (an `?era=` link
   // included), and the timeline's gestures write it back to the URL.

@@ -39,6 +39,7 @@ export const useStepFollow = ({
   title,
   goTo,
   active = true,
+  aheadMeansDone = false,
 }: {
   /** The activity's ref; the launch's own by default. */
   ref?: string;
@@ -49,6 +50,12 @@ export const useStepFollow = ({
   goTo: (step: number) => void;
   /** False while the player isn't running yet (no lesson loaded). */
   active?: boolean;
+  /**
+   * For a player whose Next can't be held (the Globe's tour card): a student
+   * moving on from the class's step has finished it, so that is reported
+   * as they're brought back.
+   */
+  aheadMeansDone?: boolean;
 }): StepFollow => {
   const follow = useClassFollow(ref);
   const on = follow.following && active;
@@ -66,14 +73,18 @@ export const useStepFollow = ({
     if (classStep < total && classStep !== position) goToRef.current(classStep);
   }, [classStep, total, position]);
 
-  // Never past the class: a jump ahead (a section tab, a skip) comes back.
-  useEffect(() => {
-    if (classStep !== undefined && position > classStep)
-      goToRef.current(classStep);
-  }, [classStep, position]);
-
   // Leading: the class goes where the teacher goes.
   const { lead, reportDone } = follow;
+
+  // Never past the class: a jump ahead (a section tab, a skip) comes back.
+  useEffect(() => {
+    if (classStep === undefined || position <= classStep) return;
+    if (aheadMeansDone && waitingAt !== classStep) {
+      setWaitingAt(classStep);
+      reportDone(classStep);
+    }
+    goToRef.current(classStep);
+  }, [classStep, position, aheadMeansDone, waitingAt, reportDone]);
   useEffect(() => {
     if (!on || !follow.leading) return;
     lead(position, total, title);

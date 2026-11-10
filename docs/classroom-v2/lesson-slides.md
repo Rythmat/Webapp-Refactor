@@ -70,14 +70,19 @@ tab moves to it and cannot run ahead.
   "done" to an outbox the class tab sends on (`follow/classFollow.ts`).
 - **Players:** `follow/useStepFollow.ts` is the one lockstep; the Studio
   tutorial (`TutorialLayer`), genre lessons (`GenreLessonContainerV2`),
-  guided lessons (`GuidedPlayer`, by screen) and Theory song lessons
-  (`ActivityFlow`) run on it.
+  guided lessons (`GuidedPlayer`, by screen), Theory song lessons
+  (`ActivityFlow`) and Globe tours (`components/atlas/classroom/
+  useClassFollowTour.tsx`, by stop) run on it.
 
 **Deploy:** the party (`src/daw/collab/server/classroom_session/party.ts`)
 must be redeployed for lockstep to work across devices. Until then it works
 in practice sessions in one browser.
 
-**Not yet:** the Globe tour in lockstep, and artist tours on the Globe. Both
-wait on the Globe Tours work in `guidedTours.ts`, `useStartTour.ts` and
-`ToursPanel.tsx`. A Promoter can already pick a region or city tour; it
-just isn't followed step by step yet.
+**Globe:** tour lockstep is built on `goToTourStop` from the Globe Tours work
+(`useStartTour.ts`), which was not yet committed when this landed; it ships
+with that work.
+
+**Not yet:** artist tours on the Globe (`globe:tour:artist-<slug>`). The ref
+resolves, but `getTour` and the Tours card don't know artist tours: that
+lookup lives in `guidedTours.ts` / `ToursPanel.tsx` (the Globe Tours work).
+Until then the Promoter offers the subject's city or region tour.

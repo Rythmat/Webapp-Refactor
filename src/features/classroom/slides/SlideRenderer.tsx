@@ -48,6 +48,11 @@ export interface SlideRendererProps {
    * elements and the gating are identical either way.
    */
   layoutMode?: 'stage' | 'reflow';
+  /**
+   * A thumbnail or a small preview: stills only, so a filmstrip never mounts
+   * video players or live maps.
+   */
+  still?: boolean;
 }
 
 export const SlideRenderer = ({
@@ -57,6 +62,7 @@ export const SlideRenderer = ({
   interactions,
   slots,
   layoutMode,
+  still = false,
 }: SlideRendererProps): JSX.Element => {
   // ── P2 zone mode ────────────────────────────────────────────────────────
   // `content` and `media` are pure layout — no slide-level slots — so they are
@@ -162,7 +168,10 @@ export const SlideRenderer = ({
           : {})}
       {...(bandCarries.length > 0 ? { bandInteractionIds: bandCarries } : {})}
       liveBand={surface !== 'student'}
-      playableMedia={surface === 'projector' || surface === 'present'}
+      playableMedia={
+        !still && (surface === 'projector' || surface === 'present')
+      }
+      still={still}
       blocks={{}}
     />
   );

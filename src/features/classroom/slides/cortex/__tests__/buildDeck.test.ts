@@ -123,7 +123,7 @@ describe('a generated Cortex lesson', () => {
       type: 'check-in',
       shareable: false,
       checkIn: { style: 'feelings', level: 'simple' },
-      question: { en: 'How are you arriving today?' },
+      question: { en: 'How are you feeling today?' },
     });
     expect(slides[0]).toMatchObject({
       presetId: 'hero',
@@ -168,6 +168,16 @@ describe('a generated Cortex lesson', () => {
     expect(places).toMatchObject({ presetId: 'bleed' });
     expect(places.media?.type).toBe('globePreview');
     expect(places.media?.stops?.[0]?.label?.en).toBe('Motor City · 1950');
+    // Each place opens the Globe section's own map there.
+    for (const stop of places.media?.stops ?? [])
+      expect((stop as { ref?: string }).ref).toMatch(/^(place:|event:|at:)/);
+    // …and the refs survive publishing.
+    const published = publishDay(day).deck?.slides.find((s) =>
+      s.id.endsWith('-slide-places'),
+    ) as { media?: { stops?: { ref?: string }[] } } | undefined;
+    expect(published?.media?.stops?.[0]?.ref).toBe(
+      (places.media?.stops?.[0] as { ref?: string }).ref,
+    );
   });
 
   it('adds the mood poll as a slide of its own when asked', () => {

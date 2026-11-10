@@ -1,6 +1,7 @@
 import { cortexColor } from '@/content/graph/cortexPalette';
 import type { EdgeKind, EntityId, GraphNode } from '@/content/graph/types';
 import type { LocalizedText } from '../../types';
+import { atRef } from '../globe/slideGlobeStops';
 import { getYouTubeVideoId } from '../songDeepLinks';
 import type { SlideMedia } from '../types';
 import type { LessonCatalog } from './catalog';
@@ -356,13 +357,24 @@ const artistStops = (
     seen.add(spot(at));
     const city = linked(graph, node.id, 'took_place_in', 'out')[0]?.label;
     later.push({
-      stop: { location: at, label: named(city ?? event.title, event.year) },
+      stop: {
+        location: at,
+        label: named(city ?? event.title, event.year),
+        ref: `event:${event.id}`,
+      },
       year: event.year ?? Number.MAX_SAFE_INTEGER,
     });
   }
   later.sort((a, b) => a.year - b.year);
+  // The Globe pins the places it calls cities; a town it doesn't (Gary) is
+  // opened by position, as the state it lies in.
+  const homeRecord = catalog.places.get(slugOf(home.id));
+  const homeRef =
+    homeRecord && homeRecord.pin !== false
+      ? `place:city:${homeRecord.id}`
+      : atRef(homeAt);
   return [
-    { location: homeAt, label: named(home.label, year?.label) },
+    { location: homeAt, label: named(home.label, year?.label), ref: homeRef },
     ...later.map((l) => l.stop),
   ].slice(0, MAX_STOPS);
 };

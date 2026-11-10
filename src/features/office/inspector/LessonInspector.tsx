@@ -68,6 +68,7 @@ export const LessonInspector = ({
         // sees, not a cover standing in for it.
         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-white/[0.06]">
           <SlideRenderer
+            still
             slide={firstSlide}
             surface="present"
             language="en"

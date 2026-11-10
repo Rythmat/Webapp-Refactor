@@ -66,6 +66,7 @@ export const DeckPreview = ({ day, language = 'both' }: DeckPreviewProps) => {
           }}
         >
           <SlideRenderer
+            still
             slide={slide}
             surface="projector"
             language={language}

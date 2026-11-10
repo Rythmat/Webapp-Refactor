@@ -67,6 +67,7 @@ import { sectionLabelOf } from './SectionChip';
 import { ShowcaseBackdrop, isShowcaseSlide } from './ShowcaseBackdrop';
 import { SlideElementView } from './SlideElementView';
 import { SlideFrameChrome } from './SlideFrameChrome';
+import { StageScaleContext } from './SlideGlobe';
 import { SlideReflow } from './SlideReflow';
 import { StageBackdrop } from './StageBackdrop';
 import { useAutofit } from './useAutofit';
@@ -115,6 +116,8 @@ export interface SlideStageProps {
    * down even when the band draws nothing.
    */
   liveBand?: boolean;
+  /** A thumbnail: stills only (no video players, no live map). */
+  still?: boolean;
   /**
    * ZONE MODE. When given, the stage lays this slide out from the grid instead
    * of from the legacy block rects — one absolutely-positioned box per zone,
@@ -171,6 +174,7 @@ export const SlideStage = ({
   bandFallback,
   bandInteractionIds,
   liveBand = false,
+  still = false,
   elements,
   interactionsById,
   slots,
@@ -281,125 +285,131 @@ export const SlideStage = ({
   }
 
   return (
-    <div
-      ref={stageRef}
-      className={`relative h-full w-full overflow-hidden ${className ?? ''}`}
-    >
+    <StageScaleContext.Provider value={scale || null}>
       <div
-        data-surface={surface}
-        // `variant` is a PUBLISHED field on a content slide, and the type-scale
-        // rules keyed on `.slide-frame--welcome` in slides.css (5.5rem title on
-        // a projector) are the only thing that reads it. The deleted SlideFrame
-        // applied this class; the stage has to keep doing so or every welcome
-        // slide silently drops to the ordinary title size.
-        className={`slide-frame absolute left-0 top-0 ${
-          slide.kind === 'content' && slide.variant && slide.variant !== 'plain'
-            ? `slide-frame--${slide.variant}`
-            : ''
-        } ${stageKind ? `slide-frame--stage-${stageKind}` : ''}`}
-        style={frameStyle}
-        onPointerDown={editable ? () => onSelectBlock?.(null) : undefined}
+        ref={stageRef}
+        className={`relative h-full w-full overflow-hidden ${className ?? ''}`}
       >
-        {isShowcaseSlide(slide) && (
-          <ShowcaseBackdrop slide={slide} fly={playableMedia} />
-        )}
-        <StageBackdrop
-          slide={slide}
-          surface={surface}
-          live={playableMedia}
-          language={language}
-          {...(slots?.mediaCommand ? { command: slots.mediaCommand } : {})}
-        />
-        <SlideFrameChrome slide={slide} surface={surface} />
-        {reveal ? (
-          <RevealBand elements={zoneElements} rect={stageBand} scrim>
-            {reveal}
-          </RevealBand>
-        ) : bandShowsQuestion ? (
-          <RevealBand elements={zoneElements} rect={stageBand}>
-            {bandFallback}
-          </RevealBand>
-        ) : null}
-        {elements
-          ? resolveElementRects(zoneElements).map(({ element, rect }) => (
-              <ZoneBox
-                key={element.id}
-                element={element}
-                rect={rect}
-                selected={
-                  editable &&
-                  selectedBlock !== null &&
-                  blockKeyForElement(element, slide.id) === selectedBlock
-                }
-                onSelect={
-                  editable && onSelectBlock
-                    ? () => {
-                        const key = blockKeyForElement(element, slide.id);
-                        if (key) onSelectBlock(key);
-                      }
-                    : undefined
-                }
-                onHide={
-                  editable && onHideBlock
-                    ? () => {
-                        const key = blockKeyForElement(element, slide.id);
-                        // `title` is required on every slide and some presets
-                        // hide it themselves; everything else is the teacher's
-                        // to remove.
-                        if (key) onHideBlock(key);
-                      }
-                    : undefined
-                }
-              >
-                <SlideElementView
+        <div
+          data-surface={surface}
+          // `variant` is a PUBLISHED field on a content slide, and the type-scale
+          // rules keyed on `.slide-frame--welcome` in slides.css (5.5rem title on
+          // a projector) are the only thing that reads it. The deleted SlideFrame
+          // applied this class; the stage has to keep doing so or every welcome
+          // slide silently drops to the ordinary title size.
+          className={`slide-frame absolute left-0 top-0 ${
+            slide.kind === 'content' &&
+            slide.variant &&
+            slide.variant !== 'plain'
+              ? `slide-frame--${slide.variant}`
+              : ''
+          } ${stageKind ? `slide-frame--stage-${stageKind}` : ''}`}
+          style={frameStyle}
+          onPointerDown={editable ? () => onSelectBlock?.(null) : undefined}
+        >
+          {isShowcaseSlide(slide) && (
+            <ShowcaseBackdrop slide={slide} fly={playableMedia} />
+          )}
+          <StageBackdrop
+            slide={slide}
+            surface={surface}
+            live={playableMedia}
+            still={still}
+            inert={editable}
+            language={language}
+            {...(slots?.mediaCommand ? { command: slots.mediaCommand } : {})}
+          />
+          <SlideFrameChrome slide={slide} surface={surface} />
+          {reveal ? (
+            <RevealBand elements={zoneElements} rect={stageBand} scrim>
+              {reveal}
+            </RevealBand>
+          ) : bandShowsQuestion ? (
+            <RevealBand elements={zoneElements} rect={stageBand}>
+              {bandFallback}
+            </RevealBand>
+          ) : null}
+          {elements
+            ? resolveElementRects(zoneElements).map(({ element, rect }) => (
+                <ZoneBox
+                  key={element.id}
                   element={element}
-                  surface={surface}
-                  language={language}
-                  interactionsById={interactionsById ?? {}}
-                  hiddenInteractionIds={
-                    bandShowsQuestion || footerStandsDown
-                      ? bandInteractionIds
+                  rect={rect}
+                  selected={
+                    editable &&
+                    selectedBlock !== null &&
+                    blockKeyForElement(element, slide.id) === selectedBlock
+                  }
+                  onSelect={
+                    editable && onSelectBlock
+                      ? () => {
+                          const key = blockKeyForElement(element, slide.id);
+                          if (key) onSelectBlock(key);
+                        }
                       : undefined
                   }
-                  questionOnly={Boolean(liveBand)}
-                  override={resolveOverride(
-                    element,
-                    slide.id,
-                    zoneOverrides,
-                    overrideOwner,
-                  )}
-                  slots={slots}
-                  playableMedia={playableMedia}
-                  phaseLabel={sectionLabelOf(slide, language)}
-                />
-              </ZoneBox>
-            ))
-          : null}
-        {elements
-          ? null
-          : keys.map((key) => (
-              <BlockBox
-                key={key}
-                blockKey={key}
-                rect={resolved[key] as SlideBlockRect}
-                box={BOX_KEYS.has(key)}
-                z={resolved[key]?.z ?? defaultZ(key)}
-                editable={editable}
-                selected={selectedBlock === key}
-                scale={scale || 1}
-                onSelect={() => onSelectBlock?.(key)}
-                onCommit={(rect) =>
-                  onLayoutChange?.(withBlock(slide.layout, key, rect))
-                }
-                onHide={() => onLayoutChange?.(hideBlock(slide, key))}
-                onFront={() => onLayoutChange?.(bringToFront(slide, key))}
-                onBack={() => onLayoutChange?.(sendToBack(slide, key))}
-              >
-                {blocks[key]}
-              </BlockBox>
-            ))}
+                  onHide={
+                    editable && onHideBlock
+                      ? () => {
+                          const key = blockKeyForElement(element, slide.id);
+                          // `title` is required on every slide and some presets
+                          // hide it themselves; everything else is the teacher's
+                          // to remove.
+                          if (key) onHideBlock(key);
+                        }
+                      : undefined
+                  }
+                >
+                  <SlideElementView
+                    element={element}
+                    surface={surface}
+                    language={language}
+                    interactionsById={interactionsById ?? {}}
+                    hiddenInteractionIds={
+                      bandShowsQuestion || footerStandsDown
+                        ? bandInteractionIds
+                        : undefined
+                    }
+                    questionOnly={Boolean(liveBand)}
+                    override={resolveOverride(
+                      element,
+                      slide.id,
+                      zoneOverrides,
+                      overrideOwner,
+                    )}
+                    slots={slots}
+                    playableMedia={playableMedia}
+                    phaseLabel={sectionLabelOf(slide, language)}
+                  />
+                </ZoneBox>
+              ))
+            : null}
+          {elements
+            ? null
+            : keys.map((key) => (
+                <BlockBox
+                  key={key}
+                  blockKey={key}
+                  rect={resolved[key] as SlideBlockRect}
+                  box={BOX_KEYS.has(key)}
+                  z={resolved[key]?.z ?? defaultZ(key)}
+                  editable={editable}
+                  selected={selectedBlock === key}
+                  scale={scale || 1}
+                  onSelect={() => onSelectBlock?.(key)}
+                  onCommit={(rect) =>
+                    onLayoutChange?.(withBlock(slide.layout, key, rect))
+                  }
+                  onHide={() => onLayoutChange?.(hideBlock(slide, key))}
+                  onFront={() => onLayoutChange?.(bringToFront(slide, key))}
+                  onBack={() => onLayoutChange?.(sendToBack(slide, key))}
+                >
+                  {blocks[key]}
+                </BlockBox>
+              ))}
+        </div>
       </div>
-    </div>
+    </StageScaleContext.Provider>
   );
 };
 

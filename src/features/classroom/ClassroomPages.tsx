@@ -1,6 +1,6 @@
 /* eslint-disable import/order */
 /* eslint-disable no-duplicate-imports */
-import { lazy, useLayoutEffect } from 'react';
+import { Suspense, lazy, useLayoutEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import {
   ClassroomRoutes,
@@ -70,6 +70,7 @@ import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
 // Lazy on purpose: a static import put the whole atlas chunk on the eager
 // boot graph for every user on every route.
 const Atlas = lazy(() => import('@/components/atlas/atlas'));
+const SlideGlobePage = lazy(() => import('./slides/globe/SlideGlobePage'));
 const ExplorePage = lazy(() =>
   import('@/components/explore/ExplorePage').then((m) => ({
     default: m.ExplorePage,
@@ -1054,6 +1055,26 @@ export const globePages = () => {
     ],
   };
 };
+
+/**
+ * The Globe's map alone, for a lesson slide's frame (owner, 2026-11-10): no
+ * sidebar, rails or Inspector. Its own route so the map's address is the
+ * frame's, never the lesson's.
+ */
+export const globeSlidePages = () => ({
+  path: GlobeRoutes.slide.definition,
+  element: (
+    <AppContext>
+      <ProtectedPage>
+        <ContentGate fallback={<div className="h-dvh w-screen bg-black" />}>
+          <Suspense fallback={<div className="h-dvh w-screen bg-black" />}>
+            <SlideGlobePage />
+          </Suspense>
+        </ContentGate>
+      </ProtectedPage>
+    </AppContext>
+  ),
+});
 
 export const songsPages = () => {
   return {

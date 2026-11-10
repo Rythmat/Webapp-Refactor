@@ -58,6 +58,7 @@ export const SlideThumbnail = ({
             in the wrong zones.
           */}
           <SlideRenderer
+            still
             slide={slide}
             surface="present"
             language="en"

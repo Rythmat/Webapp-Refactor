@@ -3,126 +3,20 @@
  * slide's own visual painted edge to edge under its elements.
  *
  *   portrait  the subject's photo, darkened on the left for the name and bio
- *   bleed     a video (the live player on the room's screen), an interactive
- *             globe that flies from place to place, or a photo
+ *   bleed     a video (the live player on the room's screen), the Globe
+ *             section's own map (`SlideGlobe`), or a photo
  *
  * Painted by the stage, like the Showcase halves, so no teacher moves it and
  * the grid's footer rule holds for the slide's elements.
  */
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
-import { pickLocalized } from '../../presentation/localized';
+import { useState } from 'react';
 import type { StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
 import { paintsBleed, stageKindOf, stageMedia } from '../stage';
 import type { Slide, SlideMedia, SlideSurface } from '../types';
 import { ShowcasePhoto } from './ShowcaseBackdrop';
+import { SlideGlobe } from './SlideGlobe';
 import { SlideMediaPanel } from './SlideMediaPanel';
-
-const GlobeCdn = lazy(() =>
-  import('@/components/ui/cobe-globe-cdn').then((m) => ({
-    default: m.GlobeCdn,
-  })),
-);
-
-type GlobeMedia = Extract<SlideMedia, { type: 'globePreview' }>;
-
-/** A flight between places, then a pause on each, in ms. */
-const FLIGHT_MS = 2200;
-const DWELL_MS = 3200;
-
-const WHITE: [number, number, number] = [1, 1, 1];
-const DIM: [number, number, number] = [0.55, 0.55, 0.6];
-
-/** The globe's places: its stops, else its focus. */
-const stopsOf = (globe: GlobeMedia) =>
-  globe.stops && globe.stops.length > 0
-    ? globe.stops
-    : globe.focus
-      ? [{ location: globe.focus }]
-      : (globe.markers ?? []).map((m) => ({ location: m.location }));
-
-/**
- * The subject's places on a globe that fills the slide. Shown live, it flies
- * to the first, then on to each in turn, and round again; the one place in
- * view is named low on the left. Students can spin it.
- */
-export const TourGlobe = ({
-  globe,
-  live,
-  language,
-}: {
-  globe: GlobeMedia;
-  /** Fly (a shown slide); otherwise sit still on the first place. */
-  live: boolean;
-  language: StudentLanguage;
-}) => {
-  const stops = useMemo(() => stopsOf(globe), [globe]);
-  const [at, setAt] = useState(0);
-  const [arrived, setArrived] = useState(!live);
-
-  useEffect(() => {
-    if (!live) return;
-    // The first flight is long (from the far side); then a pause on each.
-    const wait = (arrived ? 0 : FLIGHT_MS) + DWELL_MS;
-    const timer = window.setTimeout(() => {
-      setArrived(true);
-      if (stops.length > 1) setAt((i) => (i + 1) % stops.length);
-    }, wait);
-    return () => window.clearTimeout(timer);
-  }, [live, at, arrived, stops.length]);
-
-  const here = stops[at];
-  const markers = useMemo(
-    () =>
-      stops.map((stop, i) => ({
-        id: `stage-stop-${i}`,
-        location: stop.location,
-        label: '',
-        color: i === at ? WHITE : DIM,
-        size: i === at ? 0.07 : 0.04,
-      })),
-    [stops, at],
-  );
-  // The story's path: one arc from each place to the next.
-  const arcs = useMemo(
-    () =>
-      stops.slice(1).map((stop, i) => ({
-        from: stops[i]!.location,
-        to: stop.location,
-      })),
-    [stops],
-  );
-  const from: [number, number] | undefined =
-    here && !arrived ? [0, here.location[1] - 150] : undefined;
-  const label = here && 'label' in here ? here.label : undefined;
-
-  return (
-    <div className="absolute inset-0 bg-[#0b0b0d]">
-      <Suspense fallback={null}>
-        <GlobeCdn
-          fill
-          markers={markers}
-          arcs={arcs}
-          focus={here?.location ?? null}
-          {...(from ? { focusFrom: from } : {})}
-          focusMs={live ? FLIGHT_MS : 0}
-          speed={0}
-          scale={1.25}
-          offset={[0, 0]}
-        />
-      </Suspense>
-      {label && (
-        <p
-          key={at}
-          className="pointer-events-none absolute bottom-[8%] left-[5%] font-semibold text-white [animation:stage-fade-in_600ms_ease-out]"
-          style={{ fontSize: 'var(--slide-question-fz)' }}
-        >
-          {pickLocalized(label, language)}
-        </p>
-      )}
-    </div>
-  );
-};
 
 /** A video's best still, for the editor and thumbnails. */
 const VideoStill = ({ videoId }: { videoId: string }) => {
@@ -143,11 +37,15 @@ const VideoStill = ({ videoId }: { videoId: string }) => {
 const BleedMedia = ({
   media,
   live,
+  still = false,
+  inert = false,
   language,
   command,
 }: {
   media: SlideMedia;
   live: boolean;
+  still?: boolean;
+  inert?: boolean;
   language: StudentLanguage;
   command: SlideSlots['mediaCommand'];
 }) => {
@@ -169,7 +67,16 @@ const BleedMedia = ({
         </div>
       );
     case 'globePreview':
-      return <TourGlobe globe={media} live={live} language={language} />;
+      // The Globe section's own map (owner, 2026-11-10).
+      return (
+        <SlideGlobe
+          globe={media}
+          language={language}
+          live={live}
+          still={still}
+          inert={inert}
+        />
+      );
     case 'artistImage':
       return <ShowcasePhoto songId={media.songId} />;
     default:
@@ -189,6 +96,8 @@ export const StageBackdrop = ({
   slide,
   surface,
   live,
+  still = false,
+  inert = false,
   language,
   command,
 }: {
@@ -196,6 +105,10 @@ export const StageBackdrop = ({
   surface: SlideSurface;
   /** A shown slide (the room's screen, Present): videos play, globes fly. */
   live: boolean;
+  /** A thumbnail: stills only, no players or maps. */
+  still?: boolean;
+  /** The editor's canvas: embeds show but don't take the pointer. */
+  inert?: boolean;
   language: StudentLanguage;
   command?: SlideSlots['mediaCommand'];
 }) => {
@@ -221,6 +134,7 @@ export const StageBackdrop = ({
             <BleedMedia
               media={media}
               live={false}
+              still
               language={language}
               command={undefined}
             />
@@ -238,6 +152,8 @@ export const StageBackdrop = ({
       <BleedMedia
         media={media}
         live={live}
+        still={still}
+        inert={inert}
         language={language}
         command={command}
       />

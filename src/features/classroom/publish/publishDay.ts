@@ -17,6 +17,7 @@ import type { MindMapBoard } from '@/content/graph/mindMapBoard';
 import { stripLegacySongSlug } from '../legacySongSlug';
 import { PHASES, type PhaseKey } from '../phases';
 import { deckFromCells } from '../slides/deckFromCells';
+import { isStopRef } from '../slides/globe/slideGlobeStops';
 import { NEVER_PROJECTED } from '../slides/interactionPolicy';
 import { isSlideSection } from '../slides/sections';
 import { isZoneName } from '../slides/slideGrid';
@@ -222,6 +223,8 @@ const projectSlideMedia = (media: SlideMedia): SlideMedia => {
                   ...(stop.label
                     ? { label: projectLocalized(stop.label) }
                     : {}),
+                  // A place or an event by id, or a position; nothing else.
+                  ...(isStopRef(stop.ref) ? { ref: stop.ref } : {}),
                 })),
             }
           : {}),

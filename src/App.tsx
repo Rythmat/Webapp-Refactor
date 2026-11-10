@@ -21,6 +21,7 @@ import {
   connectPages,
   libraryPages,
   globePages,
+  globeSlidePages,
   songsPages,
 } from './features/classroom/ClassroomPages';
 import { MockLearn } from './features/classroom/msp/__dev__/MockLearn';
@@ -106,6 +107,7 @@ const appRoutes = () => [
   connectPages(),
   libraryPages(),
   globePages(),
+  globeSlidePages(),
   songsPages(),
   curriculumPages(),
   searchPages(),

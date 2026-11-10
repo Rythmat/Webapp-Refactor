@@ -1137,6 +1137,10 @@ const globePrefix = '/globe';
  */
 export const GlobeRoutes = {
   root: createRouteDefinition(globePrefix),
+  /** The Globe's map alone, framed in a lesson slide (slides/globe). */
+  slide: createRouteDefinition<void, { place?: string; event?: string }>(
+    `${globePrefix}/slide`,
+  ),
 };
 
 const songsPrefix = '/songs';

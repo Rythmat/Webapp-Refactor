@@ -32,7 +32,7 @@ import {
   showcaseVisuals,
 } from './ShowcaseBackdrop';
 import { SlideElementView } from './SlideElementView';
-import { TourGlobe } from './StageBackdrop';
+import { SlideGlobe } from './SlideGlobe';
 
 interface SlideReflowProps {
   slide: Slide;
@@ -145,7 +145,7 @@ const ReflowStage = ({
       {media.type === 'artistImage' ? (
         <ShowcasePhoto songId={media.songId} />
       ) : media.type === 'globePreview' ? (
-        <TourGlobe globe={media} live={false} language={language} />
+        <SlideGlobe globe={media} language={language} live={false} />
       ) : media.type === 'youtube' ? (
         <img
           src={`https://i.ytimg.com/vi/${media.videoId}/hqdefault.jpg`}

@@ -41,7 +41,15 @@ export type SlideMedia =
        * place its story happened. `label` is the place's short name
        * ("Gary · 1958"), the one text the slide shows.
        */
-      stops?: Array<{ location: [number, number]; label?: LocalizedText }>;
+      stops?: Array<{
+        location: [number, number];
+        label?: LocalizedText;
+        /**
+         * Where the Globe section's own map opens for this stop: `place:…`,
+         * `event:<id>` or `at:<lat>,<lng>` (`slides/globe/slideGlobeStops.ts`).
+         */
+        ref?: string;
+      }>;
     }
   /**
    * A specific globe *pathway* embedded as the dashboard-style preview: the

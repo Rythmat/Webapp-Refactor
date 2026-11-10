@@ -1,7 +1,7 @@
 import type { Day } from '../../types';
 import {
   cortexGroupActivity,
-  showcaseSlideFields,
+  showcaseParts,
   CORTEX_LESSON_TEMPLATE_ID,
 } from '../cortex/buildDeck';
 import type { CortexLessonPlan, GroupRole } from '../cortex/types';
@@ -45,10 +45,23 @@ const replaceSlide = (day: Day, slideId: string, next: Slide): Day =>
       }
     : day;
 
+/** The slide without its stored elements, so its preset lays it out. */
+const withoutElements = <T extends Slide>(slide: T): T => {
+  const copy = { ...slide };
+  delete copy.elements;
+  return copy;
+};
+
+/** A Showcase slide built from a subject: its video, or its globe. */
+const isSubjectSlide = (slide: Slide): boolean =>
+  slide.section === 'showcase' &&
+  (slide.id.endsWith('-slide-listen') || slide.id.endsWith('-slide-places'));
+
 /**
- * Make `slideId` the Showcase for a plan's subject, and the lesson about it.
- * The slide keeps its id, phase, section and anything that describes the
- * slide rather than its content (timer, hidden label).
+ * Make `slideId` the Showcase for a plan's subject, and the lesson about it
+ * (owner, 2026-11-10: three slides). The slide becomes the subject's
+ * portrait, keeping its id and timer; the video and globe slides an earlier
+ * subject brought are replaced by this one's, right after it.
  */
 export const applyShowcasePick = (
   day: Day,
@@ -56,26 +69,41 @@ export const applyShowcasePick = (
   plan: CortexLessonPlan,
 ): Day => {
   const slide = day.deck?.slides.find((s) => s.id === slideId);
-  if (!slide) return day;
-  // A Showcase carries no question; any it had are dropped with it.
-  const cleared =
-    slideInteractionIds(slide).length > 0
-      ? setSlideInteractions(day, slideId, [])
-      : day;
-  const next: Slide = {
+  if (!slide || !day.deck) return day;
+
+  // The old subject's video and globe go, with any question they asked.
+  let next = day;
+  for (const old of day.deck.slides) {
+    if (old.id === slideId || !isSubjectSlide(old)) continue;
+    next = setSlideInteractions(next, old.id, []);
+  }
+  // A Showcase portrait carries no question; any it had are dropped with it.
+  if (slideInteractionIds(slide).length > 0)
+    next = setSlideInteractions(next, slideId, []);
+
+  const prefix = slideId.endsWith('-slide-showcase')
+    ? slideId.slice(0, -'-slide-showcase'.length)
+    : `${slideId}-sc`;
+  const parts = showcaseParts(prefix, plan);
+  const [portrait, ...rest] = parts.slides;
+  const first: Slide = {
+    ...(portrait as Slide),
     id: slide.id,
-    kind: 'content',
-    phase: 'connectRegulate',
-    section: 'showcase',
     ...(slide.timerSec !== undefined ? { timerSec: slide.timerSec } : {}),
-    ...(slide.hidePhaseLabel !== undefined
-      ? { hidePhaseLabel: slide.hidePhaseLabel }
-      : {}),
-    ...showcaseSlideFields(plan),
   };
-  return withTemplateRef(replaceSlide(cleared, slideId, next), {
-    focusId: plan.focus.id,
-  });
+
+  const deck = next.deck!;
+  const slides: Slide[] = [];
+  for (const s of deck.slides) {
+    if (s.id !== slideId && isSubjectSlide(s)) continue;
+    if (s.id === slideId) slides.push(first, ...rest);
+    else slides.push(s);
+  }
+  next = { ...next, deck: { ...deck, slides } };
+  // The video's question lives in the first phase's cell, like every other.
+  const listen = rest.find((s) => s.id.endsWith('-slide-listen'));
+  if (listen) next = setSlideInteractions(next, listen.id, parts.interactions);
+  return withTemplateRef(next, { focusId: plan.focus.id });
 };
 
 /**
@@ -100,12 +128,20 @@ export const applyGroupPick = (
   if (!activity) return day;
   const routed: Slide =
     slide.kind === 'app-route'
-      ? { ...slide, title: activity.title, prompt: activity.prompt }
+      ? {
+          // A new preset lays the slide out afresh: stored elements would
+          // keep the old layout.
+          ...withoutElements(slide),
+          presetId: 'hero',
+          title: activity.title,
+          prompt: activity.prompt,
+        }
       : {
           id: slide.id,
           kind: 'app-route',
           phase: 'groupPractice',
           section: 'groupProject',
+          presetId: 'hero',
           title: activity.title,
           prompt: activity.prompt,
           interactionId: id,

@@ -217,6 +217,8 @@ describe('zone name guard', () => {
         'mediaRight',
         'pageNumber',
         'phaseChip',
+        'portraitBody',
+        'portraitTitle',
         'right',
         'rowA',
         'rowB',
@@ -227,7 +229,7 @@ describe('zone name guard', () => {
         'utilityTopRight',
       ].sort(),
     );
-    expect(ZONE_NAMES).toHaveLength(26);
+    expect(ZONE_NAMES).toHaveLength(28);
   });
 });
 

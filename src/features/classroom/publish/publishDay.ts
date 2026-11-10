@@ -210,6 +210,21 @@ const projectSlideMedia = (media: SlideMedia): SlideMedia => {
         ...(isLatLng(media.focus)
           ? { focus: [media.focus[0], media.focus[1]] as [number, number] }
           : {}),
+        ...(media.stops !== undefined
+          ? {
+              stops: media.stops
+                .filter((stop) => isLatLng(stop.location))
+                .map((stop) => ({
+                  location: [stop.location[0], stop.location[1]] as [
+                    number,
+                    number,
+                  ],
+                  ...(stop.label
+                    ? { label: projectLocalized(stop.label) }
+                    : {}),
+                })),
+            }
+          : {}),
       };
     case 'globePathway':
       return { type: 'globePathway', pathwayId: media.pathwayId };

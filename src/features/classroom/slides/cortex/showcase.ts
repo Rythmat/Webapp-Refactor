@@ -317,6 +317,56 @@ const firstOf = <T>(
   return null;
 };
 
+/** How many places a globe slide visits. */
+const MAX_STOPS = 4;
+
+type GlobeStop = NonNullable<
+  Extract<SlideMedia, { type: 'globePreview' }>['stops']
+>[number];
+
+/**
+ * The artist's places, in story order, for the full-screen globe (owner,
+ * 2026-11-10): where they were born or based, then each event about them
+ * that has a place, earliest first. Each named "Gary · 1958".
+ */
+const artistStops = (
+  graph: LessonGraph,
+  catalog: LessonCatalog,
+  focus: GraphNode,
+  home: GraphNode,
+  homeAt: [number, number],
+): GlobeStop[] => {
+  const year =
+    linked(graph, focus.id, 'born_year', 'out')[0] ??
+    linked(graph, focus.id, 'formed_year', 'out')[0];
+  const named = (place: string, when?: string | number): LocalizedText => {
+    const text = when ? `${place} · ${when}` : place;
+    return { en: text, es: text };
+  };
+  const spot = ([lat, lng]: [number, number]) =>
+    `${lat.toFixed(1)},${lng.toFixed(1)}`;
+  const seen = new Set([spot(homeAt)]);
+  const later: { stop: GlobeStop; year: number }[] = [];
+  for (const node of linked(graph, focus.id, 'about', 'in')) {
+    const event = catalog.events.get(slugOf(node.id));
+    if (typeof event?.lat !== 'number' || typeof event.lng !== 'number')
+      continue;
+    const at: [number, number] = [event.lat, event.lng];
+    if (seen.has(spot(at))) continue;
+    seen.add(spot(at));
+    const city = linked(graph, node.id, 'took_place_in', 'out')[0]?.label;
+    later.push({
+      stop: { location: at, label: named(city ?? event.title, event.year) },
+      year: event.year ?? Number.MAX_SAFE_INTEGER,
+    });
+  }
+  later.sort((a, b) => a.year - b.year);
+  return [
+    { location: homeAt, label: named(home.label, year?.label) },
+    ...later.map((l) => l.stop),
+  ].slice(0, MAX_STOPS);
+};
+
 const artistMedia = (
   graph: LessonGraph,
   catalog: LessonCatalog,
@@ -345,11 +395,15 @@ const artistMedia = (
           markers: [{ location: coordinates, size: 0.09 }],
         }
       : undefined;
+  const stops = coordinates
+    ? artistStops(graph, catalog, focus, place!, coordinates)
+    : [];
   const globe: SlideMedia | undefined = coordinates
     ? {
         type: 'globePreview',
         markers: [{ location: coordinates, size: 0.06 }],
         focus: coordinates,
+        ...(stops.length > 0 ? { stops } : {}),
       }
     : undefined;
   const written = linked(graph, focus.id, 'written_by', 'in');
@@ -481,5 +535,34 @@ export const showcaseBody = (facts: readonly ShowcaseFact[]): LocalizedText => {
   return {
     en: shown.map((f) => f.text.en).join('\n'),
     es: shown.map((f) => f.text.es ?? f.text.en).join('\n'),
+  };
+};
+
+/** At most this many words in a portrait's bio (owner, 2026-11-10). */
+export const BIO_MAX_WORDS = 25;
+
+const wordCount = (text: string): number =>
+  text.trim().split(/\s+/).filter(Boolean).length;
+
+/**
+ * The portrait's short bio: who and what, in two sentences at most. Facts
+ * about events stay off it (they are the globe's places and the teacher's
+ * talking points); a fact that would take the bio past its word budget is
+ * skipped.
+ */
+export const showcaseBio = (facts: readonly ShowcaseFact[]): LocalizedText => {
+  const picked: ShowcaseFact[] = [];
+  let words = 0;
+  for (const fact of facts) {
+    if (picked.length === 2) break;
+    if (fact.source === 'about' || fact.source === 'took_place_in') continue;
+    const n = wordCount(fact.text.en);
+    if (words + n > BIO_MAX_WORDS) continue;
+    picked.push(fact);
+    words += n;
+  }
+  return {
+    en: picked.map((f) => f.text.en).join(' '),
+    es: picked.map((f) => f.text.es ?? f.text.en).join(' '),
   };
 };

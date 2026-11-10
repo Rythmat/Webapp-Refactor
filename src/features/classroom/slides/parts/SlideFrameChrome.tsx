@@ -9,6 +9,7 @@
  */
 import { SECTIONS, sectionOf } from '../sections';
 import { SLIDE_GRID } from '../slideGrid';
+import { stageKindOf } from '../stage';
 import type { Slide, SlideSurface } from '../types';
 
 interface SlideFrameChromeProps {
@@ -57,6 +58,9 @@ export const SlideFrameChrome = ({ slide, surface }: SlideFrameChromeProps) => (
         }}
       />
     )}
-    {SHOWS_PROGRESS.has(surface) && <SectionProgress slide={slide} />}
+    {/* A full-screen video or globe is left whole. */}
+    {SHOWS_PROGRESS.has(surface) && stageKindOf(slide) !== 'bleed' && (
+      <SectionProgress slide={slide} />
+    )}
   </>
 );

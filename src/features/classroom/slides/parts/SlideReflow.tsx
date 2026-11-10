@@ -22,6 +22,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import type { Interaction, StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
 import { REFLOW_BAND_AFTER, REFLOW_ORDER } from '../slideGrid';
+import { paintsBleed, stageMedia } from '../stage';
 import type { Slide, SlideElement, SlideSurface } from '../types';
 import { sectionLabelOf } from './SectionChip';
 import {
@@ -31,6 +32,7 @@ import {
   showcaseVisuals,
 } from './ShowcaseBackdrop';
 import { SlideElementView } from './SlideElementView';
+import { TourGlobe } from './StageBackdrop';
 
 interface SlideReflowProps {
   slide: Slide;
@@ -88,6 +90,9 @@ export const SlideReflow = ({
       style={style}
     >
       {isShowcaseSlide(slide) && <ReflowShowcase slide={slide} />}
+      {paintsBleed(slide, surface) && (
+        <ReflowStage slide={slide} language={language} />
+      )}
 
       {REFLOW_ORDER.flatMap((zone) => {
         const nodes: ReactNode[] = (byZone.get(zone) ?? []).map((element) => (
@@ -118,6 +123,37 @@ export const SlideReflow = ({
         }
         return nodes;
       })}
+    </div>
+  );
+};
+
+/**
+ * A stage slide's visual on a phone (`slides/stage.ts`): the portrait's photo
+ * or the globe as a square above the words, a video as its still.
+ */
+const ReflowStage = ({
+  slide,
+  language,
+}: {
+  slide: Slide;
+  language: StudentLanguage;
+}) => {
+  const media = stageMedia(slide);
+  if (!media) return null;
+  return (
+    <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-[#0b0b0d]">
+      {media.type === 'artistImage' ? (
+        <ShowcasePhoto songId={media.songId} />
+      ) : media.type === 'globePreview' ? (
+        <TourGlobe globe={media} live={false} language={language} />
+      ) : media.type === 'youtube' ? (
+        <img
+          src={`https://i.ytimg.com/vi/${media.videoId}/hqdefault.jpg`}
+          alt=""
+          draggable={false}
+          className="absolute inset-0 size-full object-cover"
+        />
+      ) : null}
     </div>
   );
 };

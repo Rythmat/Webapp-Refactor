@@ -4,6 +4,9 @@ import type { GroupRole, LessonFocus } from './types';
 /**
  * The Cortex lesson's student-facing copy, English and Spanish. Every string
  * here reaches a slide; teacher-only text belongs in the cell's rationale.
+ *
+ * One idea a slide, and few words (owner, 2026-11-10: "no extra text at
+ * all"): a projected line is seven words at most (`wordBudget.test.ts`).
  */
 
 export const ROLE_NAME: Readonly<Record<GroupRole, LocalizedText>> = {
@@ -17,35 +20,26 @@ export const CHECK_IN_QUESTION: Readonly<Record<FeelingsLevel, LocalizedText>> =
   {
     simple: { en: 'How are you arriving today?', es: '¿Cómo llegas hoy?' },
     advanced: {
-      en: 'Which face is closest to how you feel?',
-      es: '¿Qué cara se parece más a cómo te sientes?',
+      en: 'Which face fits you today?',
+      es: '¿Qué cara va contigo hoy?',
     },
-    complex: {
-      en: 'Name what you are feeling. Pick one, or two that mix.',
-      es: 'Nombra lo que sientes. Elige uno, o dos que se mezclan.',
-    },
+    complex: { en: 'What are you feeling?', es: '¿Qué sientes?' },
   };
 
 /** Reflect's room reset, in the order a class does it. */
 export const RESET_CHECKLIST: readonly LocalizedText[] = [
   { en: 'Save your project', es: 'Guarda tu proyecto' },
-  {
-    en: 'Instruments and headphones put away',
-    es: 'Instrumentos y audífonos guardados',
-  },
-  { en: 'Chairs pushed in', es: 'Sillas acomodadas' },
-  {
-    en: 'Space ready for the next class',
-    es: 'Espacio listo para la próxima clase',
-  },
+  { en: 'Instruments away', es: 'Instrumentos guardados' },
+  { en: 'Chairs in', es: 'Sillas acomodadas' },
+  { en: 'Room ready', es: 'Salón listo' },
 ];
 
 export const COPY = {
   connectionTitle: { en: 'Check in', es: 'Conéctate' },
   connectionCell: { en: 'Connection', es: 'Conexión' },
   vibeQuestion: {
-    en: 'Which sound matches your mood today?',
-    es: '¿Qué sonido va con tu ánimo hoy?',
+    en: 'Which sound matches your mood?',
+    es: '¿Qué sonido va con tu ánimo?',
   },
   showcaseArtist: { en: 'Artist showcase', es: 'Artista destacado' },
   showcasePlace: { en: 'Place showcase', es: 'Lugar destacado' },
@@ -77,8 +71,8 @@ export const COPY = {
     es: 'Cuéntale a tu maestro lo que lograste hoy.',
   },
   progressQuestion: {
-    en: 'What did you get done today? What will you do next?',
-    es: '¿Qué lograste hoy? ¿Qué harás después?',
+    en: 'What did you get done today?',
+    es: '¿Qué lograste hoy?',
   },
   shareTitle: { en: 'Show the class', es: 'Muestra a la clase' },
   sharePrompt: {
@@ -90,9 +84,10 @@ export const COPY = {
     es: 'Comparte tu proyecto con tu maestro.',
   },
   exitTitle: { en: 'Before you go', es: 'Antes de irte' },
+  // The Daily Plan Template's exit ticket (Pedagogy Knowledge Base).
   exitQuestion: {
-    en: 'What is one thing you learned or made today?',
-    es: '¿Qué es algo que aprendiste o creaste hoy?',
+    en: 'What emotion did you aim for today?',
+    es: '¿Qué emoción buscaste hoy?',
   },
   resetTitle: { en: 'Reset the room', es: 'Ordena el salón' },
 } satisfies Record<string, LocalizedText>;

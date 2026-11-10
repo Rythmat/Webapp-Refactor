@@ -58,6 +58,11 @@ export interface InteractionBandProps {
   slots?: SlideSlots;
   /** True for the all-check-in variant: the room sees the tool, never answers. */
   teacherOnly?: boolean;
+  /**
+   * A stage slide (owner, 2026-11-10): the question is the slide, centred and
+   * large, with the faces or the class's count under it.
+   */
+  hero?: boolean;
 }
 
 export const InteractionBand = ({
@@ -66,6 +71,7 @@ export const InteractionBand = ({
   language,
   slots,
   teacherOnly = false,
+  hero = false,
 }: InteractionBandProps) => {
   if (interactions.length === 0) return null;
 
@@ -78,8 +84,12 @@ export const InteractionBand = ({
       // `justify-center` on a scrolling column puts the top out of reach, so
       // the inner block uses `m-auto` — centred when it fits, scrolled from
       // the top when it does not.
-      <div className="slide-band-scroll flex h-full w-full overflow-y-auto">
-        <div className="m-auto flex w-full flex-col gap-5">
+      <div
+        className={`flex h-full w-full overflow-y-auto ${hero ? '' : 'slide-band-scroll'}`}
+      >
+        <div
+          className={`m-auto flex w-full flex-col gap-5 ${hero ? 'max-w-[880px] items-center text-center' : ''}`}
+        >
           {interactions.map((interaction) => (
             <div key={interaction.id} className="flex min-h-0 flex-col gap-3">
               <QuestionText
@@ -108,6 +118,30 @@ export const InteractionBand = ({
     const status = slots?.statusChip ? (
       <div className="flex items-center gap-3">{slots.statusChip}</div>
     ) : null;
+    if (hero && level !== 'complex') {
+      return (
+        <div className="flex h-full w-full flex-col items-center justify-center gap-12 overflow-hidden text-center">
+          <QuestionText question={feelings.question} language={language} />
+          <div
+            className="shrink-0"
+            style={{
+              fontSize:
+                level === 'simple'
+                  ? 'calc(var(--slide-body-fz) * 1.6)'
+                  : 'var(--slide-body-fz)',
+            }}
+          >
+            <FeelingsPreview
+              level={level}
+              language={language}
+              row
+              className="justify-center"
+            />
+          </div>
+          {status}
+        </div>
+      );
+    }
     if (level === 'complex') {
       return (
         <div className="flex h-full w-full items-center gap-12 overflow-hidden">
@@ -151,7 +185,11 @@ export const InteractionBand = ({
   // with the live participation chip under it. Once the teacher shares, the
   // reveal replaces this whole band (see `SlideStage`).
   return (
-    <div className="flex h-full w-full flex-col justify-center gap-4 overflow-hidden">
+    <div
+      className={`flex h-full w-full flex-col justify-center overflow-hidden ${
+        hero ? 'items-center gap-10 text-center' : 'gap-4'
+      }`}
+    >
       {interactions.map((interaction) => (
         <QuestionText
           key={interaction.id}

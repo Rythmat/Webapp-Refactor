@@ -15,6 +15,7 @@ import { resolveElements } from './migrateDeckV1';
 import { InteractionBand } from './parts/InteractionBand';
 import { slideLiveLayer } from './parts/SlideLiveLayer';
 import { SlideStage } from './parts/SlideStage';
+import { projectsQuestion, stageKindOf } from './stage';
 import type { Slide, SlideSurface } from './types';
 
 export interface SlideSlots {
@@ -109,17 +110,23 @@ export const SlideRenderer = ({
         ? interactions.slice(0, 1).map((i) => i.id)
         : [];
 
+  // A stage preset draws one thing big (`slides/stage.ts`); a full-screen
+  // interaction slide asks its question on the students' devices only.
+  const stage = stageKindOf(slide);
   const band =
     revealed.length > 0 ? null : variant !== null ? (
-      <InteractionBand
-        interactions={interactions}
-        surface={surface}
-        language={language}
-        slots={slots}
-        teacherOnly={variant === 'check-in'}
-      />
+      projectsQuestion(slide, surface) ? (
+        <InteractionBand
+          interactions={interactions}
+          surface={surface}
+          language={language}
+          slots={slots}
+          teacherOnly={variant === 'check-in'}
+          hero={stage === 'hero' || stage === 'bleed'}
+        />
+      ) : null
     ) : (
-      slideLiveLayer({ slide, surface, language, interactions, slots })
+      slideLiveLayer({ slide, surface, language, interactions, slots, stage })
     );
 
   return (
@@ -154,6 +161,7 @@ export const SlideRenderer = ({
           ? { bandFallback: band }
           : {})}
       {...(bandCarries.length > 0 ? { bandInteractionIds: bandCarries } : {})}
+      liveBand={surface !== 'student'}
       playableMedia={surface === 'projector' || surface === 'present'}
       blocks={{}}
     />

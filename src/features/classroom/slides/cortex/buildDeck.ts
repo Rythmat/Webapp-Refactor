@@ -19,10 +19,10 @@ import {
   producerTask,
   promoterHeadline,
   promoterTask,
-  todayWith,
   tourTask,
 } from './copy';
-import { showcaseBody } from './showcase';
+import { lessonRationale, withPartRationale } from './lessonRationale';
+import { showcaseBio } from './showcase';
 import type { CortexLessonChoices, CortexLessonPlan, GroupRole } from './types';
 
 /**
@@ -35,17 +35,23 @@ import type { CortexLessonChoices, CortexLessonPlan, GroupRole } from './types';
  * new slide kinds and no new interaction types: the server's `Interaction.type`
  * is an enum.
  *
- * The six sections, in order (`slides/sections.ts`):
+ * The six sections, in order (`slides/sections.ts`). One idea a slide, and
+ * no words a slide doesn't need (owner, 2026-11-10); the stage presets
+ * (`slides/stage.ts`) draw each one big:
  *
- *   Connect             `interaction`  feelings check-in (+ mood poll)  connectRegulate
- *   Showcase            `content`      facts + portrait/globe           connectRegulate
- *                       `media`        a video, when there is one
- *   Group Project       `app-route`    Globe / Studio / Learn           groupPractice
- *   Individual Project  `app-route`    the Studio library               creativeProjects
- *   Present             `interaction`  progress, to the teacher         presentPerform
- *                       `showcase`     a project to offer
- *   Reflect             `interaction`  exit question, projectable       respondReflectReset
- *                       `content`      the room-reset checklist
+ *   Connect             hero      feelings check-in (+ mood poll)    connectRegulate
+ *   Showcase            portrait  the photo, the name, a short bio   connectRegulate
+ *                       bleed     the song's video; "what do you hear?" on devices
+ *                       bleed     the globe, flying through their places
+ *   Group Project       hero      the activity the class does together  groupPractice
+ *   Individual Project  hero      the Studio library + timer         creativeProjects
+ *   Present             hero      progress, to the teacher           presentPerform
+ *                       hero      "Show the class", then the featured project
+ *   Reflect             hero      the exit ticket, projectable       respondReflectReset
+ *                       content   the room-reset checklist
+ *
+ * The teacher's side (activity, CLOs, standards, assessment) goes into the
+ * cells' rationale (`lessonRationale.ts`); the facts into their notes.
  */
 
 export const CORTEX_LESSON_TEMPLATE_ID = 'cortex-lesson-v1';
@@ -70,6 +76,7 @@ export interface CortexLessonContent {
 const ixIds = (prefix: string) => ({
   checkIn: `${prefix}-ix-checkin`,
   vibe: `${prefix}-ix-vibe`,
+  listen: `${prefix}-ix-listen`,
   group: `${prefix}-ix-group`,
   project: `${prefix}-ix-project`,
   progress: `${prefix}-ix-progress`,
@@ -107,7 +114,7 @@ const reflectSlides = (prefix: string, exitId: string): Slide[] => [
     kind: 'interaction',
     phase: 'respondReflectReset',
     section: 'reflect',
-    presetId: 'question',
+    presetId: 'hero',
     title: COPY.exitTitle,
     interactionIds: [exitId],
     reveal: 'wall',
@@ -170,9 +177,8 @@ const projectAndPresent = (
         kind: 'app-route',
         phase: 'creativeProjects',
         section: 'individualProject',
-        presetId: 'personal-project-time',
+        presetId: 'hero',
         title: COPY.projectTitle,
-        prompt: COPY.projectPrompt,
         interactionId: project.id,
         ...withTimer(projectMinutes),
       },
@@ -181,9 +187,8 @@ const projectAndPresent = (
         kind: 'interaction',
         phase: 'presentPerform',
         section: 'present',
-        presetId: 'question',
+        presetId: 'hero',
         title: COPY.presentTitle,
-        prompt: COPY.presentPrompt,
         interactionIds: [progress.id],
       },
       {
@@ -191,9 +196,8 @@ const projectAndPresent = (
         kind: 'showcase',
         phase: 'presentPerform',
         section: 'present',
-        presetId: 'share-day',
+        presetId: 'hero',
         title: COPY.shareTitle,
-        prompt: COPY.sharePrompt,
         interactionId: share.id,
       },
       ...reflectSlides(prefix, exit.id),
@@ -312,7 +316,7 @@ export const buildCortexLessonContent = (
   choices: CortexLessonChoices,
 ): CortexLessonContent => {
   const ids = ixIds(prefix);
-  const { focus, showcase } = plan;
+  const { focus } = plan;
 
   const checkIn = feelingsCheckIn(
     ids.checkIn,
@@ -336,44 +340,17 @@ export const buildCortexLessonContent = (
       `The ${choices.role} role has nothing to run for ${focus.label}`,
     );
 
-  const showcaseSlides: Slide[] = [
-    {
-      id: `${prefix}-slide-showcase`,
-      kind: 'content',
-      phase: 'connectRegulate',
-      section: 'showcase',
-      ...showcaseSlideFields(plan),
-    },
-  ];
-  if (showcase.listen) {
-    const { listen } = showcase;
-    showcaseSlides.push({
-      id: `${prefix}-slide-listen`,
-      kind: 'media',
-      phase: 'connectRegulate',
-      section: 'showcase',
-      title: listenTitle(listen.title),
-      prompt: {
-        en: `${listen.caption} — ${COPY.listenPrompt.en}`,
-        es: `${listen.caption} — ${COPY.listenPrompt.es}`,
-      },
-      media: {
-        type: 'youtube',
-        videoId: listen.videoId,
-        ...(listen.startSec !== undefined ? { startSec: listen.startSec } : {}),
-      },
-      ...((showcase.portrait ?? showcase.visual)
-        ? { sideMedia: showcase.portrait ?? showcase.visual }
-        : {}),
-      accent: showcase.accent,
-    });
-  }
+  const showcase_ = showcaseParts(prefix, plan);
 
   const shared = projectAndPresent(prefix, choices.projectMinutes);
 
   return {
     interactionsByPhase: {
-      connectRegulate: vibe ? [checkIn, vibe] : [checkIn],
+      connectRegulate: [
+        checkIn,
+        ...(vibe ? [vibe] : []),
+        ...showcase_.interactions,
+      ],
       groupPractice: [group.interaction],
       ...shared.interactionsByPhase,
     },
@@ -383,18 +360,32 @@ export const buildCortexLessonContent = (
         kind: 'interaction',
         phase: 'connectRegulate',
         section: 'connect',
-        presetId: 'greeting-check-in',
+        presetId: 'hero',
         title: COPY.connectionTitle,
-        prompt: todayWith(focus),
-        interactionIds: vibe ? [checkIn.id, vibe.id] : [checkIn.id],
-        ...(vibe ? { reveal: 'bars' as const } : {}),
+        interactionIds: [checkIn.id],
       },
-      ...showcaseSlides,
+      // The mood poll, when there is one, is a slide of its own.
+      ...(vibe
+        ? [
+            {
+              id: `${prefix}-slide-vibe`,
+              kind: 'interaction' as const,
+              phase: 'connectRegulate' as const,
+              section: 'connect' as const,
+              presetId: 'hero',
+              title: COPY.vibeQuestion,
+              interactionIds: [vibe.id],
+              reveal: 'bars' as const,
+            },
+          ]
+        : []),
+      ...showcase_.slides,
       {
         id: `${prefix}-slide-group`,
         kind: 'app-route',
         phase: 'groupPractice',
         section: 'groupProject',
+        presetId: 'hero',
         title: groupTitle(choices.role),
         prompt: group.prompt,
         interactionId: group.interaction.id,
@@ -410,37 +401,104 @@ export const buildCortexLessonContent = (
 };
 
 /**
- * The Showcase slide's fields for a plan's subject: its name and facts, and
- * the globe on the left half with the photo on the right (owner,
- * 2026-11-10). With only one of the two, the older spotlight: the visual
- * beside the copy. The generator and the editor's Showcase pick share it.
+ * The Showcase's first slide for a plan's subject (owner, 2026-11-10): the
+ * photo edge to edge with the name and a short bio over it. Without a photo,
+ * the globe of their place takes its place. The generator and the editor's
+ * Showcase pick share it.
  */
 export const showcaseSlideFields = (
   plan: CortexLessonPlan,
 ): Pick<
   Extract<Slide, { kind: 'content' }>,
-  'title' | 'body' | 'presetId' | 'prompt' | 'media' | 'sideMedia' | 'accent'
+  'title' | 'body' | 'presetId' | 'media' | 'accent'
 > => {
   const { focus, showcase } = plan;
+  const bio = showcaseBio(showcase.facts);
+  const visual = showcase.portrait ?? showcase.globe ?? showcase.visual;
   return {
     title: { en: focus.label, es: focus.label },
-    ...(showcase.facts.length > 0
-      ? { body: showcaseBody(showcase.facts) }
-      : {}),
-    ...(showcase.globe && showcase.portrait
-      ? {
-          presetId: 'showcase',
-          media: showcase.globe,
-          sideMedia: showcase.portrait,
-        }
-      : {
-          presetId: 'artist-spotlight',
-          prompt:
-            focus.kind === 'artist' ? COPY.showcaseArtist : COPY.showcasePlace,
-          ...(showcase.visual ? { media: showcase.visual } : {}),
-        }),
+    ...(bio.en ? { body: bio } : {}),
+    presetId: 'portrait',
+    ...(visual ? { media: visual } : {}),
     accent: showcase.accent,
   };
+};
+
+/** The Showcase slides' ids under a deck's prefix. */
+export const showcaseSlideIds = (prefix: string) => ({
+  portrait: `${prefix}-slide-showcase`,
+  listen: `${prefix}-slide-listen`,
+  places: `${prefix}-slide-places`,
+});
+
+/**
+ * The whole Showcase (owner, 2026-11-10): three slides, one idea each.
+ *
+ *   1. the subject's photo, name and short bio            (portrait)
+ *   2. their song's video, full screen; the class says     (bleed)
+ *      what they hear on their devices, revealed as words
+ *   3. the globe, full screen, flying through their places (bleed)
+ *
+ * The second and third are left out when there is no video, or no place.
+ */
+export const showcaseParts = (
+  prefix: string,
+  plan: CortexLessonPlan,
+): { slides: Slide[]; interactions: Interaction[] } => {
+  const { focus, showcase } = plan;
+  const ids = showcaseSlideIds(prefix);
+  const slides: Slide[] = [
+    {
+      id: ids.portrait,
+      kind: 'content',
+      phase: 'connectRegulate',
+      section: 'showcase',
+      ...showcaseSlideFields(plan),
+    },
+  ];
+  const interactions: Interaction[] = [];
+  if (showcase.listen) {
+    const { listen } = showcase;
+    const heard: Interaction = {
+      id: ixIds(prefix).listen,
+      type: 'text',
+      question: COPY.listenPrompt,
+      shareable: true,
+      // A word or two: the room sees them as a cloud.
+      text: { maxLen: 32 },
+    };
+    interactions.push(heard);
+    slides.push({
+      id: ids.listen,
+      kind: 'interaction',
+      phase: 'connectRegulate',
+      section: 'showcase',
+      presetId: 'bleed',
+      title: listenTitle(listen.title),
+      media: {
+        type: 'youtube',
+        videoId: listen.videoId,
+        ...(listen.startSec !== undefined ? { startSec: listen.startSec } : {}),
+      },
+      interactionIds: [heard.id],
+      reveal: 'words',
+      accent: showcase.accent,
+    });
+  }
+  const globe = showcase.globe;
+  if (globe?.type === 'globePreview' && (globe.stops?.length ?? 0) > 0) {
+    slides.push({
+      id: ids.places,
+      kind: 'content',
+      phase: 'connectRegulate',
+      section: 'showcase',
+      presetId: 'bleed',
+      title: { en: focus.label, es: focus.label },
+      media: globe,
+      accent: showcase.accent,
+    });
+  }
+  return { slides, interactions };
 };
 
 /**
@@ -504,10 +562,18 @@ const NOTES_HEADER = '— Cortex lesson —';
 /** The Connect cell's notes: the generator's block, then the teacher's own. */
 const notesWith = (existing: string, plan: CortexLessonPlan): string => {
   // Drop a block an earlier generation wrote, keep everything after it.
+  const paragraphs = existing.split('\n\n');
   const own = existing.startsWith(NOTES_HEADER)
-    ? existing.split('\n\n').slice(1).join('\n\n')
+    ? paragraphs
+        .slice(paragraphs[1]?.startsWith('Talking points:') ? 2 : 1)
+        .join('\n\n')
     : existing;
-  const block = [NOTES_HEADER, ...plan.notes].join('\n');
+  // What to say about the subject: the facts the slides leave off.
+  const talking = [
+    'Talking points:',
+    ...plan.showcase.facts.map((f) => `• ${f.text.en}`),
+  ].join('\n');
+  const block = [NOTES_HEADER, ...plan.notes].join('\n') + '\n\n' + talking;
   const rest = own.trim() || PREP_CHECKLIST;
   return `${block}\n\n${rest}`;
 };
@@ -565,6 +631,7 @@ export const applyCortexLessonToDay = (
       ? deckInteractionIds(day.deck)
       : new Set<string>();
 
+  const parts = lessonRationale(choices.role);
   const cells = {} as DayCells;
   for (const phase of PHASES) {
     const cell = day.cells[phase];
@@ -588,14 +655,12 @@ export const applyCortexLessonToDay = (
           ? { interactions }
           : {}),
       },
-      ...(phase === 'connectRegulate'
-        ? {
-            rationale: {
-              ...cell.rationale,
-              notes: notesWith(cell.rationale.notes, plan),
-            },
-          }
-        : {}),
+      rationale: withPartRationale(
+        phase === 'connectRegulate'
+          ? { ...cell.rationale, notes: notesWith(cell.rationale.notes, plan) }
+          : cell.rationale,
+        parts[phase],
+      ),
     };
   }
 

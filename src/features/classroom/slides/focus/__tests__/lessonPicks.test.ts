@@ -18,21 +18,53 @@ const slideIn = (day: ReturnType<typeof newBlankDay>, section: string) =>
   day.deck!.slides.find((s) => sectionOf(s) === section)!;
 
 describe('choosing the Showcase', () => {
-  it('redraws the Showcase slide and makes the lesson about its subject', () => {
+  it('redraws the Showcase as three slides and makes the lesson about its subject', () => {
     const day = newBlankDay('Lesson');
     const showcase = slideIn(day, 'showcase');
     const next = applyShowcasePick(day, showcase.id, plan);
-    const slide = next.deck!.slides.find((s) => s.id === showcase.id)!;
-    expect(slide).toMatchObject({
+    const slides = next.deck!.slides;
+    const at = slides.findIndex((s) => s.id === showcase.id);
+    expect(slides[at]).toMatchObject({
       kind: 'content',
       section: 'showcase',
-      presetId: 'showcase',
+      presetId: 'portrait',
       title: { en: 'Ana Lux' },
+      media: { type: 'artistImage' },
+    });
+    // The song and the globe follow it.
+    expect(slides[at + 1]).toMatchObject({
+      section: 'showcase',
+      kind: 'interaction',
+      presetId: 'bleed',
+      media: { type: 'youtube' },
+    });
+    expect(slides[at + 2]).toMatchObject({
+      section: 'showcase',
+      presetId: 'bleed',
       media: { type: 'globePreview' },
-      sideMedia: { type: 'artistImage' },
     });
     expect(next.deck!.templateRef?.focusId).toBe(ana.id);
-    expect(next.deck!.slides).toHaveLength(day.deck!.slides.length);
+    expect(slides).toHaveLength(day.deck!.slides.length + 2);
+    // The song's question is in the first phase's cell.
+    const [listenId] = slideInteractionIds(slides[at + 1]);
+    expect(
+      next.cells.connectRegulate.presentation.interactions?.some(
+        (i) => i.id === listenId,
+      ),
+    ).toBe(true);
+    expect(findForbiddenKey(publishDay(next))).toBeNull();
+  });
+
+  it('replaces the earlier subject’s song and globe rather than adding more', () => {
+    const day = newBlankDay('Lesson');
+    const showcase = slideIn(day, 'showcase');
+    const once = applyShowcasePick(day, showcase.id, plan);
+    const twice = applyShowcasePick(once, showcase.id, plan);
+    expect(twice.deck!.slides).toHaveLength(once.deck!.slides.length);
+    const listens = (
+      twice.cells.connectRegulate.presentation.interactions ?? []
+    ).filter((i) => i.id.endsWith('-ix-listen'));
+    expect(listens).toHaveLength(1);
   });
 });
 

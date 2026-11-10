@@ -92,6 +92,7 @@ export type ZoneFamily =
   | 'cta'
   | 'centreStack'
   | 'showcase'
+  | 'portrait'
   | 'chrome';
 
 /** Vertical gap between stacked elements in a `column` zone. */
@@ -302,6 +303,22 @@ export const SLIDE_GRID = {
     flow: 'column',
     family: 'showcase',
   },
+
+  // ── The portrait (owner, 2026-11-10) ────────────────────────────────────
+  // The subject's photo fills the slide (painted by the stage); the name and
+  // a two-line bio sit low on the left, over its darkened side.
+  portraitTitle: {
+    rect: { x: 64, y: 344, w: 760, h: 128 },
+    role: 'content',
+    flow: 'single',
+    family: 'portrait',
+  },
+  portraitBody: {
+    rect: { x: 64, y: 480, w: 640, h: 124 },
+    role: 'content',
+    flow: 'column',
+    family: 'portrait',
+  },
 } as const satisfies Record<string, ZoneSpec>;
 
 export type ZoneName = keyof typeof SLIDE_GRID;
@@ -329,6 +346,7 @@ export const ZONE_FAMILIES: Record<
   cta: ['ctaCenter'],
   centreStack: ['centerStackTop', 'centerStackBottom'],
   showcase: ['captionTitle', 'captionBody'],
+  portrait: ['portraitTitle', 'portraitBody'],
 };
 
 /**
@@ -722,6 +740,7 @@ export const REFLOW_ORDER: readonly ZoneName[] = [
   'utilityTopRight', // + not in the spec's list
   'title',
   'captionTitle', // + the Showcase's name, over its photo
+  'portraitTitle', // + the portrait's name
   'subtitle',
   'rowA',
   'rowB',
@@ -733,6 +752,7 @@ export const REFLOW_ORDER: readonly ZoneName[] = [
   'mediaRight',
   'body',
   'captionBody', // + the Showcase's facts
+  'portraitBody', // + the portrait's bio
   'bodyShort', // + not in the spec's list
   'centerStackTop', // + not in the spec's list
   'centerStackBottom', // + not in the spec's list

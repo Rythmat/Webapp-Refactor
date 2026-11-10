@@ -72,7 +72,7 @@ export const sectionNumber = (section: SlideSection): number =>
   sectionIndex(section) + 1;
 
 /** Presets that only ever spotlight something: a Showcase slide by design. */
-const SHOWCASE_PRESETS = new Set(['artist-spotlight']);
+const SHOWCASE_PRESETS = new Set(['artist-spotlight', 'showcase', 'portrait']);
 
 /**
  * The section a slide belongs in.

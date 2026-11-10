@@ -73,17 +73,23 @@ describe('shipping decks migrate to a LEGAL grid layout', () => {
 });
 
 describe('the two-interaction slide specifically', () => {
-  it('stacks the check-in and the mood poll in the footer and validates', () => {
+  it('stacks two questions in the footer and validates', () => {
+    // Cortex asks one question a slide now (owner, 2026-11-10), but a
+    // teacher can still stack two: the check-in slide with a second.
     const slides = lesson('Ana Lux', 'promoter').deck?.slides ?? [];
-    const stacked = slides.find(
-      (s) => s.kind === 'interaction' && s.interactionIds.length > 1,
+    const checkIn = slides.find(
+      (s) => s.kind === 'interaction' && s.section === 'connect',
     );
-    expect(
-      stacked,
-      'no multi-interaction slide found — fixture drifted',
-    ).toBeDefined();
+    expect(checkIn, 'no check-in slide — fixture drifted').toBeDefined();
+    const stacked = {
+      ...(checkIn as Extract<Slide, { kind: 'interaction' }>),
+      interactionIds: [
+        ...(checkIn as Extract<Slide, { kind: 'interaction' }>).interactionIds,
+        'a-second-question',
+      ],
+    };
 
-    const elements = migrateSlideV1(stacked as Slide);
+    const elements = migrateSlideV1(stacked);
     const footerEls = elements.filter((e) => e.zone === 'footer');
     expect(footerEls).toHaveLength(2);
     expect(validateLayout(elements)).toEqual([]);

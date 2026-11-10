@@ -27,7 +27,9 @@ import { pickLocalized, secondaryLine } from '../../presentation/localized';
 import type { Interaction, LocalizedText, StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
 import { resolveActivityRefHref } from '../resolveContentHref';
+import type { SlideStageKind } from '../stage';
 import type { Slide, SlideSurface, StudioCollabSlide } from '../types';
+import { ActivityHero } from './ActivityHero';
 
 const NOT_READY: LocalizedText = {
   en: 'Ask your teacher — this activity is not ready.',
@@ -78,7 +80,27 @@ const appRouteLayer = (
   language: StudentLanguage,
   interaction: Interaction | undefined,
   slots: SlideSlots | undefined,
+  hero: boolean,
 ) => {
+  const activityRef = interaction?.atlas?.activityRef;
+  // A hero slide is its activity, big: the cover and the name, then the
+  // launch (a student) or the class's status (the room).
+  if (hero && activityRef) {
+    if (surface === 'student') {
+      return (
+        <Centred>
+          <ActivityHero activityRef={activityRef} compact />
+          {interaction && slots?.launch?.(interaction)}
+        </Centred>
+      );
+    }
+    return (
+      <Centred>
+        <ActivityHero activityRef={activityRef} />
+        {slots?.statusChip}
+      </Centred>
+    );
+  }
   if (surface === 'student') {
     return (
       <Stacked>
@@ -135,21 +157,38 @@ const studioCollabLayer = (
 };
 
 const showcaseLayer = (
+  slide: Slide,
   surface: SlideSurface,
+  language: StudentLanguage,
   interaction: Interaction | undefined,
   slots: SlideSlots | undefined,
+  hero: boolean,
 ) => {
+  // A hero share slide says what it is for, big, until a project is shown.
+  const heading = hero ? (
+    <p
+      className="font-semibold leading-tight text-white"
+      style={{ fontSize: 'calc(var(--slide-question-fz) * 1.1)' }}
+    >
+      {pickLocalized(slide.title, language)}
+    </p>
+  ) : null;
   if (surface === 'student') {
     return (
-      <Stacked>{interaction ? slots?.input?.(interaction) : null}</Stacked>
+      <Centred>
+        {heading}
+        {interaction ? slots?.input?.(interaction) : null}
+      </Centred>
     );
   }
-  if (surface === 'teacher') return null;
-  return slots?.showcaseFrame ? <Centred>{slots.showcaseFrame}</Centred> : null;
+  if (slots?.showcaseFrame) return <Centred>{slots.showcaseFrame}</Centred>;
+  return heading ? <Centred>{heading}</Centred> : null;
 };
 
 export interface SlideLiveLayerInput {
   slide: Slide;
+  /** The slide's stage preset, when it has one (`slides/stage.ts`). */
+  stage?: SlideStageKind | undefined;
   surface: SlideSurface;
   language: StudentLanguage;
   interactions: Interaction[];
@@ -168,6 +207,7 @@ export const slideLiveLayer = ({
   language,
   interactions,
   slots,
+  stage,
 }: SlideLiveLayerInput): React.ReactNode => {
   switch (slide.kind) {
     // Pure layout, and `interaction` is handled by `InteractionBand`.
@@ -176,10 +216,23 @@ export const slideLiveLayer = ({
     case 'interaction':
       return null;
     case 'app-route':
-      return appRouteLayer(surface, language, interactions[0], slots);
+      return appRouteLayer(
+        surface,
+        language,
+        interactions[0],
+        slots,
+        stage === 'hero',
+      );
     case 'studio-collab':
       return studioCollabLayer(slide.grouping, surface, slots);
     case 'showcase':
-      return showcaseLayer(surface, interactions[0], slots);
+      return showcaseLayer(
+        slide,
+        surface,
+        language,
+        interactions[0],
+        slots,
+        stage === 'hero',
+      );
   }
 };

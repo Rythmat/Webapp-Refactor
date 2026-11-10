@@ -25,17 +25,15 @@ export const TextInput = ({
         value={value}
         onChange={(e) => setValue(e.target.value.slice(0, maxLen))}
         disabled={disabled}
-        rows={4}
+        // A word or two (a listening slide): one line, not a page.
+        rows={maxLen <= 40 ? 1 : 4}
         placeholder="Type your answer…"
         className="w-full resize-y rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-white/25 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
       />
       <div className="flex items-center justify-between">
-        <span
-          className={`text-xs ${
-            remaining < 20 ? 'text-amber-300' : 'text-white/50'
-          }`}
-        >
-          {remaining} characters remaining
+        {/* The count only once it matters (no extra text otherwise). */}
+        <span className="text-xs text-amber-300">
+          {remaining <= 10 ? `${remaining} characters remaining` : null}
         </span>
         <button
           type="button"

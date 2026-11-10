@@ -60,19 +60,27 @@ describe('a generated Cortex lesson', () => {
     'test',
   );
   const slides = day.deck!.slides;
+  const slide = (suffix: string): Slide => {
+    const found = slides.find((s) => s.id.endsWith(`-slide-${suffix}`));
+    expect(found, suffix).toBeDefined();
+    return found!;
+  };
 
-  it('runs the six sections in order', () => {
-    expect(slides.map((s) => [s.section, s.phase, s.kind])).toEqual([
-      ['connect', 'connectRegulate', 'interaction'],
-      ['showcase', 'connectRegulate', 'content'],
-      ['showcase', 'connectRegulate', 'media'],
-      ['groupProject', 'groupPractice', 'app-route'],
-      ['individualProject', 'creativeProjects', 'app-route'],
-      ['present', 'presentPerform', 'interaction'],
-      ['present', 'presentPerform', 'showcase'],
-      ['reflect', 'respondReflectReset', 'interaction'],
-      ['reflect', 'respondReflectReset', 'content'],
-    ]);
+  it('runs the six sections in order, one idea a slide', () => {
+    expect(slides.map((s) => [s.section, s.phase, s.kind, s.presetId])).toEqual(
+      [
+        ['connect', 'connectRegulate', 'interaction', 'hero'],
+        ['showcase', 'connectRegulate', 'content', 'portrait'],
+        ['showcase', 'connectRegulate', 'interaction', 'bleed'],
+        ['showcase', 'connectRegulate', 'content', 'bleed'],
+        ['groupProject', 'groupPractice', 'app-route', 'hero'],
+        ['individualProject', 'creativeProjects', 'app-route', 'hero'],
+        ['present', 'presentPerform', 'interaction', 'hero'],
+        ['present', 'presentPerform', 'showcase', 'hero'],
+        ['reflect', 'respondReflectReset', 'interaction', 'hero'],
+        ['reflect', 'respondReflectReset', 'content', undefined],
+      ],
+    );
     expect(slidesAreSectionOrdered(slides)).toBe(true);
     const order = slides.map((s) => PHASES.indexOf(s.phase));
     expect([...order].sort((a, b) => a - b)).toEqual(order);
@@ -81,14 +89,19 @@ describe('a generated Cortex lesson', () => {
   it('closes with an exit question the class may see, then the room reset', () => {
     const [exit] = day.cells.respondReflectReset.presentation
       .interactions as Interaction[];
-    expect(exit).toMatchObject({ type: 'text', shareable: true });
-    expect(slides[7]).toMatchObject({
+    expect(exit).toMatchObject({
+      type: 'text',
+      shareable: true,
+      // The Daily Plan Template's exit ticket.
+      question: { en: 'What emotion did you aim for today?' },
+    });
+    expect(slide('exit')).toMatchObject({
       kind: 'interaction',
       interactionIds: [exit.id],
       reveal: 'wall',
     });
     expect(
-      (slides[8] as { resetChecklist?: unknown[] }).resetChecklist?.length,
+      (slide('reset') as { resetChecklist?: unknown[] }).resetChecklist?.length,
     ).toBeGreaterThan(0);
   });
 
@@ -103,8 +116,8 @@ describe('a generated Cortex lesson', () => {
     }
   });
 
-  it('opens with a check-in and the mood poll, the check-in kept off the projector', () => {
-    const [checkIn, vibe] = day.cells.connectRegulate.presentation
+  it('opens with the check-in alone, kept off the projector', () => {
+    const [checkIn] = day.cells.connectRegulate.presentation
       .interactions as Interaction[];
     expect(checkIn).toMatchObject({
       type: 'check-in',
@@ -112,34 +125,70 @@ describe('a generated Cortex lesson', () => {
       checkIn: { style: 'feelings', level: 'simple' },
       question: { en: 'How are you arriving today?' },
     });
+    expect(slides[0]).toMatchObject({
+      presetId: 'hero',
+      interactionIds: [checkIn.id],
+    });
+    // No line under the question (owner, 2026-11-10: no extra text).
+    expect(slides[0]).not.toHaveProperty('prompt');
+  });
+
+  it('shows the subject in three slides: portrait, song, places', () => {
+    // 1. The photo edge to edge, the name and a short bio.
+    expect(slide('showcase')).toMatchObject({
+      kind: 'content',
+      presetId: 'portrait',
+      title: { en: 'Ana Lux' },
+      media: { type: 'artistImage', songId: 'night_drive' },
+      accent: '#0a9396',
+    });
+    const bio = (slide('showcase') as { body?: { en: string } }).body?.en;
+    expect(bio).toContain('Born in Motor City in 1950.');
+    expect(bio!.split(/\s+/).length).toBeLessThanOrEqual(25);
+    // 2. The song, full screen; "what do you hear?" on the devices.
+    const heard = (
+      day.cells.connectRegulate.presentation.interactions as Interaction[]
+    ).find((i) => i.id.endsWith('-ix-listen'));
+    expect(heard).toMatchObject({
+      type: 'text',
+      shareable: true,
+      question: { en: 'What do you hear?' },
+    });
+    expect(slide('listen')).toMatchObject({
+      kind: 'interaction',
+      presetId: 'bleed',
+      media: { type: 'youtube', videoId: 'nightDrive1', startSec: 12 },
+      interactionIds: [heard!.id],
+      reveal: 'words',
+    });
+    // 3. The globe, full screen, through their places from where they began.
+    const places = slide('places') as {
+      media?: { type: string; stops?: { label?: { en: string } }[] };
+    };
+    expect(places).toMatchObject({ presetId: 'bleed' });
+    expect(places.media?.type).toBe('globePreview');
+    expect(places.media?.stops?.[0]?.label?.en).toBe('Motor City · 1950');
+  });
+
+  it('adds the mood poll as a slide of its own when asked', () => {
+    const withPoll = applyCortexLessonToDay(
+      newBlankDay('Ana Lux'),
+      plan,
+      choices('promoter', { vibePoll: true }),
+      'poll',
+    );
+    const vibe = (
+      withPoll.cells.connectRegulate.presentation.interactions as Interaction[]
+    ).find((i) => i.type === 'choice');
     expect(vibe).toMatchObject({
-      type: 'choice',
       shareable: true,
       choice: { options: [{ en: 'groovy' }, { en: 'uplifting' }] },
     });
-    expect(slides[0]).toMatchObject({ prompt: { en: 'Today: Ana Lux' } });
-  });
-
-  it('shows the focus with its facts and portrait, then its song', () => {
-    // The Showcase: the globe on the left, focused on the artist's city, the
-    // portrait on the right (owner, 2026-11-10).
-    expect(slides[1]).toMatchObject({
-      kind: 'content',
-      presetId: 'showcase',
-      title: { en: 'Ana Lux' },
-      media: { type: 'globePreview' },
-      sideMedia: { type: 'artistImage', songId: 'night_drive' },
-      accent: '#0a9396',
-    });
-    const globe = (slides[1] as { media?: { focus?: number[] } }).media;
-    expect(globe?.focus).toHaveLength(2);
-    const body = (slides[1] as { body?: { en: string } }).body?.en ?? '';
-    expect(body).toContain('Born in Motor City in 1950.');
-    // One fact a line, and no more than fit on the slide in two languages.
-    expect(body.split('\n').length).toBeLessThanOrEqual(3);
-    expect(slides[2]).toMatchObject({
-      kind: 'media',
-      media: { type: 'youtube', videoId: 'nightDrive1', startSec: 12 },
+    expect(withPoll.deck!.slides[1]).toMatchObject({
+      section: 'connect',
+      presetId: 'hero',
+      interactionIds: [vibe!.id],
+      reveal: 'bars',
     });
   });
 
@@ -152,9 +201,11 @@ describe('a generated Cortex lesson', () => {
       expects: 'artifact',
       board: { focus: 'artist:ana-lux', goal: 5 },
     });
-    expect(slides[3].title.en).toBe('Group Project: Promoter');
-    // A one-line headline on the slide; the whole task is the question.
-    expect(slides[3]).toMatchObject({
+    // The slide is the activity, big; its title and headline are kept for
+    // the editor and the board, not drawn (the hero preset hides them).
+    expect(slide('group').title.en).toBe('Group Project: Promoter');
+    expect(slide('group')).toMatchObject({
+      presetId: 'hero',
       prompt: { en: 'Map Ana Lux’s connections on the Globe.' },
     });
     expect(group.question.en).toBe(
@@ -163,8 +214,8 @@ describe('a generated Cortex lesson', () => {
   });
 
   it('times the Individual Project and opens the Studio library', () => {
-    expect(slides[4]).toMatchObject({
-      presetId: 'personal-project-time',
+    expect(slide('project')).toMatchObject({
+      presetId: 'hero',
       timerSec: 1200,
     });
     const [project] = day.cells.creativeProjects.presentation
@@ -197,11 +248,36 @@ describe('a generated Cortex lesson', () => {
     });
   });
 
-  it('puts the reasoning in the teacher-only notes, never on a slide', () => {
+  it('puts the reasoning and the talking points in the teacher-only notes', () => {
     const notes = day.cells.connectRegulate.rationale.notes;
     expect(notes).toMatch(/^— Cortex lesson —\nFocus: Ana Lux \(artist\)/);
+    expect(notes).toContain('Talking points:\n• Born in Motor City in 1950.');
     expect(notes).toContain('For the Teachers…');
     expect(JSON.stringify(day.deck)).not.toContain('Cortex lesson');
+  });
+
+  it('fills each part’s activity, CLOs, standards and assessment', () => {
+    // The Daily Plan Template (owner's Pedagogy Knowledge Base).
+    for (const phase of PHASES) {
+      const r = day.cells[phase].rationale;
+      expect(r.activityRefs?.length, phase).toBeGreaterThan(0);
+      expect(r.cloRefs.length, phase).toBe(r.activityRefs?.length);
+      expect(r.standards.length, phase).toBeGreaterThan(0);
+      expect(r.assessment?.en, phase).toBeTruthy();
+    }
+    expect(day.cells.connectRegulate.rationale.standards).toContain(
+      'MU:Re7.1.E.8a',
+    );
+    expect(day.cells.respondReflectReset.rationale.standards).toEqual([
+      'MU:Re9.1.E.8a',
+    ]);
+    expect(day.cells.groupPractice.rationale.cloRefs).toContain(
+      'clo-learn-historical-connections',
+    );
+    // None of it reaches a student.
+    const published = JSON.stringify(publishDay(day));
+    expect(published).not.toContain('MU:Re9.1');
+    expect(published).not.toContain('clo-learn-');
   });
 
   it('publishes clean through the firewall', () => {
@@ -263,14 +339,18 @@ describe('each group role', () => {
       plan,
       choices('promoter', { vibePoll: false }),
     );
-    expect(off.interactionsByPhase.connectRegulate).toHaveLength(1);
+    const choiceIn = (c: ReturnType<typeof buildCortexLessonContent>) =>
+      (c.interactionsByPhase.connectRegulate ?? []).filter(
+        (i) => i.type === 'choice',
+      );
+    expect(choiceIn(off)).toHaveLength(0);
     const none = buildCortexLessonContent(
       'p',
       { ...plan, vibes: ['groovy'] },
-      choices('promoter'),
+      choices('promoter', { vibePoll: true }),
     );
-    expect(none.interactionsByPhase.connectRegulate).toHaveLength(1);
-    expect(none.slides[0]).not.toHaveProperty('reveal');
+    expect(choiceIn(none)).toHaveLength(0);
+    expect(none.slides.some((s) => s.id.endsWith('-slide-vibe'))).toBe(false);
   });
 });
 

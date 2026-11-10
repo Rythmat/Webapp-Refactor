@@ -110,6 +110,46 @@
   --slide-title-fz: 2rem;
 }
 
+/* ── The stage presets (owner, 2026-11-10: one thing, big) ──────────────
+   A hero slide's question is the slide; a portrait's name is the biggest
+   type the deck has. Canvas px, like every token above. */
+.slide-frame--stage-hero:not([data-layout='reflow']) {
+  --slide-question-fz: 72px;
+  --slide-body-fz: 28px;
+}
+.slide-frame--stage-hero[data-surface='student']:not([data-layout='reflow']) {
+  --slide-question-fz: 52px;
+}
+.slide-frame--stage-portrait:not([data-layout='reflow']) {
+  --slide-title-fz: 96px;
+  --slide-body-fz: 26px;
+}
+.slide-frame--stage-portrait[data-surface='student']:not(
+    [data-layout='reflow']
+  ) {
+  --slide-title-fz: 80px;
+}
+
+/* The portrait's slow push-in and the globe's place names arriving. */
+@keyframes stage-push-in {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+@keyframes stage-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Lazy-media loading shimmer. */
 .slide-media__skeleton {
   animation: slide-media-pulse 1.6s ease-in-out infinite;

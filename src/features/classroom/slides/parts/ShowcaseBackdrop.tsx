@@ -94,7 +94,14 @@ export const ShowcaseGlobe = ({
 };
 
 /** The subject's photo, or its generated avatar when there is none. */
-export const ShowcasePhoto = ({ songId }: { songId: string | undefined }) => {
+export const ShowcasePhoto = ({
+  songId,
+  position = 'center',
+}: {
+  songId: string | undefined;
+  /** `top` keeps a tall portrait's face in a wide frame. */
+  position?: 'center' | 'top';
+}) => {
   const song = songId ? getSong(songId) : undefined;
   const [broken, setBroken] = useState(false);
   const src =
@@ -110,7 +117,7 @@ export const ShowcasePhoto = ({ songId }: { songId: string | undefined }) => {
       src={src}
       alt=""
       draggable={false}
-      className="absolute inset-0 size-full object-cover"
+      className={`absolute inset-0 size-full object-cover ${position === 'top' ? 'object-top' : ''}`}
       onError={() => setBroken(true)}
     />
   ) : (

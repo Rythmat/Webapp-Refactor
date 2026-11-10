@@ -189,6 +189,54 @@ export const PRESETS = {
       tiles: 'captionBody',
     },
   },
+  // ── The stage presets (owner, 2026-11-10: one idea per slide, no extra
+  // text). Each paints one thing big; `slides/stage.ts` says how.
+  //
+  // `hero`: the live layer alone, centred and large: the question (or the
+  // class's activity) is the slide.
+  hero: {
+    id: 'hero',
+    label: 'Big question',
+    kinds: ['interaction', 'app-route', 'studio-collab', 'showcase'],
+    bandFree: true,
+    zones: {
+      hideTitle: true,
+      subtitle: 'off',
+      body: 'off',
+      tiles: 'off',
+      visuals: 'off',
+    },
+  },
+  // `bleed`: the slide's visual, edge to edge (a video, a globe). On an
+  // interaction slide the question is asked on the students' devices only.
+  bleed: {
+    id: 'bleed',
+    label: 'Full screen',
+    kinds: ['content', 'media', 'interaction'],
+    bandFree: true,
+    zones: {
+      hideTitle: true,
+      subtitle: 'off',
+      body: 'off',
+      tiles: 'off',
+      visuals: 'off',
+    },
+  },
+  // `portrait`: the subject's photo edge to edge, the name and a short bio
+  // over its darkened left side.
+  portrait: {
+    id: 'portrait',
+    label: 'Portrait',
+    kinds: AUTHORED_KINDS,
+    bandFree: false,
+    zones: {
+      title: 'portraitTitle',
+      visuals: 'off',
+      subtitle: 'off',
+      body: 'portraitBody',
+      tiles: 'off',
+    },
+  },
   'chord-chart': {
     id: 'chord-chart',
     label: 'Chord chart',

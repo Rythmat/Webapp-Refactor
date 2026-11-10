@@ -35,6 +35,13 @@ export type SlideMedia =
        * subject's place, `[lat, lng]`. Without it the globe spins.
        */
       focus?: [number, number];
+      /**
+       * The subject's places, in the order the globe visits them on a
+       * full-screen globe slide (owner, 2026-11-10): born in Gary, then each
+       * place its story happened. `label` is the place's short name
+       * ("Gary · 1958"), the one text the slide shows.
+       */
+      stops?: Array<{ location: [number, number]; label?: LocalizedText }>;
     }
   /**
    * A specific globe *pathway* embedded as the dashboard-style preview: the

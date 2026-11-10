@@ -1,18 +1,19 @@
+import { Users } from 'lucide-react';
+
 /**
- * How many have answered, in one line: "12 checked in · 12 conectados". For a
- * band that also shows what to answer with (a feelings check-in's faces), where
- * the participation ring has no room. A count only — never who.
+ * How many have answered, without words (owner, 2026-11-10): the number and
+ * a people mark. For a band that also shows what to answer with (a feelings
+ * check-in's faces), where the participation ring has no room. A count only,
+ * never who.
  */
 export const AnsweredCount = ({ n }: { n: number }) => (
   <span
     aria-live="polite"
-    className="inline-flex items-baseline gap-[0.5em] text-white/70"
+    aria-label={`${n} checked in`}
+    className="inline-flex items-center gap-[0.4em] text-white/60"
     style={{ fontSize: 'var(--slide-body-fz)' }}
   >
+    <Users aria-hidden className="size-[1em]" />
     <span className="font-bold tabular-nums text-white">{n}</span>
-    checked in
-    <span className="text-white/40">
-      · {n === 1 ? 'conectado' : 'conectados'}
-    </span>
   </span>
 );

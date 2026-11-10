@@ -135,7 +135,9 @@ export interface CortexLessonChoices {
 
 export const DEFAULT_CORTEX_CHOICES: Omit<CortexLessonChoices, 'role'> = {
   checkInLevel: 'simple',
-  vibePoll: true,
+  // One idea a slide (owner, 2026-11-10): the poll is a slide of its own,
+  // so it is the teacher's to add.
+  vibePoll: false,
   projectMinutes: 20,
   seed: 0,
 };

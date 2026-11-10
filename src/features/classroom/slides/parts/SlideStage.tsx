@@ -40,6 +40,7 @@ import {
   resolveElementRects,
   hasBandContent,
   revealBandRect,
+  type ZoneRect,
 } from '../slideGrid';
 import {
   applyMove,
@@ -53,6 +54,7 @@ import {
   withBlock,
   type ResizeEdge,
 } from '../slideLayout';
+import { FULL_CANVAS, STAGE_BAND, stageKindOf } from '../stage';
 import type {
   Slide,
   SlideBlockKey,
@@ -66,6 +68,7 @@ import { ShowcaseBackdrop, isShowcaseSlide } from './ShowcaseBackdrop';
 import { SlideElementView } from './SlideElementView';
 import { SlideFrameChrome } from './SlideFrameChrome';
 import { SlideReflow } from './SlideReflow';
+import { StageBackdrop } from './StageBackdrop';
 import { useAutofit } from './useAutofit';
 import { useStageScale } from './useStageScale';
 import '../slides.css';
@@ -106,6 +109,12 @@ export interface SlideStageProps {
    * elements render nothing, so the question is never on screen twice.
    */
   bandInteractionIds?: readonly string[];
+  /**
+   * A live surface whose band carries the slide's activity (`SlideRenderer`
+   * on the room's screen, Present, the teacher's preview): the footer stands
+   * down even when the band draws nothing.
+   */
+  liveBand?: boolean;
   /**
    * ZONE MODE. When given, the stage lays this slide out from the grid instead
    * of from the legacy block rects — one absolutely-positioned box per zone,
@@ -161,6 +170,7 @@ export const SlideStage = ({
   reveal,
   bandFallback,
   bandInteractionIds,
+  liveBand = false,
   elements,
   interactionsById,
   slots,
@@ -177,6 +187,15 @@ export const SlideStage = ({
 }: SlideStageProps) => {
   const { scale, offsetX, offsetY, ref: stageRef } = useStageScale();
   const resolved = resolveLayout(slide);
+  // A stage preset's live layer takes the whole safe area (`slides/stage.ts`).
+  const stageKind = stageKindOf(slide);
+  // A full-screen slide's reveal covers it edge to edge.
+  const stageBand =
+    stageKind === 'hero'
+      ? STAGE_BAND
+      : stageKind === 'bleed'
+        ? FULL_CANVAS
+        : undefined;
   // Derive ONCE. `elements` is the caller's list when it has one (the editor
   // will pass an unsaved draft); otherwise fall back to the slide's own. Before
   // this the stage resolved the slide three times per render — here, in the
@@ -217,6 +236,15 @@ export const SlideStage = ({
   // showing what was asked while the results are up.
   const bandShowsQuestion =
     Boolean(bandFallback) && !hasBandContent(zoneElements);
+  // On a live surface an EMPTY band owns the slide's activity even when it
+  // draws nothing (a full-screen video asks on the devices; a share slide
+  // waits for a featured project): the footer does not repeat it there. A
+  // band the slide's own content fills is suppressed instead, and then the
+  // footer is the only place the question is (Rule 2).
+  // A full-screen slide is its visual alone, reveal or not.
+  const footerStandsDown =
+    Boolean(liveBand) &&
+    (stageKind === 'bleed' || (!reveal && !hasBandContent(zoneElements)));
 
   const keys = (Object.keys(blocks) as SlideBlockKey[])
     .filter((k) => blocks[k] != null && resolved[k] && !resolved[k]?.hidden)
@@ -268,20 +296,29 @@ export const SlideStage = ({
           slide.kind === 'content' && slide.variant && slide.variant !== 'plain'
             ? `slide-frame--${slide.variant}`
             : ''
-        }`}
+        } ${stageKind ? `slide-frame--stage-${stageKind}` : ''}`}
         style={frameStyle}
         onPointerDown={editable ? () => onSelectBlock?.(null) : undefined}
       >
         {isShowcaseSlide(slide) && (
           <ShowcaseBackdrop slide={slide} fly={playableMedia} />
         )}
+        <StageBackdrop
+          slide={slide}
+          surface={surface}
+          live={playableMedia}
+          language={language}
+          {...(slots?.mediaCommand ? { command: slots.mediaCommand } : {})}
+        />
         <SlideFrameChrome slide={slide} surface={surface} />
         {reveal ? (
-          <RevealBand elements={zoneElements} scrim>
+          <RevealBand elements={zoneElements} rect={stageBand} scrim>
             {reveal}
           </RevealBand>
         ) : bandShowsQuestion ? (
-          <RevealBand elements={zoneElements}>{bandFallback}</RevealBand>
+          <RevealBand elements={zoneElements} rect={stageBand}>
+            {bandFallback}
+          </RevealBand>
         ) : null}
         {elements
           ? resolveElementRects(zoneElements).map(({ element, rect }) => (
@@ -320,9 +357,11 @@ export const SlideStage = ({
                   language={language}
                   interactionsById={interactionsById ?? {}}
                   hiddenInteractionIds={
-                    bandShowsQuestion ? bandInteractionIds : undefined
+                    bandShowsQuestion || footerStandsDown
+                      ? bandInteractionIds
+                      : undefined
                   }
-                  questionOnly={Boolean(bandFallback)}
+                  questionOnly={Boolean(liveBand)}
                   override={resolveOverride(
                     element,
                     slide.id,
@@ -704,8 +743,11 @@ const ZoneBox = ({
 const RevealBand = ({
   elements,
   children,
+  rect: rectOverride,
   scrim = false,
 }: {
+  /** A stage preset's band (the whole safe area), instead of the derived one. */
+  rect?: ZoneRect | undefined;
   /**
    * The SAME resolved element list the stage laid out, not `slide.elements`.
    * Re-deriving here would let the band's geometry come from the stored slide
@@ -718,13 +760,13 @@ const RevealBand = ({
    *  pre-reveal live layer only ever paints an empty band, so it does not. */
   scrim?: boolean;
 }) => {
-  const rect = revealBandRect(elements);
+  const rect = rectOverride ?? revealBandRect(elements);
   return (
     <div
       data-reveal-band
-      className={`absolute flex items-center justify-center overflow-hidden rounded-2xl ${
-        scrim ? 'bg-[rgba(16,16,18,0.94)]' : ''
-      }`}
+      className={`absolute flex items-center justify-center overflow-hidden ${
+        rect.w >= 1280 ? '' : 'rounded-2xl'
+      } ${scrim ? 'bg-[rgba(16,16,18,0.94)]' : ''}`}
       style={{
         left: rect.x,
         top: rect.y,

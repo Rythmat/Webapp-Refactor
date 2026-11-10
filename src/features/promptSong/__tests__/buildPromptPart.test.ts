@@ -127,7 +127,10 @@ describe('buildPromptPart', () => {
       }),
       { seed: 3 },
     );
-    expect(result.chordRegions).toHaveLength(4);
+    // The lane over the spot's four bars, a region a change.
+    const regions = result.chordRegions!;
+    expect(regions[0].startTick).toBe(0);
+    expect(regions.at(-1)!.endTick).toBe(4 * BAR);
     const chords = result.reading.chords;
     expect(chords.every((c) => chordSymbolTones(c))).toBe(true);
     expect(chords.join(' ')).not.toBe('Dm7 G7 Dm7 G7');
@@ -242,5 +245,75 @@ describe('buildPromptPart', () => {
         seed: 1,
       }),
     ).rejects.toMatchObject({ reason: 'meter' });
+  });
+});
+
+describe('chords over the song’s bass line (owner, 2026-11-10)', () => {
+  // D Dorian: D – G – A – C under four bars.
+  const bassLine = [2, 7, 9, 0].map((pc, i) => ({ tick: i * BAR, pc }));
+  const standsOn = (symbol: string) => {
+    const tones = chordSymbolTones(
+      symbol.replace(/♭/g, 'b').replace(/♯/g, '#'),
+    )!;
+    return tones.bassPc;
+  };
+  const laneOver = (result: Awaited<ReturnType<typeof buildPromptPart>>) =>
+    bassLine.map((b) =>
+      standsOn(
+        [...result.chordRegions!].reverse().find((r) => r.startTick <= b.tick)!
+          .noteName,
+      ),
+    );
+
+  it('stands new chords on the bass, and writes them to the lane', async () => {
+    for (const seed of [1, 2, 3, 4]) {
+      const result = await buildPromptPart(
+        'add chords',
+        context({ bassLine }),
+        {
+          seed,
+        },
+      );
+      expect(laneOver(result), result.reading.chords.join(' ')).toEqual([
+        2, 7, 9, 0,
+      ]);
+    }
+  });
+
+  it('follows the lane where its chords already stand on the bass', async () => {
+    const onBass = [
+      { tick: 0, symbol: 'Dm7' },
+      { tick: BAR, symbol: 'G7' },
+      { tick: 2 * BAR, symbol: 'Am7' },
+      { tick: 3 * BAR, symbol: 'Cmaj7' },
+    ];
+    const result = await buildPromptPart(
+      'add chords',
+      context({ chords: onBass, bassLine }),
+      { seed: 2 },
+    );
+    expect(result.chordRegions).toBeNull();
+    expect(result.reading.chords).toEqual(['Dm7', 'G7', 'Am7', 'Cmaj7']);
+  });
+
+  it('writes chords that stand on the bass over a lane that doesn’t', async () => {
+    const result = await buildPromptPart(
+      'write new chords here',
+      context({ chords: lane, bassLine }),
+      { seed: 3 },
+    );
+    expect(result.chordRegions).not.toBeNull();
+    expect(laneOver(result)).toEqual([2, 7, 9, 0]);
+  });
+
+  it('writes a new bass line with new chords when both are asked for', async () => {
+    const result = await buildPromptPart(
+      'drums, bass and chords',
+      context({ bassLine }),
+      { seed: 1 },
+    );
+    // The bass is new too: the chords needn't stand on the old one.
+    expect(result.reading.parts).toContain('bass');
+    expect(result.chordRegions).not.toBeNull();
   });
 });

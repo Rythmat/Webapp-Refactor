@@ -1,7 +1,10 @@
 import type { ChordProgressionEntry } from '@/curriculum/data/chordProgressionLibrary';
 import { loadChordProgressions } from '@/curriculum/data/loaders';
 import { echoRandom } from '@/curriculum/engine/echo/random';
-import type { ChordChange } from '@/curriculum/engine/genreGeneration/chordTimeline';
+import type {
+  ChordChange,
+  TimedChords,
+} from '@/curriculum/engine/genreGeneration/chordTimeline';
 import { pairingsReady } from '@/curriculum/engine/lessonPairings/registry';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { MidiClip } from '@/daw/store/tracksSlice';
@@ -29,7 +32,12 @@ import {
   sectionRequest,
   type PromptPart,
 } from './partWords';
-import { pickProgression } from './pickProgression';
+import {
+  bassAgreement,
+  fitBass,
+  pickProgression,
+  type BassSlot,
+} from './pickProgression';
 import { planPrompt } from './planPrompt';
 import {
   drumsFor,
@@ -84,6 +92,18 @@ export interface PartContext {
   timeSignature: [number, number];
   /** The chord lane's changes in the spot, in ticks from its start. */
   chords: readonly ChordChange[];
+  /**
+   * Where the lane's chords stop, in ticks from the spot's start, when that
+   * is before the spot's end: the bars after play the lane's chords again.
+   */
+  chordsEnd?: number;
+  /**
+   * The song's bass line in the spot, a note a bar (and one at the half
+   * bar where it changes there): chords written over it stand on it.
+   */
+  bassLine?: readonly BassSlot[];
+  /** Library loops the session's prompts played lately, latest last. */
+  recentProgressions?: readonly number[];
   /** The project's genre ('Pop', 'Hip Hop', 'R&B'…), the style by default. */
   projectGenre: string | null;
   /**
@@ -122,8 +142,8 @@ export interface BuiltPart {
 export interface PromptPartResult {
   parts: BuiltPart[];
   /**
-   * The chords the part was written over, a region a bar, in ticks from the
-   * spot's start: for the chord lane when it had none there; null when the
+   * The chords the part was written over, a region a change, in ticks from
+   * the spot's start: for the chord lane when it had none there; null when the
    * part followed the lane's own.
    */
   chordRegions: ChordRegion[] | null;
@@ -152,6 +172,8 @@ export interface PromptPartResult {
     matched: string[];
     /** The Grooves library's groove the drums play, if they play one. */
     groove: string | null;
+    /** The library loop the new chords came from; null when none did. */
+    progressionId: number | null;
   };
 }
 
@@ -165,18 +187,28 @@ export class PromptPartRefusal extends Error {
   }
 }
 
+/**
+ * The share of the bass a lane's chords must stand on to be followed: all
+ * of it, near enough (a G7 over a C is a clash, not a colour).
+ */
+const LANE_ON_BASS = 0.9;
+
 /** The longest spot a prompt fills: the engine writes sixteen bars. */
 export const MAX_PART_BARS = 16;
 
-/** The symbol sounding at the start of each bar of the spot. */
+/**
+ * The symbol sounding at the start of each bar of the spot; past the
+ * lane's `laneBars`, its bars again from the first.
+ */
 function chordPerBar(
   changes: readonly ChordChange[],
   bars: number,
   barTicks: number,
+  laneBars = bars,
 ): string[] {
   const out: string[] = [];
   for (let bar = 0; bar < bars; bar++) {
-    const at = bar * barTicks;
+    const at = (bar % laneBars) * barTicks;
     const sounding = [...changes].reverse().find((c) => c.tick <= at);
     out.push((sounding ?? changes[0]).symbol);
   }
@@ -188,6 +220,18 @@ const PART_NOUN: Record<PromptPart, string> = {
   bass: 'Bass',
   chords: 'Chords',
 };
+
+/** The symbols a timed phrase changes through in its first `length` ticks. */
+function changesIn(timed: TimedChords, length: number): string[] {
+  const out: string[] = [];
+  for (let pass = 0; pass * timed.length < length; pass++) {
+    for (const c of timed.changes) {
+      if (pass * timed.length + c.tick >= length) break;
+      if (out.at(-1) !== c.symbol) out.push(c.symbol);
+    }
+  }
+  return out;
+}
 
 /** A clip's notes cut to the spot. */
 function cutToSpot(clip: MidiClip, name: string, length: number): MidiClip {
@@ -354,14 +398,60 @@ export async function buildPromptPart(
   // The lane's chords where it has them and new ones weren't asked for (nor
   // a new key, which they aren't in); else a progression for the prompt,
   // apart from the song's others.
-  const followsLane = context.chords.length > 0 && !wantsChords && !keyChanged;
-  const offBar = context.chords.some((c) => c.tick % barTicks !== 0);
-  const chords = followsLane
-    ? chordPerBar(context.chords, bars, barTicks)
-    : pickProgression(library, plan, rng, undefined, {
-        avoid: context.otherProgressions ?? [],
-        role,
-      }).chords;
+  // Chords over a bass line the song keeps (owner, 2026-11-10): they stand
+  // on it — the lane's own where they already do, else chords fitted to it.
+  const bassLine =
+    parts.includes('chords') && !parts.includes('bass') && !keyChanged
+      ? (context.bassLine ?? [])
+      : [];
+  const laneAt = (tick: number) =>
+    ([...context.chords].reverse().find((c) => c.tick <= tick) ??
+      context.chords[0])!.symbol;
+  const laneOnBass =
+    context.chords.length > 0 &&
+    bassLine.length > 0 &&
+    bassAgreement(laneAt, bassLine) >= LANE_ON_BASS;
+  const followsLane =
+    context.chords.length > 0 &&
+    !keyChanged &&
+    (bassLine.length ? laneOnBass : !wantsChords);
+  // A lane that stops inside the spot plays its bars again after.
+  const laneLength = Math.min(
+    length,
+    Math.max(
+      barTicks,
+      Math.ceil((context.chordsEnd ?? length) / barTicks) * barTicks,
+    ),
+  );
+  const offBar =
+    context.chords.some((c) => c.tick % barTicks !== 0) || laneLength < length;
+  const recent = new Set(context.recentProgressions ?? []);
+  const picked = followsLane
+    ? null
+    : bassLine.length
+      ? fitBass(library, plan, bassLine, length, rng, { recent })
+      : pickProgression(library, plan, rng, undefined, {
+          avoid: context.otherProgressions ?? [],
+          role,
+          recent,
+        });
+  // The chords the part plays over, timed: the lane's where it doesn't
+  // change a bar each from the spot's start, else the picked phrase.
+  // A spot shorter than the phrase loops the bars of it the spot holds, so
+  // a hit pushed across its last bar line anticipates its own first chord.
+  const timed: TimedChords | undefined = picked
+    ? picked.timed.length > length
+      ? {
+          changes: picked.timed.changes.filter((c) => c.tick < length),
+          length,
+        }
+      : picked.timed
+    : offBar
+      ? { changes: context.chords, length: laneLength }
+      : undefined;
+  const chords = picked
+    ? changesIn(timed!, length)
+    : chordPerBar(context.chords, bars, barTicks, laneLength / barTicks);
 
   const built = withSeededRandom(seed ^ 0x9e3779b9, () =>
     buildGenrePracticeTrack(flow, BAND_SECTION, {
@@ -370,9 +460,7 @@ export async function buildPromptPart(
       bpm,
       followChords: true,
       studio: true,
-      ...(followsLane && offBar
-        ? { timedChords: { changes: context.chords, length } }
-        : {}),
+      ...(timed ? { timedChords: timed } : {}),
       ...(recipe.kind === 'band'
         ? {
             styleId: recipe.style.styleId,
@@ -390,10 +478,7 @@ export async function buildPromptPart(
 
   // The chords voiced from their symbols, for the Studio: the lane's chords,
   // every tone, voice-led (voicePromptChords.ts).
-  const voiced = voicePromptChords(
-    built,
-    followsLane && offBar ? { changes: context.chords, length } : undefined,
-  );
+  const voiced = voicePromptChords(built, timed);
   const styleName = styleNameOf(plan, recipe);
   const out: BuiltPart[] = [];
   for (const part of parts) {
@@ -452,7 +537,11 @@ export async function buildPromptPart(
 
   return {
     parts: out,
-    chordRegions: followsLane ? null : built.chordRegions.slice(0, bars),
+    chordRegions: followsLane
+      ? null
+      : built.chordRegions
+          .filter((r) => r.startTick < length)
+          .map((r) => ({ ...r, endTick: Math.min(r.endTick, length) })),
     // Marked when its chords were written, or a new one was asked for ("a
     // bass line for a new chorus part"); "drop it here" names none.
     section: wantsChords || request?.isNew ? named : null,
@@ -466,13 +555,12 @@ export async function buildPromptPart(
     reading: {
       styleName,
       keyName: `${built.keyLabel} ${MODE_NAMES[plan.mode]}`,
-      chords: followsLane
-        ? chords
-        : chords.slice(0, Math.min(bars, chords.length)),
+      chords,
       bars,
       parts,
       matched: read.matched,
       groove: grooveName,
+      progressionId: picked?.id ?? null,
     },
   };
 }

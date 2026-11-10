@@ -73,15 +73,18 @@ async function build(text: string, spot: PromptSpot) {
     try {
       const result = await buildPromptPart(
         text,
-        partContextOf(
-          useStore.getState(),
-          spot,
-          sessionStyleText(
-            usePromptBarStore.getState(),
-            useStore.getState().projectName,
-            useStore.getState().genre,
+        {
+          ...partContextOf(
+            useStore.getState(),
+            spot,
+            sessionStyleText(
+              usePromptBarStore.getState(),
+              useStore.getState().projectName,
+              useStore.getState().genre,
+            ),
           ),
-        ),
+          recentProgressions: usePromptBarStore.getState().recentProgressions,
+        },
         { seed: newSeed() },
       );
       if (id !== runId) return;
@@ -145,6 +148,8 @@ function finish(
   }
   bar.setPhase({ kind: 'idle' });
   bar.clearLaneSpot();
+  if (result.reading.progressionId !== null)
+    bar.notePlayed(result.reading.progressionId);
   // A style the prompt named becomes the session's, until one is picked
   // by hand ("add a trap beat" on a blank song: the tag says Trap).
   const named = styleOptionOf(text);

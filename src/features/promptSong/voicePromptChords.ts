@@ -31,8 +31,12 @@ import type { GenrePracticeTrackResult } from '@/features/practiceTracks/genre/b
 // It reads the same symbols the chord lane is named from, so the two agree.
 //
 // A band's captured part (a pianist's own voicings) stays as played while it
-// sounds every chord: only a part that loses a chord's 3rd or 7th (a triad
-// part over 7th chords) is voiced again.
+// sounds every chord above the bass: only a part that loses a chord's 3rd or
+// 7th (a triad part over 7th chords), or reaches under C3 for one (a left
+// hand followed down onto a slash chord's bass), is voiced again.
+
+/** The lowest note a chord hit sounds, clear of the bass: C3. */
+const CHORD_FLOOR = 48;
 
 /** Notes struck within this many ticks of each other are one chord hit. */
 const STRUM_TICKS = 30;
@@ -181,14 +185,19 @@ export function voiceChordHits(
   return out;
 }
 
-/** True when a part's hits all sound their chords' 3rds and 7ths. */
+/**
+ * True when a part's hits all sound their chords' 3rds and 7ths, from C3
+ * up.
+ */
 export function partSoundsChords(
   events: readonly MidiNoteEvent[],
   chordAt: ChordAt,
 ): boolean {
   return hitsOf(events).every((hit) => {
+    if (hit.length < 2) return true;
+    if (hit.some((e) => e.note < CHORD_FLOOR)) return false;
     const chord = chordOfHit(hit, chordAt, 0);
-    return hit.length < 2 || !chord || soundsChord(hit, chord);
+    return !chord || soundsChord(hit, chord);
   });
 }
 

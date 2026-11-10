@@ -31,6 +31,25 @@ const context = (over: Partial<PartContext> = {}): PartContext => ({
 
 const mod12 = (n: number) => ((n % 12) + 12) % 12;
 
+/**
+ * The symbol the part's chord lane names at a tick (it changes off the bar),
+ * the spot looping: a hit pushed over its last bar line is its first chord.
+ */
+function laneAt(
+  result: Awaited<ReturnType<typeof buildPromptPart>>,
+): (tick: number) => string {
+  const regions = result.chordRegions!;
+  const length = result.reading.bars * BAR;
+  return (at) => {
+    const tick = at % length;
+    return (
+      [...regions].reverse().find((r) => r.startTick <= tick) ?? regions[0]
+    ).noteName
+      .replace(/♭/g, 'b')
+      .replace(/♯/g, '#');
+  };
+}
+
 /** A clip's notes struck together, in time order. */
 function hitsOf(events: readonly MidiNoteEvent[]): MidiNoteEvent[][] {
   const hits: MidiNoteEvent[][] = [];
@@ -59,9 +78,8 @@ describe('the chords a prompt writes', () => {
     '%s (seed %i) sound their chords, above the bass',
     async (text, seed) => {
       const result = await buildPromptPart(text, context(), { seed });
-      const symbols = result.reading.chords;
-      const chordAt = (tick: number) =>
-        chordSymbolTones(symbols[Math.floor(tick / BAR) % symbols.length]);
+      const symbolAt = laneAt(result);
+      const chordAt = (tick: number) => chordSymbolTones(symbolAt(tick));
       const chords = result.parts.filter((p) => p.part === 'chords');
       expect(chords.length, text).toBeGreaterThan(0);
       for (const part of chords) {
@@ -69,7 +87,7 @@ describe('the chords a prompt writes', () => {
         expect(hits.length, part.name).toBeGreaterThan(0);
         for (const hit of hits) {
           const pcs = new Set(hit.map((e) => mod12(e.note)));
-          const at = `${part.name} @${hit[0].startTick} over ${symbols[Math.floor(hit[0].startTick / BAR) % symbols.length]}`;
+          const at = `${part.name} @${hit[0].startTick} over ${symbolAt(hit[0].startTick)}`;
           // Its chord's 3rd and 7th, whatever else a pianist adds: the
           // chord sounding, or the next one when the hit anticipates it.
           const sounds = [hit[0].startTick, hit[0].startTick + 480]
@@ -92,14 +110,13 @@ describe('the chords a prompt writes', () => {
 
   it('voices the engine’s own chords with every tone, voice-led, not all in root position', async () => {
     const result = await buildPromptPart('R&B chords', context(), { seed: 1 });
-    const symbols = result.reading.chords;
+    const symbolAt = laneAt(result);
     const part = result.parts.find((p) => p.part === 'chords')!;
     const hits = hitsOf(part.clip.events);
     const sorted = (xs: number[]) => [...xs].sort((a, b) => a - b);
     const chordsNear = (hit: MidiNoteEvent[]) =>
       [hit[0].startTick, hit[0].startTick + 480].map(
-        (tick) =>
-          chordSymbolTones(symbols[Math.floor(tick / BAR) % symbols.length])!,
+        (tick) => chordSymbolTones(symbolAt(tick))!,
       );
     // Exactly the tones of its chord (or of the chord it anticipates).
     const chordOf = (hit: MidiNoteEvent[]) => {

@@ -7,11 +7,19 @@ import { loadChordProgressions } from '@/curriculum/data/loaders';
 import { echoRandom } from '@/curriculum/engine/echo/random';
 import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbolTones';
 import { parseMusicPrompt } from '../parseMusicPrompt';
-import { chordsInKey, parentOf, pickProgression } from '../pickProgression';
+import {
+  bassAgreement,
+  chordsInKey,
+  fitBass,
+  parentOf,
+  PHRASE_BARS,
+  pickProgression,
+} from '../pickProgression';
 import { planPrompt } from '../planPrompt';
 
 const plan = (text: string, seed = 1) =>
   planPrompt(parseMusicPrompt(text), echoRandom(seed));
+const BAR = 1920;
 
 describe('chordsInKey', () => {
   it.each([
@@ -80,7 +88,11 @@ describe('pickProgression', () => {
       const p = plan(text);
       const picked = pickProgression(library, p, echoRandom(2));
       expect(picked.chords[0], text).toMatch(tonic);
-      expect([2, 4, 8]).toContain(picked.chords.length);
+      expect(picked.timed.changes[0]).toEqual({
+        tick: 0,
+        symbol: picked.chords[0],
+      });
+      expect(picked.timed.length, text).toBe(PHRASE_BARS * BAR);
     }
   });
 
@@ -174,10 +186,167 @@ describe('pickProgression', () => {
       plan('a song in D Dorian'),
       echoRandom(1),
     );
-    expect(picked).toEqual({
-      id: null,
-      degrees: ['2 minor7', '5 dominant7'],
-      chords: ['Dm7', 'G7'],
+    expect(picked.id).toBeNull();
+    expect(picked.degrees).toEqual(['2 minor7', '5 dominant7']);
+    // Dm7 G7 four times, the last bar turning round on C (D Dorian's ♭VII).
+    expect(picked.chords).toEqual([
+      ...'Dm7 G7 Dm7 G7 Dm7 G7 Dm7 G7'.split(' '),
+      'C',
+    ]);
+    expect(picked.timed.changes.at(-1)).toEqual({
+      tick: 7.5 * BAR,
+      symbol: 'C',
     });
+  });
+});
+
+describe('the phrase (owner, 2026-11-10: four bars ground)', () => {
+  it('plays eight bars that are not the same four twice', async () => {
+    const library = await loadChordProgressions();
+    for (const text of ['pop in C', 'jazz in F', 'a sad song in A minor']) {
+      for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+        const { timed } = pickProgression(
+          library,
+          plan(text),
+          echoRandom(seed),
+        );
+        expect(timed.length).toBe(PHRASE_BARS * BAR);
+        const half = (from: number) =>
+          timed.changes
+            .filter((c) => c.tick >= from && c.tick < from + 4 * BAR)
+            .map((c) => `${c.tick - from}:${c.symbol}`)
+            .join(' ');
+        const first = half(0);
+        // A five-to-seven chord loop holds chords across the halves.
+        if (timed.changes.some((c) => c.tick === 4 * BAR))
+          expect(half(4 * BAR), `${text} ${seed}`).not.toBe(first);
+      }
+    }
+  });
+
+  it('plays the longer loops too, their chords held to fill eight bars', async () => {
+    const library = await loadChordProgressions();
+    const lengths = new Set<number>();
+    for (let seed = 1; seed <= 300; seed++) {
+      const picked = pickProgression(library, plan('jazz'), echoRandom(seed));
+      const entry = library.find((e) => e.id === picked.id);
+      if (entry) lengths.add(entry.chords.length);
+    }
+    expect([...lengths].some((n) => n >= 5)).toBe(true);
+  });
+});
+
+describe('variety (owner, 2026-11-10: mostly very similar material)', () => {
+  it.each(['sad pop', 'gospel', 'lofi hip hop', 'pop', 'funk'])(
+    '“%s” picks many loops, none most of the time',
+    async (text) => {
+      const library = await loadChordProgressions();
+      const counts = new Map<number | null, number>();
+      for (let seed = 1; seed <= 200; seed++) {
+        const picked = pickProgression(
+          library,
+          plan(text, seed),
+          echoRandom(seed * 7),
+        );
+        counts.set(picked.id, (counts.get(picked.id) ?? 0) + 1);
+      }
+      expect(counts.size, text).toBeGreaterThanOrEqual(10);
+      expect(Math.max(...counts.values()), text).toBeLessThanOrEqual(50);
+    },
+  );
+
+  it('leaves out the loops the session played lately while others fit', async () => {
+    const library = await loadChordProgressions();
+    const p = plan('sad pop');
+    const recent = new Set<number>();
+    for (let seed = 1; seed <= 6; seed++) {
+      const picked = pickProgression(library, p, echoRandom(seed), undefined, {
+        recent,
+      });
+      expect(recent.has(picked.id!)).toBe(false);
+      recent.add(picked.id!);
+    }
+  });
+});
+
+describe('chords over a bass line (owner, 2026-11-10)', () => {
+  const pc = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 } as const;
+  const bars = (...notes: (keyof typeof pc)[]) =>
+    notes.map((n, i) => ({ tick: i * BAR, pc: pc[n] }));
+  /** The chord's root or its slash bass, as a pitch class. */
+  const standsOn = (symbol: string) => {
+    const tones = chordSymbolTones(symbol)!;
+    return tones.bassPc ?? tones.rootPc;
+  };
+  const symbolAt = (
+    timed: { changes: readonly { tick: number; symbol: string }[] },
+    tick: number,
+  ) => [...timed.changes].reverse().find((c) => c.tick <= tick)!.symbol;
+
+  it('stands every chord on the bass note under it', async () => {
+    const library = await loadChordProgressions();
+    const bass = bars('A', 'F', 'C', 'G', 'A', 'F', 'C', 'G');
+    for (const text of [
+      'pop in C major',
+      'R&B in C major',
+      'sad pop in C major',
+      'jazz in C major',
+      'neo soul in A minor',
+    ]) {
+      for (let seed = 1; seed <= 20; seed++) {
+        const picked = fitBass(
+          library,
+          plan(text),
+          bass,
+          8 * BAR,
+          echoRandom(seed),
+        );
+        for (const b of bass)
+          expect(
+            standsOn(symbolAt(picked.timed, b.tick)),
+            `${text} ${seed} ${picked.chords.join(' ')}`,
+          ).toBe(b.pc);
+      }
+    }
+  });
+
+  it('varies the chords it stands there', async () => {
+    const library = await loadChordProgressions();
+    const bass = bars('C', 'A', 'D', 'G');
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 30; seed++)
+      seen.add(
+        fitBass(
+          library,
+          plan('R&B in C major'),
+          bass,
+          4 * BAR,
+          echoRandom(seed),
+        ).chords.join(' '),
+      );
+    expect(seen.size).toBeGreaterThanOrEqual(3);
+  });
+
+  it('builds the mode’s own chords on a bass no loop fits', () => {
+    const bass = bars('C', 'E', 'B', 'D');
+    const picked = fitBass(
+      [],
+      plan('pop in C major'),
+      bass,
+      4 * BAR,
+      echoRandom(1),
+    );
+    expect(picked.id).toBeNull();
+    expect(picked.chords).toEqual(['C', 'Em', 'Bdim', 'Dm']);
+  });
+
+  it('measures how much of the bass chords already stand on', () => {
+    const bass = bars('A', 'F', 'C', 'G');
+    const lane = ['Am', 'F', 'C', 'G'];
+    expect(bassAgreement((t) => lane[Math.floor(t / BAR)], bass)).toBe(1);
+    const other = ['Dm', 'G', 'Dm', 'G'];
+    expect(bassAgreement((t) => other[Math.floor(t / BAR)], bass)).toBeLessThan(
+      0.75,
+    );
   });
 });

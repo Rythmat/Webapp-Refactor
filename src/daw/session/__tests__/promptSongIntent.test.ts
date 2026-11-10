@@ -153,7 +153,9 @@ describe('a song idea from a prompt', () => {
     expect(s().currentView).toBe('arrange');
     expect(s().practiceSession).toBeNull();
     expect(s().loopEnabled).toBe(true);
-    expect(s().chordRegions).toHaveLength(16);
+    // The lane over the loop's sixteen bars, a region a change.
+    expect(s().chordRegions[0].startTick).toBe(0);
+    expect(s().chordRegions.at(-1)!.endTick).toBe(16 * 1920);
 
     const names = s().tracks.map((t) => t.name);
     expect(names.at(-1)).toBe('Your idea');

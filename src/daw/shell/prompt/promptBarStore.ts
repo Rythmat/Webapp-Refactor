@@ -53,6 +53,11 @@ interface PromptBarState {
    * the prompt it was generated from; kept with the session's generation.
    */
   style: { id: string; generation: number } | null;
+  /**
+   * The library loops the session's prompts wrote lately, latest last: the
+   * next new chords leave them out while others fit (owner, 2026-11-10).
+   */
+  recentProgressions: number[];
   /** Bumped to ask the input for focus. */
   focusNonce: number;
   expand(): void;
@@ -68,7 +73,12 @@ interface PromptBarState {
   setSessionPrompt(text: string): void;
   /** Pick the session's style tag; null goes back to the song's own. */
   setStyle(id: string | null): void;
+  /** Remember a library loop a prompt wrote. */
+  notePlayed(progressionId: number): void;
 }
+
+/** How many loops the session remembers playing. */
+const RECENT_PROGRESSIONS = 8;
 
 /**
  * The session's style: the tag picked (or set from the prompt it was
@@ -132,6 +142,7 @@ export const usePromptBarStore = create<PromptBarState>()((set) => ({
   lastText: null,
   sessionPrompt: null,
   style: null,
+  recentProgressions: [],
   focusNonce: 0,
   expand: () =>
     set((s) => ({ collapsed: false, focusNonce: s.focusNonce + 1 })),
@@ -158,4 +169,11 @@ export const usePromptBarStore = create<PromptBarState>()((set) => ({
   },
   setStyle: (id) =>
     set({ style: id ? { id, generation: getSessionGeneration() } : null }),
+  notePlayed: (id) =>
+    set((s) => ({
+      recentProgressions: [
+        ...s.recentProgressions.filter((p) => p !== id),
+        id,
+      ].slice(-RECENT_PROGRESSIONS),
+    })),
 }));

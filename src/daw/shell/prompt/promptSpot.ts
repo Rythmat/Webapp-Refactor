@@ -15,27 +15,34 @@ import type {
   PartContext,
   PromptPart,
 } from '@/features/promptSong/buildPromptPart';
+import type { BassSlot } from '@/features/promptSong/pickProgression';
+import { midiClipLength } from '@/daw/components/Timeline/midiClipCuts';
 
 // ── The spot a prompt acts on (owner, 2026-10-23) ──────────────────────────
 //
 // "Select a spot in the timeline and ask me to add a part." The spot is, in
 // order:
-//   1. a lane the student right-clicked → "Add a part here…": four bars
+//   1. a lane the student right-clicked → "Add a part here…": eight bars
 //      from that bar, on that track (or a section's whole length);
 //   2. bars dragged out in empty lane space (the timeline's marquee),
 //      snapped to whole bars, on the lane the drag started in — below the
 //      last lane, a new track;
 //   3. the loop, while it's on (dragged on the ruler): its bars, on the
 //      selected track;
-//   4. else four bars from the playhead's bar, on the selected track.
+//   4. else the song section under the playhead, when it is sixteen bars
+//      or fewer, else eight bars from the playhead's bar, on the selected
+//      track (owner, 2026-11-10: four bars at a time was too little).
 // A part goes on the spot's track when it is that kind of track, else on
 // a track of its own. The spot knows the song section it is (Verse,
 // Chorus, Bridge…): the chip names it, and a prompt that names a section
 // the song has ("write chords for the bridge") takes that section as its
 // spot. New chords stand apart from the song's other sections'.
 
-/** Bars a prompt fills when nothing longer is selected. */
-export const DEFAULT_SPOT_BARS = 4;
+/** Bars a prompt fills when nothing longer is selected: a phrase. */
+export const DEFAULT_SPOT_BARS = 8;
+
+/** The longest section the playhead's spot takes whole (MAX_PART_BARS). */
+const SECTION_SPOT_BARS = 16;
 
 export interface PromptSpot {
   startTick: number;
@@ -136,8 +143,22 @@ export function promptSpotOf(
       from: 'loop',
     });
   }
+  const at = Math.max(0, playheadTick);
+  const section = sectionAt(state.sections, at);
+  if (
+    section &&
+    section.endTick - section.startTick <= SECTION_SPOT_BARS * ticksPerBar(ts)
+  ) {
+    return {
+      startTick: section.startTick,
+      lengthTicks: section.endTick - section.startTick,
+      trackId: state.selectedTrackId,
+      from: 'playhead',
+      section,
+    };
+  }
   return withSection({
-    startTick: barStartTick(Math.max(0, playheadTick), ts),
+    startTick: barStartTick(at, ts),
     lengthTicks: bars,
     trackId: state.selectedTrackId,
     from: 'playhead',
@@ -147,7 +168,7 @@ export function promptSpotOf(
 /**
  * The bars the canvas menu's Prism highlights on a track (owner,
  * 2026-10-24: the prompt bar is the new Prism): the bars already dragged
- * out on that track when they hold the bar right-clicked, else four bars
+ * out on that track when they hold the bar right-clicked, else eight bars
  * from that bar.
  */
 export function prismSelectionAt(
@@ -390,6 +411,82 @@ export function otherProgressionsOf(
   return [before, after].filter((list) => list.length > 0);
 }
 
+/** A note within this many ticks of a beat is struck on it. */
+const ON_BEAT = 120;
+
+/**
+ * The song's bass line in the spot, for chords to stand on (owner,
+ * 2026-11-10): the note each bar's downbeat sounds (the one struck nearest
+ * it, the lowest of a chord, else one held over it, else the bar's
+ * longest), and a second at the
+ * half bar where a note struck there holds most of it on another pitch
+ * (a two-feel, a change on beat 3). Ticks from the spot's start; muted
+ * clips left out.
+ */
+export function bassLineOf(
+  state: Pick<
+    AllSlices,
+    'tracks' | 'timeSignatureNumerator' | 'timeSignatureDenominator'
+  >,
+  spot: Pick<PromptSpot, 'startTick' | 'lengthTicks'>,
+): BassSlot[] {
+  const bar = ticksPerBar(timeSignatureOf(state));
+  const half = bar / 2;
+  const notes = state.tracks
+    .filter((t) => trackPartOf(t) === 'bass')
+    .flatMap((t) =>
+      t.midiClips
+        .filter((c) => !c.muted)
+        .flatMap((c) => {
+          const clipEnd = c.startTick + midiClipLength(c);
+          return c.events.map((e) => {
+            const at = c.startTick + e.startTick;
+            return {
+              start: at - spot.startTick,
+              end: Math.min(at + e.durationTicks, clipEnd) - spot.startTick,
+              note: e.note,
+            };
+          });
+        }),
+    )
+    .filter((n) => n.end > n.start && n.end > 0 && n.start < spot.lengthTicks);
+  const slots: BassSlot[] = [];
+  const lowest = (list: typeof notes) =>
+    list.reduce<(typeof notes)[number] | null>(
+      (low, n) => (!low || n.note < low.note ? n : low),
+      null,
+    );
+  for (let at = 0; at < spot.lengthTicks; at += bar) {
+    // The note struck nearest the downbeat: a pickup a sixteenth before it
+    // is the bar before's.
+    const near = notes.filter((n) => Math.abs(n.start - at) <= ON_BEAT);
+    const nearest = Math.min(...near.map((n) => Math.abs(n.start - at)));
+    const struck = lowest(
+      near.filter((n) => Math.abs(n.start - at) === nearest),
+    );
+    const held = lowest(notes.filter((n) => n.start < at && n.end > at));
+    const inBar = notes.filter((n) => n.start >= at && n.start < at + bar);
+    const longest = inBar.reduce<(typeof notes)[number] | null>(
+      (long, n) =>
+        !long || n.end - n.start > long.end - long.start ? n : long,
+      null,
+    );
+    const down = struck ?? held ?? longest;
+    if (!down) continue;
+    slots.push({ tick: at, pc: down.note % 12 });
+    const third = lowest(
+      inBar.filter(
+        (n) =>
+          Math.abs(n.start - (at + half)) <= ON_BEAT &&
+          n.end - n.start >= half * 0.75,
+      ),
+    );
+    if (third && third.note % 12 !== down.note % 12)
+      slots.push({ tick: at + half, pc: third.note % 12 });
+  }
+  return slots;
+}
+
 /** What plays around the spot: the key, the tempo, the lane's chords. */
 export function partContextOf(
   state: ContextState,
@@ -397,19 +494,21 @@ export function partContextOf(
   sessionPrompt: string | null = null,
 ): PartContext {
   const end = spot.startTick + spot.lengthTicks;
-  const chords = state.chordRegions
+  const regions = state.chordRegions
     .filter(
       (r) => r.endTick > spot.startTick && r.startTick < end && r.noteName,
     )
-    .sort((a, b) => a.startTick - b.startTick)
-    .map((r) => ({
-      tick: Math.max(0, r.startTick - spot.startTick),
-      symbol: ascii(r.noteName),
-    }));
+    .sort((a, b) => a.startTick - b.startTick);
+  const chords = regions.map((r) => ({
+    tick: Math.max(0, r.startTick - spot.startTick),
+    symbol: ascii(r.noteName),
+  }));
+  const laneEnd = Math.max(0, ...regions.map((r) => r.endTick));
   const track = spot.trackId
     ? state.tracks.find((t) => t.id === spot.trackId)
     : undefined;
   const key = partKeyOf(state);
+  const bassLine = bassLineOf(state, spot);
   return {
     startTick: spot.startTick,
     lengthTicks: spot.lengthTicks,
@@ -425,6 +524,10 @@ export function partContextOf(
       state.timeSignatureDenominator,
     ],
     chords,
+    ...(regions.length && laneEnd < end
+      ? { chordsEnd: laneEnd - spot.startTick }
+      : {}),
+    ...(bassLine.length ? { bassLine } : {}),
     projectGenre: state.genre ?? null,
     blank: !state.tracks.some((t) => t.midiClips.length || t.audioClips.length),
     sessionText: sessionPrompt ?? state.projectName ?? null,

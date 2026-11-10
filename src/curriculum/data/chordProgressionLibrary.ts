@@ -1,6 +1,6 @@
 /**
  * Phase 7 — Chord Progression Library.
- * 589 curated progressions with vibe/style tags.
+ * 695 curated progressions with vibe/style tags (589 at first).
  * Lazy-loaded via dynamic import().
  */
 

@@ -1,12 +1,15 @@
 /**
  * The spot a Studio prompt acts on (owner, 2026-10-23): a lane or section
- * right-clicked, else the loop, else four bars from the playhead; the song
+ * right-clicked, else the loop, else the section under the playhead (or
+ * eight bars from it, owner 2026-11-10); the song
  * section it is; a section the prompt names; and the song's other
  * progressions, for new chords to stand apart from.
  */
 import { describe, expect, it } from 'vitest';
 import type { SongSection } from '@/daw/model/sections';
+import type { Track } from '@/daw/store/tracksSlice';
 import {
+  bassLineOf,
   otherProgressionsOf,
   partKeyOf,
   promptSpotOf,
@@ -51,13 +54,33 @@ const base = {
 const ts = { timeSignatureNumerator: 4, timeSignatureDenominator: 4 };
 
 describe('promptSpotOf', () => {
-  it('is four bars from the playhead’s bar, on the selected track', () => {
+  it('is eight bars from the playhead’s bar, on the selected track', () => {
     expect(promptSpotOf(base, null, 5 * BAR + 300)).toEqual({
       startTick: 5 * BAR,
-      lengthTicks: 4 * BAR,
+      lengthTicks: 8 * BAR,
       trackId: 't1',
       from: 'playhead',
       section: null,
+    });
+  });
+
+  it('is the whole section under the playhead, up to sixteen bars', () => {
+    const long: SongSection = { ...verse, endTick: 24 * BAR };
+    expect(
+      promptSpotOf({ ...base, sections: [verse, chorus] }, null, 5 * BAR + 300),
+    ).toMatchObject({
+      startTick: chorus.startTick,
+      lengthTicks: 4 * BAR,
+      from: 'playhead',
+      section: chorus,
+    });
+    // Longer than sixteen bars: eight from the playhead's bar.
+    expect(
+      promptSpotOf({ ...base, sections: [long] }, null, 18 * BAR + 10),
+    ).toMatchObject({
+      startTick: 18 * BAR,
+      lengthTicks: 8 * BAR,
+      section: long,
     });
   });
 
@@ -79,7 +102,7 @@ describe('promptSpotOf', () => {
       promptSpotOf(base, { tick: 3 * BAR + 700, trackId: 't2' }, 0),
     ).toMatchObject({
       startTick: 3 * BAR,
-      lengthTicks: 4 * BAR,
+      lengthTicks: 8 * BAR,
       trackId: 't2',
       from: 'lane',
     });
@@ -104,7 +127,7 @@ describe('promptSpotOf', () => {
       5 * BAR,
     );
     expect(spot.section).toBe(chorus);
-    expect(spotLabel(spot, ts)).toBe('Chorus · Bars 6–9');
+    expect(spotLabel(spot, ts)).toBe('Chorus · Bars 5–8');
   });
 });
 
@@ -323,5 +346,87 @@ describe('partKeyOf', () => {
       mode: 'aeolian',
     });
     expect(partKeyOf(key({}))).toBeNull();
+  });
+});
+
+describe('bassLineOf (owner, 2026-11-10: chords stand on the bass)', () => {
+  const note = (startTick: number, n: number, durationTicks = 480) => ({
+    note: n,
+    velocity: 90,
+    startTick,
+    durationTicks,
+  });
+  const bassTrack = (events: ReturnType<typeof note>[], startTick = 0) =>
+    ({
+      id: 'bass',
+      type: 'midi',
+      name: 'Bass',
+      trackRole: 'bass',
+      instrument: 'soundfont',
+      gmProgram: 33,
+      midiClips: [{ id: 'c', startTick, events }],
+      audioClips: [],
+    }) as unknown as Track;
+  const state = (tracks: Track[]) => ({ ...ts, tracks });
+
+  it('reads a walking bass as its downbeats', () => {
+    // A2 B2 C3 C#3 | D3 E3 F3 F#3: A, then D.
+    const walk = [45, 47, 48, 49, 50, 52, 53, 54].map((n, i) =>
+      note(i * 480, n),
+    );
+    expect(
+      bassLineOf(state([bassTrack(walk)]), {
+        startTick: 0,
+        lengthTicks: 2 * BAR,
+      }),
+    ).toEqual([
+      { tick: 0, pc: 9 },
+      { tick: BAR, pc: 2 },
+    ]);
+  });
+
+  it('reads a pickup before the bar line as the bar before’s', () => {
+    // A9 … then a low B a sixteenth early, and F#2 on the downbeat.
+    const line = [note(0, 45, 1800), note(BAR - 120, 35, 110), note(BAR, 42)];
+    expect(
+      bassLineOf(state([bassTrack(line)]), {
+        startTick: 0,
+        lengthTicks: 2 * BAR,
+      }),
+    ).toEqual([
+      { tick: 0, pc: 9 },
+      { tick: BAR, pc: 6 },
+    ]);
+  });
+
+  it('hears a change at the half bar where a note holds it', () => {
+    const twoFeel = [note(0, 36, 960), note(960, 43, 960), note(BAR, 41, BAR)];
+    expect(
+      bassLineOf(state([bassTrack(twoFeel)]), {
+        startTick: 0,
+        lengthTicks: 2 * BAR,
+      }),
+    ).toEqual([
+      { tick: 0, pc: 0 },
+      { tick: BAR / 2, pc: 7 },
+      { tick: BAR, pc: 5 },
+    ]);
+  });
+
+  it('reads from the spot’s start, and only bass tracks', () => {
+    const bass = bassTrack([note(0, 40, BAR), note(BAR, 45, BAR)], 4 * BAR);
+    const keys = {
+      ...bass,
+      id: 'k',
+      name: 'Keys',
+      trackRole: 'chords',
+      gmProgram: 0,
+    } as Track;
+    expect(
+      bassLineOf(state([keys, bass]), {
+        startTick: 5 * BAR,
+        lengthTicks: 2 * BAR,
+      }),
+    ).toEqual([{ tick: 0, pc: 9 }]);
   });
 });

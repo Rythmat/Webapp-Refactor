@@ -11,6 +11,7 @@ import { Maximize2, Minimize2, StopCircle, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Segmented, type SegmentedOption } from '@/daw/ui/Segmented';
 import { Focus } from '../presentation/Focus';
+import { useTeacherConfig } from '../settings/useTeacherConfig';
 import type { SlideSlots } from '../slides/SlideRenderer';
 import type { Slide } from '../slides/types';
 import type { Interaction, StudentLanguage } from '../types';
@@ -23,6 +24,8 @@ const LANGUAGE_OPTIONS: SegmentedOption<StudentLanguage>[] = [
 ];
 
 interface SessionPresentViewProps {
+  /** Whose language setting the slides follow (and the switch writes). */
+  classroomId: string;
   /**
    * Pre-gated slots, built exactly as the projector builds them. Present IS
    * the projected surface in a single-screen room, so it must never show
@@ -44,6 +47,7 @@ interface SessionPresentViewProps {
 }
 
 export const SessionPresentView = ({
+  classroomId,
   currentSlide,
   interactions,
   slideIndex,
@@ -54,7 +58,12 @@ export const SessionPresentView = ({
   onEnd,
   slots,
 }: SessionPresentViewProps) => {
-  const [language, setLanguage] = useState<StudentLanguage>('en');
+  // One language per class (owner, 2026-11-10). The switch writes the class
+  // setting, so the room's screen (another tab) follows it.
+  const { config, setClassroomConfig } = useTeacherConfig(classroomId);
+  const language = config.language;
+  const setLanguage = (next: StudentLanguage) =>
+    setClassroomConfig({ language: next });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 

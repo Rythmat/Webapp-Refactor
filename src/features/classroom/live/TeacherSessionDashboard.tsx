@@ -32,6 +32,7 @@ import { PHASES } from '../phases';
 import { SnapshotRepairBadge } from '../publish/SnapshotRepairBadge';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
+import { useTeacherConfig } from '../settings/useTeacherConfig';
 import { SlideRenderer } from '../slides/SlideRenderer';
 import {
   deckFromSnapshot,
@@ -84,6 +85,8 @@ export const TeacherSessionDashboard = () => {
     sessionId: string;
   }>();
   const cid = classroomId ?? '';
+  // The class's one language for the slides (owner, 2026-11-10).
+  const classLanguage = useTeacherConfig(cid).config.language;
   const sid = sessionId ?? '';
   const navigate = useNavigate();
 
@@ -449,6 +452,7 @@ export const TeacherSessionDashboard = () => {
     return (
       <>
         <SessionPresentView
+          classroomId={cid}
           currentSlide={currentSlide}
           interactions={currentSlideInteractions}
           slideIndex={slideIndex}
@@ -652,7 +656,7 @@ export const TeacherSessionDashboard = () => {
                 <SlideRenderer
                   slide={currentSlide}
                   surface="teacher"
-                  language="both"
+                  language={classLanguage}
                   interactions={currentSlideInteractions}
                 />
               </div>

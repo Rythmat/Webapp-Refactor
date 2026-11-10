@@ -21,10 +21,9 @@
 import type { CSSProperties, ReactNode } from 'react';
 import type { Interaction, StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
-import { showsPhaseChip } from '../deck';
 import { REFLOW_BAND_AFTER, REFLOW_ORDER } from '../slideGrid';
 import type { Slide, SlideElement, SlideSurface } from '../types';
-import { SectionChip, sectionLabelOf } from './SectionChip';
+import { sectionLabelOf } from './SectionChip';
 import {
   ShowcaseGlobe,
   ShowcasePhoto,
@@ -88,10 +87,6 @@ export const SlideReflow = ({
       className="slide-frame flex w-full flex-col gap-4 p-4"
       style={style}
     >
-      {showsPhaseChip(slide) && (
-        <SectionChip slide={slide} language={language} />
-      )}
-
       {isShowcaseSlide(slide) && <ReflowShowcase slide={slide} />}
 
       {REFLOW_ORDER.flatMap((zone) => {

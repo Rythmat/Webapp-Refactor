@@ -14,6 +14,9 @@
  * "Offers appear in the teacher panel" where the featured project should have
  * been, and the module destination href instead of "open it on your device".
  *
+ * No instructions on the band (owner, 2026-11-10): the room's screen carries
+ * the class's status only, and a student's device the launch or input itself.
+ *
  * Firewall unchanged: `showcaseFrame` is the single teacher-featured project
  * from `state.showcase` (raw offers are refused by `buildProjectorView` at any
  * depth), and the pairing action never reaches a projected surface because
@@ -26,25 +29,9 @@ import type { SlideSlots } from '../SlideRenderer';
 import { resolveActivityRefHref } from '../resolveContentHref';
 import type { Slide, SlideSurface, StudioCollabSlide } from '../types';
 
-const ON_YOUR_DEVICE: LocalizedText = {
-  en: 'Open the activity on your own device.',
-  es: 'Abre la actividad en tu propio dispositivo.',
-};
-const COME_BACK: LocalizedText = {
-  en: "Come back here when you're done.",
-  es: 'Vuelve aquí cuando termines.',
-};
 const NOT_READY: LocalizedText = {
   en: 'Ask your teacher — this activity is not ready.',
   es: 'Pregunta a tu maestro — esta actividad no está lista.',
-};
-const STUDIO_INSTRUCTION: LocalizedText = {
-  en: 'Open the Studio on your device and build together.',
-  es: 'Abre el Studio en tu dispositivo y creen juntos.',
-};
-const WAITING: LocalizedText = {
-  en: 'Waiting for the teacher to feature a project…',
-  es: 'Esperando a que el maestro muestre un proyecto…',
 };
 
 const BiLine = ({
@@ -117,11 +104,6 @@ const appRouteLayer = (
       : null;
     return (
       <Stacked>
-        <BiLine
-          text={COME_BACK}
-          language={language}
-          className="text-white/55"
-        />
         {interaction?.atlas && (
           <Chip>
             <span className="text-white/60">{interaction.atlas.module}</span>
@@ -133,50 +115,27 @@ const appRouteLayer = (
       </Stacked>
     );
   }
-  return (
-    <Centred>
-      <BiLine
-        text={ON_YOUR_DEVICE}
-        language={language}
-        className="text-white/60"
-      />
-      {slots?.statusChip}
-    </Centred>
-  );
+  return <Centred>{slots?.statusChip}</Centred>;
 };
 
 const studioCollabLayer = (
   grouping: StudioCollabSlide['grouping'],
   surface: SlideSurface,
-  language: StudentLanguage,
   slots: SlideSlots | undefined,
 ) => {
   if (surface === 'student') return <Stacked>{slots?.pairAction}</Stacked>;
   if (surface === 'teacher') {
     return (
       <Stacked>
-        <Chip>
-          {grouping === 'pairs'
-            ? 'Students pair up in the Studio'
-            : 'Students each open the Studio'}
-        </Chip>
+        <Chip>{grouping === 'pairs' ? 'In pairs' : 'On their own'}</Chip>
       </Stacked>
     );
   }
-  return (
-    <Centred>
-      <BiLine
-        text={STUDIO_INSTRUCTION}
-        language={language}
-        className="text-white/60"
-      />
-    </Centred>
-  );
+  return null;
 };
 
 const showcaseLayer = (
   surface: SlideSurface,
-  language: StudentLanguage,
   interaction: Interaction | undefined,
   slots: SlideSlots | undefined,
 ) => {
@@ -185,20 +144,8 @@ const showcaseLayer = (
       <Stacked>{interaction ? slots?.input?.(interaction) : null}</Stacked>
     );
   }
-  if (surface === 'teacher') {
-    return (
-      <Stacked>
-        <Chip>Offers appear in the teacher panel</Chip>
-      </Stacked>
-    );
-  }
-  return (
-    <Centred>
-      {slots?.showcaseFrame ?? (
-        <BiLine text={WAITING} language={language} className="text-white/50" />
-      )}
-    </Centred>
-  );
+  if (surface === 'teacher') return null;
+  return slots?.showcaseFrame ? <Centred>{slots.showcaseFrame}</Centred> : null;
 };
 
 export interface SlideLiveLayerInput {
@@ -231,8 +178,8 @@ export const slideLiveLayer = ({
     case 'app-route':
       return appRouteLayer(surface, language, interactions[0], slots);
     case 'studio-collab':
-      return studioCollabLayer(slide.grouping, surface, language, slots);
+      return studioCollabLayer(slide.grouping, surface, slots);
     case 'showcase':
-      return showcaseLayer(surface, language, interactions[0], slots);
+      return showcaseLayer(surface, interactions[0], slots);
   }
 };

@@ -11,7 +11,11 @@ import { resolveElements } from '../../slides/migrateDeckV1';
 import { revealContentHeight } from '../../slides/slideGrid';
 import { AnsweredCount } from '../../slides/viz/AnsweredCount';
 import { ParticipationPulse } from '../../slides/viz/ParticipationPulse';
-import type { Interaction, InteractionResponsePayload } from '../../types';
+import type {
+  Interaction,
+  InteractionResponsePayload,
+  StudentLanguage,
+} from '../../types';
 import { JoinCard } from '../JoinCard';
 import type { SessionState } from '../sessionsStore';
 import { LOCAL_SESSION_CLOCK, type SessionClock } from '../useServerClock';
@@ -40,6 +44,8 @@ interface ProjectorDeckViewProps {
   clock?: SessionClock;
   /** The class's join code, shown while the class waits for the first slide. */
   joinCode?: string;
+  /** The class's language: one on the room's screen, never both by default. */
+  language?: StudentLanguage;
 }
 
 /**
@@ -57,6 +63,7 @@ export const ProjectorDeckView = ({
   responsesByEnrollment,
   clock = LOCAL_SESSION_CLOCK,
   joinCode,
+  language = 'en',
 }: ProjectorDeckViewProps) => {
   const reducedMotion = useReducedMotion();
   const deck = deckFromSnapshot(snapshot);
@@ -181,7 +188,7 @@ export const ProjectorDeckView = ({
           <SlideRenderer
             slide={slide}
             surface="projector"
-            language="both"
+            language={language}
             interactions={interactions}
             slots={{
               reveal: revealSlot,

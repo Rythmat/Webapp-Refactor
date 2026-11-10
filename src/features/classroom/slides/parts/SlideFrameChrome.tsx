@@ -1,44 +1,62 @@
 /**
  * SlideFrameChrome — the shell shared by every slide surface: the optional
- * left accent bar and the bilingual
- * section chip pinned top-left. The chip is non-interactive (pointer-events-none) so it never
- * blocks selecting/dragging blocks beneath it in the editor.
+ * left accent bar, and on the room's screen a quiet line of the lesson's six
+ * sections along the bottom edge, the current one lit.
+ *
+ * No words (owner, 2026-11-10: "no extra text at all"). The section chip that
+ * used to sit top-left is gone from every surface; the editor's filmstrip and
+ * the teacher's panel still name the sections.
  */
-import type { StudentLanguage } from '../../types';
-import { showsPhaseChip } from '../deck';
+import { SECTIONS, sectionOf } from '../sections';
 import { SLIDE_GRID } from '../slideGrid';
-import type { Slide } from '../types';
-import { SectionChip } from './SectionChip';
+import type { Slide, SlideSurface } from '../types';
 
 interface SlideFrameChromeProps {
   slide: Slide;
-  language: StudentLanguage;
+  surface: SlideSurface;
 }
 
-export const SlideFrameChrome = ({
-  slide,
-  language,
-}: SlideFrameChromeProps) => {
+/** Projected surfaces only: a student's own device needs no map of the room. */
+const SHOWS_PROGRESS: ReadonlySet<SlideSurface> = new Set([
+  'projector',
+  'present',
+]);
+
+export const SectionProgress = ({ slide }: { slide: Slide }) => {
+  const current = sectionOf(slide);
   return (
-    <>
-      {slide.accentBar && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute"
-          style={{
-            left: SLIDE_GRID.accentBar.rect.x,
-            top: SLIDE_GRID.accentBar.rect.y,
-            width: SLIDE_GRID.accentBar.rect.w,
-            height: SLIDE_GRID.accentBar.rect.h,
-            background: 'var(--slide-accent, #ffffff)',
-          }}
+    <div
+      aria-hidden
+      data-section-progress=""
+      className="pointer-events-none absolute inset-x-[64px] bottom-[20px] z-10 flex gap-[6px]"
+    >
+      {SECTIONS.map((section) => (
+        <span
+          key={section}
+          className={`h-[3px] flex-1 rounded-full transition-colors duration-500 ${
+            section === current ? 'bg-white/80' : 'bg-white/[0.12]'
+          }`}
         />
-      )}
-      {showsPhaseChip(slide) && (
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center px-[4%] pt-[3%]">
-          <SectionChip slide={slide} language={language} />
-        </div>
-      )}
-    </>
+      ))}
+    </div>
   );
 };
+
+export const SlideFrameChrome = ({ slide, surface }: SlideFrameChromeProps) => (
+  <>
+    {slide.accentBar && (
+      <div
+        aria-hidden
+        className="pointer-events-none absolute"
+        style={{
+          left: SLIDE_GRID.accentBar.rect.x,
+          top: SLIDE_GRID.accentBar.rect.y,
+          width: SLIDE_GRID.accentBar.rect.w,
+          height: SLIDE_GRID.accentBar.rect.h,
+          background: 'var(--slide-accent, #ffffff)',
+        }}
+      />
+    )}
+    {SHOWS_PROGRESS.has(surface) && <SectionProgress slide={slide} />}
+  </>
+);

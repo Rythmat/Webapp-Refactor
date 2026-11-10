@@ -275,7 +275,7 @@ export const SlideStage = ({
         {isShowcaseSlide(slide) && (
           <ShowcaseBackdrop slide={slide} fly={playableMedia} />
         )}
-        <SlideFrameChrome slide={slide} language={language} />
+        <SlideFrameChrome slide={slide} surface={surface} />
         {reveal ? (
           <RevealBand elements={zoneElements} scrim>
             {reveal}
@@ -322,6 +322,7 @@ export const SlideStage = ({
                   hiddenInteractionIds={
                     bandShowsQuestion ? bandInteractionIds : undefined
                   }
+                  questionOnly={Boolean(bandFallback)}
                   override={resolveOverride(
                     element,
                     slide.id,

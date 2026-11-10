@@ -34,11 +34,6 @@ const LOCAL_ENROLLMENT_ID = 'local-preview';
 
 const COPY = {
   launch: { en: 'Launch', es: 'Iniciar' },
-  comeBack: {
-    en: "Come back here when you're done.",
-    es: 'Vuelve aquí cuando termines.',
-  },
-  working: { en: 'Working in the module…', es: 'Trabajando en el módulo…' },
   done: { en: "I'm done", es: '¡Terminé!' },
   relaunch: { en: 'Launch again', es: 'Abrir de nuevo' },
   openHere: { en: 'open here instead', es: 'abrir aquí' },
@@ -223,9 +218,6 @@ export const AppRouteLaunch = ({
 
       {launched ? (
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-white/60">
-            <Bi text={COPY.working} language={language} />
-          </p>
           <button
             type="button"
             onClick={() =>
@@ -238,11 +230,7 @@ export const AppRouteLaunch = ({
             <Bi text={COPY.done} language={language} />
           </button>
         </div>
-      ) : (
-        <p className="text-sm text-white/55">
-          <Bi text={COPY.comeBack} language={language} />
-        </p>
-      )}
+      ) : null}
 
       {popupBlocked && (
         <a

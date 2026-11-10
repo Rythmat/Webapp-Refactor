@@ -15,9 +15,7 @@ import { MicroLabel } from '@/components/kit';
 import { KEY_OF_COLORS } from '@/constants/theme';
 import { Button } from '@/daw/ui/Button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/daw/ui/Popover';
-import { Segmented } from '@/daw/ui/Segmented';
 import { Select } from '@/daw/ui/Select';
-import { showsPhaseChip } from '../../slides/deck';
 import { PRESET_LIST, presetFor } from '../../slides/templates/presets';
 import type { Slide } from '../../slides/types';
 
@@ -131,29 +129,6 @@ export const SlideAppearanceMenu = ({
               options={[
                 { value: AUTOMATIC, label: 'Automatic' },
                 ...presets.map((p) => ({ value: p.id, label: p.label })),
-              ]}
-            />
-            <p className="text-[0.75rem] leading-snug text-daw-text-3">
-              Layouts that would cover a question or a shared project are not
-              offered for this slide.
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between gap-3 border-t border-daw-edge pt-3">
-            <span className="text-[0.8125rem] text-daw-text">
-              Section label
-            </span>
-            <Segmented
-              label="Section label"
-              value={showsPhaseChip(slide) ? 'show' : 'hide'}
-              onValueChange={(v) =>
-                // Showing is the default, so record it by CLEARING the flag
-                // rather than writing `false`: the stored slide stays minimal.
-                onPatch({ hidePhaseLabel: v === 'show' ? undefined : true })
-              }
-              options={[
-                { value: 'show', label: 'Show' },
-                { value: 'hide', label: 'Hide' },
               ]}
             />
           </div>

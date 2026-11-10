@@ -8,13 +8,13 @@ import { pickLocalized } from './localized';
 import { resolveModuleUrl } from './resolveModuleUrl';
 
 // ── A slide's link into the app (owner, 2026-11-09) ─────────────────────────
-// What used to be a white pill is a card, as Learn's are: a cover, the
-// module in small caps (LEARN · STUDIO · GLOBE · ARCADE), the title. It is
+// What used to be a white pill is a card, as Learn's are: a cover and the
+// title, nothing else (owner, 2026-11-10: no extra text on slides). It is
 // drawn on the slide canvas, so it sizes from the slide's own type tokens
 // (canvas px on the stage, rem in a phone's reflow), never from the page.
 //
 // The room's screen cannot be tapped by a student, so the projector card is
-// not a link; it says where the activity opens instead. Every other surface
+// not a link. Every other surface
 // (the student's device, Present, the teacher's preview) opens it, in a new
 // tab so the lesson stays where it was.
 
@@ -24,8 +24,6 @@ const MODULE_LABEL: Record<LaunchTileData['module'], string> = {
   globe: 'Globe',
   arcade: 'Arcade',
 };
-
-const ON_YOUR_DEVICE = { en: 'On your device', es: 'En tu dispositivo' };
 
 interface AppCardProps {
   tile: LaunchTileData;
@@ -76,15 +74,8 @@ export const AppCard = ({
           className="size-[2.1em] rounded-[0.5em]"
         />
       )}
-      <span className="flex min-w-0 flex-1 flex-col gap-[0.1em]">
-        <span
-          className="truncate font-bold uppercase leading-none tracking-[0.08em] text-white/50"
-          style={{ fontSize: 'var(--slide-label-fz)' }}
-        >
-          {module}
-          {projected && ` · ${pickLocalized(ON_YOUR_DEVICE, language)}`}
-        </span>
-        <span className="truncate font-semibold leading-tight">{title}</span>
+      <span className="min-w-0 flex-1 truncate font-semibold leading-tight">
+        {title}
       </span>
     </>
   );

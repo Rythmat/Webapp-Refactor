@@ -17,11 +17,6 @@ import type { Interaction, LocalizedText, StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
 import type { SlideSurface } from '../types';
 
-const RESPONSES_INCOMING: LocalizedText = {
-  en: 'Responses coming in…',
-  es: 'Llegando respuestas…',
-};
-
 /** Bilingual interaction question at the slide question scale. */
 export const QuestionText = ({
   question,
@@ -55,21 +50,6 @@ export const QuestionText = ({
     </div>
   );
 };
-
-/** Fallback "responses coming in" pill when no statusChip slot is provided. */
-const IncomingChip = ({ language }: { language: StudentLanguage }) => (
-  <span
-    className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-white/60"
-    style={{ fontSize: 'var(--slide-body-fz)' }}
-  >
-    {pickLocalized(RESPONSES_INCOMING, language)}
-    {secondaryLine(RESPONSES_INCOMING, language) && (
-      <span className="text-white/35">
-        · {secondaryLine(RESPONSES_INCOMING, language)}
-      </span>
-    )}
-  </span>
-);
 
 export interface InteractionBandProps {
   interactions: Interaction[];
@@ -124,11 +104,10 @@ export const InteractionBand = ({
       : undefined;
   if (feelings?.checkIn) {
     const level = feelings.checkIn.level ?? 'simple';
-    const status = (
-      <div className="flex items-center gap-3">
-        {slots?.statusChip ?? <IncomingChip language={language} />}
-      </div>
-    );
+    // No words when there is no live count (a thumbnail, the editor).
+    const status = slots?.statusChip ? (
+      <div className="flex items-center gap-3">{slots.statusChip}</div>
+    ) : null;
     if (level === 'complex') {
       return (
         <div className="flex h-full w-full items-center gap-12 overflow-hidden">
@@ -181,9 +160,9 @@ export const InteractionBand = ({
           scale={surface === 'teacher' ? 0.9 : 1}
         />
       ))}
-      <div className="flex items-center gap-3">
-        {slots?.statusChip ?? <IncomingChip language={language} />}
-      </div>
+      {slots?.statusChip && (
+        <div className="flex items-center gap-3">{slots.statusChip}</div>
+      )}
     </div>
   );
 };

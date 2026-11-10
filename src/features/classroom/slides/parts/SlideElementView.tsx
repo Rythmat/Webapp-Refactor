@@ -59,6 +59,12 @@ export interface SlideElementViewProps {
   /** Interaction ids the owning stage already renders in the reveal band. */
   hiddenInteractionIds?: readonly string[];
   /**
+   * A live surface (the room's screen, Present): under a reveal the footer
+   * keeps what was asked, but never the editor's sample of the answer shape
+   * ("Students type a response…").
+   */
+  questionOnly?: boolean;
+  /**
    * The editor's substitute for THIS element, if it has one.
    *
    * The editor edits slide-level fields, so its controls are keyed by block
@@ -79,6 +85,7 @@ export const SlideElementView = ({
   language,
   interactionsById,
   hiddenInteractionIds,
+  questionOnly = false,
   override,
   slots,
   playableMedia = false,
@@ -200,6 +207,15 @@ export const SlideElementView = ({
             <QuestionText question={interaction.question} language={language} />
             {slots?.input?.(interaction)}
           </div>
+        );
+      }
+      if (questionOnly) {
+        return (
+          <QuestionText
+            question={interaction.question}
+            language={language}
+            scale={0.6}
+          />
         );
       }
       return (

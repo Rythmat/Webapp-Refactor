@@ -1,3 +1,4 @@
+import { Lock } from 'lucide-react';
 import { useState } from 'react';
 import { WHITE_PILL } from '@/components/kit';
 import { cn } from '@/components/utilities';
@@ -95,11 +96,16 @@ export const CheckInInput = ({
         />
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[0.8125rem] text-daw-text-3">
-          {es
-            ? 'Solo tu maestro ve tu respuesta.'
-            : 'Only your teacher sees this.'}
-        </p>
+        {/* Private to the teacher: said with a lock, not a sentence. */}
+        <Lock
+          role="img"
+          aria-label={
+            es
+              ? 'Solo tu maestro ve tu respuesta'
+              : 'Only your teacher sees this'
+          }
+          className="size-4 text-daw-text-3"
+        />
         <button
           type="button"
           disabled={!canSubmit}

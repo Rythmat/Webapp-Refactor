@@ -29,10 +29,6 @@ const COPY = {
     en: 'Shared with your teacher!',
     es: '¡Compartido con tu maestro!',
   },
-  help: {
-    en: 'Your teacher may feature it for the class.',
-    es: 'Tu maestro puede mostrarlo a la clase.',
-  },
 } satisfies Record<string, LocalizedText>;
 
 const Bi = ({
@@ -116,9 +112,6 @@ export const ShowcaseInput = ({
         <Share2 className="h-5 w-5" />
         <Bi text={COPY.offer} language={language} />
       </button>
-      <p className="text-sm text-white/55">
-        <Bi text={COPY.help} language={language} />
-      </p>
     </div>
   );
 };

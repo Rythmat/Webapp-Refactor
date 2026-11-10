@@ -4,6 +4,7 @@ import { useClassroom } from '@/hooks/data';
 import { PHASES } from '../phases';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
+import { useTeacherConfig } from '../settings/useTeacherConfig';
 import type { Interaction, InteractionResponse } from '../types';
 import { AnonymousShareOverlay } from './AnonymousShareOverlay';
 import { ConnectionBadge } from './ConnectionBadge';
@@ -76,6 +77,8 @@ const ProjectorSurface = ({
 }: ProjectorSurfaceProps) => {
   const { responsesByEnrollment } = useLiveResponses(sid);
   const { getPublishedDay } = usePublishedDays(cid);
+  // The class's one language (owner, 2026-11-10); Present's switch writes it.
+  const classLanguage = useTeacherConfig(cid).config.language;
 
   const storedPublishedDay = state?.publishedDayId
     ? getPublishedDay(state.publishedDayId)
@@ -148,6 +151,7 @@ const ProjectorSurface = ({
     return (
       <ProjectorDeckView
         snapshot={publishedDay.snapshot}
+        language={classLanguage}
         state={state}
         sessionId={sid}
         responsesByEnrollment={responsesByEnrollment}

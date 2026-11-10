@@ -1,3 +1,4 @@
+import { currentLessonId } from '@/daw/components/Tutorial/tutorialCatalog';
 import { getTutorial } from '@/daw/components/Tutorial/tutorials';
 import { CONTEXT_KEYS } from '@/daw/persistence/projectDocument/fields';
 import { getSessionDeps } from '@/daw/session/sessionDeps';
@@ -125,6 +126,9 @@ const isNumbers = listOf(isNumber);
 /** The lesson to resume, at a step it has, when this build may open it. */
 function lessonOf(value: unknown): RestoredContext['lesson'] {
   if (!isRecord(value) || !isString(value.id)) return null;
+  // A lesson that went (LEGACY_LESSON_IDS): its draft is that lesson's
+  // project, not the start its successor builds on, so it opens without it.
+  if (currentLessonId(value.id) !== value.id) return null;
   const tutorial = getTutorial(value.id);
   if (!tutorial || tutorial.steps.length === 0) return null;
   // A Premium lesson the student's plan no longer opens stays closed

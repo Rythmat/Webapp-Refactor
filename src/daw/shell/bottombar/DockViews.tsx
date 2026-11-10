@@ -153,7 +153,9 @@ export const DockViews = memo(function DockViews() {
         onPressedChange={() => pick(view)}
         onPointerEnter={() => preload(view)}
         onFocus={() => preload(view)}
-        data-tutorial-id={view.tab ? `chanstrip-tab-${view.tab}` : undefined}
+        data-tutorial-id={
+          view.tab ? `chanstrip-tab-${view.tab}` : 'dock-automation'
+        }
         data-testid={view.tab ? `dock-tab-${view.tab}` : `dock-view-${view.id}`}
         data-hint={hintText(label, purpose)}
       />

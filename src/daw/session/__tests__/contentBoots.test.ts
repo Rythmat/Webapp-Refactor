@@ -320,16 +320,16 @@ describe('an MSP launch', () => {
     // The songs never arrive: nothing in this open may wait for them.
     content.songs = () => new Promise(() => {});
     setEditorUrl(
-      '?tutorial=make-first-track&msp=tok-1&interactionId=ix-1&module=studio&activityRef=act-1',
+      '?tutorial=studio-basics&msp=tok-1&interactionId=ix-1&module=studio&activityRef=act-1',
     );
 
     const outcome = await openSession(
-      { kind: 'tutorial', tutorialId: 'make-first-track' },
+      { kind: 'tutorial', tutorialId: 'studio-basics' },
       { source: 'boot' },
     );
 
     expect(outcome.status).toBe('ready');
-    expect(s().activeTutorialId).toBe('make-first-track');
+    expect(s().activeTutorialId).toBe('studio-basics');
     const params = new URLSearchParams(window.location.search);
     expect(params.get('tutorial')).toBeNull();
     expect(params.get('msp')).toBe('tok-1');

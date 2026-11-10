@@ -8,7 +8,15 @@
     "area": "components/Controls"
   },
   {
+    "id": "instrument-picker",
+    "area": "components/Controls"
+  },
+  {
     "id": "synth-controls",
+    "area": "components/Controls"
+  },
+  {
+    "id": "synth-preset-selector",
     "area": "components/Controls"
   },
   {
@@ -1112,6 +1120,22 @@
     "area": "components/LeadSheet"
   },
   {
+    "id": "insight-chords",
+    "area": "components/Library"
+  },
+  {
+    "id": "piano-roll-bar",
+    "area": "components/PianoRoll"
+  },
+  {
+    "id": "piano-roll-grid",
+    "area": "components/PianoRoll"
+  },
+  {
+    "id": "piano-roll-quantize",
+    "area": "components/PianoRoll"
+  },
+  {
     "id": "prism-chord-selection",
     "area": "components/Prism"
   },
@@ -1141,6 +1165,18 @@
   },
   {
     "id": "score-note-input",
+    "area": "components/Score"
+  },
+  {
+    "id": "score-staves",
+    "area": "components/Score"
+  },
+  {
+    "id": "score-staves-none",
+    "area": "components/Score"
+  },
+  {
+    "id": "score-toolbar",
     "area": "components/Score"
   },
   {
@@ -1892,10 +1928,6 @@
     "area": "components/Timeline"
   },
   {
-    "id": "synth-preset-selector",
-    "area": "oracle-synth/components/preset"
-  },
-  {
     "id": "chanstrip-tab-controls",
     "area": "shell/bottombar"
   },
@@ -1908,7 +1940,51 @@
     "area": "shell/bottombar"
   },
   {
+    "id": "count-in-choices",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "count-in-menu",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "dock-automation",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "key-popover",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "metronome-toggle",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "musical-typing",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "song-key",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "song-time-signature",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "transport-loop",
+    "area": "shell/bottombar"
+  },
+  {
     "id": "transport-play",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "transport-record",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "transport-to-start",
     "area": "shell/bottombar"
   },
   {
@@ -2028,7 +2104,27 @@
     "area": "shell/canvas/clipMenu"
   },
   {
+    "id": "add-section",
+    "area": "shell/canvas/sections"
+  },
+  {
+    "id": "sections-lane",
+    "area": "shell/canvas/sections"
+  },
+  {
+    "id": "dock-analyze-notes",
+    "area": "shell/dock"
+  },
+  {
+    "id": "dock-body",
+    "area": "shell/dock"
+  },
+  {
     "id": "dock-master",
+    "area": "shell/dock"
+  },
+  {
+    "id": "dock-toggle",
     "area": "shell/dock"
   },
   {
@@ -2140,6 +2236,10 @@
     "area": "shell/inspector"
   },
   {
+    "id": "side-rail",
+    "area": "shell/inspector"
+  },
+  {
     "id": "master-strip",
     "area": "shell/mix"
   },
@@ -2188,6 +2288,10 @@
     "area": "shell/prompt"
   },
   {
+    "id": "rail-prompt",
+    "area": "shell/prompt"
+  },
+  {
     "id": "transport-bpm",
     "area": "shell/song"
   },
@@ -2224,7 +2328,15 @@
     "area": "shell/topbar"
   },
   {
+    "id": "redo-button",
+    "area": "shell/topbar"
+  },
+  {
     "id": "save-chip",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "undo-button",
     "area": "shell/topbar"
   },
   {
@@ -2241,6 +2353,10 @@
   },
   {
     "id": "view-switch-studio",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "view-tabs",
     "area": "shell/topbar"
   },
   {
@@ -2276,7 +2392,287 @@
     "area": "shell/tracklist"
   },
   {
+    "id": "track-arm-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-9",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-9",
+    "area": "shell/tracklist"
+  },
+  {
     "id": "track-menu-button",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-9",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-9",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-9",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-9",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-9",
     "area": "shell/tracklist"
   }
 ]

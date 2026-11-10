@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   TUTORIAL_CATALOG,
+  currentLessonId,
   getTutorialEntry,
   lessonAccess,
   lessonNeedsUpgrade,
@@ -56,22 +57,28 @@ describe('the lesson catalog', () => {
     }
   });
 
-  it('makes the four Prism lessons Premium and leaves the other three free', () => {
+  it('makes the lessons still in the old Prism Premium and leaves the rest free', () => {
     const premium = (want: boolean) =>
-      TUTORIAL_CATALOG.filter(
-        (t) => !('course' in t) && t.requiresPremium === want,
-      ).map((t) => t.id);
+      TUTORIAL_CATALOG.filter((t) => t.requiresPremium === want).map(
+        (t) => t.id,
+      );
     expect(premium(true)).toEqual([
-      'make-first-track',
-      'jazz-color-your-chords',
       'edm-design-the-drop',
+      'jazz-color-your-chords',
       'rnb-mix-and-polish',
     ]);
     expect(premium(false)).toEqual([
+      'studio-basics',
       'hiphop-build-the-beat',
       'house-make-it-pump',
       'indie-movement-and-dynamics',
     ]);
+  });
+
+  it('opens a lesson that went by the one that took its place', () => {
+    expect(getTutorialEntry('make-first-track')?.id).toBe('studio-basics');
+    expect(getTutorialEntry('studio-basics-record')?.id).toBe('studio-basics');
+    expect(currentLessonId('house-make-it-pump')).toBe('house-make-it-pump');
   });
 
   it('finds an entry by id, and nothing for an unknown or missing id', () => {
@@ -109,8 +116,9 @@ describe('lesson access', () => {
   const loading = { isPremium: false, isLoading: true };
 
   it('turns a free student away from a Premium lesson only', () => {
-    expect(lessonNeedsUpgrade('make-first-track', false)).toBe(true);
-    expect(lessonNeedsUpgrade('make-first-track', true)).toBe(false);
+    expect(lessonNeedsUpgrade('edm-design-the-drop', false)).toBe(true);
+    expect(lessonNeedsUpgrade('edm-design-the-drop', true)).toBe(false);
+    expect(lessonNeedsUpgrade('studio-basics', false)).toBe(false);
     expect(lessonNeedsUpgrade('hiphop-build-the-beat', false)).toBe(false);
     expect(lessonAccess('jazz-color-your-chords', free)).toBe('upgrade');
     expect(lessonAccess('jazz-color-your-chords', premium)).toBe('open');

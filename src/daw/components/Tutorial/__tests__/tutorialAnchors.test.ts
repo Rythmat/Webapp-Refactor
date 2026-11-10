@@ -40,6 +40,8 @@ import { ANCHOR_ALIASES, currentAnchorId } from '../anchorRegistry';
  * - a string literal passed to `useTutorialAnchor(…)` or `registerAnchor(…)`
  *   (anchorRegistry.ts) is an exact id too, and so is a
  *   `'data-tutorial-id': '…'` handed on in an object (DawDialog's `data`);
+ * - a string `anchor` on a SoundBrowser (it renders it on its list of
+ *   sounds) is an exact id;
  * - a Segmented option's `anchor` (the control renders it as the segment's
  *   `data-tutorial-id`) is an exact id, read from the option lists
  *   SEGMENT_ANCHORS names.
@@ -72,20 +74,10 @@ const EDITOR_ENTRY = join(DAW, 'DawApp.tsx');
  * Step target ids missing from the editor today, as
  * `'<lesson id>/<step id>/<target id>': '<audit finding id>: why'`.
  *
- * Studio Basics was written for the shell before Stage B; its nine lessons
- * are rewritten for the Stage B shell in a phase of their own. Until then
- * the controls it names that Stage B has no place for are listed here (the
- * moved ones resolve through ANCHOR_ALIASES or their new controls).
- * Lessons 1 to 5 are rewritten and name none.
+ * Every lesson was rebuilt on the current shell (2026-11-09) and names
+ * none: keep it empty, so a step that points at nothing fails here.
  */
-const KNOWN_MISSING: Readonly<Record<string, string>> = {
-  // The dock's tab bar became the bottom rail's Instrument · FX ·
-  // Automation · Edit (2026-10-21); the owner hasn't placed Prism and
-  // Grooves yet. Each step still opens its panel (requires); the grooves
-  // moved into the drums' Instrument tab (2026-10-22).
-  'make-first-track/open-prism/chanstrip-tab-prism':
-    'dock views: Prism has no button until the owner places it',
-};
+const KNOWN_MISSING: Readonly<Record<string, string>> = {};
 
 const SKIPPED_DIRS = new Set(['node_modules', '__tests__', '__mocks__']);
 
@@ -148,6 +140,7 @@ function collectAnchors(files: string[]): Anchors {
     const text = readFileSync(path, 'utf8');
     if (
       !text.includes('data-tutorial-id') &&
+      !text.includes('<SoundBrowser') &&
       !text.includes('useTutorialAnchor(') &&
       !text.includes('registerAnchor(')
     )
@@ -173,6 +166,18 @@ function collectAnchors(files: string[]): Anchors {
         else if (ts.isJsxExpression(value) && value.expression) {
           collectValue(value.expression, path, anchors);
         }
+      }
+      // A SoundBrowser's `anchor`, which it renders on its list of sounds.
+      if (
+        ts.isJsxAttribute(node) &&
+        node.name.getText(source) === 'anchor' &&
+        node.initializer &&
+        ts.isStringLiteral(node.initializer) &&
+        (ts.isJsxOpeningElement(node.parent.parent) ||
+          ts.isJsxSelfClosingElement(node.parent.parent)) &&
+        node.parent.parent.tagName.getText(source) === 'SoundBrowser'
+      ) {
+        add(anchors.exact, node.initializer.text, path);
       }
       // An attribute handed on as an object ({ 'data-tutorial-id': … }), as
       // DawDialog's `data` takes it.
@@ -304,11 +309,11 @@ const TRACK_HEADER_TEMPLATES = Object.fromEntries(
   [
     'track-header-',
     'track-name-',
-    'track-instrument-',
     'track-mute-',
     'track-solo-',
     'track-arm-',
     'track-volume-',
+    'track-pan-',
   ].map((prefix) => [
     prefix,
     {
@@ -349,10 +354,6 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     file: 'components/Timeline/TimelineAnchors.tsx',
     // A track's clips, in time order: a lesson's song has a handful.
     suffixes: () => pairs(TRACK_INDEXES, upTo(16)),
-  },
-  'piano-roll-tool-': {
-    file: 'components/PianoRoll/PianoRoll.tsx',
-    suffixes: () => ['select', 'draw', 'erase'],
   },
   'leadsheet-chord-': {
     file: 'components/LeadSheet/LeadSheetMeasure.tsx',

@@ -74,6 +74,7 @@ export const AddSectionMenu = forwardRef<
           size="sm"
           variant="ghost"
           data-testid="add-section"
+          data-tutorial-id="add-section"
           aria-label="Add a section"
           className="absolute top-0 bg-daw-surface-1"
           style={style}

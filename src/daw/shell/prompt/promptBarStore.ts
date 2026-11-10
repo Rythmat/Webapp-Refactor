@@ -120,8 +120,12 @@ export function currentSessionPrompt(
     : null;
 }
 
+/** Prism's state as a lesson step reads it (tutorials.ts PromptStepCheck). */
+export type PromptBarSnapshot = Readonly<PromptBarState>;
+
 export const usePromptBarStore = create<PromptBarState>()((set) => ({
-  collapsed: false,
+  // Folded until asked for, from the side rail's Prism (owner, 2026-11-09).
+  collapsed: true,
   laneSpot: null,
   selection: null,
   phase: { kind: 'idle' },

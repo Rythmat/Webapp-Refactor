@@ -3,6 +3,7 @@ import { parseKeyName } from '@/curriculum/songLibrary/performance';
 import { transposeSong } from '@/curriculum/songLibrary/transpose';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { ensureSongContent } from '@/content/songStore';
+import { currentLessonId } from '@/daw/components/Tutorial/tutorialCatalog';
 import { getTutorial } from '@/daw/components/Tutorial/tutorials';
 import { applyDemo, prepareDemo, prepareLessonSeed } from '@/daw/data/demoSeed';
 import { getDemoProject } from '@/daw/data/demoProjects';
@@ -491,7 +492,8 @@ export async function prepareIntent(
         name: getTutorial(intent.tutorialId)?.title ?? null,
         apply: () => {
           if (song) applyDemo(song);
-          useStore.getState().startTutorial(intent.tutorialId);
+          // A lesson that went runs as its successor (LEGACY_LESSON_IDS).
+          useStore.getState().startTutorial(currentLessonId(intent.tutorialId));
         },
         baseline: {
           source: 'tutorial',

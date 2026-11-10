@@ -12,10 +12,10 @@ import {
 } from './anchorTestUtils';
 
 // ── The lesson spotlight (ia-flows-29, practice-tutorial-17) ────────────────
-// The dim is a static SVG with a mask hole at the target, at the same 40%
-// darkness as the old 9999 px box-shadow; the ring keeps its 2 px accent and
-// 16 px glow 6 px outside the target, and pulses with opacity only. Under
-// prefers-reduced-motion nothing animates.
+// A ring around the target and nothing else: the Studio isn't dimmed (owner,
+// 2026-11-10). The ring keeps its 2 px accent and 16 px glow 6 px outside
+// the target, and pulses with opacity only. Under prefers-reduced-motion
+// nothing animates.
 
 const BOX = { top: 100, left: 200, width: 80, height: 30 };
 const PAD = 6;
@@ -32,29 +32,24 @@ afterEach(() => {
 });
 
 const frame = () => act(() => flushFrame());
+/** The ring's top edge, from its transform. */
+const ringTop = () =>
+  /translate\([^,]+, ([-\d.]+)px\)/.exec(
+    screen.getByTestId('tutorial-spotlight-ring').style.transform,
+  )?.[1];
 
 describe('Spotlight', () => {
-  it('cuts the dim’s hole at the padded target and rings it', () => {
+  it('rings the padded target and dims nothing', () => {
     stubReducedMotion(false);
     anchorEl('target', BOX);
     render(<Spotlight target="target" />);
     // Nothing until the target is measured, on the next frame.
-    expect(screen.queryByTestId('tutorial-spotlight-dim')).toBeNull();
+    expect(screen.queryByTestId('tutorial-spotlight-ring')).toBeNull();
     frame();
 
-    const hole = screen.getByTestId('tutorial-spotlight-hole');
-    expect(hole.getAttribute('x')).toBe(String(BOX.left - PAD));
-    expect(hole.getAttribute('y')).toBe(String(BOX.top - PAD));
-    expect(hole.getAttribute('width')).toBe(String(BOX.width + PAD * 2));
-    expect(hole.getAttribute('height')).toBe(String(BOX.height + PAD * 2));
-    expect(hole.getAttribute('rx')).toBe('8');
-
-    const dim = screen.getByTestId('tutorial-spotlight-dim');
-    const fill = dim.querySelector('rect[mask]')!;
-    expect(fill.getAttribute('fill')).toBe('rgba(6, 8, 12, 0.4)');
-    expect(fill.getAttribute('mask')).toMatch(/^url\(#tutorial-spotlight-/);
-    // The dim never animates.
-    expect(dim.getAttribute('style') ?? '').not.toMatch(/animation|transition/);
+    // No full-screen layer over the Studio.
+    expect(screen.queryByTestId('tutorial-spotlight-dim')).toBeNull();
+    expect(document.querySelector('svg')).toBeNull();
 
     const ring = screen.getByTestId('tutorial-spotlight-ring');
     expect(ring).toHaveAttribute('aria-hidden', 'true');
@@ -63,6 +58,8 @@ describe('Spotlight', () => {
       `translate(${BOX.left - PAD}px, ${BOX.top - PAD}px)`,
     );
     expect(ring.style.width).toBe(`${BOX.width + PAD * 2}px`);
+    expect(ring.style.height).toBe(`${BOX.height + PAD * 2}px`);
+    expect(ring.style.borderRadius).toBe('8px');
     expect(ring.style.boxShadow).toContain('0 0 0 2px');
     expect(ring.style.boxShadow).toContain('0 0 16px 4px');
     expect(ring.style.boxShadow).not.toContain('9999px');
@@ -86,9 +83,7 @@ describe('Spotlight', () => {
     setBox(el, { ...BOX, top: 300 });
     act(() => window.dispatchEvent(new Event('resize')));
     frame();
-    expect(
-      screen.getByTestId('tutorial-spotlight-hole').getAttribute('y'),
-    ).toBe(String(300 - PAD));
+    expect(ringTop()).toBe(String(300 - PAD));
     frame();
     expect(frameTaskNames()).toEqual([]);
   });
@@ -104,14 +99,12 @@ describe('Spotlight', () => {
     expect(document.querySelector('[style*="tutorialPulse"]')).toBeNull();
     // The look is otherwise the same.
     expect(ring.style.boxShadow).toContain('0 0 16px 4px');
-    expect(screen.getByTestId('tutorial-spotlight-hole')).toBeInTheDocument();
   });
 
   it('renders nothing when no target resolves', () => {
     stubReducedMotion(false);
     render(<Spotlight target="missing" />);
     frame();
-    expect(screen.queryByTestId('tutorial-spotlight-dim')).toBeNull();
     expect(screen.queryByTestId('tutorial-spotlight-ring')).toBeNull();
   });
 
@@ -121,8 +114,6 @@ describe('Spotlight', () => {
     anchorEl('fx-add-compressor', { ...BOX, top: 500 }, { rack: 'master' });
     render(<Spotlight target="fx-add-compressor" rack="master" />);
     frame();
-    expect(
-      screen.getByTestId('tutorial-spotlight-hole').getAttribute('y'),
-    ).toBe(String(500 - PAD));
+    expect(ringTop()).toBe(String(500 - PAD));
   });
 });

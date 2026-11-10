@@ -21,13 +21,7 @@ import {
 } from '@/curriculum/engine/musicLiteracy/modules';
 import { pitchClassOf } from '@/curriculum/engine/musicLiteracy/pitch';
 import { getLiveMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
-import {
-  courseLessons,
-  courseProgress,
-  getTutorialCourse,
-  type CompletedLessons,
-  type TutorialCourseId,
-} from '@/daw/components/Tutorial/tutorialCatalog';
+import type { CompletedLessons } from '@/daw/components/Tutorial/tutorialCatalog';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
 import { colorForKeyMode } from '@/lib/modeColorShift';
@@ -88,7 +82,7 @@ export interface LiteracyPathStop {
 /** Part 3: a Band plays the student's progression in the Studio. */
 export const BAND_STOP_ID = 'hear-it-with-your-band';
 
-/** Stop 4: the Studio Basics course, nine guided Studio tutorials. */
+/** Stop 4: Studio Basics, a first song in the Studio from a blank project. */
 export const STUDIO_BASICS_STOP_ID = 'studio-basics';
 
 /**
@@ -101,8 +95,8 @@ export const ECHO_STOP_ID = 'echo';
 const studioLessonRoute = (id: string) =>
   `${StudioRoutes.editor()}?tutorial=${encodeURIComponent(id)}`;
 
-/** The route stops that run a course of Studio lessons. */
-const COURSE_STOPS: Readonly<Record<string, TutorialCourseId>> = {
+/** The route stops that run a Studio lesson, by their lesson's id. */
+const LESSON_STOPS: Readonly<Record<string, string>> = {
   [STUDIO_BASICS_STOP_ID]: 'studio-basics',
 };
 
@@ -134,8 +128,7 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
     title: 'Learn Studio Basics',
     module: 'Studio',
     live: true,
-    // Lesson 1; readRouteStop moves it on to the first lesson not finished.
-    route: studioLessonRoute('studio-basics-your-tracks'),
+    route: studioLessonRoute('studio-basics'),
   },
   {
     id: ECHO_STOP_ID,
@@ -368,8 +361,8 @@ export function readRouteStop(
   completedAt: CompletedLessons = useTutorialProgressStore.getState()
     .completedAt,
 ): RouteStopState {
-  const courseId = COURSE_STOPS[stopId];
-  if (courseId) return courseStop(courseId, completedAt);
+  const lessonId = LESSON_STOPS[stopId];
+  if (lessonId) return lessonStop(lessonId, completedAt);
   const done = readStopDone(stopId);
   if (stopId === ECHO_STOP_ID) {
     return { done, key: readEchoProgress().last?.key ?? null };
@@ -380,30 +373,15 @@ export function readRouteStop(
 }
 
 /** A course's stop, from the student's completions. */
-export function courseStop(
-  courseId: TutorialCourseId,
+/** A stop that runs one Studio lesson: done once the lesson is. */
+export function lessonStop(
+  lessonId: string,
   completedAt: CompletedLessons,
 ): RouteStopState {
-  const course = getTutorialCourse(courseId);
-  if (!course) return { done: false, key: null };
-  const lessons = courseLessons(course);
-  const progress = courseProgress(course, completedAt);
-  const marks = lessons.map(
-    (t): LiteracyStepMark => (completedAt[t.id] != null ? 'passed' : 'todo'),
-  );
-  const nextIndex = marks.indexOf('todo');
   return {
-    done: progress.complete,
+    done: completedAt[lessonId] != null,
     key: null,
-    to: studioLessonRoute(progress.next.id),
-    lessons: {
-      marks,
-      done: progress.done,
-      next:
-        nextIndex === -1
-          ? null
-          : { index: nextIndex, title: lessons[nextIndex].title },
-    },
+    to: studioLessonRoute(lessonId),
   };
 }
 

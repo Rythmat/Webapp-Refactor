@@ -99,6 +99,7 @@ export const TypingKeys = memo(function TypingKeys() {
         shortcut={TOGGLE_KEYS.label}
         aria-keyshortcuts={TOGGLE_KEYS.aria}
         data-testid="typing-keys-toggle"
+        data-tutorial-id="musical-typing"
         data-hint={typingKeysHint(enabled, drums, octave, velocity)}
       />
       <span

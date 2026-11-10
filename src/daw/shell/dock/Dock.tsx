@@ -185,6 +185,7 @@ export const Dock = memo(function Dock() {
     <div
       ref={rootRef}
       data-testid="dock"
+      data-tutorial-id="dock-body"
       data-kind={master ? 'master' : kind}
       data-tab={
         automation ? 'automation' : master ? 'master' : (activeTab ?? undefined)
@@ -404,6 +405,7 @@ function DockControls({
             : 'Show the selected track’s panel under the timeline',
         )}
         data-testid="dock-toggle"
+        data-tutorial-id="dock-toggle"
         onClick={() => (open ? onClose() : setActiveTab(openingTab(kind)))}
       />
     </>
@@ -461,6 +463,7 @@ function AnalyzeNotes() {
       size="sm"
       onClick={analyze}
       data-testid="dock-analyze-notes"
+      data-tutorial-id="dock-analyze-notes"
     >
       <Sparkles aria-hidden />
       Analyze {count} note{count === 1 ? '' : 's'}

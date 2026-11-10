@@ -5,7 +5,7 @@ import type { SynthStore } from '@/daw/oracle-synth/store';
 import { TUTORIALS, getTutorial, type TutorialStep } from './tutorials';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
 
-const INTRO = 'make-first-track';
+const INTRO = 'studio-basics';
 const s = () => useStore.getState();
 const stepOf = (tutorialId: string, stepId: string): TutorialStep => {
   const step = getTutorial(tutorialId)?.steps.find((st) => st.id === stepId);
@@ -45,53 +45,130 @@ describe('tutorial slice runtime', () => {
   });
 });
 
-describe('intro lesson checks (pure)', () => {
-  const armed = mock({});
+describe('Studio Basics checks', () => {
+  const step = (id: string) => stepOf(INTRO, id);
 
-  it('add-track accepts a melodic MIDI track, not a drum machine', () => {
-    const check = stepOf(INTRO, 'add-track').check!;
-    const withTrack = (instrument: string, type = 'midi') =>
-      mock({ tracks: [{ id: 't1', type, instrument }], selectedTrackId: 't1' });
-    expect(check(withTrack('oracle-synth'), armed)).toBe(true);
-    // Drum machines are type 'midi' but Prism is hidden for them.
-    expect(check(withTrack('drum-machine'), armed)).toBe(false);
-    // Audio-input tracks are not type 'midi'.
-    expect(check(withTrack('audio-input', 'audio'), armed)).toBe(false);
-    expect(check(mock({ tracks: [], selectedTrackId: null }), armed)).toBe(
-      false,
-    );
-  });
-
-  it('pick-key passes only for G (rootNote 7)', () => {
-    const check = stepOf(INTRO, 'pick-key').check!;
-    expect(check(mock({ rootNote: null }), armed)).toBe(false);
-    expect(check(mock({ rootNote: 2 }), armed)).toBe(false);
-    expect(check(mock({ rootNote: 7 }), armed)).toBe(true);
-  });
-
-  it('add-chords needs at least three chords', () => {
-    const check = stepOf(INTRO, 'add-chords').check!;
-    expect(check(mock({ chordSeq: [[60], [64]] }), armed)).toBe(false);
-    expect(check(mock({ chordSeq: [[60], [64], [67]] }), armed)).toBe(true);
-  });
-
-  it('add-swing requires a change AND a value above 20', () => {
-    const check = stepOf(INTRO, 'add-swing').check!;
-    const armed30 = mock({ swing: 30 });
-    expect(check(mock({ swing: 30 }), armed30)).toBe(false);
-    expect(check(mock({ swing: 35 }), armed30)).toBe(true);
-    expect(check(mock({ swing: 10 }), armed30)).toBe(false);
-  });
-
-  it('create fires when chordRegions is replaced with a fresh non-empty array', () => {
-    const check = stepOf(INTRO, 'create').check!;
-    const armedEmpty = mock({ chordRegions: [] });
-    expect(check(mock({ chordRegions: [] }), armedEmpty)).toBe(false);
-    const regs = [{}];
+  it('passes the tempo, key and click steps only once the student sets them', () => {
+    const armed = mock({ bpm: 120, rootNote: null, metronomeEnabled: false });
+    expect(step('set-tempo').check!(mock({ bpm: 120 }), armed)).toBe(false);
+    expect(step('set-tempo').check!(mock({ bpm: 100 }), armed)).toBe(true);
+    expect(step('set-key').check!(mock({ rootNote: null }), armed)).toBe(false);
+    expect(step('set-key').check!(mock({ rootNote: 0 }), armed)).toBe(true);
     expect(
-      check(mock({ chordRegions: regs }), mock({ chordRegions: regs })),
+      step('click-on').check!(mock({ metronomeEnabled: false }), armed),
     ).toBe(false);
-    expect(check(mock({ chordRegions: [{}] }), armedEmpty)).toBe(true);
+    expect(
+      step('click-on').check!(mock({ metronomeEnabled: true }), armed),
+    ).toBe(true);
+  });
+
+  it('adds the drums as a new, selected drum track', () => {
+    const armed = mock({ tracks: [], selectedTrackId: null });
+    const drums = { id: 'd', instrument: 'drum-machine', midiClips: [] };
+    expect(
+      step('add-drums').check!(
+        mock({ tracks: [drums], selectedTrackId: 'd' }),
+        armed,
+      ),
+    ).toBe(true);
+    expect(
+      step('add-drums').check!(
+        mock({
+          tracks: [{ ...drums, instrument: 'soundfont' }],
+          selectedTrackId: 'd',
+        }),
+        armed,
+      ),
+    ).toBe(false);
+  });
+
+  it('counts eight new hits on the selected drum track', () => {
+    const drums = (n: number) =>
+      mock({
+        selectedTrackId: 'd',
+        tracks: [
+          {
+            id: 'd',
+            instrument: 'drum-machine',
+            midiClips: [{ id: 'c', events: Array.from({ length: n }) }],
+          },
+        ],
+      });
+    expect(step('program-beat').check!(drums(7), drums(0))).toBe(false);
+    expect(step('program-beat').check!(drums(8), drums(0))).toBe(true);
+  });
+
+  it('knows Prism’s chords and bass by their track’s role and new clip', () => {
+    const song = (role: string, clips: { id: string; events: unknown[] }[]) =>
+      mock({ tracks: [{ id: 't', trackRole: role, midiClips: clips }] });
+    const before = song('chords', []);
+    const chords = song('chords', [{ id: 'new', events: [{}] }]);
+    expect(step('ask-chords').check!(chords, before)).toBe(true);
+    expect(step('ask-chords').check!(before, before)).toBe(false);
+    // An empty clip, or a bass part, isn't the chords.
+    expect(
+      step('ask-chords').check!(
+        song('chords', [{ id: 'new', events: [] }]),
+        before,
+      ),
+    ).toBe(false);
+    expect(
+      step('ask-chords').check!(
+        song('bass', [{ id: 'new', events: [{}] }]),
+        before,
+      ),
+    ).toBe(false);
+    expect(
+      step('ask-bass').check!(
+        song('bass', [{ id: 'new', events: [{}] }]),
+        song('bass', []),
+      ),
+    ).toBe(true);
+  });
+
+  it('opens Prism from the side rail: a check on Prism’s own store', () => {
+    const open = step('open-prism').promptCheck!;
+    const bar = (collapsed: boolean) =>
+      ({ collapsed }) as unknown as Parameters<typeof open>[0];
+    expect(open(bar(true), bar(true))).toBe(false);
+    expect(open(bar(false), bar(true))).toBe(true);
+  });
+
+  it('takes Undo and Redo by the clips they take away and bring back', () => {
+    const clips = (n: number) =>
+      mock({
+        tracks: [
+          {
+            id: 't',
+            midiClips: Array.from({ length: n }, (_, i) => ({ id: `${i}` })),
+            audioClips: [],
+          },
+        ],
+      });
+    expect(step('undo').check!(clips(2), clips(4))).toBe(true);
+    expect(step('undo').check!(clips(4), clips(4))).toBe(false);
+    expect(step('redo').check!(clips(4), clips(2))).toBe(true);
+  });
+
+  it('asks nothing on a blank Studio that the student hasn’t done', () => {
+    useStore.setState(useStore.getInitialState(), true);
+    const blank = s();
+    // Steps that may pass on arrival: a setting the student already has, a
+    // playhead already at the start, or an undo of the step before it (the
+    // unmute after the mute: with nothing muted there's nothing to undo).
+    const settled = new Set([
+      'click-on',
+      'count-in',
+      'back-to-start',
+      'unmute',
+      'unsolo',
+      // The Inspector opens on Insight on a wide window.
+      'open-insight',
+    ]);
+    for (const st of getTutorial(INTRO)!.steps) {
+      if (!st.check || settled.has(st.id)) continue;
+      expect(st.check(blank, blank), st.id).toBe(false);
+    }
   });
 });
 
@@ -586,27 +663,16 @@ describe('genre pack — Indie (automation) checks', () => {
 });
 
 describe('detection fires on a real store mutation', () => {
-  it('open-prism check flips when the Prism tab is opened', () => {
-    const check = stepOf(INTRO, 'open-prism').check!;
-    s().setChannelStripTab('controls');
-    const armed = s();
-    expect(check(s(), armed)).toBe(false);
-    s().setChannelStripTab('prism');
-    expect(check(s(), armed)).toBe(true);
-  });
-
   it('a store subscription (as useTutorialDetection uses) detects the key change', () => {
-    const step = stepOf(INTRO, 'pick-key');
-    s().setRootNote(null); // ensure not G
+    const step = stepOf(INTRO, 'set-key');
+    s().setRootNote(null);
     const armed = s();
     let completed = false;
     const unsub = useStore.subscribe((st) => {
       if (step.check!(st, armed)) completed = true;
     });
     expect(completed).toBe(false);
-    s().setRootNote(3); // wrong key → still waiting
-    expect(completed).toBe(false);
-    s().setRootNote(7); // G → detected
+    s().setRootNote(7);
     expect(completed).toBe(true);
     unsub();
   });
@@ -623,20 +689,28 @@ describe('tutorial progress persistence', () => {
 });
 
 describe('lesson data integrity', () => {
-  it('is seven lessons and the Studio Basics nine, with unique ids, unique step ids, and a target per step', () => {
-    expect(TUTORIALS.filter((t) => !t.course).length).toBe(7);
-    expect(TUTORIALS.filter((t) => t.course === 'studio-basics').length).toBe(
-      9,
-    );
-    const lessonIds = TUTORIALS.map((t) => t.id);
-    expect(new Set(lessonIds).size).toBe(lessonIds.length);
+  it('is the course’s seven lessons, from blank projects, with unique ids and a target for every validated step', () => {
+    expect(TUTORIALS.map((t) => t.id)).toEqual([
+      'studio-basics',
+      'hiphop-build-the-beat',
+      'house-make-it-pump',
+      'edm-design-the-drop',
+      'jazz-color-your-chords',
+      'rnb-mix-and-polish',
+      'indie-movement-and-dynamics',
+    ]);
     for (const t of TUTORIALS) {
+      expect(t.course).toBe('studio-production');
+      expect(t.seed).toBeUndefined();
       const ids = t.steps.map((st) => st.id);
       expect(new Set(ids).size).toBe(ids.length);
       for (const st of t.steps) {
-        expect(st.target).toBeDefined();
-        // A validated step declares check OR synthCheck, never both.
-        expect(st.check && st.synthCheck).toBeFalsy();
+        const checks = [st.check, st.synthCheck, st.promptCheck].filter(
+          Boolean,
+        );
+        // A validated step declares one check, and points at what it asks.
+        expect(checks.length, `${t.id}/${st.id}`).toBeLessThanOrEqual(1);
+        if (checks.length) expect(st.target, `${t.id}/${st.id}`).toBeDefined();
       }
     }
   });

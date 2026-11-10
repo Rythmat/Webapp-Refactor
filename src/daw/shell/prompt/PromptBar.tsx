@@ -265,7 +265,7 @@ export function PromptBar() {
           <form
             onSubmit={submit}
             role="group"
-            aria-label="Ask for a part"
+            aria-label="Prism"
             data-testid="prompt-bar"
             data-tutorial-id="prompt-box"
             className={cn(PROMPT_FRAME, PROMPT_OPAQUE)}

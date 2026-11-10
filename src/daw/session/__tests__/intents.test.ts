@@ -243,41 +243,28 @@ describe('prepare changes nothing; apply writes the session', () => {
     expect(s().tracks.map((t) => t.name)).toContain('Drums');
   });
 
-  it('opens a course lesson on its demo song, the lesson running, in one apply', async () => {
-    const lesson = 'studio-basics-your-tracks';
-    const prepared = await prepare({ kind: 'tutorial', tutorialId: lesson });
-    // Prepared: the song's drums fetched, nothing changed yet.
-    expect(loadGrooveEvents).toHaveBeenCalled();
-    expect(s().tracks).toEqual([]);
-    expect(s().activeTutorialId).toBeNull();
-    expect(prepared.name).toBe('Your Tracks');
-    expect(prepared.baseline).toEqual({
-      source: 'tutorial',
-      ref: lesson,
-      reopenable: true,
+  it('opens a lesson on a blank project, the lesson running, in one apply', async () => {
+    const prepared = await prepare({
+      kind: 'tutorial',
+      tutorialId: 'studio-basics',
     });
+    expect(loadGrooveEvents).not.toHaveBeenCalled();
+    expect(prepared.name).toBe('Studio Basics: make your first song');
+    expect(s().activeTutorialId).toBeNull();
     apply(prepared);
-    expect(s().projectName).toBe('Studio Basics Song');
-    expect(s().projectId).toBeNull();
-    expect(s().tracks.map((t) => t.name)).toEqual([
-      'Melody',
-      'Chords',
-      'Bass',
-      'Drums',
-    ]);
-    expect(s().activeTutorialId).toBe(lesson);
+    expect(s().tracks).toEqual([]);
+    expect(s().activeTutorialId).toBe('studio-basics');
     expect(s().tutorialStepIndex).toBe(0);
   });
 
-  it('opens any other lesson on a blank project, as before', async () => {
+  it('opens a lesson that went as the one that took its place', async () => {
     const prepared = await prepare({
       kind: 'tutorial',
-      tutorialId: 'pop-flip-a-sample',
+      tutorialId: 'studio-basics-record',
     });
-    expect(loadGrooveEvents).not.toHaveBeenCalled();
     apply(prepared);
     expect(s().tracks).toEqual([]);
-    expect(s().activeTutorialId).toBe('pop-flip-a-sample');
+    expect(s().activeTutorialId).toBe('studio-basics');
   });
 
   it('refuses a demo that is not there', async () => {

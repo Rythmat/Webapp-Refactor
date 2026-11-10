@@ -41,7 +41,7 @@ import { switchGenrePracticeTrack } from '@/features/practiceTracks/genre/openGe
 import { keyboardWindow } from '@/features/practiceTracks/genre/practiceKeyboard';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { PracticeHeader } from '@/daw/shell/topbar/PracticeHeader';
-import { startCourseInPlace } from '@/daw/components/Tutorial/startLessonInPlace';
+import { openSession } from '@/daw/session/openSession';
 import { useContinuousControl } from '@/daw/hooks/useContinuousControl';
 import { previewTempo } from '@/daw/hooks/useTransport';
 import { GuitarPracticePanel } from '@/curriculum/components/guitar/GuitarPracticePanel';
@@ -765,15 +765,20 @@ export function PracticeTrackView({
         {chart}
 
         {band ? (
-          // Studio Basics on the student's own song: Create, with the
-          // course's first lesson running over it (no reset).
+          // Studio Basics, which starts from a blank project (owner,
+          // 2026-11-09): this song is kept, with a Restore (openSession).
           <button
             type="button"
-            onClick={() => startCourseInPlace('studio-basics')}
+            onClick={() =>
+              void openSession(
+                { kind: 'tutorial', tutorialId: 'studio-basics' },
+                { source: 'panel' },
+              )
+            }
             className={OUTLINE_PILL}
           >
             <GraduationCap aria-hidden />
-            Learn the Studio with this song
+            Learn the Studio
           </button>
         ) : null}
 

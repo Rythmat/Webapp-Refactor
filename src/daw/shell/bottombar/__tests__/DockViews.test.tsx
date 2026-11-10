@@ -61,6 +61,7 @@ describe('the dock views', () => {
       'chanstrip-tab-controls',
       'chanstrip-tab-fx',
       'chanstrip-tab-piano-roll',
+      'dock-automation',
     ]);
     for (const b of screen.getAllByRole('button')) {
       expect(b.querySelector('svg')).not.toBeNull();

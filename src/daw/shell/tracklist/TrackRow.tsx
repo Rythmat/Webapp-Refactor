@@ -157,6 +157,7 @@ const TrackRowBody = memo(function TrackRowBody({
     <li
       data-track-id={track.id}
       data-testid="track-row"
+      data-tutorial-id={`track-header-${index}`}
       data-selected={isSelected || undefined}
       data-muted={muted || undefined}
       aria-label={track.name}
@@ -258,6 +259,7 @@ const TrackRowBody = memo(function TrackRowBody({
             <button
               type="button"
               data-track-selector
+              data-tutorial-id={`track-name-${index}`}
               tabIndex={tabStop ? 0 : -1}
               aria-pressed={isSelected}
               aria-label={`${track.name}, track ${index + 1}`}
@@ -295,6 +297,7 @@ const TrackRowBody = memo(function TrackRowBody({
               aria-label={`Mute ${track.name}`}
               aria-pressed={muted}
               data-testid="track-mute"
+              data-tutorial-id={`track-mute-${index}`}
               data-hint={hintText(
                 `Mute ${track.name}`,
                 muted
@@ -319,6 +322,7 @@ const TrackRowBody = memo(function TrackRowBody({
               aria-label={`Solo ${track.name}`}
               aria-pressed={track.solo}
               data-testid="track-solo"
+              data-tutorial-id={`track-solo-${index}`}
               data-hint={hintText(
                 `Solo ${track.name}`,
                 'Hear this track on its own while everything else goes quiet',
@@ -344,6 +348,7 @@ const TrackRowBody = memo(function TrackRowBody({
                   aria-pressed={track.recordArmed}
                   data-arm-state={arm}
                   data-testid="track-arm"
+                  data-tutorial-id={`track-arm-${index}`}
                   data-hint={hintText(
                     armLabel(track.name, arm),
                     armHint(arm, armExclusive),
@@ -425,6 +430,7 @@ const TrackRowBody = memo(function TrackRowBody({
                   'How loud this track is, over its level; double-click to reset',
                 )}
                 data-testid="track-volume"
+                data-tutorial-id={`track-volume-${index}`}
                 value={volume.value}
                 onBegin={volume.begin}
                 onChange={volume.change}
@@ -448,6 +454,7 @@ const TrackRowBody = memo(function TrackRowBody({
                     'Where it sits from left to right; double-click to centre',
                   )}
                   data-testid="track-pan"
+                  data-tutorial-id={`track-pan-${index}`}
                   size="sm"
                   bipolar
                   min={-1}

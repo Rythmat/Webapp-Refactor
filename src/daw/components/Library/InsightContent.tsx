@@ -324,6 +324,7 @@ export function InsightContent() {
   return (
     <div
       ref={sweepRef}
+      data-tutorial-id="insight-chords"
       className="flex flex-col gap-2 p-2"
       style={RAINBOW_VARS}
     >

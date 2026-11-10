@@ -22,7 +22,7 @@ import { StudioProduction } from '../StudioProduction';
 
 /**
  * The Production tab's Premium lessons (owner decision 8, audit ia-flows-14):
- * the four Prism lessons wear a Premium chip, and for a free student their
+ * the lessons still on the old Prism wear a Premium chip, and for a free student their
  * tile opens the upgrade prompt instead of the editor. While the
  * subscription loads nobody is treated as free (the editor's boot decides),
  * and a premium student opens every lesson.
@@ -38,9 +38,8 @@ const telemetry = vi.hoisted(() => ({ trackPaywallViewed: vi.fn() }));
 vi.mock('@/telemetry/hooks/useTelemetryProduct', () => telemetry);
 
 const PREMIUM_LESSONS = [
-  'make-first-track',
-  'jazz-color-your-chords',
   'edm-design-the-drop',
+  'jazz-color-your-chords',
   'rnb-mix-and-polish',
 ];
 const UPGRADE_TITLE = 'This lesson uses Prism, part of Premium';
@@ -85,7 +84,7 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('the Production tab', () => {
-  it('lists every lesson, with a 12 px Premium chip on the four Prism ones', () => {
+  it('lists every lesson, with a 12 px Premium chip on the Prism ones', () => {
     renderProduction();
     for (const lesson of TUTORIAL_CATALOG) {
       const chip = within(tile(lesson.id)).queryByText('Premium');
@@ -114,13 +113,13 @@ describe('the Production tab', () => {
 
   it('shows a free student the upgrade prompt on a Premium lesson, and stays put', async () => {
     renderProduction();
-    const lessonTile = tile('make-first-track');
+    const lessonTile = tile('jazz-color-your-chords');
     expect(lessonTile).toHaveAttribute('aria-haspopup', 'dialog');
     fireEvent.click(lessonTile);
 
     const dialog = await screen.findByRole('dialog', { name: UPGRADE_TITLE });
     expect(dialog).toHaveTextContent(
-      '“Make your first track” has steps in Prism',
+      '“Jazz — Color your chords” has steps in Prism',
     );
     expect(location()).toBe(StudioRoutes.production.definition);
     // Reported once, with the existing paywall telemetry.
@@ -164,18 +163,18 @@ describe('the Production tab', () => {
     for (const id of PREMIUM_LESSONS) {
       expect(within(tile(id)).getByText('Premium')).toBeInTheDocument();
     }
-    fireEvent.click(tile('make-first-track'));
-    expect(location()).toBe(editorLink('make-first-track'));
+    fireEvent.click(tile('jazz-color-your-chords'));
+    expect(location()).toBe(editorLink('jazz-color-your-chords'));
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('still marks a finished Premium lesson as Completed', () => {
     premium.state = { isPremium: true, isLoading: false };
     act(() =>
-      useTutorialProgressStore.getState().markComplete('make-first-track'),
+      useTutorialProgressStore.getState().markComplete('rnb-mix-and-polish'),
     );
     renderProduction();
-    const lessonTile = tile('make-first-track');
+    const lessonTile = tile('rnb-mix-and-polish');
     expect(within(lessonTile).getByText('Completed')).toBeInTheDocument();
     expect(within(lessonTile).getByText('Premium')).toBeInTheDocument();
     expect(lessonTile).toHaveTextContent('Replay lesson');
@@ -210,13 +209,15 @@ describe('the Production tab', () => {
   });
 });
 
-// ── The Studio Basics course, first on the tab ─────────────────────────────
-// Stop 4 of Start Here: its nine free lessons in order, how far the student
-// is, and Start or Continue, which opens the first lesson not finished.
+// ── The Studio Production course, first on the tab ─────────────────────────
+// Studio Basics, then a lesson a craft, each from a blank project: how far
+// the student is, and Start or Continue, which opens the first lesson not
+// finished.
 
 const COURSE = TUTORIAL_COURSES[0];
+const TOTAL = COURSE.lessonIds.length;
 const courseSection = () =>
-  document.querySelector<HTMLElement>('[data-course="studio-basics"]')!;
+  document.querySelector<HTMLElement>('[data-course="studio-production"]')!;
 const courseAction = () =>
   courseSection().querySelector<HTMLButtonElement>('[data-course-action]')!;
 const finish = (...ids: string[]) =>
@@ -224,75 +225,57 @@ const finish = (...ids: string[]) =>
     for (const id of ids) useTutorialProgressStore.getState().markComplete(id);
   });
 
-describe('the Studio Basics course on the Production tab', () => {
-  it('comes first, its nine lessons in order, then the other lessons', () => {
+describe('the Studio Production course on the Production tab', () => {
+  it('lists its lessons in order, Studio Basics first, and nothing after it', () => {
     renderProduction();
     const section = courseSection();
-    expect(within(section).getByText('Studio Basics')).toBeInTheDocument();
+    expect(within(section).getByText('Studio Production')).toBeInTheDocument();
     const tiles = Array.from(
       section.querySelectorAll<HTMLElement>('[data-lesson-id]'),
     );
     expect(tiles.map((t) => t.dataset.lessonId)).toEqual(COURSE.lessonIds);
-    expect(
-      tiles.map((t) => t.querySelector('.text-base')?.textContent),
-    ).toEqual([
-      'Your Tracks',
-      'Add a Track',
-      'Record',
-      'The Piano Roll',
-      'Insight',
-      'The Score',
-      'The Lead Sheet',
-      'Loop and Repeat',
-      'Save and Export',
-    ]);
+    expect(tiles[0].querySelector('.text-base')?.textContent).toBe(
+      'Studio Basics: make your first song',
+    );
     expect(tiles[2]).toHaveTextContent('Lesson 3');
-    // Free: no Premium chip, no upgrade prompt for a free student.
-    for (const tile of tiles)
-      expect(within(tile).queryByText('Premium')).toBeNull();
-    // It sits above every other lesson.
-    const first = document.querySelector('[data-lesson-id]');
-    expect(first?.getAttribute('data-lesson-id')).toBe(COURSE.lessonIds[0]);
-    expect(
-      section.compareDocumentPosition(tile('make-first-track')) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    // Every lesson is in the course: no "More lessons" under it.
+    expect(screen.queryByText('More lessons')).toBeNull();
   });
 
-  it('starts at lesson 1 on the demo song’s link', () => {
+  it('starts at Studio Basics', () => {
     renderProduction();
-    expect(courseSection()).toHaveTextContent('0 of 9 lessons done');
+    expect(courseSection()).toHaveTextContent(`0 of ${TOTAL} lessons done`);
     expect(courseAction()).toHaveTextContent('Start');
     fireEvent.click(courseAction());
-    expect(location()).toBe(editorLink('studio-basics-your-tracks'));
+    expect(location()).toBe(editorLink('studio-basics'));
   });
 
   it('continues at the first lesson not finished', () => {
-    finish('studio-basics-your-tracks', 'studio-basics-add-a-track');
+    finish('studio-basics');
     renderProduction();
-    expect(courseSection()).toHaveTextContent('2 of 9 lessons done');
-    expect(courseSection()).toHaveTextContent('Next: Record');
+    expect(courseSection()).toHaveTextContent(`1 of ${TOTAL} lessons done`);
+    expect(courseSection()).toHaveTextContent('Next: Hip Hop');
     expect(courseAction()).toHaveTextContent('Continue');
     expect(
-      within(tile('studio-basics-add-a-track')).getByText('Completed'),
+      within(tile('studio-basics')).getByText('Completed'),
     ).toBeInTheDocument();
     fireEvent.click(courseAction());
-    expect(location()).toBe(editorLink('studio-basics-record'));
+    expect(location()).toBe(editorLink('hiphop-build-the-beat'));
   });
 
-  it('is done when every lesson is, and starts again at lesson 1', () => {
+  it('is done when every lesson is, and starts again at Studio Basics', () => {
     finish(...COURSE.lessonIds);
     renderProduction();
-    expect(courseSection()).toHaveTextContent('All 9 lessons done');
+    expect(courseSection()).toHaveTextContent(`All ${TOTAL} lessons done`);
     expect(courseAction()).toHaveTextContent('Start again');
     fireEvent.click(courseAction());
-    expect(location()).toBe(editorLink('studio-basics-your-tracks'));
+    expect(location()).toBe(editorLink('studio-basics'));
   });
 
-  it('opens any of its lessons from its tile, for a free student too', () => {
+  it('opens a free lesson from its tile for a free student', () => {
     renderProduction();
-    fireEvent.click(tile('studio-basics-score'));
-    expect(location()).toBe(editorLink('studio-basics-score'));
+    fireEvent.click(tile('house-make-it-pump'));
+    expect(location()).toBe(editorLink('house-make-it-pump'));
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 });

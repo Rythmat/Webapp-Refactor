@@ -1,11 +1,13 @@
 import type { AllSlices } from '@/daw/store';
 import type { ViewType, ChannelStripTabId } from '@/daw/store/uiSlice';
 import type { SynthStore } from '@/daw/oracle-synth/store';
+import type { InspectorPanelId } from '@/daw/shell/layout/layoutModel';
+import type { PromptBarSnapshot } from '@/daw/shell/prompt/promptBarStore';
 import type { AnchorRack } from './anchorRegistry';
 import type { RackTarget } from '@/daw/store/effectRack';
 import type { DemoBeat } from './demo/demoTypes';
 import { GENRE_MAP } from '@prism/engine';
-import { STUDIO_BASICS_STEPS } from './studioBasics/studioBasicsLessons';
+import { studioBasicsSteps } from './studioBasics/studioBasicsLesson';
 import type {
   StudioLesson,
   StudioLessonStep,
@@ -13,6 +15,7 @@ import type {
 import { getStudioLesson } from '@/curriculum/engine/studioLessons/registry';
 import { buildNamedCheck } from './checkRegistry';
 import {
+  currentLessonId,
   fileCatalogEntry,
   listTutorialCatalog,
   TUTORIAL_CATALOG,
@@ -39,8 +42,8 @@ export type {
 //
 // A lesson's tile copy (title, subtitle, difficulty, length) and whether it
 // needs Premium live in tutorialCatalog.ts, which the Studio dashboard reads
-// without loading these steps; this file adds the steps by lesson id. The
-// Studio Basics course keeps its steps in studioBasics/, its own file.
+// without loading these steps; this file adds the steps by lesson id. Studio
+// Basics keeps its steps in studioBasics/, its own file.
 //
 // A step may show before it asks: its `demo` (demo/demoTypes.ts) plays as
 // the step arrives, a cursor doing the move on the real Studio, and the
@@ -79,6 +82,14 @@ export interface StepRequires {
   soundsOpen?: boolean;
   /** Open the Mix view's RackDock on this rack (milestone 2.10). */
   mixRack?: RackTarget;
+  /**
+   * Open (true) or fold (false) Prism, the prompt bar over the lanes, which
+   * starts folded: a step that types into it opens it when the student
+   * isn't being taught where it lives.
+   */
+  promptOpen?: boolean;
+  /** Open the Inspector on this side-rail panel (Insight, Library, …). */
+  inspector?: InspectorPanelId;
 }
 
 /**
@@ -108,6 +119,11 @@ export interface TutorialStep {
   stage: string;
   /** Instruction body. Supports **bold** via double-asterisks. */
   instruction: string;
+  /**
+   * Why the step matters, in one plain sentence: what the student gains by
+   * it in a song of their own, shown under the instruction.
+   */
+  why?: string;
   /** Optional secondary line. */
   hint?: string;
   /** data-tutorial-id(s) of the region to spotlight. When an array, the first
@@ -121,6 +137,7 @@ export interface TutorialStep {
   requires?: StepRequires;
   check?: StepCheck;
   synthCheck?: SynthStepCheck;
+  promptCheck?: PromptStepCheck;
   /**
    * A "watch me" demonstration played when the step arrives, before the
    * student's turn (demo/demoTypes.ts has the beats and the conventions).
@@ -129,6 +146,17 @@ export interface TutorialStep {
    */
   demo?: readonly DemoBeat[];
 }
+
+/**
+ * Like `check`, but evaluated against Prism's own store (the prompt bar's,
+ * promptBarStore.ts): whether it is open, what it is doing. Its parts land
+ * in the main store, so "Prism wrote chords" is a `check`; "Prism is open"
+ * is this.
+ */
+export type PromptStepCheck = (
+  bar: PromptBarSnapshot,
+  armedBar: PromptBarSnapshot,
+) => boolean;
 
 /** A lesson: its catalog entry plus its steps. */
 export interface Tutorial extends TutorialCatalogEntry {
@@ -165,94 +193,7 @@ const createRan: StepCheck = (s, armed) =>
 
 /** Each lesson's steps, by its id in TUTORIAL_CATALOG. */
 const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
-  'make-first-track': [
-    {
-      id: 'add-track',
-      stage: 'STAGE 1 — SETUP',
-      instruction:
-        'Add an instrument to play. Click **+ Add Track**, then **Add MIDI** › a melodic instrument like **Synth**.',
-      hint: 'Prism writes chords to melodic tracks (Synth, Instruments, Organ) — not drum or audio tracks.',
-      // Highlights the Add Track button; once the New Track modal opens, the
-      // spotlight jumps to the Synth card (whichever id is in the DOM first).
-      target: ['add-track-synth', 'add-track-midi', 'add-track-button'],
-      requires: { view: 'arrange', libraryOpen: false },
-      // addTrack auto-selects the new track, so this passes as soon as a
-      // melodic MIDI track is added (or one is already selected).
-      check: isPrismTrackSelected,
-    },
-    {
-      id: 'open-prism',
-      stage: 'STAGE 1 — SETUP',
-      instruction:
-        "Meet **Prism** — your harmony workshop. We've opened it in the panel below.",
-      hint: 'You can reopen it anytime from the Prism tab.',
-      // Prism's own tab while the dock has one, else Prism itself.
-      target: ['chanstrip-tab-prism', 'prism-panel'],
-      requires: { channelStripTab: 'prism' },
-      check: (s) => s.channelStripTab === 'prism',
-    },
-    {
-      id: 'pick-key',
-      stage: 'STAGE 2 — KEY',
-      instruction: 'Pick your key. Click **G** on the Circle of Fifths.',
-      hint: 'The key sets which chords sound "at home".',
-      target: 'prism-key',
-      requires: { channelStripTab: 'prism' },
-      // rootNote is a semitone offset from C: C=0 … G=7.
-      check: (s) => s.rootNote === 7,
-    },
-    {
-      id: 'add-chords',
-      stage: 'STAGE 3 — CHORDS',
-      instruction:
-        'Build a progression — add **three chords** from the Chord Selection grid.',
-      hint: 'Each button is a chord that fits your key.',
-      target: 'prism-chord-selection',
-      requires: { channelStripTab: 'prism' },
-      check: (s) => s.chordSeq.length >= 3,
-    },
-    {
-      id: 'pick-genre',
-      stage: 'STAGE 4 — STYLE',
-      instruction: 'Set the vibe. Choose a genre — try **Jazz**.',
-      hint: 'A genre nudges swing, strum and rhythm to match.',
-      target: 'prism-style',
-      requires: { channelStripTab: 'prism' },
-      check: (s) => s.genre === 'Jazz',
-    },
-    {
-      id: 'add-swing',
-      stage: 'STAGE 5 — RHYTHM',
-      instruction: 'Add some groove — drag the **Swing** slider past 20.',
-      hint: 'Swing delays the off-beats for a looser feel.',
-      target: 'prism-rhythm',
-      requires: { channelStripTab: 'prism' },
-      // Must move it AND land above 20 (so a genre preset alone won't pass it).
-      check: (s, armed) => s.swing > 20 && s.swing !== armed.swing,
-    },
-    {
-      id: 'experiment',
-      stage: 'STAGE 6 — EXPRESSION',
-      instruction:
-        'Experiment freely with **Strum** and **Velocity Tilt**, then click **Next**.',
-      hint: 'No wrong answers here — trust your ears.',
-      target: 'prism-rhythm',
-      requires: { channelStripTab: 'prism' },
-      // No check → free-form: advances on Next.
-    },
-    {
-      id: 'create',
-      stage: 'STAGE 7 — CREATE',
-      instruction:
-        'Hit **Create** to write your track — key, chords, and feel all together.',
-      hint: 'This generates the MIDI clip from everything you set.',
-      target: 'prism-create',
-      requires: { channelStripTab: 'prism' },
-      // generateToTracks replaces chordRegions with a fresh array (empty
-      // until Create runs), so a new non-empty reference means it fired.
-      check: createRan,
-    },
-  ],
+  'studio-basics': studioBasicsSteps,
 
   // ── Genre pack ─────────────────────────────────────────────────────────
   // One lesson per genre, each teaching a different craft area. Inspired by
@@ -767,8 +708,6 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       },
     },
   ],
-
-  ...STUDIO_BASICS_STEPS,
 };
 
 /** Every code lesson, in catalog order, with its steps. */
@@ -811,6 +750,7 @@ function stepFromFile(lessonId: string, step: StudioLessonStep): TutorialStep {
     const code = codeStep(check.lesson, check.step);
     if (code?.check) built.check = code.check;
     if (code?.synthCheck) built.synthCheck = code.synthCheck;
+    if (code?.promptCheck) built.promptCheck = code.promptCheck;
     if (!code)
       warnUnresolved(lessonId, step.id, `${check.lesson}/${check.step}`);
   } else if (check?.kind === 'named') {
@@ -838,9 +778,10 @@ export function tutorialFromFile(lesson: StudioLesson): Tutorial {
 /** A lesson by id: the console's when there is one, else the code's. */
 export function getTutorial(id: string | null): Tutorial | null {
   if (!id) return null;
-  const file = getStudioLesson(id);
+  const current = currentLessonId(id);
+  const file = getStudioLesson(current);
   if (file) return tutorialFromFile(file);
-  return TUTORIALS.find((t) => t.id === id) ?? null;
+  return TUTORIALS.find((t) => t.id === current) ?? null;
 }
 
 /** Every lesson, console ones included, in catalog order. */

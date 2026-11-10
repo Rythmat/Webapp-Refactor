@@ -100,6 +100,7 @@ export const TransportControls = memo(function TransportControls({
             KEYS.toStart.label,
           )}
           data-testid="transport-to-start"
+          data-tutorial-id="transport-to-start"
           onClick={goToStart}
         />
         <IconButton
@@ -129,6 +130,7 @@ export const TransportControls = memo(function TransportControls({
             KEYS.record.label,
           )}
           data-testid="transport-record"
+          data-tutorial-id="transport-record"
           data-state={recordState}
           className={cn(
             '[&_svg]:size-3',
@@ -173,6 +175,7 @@ export const TransportControls = memo(function TransportControls({
             KEYS.loop.label,
           )}
           data-testid="transport-loop"
+          data-tutorial-id="transport-loop"
         />
       </PillGroup>
       <PillGroup label="Position" className="px-3">

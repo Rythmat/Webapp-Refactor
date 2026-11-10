@@ -18,6 +18,7 @@ function stepAsFile(lessonId: string, step: TutorialStep): StudioLessonStep {
     stage: step.stage,
     instruction: step.instruction,
   };
+  if (step.why !== undefined) out.why = step.why;
   if (step.hint !== undefined) out.hint = step.hint;
   if (step.target !== undefined)
     out.target = Array.isArray(step.target) ? [...step.target] : step.target;
@@ -29,7 +30,7 @@ function stepAsFile(lessonId: string, step: TutorialStep): StudioLessonStep {
     if (mixRack && mixRack.kind !== 'track') requires.mixRack = mixRack;
     out.requires = requires;
   }
-  if (step.check || step.synthCheck) out.check = ref;
+  if (step.check || step.synthCheck || step.promptCheck) out.check = ref;
   if (step.demo) out.demo = ref;
   return out;
 }

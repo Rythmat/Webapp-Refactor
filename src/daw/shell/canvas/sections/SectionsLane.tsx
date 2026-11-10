@@ -475,6 +475,7 @@ export const SectionsLane = memo(function SectionsLane() {
       role="group"
       aria-label="Song sections"
       data-testid="sections-lane"
+      data-tutorial-id="sections-lane"
       // Clipped, not a scroll container: nothing can scroll it away from
       // the ruler.
       className="relative h-full min-w-0 overflow-clip"

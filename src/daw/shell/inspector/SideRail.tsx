@@ -27,6 +27,7 @@ export const SideRail = memo(function SideRail() {
       aria-orientation="vertical"
       aria-label="Panels"
       data-testid="side-rail"
+      data-tutorial-id="side-rail"
       className="flex h-full flex-col items-center gap-1 bg-daw-bg py-2"
     >
       <PromptRailButton />

@@ -31,10 +31,10 @@ import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgre
  * (tracked locally by `useTutorialProgressStore`) show as Completed and offer
  * a replay.
  *
- * The courses come first (Studio Basics, stop 4 of Start Here): the lessons
- * in their order, how far the student is, and Start or Continue, which opens
- * the first lesson not finished yet. Their lessons are free and open on the
- * course's demo song. The other lessons follow.
+ * The course comes first (Studio Production: Studio Basics, then a lesson a
+ * craft): the lessons in their order, how far the student is, and Start or
+ * Continue, which opens the first lesson not finished yet. Every lesson
+ * starts from a blank project. Any lessons outside a course follow.
  *
  * The lessons with steps in Prism carry the Premium badge, and for a free
  * student their tile opens the upgrade prompt instead (owner decision 8).
@@ -74,24 +74,29 @@ export const StudioProduction = () => {
           key={course.id}
           course={course}
           completedAt={completedAt}
+          lockedOf={(id) => accessOf(id) === 'upgrade'}
           onOpen={open}
         />
       ))}
 
-      <h3 className="mt-2 text-base font-medium text-white/85 md:text-lg">
-        More lessons
-      </h3>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 xl:grid-cols-4">
-        {others.map((t) => (
-          <LessonTile
-            key={t.id}
-            lesson={t}
-            done={completedAt[t.id] != null}
-            locked={accessOf(t.id) === 'upgrade'}
-            onOpen={() => open(t.id)}
-          />
-        ))}
-      </div>
+      {others.length > 0 && (
+        <>
+          <h3 className="mt-2 text-base font-medium text-white/85 md:text-lg">
+            More lessons
+          </h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 xl:grid-cols-4">
+            {others.map((t) => (
+              <LessonTile
+                key={t.id}
+                lesson={t}
+                done={completedAt[t.id] != null}
+                locked={accessOf(t.id) === 'upgrade'}
+                onOpen={() => open(t.id)}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
       <UpgradeLessonDialog
         lessonId={upgradeFor}
@@ -109,10 +114,12 @@ export const StudioProduction = () => {
 function CourseSection({
   course,
   completedAt,
+  lockedOf,
   onOpen,
 }: {
   course: TutorialCourse;
   completedAt: CompletedLessons;
+  lockedOf: (id: string) => boolean;
   onOpen: (id: string) => void;
 }) {
   const lessons = courseLessons(course);
@@ -123,6 +130,7 @@ function CourseSection({
       ? 'Continue'
       : 'Start';
   const share = progress.total ? progress.done / progress.total : 0;
+  const free = lessons.every((t) => !t.requiresPremium);
 
   return (
     <section
@@ -133,7 +141,7 @@ function CourseSection({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="text-xs uppercase tracking-wider text-white/55">
-            Course · {progress.total} lessons · Free
+            Course · {progress.total} lessons{free ? ' · Free' : ''}
           </div>
           <h3 className="text-lg font-medium leading-tight text-white md:text-xl">
             {course.title}
@@ -185,7 +193,7 @@ function CourseSection({
               lesson={t}
               number={i + 1}
               done={completedAt[t.id] != null}
-              locked={false}
+              locked={lockedOf(t.id)}
               onOpen={() => onOpen(t.id)}
             />
           </li>

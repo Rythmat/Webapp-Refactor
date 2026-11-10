@@ -75,6 +75,23 @@ export const ANCHOR_ALIASES: Readonly<Record<string, string>> = {
   // Add MIDI. The Flip a sample lesson still asks for a Sampler track.
   'add-track-sampler': 'add-track-midi',
   'add-track-tonewheel-organ': 'add-track-midi',
+  // The Stage B shell's renames (from the old anchor document, restored
+  // 2026-11-09): one Go to start, the side rail's panels, one canvas menu,
+  // the dock in place of the Piano Roll's window, one Notation export.
+  'transport-back': 'transport-to-start',
+  'inspector-toggle': 'rail-insight',
+  'insight-tab': 'rail-insight',
+  'library-tab': 'rail-library',
+  'lane-menu': 'clip-menu',
+  'ruler-menu': 'clip-menu',
+  'lane-menu-paste': 'clip-menu-paste',
+  'piano-roll-modal': 'dock-body',
+  'piano-roll-analyze': 'dock-analyze-notes',
+  'piano-roll-close': 'dock-toggle',
+  'file-export-musicxml': 'file-export-notation',
+  // Old Prism (the dock's Prism tab) went from the lessons (owner,
+  // 2026-11-09): Prism is the prompt bar, on the side rail.
+  'chanstrip-tab-prism': 'rail-prompt',
 };
 
 /** The id an anchor renders today, following ANCHOR_ALIASES. */

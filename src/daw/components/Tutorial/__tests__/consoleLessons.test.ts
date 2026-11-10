@@ -231,11 +231,11 @@ describe('console lessons alongside the code’s', () => {
 
   it('may join a course, in its place', () => {
     const course = TUTORIAL_COURSES[0];
-    save(newLesson({ course: 'studio-basics', courseOrder: 2 }));
+    save(newLesson({ course: 'studio-production', courseOrder: 2 }));
     const ids = courseLessons(course).map((t) => t.id);
     expect(ids.slice(0, 3)).toEqual([
-      'studio-basics-your-tracks',
-      'studio-basics-add-a-track',
+      'studio-basics',
+      'hiphop-build-the-beat',
       'console-lesson',
     ]);
     expect(lessonPlace('console-lesson')?.total).toBe(
@@ -250,7 +250,7 @@ describe('the lesson schema', () => {
     twice.steps[1] = { ...twice.steps[1], id: 'set-tempo' };
     expect(studioLessonSchema.safeParse(twice).success).toBe(false);
     expect(
-      studioLessonSchema.safeParse(newLesson({ course: 'studio-basics' }))
+      studioLessonSchema.safeParse(newLesson({ course: 'studio-production' }))
         .success,
     ).toBe(false);
   });

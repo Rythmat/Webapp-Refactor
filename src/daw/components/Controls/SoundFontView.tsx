@@ -132,6 +132,7 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
       categories={GM_SOUND_CATEGORIES}
       selectedId={String(currentProgram)}
       onPick={(id) => handleProgramChange(Number(id))}
+      anchor="instrument-picker"
       data-testid="soundfont-view"
     >
       <div className="absolute inset-0">

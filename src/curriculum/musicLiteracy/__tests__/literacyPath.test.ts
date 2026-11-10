@@ -13,7 +13,6 @@ import {
 } from '@/curriculum/engine/musicLiteracy/choices';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import {
-  courseStop,
   currentStop,
   LITERACY_PATH,
   literacyPath,
@@ -65,9 +64,7 @@ describe('the Music Literacy path', () => {
     expect(LITERACY_PATH[2].route).toBe(
       '/curriculum/music-literacy/hear-it-with-your-band',
     );
-    expect(LITERACY_PATH[3].route).toBe(
-      '/studio?tutorial=studio-basics-your-tracks',
-    );
+    expect(LITERACY_PATH[3].route).toBe('/studio?tutorial=studio-basics');
     expect(LITERACY_PATH[4].route).toBe('/arcade/echo');
     expect(startHereRoute()).toBe('/learn?tab=StartHere');
   });
@@ -501,19 +498,6 @@ describe('Echo on the path', () => {
 
 describe('Studio Basics on the path', () => {
   const stop = LITERACY_PATH[3];
-  const LESSONS = [
-    'studio-basics-your-tracks',
-    'studio-basics-add-a-track',
-    'studio-basics-record',
-    'studio-basics-piano-roll',
-    'studio-basics-insight',
-    'studio-basics-score',
-    'studio-basics-lead-sheet',
-    'studio-basics-loop-and-repeat',
-    'studio-basics-save-and-export',
-  ];
-  const finished = (...ids: string[]) =>
-    Object.fromEntries(ids.map((id) => [id, 1]));
   const stateOf = (completedAt: Record<string, number>) =>
     literacyStopState(
       stop,
@@ -523,51 +507,24 @@ describe('Studio Basics on the path', () => {
       readRouteStop('studio-basics', completedAt),
     );
 
-  it('opens lesson 1 in the Studio, its nine lessons to do', () => {
-    const state = stateOf({});
-    expect(state).toMatchObject({
+  it('opens Studio Basics, one lesson from a blank project', () => {
+    expect(stateOf({})).toMatchObject({
       status: 'new',
-      unit: 'lessons',
-      passed: 0,
-      next: { index: 0, title: 'Your Tracks' },
-      to: '/studio?tutorial=studio-basics-your-tracks',
+      steps: [],
+      next: null,
+      to: '/studio?tutorial=studio-basics',
       key: null,
     });
-    expect(state.steps).toEqual(LESSONS.map(() => 'todo'));
-    expect(stepsLine(state)).toBe('9 lessons');
   });
 
-  it('continues at the first lesson not finished', () => {
-    const state = stateOf(finished(LESSONS[0], LESSONS[1], LESSONS[3]));
-    expect(state).toMatchObject({
-      status: 'started',
-      passed: 3,
-      next: { index: 2, title: 'Record' },
-      to: '/studio?tutorial=studio-basics-record',
-    });
-    expect(state.steps.slice(0, 4)).toEqual([
-      'passed',
-      'passed',
-      'todo',
-      'passed',
-    ]);
-    expect(stepsLine(state)).toBe('3 of 9 lessons');
-  });
-
-  it('is done once every lesson is, and opens lesson 1 again', () => {
-    const state = stateOf(finished(...LESSONS));
-    expect(state).toMatchObject({
+  it('is done once the lesson is, and opens it again', () => {
+    expect(stateOf({ 'studio-basics': 1 })).toMatchObject({
       status: 'done',
-      passed: 9,
-      next: null,
-      to: '/studio?tutorial=studio-basics-your-tracks',
+      to: '/studio?tutorial=studio-basics',
     });
-    expect(stepsLine(state)).toBe('All 9 lessons done');
   });
 
-  it('counts only the course’s own lessons', () => {
-    expect(
-      courseStop('studio-basics', finished('pop-flip-a-sample')).lessons?.done,
-    ).toBe(0);
+  it('counts only Studio Basics itself', () => {
+    expect(stateOf({ 'hiphop-build-the-beat': 1 }).status).toBe('new');
   });
 });

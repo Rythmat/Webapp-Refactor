@@ -53,8 +53,16 @@ export const STUDIO_LESSON_DOCK_TABS = [
   'piano-roll',
 ] as const;
 
+/** The side-rail panels a step may open (layoutModel INSPECTOR_PANELS). */
+export const STUDIO_LESSON_PANELS = [
+  'insight',
+  'library',
+  'lessons',
+  'people',
+] as const;
+
 /** The courses a lesson may belong to (tutorialCatalog TutorialCourseId). */
-export const STUDIO_LESSON_COURSES = ['studio-basics'] as const;
+export const STUDIO_LESSON_COURSES = ['studio-production'] as const;
 
 /** Which effect rack an `fx-add-*` target means: a track's, Master's, a return's. */
 const rack = z.union([
@@ -79,6 +87,8 @@ const requires = z
     effectsLibrary: z.boolean().optional(),
     soundsOpen: z.boolean().optional(),
     mixRack: mixRack.optional(),
+    promptOpen: z.boolean().optional(),
+    inspector: z.enum(STUDIO_LESSON_PANELS).optional(),
   })
   .strict();
 
@@ -108,6 +118,8 @@ export const studioLessonStepSchema = z
     stage: z.string(),
     /** The instruction; **bold** with double asterisks. */
     instruction: z.string().min(1),
+    /** Why the step matters, in one plain sentence. */
+    why: z.string().optional(),
     hint: z.string().optional(),
     /** Anchor id(s) to spotlight; the first on screen wins. None: a centred card. */
     target: target.optional(),

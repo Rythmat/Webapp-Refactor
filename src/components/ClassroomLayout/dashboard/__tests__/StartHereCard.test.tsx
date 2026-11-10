@@ -10,7 +10,6 @@ import {
   withTry,
   type LiteracyProgress,
 } from '@/curriculum/musicLiteracy/useLiteracyProgress';
-import { TUTORIAL_COURSES } from '@/daw/components/Tutorial/tutorialCatalog';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
 
 /**
@@ -93,45 +92,22 @@ describe('Home’s Start here card', () => {
     ).toBe('/curriculum/music-literacy/hear-it-with-your-band');
   });
 
-  it('goes on to Studio Basics once the band is done: lesson 1, on its song', () => {
+  it('goes on to Studio Basics once the band is done, on a blank project', () => {
     saveProgress(tags);
     localStorage.setItem(stopDoneKey('hear-it-with-your-band'), '1');
     const card = renderCard();
     expect(card.getByText('Learn Studio Basics')).toBeTruthy();
-    expect(card.getByText(/^9 lessons/)).toBeTruthy();
-    expect(card.getByRole('img', { name: '0 of 9 lessons done' })).toBeTruthy();
     expect(
       hrefOf(card.getByRole('link', { name: 'Start Learn Studio Basics' })),
-    ).toBe('/studio?tutorial=studio-basics-your-tracks');
+    ).toBe('/studio?tutorial=studio-basics');
   });
 
-  it('continues Studio Basics at the first lesson not finished', () => {
+  it('goes on to Echo in the Arcade once Studio Basics is done', () => {
     saveProgress(tags);
     localStorage.setItem(stopDoneKey('hear-it-with-your-band'), '1');
     act(() => {
       useTutorialProgressStore.setState({
-        completedAt: {
-          'studio-basics-your-tracks': 1,
-          'studio-basics-add-a-track': 2,
-        },
-      });
-    });
-    const card = renderCard();
-    expect(card.getByText(/2 of 9 lessons/)).toBeTruthy();
-    expect(card.getByText(/Next: Record/)).toBeTruthy();
-    expect(
-      hrefOf(card.getByRole('link', { name: 'Continue Learn Studio Basics' })),
-    ).toBe('/studio?tutorial=studio-basics-record');
-  });
-
-  it('goes on to Echo in the Arcade once every Studio Basics lesson is done', () => {
-    saveProgress(tags);
-    localStorage.setItem(stopDoneKey('hear-it-with-your-band'), '1');
-    act(() => {
-      useTutorialProgressStore.setState({
-        completedAt: Object.fromEntries(
-          TUTORIAL_COURSES[0].lessonIds.map((id) => [id, 1]),
-        ),
+        completedAt: { 'studio-basics': 1 },
       });
     });
     const card = renderCard();
@@ -150,9 +126,7 @@ describe('Home’s Start here card', () => {
     localStorage.setItem(stopDoneKey('echo'), '1');
     act(() => {
       useTutorialProgressStore.setState({
-        completedAt: Object.fromEntries(
-          TUTORIAL_COURSES[0].lessonIds.map((id) => [id, 1]),
-        ),
+        completedAt: { 'studio-basics': 1 },
       });
     });
     const card = renderCard();

@@ -22,7 +22,7 @@ vi.mock('@/contexts/AuthContext/hooks/useAuthContext', () => ({
   useAuthContext: () => plan.auth,
 }));
 
-const PREMIUM_LESSON = 'make-first-track';
+const PREMIUM_LESSON = 'edm-design-the-drop';
 const FREE_LESSON = 'hiphop-build-the-beat';
 
 const accessOf = () => renderHook(() => useLessonAccess()).result.current;

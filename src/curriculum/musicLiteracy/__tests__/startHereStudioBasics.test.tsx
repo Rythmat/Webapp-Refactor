@@ -3,17 +3,15 @@ import { act, cleanup, render, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { StartHere } from '@/components/learn/StartHere';
-import { TUTORIAL_COURSES } from '@/daw/components/Tutorial/tutorialCatalog';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
 
 /**
  * Learn → Start Here's fourth stop, Studio Basics: open, its way in the
- * Studio's lesson 1 on the course's demo song, or the first lesson not
- * finished; its lessons counted as pips; done once every lesson is. It
- * follows the student's lesson completions as they load.
+ * Studio's one Studio Basics lesson on a blank project; done once that
+ * lesson is. It follows the student's lesson completions as they load.
  */
 
-const LESSONS = TUTORIAL_COURSES[0].lessonIds;
+const LESSON = 'studio-basics';
 
 const stop = () =>
   document.querySelector<HTMLElement>('[data-path-stop="studio-basics"]')!;
@@ -41,7 +39,7 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe('Start Here’s Studio Basics stop', () => {
-  it('is open, lesson 1 in the Studio its way in', () => {
+  it('is open, Studio Basics in the Studio its way in', () => {
     const card = renderPath();
     expect(stop().getAttribute('data-path-status')).toBe('new');
     expect(card.getByText('Learn Studio Basics')).toBeTruthy();
@@ -50,52 +48,26 @@ describe('Start Here’s Studio Basics stop', () => {
       card
         .getByRole('link', { name: 'Start Learn Studio Basics' })
         .getAttribute('href'),
-    ).toBe('/studio?tutorial=studio-basics-your-tracks');
-    expect(card.getByRole('img', { name: '0 of 9 lessons done' })).toBeTruthy();
-    expect(card.getByText('9 lessons')).toBeTruthy();
-    // No key to wear: the course isn't in one.
+    ).toBe('/studio?tutorial=studio-basics');
+    // No key to wear: the lesson isn't in one.
     expect(card.queryByRole('img', { name: /Major|Minor/ })).toBeNull();
   });
 
-  it('continues at the first lesson not finished', () => {
-    finish(LESSONS[0], LESSONS[1], LESSONS[2]);
-    const card = renderPath();
-    expect(stop().getAttribute('data-path-status')).toBe('started');
-    expect(card.getByText(/3 of 9 lessons/)).toBeTruthy();
-    expect(card.getByText(/Next: The Piano Roll/)).toBeTruthy();
-    expect(
-      card
-        .getByRole('link', { name: 'Continue Learn Studio Basics' })
-        .getAttribute('href'),
-    ).toBe('/studio?tutorial=studio-basics-piano-roll');
-    const marks = Array.from(
-      stop().querySelectorAll('[data-step-mark]'),
-      (el) => el.getAttribute('data-step-mark'),
-    );
-    expect(marks).toEqual([
-      'passed',
-      'passed',
-      'passed',
-      ...Array(6).fill('todo'),
-    ]);
-  });
-
-  it('is done once every lesson is, to take again from lesson 1', () => {
-    finish(...LESSONS);
+  it('is done once the lesson is, to take again', () => {
+    finish(LESSON);
     const card = renderPath();
     expect(stop().getAttribute('data-path-status')).toBe('done');
-    expect(card.getByText('All 9 lessons done')).toBeTruthy();
     expect(
       card
         .getByRole('link', { name: 'Play again Learn Studio Basics' })
         .getAttribute('href'),
-    ).toBe('/studio?tutorial=studio-basics-your-tracks');
+    ).toBe('/studio?tutorial=studio-basics');
   });
 
   it('follows the student’s completions as they load', () => {
     renderPath();
     expect(stop().getAttribute('data-path-status')).toBe('new');
-    finish(LESSONS[0]);
-    expect(stop().getAttribute('data-path-status')).toBe('started');
+    finish(LESSON);
+    expect(stop().getAttribute('data-path-status')).toBe('done');
   });
 });

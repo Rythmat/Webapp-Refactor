@@ -24,6 +24,8 @@ interface CoachCardProps {
   title: string;
   stage: string;
   instruction: string;
+  /** Why the step matters: one plain sentence under the instruction. */
+  why?: string;
   hint?: string;
   /** Same target as the spotlight — used to position the card clear of it. */
   target?: Target;
@@ -203,6 +205,7 @@ export function CoachCard({
   title,
   stage,
   instruction,
+  why,
   hint,
   target,
   rack,
@@ -417,6 +420,19 @@ export function CoachCard({
         >
           <Rich text={instruction} />
         </p>
+        {why && (
+          <p
+            data-testid="tutorial-why"
+            style={{
+              fontSize: 13,
+              lineHeight: 1.45,
+              color: 'var(--daw-text-2)',
+              margin: '7px 0 0',
+            }}
+          >
+            <Rich text={why} />
+          </p>
+        )}
         {hint && (
           <p
             style={{

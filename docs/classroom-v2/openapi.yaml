@@ -260,7 +260,14 @@ components:
         section:
           type: string
           enum:
-            [connect, showcase, groupProject, individualProject, present, reflect]
+            [
+              connect,
+              showcase,
+              groupProject,
+              individualProject,
+              present,
+              reflect,
+            ]
           description: >-
             The lesson section, a display hint that always agrees with
             `phase` (connect and showcase are both connectRegulate).

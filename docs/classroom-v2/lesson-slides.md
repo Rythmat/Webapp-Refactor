@@ -9,13 +9,13 @@ Every lesson runs **Connect → Showcase → Group Project → Individual Projec
 Present → Reflect**. The sections are a layer over the five IMPACT phases,
 which stay the key for storage, the wire and reports:
 
-| Section | Phase |
-|---|---|
-| connect, showcase | `connectRegulate` |
-| groupProject | `groupPractice` |
-| individualProject | `creativeProjects` |
-| present | `presentPerform` |
-| reflect | `respondReflectReset` |
+| Section           | Phase                 |
+| ----------------- | --------------------- |
+| connect, showcase | `connectRegulate`     |
+| groupProject      | `groupPractice`       |
+| individualProject | `creativeProjects`    |
+| present           | `presentPerform`      |
+| reflect           | `respondReflectReset` |
 
 `Slide.section` is optional. Slides saved without it are placed by
 `sectionOf()` (`src/features/classroom/slides/sections.ts`). Never rename a
@@ -72,7 +72,7 @@ tab moves to it and cannot run ahead.
   tutorial (`TutorialLayer`), genre lessons (`GenreLessonContainerV2`),
   guided lessons (`GuidedPlayer`, by screen), Theory song lessons
   (`ActivityFlow`) and Globe tours (`components/atlas/classroom/
-  useClassFollowTour.tsx`, by stop) run on it.
+useClassFollowTour.tsx`, by stop) run on it.
 
 **Deploy:** the party (`src/daw/collab/server/classroom_session/party.ts`)
 must be redeployed for lockstep to work across devices. Until then it works

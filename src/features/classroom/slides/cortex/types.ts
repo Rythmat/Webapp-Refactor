@@ -68,6 +68,10 @@ export interface ShowcaseContent {
   facts: ShowcaseFact[];
   /** The artist's portrait, or a mini-globe of the city and its events. */
   visual?: SlideMedia;
+  /** The Showcase slide's left half: a globe focused on the subject's place. */
+  globe?: SlideMedia;
+  /** Its right half: the subject's photo (an artist, or a city's own artist). */
+  portrait?: SlideMedia;
   /** A video to listen to, on a slide of its own. */
   listen?: ShowcaseListen;
   /** The focus kind's Cortex colour, as the slide accent. */

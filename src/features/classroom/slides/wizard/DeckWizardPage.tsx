@@ -23,7 +23,7 @@ import { useLocalPlan } from '../../plan/useLocalPlan';
 import { usePublishedDays } from '../../publish/usePublishedDays';
 import type { Day } from '../../types';
 import { applyCortexLessonToDay, roleAvailable } from '../cortex/buildDeck';
-import { loadLessonAtlas } from '../cortex/loadLessonAtlas';
+import { LESSON_ATLAS_KEY, loadLessonAtlas } from '../cortex/loadLessonAtlas';
 import { planCortexLesson } from '../cortex/planLesson';
 import { suggestFocus } from '../cortex/suggestFocus';
 import {
@@ -42,7 +42,7 @@ import { focusContextForDay, recentFocusIds } from './cortexContext';
 const STEPS = ['Focus', 'Group Project', 'Check-in & Preview'] as const;
 
 /** One query for the page load: the graph is several megabytes. */
-export const LESSON_ATLAS_KEY = ['classroom', 'lesson-atlas'] as const;
+export { LESSON_ATLAS_KEY };
 
 /**
  * Generate a lesson from the Atlas — the connections the console's Cortex

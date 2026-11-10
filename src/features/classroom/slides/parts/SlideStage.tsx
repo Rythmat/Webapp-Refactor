@@ -62,6 +62,7 @@ import type {
   SlideSurface,
 } from '../types';
 import { sectionLabelOf } from './SectionChip';
+import { ShowcaseBackdrop, isShowcaseSlide } from './ShowcaseBackdrop';
 import { SlideElementView } from './SlideElementView';
 import { SlideFrameChrome } from './SlideFrameChrome';
 import { SlideReflow } from './SlideReflow';
@@ -271,6 +272,9 @@ export const SlideStage = ({
         style={frameStyle}
         onPointerDown={editable ? () => onSelectBlock?.(null) : undefined}
       >
+        {isShowcaseSlide(slide) && (
+          <ShowcaseBackdrop slide={slide} fly={playableMedia} />
+        )}
         <SlideFrameChrome slide={slide} language={language} />
         {reveal ? (
           <RevealBand elements={zoneElements} scrim>

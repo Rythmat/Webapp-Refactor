@@ -121,13 +121,18 @@ describe('a generated Cortex lesson', () => {
   });
 
   it('shows the focus with its facts and portrait, then its song', () => {
+    // The Showcase: the globe on the left, focused on the artist's city, the
+    // portrait on the right (owner, 2026-11-10).
     expect(slides[1]).toMatchObject({
       kind: 'content',
-      presetId: 'artist-spotlight',
+      presetId: 'showcase',
       title: { en: 'Ana Lux' },
-      media: { type: 'artistImage', songId: 'night_drive' },
+      media: { type: 'globePreview' },
+      sideMedia: { type: 'artistImage', songId: 'night_drive' },
       accent: '#0a9396',
     });
+    const globe = (slides[1] as { media?: { focus?: number[] } }).media;
+    expect(globe?.focus).toHaveLength(2);
     const body = (slides[1] as { body?: { en: string } }).body?.en ?? '';
     expect(body).toContain('Born in Motor City in 1950.');
     // One fact a line, and no more than fit on the slide in two languages.

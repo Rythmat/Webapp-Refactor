@@ -321,7 +321,7 @@ const artistMedia = (
   graph: LessonGraph,
   catalog: LessonCatalog,
   focus: GraphNode,
-): Pick<ShowcaseContent, 'visual' | 'listen'> => {
+): Pick<ShowcaseContent, 'visual' | 'listen' | 'globe' | 'portrait'> => {
   // Songs the artist performed, confirmed first: a portrait resolves through
   // a song, and only a song they performed carries their own portrait.
   const performed = [
@@ -345,6 +345,13 @@ const artistMedia = (
           markers: [{ location: coordinates, size: 0.09 }],
         }
       : undefined;
+  const globe: SlideMedia | undefined = coordinates
+    ? {
+        type: 'globePreview',
+        markers: [{ location: coordinates, size: 0.06 }],
+        focus: coordinates,
+      }
+    : undefined;
   const written = linked(graph, focus.id, 'written_by', 'in');
   const listen =
     firstOf(performed, (s) => songListen(catalog, s)) ??
@@ -354,6 +361,15 @@ const artistMedia = (
     firstOf(written, (s) => songListen(catalog, s));
   return {
     ...(visual ? { visual } : {}),
+    ...(globe ? { globe } : {}),
+    ...(portrait
+      ? {
+          portrait: {
+            type: 'artistImage',
+            songId: slugOf(portrait.id),
+          } satisfies SlideMedia,
+        }
+      : {}),
     ...(listen ? { listen } : {}),
   };
 };
@@ -362,7 +378,7 @@ const placeMedia = (
   graph: LessonGraph,
   catalog: LessonCatalog,
   focus: GraphNode,
-): Pick<ShowcaseContent, 'visual' | 'listen'> => {
+): Pick<ShowcaseContent, 'visual' | 'listen' | 'globe' | 'portrait'> => {
   const coordinates = catalog.places.get(slugOf(focus.id))?.coordinates;
   const events = linked(graph, focus.id, 'took_place_in', 'in');
   // Most events are pinned on the city itself: one marker per spot, and none
@@ -391,6 +407,12 @@ const placeMedia = (
     ...linked(graph, focus.id, 'born_in', 'in'),
     ...linked(graph, focus.id, 'based_in', 'in'),
   ];
+  // The city's face: the first of its own artists with a portrait.
+  const portraitSong = firstOf(homeArtists, (artist) =>
+    firstOf(linked(graph, artist.id, 'performed_by', 'in'), (s) =>
+      catalog.songs.get(slugOf(s.id))?.artistImageRef ? s : null,
+    ),
+  );
   const listen =
     firstOf(linked(graph, focus.id, 'recorded_in', 'in'), (s) =>
       songListen(catalog, s),
@@ -403,6 +425,17 @@ const placeMedia = (
     );
   return {
     ...(visual ? { visual } : {}),
+    ...(visual && coordinates
+      ? { globe: { ...visual, focus: coordinates } as SlideMedia }
+      : {}),
+    ...(portraitSong
+      ? {
+          portrait: {
+            type: 'artistImage',
+            songId: slugOf(portraitSong.id),
+          } satisfies SlideMedia,
+        }
+      : {}),
     ...(listen ? { listen } : {}),
   };
 };

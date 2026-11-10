@@ -202,10 +202,14 @@ describe('zone name guard', () => {
         'accentBar',
         'body',
         'bodyShort',
+        'captionBody',
+        'captionTitle',
         'centerStackBottom',
         'centerStackTop',
         'ctaCenter',
         'footer',
+        'halfLeft',
+        'halfRight',
         'heroMedia',
         'left',
         'logoTop',
@@ -223,7 +227,7 @@ describe('zone name guard', () => {
         'utilityTopRight',
       ].sort(),
     );
-    expect(ZONE_NAMES).toHaveLength(22);
+    expect(ZONE_NAMES).toHaveLength(26);
   });
 });
 

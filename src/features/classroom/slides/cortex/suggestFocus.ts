@@ -77,6 +77,21 @@ const focusOf = (
   connections: globeNeighbours(graph, catalog, node.id).size,
 });
 
+/**
+ * The focus a stored id names (`deck.templateRef.focusId`), or undefined when
+ * the Atlas no longer has it or it cannot be a Showcase.
+ */
+export const focusById = (
+  graph: LessonGraph,
+  catalog: LessonCatalog,
+  id: string,
+): LessonFocus | undefined => {
+  const node = graph.nodes.get(id as EntityId);
+  return canFocus(graph, catalog, node)
+    ? focusOf(graph, catalog, node, { kind: 'searched' })
+    : undefined;
+};
+
 /** Media the Showcase can show: a portrait, a video, a mini-globe. */
 const mediaScore = (
   graph: LessonGraph,

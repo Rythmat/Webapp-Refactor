@@ -91,6 +91,7 @@ export type ZoneFamily =
   | 'rows'
   | 'cta'
   | 'centreStack'
+  | 'showcase'
   | 'chrome';
 
 /** Vertical gap between stacked elements in a `column` zone. */
@@ -270,6 +271,37 @@ export const SLIDE_GRID = {
     flow: 'single',
     family: 'centreStack',
   },
+
+  // ── The Showcase (owner, 2026-11-10) ────────────────────────────────────
+  // The globe fills the left half and the subject's photo the right, edge to
+  // edge. They are painted by the stage from the slide's two visuals, as the
+  // accent bar is from its flag, so they are chrome: no teacher moves them,
+  // and the footer band stays free for the surface. The name and the facts
+  // sit over the bottom of the photo, inside the safe area.
+  halfLeft: {
+    rect: { x: 0, y: 0, w: 640, h: 720 },
+    role: 'chrome',
+    flow: 'single',
+    family: 'chrome',
+  },
+  halfRight: {
+    rect: { x: 640, y: 0, w: 640, h: 720 },
+    role: 'chrome',
+    flow: 'single',
+    family: 'chrome',
+  },
+  captionTitle: {
+    rect: { x: 688, y: 344, w: 528, h: 80 },
+    role: 'content',
+    flow: 'single',
+    family: 'showcase',
+  },
+  captionBody: {
+    rect: { x: 688, y: 432, w: 528, h: 172 },
+    role: 'content',
+    flow: 'column',
+    family: 'showcase',
+  },
 } as const satisfies Record<string, ZoneSpec>;
 
 export type ZoneName = keyof typeof SLIDE_GRID;
@@ -296,6 +328,7 @@ export const ZONE_FAMILIES: Record<
   rows: ['rowA', 'rowB', 'rowC'],
   cta: ['ctaCenter'],
   centreStack: ['centerStackTop', 'centerStackBottom'],
+  showcase: ['captionTitle', 'captionBody'],
 };
 
 /**
@@ -688,6 +721,7 @@ export const REFLOW_ORDER: readonly ZoneName[] = [
   'phaseChip',
   'utilityTopRight', // + not in the spec's list
   'title',
+  'captionTitle', // + the Showcase's name, over its photo
   'subtitle',
   'rowA',
   'rowB',
@@ -698,6 +732,7 @@ export const REFLOW_ORDER: readonly ZoneName[] = [
   'right',
   'mediaRight',
   'body',
+  'captionBody', // + the Showcase's facts
   'bodyShort', // + not in the spec's list
   'centerStackTop', // + not in the spec's list
   'centerStackBottom', // + not in the spec's list

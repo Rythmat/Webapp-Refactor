@@ -218,7 +218,7 @@ const projectAndPresent = (
 const groupInteraction = (
   id: string,
   plan: CortexLessonPlan,
-  choices: CortexLessonChoices,
+  choices: Pick<CortexLessonChoices, 'role' | 'tutorialId' | 'performerRef'>,
 ): { interaction: Interaction; prompt: LocalizedText } | null => {
   switch (choices.role) {
     case 'promoter': {
@@ -338,14 +338,27 @@ export const buildCortexLessonContent = (
       kind: 'content',
       phase: 'connectRegulate',
       section: 'showcase',
-      presetId: 'artist-spotlight',
       title: { en: focus.label, es: focus.label },
-      prompt:
-        focus.kind === 'artist' ? COPY.showcaseArtist : COPY.showcasePlace,
       ...(showcase.facts.length > 0
         ? { body: showcaseBody(showcase.facts) }
         : {}),
-      ...(showcase.visual ? { media: showcase.visual } : {}),
+      // The globe on the left, flying to the subject's place, and the photo
+      // on the right (owner, 2026-11-10). With only one of the two, the older
+      // spotlight: the visual beside the copy.
+      ...(showcase.globe && showcase.portrait
+        ? {
+            presetId: 'showcase',
+            media: showcase.globe,
+            sideMedia: showcase.portrait,
+          }
+        : {
+            presetId: 'artist-spotlight',
+            prompt:
+              focus.kind === 'artist'
+                ? COPY.showcaseArtist
+                : COPY.showcasePlace,
+            ...(showcase.visual ? { media: showcase.visual } : {}),
+          }),
       accent: showcase.accent,
     },
   ];
@@ -366,7 +379,9 @@ export const buildCortexLessonContent = (
         videoId: listen.videoId,
         ...(listen.startSec !== undefined ? { startSec: listen.startSec } : {}),
       },
-      ...(showcase.visual ? { sideMedia: showcase.visual } : {}),
+      ...((showcase.portrait ?? showcase.visual)
+        ? { sideMedia: showcase.portrait ?? showcase.visual }
+        : {}),
       accent: showcase.accent,
     });
   }
@@ -409,6 +424,34 @@ export const buildCortexLessonContent = (
       ...shared.cellCopy,
     },
   };
+};
+
+/**
+ * A Group Project activity for a role, from a plan: the one the Group
+ * Project slide runs. `ref` picks a particular Studio tutorial or Learn
+ * lesson; without it the plan's first. Null when the plan cannot run the
+ * role. The editor's "match the Showcase" uses it to replace an activity in
+ * place, keeping the interaction's id.
+ */
+export const cortexGroupActivity = (
+  id: string,
+  plan: CortexLessonPlan,
+  role: GroupRole,
+  ref?: string,
+): {
+  interaction: Interaction;
+  title: LocalizedText;
+  prompt: LocalizedText;
+} | null => {
+  const tutorialId = ref?.startsWith('studio:tutorial:')
+    ? ref.slice('studio:tutorial:'.length)
+    : undefined;
+  const group = groupInteraction(id, plan, {
+    role,
+    ...(tutorialId ? { tutorialId } : {}),
+    ...(ref && role === 'performer' ? { performerRef: ref } : {}),
+  });
+  return group ? { ...group, title: groupTitle(role) } : null;
 };
 
 /** Random suffix, so regenerating a Day never reuses an interaction id. */

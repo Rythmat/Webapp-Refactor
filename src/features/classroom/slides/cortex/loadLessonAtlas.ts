@@ -12,6 +12,9 @@ import {
  * and records, so only the generator's page asks for it, and only once per
  * page load.
  */
+/** The react-query key every caller loads the Atlas under, so it loads once. */
+export const LESSON_ATLAS_KEY = ['classroom', 'lesson-atlas'] as const;
+
 export interface LessonAtlas {
   graph: Graph;
   catalog: LessonCatalog;

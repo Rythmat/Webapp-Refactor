@@ -50,6 +50,9 @@ export type ZonePlacement<T> = T | 'off';
 export interface PresetZones {
   /** Where the slide's visuals go, in order. */
   visuals?: ZonePlacement<readonly ZoneName[]>;
+  /** Where the title goes, when not its own `title` zone (the Showcase's
+   *  name sits over its photo). */
+  title?: ZoneName;
   /** Where body copy goes. */
   body?: ZonePlacement<ZoneName>;
   /** Where launch tiles go. */
@@ -168,6 +171,23 @@ export const PRESETS = {
     kinds: AUTHORED_KINDS,
     bandFree: false,
     zones: { visuals: ['mediaLeft'], body: 'right', tiles: 'right' },
+  },
+  // The lesson's Showcase (owner, 2026-11-10): the globe on the left half,
+  // flying to the subject's place, the photo on the right with the name and
+  // the facts over its foot. The two visuals are painted by the stage as
+  // chrome (`halfLeft` / `halfRight`), so their elements stay hidden here.
+  showcase: {
+    id: 'showcase',
+    label: 'Showcase',
+    kinds: AUTHORED_KINDS,
+    bandFree: false,
+    zones: {
+      title: 'captionTitle',
+      visuals: 'off',
+      subtitle: 'off',
+      body: 'captionBody',
+      tiles: 'captionBody',
+    },
   },
   'chord-chart': {
     id: 'chord-chart',

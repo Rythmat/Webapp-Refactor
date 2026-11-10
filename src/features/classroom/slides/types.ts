@@ -30,6 +30,11 @@ export type SlideMedia =
       type: 'globePreview';
       markers?: Array<{ location: [number, number]; size?: number }>;
       arcs?: Array<{ from: [number, number]; to: [number, number] }>;
+      /**
+       * Where the globe flies when the slide is shown: the Showcase
+       * subject's place, `[lat, lng]`. Without it the globe spins.
+       */
+      focus?: [number, number];
     }
   /**
    * A specific globe *pathway* embedded as the dashboard-style preview: the

@@ -63,6 +63,7 @@ export const Focus = ({
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
       <SlideRenderer
+        key={slide.id}
         slide={slide}
         surface="present"
         language={language}

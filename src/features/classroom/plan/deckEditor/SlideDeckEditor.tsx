@@ -71,6 +71,7 @@ import { useLocalPlan } from '../useLocalPlan';
 import { ChooseContentButton } from './ChooseContentButton';
 import { EditorTopBar } from './EditorTopBar';
 import { Filmstrip } from './Filmstrip';
+import { GroupFocusBanner, type GroupMatch } from './GroupFocusBanner';
 import { RationaleSidePanel } from './RationaleSidePanel';
 import { SlideCanvas } from './SlideCanvas';
 import { TextFormatMenu } from './TextFormatMenu';
@@ -449,6 +450,24 @@ export const SlideDeckEditor = () => {
     .map((id) => cellInteractions.find((i) => i.id === id))
     .filter((i): i is Interaction => i !== undefined);
 
+  // The lesson's subject: the Group Project keeps to it (owner, 2026-11-10).
+  const focusId = draft.deck?.templateRef?.focusId;
+  const matchShowcase = (match: GroupMatch) => {
+    setSelectedInteractions([match.interaction]);
+    patchSelected({ title: match.title, prompt: match.prompt });
+    setDraft((prev) =>
+      prev?.deck?.templateRef
+        ? {
+            ...prev,
+            deck: {
+              ...prev.deck,
+              templateRef: { ...prev.deck.templateRef, role: match.role },
+            },
+          }
+        : prev,
+    );
+  };
+
   // The text-format tool only targets text blocks (title / prompt / body).
   const textBlock: SlideBlockKey | null =
     selectedBlock === 'title' ||
@@ -576,7 +595,16 @@ export const SlideDeckEditor = () => {
       />
 
       <div className="flex min-h-0 flex-1 gap-4 p-4">
-        <div className="flex min-w-0 flex-1 flex-col gap-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto [scrollbar-width:thin] [&>*]:shrink-0">
+          {focusId &&
+            selected.kind === 'app-route' &&
+            sectionOf(selected) === 'groupProject' && (
+              <GroupFocusBanner
+                focusId={focusId}
+                interaction={slideInteractions[0]}
+                onMatch={matchShowcase}
+              />
+            )}
           <div className="flex h-[58vh] min-h-[420px]">
             <SlideCanvas
               key={selected.id}

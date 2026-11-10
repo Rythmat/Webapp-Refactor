@@ -32,6 +32,7 @@ const saved: Day[] = [];
 let days: Day[] = [];
 
 vi.mock('../../cortex/loadLessonAtlas', () => ({
+  LESSON_ATLAS_KEY: ['classroom', 'lesson-atlas'],
   loadLessonAtlas: async () => ({
     graph: fixture(),
     catalog: fixtureCatalog(),

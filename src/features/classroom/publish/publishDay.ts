@@ -175,6 +175,12 @@ const projectInteraction = (interaction: Interaction): Interaction => {
   return out;
 };
 
+/** Two finite numbers, and nothing else, for a globe focus. */
+const isLatLng = (v: unknown): v is [number, number] =>
+  Array.isArray(v) &&
+  v.length === 2 &&
+  v.every((n) => typeof n === 'number' && Number.isFinite(n));
+
 const projectSlideMedia = (media: SlideMedia): SlideMedia => {
   switch (media.type) {
     case 'youtube':
@@ -199,6 +205,9 @@ const projectSlideMedia = (media: SlideMedia): SlideMedia => {
           : {}),
         ...(media.arcs !== undefined
           ? { arcs: media.arcs.map((a) => ({ from: a.from, to: a.to })) }
+          : {}),
+        ...(isLatLng(media.focus)
+          ? { focus: [media.focus[0], media.focus[1]] as [number, number] }
           : {}),
       };
     case 'globePathway':

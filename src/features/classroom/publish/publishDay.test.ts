@@ -368,6 +368,28 @@ describe('publishDay deck projection', () => {
     expect(JSON.stringify(snapshot)).not.toContain('SECRET');
   });
 
+  it("carries a Showcase globe's focus as two numbers, and nothing else", () => {
+    const day = makeDeckDay();
+    const s0 = day.deck!.slides[0] as unknown as Record<string, unknown>;
+    const s1 = day.deck!.slides[1] as unknown as Record<string, unknown>;
+    s0.media = {
+      type: 'globePreview',
+      markers: [{ location: [41.59, -87.35] }],
+      focus: [41.59, -87.35],
+    };
+    s1.media = {
+      type: 'globePreview',
+      focus: [1, 'SECRET teacher note'],
+    };
+    const snapshot = publishDay(day);
+    const slides = snapshot.deck!.slides as unknown as {
+      media?: { focus?: unknown };
+    }[];
+    expect(slides[0].media?.focus).toEqual([41.59, -87.35]);
+    expect(slides[1].media && 'focus' in slides[1].media).toBe(false);
+    expect(JSON.stringify(snapshot)).not.toContain('SECRET');
+  });
+
   it('carries per-block textStyle through publish (whitelisted keys only, firewall clean)', () => {
     const day = makeDeckDay();
     const s0 = day.deck!.slides[0] as unknown as Record<string, unknown>;

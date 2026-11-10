@@ -25,6 +25,12 @@ import { showsPhaseChip } from '../deck';
 import { REFLOW_BAND_AFTER, REFLOW_ORDER } from '../slideGrid';
 import type { Slide, SlideElement, SlideSurface } from '../types';
 import { SectionChip, sectionLabelOf } from './SectionChip';
+import {
+  ShowcaseGlobe,
+  ShowcasePhoto,
+  isShowcaseSlide,
+  showcaseVisuals,
+} from './ShowcaseBackdrop';
 import { SlideElementView } from './SlideElementView';
 
 interface SlideReflowProps {
@@ -86,6 +92,8 @@ export const SlideReflow = ({
         <SectionChip slide={slide} language={language} />
       )}
 
+      {isShowcaseSlide(slide) && <ReflowShowcase slide={slide} />}
+
       {REFLOW_ORDER.flatMap((zone) => {
         const nodes: ReactNode[] = (byZone.get(zone) ?? []).map((element) => (
           <div
@@ -115,6 +123,21 @@ export const SlideReflow = ({
         }
         return nodes;
       })}
+    </div>
+  );
+};
+
+/** The Showcase on a phone: the photo and the globe side by side, square. */
+const ReflowShowcase = ({ slide }: { slide: Slide }) => {
+  const { globe, photo } = showcaseVisuals(slide);
+  return (
+    <div className="grid grid-cols-2 gap-2" aria-hidden>
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#0b0b0d]">
+        <ShowcaseGlobe globe={globe} fly={false} />
+      </div>
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-white/[0.03]">
+        <ShowcasePhoto songId={photo?.songId} />
+      </div>
     </div>
   );
 };

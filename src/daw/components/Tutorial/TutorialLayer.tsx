@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ClassFollowBar } from './ClassFollowBar';
+import { ClassFollowBar } from '@/features/classroom/follow/ClassFollowBar';
 import { useTutorialClassFollow } from './useTutorialClassFollow';
 import { createPortal } from 'react-dom';
 import { useInRouterContext } from 'react-router-dom';
@@ -111,8 +111,7 @@ export function TutorialLayer() {
     stepIndex,
     total,
     status,
-    isLast,
-    stepTitle: step?.instruction,
+    stepTitle: step?.stage,
     goTo,
   });
   const holding = classFollow.holding;
@@ -295,7 +294,7 @@ export function TutorialLayer() {
     if (!isValidated) burst(); // free-form: celebrate on Next
     if (holding) {
       // At the class's step: tell the teacher, then wait for them.
-      classFollow.holdAtClassStep();
+      classFollow.finishStep();
       return;
     }
     if (isLast) finishNow();

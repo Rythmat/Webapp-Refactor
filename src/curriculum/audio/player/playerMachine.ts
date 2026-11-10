@@ -42,7 +42,13 @@ export type PlayerAction =
   | { type: 'continue'; count: number; practiceFrom: number }
   | { type: 'startPractice' }
   | { type: 'back' }
-  | { type: 'jump'; index: number };
+  | { type: 'jump'; index: number }
+  /**
+   * The class's screen, set by the teacher (owner, 2026-11-10): taken
+   * whether or not this student has reached it, as the class moves on
+   * together.
+   */
+  | { type: 'follow'; index: number; count: number };
 
 export const initialPlayer = (index = 0): PlayerState => ({
   index,
@@ -135,6 +141,12 @@ export function playerReducer(
       return action.index <= state.furthest
         ? onScreen(state, action.index)
         : state;
+    case 'follow': {
+      const index = Math.min(Math.max(0, action.index), action.count - 1);
+      return index === state.index
+        ? state
+        : { ...onScreen(state, index), view: 'lesson' };
+    }
     default:
       return state;
   }

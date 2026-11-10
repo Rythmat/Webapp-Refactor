@@ -24,6 +24,12 @@ import {
 
 export interface FollowLaunch {
   sessionId: string;
+  /**
+   * The activity the tab was launched for (the launch's `activityRef`), so a
+   * player that can't name its own ref in the slide's grammar still knows
+   * which activity it is following.
+   */
+  ref?: string;
   /** The teacher, leading the class from inside the activity. */
   lead: boolean;
 }
@@ -37,12 +43,15 @@ export const appendFollowParams = (
   href: string,
   sessionId: string,
   lead = false,
+  /** The activity's ref, when the href carries no launch params. */
+  ref?: string,
 ): string => {
   const [path, existing = ''] = href.split('?');
   const search = new URLSearchParams(existing);
   search.set('follow', '1');
   search.set('session', sessionId);
   if (lead) search.set('lead', '1');
+  if (ref && !search.has('activityRef')) search.set('activityRef', ref);
   return `${path}?${search.toString()}`;
 };
 
@@ -50,7 +59,8 @@ export const readFollowParams = (search: string): FollowLaunch | null => {
   const q = new URLSearchParams(search);
   const sessionId = q.get('session');
   if (q.get('follow') !== '1' || !sessionId) return null;
-  return { sessionId, lead: q.get('lead') === '1' };
+  const ref = q.get('activityRef');
+  return { sessionId, lead: q.get('lead') === '1', ...(ref ? { ref } : {}) };
 };
 
 /** This tab's follow launch: from its URL on first load, then its stash. */
@@ -201,8 +211,12 @@ export interface ClassFollow {
  * different activity) → `following: false`, and the tab behaves as it always
  * did.
  */
-export const useClassFollow = (ref: string | undefined): ClassFollow => {
+export const useClassFollow = (
+  /** The activity this tab runs; the launch's own by default. */
+  ownRef?: string,
+): ClassFollow => {
   const [launch] = useState(followLaunchForTab);
+  const ref = ownRef ?? launch?.ref;
   const { state: session, done: doneMap } = useFollowedSession(
     launch?.sessionId,
   );

@@ -93,7 +93,7 @@ export const ClassStepPanel = ({
       {href && (
         <Button asChild variant="secondary" className="w-fit">
           <a
-            href={appendFollowParams(href, sessionId, true)}
+            href={appendFollowParams(href, sessionId, true, atlas.activityRef)}
             target="_blank"
             rel="noreferrer"
           >

@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import { OUTLINE_PILL, WHITE_PILL_LG } from '@/components/kit/pills';
 import type { PathFigure } from '@/components/learn/path/types';
@@ -32,6 +33,8 @@ import {
   type GuitarActionBarProps,
 } from '@/curriculum/guitar/layout/GuitarActionBar';
 import type { GuitarStepStatus } from '@/curriculum/guitar/layout/types';
+import { ClassFollowBar } from '@/features/classroom/follow/ClassFollowBar';
+import { useStepFollow } from '@/features/classroom/follow/useStepFollow';
 import { useLearnXp } from '@/hooks/data/experience/useLearnXp';
 import { gradeNotePick } from './notePick';
 import {
@@ -136,6 +139,24 @@ const firstOpenRung = (
   const at = screen.rungs.findIndex((rung) => !isPassed(status(rung.step)));
   return at < 0 ? 0 : at;
 };
+
+/** A screen's short name, for the teacher's control and the room's screen. */
+function screenTitle(screen: GuidedScreen): string {
+  switch (screen.kind) {
+    case 'hook':
+      return screen.title;
+    case 'play':
+      return screen.rungs[0]?.label ?? 'Play';
+    case 'choose':
+      return 'A question';
+    case 'pick':
+      return 'Choose the notes';
+    case 'takeaway':
+      return 'What to take away';
+    default:
+      return 'Read and listen';
+  }
+}
 
 /** The step a screen shows, if it shows one. */
 function stepOnScreen(screen: GuidedScreen, rung: number): StepRef | null {
@@ -335,6 +356,26 @@ export function GuidedPlayer({
     [screens, status],
   );
 
+  // ── The class does the lesson together (owner, 2026-11-10) ─────────────
+  // Opened to follow the teacher, the lesson keeps the class's screen.
+  const classFollow = useStepFollow({
+    position: state.index,
+    total: screens.length,
+    title: screenTitle(screen),
+    goTo: (index) => {
+      goToScreen(index);
+      dispatch({ type: 'follow', index, count: screens.length });
+    },
+  });
+  const classFollowRef = useRef(classFollow);
+  classFollowRef.current = classFollow;
+  /** At the class's screen: tell the teacher and wait, instead of moving on. */
+  const holdForClass = (): boolean => {
+    if (!classFollowRef.current.holding) return false;
+    classFollowRef.current.finishStep();
+    return true;
+  };
+
   const onContinue = useCallback(() => {
     if (bar.run.demo.playing) bar.run.demo.stop();
     if (
@@ -347,6 +388,7 @@ export function GuidedPlayer({
       dispatch({ type: 'nextPart' });
       return;
     }
+    if (state.index + 1 < screens.length && holdForClass()) return;
     if (state.index + 1 >= screens.length) {
       setXp('waiting');
       binding.finish().then(setXp, () => setXp(null));
@@ -489,6 +531,7 @@ export function GuidedPlayer({
       dispatch({ type: 'nextPart' });
       return;
     }
+    if (state.index + 1 < screens.length && holdForClass()) return;
     if (state.index + 1 < screens.length) goToScreen(state.index + 1);
     dispatch({ type: 'continue', count: screens.length, practiceFrom });
   }, [
@@ -676,318 +719,379 @@ export function GuidedPlayer({
       : null;
 
   return (
-    <div
-      className="relative flex h-full min-h-0 flex-col bg-[#101012] font-sans text-[#e8e8f0]"
-      data-guided-lesson={chapter.id}
-      data-screen={screen.id}
-      data-phase={state.phase}
-      data-from-memory={hintsOff || undefined}
-    >
-      <LessonTopBar
-        index={state.index}
-        count={screens.length}
-        practiceFrom={practiceFrom}
-        fraction={
-          screen.kind === 'play' && state.index < practiceFrom
-            ? rung / screen.rungs.length
-            : 0
-        }
-        canBack={state.index > 0 && !running}
-        onBack={onBack}
-        onClose={binding.onLeave}
-        answered={state.answered}
-        firstTry={state.firstTry}
-        screens={screens}
-        volume={volume}
-        extra={extra}
-      />
-      <XpRise muted={flow.status === 'passed'} />
-      <VerdictFrame phase={state.phase}>
-        <StageTransition flow={flow} accent={accent} />
-        <PassMoment flow={flow} accent={accent} />
-        {flow.status === 'perform' && !reduced && (
-          <motion.div
-            aria-hidden
-            data-perform-pulse
-            className="pointer-events-none absolute inset-0 z-20 rounded-[1.25rem] border-2"
-            style={{ borderColor: accent }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 0] }}
-            transition={{ duration: 0.9, ease: 'easeOut' }}
-          />
+    <>
+      {classFollow.following &&
+        createPortal(
+          <ClassFollowBar
+            placement="bottom"
+            leading={classFollow.leading}
+            step={
+              classFollow.leading
+                ? state.index
+                : (classFollow.classStep ?? state.index)
+            }
+            total={screens.length}
+            waiting={classFollow.waiting}
+            doneCount={classFollow.doneCount}
+          />,
+          document.body,
         )}
-        {state.view === 'skillIntro' && (
-          <div className="absolute inset-0 z-30 flex bg-[#101012]">
-            <SkillIntro
-              accent={accent}
-              reduced={reduced}
-              onDone={() => dispatch({ type: 'startPractice' })}
+      <div
+        className="relative flex h-full min-h-0 flex-col bg-[#101012] font-sans text-[#e8e8f0]"
+        data-guided-lesson={chapter.id}
+        data-screen={screen.id}
+        data-phase={state.phase}
+        data-from-memory={hintsOff || undefined}
+      >
+        <LessonTopBar
+          index={state.index}
+          count={screens.length}
+          practiceFrom={practiceFrom}
+          fraction={
+            screen.kind === 'play' && state.index < practiceFrom
+              ? rung / screen.rungs.length
+              : 0
+          }
+          canBack={state.index > 0 && !running}
+          onBack={onBack}
+          onClose={binding.onLeave}
+          answered={state.answered}
+          firstTry={state.firstTry}
+          screens={screens}
+          volume={volume}
+          extra={extra}
+        />
+        <XpRise muted={flow.status === 'passed'} />
+        <VerdictFrame phase={state.phase}>
+          <StageTransition flow={flow} accent={accent} />
+          <PassMoment flow={flow} accent={accent} />
+          {flow.status === 'perform' && !reduced && (
+            <motion.div
+              aria-hidden
+              data-perform-pulse
+              className="pointer-events-none absolute inset-0 z-20 rounded-[1.25rem] border-2"
+              style={{ borderColor: accent }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 0.9, ease: 'easeOut' }}
             />
-          </div>
-        )}
-        <div className="relative z-10 flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
-          <div className="mx-auto flex min-h-0 w-full max-w-[74rem] flex-1 flex-col gap-3 px-4 pb-3 pt-4 sm:px-8 sm:pt-5">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={screen.id}
-                ref={headingRef}
-                tabIndex={-1}
-                className="flex max-w-[46rem] flex-col gap-2 outline-none"
-                initial={reduced ? false : { opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reduced ? undefined : { opacity: 0 }}
-                transition={{ duration: 0.18 }}
-              >
-                {screen.kind === 'hook' && (
-                  <h1 className="text-[1.75rem] font-bold leading-tight tracking-[-0.01em] text-white">
-                    {screen.title}
-                  </h1>
-                )}
-                <p
-                  className={cn(
-                    'leading-7 text-white/90',
-                    state.index >= practiceFrom
-                      ? 'text-[1.0625rem] font-bold text-white'
-                      : 'text-[1.0625rem]',
-                  )}
-                >
-                  <Rich text={screen.body} />
-                </p>
-              </motion.div>
-            </AnimatePresence>
-
-            {screen.kind === 'play' && (
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                {!screen.fromMemory && (
-                  <StageRail flow={flow} accent={accent} />
-                )}
-                {screen.rungs.length > 1 && (
-                  <RungStrip
-                    screen={screen}
-                    rung={rung}
-                    status={status}
-                    disabled={running}
-                    accent={accent}
-                    onPick={onPickRung}
-                  />
-                )}
-              </div>
-            )}
-
-            {screen.kind === 'choose' && (
-              <div className="flex max-w-[46rem] flex-col gap-3">
-                <p className="text-[1.0625rem] font-bold leading-7 text-white">
-                  <Rich text={screen.question} />
-                </p>
-                <ChoiceList
-                  choices={screen.choices}
-                  picked={state.picked}
-                  eliminated={state.eliminated}
-                  phase={state.phase}
-                  correct={screen.correct}
-                  onPick={(id) => dispatch({ type: 'pick', id })}
-                />
-              </div>
-            )}
-
-            {screen.kind === 'pick' && (
-              <div className="flex max-w-[46rem] flex-col gap-3">
-                <p className="text-[1.0625rem] font-bold leading-7 text-white">
-                  <Rich text={screen.question} />
-                </p>
-                <NotePicker
-                  face={screen.face}
-                  tonicPc={screen.tonicPc}
-                  nameOf={screen.nameOf}
-                  picked={picks}
-                  wrong={
-                    state.phase === 'wrong'
-                      ? new Set(
-                          [...picks].filter((pc) => !screen.scale.includes(pc)),
-                        )
-                      : NO_NOTES
-                  }
-                  settled={settled}
-                  disabled={state.phase !== 'acting'}
-                  accent={accent}
-                  onToggle={onTogglePick}
-                />
-              </div>
-            )}
-
-            {screen.kind === 'takeaway' && (
-              <div className="max-w-[46rem]">
-                <TakeawayCard
-                  accent={accent}
-                  points={screen.points}
-                  inSession={screen.inSession}
-                  limits={screen.limits}
-                  next={screen.next}
-                />
-              </div>
-            )}
-
-            {/* Kept mounted on every screen: the engine measures it. */}
-            <div
-              data-guided-stage
-              className={cn(
-                'min-h-0 min-w-0 flex-1 flex-col gap-3',
-                stageShown ? 'flex' : 'hidden',
-              )}
-            >
-              {stage}
-            </div>
-            {showsOverview && overview && (
-              <div data-guided-overview className="min-w-0">
-                {overview}
-              </div>
-            )}
-
-            {screen.caption && (
-              <p className="text-[0.8125rem] leading-5 text-white/55">
-                <Rich text={screen.caption} />
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* The foot: what they did, then the keys, then what's next. */}
-        <div
-          data-guitar-bar={bar.state}
-          className="relative z-10 flex shrink-0 flex-col gap-2 pb-4 pt-1 sm:pb-5"
-        >
-          <div hidden={!stageShown}>
-            <KeyboardSlot />
-          </div>
-          <div className="mx-auto flex w-full max-w-[74rem] flex-col gap-2 px-4 sm:px-8">
-            {feedback && (
-              <FeedbackBubble
-                phase={state.phase}
-                text={feedback}
+          )}
+          {state.view === 'skillIntro' && (
+            <div className="absolute inset-0 z-30 flex bg-[#101012]">
+              <SkillIntro
+                accent={accent}
                 reduced={reduced}
-                aside={takeNumbers}
+                onDone={() => dispatch({ type: 'startPractice' })}
               />
-            )}
-            <div
-              className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
-              data-guided-foot
-            >
-              {/* A take's words, its tempo, and its buttons. */}
-              {needsTry ? (
-                <>
-                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
-                    {zones.lead && (
-                      <div data-bar-lead className="min-w-0">
-                        {zones.lead}
-                      </div>
+            </div>
+          )}
+          <div className="relative z-10 flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
+            <div className="mx-auto flex min-h-0 w-full max-w-[74rem] flex-1 flex-col gap-3 px-4 pb-3 pt-4 sm:px-8 sm:pt-5">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={screen.id}
+                  ref={headingRef}
+                  tabIndex={-1}
+                  className="flex max-w-[46rem] flex-col gap-2 outline-none"
+                  initial={reduced ? false : { opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduced ? undefined : { opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  {screen.kind === 'hook' && (
+                    <h1 className="text-[1.75rem] font-bold leading-tight tracking-[-0.01em] text-white">
+                      {screen.title}
+                    </h1>
+                  )}
+                  <p
+                    className={cn(
+                      'leading-7 text-white/90',
+                      state.index >= practiceFrom
+                        ? 'text-[1.0625rem] font-bold text-white'
+                        : 'text-[1.0625rem]',
                     )}
-                    {zones.meta && (
-                      <div
-                        data-bar-meta
-                        className="flex shrink-0 items-center gap-2"
-                      >
-                        {zones.meta}
-                      </div>
-                    )}
-                    {zones.corner}
-                  </div>
-                  <div
-                    data-bar-actions
-                    className="flex shrink-0 flex-wrap items-center justify-end gap-2 [&_button]:h-11 [&_button]:px-5 [&_button]:text-[0.9375rem] max-sm:w-full max-sm:[&_button]:flex-1"
                   >
-                    {zones.actions}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex min-w-0 items-center gap-3">
-                    {screen.kind === 'hook' && screen.hear && (
-                      <button
-                        type="button"
-                        aria-pressed={bar.run.demo.playing}
-                        onClick={
-                          bar.run.demo.playing
-                            ? flow.run.demo.stop
-                            : flow.run.demo.play
-                        }
-                        className={cn(
-                          OUTLINE_PILL,
-                          'h-11 px-5 text-[0.9375rem]',
-                        )}
-                      >
-                        <Play aria-hidden />
-                        {bar.run.demo.playing ? 'Stop' : 'Hear it'}
-                      </button>
-                    )}
-                    {screen.kind === 'takeaway' && binding.practiceTrack && (
-                      <button
-                        type="button"
-                        onClick={binding.practiceTrack}
-                        className={cn(
-                          OUTLINE_PILL,
-                          'h-11 px-5 text-[0.9375rem]',
-                        )}
-                      >
-                        Open a Practice Track
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex min-w-0 shrink-0 flex-wrap justify-end gap-2 max-sm:flex-1">
-                    {state.phase === 'acting' && screen.kind === 'pick' ? (
-                      <button
-                        ref={primaryRef}
-                        type="button"
-                        disabled={picks.size <= 1}
-                        className={cn(
-                          WHITE_PILL_LG,
-                          'min-w-44 max-sm:flex-1 disabled:opacity-35',
-                        )}
-                        onClick={onCheckPicks}
-                      >
-                        Check
-                      </button>
-                    ) : state.phase === 'acting' && screen.kind === 'choose' ? (
-                      <button
-                        ref={primaryRef}
-                        type="button"
-                        disabled={!state.picked}
-                        className={cn(
-                          WHITE_PILL_LG,
-                          'min-w-44 max-sm:flex-1 disabled:opacity-35',
-                        )}
-                        onClick={onCheckChoice}
-                      >
-                        Check
-                      </button>
-                    ) : state.phase === 'wrong' ? (
-                      <>
-                        {screen.kind === 'choose' || screen.kind === 'pick' ? (
-                          <button
-                            type="button"
-                            className={cn(
-                              OUTLINE_PILL,
-                              'h-11 px-5 text-[0.9375rem]',
-                            )}
-                            onClick={onSeeAnswer}
-                          >
-                            See answer
-                          </button>
-                        ) : (
-                          <>
-                            {verdict?.fault === 'unclear' &&
-                              binding.troubleshoot && (
+                    <Rich text={screen.body} />
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+
+              {screen.kind === 'play' && (
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                  {!screen.fromMemory && (
+                    <StageRail flow={flow} accent={accent} />
+                  )}
+                  {screen.rungs.length > 1 && (
+                    <RungStrip
+                      screen={screen}
+                      rung={rung}
+                      status={status}
+                      disabled={running}
+                      accent={accent}
+                      onPick={onPickRung}
+                    />
+                  )}
+                </div>
+              )}
+
+              {screen.kind === 'choose' && (
+                <div className="flex max-w-[46rem] flex-col gap-3">
+                  <p className="text-[1.0625rem] font-bold leading-7 text-white">
+                    <Rich text={screen.question} />
+                  </p>
+                  <ChoiceList
+                    choices={screen.choices}
+                    picked={state.picked}
+                    eliminated={state.eliminated}
+                    phase={state.phase}
+                    correct={screen.correct}
+                    onPick={(id) => dispatch({ type: 'pick', id })}
+                  />
+                </div>
+              )}
+
+              {screen.kind === 'pick' && (
+                <div className="flex max-w-[46rem] flex-col gap-3">
+                  <p className="text-[1.0625rem] font-bold leading-7 text-white">
+                    <Rich text={screen.question} />
+                  </p>
+                  <NotePicker
+                    face={screen.face}
+                    tonicPc={screen.tonicPc}
+                    nameOf={screen.nameOf}
+                    picked={picks}
+                    wrong={
+                      state.phase === 'wrong'
+                        ? new Set(
+                            [...picks].filter(
+                              (pc) => !screen.scale.includes(pc),
+                            ),
+                          )
+                        : NO_NOTES
+                    }
+                    settled={settled}
+                    disabled={state.phase !== 'acting'}
+                    accent={accent}
+                    onToggle={onTogglePick}
+                  />
+                </div>
+              )}
+
+              {screen.kind === 'takeaway' && (
+                <div className="max-w-[46rem]">
+                  <TakeawayCard
+                    accent={accent}
+                    points={screen.points}
+                    inSession={screen.inSession}
+                    limits={screen.limits}
+                    next={screen.next}
+                  />
+                </div>
+              )}
+
+              {/* Kept mounted on every screen: the engine measures it. */}
+              <div
+                data-guided-stage
+                className={cn(
+                  'min-h-0 min-w-0 flex-1 flex-col gap-3',
+                  stageShown ? 'flex' : 'hidden',
+                )}
+              >
+                {stage}
+              </div>
+              {showsOverview && overview && (
+                <div data-guided-overview className="min-w-0">
+                  {overview}
+                </div>
+              )}
+
+              {screen.caption && (
+                <p className="text-[0.8125rem] leading-5 text-white/55">
+                  <Rich text={screen.caption} />
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* The foot: what they did, then the keys, then what's next. */}
+          <div
+            data-guitar-bar={bar.state}
+            className="relative z-10 flex shrink-0 flex-col gap-2 pb-4 pt-1 sm:pb-5"
+          >
+            <div hidden={!stageShown}>
+              <KeyboardSlot />
+            </div>
+            <div className="mx-auto flex w-full max-w-[74rem] flex-col gap-2 px-4 sm:px-8">
+              {feedback && (
+                <FeedbackBubble
+                  phase={state.phase}
+                  text={feedback}
+                  reduced={reduced}
+                  aside={takeNumbers}
+                />
+              )}
+              <div
+                className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
+                data-guided-foot
+              >
+                {/* A take's words, its tempo, and its buttons. */}
+                {needsTry ? (
+                  <>
+                    <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
+                      {zones.lead && (
+                        <div data-bar-lead className="min-w-0">
+                          {zones.lead}
+                        </div>
+                      )}
+                      {zones.meta && (
+                        <div
+                          data-bar-meta
+                          className="flex shrink-0 items-center gap-2"
+                        >
+                          {zones.meta}
+                        </div>
+                      )}
+                      {zones.corner}
+                    </div>
+                    <div
+                      data-bar-actions
+                      className="flex shrink-0 flex-wrap items-center justify-end gap-2 [&_button]:h-11 [&_button]:px-5 [&_button]:text-[0.9375rem] max-sm:w-full max-sm:[&_button]:flex-1"
+                    >
+                      {zones.actions}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex min-w-0 items-center gap-3">
+                      {screen.kind === 'hook' && screen.hear && (
+                        <button
+                          type="button"
+                          aria-pressed={bar.run.demo.playing}
+                          onClick={
+                            bar.run.demo.playing
+                              ? flow.run.demo.stop
+                              : flow.run.demo.play
+                          }
+                          className={cn(
+                            OUTLINE_PILL,
+                            'h-11 px-5 text-[0.9375rem]',
+                          )}
+                        >
+                          <Play aria-hidden />
+                          {bar.run.demo.playing ? 'Stop' : 'Hear it'}
+                        </button>
+                      )}
+                      {screen.kind === 'takeaway' && binding.practiceTrack && (
+                        <button
+                          type="button"
+                          onClick={binding.practiceTrack}
+                          className={cn(
+                            OUTLINE_PILL,
+                            'h-11 px-5 text-[0.9375rem]',
+                          )}
+                        >
+                          Open a Practice Track
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex min-w-0 shrink-0 flex-wrap justify-end gap-2 max-sm:flex-1">
+                      {state.phase === 'acting' && screen.kind === 'pick' ? (
+                        <button
+                          ref={primaryRef}
+                          type="button"
+                          disabled={picks.size <= 1}
+                          className={cn(
+                            WHITE_PILL_LG,
+                            'min-w-44 max-sm:flex-1 disabled:opacity-35',
+                          )}
+                          onClick={onCheckPicks}
+                        >
+                          Check
+                        </button>
+                      ) : state.phase === 'acting' &&
+                        screen.kind === 'choose' ? (
+                        <button
+                          ref={primaryRef}
+                          type="button"
+                          disabled={!state.picked}
+                          className={cn(
+                            WHITE_PILL_LG,
+                            'min-w-44 max-sm:flex-1 disabled:opacity-35',
+                          )}
+                          onClick={onCheckChoice}
+                        >
+                          Check
+                        </button>
+                      ) : state.phase === 'wrong' ? (
+                        <>
+                          {screen.kind === 'choose' ||
+                          screen.kind === 'pick' ? (
+                            <button
+                              type="button"
+                              className={cn(
+                                OUTLINE_PILL,
+                                'h-11 px-5 text-[0.9375rem]',
+                              )}
+                              onClick={onSeeAnswer}
+                            >
+                              See answer
+                            </button>
+                          ) : (
+                            <>
+                              {verdict?.fault === 'unclear' &&
+                                binding.troubleshoot && (
+                                  <button
+                                    type="button"
+                                    className={cn(
+                                      OUTLINE_PILL,
+                                      'h-11 px-5 text-[0.9375rem]',
+                                    )}
+                                    onClick={() => setCheckOpen(true)}
+                                  >
+                                    What to check
+                                  </button>
+                                )}
+                              {binding.suggestion && (
                                 <button
                                   type="button"
                                   className={cn(
                                     OUTLINE_PILL,
                                     'h-11 px-5 text-[0.9375rem]',
                                   )}
-                                  onClick={() => setCheckOpen(true)}
+                                  onClick={() => {
+                                    dispatch({ type: 'tryAgain' });
+                                    binding.suggestion?.start();
+                                  }}
                                 >
-                                  What to check
+                                  {binding.suggestion.label}
                                 </button>
                               )}
-                            {binding.suggestion && (
+                              {binding.countItMyself && (
+                                <button
+                                  type="button"
+                                  className={cn(
+                                    OUTLINE_PILL,
+                                    'h-11 px-5 text-[0.9375rem]',
+                                  )}
+                                  onClick={binding.countItMyself}
+                                >
+                                  Count it myself
+                                </button>
+                              )}
+                              {state.attempts >= 2 &&
+                                !binding.countItMyself && (
+                                  <button
+                                    type="button"
+                                    data-skip-take
+                                    className={cn(
+                                      OUTLINE_PILL,
+                                      'h-11 px-5 text-[0.9375rem]',
+                                    )}
+                                    onClick={onSkip}
+                                  >
+                                    Skip for now
+                                  </button>
+                                )}
                               <button
                                 type="button"
                                 className={cn(
@@ -995,110 +1099,72 @@ export function GuidedPlayer({
                                   'h-11 px-5 text-[0.9375rem]',
                                 )}
                                 onClick={() => {
-                                  dispatch({ type: 'tryAgain' });
-                                  binding.suggestion?.start();
+                                  resetTake();
+                                  flow.takeOver();
+                                  bar.run.demo.play();
                                 }}
                               >
-                                {binding.suggestion.label}
+                                Hear it
                               </button>
-                            )}
-                            {binding.countItMyself && (
-                              <button
-                                type="button"
-                                className={cn(
-                                  OUTLINE_PILL,
-                                  'h-11 px-5 text-[0.9375rem]',
-                                )}
-                                onClick={binding.countItMyself}
-                              >
-                                Count it myself
-                              </button>
-                            )}
-                            {state.attempts >= 2 && !binding.countItMyself && (
-                              <button
-                                type="button"
-                                data-skip-take
-                                className={cn(
-                                  OUTLINE_PILL,
-                                  'h-11 px-5 text-[0.9375rem]',
-                                )}
-                                onClick={onSkip}
-                              >
-                                Skip for now
-                              </button>
-                            )}
+                            </>
+                          )}
+                          <button
+                            ref={primaryRef}
+                            type="button"
+                            className={cn(WHITE_PILL_LG, 'max-sm:flex-1')}
+                            onClick={onTryAgain}
+                          >
+                            Try again
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {isCheckedScreen(screen) && settled && (
                             <button
                               type="button"
                               className={cn(
                                 OUTLINE_PILL,
                                 'h-11 px-5 text-[0.9375rem]',
                               )}
-                              onClick={() => {
-                                resetTake();
-                                flow.takeOver();
-                                bar.run.demo.play();
-                              }}
+                              onClick={() => setWhyOpen(true)}
                             >
-                              Hear it
+                              Why?
                             </button>
-                          </>
-                        )}
-                        <button
-                          ref={primaryRef}
-                          type="button"
-                          className={cn(WHITE_PILL_LG, 'max-sm:flex-1')}
-                          onClick={onTryAgain}
-                        >
-                          Try again
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        {isCheckedScreen(screen) && settled && (
+                          )}
                           <button
+                            ref={primaryRef}
                             type="button"
                             className={cn(
-                              OUTLINE_PILL,
-                              'h-11 px-5 text-[0.9375rem]',
+                              WHITE_PILL_LG,
+                              'min-w-36 max-sm:flex-1',
                             )}
-                            onClick={() => setWhyOpen(true)}
+                            onClick={onContinue}
                           >
-                            Why?
+                            {moreParts ? `Next: ${moreParts}` : 'Continue'}
                           </button>
-                        )}
-                        <button
-                          ref={primaryRef}
-                          type="button"
-                          className={cn(
-                            WHITE_PILL_LG,
-                            'min-w-36 max-sm:flex-1',
-                          )}
-                          onClick={onContinue}
-                        >
-                          {moreParts ? `Next: ${moreParts}` : 'Continue'}
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </>
-              )}
+                        </>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </VerdictFrame>
-      <WhyDialog
-        why={isCheckedScreen(screen) ? screen.why : null}
-        open={whyOpen}
-        onOpenChange={setWhyOpen}
-      />
-      <Dialog open={checkOpen} onOpenChange={setCheckOpen}>
-        <DialogContent className="max-h-[85dvh] max-w-[34rem] overflow-y-auto rounded-2xl border-white/10 bg-[#1b1b1f] p-7 text-white">
-          <DialogTitle className="text-lg font-bold text-white">
-            What to check
-          </DialogTitle>
-          {binding.troubleshoot}
-        </DialogContent>
-      </Dialog>
-    </div>
+        </VerdictFrame>
+        <WhyDialog
+          why={isCheckedScreen(screen) ? screen.why : null}
+          open={whyOpen}
+          onOpenChange={setWhyOpen}
+        />
+        <Dialog open={checkOpen} onOpenChange={setCheckOpen}>
+          <DialogContent className="max-h-[85dvh] max-w-[34rem] overflow-y-auto rounded-2xl border-white/10 bg-[#1b1b1f] p-7 text-white">
+            <DialogTitle className="text-lg font-bold text-white">
+              What to check
+            </DialogTitle>
+            {binding.troubleshoot}
+          </DialogContent>
+        </Dialog>
+      </div>
+    </>
   );
 }

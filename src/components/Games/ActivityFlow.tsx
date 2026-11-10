@@ -1,4 +1,7 @@
 /* eslint-disable import/order, no-duplicate-imports, react-hooks/exhaustive-deps, react-hooks/rules-of-hooks, sonarjs/no-collapsible-if, react/jsx-sort-props, tailwindcss/classnames-order */
+import { createPortal } from 'react-dom';
+import { ClassFollowBar } from '@/features/classroom/follow/ClassFollowBar';
+import { useStepFollow } from '@/features/classroom/follow/useStepFollow';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { familyOfMode } from '@/features/learn/paths/theoryFamilies';
 import { theoryBackRoute } from '@/features/learn/paths/theoryPath';
@@ -1003,6 +1006,29 @@ export const ActivityFlow = ({
     [flowDefinitions],
   );
 
+  // ── The class does the lesson together (owner, 2026-11-10) ───────────────
+  // Opened from a Group Project slide to follow the teacher, the lesson keeps
+  // the class's step: one place in its activities, the same on every screen.
+  const classFollow = useStepFollow({
+    position: currentIndex,
+    total: flowDefinitions.length,
+    ...(currentActivity
+      ? {
+          title: `${SECTION_LABELS[currentActivity.section] ?? ''} · ${currentActivity.label}`,
+        }
+      : {}),
+    goTo: (index) => {
+      const activity = flowDefinitions[index];
+      if (!activity) return;
+      setCurrentSectionId(activity.section);
+      goToStepInSection(activity);
+    },
+    active: flowDefinitions.length > 0,
+  });
+  // Read by the advance below, without re-creating it every render.
+  const classFollowRef = useRef(classFollow);
+  classFollowRef.current = classFollow;
+
   useEffect(() => {
     setCurrentIndex(0);
     setActivityInstanceId(0);
@@ -1349,6 +1375,11 @@ export const ActivityFlow = ({
           lessonVersion,
           currentActivityInstanceId: null,
         });
+      }
+      // With the class: at its step, tell the teacher and wait for them.
+      if (classFollowRef.current.holding) {
+        classFollowRef.current.finishStep();
+        return;
       }
       setCurrentIndex((idx) => {
         const nextIdx = idx + 1;
@@ -2661,142 +2692,160 @@ export const ActivityFlow = ({
   ) as typeof GuidedTheoryLayout;
 
   return (
-    <TheoryLayout
-      guided={guided as GuidedBinding}
-      header={{
-        crumbs: [
-          {
-            label: familyOfMode(modeLabel)?.title ?? 'Theory',
-            onClick: () =>
-              navigate(theoryBackRoute('piano', modeLabel, rootKey)),
-          },
-          {
-            label: modeTitle,
-            onClick: () =>
-              navigate(theoryBackRoute('piano', modeLabel, rootKey)),
-          },
-        ],
-        keyLabel: `${rootKey} ${modeTitle}`,
-        keyColor: activityColor,
-        subsection: SECTION_LABELS[currentSectionId] ?? '',
-        // The Overview's tab ("Overview: Scale"), else the step's name.
-        activity: isOverview
-          ? OVERVIEW_TAB_LABELS[overviewTab]
-          : stepTitle(currentActivity.label),
-        chordNames:
-          !isOverview && (currentActivity.chordSymbols?.length ?? 0) > 0,
-      }}
-      nav={{
-        sections: sectionIds.map((sId) => {
-          const defs = flowDefinitions.filter((d) => d.section === sId);
-          return {
-            // Theory's sections are O / A / B; the nav only shows the name.
-            id: sId as unknown as ActivitySectionId,
-            name: SECTION_LABELS[sId] ?? sId,
-            active: sId === currentSectionId,
-            done: defs.length > 0 && defs.every(isDone),
-          };
-        }),
-        onSection: (id) => goToSection(id as unknown as SectionId),
-        outline,
-        steps: navSteps,
-        index: Math.max(0, currentStepInSection),
-        goToStep: (i) => {
-          const activity = sectionActivities[i];
-          if (activity) goToStepInSection(activity);
-        },
-        // The Overview's Practice Track is one of its tabs.
-        // Every section's Practice Track is the last of its tabs, and the
-        // tabs page the steps: no pager.
-        practiceTrack: null,
-        pager: false,
-        // Roll / Notation / Falling and the hands, on the tool rail, on every
-        // step, the Overview's too (owner, 2026-10-26).
-        noteViews: { hands: true },
-      }}
-      subNav={overviewTabs ?? sectionTabs}
-      content={
-        <Component
-          key={`${currentActivity.key}-${activityInstanceId}`}
-          bare
-          previewNotes={hintsOff ? undefined : previewNotes}
-          fingering={fingering}
-          activityColor={activityColor}
-          events={events}
-          isActive={activityState === 'active'}
-          onContinue={handleContinue}
-          onActivityCompleteChange={handleActivityCompleteChange}
-          onRunGraded={handleRunGraded}
-          showTargetKeys={attemptMode === 'practice' && !hintsOff}
-          playTargetNotes={attemptMode === 'practice'}
-          chordSymbols={currentActivity.chordSymbols}
-          startSignal={startSignal}
-          startMessage={direction}
-          noteSpelling={pcSpellingMap}
-        />
-      }
-      panel={panel}
-      bar={{
-        state: barState,
-        run: {
-          state:
-            barState === 'practice' || barState === 'performance'
-              ? barState
-              : 'preview',
-          restartingPass: false,
-          instruction: direction,
-          listen: {
-            mode: isPlayAlongStep ? 'keepTime' : 'waitForMe',
-            passMarkPct: isPlayAlongStep ? passMarkPct : 100,
-          },
-          loading: false,
-          demo: {
-            playing: isPlayingDemo,
-            play:
-              activityState === 'pending'
-                ? () => void playDemo()
-                : handleReplayDemo,
-            stop: stopDemo,
-          },
-          practise: () => handleStartAttempt('practice'),
-          playNow: () =>
-            activityState === 'pending'
-              ? handleStartAttempt('graded')
-              : beginFreshAttempt('graded'),
-          back: handleRestartActivity,
-          stopTake: handleRestartActivity,
-          hint: null,
-          lastPractice,
-          lastTake,
-        },
-        tempo: isPlayAlongStep
-          ? {
-              bpm: effectiveBpm,
-              onChange: (bpm: number) => setTempoBpm(bpm),
-              effectiveBpm,
+    <>
+      {classFollow.following &&
+        createPortal(
+          <ClassFollowBar
+            leading={classFollow.leading}
+            step={
+              classFollow.leading
+                ? currentIndex
+                : (classFollow.classStep ?? currentIndex)
             }
-          : null,
-        practice: { presets: [] },
-        result: null,
-        offer,
-        custom: barCustom,
-      }}
-      about={{
-        activity: isOverview ? 'Overview' : stepTitle(currentActivity.label),
-        instruction: direction,
-        chords: (currentActivity.chordSymbols ?? []).map((c) => c.text),
-        key: describeKey(rootKey, mode as string),
-      }}
-      audio={{
-        outputLatencyMs,
-        openAudioTiming: () => navigate(`${SettingsRoutes.root()}/audio`),
-      }}
-      announcement={announcement}
-      pass={{
-        advance: handleContinue,
-        score: result && /^\d+%$/.test(result.heading) ? result.heading : null,
-        detail: payoff?.headline,
-      }}
-    />
+            total={flowDefinitions.length}
+            waiting={classFollow.waiting}
+            doneCount={classFollow.doneCount}
+          />,
+          document.body,
+        )}
+      <TheoryLayout
+        guided={guided as GuidedBinding}
+        header={{
+          crumbs: [
+            {
+              label: familyOfMode(modeLabel)?.title ?? 'Theory',
+              onClick: () =>
+                navigate(theoryBackRoute('piano', modeLabel, rootKey)),
+            },
+            {
+              label: modeTitle,
+              onClick: () =>
+                navigate(theoryBackRoute('piano', modeLabel, rootKey)),
+            },
+          ],
+          keyLabel: `${rootKey} ${modeTitle}`,
+          keyColor: activityColor,
+          subsection: SECTION_LABELS[currentSectionId] ?? '',
+          // The Overview's tab ("Overview: Scale"), else the step's name.
+          activity: isOverview
+            ? OVERVIEW_TAB_LABELS[overviewTab]
+            : stepTitle(currentActivity.label),
+          chordNames:
+            !isOverview && (currentActivity.chordSymbols?.length ?? 0) > 0,
+        }}
+        nav={{
+          sections: sectionIds.map((sId) => {
+            const defs = flowDefinitions.filter((d) => d.section === sId);
+            return {
+              // Theory's sections are O / A / B; the nav only shows the name.
+              id: sId as unknown as ActivitySectionId,
+              name: SECTION_LABELS[sId] ?? sId,
+              active: sId === currentSectionId,
+              done: defs.length > 0 && defs.every(isDone),
+            };
+          }),
+          onSection: (id) => goToSection(id as unknown as SectionId),
+          outline,
+          steps: navSteps,
+          index: Math.max(0, currentStepInSection),
+          goToStep: (i) => {
+            const activity = sectionActivities[i];
+            if (activity) goToStepInSection(activity);
+          },
+          // The Overview's Practice Track is one of its tabs.
+          // Every section's Practice Track is the last of its tabs, and the
+          // tabs page the steps: no pager.
+          practiceTrack: null,
+          pager: false,
+          // Roll / Notation / Falling and the hands, on the tool rail, on every
+          // step, the Overview's too (owner, 2026-10-26).
+          noteViews: { hands: true },
+        }}
+        subNav={overviewTabs ?? sectionTabs}
+        content={
+          <Component
+            key={`${currentActivity.key}-${activityInstanceId}`}
+            bare
+            previewNotes={hintsOff ? undefined : previewNotes}
+            fingering={fingering}
+            activityColor={activityColor}
+            events={events}
+            isActive={activityState === 'active'}
+            onContinue={handleContinue}
+            onActivityCompleteChange={handleActivityCompleteChange}
+            onRunGraded={handleRunGraded}
+            showTargetKeys={attemptMode === 'practice' && !hintsOff}
+            playTargetNotes={attemptMode === 'practice'}
+            chordSymbols={currentActivity.chordSymbols}
+            startSignal={startSignal}
+            startMessage={direction}
+            noteSpelling={pcSpellingMap}
+          />
+        }
+        panel={panel}
+        bar={{
+          state: barState,
+          run: {
+            state:
+              barState === 'practice' || barState === 'performance'
+                ? barState
+                : 'preview',
+            restartingPass: false,
+            instruction: direction,
+            listen: {
+              mode: isPlayAlongStep ? 'keepTime' : 'waitForMe',
+              passMarkPct: isPlayAlongStep ? passMarkPct : 100,
+            },
+            loading: false,
+            demo: {
+              playing: isPlayingDemo,
+              play:
+                activityState === 'pending'
+                  ? () => void playDemo()
+                  : handleReplayDemo,
+              stop: stopDemo,
+            },
+            practise: () => handleStartAttempt('practice'),
+            playNow: () =>
+              activityState === 'pending'
+                ? handleStartAttempt('graded')
+                : beginFreshAttempt('graded'),
+            back: handleRestartActivity,
+            stopTake: handleRestartActivity,
+            hint: null,
+            lastPractice,
+            lastTake,
+          },
+          tempo: isPlayAlongStep
+            ? {
+                bpm: effectiveBpm,
+                onChange: (bpm: number) => setTempoBpm(bpm),
+                effectiveBpm,
+              }
+            : null,
+          practice: { presets: [] },
+          result: null,
+          offer,
+          custom: barCustom,
+        }}
+        about={{
+          activity: isOverview ? 'Overview' : stepTitle(currentActivity.label),
+          instruction: direction,
+          chords: (currentActivity.chordSymbols ?? []).map((c) => c.text),
+          key: describeKey(rootKey, mode as string),
+        }}
+        audio={{
+          outputLatencyMs,
+          openAudioTiming: () => navigate(`${SettingsRoutes.root()}/audio`),
+        }}
+        announcement={announcement}
+        pass={{
+          advance: handleContinue,
+          score:
+            result && /^\d+%$/.test(result.heading) ? result.heading : null,
+          detail: payoff?.headline,
+        }}
+      />
+    </>
   );
 };

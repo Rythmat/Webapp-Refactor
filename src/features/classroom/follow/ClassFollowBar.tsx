@@ -1,6 +1,6 @@
 /**
- * The strip a lesson done with the class wears at the top of the Studio
- * (owner, 2026-11-10): whose pace it keeps and where the class is. A student
+ * The strip an activity done with the class wears at the top of its page,
+ * the Studio, a Learn lesson or the Globe (owner, 2026-11-10): whose pace it keeps and where the class is. A student
  * sees "Following your teacher · Step 4 of 12", then "Done. Wait for your
  * teacher." once the class's step is finished; the teacher, leading, sees
  * how many have finished it.
@@ -8,12 +8,16 @@
 import { Users } from 'lucide-react';
 
 export function ClassFollowBar({
+  placement = 'top',
   leading,
   step,
   total,
   waiting,
   doneCount,
 }: {
+  /** Top of the page (the Studio), or its foot where a lesson keeps its
+   *  progress along the top. */
+  placement?: 'top' | 'bottom';
   leading: boolean;
   step: number;
   total: number;
@@ -27,7 +31,7 @@ export function ClassFollowBar({
       aria-live="polite"
       data-class-follow=""
       style={{ pointerEvents: 'auto' }}
-      className="fixed left-1/2 top-3 z-[1] flex -translate-x-1/2 items-center gap-2 rounded-full border border-daw-edge bg-daw-pill px-4 py-1.5 text-[0.8125rem] text-daw-text shadow-lg"
+      className={`fixed left-1/2 ${placement === 'top' ? 'top-3' : 'bottom-4'} z-[60] flex -translate-x-1/2 items-center gap-2 rounded-full border border-daw-edge bg-daw-pill px-4 py-1.5 text-[0.8125rem] text-daw-text shadow-lg`}
     >
       <Users aria-hidden className="size-4 text-daw-text-3" />
       <span className="font-bold">

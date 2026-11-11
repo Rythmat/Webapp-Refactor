@@ -8,14 +8,9 @@ import {
   it,
   vi,
 } from 'vitest';
-import {
-  CHORD_RHYTHMS,
-  InstrumentChannel,
-  generateChordMidi,
-  type MidiNoteEvent,
-} from '@prism/engine';
-import type { MidiWorkerRequest } from '@/daw/workers/midiWorker';
+import type { MidiNoteEvent } from '@prism/engine';
 import { identityIsCurrent } from '@/daw/harmony/chordIdentity';
+import { PrismGenerateError } from '@/lib/studio-prism/api';
 import { useStore, type AllSlices } from '../index';
 import {
   nextChordId,
@@ -29,57 +24,31 @@ import {
   resetUndoHistory,
   undo,
 } from '../undoMiddleware';
+import {
+  failCreate,
+  finishCreate,
+  pendingCreates,
+  signInForCreate,
+} from './prismServerStandIn';
+
+const { notice } = vi.hoisted(() => ({ notice: vi.fn() }));
+vi.mock('@/daw/shell/notice', () => ({ notice }));
+vi.mock('@/lib/studio-prism/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/studio-prism/api')>()),
+  generatePrismClip: (await import('./prismServerStandIn'))
+    .standInGeneratePrismClip,
+}));
 
 // ── Prism Create and Clear never delete the song ───────────────────────────
 // Create used to clear the selected track and replace the whole chord lane;
 // the builder's Clear wiped the chord lane and the lead-sheet layout. These
-// drive the real store. Node has no Worker, so a stand-in answers the way
-// midiWorker.ts does, but only when a test lets it, so a test can change the
-// project while Create is in flight.
+// drive the real store. Create asks music-atlas-api for its take; a stand-in
+// answers the way the server does, but only when a test lets it
+// (finishCreate), so a test can change the project while Create is in flight.
 
 const BAR = 1920;
 const WRITTEN_END = 4 * BAR; // Create fills bars 1–4
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-
-const inFlight: StandInWorker[] = [];
-
-class StandInWorker {
-  onmessage: ((e: { data: { events: MidiNoteEvent[] } }) => void) | null = null;
-  terminated = false;
-  private request: MidiWorkerRequest | null = null;
-
-  postMessage(request: MidiWorkerRequest) {
-    this.request = request;
-    inFlight.push(this);
-  }
-
-  terminate() {
-    this.terminated = true;
-  }
-
-  reply() {
-    const r = this.request!;
-    const { events } = generateChordMidi({
-      chordSeq: r.chordSeq,
-      stringSeq: r.stringSeq,
-      rhythmPattern: CHORD_RHYTHMS[r.rhythmName] ?? CHORD_RHYTHMS['Quarters'],
-      swing: r.swing,
-      strum: r.strum,
-      strumAmount: r.strumAmount,
-      tilt: r.tilt,
-      tiltAmount: r.tiltAmount,
-      channel: InstrumentChannel.Chords,
-    });
-    this.onmessage?.({ data: { events } });
-  }
-}
-
-/** Let every Create in flight finish; returns the workers it used. */
-function finishCreate(): StandInWorker[] {
-  const workers = inFlight.splice(0);
-  for (const worker of workers) worker.reply();
-  return workers;
-}
 
 const st = () => useStore.getState();
 const trackById = (id: string) => st().tracks.find((t) => t.id === id)!;
@@ -134,19 +103,21 @@ function buildProgression() {
 
 let keys = '';
 let other = '';
+let signOut = () => {};
 
 beforeAll(() => {
-  vi.stubGlobal('Worker', StandInWorker);
+  signOut = signInForCreate();
   initUndoTracking();
 });
 
 afterAll(() => {
-  vi.unstubAllGlobals();
+  signOut();
 });
 
 beforeEach(() => {
   vi.useFakeTimers();
-  inFlight.length = 0;
+  pendingCreates.length = 0;
+  notice.mockClear();
   useStore.setState({
     tracks: [],
     chordRegions: [],
@@ -183,12 +154,12 @@ afterEach(() => {
 });
 
 describe('Create', () => {
-  it("adds its clip and keeps the track's other clips", () => {
+  it("adds its clip and keeps the track's other clips", async () => {
     const before = trackById(keys).midiClips;
     const otherTrack = trackById(other);
 
     st().generateToTracks();
-    const [worker] = finishCreate();
+    await finishCreate();
 
     const clips = trackById(keys).midiClips;
     expect(clips).toHaveLength(3);
@@ -198,12 +169,27 @@ describe('Create', () => {
     expect(clips[2].id).toMatch(UUID);
     expect(clips[2].events.length).toBeGreaterThan(0);
     expect(trackById(other)).toBe(otherTrack);
-    expect(worker.terminated).toBe(true);
   });
 
-  it('replaces chords only across the bars it wrote', () => {
+  it('sends the server what the student chose, signed in', async () => {
+    useStore.setState({ swing: 12, strumAmount: 20, tiltAmount: 8 });
     st().generateToTracks();
-    finishCreate();
+    const [create] = await finishCreate();
+
+    expect(create.token).toBe('test-token');
+    expect(create.prompt).toMatchObject({
+      key: { root: 0, mode: 'ionian' },
+      progression: ['1 major', '4 major', '5 major', '6 minor'],
+      rhythm: 'Whole Notes',
+      swing: 12,
+      strum: { mode: st().strumMode, amount: 20 },
+      tilt: { mode: st().tiltMode, amount: 8 },
+    });
+  });
+
+  it('replaces chords only across the bars it wrote', async () => {
+    st().generateToTracks();
+    await finishCreate();
 
     const lane = st().chordRegions;
     const written = lane.filter((r) => r.startTick < WRITTEN_END);
@@ -233,14 +219,14 @@ describe('Create', () => {
     expect(new Set(lane.map((r) => r.id)).size).toBe(lane.length);
   });
 
-  it('leaves a fresh chord lane every time, so lesson steps see it ran', () => {
+  it('leaves a fresh chord lane every time, so lesson steps see it ran', async () => {
     st().generateToTracks();
-    finishCreate();
+    await finishCreate();
     const first = st().chordRegions;
 
     // Same progression again: the chords come out the same, the array is new.
     st().generateToTracks();
-    finishCreate();
+    await finishCreate();
     const second = st().chordRegions;
 
     expect(second).not.toBe(first);
@@ -250,12 +236,12 @@ describe('Create', () => {
     );
   });
 
-  it('is one undo step that puts the clips and chords back', () => {
+  it('is one undo step that puts the clips and chords back', async () => {
     const clipsBefore = structuredClone(trackById(keys).midiClips);
     const laneBefore = structuredClone(st().chordRegions);
 
     st().generateToTracks();
-    finishCreate();
+    await finishCreate();
     vi.advanceTimersByTime(300);
 
     expect(canUndo()).toBe(true);
@@ -265,35 +251,87 @@ describe('Create', () => {
     expect(canUndo()).toBe(false);
   });
 
-  it('writes nothing when the track is deleted before the worker answers', () => {
+  it('writes nothing when the track is deleted before the server answers', async () => {
     const lane = st().chordRegions;
     st().generateToTracks();
     useStore.setState({ tracks: st().tracks.filter((t) => t.id !== keys) });
-    finishCreate();
+    await finishCreate();
 
     expect(st().chordRegions).toBe(lane);
   });
 
-  it('writes nothing to a track a collaborator has taken meanwhile', () => {
+  it('writes nothing to a track a collaborator has taken meanwhile', async () => {
     const track = trackById(keys);
     const lane = st().chordRegions;
     st().generateToTracks();
     useStore.setState({
       remoteUsers: new Map([['peer', { selectedTrackId: keys }]]),
     } as unknown as Partial<AllSlices>);
-    finishCreate();
+    await finishCreate();
 
     expect(trackById(keys)).toBe(track);
     expect(st().chordRegions).toBe(lane);
   });
 });
 
+describe('Create when the server cannot answer', () => {
+  it('writes nothing and tells the student why', async () => {
+    const clips = trackById(keys).midiClips;
+    const lane = st().chordRegions;
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    st().generateToTracks();
+    await failCreate(new PrismGenerateError('HTTP 503', 'server', 503));
+    warn.mockRestore();
+
+    expect(trackById(keys).midiClips).toBe(clips);
+    expect(st().chordRegions).toBe(lane);
+    expect(notice).toHaveBeenCalledWith({
+      title: "Couldn't create",
+      description: 'The server had a problem. Try again in a moment.',
+      variant: 'destructive',
+    });
+  });
+
+  it('asks nothing while signed out', async () => {
+    const clips = trackById(keys).midiClips;
+    signOut();
+    try {
+      await st().generateToTracks();
+    } finally {
+      signOut = signInForCreate();
+    }
+
+    expect(pendingCreates).toHaveLength(0);
+    expect(trackById(keys).midiClips).toBe(clips);
+    expect(notice).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "Couldn't create" }),
+    );
+  });
+
+  it('keeps the newest take when answers come back out of order', async () => {
+    st().generateToTracks(); // Whole Notes: one hit a bar
+    useStore.setState({ rhythmName: 'Quarters' }); // four a bar
+    st().generateToTracks();
+    const [older, newer] = pendingCreates.splice(0);
+
+    newer.answer();
+    await newer.response;
+    older.answer();
+    await older.response;
+
+    const clips = trackById(keys).midiClips;
+    expect(clips).toHaveLength(3);
+    expect(clips[2].events).toHaveLength(4 * 4 * 3);
+  });
+});
+
 describe('Create names the chords it writes', () => {
-  it('with the chords the student built, in the key', () => {
+  it('with the chords the student built, in the key', async () => {
     st().setRootNote(9);
     st().setMode('aeolian');
     st().generateToTracks();
-    finishCreate();
+    await finishCreate();
     const written = st().chordRegions.filter((r) => r.sourceClipId);
     // I–IV–V–vi of the parent major, in A minor: C, F, G, Am.
     expect(
@@ -315,19 +353,19 @@ describe('Create names the chords it writes', () => {
 
 describe('Create again', () => {
   /** Create once and return the take it wrote. */
-  function firstTake(): MidiClip {
+  async function firstTake(): Promise<MidiClip> {
     st().generateToTracks();
-    finishCreate();
+    await finishCreate();
     return trackById(keys).midiClips[2];
   }
 
-  it('swaps the take it wrote last time for the new one', () => {
+  it('swaps the take it wrote last time for the new one', async () => {
     const [recorded, chorus] = trackById(keys).midiClips;
-    const first = firstTake();
+    const first = await firstTake();
 
     useStore.setState({ rhythmName: 'Quarters' }); // trying a variation
     st().generateToTracks();
-    finishCreate();
+    await finishCreate();
 
     const clips = trackById(keys).midiClips;
     expect(clips).toHaveLength(3);
@@ -358,13 +396,13 @@ describe('Create again', () => {
     ],
     // From the clip menu or ⇧M (milestone 2.12).
     ['muted', (take) => st().updateMidiClip(keys, take.id, { muted: true })],
-  ])('keeps a take the student has %s', (_, touch) => {
-    const first = firstTake();
+  ])('keeps a take the student has %s', async (_, touch) => {
+    const first = await firstTake();
     touch(first);
     const touched = trackById(keys).midiClips[2];
 
     st().generateToTracks();
-    finishCreate();
+    await finishCreate();
 
     const clips = trackById(keys).midiClips;
     expect(clips).toHaveLength(4);
@@ -372,12 +410,12 @@ describe('Create again', () => {
     expect(clips[3]).toMatchObject({ startTick: 0, durationTicks: 7680 });
   });
 
-  it('swaps a take that came back as a copy (collab undo, a reload)', () => {
-    const first = firstTake();
+  it('swaps a take that came back as a copy (collab undo, a reload)', async () => {
+    const first = await firstTake();
     vi.advanceTimersByTime(300);
     useStore.setState({ rhythmName: 'Quarters' });
     st().generateToTracks();
-    finishCreate();
+    await finishCreate();
     vi.advanceTimersByTime(300);
 
     undo();
@@ -389,19 +427,19 @@ describe('Create again', () => {
     expect(restored).toEqual(first);
 
     st().generateToTracks();
-    finishCreate();
+    await finishCreate();
 
     const clips = trackById(keys).midiClips;
     expect(clips).toHaveLength(3);
     expect(clips.map((c) => c.id)).not.toContain(first.id);
   });
 
-  it("leaves another track's take alone", () => {
-    const keysTake = firstTake();
+  it("leaves another track's take alone", async () => {
+    const keysTake = await firstTake();
 
     st().setSelectedTrackId(other);
     st().generateToTracks();
-    finishCreate();
+    await finishCreate();
 
     expect(trackById(keys).midiClips[2]).toBe(keysTake);
     expect(trackById(other).midiClips).toHaveLength(2);
@@ -413,11 +451,11 @@ describe('Create on a locked chord lane', () => {
     st().setChordRecordMode('locked');
   });
 
-  it('keeps every chord already there', () => {
+  it('keeps every chord already there', async () => {
     const lane = st().chordRegions;
 
     st().generateToTracks();
-    finishCreate();
+    await finishCreate();
 
     // Bars 1–4 were full, so nothing new fits. Still a fresh array, so a
     // lesson step waiting on Create sees it ran.
@@ -426,14 +464,14 @@ describe('Create on a locked chord lane', () => {
     expect(trackById(keys).midiClips).toHaveLength(3);
   });
 
-  it('only fills the gaps', () => {
+  it('only fills the gaps', async () => {
     useStore.setState({
       chordRegions: [chord('song-a', 0, 2), chord('song-d', 8, 12)],
     });
     const lane = st().chordRegions;
 
     st().generateToTracks();
-    finishCreate();
+    await finishCreate();
 
     const after = st().chordRegions;
     expect(after[0]).toBe(lane[0]);

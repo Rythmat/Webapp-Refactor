@@ -10,7 +10,7 @@
  *   It hands the same array back while every note has its id: the piano roll
  *   writes on every drag frame, and collab, undo and the engines compare by
  *   reference.
- * - Prism Create's notes, which the worker sends without ids, get them too.
+ * - Prism Create's notes, which the server sends without ids, get them too.
  *
  * Run: npx vitest run src/daw/store/__tests__/noteIdWrites.test.ts
  */
@@ -23,17 +23,18 @@ import {
   it,
   vi,
 } from 'vitest';
-import {
-  CHORD_RHYTHMS,
-  InstrumentChannel,
-  generateChordMidi,
-  type MidiNoteEvent,
-} from '@prism/engine';
+import type { MidiNoteEvent } from '@prism/engine';
 import { splitMidiClipAt } from '@/daw/components/Timeline/splitMidiClipAt';
 import { assertNoteIds, isNoteId, mintNoteId } from '@/daw/model/noteIds';
-import type { MidiWorkerRequest } from '@/daw/workers/midiWorker';
 import { useStore } from '../index';
 import type { MidiClip, Track } from '../tracksSlice';
+import { finishCreate, signInForCreate } from './prismServerStandIn';
+
+vi.mock('@/lib/studio-prism/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/studio-prism/api')>()),
+  generatePrismClip: (await import('./prismServerStandIn'))
+    .standInGeneratePrismClip,
+}));
 
 const s = () => useStore.getState();
 const BAR = 1920;
@@ -251,42 +252,23 @@ describe('an edit to a clip', () => {
 });
 
 // ── Prism Create ───────────────────────────────────────────────────────────
-// Node has no Worker: a stand-in answers the way midiWorker.ts does.
-
-class StandInWorker {
-  onmessage: ((e: { data: { events: MidiNoteEvent[] } }) => void) | null = null;
-
-  postMessage(r: MidiWorkerRequest) {
-    const { events } = generateChordMidi({
-      chordSeq: r.chordSeq,
-      stringSeq: r.stringSeq,
-      rhythmPattern: CHORD_RHYTHMS[r.rhythmName] ?? CHORD_RHYTHMS['Quarters'],
-      swing: r.swing,
-      strum: r.strum,
-      strumAmount: r.strumAmount,
-      tilt: r.tilt,
-      tiltAmount: r.tiltAmount,
-      channel: InstrumentChannel.Chords,
-    });
-    queueMicrotask(() => this.onmessage?.({ data: { events } }));
-  }
-
-  terminate() {}
-}
+// The server's take comes from a stand-in (prismServerStandIn.ts).
 
 describe('Prism Create', () => {
+  let signOut = () => {};
   beforeAll(() => {
-    vi.stubGlobal('Worker', StandInWorker);
+    signOut = signInForCreate();
   });
   afterAll(() => {
-    vi.unstubAllGlobals();
+    signOut();
   });
 
   it('gives every note of its take an id', async () => {
     s().setSelectedTrackId(keys);
     for (const name of ['1 major', '4 major', '5 major']) s().addChord(name);
     s().generateToTracks();
-    await vi.waitFor(() => expect(trackById(keys).midiClips).toHaveLength(1));
+    await finishCreate();
+    expect(trackById(keys).midiClips).toHaveLength(1);
 
     const take = trackById(keys).midiClips[0];
     expect(take.events.length).toBeGreaterThan(0);

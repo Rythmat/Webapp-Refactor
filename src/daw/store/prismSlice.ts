@@ -34,6 +34,12 @@ import {
   type TimeSignature,
 } from '@/daw/time/timeModel';
 import { notice } from '@/daw/shell/notice';
+import { getSessionDeps } from '@/daw/session/sessionDeps';
+import {
+  generatePrismClip,
+  PrismGenerateError,
+  type PrismGenerateFailure,
+} from '@/lib/studio-prism/api';
 import { noteNameToPitchClass } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import {
   StrumMode,
@@ -180,7 +186,8 @@ export interface PrismSlice {
   clearSequence: () => void;
 
   // Actions — generation
-  generateToTracks: () => void;
+  /** Prism Create: settles once the take is written, or Create gave up. */
+  generateToTracks: () => Promise<void>;
 
   // Actions — track selection
   setSelectedTrackId: (id: string | null) => void;
@@ -906,6 +913,30 @@ function untouchedPrismTake(
     }
   }
   return undefined;
+}
+
+/**
+ * The newest Create asked. A Create whose answer comes back after a newer one
+ * was asked writes nothing, so answers arriving out of order never leave the
+ * older take on the track.
+ */
+let latestCreate = 0;
+
+/** What a failed Create tells the student: plain words, no codes. */
+const CREATE_FAILED: Readonly<Record<PrismGenerateFailure, string>> = {
+  'signed-out': "You're signed out. Sign in and try again.",
+  offline: "Couldn't reach Music Atlas. Check your connection and try again.",
+  timeout: 'Music Atlas took too long to answer. Try again.',
+  rejected: "Prism couldn't make a take from these chords and settings.",
+  server: 'The server had a problem. Try again in a moment.',
+};
+
+function createFailed(kind: PrismGenerateFailure): void {
+  notice({
+    title: "Couldn't create",
+    description: CREATE_FAILED[kind],
+    variant: 'destructive',
+  });
 }
 
 // ── Phase 9: Chord confidence scoring ────────────────────────────────────
@@ -1726,11 +1757,12 @@ export const createPrismSlice: StateCreator<
       availableNextChords: [],
     }),
 
-  // ── Actions — generation (offloaded to Web Worker) ──
+  // ── Actions — generation (music-atlas-api writes the take) ──
 
-  generateToTracks: () => {
+  generateToTracks: async () => {
     const state = get();
-    if (state.chordSeq.length === 0) return;
+    // The server voices the chords from their names.
+    if (state.stringSeq.length === 0) return;
 
     // Must have a selected MIDI track
     const track = state.tracks.find((t) => t.id === state.selectedTrackId);
@@ -1739,95 +1771,106 @@ export const createPrismSlice: StateCreator<
     const trackId = track.id;
     const rootMidi = (state.rootNote ?? 0) + 48;
 
-    const worker = new Worker(
-      new URL('../workers/midiWorker.ts', import.meta.url),
-      { type: 'module' },
-    );
+    const createId = ++latestCreate;
+    const token = getSessionDeps()?.token() ?? null;
+    if (!token) {
+      createFailed('signed-out');
+      return;
+    }
 
-    worker.postMessage({
-      chordSeq: state.chordSeq,
-      stringSeq: state.stringSeq,
-      rhythmName: state.rhythmName,
-      swing: state.swing,
-      strum: state.strumMode,
-      strumAmount: state.strumAmount,
-      tilt: state.tiltMode,
-      tiltAmount: state.tiltAmount,
-    });
-
-    worker.onmessage = (e) => {
-      const { events } = e.data as { events: MidiNoteEvent[] };
-      worker.terminate();
-      if (events.length === 0) return;
-
-      const currentState = get();
-      const target = currentState.tracks.find((t) => t.id === trackId);
-      // The track can be deleted, or taken by a collaborator, while the
-      // worker runs; then nothing is written, chords included.
-      if (!target || isTrackLockedByRemote(currentState.remoteUsers, trackId)) {
-        return;
-      }
-
-      // Create adds a clip and keeps the track's other clips. The
-      // progression still starts at bar 1, as it always has, and the clip
-      // ends on a bar line of the project's metre (prismTakeSpan). The
-      // worker's notes come without ids, so each gets one here: this write
-      // sets the track's clips itself rather than going through addMidiClip.
-      const startTick = 0;
-      const endTick = prismTakeSpan(timeSignatureOf(currentState));
-      const clip: MidiClip = {
-        id: crypto.randomUUID(),
-        startTick,
-        durationTicks: endTick - startTick,
-        events: withNoteIds(events),
-      };
-      // Only a take Create wrote here and nobody has touched gives way. The
-      // new clip goes last, where collab peers put it.
-      const previousTake = untouchedPrismTake(
-        target.midiClips,
-        startTick,
-        endTick,
-      );
-      const midiClips = [
-        ...target.midiClips.filter((c) => c !== previousTake),
-        clip,
-      ];
-      rememberPrismTake(clip);
-
-      // Derive chord regions using known chord names from stringSeq. They
-      // replace the chord lane only across the clip's bars; a locked lane
-      // ("Existing chords are protected") keeps its chords there and only
-      // takes new ones in the gaps. One set() for clips and chords, so undo
-      // and collab each see a single change.
-      // Read from this take, they follow it when it moves (moveClip).
-      const incoming = deriveChordRegions(
-        events,
-        rootMidi,
-        state.stringSeq,
-        state.mode,
-        endTick,
-      ).map((r) => ({ ...r, sourceClipId: clip.id }));
-      set({
-        tracks: currentState.tracks.map((t) =>
-          t.id === trackId ? { ...t, midiClips } : t,
-        ),
-        chordRegions:
-          currentState.chordRecordMode === 'locked'
-            ? reconcileChordRegions(
-                currentState.chordRegions,
-                incoming,
-                'locked',
-                rootMidi,
-                state.mode,
-              )
-            : replaceChordRegionsInRange(
-                currentState.chordRegions,
-                incoming,
-                startTick,
-                endTick,
-              ),
+    let events: MidiNoteEvent[];
+    try {
+      const { clip } = await generatePrismClip(token, {
+        key: { root: state.rootNote ?? 0, mode: state.mode },
+        progression: state.stringSeq,
+        rhythm: state.rhythmName,
+        swing: state.swing,
+        strum: { mode: state.strumMode, amount: state.strumAmount },
+        tilt: { mode: state.tiltMode, amount: state.tiltAmount },
       });
+      events = clip.events;
+    } catch (error) {
+      console.warn('[prism] Create failed', error);
+      if (createId === latestCreate) {
+        createFailed(
+          error instanceof PrismGenerateError ? error.kind : 'server',
+        );
+      }
+      return;
+    }
+
+    // A newer Create was asked while this one was in flight: it writes.
+    if (createId !== latestCreate) return;
+    if (events.length === 0) return;
+
+    const currentState = get();
+    const target = currentState.tracks.find((t) => t.id === trackId);
+    // The track can be deleted, or taken by a collaborator, while the
+    // request is in flight; then nothing is written, chords included.
+    if (!target || isTrackLockedByRemote(currentState.remoteUsers, trackId)) {
+      return;
+    }
+
+    // Create adds a clip and keeps the track's other clips. The
+    // progression still starts at bar 1, as it always has, and the clip
+    // ends on a bar line of the project's metre (prismTakeSpan). The
+    // server's notes come without ids, so each gets one here: this write
+    // sets the track's clips itself rather than going through addMidiClip.
+    const startTick = 0;
+    const endTick = prismTakeSpan(timeSignatureOf(currentState));
+    const clip: MidiClip = {
+      id: crypto.randomUUID(),
+      startTick,
+      durationTicks: endTick - startTick,
+      events: withNoteIds(events),
     };
+    // Only a take Create wrote here and nobody has touched gives way. The
+    // new clip goes last, where collab peers put it.
+    const previousTake = untouchedPrismTake(
+      target.midiClips,
+      startTick,
+      endTick,
+    );
+    const midiClips = [
+      ...target.midiClips.filter((c) => c !== previousTake),
+      clip,
+    ];
+    rememberPrismTake(clip);
+
+    // Derive chord regions using known chord names from stringSeq. They
+    // replace the chord lane only across the clip's bars; a locked lane
+    // ("Existing chords are protected") keeps its chords there and only
+    // takes new ones in the gaps. One set() for clips and chords, so undo
+    // and collab each see a single change.
+    // Read from this take, they follow it when it moves (moveClip).
+    const incoming = deriveChordRegions(
+      events,
+      rootMidi,
+      state.stringSeq,
+      state.mode,
+      endTick,
+    ).map((r) => ({ ...r, sourceClipId: clip.id }));
+    set({
+      tracks: currentState.tracks.map((t) =>
+        t.id === trackId ? { ...t, midiClips } : t,
+      ),
+      chordRegions:
+        currentState.chordRecordMode === 'locked'
+          ? reconcileChordRegions(
+              currentState.chordRegions,
+              incoming,
+              'locked',
+              rootMidi,
+              state.mode,
+            )
+          : replaceChordRegionsInRange(
+              currentState.chordRegions,
+              incoming,
+              startTick,
+              endTick,
+            ),
+    });
+    currentState.setClipColorMode('prism');
   },
 
   // ── Actions — track selection ──

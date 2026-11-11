@@ -166,6 +166,26 @@
       "swing": 67
     },
     {
+      "id": "l2-esus4b9",
+      "name": "L2 · Esus4♭9 vamp",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l2-esus4b9"
+        }
+      },
+      "tempo": 110,
+      "swing": 67
+    },
+    {
       "id": "l2-fmaj7s11",
       "name": "L2 · Fmaj7♯11 vamp",
       "plays": {
@@ -204,6 +224,26 @@
       },
       "tempo": 110,
       "swing": 66
+    },
+    {
+      "id": "l2-amin7b6",
+      "name": "L2 · Amin7♭6 vamp",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "jazz-swing-feathered"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "walking-1-chord-per-bar"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "jazz-pianist-1-l2-amin7b6"
+        }
+      },
+      "tempo": 110,
+      "swing": 67
     },
     {
       "id": "l2-iivi",

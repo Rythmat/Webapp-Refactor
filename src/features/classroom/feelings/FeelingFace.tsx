@@ -107,6 +107,21 @@ const FEATURES: Record<FaceKind, ReactNode> = {
       <path d="M27 69 L33 62 L39 70 L45 62 L51 70 L57 62 L63 70 L69 62" />
     </>
   ),
+  // The energy slider's two (owner, 2026-11-10): heavy lids, a flat mouth;
+  // and eyes closed in a smile.
+  tired: (
+    <>
+      <path d="M28 42 Q35 49 42 42 M58 42 Q65 49 72 42" />
+      <path d="M27 37 L43 37 M57 37 L73 37" />
+      <path d="M40 68 L60 68" />
+    </>
+  ),
+  calm: (
+    <>
+      <path d="M28 45 Q35 38 42 45 M58 45 Q65 38 72 45" />
+      <path d="M36 62 Q50 72 64 62" />
+    </>
+  ),
 };
 
 export const FeelingFace = ({

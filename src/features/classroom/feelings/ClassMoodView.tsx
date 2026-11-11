@@ -10,6 +10,8 @@ import {
   buildClassMood,
   describeFeeling,
   energyColor,
+  energyWord,
+  energyZone,
   facesFor,
   primaryLabel,
   shadeOf,
@@ -53,8 +55,10 @@ export const ClassMoodView = ({
           </div>
           <ul className="flex flex-col gap-2">
             {ENERGY_ZONES.map((zone) => {
-              const names =
-                mood.faces.find((t) => t.key === zone.id)?.names ?? [];
+              // Each student with the feeling they slid to ("Ana · Tired").
+              const names = mood.points
+                .filter((p) => energyZone(p.value).id === zone.id)
+                .map((p) => `${p.name} · ${energyWord(p.value).en}`);
               return (
                 <li
                   key={zone.id}

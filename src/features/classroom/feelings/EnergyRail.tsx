@@ -1,23 +1,25 @@
-import { Fragment, useRef, type KeyboardEvent, type PointerEvent } from 'react';
+import { useRef, type KeyboardEvent, type PointerEvent } from 'react';
 import { cn } from '@/components/utilities';
 import type { StudentLanguage } from '../types';
+import { FeelingFace } from './FeelingFace';
 import {
+  ENERGY_EMOTIONS,
   ENERGY_GRADIENT,
-  ENERGY_ZONES,
   energyColor,
+  energyEmotion,
   energyWord,
 } from './feelings';
 
 /**
  * The energy check-in (owner, 2026-11-10): one slider, low energy on the left
- * (sad, tired, shy), regulated in the middle (focused, relaxed, ready to
- * learn), high energy on the right (excited, anxious, angry); cool colours
- * to greens to warm. Drawn as the Globe's era rail is: fine streaks rising off
- * a crisp coloured rim, its bloom below, a line where one zone gives way to
- * the next, and a white grip to drag.
+ * to high on the right, cool colours to greens to warm. Drawn as the Globe's
+ * era rail is: fine streaks rising off a crisp coloured rim, its bloom below,
+ * a line where one zone gives way to the next, and a white grip to drag. No
+ * words on it: a mark for each feeling (`ENERGY_EMOTIONS`), its face and name
+ * revealed over the grip as a student slides onto it.
  *
  *   - a student: drags it (or uses the arrow keys) to where they are;
- *   - the room's screen and the editor: the slider alone, no grip;
+ *   - the room's screen and the editor: the slider and its marks, no grip;
  *   - the teacher: each student a dot on the rim (Rule 2: never projected).
  *
  * Sized in em, so it takes its size from where it sits (a slide's type, or
@@ -52,7 +54,6 @@ const BLOOM = {
 } as const;
 
 const STEP = 5;
-const ALIGN = ['text-left', 'text-center', 'text-right'] as const;
 
 export const EnergyRail = ({
   value = null,
@@ -110,40 +111,43 @@ export const EnergyRail = ({
   };
 
   const shown = value ?? 50;
+  // Nothing is revealed until a student has moved the grip.
+  const emotion = onChange && value !== null ? energyEmotion(value) : null;
 
   return (
     <div
       data-energy-rail=""
       className={cn('flex w-full select-none flex-col', className)}
     >
-      {/* The zones, and the feelings each holds. */}
-      <div className="grid grid-cols-3 gap-[0.75em]">
-        {ENERGY_ZONES.map((zone, i) => (
-          <div key={zone.id} className={cn('min-w-0', ALIGN[i])}>
-            <p className="truncate text-[0.82em] font-bold leading-tight text-white">
-              {say(zone.label, language)}
-            </p>
-            <p className="text-balance text-[0.62em] leading-snug text-white/55">
-              {zone.words.map((w, n) => (
-                // A line breaks before a dot, never after one.
-                <Fragment key={w.en}>
-                  {n > 0 && ' '}
-                  <span className="whitespace-nowrap">
-                    {n > 0 && '· '}
-                    {say(w, language)}
-                  </span>
-                </Fragment>
-              ))}
-            </p>
-          </div>
-        ))}
-      </div>
+      {/* The feeling the grip is on, over it; its room kept from the start
+          so nothing moves when it appears. Clamped clear of the ends. */}
+      {onChange && (
+        <div aria-hidden className="relative h-[2.7em]">
+          {emotion && (
+            <div
+              key={emotion.id}
+              data-energy-emotion={emotion.id}
+              className="absolute bottom-[-0.55em] z-10 flex -translate-x-1/2 flex-col items-center gap-[0.25em] duration-150 animate-in fade-in zoom-in-90 motion-reduce:zoom-in-100"
+              style={{ left: `clamp(2.6em, ${shown}%, calc(100% - 2.6em))` }}
+            >
+              <FeelingFace
+                face={emotion.face}
+                color={energyColor(shown)}
+                className="size-[1.9em]"
+              />
+              <span className="whitespace-nowrap text-[0.8em] font-bold leading-none text-white">
+                {say(emotion.word, language)}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* The rail: the streaks, the bloom, the rim; where the zones meet. */}
       <div
         ref={railRef}
         className={cn(
-          'relative mt-[0.35em] h-[2.2em] touch-none',
+          'relative h-[2.2em] touch-none',
           live && 'cursor-pointer',
         )}
         onPointerDown={onPointerDown}
@@ -170,6 +174,19 @@ export const EnergyRail = ({
             aria-hidden
             className="pointer-events-none absolute bottom-[0.45em] h-[1.5em] w-px bg-gradient-to-t from-white/55 to-transparent"
             style={{ left: `${(n * 100) / 3}%` }}
+          />
+        ))}
+
+        {/* A mark for each feeling; the one under the grip lit. */}
+        {ENERGY_EMOTIONS.map((e) => (
+          <span
+            key={e.id}
+            aria-hidden
+            className={cn(
+              'pointer-events-none absolute bottom-[0.54em] size-[0.28em] -translate-x-1/2 translate-y-1/2 rounded-full bg-white transition-opacity duration-150',
+              emotion?.id === e.id ? 'opacity-100' : 'opacity-40',
+            )}
+            style={{ left: `${e.at}%` }}
           />
         ))}
 

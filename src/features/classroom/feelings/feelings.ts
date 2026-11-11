@@ -52,8 +52,6 @@ export type EnergyZoneId = 'low' | 'regulated' | 'high';
 export interface EnergyZone {
   id: EnergyZoneId;
   label: LocalizedText;
-  /** The feelings it holds, left to right. */
-  words: readonly LocalizedText[];
   /** Where it starts and ends on the slider, 0–100. */
   from: number;
   to: number;
@@ -63,33 +61,18 @@ export const ENERGY_ZONES: readonly EnergyZone[] = [
   {
     id: 'low',
     label: { en: 'Low energy', es: 'Poca energía' },
-    words: [
-      { en: 'Sad', es: 'Triste' },
-      { en: 'Tired', es: 'Cansado' },
-      { en: 'Shy', es: 'Tímido' },
-    ],
     from: 0,
     to: 100 / 3,
   },
   {
     id: 'regulated',
     label: { en: 'Regulated', es: 'En calma' },
-    words: [
-      { en: 'Focused', es: 'Concentrado' },
-      { en: 'Relaxed', es: 'Relajado' },
-      { en: 'Ready to learn', es: 'Listo para aprender' },
-    ],
     from: 100 / 3,
     to: 200 / 3,
   },
   {
     id: 'high',
     label: { en: 'High energy', es: 'Mucha energía' },
-    words: [
-      { en: 'Excited', es: 'Emocionado' },
-      { en: 'Anxious', es: 'Ansioso' },
-      { en: 'Angry', es: 'Enojado' },
-    ],
     from: 200 / 3,
     to: 100,
   },
@@ -139,16 +122,80 @@ export const energyColor = (value: number): string => {
 export const energyZone = (value: number): EnergyZone =>
   ENERGY_ZONES.find((z) => value <= z.to) ?? ENERGY_ZONES[2]!;
 
-/** The feeling nearest a value: its zone's word for that part of it. */
-export const energyWord = (value: number): LocalizedText => {
-  const zone = energyZone(value);
-  const share = (value - zone.from) / (zone.to - zone.from || 1);
-  const i = Math.min(
-    zone.words.length - 1,
-    Math.floor(share * zone.words.length),
-  );
-  return zone.words[Math.max(0, i)]!;
+/**
+ * The feelings along the slider, by how much energy each carries (owner,
+ * 2026-11-10: "research emotions and place a few on the slider"). The owner's
+ * nine (sad, tired, shy; focused, relaxed, ready to learn; excited, anxious,
+ * angry) and three more from the Zones of Regulation (bored, happy,
+ * frustrated), ordered low to high as Russell's circumplex orders arousal
+ * (tired lowest, angry highest), each inside its zone. Hidden on the slider
+ * until a student slides onto one; none is the "right" place to be.
+ */
+export interface EnergyEmotion {
+  id: string;
+  /** Where it sits on the slider, 0–100. */
+  at: number;
+  word: LocalizedText;
+  face: FaceKind;
+}
+
+export const ENERGY_EMOTIONS: readonly EnergyEmotion[] = [
+  { id: 'tired', at: 6, word: { en: 'Tired', es: 'Cansado' }, face: 'tired' },
+  { id: 'sad', at: 15, word: { en: 'Sad', es: 'Triste' }, face: 'sad' },
+  { id: 'bored', at: 23, word: { en: 'Bored', es: 'Aburrido' }, face: 'okay' },
+  { id: 'shy', at: 30, word: { en: 'Shy', es: 'Tímido' }, face: 'embarrassed' },
+  {
+    id: 'relaxed',
+    at: 39,
+    word: { en: 'Relaxed', es: 'Relajado' },
+    face: 'calm',
+  },
+  { id: 'happy', at: 47, word: { en: 'Happy', es: 'Feliz' }, face: 'great' },
+  {
+    id: 'focused',
+    at: 54,
+    word: { en: 'Focused', es: 'Concentrado' },
+    face: 'confident',
+  },
+  {
+    id: 'ready',
+    at: 61,
+    word: { en: 'Ready to learn', es: 'Listo para aprender' },
+    face: 'good',
+  },
+  {
+    id: 'excited',
+    at: 71,
+    word: { en: 'Excited', es: 'Emocionado' },
+    face: 'excited',
+  },
+  {
+    id: 'anxious',
+    at: 79,
+    word: { en: 'Anxious', es: 'Ansioso' },
+    face: 'nervous',
+  },
+  {
+    id: 'frustrated',
+    at: 87,
+    word: { en: 'Frustrated', es: 'Frustrado' },
+    face: 'stressed',
+  },
+  { id: 'angry', at: 95, word: { en: 'Angry', es: 'Enojado' }, face: 'angry' },
+];
+
+/** The feeling a slider position falls on: the nearest, each owning the
+ *  stretch from the midpoint before it to the midpoint after it. */
+export const energyEmotion = (value: number): EnergyEmotion => {
+  let best = ENERGY_EMOTIONS[0]!;
+  for (const e of ENERGY_EMOTIONS)
+    if (Math.abs(e.at - value) < Math.abs(best.at - value)) best = e;
+  return best;
 };
+
+/** The feeling's name at a slider position. */
+export const energyWord = (value: number): LocalizedText =>
+  energyEmotion(value).word;
 
 /** The answer string for a slider position, 0–100. */
 export const energyValue = (value: number): string =>
@@ -171,7 +218,9 @@ export type FaceKind =
   | 'embarrassed'
   | 'confident'
   | 'wiped-out'
-  | 'nervous';
+  | 'nervous'
+  | 'tired'
+  | 'calm';
 
 export interface FaceFeeling {
   id: string;

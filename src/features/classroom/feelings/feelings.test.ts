@@ -12,7 +12,9 @@ import {
   parseFeeling,
   wheelDistance,
   wheelValue,
+  ENERGY_EMOTIONS,
   energyColor,
+  energyEmotion,
   energyValue,
   energyWord,
   energyZone,
@@ -201,13 +203,52 @@ describe('the energy slider', () => {
     expect(energyZone(10).id).toBe('low');
     expect(energyZone(50).id).toBe('regulated');
     expect(energyZone(90).id).toBe('high');
-    expect(energyWord(2).en).toBe('Sad');
-    expect(energyWord(55).en).toBe('Relaxed');
-    expect(energyWord(99).en).toBe('Angry');
+    expect(energyWord(0).en).toBe('Tired');
+    expect(energyWord(54).en).toBe('Focused');
+    expect(energyWord(100).en).toBe('Angry');
     expect(describeFeeling('energy:40')).toMatchObject({
-      label: 'Focused',
+      label: 'Relaxed',
       detail: 'Regulated',
     });
+  });
+
+  it('places twelve feelings by energy, each in its zone, none "right"', () => {
+    expect(ENERGY_EMOTIONS.map((e) => e.word.en)).toEqual([
+      'Tired',
+      'Sad',
+      'Bored',
+      'Shy',
+      'Relaxed',
+      'Happy',
+      'Focused',
+      'Ready to learn',
+      'Excited',
+      'Anxious',
+      'Frustrated',
+      'Angry',
+    ]);
+    const ats = ENERGY_EMOTIONS.map((e) => e.at);
+    expect(ats).toEqual([...ats].sort((a, b) => a - b));
+    const zones = ENERGY_EMOTIONS.map((e) => energyZone(e.at).id);
+    expect(zones).toEqual([
+      ...Array(4).fill('low'),
+      ...Array(4).fill('regulated'),
+      ...Array(4).fill('high'),
+    ]);
+    for (const e of ENERGY_EMOTIONS) {
+      expect(e.word.es, e.id).toBeTruthy();
+      // Each owns its own mark.
+      expect(energyEmotion(e.at).id).toBe(e.id);
+    }
+  });
+
+  it('gives each feeling the stretch between the midpoints', () => {
+    // Tired 6 · Sad 15: the line is at 10.5.
+    expect(energyEmotion(10).id).toBe('tired');
+    expect(energyEmotion(11).id).toBe('sad');
+    // Ready to learn 61 · Excited 71: the line is at 66.
+    expect(energyEmotion(65).id).toBe('ready');
+    expect(energyEmotion(67).id).toBe('excited');
   });
 
   it('is cool on the left, green in the middle, warm on the right', () => {

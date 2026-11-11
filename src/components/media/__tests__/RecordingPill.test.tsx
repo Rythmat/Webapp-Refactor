@@ -49,13 +49,14 @@ describe('the collapsed recording', () => {
     expect(lastVideo()).toBe('rlpZmqGS8rc');
     expect(panel(container).style.display).toBe('none');
     expect(player.play).not.toHaveBeenCalled();
+    // No word on the slide's pill: ▶ and ▾ only.
+    expect(container.textContent).toBe('');
     player.isReady = true;
     rerender(<RecordingPill videoId="rlpZmqGS8rc" quickPlay />);
     expect(player.play).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole('button', { name: /^Recording/ })).toHaveProperty(
-      'ariaExpanded',
-      'false',
-    );
+    expect(
+      screen.getByRole('button', { name: 'Show the video' }),
+    ).toHaveProperty('ariaExpanded', 'false');
   });
 
   it('pauses from the pill', () => {

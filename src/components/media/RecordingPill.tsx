@@ -13,6 +13,7 @@ import { useYouTubeIframePlayer } from '@/hooks/media/useYouTubeIframePlayer';
  *
  * `quickPlay` (a lesson slide, owner 2026-11-10) adds a play button to the
  * collapsed pill: the song starts, and pauses, without opening the video.
+ * Its pill carries no word, only ▶ and ▾ (owner, 2026-11-10).
  */
 export const RecordingPill: FC<{
   videoId: string;
@@ -117,11 +118,14 @@ export const RecordingPill: FC<{
             setArmed(true);
             setOpen((v) => !v);
           }}
-          className={`inline-flex items-center gap-1.5 py-1 pr-2 ${quickPlay ? 'pl-1' : 'pl-2'}`}
+          className={`inline-flex items-center gap-1.5 py-1 pr-2 ${quickPlay ? 'pl-0.5' : 'pl-2'}`}
           title={open ? 'Hide the recording' : 'Listen to the recording'}
+          {...(quickPlay
+            ? { 'aria-label': open ? 'Hide the video' : 'Show the video' }
+            : {})}
         >
           {!quickPlay && <Youtube size={13} />}
-          Recording
+          {!quickPlay && 'Recording'}
           {isPlaying && !open && !quickPlay && (
             <span
               aria-hidden

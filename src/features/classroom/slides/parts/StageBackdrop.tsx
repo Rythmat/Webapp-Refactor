@@ -12,6 +12,7 @@
 import { useState } from 'react';
 import type { StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
+import { SLIDE_CANVAS } from '../slideLayout';
 import { paintsBleed, stageKindOf, stageMedia } from '../stage';
 import type { Slide, SlideMedia, SlideSurface } from '../types';
 import { ShowcasePhoto } from './ShowcaseBackdrop';
@@ -52,18 +53,25 @@ const BleedMedia = ({
   switch (media.type) {
     case 'youtube':
       return (
-        <div className="absolute inset-0 flex items-center bg-black">
-          {live ? (
-            <SlideMediaPanel
-              media={media}
-              language={language}
-              interactive
-              className="!rounded-none !border-0"
-              {...(command ? { command } : {})}
-            />
-          ) : (
-            <VideoStill videoId={media.videoId} />
-          )}
+        // The video keeps the canvas's 16:9 in the middle of a wider
+        // screen, black either side, as a theatre's.
+        <div className="absolute inset-0 flex items-center justify-center bg-black">
+          <div
+            className="relative flex shrink-0 items-center"
+            style={{ width: SLIDE_CANVAS.w, height: SLIDE_CANVAS.h }}
+          >
+            {live ? (
+              <SlideMediaPanel
+                media={media}
+                language={language}
+                interactive
+                className="!rounded-none !border-0"
+                {...(command ? { command } : {})}
+              />
+            ) : (
+              <VideoStill videoId={media.videoId} />
+            )}
+          </div>
         </div>
       );
     case 'globePreview':

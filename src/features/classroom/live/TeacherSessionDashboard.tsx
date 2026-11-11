@@ -468,7 +468,6 @@ export const TeacherSessionDashboard = () => {
           interactions={currentSlideInteractions}
           slideIndex={slideIndex}
           slideCount={deck.slides.length}
-          dayLabel={snapshot?.label ?? ''}
           onNavigate={(i) => {
             const s = deck.slides[i];
             if (s) sendNav(s.phase, i);

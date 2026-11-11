@@ -23,6 +23,9 @@ export interface StageTransform {
   scale: number;
   offsetX: number;
   offsetY: number;
+  /** The container's own size, px: what a filling stage spreads over. */
+  width: number;
+  height: number;
 }
 
 const fit = (w: number, h: number): StageTransform => {
@@ -31,6 +34,8 @@ const fit = (w: number, h: number): StageTransform => {
     scale,
     offsetX: (w - SLIDE_CANVAS.w * scale) / 2,
     offsetY: (h - SLIDE_CANVAS.h * scale) / 2,
+    width: w,
+    height: h,
   };
 };
 
@@ -43,6 +48,8 @@ export const useStageScale = (): StageScale => {
     scale: 1,
     offsetX: 0,
     offsetY: 0,
+    width: SLIDE_CANVAS.w,
+    height: SLIDE_CANVAS.h,
   });
   const observer = useRef<ResizeObserver | null>(null);
 

@@ -43,7 +43,16 @@ export const SectionProgress = ({ slide }: { slide: Slide }) => {
   );
 };
 
-export const SlideFrameChrome = ({ slide, surface }: SlideFrameChromeProps) => (
+/** Whether a surface shows the section line for a slide. */
+export const showsSectionProgress = (slide: Slide, surface: SlideSurface) =>
+  // A full-screen video or globe is left whole.
+  SHOWS_PROGRESS.has(surface) && stageKindOf(slide) !== 'bleed';
+
+/**
+ * The accent bar, on the canvas. The section line is the stage's own, along
+ * the bottom of whatever it fills (the window, on the room's screen).
+ */
+export const SlideFrameChrome = ({ slide }: SlideFrameChromeProps) => (
   <>
     {slide.accentBar && (
       <div
@@ -57,10 +66,6 @@ export const SlideFrameChrome = ({ slide, surface }: SlideFrameChromeProps) => (
           background: 'var(--slide-accent, #ffffff)',
         }}
       />
-    )}
-    {/* A full-screen video or globe is left whole. */}
-    {SHOWS_PROGRESS.has(surface) && stageKindOf(slide) !== 'bleed' && (
-      <SectionProgress slide={slide} />
     )}
   </>
 );

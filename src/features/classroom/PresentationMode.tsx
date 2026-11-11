@@ -3,7 +3,8 @@
  *
  * Present renders the DECK slide-by-slide (single source of truth, so "what you
  * edit is what you present"): one full-bleed slide via `Focus`, with a prev/next
- * pager and the shared chrome (Exit / language / fullscreen). Launch tiles on a
+ * pager and the presenter's controls on its row (Exit / language /
+ * fullscreen; no top rail, owner 2026-11-10). Launch tiles on a
  * slide open Atlas modules in a new tab. The legacy 5-phase board is gone — Present
  * opens straight on the slides.
  *
@@ -13,11 +14,9 @@
  * is the read-path backstop: if a projection ever regresses, the offending key
  * is stripped and reported rather than blanking the lesson mid-class.
  */
-import { Maximize2, Minimize2, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
-import { Segmented } from '@/daw/ui/Segmented';
 import { useCanEditClassroom } from '@/hooks/data';
 import { buildStudentView } from './buildStudentView';
 import { useSessionSync } from './live/useSessionSync';
@@ -25,6 +24,7 @@ import { PHASES } from './phases';
 import { newBlankDay } from './plan/newBlankDay';
 import { useLocalPlan } from './plan/useLocalPlan';
 import { Focus } from './presentation/Focus';
+import { PresenterControls } from './presentation/PresenterControls';
 import { SnapshotRepairBadge } from './publish/SnapshotRepairBadge';
 import { publishDay } from './publish/publishDay';
 import { useSanitizedStudentView } from './publish/useRuleOneReadGuard';
@@ -38,12 +38,6 @@ import type {
   StudentViewConfig,
 } from './types';
 import './presentation.css';
-
-const LANGUAGE_OPTIONS: { value: StudentLanguage; label: string }[] = [
-  { value: 'en', label: 'EN' },
-  { value: 'es', label: 'ES' },
-  { value: 'both', label: 'EN / ES' },
-];
 
 export const PresentationMode = () => {
   const { classroomId, dayId } = useParams<{
@@ -217,16 +211,6 @@ export const PresentationMode = () => {
       className="presentation-root flex h-full min-h-0 w-full flex-col"
       data-age={agePreset}
     >
-      <PresentationChrome
-        language={language}
-        onLanguageChange={setLanguage}
-        isFullscreen={isFullscreen}
-        onToggleFullscreen={toggleFullscreen}
-        onExit={exitToClassroom}
-        dayLabel={day.label}
-        repairedPaths={repairedPaths}
-      />
-
       {currentSlide && (
         <Focus
           slide={currentSlide}
@@ -238,71 +222,20 @@ export const PresentationMode = () => {
           hasPrev={focusIndex > 0}
           hasNext={focusIndex < presentDeck.slides.length - 1}
           position={`${focusIndex + 1} / ${presentDeck.slides.length}`}
+          presenter={
+            <PresenterControls
+              onExit={exitToClassroom}
+              exitLabel="Exit Presentation Mode"
+              language={language}
+              onLanguageChange={setLanguage}
+              isFullscreen={isFullscreen}
+              onToggleFullscreen={toggleFullscreen}
+            >
+              <SnapshotRepairBadge stripped={repairedPaths} />
+            </PresenterControls>
+          }
         />
       )}
     </div>
-  );
-};
-
-interface PresentationChromeProps {
-  language: StudentLanguage;
-  onLanguageChange: (v: StudentLanguage) => void;
-  isFullscreen: boolean;
-  onToggleFullscreen: () => void;
-  onExit: () => void;
-  dayLabel: string;
-  /** Rule 1 read-path repairs; renders the amber badge when non-empty. */
-  repairedPaths: string[];
-}
-
-const PresentationChrome = ({
-  language,
-  onLanguageChange,
-  isFullscreen,
-  onToggleFullscreen,
-  onExit,
-  dayLabel,
-  repairedPaths,
-}: PresentationChromeProps) => {
-  return (
-    <header
-      className="flex items-center justify-between border-b border-white/[0.06] px-8 py-4"
-      style={{ background: 'var(--pres-bg-inset)' }}
-    >
-      <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={onExit}
-          aria-label="Exit Presentation Mode"
-          className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-transparent px-3 py-1.5 text-sm font-medium text-white/80 transition-colors hover:border-white/25 hover:text-white"
-        >
-          <X className="h-4 w-4" />
-          Exit
-        </button>
-        <span className="text-sm text-white/60">{dayLabel}</span>
-        <SnapshotRepairBadge stripped={repairedPaths} />
-      </div>
-
-      <div className="flex items-center gap-4 text-white/80">
-        <Segmented
-          label="Language"
-          options={LANGUAGE_OPTIONS}
-          value={language}
-          onValueChange={onLanguageChange}
-        />
-        <button
-          type="button"
-          onClick={onToggleFullscreen}
-          aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-          className="inline-flex size-8 items-center justify-center rounded-full border border-white/10 bg-transparent text-white/80 transition-colors hover:border-white/25 hover:text-white"
-        >
-          {isFullscreen ? (
-            <Minimize2 className="h-4 w-4" />
-          ) : (
-            <Maximize2 className="h-4 w-4" />
-          )}
-        </button>
-      </div>
-    </header>
   );
 };

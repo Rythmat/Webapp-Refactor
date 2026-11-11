@@ -16,7 +16,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { PresentControlsContext } from '../../presentation/presentControls';
-import { SLIDE_CANVAS } from '../slideLayout';
 import {
   CLICKER_KEYS,
   SLIDE_STUDIO_STEP,
@@ -25,7 +24,7 @@ import {
   slideStudioSrc,
   type StudioFollow,
 } from '../studio/slideStudio';
-import { StageScaleContext } from './SlideGlobe';
+import { StageFillContext, StageScaleContext } from './SlideGlobe';
 
 /**
  * What the slide bar's row covers of the slide's foot while presenting, in
@@ -52,6 +51,7 @@ export const SlideStudio = ({
   inert?: boolean;
 }) => {
   const scale = useContext(StageScaleContext);
+  const area = useContext(StageFillContext);
   const barSlot = useContext(PresentControlsContext);
   const frame = useRef<HTMLIFrameElement>(null);
   const [loaded, setLoaded] = useState(false);
@@ -111,8 +111,8 @@ export const SlideStudio = ({
   const foot = !fitted ? 0 : barSlot ? BAR_FOOT : LINE_FOOT * scale!;
   const box = fitted
     ? {
-        width: SLIDE_CANVAS.w * scale!,
-        height: SLIDE_CANVAS.h * scale! - foot,
+        width: area.w * scale!,
+        height: area.h * scale! - foot,
         transform: `scale(${1 / scale!})`,
         transformOrigin: '0 0',
       }

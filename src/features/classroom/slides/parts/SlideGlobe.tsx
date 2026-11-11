@@ -47,6 +47,16 @@ type GlobeMedia = Extract<SlideMedia, { type: 'globePreview' }>;
  */
 export const StageScaleContext = createContext<number | null>(null);
 
+/**
+ * The area a slide's full-screen visual covers, in design px: the canvas, or
+ * on the room's screen and Present the whole window (owner, 2026-11-10: no
+ * margins at the sides), the slide's words staying in the canvas centred in it.
+ */
+export const StageFillContext = createContext<{ w: number; h: number }>({
+  w: SLIDE_CANVAS.w,
+  h: SLIDE_CANVAS.h,
+});
+
 const YouTubeSlidePlayer = lazy(() => import('./YouTubeSlidePlayer'));
 
 /** A card's clip starts as it opens: it was tapped to play. */
@@ -340,6 +350,7 @@ export const SlideGlobe = ({
   inert?: boolean;
 }) => {
   const scale = useContext(StageScaleContext);
+  const area = useContext(StageFillContext);
   const frame = useRef<HTMLIFrameElement>(null);
   const [loaded, setLoaded] = useState(false);
   const [at, setAt] = useState(0);
@@ -387,8 +398,8 @@ export const SlideGlobe = ({
   const box =
     scale && scale > 0
       ? {
-          width: SLIDE_CANVAS.w * scale,
-          height: SLIDE_CANVAS.h * scale,
+          width: area.w * scale,
+          height: area.h * scale,
           transform: `scale(${1 / scale})`,
           transformOrigin: '0 0',
         }

@@ -1,5 +1,11 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { SlideRenderer, type SlideSlots } from '../slides/SlideRenderer';
 import type { Slide } from '../slides/types';
 import type { Interaction, StudentLanguage } from '../types';
@@ -29,6 +35,11 @@ interface FocusProps {
    * for (`interactionPolicy`), so a check-in can never reach it.
    */
   slots?: SlideSlots;
+  /**
+   * The presenter's own controls (Exit, language, fullscreen), at the left
+   * of the slide bar's row: Present has no top rail (owner, 2026-11-10).
+   */
+  presenter?: ReactNode;
 }
 
 /**
@@ -50,6 +61,7 @@ export const Focus = ({
   hasNext,
   position,
   slots,
+  presenter,
 }: FocusProps) => {
   useEffect(() => {
     // A presentation clicker sends Page Up / Page Down.
@@ -105,7 +117,7 @@ export const Focus = ({
         style={{ left: inset.left, right: inset.right }}
         aria-hidden={false}
       >
-        <span />
+        <div className="flex justify-start">{presenter}</div>
         <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-daw-edge bg-daw-pill px-3 py-2">
           <button
             type="button"

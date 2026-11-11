@@ -7,21 +7,14 @@
  * shell (`fixed inset-0`); the fullscreen toggle then fills the physical screen
  * for the classroom projector.
  */
-import { Maximize2, Minimize2, StopCircle, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Segmented, type SegmentedOption } from '@/daw/ui/Segmented';
 import { Focus } from '../presentation/Focus';
+import { PresenterControls } from '../presentation/PresenterControls';
 import { useTeacherConfig } from '../settings/useTeacherConfig';
 import type { SlideSlots } from '../slides/SlideRenderer';
 import type { Slide } from '../slides/types';
 import type { Interaction, StudentLanguage } from '../types';
 import '../presentation.css';
-
-const LANGUAGE_OPTIONS: SegmentedOption<StudentLanguage>[] = [
-  { value: 'en', label: 'EN' },
-  { value: 'es', label: 'ES' },
-  { value: 'both', label: 'EN / ES' },
-];
 
 interface SessionPresentViewProps {
   /** Whose language setting the slides follow (and the switch writes). */
@@ -38,7 +31,6 @@ interface SessionPresentViewProps {
   interactions: Interaction[];
   slideIndex: number;
   slideCount: number;
-  dayLabel: string;
   /** Move the live session to a slide (students/projector follow). */
   onNavigate: (index: number) => void;
   onExit: () => void;
@@ -52,7 +44,6 @@ export const SessionPresentView = ({
   interactions,
   slideIndex,
   slideCount,
-  dayLabel,
   onNavigate,
   onExit,
   onEnd,
@@ -90,53 +81,6 @@ export const SessionPresentView = ({
       className="presentation-root fixed inset-0 z-50 flex flex-col"
       data-age="high"
     >
-      <header
-        className="flex items-center justify-between border-b border-white/[0.06] px-8 py-4"
-        style={{ background: 'var(--pres-bg-inset)' }}
-      >
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={onExit}
-            aria-label="Exit present mode"
-            className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-transparent px-3 py-1.5 text-sm font-medium text-white/80 transition-colors hover:border-white/25 hover:text-white"
-          >
-            <X className="h-4 w-4" />
-            Exit
-          </button>
-          <span className="text-sm text-white/60">{dayLabel}</span>
-        </div>
-
-        <div className="flex items-center gap-4 text-white/80">
-          <button
-            type="button"
-            onClick={onEnd}
-            className="inline-flex items-center gap-1.5 rounded-full border border-red-400/40 px-3 py-1.5 text-sm text-red-200 transition-colors hover:border-red-400 hover:text-red-100"
-          >
-            <StopCircle className="h-4 w-4" />
-            End
-          </button>
-          <Segmented<StudentLanguage>
-            label="Language"
-            options={LANGUAGE_OPTIONS}
-            value={language}
-            onValueChange={setLanguage}
-          />
-          <button
-            type="button"
-            onClick={toggleFullscreen}
-            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-            className="inline-flex size-8 items-center justify-center rounded-full border border-white/10 bg-transparent text-white/80 transition-colors hover:border-white/25 hover:text-white"
-          >
-            {isFullscreen ? (
-              <Minimize2 className="h-4 w-4" />
-            ) : (
-              <Maximize2 className="h-4 w-4" />
-            )}
-          </button>
-        </div>
-      </header>
-
       <Focus
         slide={currentSlide}
         interactions={interactions}
@@ -148,6 +92,17 @@ export const SessionPresentView = ({
         hasNext={slideIndex < slideCount - 1}
         position={`${slideIndex + 1} / ${slideCount}`}
         slots={slots}
+        presenter={
+          <PresenterControls
+            onExit={onExit}
+            exitLabel="Exit present mode"
+            onEnd={onEnd}
+            language={language}
+            onLanguageChange={setLanguage}
+            isFullscreen={isFullscreen}
+            onToggleFullscreen={toggleFullscreen}
+          />
+        }
       />
     </div>
   );

@@ -7,12 +7,13 @@
  *
  *   1. the region the last place lifted settles back (when the new place is
  *      in another one), as the Globe drops a selection;
- *   2. the camera flies there slowly, pulling out over the way and coming
+ *   2. the camera flies there, pulling out over the way and coming
  *      back in (a MapLibre flight's own curve), to the region framed as the
  *      Globe frames a lifted one: fitted beside the slide's card, a little
  *      pulled back, tilted;
- *   3. on landing the region is selected, so the Globe lifts it: the lid
- *      rises, its eras sweep along it, the comet runs round its edge;
+ *   3. as the camera comes in, the region is selected, so the Globe lifts
+ *      it: the lid rises, its eras sweep along it, the comet runs round its
+ *      edge;
  *   4. while the place is read the globe breathes: a slow zoom in and back
  *      out, until the next place (or a hand on the map).
  *
@@ -35,7 +36,6 @@ import {
   type Outlines,
 } from '@/components/atlas/components/Globe/mapFraming';
 import type { AtlasMapHandle } from '@/components/atlas/components/Globe/mapHandle';
-import { FLIGHT_EVENT } from '@/components/atlas/components/Globe/useMapPhase';
 import { useGeoData } from '@/components/atlas/hooks/useGeoData';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
 import { useAtlasDispatch } from '@/components/atlas/state/atlasStore';
@@ -53,8 +53,17 @@ const LIFT_MARGIN_PX = 72;
 const PULL_BACK_ZOOM = 0.4;
 /** A place outside any outline: this close. */
 const PLACE_ZOOM = 4.5;
-/** How long the old region takes to settle back before the flight, ms. */
-const SETTLE_MS = 700;
+/**
+ * How long the old region takes to settle back before the flight, ms (its
+ * lid falls in 300).
+ */
+const SETTLE_MS = 350;
+/**
+ * The region lifts as the camera arrives (owner, 2026-11-10: "as soon as the
+ * camera navigates to the region"): this far through the flight, with the
+ * place in view, the lid rises while the camera settles in.
+ */
+const ARRIVE_SHARE = 0.7;
 /** How far out a flight pulls over its way (MapLibre's curve; 1.42 is its own). */
 const FLIGHT_CURVE = 1.7;
 /** The breath: this much closer, over this long, then back. */
@@ -67,9 +76,14 @@ const STATES_WAIT_MS = 4000;
 
 const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
 
-/** A move of the story's own (its flights and its breath), by its event data. */
+/**
+ * A move of the story's own (its flights and its breath), by its event data.
+ * Not the Globe's flight event: the Globe holds a selection's lift until its
+ * own flights end, and the story lifts its region on the way in.
+ */
+const FLIGHT_EVENT = { storyFlight: true } as const;
 const BREATH_EVENT = { storyBreath: true } as const;
-const isOurs = (e: object, key: 'atlasFlight' | 'storyBreath') =>
+const isOurs = (e: object, key: 'storyFlight' | 'storyBreath') =>
   (e as Record<string, unknown>)[key] === true;
 
 export interface StoryCamera {
@@ -220,12 +234,16 @@ export function useStoryCamera({
       on('moveend', next);
     };
 
-    // 3. Landed: the region lifts (the Globe waits for its flight to end).
-    const land = () => {
+    // 3. Arriving: the region lifts as the camera comes in to it.
+    const arrive = () => {
       if (cancelled) return;
       if (region && !sameRegion(before?.region?.place, region.place))
         dispatch({ type: 'SELECT_LOCATION', payload: region.place });
-      later(() => breathe(true), reduced ? 0 : RISE_MS + 900);
+    };
+    // Landed: the breath, once the lid is up.
+    const land = () => {
+      if (cancelled) return;
+      later(() => breathe(true), reduced ? 0 : RISE_MS + 600);
     };
 
     // 2. The flight, slow, out over the way and back in.
@@ -233,8 +251,9 @@ export function useStoryCamera({
       if (cancelled) return;
       const from = before ? path[before.at] : undefined;
       const km = from ? distanceKm(from, target) : 4000;
+      const duration = reduced ? 0 : flightMs(km);
       const landed = (e: object) => {
-        if (!isOurs(e, 'atlasFlight')) return;
+        if (!isOurs(e, 'storyFlight')) return;
         map.off('moveend', landed);
         land();
       };
@@ -245,12 +264,13 @@ export function useStoryCamera({
           zoom: camera.zoom,
           pitch: camera.pitch,
           padding,
-          duration: reduced ? 0 : flightMs(km),
+          duration,
           curve: FLIGHT_CURVE,
           essential: false,
         },
         FLIGHT_EVENT,
       );
+      later(arrive, Math.round(duration * ARRIVE_SHARE));
     };
 
     map.stop();

@@ -63,21 +63,6 @@ import { useStoryCamera } from './useStoryCamera';
 
 /** Points along each leg of the path. */
 const LEG_POINTS = 48;
-/** The path climbs onto a lifted region over this many points each side. */
-const RAMP_POINTS = 2;
-
-/** A moving average over `radius` points each side, the ends held. */
-const smoothed = (values: readonly number[], radius: number): number[] =>
-  values.map((_, i) => {
-    let sum = 0;
-    let n = 0;
-    for (let j = i - radius; j <= i + radius; j++) {
-      const v = values[Math.max(0, Math.min(values.length - 1, j))]!;
-      sum += v;
-      n += 1;
-    }
-    return sum / n;
-  });
 
 /** The map's handle, once the map is up. */
 const useMapHandle = (): AtlasMapHandle | null => {
@@ -192,12 +177,13 @@ function StoryPath({
     const points = handle.project(
       leg.map(([lat, lng], k) => ({ id: `${i}:${k}`, lat, lng })),
     );
-    // The lid's height along the leg, eased over a few points either side
-    // of the edge, so the path climbs onto a lifted region, not jumps.
-    const heights = smoothed(
-      leg.map((place) => rise(place)),
-      RAMP_POINTS,
-    );
+    // The leg runs straight from one end's height to the other's (an end on
+    // the lifted region rides on its lid), never bending at the region's
+    // edge (owner, 2026-11-10: "I want the lines to stay straight").
+    const from = rise(path[i]!);
+    const to = rise(path[i + 1]!);
+    const last = Math.max(1, leg.length - 1);
+    const heights = leg.map((_, k) => from + ((to - from) * k) / last);
     let d = '';
     let pen = false;
     points.forEach((p, k) => {

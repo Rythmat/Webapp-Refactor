@@ -78,16 +78,16 @@ describe('the lesson globe’s camera', () => {
     expect(sameRegion(a, null)).toBe(false);
   });
 
-  it('flies slowly, longer the further it goes', () => {
+  it('flies unhurried, longer the further it goes', () => {
     const gary: [number, number] = [41.58, -87.35];
     const detroit: [number, number] = [42.36, -83.09];
     const tokyo: [number, number] = [35.71, 139.75];
     expect(distanceKm(gary, detroit)).toBeGreaterThan(300);
     expect(distanceKm(gary, detroit)).toBeLessThan(450);
-    expect(flightMs(0)).toBeGreaterThanOrEqual(3000);
+    expect(flightMs(0)).toBeGreaterThanOrEqual(2500);
     expect(flightMs(distanceKm(gary, detroit))).toBeLessThan(
       flightMs(distanceKm(detroit, tokyo)),
     );
-    expect(flightMs(20000)).toBeLessThanOrEqual(8000);
+    expect(flightMs(20000)).toBeLessThanOrEqual(6500);
   });
 });

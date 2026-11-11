@@ -5,7 +5,7 @@
  *
  *   - `regionAt`: the region a place lies in, from the Globe's own outlines:
  *     a US or Canadian state, else a country. Selected, the Globe lifts it.
- *   - `flightMs`: a slow flight, longer the further it goes.
+ *   - `flightMs`: a flight's length, longer the further it goes.
  *
  * `useStoryCamera.ts` drives the map with them.
  */
@@ -155,6 +155,9 @@ export const insideRings = (
   [lat, lng]: readonly [number, number],
 ): boolean => rings.some((ring) => pointInRing(lng, lat, ring));
 
-/** A flight's length: slow, and longer the further it goes, ms. */
+/**
+ * A flight's length, ms: unhurried, and longer the further it goes; about a
+ * fifth quicker than first built (owner, 2026-11-10).
+ */
 export const flightMs = (km: number): number =>
-  Math.round(Math.min(8000, 3200 + 1600 * Math.log10(1 + km / 50)));
+  Math.round(Math.min(6500, 2600 + 1300 * Math.log10(1 + km / 50)));

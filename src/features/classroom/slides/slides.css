@@ -130,11 +130,14 @@
   --slide-title-fz: 80px;
 }
 
-/* A portrait's name in the regular weight (owner, 2026-11-10), on every
-   surface. Only the default (semibold): a title the teacher made bold in the
-   editor's text menu stays bold. */
-.slide-frame--stage-portrait h1.font-semibold {
-  font-weight: 400;
+/* No bold on a slide (owner, 2026-11-10: "make all the font in the slides
+   regular"): every word, on every surface, in the regular weight — the
+   names, questions, cards and labels the components style as semibold or
+   bold included, so it is the one rule here, not a class per component.
+   The editor offers no Bold either. */
+.slide-frame,
+.slide-frame * {
+  font-weight: 400 !important;
 }
 
 /* The portrait's slow push-in and the globe's place names arriving. */

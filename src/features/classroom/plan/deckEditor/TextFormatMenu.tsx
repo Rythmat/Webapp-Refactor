@@ -1,7 +1,8 @@
 /**
  * TextFormatMenu — the slide editor's "Text" toolbar pill. It formats the
  * currently selected text block (title / prompt / body): font size via an
- * A− / A+ scale stepper, bold, and paragraph alignment (left / center / right).
+ * A− / A+ scale stepper and paragraph alignment (left / center / right). No
+ * bold: every slide is in the regular weight (owner, 2026-11-10).
  * Each change writes a per-block `SlideBlockStyle` up through the deck autosave
  * (the parent merges it into `slide.textStyle`). With no text block selected the
  * popover shows a hint instead of the controls.
@@ -11,14 +12,12 @@ import {
   AlignCenter,
   AlignLeft,
   AlignRight,
-  Bold,
   type LucideIcon,
 } from 'lucide-react';
 import { MicroLabel } from '@/components/kit';
 import { Button } from '@/daw/ui/Button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/daw/ui/Popover';
 import { Segmented } from '@/daw/ui/Segmented';
-import { Toggle } from '@/daw/ui/Toggle';
 import type { SlideBlockKey, SlideBlockStyle } from '../../slides/types';
 
 const FONT_SCALE_MIN = 0.5;
@@ -98,12 +97,6 @@ export const TextFormatMenu = ({
             </div>
 
             <div className="flex items-center justify-between gap-2 border-t border-daw-edge pt-3">
-              <Toggle
-                label="Bold"
-                icon={<Bold aria-hidden />}
-                pressed={Boolean(style?.bold)}
-                onPressedChange={(bold) => onChange({ ...style, bold })}
-              />
               <Segmented
                 label="Paragraph alignment"
                 iconOnly

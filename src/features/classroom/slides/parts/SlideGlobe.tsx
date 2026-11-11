@@ -24,8 +24,10 @@ import {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { GlobeRoutes } from '@/constants/routes';
 import { pickLocalized } from '../../presentation/localized';
+import { PresentControlsContext } from '../../presentation/presentControls';
 import type { LocalizedText, StudentLanguage } from '../../types';
 import {
   SLIDE_GLOBE_GO,
@@ -367,6 +369,8 @@ export const SlideGlobe = ({
     return () => window.removeEventListener('message', onMessage);
   }, []);
 
+  const barSlot = useContext(PresentControlsContext);
+
   if (still) return <StillGlobe globe={globe} language={language} />;
 
   const next = () => {
@@ -390,8 +394,35 @@ export const SlideGlobe = ({
         }
       : { width: '100%', height: '100%' };
 
+  // Presenting: on the slide bar's row, at its height (owner, 2026-11-10).
+  const docked =
+    barSlot && !stacked && !inert && stops.length > 1
+      ? createPortal(
+          <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-daw-edge bg-daw-pill py-2 pl-4 pr-3">
+            {stops.map((stop, i) => (
+              <span
+                key={i}
+                aria-hidden
+                className={`size-2 rounded-full transition-colors ${
+                  i === at ? 'bg-white' : 'bg-white/30'
+                }`}
+              />
+            ))}
+            <button
+              type="button"
+              onClick={next}
+              aria-label="Next place"
+              className="ml-1 inline-flex size-9 items-center justify-center rounded-full bg-white text-black transition-transform hover:scale-105"
+            >
+              <ChevronRight aria-hidden className="h-5 w-5" />
+            </button>
+          </div>,
+          barSlot,
+        )
+      : null;
+
   const arrow =
-    !inert && stops.length > 1 ? (
+    !barSlot && !inert && stops.length > 1 ? (
       <div
         className={`flex items-center rounded-full bg-black/60 ${
           stacked
@@ -454,6 +485,7 @@ export const SlideGlobe = ({
         />
       )}
       {!stacked && arrow}
+      {docked}
     </div>
   );
 

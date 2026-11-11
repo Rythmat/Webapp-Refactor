@@ -1,8 +1,9 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { SlideRenderer, type SlideSlots } from '../slides/SlideRenderer';
 import type { Slide } from '../slides/types';
 import type { Interaction, StudentLanguage } from '../types';
+import { PresentControlsContext } from './presentControls';
 
 interface FocusProps {
   /** The current deck slide, whatever its kind. */
@@ -60,21 +61,50 @@ export const Focus = ({
     return () => document.removeEventListener('keydown', onKey);
   }, [onExit, onPrev, onNext, hasPrev, hasNext]);
 
+  // The slide's own controls (the globe's next place) share the bar's row,
+  // which spans the slide as drawn (it may be narrower than the window).
+  const [controls, setControls] = useState<HTMLElement | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [inset, setInset] = useState({ left: 0, right: 0 });
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const measure = () => {
+      const frame = root.querySelector('.slide-frame');
+      if (!frame) return;
+      const r = root.getBoundingClientRect();
+      const f = frame.getBoundingClientRect();
+      const left = Math.max(0, Math.round(f.left - r.left));
+      const right = Math.max(0, Math.round(r.right - f.right));
+      setInset((was) =>
+        was.left === left && was.right === right ? was : { left, right },
+      );
+    };
+    measure();
+    const seen = new ResizeObserver(measure);
+    seen.observe(root);
+    return () => seen.disconnect();
+  }, [slide.id]);
+
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col">
-      <SlideRenderer
-        key={slide.id}
-        slide={slide}
-        surface="present"
-        language={language}
-        interactions={interactions}
-        slots={slots}
-      />
+    <div ref={rootRef} className="relative flex min-h-0 flex-1 flex-col">
+      <PresentControlsContext.Provider value={controls}>
+        <SlideRenderer
+          key={slide.id}
+          slide={slide}
+          surface="present"
+          language={language}
+          interactions={interactions}
+          slots={slots}
+        />
+      </PresentControlsContext.Provider>
 
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center"
+        className="pointer-events-none absolute bottom-6 z-20 grid grid-cols-[1fr_auto_1fr] items-center px-6"
+        style={{ left: inset.left, right: inset.right }}
         aria-hidden={false}
       >
+        <span />
         <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-daw-edge bg-daw-pill px-3 py-2">
           <button
             type="button"
@@ -96,6 +126,7 @@ export const Focus = ({
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
+        <div ref={setControls} className="flex justify-end" />
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 /**
  * SlideFrameChrome — the shell shared by every slide surface: the optional
- * left accent bar, and on the room's screen a quiet line of the lesson's six
- * sections along the bottom edge, the current one lit.
+ * left accent bar, and on the room's screen (not Present) a quiet line of the
+ * lesson's six sections along the bottom edge, the current one lit.
  *
  * No words (owner, 2026-11-10: "no extra text at all"). The section chip that
  * used to sit top-left is gone from every surface; the editor's filmstrip and
@@ -17,11 +17,11 @@ interface SlideFrameChromeProps {
   surface: SlideSurface;
 }
 
-/** Projected surfaces only: a student's own device needs no map of the room. */
-const SHOWS_PROGRESS: ReadonlySet<SlideSurface> = new Set([
-  'projector',
-  'present',
-]);
+/**
+ * The room's screen only: a student's own device needs no map of the room,
+ * and Present shows nothing but the slide (owner, 2026-11-10).
+ */
+const SHOWS_PROGRESS: ReadonlySet<SlideSurface> = new Set(['projector']);
 
 export const SectionProgress = ({ slide }: { slide: Slide }) => {
   const current = sectionOf(slide);

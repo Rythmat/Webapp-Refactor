@@ -473,7 +473,6 @@ export const TeacherSessionDashboard = () => {
             if (s) sendNav(s.phase, i);
           }}
           onExit={() => setPresenting(false)}
-          onEnd={() => setConfirmingEnd(true)}
           slots={presentSlots}
         />
         {/* Echo's rounds run from this computer: they go on while presenting. */}

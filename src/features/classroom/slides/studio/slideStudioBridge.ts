@@ -1,12 +1,13 @@
 /**
  * The framed Studio's side of the Group Practice slide (`slideStudio.ts`):
  * the slide's step messages move the tutorial, every step it reaches is told
- * back, and a clicker's keys go to the lesson. A step asked for before the
+ * back, and the keys that move the lesson go to it. A step asked for before the
  * lesson has booted is kept until it has.
  *
  * Plain, over the store's small surface, so it tests without the editor.
  */
 import {
+  ARROW_KEYS,
   CLICKER_KEYS,
   SLIDE_STUDIO_KEY,
   SLIDE_STUDIO_STATE,
@@ -37,6 +38,18 @@ export interface SlideStudioBridge {
   /** A lesson's step count, 0 when unknown. */
   totalOf: (tutorialId: string | null) => number;
 }
+
+const isTyping = (target: EventTarget | null): boolean => {
+  if (!target || typeof (target as HTMLElement).tagName !== 'string')
+    return false;
+  const el = target as HTMLElement;
+  return (
+    el.isContentEditable ||
+    el.tagName === 'INPUT' ||
+    el.tagName === 'TEXTAREA' ||
+    el.tagName === 'SELECT'
+  );
+};
 
 /** Wire the frame to its slide; returns the disconnect. */
 export const connectSlideStudio = ({
@@ -82,11 +95,23 @@ export const connectSlideStudio = ({
     if (e.origin !== origin || e.source !== parent) return;
     if (isSlideStudioStep(e.data)) go(e.data.at);
   };
-  // A clicker's Page Up / Page Down move the lesson, not the Studio.
+  const send = (key: string) =>
+    parent.postMessage({ type: SLIDE_STUDIO_KEY, key }, origin);
   const onKey = (e: KeyboardEvent) => {
-    if (!(e.key in CLICKER_KEYS)) return;
-    e.preventDefault();
-    parent.postMessage({ type: SLIDE_STUDIO_KEY, key: e.key }, origin);
+    // A clicker's Page Up / Page Down move the lesson, not the Studio.
+    if (e.key in CLICKER_KEYS) {
+      e.preventDefault();
+      send(e.key);
+      return;
+    }
+    // A plain arrow moves the lesson unless the Studio used it (its one key
+    // listener marks every key it takes) or it is moving a caret.
+    if (!ARROW_KEYS.has(e.key) || e.repeat) return;
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (isTyping(e.target)) return;
+    setTimeout(() => {
+      if (!e.defaultPrevented) send(e.key);
+    }, 0);
   };
 
   host.addEventListener('message', onMessage);

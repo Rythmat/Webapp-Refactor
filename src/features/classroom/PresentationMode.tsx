@@ -2,10 +2,10 @@
  * Presentation Mode — the projected deck for a classroom.
  *
  * Present renders the DECK slide-by-slide (single source of truth, so "what you
- * edit is what you present"): one full-bleed slide via `Focus`, with a prev/next
- * pager and the presenter's controls on its row (Exit / language /
- * fullscreen; no top rail, owner 2026-11-10). Launch tiles on a
- * slide open Atlas modules in a new tab. The legacy 5-phase board is gone — Present
+ * edit is what you present"): one slide via `Focus`, filling the window, and
+ * nothing else (owner, 2026-11-10: no bars or buttons; the arrow keys move
+ * it, Esc exits; the slides speak the class's language setting). Launch tiles
+ * on a slide open Atlas modules in a new tab. The legacy 5-phase board is gone — Present
  * opens straight on the slides.
  *
  * Data path: `buildStudentView(day, config)` is the ONLY source. The
@@ -14,7 +14,7 @@
  * is the read-path backstop: if a projection ever regresses, the offending key
  * is stripped and reported rather than blanking the lesson mid-class.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { useCanEditClassroom } from '@/hooks/data';
@@ -24,19 +24,13 @@ import { PHASES } from './phases';
 import { newBlankDay } from './plan/newBlankDay';
 import { useLocalPlan } from './plan/useLocalPlan';
 import { Focus } from './presentation/Focus';
-import { PresenterControls } from './presentation/PresenterControls';
 import { SnapshotRepairBadge } from './publish/SnapshotRepairBadge';
 import { publishDay } from './publish/publishDay';
 import { useSanitizedStudentView } from './publish/useRuleOneReadGuard';
 import { useTeacherConfig } from './settings/useTeacherConfig';
 import { slideAt, slideInteractionIds } from './slides/deck';
 import { emptyDeck } from './slides/deckEdit';
-import type {
-  AgePreset,
-  Interaction,
-  StudentLanguage,
-  StudentViewConfig,
-} from './types';
+import type { AgePreset, Interaction, StudentViewConfig } from './types';
 import './presentation.css';
 
 export const PresentationMode = () => {
@@ -63,15 +57,14 @@ export const PresentationMode = () => {
   const [placeholderDay] = useState(() => newBlankDay());
   const day = storedDay ?? placeholderDay;
 
-  const [language, setLanguage] = useState<StudentLanguage>('en');
   // Per-section age preset. This used to be hard-coded 'high' while
   // `agePresetDefault` sat in settings with ZERO readers — a picker teachers
   // could set that changed nothing. It now resolves per classroom.
   const { config: teacherConfig } = useTeacherConfig(cid);
   const agePreset: AgePreset = teacherConfig.agePresetDefault;
+  // One language per class (owner, 2026-11-10).
+  const language = teacherConfig.language;
   const [focusIndex, setFocusIndex] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const rootRef = useRef<HTMLDivElement | null>(null);
 
   const config: StudentViewConfig = useMemo(
     () => ({ language, agePreset }),
@@ -153,16 +146,6 @@ export const PresentationMode = () => {
     [goToSlide, focusIndex],
   );
 
-  const toggleFullscreen = useCallback(() => {
-    const el = rootRef.current;
-    if (!el) return;
-    if (document.fullscreenElement) {
-      void document.exitFullscreen();
-    } else {
-      void el.requestFullscreen();
-    }
-  }, []);
-
   const exitToClassroom = useCallback(() => {
     if (document.fullscreenElement) {
       void document.exitFullscreen();
@@ -173,14 +156,6 @@ export const PresentationMode = () => {
       navigate(TeacherRoutes.root());
     }
   }, [classroomId, navigate]);
-
-  // Track native fullscreen state so the icon toggles even if the user hits
-  // Esc (which the browser handles without going through our button).
-  useEffect(() => {
-    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
-    document.addEventListener('fullscreenchange', onChange);
-    return () => document.removeEventListener('fullscreenchange', onChange);
-  }, []);
 
   if (!storedDay) {
     return (
@@ -207,10 +182,13 @@ export const PresentationMode = () => {
 
   return (
     <div
-      ref={rootRef}
-      className="presentation-root flex h-full min-h-0 w-full flex-col"
+      className="presentation-root relative flex h-full min-h-0 w-full flex-col"
       data-age={agePreset}
     >
+      {/* Rule 1: a repaired snapshot still tells the teacher (only then). */}
+      <div className="absolute left-4 top-4 z-20">
+        <SnapshotRepairBadge stripped={repairedPaths} />
+      </div>
       {currentSlide && (
         <Focus
           slide={currentSlide}
@@ -221,19 +199,6 @@ export const PresentationMode = () => {
           onNext={goNextSlide}
           hasPrev={focusIndex > 0}
           hasNext={focusIndex < presentDeck.slides.length - 1}
-          position={`${focusIndex + 1} / ${presentDeck.slides.length}`}
-          presenter={
-            <PresenterControls
-              onExit={exitToClassroom}
-              exitLabel="Exit Presentation Mode"
-              language={language}
-              onLanguageChange={setLanguage}
-              isFullscreen={isFullscreen}
-              onToggleFullscreen={toggleFullscreen}
-            >
-              <SnapshotRepairBadge stripped={repairedPaths} />
-            </PresenterControls>
-          }
         />
       )}
     </div>

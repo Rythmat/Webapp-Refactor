@@ -6,7 +6,9 @@
  * arrow moves it to the next, and the map flies there as it does in the
  * Globe section.
  *
- *   room's screen, Present  the map, the place's story card, the arrow
+ *   room's screen           the map, the place's story card, the arrow
+ *   Present                 the same, without the arrow: the teacher's → / ←
+ *                           move through the places, then the slides
  *   a student's device      the same, on their own map (on a phone, the card
  *                           and the arrow sit under the map)
  *   the editor's canvas     the map, not taking the pointer (the slide is
@@ -24,10 +26,9 @@ import {
   useRef,
   useState,
 } from 'react';
-import { createPortal } from 'react-dom';
 import { GlobeRoutes } from '@/constants/routes';
 import { pickLocalized } from '../../presentation/localized';
-import { PresentControlsContext } from '../../presentation/presentControls';
+import { usePresentSteps } from '../../presentation/presentControls';
 import type { LocalizedText, StudentLanguage } from '../../types';
 import {
   SLIDE_GLOBE_GO,
@@ -380,18 +381,30 @@ export const SlideGlobe = ({
     return () => window.removeEventListener('message', onMessage);
   }, []);
 
-  const barSlot = useContext(PresentControlsContext);
-
-  if (still) return <StillGlobe globe={globe} language={language} />;
-
-  const next = () => {
-    if (stops.length < 2) return;
-    const to = (at + 1) % stops.length;
+  const goTo = (to: number) => {
     setAt(to);
     frame.current?.contentWindow?.postMessage(
       { type: SLIDE_GLOBE_GO, at: to },
       window.location.origin,
     );
+  };
+  // Presenting, the teacher's arrow keys move through the places; past the
+  // last (or before the first) they move the slide.
+  const stepping = !still && !inert && stops.length > 1;
+  const presenting = usePresentSteps(
+    stepping
+      ? {
+          next: () => (at < stops.length - 1 ? (goTo(at + 1), true) : false),
+          prev: () => (at > 0 ? (goTo(at - 1), true) : false),
+        }
+      : null,
+  );
+
+  if (still) return <StillGlobe globe={globe} language={language} />;
+
+  const next = () => {
+    if (stops.length < 2) return;
+    goTo((at + 1) % stops.length);
   };
 
   // Laid out at the screen's size and scaled back into the design canvas.
@@ -405,35 +418,8 @@ export const SlideGlobe = ({
         }
       : { width: '100%', height: '100%' };
 
-  // Presenting: on the slide bar's row, at its height (owner, 2026-11-10).
-  const docked =
-    barSlot && !stacked && !inert && stops.length > 1
-      ? createPortal(
-          <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-daw-edge bg-daw-pill py-2 pl-4 pr-3">
-            {stops.map((stop, i) => (
-              <span
-                key={i}
-                aria-hidden
-                className={`size-2 rounded-full transition-colors ${
-                  i === at ? 'bg-white' : 'bg-white/30'
-                }`}
-              />
-            ))}
-            <button
-              type="button"
-              onClick={next}
-              aria-label="Next place"
-              className="ml-1 inline-flex size-9 items-center justify-center rounded-full bg-white text-black transition-transform hover:scale-105"
-            >
-              <ChevronRight aria-hidden className="h-5 w-5" />
-            </button>
-          </div>,
-          barSlot,
-        )
-      : null;
-
   const arrow =
-    !barSlot && !inert && stops.length > 1 ? (
+    !presenting && !inert && stops.length > 1 ? (
       <div
         className={`flex items-center rounded-full bg-black/60 ${
           stacked
@@ -496,7 +482,6 @@ export const SlideGlobe = ({
         />
       )}
       {!stacked && arrow}
-      {docked}
     </div>
   );
 

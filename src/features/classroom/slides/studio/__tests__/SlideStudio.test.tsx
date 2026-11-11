@@ -1,13 +1,7 @@
 // @vitest-environment jsdom
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-} from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { PresentControlsContext } from '../../../presentation/presentControls';
+import { Focus } from '../../../presentation/Focus';
 import type { Interaction } from '../../../types';
 import { SlideRenderer } from '../../SlideRenderer';
 import { SlideStudio } from '../../parts/SlideStudio';
@@ -35,62 +29,110 @@ const fromFrame = (data: unknown) =>
     );
   });
 
-const presenting = (ui: React.ReactNode) => {
-  const bar = document.createElement('div');
-  document.body.appendChild(bar);
-  render(
-    <PresentControlsContext.Provider value={bar}>
-      {ui}
-    </PresentControlsContext.Provider>,
-  );
-  return bar;
-};
-
-describe('SlideStudio on Present', () => {
-  it('puts the tutorial’s step on the slide bar, and moves it', () => {
-    const bar = presenting(<SlideStudio tutorialId="rnb" />);
-    expect(frameOf()!.getAttribute('src')).toBe('/studio/slide?tutorial=rnb');
-    // No step until the Studio says where it is.
-    expect(bar.textContent).toBe('');
-    fromFrame({ type: SLIDE_STUDIO_STATE, step: 2, total: 14 });
-    expect(bar.textContent).toContain('Step 3 / 14');
-
-    const post = vi.spyOn(frameOf()!.contentWindow!, 'postMessage');
-    fireEvent.click(screen.getByRole('button', { name: 'Next step' }));
-    expect(post).toHaveBeenCalledWith(
-      { type: SLIDE_STUDIO_STEP, at: 3 },
-      window.location.origin,
-    );
-    fireEvent.click(screen.getByRole('button', { name: 'Previous step' }));
-    expect(post).toHaveBeenLastCalledWith(
-      { type: SLIDE_STUDIO_STEP, at: 1 },
-      window.location.origin,
-    );
+const press = (key: string) =>
+  act(() => {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key }));
   });
 
-  it('leads the class in a session, and follows the teacher’s panel once', () => {
+const groupSlide = {
+  id: 's-group',
+  kind: 'app-route',
+  phase: 'groupPractice',
+  section: 'groupProject',
+  presetId: 'hero',
+  title: { en: 'Producer' },
+  interactionId: 'i1',
+} as unknown as Slide;
+const groupInteractions = [
+  {
+    id: 'i1',
+    type: 'atlas',
+    question: { en: 'Follow along' },
+    shareable: false,
+    atlas: {
+      module: 'studio',
+      activityRef: 'studio:tutorial:rnb-mix-and-polish',
+      expects: 'completion',
+      follow: true,
+    },
+  } as Interaction,
+];
+
+describe('Present, driven by the arrow keys', () => {
+  const present = () => {
+    const nav = { next: vi.fn(), prev: vi.fn(), exit: vi.fn() };
+    render(
+      <Focus
+        slide={groupSlide}
+        language="en"
+        interactions={groupInteractions}
+        onExit={nav.exit}
+        onPrev={nav.prev}
+        onNext={nav.next}
+        hasPrev
+        hasNext
+      />,
+    );
+    return nav;
+  };
+
+  it('shows nothing but the slide: no bar, no buttons', () => {
+    present();
+    expect(screen.queryAllByRole('button')).toHaveLength(0);
+  });
+
+  it('moves through the tutorial’s steps, then on to the next slide', () => {
+    const nav = present();
+    const post = vi.spyOn(frameOf()!.contentWindow!, 'postMessage');
+    fromFrame({ type: SLIDE_STUDIO_STATE, step: 12, total: 14 });
+    press('ArrowRight');
+    expect(post).toHaveBeenLastCalledWith(
+      { type: SLIDE_STUDIO_STEP, at: 13 },
+      window.location.origin,
+    );
+    expect(nav.next).not.toHaveBeenCalled();
+    fromFrame({ type: SLIDE_STUDIO_STATE, step: 13, total: 14 });
+    press('ArrowRight');
+    expect(nav.next).toHaveBeenCalledTimes(1);
+    press('ArrowLeft');
+    expect(post).toHaveBeenLastCalledWith(
+      { type: SLIDE_STUDIO_STEP, at: 12 },
+      window.location.origin,
+    );
+    expect(nav.prev).not.toHaveBeenCalled();
+  });
+
+  it('back from the first step goes to the slide before', () => {
+    const nav = present();
+    fromFrame({ type: SLIDE_STUDIO_STATE, step: 0, total: 14 });
+    press('ArrowLeft');
+    expect(nav.prev).toHaveBeenCalledTimes(1);
+  });
+
+  it('hears the arrows the Studio passes on, and a clicker’s keys', () => {
+    const nav = present();
+    fromFrame({ type: SLIDE_STUDIO_STATE, step: 13, total: 14 });
+    fromFrame({ type: SLIDE_STUDIO_KEY, key: 'ArrowRight' });
+    fromFrame({ type: SLIDE_STUDIO_KEY, key: 'PageDown' });
+    expect(nav.next).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('SlideStudio in a session', () => {
+  it('leads the class, and follows the teacher’s panel once', () => {
     const ui = (step?: number) => (
       <SlideStudio
         tutorialId="rnb"
         follow={{ sessionId: 's1', lead: true, step }}
       />
     );
-    const bar = document.createElement('div');
-    const { rerender } = render(
-      <PresentControlsContext.Provider value={bar}>
-        {ui(0)}
-      </PresentControlsContext.Provider>,
-    );
+    const { rerender } = render(ui(0));
     expect(frameOf()!.getAttribute('src')).toContain('lead=1');
     const post = vi.spyOn(frameOf()!.contentWindow!, 'postMessage');
     fromFrame({ type: SLIDE_STUDIO_STATE, step: 0, total: 14 });
     expect(post).not.toHaveBeenCalled();
     // The panel moves the class: the Studio goes there, once.
-    rerender(
-      <PresentControlsContext.Provider value={bar}>
-        {ui(4)}
-      </PresentControlsContext.Provider>,
-    );
+    rerender(ui(4));
     expect(post).toHaveBeenCalledTimes(1);
     expect(post).toHaveBeenCalledWith(
       { type: SLIDE_STUDIO_STEP, at: 4 },
@@ -100,19 +142,7 @@ describe('SlideStudio on Present', () => {
     expect(post).toHaveBeenCalledTimes(1);
   });
 
-  it('turns a clicker’s Page Down inside the Studio into the next slide', () => {
-    presenting(<SlideStudio tutorialId="rnb" />);
-    const keys: string[] = [];
-    const onKey = (e: KeyboardEvent) => keys.push(e.key);
-    document.addEventListener('keydown', onKey);
-    fromFrame({ type: SLIDE_STUDIO_KEY, key: 'PageDown' });
-    document.removeEventListener('keydown', onKey);
-    expect(keys).toEqual(['ArrowRight']);
-  });
-});
-
-describe('SlideStudio on the room’s screen', () => {
-  it('watches the class’s step, untouched, with no step control', () => {
+  it('on the room’s screen, watches the class’s step, untouched', () => {
     render(
       <SlideStudio
         tutorialId="rnb"
@@ -124,35 +154,12 @@ describe('SlideStudio on the room’s screen', () => {
     expect(src).toContain('watch=1');
     expect(src).not.toContain('lead=1');
     expect(frameOf()!.className).toContain('pointer-events-none');
-    fromFrame({ type: SLIDE_STUDIO_STATE, step: 0, total: 14 });
-    expect(screen.queryByRole('button', { name: 'Next step' })).toBeNull();
   });
 });
 
 describe('the Group Practice slide on each surface', () => {
-  const slide = {
-    id: 's-group',
-    kind: 'app-route',
-    phase: 'groupPractice',
-    section: 'groupProject',
-    presetId: 'hero',
-    title: { en: 'Producer' },
-    interactionId: 'i1',
-  } as unknown as Slide;
-  const interactions = [
-    {
-      id: 'i1',
-      type: 'atlas',
-      question: { en: 'Follow along' },
-      shareable: false,
-      atlas: {
-        module: 'studio',
-        activityRef: 'studio:tutorial:rnb-mix-and-polish',
-        expects: 'completion',
-        follow: true,
-      },
-    } as Interaction,
-  ];
+  const slide = groupSlide;
+  const interactions = groupInteractions;
   const show = (surface: SlideSurface, still = false) =>
     render(
       <SlideRenderer

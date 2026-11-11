@@ -8,10 +8,12 @@
  *
  *   slide → frame   `slide-studio:step`   go to the tutorial's step `at`
  *   frame → slide   `slide-studio:state`  the step it is on, of how many
- *   frame → slide   `slide-studio:key`    a presentation clicker's key
+ *   frame → slide   `slide-studio:key`    a key that moves the lesson
  *
- * The arrow keys stay with the Studio, which uses them; a clicker's Page
- * Up / Page Down still move the lesson while the Studio has the keyboard.
+ * Present is moved with the arrow keys (owner, 2026-11-10), the Studio's
+ * steps first. While the Studio has the keyboard, an arrow it uses (moving a
+ * clip, a Prism suggestion, a field's caret) stays with it; any other, and a
+ * clicker's Page Up / Page Down, goes to the lesson.
  */
 import { StudioRoutes } from '@/constants/routes';
 import type { Interaction } from '../../types';
@@ -111,7 +113,16 @@ export const CLICKER_KEYS: Readonly<Record<string, string>> = {
   PageUp: 'ArrowLeft',
 };
 
+/** The arrows, which move the lesson when the Studio has no use for them. */
+export const ARROW_KEYS: ReadonlySet<string> = new Set([
+  'ArrowRight',
+  'ArrowLeft',
+]);
+
+/** The lesson key a frame's key stands for. */
+export const lessonKeyOf = (key: string): string => CLICKER_KEYS[key] ?? key;
+
 export const isSlideStudioKey = (data: unknown): data is SlideStudioKey =>
   typed(data, SLIDE_STUDIO_KEY) &&
   typeof data.key === 'string' &&
-  data.key in CLICKER_KEYS;
+  (data.key in CLICKER_KEYS || ARROW_KEYS.has(data.key));

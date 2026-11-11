@@ -99,13 +99,11 @@ describe('the messages', () => {
     ).toBe(false);
   });
 
-  it('pass on a clicker’s keys, never the arrows the Studio uses', () => {
-    expect(isSlideStudioKey({ type: SLIDE_STUDIO_KEY, key: 'PageDown' })).toBe(
-      true,
-    );
-    expect(
-      isSlideStudioKey({ type: SLIDE_STUDIO_KEY, key: 'ArrowRight' }),
-    ).toBe(false);
+  it('carry the keys that move the lesson, and no others', () => {
+    for (const key of ['PageDown', 'PageUp', 'ArrowRight', 'ArrowLeft'])
+      expect(isSlideStudioKey({ type: SLIDE_STUDIO_KEY, key })).toBe(true);
+    for (const key of ['ArrowUp', 'Escape', ' '])
+      expect(isSlideStudioKey({ type: SLIDE_STUDIO_KEY, key })).toBe(false);
   });
 });
 
@@ -191,7 +189,7 @@ describe('the framed Studio', () => {
     r.disconnect();
   });
 
-  it('hands a clicker’s Page Down to the lesson and keeps the arrows', () => {
+  it('hands a clicker’s Page Down to the lesson at once', () => {
     const r = rig(true);
     r.parent.postMessage.mockClear();
     const down = new KeyboardEvent('keydown', {
@@ -204,9 +202,45 @@ describe('the framed Studio', () => {
       { type: SLIDE_STUDIO_KEY, key: 'PageDown' },
       'http://app',
     );
-    r.parent.postMessage.mockClear();
-    r.host.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
-    expect(r.parent.postMessage).not.toHaveBeenCalled();
     r.disconnect();
+  });
+
+  it('hands on an arrow the Studio had no use for, and keeps the rest', () => {
+    vi.useFakeTimers();
+    const r = rig(true);
+    r.parent.postMessage.mockClear();
+    // Unused: the lesson moves.
+    r.host.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+    vi.runAllTimers();
+    expect(r.parent.postMessage).toHaveBeenCalledWith(
+      { type: SLIDE_STUDIO_KEY, key: 'ArrowRight' },
+      'http://app',
+    );
+    r.parent.postMessage.mockClear();
+    // The Studio took it (a clip nudged): it stays.
+    const taken = new KeyboardEvent('keydown', {
+      key: 'ArrowLeft',
+      cancelable: true,
+    });
+    r.host.dispatchEvent(taken);
+    taken.preventDefault();
+    vi.runAllTimers();
+    // With a modifier, or moving a caret in a field: it stays too.
+    r.host.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', shiftKey: true }),
+    );
+    const field = document.createElement('textarea');
+    document.body.appendChild(field);
+    field.addEventListener('keydown', (e) => r.host.dispatchEvent(e), {
+      once: true,
+    });
+    const typed = new KeyboardEvent('keydown', { key: 'ArrowLeft' });
+    Object.defineProperty(typed, 'target', { value: field });
+    r.host.dispatchEvent(typed);
+    vi.runAllTimers();
+    expect(r.parent.postMessage).not.toHaveBeenCalled();
+    field.remove();
+    r.disconnect();
+    vi.useRealTimers();
   });
 });

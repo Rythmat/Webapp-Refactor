@@ -1,15 +1,8 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { SlideRenderer, type SlideSlots } from '../slides/SlideRenderer';
 import type { Slide } from '../slides/types';
 import type { Interaction, StudentLanguage } from '../types';
-import { PresentControlsContext } from './presentControls';
+import { PresentStepsContext, type SlideSteps } from './presentControls';
 
 interface FocusProps {
   /** The current deck slide, whatever its kind. */
@@ -25,8 +18,6 @@ interface FocusProps {
   onNext: () => void;
   hasPrev: boolean;
   hasNext: boolean;
-  /** "3 / 12" — position within the deck. */
-  position: string;
   /**
    * Pre-gated surface slots for a LIVE session — in practice just `reveal`,
    * built with the SAME anonymized gating the projector uses. Present is a
@@ -35,20 +26,22 @@ interface FocusProps {
    * for (`interactionPolicy`), so a check-in can never reach it.
    */
   slots?: SlideSlots;
-  /**
-   * The presenter's own controls (Exit, language, fullscreen), at the left
-   * of the slide bar's row: Present has no top rail (owner, 2026-11-10).
-   */
-  presenter?: ReactNode;
 }
 
+/** The keys that move the lesson on, and back (a clicker sends Page Down/Up). */
+const NEXT_KEYS = new Set(['ArrowRight', 'PageDown']);
+const PREV_KEYS = new Set(['ArrowLeft', 'PageUp']);
+
 /**
- * Focus — one deck slide, full-bleed, rendered through `SlideRenderer` at
- * `surface="present"` — the same single path the projector and the student
- * device use, so Present cannot drift from what the class sees.
+ * Focus — one deck slide, filling the window, rendered through
+ * `SlideRenderer` at `surface="present"` — the same single path the
+ * projector and the student device use, so Present cannot drift from what
+ * the class sees.
  *
- * A bottom bar walks the deck slide-by-slide; Esc exits the presentation,
- * ←/→ (and a clicker's Page Up / Page Down) move between slides.
+ * Nothing on it but the slide (owner, 2026-11-10: no bar, no controls). The
+ * teacher's keyboard drives it: → / ← move through the slide's own steps
+ * (the globe's places, the Studio tutorial's steps; `usePresentSteps`), then
+ * on to the next or back to the previous slide; Esc exits.
  */
 export const Focus = ({
   slide,
@@ -59,49 +52,37 @@ export const Focus = ({
   onNext,
   hasPrev,
   hasNext,
-  position,
   slots,
-  presenter,
 }: FocusProps) => {
+  // The current slide's own steps, when it has any.
+  const steps = useRef<SlideSteps | null>(null);
+  const registerSteps = useCallback((next: SlideSteps | null) => {
+    steps.current = next;
+  }, []);
+
   useEffect(() => {
-    // A presentation clicker sends Page Up / Page Down.
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onExit();
-      if ((e.key === 'ArrowLeft' || e.key === 'PageUp') && hasPrev) onPrev();
-      if ((e.key === 'ArrowRight' || e.key === 'PageDown') && hasNext) onNext();
+      if (e.key === 'Escape') {
+        onExit();
+        return;
+      }
+      if (NEXT_KEYS.has(e.key)) {
+        e.preventDefault();
+        if (steps.current?.next()) return;
+        if (hasNext) onNext();
+      } else if (PREV_KEYS.has(e.key)) {
+        e.preventDefault();
+        if (steps.current?.prev()) return;
+        if (hasPrev) onPrev();
+      }
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [onExit, onPrev, onNext, hasPrev, hasNext]);
 
-  // The slide's own controls (the globe's next place) share the bar's row,
-  // which spans the slide as drawn (it may be narrower than the window).
-  const [controls, setControls] = useState<HTMLElement | null>(null);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const [inset, setInset] = useState({ left: 0, right: 0 });
-  useLayoutEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const measure = () => {
-      const frame = root.querySelector('.slide-frame');
-      if (!frame) return;
-      const r = root.getBoundingClientRect();
-      const f = frame.getBoundingClientRect();
-      const left = Math.max(0, Math.round(f.left - r.left));
-      const right = Math.max(0, Math.round(r.right - f.right));
-      setInset((was) =>
-        was.left === left && was.right === right ? was : { left, right },
-      );
-    };
-    measure();
-    const seen = new ResizeObserver(measure);
-    seen.observe(root);
-    return () => seen.disconnect();
-  }, [slide.id]);
-
   return (
-    <div ref={rootRef} className="relative flex min-h-0 flex-1 flex-col">
-      <PresentControlsContext.Provider value={controls}>
+    <div className="relative flex min-h-0 flex-1 flex-col">
+      <PresentStepsContext.Provider value={registerSteps}>
         <SlideRenderer
           key={slide.id}
           slide={slide}
@@ -110,37 +91,7 @@ export const Focus = ({
           interactions={interactions}
           slots={slots}
         />
-      </PresentControlsContext.Provider>
-
-      <div
-        className="pointer-events-none absolute bottom-6 z-20 grid grid-cols-[1fr_auto_1fr] items-center px-6"
-        style={{ left: inset.left, right: inset.right }}
-        aria-hidden={false}
-      >
-        <div className="flex justify-start">{presenter}</div>
-        <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-daw-edge bg-daw-pill px-3 py-2">
-          <button
-            type="button"
-            onClick={onPrev}
-            disabled={!hasPrev}
-            aria-label="Previous slide"
-            className="inline-flex size-9 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/[0.04] hover:text-white disabled:opacity-30"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <span className="text-sm text-white/50 tabular-nums">{position}</span>
-          <button
-            type="button"
-            onClick={onNext}
-            disabled={!hasNext}
-            aria-label="Next slide"
-            className="inline-flex size-9 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/[0.04] hover:text-white disabled:opacity-30"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
-        <div ref={setControls} className="flex justify-end" />
-      </div>
+      </PresentStepsContext.Provider>
     </div>
   );
 };

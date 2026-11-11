@@ -63,6 +63,11 @@ export interface InteractionBandProps {
    * large, with the faces or the class's count under it.
    */
   hero?: boolean;
+  /**
+   * The live layer in a small place of its own beside the slide's content
+   * (the portrait's check-in): the question small, the tool under it.
+   */
+  compact?: boolean;
 }
 
 export const InteractionBand = ({
@@ -72,6 +77,7 @@ export const InteractionBand = ({
   slots,
   teacherOnly = false,
   hero = false,
+  compact = false,
 }: InteractionBandProps) => {
   if (interactions.length === 0) return null;
 
@@ -95,11 +101,41 @@ export const InteractionBand = ({
               <QuestionText
                 question={interaction.question}
                 language={language}
+                {...(compact ? { scale: 0.6 } : {})}
               />
               {slots?.input?.(interaction)}
             </div>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  // The energy slider: the question small, the class's count beside it,
+  // the slider under it (owner, 2026-11-10: like the Globe's era rail). The
+  // teacher's preview shows it as the room does; the dots stay in the panel.
+  const energy = teacherOnly
+    ? interactions.find(
+        (i) => i.checkIn?.style === 'feelings' && i.checkIn.level === 'energy',
+      )
+    : undefined;
+  if (energy) {
+    return (
+      <div
+        className="flex h-full w-full flex-col justify-end gap-[0.6em] overflow-hidden pb-[1.2em]"
+        style={{ fontSize: 'calc(var(--slide-body-fz) * 0.85)' }}
+      >
+        <div className="flex items-end gap-4">
+          <QuestionText
+            question={energy.question}
+            language={language}
+            scale={compact ? 0.6 : 1}
+          />
+          {slots?.statusChip && (
+            <div className="ml-auto shrink-0">{slots.statusChip}</div>
+          )}
+        </div>
+        <FeelingsPreview level="energy" language={language} />
       </div>
     );
   }

@@ -26,6 +26,7 @@ import {
   PRESET_IDS,
   PRESET_LIST,
   presetFor,
+  type SlidePreset,
 } from './presets';
 
 const lt = (en: string) => ({ en });
@@ -145,7 +146,8 @@ describe('shipped presets', () => {
     (id) => {
       const preset = PRESETS[id];
       const claimsLive = preset.kinds.some((k) => LIVE_LAYER_KINDS.includes(k));
-      if (!claimsLive) return;
+      // A live layer of its own place never shares the band.
+      if (!claimsLive || (preset as SlidePreset).liveRect) return;
       expect(preset.bandFree, `${id} claims a live-layer kind`).toBe(true);
       for (const kind of preset.kinds) {
         const els = migrateSlideV1(richSlide(kind, id));

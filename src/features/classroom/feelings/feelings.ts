@@ -8,23 +8,30 @@ import type { FeelingsLevel, LocalizedText, StudentLanguage } from '../types';
 //   advanced  nine faces in a 3×3 grid (the hand-drawn emotion grid)
 //   complex   Plutchik's wheel: eight feelings × three strengths, and any two
 //             of them named as the feeling they make together (the "dyads")
+//   energy    a slider (owner, 2026-11-10): low energy on the left (sad,
+//             tired, shy), regulated in the middle (focused, relaxed, ready
+//             to learn), high energy on the right (excited, anxious, angry);
+//             cool colours to greens to warm
 //
 // A student's answer is one stable string, so the response pipeline, the
 // server and the CSV carry it unchanged as `{kind:'check-in', value}`:
 //
-//   simple:great · advanced:silly · wheel:joy:1 · wheel:joy:2+trust:1
+//   simple:great · advanced:silly · wheel:joy:1 · wheel:joy:2+trust:1 ·
+//   energy:72 (0 low … 100 high)
 //
 // Check-ins are teacher-eyes-only (Rule 2): nothing here reaches a projector.
 // Colour is meaning here, so each feeling carries its own (semantic, not the
 // brand's — none of these is a brand yellow).
 
 export const FEELINGS_LEVELS: readonly FeelingsLevel[] = [
+  'energy',
   'simple',
   'advanced',
   'complex',
 ];
 
 export const FEELINGS_LEVEL_LABEL: Readonly<Record<FeelingsLevel, string>> = {
+  energy: 'Energy',
   simple: 'Simple',
   advanced: 'Advanced',
   complex: 'Complex',
@@ -32,10 +39,120 @@ export const FEELINGS_LEVEL_LABEL: Readonly<Record<FeelingsLevel, string>> = {
 
 /** What a teacher gets at each level, for the picker's hint. */
 export const FEELINGS_LEVEL_HINT: Readonly<Record<FeelingsLevel, string>> = {
+  energy: 'A slider: low energy, regulated, high energy.',
   simple: 'Five faces, from angry to great.',
   advanced: 'Nine faces, for more ways to feel.',
   complex: 'The feelings wheel: eight feelings, three strengths, and blends.',
 };
+
+// ── Energy (a slider) ───────────────────────────────────────────────────────
+
+export type EnergyZoneId = 'low' | 'regulated' | 'high';
+
+export interface EnergyZone {
+  id: EnergyZoneId;
+  label: LocalizedText;
+  /** The feelings it holds, left to right. */
+  words: readonly LocalizedText[];
+  /** Where it starts and ends on the slider, 0–100. */
+  from: number;
+  to: number;
+}
+
+export const ENERGY_ZONES: readonly EnergyZone[] = [
+  {
+    id: 'low',
+    label: { en: 'Low energy', es: 'Poca energía' },
+    words: [
+      { en: 'Sad', es: 'Triste' },
+      { en: 'Tired', es: 'Cansado' },
+      { en: 'Shy', es: 'Tímido' },
+    ],
+    from: 0,
+    to: 100 / 3,
+  },
+  {
+    id: 'regulated',
+    label: { en: 'Regulated', es: 'En calma' },
+    words: [
+      { en: 'Focused', es: 'Concentrado' },
+      { en: 'Relaxed', es: 'Relajado' },
+      { en: 'Ready to learn', es: 'Listo para aprender' },
+    ],
+    from: 100 / 3,
+    to: 200 / 3,
+  },
+  {
+    id: 'high',
+    label: { en: 'High energy', es: 'Mucha energía' },
+    words: [
+      { en: 'Excited', es: 'Emocionado' },
+      { en: 'Anxious', es: 'Ansioso' },
+      { en: 'Angry', es: 'Enojado' },
+    ],
+    from: 200 / 3,
+    to: 100,
+  },
+];
+
+/**
+ * The slider's colours, left to right: cool (blue, cyan) for low energy,
+ * greens for regulated, warm (orange, red) for high. None is a brand yellow.
+ */
+export const ENERGY_STOPS: readonly { at: number; color: string }[] = [
+  { at: 0, color: '#6366f1' },
+  { at: 0.17, color: '#3b82f6' },
+  { at: 0.3, color: '#22d3ee' },
+  { at: 0.42, color: '#34d399' },
+  { at: 0.5, color: '#22c55e' },
+  { at: 0.6, color: '#84cc16' },
+  { at: 0.72, color: '#fb923c' },
+  { at: 0.86, color: '#f97316' },
+  { at: 1, color: '#ef4444' },
+];
+
+/** The slider's colours as a CSS gradient, left to right. */
+export const ENERGY_GRADIENT = `linear-gradient(to right, ${ENERGY_STOPS.map(
+  (s) => `${s.color} ${Math.round(s.at * 100)}%`,
+).join(', ')})`;
+
+const hex = (h: string) =>
+  [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+
+/** The slider's colour at a value, 0–100. */
+export const energyColor = (value: number): string => {
+  const t = Math.min(1, Math.max(0, value / 100));
+  const i = Math.max(
+    1,
+    ENERGY_STOPS.findIndex((s) => s.at >= t),
+  );
+  const a = ENERGY_STOPS[i - 1]!;
+  const b = ENERGY_STOPS[i]!;
+  const k = (t - a.at) / (b.at - a.at || 1);
+  const [r, g, bl] = hex(a.color).map((c, j) =>
+    Math.round(c + (hex(b.color)[j]! - c) * k),
+  );
+  return `rgb(${r}, ${g}, ${bl})`;
+};
+
+/** The zone a value falls in. */
+export const energyZone = (value: number): EnergyZone =>
+  ENERGY_ZONES.find((z) => value <= z.to) ?? ENERGY_ZONES[2]!;
+
+/** The feeling nearest a value: its zone's word for that part of it. */
+export const energyWord = (value: number): LocalizedText => {
+  const zone = energyZone(value);
+  const share = (value - zone.from) / (zone.to - zone.from || 1);
+  const i = Math.min(
+    zone.words.length - 1,
+    Math.floor(share * zone.words.length),
+  );
+  return zone.words[Math.max(0, i)]!;
+};
+
+/** The answer string for a slider position, 0–100. */
+export const energyValue = (value: number): string =>
+  `energy:${Math.round(Math.min(100, Math.max(0, value)))}`;
 
 // ── Faces (simple + advanced) ───────────────────────────────────────────────
 
@@ -298,7 +415,8 @@ export interface WheelPick {
 
 export type ParsedFeeling =
   | { level: 'simple' | 'advanced'; feeling: FaceFeeling }
-  | { level: 'complex'; picks: WheelPick[]; blend: Dyad | null };
+  | { level: 'complex'; picks: WheelPick[]; blend: Dyad | null }
+  | { level: 'energy'; value: number; zone: EnergyZone };
 
 const isPrimary = (v: string): v is PrimaryId =>
   (PRIMARY_IDS as readonly string[]).includes(v);
@@ -335,6 +453,11 @@ export const parseFeeling = (value: string): ParsedFeeling | null => {
   if (level === 'simple' || level === 'advanced') {
     const feeling = FACES[level].find((f) => f.id === rest);
     return feeling ? { level, feeling } : null;
+  }
+  if (level === 'energy') {
+    if (!/^\d{1,3}$/.test(rest)) return null;
+    const value = Number(rest);
+    return value <= 100 ? { level, value, zone: energyZone(value) } : null;
   }
   if (level !== 'wheel' || !rest) return null;
   const picks: WheelPick[] = [];
@@ -379,6 +502,15 @@ export const describeFeeling = (
 ): FeelingDescription | null => {
   const parsed = parseFeeling(value);
   if (!parsed) return null;
+  if (parsed.level === 'energy') {
+    const color = energyColor(parsed.value);
+    return {
+      label: pick(energyWord(parsed.value), lang),
+      detail: pick(parsed.zone.label, lang),
+      color,
+      colors: [color],
+    };
+  }
   if (parsed.level !== 'complex') {
     return {
       label: pick(parsed.feeling.label, lang),
@@ -434,6 +566,8 @@ export interface ClassMood {
   blends: FeelingTally[];
   /** Answers made with another tool (an older check-in), kept as written. */
   other: FeelingTally[];
+  /** Energy: each student where they put the slider, 0–100. */
+  points: { value: number; name: string }[];
   total: number;
 }
 
@@ -452,6 +586,7 @@ export const buildClassMood = (
   const primaries = new Map<string, string[]>();
   const blends = new Map<string, string[]>();
   const other = new Map<string, string[]>();
+  const points: { value: number; name: string }[] = [];
 
   for (const { value, name } of answers) {
     const parsed = parseFeeling(value);
@@ -459,6 +594,9 @@ export const buildClassMood = (
     // teacher has since changed) is kept as written rather than dropped.
     if (!parsed || parsed.level !== level) {
       tallyInto(other, value, name);
+    } else if (parsed.level === 'energy') {
+      tallyInto(faces, parsed.zone.id, name);
+      points.push({ value: parsed.value, name });
     } else if (parsed.level !== 'complex') {
       tallyInto(faces, parsed.feeling.id, name);
     } else {
@@ -482,13 +620,19 @@ export const buildClassMood = (
     faces:
       level === 'complex'
         ? []
-        : ordered(
-            FACES[level].map((f) => f.id),
-            faces,
-          ),
+        : level === 'energy'
+          ? ordered(
+              ENERGY_ZONES.map((z) => z.id),
+              faces,
+            )
+          : ordered(
+              FACES[level].map((f) => f.id),
+              faces,
+            ),
     primaries: level === 'complex' ? ordered(PRIMARY_IDS, primaries) : [],
     blends: byCount(blends),
     other: byCount(other),
+    points: points.sort((a, b) => a.value - b.value),
     total: answers.length,
   };
 };

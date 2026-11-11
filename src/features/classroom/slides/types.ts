@@ -352,6 +352,11 @@ export interface InteractionSlide extends SlideCommon {
   interactionIds: string[];
   media?: SlideMedia;
   /**
+   * Words beside the question: the portrait's bio, when the class checks in
+   * on it (owner, 2026-11-10).
+   */
+  body?: LocalizedText;
+  /**
    * Projector aggregate style on reveal: choice → bars, text → wall or 'words'
    * (word cloud), number → scale. The word-cloud token is 'words' (a value token,
    * chosen for clarity). NB: the Rule 1 firewall now scans object KEYS only (see

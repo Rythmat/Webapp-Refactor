@@ -502,6 +502,9 @@ const projectSlide = (slide: Slide): Slide => {
         ...common,
         kind: 'interaction',
         interactionIds: [...slide.interactionIds],
+        ...(slide.body !== undefined
+          ? { body: projectLocalized(slide.body) }
+          : {}),
         ...(slide.media !== undefined
           ? { media: projectSlideMedia(slide.media) }
           : {}),

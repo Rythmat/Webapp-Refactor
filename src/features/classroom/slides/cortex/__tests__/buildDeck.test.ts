@@ -69,8 +69,8 @@ describe('a generated Cortex lesson', () => {
   it('runs the six sections in order, one idea a slide', () => {
     expect(slides.map((s) => [s.section, s.phase, s.kind, s.presetId])).toEqual(
       [
-        ['connect', 'connectRegulate', 'interaction', 'hero'],
-        ['showcase', 'connectRegulate', 'content', 'portrait'],
+        // The check-in is asked on the portrait (owner, 2026-11-10).
+        ['showcase', 'connectRegulate', 'interaction', 'portrait-check-in'],
         ['showcase', 'connectRegulate', 'interaction', 'bleed'],
         ['showcase', 'connectRegulate', 'content', 'bleed'],
         ['groupProject', 'groupPractice', 'app-route', 'hero'],
@@ -116,28 +116,46 @@ describe('a generated Cortex lesson', () => {
     }
   });
 
-  it('opens with the check-in alone, kept off the projector', () => {
+  it('asks the energy check-in on the portrait, kept off the projector', () => {
     const [checkIn] = day.cells.connectRegulate.presentation
       .interactions as Interaction[];
     expect(checkIn).toMatchObject({
       type: 'check-in',
       shareable: false,
-      checkIn: { style: 'feelings', level: 'simple' },
+      checkIn: { style: 'feelings', level: 'energy' },
       question: { en: 'How are you feeling today?' },
     });
+    // No page of its own (owner, 2026-11-10): the portrait asks it.
     expect(slides[0]).toMatchObject({
-      presetId: 'hero',
+      kind: 'interaction',
+      presetId: 'portrait-check-in',
       interactionIds: [checkIn.id],
     });
-    // No line under the question (owner, 2026-11-10: no extra text).
-    expect(slides[0]).not.toHaveProperty('prompt');
+    expect(slides.some((s) => s.id.endsWith('-slide-connection'))).toBe(false);
+  });
+
+  it('keeps a page of its own for the faces and the wheel', () => {
+    const faces = applyCortexLessonToDay(
+      newBlankDay('Ana Lux'),
+      plan,
+      choices('promoter', { checkInLevel: 'simple' }),
+      'faces',
+    );
+    expect(faces.deck!.slides[0]).toMatchObject({
+      section: 'connect',
+      presetId: 'hero',
+    });
+    expect(faces.deck!.slides[1]).toMatchObject({
+      kind: 'content',
+      presetId: 'portrait',
+    });
   });
 
   it('shows the subject in three slides: portrait, song, places', () => {
-    // 1. The photo edge to edge, the name and a short bio.
+    // 1. The photo edge to edge, the name and a short bio (and the check-in).
     expect(slide('showcase')).toMatchObject({
-      kind: 'content',
-      presetId: 'portrait',
+      kind: 'interaction',
+      presetId: 'portrait-check-in',
       title: { en: 'Ana Lux' },
       media: { type: 'artistImage', songId: 'night_drive' },
       accent: '#0a9396',
@@ -202,7 +220,9 @@ describe('a generated Cortex lesson', () => {
       shareable: true,
       choice: { options: [{ en: 'groovy' }, { en: 'uplifting' }] },
     });
-    expect(withPoll.deck!.slides[1]).toMatchObject({
+    expect(
+      withPoll.deck!.slides.find((s) => s.id.endsWith('-slide-vibe')),
+    ).toMatchObject({
       section: 'connect',
       presetId: 'hero',
       interactionIds: [vibe!.id],

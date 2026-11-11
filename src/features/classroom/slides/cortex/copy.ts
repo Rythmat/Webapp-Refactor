@@ -18,6 +18,7 @@ export const ROLE_NAME: Readonly<Record<GroupRole, LocalizedText>> = {
 /** The feelings check-in's question, by how fine-grained it is. */
 export const CHECK_IN_QUESTION: Readonly<Record<FeelingsLevel, LocalizedText>> =
   {
+    energy: { en: 'How are you feeling today?', es: '¿Cómo te sientes hoy?' },
     simple: { en: 'How are you feeling today?', es: '¿Cómo te sientes hoy?' },
     advanced: {
       en: 'Which face fits you today?',

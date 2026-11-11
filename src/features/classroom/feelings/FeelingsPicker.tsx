@@ -1,5 +1,6 @@
 import { cn } from '@/components/utilities';
 import type { FeelingsLevel, StudentLanguage } from '../types';
+import { EnergyRail } from './EnergyRail';
 import { FeelingFace } from './FeelingFace';
 import { FeelingsWheel } from './FeelingsWheel';
 import {
@@ -7,6 +8,7 @@ import {
   describeFeeling,
   faceValue,
   facesFor,
+  energyValue,
   parseFeeling,
   primaryLabel,
   shadeOf,
@@ -260,7 +262,14 @@ export const FeelingsPicker = ({
   disabled,
   language = 'en',
 }: FeelingsPickerProps) =>
-  level === 'complex' ? (
+  level === 'energy' ? (
+    <EnergyPicker
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      language={language}
+    />
+  ) : level === 'complex' ? (
     <WheelPicker
       value={value}
       onChange={onChange}
@@ -278,6 +287,31 @@ export const FeelingsPicker = ({
     />
   );
 
+/** The energy slider, answering `energy:<0–100>`. */
+const EnergyPicker = ({
+  value,
+  onChange,
+  disabled,
+  language,
+}: {
+  value: string | null;
+  onChange: (value: string | null) => void;
+  disabled?: boolean | undefined;
+  language: StudentLanguage;
+}) => {
+  const parsed = value ? parseFeeling(value) : null;
+  return (
+    <div style={{ fontSize: 'var(--slide-body-fz, 1rem)' }}>
+      <EnergyRail
+        value={parsed?.level === 'energy' ? parsed.value : null}
+        onChange={(v) => onChange(energyValue(v))}
+        disabled={disabled ?? false}
+        language={language}
+      />
+    </div>
+  );
+};
+
 /** A level's tool as a picture: the editor canvas, the projector, previews. */
 export const FeelingsPreview = ({
   level,
@@ -291,7 +325,9 @@ export const FeelingsPreview = ({
   row?: boolean;
   className?: string;
 }) =>
-  level === 'complex' ? (
+  level === 'energy' ? (
+    <EnergyRail language={language} className={className} />
+  ) : level === 'complex' ? (
     <FeelingsWheel
       language={language}
       className={cn('h-full max-h-full', className)}

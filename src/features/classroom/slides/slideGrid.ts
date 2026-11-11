@@ -93,6 +93,7 @@ export type ZoneFamily =
   | 'centreStack'
   | 'showcase'
   | 'portrait'
+  | 'portraitCheckIn'
   | 'chrome';
 
 /** Vertical gap between stacked elements in a `column` zone. */
@@ -319,6 +320,28 @@ export const SLIDE_GRID = {
     flow: 'column',
     family: 'portrait',
   },
+
+  // ── The portrait with the class's check-in (owner, 2026-11-10) ──────────
+  // The name and bio higher, and the energy slider at the bottom left: a
+  // place for the live layer of its own (chrome, so no element sits there).
+  checkInTitle: {
+    rect: { x: 64, y: 152, w: 760, h: 128 },
+    role: 'content',
+    flow: 'single',
+    family: 'portraitCheckIn',
+  },
+  checkInBody: {
+    rect: { x: 64, y: 288, w: 640, h: 96 },
+    role: 'content',
+    flow: 'column',
+    family: 'portraitCheckIn',
+  },
+  checkInLive: {
+    rect: { x: 64, y: 400, w: 680, h: 240 },
+    role: 'chrome',
+    flow: 'single',
+    family: 'chrome',
+  },
 } as const satisfies Record<string, ZoneSpec>;
 
 export type ZoneName = keyof typeof SLIDE_GRID;
@@ -347,6 +370,7 @@ export const ZONE_FAMILIES: Record<
   centreStack: ['centerStackTop', 'centerStackBottom'],
   showcase: ['captionTitle', 'captionBody'],
   portrait: ['portraitTitle', 'portraitBody'],
+  portraitCheckIn: ['checkInTitle', 'checkInBody'],
 };
 
 /**
@@ -741,6 +765,7 @@ export const REFLOW_ORDER: readonly ZoneName[] = [
   'title',
   'captionTitle', // + the Showcase's name, over its photo
   'portraitTitle', // + the portrait's name
+  'checkInTitle', // + the portrait's name, with the check-in
   'subtitle',
   'rowA',
   'rowB',
@@ -753,6 +778,7 @@ export const REFLOW_ORDER: readonly ZoneName[] = [
   'body',
   'captionBody', // + the Showcase's facts
   'portraitBody', // + the portrait's bio
+  'checkInBody', // + its bio, with the check-in
   'bodyShort', // + not in the spec's list
   'centerStackTop', // + not in the spec's list
   'centerStackBottom', // + not in the spec's list

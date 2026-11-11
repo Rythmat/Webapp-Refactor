@@ -205,6 +205,9 @@ describe('zone name guard', () => {
         'captionBody',
         'captionTitle',
         'centerStackBottom',
+        'checkInBody',
+        'checkInLive',
+        'checkInTitle',
         'centerStackTop',
         'ctaCenter',
         'footer',
@@ -229,7 +232,7 @@ describe('zone name guard', () => {
         'utilityTopRight',
       ].sort(),
     );
-    expect(ZONE_NAMES).toHaveLength(28);
+    expect(ZONE_NAMES).toHaveLength(31);
   });
 });
 

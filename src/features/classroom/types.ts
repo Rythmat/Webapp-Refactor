@@ -147,7 +147,7 @@ export interface Interaction {
 export type CheckInStyle = 'emoji' | 'scale' | 'word' | 'feelings';
 
 /** How fine-grained the emotional check-in is (`feelings/feelings.ts`). */
-export type FeelingsLevel = 'simple' | 'advanced' | 'complex';
+export type FeelingsLevel = 'simple' | 'advanced' | 'complex' | 'energy';
 
 export type InteractionType =
   | 'choice'

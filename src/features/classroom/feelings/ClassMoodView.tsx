@@ -1,12 +1,15 @@
 import { MicroLabel } from '@/components/kit';
 import type { FeelingsLevel } from '../types';
+import { EnergyRail } from './EnergyRail';
 import { FeelingFace } from './FeelingFace';
 import { FeelingsWheel } from './FeelingsWheel';
 import {
+  ENERGY_ZONES,
   PRIMARY_IDS,
   blendLabel,
   buildClassMood,
   describeFeeling,
+  energyColor,
   facesFor,
   primaryLabel,
   shadeOf,
@@ -43,7 +46,38 @@ export const ClassMoodView = ({
 
   return (
     <div className="flex flex-col gap-4">
-      {level === 'complex' ? (
+      {level === 'energy' ? (
+        <>
+          <div style={{ fontSize: '1rem' }}>
+            <EnergyRail points={mood.points} />
+          </div>
+          <ul className="flex flex-col gap-2">
+            {ENERGY_ZONES.map((zone) => {
+              const names =
+                mood.faces.find((t) => t.key === zone.id)?.names ?? [];
+              return (
+                <li
+                  key={zone.id}
+                  className={names.length === 0 ? 'opacity-40' : undefined}
+                >
+                  <span className="flex items-center gap-2 text-[0.875rem] text-daw-text">
+                    <span
+                      aria-hidden
+                      className="size-2.5 rounded-full"
+                      style={{
+                        background: energyColor((zone.from + zone.to) / 2),
+                      }}
+                    />
+                    {zone.label.en}
+                    <Count n={names.length} />
+                  </span>
+                  <Names names={names} />
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      ) : level === 'complex' ? (
         <>
           <FeelingsWheel
             counts={

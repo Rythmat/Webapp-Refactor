@@ -122,7 +122,10 @@ export interface CortexLessonChoices {
   tutorialId?: string;
   /** A Performer's lesson ref; the plan's first when absent. */
   performerRef?: string;
-  /** The Connect check-in's feelings tool: 5 faces, 9 faces, or the wheel. */
+  /**
+   * The Connect check-in's feelings tool: the energy slider (asked on the
+   * Showcase's portrait), 5 faces, 9 faces, or the wheel.
+   */
   checkInLevel: FeelingsLevel;
   checkInQuestion?: LocalizedText;
   /** Add the "which sound matches your mood?" poll when there are vibes. */
@@ -134,7 +137,8 @@ export interface CortexLessonChoices {
 }
 
 export const DEFAULT_CORTEX_CHOICES: Omit<CortexLessonChoices, 'role'> = {
-  checkInLevel: 'simple',
+  // The energy slider, on the portrait (owner, 2026-11-10).
+  checkInLevel: 'energy',
   // One idea a slide (owner, 2026-11-10): the poll is a slide of its own,
   // so it is the teacher's to add.
   vibePoll: false,

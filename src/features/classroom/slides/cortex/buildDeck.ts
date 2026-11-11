@@ -340,7 +340,14 @@ export const buildCortexLessonContent = (
       `The ${choices.role} role has nothing to run for ${focus.label}`,
     );
 
-  const showcase_ = showcaseParts(prefix, plan);
+  // The energy check-in is asked on the portrait (no page of its own); the
+  // faces and the wheel keep their own Connect slide, at full size.
+  const onPortrait = choices.checkInLevel === 'energy';
+  const showcase_ = showcaseParts(
+    prefix,
+    plan,
+    onPortrait ? checkIn.id : undefined,
+  );
 
   const shared = projectAndPresent(prefix, choices.projectMinutes);
 
@@ -355,15 +362,19 @@ export const buildCortexLessonContent = (
       ...shared.interactionsByPhase,
     },
     slides: [
-      {
-        id: `${prefix}-slide-connection`,
-        kind: 'interaction',
-        phase: 'connectRegulate',
-        section: 'connect',
-        presetId: 'hero',
-        title: COPY.connectionTitle,
-        interactionIds: [checkIn.id],
-      },
+      ...(onPortrait
+        ? []
+        : [
+            {
+              id: `${prefix}-slide-connection`,
+              kind: 'interaction' as const,
+              phase: 'connectRegulate' as const,
+              section: 'connect' as const,
+              presetId: 'hero',
+              title: COPY.connectionTitle,
+              interactionIds: [checkIn.id],
+            },
+          ]),
       // The mood poll, when there is one, is a slide of its own.
       ...(vibe
         ? [
@@ -444,17 +455,37 @@ export const showcaseSlideIds = (prefix: string) => ({
 export const showcaseParts = (
   prefix: string,
   plan: CortexLessonPlan,
+  /**
+   * The class's energy check-in, asked on the portrait (owner, 2026-11-10:
+   * the check-in at the first page's bottom left, a slider): its
+   * interaction's id. Without it the portrait is a picture alone.
+   */
+  checkInId?: string,
 ): { slides: Slide[]; interactions: Interaction[] } => {
   const { focus, showcase } = plan;
   const ids = showcaseSlideIds(prefix);
+  const fields = showcaseSlideFields(plan);
   const slides: Slide[] = [
-    {
-      id: ids.portrait,
-      kind: 'content',
-      phase: 'connectRegulate',
-      section: 'showcase',
-      ...showcaseSlideFields(plan),
-    },
+    checkInId
+      ? {
+          id: ids.portrait,
+          kind: 'interaction',
+          phase: 'connectRegulate',
+          section: 'showcase',
+          title: fields.title,
+          ...(fields.body ? { body: fields.body } : {}),
+          ...(fields.media ? { media: fields.media } : {}),
+          presetId: 'portrait-check-in',
+          interactionIds: [checkInId],
+          accent: fields.accent,
+        }
+      : {
+          id: ids.portrait,
+          kind: 'content',
+          phase: 'connectRegulate',
+          section: 'showcase',
+          ...fields,
+        },
   ];
   const interactions: Interaction[] = [];
   if (showcase.listen) {

@@ -10,7 +10,8 @@
  *
  * Pure: no React.
  */
-import { SLIDE_GRID, type ZoneRect } from './slideGrid';
+import { SLIDE_GRID, type ZoneName, type ZoneRect } from './slideGrid';
+import { PRESETS } from './templates/presets';
 import type { Slide, SlideMedia, SlideSurface } from './types';
 
 export type SlideStageKind = 'hero' | 'bleed' | 'portrait';
@@ -19,6 +20,21 @@ const STAGE_PRESETS: Readonly<Record<string, SlideStageKind>> = {
   hero: 'hero',
   bleed: 'bleed',
   portrait: 'portrait',
+  'portrait-check-in': 'portrait',
+};
+
+/**
+ * Where a slide's live layer goes when its preset gives it a place of its
+ * own (the portrait's check-in), else undefined.
+ */
+export const liveRectOf = (
+  slide: Pick<Slide, 'presetId'>,
+): ZoneRect | undefined => {
+  const zone = slide.presetId
+    ? (PRESETS as Record<string, { liveRect?: ZoneName }>)[slide.presetId]
+        ?.liveRect
+    : undefined;
+  return zone ? SLIDE_GRID[zone].rect : undefined;
 };
 
 export const stageKindOf = (

@@ -83,9 +83,9 @@ describe('the first lesson, Michael Jackson · Producer', () => {
       (c) => c.presentation.interactions ?? [],
     );
 
-    // Ten slides: check-in; portrait, song, places; the class's tutorial;
-    // own project; progress, show the class; exit ticket, reset.
-    expect(slides).toHaveLength(10);
+    // Nine slides: the portrait with the check-in, song, places; the class's
+    // tutorial; own project; progress, show the class; exit ticket, reset.
+    expect(slides).toHaveLength(9);
 
     // Every place after where he began has its clip (owner, 2026-11-10),
     // the owner's own where the Globe's event had none worth showing.
@@ -127,7 +127,7 @@ describe('the first lesson, Michael Jackson · Producer', () => {
       const texts = projectedTexts(slide, interactions);
       const portrait = stageKindOf(slide) === 'portrait';
       const textBlocks = texts.filter((t) => t.role !== 'item');
-      expect(textBlocks.length, slide.id).toBeLessThanOrEqual(portrait ? 2 : 1);
+      expect(textBlocks.length, slide.id).toBeLessThanOrEqual(portrait ? 3 : 1);
       for (const { role, text } of texts) {
         expect(labels.has(text.toLowerCase()), `${slide.id}: "${text}"`).toBe(
           false,

@@ -77,14 +77,19 @@ export const applyShowcasePick = (
     if (old.id === slideId || !isSubjectSlide(old)) continue;
     next = setSlideInteractions(next, old.id, []);
   }
-  // A Showcase portrait carries no question; any it had are dropped with it.
-  if (slideInteractionIds(slide).length > 0)
+  // A portrait that asks the class's check-in keeps it (and its answers);
+  // any other question it had is dropped with it.
+  const checkInId =
+    slide.kind === 'interaction' && slide.presetId === 'portrait-check-in'
+      ? slide.interactionIds[0]
+      : undefined;
+  if (!checkInId && slideInteractionIds(slide).length > 0)
     next = setSlideInteractions(next, slideId, []);
 
   const prefix = slideId.endsWith('-slide-showcase')
     ? slideId.slice(0, -'-slide-showcase'.length)
     : `${slideId}-sc`;
-  const parts = showcaseParts(prefix, plan);
+  const parts = showcaseParts(prefix, plan, checkInId);
   const [portrait, ...rest] = parts.slides;
   const first: Slide = {
     ...(portrait as Slide),

@@ -78,7 +78,7 @@ describe('the two-interaction slide specifically', () => {
     // teacher can still stack two: the check-in slide with a second.
     const slides = lesson('Ana Lux', 'promoter').deck?.slides ?? [];
     const checkIn = slides.find(
-      (s) => s.kind === 'interaction' && s.section === 'connect',
+      (s) => s.kind === 'interaction' && s.presetId === 'portrait-check-in',
     );
     expect(checkIn, 'no check-in slide — fixture drifted').toBeDefined();
     const stacked = {

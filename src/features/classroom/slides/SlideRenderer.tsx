@@ -15,7 +15,7 @@ import { resolveElements } from './migrateDeckV1';
 import { InteractionBand } from './parts/InteractionBand';
 import { slideLiveLayer } from './parts/SlideLiveLayer';
 import { SlideStage } from './parts/SlideStage';
-import { projectsQuestion, stageKindOf } from './stage';
+import { liveRectOf, projectsQuestion, stageKindOf } from './stage';
 import type { Slide, SlideSurface } from './types';
 
 export interface SlideSlots {
@@ -129,6 +129,7 @@ export const SlideRenderer = ({
           slots={slots}
           teacherOnly={variant === 'check-in'}
           hero={stage === 'hero' || stage === 'bleed'}
+          compact={Boolean(liveRectOf(slide))}
         />
       ) : null
     ) : (

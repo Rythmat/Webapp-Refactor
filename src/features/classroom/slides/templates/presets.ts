@@ -80,6 +80,13 @@ export interface SlidePreset {
   bandFree: boolean;
   /** Draw the left accent bar (a slide flag — `accentBar` is a chrome zone). */
   accentBar?: boolean;
+  /**
+   * Where the live layer goes, when not in the middle band: a chrome zone of
+   * its own beside the slide's content (the portrait's check-in, bottom
+   * left). A preset that has one may author into the band and still claim a
+   * live-layer kind: the two never share space.
+   */
+  liveRect?: ZoneName;
   zones: PresetZones;
 }
 
@@ -234,6 +241,22 @@ export const PRESETS = {
       visuals: 'off',
       subtitle: 'off',
       body: 'portraitBody',
+      tiles: 'off',
+    },
+  },
+  // The portrait with the class's check-in (owner, 2026-11-10: the check-in
+  // on the Showcase's first page, a slider at its bottom left).
+  'portrait-check-in': {
+    id: 'portrait-check-in',
+    label: 'Portrait + check-in',
+    kinds: ['interaction'],
+    bandFree: false,
+    liveRect: 'checkInLive',
+    zones: {
+      title: 'checkInTitle',
+      visuals: 'off',
+      subtitle: 'off',
+      body: 'checkInBody',
       tiles: 'off',
     },
   },

@@ -12,6 +12,10 @@ import {
   parseFeeling,
   wheelDistance,
   wheelValue,
+  energyColor,
+  energyValue,
+  energyWord,
+  energyZone,
 } from './feelings';
 
 const BRAND_YELLOWS = /#(FFCC33|FFB219|F2920C|FFE873|FFF9B2)\b/i;
@@ -176,6 +180,61 @@ describe('the class mood', () => {
     expect(mood.blends).toEqual([
       { key: 'love', names: ['Ana', 'Cy'] },
       { key: 'mixed', names: ['Dee'] },
+    ]);
+  });
+});
+
+describe('the energy slider', () => {
+  it('writes and reads a position, 0 to 100', () => {
+    expect(energyValue(71.6)).toBe('energy:72');
+    expect(energyValue(-5)).toBe('energy:0');
+    expect(parseFeeling('energy:72')).toMatchObject({
+      level: 'energy',
+      value: 72,
+      zone: { id: 'high' },
+    });
+    expect(parseFeeling('energy:101')).toBeNull();
+    expect(parseFeeling('energy:abc')).toBeNull();
+  });
+
+  it('runs low energy, regulated, high energy, left to right', () => {
+    expect(energyZone(10).id).toBe('low');
+    expect(energyZone(50).id).toBe('regulated');
+    expect(energyZone(90).id).toBe('high');
+    expect(energyWord(2).en).toBe('Sad');
+    expect(energyWord(55).en).toBe('Relaxed');
+    expect(energyWord(99).en).toBe('Angry');
+    expect(describeFeeling('energy:40')).toMatchObject({
+      label: 'Focused',
+      detail: 'Regulated',
+    });
+  });
+
+  it('is cool on the left, green in the middle, warm on the right', () => {
+    const rgb = (c: string) => c.match(/\d+/g)!.map(Number);
+    const [r0, , b0] = rgb(energyColor(0));
+    expect(b0).toBeGreaterThan(r0!);
+    const [r5, g5, b5] = rgb(energyColor(50));
+    expect(g5).toBeGreaterThan(r5!);
+    expect(g5).toBeGreaterThan(b5!);
+    const [r1, , b1] = rgb(energyColor(100));
+    expect(r1).toBeGreaterThan(b1!);
+  });
+
+  it('shows the teacher each student on the slider and in a zone', () => {
+    const mood = buildClassMood(
+      [
+        { value: 'energy:12', name: 'Ana' },
+        { value: 'energy:50', name: 'Ben' },
+        { value: 'energy:48', name: 'Cy' },
+      ],
+      'energy',
+    );
+    expect(mood.points.map((p) => p.name)).toEqual(['Ana', 'Cy', 'Ben']);
+    expect(mood.faces).toEqual([
+      { key: 'low', names: ['Ana'] },
+      { key: 'regulated', names: ['Ben', 'Cy'] },
+      { key: 'high', names: [] },
     ]);
   });
 });

@@ -54,7 +54,7 @@ import {
   withBlock,
   type ResizeEdge,
 } from '../slideLayout';
-import { FULL_CANVAS, STAGE_BAND, stageKindOf } from '../stage';
+import { FULL_CANVAS, STAGE_BAND, liveRectOf, stageKindOf } from '../stage';
 import type {
   Slide,
   SlideBlockKey,
@@ -194,12 +194,16 @@ export const SlideStage = ({
   // A stage preset's live layer takes the whole safe area (`slides/stage.ts`).
   const stageKind = stageKindOf(slide);
   // A full-screen slide's reveal covers it edge to edge.
+  // A preset's own place for the live layer (the portrait's check-in) comes
+  // first: it sits beside the slide's content, not over it.
+  const liveRect = liveRectOf(slide);
   const stageBand =
-    stageKind === 'hero'
+    liveRect ??
+    (stageKind === 'hero'
       ? STAGE_BAND
       : stageKind === 'bleed'
         ? FULL_CANVAS
-        : undefined;
+        : undefined);
   // Derive ONCE. `elements` is the caller's list when it has one (the editor
   // will pass an unsaved draft); otherwise fall back to the slide's own. Before
   // this the stage resolved the slide three times per render — here, in the
@@ -239,7 +243,8 @@ export const SlideStage = ({
   // A reveal is not the question — it is the aggregate — so the footer keeps
   // showing what was asked while the results are up.
   const bandShowsQuestion =
-    Boolean(bandFallback) && !hasBandContent(zoneElements);
+    Boolean(bandFallback) &&
+    (Boolean(liveRect) || !hasBandContent(zoneElements));
   // On a live surface an EMPTY band owns the slide's activity even when it
   // draws nothing (a full-screen video asks on the devices; a share slide
   // waits for a featured project): the footer does not repeat it there. A
@@ -248,7 +253,8 @@ export const SlideStage = ({
   // A full-screen slide is its visual alone, reveal or not.
   const footerStandsDown =
     Boolean(liveBand) &&
-    (stageKind === 'bleed' || (!reveal && !hasBandContent(zoneElements)));
+    (stageKind === 'bleed' ||
+      (!reveal && (Boolean(liveRect) || !hasBandContent(zoneElements))));
 
   const keys = (Object.keys(blocks) as SlideBlockKey[])
     .filter((k) => blocks[k] != null && resolved[k] && !resolved[k]?.hidden)

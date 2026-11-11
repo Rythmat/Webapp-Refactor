@@ -119,6 +119,15 @@ export const ARTIST_STORIES: Readonly<Record<string, readonly StoryMoment[]>> =
   };
 
 /**
+ * The line a portrait shows under an artist's name, where the owner wrote
+ * one (2026-11-10: "The King of Pop"), in place of the bio made from their
+ * facts; the facts stay in the teacher's notes. By the artist's slug.
+ */
+export const ARTIST_TAGLINES: Readonly<Record<string, LocalizedText>> = {
+  'michael-jackson': { en: 'The King of Pop', es: 'El Rey del Pop' },
+};
+
+/**
  * The clips the owner chose for the Globe's own events on an artist's
  * globe (by the artist's slug, then the event's id), where the event's video
  * is gone or another tells the story better. The Globe's events are left as

@@ -130,6 +130,13 @@
   --slide-title-fz: 80px;
 }
 
+/* A portrait's name in the regular weight (owner, 2026-11-10), on every
+   surface. Only the default (semibold): a title the teacher made bold in the
+   editor's text menu stays bold. */
+.slide-frame--stage-portrait h1.font-semibold {
+  font-weight: 400;
+}
+
 /* The portrait's slow push-in and the globe's place names arriving. */
 @keyframes stage-push-in {
   from {

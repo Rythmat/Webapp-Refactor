@@ -7,6 +7,7 @@ import type {
   LocalizedText,
 } from '../../types';
 import type { Slide, SlideDeck, SlideDeckTemplateRef } from '../types';
+import { ARTIST_TAGLINES } from './artistStories';
 import {
   CHECK_IN_QUESTION,
   COPY,
@@ -21,6 +22,7 @@ import {
   promoterTask,
   tourTask,
 } from './copy';
+import { slugOf } from './graphQueries';
 import { lessonRationale, withPartRationale } from './lessonRationale';
 import { showcaseBio } from './showcase';
 import type { CortexLessonChoices, CortexLessonPlan, GroupRole } from './types';
@@ -424,7 +426,10 @@ export const showcaseSlideFields = (
   'title' | 'body' | 'presetId' | 'media' | 'accent'
 > => {
   const { focus, showcase } = plan;
-  const bio = showcaseBio(showcase.facts);
+  // The owner's own line for the artist, else the bio from their facts.
+  const bio =
+    (focus.kind === 'artist' ? ARTIST_TAGLINES[slugOf(focus.id)] : undefined) ??
+    showcaseBio(showcase.facts);
   const visual = showcase.portrait ?? showcase.globe ?? showcase.visual;
   return {
     title: { en: focus.label, es: focus.label },

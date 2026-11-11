@@ -87,6 +87,15 @@ describe('the first lesson, Michael Jackson · Producer', () => {
     // tutorial; own project; progress, show the class; exit ticket, reset.
     expect(slides).toHaveLength(9);
 
+    // The portrait says what the owner wrote for him, not the facts.
+    const portrait = slides.find((s) => stageKindOf(s) === 'portrait') as
+      | { body?: { en: string; es?: string } }
+      | undefined;
+    expect(portrait?.body).toEqual({
+      en: 'The King of Pop',
+      es: 'El Rey del Pop',
+    });
+
     // Every place after where he began has its clip (owner, 2026-11-10),
     // the owner's own where the Globe's event had none worth showing.
     const places = slides.find((s) => s.id.endsWith('-slide-places')) as

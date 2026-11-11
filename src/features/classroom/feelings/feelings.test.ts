@@ -203,7 +203,7 @@ describe('the energy slider', () => {
     expect(energyZone(10).id).toBe('low');
     expect(energyZone(50).id).toBe('regulated');
     expect(energyZone(90).id).toBe('high');
-    expect(energyWord(0).en).toBe('Tired');
+    expect(energyWord(0).en).toBe('Sad');
     expect(energyWord(54).en).toBe('Focused');
     expect(energyWord(100).en).toBe('Angry');
     expect(describeFeeling('energy:40')).toMatchObject({
@@ -214,8 +214,8 @@ describe('the energy slider', () => {
 
   it('places twelve feelings by energy, each in its zone, none "right"', () => {
     expect(ENERGY_EMOTIONS.map((e) => e.word.en)).toEqual([
-      'Tired',
       'Sad',
+      'Tired',
       'Bored',
       'Shy',
       'Relaxed',
@@ -243,9 +243,9 @@ describe('the energy slider', () => {
   });
 
   it('gives each feeling the stretch between the midpoints', () => {
-    // Tired 6 · Sad 15: the line is at 10.5.
-    expect(energyEmotion(10).id).toBe('tired');
-    expect(energyEmotion(11).id).toBe('sad');
+    // Sad 6 · Tired 15: the line is at 10.5.
+    expect(energyEmotion(10).id).toBe('sad');
+    expect(energyEmotion(11).id).toBe('tired');
     // Confident 61 · Excited 71: the line is at 66.
     expect(energyEmotion(65).id).toBe('confident');
     expect(energyEmotion(67).id).toBe('excited');

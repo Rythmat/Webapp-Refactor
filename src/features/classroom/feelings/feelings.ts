@@ -128,7 +128,7 @@ export const energyZone = (value: number): EnergyZone =>
  * nine (sad, tired, shy; focused, relaxed, confident, which took "ready to
  * learn"'s place on 2026-11-10; excited, anxious, angry) and three more from the Zones of Regulation (bored, happy,
  * frustrated), ordered low to high as Russell's circumplex orders arousal
- * (tired lowest, angry highest), each inside its zone. Hidden on the slider
+ * (angry highest; the owner put sad below tired), each inside its zone. Hidden on the slider
  * until a student slides onto one; none is the "right" place to be.
  */
 export interface EnergyEmotion {
@@ -140,8 +140,9 @@ export interface EnergyEmotion {
 }
 
 export const ENERGY_EMOTIONS: readonly EnergyEmotion[] = [
-  { id: 'tired', at: 6, word: { en: 'Tired', es: 'Cansado' }, face: 'tired' },
-  { id: 'sad', at: 15, word: { en: 'Sad', es: 'Triste' }, face: 'sad' },
+  // Sad first, then Tired (owner, 2026-11-10).
+  { id: 'sad', at: 6, word: { en: 'Sad', es: 'Triste' }, face: 'sad' },
+  { id: 'tired', at: 15, word: { en: 'Tired', es: 'Cansado' }, face: 'tired' },
   { id: 'bored', at: 23, word: { en: 'Bored', es: 'Aburrido' }, face: 'okay' },
   { id: 'shy', at: 30, word: { en: 'Shy', es: 'Tímido' }, face: 'embarrassed' },
   {

@@ -29,13 +29,13 @@ describe('the energy slider', () => {
     const { container, rerender } = render(
       <EnergyRail value={6} onChange={() => {}} />,
     );
-    expect(screen.getByText('Tired')).toBeTruthy();
+    expect(screen.getByText('Sad')).toBeTruthy();
     expect(
-      container.querySelector('[data-energy-emotion="tired"] svg'),
+      container.querySelector('[data-energy-emotion="sad"] svg'),
     ).not.toBeNull();
     rerender(<EnergyRail value={95} onChange={() => {}} language="es" />);
     expect(screen.getByText('Enojado')).toBeTruthy();
-    expect(screen.queryByText('Tired')).toBeNull();
+    expect(screen.queryByText('Sad')).toBeNull();
   });
 
   it('leaves the arrow keys to the lesson when asked (Present)', () => {

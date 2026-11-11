@@ -37,6 +37,20 @@ const STREAKS = {
   WebkitMaskImage: 'linear-gradient(to top, black, transparent)',
 };
 
+/**
+ * The glow about the rim, brightest on it and fading every way: drawn with
+ * masks, not a blur, so a band that clips its content shows no hard edge.
+ */
+const BLOOM_MASK =
+  'linear-gradient(to bottom, transparent, black 80%, transparent), linear-gradient(to right, transparent, black 10%, black 90%, transparent)';
+const BLOOM = {
+  background: ENERGY_GRADIENT,
+  maskImage: BLOOM_MASK,
+  maskComposite: 'intersect',
+  WebkitMaskImage: BLOOM_MASK,
+  WebkitMaskComposite: 'source-in',
+} as const;
+
 const STEP = 5;
 const ALIGN = ['text-left', 'text-center', 'text-right'] as const;
 
@@ -142,8 +156,8 @@ export const EnergyRail = ({
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-[-0.2em] h-[1.1em] opacity-55 blur-xl"
-          style={{ background: ENERGY_GRADIENT }}
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[2.2em] opacity-45"
+          style={BLOOM}
         />
         <div
           aria-hidden

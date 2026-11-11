@@ -4,7 +4,7 @@ import type { LocalizedText } from '../../types';
 import { atRef } from '../globe/slideGlobeStops';
 import { getYouTubeVideoId } from '../songDeepLinks';
 import type { SlideMedia } from '../types';
-import { ARTIST_STORIES } from './artistStories';
+import { ARTIST_STORIES, STORY_VIDEOS } from './artistStories';
 import type { LessonCatalog } from './catalog';
 import { linked, listOf, slugOf, type LessonGraph } from './graphQueries';
 import type {
@@ -384,6 +384,10 @@ const artistStops = (
   };
   const spot = ([lat, lng]: [number, number]) =>
     `${lat.toFixed(1)},${lng.toFixed(1)}`;
+  // The owner's clip for an event, else the event's own.
+  const chosen = STORY_VIDEOS[slugOf(focus.id)] ?? {};
+  const storyVideo = (eventId: string, own: string | undefined) =>
+    chosen[eventId] ?? own;
   // Events pinned on the home town are the songs' pins, not moments of the
   // story; anywhere else, several moments may share a city (Los Angeles).
   const home$ = spot(homeAt);
@@ -407,7 +411,9 @@ const artistStops = (
         story: {
           title: { en: event.title, es: event.title },
           ...(body ? { body: { en: body, es: body } } : {}),
-          ...(event.videoId ? { videoId: event.videoId } : {}),
+          ...(storyVideo(event.id, event.videoId)
+            ? { videoId: storyVideo(event.id, event.videoId) }
+            : {}),
           // Their photo, when the event's video has no picture.
           ...(portraitSongId ? { songId: portraitSongId } : {}),
         },
@@ -424,6 +430,7 @@ const artistStops = (
         story: {
           title: moment.title,
           body: moment.body,
+          ...(moment.videoId ? { videoId: moment.videoId } : {}),
           ...(portraitSongId ? { songId: portraitSongId } : {}),
         },
       },

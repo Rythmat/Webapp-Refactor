@@ -86,6 +86,16 @@ describe('the first lesson, Michael Jackson · Producer', () => {
     // own project; progress, show the class; exit ticket, reset.
     expect(slides).toHaveLength(10);
 
+    // Every place after where he began has its clip (owner, 2026-11-10),
+    // the owner's own where the Globe's event had none worth showing.
+    const places = slides.find((s) => s.id.endsWith('-slide-places')) as
+      | { media?: { stops?: { story?: { videoId?: string } }[] } }
+      | undefined;
+    const clips = (places?.media?.stops ?? []).map((s) => s.story?.videoId);
+    expect(clips.slice(1).every(Boolean), String(clips)).toBe(true);
+    expect(clips).toContain('LOnTuSqrvbM'); // the Super Bowl
+    expect(clips).toContain('o0CeFX6E2yI'); // "Soul Makossa"
+
     const labels = new Set(
       Object.values(SECTION_LABEL).map((l) => l.en.toLowerCase()),
     );

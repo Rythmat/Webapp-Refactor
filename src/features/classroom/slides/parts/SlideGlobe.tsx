@@ -13,9 +13,11 @@
  *                           still selected by clicking it)
  *   thumbnails (still)      a dark tile naming the places: no WebGL
  */
-import { ChevronRight, Globe2 } from 'lucide-react';
+import { ChevronRight, Globe2, Play } from 'lucide-react';
 import {
+  Suspense,
   createContext,
+  lazy,
   useContext,
   useEffect,
   useMemo,
@@ -42,6 +44,11 @@ type GlobeMedia = Extract<SlideMedia, { type: 'globePreview' }>;
  * outside a fitted stage (a phone's reflow), where the frame fills its box.
  */
 export const StageScaleContext = createContext<number | null>(null);
+
+const YouTubeSlidePlayer = lazy(() => import('./YouTubeSlidePlayer'));
+
+/** A card's clip starts as it opens: it was tapped to play. */
+const PLAY_NOW = { action: 'play', cmdId: 1 } as const;
 
 /** The card's width and margin on the slide, in design px. */
 const CARD_W = 460;
@@ -77,22 +84,62 @@ const firstSrc = (
  */
 const StoryPicture = ({
   story,
+  playable,
+  stacked,
 }: {
   story: NonNullable<GlobeStop['story']>;
+  /** Not on the editor's canvas: there the card is only looked at. */
+  playable: boolean;
+  stacked: boolean;
 }) => {
   const [videoGone, setVideoGone] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  if (story.videoId && !videoGone && playing)
+    return (
+      <div className="aspect-video w-full shrink-0 bg-black">
+        <Suspense fallback={null}>
+          <YouTubeSlidePlayer
+            videoId={story.videoId}
+            className="!rounded-none !border-0"
+            // Started by the tap that asked for it.
+            command={PLAY_NOW}
+          />
+        </Suspense>
+      </div>
+    );
   if (story.videoId && !videoGone)
     return (
-      <img
-        src={`https://i.ytimg.com/vi/${story.videoId}/mqdefault.jpg`}
-        alt=""
-        draggable={false}
-        className="aspect-video w-full shrink-0 object-cover"
-        onLoad={(e) => {
-          if (e.currentTarget.naturalWidth < 200) setVideoGone(true);
-        }}
-        onError={() => setVideoGone(true)}
-      />
+      <div className="group relative aspect-video w-full shrink-0">
+        <img
+          src={`https://i.ytimg.com/vi/${story.videoId}/mqdefault.jpg`}
+          alt=""
+          draggable={false}
+          className="size-full object-cover"
+          onLoad={(e) => {
+            if (e.currentTarget.naturalWidth < 200) setVideoGone(true);
+          }}
+          onError={() => setVideoGone(true)}
+        />
+        {playable && (
+          <button
+            type="button"
+            onClick={() => setPlaying(true)}
+            aria-label="Play the clip"
+            className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors hover:bg-black/25"
+          >
+            <span
+              className={`flex items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform group-hover:scale-105 ${
+                stacked ? 'size-12' : 'size-[72px]'
+              }`}
+            >
+              <Play
+                aria-hidden
+                className={`fill-current ${stacked ? 'size-5' : 'size-[30px]'} translate-x-[2px]`}
+              />
+            </span>
+          </button>
+        )}
+      </div>
     );
   if (story.songId)
     return (
@@ -111,11 +158,14 @@ const StoryCard = ({
   stop,
   language,
   stacked,
+  playable,
 }: {
   stop: GlobeStop;
   language: StudentLanguage;
   /** A phone: under the map, not over it. */
   stacked: boolean;
+  /** The clip plays from the card (not on the editor's canvas). */
+  playable: boolean;
 }) => {
   const story = stop.story;
   if (!story) return null;
@@ -132,7 +182,7 @@ const StoryCard = ({
           : { left: CARD_M, top: CARD_M, width: CARD_W, maxHeight: 640 }
       }
     >
-      <StoryPicture story={story} />
+      <StoryPicture story={story} playable={playable} stacked={stacked} />
       <div
         className={`flex min-h-0 flex-col ${stacked ? 'gap-2 p-4' : 'gap-[12px] p-[28px]'}`}
       >
@@ -307,7 +357,13 @@ export const SlideGlobe = ({
         sandbox="allow-scripts allow-same-origin"
       />
       {!stacked && here && (
-        <StoryCard key={at} stop={here} language={language} stacked={false} />
+        <StoryCard
+          key={at}
+          stop={here}
+          language={language}
+          stacked={false}
+          playable={!inert}
+        />
       )}
       {!stacked && arrow}
     </div>
@@ -318,7 +374,15 @@ export const SlideGlobe = ({
   return (
     <div className="flex flex-col gap-3">
       {map}
-      {here && <StoryCard key={at} stop={here} language={language} stacked />}
+      {here && (
+        <StoryCard
+          key={at}
+          stop={here}
+          language={language}
+          stacked
+          playable={!inert}
+        />
+      )}
       {arrow}
     </div>
   );

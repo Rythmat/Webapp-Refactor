@@ -9,7 +9,7 @@ import type { LocalizedText } from '../../types';
  * Lesson content, not Globe events: the Globe's own events are published
  * from the console (and frozen by the content tests), so these join a lesson's
  * globe stops without changing the Globe section. Facts from the record, for
- * the owner's review; no videos, so the card shows the artist's photo.
+ * the owner's review; videos chosen by the owner (2026-11-10).
  */
 export interface StoryMoment {
   id: string;
@@ -19,6 +19,8 @@ export interface StoryMoment {
   location: [number, number];
   title: LocalizedText;
   body: LocalizedText;
+  /** A YouTube id: the card's picture, and the clip it plays. */
+  videoId?: string;
 }
 
 const en = (text: string): LocalizedText => ({ en: text });
@@ -36,6 +38,7 @@ export const ARTIST_STORIES: Readonly<Record<string, readonly StoryMoment[]>> =
         body: en(
           'Michael Jackson and his brothers, the Jackson 5 from Gary, audition for Berry Gordy at Hitsville U.S.A. in Detroit and are signed to Motown.',
         ),
+        videoId: 'BWl72SRGA9w',
       },
       {
         id: 'story-mj-1970-i-want-you-back',
@@ -46,6 +49,7 @@ export const ARTIST_STORIES: Readonly<Record<string, readonly StoryMoment[]>> =
         body: en(
           'The Jackson 5’s first Motown single tops the Billboard Hot 100, with an eleven-year-old Michael Jackson singing lead. Three more No. 1 hits follow that year.',
         ),
+        videoId: 'y2bVIBwpCTA',
       },
       {
         id: 'story-mj-1979-off-the-wall',
@@ -56,6 +60,7 @@ export const ARTIST_STORIES: Readonly<Record<string, readonly StoryMoment[]>> =
         body: en(
           'Michael Jackson releases “Off the Wall”, his first album with producer Quincy Jones, with the No. 1 hits “Don’t Stop ’Til You Get Enough” and “Rock with You”.',
         ),
+        videoId: '_BfcRjZn6y4',
       },
       {
         id: 'story-mj-1983-moonwalk',
@@ -66,6 +71,7 @@ export const ARTIST_STORIES: Readonly<Record<string, readonly StoryMoment[]>> =
         body: en(
           'At the Motown 25 television special in Pasadena, Michael Jackson sings “Billie Jean” and debuts the moonwalk, seen by tens of millions.',
         ),
+        videoId: 'CauNjt2j-BM',
       },
       {
         id: 'story-mj-1985-we-are-the-world',
@@ -76,6 +82,7 @@ export const ARTIST_STORIES: Readonly<Record<string, readonly StoryMoment[]>> =
         body: en(
           'Michael Jackson and Lionel Richie write “We Are the World”, recorded in one night in Hollywood by more than 40 artists to raise money for famine relief in Africa.',
         ),
+        videoId: '9AjkUyX0rVw',
       },
       {
         id: 'story-mj-1987-bad-tour',
@@ -86,6 +93,23 @@ export const ARTIST_STORIES: Readonly<Record<string, readonly StoryMoment[]>> =
         body: en(
           'Michael Jackson begins his first solo world tour in Tokyo; over 16 months he plays 123 concerts to about 4.4 million fans.',
         ),
+        videoId: 'CEbSPtfl4g0',
       },
     ],
   };
+
+/**
+ * The clips the owner chose for the Globe's own events on an artist's
+ * globe (by the artist's slug, then the event's id), where the event's video
+ * is gone or another tells the story better. The Globe's events are left as
+ * they are.
+ */
+export const STORY_VIDEOS: Readonly<
+  Record<string, Readonly<Record<string, string>>>
+> = {
+  'michael-jackson': {
+    'evt-makossa-douala-1972': 'o0CeFX6E2yI',
+    'evt-pop-losangeles-1982-michaeljackson': 'sOnqjkJTMaA',
+    'evt-media-pasadena-1993-superbowl': 'LOnTuSqrvbM',
+  },
+};

@@ -85,9 +85,23 @@ export const useStepFollow = ({
     }
     goToRef.current(classStep);
   }, [classStep, position, aheadMeansDone, waitingAt, reportDone]);
+  // A leader opened mid-activity (Present coming back to the Group Practice
+  // slide's Studio) first goes to where the class is, rather than taking the
+  // class back to its own first step.
+  const joined = useRef(false);
+  const classAt = follow.step;
   useEffect(() => {
     if (!on || !follow.leading) return;
+    if (!joined.current) {
+      joined.current = true;
+      if (classAt !== undefined && classAt !== position && classAt < total) {
+        goToRef.current(classAt);
+        return;
+      }
+    }
     lead(position, total, title);
+    // `classAt` is read once, as the leader joins.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [on, follow.leading, position, total, title, lead]);
 
   const finishStep = useCallback(() => {

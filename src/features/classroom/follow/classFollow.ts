@@ -11,8 +11,9 @@
  *     the socket, sends it on (`useFollowOutbox`).
  *
  * Launch params: `follow=1&session=<id>` and, for the teacher leading from
- * inside the activity, `lead=1`. Stashed per tab, because the Studio rewrites
- * its own URL as it boots.
+ * inside the activity, `lead=1`; for the room's screen, `watch=1`. Stashed
+ * per tab, because the Studio rewrites its own URL as it boots (not in a
+ * frame, which keeps its address).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -32,6 +33,11 @@ export interface FollowLaunch {
   ref?: string;
   /** The teacher, leading the class from inside the activity. */
   lead: boolean;
+  /**
+   * The room's screen, showing the class's step (the Group Practice slide's
+   * Studio on the projector): it follows, and never reports or leads.
+   */
+  watch?: boolean;
 }
 
 const STASH_KEY = 'class-follow:launch:v1';
@@ -60,13 +66,34 @@ export const readFollowParams = (search: string): FollowLaunch | null => {
   const sessionId = q.get('session');
   if (q.get('follow') !== '1' || !sessionId) return null;
   const ref = q.get('activityRef');
-  return { sessionId, lead: q.get('lead') === '1', ...(ref ? { ref } : {}) };
+  const watch = q.get('watch') === '1';
+  return {
+    sessionId,
+    lead: !watch && q.get('lead') === '1',
+    ...(watch ? { watch } : {}),
+    ...(ref ? { ref } : {}),
+  };
+};
+
+/**
+ * Framed in a page (a lesson slide's Studio): a frame shares its page's
+ * sessionStorage, so it never stashes its launch there, or the teacher's own
+ * tab would open its next Studio leading the class. A frame keeps its own
+ * address, so it needs no stash.
+ */
+const isFramed = (): boolean => {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
 };
 
 /** This tab's follow launch: from its URL on first load, then its stash. */
 export const followLaunchForTab = (): FollowLaunch | null => {
   if (!isBrowser) return null;
   const fromUrl = readFollowParams(window.location.search);
+  if (isFramed()) return fromUrl;
   try {
     if (fromUrl) {
       window.sessionStorage.setItem(STASH_KEY, JSON.stringify(fromUrl));
@@ -232,16 +259,18 @@ export const useClassFollow = (
     ).length;
   }, [doneMap, sessionId, activity]);
 
+  // The room's screen only watches: it never finishes or moves a step.
+  const watching = Boolean(launch?.watch);
   const reportDone = useCallback(
     (step: number) => {
-      if (sessionId && ref)
+      if (sessionId && ref && !watching)
         writeFollowNote(sessionId, { kind: 'done', ref, step });
     },
-    [sessionId, ref],
+    [sessionId, ref, watching],
   );
   const lead = useCallback(
     (step: number, total?: number, title?: string) => {
-      if (!sessionId || !ref) return;
+      if (!sessionId || !ref || watching) return;
       writeFollowNote(sessionId, {
         kind: 'step',
         ref,
@@ -250,7 +279,7 @@ export const useClassFollow = (
         ...(title ? { title: title.slice(0, 120) } : {}),
       });
     },
-    [sessionId, ref],
+    [sessionId, ref, watching],
   );
 
   return {

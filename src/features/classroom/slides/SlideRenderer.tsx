@@ -15,7 +15,9 @@ import { resolveElements } from './migrateDeckV1';
 import { InteractionBand } from './parts/InteractionBand';
 import { slideLiveLayer } from './parts/SlideLiveLayer';
 import { SlideStage } from './parts/SlideStage';
+import { SlideStudio } from './parts/SlideStudio';
 import { liveRectOf, projectsQuestion, stageKindOf } from './stage';
+import { studioTutorialOf, type StudioFollow } from './studio/slideStudio';
 import type { Slide, SlideSurface } from './types';
 
 export interface SlideSlots {
@@ -33,6 +35,12 @@ export interface SlideSlots {
   reveal?: (interaction: Interaction) => ReactNode;
   /** Small live status element (participation count etc.). */
   statusChip?: ReactNode;
+  /**
+   * The live session a Group Practice slide's Studio does its tutorial with
+   * (Present leads it, the room's screen watches). Absent outside a session:
+   * the Studio runs the tutorial on its own.
+   */
+  studioFollow?: StudioFollow;
 }
 
 export interface SlideRendererProps {
@@ -119,8 +127,16 @@ export const SlideRenderer = ({
   // A stage preset draws one thing big (`slides/stage.ts`); a full-screen
   // interaction slide asks its question on the students' devices only.
   const stage = stageKindOf(slide);
+  // The Group Practice slide is the Studio itself on the room's screen and
+  // Present (owner, 2026-11-10); a student's device keeps the tutorial's
+  // card and launch, and a still its cover.
+  const projected = surface === 'projector' || surface === 'present';
+  const studioTutorial =
+    projected && !still && layoutMode !== 'reflow'
+      ? studioTutorialOf(slide, interactions)
+      : null;
   const band =
-    revealed.length > 0 ? null : variant !== null ? (
+    revealed.length > 0 || studioTutorial ? null : variant !== null ? (
       projectsQuestion(slide, surface) ? (
         <InteractionBand
           interactions={interactions}
@@ -168,6 +184,17 @@ export const SlideRenderer = ({
           ? { bandFallback: band }
           : {})}
       {...(bandCarries.length > 0 ? { bandInteractionIds: bandCarries } : {})}
+      {...(studioTutorial
+        ? {
+            backdrop: (
+              <SlideStudio
+                tutorialId={studioTutorial}
+                follow={slots?.studioFollow}
+                inert={surface === 'projector'}
+              />
+            ),
+          }
+        : {})}
       liveBand={surface !== 'student'}
       playableMedia={
         !still && (surface === 'projector' || surface === 'present')

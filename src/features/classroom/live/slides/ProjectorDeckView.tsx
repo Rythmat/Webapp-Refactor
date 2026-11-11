@@ -195,6 +195,12 @@ export const ProjectorDeckView = ({
               statusChip,
               showcaseFrame,
               mediaCommand,
+              // The Group Practice slide's Studio, on the class's step.
+              studioFollow: {
+                sessionId,
+                lead: false,
+                step: classStep?.step,
+              },
             }}
           />
         </motion.div>

@@ -25,6 +25,7 @@ import {
   songsPages,
 } from './features/classroom/ClassroomPages';
 import { MockLearn } from './features/classroom/msp/__dev__/MockLearn';
+import { studioSlidePages } from './features/classroom/slides/studio/studioSlidePages';
 import { landingPages } from './features/landing';
 import { legalPages } from './features/legal';
 import { marketingPages } from './features/marketing';
@@ -108,6 +109,7 @@ const appRoutes = () => [
   libraryPages(),
   globePages(),
   globeSlidePages(),
+  studioSlidePages(),
   songsPages(),
   curriculumPages(),
   searchPages(),

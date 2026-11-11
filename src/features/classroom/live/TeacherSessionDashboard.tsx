@@ -320,6 +320,15 @@ export const TeacherSessionDashboard = () => {
     if (!currentSlide) return undefined;
     const firstId = currentSlideInteractions[0]?.id;
     return {
+      // The Group Practice slide's Studio leads the class from Present.
+      studioFollow: {
+        sessionId: sid,
+        lead: true,
+        step:
+          state?.activity?.slideId === currentSlide.id
+            ? state.activity.step
+            : undefined,
+      },
       ...(presentRevealSlot ? { reveal: presentRevealSlot } : {}),
       ...(firstId
         ? {
@@ -342,6 +351,8 @@ export const TeacherSessionDashboard = () => {
     currentSlideInteractions,
     presentRevealSlot,
     state?.showcase,
+    state?.activity,
+    sid,
     countFor,
   ]);
 

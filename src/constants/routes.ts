@@ -806,6 +806,22 @@ export const StudioRoutes = {
 
   /** The Production tab — step-by-step DAW lessons, each opening the editor. */
   production: createRouteDefinition('/production', { prefix: studioPrefix }),
+
+  /**
+   * The editor alone, framed in a lesson's Group Practice slide
+   * (slides/studio): a tutorial, and the class's follow params.
+   */
+  slide: createRouteDefinition<
+    void,
+    {
+      tutorial: string;
+      follow?: string;
+      session?: string;
+      lead?: string;
+      watch?: string;
+      activityRef?: string;
+    }
+  >('/slide', { prefix: studioPrefix }),
 };
 
 const gamesPrefix = '/arcade';

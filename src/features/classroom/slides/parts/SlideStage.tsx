@@ -119,6 +119,11 @@ export interface SlideStageProps {
   /** A thumbnail: stills only (no video players, no live map). */
   still?: boolean;
   /**
+   * Something live the slide is, edge to edge under its elements (the Group
+   * Practice slide's Studio), painted where a stage preset's backdrop is.
+   */
+  backdrop?: ReactNode;
+  /**
    * ZONE MODE. When given, the stage lays this slide out from the grid instead
    * of from the legacy block rects — one absolutely-positioned box per zone,
    * rects derived by `resolveElementRects`. This is what makes one renderer
@@ -175,6 +180,7 @@ export const SlideStage = ({
   bandInteractionIds,
   liveBand = false,
   still = false,
+  backdrop,
   elements,
   interactionsById,
   slots,
@@ -325,6 +331,7 @@ export const SlideStage = ({
             language={language}
             {...(slots?.mediaCommand ? { command: slots.mediaCommand } : {})}
           />
+          {backdrop}
           <SlideFrameChrome slide={slide} surface={surface} />
           {reveal ? (
             <RevealBand elements={zoneElements} rect={stageBand} scrim>

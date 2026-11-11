@@ -37,7 +37,7 @@ interface FocusProps {
  * device use, so Present cannot drift from what the class sees.
  *
  * A bottom bar walks the deck slide-by-slide; Esc exits the presentation,
- * ←/→ move between slides.
+ * ←/→ (and a clicker's Page Up / Page Down) move between slides.
  */
 export const Focus = ({
   slide,
@@ -52,10 +52,11 @@ export const Focus = ({
   slots,
 }: FocusProps) => {
   useEffect(() => {
+    // A presentation clicker sends Page Up / Page Down.
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onExit();
-      if (e.key === 'ArrowLeft' && hasPrev) onPrev();
-      if (e.key === 'ArrowRight' && hasNext) onNext();
+      if ((e.key === 'ArrowLeft' || e.key === 'PageUp') && hasPrev) onPrev();
+      if ((e.key === 'ArrowRight' || e.key === 'PageDown') && hasNext) onNext();
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);

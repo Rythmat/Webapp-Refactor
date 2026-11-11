@@ -125,8 +125,8 @@ export const energyZone = (value: number): EnergyZone =>
 /**
  * The feelings along the slider, by how much energy each carries (owner,
  * 2026-11-10: "research emotions and place a few on the slider"). The owner's
- * nine (sad, tired, shy; focused, relaxed, ready to learn; excited, anxious,
- * angry) and three more from the Zones of Regulation (bored, happy,
+ * nine (sad, tired, shy; focused, relaxed, confident, which took "ready to
+ * learn"'s place on 2026-11-10; excited, anxious, angry) and three more from the Zones of Regulation (bored, happy,
  * frustrated), ordered low to high as Russell's circumplex orders arousal
  * (tired lowest, angry highest), each inside its zone. Hidden on the slider
  * until a student slides onto one; none is the "right" place to be.
@@ -155,13 +155,13 @@ export const ENERGY_EMOTIONS: readonly EnergyEmotion[] = [
     id: 'focused',
     at: 54,
     word: { en: 'Focused', es: 'Concentrado' },
-    face: 'confident',
+    face: 'good',
   },
   {
-    id: 'ready',
+    id: 'confident',
     at: 61,
-    word: { en: 'Ready to learn', es: 'Listo para aprender' },
-    face: 'good',
+    word: { en: 'Confident', es: 'Seguro' },
+    face: 'confident',
   },
   {
     id: 'excited',

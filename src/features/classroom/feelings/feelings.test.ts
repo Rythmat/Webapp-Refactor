@@ -221,7 +221,7 @@ describe('the energy slider', () => {
       'Relaxed',
       'Happy',
       'Focused',
-      'Ready to learn',
+      'Confident',
       'Excited',
       'Anxious',
       'Frustrated',
@@ -246,8 +246,8 @@ describe('the energy slider', () => {
     // Tired 6 · Sad 15: the line is at 10.5.
     expect(energyEmotion(10).id).toBe('tired');
     expect(energyEmotion(11).id).toBe('sad');
-    // Ready to learn 61 · Excited 71: the line is at 66.
-    expect(energyEmotion(65).id).toBe('ready');
+    // Confident 61 · Excited 71: the line is at 66.
+    expect(energyEmotion(65).id).toBe('confident');
     expect(energyEmotion(67).id).toBe('excited');
   });
 

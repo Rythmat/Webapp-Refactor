@@ -21,6 +21,26 @@ export interface StoryMoment {
   body: LocalizedText;
   /** A YouTube id: the card's picture, and the clip it plays. */
   videoId?: string;
+  /** Further pages on its card (a song that sampled or covered it). */
+  more?: StoryPages;
+}
+
+/**
+ * A card's further pages, turned to from its first with the card's chevron
+ * (owner, 2026-11-10: "useful for when an artist samples or covers songs").
+ * `tab` names the first page; each further page names itself (the chevron's
+ * label: "Next: The sample").
+ */
+export interface StoryPages {
+  tab: LocalizedText;
+  pages: {
+    tab: LocalizedText;
+    /** The page's own line over its title, in place of the place's. */
+    label?: LocalizedText;
+    title: LocalizedText;
+    body?: LocalizedText;
+    videoId?: string;
+  }[];
 }
 
 const en = (text: string): LocalizedText => ({ en: text });
@@ -111,5 +131,33 @@ export const STORY_VIDEOS: Readonly<
     'evt-makossa-douala-1972': 'o0CeFX6E2yI',
     'evt-pop-losangeles-1982-michaeljackson': 'sOnqjkJTMaA',
     'evt-media-pasadena-1993-superbowl': 'LOnTuSqrvbM',
+  },
+};
+
+/**
+ * Further pages for the Globe's own events on an artist's globe (by the
+ * artist's slug, then the event's id): where a song of theirs samples or
+ * covers what happened there.
+ */
+export const STORY_PAGES: Readonly<
+  Record<string, Readonly<Record<string, StoryPages>>>
+> = {
+  'michael-jackson': {
+    // Manu Dibango's "Soul Makossa" (Douala, 1972) → the end of "Wanna Be
+    // Startin' Somethin'" (owner, 2026-11-10).
+    'evt-makossa-douala-1972': {
+      tab: en('The original'),
+      pages: [
+        {
+          tab: en('The sample'),
+          label: en('Thriller · 1982'),
+          title: en('“Wanna Be Startin’ Somethin’”'),
+          body: en(
+            'Michael Jackson turns the “Soul Makossa” chant into the “mama-se, mama-sa, ma-ma-coo-sa” that closes “Wanna Be Startin’ Somethin’”, the opening song of “Thriller”.',
+          ),
+          videoId: '1XMvPTFzgVU',
+        },
+      ],
+    },
   },
 };

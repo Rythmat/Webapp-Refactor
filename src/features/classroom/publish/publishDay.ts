@@ -189,13 +189,29 @@ type GlobeStopStory = NonNullable<
   >[number]['story']
 >;
 
+/** A YouTube video id, and nothing else. */
+const isVideoId = (v: unknown): v is string =>
+  typeof v === 'string' && /^[A-Za-z0-9_-]{6,20}$/.test(v);
+
+/** The most pages a story's card toggles between, its first included. */
+const STORY_PAGES_MAX = 4;
+
 /** A globe stop's story: its words, and a picture by id only. */
 const projectStopStory = (story: GlobeStopStory): GlobeStopStory => ({
   title: projectLocalized(story.title),
   ...(story.body ? { body: projectLocalized(story.body) } : {}),
-  ...(typeof story.videoId === 'string' &&
-  /^[A-Za-z0-9_-]{6,20}$/.test(story.videoId)
-    ? { videoId: story.videoId }
+  ...(isVideoId(story.videoId) ? { videoId: story.videoId } : {}),
+  ...(story.tab ? { tab: projectLocalized(story.tab) } : {}),
+  ...(Array.isArray(story.pages) && story.pages.length > 0
+    ? {
+        pages: story.pages.slice(0, STORY_PAGES_MAX - 1).map((page) => ({
+          tab: projectLocalized(page.tab),
+          ...(page.label ? { label: projectLocalized(page.label) } : {}),
+          title: projectLocalized(page.title),
+          ...(page.body ? { body: projectLocalized(page.body) } : {}),
+          ...(isVideoId(page.videoId) ? { videoId: page.videoId } : {}),
+        })),
+      }
     : {}),
   ...(typeof story.songId === 'string' &&
   /^[a-z0-9_-]{1,80}$/.test(story.songId)

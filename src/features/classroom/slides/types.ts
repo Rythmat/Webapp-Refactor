@@ -61,6 +61,21 @@ export type SlideMedia =
           videoId?: string;
           /** A song whose artist photo is the card's picture. */
           songId?: string;
+          /**
+           * The card's further pages, turned to with its chevron (owner,
+           * 2026-11-10): what became of the music there, a song that
+           * sampled or covered it, with its own clip. `tab` names each page
+           * (the chevron's label), the first page's included.
+           */
+          tab?: LocalizedText;
+          pages?: Array<{
+            tab: LocalizedText;
+            /** The page's own line over its title ("Thriller · 1982"). */
+            label?: LocalizedText;
+            title: LocalizedText;
+            body?: LocalizedText;
+            videoId?: string;
+          }>;
         };
       }>;
     }

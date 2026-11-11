@@ -4,7 +4,12 @@ import type { LocalizedText } from '../../types';
 import { atRef } from '../globe/slideGlobeStops';
 import { getYouTubeVideoId } from '../songDeepLinks';
 import type { SlideMedia } from '../types';
-import { ARTIST_STORIES, STORY_VIDEOS } from './artistStories';
+import {
+  ARTIST_STORIES,
+  STORY_PAGES,
+  STORY_VIDEOS,
+  type StoryPages,
+} from './artistStories';
 import type { LessonCatalog } from './catalog';
 import { linked, listOf, slugOf, type LessonGraph } from './graphQueries';
 import type {
@@ -384,8 +389,11 @@ const artistStops = (
   };
   const spot = ([lat, lng]: [number, number]) =>
     `${lat.toFixed(1)},${lng.toFixed(1)}`;
-  // The owner's clip for an event, else the event's own.
+  // The owner's clip for an event, else the event's own; its further pages.
   const chosen = STORY_VIDEOS[slugOf(focus.id)] ?? {};
+  const morePages = STORY_PAGES[slugOf(focus.id)] ?? {};
+  const pagesOf = (more: StoryPages | undefined) =>
+    more ? { tab: more.tab, pages: more.pages } : {};
   const storyVideo = (eventId: string, own: string | undefined) =>
     chosen[eventId] ?? own;
   // Events pinned on the home town are the songs' pins, not moments of the
@@ -414,6 +422,7 @@ const artistStops = (
           ...(storyVideo(event.id, event.videoId)
             ? { videoId: storyVideo(event.id, event.videoId) }
             : {}),
+          ...pagesOf(morePages[event.id]),
           // Their photo, when the event's video has no picture.
           ...(portraitSongId ? { songId: portraitSongId } : {}),
         },
@@ -431,6 +440,7 @@ const artistStops = (
           title: moment.title,
           body: moment.body,
           ...(moment.videoId ? { videoId: moment.videoId } : {}),
+          ...pagesOf(moment.more),
           ...(portraitSongId ? { songId: portraitSongId } : {}),
         },
       },

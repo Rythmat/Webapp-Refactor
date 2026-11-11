@@ -13,7 +13,7 @@
  *                           still selected by clicking it)
  *   thumbnails (still)      a dark tile naming the places: no WebGL
  */
-import { ChevronRight, Globe2, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Globe2, Play } from 'lucide-react';
 import {
   Suspense,
   createContext,
@@ -26,7 +26,7 @@ import {
 } from 'react';
 import { GlobeRoutes } from '@/constants/routes';
 import { pickLocalized } from '../../presentation/localized';
-import type { StudentLanguage } from '../../types';
+import type { LocalizedText, StudentLanguage } from '../../types';
 import {
   SLIDE_GLOBE_GO,
   encodePath,
@@ -154,6 +154,70 @@ const StoryPicture = ({
  * Why this place matters to the subject (owner, 2026-11-10): the place and
  * year, what happened there, and the sentence that ties it to them.
  */
+/**
+ * The card's pages: the story itself, then any it carries (a song that
+ * sampled or covered the music there), each with its own words and clip.
+ */
+const pagesOf = (
+  story: NonNullable<GlobeStop['story']>,
+): {
+  tab?: LocalizedText | undefined;
+  label?: LocalizedText | undefined;
+  title: LocalizedText;
+  body?: LocalizedText | undefined;
+  videoId?: string | undefined;
+}[] => [
+  {
+    tab: story.tab,
+    title: story.title,
+    body: story.body,
+    videoId: story.videoId,
+  },
+  ...(story.pages ?? []),
+];
+
+/**
+ * The way to a card's next page (owner, 2026-11-10: a chevron at the card's
+ * bottom right, no toggle): on to the next, and from the last back to the
+ * first. Named by the page it goes to.
+ */
+const PageChevron = ({
+  pages,
+  page,
+  onPage,
+  language,
+  stacked,
+}: {
+  pages: { tab?: LocalizedText | undefined }[];
+  page: number;
+  onPage: (page: number) => void;
+  language: StudentLanguage;
+  stacked: boolean;
+}) => {
+  const last = page >= pages.length - 1;
+  const to = last ? 0 : page + 1;
+  const tab = pages[to]?.tab;
+  const Icon = last ? ChevronLeft : ChevronRight;
+  return (
+    <button
+      type="button"
+      onClick={() => onPage(to)}
+      aria-label={
+        tab
+          ? `${last ? 'Back' : 'Next'}: ${pickLocalized(tab, language)}`
+          : last
+            ? 'Back to the first page'
+            : 'Next page'
+      }
+      className={`flex shrink-0 items-center justify-center self-end rounded-full bg-white text-black transition-transform hover:scale-105 ${
+        stacked ? 'size-9' : 'size-[48px]'
+      }`}
+    >
+      <Icon aria-hidden className={stacked ? 'size-5' : 'size-[26px]'} />
+    </button>
+  );
+};
+
 const StoryCard = ({
   stop,
   language,
@@ -167,8 +231,11 @@ const StoryCard = ({
   /** The clip plays from the card (not on the editor's canvas). */
   playable: boolean;
 }) => {
+  const [page, setPage] = useState(0);
   const story = stop.story;
   if (!story) return null;
+  const pages = pagesOf(story);
+  const shown = pages[page] ?? pages[0]!;
   return (
     <article
       className={`flex flex-col overflow-hidden border border-white/10 bg-[#141418] text-white [animation:stage-fade-in_500ms_ease-out] ${
@@ -182,30 +249,51 @@ const StoryCard = ({
           : { left: CARD_M, top: CARD_M, width: CARD_W, maxHeight: 640 }
       }
     >
-      <StoryPicture story={story} playable={playable} stacked={stacked} />
+      {/* A page's own clip; their photo when it has none. */}
+      <StoryPicture
+        key={page}
+        story={{
+          title: shown.title,
+          ...(shown.videoId ? { videoId: shown.videoId } : {}),
+          ...(story.songId ? { songId: story.songId } : {}),
+        }}
+        playable={playable}
+        stacked={stacked}
+      />
       <div
         className={`flex min-h-0 flex-col ${stacked ? 'gap-2 p-4' : 'gap-[12px] p-[28px]'}`}
       >
-        {stop.label && (
+        {(shown.label ?? stop.label) && (
           <p
             className={`font-semibold uppercase tracking-[0.08em] text-white/55 ${
               stacked ? 'text-[0.75rem]' : 'text-[17px]'
             }`}
           >
-            {pickLocalized(stop.label, language)}
+            {pickLocalized((shown.label ?? stop.label)!, language)}
           </p>
         )}
         <h3
-          className={`font-semibold leading-tight ${stacked ? 'text-[1.125rem]' : 'text-[30px]'}`}
+          key={`t${page}`}
+          className={`font-semibold leading-tight [animation:stage-fade-in_350ms_ease-out] ${stacked ? 'text-[1.125rem]' : 'text-[30px]'}`}
         >
-          {pickLocalized(story.title, language)}
+          {pickLocalized(shown.title, language)}
         </h3>
-        {story.body && (
+        {shown.body && (
           <p
-            className={`leading-snug text-white/75 ${stacked ? 'text-[0.9375rem]' : 'text-[21px]'}`}
+            key={`b${page}`}
+            className={`leading-snug text-white/75 [animation:stage-fade-in_350ms_ease-out] ${stacked ? 'text-[0.9375rem]' : 'text-[21px]'}`}
           >
-            {pickLocalized(story.body, language)}
+            {pickLocalized(shown.body, language)}
           </p>
+        )}
+        {pages.length > 1 && (
+          <PageChevron
+            pages={pages}
+            page={page}
+            onPage={setPage}
+            language={language}
+            stacked={stacked}
+          />
         )}
       </div>
     </article>

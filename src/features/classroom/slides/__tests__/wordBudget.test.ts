@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { newBlankDay } from '../../plan/newBlankDay';
 import { pickLocalized } from '../../presentation/localized';
+import { publishDay } from '../../publish/publishDay';
 import type { Interaction } from '../../types';
 import { applyCortexLessonToDay } from '../cortex/buildDeck';
 import { loadLessonAtlas } from '../cortex/loadLessonAtlas';
@@ -95,6 +96,29 @@ describe('the first lesson, Michael Jackson · Producer', () => {
     expect(clips.slice(1).every(Boolean), String(clips)).toBe(true);
     expect(clips).toContain('LOnTuSqrvbM'); // the Super Bowl
     expect(clips).toContain('o0CeFX6E2yI'); // "Soul Makossa"
+
+    // Douala's card turns the page to the song that sampled it, and keeps
+    // that page through publishing.
+    type Story = {
+      tab?: { en: string };
+      pages?: { tab: { en: string }; videoId?: string }[];
+    };
+    const storyAt = (stops: { story?: Story }[] | undefined) =>
+      stops?.find((s) => s.story?.pages?.length)?.story;
+    const douala = storyAt(
+      (places?.media as { stops?: { story?: Story }[] } | undefined)?.stops,
+    );
+    expect(douala?.tab?.en).toBe('The original');
+    expect(douala?.pages?.[0]).toMatchObject({
+      tab: { en: 'The sample' },
+      videoId: '1XMvPTFzgVU',
+    });
+    const published = publishDay(day).deck?.slides.find((s) =>
+      s.id.endsWith('-slide-places'),
+    ) as { media?: { stops?: { story?: Story }[] } } | undefined;
+    expect(storyAt(published?.media?.stops)?.pages?.[0]?.videoId).toBe(
+      '1XMvPTFzgVU',
+    );
 
     const labels = new Set(
       Object.values(SECTION_LABEL).map((l) => l.en.toLowerCase()),

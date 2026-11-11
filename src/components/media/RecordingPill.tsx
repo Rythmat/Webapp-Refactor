@@ -1,0 +1,154 @@
+import { ChevronDown, Pause, Play, Youtube } from 'lucide-react';
+import { useEffect, useState, type FC, type ReactNode } from 'react';
+import { useYouTubeIframePlayer } from '@/hooks/media/useYouTubeIframePlayer';
+
+/**
+ * The recording, one click away: a "Recording" pill that opens on the
+ * YouTube player (the Set list's stand, `StandVideo`; a lesson slide's song).
+ *
+ * The iframe is not even created until it is asked for — at a gig nobody
+ * wants every chart in the set quietly loading YouTube. Once armed it stays
+ * mounted, hidden rather than unmounted, so collapsing the panel does not cut
+ * off a recording someone is listening to. A new video starts shut and silent.
+ *
+ * `quickPlay` (a lesson slide, owner 2026-11-10) adds a play button to the
+ * collapsed pill: the song starts, and pauses, without opening the video.
+ */
+export const RecordingPill: FC<{
+  videoId: string;
+  startSec?: number | undefined;
+  /** A play / pause button on the pill itself. */
+  quickPlay?: boolean;
+  /** Which edge the opened video lines up with. */
+  align?: 'left' | 'right';
+  /** A line under the opened video. */
+  note?: ReactNode;
+  className?: string;
+}> = ({
+  videoId,
+  startSec,
+  quickPlay = false,
+  align = 'right',
+  note,
+  className,
+}) => {
+  const [open, setOpen] = useState(false);
+  // Armed on first open (or play) and never disarmed: that is what keeps the
+  // player alive across a collapse.
+  const [armed, setArmed] = useState(false);
+  // Play was pressed before the player had loaded: it plays once ready.
+  const [wantPlay, setWantPlay] = useState(false);
+
+  // Each video gets its own panel state — a new one starts shut and silent.
+  useEffect(() => {
+    setOpen(false);
+    setArmed(false);
+    setWantPlay(false);
+  }, [videoId]);
+
+  // Esc shuts the open video, and only that (a lesson's Esc would leave it).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.stopPropagation();
+      setOpen(false);
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [open]);
+
+  const { containerRef, isPlaying, isReady, play, pause } =
+    useYouTubeIframePlayer({
+      videoId: armed ? videoId : null,
+      startSec,
+    });
+
+  useEffect(() => {
+    if (!wantPlay || !isReady) return;
+    setWantPlay(false);
+    play();
+  }, [wantPlay, isReady, play]);
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      pause();
+      return;
+    }
+    setArmed(true);
+    if (isReady) play();
+    else setWantPlay(true);
+  };
+  const starting = wantPlay && !isPlaying;
+
+  return (
+    <div className={`relative flex-shrink-0 ${className ?? ''}`}>
+      <div
+        className={`inline-flex items-center rounded-full border text-xs transition-colors ${
+          isPlaying
+            ? 'border-white/40 bg-white/10 text-white'
+            : 'border-white/15 text-white/60 hover:border-white/30'
+        }`}
+      >
+        {quickPlay && (
+          <button
+            type="button"
+            onClick={togglePlay}
+            aria-label={
+              isPlaying ? 'Pause the recording' : 'Play the recording'
+            }
+            title={isPlaying ? 'Pause' : 'Play'}
+            className="inline-flex size-6 items-center justify-center rounded-full pl-1 text-white/80 hover:text-white"
+          >
+            {isPlaying ? (
+              <Pause size={12} className="fill-current" />
+            ) : (
+              <Play
+                size={12}
+                className={`fill-current ${starting ? 'animate-pulse' : ''}`}
+              />
+            )}
+          </button>
+        )}
+        <button
+          type="button"
+          aria-expanded={open}
+          onClick={() => {
+            setArmed(true);
+            setOpen((v) => !v);
+          }}
+          className={`inline-flex items-center gap-1.5 py-1 pr-2 ${quickPlay ? 'pl-1' : 'pl-2'}`}
+          title={open ? 'Hide the recording' : 'Listen to the recording'}
+        >
+          {!quickPlay && <Youtube size={13} />}
+          Recording
+          {isPlaying && !open && !quickPlay && (
+            <span
+              aria-hidden
+              className="h-1.5 w-1.5 rounded-full bg-white"
+              title="Playing"
+            />
+          )}
+          <ChevronDown
+            size={12}
+            className={`transition-transform ${open ? 'rotate-180' : ''}`}
+          />
+        </button>
+      </div>
+
+      {/* Rendered from the start so the player has something to replace, and
+          only hidden when shut — never unmounted. */}
+      <div
+        className={`absolute ${align === 'left' ? 'left-0' : 'right-0'} top-full z-20 mt-2 w-[min(28rem,80vw)] overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#161618]/80 shadow-[0_8px_28px_rgba(0,0,0,0.36)] backdrop-blur-xl`}
+        style={{ display: open ? 'block' : 'none' }}
+      >
+        <div className="aspect-video w-full bg-black">
+          <div ref={containerRef} className="h-full w-full" />
+        </div>
+        {note && (
+          <p className="px-3 py-1.5 text-[11px] text-white/45">{note}</p>
+        )}
+      </div>
+    </div>
+  );
+};

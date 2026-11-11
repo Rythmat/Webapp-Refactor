@@ -448,6 +448,10 @@ const projectSlide = (slide: Slide): Slide => {
       ? { hidePhaseLabel: slide.hidePhaseLabel }
       : {}),
     ...(slide.accentBar !== undefined ? { accentBar: slide.accentBar } : {}),
+    // A YouTube id and nothing else.
+    ...(slide.recording && isVideoId(slide.recording.videoId)
+      ? { recording: { videoId: slide.recording.videoId } }
+      : {}),
     ...(slide.presetId !== undefined ? { presetId: slide.presetId } : {}),
     // P2: the zone-assigned element list. Absent on legacy slides, which is
     // fine — `resolveElements` derives them at render from the stored `layout`.

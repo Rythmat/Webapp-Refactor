@@ -307,6 +307,18 @@ interface SlideCommon {
    * (slideGrid.ts) — this is the flag that sentence refers to.
    */
   accentBar?: boolean;
+  /**
+   * A song to play from the slide (owner, 2026-11-10: the Set list's
+   * collapsed "Recording" pill, top left of the MJ portrait): a YouTube
+   * video id only. Shown on the room's screen and Present, where the
+   * teacher can start it without opening the video.
+   */
+  recording?: SlideRecording;
+}
+
+export interface SlideRecording {
+  /** An 11-character YouTube video id. */
+  videoId: string;
 }
 
 /** Title card / section header / closing frame. */

@@ -96,6 +96,30 @@ describe('the first lesson, Michael Jackson · Producer', () => {
       es: 'El Rey del Pop',
     });
 
+    // The portrait plays the owner's song from its corner, and keeps it
+    // through publishing; anything but a YouTube id is dropped there.
+    const withSong = slides.find((s) => stageKindOf(s) === 'portrait');
+    expect(withSong?.recording).toEqual({ videoId: 'rlpZmqGS8rc' });
+    const publishedPortrait = publishDay(day).deck?.slides.find(
+      (s) => s.id === withSong?.id,
+    );
+    expect(publishedPortrait?.recording).toEqual({ videoId: 'rlpZmqGS8rc' });
+    const forged = {
+      ...day,
+      deck: {
+        ...day.deck!,
+        slides: slides.map((s) =>
+          s.id === withSong?.id
+            ? { ...s, recording: { videoId: '"><script>' } }
+            : s,
+        ),
+      },
+    };
+    expect(
+      publishDay(forged).deck?.slides.find((s) => s.id === withSong?.id)
+        ?.recording,
+    ).toBeUndefined();
+
     // Every place after where he began has its clip (owner, 2026-11-10),
     // the owner's own where the Globe's event had none worth showing.
     const places = slides.find((s) => s.id.endsWith('-slide-places')) as

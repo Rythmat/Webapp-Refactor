@@ -32,6 +32,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
+import { RecordingPill } from '@/components/media/RecordingPill';
 import type { Interaction, StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
 import { blockKeyForElement, resolveElements } from '../migrateDeckV1';
@@ -463,6 +464,24 @@ export const SlideStage = ({
                       {blocks[key]}
                     </BlockBox>
                   ))}
+              {/* The slide's song, top left (owner, 2026-11-10): the
+                  Set list's collapsed "Recording", played without opening.
+                  The editor shows it without playing it. */}
+              {slide.recording &&
+                !still &&
+                (surface === 'projector' || surface === 'present') && (
+                  <div
+                    className={`absolute left-[48px] top-[40px] z-30 ${
+                      editable ? 'pointer-events-none' : ''
+                    }`}
+                  >
+                    <RecordingPill
+                      videoId={slide.recording.videoId}
+                      quickPlay
+                      align="left"
+                    />
+                  </div>
+                )}
             </div>
           </div>
         </div>

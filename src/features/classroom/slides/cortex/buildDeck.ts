@@ -7,7 +7,7 @@ import type {
   LocalizedText,
 } from '../../types';
 import type { Slide, SlideDeck, SlideDeckTemplateRef } from '../types';
-import { ARTIST_TAGLINES } from './artistStories';
+import { ARTIST_RECORDINGS, ARTIST_TAGLINES } from './artistStories';
 import {
   CHECK_IN_QUESTION,
   COPY,
@@ -423,13 +423,16 @@ export const showcaseSlideFields = (
   plan: CortexLessonPlan,
 ): Pick<
   Extract<Slide, { kind: 'content' }>,
-  'title' | 'body' | 'presetId' | 'media' | 'accent'
+  'title' | 'body' | 'presetId' | 'media' | 'accent' | 'recording'
 > => {
   const { focus, showcase } = plan;
+  const artist = focus.kind === 'artist' ? slugOf(focus.id) : null;
   // The owner's own line for the artist, else the bio from their facts.
   const bio =
-    (focus.kind === 'artist' ? ARTIST_TAGLINES[slugOf(focus.id)] : undefined) ??
+    (artist ? ARTIST_TAGLINES[artist] : undefined) ??
     showcaseBio(showcase.facts);
+  // The song the owner chose, to play from the portrait's corner.
+  const recording = artist ? ARTIST_RECORDINGS[artist] : undefined;
   const visual = showcase.portrait ?? showcase.globe ?? showcase.visual;
   return {
     title: { en: focus.label, es: focus.label },
@@ -437,6 +440,7 @@ export const showcaseSlideFields = (
     presetId: 'portrait',
     ...(visual ? { media: visual } : {}),
     accent: showcase.accent,
+    ...(recording ? { recording: { videoId: recording } } : {}),
   };
 };
 
@@ -483,6 +487,7 @@ export const showcaseParts = (
           presetId: 'portrait-check-in',
           interactionIds: [checkInId],
           accent: fields.accent,
+          ...(fields.recording ? { recording: fields.recording } : {}),
         }
       : {
           id: ids.portrait,

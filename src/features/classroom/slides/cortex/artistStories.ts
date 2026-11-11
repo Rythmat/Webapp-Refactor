@@ -128,6 +128,14 @@ export const ARTIST_TAGLINES: Readonly<Record<string, LocalizedText>> = {
 };
 
 /**
+ * The song a portrait plays from its "Recording" pill, where the owner chose
+ * one (2026-11-10): a YouTube id, by the artist's slug.
+ */
+export const ARTIST_RECORDINGS: Readonly<Record<string, string>> = {
+  'michael-jackson': 'rlpZmqGS8rc',
+};
+
+/**
  * The clips the owner chose for the Globe's own events on an artist's
  * globe (by the artist's slug, then the event's id), where the event's video
  * is gone or another tells the story better. The Globe's events are left as

@@ -11,6 +11,8 @@
  *
  * Response data still only ever arrives through the pre-gated `slots`.
  */
+import { useState } from 'react';
+import { EnergyRail } from '../../feelings/EnergyRail';
 import { FeelingsPreview } from '../../feelings/FeelingsPicker';
 import { pickLocalized, secondaryLine } from '../../presentation/localized';
 import type { Interaction, LocalizedText, StudentLanguage } from '../../types';
@@ -114,6 +116,8 @@ export const InteractionBand = ({
   // The energy slider: the question small, the class's count beside it,
   // the slider under it (owner, 2026-11-10: like the Globe's era rail). The
   // teacher's preview shows it as the room does; the dots stay in the panel.
+  // On Present the teacher slides it too, to show the room how they are
+  // (owner, 2026-11-10): theirs only, kept on Present, never sent.
   const energy = teacherOnly
     ? interactions.find(
         (i) => i.checkIn?.style === 'feelings' && i.checkIn.level === 'energy',
@@ -135,7 +139,11 @@ export const InteractionBand = ({
             <div className="ml-auto shrink-0">{slots.statusChip}</div>
           )}
         </div>
-        <FeelingsPreview level="energy" language={language} />
+        {surface === 'present' ? (
+          <TeacherEnergy language={language} />
+        ) : (
+          <FeelingsPreview level="energy" language={language} />
+        )}
       </div>
     );
   }
@@ -238,5 +246,18 @@ export const InteractionBand = ({
         <div className="flex items-center gap-3">{slots.statusChip}</div>
       )}
     </div>
+  );
+};
+
+/** The teacher's own feeling, on Present: slid there, shown, not sent. */
+const TeacherEnergy = ({ language }: { language: StudentLanguage }) => {
+  const [value, setValue] = useState<number | null>(null);
+  return (
+    <EnergyRail
+      value={value}
+      onChange={setValue}
+      language={language}
+      keyboard={false}
+    />
   );
 };

@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { InteractionBand } from '../slides/parts/InteractionBand';
+import type { Interaction } from '../types';
 import { EnergyRail } from './EnergyRail';
 
 /**
@@ -34,5 +36,45 @@ describe('the energy slider', () => {
     rerender(<EnergyRail value={95} onChange={() => {}} language="es" />);
     expect(screen.getByText('Enojado')).toBeTruthy();
     expect(screen.queryByText('Tired')).toBeNull();
+  });
+
+  it('leaves the arrow keys to the lesson when asked (Present)', () => {
+    const onChange = vi.fn();
+    render(<EnergyRail value={50} onChange={onChange} keyboard={false} />);
+    fireEvent.keyDown(screen.getByRole('slider'), { key: 'ArrowRight' });
+    expect(onChange).not.toHaveBeenCalled();
+  });
+});
+
+describe('the check-in on Present', () => {
+  afterEach(cleanup);
+  const energy = {
+    id: 'ck',
+    type: 'check-in',
+    question: { en: 'How are you feeling today?' },
+    shareable: false,
+    checkIn: { style: 'feelings', level: 'energy' },
+  } as unknown as Interaction;
+  const band = (surface: 'present' | 'projector') =>
+    render(
+      <InteractionBand
+        interactions={[energy]}
+        surface={surface}
+        language="en"
+        teacherOnly
+        hero
+        compact
+      />,
+    );
+
+  it('gives the teacher a grip to slide, nothing shown until they do', () => {
+    const { container } = band('present');
+    expect(screen.getByRole('slider')).toBeTruthy();
+    expect(container.querySelector('[data-energy-emotion]')).toBeNull();
+  });
+
+  it('is a picture on the room’s screen', () => {
+    band('projector');
+    expect(screen.queryByRole('slider')).toBeNull();
   });
 });

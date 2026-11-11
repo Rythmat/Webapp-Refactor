@@ -19,6 +19,8 @@ import {
  * revealed over the grip as a student slides onto it.
  *
  *   - a student: drags it (or uses the arrow keys) to where they are;
+ *   - the teacher, on Present: drags it to show the room their own feeling
+ *     (the arrow keys stay with the lesson there, `keyboard={false}`);
  *   - the room's screen and the editor: the slider and its marks, no grip;
  *   - the teacher: each student a dot on the rim (Rule 2: never projected).
  *
@@ -61,6 +63,7 @@ export const EnergyRail = ({
   disabled = false,
   points,
   language = 'en',
+  keyboard = true,
   className,
 }: {
   /** Where the grip is, 0–100; null before a student has moved it. */
@@ -71,6 +74,11 @@ export const EnergyRail = ({
   /** The teacher's view: each student where they put it. */
   points?: readonly { value: number; name: string }[];
   language?: StudentLanguage;
+  /**
+   * Whether the grip takes the arrow keys. Not on Present, where the arrows
+   * move the lesson (owner, 2026-11-10).
+   */
+  keyboard?: boolean;
   className?: string;
 }) => {
   const railRef = useRef<HTMLDivElement>(null);
@@ -211,7 +219,7 @@ export const EnergyRail = ({
             aria-valuenow={shown}
             aria-valuetext={say(energyWord(shown), language)}
             disabled={disabled}
-            onKeyDown={onKeyDown}
+            onKeyDown={keyboard ? onKeyDown : undefined}
             className={cn(
               'absolute bottom-[0.54em] flex h-[1.15em] w-[1.6em] -translate-x-1/2 translate-y-1/2 items-center justify-center gap-[0.12em] rounded-full bg-white shadow-lg ring-2 ring-[#141418] transition-[opacity,scale] duration-150 focus-visible:outline-none focus-visible:ring-white',
               value === null && 'opacity-60',

@@ -2,9 +2,9 @@
  * Presentation Mode — the projected deck for a classroom.
  *
  * Present renders the DECK slide-by-slide (single source of truth, so "what you
- * edit is what you present"): one slide via `Focus`, filling the window, and
- * nothing else (owner, 2026-11-10: no bars or buttons; the arrow keys move
- * it, Esc exits; the slides speak the class's language setting). Launch tiles
+ * edit is what you present"): one slide via `Focus`, filling the window, with
+ * only a small step and page selector at its bottom right (owner, 2026-11-10;
+ * the arrow keys move it too, Esc exits; the slides speak the class's language setting). Launch tiles
  * on a slide open Atlas modules in a new tab. The legacy 5-phase board is gone — Present
  * opens straight on the slides.
  *
@@ -199,6 +199,9 @@ export const PresentationMode = () => {
           onNext={goNextSlide}
           hasPrev={focusIndex > 0}
           hasNext={focusIndex < presentDeck.slides.length - 1}
+          index={focusIndex}
+          count={presentDeck.slides.length}
+          onGoTo={goToSlide}
         />
       )}
     </div>

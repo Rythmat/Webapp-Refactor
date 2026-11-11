@@ -398,6 +398,7 @@ export const SlideGlobe = ({
           prev: () => (at > 0 ? (goTo(at - 1), true) : false),
         }
       : null,
+    stepping ? { at, total: stops.length } : null,
   );
 
   if (still) return <StillGlobe globe={globe} language={language} />;

@@ -6,8 +6,8 @@
  * (wired to `sendNav`) so students and the projector follow. It covers the app
  * shell (`fixed inset-0`).
  *
- * Only the slide (owner, 2026-11-10): no bars or buttons. The teacher's arrow
- * keys move it (`Focus`), Esc goes back to the class's dashboard, where the
+ * Only the slide (owner, 2026-11-10) and its small step and page selector,
+ * bottom right. The teacher's arrow keys move it too (`Focus`), Esc goes back to the class's dashboard, where the
  * session is ended; the slides speak the class's language setting.
  */
 import { Focus } from '../presentation/Focus';
@@ -64,6 +64,9 @@ export const SessionPresentView = ({
         onNext={() => onNavigate(slideIndex + 1)}
         hasPrev={slideIndex > 0}
         hasNext={slideIndex < slideCount - 1}
+        index={slideIndex}
+        count={slideCount}
+        onGoTo={onNavigate}
         slots={slots}
       />
     </div>

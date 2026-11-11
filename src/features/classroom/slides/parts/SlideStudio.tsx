@@ -106,6 +106,7 @@ export const SlideStudio = ({
             at && at.step < at.total - 1 ? (go(at.step + 1), true) : false,
           prev: () => (at && at.step > 0 ? (go(at.step - 1), true) : false),
         },
+    !inert && at ? { at: at.step, total: at.total } : null,
   );
 
   const fitted = Boolean(scale && scale > 0);

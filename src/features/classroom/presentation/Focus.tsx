@@ -1,8 +1,13 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SlideRenderer, type SlideSlots } from '../slides/SlideRenderer';
 import type { Slide } from '../slides/types';
 import type { Interaction, StudentLanguage } from '../types';
-import { PresentStepsContext, type SlideSteps } from './presentControls';
+import { PresentSelector } from './PresentSelector';
+import {
+  PresentStepsContext,
+  type SlideSteps,
+  type StepPosition,
+} from './presentControls';
 
 interface FocusProps {
   /** The current deck slide, whatever its kind. */
@@ -18,6 +23,11 @@ interface FocusProps {
   onNext: () => void;
   hasPrev: boolean;
   hasNext: boolean;
+  /** The page, 0-based, of `count`, for the selector. */
+  index: number;
+  count: number;
+  /** Jump to a page from the selector's list. */
+  onGoTo?: (index: number) => void;
   /**
    * Pre-gated surface slots for a LIVE session — in practice just `reveal`,
    * built with the SAME anonymized gating the projector uses. Present is a
@@ -38,10 +48,12 @@ const PREV_KEYS = new Set(['ArrowLeft', 'PageUp']);
  * projector and the student device use, so Present cannot drift from what
  * the class sees.
  *
- * Nothing on it but the slide (owner, 2026-11-10: no bar, no controls). The
- * teacher's keyboard drives it: → / ← move through the slide's own steps
- * (the globe's places, the Studio tutorial's steps; `usePresentSteps`), then
- * on to the next or back to the previous slide; Esc exits.
+ * Nothing on it but the slide (owner, 2026-11-10: no bar) and a small step
+ * and page selector at its bottom right, over it (`PresentSelector`). The
+ * teacher's keyboard drives it as the selector does: → / ← move through the
+ * slide's own steps (the globe's places, the Studio tutorial's steps;
+ * `usePresentSteps`), then on to the next or back to the previous slide; Esc
+ * exits.
  */
 export const Focus = ({
   slide,
@@ -52,13 +64,28 @@ export const Focus = ({
   onNext,
   hasPrev,
   hasNext,
+  index,
+  count,
+  onGoTo,
   slots,
 }: FocusProps) => {
-  // The current slide's own steps, when it has any.
+  // The current slide's own steps, when it has any, and where they are.
   const steps = useRef<SlideSteps | null>(null);
-  const registerSteps = useCallback((next: SlideSteps | null) => {
+  const [step, setStep] = useState<StepPosition | null>(null);
+  const register = useCallback((next: SlideSteps | null) => {
     steps.current = next;
   }, []);
+  const present = useMemo(() => ({ register, report: setStep }), [register]);
+
+  // The slide's step first, then the page: the arrow keys and the selector.
+  const forward = useCallback(() => {
+    if (steps.current?.next()) return;
+    if (hasNext) onNext();
+  }, [hasNext, onNext]);
+  const back = useCallback(() => {
+    if (steps.current?.prev()) return;
+    if (hasPrev) onPrev();
+  }, [hasPrev, onPrev]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -68,21 +95,19 @@ export const Focus = ({
       }
       if (NEXT_KEYS.has(e.key)) {
         e.preventDefault();
-        if (steps.current?.next()) return;
-        if (hasNext) onNext();
+        forward();
       } else if (PREV_KEYS.has(e.key)) {
         e.preventDefault();
-        if (steps.current?.prev()) return;
-        if (hasPrev) onPrev();
+        back();
       }
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [onExit, onPrev, onNext, hasPrev, hasNext]);
+  }, [onExit, forward, back]);
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
-      <PresentStepsContext.Provider value={registerSteps}>
+      <PresentStepsContext.Provider value={present}>
         <SlideRenderer
           key={slide.id}
           slide={slide}
@@ -92,6 +117,16 @@ export const Focus = ({
           slots={slots}
         />
       </PresentStepsContext.Provider>
+      <PresentSelector
+        index={index}
+        count={count}
+        step={step}
+        onPrev={back}
+        onNext={forward}
+        onGoTo={onGoTo}
+        canPrev={hasPrev || (step !== null && step.at > 0)}
+        canNext={hasNext || (step !== null && step.at < step.total - 1)}
+      />
     </div>
   );
 };

@@ -60,7 +60,12 @@ const groupInteractions = [
 
 describe('Present, driven by the arrow keys', () => {
   const present = () => {
-    const nav = { next: vi.fn(), prev: vi.fn(), exit: vi.fn() };
+    const nav = {
+      next: vi.fn(),
+      prev: vi.fn(),
+      exit: vi.fn(),
+      goTo: vi.fn(),
+    };
     render(
       <Focus
         slide={groupSlide}
@@ -71,14 +76,45 @@ describe('Present, driven by the arrow keys', () => {
         onNext={nav.next}
         hasPrev
         hasNext
+        index={3}
+        count={9}
+        onGoTo={nav.goTo}
       />,
     );
     return nav;
   };
 
-  it('shows nothing but the slide: no bar, no buttons', () => {
+  it('shows only the slide and its step and page selector', () => {
     present();
-    expect(screen.queryAllByRole('button')).toHaveLength(0);
+    const selector = screen.getByRole('navigation', {
+      name: 'Lesson position',
+    });
+    expect(selector.textContent).toBe('4 / 9');
+    // Once the Studio says where it is, its step joins the page.
+    fromFrame({ type: SLIDE_STUDIO_STATE, step: 1, total: 14 });
+    expect(selector.textContent).toBe('Step 2 / 144 / 9');
+    // Nothing else on Present takes a click.
+    expect(
+      screen
+        .getAllByRole('button')
+        .every((b) => selector.contains(b) || b.closest('iframe')),
+    ).toBe(true);
+  });
+
+  it('moves with its arrows as the keys do, and jumps to a page', () => {
+    const nav = present();
+    const post = vi.spyOn(frameOf()!.contentWindow!, 'postMessage');
+    fromFrame({ type: SLIDE_STUDIO_STATE, step: 13, total: 14 });
+    act(() => screen.getByRole('button', { name: 'Back' }).click());
+    expect(post).toHaveBeenLastCalledWith(
+      { type: SLIDE_STUDIO_STEP, at: 12 },
+      window.location.origin,
+    );
+    act(() => screen.getByRole('button', { name: 'Next' }).click());
+    expect(nav.next).toHaveBeenCalledTimes(1);
+    act(() => screen.getByRole('button', { name: /^Page 4 of 9/ }).click());
+    act(() => screen.getByRole('menuitem', { name: '7' }).click());
+    expect(nav.goTo).toHaveBeenCalledWith(6);
   });
 
   it('moves through the tutorial’s steps, then on to the next slide', () => {

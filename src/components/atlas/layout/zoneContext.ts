@@ -7,8 +7,6 @@ import type { SheetSnap } from './sheetSnap';
  *   which is the surface;
  * - `sheet`: the phone's bottom sheet, which is the surface and gives the
  *   panel its full width and height;
- * - `dock`: the stage's dock under the map (a place's timeline, a tour's or
- *   pathway's progress), the stage card being the surface;
  * - `column`: on its own, its own floating surface (tests, the default).
  */
 export type AtlasZone =
@@ -18,8 +16,7 @@ export type AtlasZone =
       snap: SheetSnap;
       setSnap: (snap: SheetSnap) => void;
     }
-  | { kind: 'inspector' }
-  | { kind: 'dock' };
+  | { kind: 'inspector' };
 
 const COLUMN: AtlasZone = { kind: 'column' };
 
@@ -29,4 +26,4 @@ export const useAtlasZone = (): AtlasZone => useContext(AtlasZoneContext);
 
 /** Whether the zone is the panel's surface (it drops its own). */
 export const zoneIsSurface = (zone: AtlasZone): boolean =>
-  zone.kind === 'sheet' || zone.kind === 'inspector' || zone.kind === 'dock';
+  zone.kind === 'sheet' || zone.kind === 'inspector';

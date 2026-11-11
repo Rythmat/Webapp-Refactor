@@ -23,7 +23,6 @@ import { EditorRouteBoundary } from '@/daw/shell/errors/EditorRouteBoundary';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { GlobeSkeleton } from '@/layouts/DashboardLayout/GlobeSkeleton';
-import { LibraryInlet } from '@/components/Library/libraryInlet';
 import { LearnPage } from '@/components/learn/LearnPage';
 import { exploreHref } from '@/features/learn/catalog/exploreState';
 import { useWelcomeRedirect } from '@/features/welcome/useWelcomeGate';
@@ -52,15 +51,12 @@ import { isUkuleleTheorySlug } from '@/curriculum/data/ukulele/theoryCatalog';
 import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { GenreLessonRoute } from '@/curriculum/routes';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
-import { PlanPage } from '@/features/settings/PlanPage';
 import { SettingsHub } from '@/features/settings/SettingsHub';
 import { AboutSection } from '@/features/settings/sections/hub/AboutSection';
-import { AccountSection } from '@/features/settings/sections/hub/AccountSection';
-import { AudioSection } from '@/features/settings/sections/hub/AudioSection';
-import { BillingSection } from '@/features/settings/sections/hub/BillingSection';
 import { HelpSection } from '@/features/settings/sections/hub/HelpSection';
-import { LookAndFeelSection } from '@/features/settings/sections/hub/LookAndFeelSection';
-import { MidiSection } from '@/features/settings/sections/hub/MidiSection';
+import { PreferencesPage } from '@/features/settings/sections/hub/PreferencesPage';
+import { ProfilePage } from '@/features/settings/sections/hub/ProfilePage';
+import { SubscriptionPage } from '@/features/settings/sections/hub/SubscriptionPage';
 import { UserPage } from '@/features/user/UserPage';
 import { RequirePremium } from '@/components/ui/RequirePremium';
 
@@ -74,6 +70,16 @@ const SlideGlobePage = lazy(() => import('./slides/globe/SlideGlobePage'));
 const ExplorePage = lazy(() =>
   import('@/components/explore/ExplorePage').then((m) => ({
     default: m.ExplorePage,
+  })),
+);
+const LibraryPage = lazy(() =>
+  import('@/features/library/LibraryPage').then((m) => ({
+    default: m.LibraryPage,
+  })),
+);
+const LibraryProjectPage = lazy(() =>
+  import('@/features/library/LibraryProjectPage').then((m) => ({
+    default: m.LibraryProjectPage,
   })),
 );
 const ExploreSongsPage = lazy(() =>
@@ -553,6 +559,13 @@ export const studioPages = () => {
   };
 };
 
+/** A moved page: its new address, with whatever query the old one had (a
+ *  Stripe return's ?success=1). */
+const RedirectKeepingQuery = ({ to }: { to: string }) => {
+  const { search, hash } = useLocation();
+  return <Navigate to={`${to}${search}${hash}`} replace />;
+};
+
 export const studentPages = () => {
   return {
     path: ProfileRoutes.root.definition,
@@ -570,7 +583,12 @@ export const studentPages = () => {
         element: <Navigate to={UserRoutes.root()} replace />,
       },
       { path: ProfileRoutes.awards.definition, element: <AwardsInlet /> },
-      { path: ProfileRoutes.plan.definition, element: <PlanPage /> },
+      // Account › Subscription now (owner, 2026-11-10); a Stripe return
+      // keeps its query.
+      {
+        path: ProfileRoutes.plan.definition,
+        element: <RedirectKeepingQuery to="/settings/subscription" />,
+      },
       {
         path: ProfileRoutes.settings.definition,
         element: <Navigate to={SettingsRoutes.root()} replace />,
@@ -607,16 +625,34 @@ export const settingsPages = () => {
       {
         element: <SettingsHub />,
         children: [
-          { index: true, element: <Navigate to="account" replace /> },
+          // The Account area (owner, 2026-11-10: samply.app/profile's).
+          // The old Settings pages land on their new place.
+          { index: true, element: <Navigate to="profile" replace /> },
+          { path: 'profile', element: <ProfilePage /> },
           {
-            path: 'profile',
-            element: <Navigate to={UserRoutes.root()} replace />,
+            path: 'account',
+            element: <Navigate to="/settings/profile" replace />,
           },
-          { path: 'account', element: <AccountSection /> },
-          { path: 'billing', element: <BillingSection /> },
-          { path: 'audio', element: <AudioSection /> },
-          { path: 'look-and-feel', element: <LookAndFeelSection /> },
-          { path: 'midi', element: <MidiSection /> },
+          { path: 'subscription', element: <SubscriptionPage /> },
+          {
+            path: 'billing',
+            element: <RedirectKeepingQuery to="/settings/subscription" />,
+          },
+          { path: 'preferences', element: <PreferencesPage /> },
+          {
+            path: 'audio',
+            element: <Navigate to="/settings/preferences#audio" replace />,
+          },
+          {
+            path: 'look-and-feel',
+            element: (
+              <Navigate to="/settings/preferences#look-and-feel" replace />
+            ),
+          },
+          {
+            path: 'midi',
+            element: <Navigate to="/settings/preferences#midi" replace />,
+          },
           { path: 'help', element: <HelpSection /> },
           { path: 'about', element: <AboutSection /> },
         ],
@@ -1023,7 +1059,11 @@ export const libraryPages = () => {
     children: [
       {
         index: true,
-        element: <LibraryInlet />,
+        element: <LibraryPage />,
+      },
+      {
+        path: LibraryRoutes.project.definition,
+        element: <LibraryProjectPage />,
       },
     ],
   };

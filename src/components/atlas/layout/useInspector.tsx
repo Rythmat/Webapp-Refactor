@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import { PanelLoading } from '@/components/atlas/components/Panels/PanelLoading';
+import type { Journey } from '@/components/atlas/components/Panels/ToursPanel';
 import { ArtistPanel } from '@/components/atlas/components/UI/ArtistPanel';
 import { DetailsCard } from '@/components/atlas/components/UI/DetailsCard';
 import { SearchResultsPanel } from '@/components/atlas/components/UI/SearchResultsPanel';
@@ -22,6 +23,7 @@ import {
   useAtlasNavigate,
   useAtlasParams,
   useAtlasStop,
+  useAtlasStopSelector,
 } from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
 import { resolveInspectorPanel } from './inspectorModel';
@@ -31,6 +33,9 @@ import type { PanelZoneSlot } from './usePanelZone';
 // The panels a student opens from the rail, each fetched the first time.
 const LayersPanel = lazy(
   () => import('@/components/atlas/components/Panels/LayersPanel'),
+);
+const ToursPanel = lazy(
+  () => import('@/components/atlas/components/Panels/ToursPanel'),
 );
 // A Cortex lesson's Promoter mind map (`?mindmap=1`), loaded only when asked.
 const MindMapPanel = lazy(
@@ -100,9 +105,23 @@ function useInspector(): InspectorState {
       : frame.panel,
   );
   const mindmap = useAtlasParams((params) => params.get('mindmap') === '1');
+  // The running pathway or tour, by its key (a string, so the selection
+  // holds still between URL changes).
+  const journeyKey = useAtlasStopSelector((stop) =>
+    stop.kind === 'pathway' || stop.kind === 'tour' ? stopKey(stop) : null,
+  );
+  const journey = useMemo((): Journey | null => {
+    if (!journeyKey) return null;
+    const at = journeyKey.indexOf(':');
+    return {
+      kind: journeyKey.slice(0, at) as Journey['kind'],
+      id: journeyKey.slice(at + 1),
+    };
+  }, [journeyKey]);
   const details = useDetails();
   const panel = resolveInspectorPanel({
     panel: choice,
+    journey: journey !== null,
     mindmap,
     hasDetails: details !== null,
   });
@@ -130,6 +149,21 @@ function useInspector(): InspectorState {
           node: lazyPanel(title, <LayersPanel onClose={back} />),
           onClose: back,
         };
+      case 'tours': {
+        // A running journey's card closes by ending it; the list, back to
+        // what was under it.
+        const close = journey ? navigate.home : back;
+        return {
+          panel,
+          title,
+          key: journeyKey ?? panel,
+          node: lazyPanel(
+            title,
+            <ToursPanel journey={journey} onClose={close} />,
+          ),
+          onClose: close,
+        };
+      }
       case 'mindmap': {
         if (!mindmap) return null;
         const hide = () => navigate.setFrame({ panel: 'none' });
@@ -144,7 +178,7 @@ function useInspector(): InspectorState {
       default:
         return null;
     }
-  }, [panel, details, mindmap, navigate]);
+  }, [panel, details, mindmap, journey, journeyKey, navigate]);
   return useMemo(() => ({ slot, hasDetails }), [slot, hasDetails]);
 }
 

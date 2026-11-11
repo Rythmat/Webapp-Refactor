@@ -93,12 +93,12 @@ describe('useAtlasNavigate', () => {
     expect(search()).toBe(
       '?event=evt-1&view=timeline&open=americas%2Ceurope%2Cafrica-me%2Casia-pacific',
     );
-    act(() => navigate().setFrame({ panel: 'pathways' }));
+    act(() => navigate().setFrame({ panel: 'tours' }));
     expect(search()).toBe(
-      '?event=evt-1&view=timeline&open=americas%2Ceurope%2Cafrica-me%2Casia-pacific&panel=pathways',
+      '?event=evt-1&view=timeline&open=americas%2Ceurope%2Cafrica-me%2Casia-pacific&panel=tours',
     );
     act(() => navigate().toSection('eras'));
-    expect(search()).toBe('?event=evt-1&view=timeline&panel=pathways');
+    expect(search()).toBe('?event=evt-1&view=timeline&panel=tours');
     act(() => navigate().setFrame({ panel: null }));
     expect(search()).toBe('?event=evt-1&view=timeline');
     act(() => navigate().toSection('explore'));
@@ -126,8 +126,8 @@ describe('useAtlasNavigate', () => {
     const { navigate, search } = setup(
       '/globe?mindmap=1&event=evt-1&view=timeline',
     );
-    act(() => navigate().toLink('?pathway=blues-to-rock&panel=pathways'));
-    expect(search()).toBe('?pathway=blues-to-rock&panel=pathways&mindmap=1');
+    act(() => navigate().toLink('?pathway=blues-to-rock&panel=tours'));
+    expect(search()).toBe('?pathway=blues-to-rock&panel=tours&mindmap=1');
   });
 
   it('reads the latest URL when two navigations follow each other', () => {

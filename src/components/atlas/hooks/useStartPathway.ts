@@ -22,7 +22,8 @@ export function useStartPathway() {
       afterLoad(guidesData, (guides) => {
         const mod = guides?.getModuleById(moduleId);
         if (!mod) return;
-        dispatch({ type: 'START_MODULE', payload: { moduleId } });
+        // By its own id: an old link may name a tour merged into this one.
+        dispatch({ type: 'START_MODULE', payload: { moduleId: mod.id } });
 
         const firstEvent = MUSIC_HISTORY.find((e) => e.id === mod.eventIds[0]);
         if (firstEvent) focusEvent(dispatch, firstEvent);

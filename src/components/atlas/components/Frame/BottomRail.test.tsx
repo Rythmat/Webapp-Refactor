@@ -62,9 +62,9 @@ describe('the bottom rail', () => {
     expect(nav).toBeInTheDocument();
     expect(tab('Explore')).toHaveAttribute('aria-current', 'page');
 
-    fireEvent.click(tab('Eras'));
-    expect(where.search).toBe('?event=evt-1&view=timeline');
-    expect(tab('Eras')).toHaveAttribute('aria-current', 'page');
+    fireEvent.click(tab('Connections'));
+    expect(where.search).toBe('?event=evt-1&view=ring');
+    expect(tab('Connections')).toHaveAttribute('aria-current', 'page');
     expect(tab('Explore')).not.toHaveAttribute('aria-current');
   });
 
@@ -75,12 +75,32 @@ describe('the bottom rail', () => {
       within(nav)
         .getAllByRole('button')
         .map((b) => b.textContent),
-    ).toEqual(['Explore', 'Connections', 'Eras', 'Regions & Cities']);
+    ).toEqual(['Explore', 'Connections', 'Tours']);
     fireEvent.click(tab('Connections'));
     expect(where.search).toBe('?place=city%3Alondon&view=ring');
     // The map's own controls stand down; the cards' switch stays.
     expect(screen.queryByRole('button', { name: 'Spin the globe' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Hide the cards' })).toBeTruthy();
+  });
+
+  it('opens Tours on the map and puts it away on leaving', () => {
+    const { where } = setup('/globe?view=ring');
+    fireEvent.click(tab('Tours'));
+    expect(where.search).toBe('?panel=tours');
+    expect(tab('Tours')).toHaveAttribute('aria-current', 'page');
+    fireEvent.click(tab('Explore'));
+    expect(where.search).toBe('');
+    expect(tab('Explore')).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('names a running pathway or tour Tours, and ends it on leaving', () => {
+    const { where } = setup('/globe?pathway=blues-to-rock');
+    expect(tab('Tours')).toHaveAttribute('aria-current', 'page');
+    fireEvent.click(tab('Connections'));
+    expect(where.search).toBe('?view=ring');
+    cleanup();
+    setup('/globe?tour=city-memphis');
+    expect(tab('Tours')).toHaveAttribute('aria-current', 'page');
   });
 
   it('spins the globe and stops it, saying which in its name', () => {

@@ -1,7 +1,8 @@
 /* eslint-disable react/jsx-sort-props */
-import { Activity, Mic2, Music, User } from 'lucide-react';
+import { Activity, Mic2, Music } from 'lucide-react';
 import type { ElementType, FC } from 'react';
 import { Link } from 'react-router-dom';
+import { AppIcons } from '@/components/icons/appIcons';
 import { Switch } from '@/components/ui/switch';
 import { WelcomeRoutes } from '@/constants/routes';
 import { useMe } from '@/hooks/data';
@@ -52,7 +53,7 @@ export const BioCard = () => {
   return (
     <section className="flex flex-col gap-4">
       <div className="flex items-center gap-2 text-white">
-        <User size={20} />
+        <AppIcons.profile size={20} />
         <h2 className="text-2xl font-medium">Bio</h2>
         {/* What Learn suggests comes from /welcome's answers too. */}
         <Link

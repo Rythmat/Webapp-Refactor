@@ -1,4 +1,4 @@
-import { User } from 'lucide-react';
+import { AppIcons } from '@/components/icons/appIcons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthActions } from '@/contexts/AuthContext';
@@ -16,7 +16,7 @@ export const StudentProfilePage = () => {
         <CardHeader>
           <div className="flex items-center gap-4">
             <div className="flex size-16 items-center justify-center rounded-full bg-primary/10">
-              <User className="size-8 text-primary" />
+              <AppIcons.profile className="size-8 text-primary" />
             </div>
             <CardTitle>
               {user?.username || user?.nickname || 'Student'}

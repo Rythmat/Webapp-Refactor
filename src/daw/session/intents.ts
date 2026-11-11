@@ -69,6 +69,7 @@ import type {
   SessionUser,
   WaitingFor,
 } from './types';
+import { UNTITLED_SESSION } from '@/lib/studio-projects/sessionName';
 
 // ── What each intent fetches, builds and writes (milestone 1.4) ────────────
 //
@@ -188,7 +189,7 @@ export function intentLabel(intent: OpenIntent, name?: string | null): string {
       return label ? `Opening ${quoted(label)}…` : 'Opening the demo…';
     }
     case 'new':
-      return `Opening ${quoted('Untitled Project')}…`;
+      return `Opening ${quoted(UNTITLED_SESSION)}…`;
     case 'jam':
       return `Opening ${quoted(name ?? 'Jam session')}…`;
     default:

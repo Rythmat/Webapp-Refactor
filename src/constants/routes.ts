@@ -1141,8 +1141,21 @@ export const ConnectRoutes = {
 
 const libraryPrefix = '/library';
 
+/**
+ * The Library (owner, 2026-11-11, Samply's): the student's Studio sessions,
+ * heard without opening the Studio, and their projects, folders of
+ * sessions. A session opens in the Studio: it has no page of its own
+ * here. `q` searches.
+ */
 export const LibraryRoutes = {
-  root: createRouteDefinition(libraryPrefix),
+  root: createRouteDefinition<void, { q?: string }>(libraryPrefix),
+  /** A project: a folder of sessions. */
+  project: createRouteDefinition<{ projectId: string }>(
+    '/projects/:projectId',
+    {
+      prefix: libraryPrefix,
+    },
+  ),
 };
 
 const globePrefix = '/globe';

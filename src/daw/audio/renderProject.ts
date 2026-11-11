@@ -98,6 +98,7 @@ import {
   getTrackSynthState,
   applySynthStateToEngine,
   defaultSynthTrackState,
+  type SynthTrackState,
 } from '@/daw/oracle-synth/synthTrackState';
 
 const PPQ = 480;
@@ -164,7 +165,28 @@ export interface RenderOptions {
   signal?: AbortSignal;
   /** How far the render is, 0..1; not called where the browser can't say. */
   onProgress?: (fraction: number) => void;
+  /** The project to render instead of the editor's (the Library's previews,
+   *  decoded apart from the store). Default: the store as it is now. */
+  state?: RenderSource;
+  /** With `state`: each Oracle track's patch, by track id, in place of the
+   *  editor's (getTrackSynthState). */
+  synthStates?: ReadonlyMap<string, SynthTrackState>;
 }
+
+/** What a render reads of a project: the store's fields, or a project
+ *  decoded apart from it. */
+export type RenderSource = Pick<
+  ReturnType<typeof useStore.getState>,
+  | 'tracks'
+  | 'bpm'
+  | 'returns'
+  | 'masteringEffects'
+  | 'masterVolume'
+  | 'masterAutomation'
+  | 'loopEnabled'
+  | 'loopStart'
+  | 'loopEnd'
+>;
 
 /** `effects` with every slot switched off, so the track's chain passes the
  *  signal through untouched (EffectChain.update bypasses or flattens a slot
@@ -192,7 +214,7 @@ function faderLanes(
 
 /** Compute the render window [startTick, endTick) for the chosen range. */
 function renderWindowTicks(
-  state: ReturnType<typeof useStore.getState>,
+  state: RenderSource,
   range: RenderRange,
 ): { startTick: number; endTick: number; tail: number } {
   if (typeof range === 'object') {
@@ -218,9 +240,7 @@ function renderWindowTicks(
 }
 
 /** The tick where the last note or audio clip ends (0 for an empty project). */
-export function projectEndTick(
-  state: ReturnType<typeof useStore.getState>,
-): number {
+export function projectEndTick(state: Pick<RenderSource, 'tracks'>): number {
   let endTick = 0;
   for (const t of state.tracks) {
     for (const c of t.midiClips) {
@@ -252,7 +272,7 @@ let rendersHoldingContext = 0;
 export async function renderProject(
   opts: RenderOptions = {},
 ): Promise<AudioBuffer> {
-  const state = useStore.getState();
+  const state = opts.state ?? useStore.getState();
   const {
     tracks,
     bpm,
@@ -480,7 +500,10 @@ export async function renderProject(
                   // A track with no patch of its own plays the default
                   // patch, as live playback gives it (usePlaybackEngine).
                   const patch =
-                    getTrackSynthState(track.id) ?? defaultSynthTrackState();
+                    (opts.synthStates
+                      ? opts.synthStates.get(track.id)
+                      : getTrackSynthState(track.id)) ??
+                    defaultSynthTrackState();
                   const engine = instrument.getEngine();
                   if (engine) {
                     // Its pack tables load first: the render never bakes in

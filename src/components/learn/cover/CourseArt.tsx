@@ -12,11 +12,14 @@ import { CourseCover } from './CourseCover';
 export function CourseArt({
   course,
   stack = true,
+  flat = false,
   className,
 }: {
   course: CatalogCourse;
   /** A cover's stack of cards behind it (off for small thumbnails). */
   stack?: boolean;
+  /** Learn's library look (CourseCover's `flat`). */
+  flat?: boolean;
   className?: string;
 }) {
   const genreOrder = useContext(GenreOrderContext);
@@ -31,5 +34,12 @@ export function CourseArt({
         : course.cover,
     [course, genreOrder],
   );
-  return <CourseCover cover={cover} stack={stack} className={className} />;
+  return (
+    <CourseCover
+      cover={cover}
+      stack={stack}
+      flat={flat}
+      className={className}
+    />
+  );
 }

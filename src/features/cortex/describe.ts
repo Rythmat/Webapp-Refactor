@@ -22,6 +22,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 import { getTutorialEntry } from '@/daw/components/Tutorial/tutorialCatalog';
 import { engineModeName, keyColourOf } from '@/daw/prism-engine/data/keyColour';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
+import { sessionDisplayName } from '@/lib/studio-projects/sessionName';
 import type { WebActivity } from './buildWeb';
 import { genreLessonId, kindOfId, type CortexId } from './ids';
 import type { CortexRecord } from './ledger';
@@ -322,7 +323,7 @@ const facts = (
         ? genreConcept(SONG_TAG_TO_GENRE[project.genre] ?? project.genre)
         : null;
       return {
-        label: project.name || 'Untitled Project',
+        label: sessionDisplayName(project.name),
         detail: 'Studio',
         route: `/studio?project=${encodeURIComponent(rest)}`,
         concepts: genre ? [genre, STUDIO_GROUP] : [STUDIO_GROUP],

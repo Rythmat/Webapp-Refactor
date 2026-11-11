@@ -1,5 +1,5 @@
-import type { LucideIcon } from 'lucide-react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { type AppIconComponent } from '@/components/icons/appIcons';
 import {
   Tooltip,
   TooltipContent,
@@ -13,7 +13,7 @@ export type NavItemProps = {
   /** Extra paths (besides `to`) that also mark this item active. */
   activePaths?: string[];
   /** Lucide component icon; ignored when `iconSrc` is set. */
-  icon?: LucideIcon;
+  icon?: AppIconComponent;
   /**
    * Path to a one-color SVG (e.g. `/icons/learn-icon.svg`). Takes precedence
    * over `icon`. Drawn as a mask so it takes the row's text color.
@@ -67,7 +67,7 @@ export function NavGlyph({
   iconSrc,
   className,
 }: {
-  icon?: LucideIcon;
+  icon?: AppIconComponent;
   iconSrc?: string;
   className?: string;
 }) {

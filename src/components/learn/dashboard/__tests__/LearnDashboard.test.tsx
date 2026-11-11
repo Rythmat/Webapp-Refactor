@@ -6,6 +6,7 @@ import type { LearnProfile } from '@/features/learn/profile/learnProfile';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
 import { LearnDashboard } from '../LearnDashboard';
 import { LearnDiscoverColumns } from '../LearnDiscoverColumns';
+import { HomeProgressColumn } from '../ProgressColumn';
 
 let profile: LearnProfile = {};
 let answered = true;
@@ -51,6 +52,10 @@ vi.mock('@/hooks/data/classrooms/useCurrentClassroom', () => ({
 }));
 vi.mock('@/features/classroom/assignments/useAssignments', () => ({
   useAssignments: () => ({ assignments }),
+}));
+// The song library loads on its own; here it hasn't landed yet.
+vi.mock('@/features/classroom/plan/useSongsReady', () => ({
+  useSongsReady: () => false,
 }));
 vi.mock('@/hooks/useIsPremium', () => ({
   useIsPremium: () => ({ isPremium: true, isLoading: false }),
@@ -150,12 +155,21 @@ describe('the Learn dashboard and its columns (on Home)', () => {
     expect(screen.getByTestId('prompt')).toBeTruthy();
   });
 
-  it('draws exactly three columns: Learn, Arcade, Progress', () => {
+  it('draws exactly three columns: Learn, Arcade, Songs', () => {
     openColumns();
     const titles = [
       ...document.querySelectorAll<HTMLElement>('[data-learn-column]'),
     ].map((el) => el.dataset.learnColumn);
-    expect(titles).toEqual(['Learn', 'Arcade', 'Progress']);
+    expect(titles).toEqual(['Learn', 'Arcade', 'Songs']);
+  });
+
+  it('fills Songs once the library lands, and sees more on /songs', () => {
+    openColumns();
+    const songs = column('Songs');
+    expect(within(songs).getByText('Loading songs…')).toBeTruthy();
+    expect(
+      within(songs).getByRole('link', { name: 'See more' }),
+    ).toHaveProperty('pathname', '/songs');
   });
 
   it('leads Learn with where to start, then reasoned picks', () => {
@@ -197,8 +211,12 @@ describe('the Learn dashboard and its columns (on Home)', () => {
     ).toHaveProperty('pathname', '/arcade');
   });
 
-  it('shows the week in Progress, never a zero', () => {
-    openColumns();
+  it('shows the week in Progress (beside the Studio card), never a zero', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <HomeProgressColumn />
+      </MemoryRouter>,
+    );
     const progress = column('Progress');
     expect(
       within(progress).getByText('Your week starts with one lesson.'),

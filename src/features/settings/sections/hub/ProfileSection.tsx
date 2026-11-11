@@ -1,7 +1,8 @@
 /* eslint-disable react/jsx-sort-props */
-import { Activity, Mic2, Music, User } from 'lucide-react';
+import { Activity, Mic2, Music } from 'lucide-react';
 import { type ElementType, type FC, useEffect, useState } from 'react';
 import { AvatarEditor } from '@/components/Profile/AvatarEditor';
+import { AppIcons } from '@/components/icons/appIcons';
 import { UserAvatarPattern } from '@/components/ui/UserAvatarPattern';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
@@ -126,7 +127,7 @@ export const ProfileSection = () => {
       <SettingsCard
         title={
           <div className="flex items-center gap-2">
-            <User size={18} />
+            <AppIcons.profile size={18} />
             <span>Bio</span>
           </div>
         }

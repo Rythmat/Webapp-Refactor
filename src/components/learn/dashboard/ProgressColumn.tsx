@@ -1,9 +1,18 @@
+import { useMemo, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/components/utilities';
 import { UserRoutes, WelcomeRoutes } from '@/constants/routes';
 import { FOCUS_RING } from '@/daw/ui/styles';
-import type { WeekStats } from '@/features/learn/dashboard/weekStats';
+import { getCortexRecords, subscribeCortex } from '@/features/cortex/ledger';
+import {
+  weekStats,
+  type WeekStats,
+} from '@/features/learn/dashboard/weekStats';
+import { useLearnProfile } from '@/features/learn/profile/useLearnProfile';
+import { useExperienceSummary } from '@/hooks/data/experience';
+import { useStreak } from '@/hooks/data/useStreak';
 import type { CoverSpec } from '@/lib/cover';
+import { keyPair } from '@/lib/cover/color';
 import { CourseCover } from '../cover/CourseCover';
 import { DiscoverColumn } from './DiscoverColumn';
 import { DaysRing, WeekStrip } from './WeekCard';
@@ -97,5 +106,42 @@ export function ProgressColumn({
         </Link>
       </div>
     </DiscoverColumn>
+  );
+}
+
+/** Progress's tile: interference rings, quiet, in a cool key. */
+const PROGRESS_ART: CoverSpec = {
+  family: 'rings',
+  seed: 'learn/progress',
+  colors: keyPair('D♭'),
+  stacked: false,
+  ratio: [3, 2],
+  variant: 3,
+};
+
+/**
+ * Progress on Home, beside the Studio card where the Projects card was
+ * (owner, 2026-11-11): this week from the student's own XP and history,
+ * against the days a week they set themselves.
+ */
+export function HomeProgressColumn() {
+  const { profile } = useLearnProfile();
+  const records = useSyncExternalStore(subscribeCortex, getCortexRecords);
+  const { data: xp } = useExperienceSummary();
+  const { data: streak } = useStreak();
+  // Fixed for the visit, so the week doesn't move under the student.
+  const [nowMs] = useState(() => Date.now());
+  const week = useMemo(
+    () => weekStats(xp?.timeline, records, nowMs),
+    [xp?.timeline, records, nowMs],
+  );
+  return (
+    <ProgressColumn
+      stats={week}
+      target={profile.daysPerWeek ?? null}
+      streak={streak.currentStreak}
+      nowMs={nowMs}
+      art={PROGRESS_ART}
+    />
   );
 }

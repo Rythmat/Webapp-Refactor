@@ -12,19 +12,13 @@
  *     on the slide, plus the questions a slide can ask.
  */
 import { useQuery } from '@tanstack/react-query';
-import {
-  BookOpen,
-  Check,
-  Gamepad2,
-  Globe2,
-  MessageSquare,
-  Music,
-  Search,
-  SlidersHorizontal,
-  Sparkles,
-  type LucideIcon,
-} from 'lucide-react';
+import { Check, Search, Sparkles } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import {
+  type AppIconComponent,
+  AppIcons,
+  AppListIcons,
+} from '@/components/icons/appIcons';
 import { MicroLabel } from '@/components/kit';
 import { cn } from '@/components/utilities';
 import { ContentGate } from '@/content/ContentGate';
@@ -65,19 +59,19 @@ export type PickerRail =
   | 'arcade'
   | 'questions';
 
-const RAILS: { id: PickerRail; label: string; icon: LucideIcon }[] = [
-  { id: 'lesson', label: 'For this lesson', icon: Sparkles },
-  { id: 'learn', label: 'Learn', icon: BookOpen },
-  { id: 'studio', label: 'Studio', icon: SlidersHorizontal },
-  { id: 'globe', label: 'Globe', icon: Globe2 },
-  { id: 'arcade', label: 'Arcade', icon: Gamepad2 },
-  { id: 'questions', label: 'Questions', icon: MessageSquare },
+const RAILS: { id: PickerRail; label: string; icon: AppIconComponent }[] = [
+  { id: 'lesson', label: 'For this lesson', icon: AppListIcons.suggested },
+  { id: 'learn', label: 'Learn', icon: AppIcons.learn },
+  { id: 'studio', label: 'Studio', icon: AppIcons.studio },
+  { id: 'globe', label: 'Globe', icon: AppIcons.globe },
+  { id: 'arcade', label: 'Arcade', icon: AppIcons.arcade },
+  { id: 'questions', label: 'Questions', icon: AppListIcons.questions },
 ];
 
-const ROLE_ICON: Record<GroupRole, LucideIcon> = {
-  promoter: Globe2,
-  producer: SlidersHorizontal,
-  performer: Music,
+const ROLE_ICON: Record<GroupRole, AppIconComponent> = {
+  promoter: AppIcons.globe,
+  producer: AppIcons.studio,
+  performer: AppListIcons.artists,
 };
 
 const ROLE_BLURB: Record<GroupRole, string> = {

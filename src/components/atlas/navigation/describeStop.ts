@@ -155,8 +155,8 @@ function present(stop: AtlasStop): StopPresentation {
       const first = getEventById(mod?.eventIds[0]);
       return {
         kind: 'pathway',
-        title: mod?.title ?? 'Pathway',
-        subtitle: 'Pathway',
+        title: mod?.title ?? 'Genre tour',
+        subtitle: 'Genre tour',
         thumb: eventThumb(first),
         emoji: mod?.emoji,
       };
@@ -166,8 +166,10 @@ function present(stop: AtlasStop): StopPresentation {
       const tour = guidesData.peek()?.getTour(stop.tourId);
       return {
         kind: 'tour',
-        title: tour?.title ?? 'Guided tour',
-        subtitle: 'Guided tour',
+        title: tour?.title ?? 'Tour',
+        subtitle: tour
+          ? `${tour.kind === 'region' ? 'Region' : 'City'} tour`
+          : 'Tour',
       };
     }
 

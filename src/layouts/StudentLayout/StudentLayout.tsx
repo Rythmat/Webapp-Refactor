@@ -1,6 +1,6 @@
-import { Home, User } from 'lucide-react';
 import { Suspense } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { AppIcons } from '@/components/icons/appIcons';
 import { cn } from '@/components/utilities';
 import { ClassroomRoutes } from '@/constants/routes';
 import { useScrollGradient } from '@/hooks/useScrollGradient';
@@ -25,7 +25,7 @@ export const StudentLayout = (props: { fallback?: React.ReactNode }) => {
       <nav className="fixed inset-x-0 bottom-0 border-t bg-background">
         <div className="flex h-16 w-full items-center justify-around">
           <TabItem
-            icon={<Home className="size-5" />}
+            icon={<AppIcons.home className="size-5" />}
             isActive={
               location.pathname.startsWith('/s/dashboard') ||
               location.pathname === '/s'
@@ -34,7 +34,7 @@ export const StudentLayout = (props: { fallback?: React.ReactNode }) => {
             to={ClassroomRoutes.picker()}
           />
           <TabItem
-            icon={<User className="size-5" />}
+            icon={<AppIcons.profile className="size-5" />}
             isActive={location.pathname.startsWith('/s/profile')}
             label="Profile"
             to={ClassroomRoutes.home({ classroomId: '1' })}

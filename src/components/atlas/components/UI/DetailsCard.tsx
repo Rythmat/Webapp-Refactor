@@ -114,7 +114,7 @@ const TILE_TOP_GAP_PX = 8;
  * that list scrolls: scrollIntoView would move the page's frame too, whose
  * clipped overflow can still scroll.
  */
-function showTileFirst(tile: HTMLElement, behavior: ScrollBehavior) {
+export function showTileFirst(tile: HTMLElement, behavior: ScrollBehavior) {
   let list = tile.parentElement;
   while (list && !/auto|scroll/.test(getComputedStyle(list).overflowY)) {
     list = list.parentElement;
@@ -131,7 +131,7 @@ function showTileFirst(tile: HTMLElement, behavior: ScrollBehavior) {
 const ERA_LABEL = new Map(MUSICAL_ERAS.map((e) => [e.id, e.label]));
 
 /** A tile's picture: the event's own, or a quiet stand-in of the same shape. */
-function EventTilePicture({ event }: { event: HistoricalEvent }) {
+export function EventTilePicture({ event }: { event: HistoricalEvent }) {
   const src = eventImage(event, 'lane');
   return src ? (
     <img
@@ -174,7 +174,7 @@ function HeaderEras({ events }: { events: readonly HistoricalEvent[] }) {
   );
 }
 
-function EventList({
+export function EventList({
   events,
   expandedEvents,
   enlarged,

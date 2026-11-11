@@ -4,13 +4,9 @@
 // Then Play Again, Next Level! (when there's one) and Take Your Song To The
 // Studio! Confetti falls only for those who don't ask for reduced motion.
 
-import {
-  ArrowRight,
-  Loader2,
-  RotateCcw,
-  SlidersHorizontal,
-} from 'lucide-react';
+import { ArrowRight, Loader2, RotateCcw } from 'lucide-react';
 import { useMemo, type CSSProperties } from 'react';
+import { AppIcons } from '@/components/icons/appIcons';
 import { inkOn } from '@/curriculum/musicLiteracy/KeyRing';
 
 export interface VictoryChord {
@@ -183,7 +179,7 @@ export function Victory({
             {studioBusy ? (
               <Loader2 aria-hidden className="size-4 animate-spin" />
             ) : (
-              <SlidersHorizontal aria-hidden className="size-4" />
+              <AppIcons.studio aria-hidden className="size-4" />
             )}
             Take Your Song To The Studio!
           </button>

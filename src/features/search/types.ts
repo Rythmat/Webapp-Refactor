@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
+import type { AppIconComponent } from '@/components/icons/appIcons';
 
 /** Content buckets the global search can surface. */
 export type SearchCategory =
@@ -30,7 +30,7 @@ export interface SearchResult {
   subtitle?: string;
   /** Route path (may include a query string) passed to react-router `<Link>`. */
   to: string;
-  icon: LucideIcon;
+  icon: AppIconComponent;
   /** Optional thumbnail; falls back to `icon` when absent. */
   thumb?: SearchThumb;
 }
@@ -39,7 +39,7 @@ export interface SearchResult {
 export interface SearchGroup {
   category: SearchCategory;
   label: string;
-  icon: LucideIcon;
+  icon: AppIconComponent;
   /** Capped to {@link PER_GROUP_CAP}. */
   results: SearchResult[];
   /** Total matches before capping. */

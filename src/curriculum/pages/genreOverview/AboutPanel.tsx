@@ -1,5 +1,5 @@
-import { Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AppIcons } from '@/components/icons/appIcons';
 import {
   PROMPT_FRAME,
   PROMPT_PILL,
@@ -49,7 +49,7 @@ export function AboutPanel({ profile }: { profile: GenreProfile }) {
                   title={`${artist.name} on the Globe`}
                   className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-white/55 outline-none transition-colors duration-150 hover:bg-white/[0.06] hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
                 >
-                  <Globe aria-hidden className="size-4" />
+                  <AppIcons.globe aria-hidden className="size-4" />
                 </Link>
               </div>
               <p className="text-sm text-white/55">

@@ -276,7 +276,7 @@ describe('the device-wide autosave (L)', () => {
     expect(v1).toMatchObject({
       schema: 2,
       trackCount: 3,
-      name: 'Untitled Project',
+      name: 'Untitled Session',
       hasContent: true,
     });
     // v1 clips have neither assetId nor sourceUrl: both count as missing.

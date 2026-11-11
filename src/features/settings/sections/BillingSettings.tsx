@@ -1,13 +1,7 @@
-/* eslint-disable react/jsx-sort-props */
-/* eslint-disable tailwindcss/classnames-order */
-import {
-  AlertTriangle,
-  CheckCircle2,
-  CreditCard,
-  ExternalLink,
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { cn } from '@/components/utilities';
 import {
   getBillingUiState,
   getBillingActionLabel,
@@ -24,118 +18,22 @@ import {
   useMySubscription,
   useRefreshSubscription,
 } from '@/hooks/data/subscription';
-
-// ── Shared style tokens (match existing AccountSettings patterns) ─────────────
-
-const HEADING: React.CSSProperties = {
-  fontSize: '11px',
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: '1px',
-  color: 'var(--color-text)',
-};
-
-const PANEL: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid var(--color-border)',
-  borderRadius: '0.75rem',
-  padding: '1.5rem',
-};
-
-const LABEL: React.CSSProperties = {
-  fontSize: '11px',
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-  color: 'var(--color-text-dim)',
-};
-
-const BTN_OUTLINE: React.CSSProperties = {
-  background: 'transparent',
-  color: 'var(--color-accent)',
-  border: '1px solid var(--color-accent)',
-  borderRadius: '9999px',
-  padding: '0.375rem 1rem',
-  fontSize: '0.75rem',
-  fontWeight: 700,
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-  cursor: 'pointer',
-};
-
-const BTN_ACCENT: React.CSSProperties = {
-  background: 'var(--color-accent)',
-  color: '#111',
-  border: 'none',
-  borderRadius: '9999px',
-  padding: '0.375rem 1rem',
-  fontSize: '0.75rem',
-  fontWeight: 700,
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-  cursor: 'pointer',
-};
-
-const BTN_WARN: React.CSSProperties = {
-  background: 'transparent',
-  color: '#f59e0b',
-  border: '1px solid #f59e0b',
-  borderRadius: '9999px',
-  padding: '0.375rem 1rem',
-  fontSize: '0.75rem',
-  fontWeight: 700,
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-  cursor: 'pointer',
-};
-
-// ── Badge colours ─────────────────────────────────────────────────────────────
-
-const badgeStyle = (
-  variant: 'positive' | 'warning' | 'neutral' | 'muted',
-): React.CSSProperties => {
-  const map: Record<typeof variant, React.CSSProperties> = {
-    positive: {
-      background: 'rgba(34,197,94,0.12)',
-      color: '#4ade80',
-      border: '1px solid rgba(34,197,94,0.25)',
-    },
-    warning: {
-      background: 'rgba(245,158,11,0.12)',
-      color: '#fbbf24',
-      border: '1px solid rgba(245,158,11,0.25)',
-    },
-    neutral: {
-      background: 'rgba(255,255,255,0.06)',
-      color: 'var(--color-text-dim)',
-      border: '1px solid var(--color-border)',
-    },
-    muted: {
-      background: 'rgba(255,255,255,0.03)',
-      color: 'var(--color-text-dim)',
-      border: '1px solid var(--color-border)',
-    },
-  };
-  return {
-    ...map[variant],
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '0.375rem',
-    borderRadius: '9999px',
-    padding: '0.2rem 0.6rem',
-    fontSize: '11px',
-    fontWeight: 700,
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-  };
-};
+import {
+  ACCOUNT_PILL,
+  ACCOUNT_PILL_PRIMARY,
+  AccountChip,
+  SettingsGroup,
+  SettingsRow,
+} from '../ui/accountKit';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Component
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Billing & subscription summary for the ProfilePage.
+ * Billing & subscription summary, in the Account area's look (owner,
+ * 2026-11-10): cards of rows, grey pills, the subscribe pill white; no teal.
+ * A payment problem keeps its amber.
  *
  * Shows current subscription status, renewal dates, invoice warnings, and
  * payment-method summary. Provides a single action button whose label adapts
@@ -181,15 +79,6 @@ export const BillingSettings = () => {
   const actionPending = checkout.isPending || portal.isPending;
   const actionError = checkout.error?.message ?? portal.error?.message ?? null;
 
-  const badgeVariant =
-    uiState === 'active' || uiState === 'trialing' || uiState === 'free_access'
-      ? 'positive'
-      : paymentIssue
-        ? 'warning'
-        : uiState === 'canceling'
-          ? 'warning'
-          : 'neutral';
-
   const periodEndDate = formatPeriodDate(subscription?.currentPeriodEnd);
   const paymentMethodLine = subscription
     ? formatPaymentMethod(subscription)
@@ -199,231 +88,162 @@ export const BillingSettings = () => {
   // ── Loading skeleton ──────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <>
-        <h2 style={HEADING}>Billing</h2>
-        <div style={PANEL} className="space-y-3">
-          <div
-            className="h-4 w-24 animate-pulse rounded"
-            style={{ background: 'var(--color-border)' }}
-          />
-          <div
-            className="h-3 w-64 animate-pulse rounded"
-            style={{ background: 'var(--color-border)' }}
-          />
-          <div
-            className="h-8 w-32 animate-pulse rounded-full"
-            style={{ background: 'var(--color-border)' }}
-          />
-        </div>
-      </>
+      <SettingsGroup className="p-[0.909rem]">
+        <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
+        <div className="mt-2 h-3 w-64 animate-pulse rounded bg-white/10" />
+      </SettingsGroup>
     );
   }
 
   // ── Error state ───────────────────────────────────────────────────────────
   if (isError) {
     return (
-      <>
-        <h2 style={HEADING}>Billing</h2>
-        <div style={PANEL}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-dim)' }}>
-            Unable to load subscription information. Please try again later.
-          </p>
-        </div>
-      </>
+      <SettingsGroup>
+        <SettingsRow
+          plain
+          title="Subscription"
+          description="Unable to load subscription information. Please try again later."
+        />
+      </SettingsGroup>
     );
   }
 
+  const value = 'text-[0.795rem] text-white/70';
+  const showPayment =
+    uiState !== 'free_access' &&
+    (paymentMethodLine ?? expiryLine ?? subscription?.billingEmail);
+
   return (
     <>
-      <h2 style={HEADING}>Billing</h2>
-
-      {/* ── Return-from-checkout success notice ──────────────────────────── */}
-
-      {/* ── Status card ──────────────────────────────────────────────────── */}
-      <div style={PANEL} className="space-y-4">
-        {/* Status row */}
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <span style={LABEL}>Subscription</span>
-          <span style={badgeStyle(badgeVariant)}>
-            {uiState === 'active' || uiState === 'trialing' ? (
-              <CheckCircle2 size={10} />
-            ) : paymentIssue || uiState === 'canceling' ? (
-              <AlertTriangle size={10} />
-            ) : null}
-            {BILLING_STATE_LABEL[uiState]}
-          </span>
-        </div>
-
-        {/* Status message */}
-        <p
-          style={{
-            fontSize: '0.875rem',
-            color: paymentIssue ? '#fbbf24' : 'var(--color-text-dim)',
-          }}
-        >
-          {BILLING_STATE_MESSAGE[uiState]}
-        </p>
-
-        {/* Period end date */}
+      <SettingsGroup>
+        <SettingsRow
+          plain
+          title="Subscription"
+          description={
+            <span className={paymentIssue ? 'text-amber-400' : undefined}>
+              {BILLING_STATE_MESSAGE[uiState]}
+            </span>
+          }
+          action={
+            <AccountChip>
+              <span className="flex items-center gap-1">
+                {uiState === 'active' || uiState === 'trialing' ? (
+                  <CheckCircle2 aria-hidden className="size-3" />
+                ) : paymentIssue || uiState === 'canceling' ? (
+                  <AlertTriangle
+                    aria-hidden
+                    className="size-3 text-amber-400"
+                  />
+                ) : null}
+                {BILLING_STATE_LABEL[uiState]}
+              </span>
+            </AccountChip>
+          }
+        />
         {periodEndDate && uiState !== 'free_access' && (
-          <div className="flex items-center justify-between">
-            <span style={LABEL}>
-              {uiState === 'canceling' ? 'Access ends' : 'Renews'}
-            </span>
-            <span
-              style={{ fontSize: '0.875rem', color: 'var(--color-text-dim)' }}
-            >
-              {periodEndDate}
-            </span>
-          </div>
+          <SettingsRow
+            plain
+            title={uiState === 'canceling' ? 'Access ends' : 'Renews'}
+            action={<span className={value}>{periodEndDate}</span>}
+          />
         )}
-
-        {/* Last invoice status */}
         {subscription?.lastInvoiceStatus && uiState !== 'free_access' && (
-          <div className="flex items-center justify-between">
-            <span style={LABEL}>Last invoice</span>
-            <span
-              style={{
-                fontSize: '0.875rem',
-                color:
-                  subscription.lastInvoiceStatus === 'paid'
-                    ? '#4ade80'
-                    : subscription.lastInvoiceStatus === 'open'
-                      ? '#fbbf24'
-                      : 'var(--color-text-dim)',
-                textTransform: 'capitalize',
-              }}
-            >
-              {subscription.lastInvoiceStatus}
-            </span>
-          </div>
+          <SettingsRow
+            plain
+            title="Last invoice"
+            action={
+              <span
+                className={cn(
+                  value,
+                  'capitalize',
+                  subscription.lastInvoiceStatus === 'open' && 'text-amber-400',
+                )}
+              >
+                {subscription.lastInvoiceStatus}
+              </span>
+            }
+          />
         )}
-
-        {/* Action button */}
         {uiState === 'free_access' ? (
-          <div style={{ fontSize: '0.875rem', color: 'var(--color-text-dim)' }}>
-            {subscription?.freeAccessDuration === 'temporary' &&
-            subscription?.freeAccessExpiresAt ? (
-              <div className="flex items-center justify-between">
-                <span style={LABEL}>Access expires</span>
-                <span
-                  style={{
-                    fontSize: '0.875rem',
-                    color: 'var(--color-text-dim)',
-                  }}
-                >
+          subscription?.freeAccessDuration === 'temporary' &&
+          subscription?.freeAccessExpiresAt ? (
+            <SettingsRow
+              plain
+              title="Access expires"
+              action={
+                <span className={value}>
                   {formatPeriodDate(subscription.freeAccessExpiresAt)}
                 </span>
-              </div>
-            ) : (
-              <p>Your insider access does not expire.</p>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 pt-1">
-            <button
-              type="button"
-              disabled={actionPending}
-              style={
-                paymentIssue ? BTN_WARN : isPaidUser ? BTN_OUTLINE : BTN_ACCENT
               }
-              onClick={handleAction}
-            >
-              {actionPending ? 'Loading…' : actionLabel}
-            </button>
-
-            {isPaidUser && (
-              <span
-                style={{
-                  fontSize: '11px',
-                  color: 'var(--color-text-dim)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.25rem',
-                }}
+            />
+          ) : (
+            <SettingsRow
+              plain
+              title="Access"
+              description="Your insider access does not expire."
+            />
+          )
+        ) : (
+          <SettingsRow
+            plain
+            title="Billing"
+            description={
+              actionError ? (
+                <span className="text-red-400">{actionError}</span>
+              ) : isPaidUser ? (
+                'Your payment method, invoices, or cancelling. Opens Stripe.'
+              ) : undefined
+            }
+            action={
+              <button
+                type="button"
+                disabled={actionPending}
+                className={cn(
+                  ACCOUNT_PILL,
+                  !isPaidUser && !paymentIssue && ACCOUNT_PILL_PRIMARY,
+                  paymentIssue && 'text-amber-400',
+                )}
+                onClick={handleAction}
               >
-                <ExternalLink size={10} /> Opens Stripe
-              </span>
-            )}
-          </div>
+                {actionPending ? 'Loading…' : actionLabel}
+              </button>
+            }
+          />
         )}
+      </SettingsGroup>
 
-        {/* Action error */}
-        {actionError && (
-          <p
-            style={{
-              fontSize: '0.75rem',
-              color: '#f87171',
-              marginTop: '0.25rem',
-            }}
-          >
-            {actionError}
-          </p>
-        )}
-      </div>
-
-      {/* ── Payment method ────────────────────────────────────────────────── */}
-      {/* Only rendered when the backend provides payment method data.
+      {/* Only when the backend provides payment method data.
           TODO: backend GET /api/me/subscription does not yet return
           paymentMethodBrand / paymentMethodLast4 / exp fields.
           Add those fields to the UserBilling table query once Stripe
           payment-method retrieval is implemented server-side. */}
-      {uiState !== 'free_access' &&
-        (paymentMethodLine ?? expiryLine ?? subscription?.billingEmail) && (
-          <>
-            <h2 style={{ ...HEADING, marginTop: '1.5rem' }}>Payment Method</h2>
-            <div style={PANEL} className="space-y-3">
-              {paymentMethodLine && (
-                <div className="flex items-center justify-between">
-                  <span
-                    style={{
-                      ...LABEL,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.375rem',
-                    }}
-                  >
-                    <CreditCard size={11} /> Card
-                  </span>
-                  <span
-                    style={{
-                      fontSize: '0.875rem',
-                      color: 'var(--color-text-dim)',
-                    }}
-                  >
-                    {paymentMethodLine}
-                  </span>
-                </div>
-              )}
-              {expiryLine && (
-                <div className="flex items-center justify-between">
-                  <span style={LABEL}>Expires</span>
-                  <span
-                    style={{
-                      fontSize: '0.875rem',
-                      color: 'var(--color-text-dim)',
-                    }}
-                  >
-                    {expiryLine}
-                  </span>
-                </div>
-              )}
-              {subscription?.billingEmail && (
-                <div className="flex items-center justify-between">
-                  <span style={LABEL}>Billing email</span>
-                  <span
-                    style={{
-                      fontSize: '0.875rem',
-                      color: 'var(--color-text-dim)',
-                    }}
-                  >
-                    {subscription.billingEmail}
-                  </span>
-                </div>
-              )}
-            </div>
-          </>
-        )}
+      {showPayment && (
+        <SettingsGroup>
+          {paymentMethodLine && (
+            <SettingsRow
+              plain
+              title="Card"
+              action={<span className={value}>{paymentMethodLine}</span>}
+            />
+          )}
+          {expiryLine && (
+            <SettingsRow
+              plain
+              title="Expires"
+              action={<span className={value}>{expiryLine}</span>}
+            />
+          )}
+          {subscription?.billingEmail && (
+            <SettingsRow
+              plain
+              title="Billing email"
+              action={
+                <span className={value}>{subscription.billingEmail}</span>
+              }
+            />
+          )}
+        </SettingsGroup>
+      )}
     </>
   );
 };

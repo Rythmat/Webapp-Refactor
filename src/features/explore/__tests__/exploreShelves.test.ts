@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Song } from '@/curriculum/types/songLibrary';
 import {
+  artistRows,
   byTitle,
   easySongs,
   genreRows,
@@ -67,5 +68,18 @@ describe('Explore’s song shelves', () => {
       'rock',
       'funk',
     ]);
+  });
+
+  it('groups an artist’s songs whatever the name’s capitals, "The" aside A–Z', () => {
+    const rows = artistRows([
+      song('x', 'One', { artist: 'Ace Of Base', popularity: 10 }),
+      song('y', 'Two', { artist: 'Ace of Base', popularity: 80 }),
+      song('z', 'Three', { artist: 'Ace of Base', popularity: 30 }),
+      song('w', 'Four', { artist: 'The Beatles' }),
+    ]);
+    expect(rows.map((row) => row.name)).toEqual(['Ace of Base', 'The Beatles']);
+    expect(rows[0].key).toBe('ace of base');
+    // The best-known first.
+    expect(rows[0].songs.map((s) => s.id)).toEqual(['y', 'z', 'x']);
   });
 });

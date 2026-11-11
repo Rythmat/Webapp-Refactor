@@ -1,5 +1,5 @@
-import { Laptop } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { AppIcons } from '@/components/icons/appIcons';
 import { cn } from '@/components/utilities';
 import type { TourTabId } from '../tour/tourSteps';
 
@@ -16,7 +16,7 @@ export const appIcon = (src: string, className = 'size-10') => (
  */
 export const moduleIcon = (id: TourTabId, className = 'size-10'): ReactNode =>
   id === 'teach' ? (
-    <Laptop className={cn(className, 'text-white/80')} />
+    <AppIcons.classroom className={cn(className, 'text-white/80')} />
   ) : (
     appIcon(`/icons/${id}-icon.svg`, className)
   );

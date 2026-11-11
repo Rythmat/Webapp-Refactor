@@ -12,7 +12,8 @@ import {
 // coloured by the course's key, drawn from its music (lib/cover). A course
 // of several lessons sits on a little stack of cards, as Suno marks its
 // collections. Hovering the card (an ancestor `.group`) eases the picture in
-// a touch; reduced motion keeps it still.
+// a touch; reduced motion keeps it still. Flat, it's Samply's art (owner,
+// 2026-11-10): no stack, no motion, the corners eased less.
 
 function paint(value: string | undefined, prefix: string) {
   if (!value) return undefined;
@@ -39,6 +40,7 @@ export const CourseCover = memo(function CourseCover({
   detail = 'card',
   title,
   stack = true,
+  flat = false,
   className,
 }: {
   cover: CoverSpec;
@@ -47,12 +49,14 @@ export const CourseCover = memo(function CourseCover({
   title?: string;
   /** Draw a course's stack of cards behind it (off for small thumbnails). */
   stack?: boolean;
+  /** Learn's library look: no stack, no hover zoom, rounded-xl. */
+  flat?: boolean;
   className?: string;
 }) {
   const scene = useMemo(() => buildCover(cover, detail), [cover, detail]);
   const prefix = `cover${useId().replace(/:/g, '')}`;
   const [a, b] = cover.colors;
-  const stacked = stack && cover.stacked;
+  const stacked = stack && !flat && cover.stacked;
 
   return (
     <span
@@ -72,8 +76,19 @@ export const CourseCover = memo(function CourseCover({
           />
         </>
       )}
-      <span className="relative block size-full overflow-hidden rounded-2xl ring-1 ring-inset ring-white/[0.08] @container">
-        <span className="block size-full transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
+      <span
+        className={cn(
+          'relative block size-full overflow-hidden ring-1 ring-inset ring-white/[0.08] @container',
+          flat ? 'rounded-xl' : 'rounded-2xl',
+        )}
+      >
+        <span
+          className={cn(
+            'block size-full',
+            !flat &&
+              'transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100',
+          )}
+        >
           {scene.kind === 'mesh' ? (
             <span
               className="block size-full"

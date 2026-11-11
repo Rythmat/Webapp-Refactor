@@ -1,9 +1,10 @@
-import { ChevronRight, GraduationCap, House, Search } from 'lucide-react';
+import { ChevronRight, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AppIcons } from '@/components/icons/appIcons';
 import { cn } from '@/components/utilities';
-import { OfficeRoutes, ProfileRoutes } from '@/constants/routes';
-import { AvatarMenu } from '@/daw/shell/topbar/AvatarMenu';
+import { OfficeRoutes } from '@/constants/routes';
 import { FOCUS_RING, TRANSITION } from '@/daw/ui/styles';
+import { RailToggle } from '@/layouts/DashboardLayout/RailToggle';
 import { PracticeBadge } from '../ui/PracticeBadge';
 import { ClassSwitcher } from './ClassSwitcher';
 import { GoLiveMenu } from './GoLiveMenu';
@@ -17,7 +18,8 @@ const isMac =
  * The top rail, as the Studio's and the Globe's: where the teacher is (the
  * Office, then the class as a switcher) on the left; search in the middle,
  * looking like a field so nobody needs the shortcut to find it; and on the
- * right the device badge, the class's Go Live, and the account.
+ * right the device badge and the class's Go Live. The account is the app
+ * rail's (owner, 2026-11-10), opened from the left end.
  */
 export const OfficeTopRail = ({
   nav,
@@ -47,18 +49,8 @@ export const OfficeTopRail = ({
     style={style}
   >
     <div className="flex min-w-0 shrink items-center gap-1">
-      {/* A phone has no app rail: the way home is here. */}
-      <Link
-        to={ProfileRoutes.root()}
-        aria-label="Home"
-        className={cn(
-          'inline-flex size-9 shrink-0 items-center justify-center rounded-full text-daw-text-2 hover:bg-daw-hover hover:text-daw-text md:hidden',
-          TRANSITION,
-          FOCUS_RING,
-        )}
-      >
-        <House aria-hidden className="size-4" />
-      </Link>
+      {/* The app rail's button (owner, 2026-11-10), while it's shut. */}
+      <RailToggle />
       <Link
         to={OfficeRoutes.root()}
         className={cn(
@@ -67,7 +59,7 @@ export const OfficeTopRail = ({
           FOCUS_RING,
         )}
       >
-        <GraduationCap aria-hidden className="size-4" />
+        <AppIcons.office aria-hidden className="size-4" />
         <span
           className={nav.scope === 'class' ? 'hidden sm:inline' : undefined}
         >
@@ -112,7 +104,6 @@ export const OfficeTopRail = ({
       {nav.scope === 'class' && !pageHasActions && (
         <GoLiveMenu classroomId={nav.classroomId} />
       )}
-      <AvatarMenu />
     </div>
   </header>
 );

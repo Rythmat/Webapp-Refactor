@@ -71,7 +71,7 @@ export const FEATURED_CITY_IDS = [
   'new-orleans',
   'kingston',
   'havana',
-  'salvador',
+  'chicago',
   'lagos',
   'new-york',
   'london',

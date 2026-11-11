@@ -5,12 +5,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ClassroomDashboard } from '../ClassroomDashboard';
 
 // ── Focus mode (milestone 2.5, owner decision 7) ───────────────────────────
-// The Studio editor gets the whole window: no sidebar or mobile tab bar, no
-// TopRail and no chord-notation bar on /studio. The Globe has its own rails in
-// the Studio's frame (owner, 2026-10-29), with the app's sidebar at its left
-// (owner, 2026-10-30), and so does the Office (owner, 2026-11-09). Every
-// other page, the Studio's Production lessons
-// included, keeps them all.
+// The Studio editor has its own top bar: no TopRail and no chord-notation bar
+// on /studio. The Globe has its own rails in the Studio's frame (owner,
+// 2026-10-29), and so does the Office (owner, 2026-11-09). Every page has the
+// app rail (owner, 2026-11-10: Samply's sidebar, the editor's included) but
+// Present and the lesson players, which take the whole window. Every other
+// page, the Studio's Production lessons included, keeps the TopRail too.
 //
 // Run: npx vitest run src/layouts/DashboardLayout/__tests__/ClassroomDashboard.focusMode.test.tsx
 
@@ -27,14 +27,18 @@ vi.mock('@/features/cortex/useCortexCapture', () => ({
 vi.mock('@/hooks/useChallengeWatcher', () => ({
   useChallengeWatcher: () => {},
 }));
-vi.mock('../ClassroomSidebar', () => ({
-  ClassroomSidebar: () => <nav data-testid="sidebar" />,
+vi.mock('../ActivityPlayBar', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../ActivityPlayBar')>()),
+  ActivityPlayBar: () => <div data-testid="play-bar" />,
 }));
-vi.mock('../MobileTabBar', () => ({
-  MobileTabBar: () => <nav data-testid="tabbar" />,
+vi.mock('../AppRail', () => ({
+  AppRail: () => <nav data-testid="sidebar" />,
+  isIconRailPath: () => false,
 }));
 vi.mock('@/components/ClassroomLayout/TopRail', () => ({
+  TOOLBAR_HEIGHT: '3.636rem',
   TopRail: () => <header data-testid="toprail" />,
+  PageTopFade: () => null,
 }));
 vi.mock('@/components/ClassroomLayout/ChordNotationSwitcher', () => ({
   MobileChordNotationBar: () => <div data-testid="chord-bar" />,
@@ -60,14 +64,12 @@ describe('focus mode', () => {
     expect(screen.getByTestId('page')).toBeInTheDocument();
     expect(screen.queryByTestId('sidebar')).toBeNull();
     expect(screen.queryByTestId('toprail')).toBeNull();
-    expect(screen.queryByTestId('tabbar')).toBeNull();
   });
 
-  it('hides the app chrome in the editor', () => {
+  it('keeps only the app rail in the editor', () => {
     at('/studio');
     expect(screen.getByTestId('page')).toBeInTheDocument();
-    expect(screen.queryByTestId('sidebar')).toBeNull();
-    expect(screen.queryByTestId('tabbar')).toBeNull();
+    expect(screen.getByTestId('sidebar')).toBeInTheDocument();
     expect(screen.queryByTestId('toprail')).toBeNull();
     expect(screen.queryByTestId('chord-bar')).toBeNull();
   });
@@ -77,7 +79,6 @@ describe('focus mode', () => {
       at(path);
       expect(screen.getByTestId('page')).toBeInTheDocument();
       expect(screen.getByTestId('sidebar')).toBeInTheDocument();
-      expect(screen.queryByTestId('tabbar')).toBeNull();
       expect(screen.queryByTestId('toprail')).toBeNull();
       expect(screen.queryByTestId('chord-bar')).toBeNull();
       cleanup();
@@ -88,7 +89,6 @@ describe('focus mode', () => {
     for (const path of ['/office', '/office/classes', '/office/c1/plan/d1']) {
       at(path);
       expect(screen.getByTestId('sidebar')).toBeInTheDocument();
-      expect(screen.queryByTestId('tabbar')).toBeNull();
       expect(screen.queryByTestId('toprail')).toBeNull();
       expect(screen.queryByTestId('chord-bar')).toBeNull();
       cleanup();
@@ -99,7 +99,6 @@ describe('focus mode', () => {
     for (const path of ['/studio/production', '/learn', '/globes']) {
       at(path);
       expect(screen.getByTestId('sidebar')).toBeInTheDocument();
-      expect(screen.getByTestId('tabbar')).toBeInTheDocument();
       expect(screen.getByTestId('toprail')).toBeInTheDocument();
       cleanup();
     }

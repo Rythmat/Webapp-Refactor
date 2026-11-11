@@ -8,31 +8,41 @@ import {
   type ArcadeGame,
 } from '@/components/Games/arcadeGames';
 import { ArtCover } from '@/components/art/ArtCover';
-import { GameRoutes, LearnRoutes, ProfileRoutes } from '@/constants/routes';
+import { SongThumb } from '@/components/explore/songArt';
+import {
+  GameRoutes,
+  LearnRoutes,
+  ProfileRoutes,
+  SongRoutes,
+} from '@/constants/routes';
+import { getAllSongs } from '@/curriculum/data/songs';
+import { useSongsReady } from '@/features/classroom/plan/useSongsReady';
 import { getCortexRecords, subscribeCortex } from '@/features/cortex/ledger';
 import {
   topicTitle,
   type CatalogCourse,
 } from '@/features/learn/catalog/learnCatalog';
 import { useLearnCatalog } from '@/features/learn/catalog/useLearnCatalog';
-import { arcadePick, recommend } from '@/features/learn/dashboard/recommend';
-import { weekStats } from '@/features/learn/dashboard/weekStats';
+import {
+  arcadePick,
+  recommend,
+  songsFor,
+} from '@/features/learn/dashboard/recommend';
 import { useGenreReadiness } from '@/features/learn/genreReadiness';
 import { useLearnProfile } from '@/features/learn/profile/useLearnProfile';
 import { useLearnChoice } from '@/features/learn/useInstrumentStore';
-import { useExperienceSummary } from '@/hooks/data/experience';
-import { useStreak } from '@/hooks/data/useStreak';
+import { useSavedSongsStore } from '@/features/songs/useSavedSongsStore';
+import { useViewedSongsStore } from '@/features/songs/useViewedSongsStore';
 import { useIsPremium } from '@/hooks/useIsPremium';
 import type { CoverSpec } from '@/lib/cover';
-import { keyPair } from '@/lib/cover/color';
 import { CourseCover } from '../cover/CourseCover';
 import {
   COLUMN_ROWS,
   DiscoverColumn,
   type DiscoverRow,
 } from './DiscoverColumn';
-import { ProgressColumn } from './ProgressColumn';
-import { useTasteGenres } from './useTasteGenres';
+import { homeSongs, type HomeSongWhy } from './homeSongs';
+import { songsReason, useTasteGenres } from './useTasteGenres';
 
 const KIND_TITLE: Readonly<Record<CatalogCourse['kind'], string>> = {
   theory: 'Theory',
@@ -66,23 +76,15 @@ function courseRow(course: CatalogCourse, meta: string): DiscoverRow {
   };
 }
 
-/** Progress's tile: interference rings, quiet, in a cool key. */
-const PROGRESS_ART: CoverSpec = {
-  family: 'rings',
-  seed: 'learn/progress',
-  colors: keyPair('D♭'),
-  stacked: false,
-  ratio: [3, 2],
-  variant: 3,
-};
-
 /**
  * Three columns in Suno Discover's layout (owner, 2026-11-04): Learn (what
  * to do next, from the student's answers and history), Arcade (owner,
  * 2026-11-05: the games they played last, then one picked for them, then the
- * featured) and Progress (this week). On Home, where the instrument
- * picker was (owner, 2026-11-04). Fills the width it's given; three across
- * from 46rem, stacked below.
+ * featured) and Songs (owner, 2026-11-11: the songs they came back to, then
+ * ones picked for them, then the best known; Progress moved up beside the
+ * Studio card, HomeProgressColumn). On Home, where the instrument picker was
+ * (owner, 2026-11-04). Fills the width it's given; three across from 46rem,
+ * stacked below.
  */
 export function LearnDiscoverColumns() {
   const choice = useLearnChoice();
@@ -90,8 +92,6 @@ export function LearnDiscoverColumns() {
   const topics = useLearnCatalog(genreReady);
   const { profile } = useLearnProfile();
   const records = useSyncExternalStore(subscribeCortex, getCortexRecords);
-  const { data: xp } = useExperienceSummary();
-  const { data: streak } = useStreak();
   const { isPremium } = useIsPremium();
   // Fixed for the visit, so nothing reshuffles under the student.
   const [nowMs] = useState(() => Date.now());
@@ -195,10 +195,53 @@ export function LearnDiscoverColumns() {
     });
   }, [records, recs.primary, profile.goals, isPremium]);
 
-  const week = useMemo(
-    () => weekStats(xp?.timeline, records, nowMs),
-    [xp?.timeline, records, nowMs],
-  );
+  // Songs: the library loads on its own; the column fills in when it lands.
+  const songsReady = useSongsReady();
+  const savedAt = useSavedSongsStore((s) => s.savedAt);
+  const savedIds = useSavedSongsStore((s) => s.savedIds);
+  const viewedAt = useViewedSongsStore((s) => s.viewedAt);
+  const songRows = useMemo<DiscoverRow[]>(() => {
+    if (!songsReady) return [];
+    const songs = getAllSongs();
+    // Saved times of songs still saved (unsaving keeps no row).
+    const saved = Object.fromEntries(
+      Object.entries(savedAt).filter(([id]) => savedIds[id]),
+    );
+    const picked = songsFor(songs, {
+      tasteGenres,
+      level: profile.level,
+      records,
+      limit: COLUMN_ROWS,
+    });
+    const why: Record<HomeSongWhy, string> = {
+      saved: 'Saved',
+      back: 'Jump back in',
+      picked: songsReason(tasteGenres),
+      popular: 'Popular',
+    };
+    return homeSongs({
+      songs,
+      savedAt: saved,
+      viewedAt,
+      picked,
+      limit: COLUMN_ROWS,
+    }).map(({ song, why: reason }) => ({
+      id: `song:${song.id}`,
+      to: SongRoutes.song({ songId: song.id }),
+      thumb: <SongThumb song={song} />,
+      title: song.title,
+      subtitle: song.artist,
+      meta: why[reason],
+    }));
+  }, [
+    songsReady,
+    savedAt,
+    savedIds,
+    viewedAt,
+    tasteGenres,
+    profile.level,
+    records,
+  ]);
 
   return (
     <div className="@container w-full" data-learn-columns>
@@ -216,12 +259,12 @@ export function LearnDiscoverColumns() {
           rows={arcadeRows}
           seeMore={{ to: GameRoutes.root() }}
         />
-        <ProgressColumn
-          stats={week}
-          target={profile.daysPerWeek ?? null}
-          streak={streak.currentStreak}
-          nowMs={nowMs}
-          art={PROGRESS_ART}
+        <DiscoverColumn
+          title="Songs"
+          icon="/icons/songs-icon.svg"
+          rows={songRows}
+          empty={songsReady ? 'No songs yet.' : 'Loading songs…'}
+          seeMore={{ to: SongRoutes.root() }}
         />
       </div>
     </div>

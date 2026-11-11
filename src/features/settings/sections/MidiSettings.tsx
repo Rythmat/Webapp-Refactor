@@ -1,69 +1,26 @@
-/* eslint-disable react/jsx-sort-props */
-/* eslint-disable tailwindcss/classnames-order */
+import { ChevronDown } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
-import { Slider } from '@/components/ui/slider';
+import { cn } from '@/components/utilities';
 import { MidiMappingModal } from '../MidiMappingModal';
+import {
+  ACCOUNT_PILL,
+  AccountSlider,
+  SettingsGroup,
+  SettingsRow,
+} from '../ui/accountKit';
 import { useSettingsStore } from '../useSettingsStore';
 
-const HEADING: React.CSSProperties = {
-  fontSize: '11px',
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: '1px',
-  color: 'var(--color-text)',
-};
+/** A choice as a pill with its chevron, as the Account area's selects. */
+const SELECT_PILL = cn(
+  ACCOUNT_PILL,
+  'max-w-[14rem] appearance-none truncate pr-[2rem] text-left',
+);
 
-const PANEL: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid var(--color-border)',
-  borderRadius: '0.75rem',
-  padding: '1.5rem',
-};
-
-const LABEL: React.CSSProperties = {
-  fontSize: '11px',
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-  color: 'var(--color-text-dim)',
-};
-
-const DROPDOWN: React.CSSProperties = {
-  background: 'var(--color-surface-2)',
-  border: '1px solid var(--color-border)',
-  borderRadius: '0.5rem',
-  padding: '0.5rem 0.75rem',
-  fontSize: '0.875rem',
-  color: 'var(--color-text)',
-  height: '2.25rem',
-};
-
-const BTN_ACCENT: React.CSSProperties = {
-  background: 'var(--color-accent)',
-  color: '#111',
-  border: 'none',
-  borderRadius: '9999px',
-  padding: '0.375rem 1rem',
-  fontSize: '0.75rem',
-  fontWeight: 700,
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-  cursor: 'pointer',
-};
-
-const BTN_DESTRUCTIVE: React.CSSProperties = {
-  background: '#ef4444',
-  color: '#fff',
-  border: 'none',
-  borderRadius: '9999px',
-  padding: '0.375rem 1rem',
-  fontSize: '0.75rem',
-  fontWeight: 700,
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-  cursor: 'pointer',
-};
-
+/**
+ * MIDI, in the Account area's look (owner, 2026-11-10): one card of rows
+ * (the instrument, its key mapping, how hard a hit has to be), grey pills
+ * and a white slider; no teal.
+ */
 export const MidiSettings = () => {
   const sensitivity = useSettingsStore((s) => s.hitSensitivity);
   const setSensitivity = useSettingsStore((s) => s.setHitSensitivity);
@@ -116,77 +73,82 @@ export const MidiSettings = () => {
 
   return (
     <>
-      <h2 style={HEADING}>Connected Instruments</h2>
-      <div className="glass-panel-sm space-y-5" style={PANEL}>
-        {/* Input device */}
-        <div className="flex items-center justify-between gap-4">
-          <span style={LABEL}>Input</span>
-          <div className="flex-1 max-w-sm">
-            {midiInputs.length > 0 ? (
-              <select
-                value={midiDeviceId}
-                onChange={handleDeviceChange}
-                style={DROPDOWN}
-                className="w-full"
+      <SettingsGroup>
+        <SettingsRow
+          plain
+          title="Instrument"
+          description={
+            midiInputs.length > 0
+              ? 'The MIDI device Music Atlas listens to.'
+              : 'No device connected'
+          }
+          action={
+            midiInputs.length > 0 ? (
+              <span className="relative">
+                <select
+                  aria-label="MIDI input"
+                  value={midiDeviceId}
+                  onChange={handleDeviceChange}
+                  className={SELECT_PILL}
+                >
+                  {midiInputs.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  aria-hidden
+                  className="pointer-events-none absolute right-[0.682rem] top-1/2 size-[0.909rem] -translate-y-1/2 text-white/70"
+                />
+              </span>
+            ) : undefined
+          }
+        />
+        <SettingsRow
+          plain
+          title="Key mapping"
+          description={
+            mapping ? `Mapped: ${mapping.keyCount} keys` : 'Not mapped yet'
+          }
+          action={
+            <span className="flex shrink-0 items-center gap-[0.455rem]">
+              <button
+                type="button"
+                className={ACCOUNT_PILL}
+                onClick={() => setMapping(null)}
               >
-                {midiInputs.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <div
-                className="flex w-full items-center justify-between"
-                style={DROPDOWN}
+                Revert all
+              </button>
+              <button
+                type="button"
+                className={ACCOUNT_PILL}
+                onClick={() => setMappingOpen(true)}
               >
-                No device connected
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            style={BTN_ACCENT}
-            onClick={() => setMappingOpen(true)}
-          >
-            Map MIDI Instrument
-          </button>
-          <button
-            type="button"
-            style={BTN_DESTRUCTIVE}
-            onClick={() => setMapping(null)}
-          >
-            Revert All Mappings
-          </button>
-          {mapping && (
-            <span
-              style={{ fontSize: '0.75rem', color: 'var(--color-text-dim)' }}
-            >
-              Mapped: {mapping.keyCount} keys
+                Map instrument
+              </button>
             </span>
-          )}
-        </div>
-
-        {/* Hit sensitivity */}
-        <div className="flex items-center justify-between gap-4">
-          <span style={LABEL}>Hit Sensitivity</span>
-          <div className="flex-1 max-w-sm">
-            <Slider
-              value={[sensitivity]}
-              onValueChange={([v]) => setSensitivity(v)}
-              min={0}
-              max={127}
-              step={1}
-              trackClassName="bg-white/10"
-              rangeClassName="bg-[#7ecfcf]"
-            />
-          </div>
-        </div>
-      </div>
+          }
+        />
+        <SettingsRow
+          plain
+          title="Hit sensitivity"
+          action={
+            <span className="min-w-14 text-right text-[0.795rem] text-white/70">
+              {sensitivity}
+            </span>
+          }
+        >
+          <AccountSlider
+            aria-label="Hit sensitivity"
+            value={[sensitivity]}
+            onValueChange={([v]) => setSensitivity(v)}
+            min={0}
+            max={127}
+            step={1}
+          />
+        </SettingsRow>
+      </SettingsGroup>
 
       <MidiMappingModal
         open={mappingOpen}

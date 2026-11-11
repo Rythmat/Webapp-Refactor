@@ -211,7 +211,7 @@ const GlobeSectionInner = () => {
   if (!event) return null;
 
   return (
-    <section aria-label="Pathways" className="flex flex-col gap-4 md:gap-5">
+    <section aria-label="Genre tours" className="flex flex-col gap-4 md:gap-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 md:gap-3">
           <img
@@ -221,14 +221,14 @@ const GlobeSectionInner = () => {
             className="h-8 w-8 md:h-10 md:w-10"
           />
           <h2 className="text-xl font-medium text-white md:text-2xl">
-            Pathways
+            Genre tours
           </h2>
         </div>
         <Link
-          to={`${GlobeRoutes.root()}?panel=pathways`}
+          to={`${GlobeRoutes.root()}?panel=tours`}
           className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/25 hover:text-white md:text-base"
         >
-          <span>View Pathways</span>
+          <span>View tours</span>
           <ArrowRight className="h-5 w-5" />
         </Link>
       </div>

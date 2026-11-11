@@ -84,4 +84,74 @@ describe('the collapsed recording', () => {
     expect(panel(container).style.display).toBe('none');
     expect(outside).not.toHaveBeenCalled();
   });
+
+  it('pauses a solo pill when another solo pill starts, and leaves the rest', () => {
+    player.isReady = true;
+    render(
+      <>
+        <RecordingPill videoId="aaaaaaaaaaa" quickPlay solo />
+        <RecordingPill videoId="bbbbbbbbbbb" quickPlay />
+      </>,
+    );
+    window.dispatchEvent(
+      new CustomEvent('recording-pill:solo', { detail: 'another' }),
+    );
+    // The solo pill pauses; the one outside the list doesn't hear it.
+    expect(player.pause).toHaveBeenCalledTimes(1);
+  });
+
+  it('shuts a solo pill’s open video when another solo pill opens or plays', () => {
+    render(
+      <>
+        <RecordingPill videoId="aaaaaaaaaaa" quickPlay solo />
+        <RecordingPill videoId="bbbbbbbbbbb" quickPlay solo />
+      </>,
+    );
+    const [first, second] = screen.getAllByRole('button', {
+      name: 'Show the video',
+    });
+    fireEvent.click(first);
+    expect(first).toHaveAttribute('aria-expanded', 'true');
+    // Opening the second shuts the first.
+    fireEvent.click(second);
+    expect(first).toHaveAttribute('aria-expanded', 'false');
+    expect(second).toHaveAttribute('aria-expanded', 'true');
+    // Playing the first shuts the second.
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Play the recording' })[0],
+    );
+    expect(second).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('opens the video in the element it is given, in the page’s flow', () => {
+    const slot = document.createElement('div');
+    document.body.appendChild(slot);
+    render(<RecordingPill videoId="aaaaaaaaaaa" quickPlay openIn={slot} />);
+    const video = slot.querySelector<HTMLElement>('.aspect-video')!;
+    expect(video).not.toBeNull();
+    // At the slot's width, not floating under the pill.
+    expect(video.parentElement!.className).not.toContain('absolute');
+    expect(video.parentElement!.style.display).toBe('none');
+    fireEvent.click(screen.getByRole('button', { name: 'Show the video' }));
+    expect(video.parentElement!.style.display).toBe('block');
+    slot.remove();
+  });
+
+  it('with videoWithPlay, has no ▾: play opens the video, pause shuts it', () => {
+    const { container, rerender } = render(
+      <RecordingPill videoId="aaaaaaaaaaa" videoWithPlay />,
+    );
+    expect(screen.queryByRole('button', { name: 'Show the video' })).toBeNull();
+    const play = screen.getByRole('button', { name: 'Play the recording' });
+    fireEvent.click(play);
+    expect(play).toHaveAttribute('aria-expanded', 'true');
+    expect(panel(container).style.display).toBe('block');
+    player.isPlaying = true;
+    rerender(<RecordingPill videoId="aaaaaaaaaaa" videoWithPlay />);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Pause the recording' }),
+    );
+    expect(player.pause).toHaveBeenCalled();
+    expect(panel(container).style.display).toBe('none');
+  });
 });

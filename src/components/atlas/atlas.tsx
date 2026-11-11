@@ -10,10 +10,6 @@ import {
   type ReactNode,
 } from 'react';
 import { BottomRail } from '@/components/atlas/components/Frame/BottomRail';
-import {
-  StageDock,
-  useBottomBar,
-} from '@/components/atlas/components/Frame/StageDock';
 import { TopRail } from '@/components/atlas/components/Frame/TopRail';
 import { AtlasGlobe } from '@/components/atlas/components/Globe';
 import { AtlasMapProvider } from '@/components/atlas/components/Globe/mapHandle';
@@ -26,7 +22,10 @@ import { useIsPhone } from '@/components/atlas/hooks/useMediaQuery';
 import { PhoneZones } from '@/components/atlas/layout/AtlasZones';
 import { CardsLayer } from '@/components/atlas/layout/CardsLayer';
 import { InspectorRegion } from '@/components/atlas/layout/InspectorRegion';
-import { FRAME_PX } from '@/components/atlas/layout/frameGeometry';
+import {
+  FRAME_PX,
+  TOP_BAR_HEIGHT,
+} from '@/components/atlas/layout/frameGeometry';
 import { IntroProvider, useIntro } from '@/components/atlas/layout/intro';
 import { AtlasPortalContext } from '@/components/atlas/layout/portalRoot';
 import {
@@ -129,13 +128,12 @@ function AtlasUrlSync() {
 }
 
 /**
- * A phone's map: the Inspector's panel in a bottom sheet, and the bar under
- * the map resting on it (layout/AtlasZones.tsx).
+ * A phone's map: the Inspector's panel in a bottom sheet, and the cards'
+ * strip resting on it (layout/AtlasZones.tsx).
  */
 function PhoneOverlays() {
   const dispatch = useAtlasDispatch();
   const { slot } = useInspectorState();
-  const bottom = useBottomBar();
   // What the overlays cover of the map, for the MapLibre engine's padding
   // and framing (MapPadding, mapFraming.ts); nothing once they are gone.
   const onInsets = useCallback(
@@ -152,7 +150,7 @@ function PhoneOverlays() {
     [dispatch],
   );
   // The cards' strip: on the map, for the world or a stop (a journey has
-  // its own bar), unless the viewer hid the cards.
+  // its own card), unless the viewer hid the cards.
   const timeline = useTimelineView();
   const hidden = useAtlasSelector((s) => s.cards.hidden);
   const journey = useAtlasStopSelector(
@@ -167,12 +165,7 @@ function PhoneOverlays() {
     );
   return (
     <div className="pointer-events-none absolute inset-0">
-      <PhoneZones
-        bottom={bottom}
-        inspector={slot}
-        strip={strip}
-        onInsets={onInsets}
-      />
+      <PhoneZones inspector={slot} strip={strip} onInsets={onInsets} />
     </div>
   );
 }
@@ -283,14 +276,14 @@ function StageFoot() {
 
 const FRAME_GRID: CSSProperties = {
   gridTemplateAreas: '"top" "stage" "bottom"',
-  gridTemplateRows: `${FRAME_PX.top}px minmax(0, 1fr) ${FRAME_PX.bottom}px`,
+  gridTemplateRows: `${TOP_BAR_HEIGHT} minmax(0, 1fr) ${FRAME_PX.bottom}px`,
   gridTemplateColumns: 'minmax(0, 1fr)',
 };
 
 /**
  * The page's frame, the Studio's (owner, 2026-10-29): the top rail; the stage
  * card holding the map or the timeline, the Inspector over its right edge,
- * the dock under it and the era rail at its foot; the bottom rail, with the
+ * the era rail at its foot; the bottom rail, with the
  * panels' icons. The app's navigation is at its left (ClassroomDashboard). It subscribes to nothing but the screen's size, so a
  * dispatch or a URL change re-renders only the pieces that read it — the
  * globe in particular.
@@ -329,7 +322,6 @@ function AppLayout() {
               {isPhone ? <PhoneOverlays /> : <InspectorRegion />}
               <HoverLayer />
             </div>
-            {!isPhone && <StageDock />}
             <StageFoot />
           </main>
           <div className="min-w-0" style={{ gridArea: 'bottom' }}>

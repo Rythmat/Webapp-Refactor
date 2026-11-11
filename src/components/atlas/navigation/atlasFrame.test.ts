@@ -133,19 +133,24 @@ describe('sections', () => {
     expect(sectionOf({ view: 'timeline', open: ['americas'] })).toBe('regions');
   });
 
+  it('opens the tours from an old pathways link', () => {
+    expect(frameFromSearchParams(p('panel=pathways')).panel).toBe('tours');
+    expect(frameFromSearchParams(p('panel=nope')).panel).toBeNull();
+  });
+
   it('writes and clears the Inspector’s panel', () => {
     expect(
       applyFrameToSearchParams(p('event=evt-1'), {
-        panel: 'pathways',
+        panel: 'tours',
       }).toString(),
-    ).toBe('event=evt-1&panel=pathways');
+    ).toBe('event=evt-1&panel=tours');
     expect(
-      applyFrameToSearchParams(p('panel=pathways'), {
+      applyFrameToSearchParams(p('panel=tours'), {
         panel: 'none',
       }).toString(),
     ).toBe('panel=none');
     expect(
-      applyFrameToSearchParams(p('panel=pathways&view=timeline'), {
+      applyFrameToSearchParams(p('panel=tours&view=timeline'), {
         panel: null,
       }).toString(),
     ).toBe('view=timeline');

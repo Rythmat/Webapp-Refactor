@@ -24,6 +24,7 @@ import type {
   TrackType,
 } from '@/daw/store/tracksSlice';
 import { guessTrackRole } from '@/daw/utils/trackRole';
+import { UNTITLED_SESSION } from '@/lib/studio-projects/sessionName';
 
 // ── The project document registry ──────────────────────────────────────────
 //
@@ -246,7 +247,7 @@ function session<T>(
 const STORE_SPECS = {
   // ── meta ──
   projectId: doc('meta', null, false, UNSHARED),
-  projectName: doc('meta', 'Untitled Project', 'legacy', SHARED),
+  projectName: doc('meta', UNTITLED_SESSION, 'legacy', SHARED),
   composerName: doc('meta', '', 'legacy', SHARED),
 
   // ── transport ──

@@ -19,6 +19,7 @@ import type {
   DraftMeta,
   DraftOrigin,
 } from '@/lib/studio-projects/drafts/types';
+import { UNTITLED_SESSION } from '@/lib/studio-projects/sessionName';
 
 const tileClass =
   'group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left transition-colors hover:border-white/25 hover:bg-white/[0.07]';
@@ -37,7 +38,7 @@ export const DASHBOARD_SCHEMA_VERSION = 8;
  */
 export const LEGACY_AUTOSAVE_KEY = 'musicAtlas:daw:autosave';
 
-const UNTITLED = 'Untitled Project';
+const UNTITLED = UNTITLED_SESSION;
 
 export interface ContinueTarget {
   /** Where the tile goes: the plain editor, or `?draft=<id>`. */

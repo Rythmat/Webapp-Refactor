@@ -11,7 +11,9 @@
   --color-text: #e8e8f0;
   --color-text-dim: #6b6b80;
 
-  --color-accent: #7ecfcf;
+  /* White, not teal (owner, 2026-11-10: the Account area takes the app's
+     own look; no teal, no brand yellow). */
+  --color-accent: #ffffff;
 
   --glass-blur: blur(20px);
   --glass-blur-sm: blur(10px);

@@ -10,6 +10,7 @@ import {
 } from '@/daw/session/sessionGeneration';
 import { useStore } from '@/daw/store';
 import { ConfirmDialog } from '@/daw/ui/ConfirmDialog';
+import { sessionDisplayName } from '@/lib/studio-projects/sessionName';
 
 // ── "Changed on another device" (milestone 1.5) ────────────────────────────
 //
@@ -48,7 +49,7 @@ export const SaveConflictDialog = memo(function SaveConflictDialog() {
       confirmLabel="Save as a copy"
       onConfirm={() => {
         dismissSaveConflict();
-        const name = useStore.getState().projectName || 'Untitled Project';
+        const name = sessionDisplayName(useStore.getState().projectName);
         void saveProject({ source, saveAs: { name: `${name} (copy)` } });
       }}
       alternative={{

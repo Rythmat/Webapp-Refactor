@@ -90,19 +90,19 @@ describe('a course’s page', () => {
     expect(screen.getByRole('button', { name: 'Start' })).toBeTruthy();
   });
 
-  it('selects a disc on the first press and opens it on the second', async () => {
+  it('selects a row on the first press and opens it on the second', async () => {
     open('/learn/audio/sound-basics');
-    const disc = screen.getByRole('button', { name: 'Decibels and Faders' });
-    fireEvent.click(disc);
+    const row = screen.getByRole('button', { name: 'Decibels and Faders' });
+    fireEvent.click(row);
     expect(screen.getByTestId('at').textContent).toBe(
       '/learn/audio/sound-basics',
     );
-    expect(disc.getAttribute('aria-pressed')).toBe('true');
+    expect(row.getAttribute('aria-pressed')).toBe('true');
     expect(
       await screen.findByRole('heading', { name: 'Decibels and Faders' }),
     ).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Jump here' })).toBeTruthy();
-    fireEvent.click(disc);
+    fireEvent.click(row);
     expect(screen.getByTestId('at').textContent).toBe(
       '/learn/audio/sound-basics/decibels-and-faders',
     );
@@ -116,7 +116,7 @@ describe('a course’s page', () => {
     );
   });
 
-  it('walks the path with Up and Down', () => {
+  it('walks the list with Up and Down', () => {
     open('/learn/audio/sound-basics');
     const first = screen.getByRole('button', { name: /Physics of Sound/ });
     fireEvent.keyDown(first, { key: 'ArrowDown' });
@@ -127,7 +127,7 @@ describe('a course’s page', () => {
     ).toBe('true');
   });
 
-  it('opens a lab’s topic from its disc', () => {
+  it('opens a lab’s topic from its row', () => {
     open('/learn/audio/sound-color');
     fireEvent.click(screen.getByRole('button', { name: 'Start' }));
     expect(screen.getByTestId('at').textContent).toBe(

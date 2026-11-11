@@ -311,15 +311,12 @@ const LEARN_SUGGESTIONS: PromptSuggestion[] = [
 ];
 
 const GLOBE_SUGGESTIONS: PromptSuggestion[] = [
-  globe('How did reggae begin?', 'pathway=roots-of-reggae'),
+  globe('How did reggae begin?', 'pathway=jamaican-riddim'),
   globe(
     'Show me the music of 1960s Brazil',
     'open=americas,south-america&from=1960&to=1969',
   ),
-  globe(
-    'Show me the blues from the Delta to Chicago',
-    'pathway=blues-family-tree',
-  ),
+  globe('Show me the blues from the Delta to Chicago', 'pathway=blues-to-rock'),
   globe('How did hip-hop start in the Bronx?', 'pathway=hiphop-diaspora'),
   globe(
     'Show me the British Invasion',
@@ -346,7 +343,7 @@ const GLOBE_SUGGESTIONS: PromptSuggestion[] = [
   globe('Show me music from postwar Europe', 'open=europe&era=postwar'),
   globe('Show me music in the digital age', 'era=global-digital'),
   globe('Show me the instruments of the world', 'panel=instruments'),
-  globe('Show me the paths music traveled', 'panel=pathways'),
+  globe('Show me the paths music traveled', 'panel=tours'),
   globe('How did K-pop rise?', 'pathway=kpop-rise'),
   globe('How did punk spread around the world?', 'pathway=punk-shockwave'),
   globe('How did Congolese rumba travel?', 'pathway=congolese-rumba'),
@@ -355,15 +352,15 @@ const GLOBE_SUGGESTIONS: PromptSuggestion[] = [
     'pathway=baghdad-to-al-andalus',
   ),
   globe('Show me the voices of the Andes', 'pathway=andean-voices'),
-  globe('How did soul grow out of the church?', 'pathway=sacred-to-soul'),
+  globe('How did soul grow out of the church?', 'pathway=soul-funk-disco'),
   globe('Show me the UK underground', 'pathway=uk-underground'),
   globe('How did Jamaican riddims branch out?', 'pathway=jamaican-riddim'),
   globe('Show me the chain of jazz greats', 'pathway=jazz-chain'),
   globe('How did soul turn into funk and disco?', 'pathway=soul-funk-disco'),
   globe('Show me the story of Brazilian music', 'pathway=brazilian-thread'),
   globe('How did Arabic maqam become mahraganat?', 'pathway=maqam-mahraganat'),
-  globe('How did griots lead to hip-hop?', 'pathway=griot-to-hiphop'),
-  globe('How did Afro-Cuban rhythms spread?', 'pathway=afro-cuban-currents'),
+  globe('How did griots lead to hip-hop?', 'pathway=hiphop-diaspora'),
+  globe('How did Afro-Cuban rhythms spread?', 'pathway=cuban-son-circle'),
   globe('Show me the Classical and Romantic eras', 'era=classical-romantic'),
   globe('Show me the Early Modern era of music', 'era=early-modern'),
   globe(

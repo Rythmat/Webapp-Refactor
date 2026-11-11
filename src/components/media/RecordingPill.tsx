@@ -1,5 +1,6 @@
 import { ChevronDown, Pause, Play, Youtube } from 'lucide-react';
-import { useEffect, useState, type FC, type ReactNode } from 'react';
+import { useEffect, useId, useState, type FC, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useYouTubeIframePlayer } from '@/hooks/media/useYouTubeIframePlayer';
 
 /**
@@ -14,7 +15,22 @@ import { useYouTubeIframePlayer } from '@/hooks/media/useYouTubeIframePlayer';
  * `quickPlay` (a lesson slide, owner 2026-11-10) adds a play button to the
  * collapsed pill: the song starts, and pauses, without opening the video.
  * Its pill carries no word, only ▶ and ▾ (owner, 2026-11-10).
+ *
+ * `solo` (a list of them, an artist's songs on /songs, owner 2026-11-11):
+ * one at a time; playing or opening one pauses the rest and shuts their
+ * videos.
+ *
+ * `openIn` (the same list, owner 2026-11-11): the video opens in the page's
+ * flow, in that element (under the pill's row) and at its width, instead of
+ * floating under the pill.
+ *
+ * `videoWithPlay` (the same list, owner 2026-11-11): one button, no ▾ —
+ * play opens the video as it starts, pause shuts it.
  */
+
+/** Said by a `solo` pill as it plays or opens, with its id. */
+const SOLO_EVENT = 'recording-pill:solo';
+
 export const RecordingPill: FC<{
   videoId: string;
   startSec?: number | undefined;
@@ -24,11 +40,22 @@ export const RecordingPill: FC<{
   align?: 'left' | 'right';
   /** A line under the opened video. */
   note?: ReactNode;
+  /** One of a list: it pauses and shuts when another `solo` pill plays or
+   *  opens. */
+  solo?: boolean;
+  /** Where the video opens, in the page's flow and at its width (null while
+   *  that element mounts); left out, it floats under the pill. */
+  openIn?: HTMLElement | null;
+  /** Only ▶ / ❚❚: playing opens the video, pausing shuts it (no ▾). */
+  videoWithPlay?: boolean;
   className?: string;
 }> = ({
   videoId,
   startSec,
   quickPlay = false,
+  videoWithPlay = false,
+  solo = false,
+  openIn,
   align = 'right',
   note,
   className,
@@ -71,16 +98,54 @@ export const RecordingPill: FC<{
     play();
   }, [wantPlay, isReady, play]);
 
+  // One of a list at a time: asked to play, playing (here, or from the
+  // video's own controls) or opening, it tells the rest to stop and shut.
+  const soloId = useId();
+  const active = isPlaying || open || wantPlay;
+  useEffect(() => {
+    if (!solo || !active) return;
+    window.dispatchEvent(new CustomEvent(SOLO_EVENT, { detail: soloId }));
+  }, [solo, active, soloId]);
+  useEffect(() => {
+    if (!solo) return undefined;
+    const onSolo = (e: Event) => {
+      if ((e as CustomEvent<string>).detail === soloId) return;
+      setWantPlay(false);
+      setOpen(false);
+      pause();
+    };
+    window.addEventListener(SOLO_EVENT, onSolo);
+    return () => window.removeEventListener(SOLO_EVENT, onSolo);
+  }, [solo, soloId, pause]);
+
   const togglePlay = () => {
     if (isPlaying) {
       pause();
+      if (videoWithPlay) setOpen(false);
       return;
     }
     setArmed(true);
+    if (videoWithPlay) setOpen(true);
     if (isReady) play();
     else setWantPlay(true);
   };
   const starting = wantPlay && !isPlaying;
+
+  const panel = (
+    <div
+      className={
+        openIn === undefined
+          ? `absolute ${align === 'left' ? 'left-0' : 'right-0'} top-full z-20 mt-2 w-[min(28rem,80vw)] overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#161618]/80 shadow-[0_8px_28px_rgba(0,0,0,0.36)] backdrop-blur-xl`
+          : 'w-full overflow-hidden rounded-xl bg-black'
+      }
+      style={{ display: open ? 'block' : 'none' }}
+    >
+      <div className="aspect-video w-full bg-black">
+        <div ref={containerRef} className="h-full w-full" />
+      </div>
+      {note && <p className="px-3 py-1.5 text-[11px] text-white/45">{note}</p>}
+    </div>
+  );
 
   return (
     <div className={`relative flex-shrink-0 ${className ?? ''}`}>
@@ -91,15 +156,18 @@ export const RecordingPill: FC<{
             : 'border-white/15 text-white/60 hover:border-white/30'
         }`}
       >
-        {quickPlay && (
+        {(quickPlay || videoWithPlay) && (
           <button
             type="button"
             onClick={togglePlay}
             aria-label={
               isPlaying ? 'Pause the recording' : 'Play the recording'
             }
+            {...(videoWithPlay ? { 'aria-expanded': open } : {})}
             title={isPlaying ? 'Pause' : 'Play'}
-            className="inline-flex size-6 items-center justify-center rounded-full pl-1 text-white/80 hover:text-white"
+            className={`inline-flex size-6 items-center justify-center rounded-full text-white/80 hover:text-white ${
+              videoWithPlay ? (isPlaying ? '' : 'pl-px') : 'pl-1'
+            }`}
           >
             {isPlaying ? (
               <Pause size={12} className="fill-current" />
@@ -111,48 +179,40 @@ export const RecordingPill: FC<{
             )}
           </button>
         )}
-        <button
-          type="button"
-          aria-expanded={open}
-          onClick={() => {
-            setArmed(true);
-            setOpen((v) => !v);
-          }}
-          className={`inline-flex items-center gap-1.5 py-1 pr-2 ${quickPlay ? 'pl-0.5' : 'pl-2'}`}
-          title={open ? 'Hide the recording' : 'Listen to the recording'}
-          {...(quickPlay
-            ? { 'aria-label': open ? 'Hide the video' : 'Show the video' }
-            : {})}
-        >
-          {!quickPlay && <Youtube size={13} />}
-          {!quickPlay && 'Recording'}
-          {isPlaying && !open && !quickPlay && (
-            <span
-              aria-hidden
-              className="h-1.5 w-1.5 rounded-full bg-white"
-              title="Playing"
+        {!videoWithPlay && (
+          <button
+            type="button"
+            aria-expanded={open}
+            onClick={() => {
+              setArmed(true);
+              setOpen((v) => !v);
+            }}
+            className={`inline-flex items-center gap-1.5 py-1 pr-2 ${quickPlay ? 'pl-0.5' : 'pl-2'}`}
+            title={open ? 'Hide the recording' : 'Listen to the recording'}
+            {...(quickPlay
+              ? { 'aria-label': open ? 'Hide the video' : 'Show the video' }
+              : {})}
+          >
+            {!quickPlay && <Youtube size={13} />}
+            {!quickPlay && 'Recording'}
+            {isPlaying && !open && !quickPlay && (
+              <span
+                aria-hidden
+                className="h-1.5 w-1.5 rounded-full bg-white"
+                title="Playing"
+              />
+            )}
+            <ChevronDown
+              size={12}
+              className={`transition-transform ${open ? 'rotate-180' : ''}`}
             />
-          )}
-          <ChevronDown
-            size={12}
-            className={`transition-transform ${open ? 'rotate-180' : ''}`}
-          />
-        </button>
+          </button>
+        )}
       </div>
 
       {/* Rendered from the start so the player has something to replace, and
           only hidden when shut — never unmounted. */}
-      <div
-        className={`absolute ${align === 'left' ? 'left-0' : 'right-0'} top-full z-20 mt-2 w-[min(28rem,80vw)] overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#161618]/80 shadow-[0_8px_28px_rgba(0,0,0,0.36)] backdrop-blur-xl`}
-        style={{ display: open ? 'block' : 'none' }}
-      >
-        <div className="aspect-video w-full bg-black">
-          <div ref={containerRef} className="h-full w-full" />
-        </div>
-        {note && (
-          <p className="px-3 py-1.5 text-[11px] text-white/45">{note}</p>
-        )}
-      </div>
+      {openIn === undefined ? panel : openIn && createPortal(panel, openIn)}
     </div>
   );
 };

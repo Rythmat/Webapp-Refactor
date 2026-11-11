@@ -5,6 +5,8 @@
  * Source of truth: Chord Progression Library style tags + genreIdMap.ts
  */
 
+import { GENRE_COURSES } from '@/components/learn/genreCourses';
+
 /** The 14 curriculum genres + non-curriculum categories */
 export type CurriculumCourse =
   | 'Pop'
@@ -645,9 +647,21 @@ export function mapGenreToCourse(genre: string): CurriculumCourse | null {
   return null;
 }
 
-/** URL-safe slug for a curriculum genre */
-export function courseToSlug(course: CurriculumCourse): string {
-  return course.toLowerCase().replace(/\s+/g, '-');
+/**
+ * The curriculum genre's Learn slug (genreCourses.ts: 'R&B' is `rnb`), or
+ * null for a course Learn has no genre page for (Classical, Film Scoring…).
+ */
+export function courseToSlug(course: CurriculumCourse): string | null {
+  return GENRE_COURSES.find((c) => c.title === course)?.slug ?? null;
+}
+
+/** The Learn genre course an event genre leads to, if Learn teaches one. */
+export function learnSlugOf(
+  genre: string,
+): { slug: string; title: string } | null {
+  const course = mapGenreToCourse(genre);
+  const slug = course ? courseToSlug(course) : null;
+  return course && slug ? { slug, title: course } : null;
 }
 
 // Re-export for backward compatibility

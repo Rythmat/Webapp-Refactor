@@ -1,147 +1,81 @@
-import { ArrowLeft } from 'lucide-react';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { TAB, TAB_ACTIVE } from '@/components/kit/libraryLook';
 import { cn } from '@/components/utilities';
 import { LearnRoutes } from '@/constants/routes';
 import { FOCUS_RING } from '@/daw/ui/styles';
-import { ExploreSearchBar } from './ExploreSearchBar';
+import { OFFICE_PAGE_TITLE } from '@/features/office/ui/styles';
 
-// ── What Explore's pages share: the column, the grid, the sticky head ─────
+// ── What Learn's and Songs' pages share: the column, the grid, the head ───
 
-/** Cards across, as the width allows (Suno's 12.5rem): two on a phone. */
-export const EXPLORE_GRID =
-  'grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-[repeat(auto-fill,minmax(12.5rem,1fr))]';
+/** Learn's own grids: a `fit` shelf's 210px cards, 24px apart (owner,
+ *  2026-11-10), two across on a phone. */
+export const LEARN_GRID =
+  'grid grid-cols-2 gap-[1.364rem] sm:grid-cols-[repeat(auto-fill,11.932rem)]';
+
+/** A Learn grid. */
+export function LearnGrid({ children }: { children: ReactNode }) {
+  return <ul className={LEARN_GRID}>{children}</ul>;
+}
 
 /** The page's column: the whole window, a rem in from the panel's edge with
  *  the panel's own padding, as Suno's. */
 export const EXPLORE_COLUMN = 'w-full px-2';
 
-/** The head's backdrop shows once the page has moved under it. */
-export function useScrolledPast() {
-  const sentinel = useRef<HTMLDivElement>(null);
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const el = sentinel.current;
-    if (!el || typeof IntersectionObserver === 'undefined') return undefined;
-    const observer = new IntersectionObserver(([entry]) =>
-      setScrolled(!entry.isIntersecting),
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-  return { sentinel, scrolled };
-}
-
-/** Explore's sticky head: the search, and whatever a view puts under it. */
-export function ExploreHead({
-  placeholder,
-  children,
-}: {
-  placeholder: string;
-  children?: ReactNode;
-}) {
-  const { sentinel, scrolled } = useScrolledPast();
-  return (
-    <>
-      <div ref={sentinel} aria-hidden className="h-px" />
-      <div
-        className={cn(
-          'sticky -top-2 z-20 -mx-2 px-2 transition-colors duration-300',
-          scrolled ? 'bg-[#101012]' : 'bg-transparent',
-        )}
-      >
-        <div className={cn(EXPLORE_COLUMN, 'flex flex-col gap-3 pb-4 pt-2')}>
-          <ExploreSearchBar placeholder={placeholder} />
-          {children}
-        </div>
-      </div>
-    </>
-  );
-}
-
-/** "← Learn": the way back to Learn's shelves. */
-export function BackToLearn() {
-  return (
-    <Link
-      to={LearnRoutes.root()}
-      className={cn(
-        'inline-flex items-center gap-1.5 self-start rounded-full text-[0.875rem] font-bold text-daw-text-3 hover:text-white',
-        FOCUS_RING,
-      )}
-    >
-      <ArrowLeft aria-hidden className="size-4" />
-      Learn
-    </Link>
-  );
-}
-
 /**
- * Learn's navigation, in the Arcade's look (ArcadeTabBar, owner
- * 2026-11-04): centred and pinned to the top, the Learn icon alone (its
- * name for screen readers), which opens /learn, then the instruments as
- * plain words at the same size, the one showing white. Once the page has
- * moved under it, the panel's own colour draws behind it, its foot fading
- * out, as the Arcade's head does.
+ * Learn's head, in Samply's library look (owner, 2026-11-10): "Learn" large
+ * at the top left in the Classroom page's regular-weight title (it opens
+ * /learn, the way back from a section), and 16px under it the instruments
+ * as small tabs, the one showing on a soft pill. Like Samply's, it scrolls
+ * away with the page: the app's toolbar then shows the title. Songs wears
+ * it too (owner, 2026-11-11), its own title over its filters in place of
+ * the tabs.
  */
 export function ExploreNavBar({
-  items,
+  title = 'Learn',
+  titleTo = LearnRoutes.root(),
+  items = [],
   activeKey,
+  children,
 }: {
-  items: readonly { key: string; label: string; to: string }[];
-  activeKey: string;
+  title?: string;
+  titleTo?: string;
+  items?: readonly { key: string; label: string; to: string }[];
+  activeKey?: string;
+  /** What stands under the title in the tabs' place. */
+  children?: ReactNode;
 }) {
-  const { sentinel, scrolled } = useScrolledPast();
   return (
     <>
-      <div ref={sentinel} aria-hidden className="h-0" />
       <div
         data-explore-head
-        data-stuck={scrolled ? '' : undefined}
-        className="sticky -top-2 z-20 -mx-2 flex shrink-0 flex-col items-center px-4 pb-6 pt-4"
+        className="flex shrink-0 flex-col gap-[0.909rem] px-2 pb-4"
       >
-        <div
-          aria-hidden
-          className={cn(
-            'pointer-events-none absolute inset-0 -z-10 bg-[#101012] transition-opacity duration-200 [mask-image:linear-gradient(to_bottom,#000_calc(100%-2rem),transparent)]',
-            scrolled ? 'opacity-100' : 'opacity-0',
-          )}
-        />
-        <nav
-          aria-label="Learn"
-          className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:gap-x-6"
-        >
+        <h1 className={OFFICE_PAGE_TITLE}>
           <Link
-            to={LearnRoutes.root()}
-            className={cn(
-              'flex items-center rounded-lg text-white/85 transition-opacity hover:opacity-90',
-              FOCUS_RING,
-            )}
+            to={titleTo}
+            className={cn('rounded-lg hover:text-white/85', FOCUS_RING)}
           >
-            <img
-              src="/icons/learn-icon.svg"
-              alt=""
-              draggable={false}
-              className="size-8 md:size-10"
-            />
-            <span className="sr-only">Learn</span>
+            {title}
           </Link>
-          {items.map((item) => (
-            <Link
-              key={item.key}
-              to={item.to}
-              aria-current={item.key === activeKey ? 'page' : undefined}
-              className={cn(
-                'rounded-md text-xl font-medium transition-colors md:text-2xl',
-                FOCUS_RING,
-                item.key === activeKey
-                  ? 'text-white'
-                  : 'text-white/55 hover:text-white',
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        </h1>
+        {children ?? (
+          <nav
+            aria-label={title}
+            className="-mx-1 flex items-center gap-0.5 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {items.map((item) => (
+              <Link
+                key={item.key}
+                to={item.to}
+                aria-current={item.key === activeKey ? 'page' : undefined}
+                className={cn(TAB, item.key === activeKey && TAB_ACTIVE)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        )}
       </div>
     </>
   );

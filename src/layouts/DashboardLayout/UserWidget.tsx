@@ -1,6 +1,7 @@
 /* eslint-disable tailwindcss/classnames-order */
-import { LogOut, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { AppIcons } from '@/components/icons/appIcons';
 import { UserAvatarPattern } from '@/components/ui/UserAvatarPattern';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -117,7 +118,7 @@ export function UserWidget({
                 {isLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                  <LogOut className="h-5 w-5" />
+                  <AppIcons.logOut className="h-5 w-5" />
                 )}
               </span>
             </button>

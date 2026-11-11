@@ -1,13 +1,13 @@
-import { motion, useReducedMotion } from 'framer-motion';
-import {
-  Globe,
-  GraduationCap,
-  MoreVertical,
-  SlidersHorizontal,
-} from 'lucide-react';
+import { MoreHorizontal, MoreVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { SpectrumRim } from '@/components/art/light/SpectrumLight';
 import { HeartIcon } from '@/components/icons/HeartIcon';
+import { AppIcons } from '@/components/icons/appIcons';
+import {
+  CARD_GAP,
+  CARD_META,
+  CARD_SUB,
+  CARD_TITLE,
+} from '@/components/kit/libraryLook';
 import { GENRE_LABELS } from '@/components/songLibrary/SongLibraryPage';
 import {
   DropdownMenu,
@@ -20,16 +20,22 @@ import { SongRoutes } from '@/constants/routes';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { FOCUS_RING, TRANSITION } from '@/daw/ui/styles';
 import { useSongActions } from '@/features/songs/useSongActions';
-import { SongThumb, songKeyColour } from './songArt';
+import { SongThumb } from './songArt';
 
 // ── A song, as a card ──────────────────────────────────────────────────────
-// Suno's: the square art (the artist's photo), the title with a small mono
-// tag (its level, where Suno puts the model), the artist, and a quiet line
-// of facts. Its key centre's colour rims it on hover. Over the art's corner
-// on hover: save, and a menu with the old list's links.
+// Samply's (owner, 2026-11-10): the square art (the artist's photo), the
+// title with a small grey tag (its level), the artist, and a quiet line of
+// facts. The photo stands on the page itself: no panel behind it, no
+// coloured rim on hover (owner, 2026-11-11). Over the art's corner on
+// hover: save, and a menu with the old list's links.
+
+/** A tile grows a touch under the pointer (owner, 2026-11-11): small
+ *  enough to stay inside a shelf's 4px of padding. */
+export const HOVER_GROW =
+  'transition-transform duration-200 ease-out hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:scale-100';
 
 const CORNER_BUTTON = cn(
-  'grid size-7 place-items-center rounded-full bg-black/55 text-white/85 backdrop-blur-md hover:bg-black/75 hover:text-white',
+  'grid size-7 place-items-center rounded-full bg-black/55 text-white/85 hover:bg-black/75 hover:text-white',
   TRANSITION,
   FOCUS_RING,
 );
@@ -49,47 +55,31 @@ export function SongCard({
   song: Song;
   className?: string;
 }) {
-  const reduced = useReducedMotion() ?? false;
-  const { openInLesson, openInStudio, openInGlobe, toggleSaved, isSaved } =
-    useSongActions(song);
+  const { toggleSaved, isSaved } = useSongActions(song);
 
   return (
     <div
-      className={cn('art-host group relative min-w-0', className)}
+      className={cn('group relative min-w-0', HOVER_GROW, className)}
       data-explore-song={song.id}
     >
       <Link
         to={SongRoutes.song({ songId: song.id })}
         aria-label={`${song.title} by ${song.artist}`}
-        className={cn('block rounded-2xl', FOCUS_RING)}
+        className={cn('block rounded-xl', FOCUS_RING)}
       >
-        <motion.span
-          className="block"
-          whileHover={reduced ? undefined : { y: -3 }}
-          whileTap={reduced ? undefined : { y: 1, scale: 0.98 }}
-          transition={{ type: 'spring', stiffness: 420, damping: 26 }}
-        >
-          <span className="relative block aspect-square w-full overflow-hidden rounded-2xl bg-daw-surface-1">
-            <SongThumb song={song} />
-            <SpectrumRim state="hover" colors={[songKeyColour(song)]} />
-          </span>
-          <span className="mt-3 flex flex-col gap-1 px-0.5">
-            <span className="flex min-w-0 items-baseline gap-1.5">
-              <span className="truncate text-[0.875rem] font-medium leading-5 text-[#f7f4ef]">
-                {song.title}
-              </span>
-              <span className="shrink-0 font-mono text-[0.6875rem] uppercase tracking-wide text-[#a3a3a3]">
-                Lvl {song.difficulty}
-              </span>
-            </span>
-            <span className="truncate text-[0.875rem] leading-4 text-[#a3a3a3]">
-              {song.artist}
-            </span>
-            <span className="truncate text-[0.75rem] leading-4 text-[#a3a3a3]">
-              {songFacts(song)}
+        <span className="relative block aspect-square w-full overflow-hidden rounded-xl">
+          <SongThumb song={song} />
+        </span>
+        <span className={cn(CARD_GAP, 'flex flex-col px-0.5')}>
+          <span className="flex min-w-0 items-baseline gap-1.5">
+            <span className={CARD_TITLE}>{song.title}</span>
+            <span className={cn(CARD_META, 'shrink-0')}>
+              Lvl {song.difficulty}
             </span>
           </span>
-        </motion.span>
+          <span className={CARD_SUB}>{song.artist}</span>
+          <span className={cn(CARD_META, 'truncate')}>{songFacts(song)}</span>
+        </span>
       </Link>
       <div
         className={cn(
@@ -107,29 +97,57 @@ export function SongCard({
         >
           <HeartIcon filled={isSaved} className="size-4" />
         </button>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            aria-label={`More for ${song.title}`}
-            className={CORNER_BUTTON}
-          >
-            <MoreVertical aria-hidden className="size-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={() => openInLesson()}>
-              <GraduationCap aria-hidden className="size-4" />
-              Open the lesson
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => openInStudio()}>
-              <SlidersHorizontal aria-hidden className="size-4" />
-              Open in Studio
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => openInGlobe()}>
-              <Globe aria-hidden className="size-4" />
-              See it on the Globe
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <SongMenu song={song} className={CORNER_BUTTON} />
       </div>
     </div>
+  );
+}
+
+/**
+ * A song's "More" menu: its lesson, the Studio, the Globe. A list row, with
+ * no heart beside it, puts Save in it too, behind Samply's "…".
+ */
+export function SongMenu({
+  song,
+  className,
+  row = false,
+}: {
+  song: Song;
+  className?: string;
+  /** A list row's menu: Save in it, and the dots lying down. */
+  row?: boolean;
+}) {
+  const { openInLesson, openInStudio, openInGlobe, toggleSaved, isSaved } =
+    useSongActions(song);
+  const Dots = row ? MoreHorizontal : MoreVertical;
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        aria-label={`More for ${song.title}`}
+        className={className}
+      >
+        <Dots aria-hidden className="size-4" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {row && (
+          <DropdownMenuItem onSelect={() => toggleSaved()}>
+            <HeartIcon filled={isSaved} className="size-4" />
+            {isSaved ? 'Unsave' : 'Save'}
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuItem onSelect={() => openInLesson()}>
+          <AppIcons.learn aria-hidden className="size-4" />
+          Open the lesson
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => openInStudio()}>
+          <AppIcons.studio aria-hidden className="size-4" />
+          Open in Studio
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => openInGlobe()}>
+          <AppIcons.globe aria-hidden className="size-4" />
+          See it on the Globe
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

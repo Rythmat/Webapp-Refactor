@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { StudioRoutes } from '@/constants/routes';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { studioProjectsApi } from '@/lib/studio-projects/projectsClient';
+import { sessionDisplayName } from '@/lib/studio-projects/sessionName';
 import { studioTileAccent } from '@/lib/studioProjectTile';
 import {
   useRecentLessons,
@@ -56,7 +57,7 @@ export const useRecentActivity = (): ActivityItem[] => {
             id: `project:${p.id}`,
             kind: 'project' as const,
             category: 'Studio Project',
-            title: p.name || 'Untitled Project',
+            title: sessionDisplayName(p.name),
             subtitle: p.composerName || `${p.bpm ?? '—'} BPM`,
             // Stripe colour from the same seed the tile SVG uses (item.id).
             accentColor: studioTileAccent(`project:${p.id}`),

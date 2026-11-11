@@ -98,24 +98,24 @@ function narrow<T>(
 }
 
 const PATHWAYS = HISTORICAL_MODULES.map((m) => ({
-  words: [m.title, m.description, 'pathway'],
+  words: [m.title, m.description, 'genre', 'tour', 'pathway'],
   item: {
     type: 'pathway',
     id: `pathway:${m.id}`,
     pathwayId: m.id,
     title: m.title,
-    subtitle: `Pathway · ${m.eventIds.length} stops`,
+    subtitle: `Genre tour · ${m.eventIds.length} stops`,
   } satisfies PaletteItem,
 }));
 
 const TOURS = GUIDED_TOURS.map((t) => ({
-  words: [t.title, t.subtitle, 'tour', 'guided tour'],
+  words: [t.title, t.subtitle, 'tour', 'guided tour', `${t.kind} tour`],
   item: {
     type: 'tour',
     id: `tour:${t.id}`,
     tourId: t.id,
     title: t.title,
-    subtitle: t.subtitle,
+    subtitle: `${t.kind === 'region' ? 'Region' : 'City'} tour · ${t.subtitle}`,
   } satisfies PaletteItem,
 }));
 
@@ -183,12 +183,12 @@ export function buildPalette(
 
   const pathways = narrow(PATHWAYS, q, (p) => p.words).map((p) => p.item);
   if (pathways.length) {
-    groups.push({ id: 'pathways', label: 'Pathways', items: pathways });
+    groups.push({ id: 'pathways', label: 'Genre tours', items: pathways });
   }
 
   const tours = narrow(TOURS, q, (t) => t.words).map((t) => t.item);
   if (tours.length) {
-    groups.push({ id: 'tours', label: 'Guided tours', items: tours });
+    groups.push({ id: 'tours', label: 'Region & city tours', items: tours });
   }
 
   return groups;

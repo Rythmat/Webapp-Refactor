@@ -1,4 +1,5 @@
-import { ChevronsUpDown, LogOut } from 'lucide-react';
+import { ChevronsUpDown } from 'lucide-react';
+import { AppIcons } from '@/components/icons/appIcons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -91,7 +92,7 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator /> */}
             <DropdownMenuItem onClick={signOut}>
-              <LogOut />
+              <AppIcons.logOut />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

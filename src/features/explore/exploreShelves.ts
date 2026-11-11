@@ -91,3 +91,39 @@ export function genreRows(
     }))
     .filter((row) => row.count >= min);
 }
+
+export interface ArtistRow {
+  /** The artist's name in lower case: how their songs are grouped, since
+   *  the library spells some names more than one way ("Ace Of Base"). */
+  key: string;
+  /** Their name as most of their songs spell it. */
+  name: string;
+  /** Their songs, the best-known first. */
+  songs: Song[];
+}
+
+/** The key that groups an artist's songs. */
+export const artistKey = (artist: string) => artist.trim().toLowerCase();
+
+/** The library's artists, "The" aside alphabetical, each with their songs. */
+export function artistRows(songs: readonly Song[]): ArtistRow[] {
+  const groups = new Map<string, Song[]>();
+  for (const song of songs) {
+    const key = artistKey(song.artist);
+    if (!key) continue;
+    const group = groups.get(key);
+    if (group) group.push(song);
+    else groups.set(key, [song]);
+  }
+  return [...groups]
+    .map(([key, group]) => {
+      const spellings = new Map<string, number>();
+      for (const song of group) {
+        const name = song.artist.trim();
+        spellings.set(name, (spellings.get(name) ?? 0) + 1);
+      }
+      const name = [...spellings].sort((a, b) => b[1] - a[1])[0][0];
+      return { key, name, songs: [...group].sort(byPopularity) };
+    })
+    .sort((a, b) => stripThe(a.name).localeCompare(stripThe(b.name)));
+}

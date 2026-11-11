@@ -1,6 +1,9 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { FRAME_PX } from '@/components/atlas/layout/frameGeometry';
+import {
+  FRAME_PX,
+  TOP_BAR_HEIGHT,
+} from '@/components/atlas/layout/frameGeometry';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { OfficeInspector } from '../inspector/OfficeInspector';
 import { OfficeCommandPalette } from '../palette/OfficeCommandPalette';
@@ -18,7 +21,7 @@ import { RailSlotContext } from './railSlot';
 
 const GRID: React.CSSProperties = {
   gridTemplateAreas: '"top top" "stage insp" "bottom bottom"',
-  gridTemplateRows: `${FRAME_PX.top}px minmax(0,1fr) ${FRAME_PX.bottom}px`,
+  gridTemplateRows: `${TOP_BAR_HEIGHT} minmax(0,1fr) ${FRAME_PX.bottom}px`,
   gridTemplateColumns: 'minmax(0,1fr) auto',
 };
 

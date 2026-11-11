@@ -1,5 +1,5 @@
 import type { HistoricalModule } from '@/components/atlas/types';
-import { HISTORICAL_MODULES } from './historicalModules';
+import { HISTORICAL_MODULES, PATHWAY_ALIASES } from './historicalModules';
 
 /**
  * The Globe's guided sequences, Guided Tours and Pathways, as one lazily
@@ -8,7 +8,7 @@ import { HISTORICAL_MODULES } from './historicalModules';
  * the command palette lists them.
  */
 export { GUIDED_TOURS, getTour, resolveTourStops } from './guidedTours';
-export { HISTORICAL_MODULES };
+export { HISTORICAL_MODULES, PATHWAY_ALIASES };
 
 let modules: Map<string, HistoricalModule> | null = null;
 
@@ -17,5 +17,6 @@ export function getModuleById(
 ): HistoricalModule | undefined {
   if (!id) return undefined;
   modules ??= new Map(HISTORICAL_MODULES.map((m) => [m.id, m]));
-  return modules.get(id);
+  // A genre tour merged into another still opens, as the one it joined.
+  return modules.get(PATHWAY_ALIASES[id] ?? id);
 }

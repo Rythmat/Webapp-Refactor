@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
  * The phone's zones: the Inspector's panel is a bottom sheet with buttons for
- * its heights, and the bar under the map (or the cards' strip) rests on it.
+ * its heights, and the cards' strip rests on it.
  */
 import {
   act,
@@ -33,7 +33,7 @@ function Popover() {
   );
 }
 
-function Harness({ journey = true }: { journey?: boolean }) {
+function Harness() {
   const [panel, setPanel] = useState<'a' | 'b' | null>(null);
   const close = () => setPanel(null);
   const inspector: InspectorSlot | null = panel && {
@@ -58,15 +58,7 @@ function Harness({ journey = true }: { journey?: boolean }) {
       <button type="button" onClick={() => setPanel('a')}>
         Open
       </button>
-      <PhoneZones
-        bottom={
-          journey
-            ? { label: 'timeline', maxWidth: 800, node: <p>Timeline</p> }
-            : null
-        }
-        inspector={inspector}
-        strip={<p>Cards</p>}
-      />
+      <PhoneZones inspector={inspector} strip={<p>Cards</p>} />
     </>
   );
 }
@@ -80,9 +72,9 @@ const press = (el: HTMLElement) => {
 const escape = () => fireEvent.keyDown(window, { key: 'Escape' });
 
 describe('the phone bottom sheet', () => {
-  it('opens at half, steps with its buttons, and moves the bar aside above peek', () => {
+  it('opens at half, steps with its buttons, and moves the strip aside above peek', () => {
     render(<Harness />);
-    expect(screen.getByText('Timeline')).toBeTruthy();
+    expect(screen.getByText('Cards')).toBeTruthy();
     press(screen.getByRole('button', { name: 'Open' }));
 
     const sheet = screen.getByRole('region', { name: 'Details' });
@@ -90,8 +82,8 @@ describe('the phone bottom sheet', () => {
     expect(document.activeElement).toBe(
       screen.getByRole('heading', { name: 'Panel A' }),
     );
-    // Above peek the timeline steps aside.
-    expect(screen.queryByText('Timeline')).toBeNull();
+    // Above peek the strip steps aside.
+    expect(screen.queryByText('Cards')).toBeNull();
 
     const expand = screen.getByRole('button', { name: 'Expand sheet' });
     const collapse = screen.getByRole('button', { name: 'Collapse sheet' });
@@ -104,7 +96,7 @@ describe('the phone bottom sheet', () => {
     expect(sheet.dataset.snap).toBe('peek');
     expect((collapse as HTMLButtonElement).disabled).toBe(true);
     // At peek it rests on the sheet again.
-    expect(screen.getByText('Timeline')).toBeTruthy();
+    expect(screen.getByText('Cards')).toBeTruthy();
   });
 
   it('is non-modal and closes on Escape', () => {
@@ -116,19 +108,5 @@ describe('the phone bottom sheet', () => {
     act(() => escape());
     expect(screen.queryByRole('region', { name: 'Details' })).toBeNull();
     expect(document.activeElement).toBe(opener);
-  });
-
-  it('shows the cards’ strip when no bar is up, under the sheet’s rule', () => {
-    render(<Harness />);
-    // A journey's bar has the place.
-    expect(screen.queryByText('Cards')).toBeNull();
-    cleanup();
-    render(<Harness journey={false} />);
-    expect(screen.getByText('Cards')).toBeTruthy();
-    press(screen.getByRole('button', { name: 'Open' }));
-    expect(screen.queryByText('Cards')).toBeNull();
-    const collapse = screen.getByRole('button', { name: 'Collapse sheet' });
-    press(collapse);
-    expect(screen.getByText('Cards')).toBeTruthy();
   });
 });

@@ -1,6 +1,6 @@
-/* eslint-disable react/jsx-sort-props */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { audioContextOwner } from '@/audio/core/AudioContextOwner';
+import { cn } from '@/components/utilities';
 import {
   COUNT_IN_CLICKS,
   SCORED_CLICKS,
@@ -10,6 +10,7 @@ import {
   reportedOutputLatency,
   scheduleClicks,
 } from '../latencyCalibration';
+import { ACCOUNT_PILL, ACCOUNT_PILL_PRIMARY } from '../ui/accountKit';
 import { useSettingsStore } from '../useSettingsStore';
 
 type Phase =
@@ -18,38 +19,6 @@ type Phase =
   | { kind: 'tapping'; taps: number }
   | { kind: 'done'; latencyMs: number; taps: number }
   | { kind: 'failed' };
-
-const BTN_ACCENT: React.CSSProperties = {
-  background: 'var(--color-accent)',
-  color: '#111',
-  border: 'none',
-  borderRadius: '9999px',
-  padding: '0.375rem 1rem',
-  fontSize: '0.75rem',
-  fontWeight: 700,
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-  cursor: 'pointer',
-};
-
-const BTN_QUIET: React.CSSProperties = {
-  ...BTN_ACCENT,
-  background: 'var(--color-surface-2)',
-  color: 'var(--color-text)',
-  border: '1px solid var(--color-border)',
-};
-
-const BTN_TAP: React.CSSProperties = {
-  ...BTN_ACCENT,
-  padding: '0.75rem 2.5rem',
-  fontSize: '0.875rem',
-  touchAction: 'manipulation',
-};
-
-const HINT: React.CSSProperties = {
-  fontSize: '0.75rem',
-  color: 'var(--color-text-dim)',
-};
 
 const STATUS: Record<Phase['kind'], (phase: Phase) => string> = {
   idle: () =>
@@ -64,7 +33,8 @@ const STATUS: Record<Phase['kind'], (phase: Phase) => string> = {
   failed: () => 'Not enough steady taps. Try again.',
 };
 
-/** Tap along to clicks to set Output Latency. */
+/** Tap along to clicks to set Output Latency. In the Account area's look
+ *  (owner, 2026-11-10): grey pills, the Tap pill white; no teal. */
 export const LatencyCalibration = () => {
   const setOutputLatencyMs = useSettingsStore((s) => s.setOutputLatencyMs);
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
@@ -170,24 +140,30 @@ export const LatencyCalibration = () => {
   const running = phase.kind === 'listening' || phase.kind === 'tapping';
 
   return (
-    <div className="flex flex-col gap-3">
-      <p style={HINT}>{STATUS[phase.kind](phase)}</p>
-      <div className="flex items-center gap-3">
+    <div className="flex flex-col gap-[0.682rem]">
+      <p className="text-[0.682rem] leading-[0.909rem] text-white/[0.48]">
+        {STATUS[phase.kind](phase)}
+      </p>
+      <div className="flex items-center gap-[0.455rem]">
         {running ? (
           <>
             <button
               type="button"
-              style={BTN_TAP}
+              className={cn(
+                ACCOUNT_PILL,
+                ACCOUNT_PILL_PRIMARY,
+                'h-11 touch-manipulation px-8',
+              )}
               onPointerDown={(event) => tapRef.current?.(event.timeStamp)}
             >
               Tap
             </button>
-            <button type="button" style={BTN_QUIET} onClick={cancel}>
+            <button type="button" className={ACCOUNT_PILL} onClick={cancel}>
               Cancel
             </button>
           </>
         ) : (
-          <button type="button" style={BTN_ACCENT} onClick={start}>
+          <button type="button" className={ACCOUNT_PILL} onClick={start}>
             {phase.kind === 'idle' ? 'Calibrate' : 'Calibrate again'}
           </button>
         )}

@@ -34,6 +34,10 @@ import {
   readAsMainSongPage,
   type FrozenDecode,
 } from './frozenV2Decoders';
+import {
+  LEGACY_UNTITLED_SESSION,
+  UNTITLED_SESSION,
+} from '@/lib/studio-projects/sessionName';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -157,10 +161,16 @@ function withoutChordIdentities<T>(value: T): T {
 function expectSameAsFrozen(name: string, stored: any, frozen: FrozenDecode) {
   const ours = withoutChordIdentities(decode(stored));
   for (const key of V2_KEYS) {
+    // The one default that has moved: a draft with no name of its own was
+    // 'Untitled Project' then and is 'Untitled Session' now (2026-11-11).
+    const renamed =
+      key === 'projectName' &&
+      frozen.state[key] === LEGACY_UNTITLED_SESSION &&
+      ours.project[key] === UNTITLED_SESSION;
     expect({ name, key, value: ours.project[key] }).toEqual({
       name,
       key,
-      value: frozen.state[key],
+      value: renamed ? UNTITLED_SESSION : frozen.state[key],
     });
   }
   expect(ours.project.tracks.map(ourTrack), name).toEqual(

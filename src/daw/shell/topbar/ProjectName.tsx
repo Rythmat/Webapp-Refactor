@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import { cn } from '@/components/utilities';
 import { useStore } from '@/daw/store';
+import { sessionDisplayName } from '@/lib/studio-projects/sessionName';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Tooltip } from '@/daw/ui/Tooltip';
 
@@ -25,13 +26,16 @@ export const ProjectName = memo(function ProjectName({
   );
   // Local text, so the student can clear and type without the stored name
   // snapping back on every keystroke.
-  const [text, setText] = useState(projectName);
-  useEffect(() => setText(projectName), [projectName]);
+  // A session saved as 'Untitled Project' shows as 'Untitled Session'
+  // (sessionName.ts); leaving the field unchanged renames nothing.
+  const shown = sessionDisplayName(projectName);
+  const [text, setText] = useState(shown);
+  useEffect(() => setText(shown), [shown]);
   const commit = useCallback(() => {
     const trimmed = text.trim();
-    if (trimmed) setProjectName(trimmed);
-    setText(useStore.getState().projectName);
-  }, [text, setProjectName]);
+    if (trimmed && trimmed !== shown) setProjectName(trimmed);
+    setText(sessionDisplayName(useStore.getState().projectName));
+  }, [text, shown, setProjectName]);
 
   return (
     <Tooltip
@@ -50,7 +54,7 @@ export const ProjectName = memo(function ProjectName({
             commit();
             e.currentTarget.blur();
           } else if (e.key === 'Escape') {
-            setText(useStore.getState().projectName);
+            setText(sessionDisplayName(useStore.getState().projectName));
             e.currentTarget.blur();
           }
         }}

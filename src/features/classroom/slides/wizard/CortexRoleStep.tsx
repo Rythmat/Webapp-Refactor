@@ -1,5 +1,5 @@
-import { Globe2, Music, SlidersHorizontal } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { AppIcons, AppListIcons } from '@/components/icons/appIcons';
 import { MICRO_LABEL } from '@/components/kit';
 import { Select } from '@/daw/ui/Select';
 import { OFFICE_CARD } from '@/features/office/ui/styles';
@@ -93,7 +93,7 @@ export const CortexRoleStep = ({
           role="promoter"
           selected={role === 'promoter'}
           disabled={!roleAvailable(plan, 'promoter')}
-          icon={<Globe2 className="h-4 w-4" />}
+          icon={<AppIcons.globe className="h-4 w-4" />}
           title="Promoter"
           summary="Find connections on the Globe and build a mind map."
           onSelect={onRole}
@@ -116,7 +116,7 @@ export const CortexRoleStep = ({
           role="producer"
           selected={role === 'producer'}
           disabled={!roleAvailable(plan, 'producer')}
-          icon={<SlidersHorizontal className="h-4 w-4" />}
+          icon={<AppIcons.studio className="h-4 w-4" />}
           title="Producer"
           summary="Follow a production tutorial in the Studio."
           onSelect={onRole}
@@ -146,7 +146,7 @@ export const CortexRoleStep = ({
           role="performer"
           selected={role === 'performer'}
           disabled={!roleAvailable(plan, 'performer')}
-          icon={<Music className="h-4 w-4" />}
+          icon={<AppListIcons.artists className="h-4 w-4" />}
           title="Performer"
           summary="Work through a Learn lesson together as a class."
           onSelect={onRole}

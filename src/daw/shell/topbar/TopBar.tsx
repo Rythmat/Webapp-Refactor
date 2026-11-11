@@ -15,9 +15,8 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from '@/daw/ui/Menu';
+import { RailToggle } from '@/layouts/DashboardLayout/RailToggle';
 import { InviteHost } from '../inspector/panels/InviteHost';
-import { AvatarMenu } from './AvatarMenu';
-import { BackToStudio } from './BackToStudio';
 import { ExportPill } from './ExportPill';
 import { HelpItems } from './HelpMenu';
 import { ProjectMenu } from './ProjectMenu';
@@ -36,7 +35,8 @@ import { ADD_ARM_KEY } from '../tracklist/recordArm';
 //
 // 44 px, its controls in pills on the page, laid out as the floating frame
 // is (owner, 2026-10-21):
-// - project, at the left: Back, the Project menu and the name in one pill
+// - project, at the left: the Project menu and the name in one pill (Back
+//   to Home went, owner 2026-11-10: the app rail is the way out)
 //   (the save chip shows there only when work is at risk: a failed save or
 //   audio not stored; 'Saved on this device' went, owner 2026-10-21); Undo
 //   and Redo in the next (the editing tool's button went, owner
@@ -124,8 +124,9 @@ export const TopBar = memo(function TopBar({
           data-zone="project"
           className="flex items-center gap-2 justify-self-start"
         >
+          {/* The app rail's button (owner, 2026-11-10), while it's shut. */}
+          <RailToggle />
           <PillGroup label="Project name and menu" className="pr-2">
-            <BackToStudio />
             <ProjectMenu />
             <ProjectName
               narrow={folded(fold, 'name-narrow')}
@@ -173,7 +174,6 @@ export const TopBar = memo(function TopBar({
             />
           </PillGroup>
           <ExportPill />
-          <AvatarMenu className="ml-1" />
         </div>
       </div>
       {/* The chip's live region, apart from the chip (announce={false}):

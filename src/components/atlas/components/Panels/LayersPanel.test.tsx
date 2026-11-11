@@ -81,9 +81,11 @@ describe('the Layers panel', () => {
     const store = createAtlasStore();
     setup(store);
     const group = screen.getByRole('radiogroup', { name: 'Color the land by' });
-    const music = screen.getByRole('radio', { name: 'Music' });
-    expect(music).toHaveAttribute('aria-checked', 'true');
-    act(() => screen.getByRole('radio', { name: 'Continent' }).click());
+    const continent = screen.getByRole('radio', { name: 'Continent' });
+    expect(continent).toHaveAttribute('aria-checked', 'true');
+    act(() => screen.getByRole('radio', { name: 'Music' }).click());
+    expect(store.api.getState().layers.landColor).toBe('music');
+    act(() => continent.click());
     expect(store.api.getState().layers.landColor).toBe('continent');
     // Arrow keys move along the choices.
     act(() => {

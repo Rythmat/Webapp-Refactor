@@ -373,13 +373,15 @@ function SlideGlobeLayout() {
 
 /**
  * Only the story: the Globe's cities, artist points and influence arcs off,
- * in a store of this page's own (never the viewer's saved Layers).
+ * the land in its continents' colours (owner, 2026-11-10), in a store of
+ * this page's own (never the viewer's saved Layers).
  */
 const storyStore = () =>
   createAtlasStore({
     ...initialAppState,
     layers: {
       ...DEFAULT_LAYERS,
+      landColor: 'continent',
       cities: false,
       artistPoints: false,
       arcs: false,

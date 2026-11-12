@@ -211,3 +211,25 @@
       )
       bottom / 100% 20px no-repeat scroll;
 }
+
+/* The Individual Project's beams (PlaceMenu, owner 2026-11-12): a short
+   rainbow streak running along each line from its icon into the logo, then
+   a rest.
+   The dash is a share of the path (`pathLength=1`). */
+@keyframes place-beam {
+  0% {
+    stroke-dashoffset: 0.26;
+  }
+  60%,
+  100% {
+    stroke-dashoffset: -1;
+  }
+}
+.place-beam {
+  stroke-dashoffset: 0.26;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .place-beam {
+    animation: place-beam 3.2s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  }
+}

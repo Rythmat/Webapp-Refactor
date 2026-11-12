@@ -1,7 +1,15 @@
 import { useReducedMotion } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
+import { Logo } from '@/components/Logo';
 import { AppIcons } from '@/components/icons/appIcons';
+import { KEY_RAINBOW_COLORS } from '@/features/landing/rainbow';
 import { pickLocalized } from '../../presentation/localized';
 import { resolveModuleUrl } from '../../presentation/resolveModuleUrl';
 import { useTeacherConfig } from '../../settings/useTeacherConfig';
@@ -9,20 +17,22 @@ import type { StudentLanguage } from '../../types';
 import { projectPlaceFor, type ProjectPlace } from '../projectPlaces';
 import type { SlideElement, SlideSurface } from '../types';
 
-// ── The Individual Project's menu (owner, 2026-11-11) ──────────────────────
-// Where each student works today: Learn, Songs, Library, Studio or Globe, as
-// tall cards, each with a short, calm clip of its place. One plays at a time
-// (owner: "too busy … calm and sleek"): a spotlight moves from card to card
-// every few seconds, and the others rest on their first frame, dimmed. Hover
-// or focus a card and it is the one playing, opened wide while the others
-// narrow (the 21st.dev gallery the owner chose). The room's screen shows the
-// five evenly, not as links; a phone stacks them. A thumbnail or reduced
-// motion shows each clip's first frame, none playing, none dimmed.
+// ── The Individual Project's menu (owner, 2026-11-12) ──────────────────────
+// Where each student works today: the six places as the app's own icons,
+// three on each side, each with its name, joined by a thin curved line to
+// the Music Atlas logo in the middle, a short glowing streak running along
+// each line into it in the app's key-colour rainbow (after the "Animated
+// Beam Integration" diagram the owner chose; drawn here from scratch). A
+// hand on an icon turns its line white and holds every other streak.
+//
+//   Present          each icon opens its place in a new tab
+//   a student        each icon opens its place inside the lesson (`onOpen`)
+//   room's screen    the same picture, nothing to click
+//   thumbnail, or    the lines without streaks
+//   reduced motion
+//   a phone          no lines: the places as a list, icon and name
 
-/** How long the spotlight stays on a card. */
-export const SPOTLIGHT_MS = 7000;
-
-/** The place an element opens, if it is one of the five. */
+/** The place an element opens, if it is one of the six. */
 const placeOf = (element: SlideElement): ProjectPlace | undefined => {
   if (element.kind !== 'content') return undefined;
   const ref =
@@ -52,10 +62,58 @@ export const placeMenuOf = (
   };
 };
 
-/** Words a narrowed card hides (its icon still names it): shown again on
- *  the open card. */
-const NARROWED =
-  'motion-safe:group-hover/menu:hidden motion-safe:group-focus-within/menu:hidden motion-safe:group-hover/card:!block motion-safe:group-focus-visible/card:!block';
+/** An icon's tile and the logo's, in the box's px (canvas px on a slide). */
+const TILE = 64;
+const HUB = 112;
+/** An icon's control: its tile, with room for its name under it. */
+const NODE_W = TILE + 48;
+/** How far in from each side the two columns stand, as a share of the width. */
+const COLUMN_IN = 0.2;
+
+export interface PlaceNode {
+  place: ProjectPlace;
+  side: 'left' | 'right';
+  /** The tile's centre. */
+  x: number;
+  y: number;
+  /** The curve from the tile to the logo. */
+  path: string;
+}
+
+/**
+ * Where each place sits in a box `w` × `h`: the first half (rounded up) down
+ * the left, the rest down the right, each column spread over the height, and
+ * each one's curve to the logo in the middle: level as it leaves the tile,
+ * level as it reaches the logo.
+ */
+export const layoutPlaces = (
+  places: readonly ProjectPlace[],
+  w: number,
+  h: number,
+): PlaceNode[] => {
+  const leftCount = Math.ceil(places.length / 2);
+  const cx = w / 2;
+  const cy = h / 2;
+  const rowsY = (count: number, i: number) =>
+    count === 1 ? cy : h * (0.17 + (0.66 * i) / (count - 1));
+  return places.map((place, index) => {
+    const left = index < leftCount;
+    const i = left ? index : index - leftCount;
+    const count = left ? leftCount : places.length - leftCount;
+    const x = left ? w * COLUMN_IN : w * (1 - COLUMN_IN);
+    const y = rowsY(count, i);
+    const sx = left ? x + TILE / 2 : x - TILE / 2;
+    const ex = left ? cx - HUB / 2 : cx + HUB / 2;
+    const mx = (sx + ex) / 2;
+    return {
+      place,
+      side: left ? 'left' : 'right',
+      x,
+      y,
+      path: `M ${sx} ${y} C ${mx} ${y}, ${mx} ${cy}, ${ex} ${cy}`,
+    };
+  });
+};
 
 interface PlaceMenuProps {
   places: readonly ProjectPlace[];
@@ -63,51 +121,80 @@ interface PlaceMenuProps {
   language: StudentLanguage;
   /** For accessibility: the section the menu belongs to. */
   sectionLabel: string;
-  /** A thumbnail: stills only. */
+  /** A thumbnail: no streaks. */
   still?: boolean;
-  /** A phone's column: short cards stacked, no accordion. */
+  /** A phone's column: the places as a list, no lines. */
   stacked?: boolean;
   /**
-   * A student's device in a live session: a card opens its place inside
+   * A student's device in a live session: an icon opens its place inside
    * the lesson instead of a new tab (the `openPlace` slot).
    */
   onOpen?: (place: ProjectPlace) => void;
 }
 
-/** A place's clip: playing from its start while active, else resting. */
-const PlaceClip = ({
-  clip,
-  playing,
+/** A place's control: a button in a lesson, a link on Present, else none. */
+const PlaceControl = ({
+  place,
+  name,
+  url,
+  sectionLabel,
+  onOpen,
+  className,
+  style,
+  onHand,
+  children,
 }: {
-  clip: ProjectPlace['clip'];
-  playing: boolean;
+  place: ProjectPlace;
+  name: string;
+  url: string | null;
+  sectionLabel: string;
+  onOpen?: ((place: ProjectPlace) => void) | undefined;
+  className: string;
+  style?: CSSProperties;
+  onHand?: ((on: boolean) => void) | undefined;
+  children: ReactNode;
 }) => {
-  const ref = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    const video = ref.current;
-    if (!video) return;
-    if (playing) {
-      void video.play()?.catch(() => {
-        // Autoplay refused (a browser setting): it rests on its poster.
-      });
-    } else {
-      video.pause();
-      video.currentTime = 0;
-    }
-  }, [playing]);
+  const hand = onHand
+    ? {
+        onPointerEnter: () => onHand(true),
+        onPointerLeave: () => onHand(false),
+        onFocus: () => onHand(true),
+        onBlur: () => onHand(false),
+      }
+    : {};
+  const ring =
+    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white';
+  if (onOpen)
+    return (
+      <button
+        type="button"
+        onClick={() => onOpen(place)}
+        aria-label={`${name}, opens inside the lesson (${sectionLabel})`}
+        className={`${className} ${ring}`}
+        style={style}
+        {...hand}
+      >
+        {children}
+      </button>
+    );
+  if (url)
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={`${name}, opens ${name} (${sectionLabel})`}
+        className={`${className} ${ring}`}
+        style={style}
+        {...hand}
+      >
+        {children}
+      </a>
+    );
   return (
-    <video
-      ref={ref}
-      src={clip.src}
-      poster={clip.poster}
-      muted
-      loop
-      playsInline
-      preload="metadata"
-      aria-hidden
-      data-playing={playing || undefined}
-      className="pointer-events-none absolute inset-0 size-full object-cover"
-    />
+    <div className={className} style={style} {...hand}>
+      {children}
+    </div>
   );
 };
 
@@ -122,150 +209,213 @@ export const PlaceMenu = ({
 }: PlaceMenuProps) => {
   const reduce = useReducedMotion() ?? false;
   const { config } = useTeacherConfig();
-  // The room's screen can't be tapped, and nobody points at it.
+  // The room's screen can't be tapped.
   const projected = surface === 'projector';
-  const open = !projected && !stacked;
-  const moving = !still && !reduce && !stacked;
-  // The spotlight's card, and the one a hand is on (which wins).
-  const [spot, setSpot] = useState(0);
-  const [held, setHeld] = useState<number | null>(null);
-  const active = held ?? spot;
+  const streaks = !still && !reduce;
+  const urlOf = (place: ProjectPlace) =>
+    projected || onOpen
+      ? null
+      : resolveModuleUrl(
+          { id: place.id, module: place.module, activityRef: place.ref },
+          config.moduleUrls,
+        );
 
-  useEffect(() => {
-    if (!moving || held !== null) return;
-    const timer = window.setInterval(
-      () => setSpot((at) => (at + 1) % places.length),
-      SPOTLIGHT_MS,
+  // The box's own size (layout px, so canvas px on a scaled slide).
+  const box = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState<{ w: number; h: number } | null>(null);
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!el || stacked) return;
+    const measure = () =>
+      setSize((was) =>
+        was && was.w === el.offsetWidth && was.h === el.offsetHeight
+          ? was
+          : { w: el.offsetWidth, h: el.offsetHeight },
+      );
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const seen = new ResizeObserver(measure);
+    seen.observe(el);
+    return () => seen.disconnect();
+  }, [stacked]);
+
+  const [lit, setLit] = useState<string | null>(null);
+  const uid = useId().replace(/:/g, '');
+
+  if (stacked)
+    return (
+      <div
+        className="flex w-full flex-col gap-2"
+        style={{ fontSize: 'var(--slide-body-fz)' }}
+      >
+        {places.map((place) => {
+          const name = pickLocalized(place.label, language);
+          const Icon = AppIcons[place.id];
+          return (
+            <PlaceControl
+              key={place.id}
+              place={place}
+              name={name}
+              url={urlOf(place)}
+              sectionLabel={sectionLabel}
+              onOpen={onOpen}
+              className="flex h-14 w-full items-center gap-3 rounded-xl border border-white/10 bg-[#141418] px-4 text-left text-white"
+            >
+              <Icon className="size-5 shrink-0" aria-hidden />
+              <span className="text-[0.9em] text-white/80">{name}</span>
+            </PlaceControl>
+          );
+        })}
+      </div>
     );
-    return () => window.clearInterval(timer);
-  }, [moving, held, places.length]);
 
-  /** A hand leaves: the spotlight carries on from where it was. */
-  const release = (index: number) => {
-    setSpot(index);
-    setHeld(null);
-  };
+  const nodes = size ? layoutPlaces(places, size.w, size.h) : [];
 
   return (
     <div
-      className={
-        stacked
-          ? 'flex w-full flex-col gap-2'
-          : 'group/menu flex size-full gap-3'
-      }
+      ref={box}
+      data-place-beams=""
+      className="relative size-full"
       style={{ fontSize: 'var(--slide-body-fz)' }}
     >
-      {places.map((place, index) => {
-        const name = pickLocalized(place.label, language);
-        const Icon = AppIcons[place.id];
-        const lit = !moving || index === active;
-        const url =
-          projected || onOpen
-            ? null
-            : resolveModuleUrl(
-                {
-                  id: place.id,
-                  module: place.module,
-                  activityRef: place.ref,
-                },
-                config.moduleUrls,
-              );
-        const card = `group/card relative overflow-hidden rounded-[0.5em] bg-[#141418] text-white ${
-          stacked
-            ? 'h-[4.5rem] w-full'
-            : `min-w-0 flex-1 ${
-                open
-                  ? 'motion-safe:transition-[flex-grow] motion-safe:duration-500 motion-safe:ease-[cubic-bezier(.4,0,.2,1)] motion-safe:group-hover/menu:flex-[0.5] motion-safe:group-focus-within/menu:flex-[0.5] motion-safe:hover:!flex-[2] motion-safe:focus-visible:!flex-[2]'
-                  : ''
-              }`
-        }`;
-        const body = (
-          <>
-            <span
-              aria-hidden
-              className="absolute inset-0 transition-[filter] duration-700 ease-out"
-              style={{ filter: lit ? undefined : 'brightness(0.55)' }}
-            >
-              {moving ? (
-                <PlaceClip clip={place.clip} playing={index === active} />
-              ) : (
-                <img
-                  src={place.clip.poster}
-                  alt=""
-                  draggable={false}
-                  className="absolute inset-0 size-full object-cover"
-                />
-              )}
-            </span>
-            <span
-              className={`absolute inset-x-0 bottom-0 flex items-center gap-[0.4em] from-black/75 via-black/30 to-transparent text-[0.85em] leading-none text-white/90 ${
-                stacked
-                  ? 'top-0 bg-gradient-to-r px-4'
-                  : 'bg-gradient-to-t px-[0.85em] pb-[0.8em] pt-[3em]'
-              }`}
-            >
-              <Icon className="size-[1em] shrink-0" aria-hidden />
-              <span
-                className={`min-w-0 flex-1 truncate ${open ? NARROWED : ''}`}
+      {size && (
+        <svg
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          width={size.w}
+          height={size.h}
+          viewBox={`0 0 ${size.w} ${size.h}`}
+        >
+          <defs>
+            {nodes.map((node) => (
+              <linearGradient
+                key={node.place.id}
+                id={`${uid}-${node.place.id}`}
+                gradientUnits="userSpaceOnUse"
+                x1={node.x}
+                y1={node.y}
+                x2={size.w / 2}
+                y2={size.h / 2}
               >
-                {name}
-              </span>
-              {url && (!moving || index === active) && (
-                <ArrowUpRight
-                  className={`size-[0.9em] shrink-0 text-white/60 ${open ? NARROWED : ''}`}
-                  aria-hidden
+                {KEY_RAINBOW_COLORS.map((color, i) => (
+                  <stop
+                    key={color}
+                    offset={`${((i / (KEY_RAINBOW_COLORS.length - 1)) * 100).toFixed(1)}%`}
+                    stopColor={color}
+                  />
+                ))}
+              </linearGradient>
+            ))}
+          </defs>
+          {nodes.map((node, index) => {
+            const on = lit === node.place.id;
+            const stroke = `url(#${uid}-${node.place.id})`;
+            // A hand on an icon: its line goes white, and every other
+            // line's streak holds where it is until the hand leaves.
+            const held = lit !== null && !on;
+            const motion = {
+              animationDelay: `${(index * 0.55).toFixed(2)}s`,
+              animationPlayState: held ? 'paused' : 'running',
+            };
+            return (
+              <g key={node.place.id} data-beam={node.place.id}>
+                <path
+                  d={node.path}
+                  fill="none"
+                  stroke={on ? '#ffffff' : 'rgba(255,255,255,0.1)'}
+                  strokeWidth={on ? 2 : 1.5}
+                  data-lit={on || undefined}
+                  className="transition-[stroke] duration-300"
                 />
-              )}
-            </span>
-          </>
-        );
-        const hand = moving
-          ? {
-              onPointerEnter: () => setHeld(index),
-              onPointerLeave: () => release(index),
-              onFocus: () => setHeld(index),
-              onBlur: () => release(index),
+                {streaks && (
+                  <>
+                    {/* The glow: a wider, fainter copy (no blur on a slide). */}
+                    <path
+                      d={node.path}
+                      fill="none"
+                      stroke={stroke}
+                      strokeWidth={7}
+                      strokeLinecap="round"
+                      pathLength={1}
+                      strokeDasharray="0.26 1.3"
+                      opacity={on ? 0.35 : 0.18}
+                      className="place-beam"
+                      style={motion}
+                    />
+                    <path
+                      d={node.path}
+                      fill="none"
+                      stroke={stroke}
+                      strokeWidth={2.5}
+                      strokeLinecap="round"
+                      pathLength={1}
+                      strokeDasharray="0.26 1.3"
+                      opacity={on ? 1 : 0.85}
+                      className="place-beam"
+                      style={motion}
+                    />
+                  </>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      )}
+
+      {size && (
+        <div
+          className="absolute flex items-center justify-center rounded-[28px] border border-white/10 bg-[#141418] shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
+          style={{
+            left: size.w / 2 - HUB / 2,
+            top: size.h / 2 - HUB / 2,
+            width: HUB,
+            height: HUB,
+          }}
+        >
+          <Logo className="size-[52px]" />
+        </div>
+      )}
+
+      {nodes.map((node) => {
+        const name = pickLocalized(node.place.label, language);
+        const Icon = AppIcons[node.place.id];
+        const on = lit === node.place.id;
+        return (
+          <PlaceControl
+            key={node.place.id}
+            place={node.place}
+            name={name}
+            url={urlOf(node.place)}
+            sectionLabel={sectionLabel}
+            onOpen={onOpen}
+            onHand={
+              projected
+                ? undefined
+                : (hand) =>
+                    setLit((was) =>
+                      hand ? node.place.id : was === node.place.id ? null : was,
+                    )
             }
-          : {};
-        const focusRing =
-          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
-        if (onOpen) {
-          return (
-            <button
-              key={place.id}
-              type="button"
-              onClick={() => onOpen(place)}
-              aria-label={`${name}, opens inside the lesson (${sectionLabel})`}
-              data-active={index === active || undefined}
-              className={`${card} text-left ${focusRing}`}
-              {...hand}
+            className="absolute flex flex-col items-center gap-[8px] rounded-[20px]"
+            style={{
+              left: node.x - NODE_W / 2,
+              top: node.y - TILE / 2,
+              width: NODE_W,
+            }}
+          >
+            <span
+              data-place={node.place.id}
+              className={`flex items-center justify-center rounded-[20px] border bg-[#141418] text-white shadow-[0_6px_24px_rgba(0,0,0,0.4)] transition-[border-color,transform] duration-300 ${
+                on ? 'scale-105 border-white/30' : 'border-white/10'
+              }`}
+              style={{ width: TILE, height: TILE }}
             >
-              {body}
-            </button>
-          );
-        }
-        return url ? (
-          <a
-            key={place.id}
-            href={url}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`${name}, opens ${name} (${sectionLabel})`}
-            data-active={index === active || undefined}
-            className={`${card} ${focusRing}`}
-            {...hand}
-          >
-            {body}
-          </a>
-        ) : (
-          <div
-            key={place.id}
-            data-active={index === active || undefined}
-            className={card}
-            {...hand}
-          >
-            {body}
-          </div>
+              <Icon className="size-[30px]" aria-hidden />
+            </span>
+            <span className="whitespace-nowrap text-[0.7em] leading-none text-white/60">
+              {name}
+            </span>
+          </PlaceControl>
         );
       })}
     </div>

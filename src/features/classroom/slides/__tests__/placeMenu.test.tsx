@@ -1,25 +1,20 @@
 // @vitest-environment jsdom
 /**
- * The Individual Project's menu (owner, 2026-11-11): five places, each a
- * card with a clip of the place, drawn as one row so a card can open wide.
- * One clip plays at a time: a spotlight's, or the one under a hand.
+ * The Individual Project's menu (owner, 2026-11-12): the six places as the
+ * app's icons, three each side, named, each joined by a line to the Music
+ * Atlas logo with a streak running into it.
  */
-import { act, cleanup, fireEvent, render } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SlideRenderer } from '../SlideRenderer';
 import { buildCortexLessonSkeleton } from '../cortex/buildDeck';
-import { SPOTLIGHT_MS } from '../parts/PlaceMenu';
+import { layoutPlaces } from '../parts/PlaceMenu';
+import { PROJECT_PLACES } from '../projectPlaces';
+import { resolveActivityRefHref } from '../resolveContentHref';
 import type { Slide } from '../types';
-
-beforeEach(() => {
-  // jsdom plays nothing.
-  vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue();
-  vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
-});
 
 afterEach(() => {
   cleanup();
-  vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
@@ -45,85 +40,103 @@ const draw = (
     />,
   ).container;
 
-/** The indexes of the cards whose clip is playing. */
-const playing = (root: HTMLElement) =>
-  [...root.querySelectorAll('[data-place-menu] video')].flatMap((v, i) =>
-    v.hasAttribute('data-playing') ? [i] : [],
-  );
+const NAMES = ['Learn', 'Songs', 'Library', 'Studio', 'Globe', 'Arcade'];
+
+describe('where the six places sit', () => {
+  it('runs three down each side, the logo between them', () => {
+    const nodes = layoutPlaces(PROJECT_PLACES, 1152, 380);
+    expect(nodes.map((n) => n.side)).toEqual([
+      'left',
+      'left',
+      'left',
+      'right',
+      'right',
+      'right',
+    ]);
+    const left = nodes.filter((n) => n.side === 'left');
+    const right = nodes.filter((n) => n.side === 'right');
+    // Level across, spread down, the columns either side of the middle.
+    expect(left.map((n) => n.y)).toEqual(right.map((n) => n.y));
+    expect(left[0]!.y).toBeLessThan(left[1]!.y);
+    expect(left[1]!.y).toBe(190);
+    expect(left[0]!.x).toBeLessThan(576);
+    expect(right[0]!.x).toBeGreaterThan(576);
+    // Each line ends at the logo's edge, level with its middle.
+    for (const n of nodes) expect(n.path).toMatch(/ 190$/);
+  });
+
+  it('lays an older five-place lesson out three and two', () => {
+    const nodes = layoutPlaces(PROJECT_PLACES.slice(0, 5), 1152, 380);
+    expect(nodes.filter((n) => n.side === 'left')).toHaveLength(3);
+    expect(nodes.filter((n) => n.side === 'right')).toHaveLength(2);
+  });
+
+  it('opens the Arcade from its tile', () => {
+    const arcade = PROJECT_PLACES.find((p) => p.id === 'arcade');
+    expect(arcade && resolveActivityRefHref(arcade.module, arcade.ref)).toBe(
+      '/arcade',
+    );
+  });
+});
 
 describe('the Individual Project menu', () => {
-  it('offers the five places as one row of links, each with its clip', () => {
+  it('offers the six places as named icons around the logo, with lines', () => {
     const root = draw('student');
     const menus = root.querySelectorAll('[data-place-menu]');
     expect(menus).toHaveLength(1);
-    const links = [...menus[0].querySelectorAll('a')];
-    expect(links.map((a) => a.textContent)).toEqual([
-      'Learn',
-      'Songs',
-      'Library',
-      'Studio',
-      'Globe',
-    ]);
-    expect(links.map((a) => a.getAttribute('href'))).toEqual([
-      '/learn',
-      '/songs',
-      '/library',
-      '/studio',
-      '/globe',
-    ]);
+    const links = [...menus[0]!.querySelectorAll('a')];
+    expect(links.map((a) => a.textContent)).toEqual(NAMES);
+    expect(links.every((a) => a.target === '_blank')).toBe(true);
+    expect(menus[0]!.querySelectorAll('[data-place] svg')).toHaveLength(6);
+    expect(menus[0]!.querySelectorAll('[data-beam]')).toHaveLength(6);
+    // The logo in the middle.
     expect(
-      [...root.querySelectorAll('video')].map((v) => v.getAttribute('src')),
-    ).toEqual([
-      '/videos/places/learn.mp4',
-      '/videos/places/songs.mp4',
-      '/videos/places/library.mp4',
-      '/videos/places/studio.mp4',
-      '/videos/places/globe.mp4',
-    ]);
-    // Not five pills as well.
-    expect(root.querySelectorAll('[data-element-id]').length).toBeLessThan(5);
+      menus[0]!.querySelectorAll('svg[viewBox="0 0 129 128"]'),
+    ).toHaveLength(1);
+    // A streak on every line.
+    expect(menus[0]!.querySelectorAll('.place-beam').length).toBe(12);
   });
 
-  it('plays one clip at a time, the spotlight moving on', () => {
-    vi.useFakeTimers();
+  it('whitens the line under a hand, and holds every other streak', () => {
     const root = draw('student');
-    expect(playing(root)).toEqual([0]);
-    act(() => vi.advanceTimersByTime(SPOTLIGHT_MS));
-    expect(playing(root)).toEqual([1]);
-    act(() => vi.advanceTimersByTime(SPOTLIGHT_MS * 4));
-    expect(playing(root)).toEqual([0]);
-  });
-
-  it('plays the card under a hand, and holds the spotlight there', () => {
-    vi.useFakeTimers();
-    const root = draw('student');
-    const studio = root.querySelectorAll('[data-place-menu] a')[3];
+    const studio = root.querySelectorAll('[data-place-menu] a')[3]!;
+    const line = (id: string) =>
+      root.querySelector(`[data-beam="${id}"] path`)!.getAttribute('stroke');
+    const streak = (id: string) =>
+      root.querySelector<SVGPathElement>(`[data-beam="${id}"] .place-beam`)!
+        .style.animationPlayState;
+    const before = line('studio');
     fireEvent.pointerEnter(studio);
-    expect(playing(root)).toEqual([3]);
-    act(() => vi.advanceTimersByTime(SPOTLIGHT_MS * 3));
-    expect(playing(root)).toEqual([3]);
-    // Let go: the spotlight carries on from there.
+    expect(line('studio')).toBe('#ffffff');
+    expect(streak('studio')).toBe('running');
+    for (const id of ['learn', 'songs', 'library', 'globe', 'arcade'])
+      expect(streak(id)).toBe('paused');
     fireEvent.pointerLeave(studio);
-    act(() => vi.advanceTimersByTime(SPOTLIGHT_MS));
-    expect(playing(root)).toEqual([4]);
+    expect(line('studio')).toBe(before);
+    expect(streak('learn')).toBe('running');
   });
 
-  it('plays one at a time on the room’s screen, and links nowhere', () => {
+  it('is a picture on the room’s screen, nothing to click', () => {
     const root = draw('projector');
     expect(root.querySelectorAll('[data-place-menu] a')).toHaveLength(0);
-    expect(root.querySelectorAll('video')).toHaveLength(5);
-    expect(playing(root)).toEqual([0]);
+    expect(root.querySelectorAll('[data-place-menu] button')).toHaveLength(0);
+    expect(root.querySelectorAll('[data-place]')).toHaveLength(6);
   });
 
-  it('shows stills in a thumbnail', () => {
-    const root = draw('student', { still: true });
-    expect(root.querySelectorAll('video')).toHaveLength(0);
-    expect(root.querySelectorAll('[data-place-menu] img')).toHaveLength(5);
+  it('runs no streaks in a thumbnail', () => {
+    const root = draw('projector', { still: true });
+    expect(root.querySelectorAll('[data-beam]')).toHaveLength(6);
+    expect(root.querySelectorAll('.place-beam')).toHaveLength(0);
   });
 
-  it('stacks the five on a phone', () => {
+  it('lists the six on a phone, without lines', () => {
     const root = draw('student', { layoutMode: 'reflow' });
-    expect(root.querySelectorAll('[data-place-menu] a')).toHaveLength(5);
+    expect(
+      [...root.querySelectorAll('[data-place-menu] a')].map(
+        (a) => a.textContent,
+      ),
+    ).toEqual(NAMES);
+    expect(root.querySelectorAll('[data-beam]')).toHaveLength(0);
   });
 
   it('in a live lesson, opens a place inside the lesson instead of a tab', () => {
@@ -138,11 +151,11 @@ describe('the Individual Project menu', () => {
       />,
     ).container;
     expect(root.querySelectorAll('[data-place-menu] a')).toHaveLength(0);
-    const cards = root.querySelectorAll('[data-place-menu] button');
-    expect(cards).toHaveLength(5);
-    fireEvent.click(cards[3]);
+    const icons = root.querySelectorAll('[data-place-menu] button');
+    expect(icons).toHaveLength(6);
+    fireEvent.click(icons[5]!);
     expect(openPlace).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'studio' }),
+      expect.objectContaining({ id: 'arcade' }),
     );
   });
 

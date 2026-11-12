@@ -77,6 +77,8 @@ export interface InteractionBandProps {
    */
   list?: boolean;
   reveals?: Readonly<Record<string, ReactNode>>;
+  /** A thumbnail: pictures only, nothing to touch (it sits in a button). */
+  still?: boolean;
 }
 
 export const InteractionBand = ({
@@ -89,6 +91,7 @@ export const InteractionBand = ({
   compact = false,
   list = false,
   reveals,
+  still = false,
 }: InteractionBandProps) => {
   if (interactions.length === 0) return null;
 
@@ -150,7 +153,7 @@ export const InteractionBand = ({
             <div className="ml-auto shrink-0">{slots.statusChip}</div>
           )}
         </div>
-        {surface === 'present' ? (
+        {surface === 'present' && !still ? (
           <TeacherEnergy language={language} />
         ) : (
           <FeelingsPreview level="energy" language={language} />

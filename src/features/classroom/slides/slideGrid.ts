@@ -249,15 +249,17 @@ export const SLIDE_GRID = {
 
   /**
    * The call-to-action band: the Individual Project's menu (owner,
-   * 2026-11-11), a row of up to five tall cards, Learn · Songs · Library ·
-   * Studio · Globe, from under the title to above the footer. It was a
-   * 928x128 strip of four pills; the cards need the height.
+   * 2026-11-11), up to six places, Learn · Songs · Library · Studio · Globe
+   * · Arcade, from under the title to above the footer, drawn as icons
+   * beaming into the logo (`PlaceMenu`). It was a 928x128 strip of four
+   * pills.
    */
   ctaCenter: {
     rect: { x: 64, y: 224, w: 1152, h: 380 },
     role: 'content',
     flow: 'row',
-    max: 5,
+    // The six places (Arcade joined them, owner 2026-11-12).
+    max: 6,
     family: 'cta',
   },
 

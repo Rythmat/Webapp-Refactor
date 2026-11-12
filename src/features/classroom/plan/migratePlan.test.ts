@@ -155,12 +155,13 @@ describe('migratePlanV1toV2 — the three resolution cases', () => {
 });
 
 describe('plan v2→v3 — the Individual Project offers the five places', () => {
-  const FIVE = [
+  const PLACES = [
     'learn:home',
     'learn:songs',
     'studio:library',
     'studio:editor',
     'globe:home',
+    'arcade:root',
   ];
 
   /** A Cortex lesson as generated before the five places. */
@@ -237,13 +238,14 @@ describe('plan v2→v3 — the Individual Project offers the five places', () =>
       presetId: 'project-menu',
       section: 'individualProject',
       timerSec: 1200,
-      title: { en: 'Where will you work today?' },
+      title: { en: 'Independent Project' },
+      textStyle: { title: { align: 'center' } },
     });
     expect(
       project.kind === 'content'
         ? project.launchTiles?.map((t) => t.activityRef)
         : [],
-    ).toEqual(FIVE);
+    ).toEqual(PLACES);
     // The Studio activity behind it goes; the teacher's own stays.
     expect(
       after.cells.creativeProjects.presentation.interactions?.map((i) => i.id),
@@ -282,7 +284,7 @@ describe('plan v2→v3 — the Individual Project offers the five places', () =>
       project?.kind === 'content'
         ? project.launchTiles?.map((t) => t.activityRef)
         : [],
-    ).toEqual(FIVE);
+    ).toEqual(PLACES);
   });
 
   it('keeps a title the teacher wrote', () => {

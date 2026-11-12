@@ -29,13 +29,14 @@ const catalog = fixtureCatalog();
 const ana = searchFocus(graph, catalog, 'Ana Lux')[0];
 const plan = planCortexLesson(graph, catalog, ana);
 
-/** The Individual Project's tiles: the five places, in order. */
-const FIVE_PLACES = [
+/** The Individual Project's tiles: the six places, in order. */
+const SIX_PLACES = [
   { module: 'learn', activityRef: 'learn:home' },
   { module: 'learn', activityRef: 'learn:songs' },
   { module: 'studio', activityRef: 'studio:library' },
   { module: 'studio', activityRef: 'studio:editor' },
   { module: 'globe', activityRef: 'globe:home' },
+  { module: 'arcade', activityRef: 'arcade:root' },
 ];
 
 const choices = (
@@ -276,11 +277,11 @@ describe('a generated Cortex lesson', () => {
     );
   });
 
-  it('times the Individual Project and offers the five places', () => {
+  it('times the Individual Project and offers the six places', () => {
     expect(slide('project')).toMatchObject({
       presetId: 'project-menu',
       timerSec: 1200,
-      launchTiles: FIVE_PLACES,
+      launchTiles: SIX_PLACES,
     });
     // A menu, not an activity: nothing to answer in the cell.
     expect(day.cells.creativeProjects.presentation.interactions ?? []).toEqual(
@@ -503,7 +504,7 @@ describe('the default deck of a new Day', () => {
       ['connect', 'Check in'],
       ['showcase', 'Showcase'],
       ['groupProject', 'Group Project'],
-      ['individualProject', 'Where will you work today?'],
+      ['individualProject', 'Independent Project'],
       ['present', 'Present your progress'],
       ['reflect', 'Before you go'],
       ['reflect', 'Reset the room'],
@@ -545,12 +546,12 @@ describe('the default deck of a new Day', () => {
     expectWired(day);
   });
 
-  it('offers the five places on the Individual Project', () => {
+  it('offers the six places on the Individual Project', () => {
     const project = deck.slides[3];
     expect(project).toMatchObject({
       section: 'individualProject',
       presetId: 'project-menu',
-      launchTiles: FIVE_PLACES,
+      launchTiles: SIX_PLACES,
     });
   });
 });

@@ -160,11 +160,17 @@ export type InteractionType =
   | 'echo';
 
 /** The places a student works in during a lesson's Individual Project. */
-export type WorkPlace = 'learn' | 'songs' | 'library' | 'studio' | 'globe';
+export type WorkPlace =
+  | 'learn'
+  | 'songs'
+  | 'library'
+  | 'studio'
+  | 'globe'
+  | 'arcade';
 
 /**
  * What a student shares at the end of class (owner, 2026-11-11): a piece of
- * their work from this class, from any of the five places. `projectId` is the
+ * their work from this class, from any of the six places. `projectId` is the
  * item's id whatever the place (a Studio project's, a lesson's, a song's).
  * Additive to the Phase 3 offer of a Studio project: an offer without
  * `place` is a Studio project, without `audience` it is for the class.

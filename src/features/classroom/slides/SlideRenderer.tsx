@@ -159,6 +159,7 @@ export const SlideRenderer = ({
           hero={stage === 'hero' || stage === 'bleed'}
           compact={Boolean(liveRectOf(slide))}
           list={split}
+          still={still}
           {...(split && revealed.length > 0
             ? {
                 reveals: Object.fromEntries(

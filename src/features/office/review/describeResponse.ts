@@ -12,6 +12,7 @@ const PLACE_NAME: Record<WorkPlace, string> = {
   library: 'Library',
   studio: 'Studio',
   globe: 'Globe',
+  arcade: 'Arcade',
 };
 
 /**

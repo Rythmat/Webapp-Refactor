@@ -55,7 +55,7 @@ describe('the check-in on Present', () => {
     shareable: false,
     checkIn: { style: 'feelings', level: 'energy' },
   } as unknown as Interaction;
-  const band = (surface: 'present' | 'projector') =>
+  const band = (surface: 'present' | 'projector', still = false) =>
     render(
       <InteractionBand
         interactions={[energy]}
@@ -64,6 +64,7 @@ describe('the check-in on Present', () => {
         teacherOnly
         hero
         compact
+        still={still}
       />,
     );
 
@@ -71,6 +72,11 @@ describe('the check-in on Present', () => {
     const { container } = band('present');
     expect(screen.getByRole('slider')).toBeTruthy();
     expect(container.querySelector('[data-energy-emotion]')).toBeNull();
+  });
+
+  it('is a picture in a thumbnail (which sits in a button)', () => {
+    band('present', true);
+    expect(screen.queryByRole('slider')).toBeNull();
   });
 
   it('is a picture on the room’s screen', () => {

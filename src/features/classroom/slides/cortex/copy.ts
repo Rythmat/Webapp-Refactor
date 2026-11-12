@@ -117,9 +117,11 @@ export const COPY = {
   },
   projectTitle: { en: 'Individual Project', es: 'Proyecto individual' },
   // The menu slide's own line: a question, not the section's label.
+  // The Individual Project's heading, centred over the six places (owner,
+  // 2026-11-12).
   projectMenuTitle: {
-    en: 'Where will you work today?',
-    es: '¿Dónde vas a trabajar hoy?',
+    en: 'Independent Project',
+    es: 'Proyecto independiente',
   },
   projectPrompt: {
     en: 'Choose where to work today: Learn, Songs, Library, Studio or Globe.',

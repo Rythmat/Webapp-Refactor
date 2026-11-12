@@ -37,6 +37,8 @@ const cloneBar = (bar: ChordBar): ChordBar => ({
   ...bar,
   chords: bar.chords.map((c) => ({ ...c })),
   ...(bar.ending ? { ending: [...bar.ending] } : {}),
+  // Its rhythm comes too, hits, ties and stems, a copy of its own.
+  ...(bar.rhythm ? { rhythm: bar.rhythm.map((e) => ({ ...e })) } : {}),
 });
 
 const cloneChord = (chord: ChordHit): ChordHit => ({ ...chord });

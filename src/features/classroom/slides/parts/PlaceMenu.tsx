@@ -1,5 +1,7 @@
 import { useReducedMotion } from 'framer-motion';
 import {
+  Fragment,
+  useEffect,
   useId,
   useLayoutEffect,
   useRef,
@@ -23,7 +25,8 @@ import type { SlideElement, SlideSurface } from '../types';
 // the Music Atlas logo in the middle, a short glowing streak running along
 // each line into it in the app's key-colour rainbow (after the "Animated
 // Beam Integration" diagram the owner chose; drawn here from scratch). A
-// hand on an icon turns its line white and holds every other streak.
+// hand on an icon draws its whole line in the rainbow; the other streaks
+// finish their run into the logo and no new ones set out until it leaves.
 //
 //   Present          each icon opens its place in a new tab
 //   a student        each icon opens its place inside the lesson (`onOpen`)
@@ -240,6 +243,25 @@ export const PlaceMenu = ({
   }, [stacked]);
 
   const [lit, setLit] = useState<string | null>(null);
+  // Lines whose streak has come to rest while a hand is on another icon.
+  const [rested, setRested] = useState<ReadonlySet<string>>(new Set());
+  // Each line's run of streaks; a rested line starts a new run when the hand
+  // leaves, its own delay keeping the lines out of step as before.
+  const [runs, setRuns] = useState<Readonly<Record<string, number>>>({});
+  useEffect(() => {
+    if (lit !== null || rested.size === 0) return;
+    setRuns((was) => {
+      const next = { ...was };
+      for (const id of rested) next[id] = (next[id] ?? 0) + 1;
+      return next;
+    });
+    setRested(new Set());
+  }, [lit, rested]);
+  /** A streak finished its run (and its rest): stop it there, under a hand. */
+  const restAt = (id: string) => {
+    if (lit === null || lit === id) return;
+    setRested((was) => (was.has(id) ? was : new Set(was).add(id)));
+  };
   const uid = useId().replace(/:/g, '');
 
   if (stacked)
@@ -310,9 +332,11 @@ export const PlaceMenu = ({
           {nodes.map((node, index) => {
             const on = lit === node.place.id;
             const stroke = `url(#${uid}-${node.place.id})`;
-            // A hand on an icon: its line goes white, and every other
-            // line's streak holds where it is until the hand leaves.
-            const held = lit !== null && !on;
+            // A hand on an icon: its whole line in the rainbow; every other
+            // line's streak runs on into the logo, and then no new one sets
+            // out (it stops at the end of its loop, where nothing shows)
+            // until the hand leaves.
+            const held = !on && rested.has(node.place.id);
             const motion = {
               animationDelay: `${(index * 0.55).toFixed(2)}s`,
               animationPlayState: held ? 'paused' : 'running',
@@ -322,13 +346,13 @@ export const PlaceMenu = ({
                 <path
                   d={node.path}
                   fill="none"
-                  stroke={on ? '#ffffff' : 'rgba(255,255,255,0.1)'}
+                  stroke={on ? stroke : 'rgba(255,255,255,0.1)'}
                   strokeWidth={on ? 2 : 1.5}
                   data-lit={on || undefined}
                   className="transition-[stroke] duration-300"
                 />
                 {streaks && (
-                  <>
+                  <Fragment key={runs[node.place.id] ?? 0}>
                     {/* The glow: a wider, fainter copy (no blur on a slide). */}
                     <path
                       d={node.path}
@@ -353,8 +377,9 @@ export const PlaceMenu = ({
                       opacity={on ? 1 : 0.85}
                       className="place-beam"
                       style={motion}
+                      onAnimationIteration={() => restAt(node.place.id)}
                     />
-                  </>
+                  </Fragment>
                 )}
               </g>
             );

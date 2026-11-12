@@ -218,15 +218,17 @@
    The dash is a share of the path (`pathLength=1`). */
 @keyframes place-beam {
   0% {
-    stroke-dashoffset: 0.26;
+    stroke-dashoffset: 0.3;
   }
   60%,
   100% {
-    stroke-dashoffset: -1;
+    stroke-dashoffset: -1.04;
   }
 }
+/* Resting just off each end, so a streak's round cap never shows there
+   (a line stops at the end of its loop while a hand is on another icon). */
 .place-beam {
-  stroke-dashoffset: 0.26;
+  stroke-dashoffset: 0.3;
 }
 @media (prefers-reduced-motion: no-preference) {
   .place-beam {

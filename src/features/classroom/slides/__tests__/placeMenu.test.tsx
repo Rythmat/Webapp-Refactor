@@ -97,23 +97,33 @@ describe('the Individual Project menu', () => {
     expect(menus[0]!.querySelectorAll('.place-beam').length).toBe(12);
   });
 
-  it('whitens the line under a hand, and holds every other streak', () => {
+  it('draws the line under a hand in the rainbow; the others finish, then start no more', () => {
     const root = draw('student');
     const studio = root.querySelectorAll('[data-place-menu] a')[3]!;
     const line = (id: string) =>
       root.querySelector(`[data-beam="${id}"] path`)!.getAttribute('stroke');
-    const streak = (id: string) =>
-      root.querySelector<SVGPathElement>(`[data-beam="${id}"] .place-beam`)!
-        .style.animationPlayState;
+    const streaks = (id: string) => [
+      ...root.querySelectorAll<SVGPathElement>(
+        `[data-beam="${id}"] .place-beam`,
+      ),
+    ];
+    const state = (id: string) =>
+      streaks(id).map((p) => p.style.animationPlayState);
     const before = line('studio');
     fireEvent.pointerEnter(studio);
-    expect(line('studio')).toBe('#ffffff');
-    expect(streak('studio')).toBe('running');
-    for (const id of ['learn', 'songs', 'library', 'globe', 'arcade'])
-      expect(streak(id)).toBe('paused');
+    // The whole line in the rainbow.
+    expect(line('studio')).toMatch(/^url\(#.+-studio\)$/);
+    // A streak already on its way runs on into the logo…
+    expect(state('learn')).toEqual(['running', 'running']);
+    // …and at the end of its loop, where nothing shows, it stops there.
+    fireEvent.animationIteration(streaks('learn')[1]!);
+    expect(state('learn')).toEqual(['paused', 'paused']);
+    // The line under the hand keeps flowing.
+    fireEvent.animationIteration(streaks('studio')[1]!);
+    expect(state('studio')).toEqual(['running', 'running']);
     fireEvent.pointerLeave(studio);
     expect(line('studio')).toBe(before);
-    expect(streak('learn')).toBe('running');
+    expect(state('learn')).toEqual(['running', 'running']);
   });
 
   it('is a picture on the room’s screen, nothing to click', () => {

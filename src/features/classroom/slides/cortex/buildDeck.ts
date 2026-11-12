@@ -149,8 +149,9 @@ export const projectMenuSlide = (prefix: string, minutes = 0): Slide => ({
   section: 'individualProject',
   presetId: 'project-menu',
   title: COPY.projectMenuTitle,
-  // Centred over the places (owner, 2026-11-12); the teacher may change it.
-  textStyle: { title: { align: 'center' } },
+  // Centred over the places, at the size of Home's "Play. Create. Explore."
+  // (owner, 2026-11-12); the teacher may change either.
+  textStyle: { title: { align: 'center', fontScale: 0.65 } },
   prompt: COPY.projectPrompt,
   launchTiles: projectPlaceTiles(prefix),
   ...withTimer(minutes),

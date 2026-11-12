@@ -239,7 +239,7 @@ describe('plan v2→v3 — the Individual Project offers the five places', () =>
       section: 'individualProject',
       timerSec: 1200,
       title: { en: 'Independent Project' },
-      textStyle: { title: { align: 'center' } },
+      textStyle: { title: { align: 'center', fontScale: 0.65 } },
     });
     expect(
       project.kind === 'content'

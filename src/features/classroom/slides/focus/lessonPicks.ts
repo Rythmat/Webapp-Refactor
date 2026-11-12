@@ -52,8 +52,16 @@ const withoutElements = <T extends Slide>(slide: T): T => {
   return copy;
 };
 
+/**
+ * The subject's portrait: the lesson's first slide, which is the Connect
+ * slide when it carries the class's check-in (owner, 2026-11-12), and a
+ * Showcase slide when it doesn't. Picking a subject rebuilds it either way.
+ */
+export const isShowcasePortrait = (slide: Pick<Slide, 'id'>): boolean =>
+  slide.id.endsWith('-slide-showcase');
+
 /** A Showcase slide built from a subject: its video, or its globe. */
-const isSubjectSlide = (slide: Slide): boolean =>
+export const isSubjectSlide = (slide: Slide): boolean =>
   slide.section === 'showcase' &&
   (slide.id.endsWith('-slide-listen') || slide.id.endsWith('-slide-places'));
 

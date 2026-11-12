@@ -103,10 +103,11 @@ describe('exportTeacherBackup', () => {
       JSON.stringify({ schemaVersion: 1, days: { d1: { id: 'd1' } } }),
     );
     const backup = await exportTeacherBackup('u1');
-    // The plan now comes back through the repository, which migrates v1→v2 on
-    // read, so the exported blob is the CURRENT shape — not the raw bytes.
+    // The plan now comes back through the repository, which migrates it to
+    // the current version on read, so the exported blob is the CURRENT shape
+    // — not the raw bytes.
     expect(backup.stores['ma-teacher:plan:v1']).toEqual({
-      schemaVersion: 2,
+      schemaVersion: 3,
       days: { d1: { id: 'd1', classroomId: null } },
     });
     expect(backup.version).toBe(BACKUP_VERSION);

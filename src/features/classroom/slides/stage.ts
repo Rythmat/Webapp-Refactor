@@ -7,6 +7,9 @@
  *             An interaction slide asks its question on students' devices
  *             only; the room sees the visual until the teacher reveals
  *   portrait  the subject's photo edge to edge, the name and a short bio
+ *   split     a song's video on the left half, the class's questions on
+ *             the right (owner, 2026-11-12): the room watches and reads,
+ *             the students answer on their devices
  *
  * Pure: no React.
  */
@@ -14,14 +17,21 @@ import { SLIDE_GRID, type ZoneName, type ZoneRect } from './slideGrid';
 import { PRESETS } from './templates/presets';
 import type { Slide, SlideMedia, SlideSurface } from './types';
 
-export type SlideStageKind = 'hero' | 'bleed' | 'portrait';
+export type SlideStageKind = 'hero' | 'bleed' | 'portrait' | 'split';
 
 const STAGE_PRESETS: Readonly<Record<string, SlideStageKind>> = {
   hero: 'hero',
   bleed: 'bleed',
   portrait: 'portrait',
   'portrait-check-in': 'portrait',
+  'listen-questions': 'split',
 };
+
+/**
+ * Where a split slide's video sits, in canvas px: 16:9, centred in the left
+ * half (`halfLeft`), clear of the questions on the right.
+ */
+export const SPLIT_MEDIA_RECT: ZoneRect = { x: 40, y: 198, w: 576, h: 324 };
 
 /**
  * Where a slide's live layer goes when its preset gives it a place of its
@@ -84,7 +94,9 @@ export const projectsQuestion = (
  */
 export const paintsBleed = (slide: Slide, surface: SlideSurface): boolean => {
   const kind = stageKindOf(slide);
-  if (kind === 'portrait') return true;
+  // A split slide's video is on every surface, in its half: playing on the
+  // room's screen and Present, a still elsewhere (`SlideStage`).
+  if (kind === 'portrait' || kind === 'split') return true;
   if (kind !== 'bleed') return false;
   return !(surface === 'student' && slide.kind === 'interaction');
 };

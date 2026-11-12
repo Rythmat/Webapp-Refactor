@@ -600,7 +600,10 @@ export const TeacherSessionDashboard = () => {
           )}
           {currentSlide &&
             (currentSlide.kind === 'media' ||
-              (currentSlide.kind === 'content' && !!currentSlide.media)) && (
+              (currentSlide.kind === 'content' && !!currentSlide.media) ||
+              // The song beside the class's questions (owner, 2026-11-12).
+              (currentSlide.kind === 'interaction' &&
+                currentSlide.media?.type === 'youtube')) && (
               <MediaRemote
                 onPlay={() => sendMedia(currentSlide.id, 'play')}
                 onPause={() => sendMedia(currentSlide.id, 'pause')}

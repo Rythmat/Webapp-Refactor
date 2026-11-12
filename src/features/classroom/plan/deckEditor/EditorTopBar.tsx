@@ -9,7 +9,8 @@
 import { ArrowLeft } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { TeacherRoutes } from '@/constants/routes';
+import { OFFICE_LESSONS_SCOPE } from '@/constants/officeScopes';
+import { OfficeRoutes, TeacherRoutes } from '@/constants/routes';
 import type { StudentLanguage } from '../../types';
 import { EditorSettingsMenu } from './EditorSettingsMenu';
 
@@ -23,8 +24,6 @@ interface EditorTopBarProps {
   textTool?: ReactNode;
   /** The "+ Choose content" control — rendered only for content slides. */
   chooseContent?: ReactNode;
-  /** "Generate from Cortex" / "Regenerate": opens the lesson generator. */
-  generate?: ReactNode;
 }
 
 export const EditorTopBar = ({
@@ -35,15 +34,22 @@ export const EditorTopBar = ({
   onLanguageChange,
   textTool,
   chooseContent,
-  generate,
 }: EditorTopBarProps) => (
   // The editor's own toolbar, under the Office's top rail: back to Plan and
   // the lesson's name, then the slide tools in one pill zone (Saved and the
   // lesson's verbs live on the top rail).
   <header className="flex flex-wrap items-center gap-2 px-4 pb-1 pt-4 md:px-6">
     <Link
-      to={TeacherRoutes.plan({ classroomId })}
-      aria-label="Back to Plan"
+      to={
+        classroomId === OFFICE_LESSONS_SCOPE
+          ? OfficeRoutes.lessons()
+          : TeacherRoutes.plan({ classroomId })
+      }
+      aria-label={
+        classroomId === OFFICE_LESSONS_SCOPE
+          ? 'Back to Lessons'
+          : 'Back to Plan'
+      }
       className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-daw-text-3 transition-colors hover:bg-white/[0.06] hover:text-daw-text"
     >
       <ArrowLeft className="h-4 w-4" />
@@ -65,7 +71,6 @@ export const EditorTopBar = ({
       />
       {textTool}
       {chooseContent}
-      {generate}
     </div>
   </header>
 );

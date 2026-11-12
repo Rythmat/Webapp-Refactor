@@ -452,6 +452,21 @@ components:
                 projectId: { type: string }
                 roomId: { type: string }
                 name: { type: string }
+                place:
+                  type: string
+                  enum: [learn, songs, library, studio, globe]
+                  description: >-
+                    The lesson place the work was made in (2026-11-11). Absent means a
+                    Studio project.
+                deepLink:
+                  type: string
+                  description: Where the work opens in the app (a path).
+                audience:
+                  type: string
+                  enum: [class, teacher]
+                  description: >-
+                    Shown to the class (may be featured) or for the teacher only (never
+                    featured). Absent means the class.
         timer:
           type: object
           nullable: true
@@ -580,6 +595,21 @@ components:
                 projectId: { type: string }
                 roomId: { type: string }
                 name: { type: string }
+                place:
+                  type: string
+                  enum: [learn, songs, library, studio, globe]
+                  description: >-
+                    The lesson place the work was made in (2026-11-11). Absent means a
+                    Studio project.
+                deepLink:
+                  type: string
+                  description: Where the work opens in the app (a path).
+                audience:
+                  type: string
+                  enum: [class, teacher]
+                  description: >-
+                    Shown to the class (may be featured) or for the teacher only (never
+                    featured). Absent means the class.
 
     Response:
       type: object

@@ -1,10 +1,10 @@
-import { CalendarDays, List, Plus, Search, Sparkles, X } from 'lucide-react';
+import { BookOpen, CalendarDays, List, Plus, Search, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useCountryFeatures } from '@/components/ClassroomLayout/globe/RegionPolygonThumb';
 import { MicroLabel } from '@/components/kit';
 import { cn } from '@/components/utilities';
-import { TeacherRoutes } from '@/constants/routes';
+import { OfficeRoutes } from '@/constants/routes';
 import { Button } from '@/daw/ui/Button';
 import { ConfirmDialog } from '@/daw/ui/ConfirmDialog';
 import { EmptyState } from '@/daw/ui/EmptyState';
@@ -59,7 +59,7 @@ export const planView = (value: string | null): PlanView =>
  * A class's Plan (owner, 2026-11-09): every lesson, as a list or on the
  * calendar — one page with List · Week · Month on the bottom rail, the way
  * Common Planner shows the same lessons in every view. A lesson opens in the
- * Inspector beside it; New makes a lesson or builds a live deck. `?view=`
+ * Inspector beside it; New makes a lesson or browses the Lessons tab. `?view=`
  * keeps the view; `?new=1` opens New lesson.
  */
 export const ClassPlanPage = () => {
@@ -179,13 +179,11 @@ export const ClassPlanPage = () => {
                 New lesson
               </MenuItem>
               <MenuItem
-                icon={<Sparkles />}
-                description="Cortex builds the slides from a focus"
-                onSelect={() =>
-                  navigate(TeacherRoutes.deckWizard({ classroomId: cid }))
-                }
+                icon={<BookOpen />}
+                description="Lessons ready to teach, to assign to this class"
+                onSelect={() => navigate(OfficeRoutes.lessons())}
               >
-                Build a live deck
+                Browse Lessons
               </MenuItem>
             </MenuContent>
           </Menu>
@@ -224,28 +222,17 @@ export const ClassPlanPage = () => {
             titleAs="h2"
             icon={<CalendarDays />}
             title="No lessons yet"
-            description="Start a blank lesson, or have Cortex build a live deck, then give it a date to see it here and on Today."
+            description="Start a lesson, then give it a date to see it here and on Today."
             actions={
               canEdit && (
-                <>
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    onClick={() => setNewOpen(true)}
-                  >
-                    <Plus aria-hidden />
-                    New lesson
-                  </Button>
-                  <Button
-                    size="lg"
-                    onClick={() =>
-                      navigate(TeacherRoutes.deckWizard({ classroomId: cid }))
-                    }
-                  >
-                    <Sparkles aria-hidden />
-                    Build a live deck
-                  </Button>
-                </>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={() => setNewOpen(true)}
+                >
+                  <Plus aria-hidden />
+                  New lesson
+                </Button>
               )
             }
           />

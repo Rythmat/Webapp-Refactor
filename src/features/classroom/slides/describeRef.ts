@@ -59,6 +59,8 @@ export const describeRef = (
       };
     }
     case 'learn':
+      if (a === 'home' && !b) return { module, title: 'Learn' };
+      if (a === 'songs' && !b) return { module, title: 'Songs' };
       return {
         module,
         title: a && b ? `${titleCase(a)} in ${b.toUpperCase()}` : 'Theory',
@@ -79,7 +81,8 @@ export const describeRef = (
       if (a === 'template' && rest)
         return { module, title: `${titleCase(rest)} template` };
       if (a === 'song' && rest) return { module, title: titleCase(rest) };
-      if (a === 'library') return { module, title: 'Your Studio projects' };
+      if (a === 'library') return { module, title: 'Library' };
+      if (a === 'editor') return { module, title: 'Studio' };
       return { module, title: 'The Studio' };
     }
     case 'globe': {
@@ -96,6 +99,7 @@ export const describeRef = (
         return { module, title: titleCase(rest) };
       if (a === 'era' && rest) return { module, title: `The ${rest} era` };
       if (a === 'event') return { module, title: 'An event on the Globe' };
+      if (a === 'home') return { module, title: 'Globe' };
       return { module, title: 'The Globe' };
     }
     case 'arcade':

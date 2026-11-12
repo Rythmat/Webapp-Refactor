@@ -16,6 +16,7 @@ import { InteractionBand } from './parts/InteractionBand';
 import { slideLiveLayer } from './parts/SlideLiveLayer';
 import { SlideStage } from './parts/SlideStage';
 import { SlideStudio } from './parts/SlideStudio';
+import type { ProjectPlace } from './projectPlaces';
 import { liveRectOf, projectsQuestion, stageKindOf } from './stage';
 import { studioTutorialOf, type StudioFollow } from './studio/slideStudio';
 import type { Slide, SlideSurface } from './types';
@@ -41,6 +42,13 @@ export interface SlideSlots {
    * the Studio runs the tutorial on its own.
    */
   studioFollow?: StudioFollow;
+  /**
+   * Student-surface, in a live session: open one of the Individual
+   * Project's places inside the lesson (live/workspace), so the lesson keeps
+   * running around the student's work. Absent elsewhere: the places are
+   * links (Present, previews) or pictures (the room's screen).
+   */
+  openPlace?: (place: ProjectPlace) => void;
 }
 
 export interface SlideRendererProps {
@@ -135,8 +143,12 @@ export const SlideRenderer = ({
     projected && !still && layoutMode !== 'reflow'
       ? studioTutorialOf(slide, interactions)
       : null;
+  // A split slide keeps its questions listed beside the video: a revealed
+  // question's results take its own place in the list, not the whole band.
+  const split = stage === 'split';
   const band =
-    revealed.length > 0 || studioTutorial ? null : variant !== null ? (
+    (revealed.length > 0 && !split) || studioTutorial ? null : variant !==
+      null ? (
       projectsQuestion(slide, surface) ? (
         <InteractionBand
           interactions={interactions}
@@ -146,6 +158,14 @@ export const SlideRenderer = ({
           teacherOnly={variant === 'check-in'}
           hero={stage === 'hero' || stage === 'bleed'}
           compact={Boolean(liveRectOf(slide))}
+          list={split}
+          {...(split && revealed.length > 0
+            ? {
+                reveals: Object.fromEntries(
+                  revealed.map(({ i, node }) => [i.id, node]),
+                ),
+              }
+            : {})}
         />
       ) : null
     ) : (
@@ -168,7 +188,7 @@ export const SlideRenderer = ({
       // phase existed to fix.
       {...(slide.accent ? { accent: slide.accent } : {})}
       {...(layoutMode ? { layoutMode } : {})}
-      {...(revealed.length > 0
+      {...(revealed.length > 0 && !split
         ? {
             reveal: (
               <div className="flex h-full w-full min-h-0 flex-col gap-4">

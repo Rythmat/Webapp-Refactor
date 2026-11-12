@@ -29,6 +29,15 @@ const catalog = fixtureCatalog();
 const ana = searchFocus(graph, catalog, 'Ana Lux')[0];
 const plan = planCortexLesson(graph, catalog, ana);
 
+/** The Individual Project's tiles: the five places, in order. */
+const FIVE_PLACES = [
+  { module: 'learn', activityRef: 'learn:home' },
+  { module: 'learn', activityRef: 'learn:songs' },
+  { module: 'studio', activityRef: 'studio:library' },
+  { module: 'studio', activityRef: 'studio:editor' },
+  { module: 'globe', activityRef: 'globe:home' },
+];
+
 const choices = (
   role: GroupRole,
   over: Partial<CortexLessonChoices> = {},
@@ -69,12 +78,14 @@ describe('a generated Cortex lesson', () => {
   it('runs the six sections in order, one idea a slide', () => {
     expect(slides.map((s) => [s.section, s.phase, s.kind, s.presetId])).toEqual(
       [
-        // The check-in is asked on the portrait (owner, 2026-11-10).
-        ['showcase', 'connectRegulate', 'interaction', 'portrait-check-in'],
-        ['showcase', 'connectRegulate', 'interaction', 'bleed'],
+        // The check-in is asked on the portrait (owner, 2026-11-10), so it
+        // is the Connect slide, the lesson's first (owner, 2026-11-12).
+        ['connect', 'connectRegulate', 'interaction', 'portrait-check-in'],
+        // The song beside the class's questions (owner, 2026-11-12).
+        ['showcase', 'connectRegulate', 'interaction', 'listen-questions'],
         ['showcase', 'connectRegulate', 'content', 'bleed'],
         ['groupProject', 'groupPractice', 'app-route', 'hero'],
-        ['individualProject', 'creativeProjects', 'app-route', 'hero'],
+        ['individualProject', 'creativeProjects', 'content', 'project-menu'],
         ['present', 'presentPerform', 'interaction', 'hero'],
         ['present', 'presentPerform', 'showcase', 'hero'],
         ['reflect', 'respondReflectReset', 'interaction', 'hero'],
@@ -163,21 +174,35 @@ describe('a generated Cortex lesson', () => {
     const bio = (slide('showcase') as { body?: { en: string } }).body?.en;
     expect(bio).toContain('Born in Motor City in 1950.');
     expect(bio!.split(/\s+/).length).toBeLessThanOrEqual(25);
-    // 2. The song, full screen; "what do you hear?" on the devices.
-    const heard = (
+    // 2. The song on the left, the class's questions on the right: how it
+    //    makes them feel and what it says, then what they hear in it.
+    const asked = (
       day.cells.connectRegulate.presentation.interactions as Interaction[]
-    ).find((i) => i.id.endsWith('-ix-listen'));
-    expect(heard).toMatchObject({
-      type: 'text',
-      shareable: true,
-      question: { en: 'What do you hear?' },
-    });
+    ).filter((i) => /-ix-listen-\d$/.test(i.id));
+    expect(asked.map((i) => i.question.en)).toEqual([
+      'How does this song make you feel?',
+      'What does the song want us to feel?',
+      'Which instruments do you hear?',
+      'What do you think the tempo is?',
+    ]);
+    for (const q of asked) {
+      expect(q).toMatchObject({ type: 'choice', shareable: true });
+      expect(q.question.es).toBeTruthy();
+      expect(q.choice!.options.length).toBeGreaterThanOrEqual(4);
+      for (const o of q.choice!.options) expect(o.es).toBeTruthy();
+    }
+    expect(asked.map((q) => q.choice!.multi)).toEqual([
+      false,
+      false,
+      true,
+      false,
+    ]);
     expect(slide('listen')).toMatchObject({
       kind: 'interaction',
-      presetId: 'bleed',
+      presetId: 'listen-questions',
       media: { type: 'youtube', videoId: 'nightDrive1', startSec: 12 },
-      interactionIds: [heard!.id],
-      reveal: 'words',
+      interactionIds: asked.map((q) => q.id),
+      reveal: 'bars',
     });
     // 3. The globe, full screen, through their places from where they began.
     const places = slide('places') as {
@@ -251,18 +276,16 @@ describe('a generated Cortex lesson', () => {
     );
   });
 
-  it('times the Individual Project and opens the Studio library', () => {
+  it('times the Individual Project and offers the five places', () => {
     expect(slide('project')).toMatchObject({
-      presetId: 'hero',
+      presetId: 'project-menu',
       timerSec: 1200,
+      launchTiles: FIVE_PLACES,
     });
-    const [project] = day.cells.creativeProjects.presentation
-      .interactions as Interaction[];
-    expect(project.atlas).toEqual({
-      module: 'studio',
-      activityRef: 'studio:library',
-      expects: 'artifact',
-    });
+    // A menu, not an activity: nothing to answer in the cell.
+    expect(day.cells.creativeProjects.presentation.interactions ?? []).toEqual(
+      [],
+    );
   });
 
   it('asks for progress for the teacher only, then offers the project', () => {
@@ -377,9 +400,10 @@ describe('each group role', () => {
       plan,
       choices('promoter', { vibePoll: false }),
     );
+    // The mood poll's own question (the song's questions are choices too).
     const choiceIn = (c: ReturnType<typeof buildCortexLessonContent>) =>
       (c.interactionsByPhase.connectRegulate ?? []).filter(
-        (i) => i.type === 'choice',
+        (i) => i.type === 'choice' && i.id.endsWith('-ix-vibe'),
       );
     expect(choiceIn(off)).toHaveLength(0);
     const none = buildCortexLessonContent(
@@ -479,7 +503,7 @@ describe('the default deck of a new Day', () => {
       ['connect', 'Check in'],
       ['showcase', 'Showcase'],
       ['groupProject', 'Group Project'],
-      ['individualProject', 'Individual Project'],
+      ['individualProject', 'Where will you work today?'],
       ['present', 'Present your progress'],
       ['reflect', 'Before you go'],
       ['reflect', 'Reset the room'],
@@ -521,11 +545,12 @@ describe('the default deck of a new Day', () => {
     expectWired(day);
   });
 
-  it("opens the Studio library from the Individual Project's tile", () => {
+  it('offers the five places on the Individual Project', () => {
     const project = deck.slides[3];
     expect(project).toMatchObject({
+      section: 'individualProject',
       presetId: 'project-menu',
-      launchTiles: [{ module: 'studio', activityRef: 'studio:library' }],
+      launchTiles: FIVE_PLACES,
     });
   });
 });

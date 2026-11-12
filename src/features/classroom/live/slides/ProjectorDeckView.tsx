@@ -9,6 +9,7 @@ import {
 } from '../../slides/deck';
 import { resolveElements } from '../../slides/migrateDeckV1';
 import { revealContentHeight } from '../../slides/slideGrid';
+import { LessonSongProvider } from '../../slides/song/LessonSong';
 import { AnsweredCount } from '../../slides/viz/AnsweredCount';
 import { ParticipationPulse } from '../../slides/viz/ParticipationPulse';
 import type {
@@ -176,35 +177,38 @@ export const ProjectorDeckView = ({
           <TimerCountdown endsAt={timer.endsAt} size="projector" />
         </div>
       )}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={slide.id}
-          className="h-full w-full"
-          initial={reducedMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={reducedMotion ? undefined : { opacity: 0 }}
-          transition={{ duration: 0.25 }}
-        >
-          <SlideRenderer
-            slide={slide}
-            surface="projector"
-            language={language}
-            interactions={interactions}
-            slots={{
-              reveal: revealSlot,
-              statusChip,
-              showcaseFrame,
-              mediaCommand,
-              // The Group Practice slide's Studio, on the class's step.
-              studioFollow: {
-                sessionId,
-                lead: false,
-                step: classStep?.step,
-              },
-            }}
-          />
-        </motion.div>
-      </AnimatePresence>
+      {/* One song for the deck: it plays on from slide to slide. */}
+      <LessonSongProvider>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={slide.id}
+            className="h-full w-full"
+            initial={reducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reducedMotion ? undefined : { opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <SlideRenderer
+              slide={slide}
+              surface="projector"
+              language={language}
+              interactions={interactions}
+              slots={{
+                reveal: revealSlot,
+                statusChip,
+                showcaseFrame,
+                mediaCommand,
+                // The Group Practice slide's Studio, on the class's step.
+                studioFollow: {
+                  sessionId,
+                  lead: false,
+                  step: classStep?.step,
+                },
+              }}
+            />
+          </motion.div>
+        </AnimatePresence>
+      </LessonSongProvider>
     </div>
   );
 };

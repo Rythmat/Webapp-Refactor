@@ -33,6 +33,13 @@ export interface IdbMirrorConfig<T> {
   writeLegacy: (value: T) => void;
   /** Remove the legacy localStorage key(s) once migrated to IDB. */
   clearLegacy: () => void;
+  /**
+   * Bring a value read from IDB up to this build's shape: the upgraded value,
+   * or null when it is already current (or can't be upgraded safely, when
+   * it stays as stored). `readLegacy` migrates only a value still in
+   * localStorage; one already in IDB comes through here instead.
+   */
+  upgrade?: (stored: T) => T | null;
 }
 
 export interface IdbMirror<T> {
@@ -60,10 +67,20 @@ export function getIdbMirror<T>(config: IdbMirrorConfig<T>): IdbMirror<T> {
       ? new BroadcastChannel(CHANNEL_NAME)
       : null;
 
+  /** A value read from IDB, upgraded and stored again once if it was old. */
+  const adopt = async (fromIdb: T): Promise<T> => {
+    const upgraded = config.upgrade?.(fromIdb) ?? null;
+    if (upgraded === null) return fromIdb;
+    await idbSet(config.key, upgraded).catch(() => {
+      // Upgraded in memory this session; it upgrades again next load.
+    });
+    return upgraded;
+  };
+
   const refreshFromIdb = async (): Promise<void> => {
     const fromIdb = (await idbGet<T>(config.key)) ?? null;
     if (fromIdb !== null) {
-      mirror = fromIdb;
+      mirror = await adopt(fromIdb);
       hydrated = true;
       notify();
     }
@@ -107,7 +124,9 @@ export function getIdbMirror<T>(config: IdbMirrorConfig<T>): IdbMirror<T> {
       const fromIdb = (await idbGet<T>(config.key)) ?? null;
       if (hydrated) return; // a write already set authoritative state
       if (fromIdb !== null) {
-        mirror = fromIdb;
+        const value = await adopt(fromIdb);
+        if (hydrated) return; // a write landed while it upgraded
+        mirror = value;
         hydrated = true;
         notify();
         return;

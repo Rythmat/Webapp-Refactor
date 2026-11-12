@@ -23,6 +23,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { OFFICE_LESSONS_SCOPE } from '@/constants/officeScopes';
 import { OfficeRoutes, TeacherRoutes } from '@/constants/routes';
 import { useLocalPlan } from '@/features/classroom/plan/useLocalPlan';
 import { useMyClassrooms } from '@/hooks/data';
@@ -53,10 +54,15 @@ export const OfficeCommandPalette = ({
     onOpenChange(false);
     navigate(to);
   };
-  const names = new Map(classrooms.map((c) => [c.id, c.name]));
-  const lessons = classrooms.flatMap((c) =>
-    listDays(c.id).map((day) => ({ day, classroomId: c.id })),
-  );
+  const names = new Map([
+    ...classrooms.map((c) => [c.id, c.name] as const),
+    [OFFICE_LESSONS_SCOPE, 'Lessons'] as const,
+  ]);
+  // The Lessons tab's own lessons, then every class's.
+  const lessons = [
+    OFFICE_LESSONS_SCOPE,
+    ...classrooms.map((c) => c.id),
+  ].flatMap((cid) => listDays(cid).map((day) => ({ day, classroomId: cid })));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -79,12 +85,6 @@ export const OfficeCommandPalette = ({
                 >
                   <Plus className="mr-2" /> New lesson
                 </CommandItem>
-                <CommandItem
-                  value="build a live deck"
-                  onSelect={() => go(TeacherRoutes.deckWizard({ classroomId }))}
-                >
-                  <Plus className="mr-2" /> Build a live deck
-                </CommandItem>
               </CommandGroup>
             )}
             <CommandGroup heading="Go to">
@@ -105,6 +105,12 @@ export const OfficeCommandPalette = ({
                 onSelect={() => go(OfficeRoutes.planner())}
               >
                 <CalendarDays className="mr-2" /> Planner
+              </CommandItem>
+              <CommandItem
+                value="lessons"
+                onSelect={() => go(OfficeRoutes.lessons())}
+              >
+                <BookOpen className="mr-2" /> Lessons
               </CommandItem>
               {OFFICE_LIBRARY_ENABLED && (
                 <CommandItem
@@ -156,13 +162,15 @@ export const OfficeCommandPalette = ({
                     value={`lesson ${day.label} ${names.get(cid) ?? ''} ${day.id}`}
                     onSelect={() =>
                       go(
-                        `${TeacherRoutes.plan({ classroomId: cid })}${inspectSearch(
-                          {
-                            kind: 'lesson',
-                            classroomId: cid,
-                            id: day.id,
-                          },
-                        )}`,
+                        `${
+                          cid === OFFICE_LESSONS_SCOPE
+                            ? OfficeRoutes.lessons()
+                            : TeacherRoutes.plan({ classroomId: cid })
+                        }${inspectSearch({
+                          kind: 'lesson',
+                          classroomId: cid,
+                          id: day.id,
+                        })}`,
                       )
                     }
                   >

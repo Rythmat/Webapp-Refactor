@@ -66,8 +66,8 @@ describe('THE load-bearing invariant: no content zone enters the footer band', (
 });
 
 describe('content zones respect the margin and safe area', () => {
-  // heroMedia, ctaCenter and the centre stack are deliberately centred and so
-  // sit inside the margin rather than on it.
+  // heroMedia and the centre stack are deliberately centred and so sit inside
+  // the margin rather than on it.
   const fullWidth: ZoneName[] = [
     'title',
     'subtitle',
@@ -77,6 +77,7 @@ describe('content zones respect the margin and safe area', () => {
     'rowA',
     'rowB',
     'rowC',
+    'ctaCenter',
   ];
 
   it.each(fullWidth)('%s spans margin to margin', (zone) => {
@@ -160,11 +161,8 @@ describe('families', () => {
     //
     // The spec's rule lists subtitle as compatible with body, bodyShort and
     // split "only", justified by hero/rows/centreStack beginning inside the
-    // subtitle band. That reason does NOT apply to `cta` (ctaCenter starts at
-    // y=352, well clear of the band ending at 280) — so `cta` is excluded by
-    // design choice, not by geometry. Asserting the biconditional would make
-    // this test fail on a defensible spec, so it asserts only what geometry
-    // actually requires.
+    // subtitle band. Asserted one way only: a family may also stay out of the
+    // band by design.
     const subtitleBottom = zoneRect('subtitle').y + zoneRect('subtitle').h;
     for (const [family, zones] of Object.entries(ZONE_FAMILIES)) {
       const intrudes = zones.some((z) => zoneRect(z).y < subtitleBottom);
@@ -174,13 +172,6 @@ describe('families', () => {
         `${family} intrudes into the subtitle band and must not be subtitle-compatible`,
       ).toBe(false);
     }
-  });
-
-  it('cta is excluded from subtitle by design, not by geometry', () => {
-    // Pins the discrepancy so a future reader does not "fix" it by accident.
-    const subtitleBottom = zoneRect('subtitle').y + zoneRect('subtitle').h;
-    expect(zoneRect('ctaCenter').y).toBeGreaterThan(subtitleBottom);
-    expect(SUBTITLE_COMPATIBLE).not.toContain('cta');
   });
 });
 
@@ -515,12 +506,17 @@ describe('revealBandRect — where a revealed interaction renders', () => {
     expect(r.h).toBeGreaterThan(body.h);
   });
 
-  it('floors to `body` when the family band is smaller — cta would be 448×128', () => {
-    expect(revealBandRect([el('ctaCenter')])).toEqual(body);
+  it('floors to `body` when the family band is smaller', () => {
     expect(revealBandRect([el('heroMedia')])).toEqual(body);
     expect(
       revealBandRect([el('centerStackTop'), el('centerStackBottom')]),
     ).toEqual(body);
+  });
+
+  it("keeps the project menu's own band, which is taller than `body`", () => {
+    expect(revealBandRect([el('ctaCenter')])).toEqual(
+      SLIDE_GRID.ctaCenter.rect,
+    );
   });
 
   it('a bare slide still gets a usable band', () => {

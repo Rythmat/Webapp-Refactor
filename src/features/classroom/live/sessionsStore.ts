@@ -9,7 +9,7 @@
  */
 import type { SessionEcho } from '../echo/types';
 import type { PhaseKey } from '../phases';
-import type { InteractionResponsePayload } from '../types';
+import type { InteractionResponsePayload, ShowcaseArtifact } from '../types';
 
 export const STORAGE_KEY = 'ma-teacher:sessions:v1';
 export const SCHEMA_VERSION = 1;
@@ -27,12 +27,7 @@ export interface SessionPair {
   hostEnrollmentId: string;
 }
 
-export interface ShowcaseArtifact {
-  projectId: string;
-  /** Collab room to open on the projector to feature it live. */
-  roomId?: string;
-  name: string;
-}
+export type { ShowcaseArtifact } from '../types';
 
 /** Phase 3 — the currently-featured student project. */
 export interface SessionShowcase {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SlideRenderer, type SlideSlots } from '../slides/SlideRenderer';
+import { LessonSongProvider } from '../slides/song/LessonSong';
 import type { Slide } from '../slides/types';
 import type { Interaction, StudentLanguage } from '../types';
 import { PresentSelector } from './PresentSelector';
@@ -106,27 +107,30 @@ export const Focus = ({
   }, [onExit, forward, back]);
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col">
-      <PresentStepsContext.Provider value={present}>
-        <SlideRenderer
-          key={slide.id}
-          slide={slide}
-          surface="present"
-          language={language}
-          interactions={interactions}
-          slots={slots}
+    // One song for the deck: it plays on from slide to slide.
+    <LessonSongProvider>
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <PresentStepsContext.Provider value={present}>
+          <SlideRenderer
+            key={slide.id}
+            slide={slide}
+            surface="present"
+            language={language}
+            interactions={interactions}
+            slots={slots}
+          />
+        </PresentStepsContext.Provider>
+        <PresentSelector
+          index={index}
+          count={count}
+          step={step}
+          onPrev={back}
+          onNext={forward}
+          onGoTo={onGoTo}
+          canPrev={hasPrev || (step !== null && step.at > 0)}
+          canNext={hasNext || (step !== null && step.at < step.total - 1)}
         />
-      </PresentStepsContext.Provider>
-      <PresentSelector
-        index={index}
-        count={count}
-        step={step}
-        onPrev={back}
-        onNext={forward}
-        onGoTo={onGoTo}
-        canPrev={hasPrev || (step !== null && step.at > 0)}
-        canNext={hasNext || (step !== null && step.at < step.total - 1)}
-      />
-    </div>
+      </div>
+    </LessonSongProvider>
   );
 };

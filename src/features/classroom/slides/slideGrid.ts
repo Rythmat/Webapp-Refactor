@@ -248,16 +248,16 @@ export const SLIDE_GRID = {
   },
 
   /**
-   * The call-to-action band. Widened from a single 448x128 slot to a row of up
-   * to four: the preset it exists for is the teacher's "Project Menu", which
-   * offers three or four routes, and a one-slot CTA could not express it. The
-   * rect grows to the safe-area width so four cards fit without crowding.
+   * The call-to-action band: the Individual Project's menu (owner,
+   * 2026-11-11), a row of up to five tall cards, Learn · Songs · Library ·
+   * Studio · Globe, from under the title to above the footer. It was a
+   * 928x128 strip of four pills; the cards need the height.
    */
   ctaCenter: {
-    rect: { x: 176, y: 352, w: 928, h: 128 },
+    rect: { x: 64, y: 224, w: 1152, h: 380 },
     role: 'content',
     flow: 'row',
-    max: 4,
+    max: 5,
     family: 'cta',
   },
 
@@ -380,15 +380,6 @@ export const ZONE_FAMILIES: Record<
  * a separate prompt line.
  */
 export const SUBTITLE_COMPATIBLE: ZoneFamily[] = ['body', 'bodyShort', 'split'];
-
-/**
- * NOTE on `cta`: the spec's rule justifies excluding a family from `subtitle`
- * by that family "beginning inside its band". `ctaCenter` starts at y=352, well
- * clear of the subtitle band which ends at 280 — so cta's exclusion is a DESIGN
- * choice (a call-to-action slide is title + CTA), not a geometric necessity.
- * Recorded here because the stated reason and the stated list disagree, and a
- * future reader should change this deliberately rather than as a "fix".
- */
 
 /** `centreStack` is a full takeover: no title, no utility link. */
 export const CENTRESTACK_EXCLUDES: ZoneName[] = ['title', 'utilityTopRight'];

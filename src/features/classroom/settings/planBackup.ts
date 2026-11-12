@@ -27,15 +27,18 @@ import {
 import {
   LIBRARY_KEY,
   PLAN_KEY,
+  PLAN_SCHEMA_VERSION,
   SAVED_LESSONS_KEY as SAVED_KEY,
   localCurriculumRepository as repo,
 } from '../persistence/localCurriculumRepository';
+import { withProjectPlaces } from '../plan/migratePlan';
 import {
   STORAGE_KEY as PUBLISHED_KEY,
   publishedStoreReady,
   readPublishedStoreForUser,
   writePublishedStoreForUser,
 } from '../publish/usePublishedDays';
+import type { Day } from '../types';
 
 /**
  * Stores still living entirely in localStorage — read/written by key.
@@ -121,7 +124,7 @@ export const exportTeacherBackup = async (
   const days = repo.listAllDaysForBackup();
   if (days.length > 0) {
     stores[PLAN_KEY] = {
-      schemaVersion: 2,
+      schemaVersion: PLAN_SCHEMA_VERSION,
       days: Object.fromEntries(days.map((d) => [d.id, d])),
     };
   }
@@ -193,8 +196,10 @@ export const restoreTeacherBackup = async (
       writePublishedStoreForUser(userId, value as never);
       restored.push(key);
     } else if (key === PLAN_KEY) {
-      const days = (value as { days?: Record<string, never> })?.days ?? {};
-      for (const day of Object.values(days)) repo.saveDay(day);
+      const days = (value as { days?: Record<string, Day> })?.days ?? {};
+      // A backup made before the five places gets them as it comes back.
+      for (const day of Object.values(days))
+        repo.saveDay(withProjectPlaces(day));
       restored.push(key);
     } else if (key === LIBRARY_KEY) {
       repo.putLibrary(value as never);

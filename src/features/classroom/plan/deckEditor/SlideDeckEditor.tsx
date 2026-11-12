@@ -10,12 +10,12 @@
  * the firewall is preserved). Autosave + publish/session gating are lifted
  * verbatim from DayEditor.
  */
-import { Check, Eye, Play, Plus, Radio, Waypoints } from 'lucide-react';
+import { Check, Play, Plus, Radio } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { TeacherRoutes } from '@/constants/routes';
+import { OFFICE_LESSONS_SCOPE } from '@/constants/officeScopes';
+import { OfficeRoutes, TeacherRoutes } from '@/constants/routes';
 import { Button } from '@/daw/ui/Button';
-import { ConfirmDialog } from '@/daw/ui/ConfirmDialog';
 import {
   OfficeRailSlot,
   OfficeTopActions,
@@ -26,10 +26,7 @@ import type { Activity } from '../../content/types';
 import { useGoLive } from '../../live/useGoLive';
 import { publishDay } from '../../publish/publishDay';
 import { useTeacherConfig } from '../../settings/useTeacherConfig';
-import {
-  CORTEX_LESSON_TEMPLATE_ID,
-  isUngeneratedCortexDeck,
-} from '../../slides/cortex/buildDeck';
+import { CORTEX_LESSON_TEMPLATE_ID } from '../../slides/cortex/buildDeck';
 import { COPY, RESET_CHECKLIST } from '../../slides/cortex/copy';
 import type { CortexLessonPlan, GroupRole } from '../../slides/cortex/types';
 import { slideInteractionIds } from '../../slides/deck';
@@ -51,6 +48,8 @@ import { groupActivityOf } from '../../slides/focus/lessonFocus';
 import {
   applyGroupPick,
   applyShowcasePick,
+  isShowcasePortrait,
+  isSubjectSlide,
 } from '../../slides/focus/lessonPicks';
 import {
   SECTION_PHASE,
@@ -110,6 +109,9 @@ export const SlideDeckEditor = () => {
   const cid = classroomId ?? '';
   const { getDay, saveDay } = useLocalPlan(cid);
   const goLive = useGoLive(cid);
+  // A lesson from the Office's Lessons tab belongs to no class: it goes live
+  // once it's taught to one.
+  const ownLesson = cid === OFFICE_LESSONS_SCOPE;
   // Viewers may READ a deck but never write one. Gating the save path rather
   // than each control means a new button cannot silently become writable.
   const canEdit = useCanEditClassroom(cid);
@@ -129,8 +131,6 @@ export const SlideDeckEditor = () => {
   const { config: teacherConfig } = useTeacherConfig(cid);
   const agePreset: AgePreset = teacherConfig.agePresetDefault;
   const [rationaleCollapsed, setRationaleCollapsed] = useState(false);
-  // "Generate a new lesson?" — asked before the generator replaces slides.
-  const [confirmGenerate, setConfirmGenerate] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   // The Add-slide template awaiting a content pick (opens a scoped picker),
@@ -143,9 +143,13 @@ export const SlideDeckEditor = () => {
   // Bounce back to the plan list if the dayId isn't in the plan.
   useEffect(() => {
     if (dayId && getDay(dayId) === undefined) {
-      navigate(TeacherRoutes.plan({ classroomId: cid }));
+      navigate(
+        ownLesson
+          ? OfficeRoutes.lessons()
+          : TeacherRoutes.plan({ classroomId: cid }),
+      );
     }
-  }, [dayId, getDay, navigate, cid]);
+  }, [dayId, getDay, navigate, cid, ownLesson]);
 
   // Autosave the draft (debounced) — persists the backfilled deck too.
   useEffect(() => {
@@ -483,7 +487,12 @@ export const SlideDeckEditor = () => {
       ? selected
       : draft.deck?.slides.find((s) => sectionOf(s) === section);
   const chooseShowcase = (plan: CortexLessonPlan) => {
-    const target = firstIn('showcase');
+    // The subject's portrait when the lesson has one (it may sit in Connect,
+    // carrying the check-in), never its song or globe slide.
+    const target =
+      sectionOf(selected) === 'showcase' && !isSubjectSlide(selected)
+        ? selected
+        : (draft.deck?.slides.find(isShowcasePortrait) ?? firstIn('showcase'));
     setDraft((prev) =>
       prev
         ? target
@@ -546,27 +555,17 @@ export const SlideDeckEditor = () => {
   const contentTiles =
     selected.kind === 'content' ? (selected.launchTiles ?? []) : [];
 
-  // Open the lesson generator on this Day. Saved first, so no edit waits on
-  // the autosave; a generated lesson's slides are replaced only when the
-  // teacher saves the new one, but they are told before they go.
-  const goToGenerator = () => {
-    saveDay(draft);
-    navigate(
-      `${TeacherRoutes.deckWizard({ classroomId: cid })}?day=${encodeURIComponent(draft.id)}`,
-    );
-  };
-  const openGenerator = () => {
-    if (isUngeneratedCortexDeck(draft.deck)) goToGenerator();
-    else setConfirmGenerate(true);
-  };
-
   return (
     <div className="flex w-full flex-col">
       {pickerOpen && (
         <LessonContentPicker
           open
           onOpenChange={setPickerOpen}
-          section={sectionOf(selected)}
+          // The portrait offers the subject, even when it is the Connect
+          // slide (it carries the check-in).
+          section={
+            isShowcasePortrait(selected) ? 'showcase' : sectionOf(selected)
+          }
           focusId={focusId}
           currentGroupRef={groupActivityOf(slideInteractions[0])?.ref}
           onShowcase={chooseShowcase}
@@ -580,16 +579,8 @@ export const SlideDeckEditor = () => {
           onAddResponse={insertResponseSlide}
         />
       )}
-      <ConfirmDialog
-        open={confirmGenerate}
-        onOpenChange={setConfirmGenerate}
-        title="Generate a new lesson?"
-        description="The generator replaces this lesson's slides when you save what it makes. Until then, nothing here changes."
-        confirmLabel="Open the generator"
-        onConfirm={goToGenerator}
-      />
       {/* The lesson's verbs on the Office's top rail, in place of the class's
-          Go Live menu: saved state, then Preview, Present, Go Live (saved
+          Go Live menu: saved state, then Present, Go Live (saved
           first, so the class gets what's on screen). */}
       <OfficeTopActions>
         {savedLabel && (
@@ -600,33 +591,27 @@ export const SlideDeckEditor = () => {
         )}
         <Button asChild size="pill" variant="pill" className="max-md:hidden">
           <Link
-            to={TeacherRoutes.dayPreview({ classroomId: cid, dayId: draft.id })}
-          >
-            <Eye aria-hidden />
-            Preview
-          </Link>
-        </Button>
-        <Button asChild size="pill" variant="pill" className="max-md:hidden">
-          <Link
             to={TeacherRoutes.present({ classroomId: cid, dayId: draft.id })}
           >
             <Play aria-hidden />
             Present
           </Link>
         </Button>
-        <Button
-          size="pill"
-          variant="primary"
-          disabled={!canEdit}
-          title={canEdit ? undefined : 'Viewers cannot start a live session'}
-          onClick={() => {
-            saveDay(draft);
-            void goLive(draft);
-          }}
-        >
-          <Radio aria-hidden />
-          <span className="max-sm:sr-only">Go Live</span>
-        </Button>
+        {!ownLesson && (
+          <Button
+            size="pill"
+            variant="primary"
+            disabled={!canEdit}
+            title={canEdit ? undefined : 'Viewers cannot start a live session'}
+            onClick={() => {
+              saveDay(draft);
+              void goLive(draft);
+            }}
+          >
+            <Radio aria-hidden />
+            <span className="max-sm:sr-only">Go Live</span>
+          </Button>
+        )}
       </OfficeTopActions>
       <OfficeRailSlot>
         <span className="text-[0.8125rem] tabular-nums text-daw-text-3">
@@ -637,16 +622,6 @@ export const SlideDeckEditor = () => {
         classroomId={cid}
         label={draft.label}
         onLabelChange={updateLabel}
-        generate={
-          canEdit ? (
-            <Button variant="pill" size="pill" onClick={openGenerator}>
-              <Waypoints aria-hidden />
-              {draft.deck?.templateRef?.focusId
-                ? 'Regenerate'
-                : 'Generate from Cortex'}
-            </Button>
-          ) : undefined
-        }
         language={language}
         onLanguageChange={setLanguage}
         chooseContent={

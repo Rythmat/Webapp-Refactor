@@ -135,6 +135,48 @@ export const ARTIST_RECORDINGS: Readonly<Record<string, string>> = {
   'michael-jackson': 'rlpZmqGS8rc',
 };
 
+/** A multiple-choice question about the song the class listens to. */
+export interface ListenQuestion {
+  question: LocalizedText;
+  options: readonly LocalizedText[];
+  /** Several answers may be picked (which instruments). */
+  multi?: boolean;
+}
+
+/**
+ * The song a lesson's listening slide plays, where the owner chose one
+ * (2026-11-12: "use the same song on slide 1"), in place of the catalog's:
+ * the portrait's recording, so it plays on from the first slide into the
+ * second. `lyric` is the social-emotional question about what the song says,
+ * in place of the general one; `note` is the teacher's line about it (never
+ * a lyric). By the artist's slug.
+ */
+export const ARTIST_LISTEN: Readonly<
+  Record<
+    string,
+    { videoId: string; title: string; lyric: ListenQuestion; note: string }
+  >
+> = {
+  'michael-jackson': {
+    videoId: 'rlpZmqGS8rc',
+    title: 'Can You Feel It',
+    lyric: {
+      question: {
+        en: 'When do you feel most connected?',
+        es: '¿Cuándo te sientes más conectado?',
+      },
+      options: [
+        { en: 'Making music', es: 'Haciendo música' },
+        { en: 'With friends', es: 'Con amigos' },
+        { en: 'With family', es: 'Con mi familia' },
+        { en: 'On a team', es: 'En un equipo' },
+        { en: 'In my community', es: 'En mi comunidad' },
+      ],
+    },
+    note: '“Can You Feel It” (The Jacksons, 1980) is about people everywhere coming together as one: ask what connection feels like.',
+  },
+};
+
 /**
  * The clips the owner chose for the Globe's own events on an artist's
  * globe (by the artist's slug, then the event's id), where the event's video

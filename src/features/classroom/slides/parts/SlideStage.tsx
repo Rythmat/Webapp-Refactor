@@ -32,7 +32,6 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
-import { RecordingPill } from '@/components/media/RecordingPill';
 import type { Interaction, StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
 import { blockKeyForElement, resolveElements } from '../migrateDeckV1';
@@ -41,6 +40,7 @@ import {
   resolveElementRects,
   hasBandContent,
   revealBandRect,
+  zoneRect,
   type ZoneRect,
 } from '../slideGrid';
 import {
@@ -55,6 +55,7 @@ import {
   withBlock,
   type ResizeEdge,
 } from '../slideLayout';
+import { LessonSongPill } from '../song/LessonSongPill';
 import { FULL_CANVAS, STAGE_BAND, liveRectOf, stageKindOf } from '../stage';
 import type {
   Slide,
@@ -64,6 +65,7 @@ import type {
   SlideLayout,
   SlideSurface,
 } from '../types';
+import { PlaceMenu, placeMenuOf } from './PlaceMenu';
 import { sectionLabelOf } from './SectionChip';
 import { ShowcaseBackdrop, isShowcaseSlide } from './ShowcaseBackdrop';
 import { SlideElementView } from './SlideElementView';
@@ -74,7 +76,7 @@ import {
 } from './SlideFrameChrome';
 import { StageFillContext, StageScaleContext } from './SlideGlobe';
 import { SlideReflow } from './SlideReflow';
-import { StageBackdrop } from './StageBackdrop';
+import { SplitMedia, StageBackdrop } from './StageBackdrop';
 import { useAutofit } from './useAutofit';
 import { useStageScale } from './useStageScale';
 import '../slides.css';
@@ -252,6 +254,15 @@ export const SlideStage = ({
     return owner;
   }, [zoneOverrides, zoneElements, slide.id]);
 
+  // The Individual Project's places draw as one menu, so a card can open
+  // wide while the others narrow: unless the editor's row control owns them.
+  const placeMenu = useMemo(() => {
+    const menu = placeMenuOf(zoneElements);
+    if (!menu) return null;
+    for (const id of overrideOwner.values()) if (menu.ids.has(id)) return null;
+    return menu;
+  }, [zoneElements, overrideOwner]);
+
   // Whether the band actually paints the QUESTION decides whether the footer
   // element must stand down — and only the stage knows that. The caller used
   // to decide, which meant a slide with a picture in its body suppressed the
@@ -376,6 +387,16 @@ export const SlideStage = ({
               {isShowcaseSlide(slide) && (
                 <ShowcaseBackdrop slide={slide} fly={playableMedia} />
               )}
+              {stageKind === 'split' && (
+                <SplitMedia
+                  slide={slide}
+                  live={Boolean(playableMedia) && !still}
+                  language={language}
+                  {...(slots?.mediaCommand
+                    ? { command: slots.mediaCommand }
+                    : {})}
+                />
+              )}
               <SlideFrameChrome slide={slide} surface={surface} />
               {reveal ? (
                 <RevealBand elements={zoneElements} rect={stageBand} scrim>
@@ -386,60 +407,91 @@ export const SlideStage = ({
                   {bandFallback}
                 </RevealBand>
               ) : null}
+              {placeMenu && (
+                <div
+                  data-zone="ctaCenter"
+                  data-place-menu=""
+                  className="absolute"
+                  style={{
+                    left: zoneRect('ctaCenter').x,
+                    top: zoneRect('ctaCenter').y,
+                    width: zoneRect('ctaCenter').w,
+                    height: zoneRect('ctaCenter').h,
+                  }}
+                >
+                  <PlaceMenu
+                    places={placeMenu.places}
+                    surface={surface}
+                    language={language}
+                    sectionLabel={sectionLabelOf(slide, language)}
+                    still={still}
+                    onOpen={slots?.openPlace}
+                  />
+                </div>
+              )}
               {elements
-                ? resolveElementRects(zoneElements).map(({ element, rect }) => (
-                    <ZoneBox
-                      key={element.id}
-                      element={element}
-                      rect={rect}
-                      selected={
-                        editable &&
-                        selectedBlock !== null &&
-                        blockKeyForElement(element, slide.id) === selectedBlock
-                      }
-                      onSelect={
-                        editable && onSelectBlock
-                          ? () => {
-                              const key = blockKeyForElement(element, slide.id);
-                              if (key) onSelectBlock(key);
-                            }
-                          : undefined
-                      }
-                      onHide={
-                        editable && onHideBlock
-                          ? () => {
-                              const key = blockKeyForElement(element, slide.id);
-                              // `title` is required on every slide and some presets
-                              // hide it themselves; everything else is the teacher's
-                              // to remove.
-                              if (key) onHideBlock(key);
-                            }
-                          : undefined
-                      }
-                    >
-                      <SlideElementView
+                ? resolveElementRects(zoneElements)
+                    .filter(({ element }) => !placeMenu?.ids.has(element.id))
+                    .map(({ element, rect }) => (
+                      <ZoneBox
+                        key={element.id}
                         element={element}
-                        surface={surface}
-                        language={language}
-                        interactionsById={interactionsById ?? {}}
-                        hiddenInteractionIds={
-                          bandShowsQuestion || footerStandsDown
-                            ? bandInteractionIds
+                        rect={rect}
+                        selected={
+                          editable &&
+                          selectedBlock !== null &&
+                          blockKeyForElement(element, slide.id) ===
+                            selectedBlock
+                        }
+                        onSelect={
+                          editable && onSelectBlock
+                            ? () => {
+                                const key = blockKeyForElement(
+                                  element,
+                                  slide.id,
+                                );
+                                if (key) onSelectBlock(key);
+                              }
                             : undefined
                         }
-                        questionOnly={Boolean(liveBand)}
-                        override={resolveOverride(
-                          element,
-                          slide.id,
-                          zoneOverrides,
-                          overrideOwner,
-                        )}
-                        slots={slots}
-                        playableMedia={playableMedia}
-                        phaseLabel={sectionLabelOf(slide, language)}
-                      />
-                    </ZoneBox>
-                  ))
+                        onHide={
+                          editable && onHideBlock
+                            ? () => {
+                                const key = blockKeyForElement(
+                                  element,
+                                  slide.id,
+                                );
+                                // `title` is required on every slide and some presets
+                                // hide it themselves; everything else is the teacher's
+                                // to remove.
+                                if (key) onHideBlock(key);
+                              }
+                            : undefined
+                        }
+                      >
+                        <SlideElementView
+                          element={element}
+                          surface={surface}
+                          language={language}
+                          interactionsById={interactionsById ?? {}}
+                          hiddenInteractionIds={
+                            bandShowsQuestion || footerStandsDown
+                              ? bandInteractionIds
+                              : undefined
+                          }
+                          questionOnly={Boolean(liveBand)}
+                          override={resolveOverride(
+                            element,
+                            slide.id,
+                            zoneOverrides,
+                            overrideOwner,
+                          )}
+                          slots={slots}
+                          playableMedia={playableMedia}
+                          phaseLabel={sectionLabelOf(slide, language)}
+                        />
+                      </ZoneBox>
+                    ))
                 : null}
               {elements
                 ? null
@@ -475,11 +527,7 @@ export const SlideStage = ({
                       editable ? 'pointer-events-none' : ''
                     }`}
                   >
-                    <RecordingPill
-                      videoId={slide.recording.videoId}
-                      quickPlay
-                      align="left"
-                    />
+                    <LessonSongPill videoId={slide.recording.videoId} />
                   </div>
                 )}
             </div>

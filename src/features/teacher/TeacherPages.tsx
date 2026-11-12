@@ -65,6 +65,11 @@ const PlannerPage = lazy(() =>
   })),
 );
 
+const LessonsPage = lazy(() =>
+  import('@/features/office/lessons/LessonsPage').then(({ LessonsPage }) => ({
+    default: LessonsPage,
+  })),
+);
 const ReviewPage = lazy(() =>
   import('@/features/office/review/ReviewPage').then(({ ReviewPage }) => ({
     default: ReviewPage,
@@ -109,10 +114,12 @@ const DeckWizardPage = lazy(() =>
   ),
 );
 
-const PreviewPage = lazy(() =>
-  import('@/features/classroom/plan/PreviewPage').then(({ PreviewPage }) => ({
-    default: PreviewPage,
-  })),
+const PreviewRedirect = lazy(() =>
+  import('@/features/office/class/plan/PreviewRedirect').then(
+    ({ PreviewRedirect }) => ({
+      default: PreviewRedirect,
+    }),
+  ),
 );
 
 const AssignmentProgressPage = lazy(() =>
@@ -187,7 +194,7 @@ export const teacherPages = () => {
 
 /**
  * The teacher's Office (owner, 2026-11-09): an LMS in the Studio's frame.
- * Its own pages (Today, Classes, Planner, Library, Review) and every class
+ * Its own pages (Today, Classes, Planner, Lessons, Library, Review) and every class
  * under it at `/office/:classroomId/...` draw in `OfficeFrame` — top rail,
  * stage, Inspector, bottom rail — inside the app's shell, which keeps its
  * left rail. The projected surfaces (Present, Projector) leave the frame.
@@ -222,6 +229,10 @@ export const officePages = () => {
               {
                 path: OfficeRoutes.planner.definition,
                 element: <PlannerPage />,
+              },
+              {
+                path: OfficeRoutes.lessons.definition,
+                element: <LessonsPage />,
               },
               {
                 path: OfficeRoutes.library.definition,
@@ -279,8 +290,9 @@ export const officePages = () => {
                     element: <DayEditor />,
                   },
                   {
+                    // Preview is retired: old links open the editor.
                     path: TeacherRoutes.dayPreview.definition,
-                    element: <PreviewPage />,
+                    element: <PreviewRedirect />,
                   },
                   {
                     path: TeacherRoutes.assignmentProgress.definition,

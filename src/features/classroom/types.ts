@@ -159,6 +159,28 @@ export type InteractionType =
   | 'showcase'
   | 'echo';
 
+/** The places a student works in during a lesson's Individual Project. */
+export type WorkPlace = 'learn' | 'songs' | 'library' | 'studio' | 'globe';
+
+/**
+ * What a student shares at the end of class (owner, 2026-11-11): a piece of
+ * their work from this class, from any of the five places. `projectId` is the
+ * item's id whatever the place (a Studio project's, a lesson's, a song's).
+ * Additive to the Phase 3 offer of a Studio project: an offer without
+ * `place` is a Studio project, without `audience` it is for the class.
+ */
+export interface ShowcaseArtifact {
+  projectId: string;
+  /** Collab room to open on the projector to feature it live (Studio). */
+  roomId?: string;
+  name: string;
+  place?: WorkPlace;
+  /** Where the work opens in the app. */
+  deepLink?: string;
+  /** Shown to the class (the teacher may feature it), or for the teacher only. */
+  audience?: 'class' | 'teacher';
+}
+
 /**
  * Discriminated payload for a single student response. Persistence is on the
  * server via `POST /classrooms/:id/sessions/:sessionId/responses`; the same
@@ -177,10 +199,10 @@ export type InteractionResponsePayload =
       result: Record<string, unknown>;
     }
   | {
-      // Phase 3 — a student's offer to share their Studio project. Teacher-only
+      // Phase 3 — a student's offer to share their work. Teacher-only
       // (Rule 2: hard-refused from the projector like check-ins).
       kind: 'showcase';
-      artifact: { projectId: string; roomId?: string; name: string };
+      artifact: ShowcaseArtifact;
     }
   /**
    * A student's Echo rounds on a slide, upserted once a round. Teacher-only

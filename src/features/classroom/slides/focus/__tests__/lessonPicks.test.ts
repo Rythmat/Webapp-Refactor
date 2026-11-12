@@ -2,12 +2,18 @@ import { describe, expect, it } from 'vitest';
 import { newBlankDay } from '../../../plan/newBlankDay';
 import { publishDay, findForbiddenKey } from '../../../publish/publishDay';
 import { fixture, fixtureCatalog } from '../../cortex/__tests__/fixture';
+import { applyCortexLessonToDay } from '../../cortex/buildDeck';
 import { planCortexLesson } from '../../cortex/planLesson';
 import { searchFocus } from '../../cortex/suggestFocus';
+import { DEFAULT_CORTEX_CHOICES } from '../../cortex/types';
 import { slideInteractionIds } from '../../deck';
 import { sectionOf } from '../../sections';
 import { relatedForFocus } from '../lessonFocus';
-import { applyGroupPick, applyShowcasePick } from '../lessonPicks';
+import {
+  applyGroupPick,
+  applyShowcasePick,
+  isShowcasePortrait,
+} from '../lessonPicks';
 
 const graph = fixture();
 const catalog = fixtureCatalog();
@@ -31,11 +37,11 @@ describe('choosing the Showcase', () => {
       title: { en: 'Ana Lux' },
       media: { type: 'artistImage' },
     });
-    // The song and the globe follow it.
+    // The song (beside the class's questions) and the globe follow it.
     expect(slides[at + 1]).toMatchObject({
       section: 'showcase',
       kind: 'interaction',
-      presetId: 'bleed',
+      presetId: 'listen-questions',
       media: { type: 'youtube' },
     });
     expect(slides[at + 2]).toMatchObject({
@@ -45,13 +51,13 @@ describe('choosing the Showcase', () => {
     });
     expect(next.deck!.templateRef?.focusId).toBe(ana.id);
     expect(slides).toHaveLength(day.deck!.slides.length + 2);
-    // The song's question is in the first phase's cell.
-    const [listenId] = slideInteractionIds(slides[at + 1]);
-    expect(
-      next.cells.connectRegulate.presentation.interactions?.some(
-        (i) => i.id === listenId,
-      ),
-    ).toBe(true);
+    // The song's questions are in the first phase's cell.
+    const listenIds = slideInteractionIds(slides[at + 1]);
+    expect(listenIds).toHaveLength(4);
+    const cell = new Set(
+      next.cells.connectRegulate.presentation.interactions?.map((i) => i.id),
+    );
+    expect(listenIds.every((id) => cell.has(id))).toBe(true);
     expect(findForbiddenKey(publishDay(next))).toBeNull();
   });
 
@@ -63,8 +69,40 @@ describe('choosing the Showcase', () => {
     expect(twice.deck!.slides).toHaveLength(once.deck!.slides.length);
     const listens = (
       twice.cells.connectRegulate.presentation.interactions ?? []
-    ).filter((i) => i.id.endsWith('-ix-listen'));
-    expect(listens).toHaveLength(1);
+    ).filter((i) => /-ix-listen-\d$/.test(i.id));
+    expect(listens).toHaveLength(4);
+  });
+});
+
+describe('the portrait carrying the check-in', () => {
+  const lesson = applyCortexLessonToDay(
+    newBlankDay('Lesson'),
+    plan,
+    { ...DEFAULT_CORTEX_CHOICES, role: 'producer' },
+    't',
+  );
+
+  it('is the lesson’s first slide, in Connect', () => {
+    const [first] = lesson.deck!.slides;
+    expect(isShowcasePortrait(first)).toBe(true);
+    expect(sectionOf(first)).toBe('connect');
+    expect(first.presetId).toBe('portrait-check-in');
+  });
+
+  it('is the slide a new subject redraws, keeping the check-in', () => {
+    const portrait = lesson.deck!.slides[0];
+    const next = applyShowcasePick(lesson, portrait.id, plan);
+    const slides = next.deck!.slides;
+    expect(slides).toHaveLength(lesson.deck!.slides.length);
+    expect(slides[0]).toMatchObject({
+      id: portrait.id,
+      section: 'connect',
+      presetId: 'portrait-check-in',
+    });
+    expect(slideInteractionIds(slides[0])).toEqual(
+      slideInteractionIds(portrait),
+    );
+    expect(slides.filter(isShowcasePortrait)).toHaveLength(1);
   });
 });
 

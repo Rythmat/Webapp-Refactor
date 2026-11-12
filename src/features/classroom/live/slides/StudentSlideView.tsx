@@ -11,6 +11,7 @@ import {
   interactionsForSlide,
   slideAt,
 } from '../../slides/deck';
+import type { ProjectPlace } from '../../slides/projectPlaces';
 import type {
   Interaction,
   InteractionResponsePayload,
@@ -42,6 +43,8 @@ interface StudentSlideViewProps {
   canAdvance?: boolean;
   /** The server's clock (the clock check): what Echo's round starts follow. */
   clock?: SessionClock;
+  /** Open an Individual Project place inside the lesson (live/workspace). */
+  onOpenPlace?: (place: ProjectPlace) => void;
 }
 
 /**
@@ -65,6 +68,7 @@ export const StudentSlideView = ({
   onNext,
   canAdvance = true,
   clock = LOCAL_SESSION_CLOCK,
+  onOpenPlace,
 }: StudentSlideViewProps) => {
   // Rule 11's reading column, chosen by width AND pointer — a touch device
   // cannot hit the scaled canvas's controls. See the hook.
@@ -185,6 +189,7 @@ export const StudentSlideView = ({
               input: inputSlot,
               launch: launchSlot,
               pairAction: pairActionSlot,
+              openPlace: onOpenPlace,
             }}
           />
         </motion.div>

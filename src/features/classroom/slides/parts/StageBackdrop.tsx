@@ -13,7 +13,13 @@ import { useState } from 'react';
 import type { StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
 import { SLIDE_CANVAS } from '../slideLayout';
-import { paintsBleed, stageKindOf, stageMedia } from '../stage';
+import { useLessonSong } from '../song/LessonSong';
+import {
+  SPLIT_MEDIA_RECT,
+  paintsBleed,
+  stageKindOf,
+  stageMedia,
+} from '../stage';
 import type { Slide, SlideMedia, SlideSurface } from '../types';
 import { ShowcasePhoto } from './ShowcaseBackdrop';
 import { SlideGlobe } from './SlideGlobe';
@@ -121,6 +127,8 @@ export const StageBackdrop = ({
   command?: SlideSlots['mediaCommand'];
 }) => {
   if (!paintsBleed(slide, surface)) return null;
+  // A split slide's video sits in its half, on the canvas (`SplitMedia`).
+  if (stageKindOf(slide) === 'split') return null;
   const media = stageMedia(slide);
   if (!media) return null;
 
@@ -165,6 +173,56 @@ export const StageBackdrop = ({
         language={language}
         command={command}
       />
+    </div>
+  );
+};
+
+/**
+ * A split slide's video, in the left half (owner, 2026-11-12): the lesson's
+ * song on the room's screen and Present (`LessonSong`: the player the
+ * portrait started moves here and plays on), its still on a student's
+ * device, in the editor and in thumbnails.
+ */
+export const SplitMedia = ({
+  slide,
+  live,
+  language,
+  command,
+}: {
+  slide: Slide;
+  live: boolean;
+  language: StudentLanguage;
+  command?: SlideSlots['mediaCommand'];
+}) => {
+  const media = stageMedia(slide);
+  const videoId = media?.type === 'youtube' ? media.videoId : null;
+  const [place, setPlace] = useState<HTMLDivElement | null>(null);
+  // The deck's one player claims this half, and starts as the slide opens.
+  const song = useLessonSong(live ? videoId : null, place, {
+    autoplay: true,
+    ...(command ? { command } : {}),
+  });
+  if (media?.type !== 'youtube') return null;
+  const { x, y, w, h } = SPLIT_MEDIA_RECT;
+  return (
+    <div
+      ref={setPlace}
+      data-split-media=""
+      className="absolute overflow-hidden rounded-[16px] bg-black"
+      style={{ left: x, top: y, width: w, height: h }}
+    >
+      {!live ? (
+        <VideoStill videoId={media.videoId} />
+      ) : song ? null : (
+        // No deck player (a preview): a player of its own.
+        <SlideMediaPanel
+          media={media}
+          language={language}
+          interactive
+          className="!rounded-none !border-0"
+          {...(command ? { command } : {})}
+        />
+      )}
     </div>
   );
 };

@@ -26,7 +26,22 @@ import { useYouTubeIframePlayer } from '@/hooks/media/useYouTubeIframePlayer';
  *
  * `videoWithPlay` (the same list, owner 2026-11-11): one button, no ▾ —
  * play opens the video as it starts, pause shuts it.
+ *
+ * `shared` (a lesson's song, owner 2026-11-12): the pill drives a player that
+ * outlives it (Present's and the room's one song for the deck), so the song
+ * plays on into the next slide. The opened panel is a place the shared
+ * player is shown in (`dock`), not a player of its own.
  */
+
+/** A player the pill drives instead of its own (`shared`). */
+export interface SharedRecording {
+  isPlaying: boolean;
+  /** Play was pressed and the player is still loading. */
+  starting: boolean;
+  toggle: () => void;
+  /** Where to show the video while the panel is open; null when shut. */
+  dock: (place: HTMLElement | null) => void;
+}
 
 /** Said by a `solo` pill as it plays or opens, with its id. */
 const SOLO_EVENT = 'recording-pill:solo';
@@ -48,6 +63,8 @@ export const RecordingPill: FC<{
   openIn?: HTMLElement | null;
   /** Only ▶ / ❚❚: playing opens the video, pausing shuts it (no ▾). */
   videoWithPlay?: boolean;
+  /** Drive this player instead of one of the pill's own. */
+  shared?: SharedRecording;
   className?: string;
 }> = ({
   videoId,
@@ -58,6 +75,7 @@ export const RecordingPill: FC<{
   openIn,
   align = 'right',
   note,
+  shared,
   className,
 }) => {
   const [open, setOpen] = useState(false);
@@ -86,11 +104,20 @@ export const RecordingPill: FC<{
     return () => window.removeEventListener('keydown', onKey, true);
   }, [open]);
 
-  const { containerRef, isPlaying, isReady, play, pause } =
-    useYouTubeIframePlayer({
-      videoId: armed ? videoId : null,
-      startSec,
-    });
+  const own = useYouTubeIframePlayer({
+    videoId: armed && !shared ? videoId : null,
+    startSec,
+  });
+  const { containerRef, isReady, play, pause } = own;
+  const isPlaying = shared ? shared.isPlaying : own.isPlaying;
+
+  // A shared player shows in the opened panel, and nowhere while it is shut.
+  const [panelPlace, setPanelPlace] = useState<HTMLDivElement | null>(null);
+  const dock = shared?.dock;
+  useEffect(() => {
+    if (!dock) return;
+    dock(open ? panelPlace : null);
+  }, [dock, open, panelPlace]);
 
   useEffect(() => {
     if (!wantPlay || !isReady) return;
@@ -119,6 +146,10 @@ export const RecordingPill: FC<{
   }, [solo, soloId, pause]);
 
   const togglePlay = () => {
+    if (shared) {
+      shared.toggle();
+      return;
+    }
     if (isPlaying) {
       pause();
       if (videoWithPlay) setOpen(false);
@@ -129,7 +160,7 @@ export const RecordingPill: FC<{
     if (isReady) play();
     else setWantPlay(true);
   };
-  const starting = wantPlay && !isPlaying;
+  const starting = shared ? shared.starting : wantPlay && !isPlaying;
 
   const panel = (
     <div
@@ -141,7 +172,11 @@ export const RecordingPill: FC<{
       style={{ display: open ? 'block' : 'none' }}
     >
       <div className="aspect-video w-full bg-black">
-        <div ref={containerRef} className="h-full w-full" />
+        {shared ? (
+          <div ref={setPanelPlace} className="h-full w-full" />
+        ) : (
+          <div ref={containerRef} className="h-full w-full" />
+        )}
       </div>
       {note && <p className="px-3 py-1.5 text-[11px] text-white/45">{note}</p>}
     </div>

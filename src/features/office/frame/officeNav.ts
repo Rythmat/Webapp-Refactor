@@ -3,7 +3,7 @@ import { OFFICE_LIBRARY_ENABLED } from '../officeFlags';
 
 // ── The Office's navigation, from the URL alone (owner, 2026-11-09) ────────
 // Two levels, as the LMSs teachers like best have it: the Office's own
-// pages (Today, Classes, Planner, Library, Review) and, inside a class,
+// pages (Today, Classes, Planner, Lessons, Library, Review) and, inside a class,
 // that class's pages (Overview, Plan, Assignments, Students, Progress). The
 // bottom rail shows whichever set the URL is in; the top rail's crumb says
 // where. A pure function, so the rails and the tests agree.
@@ -12,6 +12,7 @@ export type OfficeTabId =
   | 'today'
   | 'classes'
   | 'planner'
+  | 'lessons'
   | 'library'
   | 'review'
   | 'overview'
@@ -41,6 +42,9 @@ export type OfficeNav =
 const OFFICE_PAGES: Record<string, OfficeTabId> = {
   classes: 'classes',
   planner: 'planner',
+  // The built-in lessons' editor (`/office/lessons/plan/:dayId`) stays under
+  // the Lessons tab: OFFICE_LESSONS_SCOPE is this segment.
+  lessons: 'lessons',
   library: 'library',
   review: 'review',
 };
@@ -58,6 +62,12 @@ export const officeTabs = (): OfficeTab[] => [
     label: 'Planner',
     short: 'Plan',
     to: OfficeRoutes.planner(),
+  },
+  {
+    id: 'lessons',
+    label: 'Lessons',
+    short: 'Lessons',
+    to: OfficeRoutes.lessons(),
   },
   ...(OFFICE_LIBRARY_ENABLED
     ? [

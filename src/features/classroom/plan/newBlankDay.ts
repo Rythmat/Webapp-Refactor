@@ -36,7 +36,7 @@ const blankCells = (): DayCells => {
 };
 
 /** Deterministic-ish id from timestamp + random suffix. Not cryptographic. */
-const generateDayId = (): string => {
+export const generateDayId = (): string => {
   const rand = Math.floor(Math.random() * 1e6)
     .toString(36)
     .padStart(4, '0');
@@ -58,9 +58,14 @@ const generateDayId = (): string => {
  *
  * The teacher's prep checklist goes to the Connect cell's rationale notes —
  * teacher-only text, never a slide.
+ *
+ * `id` is for a lesson that must have the same id everywhere (the Office's
+ * built-in lessons); every other caller lets it be generated.
  */
-export const newBlankDay = (label?: string): Day => {
-  const id = generateDayId();
+export const newBlankDay = (
+  label?: string,
+  id: string = generateDayId(),
+): Day => {
   const cells = blankCells();
   cells.connectRegulate.rationale.notes = cortexLessonTeacherNotes();
   for (const [phase, interactions] of Object.entries(

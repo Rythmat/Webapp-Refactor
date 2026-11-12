@@ -31,6 +31,37 @@ vi.mock('@/daw/store', () => ({
   },
 }));
 
+// This class's work, as the lesson's places left it.
+vi.mock('../workspace/useClassWork', () => ({
+  useClassWork: () => ({
+    loading: false,
+    work: [
+      {
+        key: 'learn:lesson:pop-1',
+        place: 'learn',
+        projectId: 'lesson:pop-1',
+        name: 'Pop — Level 1',
+        touchedAt: Date.parse('2026-11-11T10:20:00Z'),
+        deepLink: '/learn/keyboard/genre/pop/1',
+      },
+      {
+        key: 'songs:song:thriller',
+        place: 'songs',
+        projectId: 'song:thriller',
+        name: 'Thriller',
+        touchedAt: Date.parse('2026-11-11T10:05:00Z'),
+        deepLink: '/songs/thriller',
+      },
+    ],
+  }),
+}));
+
+const LIVE = {
+  state: { startedAt: '2026-11-11T10:00:00Z' },
+  clock: {},
+  slideId: 's-share',
+} as never;
+
 const SHOWCASE: Interaction = {
   id: 'ix-show',
   type: 'showcase',
@@ -87,5 +118,61 @@ describe('ShowcaseInput', () => {
         artifact: { projectId: 'proj-in-this-tab', name: 'This Tab' },
       }),
     );
+  });
+
+  it('in a live session, lets the student pick this class’s work and send it to the teacher', () => {
+    const onSubmit = vi.fn();
+    render(
+      <ShowcaseInput
+        interaction={SHOWCASE}
+        language="en"
+        onSubmit={onSubmit}
+        live={LIVE}
+      />,
+    );
+    expect(screen.getAllByRole('radio').map((r) => r.textContent)).toEqual([
+      expect.stringContaining('Pop — Level 1'),
+      expect.stringContaining('Thriller'),
+    ]);
+    fireEvent.click(screen.getByRole('radio', { name: /Thriller/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Send to my teacher/ }));
+    expect(onSubmit).toHaveBeenCalledWith({
+      kind: 'showcase',
+      artifact: {
+        projectId: 'song:thriller',
+        name: 'Thriller',
+        place: 'songs',
+        deepLink: '/songs/thriller',
+        audience: 'teacher',
+      },
+    });
+  });
+
+  it('shows the class what they picked, and says so', () => {
+    const onSubmit = vi.fn();
+    const { rerender } = render(
+      <ShowcaseInput
+        interaction={SHOWCASE}
+        language="en"
+        onSubmit={onSubmit}
+        live={LIVE}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Show the class/ }));
+    const payload = onSubmit.mock.calls[0][0];
+    expect(payload.artifact).toMatchObject({
+      place: 'learn',
+      audience: 'class',
+    });
+    rerender(
+      <ShowcaseInput
+        interaction={SHOWCASE}
+        language="en"
+        onSubmit={onSubmit}
+        live={LIVE}
+        submittedPayload={payload}
+      />,
+    );
+    expect(screen.getByText(/Offered to the class/)).toBeTruthy();
   });
 });

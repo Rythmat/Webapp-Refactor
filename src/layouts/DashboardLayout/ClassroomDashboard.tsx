@@ -33,6 +33,7 @@ import {
   isGlobePath,
   isGuidedLessonPath,
 } from './focusPaths';
+import { isLessonFrame } from './lessonFrame';
 import '@/components/ClassroomLayout/dashboard/dashboard.css';
 
 /** How long the scrollbar stays after the page stops scrolling. */
@@ -104,6 +105,10 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   const isOffice = isOfficeFramePath(pathname);
   const framed = isGlobe || isOffice;
   const focus = isStudioEditor || framed || isAudioPlayer;
+  // A place opened inside a student's lesson (owner, 2026-11-11): the
+  // lesson's bar is its frame, so it has no rail, top bar or play bar of its
+  // own; the page itself is drawn as anywhere.
+  const inLesson = isLessonFrame();
   // The player carries on from page to page while it holds something
   // (owner, 2026-11-11), in the Recent activity bar.
   const playerHolds = usePlayer(playerActive);
@@ -114,7 +119,8 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   // own 8px on the page's left while it takes room.
   const desk = useMediaQuery(DESK_QUERY);
   const railOpen = useAppRail((s) => s.open);
-  const railTakesRoom = desk && (railOpen || isIconRailPath(pathname));
+  const railTakesRoom =
+    desk && !inLesson && (railOpen || isIconRailPath(pathname));
   // Home's scrollbar only while it scrolls (owner, 2026-11-10).
   useScrollbarWhileScrolling(
     scrollerRef,
@@ -125,6 +131,7 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
     <div
       className={cn(
         'dashboard-root flex w-full flex-col overflow-hidden',
+        inLesson && 'lesson-frame',
         framed || isAudioPlayer ? 'h-dvh' : 'h-screen',
         !focus && 'bg-black',
       )}
@@ -132,7 +139,7 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
       <div className="flex min-h-0 w-full flex-1">
         {/* The app rail (owner, 2026-11-10: Samply's sidebar), on every page
           but the lesson players and Present, which take the whole window. */}
-        {isAudioPlayer ? null : <AppRail />}
+        {isAudioPlayer || inLesson ? null : <AppRail />}
 
         <main
           ref={mainRef}
@@ -142,10 +149,10 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
             !focus && !railTakesRoom && 'pl-[0.455rem]',
           )}
         >
-          {focus ? null : <MobileChordNotationBar />}
+          {focus || inLesson ? null : <MobileChordNotationBar />}
           {/* The top bar, over the page's column only, the rail going up
             beside it (owner, 2026-11-10); the framed pages have their own. */}
-          {focus ? null : <TopRail scroller={scrollerRef} />}
+          {focus || inLesson ? null : <TopRail scroller={scrollerRef} />}
           <div
             className={cn(
               'relative flex min-h-0 min-w-0 flex-1 flex-col',
@@ -153,9 +160,9 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
             )}
           >
             {/* The toolbar's fade, at the page panel's top (owner). */}
-            {focus ? null : <PageTopFade scroller={scrollerRef} />}
+            {focus || inLesson ? null : <PageTopFade scroller={scrollerRef} />}
             {/* The player's queue, over the page's right (Samply's). */}
-            {focus ? null : <QueuePanel />}
+            {focus || inLesson ? null : <QueuePanel />}
             <div
               ref={scrollerRef}
               data-app-scroller={focus ? undefined : ''}
@@ -189,7 +196,7 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
           the player wherever it holds something, Suno's play bar: across
           the window under the rail and the page, so the rail ends above it
           (owner). */}
-      {!focus && shouldShowPlayBar(pathname, playerHolds) ? (
+      {!focus && !inLesson && shouldShowPlayBar(pathname, playerHolds) ? (
         <ActivityPlayBar />
       ) : null}
       {/* The player hushes on the pages that take the whole window: they

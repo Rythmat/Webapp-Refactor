@@ -1,8 +1,9 @@
-import { Eye, Pencil, Play, Radio } from 'lucide-react';
+import { Pencil, Play, Radio, RotateCcw } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { MicroLabel } from '@/components/kit';
 import { cn } from '@/components/utilities';
+import { OFFICE_LESSONS_SCOPE } from '@/constants/officeScopes';
 import { TeacherRoutes } from '@/constants/routes';
 import { Button } from '@/daw/ui/Button';
 import { EmptyState } from '@/daw/ui/EmptyState';
@@ -22,13 +23,16 @@ import {
   sectionNumber,
 } from '@/features/classroom/slides/sections';
 import { useCanEditClassroom, useClassroom } from '@/hooks/data';
+import { useBuiltInLessons } from '../lessons/useBuiltInLessons';
 import { relativeDay } from '../today/todayModel';
+import { TeachLessonForm } from './TeachLessonForm';
 
 /**
  * A lesson in the Inspector, as Common Planner's lesson drawer: its opening
- * slide, when and where it's taught, its state, its six sections, and the four verbs
- * (Go Live, Present, Preview, Edit) without leaving the page it was opened
- * from.
+ * slide, when and where it's taught, its state, its six sections, and its verbs
+ * (Go Live, Present, Edit) without leaving the page it was opened
+ * from. A lesson from the Lessons tab belongs to no class: in place of Go
+ * Live it is taught to a class, and an edited one can be restored.
  */
 export const LessonInspector = ({
   classroomId,
@@ -43,6 +47,7 @@ export const LessonInspector = ({
   const canEdit = useCanEditClassroom(classroomId);
   const goLive = useGoLive(classroomId);
   const day = getDay(dayId);
+  const ownLesson = classroomId === OFFICE_LESSONS_SCOPE;
   // The student-safe projection the class would get: what the slides draw.
   const snapshot = useMemo(() => (day ? publishDay(day) : null), [day]);
 
@@ -89,14 +94,19 @@ export const LessonInspector = ({
           {day.label}
         </h3>
         <p className={cn(TYPE_CLASS.body, 'text-daw-text-2')}>
-          {classroom?.name ?? 'Class'}
-          {day.scheduledDate
-            ? ` · ${capitalize(relativeDay(day.scheduledDate, grid.todayIso))}`
-            : ' · Not scheduled'}
+          {ownLesson
+            ? 'Lesson'
+            : `${classroom?.name ?? 'Class'}${
+                day.scheduledDate
+                  ? ` · ${capitalize(relativeDay(day.scheduledDate, grid.todayIso))}`
+                  : ' · Not scheduled'
+              }`}
         </p>
-        <div>
-          <StatusChip status={status} dueAt={assignment?.dueAt} />
-        </div>
+        {!ownLesson && (
+          <div>
+            <StatusChip status={status} dueAt={assignment?.dueAt} />
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.06]">
@@ -108,27 +118,25 @@ export const LessonInspector = ({
       </div>
 
       <div className="flex flex-col gap-2">
-        <Button
-          variant="primary"
-          size="lg"
-          disabled={!canEdit}
-          title={canEdit ? undefined : 'Viewers cannot start a live session'}
-          onClick={() => void goLive(day)}
-        >
-          <Radio aria-hidden />
-          Go Live
-        </Button>
-        <div className="grid grid-cols-3 gap-2">
+        {ownLesson ? (
+          <TeachLessonForm day={day} />
+        ) : (
+          <Button
+            variant="primary"
+            size="lg"
+            disabled={!canEdit}
+            title={canEdit ? undefined : 'Viewers cannot start a live session'}
+            onClick={() => void goLive(day)}
+          >
+            <Radio aria-hidden />
+            Go Live
+          </Button>
+        )}
+        <div className="grid grid-cols-2 gap-2">
           <Button asChild size="lg">
             <Link to={TeacherRoutes.present({ classroomId, dayId })}>
               <Play aria-hidden />
               Present
-            </Link>
-          </Button>
-          <Button asChild size="lg">
-            <Link to={TeacherRoutes.dayPreview({ classroomId, dayId })}>
-              <Eye aria-hidden />
-              Preview
             </Link>
           </Button>
           <Button asChild size="lg">
@@ -138,6 +146,7 @@ export const LessonInspector = ({
             </Link>
           </Button>
         </div>
+        {ownLesson && <RestoreOriginal dayId={dayId} />}
       </div>
 
       {groups.length > 0 && slides > 0 && (
@@ -173,6 +182,24 @@ export const LessonInspector = ({
         </ol>
       )}
     </div>
+  );
+};
+
+/** Puts the code's lesson back over a Lessons-tab lesson the teacher edited. */
+const RestoreOriginal = ({ dayId }: { dayId: string }) => {
+  const { lessons, restore } = useBuiltInLessons();
+  const edited = lessons.find((l) => l.day.id === dayId)?.edited;
+  if (!edited) return null;
+  return (
+    <Button
+      size="lg"
+      variant="ghost"
+      title="Undo your changes to this lesson on this device"
+      onClick={() => restore(dayId)}
+    >
+      <RotateCcw aria-hidden />
+      Restore original
+    </Button>
   );
 };
 

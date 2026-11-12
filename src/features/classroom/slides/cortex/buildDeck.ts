@@ -6,8 +6,14 @@ import type {
   Interaction,
   LocalizedText,
 } from '../../types';
+import { projectPlaceTiles } from '../projectPlaces';
 import type { Slide, SlideDeck, SlideDeckTemplateRef } from '../types';
-import { ARTIST_RECORDINGS, ARTIST_TAGLINES } from './artistStories';
+import {
+  ARTIST_LISTEN,
+  ARTIST_RECORDINGS,
+  ARTIST_TAGLINES,
+  type ListenQuestion,
+} from './artistStories';
 import {
   CHECK_IN_QUESTION,
   COPY,
@@ -15,6 +21,7 @@ import {
   RESET_CHECKLIST,
   deckTitle,
   groupTitle,
+  LISTEN_QUESTIONS,
   listenTitle,
   performerTask,
   producerTask,
@@ -46,7 +53,7 @@ import type { CortexLessonChoices, CortexLessonPlan, GroupRole } from './types';
  *                       bleed     the song's video; "what do you hear?" on devices
  *                       bleed     the globe, flying through their places
  *   Group Project       hero      the activity the class does together  groupPractice
- *   Individual Project  hero      the Studio library + timer         creativeProjects
+ *   Individual Project  menu      Learn · Songs · Library · Studio · Globe  creativeProjects
  *   Present             hero      progress, to the teacher           presentPerform
  *                       hero      "Show the class", then the featured project
  *   Reflect             hero      the exit ticket, projectable       respondReflectReset
@@ -60,9 +67,6 @@ export const CORTEX_LESSON_TEMPLATE_ID = 'cortex-lesson-v1';
 
 /** The Promoter's mind-map launch; the board rides on the interaction. */
 export const MIND_MAP_REF = 'globe:mindmap';
-/** "Continue your project": the Studio's project library. */
-export const STUDIO_LIBRARY_REF = 'studio:library';
-
 /** What the deck builder adds to each phase's cell. */
 export type InteractionsByPhase = Partial<Record<PhaseKey, Interaction[]>>;
 
@@ -78,9 +82,7 @@ export interface CortexLessonContent {
 const ixIds = (prefix: string) => ({
   checkIn: `${prefix}-ix-checkin`,
   vibe: `${prefix}-ix-vibe`,
-  listen: `${prefix}-ix-listen`,
   group: `${prefix}-ix-group`,
-  project: `${prefix}-ix-project`,
   progress: `${prefix}-ix-progress`,
   share: `${prefix}-ix-share`,
   exit: `${prefix}-ix-exit`,
@@ -135,23 +137,29 @@ const reflectSlides = (prefix: string, exitId: string): Slide[] => [
 const withTimer = (minutes: number): { timerSec?: number } =>
   minutes > 0 ? { timerSec: Math.round(minutes * 60) } : {};
 
+/**
+ * The Individual Project (owner, 2026-11-11): each student picks where to
+ * work, from five places on one slide (`projectPlaces.ts`). Every lesson has
+ * this slide, new or generated.
+ */
+export const projectMenuSlide = (prefix: string, minutes = 0): Slide => ({
+  id: `${prefix}-slide-project`,
+  kind: 'content',
+  phase: 'creativeProjects',
+  section: 'individualProject',
+  presetId: 'project-menu',
+  title: COPY.projectMenuTitle,
+  prompt: COPY.projectPrompt,
+  launchTiles: projectPlaceTiles(prefix),
+  ...withTimer(minutes),
+});
+
 /** The parts every Cortex deck shares: Individual Project, Present, Reflect. */
 const projectAndPresent = (
   prefix: string,
   projectMinutes: number,
 ): Pick<CortexLessonContent, 'interactionsByPhase' | 'slides' | 'cellCopy'> => {
   const ids = ixIds(prefix);
-  const project: Interaction = {
-    id: ids.project,
-    type: 'atlas',
-    question: COPY.projectTask,
-    shareable: false,
-    atlas: {
-      module: 'studio',
-      activityRef: STUDIO_LIBRARY_REF,
-      expects: 'artifact',
-    },
-  };
   const progress: Interaction = {
     id: ids.progress,
     type: 'text',
@@ -169,21 +177,11 @@ const projectAndPresent = (
   const exit = exitQuestion(ids.exit);
   return {
     interactionsByPhase: {
-      creativeProjects: [project],
       presentPerform: [progress, share],
       respondReflectReset: [exit],
     },
     slides: [
-      {
-        id: `${prefix}-slide-project`,
-        kind: 'app-route',
-        phase: 'creativeProjects',
-        section: 'individualProject',
-        presetId: 'hero',
-        title: COPY.projectTitle,
-        interactionId: project.id,
-        ...withTimer(projectMinutes),
-      },
+      projectMenuSlide(prefix, projectMinutes),
       {
         id: `${prefix}-slide-progress`,
         kind: 'interaction',
@@ -444,6 +442,19 @@ export const showcaseSlideFields = (
   };
 };
 
+/** The listening slide's questions, in order: feel, lyric, instruments, tempo. */
+export const listenQuestions = (
+  lyric: ListenQuestion = LISTEN_QUESTIONS.lyric,
+): ListenQuestion[] => [
+  LISTEN_QUESTIONS.feel,
+  lyric,
+  LISTEN_QUESTIONS.instruments,
+  LISTEN_QUESTIONS.tempo,
+];
+
+const listenIxId = (prefix: string, index: number) =>
+  `${prefix}-ix-listen-${index + 1}`;
+
 /** The Showcase slides' ids under a deck's prefix. */
 export const showcaseSlideIds = (prefix: string) => ({
   portrait: `${prefix}-slide-showcase`,
@@ -480,7 +491,10 @@ export const showcaseParts = (
           id: ids.portrait,
           kind: 'interaction',
           phase: 'connectRegulate',
-          section: 'showcase',
+          // With the class's check-in on it, the portrait is the lesson's
+          // Connect slide, its first (owner, 2026-11-12); the Showcase
+          // carries on from the song.
+          section: 'connect',
           title: fields.title,
           ...(fields.body ? { body: fields.body } : {}),
           ...(fields.media ? { media: fields.media } : {}),
@@ -498,31 +512,41 @@ export const showcaseParts = (
         },
   ];
   const interactions: Interaction[] = [];
-  if (showcase.listen) {
-    const { listen } = showcase;
-    const heard: Interaction = {
-      id: ixIds(prefix).listen,
-      type: 'text',
-      question: COPY.listenPrompt,
-      shareable: true,
-      // A word or two: the room sees them as a cloud.
-      text: { maxLen: 32 },
-    };
-    interactions.push(heard);
+  // The owner's song for the artist (the portrait's recording, so it plays
+  // on from the first slide), else the catalog's.
+  const artist = focus.kind === 'artist' ? slugOf(focus.id) : null;
+  const own = artist ? ARTIST_LISTEN[artist] : undefined;
+  const listen = own
+    ? { title: own.title, videoId: own.videoId, startSec: undefined }
+    : showcase.listen;
+  if (listen) {
+    // The video on the left, the class's questions on the right (owner,
+    // 2026-11-12): how it makes them feel and what it says, then what they
+    // hear in it. Multiple choice, answered on their devices.
+    const asked = listenQuestions(own?.lyric).map(
+      (q, i): Interaction => ({
+        id: listenIxId(prefix, i),
+        type: 'choice',
+        question: q.question,
+        shareable: true,
+        choice: { options: [...q.options], multi: Boolean(q.multi) },
+      }),
+    );
+    interactions.push(...asked);
     slides.push({
       id: ids.listen,
       kind: 'interaction',
       phase: 'connectRegulate',
       section: 'showcase',
-      presetId: 'bleed',
+      presetId: 'listen-questions',
       title: listenTitle(listen.title),
       media: {
         type: 'youtube',
         videoId: listen.videoId,
         ...(listen.startSec !== undefined ? { startSec: listen.startSec } : {}),
       },
-      interactionIds: [heard.id],
-      reveal: 'words',
+      interactionIds: asked.map((i) => i.id),
+      reveal: 'bars',
       accent: showcase.accent,
     });
   }
@@ -610,9 +634,12 @@ const notesWith = (existing: string, plan: CortexLessonPlan): string => {
         .join('\n\n')
     : existing;
   // What to say about the subject: the facts the slides leave off.
+  const artist = plan.focus.kind === 'artist' ? slugOf(plan.focus.id) : null;
+  const song = artist ? ARTIST_LISTEN[artist]?.note : undefined;
   const talking = [
     'Talking points:',
     ...plan.showcase.facts.map((f) => `• ${f.text.en}`),
+    ...(song ? [`• ${song}`] : []),
   ].join('\n');
   const block = [NOTES_HEADER, ...plan.notes].join('\n') + '\n\n' + talking;
   const rest = own.trim() || PREP_CHECKLIST;
@@ -736,8 +763,8 @@ export const isStarterInteraction = (interaction: Pick<Interaction, 'id'>) =>
  * sections with general copy. Connect asks the feelings check-in (Simple) and
  * Reflect the exit question, so a new lesson taught as it stands still opens
  * and closes properly; their interactions are `cortexSkeletonInteractions`,
- * which `newBlankDay` puts in the cells. The Individual Project's Studio
- * library opens from a launch tile. "Generate from Cortex" replaces the lot,
+ * which `newBlankDay` puts in the cells. The Individual Project is the five
+ * places' menu, as in every lesson. "Generate from Cortex" replaces the lot,
  * filling the Showcase and the Group Project in.
  */
 export const buildCortexLessonSkeleton = (dayId: string): SlideDeck => {
@@ -786,24 +813,7 @@ export const buildCortexLessonSkeleton = (dayId: string): SlideDeck => {
         COPY.groupTitle,
         COPY.groupOpen,
       ),
-      {
-        ...section(
-          'project',
-          'creativeProjects',
-          'individualProject',
-          COPY.projectTitle,
-          COPY.projectPrompt,
-          'project-menu',
-        ),
-        launchTiles: [
-          {
-            id: `${prefix}-tile-library`,
-            module: 'studio',
-            activityRef: STUDIO_LIBRARY_REF,
-            label: COPY.libraryTile,
-          },
-        ],
-      } as Slide,
+      projectMenuSlide(prefix),
       section(
         'present',
         'presentPerform',

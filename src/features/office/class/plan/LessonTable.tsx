@@ -2,7 +2,6 @@ import type { Feature } from 'geojson';
 import {
   BarChart3,
   Bookmark,
-  Eye,
   MoreHorizontal,
   Pencil,
   Play,
@@ -222,14 +221,6 @@ const LessonRow = ({
               onSelect={onToggleSaved}
             >
               {saved ? 'Unsave' : 'Save'}
-            </MenuItem>
-            <MenuItem
-              icon={<Eye />}
-              onSelect={() =>
-                navigate(TeacherRoutes.dayPreview({ classroomId, dayId }))
-              }
-            >
-              Preview as a student
             </MenuItem>
             <MenuItem
               icon={<Play />}

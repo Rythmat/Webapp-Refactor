@@ -24,6 +24,7 @@ import type { SlideSlots } from '../SlideRenderer';
 import { REFLOW_BAND_AFTER, REFLOW_ORDER } from '../slideGrid';
 import { paintsBleed, stageMedia } from '../stage';
 import type { Slide, SlideElement, SlideSurface } from '../types';
+import { PlaceMenu, placeMenuOf } from './PlaceMenu';
 import { sectionLabelOf } from './SectionChip';
 import {
   ShowcaseGlobe,
@@ -68,6 +69,8 @@ export const SlideReflow = ({
     Boolean(bandInteractionIds?.includes(e.interactionId));
 
   const visible = elements.filter((e) => !e.hidden && !carriedByBand(e));
+  // The Individual Project's places stack as one menu.
+  const placeMenu = placeMenuOf(visible);
   const byZone = new Map<string, SlideElement[]>();
   for (const el of visible) {
     const bucket = byZone.get(el.zone);
@@ -94,7 +97,21 @@ export const SlideReflow = ({
         <ReflowStage slide={slide} language={language} />
       )}
 
-      {REFLOW_ORDER.flatMap((zone) => {
+      {REFLOW_ORDER.flatMap((zone): ReactNode[] => {
+        if (zone === 'ctaCenter' && placeMenu) {
+          return [
+            <div key="__places" data-zone="ctaCenter" data-place-menu="">
+              <PlaceMenu
+                places={placeMenu.places}
+                surface={surface}
+                language={language}
+                sectionLabel={sectionLabelOf(slide, language)}
+                stacked
+                onOpen={slots?.openPlace}
+              />
+            </div>,
+          ];
+        }
         const nodes: ReactNode[] = (byZone.get(zone) ?? []).map((element) => (
           <div
             key={element.id}
@@ -145,7 +162,11 @@ const ReflowStage = ({
   if (media.type === 'globePreview')
     return <SlideGlobe globe={media} language={language} />;
   return (
-    <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-[#0b0b0d]">
+    <div
+      className={`relative w-full overflow-hidden rounded-xl bg-[#0b0b0d] ${
+        media.type === 'youtube' ? 'aspect-video' : 'aspect-square'
+      }`}
+    >
       {media.type === 'artistImage' ? (
         <ShowcasePhoto songId={media.songId} />
       ) : media.type === 'youtube' ? (

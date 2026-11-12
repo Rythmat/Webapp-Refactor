@@ -569,7 +569,7 @@ export const TeacherRoutes = {
     prefix: officePrefix,
   }),
 
-  /** Preview a Day as a student would see it. */
+  /** Retired (owner, 2026-11-12): redirects to the Day's editor. */
   dayPreview: createRouteDefinition<{
     classroomId: string;
     dayId: string;
@@ -667,6 +667,8 @@ export const OfficeRoutes = {
   classes: createRouteDefinition('/classes', { prefix: officePrefix }),
   /** The week across every class. */
   planner: createRouteDefinition('/planner', { prefix: officePrefix }),
+  /** The lessons ready to teach (built in: Michael Jackson · Producer). */
+  lessons: createRouteDefinition('/lessons', { prefix: officePrefix }),
   /** Saved lessons, seeds, activities, learning goals and themes. */
   library: createRouteDefinition('/library', { prefix: officePrefix }),
   /** Work waiting for the teacher across every class. */

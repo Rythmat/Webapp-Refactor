@@ -260,6 +260,23 @@ export const PRESETS = {
       tiles: 'off',
     },
   },
+  // A song beside the class's questions (owner, 2026-11-12): the video on
+  // the left half (painted by the stage, `SPLIT_MEDIA_RECT`), the questions on
+  // the right, answered on the students' devices.
+  'listen-questions': {
+    id: 'listen-questions',
+    label: 'Song + questions',
+    kinds: ['interaction'],
+    bandFree: true,
+    liveRect: 'halfRight',
+    zones: {
+      hideTitle: true,
+      visuals: 'off',
+      subtitle: 'off',
+      body: 'off',
+      tiles: 'off',
+    },
+  },
   'chord-chart': {
     id: 'chord-chart',
     label: 'Chord chart',

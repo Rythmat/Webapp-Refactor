@@ -27,6 +27,7 @@ describe('officeNav', () => {
       active: 'classes',
     });
     expect(officeNav('/office/planner')?.active).toBe('planner');
+    expect(officeNav('/office/lessons')?.active).toBe('lessons');
     expect(officeNav('/office/library')?.active).toBe('library');
     expect(officeNav('/office/review')?.active).toBe('review');
   });
@@ -35,9 +36,22 @@ describe('officeNav', () => {
     const ids = officeNav('/office')?.tabs.map((t) => t.id);
     expect(ids).toEqual(
       OFFICE_LIBRARY_ENABLED
-        ? ['today', 'classes', 'planner', 'library', 'review']
-        : ['today', 'classes', 'planner', 'review'],
+        ? ['today', 'classes', 'planner', 'lessons', 'library', 'review']
+        : ['today', 'classes', 'planner', 'lessons', 'review'],
     );
+  });
+
+  it('keeps a Lessons-tab lesson’s editor under the Lessons tab', () => {
+    expect(officeNav('/office/lessons/plan/builtin-mj-producer')).toMatchObject(
+      { scope: 'office', active: 'lessons' },
+    );
+    // Present takes the whole window, as every class's does.
+    expect(
+      isOfficeFramePath('/office/lessons/present/builtin-mj-producer'),
+    ).toBe(false);
+    expect(
+      isOfficePresentPath('/office/lessons/present/builtin-mj-producer'),
+    ).toBe(true);
   });
 
   it('gives a class its own tabs, each linking inside it', () => {

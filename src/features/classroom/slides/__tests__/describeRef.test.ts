@@ -24,7 +24,18 @@ describe('describeRef: one name for every link', () => {
       module: 'arcade',
       title: 'Chroma',
     });
-    expect(describeRef('studio:library').title).toBe('Your Studio projects');
+    expect(describeRef('studio:library').title).toBe('Library');
+  });
+
+  it('names the Individual Project places by their own names', () => {
+    expect(describeRef('learn:home')).toEqual({
+      module: 'learn',
+      title: 'Learn',
+    });
+    expect(describeRef('learn:songs').title).toBe('Songs');
+    expect(describeRef('studio:library').title).toBe('Library');
+    expect(describeRef('studio:editor').title).toBe('Studio');
+    expect(describeRef('globe:home').title).toBe('Globe');
   });
 
   it('names a song by its title and wears its artist', () => {

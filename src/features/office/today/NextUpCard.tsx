@@ -1,5 +1,5 @@
 import type { Feature } from 'geojson';
-import { CalendarPlus, Eye, Pencil, Play, Radio, Sparkles } from 'lucide-react';
+import { CalendarPlus, Pencil, Play, Radio } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { MicroLabel } from '@/components/kit';
 import { cn } from '@/components/utilities';
@@ -49,7 +49,7 @@ const GoLiveButton = ({
 
 /**
  * The top of Today: the class that's live (resume it), or the next lesson
- * to teach with its four verbs, or — when nothing is scheduled — the way to
+ * to teach with its verbs (Go Live, Present, Edit), or — when nothing is scheduled — the way to
  * plan one. One card, the page's only white pill.
  */
 export const NextUpCard = ({
@@ -115,16 +115,6 @@ export const NextUpCard = ({
                   Plan a lesson
                 </Link>
               </Button>
-              <Button asChild size="lg">
-                <Link
-                  to={TeacherRoutes.deckWizard({
-                    classroomId: firstClassroomId,
-                  })}
-                >
-                  <Sparkles aria-hidden />
-                  Build a live deck
-                </Link>
-              </Button>
             </div>
           )}
         </div>
@@ -161,12 +151,6 @@ export const NextUpCard = ({
             <Link to={TeacherRoutes.present({ classroomId, dayId: day.id })}>
               <Play aria-hidden />
               Present
-            </Link>
-          </Button>
-          <Button asChild size="lg">
-            <Link to={TeacherRoutes.dayPreview({ classroomId, dayId: day.id })}>
-              <Eye aria-hidden />
-              Preview
             </Link>
           </Button>
           <Button asChild size="lg" variant="ghost">

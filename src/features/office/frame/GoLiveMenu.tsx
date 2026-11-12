@@ -1,4 +1,4 @@
-import { CalendarDays, Radio, Sparkles } from 'lucide-react';
+import { CalendarDays, Radio } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { Button } from '@/daw/ui/Button';
@@ -19,7 +19,7 @@ import { relativeDay } from '../today/todayModel';
 /**
  * The class's one white pill, as Kahoot's and Pear Deck's top bars put the
  * session first: "Live now" back into a running session, or Go Live on one
- * of the next lessons, a new live deck, or any lesson from Plan.
+ * of the next lessons, or any lesson from Plan.
  */
 export const GoLiveMenu = ({ classroomId }: { classroomId: string }) => {
   const navigate = useNavigate();
@@ -80,12 +80,6 @@ export const GoLiveMenu = ({ classroomId }: { classroomId: string }) => {
             <MenuSeparator />
           </>
         )}
-        <MenuItem
-          icon={<Sparkles />}
-          onSelect={() => navigate(TeacherRoutes.deckWizard({ classroomId }))}
-        >
-          Build a live deck…
-        </MenuItem>
         <MenuItem
           icon={<CalendarDays />}
           onSelect={() => navigate(TeacherRoutes.plan({ classroomId }))}

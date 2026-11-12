@@ -31,4 +31,35 @@ describe('describeResponse', () => {
       }),
     ).toBe('1 of 2 echoes good · best streak 1');
   });
+
+  it('names the work a student shared, and who it was for', () => {
+    expect(
+      describeResponse({
+        kind: 'showcase',
+        artifact: { projectId: 'p1', name: 'Night Drive' },
+      }),
+    ).toBe('Offered their project “Night Drive”');
+    expect(
+      describeResponse({
+        kind: 'showcase',
+        artifact: {
+          projectId: 'song:thriller',
+          name: 'Thriller',
+          place: 'songs',
+          audience: 'teacher',
+        },
+      }),
+    ).toBe('Sent their Songs work “Thriller”');
+    expect(
+      describeResponse({
+        kind: 'showcase',
+        artifact: {
+          projectId: 'lesson:pop-1',
+          name: 'Pop — Level 1',
+          place: 'learn',
+          audience: 'class',
+        },
+      }),
+    ).toBe('Offered their Learn work “Pop — Level 1”');
+  });
 });

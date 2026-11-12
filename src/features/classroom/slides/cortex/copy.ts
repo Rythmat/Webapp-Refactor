@@ -35,6 +35,67 @@ export const RESET_CHECKLIST: readonly LocalizedText[] = [
   { en: 'Room ready', es: 'Salón listo' },
 ];
 
+/**
+ * The listening slide's questions (owner, 2026-11-12): how the song makes
+ * the class feel and what it says to them, then what they hear in it. Each
+ * is multiple choice, answered on the students' devices beside the video.
+ * `lyric` is the place an artist's own question (ARTIST_LISTEN) takes.
+ */
+export const LISTEN_QUESTIONS = {
+  feel: {
+    question: {
+      en: 'How does this song make you feel?',
+      es: '¿Cómo te hace sentir esta canción?',
+    },
+    options: [
+      { en: 'Hopeful', es: 'Con esperanza' },
+      { en: 'Energized', es: 'Con energía' },
+      { en: 'Happy', es: 'Feliz' },
+      { en: 'Calm', es: 'Tranquilo' },
+      { en: 'Not sure yet', es: 'Aún no sé' },
+    ],
+  },
+  lyric: {
+    question: {
+      en: 'What does the song want us to feel?',
+      es: '¿Qué quiere la canción que sintamos?',
+    },
+    options: [
+      { en: 'Joy', es: 'Alegría' },
+      { en: 'Love', es: 'Amor' },
+      { en: 'Hope', es: 'Esperanza' },
+      { en: 'Strength', es: 'Fuerza' },
+    ],
+  },
+  instruments: {
+    question: {
+      en: 'Which instruments do you hear?',
+      es: '¿Qué instrumentos escuchas?',
+    },
+    options: [
+      { en: 'Drums', es: 'Batería' },
+      { en: 'Bass', es: 'Bajo' },
+      { en: 'Synths', es: 'Sintetizadores' },
+      { en: 'Strings', es: 'Cuerdas' },
+      { en: 'Horns', es: 'Metales' },
+      { en: 'Voices', es: 'Voces' },
+    ],
+    multi: true,
+  },
+  tempo: {
+    question: {
+      en: 'What do you think the tempo is?',
+      es: '¿Cuál crees que es el tempo?',
+    },
+    options: [
+      { en: 'Slow', es: 'Lento' },
+      { en: 'Medium', es: 'Moderado' },
+      { en: 'Fast', es: 'Rápido' },
+      { en: 'Very fast', es: 'Muy rápido' },
+    ],
+  },
+} as const;
+
 export const COPY = {
   connectionTitle: { en: 'Check in', es: 'Conéctate' },
   connectionCell: { en: 'Connection', es: 'Conexión' },
@@ -49,21 +110,20 @@ export const COPY = {
     en: 'Who or where are we exploring today?',
     es: '¿A quién o qué lugar exploramos hoy?',
   },
-  listenPrompt: { en: 'What do you hear?', es: '¿Qué escuchas?' },
   groupTitle: { en: 'Group Project', es: 'Proyecto grupal' },
   groupOpen: {
     en: 'Today we work together as Promoters, Producers or Performers.',
     es: 'Hoy trabajamos juntos como promotores, productores o intérpretes.',
   },
   projectTitle: { en: 'Individual Project', es: 'Proyecto individual' },
-  projectPrompt: {
-    en: 'Open your project in the Studio and keep building.',
-    es: 'Abre tu proyecto en el Studio y sigue creando.',
+  // The menu slide's own line: a question, not the section's label.
+  projectMenuTitle: {
+    en: 'Where will you work today?',
+    es: '¿Dónde vas a trabajar hoy?',
   },
-  libraryTile: { en: 'Open my projects', es: 'Abrir mis proyectos' },
-  projectTask: {
-    en: 'Work on your own project in the Studio.',
-    es: 'Trabaja en tu propio proyecto en el Studio.',
+  projectPrompt: {
+    en: 'Choose where to work today: Learn, Songs, Library, Studio or Globe.',
+    es: 'Elige dónde trabajar hoy: Aprende, Canciones, Biblioteca, Studio o Globo.',
   },
   presentTitle: { en: 'Present your progress', es: 'Presenta tu avance' },
   presentCell: { en: 'Present', es: 'Presenta' },

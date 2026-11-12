@@ -104,6 +104,27 @@ describe('the first lesson, Michael Jackson · Producer', () => {
       (s) => s.id === withSong?.id,
     );
     expect(publishedPortrait?.recording).toEqual({ videoId: 'rlpZmqGS8rc' });
+
+    // The second slide plays the same song (owner, 2026-11-12: "Can You
+    // Feel It"), the video beside the class's four questions: two about how
+    // it feels and what it says, two about what they hear.
+    const listen = slides[1];
+    expect(listen).toMatchObject({
+      presetId: 'listen-questions',
+      media: { type: 'youtube', videoId: 'rlpZmqGS8rc' },
+    });
+    const asked = interactions.filter((i) =>
+      (listen.kind === 'interaction' ? listen.interactionIds : []).includes(
+        i.id,
+      ),
+    );
+    expect(asked.map((i) => i.question.en)).toEqual([
+      'How does this song make you feel?',
+      'When do you feel most connected?',
+      'Which instruments do you hear?',
+      'What do you think the tempo is?',
+    ]);
+    expect(asked.every((i) => i.type === 'choice' && i.shareable)).toBe(true);
     const forged = {
       ...day,
       deck: {
@@ -159,7 +180,12 @@ describe('the first lesson, Michael Jackson · Producer', () => {
     for (const slide of slides) {
       const texts = projectedTexts(slide, interactions);
       const portrait = stageKindOf(slide) === 'portrait';
-      const textBlocks = texts.filter((t) => t.role !== 'item');
+      // The song's slide lists its questions beside the video (owner,
+      // 2026-11-12): one block a question, each in budget.
+      const split = stageKindOf(slide) === 'split';
+      const textBlocks = texts.filter(
+        (t) => t.role !== 'item' && !(split && t.role === 'question'),
+      );
       expect(textBlocks.length, slide.id).toBeLessThanOrEqual(portrait ? 3 : 1);
       for (const { role, text } of texts) {
         expect(labels.has(text.toLowerCase()), `${slide.id}: "${text}"`).toBe(

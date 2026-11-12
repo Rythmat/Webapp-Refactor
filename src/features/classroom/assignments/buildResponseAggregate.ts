@@ -8,6 +8,7 @@ import type {
   Interaction,
   InteractionResponsePayload,
   LocalizedText,
+  ShowcaseArtifact,
 } from '../types';
 
 export interface DisplayNameLookup {
@@ -87,7 +88,7 @@ export interface ShowcaseAggregate extends AggregateBase {
   offers: Array<{
     enrollmentId: string;
     displayName: string;
-    artifact: { projectId: string; roomId?: string; name: string };
+    artifact: ShowcaseArtifact;
   }>;
 }
 
@@ -334,7 +335,7 @@ export const buildResponseAggregate = (
             ): r is {
               enrollmentId: string;
               displayName: string;
-              artifact: { projectId: string; roomId?: string; name: string };
+              artifact: ShowcaseArtifact;
             } => Boolean(r),
           );
         return { ...base, kind: 'showcase', offers };

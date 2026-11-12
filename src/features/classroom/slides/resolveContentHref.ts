@@ -10,11 +10,12 @@
  *
  * activityRef conventions (namespaced, colon-delimited):
  *   song:<id>:lesson | song:<id>:chart
- *   learn:<mode>:<key>[:O|A|B]
+ *   learn:<mode>:<key>[:O|A|B] | learn:home | learn:songs
  *   curriculum:<GENRE>:<L#>[:A|B|C|D]
  *   globe:event:<id> | globe:pathway:<id> | globe:mindmap
  *   studio:song:<id> | studio:template:<id> | studio:tutorial:<id>
- *   studio:library
+ *   studio:library | studio:editor
+ *   globe:home
  * Legacy bare refs (no recognized `<ns>:` prefix) are interpreted via `module`
  * (e.g. an annual-plan globe LaunchTile whose activityRef is a bare event id).
  */
@@ -22,6 +23,7 @@ import {
   GameRoutes,
   GlobeRoutes,
   LearnRoutes,
+  LibraryRoutes,
   SongRoutes,
   StudioRoutes,
 } from '@/constants/routes';
@@ -119,6 +121,9 @@ export const resolveActivityRefHref = (
       const mode = parts[1];
       const key = parts[2];
       const section = parts[3];
+      // The Individual Project's places: Learn's own page and the Songs page.
+      if (!key && mode === 'home') return LearnRoutes.root();
+      if (!key && mode === 'songs') return SongRoutes.root();
       if (!mode || !key) return null;
       return LearnRoutes.keyboardLesson(
         { mode, key: canonicalLessonKeyParam(key) },
@@ -171,8 +176,9 @@ export const resolveActivityRefHref = (
       // A Cortex lesson's Producer: the editor with the tutorial running.
       if (sub === 'tutorial' && id)
         return `${StudioRoutes.editor()}?tutorial=${encodeURIComponent(id)}`;
-      // "Continue your project": the Studio Dashboard's project library.
-      if (sub === 'library') return `${StudioRoutes.root()}?tab=Library`;
+      // "Continue your project": the Library, the student's sessions and
+      // projects (the Studio Dashboard's tab is gone).
+      if (sub === 'library') return LibraryRoutes.root();
       return StudioRoutes.editor();
     }
     case 'arcade': {

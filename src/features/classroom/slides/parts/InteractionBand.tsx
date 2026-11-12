@@ -11,7 +11,7 @@
  *
  * Response data still only ever arrives through the pre-gated `slots`.
  */
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { EnergyRail } from '../../feelings/EnergyRail';
 import { FeelingsPreview } from '../../feelings/FeelingsPicker';
 import { pickLocalized, secondaryLine } from '../../presentation/localized';
@@ -70,6 +70,13 @@ export interface InteractionBandProps {
    * (the portrait's check-in): the question small, the tool under it.
    */
   compact?: boolean;
+  /**
+   * A split slide's questions (owner, 2026-11-12): numbered, one under the
+   * other, each with its choices on the room's screen; a revealed one shows
+   * its results in its place (`reveals`, by interaction id).
+   */
+  list?: boolean;
+  reveals?: Readonly<Record<string, ReactNode>>;
 }
 
 export const InteractionBand = ({
@@ -80,6 +87,8 @@ export const InteractionBand = ({
   teacherOnly = false,
   hero = false,
   compact = false,
+  list = false,
+  reveals,
 }: InteractionBandProps) => {
   if (interactions.length === 0) return null;
 
@@ -93,7 +102,9 @@ export const InteractionBand = ({
       // the inner block uses `m-auto` — centred when it fits, scrolled from
       // the top when it does not.
       <div
-        className={`flex h-full w-full overflow-y-auto ${hero ? '' : 'slide-band-scroll'}`}
+        className={`flex h-full w-full overflow-y-auto ${hero ? '' : 'slide-band-scroll'} ${
+          list ? 'px-[40px] py-[48px]' : ''
+        }`}
       >
         <div
           className={`m-auto flex w-full flex-col gap-5 ${hero ? 'max-w-[880px] items-center text-center' : ''}`}
@@ -225,6 +236,17 @@ export const InteractionBand = ({
     );
   }
 
+  if (list) {
+    return (
+      <QuestionList
+        interactions={interactions}
+        language={language}
+        reveals={reveals}
+        statusChip={slots?.statusChip}
+      />
+    );
+  }
+
   // Projected surfaces and the teacher panel, pre-reveal: the question big,
   // with the live participation chip under it. Once the teacher shares, the
   // reveal replaces this whole band (see `SlideStage`).
@@ -259,5 +281,110 @@ const TeacherEnergy = ({ language }: { language: StudentLanguage }) => {
       language={language}
       keyboard={false}
     />
+  );
+};
+
+/**
+ * A split slide's questions on the room's screen: numbered, each with its
+ * choices to answer on a device, or its results once the teacher reveals it.
+ */
+const QuestionList = ({
+  interactions,
+  language,
+  reveals,
+  statusChip,
+}: {
+  interactions: Interaction[];
+  language: StudentLanguage;
+  reveals?: Readonly<Record<string, ReactNode>>;
+  statusChip?: ReactNode;
+}) => (
+  <div
+    data-question-list=""
+    className="flex h-full w-full flex-col justify-center gap-[28px] overflow-hidden px-[40px] py-[48px]"
+  >
+    {interactions.map((interaction, n) => {
+      const reveal = reveals?.[interaction.id];
+      return (
+        <div
+          key={interaction.id}
+          className={`flex flex-col gap-[12px] ${reveal ? 'min-h-0 flex-1' : 'shrink-0'}`}
+        >
+          <div className="flex items-baseline gap-[14px]">
+            <span
+              aria-hidden
+              className="shrink-0 tabular-nums text-white/40"
+              style={{ fontSize: 'calc(var(--slide-question-fz) * 0.5)' }}
+            >
+              {n + 1}
+            </span>
+            <QuestionText
+              question={interaction.question}
+              language={language}
+              scale={0.5}
+            />
+          </div>
+          {reveal ? (
+            <FitBox>{reveal}</FitBox>
+          ) : interaction.choice ? (
+            <ul
+              className="flex flex-wrap gap-[8px] pl-[34px]"
+              style={{ fontSize: 'calc(var(--slide-body-fz) * 0.75)' }}
+            >
+              {interaction.choice.options.map((option, i) => (
+                <li
+                  key={i}
+                  className="rounded-full border border-white/15 px-[0.75em] py-[0.25em] leading-tight text-white/80"
+                >
+                  {pickLocalized(option, language)}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      );
+    })}
+    {statusChip && <div className="flex items-center gap-3">{statusChip}</div>}
+  </div>
+);
+
+/**
+ * Its content shrunk to fit the room it has, never cut: a revealed question's
+ * bars beside three others. Layout px, so the stage's own scale is not counted
+ * twice.
+ */
+const FitBox = ({ children }: { children: ReactNode }) => {
+  const outer = useRef<HTMLDivElement>(null);
+  const inner = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  useLayoutEffect(() => {
+    const box = outer.current;
+    const content = inner.current;
+    if (!box || !content) return;
+    const fit = () => {
+      const need = content.scrollHeight;
+      const room = box.clientHeight;
+      setScale(need > 0 && room > 0 ? Math.min(1, room / need) : 1);
+    };
+    fit();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(fit);
+    observer.observe(box);
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <div ref={outer} className="relative min-h-0 flex-1 overflow-hidden">
+      <div
+        ref={inner}
+        style={{
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          width: `${100 / scale}%`,
+        }}
+      >
+        {children}
+      </div>
+    </div>
   );
 };

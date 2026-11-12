@@ -351,3 +351,10 @@
 /* Songs marquee animation moved to
    src/components/songLibrary/songs-marquee.css so it applies under both
    .dashboard-root (Home) and .learn-root (Learn). */
+
+/* A place opened inside a lesson (layouts/DashboardLayout/lessonFrame): the
+   lesson's bar is its frame, so the Studio's and the Globe's own way to the
+   app's rail goes (owner, 2026-11-11). */
+.lesson-frame [data-rail-toggle] {
+  display: none !important;
+}

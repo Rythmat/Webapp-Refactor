@@ -20,7 +20,13 @@
  * fixture-testable with no storage and no React.
  */
 import type { MigrationStep } from '@/lib/local-store/migrations';
-import type { Day, Unit } from '../types';
+import {
+  CORTEX_LESSON_TEMPLATE_ID,
+  projectMenuSlide,
+} from '../slides/cortex/buildDeck';
+import { COPY } from '../slides/cortex/copy';
+import type { Slide } from '../slides/types';
+import type { Day, Interaction, Unit } from '../types';
 
 export interface PlanV1 {
   schemaVersion: number;
@@ -83,6 +89,85 @@ export const migratePlanV1toV2 = (
   };
 };
 
+// ── v2 → v3: the Individual Project's five places (owner, 2026-11-11) ──────
+// A Cortex lesson saved before the five places opened only the Studio's
+// project library on its Individual Project slide: an app-route slide with a
+// Studio activity, or (a new lesson's) one "Open my projects" tile. That
+// slide becomes the five places' menu, keeping its id, its timer and a title
+// the teacher wrote; the Studio activity behind it goes from its cell. Every
+// other slide, and any slide a teacher has made their own, stays as it was.
+// Idempotent, so a backup restored later can run it again.
+
+const LIBRARY_REF = 'studio:library';
+const SLIDE_SUFFIX = '-slide-project';
+
+/** The old Individual Project slide, in either of its two shapes. */
+const isOldProjectSlide = (slide: Slide, interactions: Interaction[]) => {
+  if (!slide.id.endsWith(SLIDE_SUFFIX)) return false;
+  if (slide.kind === 'app-route') {
+    const ix = interactions.find((i) => i.id === slide.interactionId);
+    return ix?.atlas?.activityRef === LIBRARY_REF;
+  }
+  if (slide.kind === 'content') {
+    const tiles = slide.launchTiles ?? [];
+    return tiles.length === 1 && tiles[0].activityRef === LIBRARY_REF;
+  }
+  return false;
+};
+
+/** One Day, its old Individual Project slide made the five places' menu. */
+export const withProjectPlaces = (day: Day): Day => {
+  const deck = day.deck;
+  if (deck?.templateRef?.templateId !== CORTEX_LESSON_TEMPLATE_ID) return day;
+  const cell = day.cells?.creativeProjects;
+  const interactions = cell?.presentation.interactions ?? [];
+  const dropped = new Set<string>();
+  let changed = false;
+  const slides = deck.slides.map((slide) => {
+    if (!isOldProjectSlide(slide, interactions)) return slide;
+    changed = true;
+    if (slide.kind === 'app-route') dropped.add(slide.interactionId);
+    const prefix = slide.id.slice(0, -SLIDE_SUFFIX.length);
+    const menu = projectMenuSlide(prefix);
+    const ownTitle =
+      slide.title.en.trim() && slide.title.en !== COPY.projectTitle.en;
+    return {
+      ...menu,
+      id: slide.id,
+      ...(ownTitle ? { title: slide.title } : {}),
+      ...(slide.timerSec ? { timerSec: slide.timerSec } : {}),
+    } as Slide;
+  });
+  if (!changed) return day;
+  return {
+    ...day,
+    deck: { ...deck, slides },
+    cells:
+      cell && dropped.size
+        ? {
+            ...day.cells,
+            creativeProjects: {
+              ...cell,
+              presentation: {
+                ...cell.presentation,
+                interactions: interactions.filter((i) => !dropped.has(i.id)),
+              },
+            },
+          }
+        : day.cells,
+  };
+};
+
+export const migratePlanV2toV3 = (plan: PlanV2): PlanV2 => ({
+  schemaVersion: 3,
+  days: Object.fromEntries(
+    Object.entries(plan.days ?? {}).map(([id, day]) => [
+      id,
+      withProjectPlaces(day),
+    ]),
+  ),
+});
+
 /** The step chain `useLocalPlan` hands to `migrateStoredValue`. */
 export const PLAN_MIGRATIONS: MigrationStep[] = [
   {
@@ -94,5 +179,11 @@ export const PLAN_MIGRATIONS: MigrationStep[] = [
         value as PlanV1,
         ctx.annual as AnnualPlansForMigration | null,
       ),
+  },
+  {
+    from: 2,
+    to: 3,
+    describe: 'plan v2→v3: the Individual Project offers the five places',
+    migrate: (value) => migratePlanV2toV3(value as PlanV2),
   },
 ];

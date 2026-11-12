@@ -431,4 +431,5 @@ export const livin_on_a_prayer: Song = {
 
   artistImageRef: '/artists/svg/jon-bon-jovi.webp',
   popularity: 50,
+  comingSoon: true,
 };

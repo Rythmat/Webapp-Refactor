@@ -54,4 +54,5 @@ export const stop_making_sense_girlfriend_is_better: Song = {
 
   artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
+  comingSoon: true,
 };

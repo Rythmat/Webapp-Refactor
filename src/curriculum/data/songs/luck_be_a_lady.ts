@@ -645,4 +645,5 @@ export const luck_be_a_lady: Song = {
 
   artistImageRef: '/artists/svg/frank-sinatra.webp',
   popularity: 50,
+  comingSoon: true,
 };

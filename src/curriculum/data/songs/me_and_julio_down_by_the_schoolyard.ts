@@ -308,4 +308,5 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
 
   artistImageRef: '/artists/svg/paul-simon.webp',
   popularity: 50,
+  comingSoon: true,
 };

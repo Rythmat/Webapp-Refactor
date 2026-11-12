@@ -143,4 +143,5 @@ export const blank_space: Song = {
 
   artistImageRef: '/artists/svg/taylor-swift.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -263,4 +263,5 @@ export const all_about_that_bass: Song = {
 
   artistImageRef: '/artists/svg/meghan-trainor.webp',
   popularity: 50,
+  comingSoon: true,
 };

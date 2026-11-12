@@ -432,4 +432,5 @@ export const i_wish: Song = {
 
   artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
+  comingSoon: true,
 };

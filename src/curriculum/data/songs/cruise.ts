@@ -75,4 +75,5 @@ export const cruise: Song = {
 
   artistImageRef: '/artists/svg/florida-georgia-line.webp',
   popularity: 50,
+  comingSoon: true,
 };

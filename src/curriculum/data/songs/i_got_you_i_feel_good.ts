@@ -252,4 +252,5 @@ export const i_got_you_i_feel_good: Song = {
 
   artistImageRef: '/artists/svg/james-brown.webp',
   popularity: 50,
+  comingSoon: true,
 };

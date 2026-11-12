@@ -125,4 +125,5 @@ export const this_must_be_the_place_naive_melody: Song = {
 
   artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
+  comingSoon: true,
 };

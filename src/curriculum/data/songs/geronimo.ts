@@ -233,4 +233,5 @@ export const geronimo: Song = {
 
   artistImageRef: '/artists/svg/sheppard.webp',
   popularity: 50,
+  comingSoon: true,
 };

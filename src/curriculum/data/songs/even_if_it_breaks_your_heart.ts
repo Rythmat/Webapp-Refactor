@@ -388,4 +388,5 @@ export const even_if_it_breaks_your_heart: Song = {
 
   artistImageRef: '/artists/svg/eli-young-band.webp',
   popularity: 50,
+  comingSoon: true,
 };

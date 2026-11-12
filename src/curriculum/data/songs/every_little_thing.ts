@@ -423,4 +423,5 @@ export const every_little_thing: Song = {
 
   artistImageRef: '/artists/svg/chaka-khan.webp',
   popularity: 50,
+  comingSoon: true,
 };

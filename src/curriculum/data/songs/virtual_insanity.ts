@@ -415,4 +415,5 @@ export const virtual_insanity: Song = {
 
   artistImageRef: '/artists/svg/jamiroquai.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -479,4 +479,5 @@ export const nothing_compares_2_u: Song = {
 
   artistImageRef: '/artists/svg/sinead-o-connor.webp',
   popularity: 50,
+  comingSoon: true,
 };

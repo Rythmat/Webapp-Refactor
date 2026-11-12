@@ -357,4 +357,5 @@ export const come_together: Song = {
 
   artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
+  comingSoon: true,
 };

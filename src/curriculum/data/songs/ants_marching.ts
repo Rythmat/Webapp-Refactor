@@ -428,4 +428,5 @@ export const ants_marching: Song = {
 
   artistImageRef: '/artists/svg/dave-matthews-band.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -134,4 +134,5 @@ export const free_fallin: Song = {
 
   artistImageRef: '/artists/svg/tom-petty.webp',
   popularity: 50,
+  comingSoon: true,
 };

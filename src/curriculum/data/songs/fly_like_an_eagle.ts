@@ -202,4 +202,5 @@ export const fly_like_an_eagle: Song = {
 
   artistImageRef: '/artists/svg/steve-miller-band.webp',
   popularity: 50,
+  comingSoon: true,
 };

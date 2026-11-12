@@ -263,4 +263,5 @@ export const watermelon_sugar: Song = {
 
   artistImageRef: '/artists/svg/harry-styles.webp',
   popularity: 50,
+  comingSoon: true,
 };

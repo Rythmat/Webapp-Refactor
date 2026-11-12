@@ -216,4 +216,5 @@ export const somethin_for_ya: Song = {
 
   artistImageRef: '/artists/svg/pigeons-playing-ping-pong.webp',
   popularity: 50,
+  comingSoon: true,
 };

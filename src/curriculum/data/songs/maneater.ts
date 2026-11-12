@@ -645,4 +645,5 @@ export const maneater: Song = {
 
   artistImageRef: '/artists/svg/hall-and-oates.webp',
   popularity: 50,
+  comingSoon: true,
 };

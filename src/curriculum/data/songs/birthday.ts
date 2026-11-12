@@ -346,4 +346,5 @@ export const birthday: Song = {
 
   artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
+  comingSoon: true,
 };

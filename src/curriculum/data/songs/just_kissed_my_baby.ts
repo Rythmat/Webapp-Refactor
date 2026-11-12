@@ -166,4 +166,5 @@ export const just_kissed_my_baby: Song = {
 
   artistImageRef: '/artists/svg/the-meters.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -163,4 +163,5 @@ export const all_the_small_things: Song = {
 
   artistImageRef: '/artists/svg/blink-182.webp',
   popularity: 50,
+  comingSoon: true,
 };

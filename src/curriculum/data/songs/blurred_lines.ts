@@ -88,4 +88,5 @@ export const blurred_lines: Song = {
 
   artistImageRef: '/artists/svg/robin-thicke.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -172,4 +172,5 @@ export const get_down_on_it: Song = {
 
   artistImageRef: '/artists/svg/kool-and-the-gang.webp',
   popularity: 50,
+  comingSoon: true,
 };

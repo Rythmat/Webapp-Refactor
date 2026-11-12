@@ -122,4 +122,5 @@ export const california_stars: Song = {
 
   artistImageRef: '/artists/svg/wilco.webp',
   popularity: 50,
+  comingSoon: true,
 };

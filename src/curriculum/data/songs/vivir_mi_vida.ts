@@ -162,4 +162,5 @@ export const vivir_mi_vida: Song = {
 
   artistImageRef: '/artists/svg/marc-anthony.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -407,4 +407,5 @@ export const one_fine_day: Song = {
 
   artistImageRef: '/artists/svg/the-chiffons.webp',
   popularity: 50,
+  comingSoon: true,
 };

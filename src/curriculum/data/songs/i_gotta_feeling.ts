@@ -151,4 +151,5 @@ export const i_gotta_feeling: Song = {
 
   artistImageRef: '/artists/svg/black-eyed-peas.webp',
   popularity: 50,
+  comingSoon: true,
 };

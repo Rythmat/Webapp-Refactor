@@ -326,4 +326,5 @@ export const dont_worry_about_the_government: Song = {
 
   artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
+  comingSoon: true,
 };

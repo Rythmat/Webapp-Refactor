@@ -608,4 +608,5 @@ export const cant_buy_me_love: Song = {
 
   artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
+  comingSoon: true,
 };

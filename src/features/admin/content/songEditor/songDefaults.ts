@@ -89,7 +89,9 @@ export const isValidYouTubeUrl = (url: string): boolean =>
   !!url.trim() && extractYouTubeId(url.trim()) !== null;
 
 /** A schema-valid new song for the "New song" screen — starts with one
- * blank-label, 4-bar section so the chart is ready to edit. */
+ * blank-label, 4-bar section so the chart is ready to edit, and with its
+ * light red (`comingSoon`): Coming soon to students until it is turned
+ * green (songGate.ts). */
 export const makeEmptySong = (): Song => ({
   id: '',
   title: '',
@@ -111,4 +113,5 @@ export const makeEmptySong = (): Song => ({
   ],
   audioSources: [],
   artistImageSource: 'none',
+  comingSoon: true,
 });

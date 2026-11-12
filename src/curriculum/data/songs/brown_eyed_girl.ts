@@ -180,4 +180,5 @@ export const brown_eyed_girl: Song = {
 
   artistImageRef: '/artists/svg/van-morrison.webp',
   popularity: 50,
+  comingSoon: true,
 };

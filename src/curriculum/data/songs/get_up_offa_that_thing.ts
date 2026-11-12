@@ -115,4 +115,5 @@ export const get_up_offa_that_thing: Song = {
 
   artistImageRef: '/artists/svg/james-brown.webp',
   popularity: 50,
+  comingSoon: true,
 };

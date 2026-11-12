@@ -457,4 +457,5 @@ export const i_feel_the_earth_move: Song = {
 
   artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
+  comingSoon: true,
 };

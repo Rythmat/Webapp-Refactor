@@ -355,4 +355,5 @@ export const power_of_love: Song = {
 
   artistImageRef: '/artists/svg/huey-lewis-and-the-news.webp',
   popularity: 50,
+  comingSoon: true,
 };

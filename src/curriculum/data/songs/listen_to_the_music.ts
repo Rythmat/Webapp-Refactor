@@ -239,4 +239,5 @@ export const listen_to_the_music: Song = {
 
   artistImageRef: '/artists/svg/the-doobie-brothers.webp',
   popularity: 50,
+  comingSoon: true,
 };

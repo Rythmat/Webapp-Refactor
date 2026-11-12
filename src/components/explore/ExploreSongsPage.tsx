@@ -29,6 +29,13 @@ import { useLearnCatalog } from '@/features/learn/catalog/useLearnCatalog';
 import { songsFor } from '@/features/learn/dashboard/recommend';
 import { useGenreReadiness } from '@/features/learn/genreReadiness';
 import { useLearnProfile } from '@/features/learn/profile/useLearnProfile';
+import {
+  isSongOpen,
+  lightFilterOf,
+  matchesLight,
+  openFirst,
+  useSongLights,
+} from '@/features/songs/songGate';
 import { useSavedSongsStore } from '@/features/songs/useSavedSongsStore';
 import { LearnInstrumentPill } from '../learn/LearnInstrumentPill';
 import { SongFilterPills } from '../learn/LearnPromptPills';
@@ -133,17 +140,23 @@ export function ExploreSongsPage() {
   const { profile } = useLearnProfile();
   const tasteGenres = useTasteGenres(topics, records);
 
+  // The console shows each song's light, and filters by it (?light=);
+  // the app has no such filter (songGate.ts).
+  const lights = useSongLights();
+
   const filters = {
     search: params.get('q') ?? '',
     genre: params.get('genre') ?? 'all',
     difficulty: params.get('difficulty') ?? 'all',
     saved: (params.get('saved') as SavedFilter | null) ?? 'all',
+    light: lights ? lightFilterOf(params.get('light')) : ('all' as const),
   };
   const filtering =
     Boolean(filters.search.trim()) ||
     filters.genre !== 'all' ||
     filters.difficulty !== 'all' ||
-    filters.saved !== 'all';
+    filters.saved !== 'all' ||
+    filters.light !== 'all';
   const view = viewOf(params.get('view'));
   const layout = layoutOf(params.get('layout'));
   const artistAsked = view === 'artist' ? params.get('artist') : null;
@@ -160,7 +173,7 @@ export function ExploreSongsPage() {
             sort: 'title',
           },
           savedIds,
-        ),
+        ).filter((song) => matchesLight(song, filters.light)),
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -170,6 +183,7 @@ export function ExploreSongsPage() {
       filters.genre,
       filters.difficulty,
       filters.saved,
+      filters.light,
     ],
   );
   const artists = useMemo(
@@ -199,11 +213,15 @@ export function ExploreSongsPage() {
         ? 'grid'
         : 'shelves';
 
-  const shelves = useMemo(
-    () => ({
-      popular: popularSongs(songs),
-      easy: easySongs(songs),
-      forYou: songsFor(songs, {
+  // The shelves that suggest a song suggest only songs that open; a genre's
+  // shelf holds all of its songs, the open ones first, so the whole library
+  // shows, Coming soon and all (owner, 2026-11-12).
+  const shelves = useMemo(() => {
+    const open = songs.filter(isSongOpen);
+    return {
+      popular: popularSongs(open),
+      easy: easySongs(open),
+      forYou: songsFor(open, {
         tasteGenres,
         level: profile.level,
         records,
@@ -211,11 +229,10 @@ export function ExploreSongsPage() {
       }),
       genres: genreRows(songs, GENRE_OPTIONS).map((genre) => ({
         ...genre,
-        songs: songsInGenre(songs, genre.slug),
+        songs: openFirst(songsInGenre(songs, genre.slug)),
       })),
-    }),
-    [songs, tasteGenres, profile.level, records],
-  );
+    };
+  }, [songs, tasteGenres, profile.level, records]);
 
   // The Best Of row's order: a genre's tile takes its colours from it, as
   // its course's sigil does on Learn (owner, 2026-11-05).
@@ -285,7 +302,7 @@ export function ExploreSongsPage() {
                 ))}
               </nav>
               <span aria-hidden className="h-5 w-px shrink-0 bg-white/10" />
-              <SongFilterPills genre={false} />
+              <SongFilterPills genre={false} light={lights} />
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {shown === 'artists' && (

@@ -167,4 +167,5 @@ export const give_it_to_me_baby: Song = {
 
   artistImageRef: '/artists/svg/rick-james.webp',
   popularity: 50,
+  comingSoon: true,
 };

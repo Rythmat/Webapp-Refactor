@@ -747,4 +747,5 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
 
   artistImageRef: '/artists/svg/whitney-houston.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -321,4 +321,5 @@ export const any_man_of_mine: Song = {
 
   artistImageRef: '/artists/svg/shania-twain.webp',
   popularity: 50,
+  comingSoon: true,
 };

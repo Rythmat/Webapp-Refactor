@@ -337,4 +337,5 @@ export const i_hope_you_dance: Song = {
 
   artistImageRef: '/artists/svg/lee-ann-womack.webp',
   popularity: 50,
+  comingSoon: true,
 };

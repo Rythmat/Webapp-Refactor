@@ -184,4 +184,5 @@ export const go_your_own_way: Song = {
 
   artistImageRef: '/artists/svg/fleetwood-mac.webp',
   popularity: 50,
+  comingSoon: true,
 };

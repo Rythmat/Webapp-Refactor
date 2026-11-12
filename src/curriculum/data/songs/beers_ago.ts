@@ -188,4 +188,5 @@ export const beers_ago: Song = {
 
   artistImageRef: '/artists/svg/toby-keith.webp',
   popularity: 50,
+  comingSoon: true,
 };

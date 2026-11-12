@@ -282,8 +282,9 @@ describe('GET /capabilities', () => {
       bundle: 'artists',
       authoritative: true,
     });
-    // The contract's latest bodies: song v2, and the v2 city and event.
-    expect(byKind.song).toMatchObject({ identity: 'id', schemaVersion: 2 });
+    // The contract's latest bodies: song v3 (v2 and the chart's light,
+    // `comingSoon`), and the v2 city and event.
+    expect(byKind.song).toMatchObject({ identity: 'id', schemaVersion: 3 });
     expect(byKind.globe_city).toMatchObject({ schemaVersion: 2 });
     expect(byKind.globe_event).toMatchObject({ schemaVersion: 2 });
     expect(byKind.activity_flow).toMatchObject({ schemaVersion: 1 });
@@ -1559,9 +1560,10 @@ describe('legacy mode (today’s API)', () => {
     // Every repo chart through today's check: production's import run was
     // refused on 341 (docs/song-body-schema-gap.md), and so was the mock.
     // 602 since the bulk import of 30 September 2026 gave 261 more charts
-    // (628 with the Music Maps charts so far)
+    // (628 with the Music Maps charts so far, 649 since the 387 red lights:
+    // `comingSoon` is a song v3 key)
     // credits, a session or a record, keys today's schema refuses: the
-    // repo's charts need song v2 on the server before they import whole.
+    // repo's charts need song v3 on the server before they import whole.
     const refused = seeds.all.items
       .filter((item) => item.kind === 'song')
       .filter(
@@ -1569,7 +1571,7 @@ describe('legacy mode (today’s API)', () => {
           put(server, { kind: 'song', slug: item.slug, body: item.body })
             .status === 422,
       );
-    expect(refused).toHaveLength(628);
+    expect(refused).toHaveLength(649);
 
     // What the seed holds is what production holds: level-0 copies, all valid.
     const validated = ok<{ ok: boolean; problems: ValidationProblem[] }>(

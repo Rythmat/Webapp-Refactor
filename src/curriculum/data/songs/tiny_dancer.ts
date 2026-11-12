@@ -486,4 +486,5 @@ export const tiny_dancer: Song = {
 
   artistImageRef: '/artists/svg/elton-john.webp',
   popularity: 50,
+  comingSoon: true,
 };

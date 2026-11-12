@@ -257,4 +257,5 @@ export const train_in_vain: Song = {
 
   artistImageRef: '/artists/svg/the-clash.webp',
   popularity: 50,
+  comingSoon: true,
 };

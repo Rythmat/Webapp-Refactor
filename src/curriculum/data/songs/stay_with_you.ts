@@ -324,4 +324,5 @@ export const stay_with_you: Song = {
 
   artistImageRef: '/artists/svg/john-legend.webp',
   popularity: 50,
+  comingSoon: true,
 };

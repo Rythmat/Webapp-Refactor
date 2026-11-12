@@ -451,4 +451,5 @@ export const just_dance: Song = {
 
   artistImageRef: '/artists/svg/lady-gaga.webp',
   popularity: 50,
+  comingSoon: true,
 };

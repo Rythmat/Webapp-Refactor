@@ -132,4 +132,5 @@ export const move_on_up: Song = {
 
   artistImageRef: '/artists/svg/curtis-mayfield.webp',
   popularity: 50,
+  comingSoon: true,
 };

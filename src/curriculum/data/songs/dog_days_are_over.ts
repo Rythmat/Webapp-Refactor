@@ -270,4 +270,5 @@ export const dog_days_are_over: Song = {
 
   artistImageRef: '/artists/svg/florence-and-the-machine.webp',
   popularity: 50,
+  comingSoon: true,
 };

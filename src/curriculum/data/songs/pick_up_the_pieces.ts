@@ -475,4 +475,5 @@ export const pick_up_the_pieces: Song = {
 
   artistImageRef: '/artists/svg/the-average-white-band.webp',
   popularity: 50,
+  comingSoon: true,
 };

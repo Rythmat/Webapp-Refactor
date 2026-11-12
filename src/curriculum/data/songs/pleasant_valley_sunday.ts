@@ -354,4 +354,5 @@ export const pleasant_valley_sunday: Song = {
 
   artistImageRef: '/artists/svg/the-monkees.webp',
   popularity: 50,
+  comingSoon: true,
 };

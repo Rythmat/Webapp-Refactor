@@ -448,4 +448,5 @@ export const saturday_in_the_park: Song = {
 
   artistImageRef: '/artists/svg/chicago.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -308,4 +308,5 @@ export const what_a_wonderful_world: Song = {
 
   artistImageRef: '/artists/svg/louis-armstrong.webp',
   popularity: 50,
+  comingSoon: true,
 };

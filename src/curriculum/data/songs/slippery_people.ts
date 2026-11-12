@@ -138,4 +138,5 @@ export const slippery_people: Song = {
 
   artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
+  comingSoon: true,
 };

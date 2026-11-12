@@ -503,4 +503,5 @@ export const thats_what_i_like: Song = {
 
   artistImageRef: '/artists/svg/bruno-mars.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -378,4 +378,5 @@ export const we_didnt_start_the_fire: Song = {
 
   artistImageRef: '/artists/svg/billy-joel.webp',
   popularity: 50,
+  comingSoon: true,
 };

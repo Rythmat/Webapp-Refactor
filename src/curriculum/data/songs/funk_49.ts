@@ -278,4 +278,5 @@ export const funk_49: Song = {
 
   artistImageRef: '/artists/svg/the-james-gang.webp',
   popularity: 50,
+  comingSoon: true,
 };

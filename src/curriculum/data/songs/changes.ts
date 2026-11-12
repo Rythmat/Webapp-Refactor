@@ -395,4 +395,5 @@ export const changes: Song = {
 
   artistImageRef: '/artists/svg/david-bowie.webp',
   popularity: 50,
+  comingSoon: true,
 };

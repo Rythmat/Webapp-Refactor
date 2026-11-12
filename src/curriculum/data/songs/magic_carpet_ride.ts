@@ -152,4 +152,5 @@ export const magic_carpet_ride: Song = {
 
   artistImageRef: '/artists/svg/steppenwolf.webp',
   popularity: 50,
+  comingSoon: true,
 };

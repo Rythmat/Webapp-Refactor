@@ -147,4 +147,5 @@ export const run_around: Song = {
 
   artistImageRef: '/artists/svg/blues-traveler.webp',
   popularity: 50,
+  comingSoon: true,
 };

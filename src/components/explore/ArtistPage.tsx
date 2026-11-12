@@ -4,11 +4,17 @@ import { AppIcons } from '@/components/icons/appIcons';
 import { CARD_META, ICON_BUTTON } from '@/components/kit/libraryLook';
 import { RecordingPill } from '@/components/media/RecordingPill';
 import { GENRE_LABELS } from '@/components/songLibrary/SongLibraryPage';
+import { LightDot } from '@/components/songLibrary/SongLight';
 import { cn } from '@/components/utilities';
 import { SongRoutes } from '@/constants/routes';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { FOCUS_RING, TRANSITION } from '@/daw/ui/styles';
 import type { ArtistRow } from '@/features/explore/exploreShelves';
+import {
+  isSongOpen,
+  songLight,
+  useSongLights,
+} from '@/features/songs/songGate';
 import { useSongActions } from '@/features/songs/useSongActions';
 import { extractYouTubeId } from '@/hooks/media/useYouTubeIframePlayer';
 import { SongMenu } from './SongCard';
@@ -77,40 +83,71 @@ function ArtistSongRow({
 }) {
   // Where the row's video opens: under the row, at the list's width.
   const [videoSlot, setVideoSlot] = useState<HTMLDivElement | null>(null);
+  // The console shows every song's light and opens them all; to a student
+  // a red song is listed, greyed out, and Coming soon (songGate.ts).
+  const lights = useSongLights();
+  const gated = !lights && !isSongOpen(song);
+  const cells = (
+    <>
+      <span className="w-[2.33rem] shrink-0 pl-[1.023rem] text-[0.795rem] tabular-nums leading-[1.136rem] text-white/30">
+        {number}
+      </span>
+      <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
+        {lights && (
+          <LightDot light={songLight(song)} className="size-2.5 self-center" />
+        )}
+        <span
+          className={cn(
+            'truncate text-[0.795rem] leading-[1.136rem]',
+            gated ? 'text-white/40' : 'text-white',
+          )}
+        >
+          {song.title}
+        </span>
+        <span className={cn(CARD_META, 'shrink-0', gated && 'text-white/25')}>
+          Lvl {song.difficulty}
+        </span>
+      </span>
+      <span className="shrink-0 px-[0.114rem] text-[0.682rem] leading-[0.909rem] text-white/50">
+        {gated
+          ? 'Coming soon'
+          : [song.key, song.year].filter(Boolean).join(' · ')}
+      </span>
+    </>
+  );
   return (
     <li
       data-explore-song={song.id}
+      data-coming-soon={gated ? '' : undefined}
       className="rounded-lg even:bg-white/[0.024]"
     >
       <div
         className={cn(
-          'flex h-[2.955rem] items-center rounded-lg hover:bg-white/[0.05]',
+          'flex h-[2.955rem] items-center rounded-lg',
+          !gated && 'hover:bg-white/[0.05]',
           TRANSITION,
         )}
       >
-        <Link
-          to={SongRoutes.song({ songId: song.id })}
-          aria-label={`${song.title} by ${song.artist}`}
-          className={cn(
-            'flex h-full min-w-0 flex-1 items-center rounded-lg',
-            FOCUS_RING,
-          )}
-        >
-          <span className="w-[2.33rem] shrink-0 pl-[1.023rem] text-[0.795rem] tabular-nums leading-[1.136rem] text-white/30">
-            {number}
+        {gated ? (
+          <span
+            role="img"
+            aria-label={`${song.title} by ${song.artist}: coming soon`}
+            className="flex h-full min-w-0 flex-1 items-center"
+          >
+            {cells}
           </span>
-          <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
-            <span className="truncate text-[0.795rem] leading-[1.136rem] text-white">
-              {song.title}
-            </span>
-            <span className={cn(CARD_META, 'shrink-0')}>
-              Lvl {song.difficulty}
-            </span>
-          </span>
-          <span className="shrink-0 px-[0.114rem] text-[0.682rem] leading-[0.909rem] text-white/50">
-            {[song.key, song.year].filter(Boolean).join(' · ')}
-          </span>
-        </Link>
+        ) : (
+          <Link
+            to={SongRoutes.song({ songId: song.id })}
+            aria-label={`${song.title} by ${song.artist}`}
+            className={cn(
+              'flex h-full min-w-0 flex-1 items-center rounded-lg',
+              FOCUS_RING,
+            )}
+          >
+            {cells}
+          </Link>
+        )}
         {/* The ▶s line up, whether a row has one or not. */}
         <span className="flex w-[2.045rem] shrink-0 justify-end">
           {videoId && (
@@ -122,15 +159,20 @@ function ArtistSongRow({
             />
           )}
         </span>
-        <SongMenu
-          song={song}
-          row
-          className={cn(
-            'mx-[0.455rem] grid size-7 shrink-0 place-items-center rounded-full text-white/50 hover:bg-white/[0.08] hover:text-white',
-            TRANSITION,
-            FOCUS_RING,
-          )}
-        />
+        {gated ? (
+          // The menu's room kept, so the rows' columns still line up.
+          <span aria-hidden className="mx-[0.455rem] size-7 shrink-0" />
+        ) : (
+          <SongMenu
+            song={song}
+            row
+            className={cn(
+              'mx-[0.455rem] grid size-7 shrink-0 place-items-center rounded-full text-white/50 hover:bg-white/[0.08] hover:text-white',
+              TRANSITION,
+              FOCUS_RING,
+            )}
+          />
+        )}
       </div>
       {videoId && (
         <div

@@ -390,4 +390,5 @@ export const take_me_to_the_river: Song = {
 
   artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -371,4 +371,5 @@ export const sing_a_song: Song = {
 
   artistImageRef: '/artists/svg/earth-wind-and-fire.webp',
   popularity: 50,
+  comingSoon: true,
 };

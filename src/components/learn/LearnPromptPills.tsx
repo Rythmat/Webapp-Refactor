@@ -16,6 +16,7 @@ import {
   GENRE_SECTIONS,
   type GenreSectionId,
 } from '@/features/learn/learnPromptSuggestions';
+import { LIGHT_OPTIONS, lightFilterOf } from '@/features/songs/songGate';
 
 /** The kinds of Learn material the bar's pills narrow it to, in the nav's
  *  order; names alone, no icons (owner, 2026-10-25). */
@@ -116,10 +117,14 @@ export const GenreSectionPills = ({
  */
 export const SongFilterPills = ({
   genre = true,
+  light = false,
 }: {
   /** The Genre pill: off on /songs, where Genre is a view (owner,
    *  2026-11-11). */
   genre?: boolean;
+  /** The Light pill (?light=green|red): the console's Songs library only,
+   *  where each song shows its light (songGate.ts). */
+  light?: boolean;
 } = {}) => {
   const [params, setParams] = useSearchParams();
   const set = (key: string, value: string) =>
@@ -158,6 +163,14 @@ export const SongFilterPills = ({
         options={SAVED_OPTIONS}
         onChange={(v) => set('saved', v)}
       />
+      {light && (
+        <PromptFilterPill
+          label="Light"
+          value={lightFilterOf(params.get('light'))}
+          options={LIGHT_OPTIONS}
+          onChange={(v) => set('light', v)}
+        />
+      )}
     </div>
   );
 };

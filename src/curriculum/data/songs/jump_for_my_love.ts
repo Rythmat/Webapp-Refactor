@@ -242,4 +242,5 @@ export const jump_for_my_love: Song = {
 
   artistImageRef: '/artists/svg/the-pointer-sisters.webp',
   popularity: 50,
+  comingSoon: true,
 };

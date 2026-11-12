@@ -194,4 +194,5 @@ export const dance_with_me_tonight: Song = {
 
   artistImageRef: '/artists/svg/olly-murs.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -253,4 +253,5 @@ export const mr_big_stuff: Song = {
 
   artistImageRef: '/artists/svg/jean-knight.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -351,4 +351,5 @@ export const new_york_new_york: Song = {
 
   artistImageRef: '/artists/svg/frank-sinatra.webp',
   popularity: 50,
+  comingSoon: true,
 };

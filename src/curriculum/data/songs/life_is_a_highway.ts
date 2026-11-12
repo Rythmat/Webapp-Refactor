@@ -378,4 +378,5 @@ export const life_is_a_highway: Song = {
 
   artistImageRef: '/artists/svg/rascal-flatts.webp',
   popularity: 50,
+  comingSoon: true,
 };

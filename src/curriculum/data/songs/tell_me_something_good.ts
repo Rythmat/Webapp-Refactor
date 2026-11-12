@@ -138,4 +138,5 @@ export const tell_me_something_good: Song = {
 
   artistImageRef: '/artists/svg/chaka-khan.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -352,4 +352,5 @@ export const put_your_records_on: Song = {
 
   artistImageRef: '/artists/svg/corinne-bailey-rae.webp',
   popularity: 50,
+  comingSoon: true,
 };

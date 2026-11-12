@@ -324,4 +324,5 @@ export const off_the_wall: Song = {
 
   artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
+  comingSoon: true,
 };

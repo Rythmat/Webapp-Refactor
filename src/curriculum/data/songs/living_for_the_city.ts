@@ -911,4 +911,5 @@ export const living_for_the_city: Song = {
 
   artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -426,4 +426,5 @@ export const whats_going_on: Song = {
 
   artistImageRef: '/artists/svg/marvin-gaye.webp',
   popularity: 50,
+  comingSoon: true,
 };

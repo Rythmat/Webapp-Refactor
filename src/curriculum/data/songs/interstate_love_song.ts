@@ -315,4 +315,5 @@ export const interstate_love_song: Song = {
 
   artistImageRef: '/artists/svg/stone-temple-pilots.webp',
   popularity: 50,
+  comingSoon: true,
 };

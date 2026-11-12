@@ -366,4 +366,5 @@ export const landslide: Song = {
 
   artistImageRef: '/artists/svg/fleetwood-mac.webp',
   popularity: 50,
+  comingSoon: true,
 };

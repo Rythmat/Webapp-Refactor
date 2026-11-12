@@ -510,4 +510,5 @@ export const i_want_you_back: Song = {
 
   artistImageRef: '/artists/svg/the-jackson-5.webp',
   popularity: 50,
+  comingSoon: true,
 };

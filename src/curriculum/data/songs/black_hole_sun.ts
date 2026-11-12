@@ -464,4 +464,5 @@ export const black_hole_sun: Song = {
 
   artistImageRef: '/artists/svg/soundgarden.webp',
   popularity: 50,
+  comingSoon: true,
 };

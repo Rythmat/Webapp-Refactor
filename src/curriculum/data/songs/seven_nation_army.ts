@@ -117,4 +117,5 @@ export const seven_nation_army: Song = {
 
   artistImageRef: '/artists/svg/white-stripes.webp',
   popularity: 50,
+  comingSoon: true,
 };

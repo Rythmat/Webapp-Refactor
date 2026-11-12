@@ -404,6 +404,13 @@ export const songSchema = z
     artistImageRef: z.string().optional(),
     /** 0-100, optional. Manually set per song. Higher = more prominent in browse. */
     popularity: z.number().optional(),
+    /**
+     * The chart's red light in the back office: not ready for students yet.
+     * The app still lists the song, greyed out and marked Coming soon, but
+     * does not open it. Absent (or false) is the green light: ready and open.
+     * A new song starts red. (v3)
+     */
+    comingSoon: z.boolean().optional(),
   })
   .strict();
 

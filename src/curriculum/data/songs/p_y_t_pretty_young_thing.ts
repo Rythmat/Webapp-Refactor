@@ -712,4 +712,5 @@ export const p_y_t_pretty_young_thing: Song = {
 
   artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
+  comingSoon: true,
 };

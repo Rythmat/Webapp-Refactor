@@ -288,4 +288,5 @@ export const kiss: Song = {
 
   artistImageRef: '/artists/svg/prince.webp',
   popularity: 50,
+  comingSoon: true,
 };

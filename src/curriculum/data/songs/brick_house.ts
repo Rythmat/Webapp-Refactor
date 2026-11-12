@@ -206,4 +206,5 @@ export const brick_house: Song = {
 
   artistImageRef: '/artists/svg/the-commodores.webp',
   popularity: 50,
+  comingSoon: true,
 };

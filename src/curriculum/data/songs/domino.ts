@@ -86,4 +86,5 @@ export const domino: Song = {
 
   artistImageRef: '/artists/svg/jessie-j.webp',
   popularity: 50,
+  comingSoon: true,
 };

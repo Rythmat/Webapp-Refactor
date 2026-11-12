@@ -377,4 +377,5 @@ export const something_to_talk_about: Song = {
 
   artistImageRef: '/artists/svg/bonnie-raitt.webp',
   popularity: 50,
+  comingSoon: true,
 };

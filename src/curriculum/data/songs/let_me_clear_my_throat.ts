@@ -143,4 +143,5 @@ export const let_me_clear_my_throat: Song = {
 
   artistImageRef: '/artists/svg/dj-kool.webp',
   popularity: 50,
+  comingSoon: true,
 };

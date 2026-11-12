@@ -622,4 +622,5 @@ export const you_and_i: Song = {
 
   artistImageRef: '/artists/svg/wilco.webp',
   popularity: 50,
+  comingSoon: true,
 };

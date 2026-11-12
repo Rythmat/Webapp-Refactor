@@ -83,4 +83,5 @@ export const the_great_curve: Song = {
 
   artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
+  comingSoon: true,
 };

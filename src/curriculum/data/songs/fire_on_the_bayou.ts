@@ -293,4 +293,5 @@ export const fire_on_the_bayou: Song = {
 
   artistImageRef: '/artists/svg/the-meters.webp',
   popularity: 50,
+  comingSoon: true,
 };

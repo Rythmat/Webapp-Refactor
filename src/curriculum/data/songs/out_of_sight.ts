@@ -253,4 +253,5 @@ export const out_of_sight: Song = {
 
   artistImageRef: '/artists/svg/james-brown.webp',
   popularity: 50,
+  comingSoon: true,
 };

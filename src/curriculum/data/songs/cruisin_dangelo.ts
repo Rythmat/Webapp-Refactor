@@ -144,4 +144,5 @@ export const cruisin_dangelo: Song = {
 
   artistImageRef: '/artists/svg/d-angelo.webp',
   popularity: 50,
+  comingSoon: true,
 };

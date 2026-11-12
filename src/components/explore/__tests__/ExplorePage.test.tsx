@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
+import { SongLightsContext } from '@/features/songs/songGate';
 import { ExplorePage } from '../ExplorePage';
 import { ExploreSongsPage } from '../ExploreSongsPage';
 
@@ -453,5 +454,82 @@ describe('/songs', () => {
     // Only the Artist tab has the toggle.
     open('/songs?view=title');
     expect(screen.queryByRole('group', { name: 'Layout' })).toBeNull();
+  });
+});
+
+describe('/songs and the chart’s light (owner, 2026-11-12)', () => {
+  // Cissy Strut's chart is not ready: its light is red.
+  const cissy = SONGS.find((s) => s.id === 'cissy')!;
+  beforeEach(() => {
+    cissy.comingSoon = true;
+  });
+  afterEach(() => {
+    delete cissy.comingSoon;
+  });
+
+  const ids = (root: ParentNode = document) =>
+    [...root.querySelectorAll('[data-explore-song]')].map((el) =>
+      el.getAttribute('data-explore-song'),
+    );
+
+  it('lists a red song to students greyed out as Coming soon, and opens it nowhere', () => {
+    open('/songs?view=title');
+    // Still in the library, in its place.
+    expect(ids()).toEqual([
+      'cissy',
+      'jungle',
+      'let_it_be',
+      'pick_up',
+      'superstition',
+    ]);
+    const card = document.querySelector('[data-explore-song="cissy"]')!;
+    expect(card).toHaveAttribute('data-coming-soon');
+    expect(
+      within(card as HTMLElement).getByRole('img', {
+        name: 'Cissy Strut by Someone: coming soon',
+      }),
+    ).toBeInTheDocument();
+    expect(document.querySelector('a[href="/songs/cissy"]')).toBeNull();
+    // The open ones still open; no song shows a light here.
+    expect(document.querySelector('a[href="/songs/jungle"]')).not.toBeNull();
+    expect(document.querySelector('[data-song-light]')).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Light/ })).toBeNull();
+  });
+
+  it('suggests only open songs, and puts them first on a genre’s shelf', () => {
+    open('/songs');
+    // Easy to start: the level-1 songs that open.
+    expect(ids(shelf('easy')!)).toEqual(['let_it_be']);
+    expect(ids(shelf('popular')!)).not.toContain('cissy');
+    // Funk's shelf keeps all four, the Coming soon one last.
+    expect(ids(shelf('genre-funk')!).at(-1)).toBe('cissy');
+    expect(ids(shelf('genre-funk')!)).toHaveLength(4);
+  });
+
+  it('shows every song’s light in the console, opens red ones, and filters by light', () => {
+    const inConsole = (url: string) =>
+      render(
+        <SongLightsContext.Provider value={true}>
+          <MemoryRouter initialEntries={[url]}>
+            <Routes>
+              <Route path="/songs" element={<ExploreSongsPage />} />
+            </Routes>
+          </MemoryRouter>
+        </SongLightsContext.Provider>,
+      );
+    inConsole('/songs?view=title');
+    const lights = [...document.querySelectorAll('[data-song-light]')].map(
+      (el) => el.getAttribute('data-song-light'),
+    );
+    expect(lights).toEqual(['red', 'green', 'green', 'green', 'green']);
+    expect(document.querySelector('a[href="/songs/cissy"]')).not.toBeNull();
+    expect(document.querySelector('[data-coming-soon]')).toBeNull();
+    expect(screen.getByRole('button', { name: /^Light/ })).toBeInTheDocument();
+    cleanup();
+    inConsole('/songs?light=red');
+    expect(ids()).toEqual(['cissy']);
+    cleanup();
+    inConsole('/songs?light=green');
+    expect(ids()).toEqual(['jungle', 'let_it_be', 'pick_up', 'superstition']);
   });
 });

@@ -233,4 +233,5 @@ export const china_girl: Song = {
 
   artistImageRef: '/artists/svg/david-bowie.webp',
   popularity: 50,
+  comingSoon: true,
 };

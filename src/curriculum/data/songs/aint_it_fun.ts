@@ -263,4 +263,5 @@ export const aint_it_fun: Song = {
 
   artistImageRef: '/artists/svg/paramore.webp',
   popularity: 50,
+  comingSoon: true,
 };

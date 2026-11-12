@@ -521,4 +521,5 @@ export const cigarettes_and_chocolate_milk: Song = {
 
   artistImageRef: '/artists/svg/rufus-wainwright.webp',
   popularity: 50,
+  comingSoon: true,
 };

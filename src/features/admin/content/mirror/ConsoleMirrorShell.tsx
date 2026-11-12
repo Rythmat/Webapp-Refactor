@@ -2,6 +2,7 @@ import { Suspense, useEffect } from 'react';
 import { PerStudentPreviewContext } from '@/components/ui/PerStudent';
 import { ContentGate } from '@/content/ContentGate';
 import { setStudioLessonDrafts } from '@/curriculum/engine/studioLessons/registry';
+import { SongLightsContext } from '@/features/songs/songGate';
 import { PremiumPreviewContext } from '@/hooks/PremiumPreviewContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { MirrorRouter } from './MirrorRouter';
@@ -36,13 +37,18 @@ export const ConsoleMirrorShell = () => {
           {/* A student's own parts (their projects, their recent activity)
           stand as placeholders: not content, and per-user APIs. */}
           <PerStudentPreviewContext.Provider value={PerStudentPlaceholder}>
-            <div className="relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden rounded-xl bg-[#101012] p-2">
-              <Suspense fallback={<DashboardContentSkeleton />}>
-                <ContentGate needs={['songs', 'events']}>
-                  <MirrorRoutes />
-                </ContentGate>
-              </Suspense>
-            </div>
+            {/* Every song shows its light (red or green) and opens, red
+                ones included, so a chart that is not ready can be fixed.
+                Students see a red one as Coming soon (songGate.ts). */}
+            <SongLightsContext.Provider value={true}>
+              <div className="relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden rounded-xl bg-[#101012] p-2">
+                <Suspense fallback={<DashboardContentSkeleton />}>
+                  <ContentGate needs={['songs', 'events']}>
+                    <MirrorRoutes />
+                  </ContentGate>
+                </Suspense>
+              </div>
+            </SongLightsContext.Provider>
           </PerStudentPreviewContext.Provider>
         </PremiumPreviewContext.Provider>
       </MirrorRouter>

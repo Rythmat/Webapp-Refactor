@@ -58,4 +58,5 @@ export const ill_take_you_there: Song = {
 
   artistImageRef: '/artists/svg/the-staple-singers.webp',
   popularity: 50,
+  comingSoon: true,
 };

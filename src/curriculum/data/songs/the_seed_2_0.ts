@@ -561,4 +561,5 @@ export const the_seed_2_0: Song = {
 
   artistImageRef: '/artists/svg/the-roots.webp',
   popularity: 50,
+  comingSoon: true,
 };

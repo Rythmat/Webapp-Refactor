@@ -137,4 +137,5 @@ export const home: Song = {
 
   artistImageRef: '/artists/svg/edward-sharpe-and-the-magnetic-zeros.webp',
   popularity: 50,
+  comingSoon: true,
 };

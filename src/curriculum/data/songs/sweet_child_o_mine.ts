@@ -391,4 +391,5 @@ export const sweet_child_o_mine: Song = {
 
   artistImageRef: '/artists/svg/guns-n-roses.webp',
   popularity: 50,
+  comingSoon: true,
 };

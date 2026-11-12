@@ -407,4 +407,5 @@ export const when_im_sixty_four: Song = {
 
   artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
+  comingSoon: true,
 };

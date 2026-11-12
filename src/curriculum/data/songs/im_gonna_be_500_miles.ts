@@ -176,4 +176,5 @@ export const im_gonna_be_500_miles: Song = {
 
   artistImageRef: '/artists/svg/the-proclaimers.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -635,4 +635,5 @@ export const smooth_operator: Song = {
 
   artistImageRef: '/artists/svg/sade.webp',
   popularity: 50,
+  comingSoon: true,
 };

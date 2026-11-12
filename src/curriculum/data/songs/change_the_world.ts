@@ -438,4 +438,5 @@ export const change_the_world: Song = {
 
   artistImageRef: '/artists/svg/eric-clapton.webp',
   popularity: 50,
+  comingSoon: true,
 };

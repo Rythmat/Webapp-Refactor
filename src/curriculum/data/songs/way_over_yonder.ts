@@ -529,4 +529,5 @@ export const way_over_yonder: Song = {
 
   artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
+  comingSoon: true,
 };

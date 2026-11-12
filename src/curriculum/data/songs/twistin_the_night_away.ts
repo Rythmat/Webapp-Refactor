@@ -159,4 +159,5 @@ export const twistin_the_night_away: Song = {
 
   artistImageRef: '/artists/svg/sam-cooke.webp',
   popularity: 50,
+  comingSoon: true,
 };

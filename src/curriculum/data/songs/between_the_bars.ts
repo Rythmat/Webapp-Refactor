@@ -246,4 +246,5 @@ export const between_the_bars: Song = {
 
   artistImageRef: '/artists/svg/elliott-smith.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -270,4 +270,5 @@ export const footloose: Song = {
 
   artistImageRef: '/artists/svg/kenny-loggins.webp',
   popularity: 50,
+  comingSoon: true,
 };

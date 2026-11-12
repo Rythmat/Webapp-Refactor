@@ -288,4 +288,5 @@ export const love_on_the_brain: Song = {
 
   artistImageRef: '/artists/svg/rihanna.webp',
   popularity: 50,
+  comingSoon: true,
 };

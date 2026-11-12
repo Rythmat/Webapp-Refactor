@@ -401,4 +401,5 @@ export const life_on_mars: Song = {
 
   artistImageRef: '/artists/svg/david-bowie.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -430,4 +430,5 @@ export const kiss_from_a_rose: Song = {
 
   artistImageRef: '/artists/svg/seal.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -157,4 +157,5 @@ export const cissy_strut: Song = {
 
   artistImageRef: '/artists/svg/the-meters.webp',
   popularity: 50,
+  comingSoon: true,
 };

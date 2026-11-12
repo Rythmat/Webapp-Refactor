@@ -330,4 +330,5 @@ export const reach_out_ill_be_there: Song = {
 
   artistImageRef: '/artists/svg/four-tops.webp',
   popularity: 50,
+  comingSoon: true,
 };

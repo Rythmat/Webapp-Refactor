@@ -56,4 +56,5 @@ export const this_must_be_the_place: Song = {
   ],
   artistImageSource: 'commissioned',
   popularity: 50,
+  comingSoon: true,
 };

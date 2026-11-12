@@ -315,4 +315,5 @@ export const gold_on_the_ceiling: Song = {
 
   artistImageRef: '/artists/svg/the-black-keys.webp',
   popularity: 50,
+  comingSoon: true,
 };

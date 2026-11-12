@@ -525,4 +525,5 @@ export const youre_the_one_that_i_want: Song = {
 
   artistImageRef: '/artists/svg/grease.webp',
   popularity: 50,
+  comingSoon: true,
 };

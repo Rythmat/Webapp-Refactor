@@ -182,4 +182,5 @@ export const old_time_rock_and_roll: Song = {
 
   artistImageRef: '/artists/svg/bob-seger.webp',
   popularity: 50,
+  comingSoon: true,
 };

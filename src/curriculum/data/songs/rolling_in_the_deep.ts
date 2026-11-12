@@ -503,4 +503,5 @@ export const rolling_in_the_deep: Song = {
 
   artistImageRef: '/artists/svg/adele.webp',
   popularity: 50,
+  comingSoon: true,
 };

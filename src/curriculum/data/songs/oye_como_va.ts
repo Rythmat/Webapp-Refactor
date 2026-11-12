@@ -377,4 +377,5 @@ export const oye_como_va: Song = {
 
   artistImageRef: '/artists/svg/santana.webp',
   popularity: 50,
+  comingSoon: true,
 };

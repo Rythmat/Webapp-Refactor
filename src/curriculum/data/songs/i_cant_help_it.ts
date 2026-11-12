@@ -267,4 +267,5 @@ export const i_cant_help_it: Song = {
 
   artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
+  comingSoon: true,
 };

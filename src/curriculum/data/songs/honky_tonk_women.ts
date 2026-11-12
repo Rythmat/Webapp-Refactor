@@ -104,4 +104,5 @@ export const honky_tonk_women: Song = {
 
   artistImageRef: '/artists/svg/the-rolling-stones.webp',
   popularity: 50,
+  comingSoon: true,
 };

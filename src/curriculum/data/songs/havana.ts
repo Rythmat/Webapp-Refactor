@@ -161,4 +161,5 @@ export const havana: Song = {
 
   artistImageRef: '/artists/svg/camila-cabello.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -101,4 +101,5 @@ export const let_the_music_take_your_mind: Song = {
 
   artistImageRef: '/artists/svg/kool-and-the-gang.webp',
   popularity: 50,
+  comingSoon: true,
 };

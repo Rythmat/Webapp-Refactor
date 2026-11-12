@@ -593,4 +593,5 @@ export const youre_my_best_friend: Song = {
 
   artistImageRef: '/artists/svg/queen.webp',
   popularity: 50,
+  comingSoon: true,
 };

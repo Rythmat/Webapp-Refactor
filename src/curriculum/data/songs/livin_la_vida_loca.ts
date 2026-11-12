@@ -399,4 +399,5 @@ export const livin_la_vida_loca: Song = {
 
   artistImageRef: '/artists/svg/ricky-martin.webp',
   popularity: 50,
+  comingSoon: true,
 };

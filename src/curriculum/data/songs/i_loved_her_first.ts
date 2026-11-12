@@ -384,4 +384,5 @@ export const i_loved_her_first: Song = {
 
   artistImageRef: '/artists/svg/heartland.webp',
   popularity: 50,
+  comingSoon: true,
 };

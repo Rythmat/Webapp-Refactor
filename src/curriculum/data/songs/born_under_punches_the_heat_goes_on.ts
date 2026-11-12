@@ -90,4 +90,5 @@ export const born_under_punches_the_heat_goes_on: Song = {
 
   artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
+  comingSoon: true,
 };

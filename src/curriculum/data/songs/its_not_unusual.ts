@@ -400,4 +400,5 @@ export const its_not_unusual: Song = {
 
   artistImageRef: '/artists/svg/tom-jones.webp',
   popularity: 50,
+  comingSoon: true,
 };

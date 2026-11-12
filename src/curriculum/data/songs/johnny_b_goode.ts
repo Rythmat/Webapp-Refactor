@@ -299,4 +299,5 @@ export const johnny_b_goode: Song = {
 
   artistImageRef: '/artists/svg/chuck-berry.webp',
   popularity: 50,
+  comingSoon: true,
 };

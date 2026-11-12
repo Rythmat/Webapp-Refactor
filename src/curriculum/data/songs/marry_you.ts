@@ -68,4 +68,5 @@ export const marry_you: Song = {
 
   artistImageRef: '/artists/svg/bruno-mars.webp',
   popularity: 50,
+  comingSoon: true,
 };

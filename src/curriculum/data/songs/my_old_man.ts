@@ -588,4 +588,5 @@ export const my_old_man: Song = {
 
   artistImageRef: '/artists/svg/joni-mitchell.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -437,4 +437,5 @@ export const rich_girl: Song = {
 
   artistImageRef: '/artists/svg/hall-and-oates.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -233,4 +233,5 @@ export const i_should_have_known_better: Song = {
 
   artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
+  comingSoon: true,
 };

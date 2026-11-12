@@ -108,4 +108,5 @@ export const raise_your_glass: Song = {
 
   artistImageRef: '/artists/svg/pink.webp',
   popularity: 50,
+  comingSoon: true,
 };

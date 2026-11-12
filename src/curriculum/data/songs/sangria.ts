@@ -147,4 +147,5 @@ export const sangria: Song = {
 
   artistImageRef: '/artists/svg/blake-shelton.webp',
   popularity: 50,
+  comingSoon: true,
 };

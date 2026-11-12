@@ -669,4 +669,5 @@ export const havent_met_you_yet: Song = {
 
   artistImageRef: '/artists/svg/michael-buble.webp',
   popularity: 50,
+  comingSoon: true,
 };

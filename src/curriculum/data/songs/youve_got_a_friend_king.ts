@@ -484,4 +484,5 @@ export const youve_got_a_friend_king: Song = {
 
   artistImageRef: '/artists/svg/james-taylor.webp',
   popularity: 50,
+  comingSoon: true,
 };

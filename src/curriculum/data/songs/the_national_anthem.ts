@@ -56,4 +56,5 @@ export const the_national_anthem: Song = {
 
   artistImageRef: '/artists/svg/radiohead.webp',
   popularity: 50,
+  comingSoon: true,
 };

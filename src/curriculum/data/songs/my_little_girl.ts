@@ -258,4 +258,5 @@ export const my_little_girl: Song = {
 
   artistImageRef: '/artists/svg/tim-mcgraw.webp',
   popularity: 50,
+  comingSoon: true,
 };

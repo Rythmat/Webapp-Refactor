@@ -130,4 +130,5 @@ export const them_changes: Song = {
 
   artistImageRef: '/artists/svg/buddy-miles.webp',
   popularity: 50,
+  comingSoon: true,
 };

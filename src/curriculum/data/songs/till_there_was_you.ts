@@ -525,4 +525,5 @@ export const till_there_was_you: Song = {
 
   artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
+  comingSoon: true,
 };

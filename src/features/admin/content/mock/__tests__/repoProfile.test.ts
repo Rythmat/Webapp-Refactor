@@ -184,7 +184,7 @@ describe('repo mode: what it serves', () => {
     ).toBe(true);
     expect(
       capabilities.kinds.find((entry) => entry.kind === 'song')?.schemaVersion,
-    ).toBe(2);
+    ).toBe(3);
     expect(capabilities.features).toEqual({
       export: true,
       lookup: true,

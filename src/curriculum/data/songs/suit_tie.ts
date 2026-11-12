@@ -532,4 +532,5 @@ export const suit_tie: Song = {
 
   artistImageRef: '/artists/svg/justin-timberlake.webp',
   popularity: 50,
+  comingSoon: true,
 };

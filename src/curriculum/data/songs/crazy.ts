@@ -184,4 +184,5 @@ export const crazy: Song = {
 
   artistImageRef: '/artists/svg/gnarls-barkley.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -258,4 +258,5 @@ export const wonderful_tonight: Song = {
 
   artistImageRef: '/artists/svg/eric-clapton.webp',
   popularity: 50,
+  comingSoon: true,
 };

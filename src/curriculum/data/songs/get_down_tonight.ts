@@ -131,4 +131,5 @@ export const get_down_tonight: Song = {
 
   artistImageRef: '/artists/svg/kc-and-the-sunshine-band.webp',
   popularity: 50,
+  comingSoon: true,
 };

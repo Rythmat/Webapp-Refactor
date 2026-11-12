@@ -244,4 +244,5 @@ export const all_of_me: Song = {
 
   artistImageRef: '/artists/svg/john-legend.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -91,4 +91,5 @@ export const whats_up: Song = {
 
   artistImageRef: '/artists/svg/4-non-blondes.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -206,4 +206,5 @@ export const im_the_only_one: Song = {
 
   artistImageRef: '/artists/svg/melissa-etheridge.webp',
   popularity: 50,
+  comingSoon: true,
 };

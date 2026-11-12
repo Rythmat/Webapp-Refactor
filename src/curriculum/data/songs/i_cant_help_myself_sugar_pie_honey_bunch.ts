@@ -146,4 +146,5 @@ export const i_cant_help_myself_sugar_pie_honey_bunch: Song = {
 
   artistImageRef: '/artists/svg/four-tops.webp',
   popularity: 50,
+  comingSoon: true,
 };

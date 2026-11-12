@@ -241,4 +241,5 @@ export const cold_sweat: Song = {
 
   artistImageRef: '/artists/svg/james-brown.webp',
   popularity: 50,
+  comingSoon: true,
 };

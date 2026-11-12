@@ -162,4 +162,5 @@ export const do_your_thing: Song = {
 
   artistImageRef: '/artists/svg/isaac-hayes.webp',
   popularity: 50,
+  comingSoon: true,
 };

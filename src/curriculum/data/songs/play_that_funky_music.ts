@@ -288,4 +288,5 @@ export const play_that_funky_music: Song = {
 
   artistImageRef: '/artists/svg/wild-cherry.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -64,4 +64,5 @@ export const hit_the_road_jack: Song = {
 
   artistImageRef: '/artists/svg/ray-charles.webp',
   popularity: 50,
+  comingSoon: true,
 };

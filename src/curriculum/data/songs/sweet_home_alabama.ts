@@ -94,4 +94,5 @@ export const sweet_home_alabama: Song = {
 
   artistImageRef: '/artists/svg/lynyrd-skynyrd.webp',
   popularity: 50,
+  comingSoon: true,
 };

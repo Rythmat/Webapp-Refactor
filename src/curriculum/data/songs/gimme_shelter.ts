@@ -115,4 +115,5 @@ export const gimme_shelter: Song = {
 
   artistImageRef: '/artists/svg/the-rolling-stones.webp',
   popularity: 50,
+  comingSoon: true,
 };

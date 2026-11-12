@@ -247,4 +247,5 @@ export const i_shot_the_sheriff: Song = {
 
   artistImageRef: '/artists/svg/bob-marley.webp',
   popularity: 50,
+  comingSoon: true,
 };

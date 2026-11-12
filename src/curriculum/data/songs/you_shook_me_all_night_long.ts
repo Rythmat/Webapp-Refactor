@@ -295,4 +295,5 @@ export const you_shook_me_all_night_long: Song = {
 
   artistImageRef: '/artists/svg/ac-dc.webp',
   popularity: 50,
+  comingSoon: true,
 };

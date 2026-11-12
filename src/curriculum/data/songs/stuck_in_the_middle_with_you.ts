@@ -220,4 +220,5 @@ export const stuck_in_the_middle_with_you: Song = {
 
   artistImageRef: '/artists/svg/stealers-wheel.webp',
   popularity: 50,
+  comingSoon: true,
 };

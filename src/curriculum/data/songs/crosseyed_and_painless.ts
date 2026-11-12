@@ -89,4 +89,5 @@ export const crosseyed_and_painless: Song = {
 
   artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
+  comingSoon: true,
 };

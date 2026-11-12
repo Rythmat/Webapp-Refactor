@@ -353,4 +353,5 @@ export const lets_go_crazy: Song = {
 
   artistImageRef: '/artists/svg/prince.webp',
   popularity: 50,
+  comingSoon: true,
 };

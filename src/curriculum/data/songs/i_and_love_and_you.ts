@@ -271,4 +271,5 @@ export const i_and_love_and_you: Song = {
 
   artistImageRef: '/artists/svg/the-avett-brothers.webp',
   popularity: 50,
+  comingSoon: true,
 };

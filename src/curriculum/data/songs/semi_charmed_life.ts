@@ -264,4 +264,5 @@ export const semi_charmed_life: Song = {
 
   artistImageRef: '/artists/svg/third-eye-blind.webp',
   popularity: 50,
+  comingSoon: true,
 };

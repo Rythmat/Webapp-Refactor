@@ -251,4 +251,5 @@ export const ill_make_love_to_you: Song = {
 
   artistImageRef: '/artists/svg/boyz-ii-men.webp',
   popularity: 50,
+  comingSoon: true,
 };

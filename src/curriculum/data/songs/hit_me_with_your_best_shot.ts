@@ -331,4 +331,5 @@ export const hit_me_with_your_best_shot: Song = {
 
   artistImageRef: '/artists/svg/pat-benatar.webp',
   popularity: 50,
+  comingSoon: true,
 };

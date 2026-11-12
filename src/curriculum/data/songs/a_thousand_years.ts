@@ -404,4 +404,5 @@ export const a_thousand_years: Song = {
 
   artistImageRef: '/artists/svg/christina-perri.webp',
   popularity: 50,
+  comingSoon: true,
 };

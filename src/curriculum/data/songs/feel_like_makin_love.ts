@@ -622,4 +622,5 @@ export const feel_like_makin_love: Song = {
 
   artistImageRef: '/artists/svg/d-angelo.webp',
   popularity: 50,
+  comingSoon: true,
 };

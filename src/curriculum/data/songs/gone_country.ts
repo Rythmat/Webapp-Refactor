@@ -257,4 +257,5 @@ export const gone_country: Song = {
 
   artistImageRef: '/artists/svg/alan-jackson.webp',
   popularity: 50,
+  comingSoon: true,
 };

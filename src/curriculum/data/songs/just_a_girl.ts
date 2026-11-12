@@ -442,4 +442,5 @@ export const just_a_girl: Song = {
 
   artistImageRef: '/artists/svg/no-doubt.webp',
   popularity: 50,
+  comingSoon: true,
 };

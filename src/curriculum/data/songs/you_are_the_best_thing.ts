@@ -462,4 +462,5 @@ export const you_are_the_best_thing: Song = {
 
   artistImageRef: '/artists/svg/ray-lamontagne.webp',
   popularity: 50,
+  comingSoon: true,
 };

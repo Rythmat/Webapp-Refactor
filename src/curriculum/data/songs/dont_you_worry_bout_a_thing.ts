@@ -832,4 +832,5 @@ export const dont_you_worry_bout_a_thing: Song = {
 
   artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
+  comingSoon: true,
 };

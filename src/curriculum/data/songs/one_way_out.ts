@@ -195,4 +195,5 @@ export const one_way_out: Song = {
 
   artistImageRef: '/artists/svg/the-allman-brothers.webp',
   popularity: 50,
+  comingSoon: true,
 };

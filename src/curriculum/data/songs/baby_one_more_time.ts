@@ -297,4 +297,5 @@ export const baby_one_more_time: Song = {
 
   artistImageRef: '/artists/svg/britney-spears.webp',
   popularity: 50,
+  comingSoon: true,
 };

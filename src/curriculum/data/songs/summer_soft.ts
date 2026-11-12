@@ -491,4 +491,5 @@ export const summer_soft: Song = {
 
   artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
+  comingSoon: true,
 };

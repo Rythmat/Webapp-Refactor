@@ -410,4 +410,5 @@ export const i_got_a_woman: Song = {
 
   artistImageRef: '/artists/svg/ray-charles.webp',
   popularity: 50,
+  comingSoon: true,
 };

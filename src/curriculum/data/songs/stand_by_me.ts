@@ -54,4 +54,5 @@ export const stand_by_me: Song = {
 
   artistImageRef: '/artists/svg/ben-e-king.webp',
   popularity: 50,
+  comingSoon: true,
 };

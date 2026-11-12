@@ -414,4 +414,5 @@ export const jump: Song = {
 
   artistImageRef: '/artists/svg/van-halen.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -283,4 +283,5 @@ export const dontStopBelievin: Song = {
 
   artistImageRef: '/artists/svg/journey.webp',
   popularity: 95,
+  comingSoon: true,
 };

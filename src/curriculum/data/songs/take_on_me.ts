@@ -442,4 +442,5 @@ export const take_on_me: Song = {
 
   artistImageRef: '/artists/svg/a-ha.webp',
   popularity: 50,
+  comingSoon: true,
 };

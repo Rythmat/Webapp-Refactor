@@ -168,4 +168,5 @@ export const whole_lotta_love: Song = {
 
   artistImageRef: '/artists/svg/led-zeppelin.webp',
   popularity: 50,
+  comingSoon: true,
 };

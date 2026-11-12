@@ -173,4 +173,5 @@ export const takin_care_of_business: Song = {
 
   artistImageRef: '/artists/svg/bachman-turner-overdrive.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -19,6 +19,12 @@ const ROOT_KEYS = ['credits', 'session', 'composer', 'relatedRecordings'];
  * records.
  */
 const V2_ROOT_KEYS = ['releases', 'subgenreIds'];
+/**
+ * The root key song v3 added: the chart's light (`comingSoon`, 12 November
+ * 2026). Refused the same way, through the v1 schema, and left out of the
+ * seed: production's copies predate it.
+ */
+const V3_ROOT_KEYS = ['comingSoon'];
 const SECTION_KEYS = ['instrumental'];
 const BAR_KEYS = [
   'repeatStart',
@@ -92,10 +98,10 @@ const without = (object: Body, keys: string[]): Body => {
 export function toLevel0(song: Body): Body {
   if (
     level0Issues(song).length === 0 &&
-    present(song, V2_ROOT_KEYS).length === 0
+    present(song, [...V2_ROOT_KEYS, ...V3_ROOT_KEYS]).length === 0
   )
     return song;
-  const next = without(song, [...ROOT_KEYS, ...V2_ROOT_KEYS]);
+  const next = without(song, [...ROOT_KEYS, ...V2_ROOT_KEYS, ...V3_ROOT_KEYS]);
   if (Array.isArray(song.sections))
     next.sections = objects(song.sections).map((section) => {
       const trimmed = without(section, SECTION_KEYS);

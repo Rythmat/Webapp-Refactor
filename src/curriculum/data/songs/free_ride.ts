@@ -253,4 +253,5 @@ export const free_ride: Song = {
 
   artistImageRef: '/artists/svg/edgar-winter-group.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -125,6 +125,12 @@ export const chordBarSchema = z
      *  `[1, 2]`). Neighbouring bars with the same passes share one bracket.
      */
     ending: z.array(z.number()).optional(),
+    /**
+     * The bracket's words, when the chart writes them its own way: '1.–3.',
+     *  '4.'. Display only; `ending` says which passes play the bars. Unset:
+     *  the passes, '1, 2.'. (v3)
+     */
+    endingLabel: z.string().optional(),
     /** The segno a D.S. jumps back to. */
     segno: z.boolean().optional(),
     /** The coda sign: where "To Coda" lands on the pass after an al Coda jump. */
@@ -136,8 +142,8 @@ export const chordBarSchema = z
     /** Fine: the song ends here on the pass after an al Fine jump. */
     fine: z.boolean().optional(),
     /**
-     * Performance cue above the bar: 'Riff', 'Drum Fill', 'Piano Solo',
-     *  'Break', 'Repeat and Fade'. Never lyrics.
+     * Staff text above the bar, a performance cue: 'Drum Fill', 'Piano
+     *  Only', 'Riff', 'Break', 'Repeat and Fade'. Never lyrics.
      */
     cue: z.string().optional(),
     /**

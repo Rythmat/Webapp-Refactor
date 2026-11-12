@@ -26,7 +26,9 @@ import {
   addChordAt,
   addSection,
   coerceSongDraft,
+  duplicateSection,
   insertBar,
+  insertSection,
   moveSection,
   removeBar,
   removeChord,
@@ -417,6 +419,8 @@ const ChartEditor = ({
     onMoveSection: (si, dir) =>
       setSections(moveSection(sections, si, si + dir)),
     onAddSection: () => setSections(addSection(sections)),
+    onDuplicateSection: (si) => setSections(duplicateSection(sections, si)),
+    onInsertSectionAfter: (si) => setSections(insertSection(sections, si + 1)),
     sectionCount: sections.length,
   };
 

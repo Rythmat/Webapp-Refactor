@@ -74,6 +74,40 @@ export const addSection = (sections: SongSection[]): SongSection[] => [
   },
 ];
 
+/** A new, empty four-bar section at `atIdx` (before the section there). */
+export const insertSection = (
+  sections: SongSection[],
+  atIdx: number,
+): SongSection[] => {
+  const next = [...sections];
+  next.splice(Math.max(0, Math.min(atIdx, sections.length)), 0, {
+    id: uniqueSectionId(sections),
+    label: '',
+    bars: Array.from({ length: 4 }, () => ({ ...EMPTY_BAR })),
+  });
+  return next;
+};
+
+/**
+ * A copy of a section, right after it: its label, its bars, their chords
+ * and every mark on them, under a fresh id. A deep copy, so editing either
+ * leaves the other alone.
+ */
+export const duplicateSection = (
+  sections: SongSection[],
+  sectionIdx: number,
+): SongSection[] => {
+  const source = sections[sectionIdx];
+  if (!source) return sections;
+  const copy: SongSection = {
+    ...structuredClone(source),
+    id: uniqueSectionId(sections, source.id.replace(/_\d+$/, '') || 'section'),
+  };
+  const next = [...sections];
+  next.splice(sectionIdx + 1, 0, copy);
+  return next;
+};
+
 export const removeSection = (
   sections: SongSection[],
   sectionIdx: number,

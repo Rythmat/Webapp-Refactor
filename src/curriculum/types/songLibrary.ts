@@ -89,6 +89,10 @@ export interface ChordBar {
   /** Volta bracket over this bar: the passes that play it (`[1]`, `[2]`,
    *  `[1, 2]`). Neighbouring bars with the same passes share one bracket. */
   ending?: number[];
+  /** The bracket's words, when the chart writes them its own way: '1.–3.',
+   *  '4.'. Display only; `ending` says which passes play the bars. Unset:
+   *  the passes, '1, 2.'. (v3) */
+  endingLabel?: string;
   /** The segno a D.S. jumps back to. */
   segno?: boolean;
   /** The coda sign: where "To Coda" lands on the pass after an al Coda jump. */
@@ -99,8 +103,8 @@ export interface ChordBar {
   jump?: RoadmapJump;
   /** Fine: the song ends here on the pass after an al Fine jump. */
   fine?: boolean;
-  /** Performance cue above the bar: 'Riff', 'Drum Fill', 'Piano Solo',
-   *  'Break', 'Repeat and Fade'. Never lyrics. */
+  /** Staff text above the bar, a performance cue: 'Drum Fill', 'Piano
+   *  Only', 'Riff', 'Break', 'Repeat and Fade'. Never lyrics. */
   cue?: string;
   /** The key changes at this bar, e.g. 'A♭ major'. Degrees from here on
    *  count from the new tonic. The song's own `key` stays the home key. */

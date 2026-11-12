@@ -34,6 +34,8 @@ const BAR_KEYS = [
   'cue',
   'fine',
   'ending',
+  // Song v3: an ending's own words ('1.–3.').
+  'endingLabel',
   'segno',
   'coda',
   'toCoda',

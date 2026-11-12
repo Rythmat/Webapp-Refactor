@@ -46,6 +46,7 @@ const BAR_MARKS = [
   'repeatEnd',
   'repeatTimes',
   'ending',
+  'endingLabel',
   'segno',
   'coda',
   'toCoda',

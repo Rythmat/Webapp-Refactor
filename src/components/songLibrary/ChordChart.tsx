@@ -12,6 +12,7 @@ import {
 import {
   ChevronDown,
   ChevronUp,
+  CopyPlus,
   Minus,
   Plus,
   Repeat,
@@ -55,6 +56,7 @@ import type {
   ChartSelection,
   ClickMods,
 } from '@/lib/chartEditor/selection';
+import { endingLabelOf } from '@/lib/chartEditor/roadmapOps';
 import {
   chordAriaLabel,
   chordSymbol,
@@ -93,6 +95,10 @@ export interface ChordChartEditable {
   onRemoveSection: (sectionIdx: number) => void;
   onMoveSection: (sectionIdx: number, dir: -1 | 1) => void;
   onAddSection: () => void;
+  /** A copy of the section, right after it. */
+  onDuplicateSection?: (sectionIdx: number) => void;
+  /** A new, empty section right after this one. */
+  onInsertSectionAfter?: (sectionIdx: number) => void;
   sectionCount: number;
 }
 
@@ -173,6 +179,12 @@ export const StaffMeasure: FC<{
   signsInHeader?: boolean;
   hasRepeatStart?: boolean;
   hasRepeatEnd?: boolean;
+  /**
+   * How this bar's right barline closes when it ends more than a bar: a
+   * double barline before a new section, a final barline at the end of the
+   * song (owner, 2026-11-12). An end-repeat keeps its own.
+   */
+  closing?: 'double' | 'final';
   onChordClick?: (hit: ChordHit) => void;
   sectionIdx: number;
   onSelectChord?: (loc: ChordChartLoc) => void;
@@ -196,6 +208,7 @@ export const StaffMeasure: FC<{
   signsInHeader,
   hasRepeatStart,
   hasRepeatEnd,
+  closing,
   onChordClick,
   sectionIdx,
   onSelectChord,
@@ -572,16 +585,52 @@ export const StaffMeasure: FC<{
         </g>
       )}
 
-      {/* Right bar line */}
-      <line
-        x1={width}
-        y1={staffTop}
-        x2={width}
-        y2={staffTop + STAFF_HEIGHT}
-        stroke="currentColor"
-        strokeWidth={1}
-        opacity={0.5}
-      />
+      {/* Right bar line: a double barline before a new section, a final
+          barline (thin, then thick) at the song's end. An end-repeat draws
+          its own thick line below, so it keeps the plain one here. */}
+      {(hasRepeatEnd || closing !== 'final') && (
+        <line
+          x1={width}
+          y1={staffTop}
+          x2={width}
+          y2={staffTop + STAFF_HEIGHT}
+          stroke="currentColor"
+          strokeWidth={1}
+          opacity={0.5}
+        />
+      )}
+      {!hasRepeatEnd && closing === 'double' && (
+        <line
+          data-barline="double"
+          x1={width - 4}
+          y1={staffTop}
+          x2={width - 4}
+          y2={staffTop + STAFF_HEIGHT}
+          stroke="currentColor"
+          strokeWidth={1}
+          opacity={0.5}
+        />
+      )}
+      {!hasRepeatEnd && closing === 'final' && (
+        <g data-barline="final" stroke="currentColor">
+          <line
+            x1={width - 6}
+            y1={staffTop}
+            x2={width - 6}
+            y2={staffTop + STAFF_HEIGHT}
+            strokeWidth={1}
+            opacity={0.6}
+          />
+          <line
+            x1={width - 1.75}
+            y1={staffTop}
+            x2={width - 1.75}
+            y2={staffTop + STAFF_HEIGHT}
+            strokeWidth={3.5}
+            opacity={0.85}
+          />
+        </g>
+      )}
 
       {/* Repeat end sign */}
       {hasRepeatEnd && (
@@ -678,6 +727,10 @@ const ROADMAP_BAND = 16;
 
 /** Only the volta brackets need room above the row; the rest sit by the staff. */
 const hasRoadmapMarks = (bar: ChordBar): boolean => !!bar.ending;
+
+/** Neighbouring bars share a bracket when it says the same thing. */
+const sameBracket = (a?: ChordBar, b?: ChordBar): boolean =>
+  sameEnding(a?.ending, b?.ending) && a?.endingLabel === b?.endingLabel;
 
 const sameEnding = (a?: number[], b?: number[]): boolean =>
   !!a && !!b && a.join() === b.join();
@@ -851,8 +904,8 @@ const RoadmapBand: FC<{
       const w = barWidth;
       const before = bi === 0 ? prevBar : row[bi - 1];
       const after = row[bi + 1];
-      const opensEnding = !sameEnding(bar.ending, before?.ending);
-      const closesEnding = !sameEnding(bar.ending, after?.ending);
+      const opensEnding = !sameBracket(bar, before);
+      const closesEnding = !sameBracket(bar, after);
       return (
         <g key={bi}>
           <g stroke="currentColor" strokeWidth={1.2} fill="none">
@@ -884,7 +937,7 @@ const RoadmapBand: FC<{
               fontWeight="bold"
               stroke="none"
             >
-              {bar.ending.join(', ')}.
+              {endingLabelOf(bar)}
             </text>
           )}
         </g>
@@ -921,9 +974,13 @@ const SectionStaff: FC<{
   /** How many systems the sections above this one used. */
   systemOffset: number;
   systemsPerPage?: number;
+  /** How the section's last bar closes: a double barline before the next
+   *  section, a final barline at the song's end. */
+  closing: 'double' | 'final';
 }> = ({
   section,
   sectionIdx,
+  closing,
   barMeters,
   openingMeter,
   displayMode,
@@ -1064,6 +1121,28 @@ const SectionStaff: FC<{
           >
             <ChevronDown size={14} />
           </button>
+          {editable.onDuplicateSection && (
+            <button
+              type="button"
+              aria-label="Duplicate section"
+              title="Duplicate: a copy of this section right after it, chords, rhythms and marks"
+              className="rounded px-1 text-white/40 hover:bg-white/10 hover:text-white/80"
+              onClick={() => editable.onDuplicateSection?.(sectionIdx)}
+            >
+              <CopyPlus size={14} />
+            </button>
+          )}
+          {editable.onInsertSectionAfter && (
+            <button
+              type="button"
+              aria-label="New section after this one"
+              title="New section: an empty one right after this"
+              className="inline-flex items-center gap-0.5 rounded px-1 text-xs text-white/40 hover:bg-white/10 hover:text-white/80"
+              onClick={() => editable.onInsertSectionAfter?.(sectionIdx)}
+            >
+              <Plus size={12} /> Section
+            </button>
+          )}
           <button
             type="button"
             aria-label="Delete section"
@@ -1190,6 +1269,9 @@ const SectionStaff: FC<{
                       signsInHeader={globalBi === 0 && signsInHeader}
                       hasRepeatStart={!!bar.repeatStart}
                       hasRepeatEnd={!!bar.repeatEnd}
+                      closing={
+                        globalBi === bars.length - 1 ? closing : undefined
+                      }
                       onChordClick={onChordClick}
                       sectionIdx={sectionIdx}
                       onSelectChord={onSelectChord}
@@ -1338,6 +1420,7 @@ export const ChordChart: FC<ChordChartProps> = ({
             onSelectChord={onSelectChord}
             selection={selection}
             editable={editable}
+            closing={si === song.sections.length - 1 ? 'final' : 'double'}
           />
         ))}
 

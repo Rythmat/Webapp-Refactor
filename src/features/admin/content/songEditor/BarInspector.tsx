@@ -1,10 +1,12 @@
-import type { FC } from 'react';
+import { useState, type FC } from 'react';
 import type { RoadmapJump, SongSection } from '@/curriculum/types/songLibrary';
 import {
   clearRoadmap,
+  endingLabelOf,
   fitIntoSystem,
   flagState,
   isOwnSystem,
+  parseEnding,
   setBarValue,
   setEnding,
   sharedValue,
@@ -61,6 +63,53 @@ const PILL = (on: boolean) =>
 const FIELD =
   'w-full rounded-md border border-white/15 bg-white/[0.04] px-2 py-1 text-xs text-white/80 outline-none focus:border-white/40';
 
+/**
+ * An ending in the chart's own words, typed: '4.', '1.–3.', '1, 2.'. The
+ * numbers in it say which times through play the bars; the words are what
+ * the bracket prints. Set on Enter or on leaving the field; emptied, the
+ * bracket comes off.
+ */
+const EndingField: FC<{
+  label: string;
+  onSet: (passes: number[], words: string) => void;
+}> = ({ label, onSet }) => {
+  const [text, setText] = useState(label);
+  const [wrong, setWrong] = useState(false);
+  const commit = () => {
+    if (text.trim() === label) return;
+    if (!text.trim()) {
+      setWrong(false);
+      onSet([], '');
+      return;
+    }
+    const parsed = parseEnding(text);
+    setWrong(!parsed);
+    if (parsed) onSet(parsed.passes, parsed.label);
+  };
+  return (
+    <input
+      aria-label="Ending, in the bracket's words"
+      aria-invalid={wrong}
+      className={`${FIELD} w-20 ${wrong ? 'border-red-400/60' : ''}`}
+      value={text}
+      placeholder="1.–3."
+      title={
+        wrong
+          ? 'Say which times through with a number: 4., 1.–3., 1, 2.'
+          : 'Any ending, as the bracket prints it: 4., 1.–3., 1, 2. The numbers say which times through play these bars.'
+      }
+      onChange={(e) => {
+        setText(e.target.value);
+        setWrong(false);
+      }}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') commit();
+      }}
+    />
+  );
+};
+
 export const BarInspector: FC<{
   sections: SongSection[];
   refs: BarRef[];
@@ -75,9 +124,20 @@ export const BarInspector: FC<{
       </p>
     );
 
-  const currentEnding = sections[refs[0].section]?.bars[refs[0].bar]?.ending;
+  const firstBar = sections[refs[0].section]?.bars[refs[0].bar];
+  const currentEnding = firstBar?.ending;
   const sameEnding = (passes: number[]) =>
     !!currentEnding && currentEnding.join() === passes.join();
+  // The words over the bracket, when every selected bar has the same one.
+  const sharedLabel = refs.every((r) => {
+    const bar = sections[r.section]?.bars[r.bar];
+    return (
+      !!bar?.ending &&
+      endingLabelOf(bar) === (firstBar ? endingLabelOf(firstBar) : '')
+    );
+  })
+    ? endingLabelOf(firstBar ?? {})
+    : '';
 
   const toggle = (flag: BarFlag, hint: string) =>
     onChange(toggleBarFlag(sections, refs, flag), hint);
@@ -125,19 +185,30 @@ export const BarInspector: FC<{
             {label}
           </button>
         ))}
+        {/* Any ending, in the chart's own words: '4.', '1.–3.'. */}
+        <EndingField
+          key={`${refs.map((r) => `${r.section}.${r.bar}`).join()}|${sharedLabel}`}
+          label={sharedLabel}
+          onSet={(passes, words) =>
+            onChange(
+              setEnding(sections, refs, passes, words),
+              passes.length ? `Ending ${words}` : 'Remove ending',
+            )
+          }
+        />
       </div>
 
       <label className="flex items-center gap-1">
-        <span className="text-white/45">Cue</span>
+        <span className="whitespace-nowrap text-white/45">Staff text</span>
         <input
-          className={`${FIELD} w-28`}
+          className={`${FIELD} w-32`}
           value={value('cue') ?? ''}
-          placeholder={n > 1 ? '—' : 'Break'}
-          title="A performance cue above the bar. Never lyrics."
+          placeholder={n > 1 ? '—' : 'Drum Fill'}
+          title="Text over the staff at this bar: 'Drum Fill', 'Piano Only', 'Break'. Never lyrics."
           onChange={(e) =>
             onChange(
               setBarValue(sections, refs, 'cue', e.target.value),
-              'Set cue',
+              'Set staff text',
             )
           }
         />

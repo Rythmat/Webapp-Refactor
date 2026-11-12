@@ -7,8 +7,10 @@ import {
   addSection,
   coerceSongForPreview,
   DEFAULT_CHORD,
+  duplicateSection,
   getSections,
   insertBar,
+  insertSection,
   moveSection,
   normalizeAccidentals,
   removeBar,
@@ -159,5 +161,38 @@ describe('coerceSongForPreview', () => {
     expect(song.keyRoot).toBe(62);
     expect(song.mode).toBe('dorian');
     expect(song.timeSignature).toEqual([3, 4]);
+  });
+});
+
+describe('sections, new and duplicated (owner, 2026-11-12)', () => {
+  it('puts a new empty section where it is asked for', () => {
+    const out = insertSection(sample(), 1);
+    expect(out).toHaveLength(sample().length + 1);
+    expect(out[1].label).toBe('');
+    expect(out[1].bars).toHaveLength(4);
+    expect(out[1].bars.every((b) => b.chords.length === 0)).toBe(true);
+    expect(new Set(out.map((s) => s.id)).size).toBe(out.length);
+    // Past the end: at the end.
+    expect(insertSection(sample(), 99).at(-1)?.bars).toHaveLength(4);
+  });
+
+  it('copies a section right after it, marks and all, under its own id', () => {
+    const chart = sample();
+    chart[0].bars[0] = {
+      ...chart[0].bars[0],
+      repeatStart: true,
+      ending: [1],
+      cue: 'Drum Fill',
+    };
+    const out = duplicateSection(chart, 0);
+    expect(out).toHaveLength(chart.length + 1);
+    expect(out[1].label).toBe(chart[0].label);
+    expect(out[1].bars).toEqual(chart[0].bars);
+    expect(out[1].id).not.toBe(chart[0].id);
+    expect(new Set(out.map((s) => s.id)).size).toBe(out.length);
+    // A deep copy: editing the copy leaves the original alone.
+    out[1].bars[0].chords[0].chordName = 'G';
+    expect(out[0].bars[0].chords[0].chordName).toBe('C');
+    expect(duplicateSection(chart, 9)).toBe(chart);
   });
 });

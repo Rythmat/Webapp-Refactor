@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import type { SongSection } from '@/curriculum/types/songLibrary';
 import {
   clearRoadmap,
+  endingLabelOf,
   fitIntoSystem,
   flagState,
   isOwnSystem,
+  parseEnding,
   setBarValue,
   setEnding,
   sharedValue,
@@ -122,6 +124,52 @@ describe('endings', () => {
   it('ignores nonsense pass numbers', () => {
     const out = setEnding(chart(), refs([0, 0]), [0, -1, 1.5, 2]);
     expect(out[0].bars[0].ending).toEqual([2]);
+  });
+});
+
+describe('endings in the chart’s own words (owner, 2026-11-12)', () => {
+  it('reads the passes out of what is typed', () => {
+    expect(parseEnding('4')).toEqual({ passes: [4], label: '4.' });
+    expect(parseEnding('2.')).toEqual({ passes: [2], label: '2.' });
+    expect(parseEnding('1, 2.')).toEqual({ passes: [1, 2], label: '1, 2.' });
+    expect(parseEnding('1.–3.')).toEqual({
+      passes: [1, 2, 3],
+      label: '1.–3.',
+    });
+    expect(parseEnding('1-3')).toEqual({ passes: [1, 2, 3], label: '1-3' });
+    expect(parseEnding('1 to 4, 6.')?.passes).toEqual([1, 2, 3, 4, 6]);
+    expect(parseEnding('5th time')).toEqual({
+      passes: [5],
+      label: '5th time',
+    });
+  });
+
+  it('refuses words that name no pass, and runaway ranges', () => {
+    expect(parseEnding('')).toBeNull();
+    expect(parseEnding('Last time')).toBeNull();
+    expect(parseEnding('1-500')).toBeNull();
+  });
+
+  it('keeps the words only when they say more than the passes', () => {
+    const own = setEnding(chart(), refs([0, 2]), [1, 2, 3], '1.–3.');
+    expect(own[0].bars[2]).toMatchObject({
+      ending: [1, 2, 3],
+      endingLabel: '1.–3.',
+    });
+    expect(endingLabelOf(own[0].bars[2])).toBe('1.–3.');
+    const plain = setEnding(chart(), refs([0, 2]), [4], '4.');
+    expect('endingLabel' in plain[0].bars[2]).toBe(false);
+    expect(endingLabelOf(plain[0].bars[2])).toBe('4.');
+    // A new ending, or none, takes the old words away with it.
+    expect('endingLabel' in setEnding(own, refs([0, 2]), [2])[0].bars[2]).toBe(
+      false,
+    );
+    expect('endingLabel' in setEnding(own, refs([0, 2]), [])[0].bars[2]).toBe(
+      false,
+    );
+    expect('endingLabel' in clearRoadmap(own, refs([0, 2]))[0].bars[2]).toBe(
+      false,
+    );
   });
 });
 

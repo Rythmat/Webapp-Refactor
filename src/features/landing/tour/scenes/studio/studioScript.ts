@@ -1,12 +1,5 @@
-import { DEMO_PROGRESSION, demoChord } from '../../../music';
-import {
-  colorGroups,
-  keyRootFor,
-  optionsFor,
-  pickFromColor,
-  type StyleName,
-  type TrackId,
-} from './studioSong';
+import { demoChord } from '../../../music';
+import { keyRootFor } from './studioSong';
 
 /**
  * The Micro Studio's guided script (pure — unit tested in
@@ -20,24 +13,22 @@ import {
 export type { StyleName, TrackId } from './studioSong';
 
 export interface StudioState {
-  /** Key center pitch class (major), or null before a key is picked. */
+  /** The prompt is written in the Prism bar. */
+  asked: boolean;
+  /** The key Prism wrote in (major), or null before it writes. */
   keyPc: number | null;
-  /** Prism chord selection (graph tokens). */
-  seq: string[];
-  /** The chords Create wrote to the CHORDS clip, or null before Create. */
-  clip: string[] | null;
-  dock: 'prism' | 'roll';
-  style: StyleName;
-  muted: TrackId[];
-  soloed: TrackId[];
-  /** Spectrum picks so far (rotates a color's chords off the demo path). */
-  picks: number;
+  /** Prism wrote the chords (the chord lane and the Chords clip). */
+  chords: boolean;
+  /** Prism wrote the bass and drums under them. */
+  band: boolean;
 }
 
-/** What a cursor click presses: a spectrum segment (color index), or a button. */
-export type PressTarget = { segment: number } | 'create' | 'roll' | 'play';
+/** What a cursor click presses (scene-drawn). */
+export type PressTarget = 'prompt' | 'create' | 'play';
 
-/** The key the tour picks: D major (orange). */
+/** What the visitor asks Prism for. */
+export const DEMO_PROMPT = 'An upbeat pop chorus in D';
+/** The key Prism writes in: D major (orange). */
 export const DEMO_KEY_PC = 2;
 const DEMO_ROOT = keyRootFor(DEMO_KEY_PC);
 
@@ -48,24 +39,12 @@ export const RESOLVE_MS = 400;
 /** Where the playhead rests in the static end state: 4:1:1 (G min). */
 export const PARK_TICK = 5760;
 
-/** The spectrum segment (`KEY_COLORS` index) a chord lights in the demo key. */
-const segmentOf = (token: string): number =>
-  [...colorGroups([token], DEMO_ROOT).keys()][0];
-
-/**
- * Spectrum segments the script clicks: the key's own color (D's orange, for
- * I and IV), III's (F♯'s teal) and iv's (Gm, borrowed from D minor → F's pink).
- */
-const KEY_SEGMENT = segmentOf(DEMO_PROGRESSION[0]);
-export const III_SEGMENT = segmentOf(DEMO_PROGRESSION[1]);
-const IV_MINOR_SEGMENT = segmentOf(DEMO_PROGRESSION[3]);
-
 /** Per step, the ms at which each cue lands. */
 export const STEP_CUES: readonly (readonly number[])[] = [
-  [750, 1700],
-  [750, 1700, 2600],
   [750],
-  [750, PLAY_AT_MS],
+  [750],
+  [750],
+  [PLAY_AT_MS],
 ];
 
 /** Per step, the scene-drawn pressed states (ms windows within the step). */
@@ -74,96 +53,47 @@ export const STEP_PRESSES: readonly (readonly {
   from: number;
   to: number;
 }[])[] = [
-  [{ target: { segment: KEY_SEGMENT }, from: 1500, to: 1850 }],
-  [
-    { target: { segment: III_SEGMENT }, from: 650, to: 950 },
-    { target: { segment: KEY_SEGMENT }, from: 1500, to: 1850 },
-    { target: { segment: IV_MINOR_SEGMENT }, from: 2400, to: 2750 },
-  ],
+  [{ target: 'prompt', from: 650, to: 950 }],
   [{ target: 'create', from: 650, to: 950 }],
-  [
-    { target: 'roll', from: 650, to: 950 },
-    { target: 'play', from: 900, to: 1200 },
-  ],
+  [],
+  [{ target: 'play', from: 650, to: 950 }],
 ];
 
-/**
- * The cursor leaves for a later spectrum press this long before it (it lands
- * and clicks ~720 ms after leaving, like the step's first click).
- */
-export const CURSOR_LEAD_MS = 500;
-
 const initialState = (): StudioState => ({
+  asked: false,
   keyPc: null,
-  seq: [],
-  clip: null,
-  dock: 'prism',
-  style: 'Pop',
-  muted: [],
-  soloed: [],
-  picks: 0,
+  chords: false,
+  band: false,
 });
 
 /** Before the tour's first click. */
 export const INITIAL_STATE: Readonly<StudioState> = initialState();
 
-const copy = (s: StudioState): StudioState => ({
-  ...s,
-  seq: [...s.seq],
-  clip: s.clip && [...s.clip],
-  muted: [...s.muted],
-  soloed: [...s.soloed],
-});
-
 /**
- * The scene after `passed` of a step's cues (always fresh arrays). Each step
- * starts from the previous step's end state.
+ * The scene after `passed` of a step's cues. Each step starts from the
+ * previous step's end state.
  */
 export const stateAt = (step: number, passed: number): StudioState => {
-  const s = step <= 0 ? initialState() : copy(endState(step - 1));
+  const s = step <= 0 ? initialState() : { ...endState(step - 1) };
+  const done = passed >= 1;
   switch (step) {
     case 0:
-      s.keyPc = passed >= 1 ? DEMO_KEY_PC : null;
-      s.seq = passed >= 2 ? DEMO_PROGRESSION.slice(0, 1) : [];
+      s.asked = done;
       break;
     case 1:
-      s.seq = DEMO_PROGRESSION.slice(0, 1 + passed);
+      s.chords = done;
+      s.keyPc = done ? DEMO_KEY_PC : null;
       break;
     case 2:
-      s.clip = passed >= 1 ? [...DEMO_PROGRESSION] : null;
-      break;
-    case 3:
-      s.dock = passed >= 1 ? 'roll' : 'prism';
+      s.band = done;
       break;
   }
-  s.picks = s.seq.length;
   return s;
 };
 
 /** A step's end state (user and static modes show this). */
 export const endState = (step: number): StudioState =>
   stateAt(step, STEP_CUES[step]?.length ?? 0);
-
-/** The spectrum's lit colors for a state (`KEY_COLORS` index → tokens). */
-export const spectrumGroups = (s: StudioState): Map<number, string[]> =>
-  s.keyPc === null
-    ? new Map()
-    : colorGroups(optionsFor(s), keyRootFor(s.keyPc));
-
-/**
- * The HARMONY readout for a hovered/pressed segment: the color's chords and
- * the one a click would add (null when the color has nothing that fits).
- */
-export const hoverReadout = (
-  s: StudioState,
-  segment: number,
-): { tokens: string[]; pick: string | null } => {
-  const tokens = spectrumGroups(s).get(segment) ?? [];
-  return {
-    tokens,
-    pick: tokens.length > 0 ? pickFromColor(tokens, s.seq, s.picks) : null,
-  };
-};
 
 export interface AutoFrame {
   /** Changes whenever anything below changes (render trigger). */
@@ -172,16 +102,6 @@ export interface AutoFrame {
   soundKey: string;
   state: StudioState;
   press: PressTarget | null;
-  /**
-   * The readout while a segment is pressed, computed from the state before
-   * that click so it doesn't jump when the chord lands mid-press.
-   */
-  hover: { segment: number; tokens: string[]; pick: string | null } | null;
-  /**
-   * The spectrum segment the cursor is on (or heading to) for a press after
-   * the step's own target, which then carries the step's `data-tour-target`.
-   */
-  cursor: number | null;
   /** Step 3's pass is running. */
   playing: boolean;
   /** Where the playhead rests while not playing. */
@@ -193,24 +113,9 @@ export interface AutoFrame {
 const passedAt = (step: number, ms: number) =>
   (STEP_CUES[step] ?? []).filter((at) => ms >= at).length;
 
-/** See `AutoFrame.cursor`; null at the end state (no cursor). */
-export const cursorSegment = (step: number, ms: number): number | null => {
-  if (!Number.isFinite(ms)) return null;
-  let segment: number | null = null;
-  for (const p of STEP_PRESSES[step] ?? []) {
-    if (typeof p.target === 'object' && ms >= p.from - CURSOR_LEAD_MS)
-      segment = p.target.segment;
-  }
-  return segment;
-};
-
-/** Which cue sounds what: the key's tonic triad, then each added chord. */
-const cueSound = (step: number, passed: number): number[] | null => {
-  if (passed === 0) return null;
-  if (step === 0) return demoChord('1 major', DEMO_ROOT).midis;
-  if (step === 1) return demoChord(DEMO_PROGRESSION[passed], DEMO_ROOT).midis;
-  return null;
-};
+/** Which cue sounds what: the key's tonic triad as the chords land. */
+const cueSound = (step: number, passed: number): number[] | null =>
+  step === 1 && passed > 0 ? demoChord('1 major', DEMO_ROOT).midis : null;
 
 /**
  * What the auto tour shows `ms` into a step. `ms = Infinity` is the step's
@@ -220,33 +125,14 @@ const cueSound = (step: number, passed: number): number[] | null => {
 export const autoFrame = (step: number, ms: number): AutoFrame => {
   const passed = passedAt(step, ms);
   const presses = STEP_PRESSES[step] ?? [];
-  let pressIndex = -1;
-  presses.forEach((p, i) => {
-    if (ms >= p.from && ms < p.to) pressIndex = i;
-  });
-  const active = pressIndex >= 0 ? presses[pressIndex] : null;
-  const segment =
-    active && typeof active.target === 'object' ? active.target.segment : null;
+  const pressIndex = presses.findIndex((p) => ms >= p.from && ms < p.to);
   const final = !Number.isFinite(ms);
-  const playing = step === 3 && passed >= 2 && !final;
-  const cursor = cursorSegment(step, ms);
   return {
-    key: `${step}:${passed}:${pressIndex}:${cursor ?? ''}:${final ? 'end' : ''}`,
+    key: `${step}:${passed}:${pressIndex}:${final ? 'end' : ''}`,
     soundKey: `${step}:${passed}`,
     state: stateAt(step, passed),
-    press: active?.target ?? null,
-    hover:
-      active && segment !== null
-        ? {
-            segment,
-            ...hoverReadout(
-              stateAt(step, passedAt(step, active.from)),
-              segment,
-            ),
-          }
-        : null,
-    cursor,
-    playing,
+    press: pressIndex >= 0 ? presses[pressIndex].target : null,
+    playing: step === 3 && passed >= 1 && !final,
     parkTick: step === 3 && final ? PARK_TICK : 0,
     sound: cueSound(step, passed),
   };

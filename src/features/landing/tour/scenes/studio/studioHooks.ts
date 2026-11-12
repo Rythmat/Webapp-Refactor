@@ -8,10 +8,6 @@ import { autoFrame, type AutoFrame } from './studioScript';
 export const studioStepMs = (step: number) =>
   TOUR_BY_ID.studio.steps[step]?.durationMs ?? 0;
 
-/** A Studio step's `data-tour-target` in the tour config. */
-export const studioStepTarget = (step: number) =>
-  TOUR_BY_ID.studio.steps[step]?.target ?? '';
-
 /**
  * Counts entries into auto mode (setState during render, so the new epoch is
  * seen in the same render). Scope visitor state with it: an idle return or a

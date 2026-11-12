@@ -70,7 +70,7 @@ export const LANDING_MODULES: LandingModule[] = [
     app: StudioRoutes.root(),
     statement: {
       lead: 'A studio that knows theory.',
-      rest: 'Pick a key center and Prism suggests what comes next — every chord colored by the key it comes from.',
+      rest: 'Tell Prism what you want and it writes chords, bass and drums in key — every chord colored by the key it comes from.',
     },
     Scene: StudioScene,
     bleed: true,

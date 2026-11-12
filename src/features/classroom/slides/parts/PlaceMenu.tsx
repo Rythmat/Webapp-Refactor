@@ -25,8 +25,9 @@ import type { SlideElement, SlideSurface } from '../types';
 // the Music Atlas logo in the middle, a short glowing streak running along
 // each line into it in the app's key-colour rainbow (after the "Animated
 // Beam Integration" diagram the owner chose; drawn here from scratch). A
-// hand on an icon runs the rainbow along its whole line; the other streaks
-// finish their run into the logo and no new ones set out until it leaves.
+// hand on an icon runs the rainbow along its whole line, in place of its
+// streak; the other streaks finish their run into the logo and no new ones
+// set out until it leaves.
 //
 //   Present          each icon opens its place in a new tab
 //   a student        each icon opens its place inside the lesson (`onOpen`)
@@ -259,7 +260,7 @@ export const PlaceMenu = ({
   }, [lit, rested]);
   /** A streak finished its run (and its rest): stop it there, under a hand. */
   const restAt = (id: string) => {
-    if (lit === null || lit === id) return;
+    if (lit === null) return;
     setRested((was) => (was.has(id) ? was : new Set(was).add(id)));
   };
   const uid = useId().replace(/:/g, '');
@@ -372,11 +373,11 @@ export const PlaceMenu = ({
           {nodes.map((node, index) => {
             const on = lit === node.place.id;
             const stroke = `url(#${uid}-${node.place.id})`;
-            // A hand on an icon: its whole line in the rainbow; every other
-            // line's streak runs on into the logo, and then no new one sets
-            // out (it stops at the end of its loop, where nothing shows)
-            // until the hand leaves.
-            const held = !on && rested.has(node.place.id);
+            // A hand on an icon: its whole line in the flowing rainbow and no
+            // streak of its own; every other line's streak runs on into the
+            // logo, and then no new one sets out (it stops at the end of its
+            // loop, where nothing shows) until the hand leaves.
+            const held = rested.has(node.place.id);
             const motion = {
               animationDelay: `${(index * 0.55).toFixed(2)}s`,
               animationPlayState: held ? 'paused' : 'running',
@@ -406,7 +407,7 @@ export const PlaceMenu = ({
                       strokeLinecap="round"
                       pathLength={1}
                       strokeDasharray="0.26 1.3"
-                      opacity={on ? 0.35 : 0.18}
+                      opacity={on ? 0 : 0.18}
                       className="place-beam"
                       style={motion}
                     />
@@ -418,7 +419,7 @@ export const PlaceMenu = ({
                       strokeLinecap="round"
                       pathLength={1}
                       strokeDasharray="0.26 1.3"
-                      opacity={on ? 1 : 0.85}
+                      opacity={on ? 0 : 0.85}
                       className="place-beam"
                       style={motion}
                       onAnimationIteration={() => restAt(node.place.id)}

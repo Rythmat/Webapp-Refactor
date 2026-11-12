@@ -121,12 +121,18 @@ describe('the Individual Project menu', () => {
     // …and at the end of its loop, where nothing shows, it stops there.
     fireEvent.animationIteration(streaks('learn')[1]!);
     expect(state('learn')).toEqual(['paused', 'paused']);
-    // The line under the hand keeps flowing.
+    // The line under the hand shows no streak of its own (its rainbow
+    // flows instead), and rests at the end of its loop too.
+    expect(streaks('studio').map((p) => p.getAttribute('opacity'))).toEqual([
+      '0',
+      '0',
+    ]);
     fireEvent.animationIteration(streaks('studio')[1]!);
-    expect(state('studio')).toEqual(['running', 'running']);
+    expect(state('studio')).toEqual(['paused', 'paused']);
     fireEvent.pointerLeave(studio);
     expect(line('studio')).toBe(before);
     expect(state('learn')).toEqual(['running', 'running']);
+    expect(state('studio')).toEqual(['running', 'running']);
   });
 
   it('is a picture on the room’s screen, nothing to click', () => {

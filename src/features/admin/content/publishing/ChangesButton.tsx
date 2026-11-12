@@ -32,7 +32,7 @@ const BulkUnreviewedLines = lazy(() =>
  * last publish; the popover also names the facts accepted in bulk that
  * nobody has reviewed (C29), read only while it is open. It offers Publish
  * for the kinds of the section
- * showing (Songs on a Learn page, the globe's kinds on the Globe) and the way
+ * showing (Songs on a Songs page, the globe's kinds on the Globe) and the way
  * to Publishing for everything else. Admin only; the bar decides.
  *
  * In repo mode (a save goes straight into the repo's files) it counts the

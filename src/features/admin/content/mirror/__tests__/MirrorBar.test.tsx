@@ -163,6 +163,24 @@ describe('the bar’s way into the Table', () => {
     ).toBe('/console/content/songs/africa?edit=1');
   });
 
+  it('starts a new song from the song library, and its editor goes back there', () => {
+    renderAt('/console/content/songs');
+    expect(
+      screen.getByRole('link', { name: 'New song' }).getAttribute('href'),
+    ).toBe('/console/content/records/song/new');
+    cleanup();
+    // A song's own page edits in place: no New song there.
+    renderAt('/console/content/songs/africa');
+    expect(screen.queryByRole('link', { name: 'New song' })).toBeNull();
+    cleanup();
+    // The song editor's Page is the Songs module's, not Learn's.
+    renderAt('/console/content/records/song/new');
+    const view = within(screen.getByRole('group', { name: 'View' }));
+    expect(view.getByRole('link', { name: 'Page' }).getAttribute('href')).toBe(
+      '/console/content/songs',
+    );
+  });
+
   it('opens a Music Literacy lesson in its editor, not as a course', () => {
     renderAt(
       '/console/content/curriculum/music-literacy/music-literacy-part-1',

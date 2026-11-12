@@ -106,6 +106,11 @@ describe('the app sidebar, through the console', () => {
     expect(current(renderConsole('/globe', 'admin'))).toEqual([
       '/console/content/globe',
     ]);
+    // Songs is its own module, as on the app's rail: a song lights Songs,
+    // not Learn.
+    expect(current(renderConsole('/songs/africa', 'admin'))).toEqual([
+      '/console/content/songs',
+    ]);
     expect(current(renderConsole(null, 'admin'))).toEqual([]);
   });
 

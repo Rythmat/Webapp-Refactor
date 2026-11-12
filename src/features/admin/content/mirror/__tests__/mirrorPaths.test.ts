@@ -97,7 +97,10 @@ describe('translating between app and console paths', () => {
     expect(consoleAppPath('/console/content/songs/africa')).toBe(
       '/songs/africa',
     );
-    expect(consoleAppPath('/console/content/records/song')).toBe('/learn');
+    // Songs is its own module, not Learn's.
+    expect(consoleAppPath('/console/content/records/song')).toBe('/songs');
+    expect(consoleAppPath('/console/content/records/song/new')).toBe('/songs');
+    expect(consoleAppPath('/console/content/songs')).toBe('/songs');
     expect(consoleAppPath('/console/content/records/globe_event/x')).toBe(
       '/globe',
     );

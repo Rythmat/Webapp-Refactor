@@ -11,6 +11,7 @@ import {
   OfficeRoutes,
   ProfileRoutes,
   SettingsRoutes,
+  SongRoutes,
   StudioRoutes,
 } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
@@ -106,6 +107,13 @@ export const ClassroomSidebar = ({
                   to: LearnRoutes.root(),
                   active: isRouteActive(pathname, LearnRoutes.root()),
                 })}
+          />
+          {/* Songs is its own module, after Learn, as on the app's rail
+              (AppRail, 2026-11-11). */}
+          <SidebarMainNavItem
+            icon={AppIcons.songs}
+            label="Songs"
+            {...nav(SongRoutes.root())}
           />
           <SidebarMainNavItem
             iconSrc="/icons/studio-icon.svg"

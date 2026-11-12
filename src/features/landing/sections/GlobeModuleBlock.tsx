@@ -10,7 +10,7 @@ import { Statement } from './Statement';
 import { moduleIcon } from './moduleIcons';
 import type { LandingModule } from './modules';
 
-// Code-split: the globe pulls in cobe.
+// Code-split: the globe carries its map art.
 const GlobeScene = lazy(() => import('../tour/scenes/GlobeScene'));
 
 const noop = () => {};

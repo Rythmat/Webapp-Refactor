@@ -479,7 +479,7 @@ describe('Sound toggle', () => {
     expect(sound()).toBe('off');
   });
 
-  it('Pause, Stop, leaving the screen and a hidden tab turn Sound off without muting it', async () => {
+  it('Pause, Back to start, leaving the screen and a hidden tab turn Sound off without muting it', async () => {
     await mount(STUDIO_TOUR, StudioScene);
     await step(500);
 
@@ -489,7 +489,7 @@ describe('Sound toggle', () => {
     await passiveClick();
     expect(sound()).toBe('on');
 
-    await click(button('Stop'));
+    await click(button('Back to start'));
     expect(sound()).toBe('off');
     await passiveClick();
     expect(sound()).toBe('on');
@@ -634,11 +634,11 @@ describe('Sound toggle', () => {
 });
 
 describe('Sound off pauses the visitor’s playback', () => {
-  /** Plays the Studio demo's created clip; returns once it has run 3 s. */
+  /** Plays the Studio demo's written song; returns once it has run 3 s. */
   const playStudio = async () => {
     await mount(STUDIO_TOUR, StudioScene);
     await step(500);
-    // "Create the clip": the clip is there, stopped.
+    // "Bass and drums": every part is written, stopped.
     await click(stepBoxes(STUDIO_TOUR)[2]);
     await click(button('Play'));
     await step(3000);
@@ -744,17 +744,7 @@ describe('Sound off pauses the visitor’s playback', () => {
     expect(button('Pause')).toBeTruthy();
   };
 
-  it.each([
-    [
-      'a dock tab',
-      () =>
-        [...host.querySelectorAll('button[aria-pressed="false"]')].find((b) =>
-          /^(PRISM|PIANO ROLL)$/i.test(b.getAttribute('aria-label') ?? ''),
-        ),
-    ],
-    ['a track’s Solo', () => host.querySelector('button[aria-label^="Solo "]')],
-    ['the KEY pill', () => host.querySelector('button[aria-label^="Key: "]')],
-  ])(
+  it.each([['Back to start', () => button('Back to start')]])(
     'Studio demo, muted: taking over its auto playback with %s pauses it, and the tour plays on',
     async (_, control) => {
       await toAutoPlayback();
@@ -1107,9 +1097,9 @@ describe('Connected demo: the guided loop through a visitor’s clicks', () => {
     expect(position()).not.toBe(at);
   });
 
-  it('Stop still stops at the top', async () => {
+  it('Back to start still stops at the top', async () => {
     await toGuidedLoop();
-    await click(button('Stop'));
+    await click(button('Back to start'));
     expect(button('Play')).toBeTruthy();
     await step(50);
     expect(position()).toBe('1:1:1');
@@ -1119,8 +1109,13 @@ describe('Connected demo: the guided loop through a visitor’s clicks', () => {
 
 describe('A Play waiting on the audio context', () => {
   const cases = [
-    ['Studio demo', STUDIO_TOUR, StudioScene],
-    ['Connected demo’s Studio step', CONNECTED_TOUR, ConnectionsScene],
+    ['Studio demo', STUDIO_TOUR, StudioScene, 'Back to start'],
+    [
+      'Connected demo’s Studio step',
+      CONNECTED_TOUR,
+      ConnectionsScene,
+      'Back to start',
+    ],
   ] as const;
   const interruptions = [
     [
@@ -1136,21 +1131,22 @@ describe('A Play waiting on the audio context', () => {
   const toStopped = async (
     tab: TourScript,
     Scene: ComponentType<SceneProps>,
+    stop: string,
   ) => {
     await mount(tab, Scene);
     await step(500);
     await click(stepBoxes(tab)[2]);
-    await click(button('Stop'));
+    await click(button(stop));
     await step(100);
     expect(sound()).toBe('off');
     expect(button('Play')).toBeTruthy();
   };
 
-  describe.each(cases)('%s', (_, tab, Scene) => {
+  describe.each(cases)('%s', (_, tab, Scene, stop) => {
     it.each(interruptions)(
       'is dropped if %s before Sound is on',
       async (__, interrupt, restore) => {
-        await toStopped(tab, Scene);
+        await toStopped(tab, Scene, stop);
         env.state.defer = true;
         await click(button('Play'));
         // Coming on: shown as on, and the Play waits for it.
@@ -1173,7 +1169,7 @@ describe('A Play waiting on the audio context', () => {
     );
 
     it('starts once Sound is on', async () => {
-      await toStopped(tab, Scene);
+      await toStopped(tab, Scene, stop);
       env.state.defer = true;
       await click(button('Play'));
       await step(200);
@@ -1186,7 +1182,7 @@ describe('A Play waiting on the audio context', () => {
     });
 
     it('never starts if the audio context won’t', async () => {
-      await toStopped(tab, Scene);
+      await toStopped(tab, Scene, stop);
       env.state.defer = true;
       await click(button('Play'));
       await settleStarts(false);

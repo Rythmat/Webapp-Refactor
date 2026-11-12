@@ -1,51 +1,62 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { demoChord, keyCenterColor } from '../../music';
+import { useEffect, useMemo, useRef } from 'react';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { DEMO_PROGRESSION, keyCenterColor, KEY_CENTERS } from '../../music';
 import { useSoundOff } from '../useSoundOff';
 import type { SceneProps } from './sceneTypes';
-import { MiniPianoRoll } from './studio/MiniPianoRoll';
-import { PrismPanel } from './studio/PrismPanel';
-import { StudioArrange } from './studio/StudioArrange';
-import { StudioDock } from './studio/StudioDock';
-import { StudioHeaders } from './studio/StudioHeaders';
-import { StudioTransport } from './studio/StudioTransport';
+import { StudioPromptBar } from './studio/StudioPromptBar';
+import { StudioBottomBar, StudioSideRail } from './studio/StudioRails';
+import { StudioTimeline, type LanePart } from './studio/StudioTimeline';
+import { StudioTopBar } from './studio/StudioTopBar';
+import { StudioTracks } from './studio/StudioTracks';
+import { NEUTRAL_TRACK, SHELL, shellLayout } from './studio/shellTokens';
 import {
-  studioStepTarget,
   useAutoEpoch,
   useAutoFrame,
   useScopedState,
 } from './studio/studioHooks';
-import {
-  hoverReadout,
-  spectrumGroups,
-  type StudioState,
-  type StyleName,
-  type TrackId,
-} from './studio/studioScript';
-import {
-  BAR,
-  buildSong,
-  keyRootFor,
-  pickFromColor,
-  type ChordRegion,
-} from './studio/studioSong';
-import { NEUTRAL_TRACK, STUDIO, studioLayout } from './studio/studioTokens';
+import { DEMO_KEY_PC, endState, type TrackId } from './studio/studioScript';
+import { BAR, bassLine, buildSong, keyRootFor } from './studio/studioSong';
 import { useBarIndex, useStudioTransport } from './studio/useStudioTransport';
 
-const toggle = <T,>(list: readonly T[], item: T): T[] =>
-  list.includes(item) ? list.filter((x) => x !== item) : [...list, item];
+/**
+ * Everything Prism writes for the demo prompt, built once: chords and drums
+ * from the real engine in D, a bass line on the chord roots. The scene shows
+ * (and the transport plays) only the parts written so far.
+ */
+const SONG = (() => {
+  const song = buildSong({
+    clip: DEMO_PROGRESSION,
+    keyRoot: keyRootFor(DEMO_KEY_PC),
+    style: 'Pop',
+  });
+  const bass = bassLine(song.regions);
+  return {
+    ...song,
+    bassNotes: bass.notes,
+    events: [...song.events, ...bass.events].sort((a, b) => a.tick - b.tick),
+  };
+})();
+
+/** Every part written (the end of "Bass and drums"). */
+const FULL_SONG = endState(2);
+
+const KEY_LABEL = displayAccidentals(
+  KEY_CENTERS.find((k) => k.pitchClass === DEMO_KEY_PC)?.name ?? '',
+);
 
 /**
- * Studio scene — a miniature of the real Studio's arrange view: transport
- * bar, CHORDS/DRUMS track headers, the timeline with its Prism chord ruler
- * and glass clips, and the bottom dock's PRISM and PIANO ROLL tabs. The tour
- * picks C, picks chords by color on the HARMONY spectrum, Creates the clip and
- * plays it back (drums + chords, audible once Sound is on).
+ * Studio scene — a miniature of today's Studio: the pill top bar, the stage
+ * card (track column, chord lane, lanes), the ∆ side rail, the bottom bar and
+ * the prompt bar, which is Prism now. The tour asks Prism for a pop chorus in
+ * D, Creates — the chords land on the chord lane in their colors — lets the
+ * bass and drums follow, and plays it back (audible once Sound is on).
  *
  * Orchestration only: the script (`studioScript`) says what the auto tour
  * shows at each moment of the step (read from the tour's `stepProgress`, so
- * there are no scene timers), the visitor's own state takes over exactly what
- * is on screen, and a rAF transport (`useStudioTransport`) runs playback.
- * Every color comes from Prism / key centers via `../../music`.
+ * there are no scene timers) and a rAF transport (`useStudioTransport`) runs
+ * playback. The visitor's controls are Play/Pause and Back to start (a Play
+ * before Prism is done shows the whole song); every color comes from Prism /
+ * key centers via `../../music`.
  */
 export const StudioScene = ({
   stepIndex,
@@ -53,17 +64,16 @@ export const StudioScene = ({
   visible,
   compact,
   onUserAction,
-  playNotes,
   stepProgress,
   audio,
   soundOn,
   resetKey,
 }: SceneProps) => {
-  const layout = studioLayout(compact);
+  const layout = shellLayout(compact);
   const auto = mode === 'auto';
   const staticMode = mode === 'static';
 
-  // Visitor state belongs to one visit of a step in one auto run: a step
+  // Visitor playback belongs to one visit of a step in one auto run: a step
   // pill (even the current one) or an idle return starts fresh; taking over
   // mid-step keeps what is on screen.
   const epoch = useAutoEpoch(mode);
@@ -71,39 +81,51 @@ export const StudioScene = ({
   const scopeRef = useRef(scope);
   scopeRef.current = scope;
   const frame = useAutoFrame(stepProgress, stepIndex, mode);
-  const [user, setUser] = useScopedState<StudioState>(scope);
   const [userPlaying, setUserPlaying] = useScopedState<boolean>(scope);
-  const [stops, setStops] = useScopedState<number>(scope);
-  const [selected, setSelected] = useScopedState<number>(scope);
-  const [hoverSeg, setHoverSeg] = useState<number | null>(null);
-  // One-shots: set on a click, cleared when their animation ends, so a
-  // remount (dock switch) never replays them.
-  const [flash, setFlash] = useState<{ segment: number; n: number } | null>(
-    null,
-  );
-  const [keyRing, setKeyRing] = useState<number | null>(null);
-  const oneShots = useRef(0);
-  const [creates, setCreates] = useState(0);
-  /** Bumped by every Play/Stop: a Play still waiting on Sound is dropped. */
+  const [rewinds, setRewinds] = useScopedState<number>(scope);
+  /** The visitor pressed Play before Prism finished: show the whole song. */
+  const [filled, setFilled] = useScopedState<boolean>(scope);
+  /** Bumped by every Play/Back to start: a Play still waiting on Sound is dropped. */
   const playReq = useRef(0);
 
-  const shown = user ?? frame.state;
-  const shownRef = useRef(shown);
-  shownRef.current = shown;
-
-  const keyRoot = keyRootFor(shown.keyPc ?? 0);
+  const shown = filled ? FULL_SONG : frame.state;
   const keyColor = shown.keyPc === null ? null : keyCenterColor(shown.keyPc);
-  const seqKey = shown.seq.join('|');
-  const clipKey = shown.clip?.join('|') ?? '';
-  const song = useMemo(
-    () => buildSong({ clip: shown.clip, keyRoot, style: shown.style }),
-    [clipKey, keyRoot, shown.style],
-  );
-  const groups = useMemo(() => spectrumGroups(shown), [shown.keyPc, seqKey]);
+  const trackColor = keyColor ?? NEUTRAL_TRACK;
+  const written: Record<TrackId, boolean> = {
+    chords: shown.chords,
+    bass: shown.band,
+    drums: shown.band,
+  };
+  const writtenRef = useRef(written);
+  writtenRef.current = written;
 
-  const isAudible = (track: TrackId) =>
-    !shown.muted.includes(track) &&
-    (shown.soloed.length === 0 || shown.soloed.includes(track));
+  const regions = shown.chords ? SONG.regions : [];
+  const parts = useMemo(() => {
+    const out: LanePart[] = [];
+    const key = `${epoch}:${resetKey ?? 0}`;
+    if (shown.chords)
+      out.push({
+        track: 'chords',
+        name: 'Chords',
+        notes: SONG.chordNotes,
+        paintKey: `chords:${key}`,
+      });
+    if (shown.band) {
+      out.push({
+        track: 'bass',
+        name: 'Bass',
+        notes: SONG.bassNotes,
+        paintKey: `bass:${key}`,
+      });
+      out.push({
+        track: 'drums',
+        name: 'Drums',
+        notes: SONG.drumNotes,
+        paintKey: `drums:${key}`,
+      });
+    }
+    return out;
+  }, [shown.chords, shown.band, epoch, resetKey]);
 
   // ── Playback ───────────────────────────────────────────────────────────
   // The "Play it back" step plays in user mode too (a step pill, or a click
@@ -116,10 +138,10 @@ export const StudioScene = ({
     loop: !staticMode,
     quantize: staticMode,
     rewindOnPlay: staticMode,
-    resetKey: `${scope}:${stops ?? 0}`,
-    resetTick: staticMode && stops === null ? frame.parkTick : 0,
-    events: song.events,
-    isAudible,
+    resetKey: `${scope}:${rewinds ?? 0}`,
+    resetTick: staticMode && rewinds === null ? frame.parkTick : 0,
+    events: SONG.events,
+    isAudible: (track) => writtenRef.current[track],
     audio,
     // Playback in user mode holds it (no idle reset mid-song).
     onWrap: () => {
@@ -128,15 +150,12 @@ export const StudioScene = ({
     onEnd: () => setUserPlaying(false),
   });
   const bar = useBarIndex(position);
-  const barRegion = song.regions.findIndex(
+  const barRegion = regions.findIndex(
     (r) => bar * BAR >= r.startTick && bar * BAR < r.endTick,
   );
   const parked = staticMode && userPlaying === null && frame.parkTick > 0;
   const current =
-    (playing || parked) && barRegion >= 0 ? song.regions[barRegion] : null;
-  const activeRegion = playing
-    ? barRegion
-    : (selected ?? (parked ? barRegion : null));
+    (playing || parked) && barRegion >= 0 ? regions[barRegion] : null;
 
   // Auto cues preview their chord (silent unless Sound is on); once per cue
   // of an auto run, also under StrictMode's double effects.
@@ -149,48 +168,21 @@ export const StudioScene = ({
   }, [cue, auto]);
 
   // ── Visitor actions ────────────────────────────────────────────────────
-  // Every handler takes over exactly what is on screen: the state and
-  // whether the auto pass is playing.
-  const take = (fn: (s: StudioState) => StudioState) => {
+  // Each takes over exactly what is on screen, including whether the auto
+  // pass is playing.
+  const takeOver = () => {
     if (auto) setUserPlaying((p) => p ?? frame.playing);
     onUserAction();
-    setUser((prev) => fn(prev ?? shownRef.current));
-  };
-  const takeOver = () => take((s) => s);
-
-  const pickKey = (pc: number) => {
-    take((s) => ({ ...s, keyPc: pc }));
-    playNotes(demoChord('1 major', keyRootFor(pc)).midis, 0.8);
-  };
-
-  const pickColor = (segment: number) => {
-    const s = shownRef.current;
-    const group = spectrumGroups(s).get(segment);
-    if (!group || s.keyPc === null) {
-      setHoverSeg(segment);
-      return;
-    }
-    const token = pickFromColor(group, s.seq, s.picks);
-    take((prev) => ({
-      ...prev,
-      seq: [...prev.seq, token],
-      picks: prev.picks + 1,
-    }));
-    if (!staticMode) setFlash({ segment, n: ++oneShots.current });
-    playNotes(demoChord(token, keyRootFor(s.keyPc)).midis, 0.9);
-  };
-
-  const create = () => {
-    take((s) => ({ ...s, clip: [...s.seq] }));
-    setCreates((n) => n + 1);
   };
 
   const togglePlay = () => {
     takeOver();
     const next = !playing;
+    // Play before Prism has written it all plays what it will write.
+    if (next && !shown.band) setFilled(true);
     const id = ++playReq.current;
     const at = scope;
-    // Unless a Stop, another Play or a scope change came first.
+    // Unless a Back to start, another Play or a scope change came first.
     const start = () => {
       if (playReq.current === id && scopeRef.current === at)
         setUserPlaying(next);
@@ -215,50 +207,22 @@ export const StudioScene = ({
     setUserPlaying(false);
   });
 
-  const stop = () => {
+  const rewind = () => {
     takeOver();
     playReq.current += 1;
     setUserPlaying(false);
-    setStops((n) => (n ?? 0) + 1);
-    setSelected(null);
+    setRewinds((n) => (n ?? 0) + 1);
     audio.disable();
   };
 
-  const playRegion = (region: ChordRegion, index: number) => {
-    takeOver();
-    setSelected(index);
-    playNotes(region.midis, 0.9);
-  };
-
-  const playChord = (token: string) => {
-    takeOver();
-    playNotes(demoChord(token, keyRoot).midis, 0.9);
-  };
-
-  const playKey = (midi: number) => {
-    takeOver();
-    playNotes([midi], 0.5);
-  };
-
   const press = auto ? frame.press : null;
-  // A later spectrum click: that segment carries the step's cursor target.
-  const cursor =
-    auto && frame.cursor !== null
-      ? { segment: frame.cursor, target: studioStepTarget(stepIndex) }
-      : null;
-  // The cursor's press drives the readout; otherwise the visitor's hover.
-  const hover =
-    (auto ? frame.hover : null) ??
-    (hoverSeg === null
-      ? null
-      : { segment: hoverSeg, ...hoverReadout(shown, hoverSeg) });
 
   return (
     <div
       className="relative size-full select-none overflow-hidden"
-      style={{ background: STUDIO.bg, color: STUDIO.text }}
+      style={{ background: SHELL.bg, color: SHELL.text }}
     >
-      <StudioTransport
+      <StudioTopBar
         layout={layout}
         compact={compact}
         keyPc={shown.keyPc}
@@ -266,84 +230,50 @@ export const StudioScene = ({
         playing={playing}
         pressPlay={press === 'play'}
         position={position}
-        onKey={() => {
-          take((s) => ({ ...s, dock: 'prism' }));
-          if (!staticMode) setKeyRing(++oneShots.current);
-        }}
         onPlay={togglePlay}
-        onStop={stop}
+        onRewind={rewind}
       />
-      <StudioHeaders
-        layout={layout}
-        compact={compact}
-        staticMode={staticMode}
-        trackColor={keyColor ?? NEUTRAL_TRACK}
-        state={shown}
-        meters={meters}
-        onToggle={(kind, track) =>
-          take((s) => ({ ...s, [kind]: toggle(s[kind], track) }))
-        }
-      />
-      <StudioArrange
-        layout={layout}
-        compact={compact}
-        staticMode={staticMode}
-        song={song}
-        keyColor={keyColor}
-        audible={{ chords: isAudible('chords'), drums: isAudible('drums') }}
-        position={position}
-        activeRegion={activeRegion}
-        paintKey={`${clipKey}:${creates}`}
-        onRegion={playRegion}
-      />
-      <StudioDock
-        layout={layout}
-        compact={compact}
-        staticMode={staticMode}
-        dock={shown.dock}
-        pressRoll={press === 'roll'}
-        trackColor={keyColor ?? NEUTRAL_TRACK}
-        nowPlaying={current && { label: current.label, color: current.color }}
-        onDock={(dock) => take((s) => ({ ...s, dock }))}
+      <div
+        className="absolute overflow-hidden rounded-[12px]"
+        style={{
+          left: layout.card.x,
+          top: layout.card.y,
+          width: layout.card.w,
+          height: layout.card.h,
+          background: SHELL.surface,
+        }}
       >
-        {shown.dock === 'prism' ? (
-          <PrismPanel
-            layout={layout}
-            compact={compact}
-            staticMode={staticMode}
-            state={shown}
-            keyRoot={keyRoot}
-            groups={groups}
-            hover={hover}
-            press={press}
-            cursor={cursor}
-            flash={flash}
-            keyRing={keyRing}
-            onFlashDone={() => setFlash(null)}
-            onRingDone={() => setKeyRing(null)}
-            onKey={pickKey}
-            onUndo={() => take((s) => ({ ...s, seq: s.seq.slice(0, -1) }))}
-            onClear={() => take((s) => ({ ...s, seq: [] }))}
-            onSegment={pickColor}
-            onHover={setHoverSeg}
-            onCreate={create}
-            onStyle={(style: StyleName) => take((s) => ({ ...s, style }))}
-            onChord={playChord}
-          />
-        ) : (
-          <MiniPianoRoll
-            layout={layout}
-            compact={compact}
-            staticMode={staticMode}
-            notes={song.chordNotes}
-            regions={song.regions}
-            keyPc={shown.keyPc}
-            position={position}
-            glow={current && { bar, color: current.color }}
-            onKey={playKey}
-          />
-        )}
-      </StudioDock>
+        <StudioTracks
+          layout={layout}
+          compact={compact}
+          staticMode={staticMode}
+          trackColor={trackColor}
+          nowPlaying={current && { label: current.label, color: current.color }}
+          meters={meters}
+        />
+        <StudioTimeline
+          layout={layout}
+          compact={compact}
+          staticMode={staticMode}
+          regions={regions}
+          parts={parts}
+          trackColor={trackColor}
+          keyLabel={shown.keyPc === null ? null : KEY_LABEL}
+          position={position}
+          playing={playing}
+          activeRegion={current ? barRegion : null}
+        />
+        <StudioPromptBar
+          layout={layout}
+          compact={compact}
+          staticMode={staticMode}
+          asked={shown.asked}
+          pressPrompt={press === 'prompt'}
+          pressCreate={press === 'create'}
+        />
+      </div>
+      {layout.railW > 0 && <StudioSideRail layout={layout} />}
+      <StudioBottomBar layout={layout} compact={compact} />
     </div>
   );
 };

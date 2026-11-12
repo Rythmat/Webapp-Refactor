@@ -13,6 +13,7 @@ import {
   Lightbulb,
   MapPin,
   Play,
+  X,
 } from 'lucide-react';
 import {
   lazy,
@@ -51,15 +52,19 @@ import {
   HALF_MS,
   HALF_S,
 } from './connections/connectionsScript';
+import { CAME_FROM, EventsCard, GLOBE_UI } from './globe/GlobeChrome';
+import { DETROIT_STORY } from './globe/globeData';
 import type { SceneProps } from './sceneTypes';
 import { MiniPianoRoll } from './studio/MiniPianoRoll';
-import { StudioTransport } from './studio/StudioTransport';
+import { StudioBottomBar } from './studio/StudioRails';
+import { StudioTopBar } from './studio/StudioTopBar';
+import { DESKTOP as SHELL_DESKTOP, SHELL } from './studio/shellTokens';
 import { useAutoEpoch, useScopedState } from './studio/studioHooks';
 import { BAR, CLIP_TICKS, rollRange } from './studio/studioSong';
-import { STUDIO, studioLayout, type StudioLayout } from './studio/studioTokens';
+import { studioLayout, type StudioLayout } from './studio/studioTokens';
 
-// Code-split: the globe pulls in cobe.
-const LovelyGlobe = lazy(() => import('./connections/LovelyGlobe'));
+// Code-split: the globe carries its map art.
+const DetroitGlobe = lazy(() => import('./connections/DetroitGlobe'));
 
 /** Each step's `data-tour-target` (as in `CONNECTED_TOUR`). */
 const TARGET = ['song', 'globe', 'studio', 'lesson'] as const;
@@ -690,60 +695,11 @@ const GlobeSurface = ({
   arcs: boolean;
   target?: string;
   pressed: boolean;
-}) => (
-  <div
-    aria-hidden={!active}
-    className={cn(
-      'absolute inset-0 flex transition-opacity',
-      compact ? 'flex-col' : 'flex-row',
-      active ? 'opacity-100' : 'pointer-events-none invisible opacity-0',
-    )}
-    style={{ transitionDuration: still ? '0ms' : active ? '320ms' : '160ms' }}
-  >
-    <div
-      className={cn(
-        'relative grid shrink-0 place-items-center',
-        compact ? 'h-[148px] w-full' : 'h-full w-[56%]',
-      )}
-    >
-      <div
-        className="relative"
-        style={{ width: compact ? 140 : 440, height: compact ? 140 : 440 }}
-      >
-        {near && (
-          <Suspense fallback={null}>
-            <LovelyGlobe
-              focused={active}
-              arcs={arcs}
-              paused={!active || !visible}
-              still={still}
-            />
-          </Suspense>
-        )}
-        {/* The flight ends with the song's city at the globe's center. */}
-        <span
-          data-tour-target={target}
-          className={cn(
-            'pointer-events-none absolute left-1/2 top-1/2 size-10 -translate-x-1/2 -translate-y-1/2 rounded-full transition-[box-shadow] duration-300',
-            isPressed && 'shadow-[0_0_0_10px_rgba(255,255,255,0.18)]',
-          )}
-        />
-      </div>
-    </div>
-
-    <motion.div
-      className={cn(
-        'flex min-w-0 flex-1 flex-col justify-center gap-3',
-        compact ? 'gap-1.5 px-5 pb-3' : 'border-l border-white/[0.08] px-7',
-      )}
-      initial={false}
-      animate={story ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
-      transition={{ duration: still ? 0 : 0.45, ease: EASE }}
-    >
-      <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/50">
-        {SONG_EVENT.location.city}, {SONG_EVENT.location.country}
-      </span>
-      <h4 className="text-lg font-bold leading-snug">{SONG_EVENT.title}</h4>
+}) => {
+  /** The song's own event, as a tile in Detroit's events card. */
+  const songEvent = (
+    <>
+      <h4 className="text-[15px] font-bold leading-snug">{SONG_EVENT.title}</h4>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/60">
         <span className="flex items-center gap-1">
           <Calendar className="size-3.5" /> {SONG_EVENT.year}
@@ -765,22 +721,36 @@ const GlobeSurface = ({
       <p
         className={cn(
           'text-[13px] leading-relaxed text-white/70',
-          compact ? 'line-clamp-2' : 'line-clamp-4',
+          compact ? 'line-clamp-2' : 'line-clamp-3',
         )}
       >
         {SONG_EVENT.description}
       </p>
-      <div className="flex flex-col gap-2 border-t border-white/[0.08] pt-3">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/40">
-          Influenced by
-        </span>
-        {INFLUENCES.map((e) => (
-          <motion.div
-            key={e.id}
-            initial={false}
-            animate={{ opacity: arcs ? 1 : 0 }}
-            transition={{ duration: still ? 0 : 0.4 }}
-          >
+    </>
+  );
+  /** What the Globe says influenced it, in the Connections card's "Came from" look. */
+  const influences = (
+    <div className="flex flex-col gap-2 border-t border-white/[0.08] pt-3">
+      <span
+        className="text-[11px] font-bold uppercase tracking-[0.08em]"
+        style={{ color: GLOBE_UI.text3 }}
+      >
+        Influenced by
+      </span>
+      {INFLUENCES.map((e) => (
+        <motion.div
+          key={e.id}
+          className="flex gap-2"
+          initial={false}
+          animate={{ opacity: arcs ? 1 : 0 }}
+          transition={{ duration: still ? 0 : 0.4 }}
+        >
+          <span
+            aria-hidden
+            className="mt-1.5 size-1.5 shrink-0 rounded-full"
+            style={{ background: CAME_FROM }}
+          />
+          <span className="min-w-0">
             <p className="truncate text-[13px] text-white/85">
               {e.title}
               {compact && <span className="text-white/45"> · {e.year}</span>}
@@ -790,12 +760,81 @@ const GlobeSurface = ({
                 {e.year} · {e.location.city}
               </p>
             )}
-          </motion.div>
-        ))}
+          </span>
+        </motion.div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div
+      aria-hidden={!active}
+      className={cn(
+        'absolute inset-0 flex transition-opacity',
+        compact ? 'flex-col' : 'flex-row',
+        active ? 'opacity-100' : 'pointer-events-none invisible opacity-0',
+      )}
+      style={{ transitionDuration: still ? '0ms' : active ? '320ms' : '160ms' }}
+    >
+      {/* The Globe's stage: the map flies to Detroit and lifts Michigan. */}
+      <div
+        className={cn(
+          'relative shrink-0 overflow-hidden rounded-xl',
+          compact ? 'mx-3 mt-2 h-[148px]' : 'my-3 ml-3 w-[54%]',
+        )}
+        style={{ background: GLOBE_UI.panel }}
+      >
+        {near && (
+          <Suspense fallback={null}>
+            <DetroitGlobe
+              focused={active}
+              arcs={arcs}
+              paused={!active || !visible}
+              still={still}
+              rail={!compact}
+            />
+          </Suspense>
+        )}
+        {/* The flight ends with the song's city lifted on its state. */}
+        <span
+          data-tour-target={target}
+          className={cn(
+            'pointer-events-none absolute left-1/2 size-10 -translate-x-1/2 -translate-y-1/2 rounded-full transition-[box-shadow] duration-300',
+            isPressed && 'shadow-[0_0_0_10px_rgba(255,255,255,0.18)]',
+          )}
+          style={{ top: 'calc(56% - 22px)' }}
+        />
       </div>
-    </motion.div>
-  </div>
-);
+
+      <motion.div
+        className={cn(
+          'flex min-w-0 flex-1 flex-col justify-center',
+          compact ? 'gap-1.5 px-5 pb-3 pt-2' : 'p-3',
+        )}
+        initial={false}
+        animate={story ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+        transition={{ duration: still ? 0 : 0.45, ease: EASE }}
+      >
+        {compact ? (
+          <>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/50">
+              {SONG_EVENT.location.city}, {SONG_EVENT.location.country}
+            </span>
+            {songEvent}
+            {influences}
+          </>
+        ) : (
+          <EventsCard story={DETROIT_STORY} title={SONG_EVENT.location.city}>
+            <div className="flex flex-col gap-2.5 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+              {songEvent}
+            </div>
+            {influences}
+          </EventsCard>
+        )}
+      </motion.div>
+    </div>
+  );
+};
 
 // ── 3 · Studio: the loop in the piano roll, and Insight on each chord ─────
 
@@ -803,18 +842,22 @@ const GlobeSurface = ({
 const ROLL_ROWS = (({ lo, hi }) => hi - lo + 1)(
   rollRange(LOOP_SONG.chordNotes, 0),
 );
-/** Phones: the one-row Insight under the roll. */
+/** Phones: the one-row Insight under the stage. */
 const COMPACT_INSIGHT_H = 48;
-/** Stage-space room for the piano roll under the transport and chord ruler. */
+/** The Insight card beside the stage (desktop). */
+const INSIGHT_W = 280;
+/**
+ * The piano roll's room on the stage card: the surface (1000 × 504 under the
+ * song header; phones 486 × 395, the scene's box over COMPACT_ZOOM) less the
+ * top and bottom bars, the chord lane and Insight.
+ */
 const ROLL = {
-  desktop: { w: 680, gridH: 422 },
-  // Phones: the scene's box (680 × 660 over COMPACT_ZOOM), less the header,
-  // transport, rulers and Insight.
-  compact: { w: 486, gridH: 257 },
+  desktop: { w: 1000 - 24 - INSIGHT_W, gridH: 368 },
+  compact: { w: 486 - 16, gridH: 241 },
 };
 const ROLL_KEY_W = 44;
 const RULER_H = 18;
-const CHORD_RULER_H = 28;
+const CHORD_LANE_H = 28;
 
 /** The Studio demo's layout, with its piano roll re-measured to fit here. */
 const rollLayout = (compact: boolean): StudioLayout => {
@@ -869,16 +912,26 @@ const StudioSurface = ({
 }) => {
   const layout = rollLayout(compact);
   const { keyW, barW } = layout.roll;
+  const insight = (
+    <InsightCard
+      index={bar}
+      compact={compact}
+      keyTarget={keyTarget}
+      keyPressed={keyPressed}
+      onKey={onKey}
+    />
+  );
   return (
     <div
       className="flex size-full flex-col"
-      style={{ background: STUDIO.bg, color: STUDIO.text }}
+      style={{ background: SHELL.bg, color: SHELL.text }}
     >
-      {/* The Studio's transport: KEY, tempo, ■ ▶ ● and the position. */}
-      <div className="relative shrink-0" style={{ height: layout.transportH }}>
-        <StudioTransport
-          layout={layout}
-          compact={compact}
+      {/* The Studio's top bar: the transport, the position and the key. */}
+      <div className="relative shrink-0" style={{ height: SHELL_DESKTOP.topH }}>
+        <StudioTopBar
+          layout={SHELL_DESKTOP}
+          compact={false}
+          minimal={compact}
           keyPc={KEY_PC}
           keyColor={KEY_COLOR}
           playing={playing}
@@ -888,44 +941,55 @@ const StudioSurface = ({
           keyLabel="Play the E chord"
           onKey={onKeyPill}
           onPlay={onPlay}
-          onStop={onStop}
+          onRewind={onStop}
         />
       </div>
 
       <div
-        className={cn('flex min-h-0 flex-1', compact ? 'flex-col' : 'flex-row')}
+        className={cn(
+          'flex min-h-0 flex-1 gap-2 px-2',
+          compact ? 'flex-col pb-2' : 'flex-row',
+        )}
       >
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          {/* Chord ruler: one region per bar, over the roll's bars */}
+        {/* The stage card: the chord lane over the piano roll. */}
+        <div
+          className="flex min-w-0 flex-col overflow-hidden rounded-[12px]"
+          style={{ background: SHELL.surface, width: layout.w }}
+        >
           <div
             className="flex shrink-0 border-b"
             style={{
-              height: CHORD_RULER_H,
+              height: CHORD_LANE_H,
               paddingLeft: keyW,
-              borderColor: STUDIO.border,
+              borderColor: SHELL.hairline,
             }}
           >
-            {LOOP.map((c, i) => (
-              <button
-                key={c.token}
-                type="button"
-                onClick={() => onPick(i)}
-                className={cn(
-                  'flex items-center truncate border-l px-2 text-[11px] font-semibold transition-colors',
-                  FOCUS,
-                )}
-                style={{
-                  width: barW,
-                  borderColor: STUDIO.border,
-                  background: mix(c.color, i === bar ? 45 : 18),
-                  color: i === bar ? '#ffffff' : STUDIO.text,
-                }}
-              >
-                {c.label}
-              </button>
-            ))}
+            {LOOP.map((c, i) => {
+              const active = i === bar;
+              return (
+                <button
+                  key={c.token}
+                  type="button"
+                  onClick={() => onPick(i)}
+                  className={cn(
+                    'flex items-center truncate px-2 text-[12px] transition-[background-color,box-shadow,color]',
+                    FOCUS,
+                  )}
+                  style={{
+                    width: barW,
+                    background: mix(c.color, active ? 40 : 15),
+                    boxShadow: active
+                      ? `inset 0 0 0 1.5px ${c.color}`
+                      : `inset -1px 0 0 ${mix(c.color, 45)}`,
+                    color: active ? '#f8fafc' : mix(c.color, 90),
+                  }}
+                >
+                  {c.label}
+                </button>
+              );
+            })}
           </div>
-          {/* The Studio's piano roll: the loop's MIDI notes in their colors */}
+          {/* The dock's Edit view: the loop's notes in their colors. */}
           <div
             className="relative shrink-0 overflow-hidden"
             style={{
@@ -946,46 +1010,56 @@ const StudioSurface = ({
           </div>
         </div>
 
-        {/* Insight: the chord under the playhead (phones: one row) */}
-        <aside
-          className={cn(
-            'flex shrink-0',
-            compact
-              ? 'items-center gap-3 border-t px-4'
-              : 'w-[320px] flex-col gap-3 border-l px-5 py-4',
-          )}
-          style={{
-            borderColor: STUDIO.border,
-            height: compact ? COMPACT_INSIGHT_H : undefined,
-          }}
-        >
-          {compact ? (
+        {/* Insight (the side rail's lightbulb): the chord under the
+            playhead. Phones: one row under the stage. */}
+        {compact ? (
+          <aside
+            className="flex shrink-0 items-center gap-3 rounded-[12px] px-4"
+            style={{ background: SHELL.surface, height: COMPACT_INSIGHT_H }}
+          >
             <Lightbulb
               aria-label="Insight"
               className="size-3.5 shrink-0 text-white/60"
             />
-          ) : (
-            <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/60">
-              <Lightbulb className="size-3.5" /> Insight
-              <span className="ml-1 flex items-center gap-1.5 text-xs font-normal normal-case tracking-normal text-white/80">
+            {insight}
+          </aside>
+        ) : (
+          <aside
+            className="flex shrink-0 flex-col overflow-hidden rounded-[12px] border border-white/[0.08] shadow-[0_8px_28px_rgba(0,0,0,0.36)]"
+            style={{ background: SHELL.surface, width: INSIGHT_W }}
+          >
+            <div
+              className="flex h-10 shrink-0 items-center justify-between border-b px-4"
+              style={{ borderColor: SHELL.hairline }}
+            >
+              <span className="flex items-center gap-2 text-[14px] font-bold">
+                <Lightbulb className="size-4 text-white/70" /> Insight
+              </span>
+              <X aria-hidden className="size-4 text-white/40" />
+            </div>
+            <div className="flex flex-col gap-3 p-4">
+              <span className="flex items-center gap-1.5 text-xs text-white/80">
                 <span
-                  className="size-1.5 rounded-full"
+                  className="size-2 rounded-full"
                   style={{ background: KEY_COLOR }}
                 />
                 Key of {SONG.key.split(' ')[0]}
                 <span className="text-white/45">· Ionian</span>
               </span>
-            </span>
-          )}
-          <InsightCard
-            index={bar}
-            compact={compact}
-            keyTarget={keyTarget}
-            keyPressed={keyPressed}
-            onKey={onKey}
-          />
-        </aside>
+              {insight}
+            </div>
+          </aside>
+        )}
       </div>
+
+      {!compact && (
+        <div
+          className="relative shrink-0"
+          style={{ height: SHELL_DESKTOP.bottomH }}
+        >
+          <StudioBottomBar layout={SHELL_DESKTOP} compact={false} />
+        </div>
+      )}
     </div>
   );
 };

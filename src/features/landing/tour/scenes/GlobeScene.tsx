@@ -1,140 +1,124 @@
-import { motion } from 'framer-motion';
-import { Calendar, MapPin } from 'lucide-react';
-import { useMemo } from 'react';
-import {
-  GlobeCdn,
-  type GlobeArc,
-  type GlobeMarker,
-} from '@/components/ui/cobe-globe-cdn';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { cn } from '@/components/utilities';
+import {
+  ConnectionsCard,
+  EraRail,
+  EventsCard,
+  GLOBE_UI,
+  GlobeBottomRail,
+  GlobeTopRail,
+} from './globe/GlobeChrome';
+import { MiniGlobe } from './globe/MiniGlobe';
+import { NEW_ORLEANS } from './globe/globeData';
 import type { SceneProps } from './sceneTypes';
 
-// Neutral markers/arcs (cobe RGB 0–1): color here would read as a key center.
-const GREY: [number, number, number] = [0.8, 0.8, 0.82];
-const LIGHT: [number, number, number] = [1, 1, 1];
-
-const NEW_ORLEANS: [number, number] = [29.9511, -90.0715];
-const CHICAGO: [number, number] = [41.8781, -87.6298];
-const NEW_YORK: [number, number] = [40.7128, -74.006];
-
-const MARKERS: GlobeMarker[] = [
-  {
-    id: 'tour-nola',
-    location: NEW_ORLEANS,
-    label: 'New Orleans',
-    color: LIGHT,
-    size: 0.05,
-  },
-  {
-    id: 'tour-chi',
-    location: CHICAGO,
-    label: '',
-    color: GREY,
-    size: 0.035,
-  },
-  {
-    id: 'tour-nyc',
-    location: NEW_YORK,
-    label: 'New York',
-    color: GREY,
-    size: 0.035,
-  },
-];
-
-const ARCS: GlobeArc[] = [
-  { from: NEW_ORLEANS, to: CHICAGO, color: GREY },
-  { from: NEW_ORLEANS, to: NEW_YORK, color: GREY },
-  { from: CHICAGO, to: NEW_YORK, color: LIGHT },
-];
-
-const NO_ARCS: GlobeArc[] = [];
+/** The column is narrow (a phone): one card at a time, under the place. */
+const NARROW_BELOW = 560;
+/** The flight to New Orleans, before its card comes in. */
+const FLIGHT_MS = 1200;
+const EASE = [0.2, 0.8, 0.2, 1] as const;
 
 /**
- * Globe scene (lazy chunk — pulls in cobe). A small, self-contained version of
- * the Atlas globe: jazz's early route out of New Orleans to Chicago and New
- * York, then a story card. The render loop is paused while the scene is not
- * visible.
+ * Globe scene (lazy chunk — carries the map art): a miniature of today's
+ * Globe in its frame — the search pill on top, the data map on its stage
+ * with the era rail at the foot, Explore · Connections · Tours below. The
+ * tour explores the whole map, picks New Orleans — the map flies in,
+ * Louisiana lifts and its events card opens — then follows where its sound
+ * came from and went. Every place, count and event is the Atlas's own
+ * (`globe/globeData`).
  */
-const GlobeScene = ({ stepIndex, mode, compact, visible }: SceneProps) => {
-  const showArcs = stepIndex >= 1 || mode !== 'auto';
-  const showStory = stepIndex >= 2 || mode !== 'auto';
-  const arcs = useMemo(() => (showArcs ? ARCS : NO_ARCS), [showArcs]);
+const GlobeScene = ({ stepIndex, mode, visible }: SceneProps) => {
+  const still = mode === 'static';
+  const picked = stepIndex >= 1;
+  const linked = stepIndex >= 2;
+
+  const ref = useRef<HTMLDivElement>(null);
+  const [narrow, setNarrow] = useState(false);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setNarrow(el.clientWidth < NARROW_BELOW);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const showEvents = picked && (!narrow || !linked);
+  const showConnections = linked;
+  const cardIn = (delay: number) => ({
+    initial: still ? false : { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, transition: { duration: 0.15 } },
+    transition: { duration: 0.45, delay: still ? 0 : delay, ease: EASE },
+  });
 
   return (
     <div
-      className={cn(
-        'grid h-full items-center gap-4 overflow-hidden p-4 text-white',
-        compact
-          ? 'grid-cols-1 grid-rows-[minmax(0,1fr)_auto]'
-          : 'grid-cols-[55%_1fr]',
-      )}
+      ref={ref}
+      className="flex size-full select-none flex-col overflow-hidden"
+      style={{ background: GLOBE_UI.page, color: GLOBE_UI.text }}
     >
-      {/* The globe is the largest square the cell fits (width or height),
-          so it never pushes the story card out of the container. */}
+      <GlobeTopRail compact={narrow} />
       <div
-        data-tour-target="globe"
-        className="relative grid size-full min-h-0 place-items-center"
-        style={{ containerType: 'size' }}
+        className="relative mx-2 min-h-0 flex-1 overflow-hidden rounded-xl"
+        style={{ background: GLOBE_UI.panel }}
       >
-        <div style={{ width: 'min(100cqw, 100cqh)' }}>
-          <GlobeCdn
-            markers={MARKERS}
-            arcs={arcs}
-            arcHeight={0.2}
-            speed={mode === 'static' ? 0 : 0.0025}
-            paused={!visible}
-          />
-        </div>
+        <MiniGlobe
+          story={NEW_ORLEANS}
+          focused={picked}
+          links={linked}
+          still={still}
+          paused={!visible}
+          flightMs={FLIGHT_MS}
+          focusAt={narrow ? [0.5, 0.32] : [0.52, 0.7]}
+          zoom={4}
+          placeTarget="place"
+        >
+          <AnimatePresence>
+            {showEvents && (
+              <motion.div
+                key="events"
+                className={cn(
+                  'absolute z-20',
+                  narrow
+                    ? 'inset-x-2 bottom-12'
+                    : 'left-2 top-2 w-[min(46%,18rem)]',
+                )}
+                {...cardIn(FLIGHT_MS / 1000)}
+              >
+                <EventsCard
+                  story={NEW_ORLEANS}
+                  title="New Orleans"
+                  tiles={narrow ? 1 : 2}
+                />
+              </motion.div>
+            )}
+            {showConnections && (
+              <motion.div
+                key="connections"
+                data-tour-target="connections"
+                className={cn(
+                  'absolute z-20',
+                  narrow
+                    ? 'inset-x-2 bottom-12'
+                    : 'right-2 top-2 w-[min(38%,15rem)]',
+                )}
+                {...cardIn(0.5)}
+              >
+                <ConnectionsCard
+                  story={NEW_ORLEANS}
+                  rows={narrow ? 2 : 3}
+                  still={still}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <EraRail story={picked ? NEW_ORLEANS : null} still={still} />
+        </MiniGlobe>
       </div>
-
-      {/* Always laid out (hidden until its step), so the globe doesn't
-          resize when the card arrives; it rises within the padding. */}
-      <motion.div
-        data-tour-target="story"
-        aria-hidden={!showStory}
-        initial={false}
-        animate={showStory ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-        transition={
-          mode === 'static'
-            ? { duration: 0 }
-            : { duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }
-        }
-        className={cn(
-          'flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] p-4 backdrop-blur-md',
-          !showStory && 'pointer-events-none',
-        )}
-      >
-        <span className="text-[11px] uppercase tracking-[0.12em] text-white/50">
-          Pathways
-        </span>
-        <h4 className="text-lg leading-snug">
-          Jazz takes shape in New Orleans
-        </h4>
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/60">
-          <span className="flex items-center gap-1">
-            <Calendar className="size-3.5" /> Early 1900s
-          </span>
-          <span className="flex items-center gap-1">
-            <MapPin className="size-3.5" /> New Orleans, USA
-          </span>
-        </div>
-        {!compact && (
-          <p className="text-sm leading-relaxed text-white/70">
-            Blues, ragtime and brass-band traditions meet in New Orleans — and
-            the new sound travels north to Chicago and New York.
-          </p>
-        )}
-        <div className="flex flex-wrap gap-1.5">
-          {['Jazz', 'Blues', 'Ragtime'].map((g) => (
-            <span
-              key={g}
-              className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-white/75"
-            >
-              {g}
-            </span>
-          ))}
-        </div>
-      </motion.div>
+      <GlobeBottomRail compact={narrow} />
     </div>
   );
 };

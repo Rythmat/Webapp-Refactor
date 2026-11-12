@@ -78,9 +78,10 @@ export const useStudioTransport = ({
 } => {
   const position = useMotionValue(resetTick);
   const chords = useMotionValue(0);
+  const bass = useMotionValue(0);
   const drums = useMotionValue(0);
   const master = useMotionValue(0);
-  const meters = useRef({ chords, drums, master }).current;
+  const meters = useRef({ chords, bass, drums, master }).current;
 
   const live = useRef({ events, isAudible, audio, onWrap, onEnd, loop });
   const quantizeRef = useRef(quantize);
@@ -125,7 +126,7 @@ export const useStudioTransport = ({
 
   useEffect(() => {
     if (!playing || !visible) return;
-    const levels: Record<TrackId, number> = { chords: 0, drums: 0 };
+    const levels: Record<TrackId, number> = { chords: 0, bass: 0, drums: 0 };
     // Resume where the playhead is; anything already scheduled was released.
     schedRef.current = absRef.current;
 
@@ -143,6 +144,8 @@ export const useStudioTransport = ({
         const delay = (at - abs) / (TICKS_PER_MS * 1000);
         if (event.track === 'chords')
           out.notes(event.midis, event.seconds, delay, event.velocity);
+        else if (event.track === 'bass')
+          out.notes([event.midi], event.seconds, delay, event.velocity);
         else out.drum(event.drum, delay, event.velocity);
       }
       schedRef.current = Math.max(schedRef.current, end);
@@ -151,6 +154,7 @@ export const useStudioTransport = ({
     const meter = (from: number, to: number, dt: number) => {
       const fall = Math.exp(-dt / METER_DECAY_MS);
       levels.chords *= fall;
+      levels.bass *= fall;
       levels.drums *= fall;
       const { events: evs, isAudible: audible } = live.current;
       for (const { event } of eventsInWindow(evs, from, to)) {
@@ -159,8 +163,9 @@ export const useStudioTransport = ({
         levels[event.track] = Math.max(levels[event.track], hit);
       }
       chords.set(levels.chords);
+      bass.set(levels.bass);
       drums.set(levels.drums);
-      master.set(Math.max(levels.chords, levels.drums));
+      master.set(Math.max(levels.chords, levels.bass, levels.drums));
     };
 
     let raf = 0;
@@ -203,6 +208,7 @@ export const useStudioTransport = ({
       cancelAnimationFrame(raf);
       live.current.audio.stopAll();
       chords.set(0);
+      bass.set(0);
       drums.set(0);
       master.set(0);
     };

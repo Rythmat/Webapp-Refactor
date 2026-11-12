@@ -4,26 +4,24 @@ import { DEMO_PROGRESSION } from '../../music';
 import {
   autoFrame,
   DEMO_KEY_PC,
+  DEMO_PROMPT,
   endState,
   INITIAL_STATE,
   LOOP_MS,
   PARK_TICK,
   PLAY_AT_MS,
   RESOLVE_MS,
-  spectrumGroups,
   stateAt,
   STEP_CUES,
   STEP_PRESSES,
-  type StudioState,
 } from '../scenes/studio/studioScript';
 import {
   barTokens,
+  bassLine,
   buildSong,
   eventsInWindow,
   formatPosition,
   keyRootFor,
-  optionsFor,
-  pickFromColor,
   regionAt,
   rollRange,
   STYLE_NAMES,
@@ -31,164 +29,62 @@ import {
 } from '../scenes/studio/studioSong';
 import { TOUR_BY_ID } from '../tourSteps';
 
-const inC = (seq: string[]): StudioState => ({
-  ...INITIAL_STATE,
-  keyPc: 0,
-  seq,
-});
-const inD = (seq: string[]): StudioState => ({ ...inC(seq), keyPc: 2 });
-const litColors = (s: StudioState) =>
-  [...spectrumGroups(s).keys()].sort((a, b) => a - b);
-
-describe('Studio demo: Prism spectrum', () => {
-  it('stays dark until a key is set', () => {
-    expect(litColors(INITIAL_STATE)).toEqual([]);
-    expect(optionsFor(INITIAL_STATE)).toEqual([]);
-  });
-
-  it('lights the first chords, then what can follow C', () => {
-    expect(litColors(inC([]))).toEqual([1, 5, 12, 13]);
-    expect(litColors(inC(['1 major']))).toEqual([1, 2, 3, 5, 12, 13, 14]);
-    expect(spectrumGroups(inC(['1 major'])).get(5)).toEqual(['3 major']);
-  });
-
-  it('picks the tour path by color: E (green), F (red), Fm (purple)', () => {
-    const seq = ['1 major'];
-    const path: [number, string][] = [
-      [5, '3 major'],
-      [1, '4 major'],
-      [10, '4 minor'],
-    ];
-    for (const [color, expected] of path) {
-      const group = spectrumGroups(inC(seq)).get(color);
-      expect(group).toBeDefined();
-      expect(pickFromColor(group!, seq, seq.length)).toBe(expected);
-      seq.push(expected);
-    }
-    expect(seq).toEqual(DEMO_PROGRESSION);
-    // After C–E, red holds vi and IV; the demo still takes IV.
-    expect(spectrumGroups(inC(['1 major', '3 major'])).get(1)).toEqual([
-      '6 minor',
-      '4 major',
-    ]);
-  });
-
-  it('picks the same path in the tour’s D: F♯ (teal), G (orange), Gm (pink)', () => {
-    expect(DEMO_KEY_PC).toBe(2);
-    // Teal (F♯'s color) holds only III after D — the tour's callout.
-    expect(spectrumGroups(inD(['1 major'])).get(7)).toEqual(['3 major']);
-    const seq = ['1 major'];
-    const path: [number, string][] = [
-      [7, '3 major'],
-      [3, '4 major'],
-      [12, '4 minor'],
-    ];
-    for (const [color, expected] of path) {
-      const group = spectrumGroups(inD(seq)).get(color);
-      expect(group).toBeDefined();
-      expect(pickFromColor(group!, seq, seq.length)).toBe(expected);
-      seq.push(expected);
-    }
-    expect(seq).toEqual(DEMO_PROGRESSION);
-  });
-
-  it('rotates through a color off the tour path', () => {
-    const group = ['6 minor', '4 major'];
-    expect(pickFromColor(group, ['2 minor'], 0)).toBe('6 minor');
-    expect(pickFromColor(group, ['2 minor'], 3)).toBe('4 major');
-  });
-
-  it('has no options once the sequence holds 4 chords', () => {
-    expect(optionsFor(inC(DEMO_PROGRESSION))).toEqual([]);
-    expect(litColors(inC(DEMO_PROGRESSION))).toEqual([]);
-  });
-
-  it('puts every key root near middle C', () => {
-    expect(keyRootFor(0)).toBe(60);
-    expect(keyRootFor(5)).toBe(65);
-    expect(keyRootFor(7)).toBe(55);
-  });
-});
-
 describe('Studio demo: script', () => {
-  it('reaches each step’s end state', () => {
-    expect(endState(0)).toMatchObject({
+  it('asks Prism, writes the chords in D, then the bass and drums', () => {
+    expect(DEMO_KEY_PC).toBe(2);
+    expect(DEMO_PROMPT).toMatch(/ in D$/);
+    expect(INITIAL_STATE).toEqual({
+      asked: false,
+      keyPc: null,
+      chords: false,
+      band: false,
+    });
+    expect(endState(0)).toEqual({ ...INITIAL_STATE, asked: true });
+    expect(endState(1)).toEqual({
+      asked: true,
       keyPc: 2,
-      seq: ['1 major'],
-      clip: null,
-      dock: 'prism',
+      chords: true,
+      band: false,
     });
-    expect(endState(1)).toMatchObject({ seq: DEMO_PROGRESSION, clip: null });
-    expect(endState(2)).toMatchObject({
-      seq: DEMO_PROGRESSION,
-      clip: DEMO_PROGRESSION,
-      dock: 'prism',
-    });
-    expect(endState(3)).toMatchObject({
+    expect(endState(2)).toEqual({
+      asked: true,
       keyPc: 2,
-      clip: DEMO_PROGRESSION,
-      dock: 'roll',
-      style: 'Pop',
-      muted: [],
-      soloed: [],
+      chords: true,
+      band: true,
     });
+    expect(endState(3)).toEqual(endState(2));
   });
 
-  it('starts each step from the previous end state, with fresh arrays', () => {
+  it('starts each step from the previous end state, as a fresh object', () => {
     expect(stateAt(0, 0)).toEqual(INITIAL_STATE);
+    expect(stateAt(0, 0)).not.toBe(INITIAL_STATE);
     for (const step of [1, 2, 3]) {
       expect(stateAt(step, 0)).toEqual(endState(step - 1));
     }
-    expect(stateAt(3, 2).seq).not.toBe(stateAt(3, 2).seq);
-    expect(stateAt(3, 2).seq).not.toBe(DEMO_PROGRESSION);
   });
 
   it('lands each cue at its ms', () => {
-    expect(autoFrame(0, 749).state.keyPc).toBeNull();
-    expect(autoFrame(0, 750).state.keyPc).toBe(2);
-    expect(autoFrame(1, 749).state.seq).toHaveLength(1);
-    expect(autoFrame(1, 750).state.seq).toHaveLength(2);
-    expect(autoFrame(1, 2600).state.seq).toHaveLength(4);
-    expect(autoFrame(2, 749).state.clip).toBeNull();
-    expect(autoFrame(2, 750).state.clip).toEqual(DEMO_PROGRESSION);
-    expect(autoFrame(3, 749).state.dock).toBe('prism');
-    expect(autoFrame(3, 750).state.dock).toBe('roll');
+    expect(autoFrame(0, 749).state.asked).toBe(false);
+    expect(autoFrame(0, 750).state.asked).toBe(true);
+    expect(autoFrame(1, 749).state).toMatchObject({
+      keyPc: null,
+      chords: false,
+    });
+    expect(autoFrame(1, 750).state).toMatchObject({ keyPc: 2, chords: true });
+    expect(autoFrame(2, 749).state.band).toBe(false);
+    expect(autoFrame(2, 750).state.band).toBe(true);
     expect(autoFrame(3, 999).playing).toBe(false);
     expect(autoFrame(3, 1000).playing).toBe(true);
     expect(autoFrame(3, 9399).playing).toBe(true);
   });
 
   it('presses what the cursor clicks, around each cue', () => {
-    expect(autoFrame(0, 1600).press).toEqual({ segment: 3 });
-    expect(autoFrame(1, 700).press).toEqual({ segment: 7 });
-    expect(autoFrame(1, 2500).press).toEqual({ segment: 12 });
-    expect(autoFrame(2, 700).press).toBe('create');
-    expect(autoFrame(3, 700).press).toBe('roll');
-    expect(autoFrame(3, 1000).press).toBe('play');
-    expect(autoFrame(3, 1300).press).toBeNull();
-  });
-
-  it('sends the cursor to each later spectrum press before it lands', () => {
-    expect(autoFrame(0, 999).cursor).toBeNull();
-    expect(autoFrame(0, 1000).cursor).toBe(3);
-    expect(autoFrame(1, 100).cursor).toBeNull();
-    expect(autoFrame(1, 150).cursor).toBe(7);
-    expect(autoFrame(1, 1000).cursor).toBe(3);
-    expect(autoFrame(1, 1900).cursor).toBe(12);
-    expect(autoFrame(2, 700).cursor).toBeNull();
-    expect(autoFrame(1, Infinity).cursor).toBeNull();
-    expect(autoFrame(0, 999).key).not.toBe(autoFrame(0, 1000).key);
-  });
-
-  it('reads out the pressed color from the state before the click', () => {
-    expect(autoFrame(1, 800).hover).toEqual({
-      segment: 7,
-      tokens: ['3 major'],
-      pick: '3 major',
-    });
-    const orange = autoFrame(0, 1800).hover;
-    expect(orange?.pick).toBe('1 major');
-    expect(orange?.tokens).toContain('4 major');
+    expect(autoFrame(0, 700).press).toBe('prompt');
+    expect(autoFrame(1, 700).press).toBe('create');
+    expect(autoFrame(2, 800).press).toBeNull();
+    expect(autoFrame(3, 700).press).toBe('play');
+    expect(autoFrame(3, 1000).press).toBeNull();
+    expect(autoFrame(0, 649).key).not.toBe(autoFrame(0, 650).key);
   });
 
   it('shows the end state at ms = Infinity: parked, silent, no press', () => {
@@ -200,13 +96,13 @@ describe('Studio demo: script', () => {
     expect(autoFrame(2, Infinity).parkTick).toBe(0);
   });
 
-  it('previews each cue’s chord once per cue', () => {
-    expect(autoFrame(0, 500).sound).toBeNull();
-    expect(autoFrame(0, 800).sound).toEqual([62, 66, 69]); // D
-    expect(autoFrame(1, 800).sound).toEqual([66, 70, 73]); // F♯
-    expect(autoFrame(1, 2700).sound).toEqual([67, 70, 74]); // Gm
-    expect(autoFrame(1, 800).soundKey).toBe(autoFrame(1, 1600).soundKey);
-    expect(autoFrame(1, 800).soundKey).not.toBe(autoFrame(1, 1700).soundKey);
+  it('previews the key’s chord once, as the chords land', () => {
+    expect(autoFrame(0, 800).sound).toBeNull();
+    expect(autoFrame(1, 500).sound).toBeNull();
+    expect(autoFrame(1, 800).sound).toEqual([62, 66, 69]); // D
+    expect(autoFrame(2, 800).sound).toBeNull();
+    expect(autoFrame(1, 800).soundKey).toBe(autoFrame(1, 3000).soundKey);
+    expect(autoFrame(1, 749).soundKey).not.toBe(autoFrame(1, 750).soundKey);
   });
 
   it('keeps every cue and press inside its step', () => {
@@ -216,6 +112,12 @@ describe('Studio demo: script', () => {
       cues.forEach((at) => expect(at).toBeLessThan(ms));
       STEP_PRESSES[step].forEach((p) => expect(p.to).toBeLessThan(ms));
     });
+  });
+
+  it('puts every key root near middle C', () => {
+    expect(keyRootFor(0)).toBe(60);
+    expect(keyRootFor(5)).toBe(65);
+    expect(keyRootFor(7)).toBe(55);
   });
 });
 
@@ -268,6 +170,26 @@ describe('Studio demo: the clip Create writes', () => {
     ]);
     expect(regions[0].midis).toEqual([60, 64, 67]);
     expect(regionAt(regions, PARK_TICK)?.label).toBe('F min');
+  });
+
+  it('writes the bass on each chord’s root, two octaves down, every beat', () => {
+    const { regions } = buildSong({
+      clip: DEMO_PROGRESSION,
+      keyRoot: keyRootFor(DEMO_KEY_PC),
+      style: 'Pop',
+    });
+    const { notes, events } = bassLine(regions);
+    expect(notes).toHaveLength(16);
+    // D, F♯, G, G (Gm's root).
+    expect(notes.filter((_, i) => i % 4 === 0).map((n) => n.note)).toEqual([
+      38, 42, 43, 43,
+    ]);
+    expect(notes.map((n) => n.startTick)).toEqual(
+      Array.from({ length: 16 }, (_, i) => i * 480),
+    );
+    expect(events.every((e) => e.track === 'bass')).toBe(true);
+    expect(events.map((e) => e.tick)).toEqual(notes.map((n) => n.startTick));
+    expect(bassLine([])).toEqual({ notes: [], events: [] });
   });
 
   it('merges repeated bars into one region', () => {
@@ -346,10 +268,10 @@ describe('Studio demo: tour config', () => {
   it('targets the scene’s controls, with Play long enough for one pass', () => {
     const steps = TOUR_BY_ID.studio.steps;
     expect(steps.map((s) => s.target)).toEqual([
-      'key',
-      'pick',
+      'prompt',
       'create',
-      'roll',
+      'tracks',
+      'play',
     ]);
     expect(steps.map((s) => s.durationMs)).toEqual([
       3600,

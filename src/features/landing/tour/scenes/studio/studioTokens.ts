@@ -1,39 +1,9 @@
 /**
- * The Micro Studio's look, copied from the real Studio (`daw/daw.css`,
- * `PrismStudio`, `TrackHeader`, `Timeline`) — values only, never the DAW's
- * modules or its stylesheet. Landing rule: the UI stays neutral and color
- * comes only from Prism and key centers, so the app's teal survives in one
- * place (the active dock tab's icon) and its green/yellow/red states go grey.
+ * The piano roll's values (`MiniPianoRoll`, in the Connections demo's
+ * Studio) and the layout boxes it is measured in, copied from the real
+ * Studio (`Timeline`, `rulerLoop`) — values only, never the DAW's modules.
+ * Everything else in the Studio demos wears `shellTokens`.
  */
-
-/** `daw.css` surfaces and text. */
-export const STUDIO = {
-  bg: '#101012',
-  surface: '#1a1a1a',
-  surface2: '#1e1e1e',
-  surface3: '#222222',
-  /** Prism module cards (`PrismStudio.tsx` `moduleCard`). */
-  card: '#242424',
-  cardBorder: '#333333',
-  border: 'rgba(255, 255, 255, 0.08)',
-  text: '#e8e8f0',
-  textDim: '#6b6b80',
-} as const;
-
-/** The app's teal. Only on the active dock tab's icon (it sits near F♯). */
-export const STUDIO_ACCENT = '#7ecfcf';
-
-/** Track stripes and drum notes before a key is set. */
-export const NEUTRAL_TRACK = 'rgb(107, 107, 128)';
-
-/** "On" fill for M/S, the Create button and other pressed-in states. */
-export const ON_FILL = '#e8e8f0';
-export const ON_TEXT = '#101012';
-/** Play while playing (the app's green is too close to E's). */
-export const PLAYING_BG = 'rgba(255, 255, 255, 0.1)';
-export const METER_COLOR = 'rgba(255, 255, 255, 0.55)';
-/** Master row stripe (teal in the app). */
-export const MASTER_STRIPE = 'rgba(255, 255, 255, 0.35)';
 
 /** Loop strip while looping is off (`rulerLoop.ts` `drawLoopRegion`). */
 export const LOOP_STRIP = {
@@ -54,42 +24,14 @@ export const GRID = {
   timeAlpha: 0.3,
 } as const;
 
-/** Glass clip box. */
-export const CLIP = {
-  fill: 'rgba(255, 255, 255, 0.05)',
-  border: 'rgba(255, 255, 255, 0.2)',
-  radius: 4,
-  /** Note bars: 3px tall, radius 1, padded 12 top / 4 bottom. */
-  noteH: 3,
-  padTop: 12,
-  padBottom: 4,
-  /** Write-head during Create's paint-in. */
-  writeHead: 'rgba(255, 255, 255, 0.7)',
-  paintMs: 600,
-} as const;
-
 /**
  * Bar numbers' x past the bar line: clear of the parked playhead's 12px grab
  * (`rulerLoop.ts` `PLAYHEAD_HANDLE_W`).
  */
 export const BAR_NUMBER_X = 7;
 
-/** Chord-ruler region fills (`color-mix` percentages). */
-export const REGION = { fill: 15, active: 40, outline: 1.5 } as const;
-
-/** Clip note alpha from MIDI velocity (arrangement / piano roll). */
-export const clipNoteAlpha = (velocity: number) => 0.6 + (velocity / 127) * 0.4;
+/** Piano-roll note alpha from MIDI velocity. */
 export const rollNoteAlpha = (velocity: number) => 0.7 + (velocity / 127) * 0.3;
-
-/** Scene-drawn "pressed" state for the auto cursor's clicks. */
-export const PRESS = {
-  overlay: 'rgba(255, 255, 255, 0.3)',
-  ring: 'inset 0 0 0 2px #ffffff',
-  scale: 0.97,
-} as const;
-
-/** Prism triangle tab icon (`ChannelStrip.tsx`). */
-export const PRISM_ICON_PATH = 'M12 4L5 18h14L12 4z';
 
 export interface Row {
   top: number;
@@ -195,10 +137,6 @@ export const studioLayout = (compact: boolean) => (compact ? COMPACT : DESKTOP);
 
 /** Ticks per 4/4 bar (480 PPQ), as in `studioSong`. */
 const BAR_TICKS = 1920;
-
-/** Arrangement x (scene px) of a tick. */
-export const arrangeX = (layout: StudioLayout, tick: number) =>
-  layout.timelineX + (tick * layout.barW) / BAR_TICKS;
 
 /** Piano-roll x (scene px) of a tick. */
 export const rollX = (layout: StudioLayout, tick: number) =>

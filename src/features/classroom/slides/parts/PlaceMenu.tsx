@@ -25,7 +25,7 @@ import type { SlideElement, SlideSurface } from '../types';
 // the Music Atlas logo in the middle, a short glowing streak running along
 // each line into it in the app's key-colour rainbow (after the "Animated
 // Beam Integration" diagram the owner chose; drawn here from scratch). A
-// hand on an icon draws its whole line in the rainbow; the other streaks
+// hand on an icon runs the rainbow along its whole line; the other streaks
 // finish their run into the logo and no new ones set out until it leaves.
 //
 //   Present          each icon opens its place in a new tab
@@ -328,6 +328,46 @@ export const PlaceMenu = ({
                 ))}
               </linearGradient>
             ))}
+            {/* The line under a hand: the rainbow flowing along it into the
+                logo, round and round (the key colours close into a circle,
+                so it repeats without a seam). Still under reduced motion. */}
+            {nodes
+              .filter((node) => node.place.id === lit)
+              .map((node) => {
+                const dx = size.w / 2 - node.x;
+                const dy = size.h / 2 - node.y;
+                const ring = [...KEY_RAINBOW_COLORS, KEY_RAINBOW_COLORS[0]!];
+                return (
+                  <linearGradient
+                    key={node.place.id}
+                    id={`${uid}-${node.place.id}-flow`}
+                    gradientUnits="userSpaceOnUse"
+                    spreadMethod="repeat"
+                    x1={node.x}
+                    y1={node.y}
+                    x2={size.w / 2}
+                    y2={size.h / 2}
+                  >
+                    {ring.map((color, i) => (
+                      <stop
+                        key={i}
+                        offset={`${((i / (ring.length - 1)) * 100).toFixed(1)}%`}
+                        stopColor={color}
+                      />
+                    ))}
+                    {!reduce && (
+                      <animateTransform
+                        attributeName="gradientTransform"
+                        type="translate"
+                        from="0 0"
+                        to={`${dx} ${dy}`}
+                        dur="2.4s"
+                        repeatCount="indefinite"
+                      />
+                    )}
+                  </linearGradient>
+                );
+              })}
           </defs>
           {nodes.map((node, index) => {
             const on = lit === node.place.id;
@@ -346,7 +386,11 @@ export const PlaceMenu = ({
                 <path
                   d={node.path}
                   fill="none"
-                  stroke={on ? stroke : 'rgba(255,255,255,0.1)'}
+                  stroke={
+                    on
+                      ? `url(#${uid}-${node.place.id}-flow)`
+                      : 'rgba(255,255,255,0.1)'
+                  }
                   strokeWidth={on ? 2 : 1.5}
                   data-lit={on || undefined}
                   className="transition-[stroke] duration-300"

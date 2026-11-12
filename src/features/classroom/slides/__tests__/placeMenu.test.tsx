@@ -111,8 +111,11 @@ describe('the Individual Project menu', () => {
       streaks(id).map((p) => p.style.animationPlayState);
     const before = line('studio');
     fireEvent.pointerEnter(studio);
-    // The whole line in the rainbow.
-    expect(line('studio')).toMatch(/^url\(#.+-studio\)$/);
+    // The whole line in the rainbow, flowing along it.
+    expect(line('studio')).toMatch(/^url\(#.+-studio-flow\)$/);
+    expect(
+      root.querySelector('linearGradient[id$="-studio-flow"] animateTransform'),
+    ).not.toBeNull();
     // A streak already on its way runs on into the logo…
     expect(state('learn')).toEqual(['running', 'running']);
     // …and at the end of its loop, where nothing shows, it stops there.

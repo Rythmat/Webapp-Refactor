@@ -204,6 +204,44 @@ export const addChordAt = (
     [...chords, { ...DEFAULT_CHORD, beat }].sort((a, b) => a.beat - b.beat),
   );
 
+/**
+ * A chord on a beat, as a chart writes one over a slash (4+ included): it
+ * lasts until the next chord in the bar or the barline, and a chord before
+ * it now stops where it starts, so the two never sound at once. A beat that
+ * has a chord already is left alone.
+ */
+export const addChordOnBeat = (
+  sections: SongSection[],
+  sectionIdx: number,
+  barIdx: number,
+  beat: number,
+  beatsInBar: number,
+): SongSection[] => {
+  const bar = sections[sectionIdx]?.bars[barIdx];
+  // Nothing to add: the same chart, so no undo step is spent on it.
+  if (!bar || bar.chords.some((c) => Math.abs(c.beat - beat) < 1e-6))
+    return sections;
+  return updateBarChords(sections, sectionIdx, barIdx, (chords) => {
+    const following = chords
+      .map((c) => c.beat)
+      .filter((b) => b > beat)
+      .sort((a, b) => a - b)[0];
+    const added: ChordHit = {
+      ...DEFAULT_CHORD,
+      beat,
+      duration: (following ?? beatsInBar + 1) - beat,
+    };
+    return [
+      ...chords.map((c) =>
+        c.beat < beat && c.beat + c.duration > beat
+          ? { ...c, duration: beat - c.beat }
+          : c,
+      ),
+      added,
+    ].sort((a, b) => a.beat - b.beat);
+  });
+};
+
 export const removeChord = (
   sections: SongSection[],
   sectionIdx: number,

@@ -100,10 +100,47 @@ export const chordHitSchema = z
   })
   .strict();
 
+/**
+ * A written note value: '1' a whole note, '4' a quarter, '8' an eighth.
+ */
+export const noteValueSchema = z.enum(['1', '2', '4', '8', '16', '32']);
+
+/**
+ * One rhythmic slash (or rest) of a bar's rhythm, as a chart writes hits,
+ * pushes and stops: its note value, dotted or not. (v3)
+ */
+export const rhythmEventSchema = z
+  .object({
+    value: noteValueSchema,
+    /**
+     * A standard slash, a beat's worth with no stem ("play time"), where
+     *  the bar's other beats are written in rhythm notation.
+     */
+    plain: z.boolean().optional(),
+    dot: z.boolean().optional(),
+    /** A rest of this value, not a slash. */
+    rest: z.boolean().optional(),
+    /** Tied to the slash after it, the next bar's first one at a bar's end. */
+    tie: z.boolean().optional(),
+    /**
+     * Which way its stem goes, as written. Unset: up, as a chart writes
+     *  slashes. A beamed group goes the way its first slash does.
+     */
+    stem: z.union([z.literal('up'), z.literal('down')]).optional(),
+  })
+  .strict();
+
 export const chordBarSchema = z
   .object({
     /** Typically 1–2 chords per bar, max 4 (one per beat). */
     chords: z.array(chordHitSchema),
+    /**
+     * The bar's rhythm, written in slashes: what the band plays, hits and
+     * pushes and ties included. The values fill the bar. Unset: one plain
+     * slash a beat, as a chart writes "play time". A chord symbol stands over
+     * the slash its `beat` falls on. (v3)
+     */
+    rhythm: z.array(rhythmEventSchema).optional(),
     /** If true, draw a fermata (hold) symbol above this bar. */
     fermata: z.boolean().optional(),
     /**

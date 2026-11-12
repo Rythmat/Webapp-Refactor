@@ -43,6 +43,8 @@ const BAR_KEYS = [
   'timeSignature',
   'systemBreak',
   'systemRun',
+  // Song v3: the bar's rhythm in slashes.
+  'rhythm',
 ];
 
 export interface Level0Issue {

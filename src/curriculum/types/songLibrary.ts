@@ -65,9 +65,38 @@ export interface ChordHit {
   voicingHint?: string;
 }
 
+/** A written note value: '1' a whole note, '4' a quarter, '8' an eighth. */
+export type NoteValue = '1' | '2' | '4' | '8' | '16' | '32';
+
+/**
+ * One rhythmic slash (or rest) of a bar's rhythm, as a chart writes hits,
+ * pushes and stops: its note value, dotted or not. (v3)
+ */
+export interface RhythmEvent {
+  value: NoteValue;
+  /** A standard slash, a beat's worth with no stem ("play time"), where
+   *  the bar's other beats are written in rhythm notation. */
+  plain?: boolean;
+  dot?: boolean;
+  /** A rest of this value, not a slash. */
+  rest?: boolean;
+  /** Tied to the slash after it, the next bar's first one at a bar's end. */
+  tie?: boolean;
+  /** Which way its stem goes, as written. Unset: up, as a chart writes
+   *  slashes. A beamed group goes the way its first slash does. */
+  stem?: 'up' | 'down';
+}
+
 export interface ChordBar {
   /** Typically 1–2 chords per bar, max 4 (one per beat). */
   chords: ChordHit[];
+  /**
+   * The bar's rhythm, written in slashes: what the band plays, hits and
+   * pushes and ties included. The values fill the bar. Unset: one plain
+   * slash a beat, as a chart writes "play time". A chord symbol stands over
+   * the slash its `beat` falls on. (v3)
+   */
+  rhythm?: RhythmEvent[];
   /** If true, draw a fermata (hold) symbol above this bar. */
   fermata?: boolean;
   /** If set, this bar represents a multi-bar rest. Renders as a thick

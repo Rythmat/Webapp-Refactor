@@ -201,6 +201,7 @@ export const BarInspector: FC<{
       <label className="flex items-center gap-1">
         <span className="whitespace-nowrap text-white/45">Staff text</span>
         <input
+          data-staff-text=""
           className={`${FIELD} w-32`}
           value={value('cue') ?? ''}
           placeholder={n > 1 ? '—' : 'Drum Fill'}

@@ -29,7 +29,7 @@
     },
     {
       "file": "songBodySchema.ts",
-      "sha256": "57f97241318bbb82c393d5c55be7068b8a1e99936c04b3d14acbdb63a4917422",
+      "sha256": "fdb53d8f2359038a2b7259d44dd0ee4efd46e3c252c1a1c53c4c9abf6bf345be",
       "handedOff": "04c5ec153086c2fa3bcf4642c309f3b1e740021c2034d44f257f6a3801006aac",
       "what": "Song body, latest (regenerated from songLibrary.ts)."
     },

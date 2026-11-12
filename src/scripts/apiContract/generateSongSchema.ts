@@ -39,6 +39,8 @@ const WANTED = [
   'CreditRole',
   'RoadmapJump',
   'ChordHit',
+  'NoteValue',
+  'RhythmEvent',
   'ChordBar',
   'SongSection',
   'GlobeOrigin',

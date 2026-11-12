@@ -60,6 +60,19 @@ export interface NoteTools {
   onToggleDot: (layer: NoteLayer) => void;
   onArticulation: (kind: ArticulationKind) => void;
   onSlur: () => void;
+  /**
+   * Flip the stem of what is selected, down or back up (MuseScore's X). A
+   * page offers the cell by passing it; `stemDown` says which way it goes.
+   */
+  onFlipStem?: () => void;
+  stemDown?: boolean;
+  /**
+   * A beat as a standard slash, stemless, or back to rhythm notation (the
+   * song chart, owner 2026-11-12). Offered where passed; `plainSlash` says
+   * the selection is one.
+   */
+  onTogglePlain?: () => void;
+  plainSlash?: boolean;
 }
 
 /** One cell of a palette. */
@@ -190,14 +203,78 @@ function SlashGlyph({ quarters }: { quarters: number }) {
   );
 }
 
+/**
+ * Which of the note palettes to offer. Unset, all of them, as the Score
+ * has them. The song chart's editor (owner, 2026-11-12) writes rhythm
+ * without pitches: Rests and Rhythmic, the tie, no accidentals.
+ */
+export interface NotePaletteOptions {
+  layers?: readonly NoteLayer[];
+  /** 'tie': the Articulations palette holds only the tie. */
+  articulations?: 'all' | 'tie';
+  accidentals?: boolean;
+}
+
+/** A standard slash: the notehead alone, no stem, as a chart writes a beat. */
+function PlainSlashGlyph() {
+  return (
+    <svg width="20" height="24" viewBox="0 0 20 24" aria-hidden>
+      <line
+        x1="4"
+        y1="17"
+        x2="15"
+        y2="7"
+        stroke="currentColor"
+        strokeWidth={2.4}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/** A stem with its two ways marked: the flip. */
+function FlipStemGlyph() {
+  return (
+    <svg width="22" height="24" viewBox="0 0 22 24" aria-hidden>
+      <path
+        d="M 3 16 L 11 10 L 13 12 L 5 18 Z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth={0.8}
+      />
+      <line
+        x1="12.5"
+        y1="11"
+        x2="12.5"
+        y2="2"
+        stroke="currentColor"
+        strokeWidth={1.2}
+      />
+      <path
+        d="M 17 3 L 17 21 M 15 5 L 17 2.5 L 19 5 M 15 19 L 17 21.5 L 19 19"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.2}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 /** Notes, Rests, Rhythmic, Articulations and Accidentals, in that order. */
 export function notePalettes(
   tools: NoteTools,
   fontReady: boolean,
+  options: NotePaletteOptions = {},
 ): ToolPalette[] {
   const { hasNotes, layer } = tools;
   const noteInput = tools.noteInput ?? false;
-  const lengths: ToolPalette[] = LAYERS.map(({ id, name, hotkey }) => {
+  const layers = LAYERS.filter(
+    ({ id }) => !options.layers || options.layers.includes(id),
+  );
+  // The dot sits in the first length palette offered: Notes in the Score.
+  const dotIn = layers[0]?.id;
+  const lengths: ToolPalette[] = layers.map(({ id, name, hotkey }) => {
     const live = layer === id;
     // In note input the Notes palette sets the next note's length, so its
     // cells work with nothing selected and show the length to be written.
@@ -228,7 +305,19 @@ export function notePalettes(
         tools.onDuration(choice, id);
       },
     }));
-    if (id === 'notes') {
+    if (id === 'slashes' && tools.onTogglePlain) {
+      cells.push({
+        key: 'plain-slash',
+        name: 'Standard slash',
+        title:
+          'Standard slash: this beat as a plain slash, no stem, or back to rhythm notation (/)',
+        content: <PlainSlashGlyph />,
+        live: hasNotes,
+        active: tools.plainSlash,
+        onClick: () => tools.onTogglePlain?.(),
+      });
+    }
+    if (id === dotIn) {
       cells.push({
         key: 'dot',
         name: 'Augmentation dot',
@@ -243,8 +332,9 @@ export function notePalettes(
         onClick: () => {
           // The dot follows the live layer, so a slash stays a slash. Rests
           // are the exception: a dotted rest there would delete the selected
-          // notes, so with Rests live the dot goes to the notes.
-          const into = layer === 'rests' ? 'notes' : layer;
+          // notes, so with Rests live the dot goes to the notes (to the
+          // first palette offered, where there are no Notes).
+          const into = layer === 'rests' && dotIn === 'notes' ? 'notes' : layer;
           tools.onLayer(into);
           tools.onToggleDot(into);
         },
@@ -263,12 +353,17 @@ export function notePalettes(
     };
   });
 
+  const tieOnly = options.articulations === 'tie';
   const articulations: ToolPalette = {
     id: 'articulations',
-    name: 'Articulations',
+    name: tieOnly
+      ? tools.onFlipStem
+        ? 'Ties and stems'
+        : 'Ties'
+      : 'Articulations',
     staff: false,
     cells: [
-      ...ARTICULATIONS.map((a) => ({
+      ...(tieOnly ? [] : ARTICULATIONS).map((a) => ({
         key: a.kind,
         name: a.name,
         title: `${a.name} (${a.keyLabel})`,
@@ -291,15 +386,32 @@ export function notePalettes(
         live: tools.canTie,
         onClick: tools.onTie,
       },
-      {
-        key: 'slur',
-        name: 'Slur',
-        title: 'Slur: play the notes legato (S)',
-        content: <CurveIcon slur />,
-        live: hasNotes,
-        active: tools.slurred,
-        onClick: tools.onSlur,
-      },
+      ...(tools.onFlipStem
+        ? [
+            {
+              key: 'flip-stem',
+              name: 'Flip stem',
+              title: 'Flip stem: up or down (X)',
+              content: <FlipStemGlyph />,
+              live: hasNotes,
+              active: tools.stemDown,
+              onClick: () => tools.onFlipStem?.(),
+            },
+          ]
+        : []),
+      ...(tieOnly
+        ? []
+        : [
+            {
+              key: 'slur',
+              name: 'Slur',
+              title: 'Slur: play the notes legato (S)',
+              content: <CurveIcon slur />,
+              live: hasNotes,
+              active: tools.slurred,
+              onClick: tools.onSlur,
+            },
+          ]),
     ],
   };
 
@@ -320,7 +432,11 @@ export function notePalettes(
     })),
   };
 
-  return [...lengths, articulations, accidentals];
+  return [
+    ...lengths,
+    articulations,
+    ...(options.accidentals === false ? [] : [accidentals]),
+  ];
 }
 
 /** The chord symbol, a cell of the Text palette. */

@@ -465,6 +465,21 @@ export const AdminRoutes = {
   ),
 
   /**
+   * Studio lessons — the Production lessons the Studio's lesson layer runs,
+   * the code's and the console's: list, New lesson, and each one's editor.
+   * Saving writes repo files (dev server).
+   */
+  studioLessons: createRouteDefinition('/studio-lessons', {
+    prefix: adminPrefix,
+  }),
+
+  /** Studio lessons — one lesson's editor. `?step=<id>` opens that step. */
+  studioLesson: createRouteDefinition<{ id: string }, { step?: string }>(
+    '/studio-lessons/:id',
+    { prefix: adminPrefix },
+  ),
+
+  /**
    * Parts editor on a lesson step's notes: piano roll / staff, then commit
    * back to the lesson. `index` is the step's position in its section.
    */
@@ -554,7 +569,7 @@ export const TeacherRoutes = {
     prefix: officePrefix,
   }),
 
-  /** Preview a Day as a student would see it. */
+  /** Retired (owner, 2026-11-12): redirects to the Day's editor. */
   dayPreview: createRouteDefinition<{
     classroomId: string;
     dayId: string;
@@ -592,7 +607,17 @@ export const TeacherRoutes = {
     prefix: officePrefix,
   }),
 
-  /** Retired Grades tab — redirects to the Gradebook section of `students`. */
+  /**
+   * Progress — the class's students against its lessons and assignments
+   * (the Gradebook's home since the Office overhaul, 2026-11-09).
+   */
+  progress: createRouteDefinition<{
+    classroomId: string;
+  }>('/:classroomId/progress', {
+    prefix: officePrefix,
+  }),
+
+  /** Retired Grades tab — redirects to `progress`. */
   grades: createRouteDefinition<{
     classroomId: string;
   }>('/:classroomId/grades', {
@@ -632,11 +657,22 @@ export const TeacherRoutes = {
 };
 
 /**
- * Teacher "Office" — the standalone classroom picker/home, promoted to a
- * top-level URL (no `/teacher` prefix).
+ * Teacher "Office" — the teacher's LMS in the Studio frame (owner,
+ * 2026-11-09). Its static pages outrank `/office/:classroomId` in matching.
  */
 export const OfficeRoutes = {
+  /** Today: the next class, what needs the teacher, and the week ahead. */
   root: createRouteDefinition(officePrefix),
+  /** Every class the teacher runs, with create / edit / invite. */
+  classes: createRouteDefinition('/classes', { prefix: officePrefix }),
+  /** The week across every class. */
+  planner: createRouteDefinition('/planner', { prefix: officePrefix }),
+  /** The lessons ready to teach (built in: Michael Jackson · Producer). */
+  lessons: createRouteDefinition('/lessons', { prefix: officePrefix }),
+  /** Saved lessons, seeds, activities, learning goals and themes. */
+  library: createRouteDefinition('/library', { prefix: officePrefix }),
+  /** Work waiting for the teacher across every class. */
+  review: createRouteDefinition('/review', { prefix: officePrefix }),
 };
 
 /**
@@ -772,6 +808,22 @@ export const StudioRoutes = {
 
   /** The Production tab — step-by-step DAW lessons, each opening the editor. */
   production: createRouteDefinition('/production', { prefix: studioPrefix }),
+
+  /**
+   * The editor alone, framed in a lesson's Group Practice slide
+   * (slides/studio): a tutorial, and the class's follow params.
+   */
+  slide: createRouteDefinition<
+    void,
+    {
+      tutorial: string;
+      follow?: string;
+      session?: string;
+      lead?: string;
+      watch?: string;
+      activityRef?: string;
+    }
+  >('/slide', { prefix: studioPrefix }),
 };
 
 const gamesPrefix = '/arcade';
@@ -863,6 +915,18 @@ export const SettingsRoutes = {
   }),
 };
 
+/**
+ * The Learn onboarding (owner, 2026-11-04): what they play, how much they
+ * know, what they love, why they're here, how often. `?edit=1` opens it with
+ * their answers to change; `&step=` on one question.
+ */
+export const WelcomeRoutes = {
+  root: createRouteDefinition<
+    void,
+    { edit?: string; step?: string; continue?: string }
+  >('/welcome'),
+};
+
 const learnPrefix = '/learn';
 
 /** A Theory lesson's chapter: O(verview) on keyboard, A Melody, B Chords,
@@ -871,6 +935,11 @@ const learnPrefix = '/learn';
 export type LearnSection = 'O' | 'A' | 'B' | 'C' | 'D';
 
 export const LearnRoutes = {
+  /**
+   * Learn: shelves of courses and songs in Suno's layout (owner,
+   * 2026-11-04), a topic at a time. `?i=keyboard|guitar|bass|ukulele|audio`
+   * picks it, `&c=<section>` opens a section's courses whole, `?q=` searches.
+   */
   root: createRouteDefinition(learnPrefix),
 
   // The instrument is the first segment: /learn/keyboard/… and
@@ -1074,8 +1143,21 @@ export const ConnectRoutes = {
 
 const libraryPrefix = '/library';
 
+/**
+ * The Library (owner, 2026-11-11, Samply's): the student's Studio sessions,
+ * heard without opening the Studio, and their projects, folders of
+ * sessions. A session opens in the Studio: it has no page of its own
+ * here. `q` searches.
+ */
 export const LibraryRoutes = {
-  root: createRouteDefinition(libraryPrefix),
+  root: createRouteDefinition<void, { q?: string }>(libraryPrefix),
+  /** A project: a folder of sessions. */
+  project: createRouteDefinition<{ projectId: string }>(
+    '/projects/:projectId',
+    {
+      prefix: libraryPrefix,
+    },
+  ),
 };
 
 const globePrefix = '/globe';
@@ -1086,6 +1168,11 @@ const globePrefix = '/globe';
  */
 export const GlobeRoutes = {
   root: createRouteDefinition(globePrefix),
+  /** The Globe's map alone, framed in a lesson slide (slides/globe). */
+  slide: createRouteDefinition<
+    void,
+    { path?: string; at?: string; left?: string; foot?: string }
+  >(`${globePrefix}/slide`),
 };
 
 const songsPrefix = '/songs';
@@ -1124,11 +1211,18 @@ const curriculumPrefix = '/curriculum';
 export const CurriculumRoutes = {
   root: createRouteDefinition(curriculumPrefix),
 
-  /** Piano Fundamentals' overview (Learn → Technique). */
+  /** Piano Fundamentals' course page (Learn → Technique). */
   pianoFundamentals: createRouteDefinition('/piano-fundamentals', {
     prefix: curriculumPrefix,
   }),
 
+  /** A lesson of the Piano Fundamentals course (owner, 2026-11-05). */
+  fundamentalsLesson: createRouteDefinition<{ lessonId: string }>(
+    '/piano-fundamentals/:lessonId',
+    { prefix: curriculumPrefix },
+  ),
+
+  /** The old course's sections (1–7): they redirect to its lessons. */
   fundamentalsSection: createRouteDefinition<{ sectionId: string }>(
     '/piano-fundamentals/:sectionId',
     { prefix: curriculumPrefix },

@@ -11,6 +11,7 @@ import {
 } from '@/lib/studio-projects/drafts/predicates';
 import type { DraftMeta } from '@/lib/studio-projects/drafts/types';
 import type { StudioProjectSummary } from '@/lib/studio-projects/projectsClient';
+import { sessionDisplayName } from '@/lib/studio-projects/sessionName';
 
 // ── The Projects dialog's rows (milestone 1.4, spec E16) ───────────────────
 //
@@ -90,10 +91,8 @@ export interface ProjectRowSections {
   account: ProjectRow[];
 }
 
-const UNTITLED = 'Untitled Project';
-
 const nameOf = (value: unknown): string =>
-  typeof value === 'string' && value.trim() ? value.trim() : UNTITLED;
+  sessionDisplayName(typeof value === 'string' ? value : null);
 
 const finite = (value: unknown): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : 0;

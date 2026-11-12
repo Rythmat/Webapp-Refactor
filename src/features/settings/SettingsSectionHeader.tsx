@@ -1,12 +1,14 @@
+import { OFFICE_PAGE_TITLE } from '@/features/office/ui/styles';
+
 interface SettingsSectionHeaderProps {
   title: string;
   description?: string;
 }
 
 /**
- * Big display H1 + one-line description for each Settings section, matching
- * the WelcomeHeader typography scale from the Home Dashboard for visual
- * continuity with the rest of the app.
+ * A Settings page's title and one grey line, in the Account area's look
+ * (owner, 2026-11-10, Samply's): the Classroom page's title, 48px over the
+ * page.
  */
 export const SettingsSectionHeader = ({
   title,
@@ -14,11 +16,11 @@ export const SettingsSectionHeader = ({
 }: SettingsSectionHeaderProps) => {
   return (
     <div className="flex flex-col gap-2">
-      <h1 className="text-4xl font-medium leading-tight text-white md:text-5xl">
-        {title}
-      </h1>
+      <h1 className={OFFICE_PAGE_TITLE}>{title}</h1>
       {description && (
-        <p className="text-base text-white/60 md:text-lg">{description}</p>
+        <p className="text-[0.795rem] leading-[1.136rem] text-white/[0.48]">
+          {description}
+        </p>
       )}
     </div>
   );

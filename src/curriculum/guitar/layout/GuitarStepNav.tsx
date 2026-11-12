@@ -1,5 +1,5 @@
 import * as Popover from '@radix-ui/react-popover';
-import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Music, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { FixedDigits } from '@/components/common/FixedDigits';
 import {
@@ -105,7 +105,8 @@ export function GuitarStepNav({ nav, keyColor }: GuitarStepNavProps) {
             }
             className="max-[639px]:h-11"
           >
-            &#9834; Practice Track
+            <Music aria-hidden className="size-4" />
+            Practice Track
           </PromptPillButton>
         )}
 

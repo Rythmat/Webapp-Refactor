@@ -90,21 +90,21 @@ export const AssignmentProgressPage = () => {
           onClick={() => navigate(TeacherRoutes.plan({ classroomId: cid }))}
           className="w-fit rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
         >
-          Back to Lessons
+          Plan
         </button>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10">
+    <div className="mx-auto flex w-full max-w-[86rem] flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
           to={TeacherRoutes.plan({ classroomId: cid })}
           className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Lessons
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Plan
         </Link>
         <button
           type="button"
@@ -121,7 +121,7 @@ export const AssignmentProgressPage = () => {
           Progress
         </span>
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-medium text-white md:text-3xl">
+          <h1 className="text-[clamp(1.75rem,3.2vw,2.5rem)] font-normal leading-tight tracking-[-0.02em] text-daw-text">
             {assignment.title}
           </h1>
           <span className="rounded-full border border-white/10 px-2 py-0.5 text-xs uppercase tracking-wide text-white/60">

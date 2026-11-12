@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { isGuidedLessonPath } from '@/curriculum/guided/guidedPaths';
 import { usePrefersReducedMotion } from '@/daw/components/Tutorial/usePrefersReducedMotion';
 import {
   getBillingUiState,
@@ -369,7 +370,9 @@ function TourPrompts() {
   const [compassRect, setCompassRect] = useState<Rect | null>(null);
   const offer = useLearnTourStore((s) => s.offer);
   const busy = !!tour || !!finale || !!offer;
-  const onLesson = isLessonPath(location.pathname);
+  // Not in a guided lesson: there's one thing on screen, and the tour's stops aren't.
+  const onLesson =
+    isLessonPath(location.pathname) && !isGuidedLessonPath(location.pathname);
   const onHome = atLearnHome(location);
 
   // A first genre or Theory lesson, once it's on screen.

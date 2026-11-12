@@ -88,6 +88,21 @@ const SCRIPT: LessonScript<Scene> = {
       ],
       why: WHY,
     },
+    {
+      kind: 'ab',
+      id: 'listen',
+      view: 'x',
+      body: 'Listen',
+      question: 'Which?',
+      a: { n: 10 },
+      b: { n: 20 },
+      correct: 'a',
+      choiceA: 'this one',
+      choiceB: 'this one',
+      right: 'That side',
+      wrong: 'Not that side',
+      why: WHY,
+    },
   ],
   takeaway: {
     kind: 'takeaway',
@@ -241,6 +256,14 @@ describe('the lesson player', () => {
     fireEvent.click(screen.getByRole('radio', { name: 'Option A' }));
     press('Check');
     press('Continue');
+    expect(onScreen()).toBe('listen');
+    fireEvent.click(screen.getByRole('radio', { name: 'A: this one' }));
+    press('Check');
+    // The sides are shuffled: wrong or right, this gets past it.
+    if (screen.queryByRole('button', { name: 'See answer' })) {
+      press('See answer');
+    }
+    press('Continue');
     expect(onScreen()).toBe('end');
     press('Continue');
     // The skill check's short pause.
@@ -264,6 +287,36 @@ describe('the lesson player', () => {
         ?.getAttribute('data-finish-xp'),
     ).toBe('25');
     expect(document.querySelector('[data-finish-stats]')).toBeNull();
+  });
+
+  describe('a two-sided screen', () => {
+    // On this roll of the shuffle, side A is the correct one.
+    beforeEach(() => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.9);
+    });
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('moves to the right answer once it’s answered', () => {
+      open('/?screen=listen');
+      press('Hear B');
+      expect(screen.getByTestId('value').textContent).toBe('20');
+      fireEvent.click(screen.getByRole('radio', { name: 'A: this one' }));
+      press('Check');
+      expect(screen.getByTestId('value').textContent).toBe('10');
+      expect(screen.getByRole('status').textContent).toContain('That side');
+    });
+
+    it('moves to it on See answer too', () => {
+      open('/?screen=listen');
+      press('Hear B');
+      fireEvent.click(screen.getByRole('radio', { name: 'B: this one' }));
+      press('Check');
+      expect(screen.getByTestId('value').textContent).toBe('20');
+      press('See answer');
+      expect(screen.getByTestId('value').textContent).toBe('10');
+    });
   });
 
   it('resumes at the first screen still to do', () => {

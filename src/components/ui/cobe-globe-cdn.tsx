@@ -39,6 +39,8 @@ interface GlobeCdnProps {
   arcAnimationMs?: number;
   /** Global arc altitude. Raise it so long, far-reaching arcs clear the globe. */
   arcHeight?: number;
+  /** Arc thickness (cobe units: it grows with `scale`). Defaults to 0.4. */
+  arcWidth?: number;
   /**
    * Up to 12 RGB colours (0–1). Given, arcs draw on along their own paths
    * (rather than growing by moving their end, which reshapes them) with
@@ -67,6 +69,37 @@ interface GlobeCdnProps {
   focusFrom?: [number, number];
   /** Flight time in ms; 0 jumps. Defaults to 1000. */
   focusMs?: number;
+  /**
+   * cobe's zoom. The sphere's radius is `0.4 × scale × canvas height` (cobe:
+   * `|b| < .8` in its fragment shader), centred unless `offset` moves it.
+   */
+  scale?: number;
+  /**
+   * Moves the sphere in the canvas: its centre shifts by `scale × offset / 2`
+   * CSS px (right, down). With `fill`, a sphere larger than the canvas can be
+   * sunk so only its crown shows.
+   */
+  offset?: [number, number];
+  /**
+   * The view's resting tilt (radians); positive tips the north toward you.
+   * A change eases over (THETA_EASE) rather than jumping.
+   */
+  theta?: number;
+  /**
+   * How steeply the shading falls off toward the limb (cobe's `diffuse`;
+   * lower is flatter). A cropped cap shows only the near-limb band, which
+   * the default leaves dim.
+   */
+  diffuse?: number;
+  /** Cap on the drawing buffer's pixel ratio (big canvases want it low). */
+  maxDpr?: number;
+  /**
+   * The canvas fills its parent's box (any aspect) rather than a square.
+   * The parent must have a height.
+   */
+  fill?: boolean;
+  /** False: no drag, no grab cursor, clicks pass through. Defaults to true. */
+  interactive?: boolean;
 }
 
 /** A flight to a focus: view angles from → to over `ms` (from null = current view). */
@@ -111,6 +144,9 @@ const TWO_PI = Math.PI * 2;
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
+/** Per 60Hz frame, how much of a new `theta` is still to come (≈2.5s). */
+const THETA_EASE = 0.97;
+
 /** With `arcRainbow`: how far (in arc progress) the rainbow trails the head. */
 const ARC_RAINBOW_TAIL = 0.45;
 
@@ -144,6 +180,7 @@ export function GlobeCdn({
   speed = 0.003,
   arcAnimationMs = 3500,
   arcHeight = 0.28,
+  arcWidth = 0.4,
   arcRainbow,
   land = 'dots',
   onRotationComplete,
@@ -151,6 +188,13 @@ export function GlobeCdn({
   focus = null,
   focusFrom,
   focusMs = 1000,
+  scale = 0.9,
+  offset,
+  theta = 0.2,
+  diffuse,
+  maxDpr = 2,
+  fill = false,
+  interactive = true,
 }: GlobeCdnProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const globeRef = useRef<ReturnType<typeof createGlobe> | null>(null);
@@ -171,10 +215,23 @@ export function GlobeCdn({
   durationRef.current = arcAnimationMs;
   const arcHeightRef = useRef(arcHeight);
   arcHeightRef.current = arcHeight;
+  const arcWidthRef = useRef(arcWidth);
+  arcWidthRef.current = arcWidth;
   const arcRainbowRef = useRef(arcRainbow);
   arcRainbowRef.current = arcRainbow;
   // Read once, at creation (the land's look is fixed for the globe's life).
   const solidRef = useRef(land === 'solid');
+  // Read once, at creation, like the land: these set up the canvas.
+  const fillRef = useRef(fill);
+  const maxDprRef = useRef(maxDpr);
+  const diffuseRef = useRef(diffuse);
+  // Eased toward each frame (theta) or pushed on change (scale, offset).
+  const thetaRef = useRef(theta);
+  thetaRef.current = theta;
+  const scaleRef = useRef(scale);
+  scaleRef.current = scale;
+  const offsetRef = useRef(offset);
+  offsetRef.current = offset;
   const onRotationCompleteRef = useRef(onRotationComplete);
   onRotationCompleteRef.current = onRotationComplete;
   const markersRef = useRef(toCobeMarkers(markers));
@@ -200,11 +257,11 @@ export function GlobeCdn({
   }, []);
 
   const handlePointerUp = useCallback(() => {
-    if (pointerInteracting.current !== null) {
-      phiOffsetRef.current += dragOffset.current.phi;
-      thetaOffsetRef.current += dragOffset.current.theta;
-      dragOffset.current = { phi: 0, theta: 0 };
-    }
+    // Any pointerup on the page lands here: only a drag of ours ends.
+    if (pointerInteracting.current === null) return;
+    phiOffsetRef.current += dragOffset.current.phi;
+    thetaOffsetRef.current += dragOffset.current.theta;
+    dragOffset.current = { phi: 0, theta: 0 };
     pointerInteracting.current = null;
     if (canvasRef.current) canvasRef.current.style.cursor = 'grab';
     isPausedRef.current = false;
@@ -236,6 +293,8 @@ export function GlobeCdn({
     const canvas = canvasRef.current;
     let animationId: number | null = null;
     let phi = 0;
+    // The resting tilt as shown, easing toward `theta` when it changes.
+    let baseTheta = thetaRef.current;
     let disposed = false;
     // The globe is usually below the fold on Home and the landing page, where
     // it used to keep running its full-canvas fragment shader forever.
@@ -245,9 +304,15 @@ export function GlobeCdn({
     let io: IntersectionObserver | null = null;
     let syncRunning: (() => void) | null = null;
 
+    // The drawing buffer's size: a square, or the canvas's own box (`fill`).
+    const sizeOf = (width: number, height: number) => ({
+      width,
+      height: fillRef.current ? height : width,
+    });
+
     async function init() {
-      const width = canvas.offsetWidth;
-      if (width === 0 || globeRef.current) return;
+      if (canvas.offsetWidth === 0 || globeRef.current) return;
+      if (fillRef.current && canvas.offsetHeight === 0) return;
       // Land dots take their colour from this per-country map (null → fallback).
       const solid = solidRef.current;
       const mapTexture = (await getCountryTexture(solid)) ?? undefined;
@@ -256,15 +321,19 @@ export function GlobeCdn({
       // Dark-theme palette — echoes the Atlas globe's warm, low-key base while
       // the bright per-marker / per-arc country colours carry the accent.
       globeRef.current = createGlobe(canvas, {
-        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
-        width,
-        height: width,
+        devicePixelRatio: Math.min(
+          window.devicePixelRatio || 1,
+          maxDprRef.current,
+        ),
+        // Re-read: the texture await may have outlasted a resize.
+        ...sizeOf(canvas.offsetWidth, canvas.offsetHeight),
         phi: 0,
-        theta: 0.2,
-        // Zoom the globe out within the canvas so tall, far-reaching arcs have
-        // headroom. The canvas itself bleeds past its layout box (see
+        theta: thetaRef.current,
+        // By default zoomed out within the canvas so tall, far-reaching arcs
+        // have headroom. The canvas itself bleeds past its layout box (see
         // GlobeSection) to give those arcs room without shrinking the globe.
-        scale: 0.9,
+        scale: scaleRef.current,
+        ...(offsetRef.current ? { offset: offsetRef.current } : {}),
         dark: 1,
         diffuse: 1.2,
         mapSamples: 16000,
@@ -286,10 +355,13 @@ export function GlobeCdn({
               diffuse: 0.9,
             }
           : {}),
+        ...(diffuseRef.current !== undefined
+          ? { diffuse: diffuseRef.current }
+          : {}),
         markers: markersRef.current,
         arcs: [],
         arcColor: [1, 0.85, 0.55],
-        arcWidth: 0.4,
+        arcWidth: arcWidthRef.current,
         arcHeight: arcHeightRef.current,
         ...(arcRainbowRef.current
           ? {
@@ -308,6 +380,8 @@ export function GlobeCdn({
         const dt =
           lastTs === null ? 1 : Math.min(3, (t - lastTs) / (1000 / 60));
         lastTs = t;
+        baseTheta +=
+          (thetaRef.current - baseTheta) * (1 - Math.pow(THETA_EASE, dt));
 
         const flight = focusReleasedRef.current ? null : flightRef.current;
         if (flight) {
@@ -317,7 +391,7 @@ export function GlobeCdn({
           flight.t0 ??= t;
           flight.from ??= [
             phi + phiOffsetRef.current,
-            0.2 + thetaOffsetRef.current + thetaExtraRef.current,
+            baseTheta + thetaOffsetRef.current + thetaExtraRef.current,
           ];
           const p =
             flight.ms > 0 ? Math.min(1, (t - flight.t0) / flight.ms) : 1;
@@ -327,7 +401,8 @@ export function GlobeCdn({
           const viewTheta =
             flight.from[1] + (flight.to[1] - flight.from[1]) * e;
           phi = viewPhi - phiOffsetRef.current;
-          thetaExtraRef.current = viewTheta - 0.2 - thetaOffsetRef.current;
+          thetaExtraRef.current =
+            viewTheta - baseTheta - thetaOffsetRef.current;
           if (p >= 1) flight.done = true;
         } else {
           // No focus: the tilt eases back to the default.
@@ -370,7 +445,7 @@ export function GlobeCdn({
         globeRef.current!.update({
           phi: phi + phiOffsetRef.current + dragOffset.current.phi,
           theta:
-            0.2 +
+            baseTheta +
             thetaOffsetRef.current +
             thetaExtraRef.current +
             dragOffset.current.theta,
@@ -420,21 +495,26 @@ export function GlobeCdn({
     // Kept for the component's lifetime: the drawing buffer is sized once at
     // creation, so without this a layout change left the canvas CSS-stretched.
     let lastWidth = 0;
+    let lastHeight = 0;
     const ro = new ResizeObserver((entries) => {
-      const width = Math.round(entries[0]?.contentRect.width ?? 0);
+      const rect = entries[0]?.contentRect;
+      const width = Math.round(rect?.width ?? 0);
+      const height = Math.round(rect?.height ?? 0);
       if (width === 0) return;
       if (!globeRef.current) {
         void init();
         return;
       }
-      if (width !== lastWidth) {
+      if (width !== lastWidth || (fillRef.current && height !== lastHeight)) {
         lastWidth = width;
-        globeRef.current.update({ width, height: width });
+        lastHeight = height;
+        globeRef.current.update(sizeOf(width, height));
       }
     });
     ro.observe(canvas);
     if (canvas.offsetWidth > 0) {
       lastWidth = Math.round(canvas.offsetWidth);
+      lastHeight = Math.round(canvas.offsetHeight);
       void init();
     }
 
@@ -457,6 +537,13 @@ export function GlobeCdn({
   useEffect(() => {
     syncRunningRef.current?.();
   }, [paused]);
+
+  // A new zoom or placement (e.g. the parent resized): cobe keeps it from
+  // here on, so the rAF loop needn't resend it.
+  const [offsetX, offsetY] = offset ?? [0, 0];
+  useEffect(() => {
+    globeRef.current?.update({ scale, offset: [offsetX, offsetY], arcWidth });
+  }, [scale, offsetX, offsetY, arcWidth]);
 
   // A new focus arms a flight (from `focusFrom`, else from the current view);
   // no focus lets go.
@@ -491,17 +578,20 @@ export function GlobeCdn({
   }, [markers, arcs, arcHeight]);
 
   return (
-    <div className={`relative aspect-square select-none ${className}`}>
+    <div
+      className={`relative select-none ${fill ? 'h-full w-full' : 'aspect-square'} ${className}`}
+    >
       <canvas
         ref={canvasRef}
-        onPointerDown={handlePointerDown}
+        onPointerDown={interactive ? handlePointerDown : undefined}
         style={{
           width: '100%',
           height: '100%',
-          cursor: 'grab',
           opacity: 0,
           transition: 'opacity 1.2s ease',
-          touchAction: 'none',
+          ...(interactive
+            ? { cursor: 'grab', touchAction: 'none' }
+            : { pointerEvents: 'none' }),
         }}
       />
       {markers

@@ -128,9 +128,17 @@ describe('resolveActivityRefHref — studio', () => {
     expect(
       resolveActivityRefHref('studio', 'studio:tutorial:house-make-it-pump'),
     ).toBe('/studio?tutorial=house-make-it-pump');
-    expect(resolveActivityRefHref('studio', 'studio:library')).toBe(
-      '/studio?tab=Library',
-    );
+    expect(resolveActivityRefHref('studio', 'studio:library')).toBe('/library');
+  });
+});
+
+describe('resolveActivityRefHref — the Individual Project places', () => {
+  it('opens each place at its own page', () => {
+    expect(resolveActivityRefHref('learn', 'learn:home')).toBe('/learn');
+    expect(resolveActivityRefHref('learn', 'learn:songs')).toBe('/songs');
+    expect(resolveActivityRefHref('studio', 'studio:library')).toBe('/library');
+    expect(resolveActivityRefHref('studio', 'studio:editor')).toBe('/studio');
+    expect(resolveActivityRefHref('globe', 'globe:home')).toBe('/globe');
   });
 });
 

@@ -35,7 +35,11 @@ import {
 } from './PianoRollPlay';
 import { useWrongNoteFlash, WrongNoteFlash } from './WrongNoteFlash';
 import { activationWindow, dueMidisAt, nextTargets } from './liveFeedback';
-import { gradePlayAlong, type PlayAlongResult } from './playAlongGrade';
+import {
+  gradePlayAlong,
+  playAlongDetail,
+  type PlayAlongResult,
+} from './playAlongGrade';
 
 /** GenrePianoRoll's bar ruler, on top of `rowHeight`. */
 const ROLL_TIMELINE_HEIGHT = 40;
@@ -82,7 +86,7 @@ type PlayAlongProps = {
   chordSymbols?: readonly LessonChordSymbol[];
   /**
    * Sound the target notes as the playhead reaches them (Practice mode). Off in
-   * Play Now, where the student proves the notes unaided.
+   * Perform, where the student proves the notes unaided.
    */
   playTargetNotes?: boolean;
   /** Lesson spelling map, passed through to the piano roll's lane labels. */
@@ -565,7 +569,18 @@ export const PlayAlong = ({
         notePerformance,
         wrongNotes.length,
       );
-      onRunGraded?.(result);
+      onRunGraded?.({
+        ...result,
+        detail: playAlongDetail(
+          resolvedEvents.map((event) => ({
+            id: event.id,
+            startTicks: event.startTicks,
+            midi: midiOfNote(event) ?? null,
+          })),
+          notePerformance,
+          wrongNotes.map((note) => note.midi),
+        ),
+      });
       if (result.passed) onActivityCompleteChange?.(true);
     }
     lastCompletionShownRef.current = showInTimeCompletion;

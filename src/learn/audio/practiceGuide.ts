@@ -2,7 +2,7 @@
  * practiceGuide.ts — The target notes you hear in Practice mode.
  *
  * In Practice the lesson plays the correct notes while you play along, so a
- * right note reinforces and a wrong one clashes audibly. In Play Now the guide
+ * right note reinforces and a wrong one clashes audibly. In Perform the guide
  * is silent and the keyboard hints are gone — you prove it yourself.
  *
  * The guide uses the same piano as your own playing, pulled back a little so

@@ -18,6 +18,8 @@
  */
 import { ExternalLink, Rocket, Users } from 'lucide-react';
 import { useState } from 'react';
+import { WHITE_PILL_LG } from '@/components/kit';
+import { cn } from '@/components/utilities';
 import { useEnrollments } from '../enrollments';
 import { pickLocalized, secondaryLine } from '../presentation/localized';
 import type { LocalizedText, StudentLanguage } from '../types';
@@ -153,7 +155,7 @@ export const StudioCollabAction = ({
     return (
       <div className="flex flex-col gap-3">
         <p className="inline-flex items-center gap-2 text-sm text-white/60">
-          <Users className="h-4 w-4 shrink-0 text-[#7ecfcf]" />
+          <Users className="h-4 w-4 shrink-0 text-white/60" />
           <span>
             <Bi text={hostCopy(partners)} language={language} />
           </span>
@@ -228,7 +230,10 @@ const LaunchButton = ({
         type="button"
         disabled={disabled}
         onClick={open}
-        className="inline-flex w-fit items-center gap-2.5 rounded-2xl border border-[#7ecfcf]/40 bg-[#7ecfcf]/[0.08] px-6 py-4 text-base font-semibold text-[#7ecfcf] transition-colors hover:border-[#7ecfcf]/70 hover:bg-[#7ecfcf]/[0.14] disabled:cursor-not-allowed disabled:opacity-50"
+        className={cn(
+          WHITE_PILL_LG,
+          'w-fit disabled:cursor-not-allowed disabled:opacity-50',
+        )}
       >
         <Rocket className="h-5 w-5" />
         <Bi text={label} language={language} />
@@ -236,7 +241,7 @@ const LaunchButton = ({
       {blocked && (
         <a
           href={href}
-          className="inline-flex w-fit items-center gap-1.5 text-xs text-[#7ecfcf]/80 underline hover:text-[#7ecfcf]"
+          className="inline-flex w-fit items-center gap-1.5 text-[0.8125rem] text-white/70 underline hover:text-white"
         >
           <ExternalLink className="h-3.5 w-3.5" />
           <Bi text={COPY.openHere} language={language} />

@@ -6,6 +6,12 @@
 import type { PhaseKey } from '../phases';
 import type { Cell, Day, Interaction, LocalizedText } from '../types';
 import { slideInteractionIds } from './deck';
+import {
+  SECTION_PHASE,
+  sectionInsertIndex,
+  sectionOf,
+  type SlideSection,
+} from './sections';
 import { preserveLayoutOnKindChange } from './slideLayout';
 import type { Slide, SlideDeck, SlideKind } from './types';
 
@@ -195,6 +201,7 @@ export const updateSlideAt = (
       ...(current.accentBar !== undefined
         ? { accentBar: current.accentBar }
         : {}),
+      ...(current.section !== undefined ? { section: current.section } : {}),
       ...(patch.phase ? { phase: patch.phase } : {}),
       ...(layout ? { layout } : {}),
     };
@@ -330,3 +337,79 @@ export const setSlideInteractions = (
 
 /** Fresh interaction id for editor-authored interactions. */
 export const newInteractionId = interactionUid;
+
+/**
+ * Move a slide into another section: set its section (and the phase that
+ * section lives under), carry its interactions to that phase's cell, and
+ * re-seat it at the end of the section so the deck stays in section order.
+ * Returns the Day and the slide's new index (so the editor can keep it
+ * selected).
+ */
+export const moveSlideToSection = (
+  day: Day,
+  slideId: string,
+  section: SlideSection,
+): { day: Day; index: number } => {
+  const deck = day.deck;
+  const from = deck?.slides.findIndex((s) => s.id === slideId) ?? -1;
+  if (!deck || from < 0) return { day, index: from };
+  const original = deck.slides[from];
+  if (sectionOf(original) === section && original.section === section) {
+    return { day, index: from };
+  }
+
+  const phase = SECTION_PHASE[section];
+  const moved = { ...original, section, phase } as Slide;
+
+  let cells = day.cells;
+  if (phase !== original.phase) {
+    const ids = slideInteractionIds(original);
+    const fromCell = cells[original.phase];
+    const owned = (fromCell.presentation.interactions ?? []).filter((i) =>
+      ids.includes(i.id),
+    );
+    const left = (fromCell.presentation.interactions ?? []).filter(
+      (i) => !ids.includes(i.id),
+    );
+    const toCell = cells[phase];
+    cells = {
+      ...cells,
+      [original.phase]: {
+        ...fromCell,
+        presentation: {
+          ...fromCell.presentation,
+          interactions: left.length ? left : undefined,
+        },
+      },
+      [phase]: {
+        ...toCell,
+        presentation: {
+          ...toCell.presentation,
+          interactions: [
+            ...(toCell.presentation.interactions ?? []).filter(
+              (i) => !ids.includes(i.id),
+            ),
+            ...owned,
+          ],
+        },
+      },
+    };
+    if (!cells[phase].presentation.interactions?.length) {
+      cells[phase] = {
+        ...cells[phase],
+        presentation: { ...cells[phase].presentation, interactions: undefined },
+      };
+    }
+  }
+
+  const rest = deck.slides.filter((_, i) => i !== from);
+  const index = sectionInsertIndex(rest, section);
+  return {
+    day: {
+      ...day,
+      cells,
+      deck: { ...deck, slides: insertSlideAt(rest, moved, index) },
+    },
+    index,
+  };
+};

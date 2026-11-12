@@ -18,7 +18,6 @@ import {
 import type { SelectedLocation } from '@/components/atlas/types';
 import { eventCities } from '@/components/atlas/utils/eventCities';
 import { matchCity } from '@/components/atlas/utils/resolveEventRegion';
-import { resolveFocusCities } from '@/components/atlas/utils/resolveFocusCities';
 import {
   ARTIST_POINT,
   cityBaseColor,
@@ -41,24 +40,11 @@ export function useGlobeScene() {
   const selectedLocation = useAtlasSelector((s) => s.selectedLocation);
   const visibleArcDirections = useAtlasSelector((s) => s.visibleArcDirections);
   const layers = useAtlasSelector((s) => s.layers);
-  const activeModule = useAtlasSelector((s) => s.activeModule);
-  const activeTour = useAtlasSelector((s) => s.activeTour);
 
-  // While a guided sequence (Pathway / Region tour / City tour) is active, the
-  // globe is simplified to just that selection's cities; otherwise all cities.
-  const focusCities = useMemo(
-    () => resolveFocusCities(activeModule, activeTour),
-    [activeModule, activeTour],
-  );
-
-  // City data — all cities, or only the focus set during a sequence.
-  // Every selectable city: the music cities and the towns events make cities
-  // of (Aspen, Colorado Springs).
   const allCityPoints: CityPoint[] = useMemo(() => {
     const all = selectableCities();
     const towns = new Set(eventCities());
-    const source = focusCities ? all.filter((c) => focusCities.has(c.id)) : all;
-    return source.map((city) => ({
+    return all.map((city) => ({
       lat: city.coordinates[0],
       lng: city.coordinates[1],
       id: city.id,
@@ -66,7 +52,7 @@ export function useGlobeScene() {
       town: towns.has(city),
       color: cityBaseColor(CITY_COUNTRY_TO_ISO[city.country]),
     }));
-  }, [focusCities]);
+  }, []);
   const cityPoints = useMemo(
     () => visibleCityPoints(layers, allCityPoints),
     [layers, allCityPoints],

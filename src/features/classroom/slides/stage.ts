@@ -1,0 +1,102 @@
+/**
+ * The stage presets (owner, 2026-11-10): slides that are one thing, big.
+ *
+ *   hero      the live layer alone, centred: the question, or the class's
+ *             activity (its cover and name) with the class's status
+ *   bleed     the slide's visual edge to edge: a video, an interactive globe.
+ *             An interaction slide asks its question on students' devices
+ *             only; the room sees the visual until the teacher reveals
+ *   portrait  the subject's photo edge to edge, the name and a short bio
+ *   split     a song's video on the left half, the class's questions on
+ *             the right (owner, 2026-11-12): the room watches and reads,
+ *             the students answer on their devices
+ *
+ * Pure: no React.
+ */
+import { SLIDE_GRID, type ZoneName, type ZoneRect } from './slideGrid';
+import { PRESETS } from './templates/presets';
+import type { Slide, SlideMedia, SlideSurface } from './types';
+
+export type SlideStageKind = 'hero' | 'bleed' | 'portrait' | 'split';
+
+const STAGE_PRESETS: Readonly<Record<string, SlideStageKind>> = {
+  hero: 'hero',
+  bleed: 'bleed',
+  portrait: 'portrait',
+  'portrait-check-in': 'portrait',
+  'listen-questions': 'split',
+};
+
+/**
+ * Where a split slide's video sits, in canvas px: 16:9, centred in the left
+ * half (`halfLeft`), clear of the questions on the right.
+ */
+export const SPLIT_MEDIA_RECT: ZoneRect = { x: 40, y: 198, w: 576, h: 324 };
+
+/**
+ * Where a slide's live layer goes when its preset gives it a place of its
+ * own (the portrait's check-in), else undefined.
+ */
+export const liveRectOf = (
+  slide: Pick<Slide, 'presetId'>,
+): ZoneRect | undefined => {
+  const zone = slide.presetId
+    ? (PRESETS as Record<string, { liveRect?: ZoneName }>)[slide.presetId]
+        ?.liveRect
+    : undefined;
+  return zone ? SLIDE_GRID[zone].rect : undefined;
+};
+
+export const stageKindOf = (
+  slide: Pick<Slide, 'presetId'>,
+): SlideStageKind | undefined =>
+  slide.presetId ? STAGE_PRESETS[slide.presetId] : undefined;
+
+/**
+ * The band a stage slide's live layer and reveal take: the whole safe area
+ * from the top margin, above the footer strip (which keeps the question
+ * under a reveal).
+ */
+export const STAGE_BAND: ZoneRect = {
+  x: 64,
+  y: 64,
+  w: 1152,
+  h: SLIDE_GRID.footer.rect.y - 16 - 64,
+};
+
+/** The whole canvas: a full-screen slide's reveal covers it. */
+export const FULL_CANVAS: ZoneRect = { x: 0, y: 0, w: 1280, h: 720 };
+
+/** The slide's own visual: `media`, else `sideMedia`. */
+export const stageMedia = (slide: Slide): SlideMedia | undefined =>
+  ('media' in slide ? slide.media : undefined) ??
+  ('sideMedia' in slide ? slide.sideMedia : undefined);
+
+/**
+ * Whether the room's screen shows the question before a reveal. A `bleed`
+ * interaction slide is its visual on the room's screen: the question is on
+ * the students' devices.
+ */
+export const projectsQuestion = (
+  slide: Pick<Slide, 'presetId' | 'kind'>,
+  surface: SlideSurface,
+): boolean =>
+  !(
+    surface !== 'student' &&
+    slide.kind === 'interaction' &&
+    stageKindOf(slide) === 'bleed'
+  );
+
+/**
+ * Whether the stage paints the slide's visual edge to edge on this surface.
+ * A student's device gets a `bleed` interaction slide's question, not its
+ * video (videos play on the room's screen).
+ */
+export const paintsBleed = (slide: Slide, surface: SlideSurface): boolean => {
+  const kind = stageKindOf(slide);
+  // A split slide's video is on every surface, in its half: playing on the
+  // room's screen and Present, a still elsewhere (`SlideStage`).
+  if (kind === 'portrait' || kind === 'split') return true;
+  if (kind !== 'bleed') return false;
+  return !(surface === 'student' && slide.kind === 'interaction');
+};

@@ -4,7 +4,8 @@ import type { ContentKind } from '@/hooks/data/admin/useAdminContent';
 /**
  * The content kinds whose editors are pages of their own: drum grooves (the
  * Drum Grooves designer), parts (the Parts Library's piano roll and staff
- * editor) and Music Literacy lessons (the Music Literacy editor). Their
+ * editor), Music Literacy lessons (the Music Literacy editor) and Studio
+ * lessons (the Studio lesson editor). Their
  * `records/:kind[/:id]` URLs hand over to those pages, so there is one
  * editor per kind. Feel profiles have no page of their own and stay among
  * the other records.
@@ -24,6 +25,10 @@ export const INSTRUMENT_PAGES = {
   music_literacy: {
     list: () => AdminRoutes.musicLiteracy(),
     item: (id: string) => AdminRoutes.musicLiteracyLesson({ id }),
+  },
+  studio_lesson: {
+    list: () => AdminRoutes.studioLessons(),
+    item: (id: string) => AdminRoutes.studioLesson({ id }),
   },
 } as const satisfies Partial<
   Record<ContentKind, { list: () => string; item: (id: string) => string }>

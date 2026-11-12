@@ -50,6 +50,9 @@ export type ZonePlacement<T> = T | 'off';
 export interface PresetZones {
   /** Where the slide's visuals go, in order. */
   visuals?: ZonePlacement<readonly ZoneName[]>;
+  /** Where the title goes, when not its own `title` zone (the Showcase's
+   *  name sits over its photo). */
+  title?: ZoneName;
   /** Where body copy goes. */
   body?: ZonePlacement<ZoneName>;
   /** Where launch tiles go. */
@@ -77,6 +80,13 @@ export interface SlidePreset {
   bandFree: boolean;
   /** Draw the left accent bar (a slide flag — `accentBar` is a chrome zone). */
   accentBar?: boolean;
+  /**
+   * Where the live layer goes, when not in the middle band: a chrome zone of
+   * its own beside the slide's content (the portrait's check-in, bottom
+   * left). A preset that has one may author into the band and still claim a
+   * live-layer kind: the two never share space.
+   */
+  liveRect?: ZoneName;
   zones: PresetZones;
 }
 
@@ -168,6 +178,104 @@ export const PRESETS = {
     kinds: AUTHORED_KINDS,
     bandFree: false,
     zones: { visuals: ['mediaLeft'], body: 'right', tiles: 'right' },
+  },
+  // The lesson's Showcase (owner, 2026-11-10): the globe on the left half,
+  // flying to the subject's place, the photo on the right with the name and
+  // the facts over its foot. The two visuals are painted by the stage as
+  // chrome (`halfLeft` / `halfRight`), so their elements stay hidden here.
+  showcase: {
+    id: 'showcase',
+    label: 'Showcase',
+    kinds: AUTHORED_KINDS,
+    bandFree: false,
+    zones: {
+      title: 'captionTitle',
+      visuals: 'off',
+      subtitle: 'off',
+      body: 'captionBody',
+      tiles: 'captionBody',
+    },
+  },
+  // ── The stage presets (owner, 2026-11-10: one idea per slide, no extra
+  // text). Each paints one thing big; `slides/stage.ts` says how.
+  //
+  // `hero`: the live layer alone, centred and large: the question (or the
+  // class's activity) is the slide.
+  hero: {
+    id: 'hero',
+    label: 'Big question',
+    kinds: ['interaction', 'app-route', 'studio-collab', 'showcase'],
+    bandFree: true,
+    zones: {
+      hideTitle: true,
+      subtitle: 'off',
+      body: 'off',
+      tiles: 'off',
+      visuals: 'off',
+    },
+  },
+  // `bleed`: the slide's visual, edge to edge (a video, a globe). On an
+  // interaction slide the question is asked on the students' devices only.
+  bleed: {
+    id: 'bleed',
+    label: 'Full screen',
+    kinds: ['content', 'media', 'interaction'],
+    bandFree: true,
+    zones: {
+      hideTitle: true,
+      subtitle: 'off',
+      body: 'off',
+      tiles: 'off',
+      visuals: 'off',
+    },
+  },
+  // `portrait`: the subject's photo edge to edge, the name and a short bio
+  // over its darkened left side.
+  portrait: {
+    id: 'portrait',
+    label: 'Portrait',
+    kinds: AUTHORED_KINDS,
+    bandFree: false,
+    zones: {
+      title: 'portraitTitle',
+      visuals: 'off',
+      subtitle: 'off',
+      body: 'portraitBody',
+      tiles: 'off',
+    },
+  },
+  // The portrait with the class's check-in (owner, 2026-11-10: the check-in
+  // on the Showcase's first page, a slider at its bottom left).
+  'portrait-check-in': {
+    id: 'portrait-check-in',
+    label: 'Portrait + check-in',
+    kinds: ['interaction'],
+    bandFree: false,
+    liveRect: 'checkInLive',
+    zones: {
+      title: 'checkInTitle',
+      visuals: 'off',
+      subtitle: 'off',
+      body: 'checkInBody',
+      tiles: 'off',
+    },
+  },
+  // A song beside the class's questions (owner, 2026-11-12): the video on
+  // the left half (painted by the stage, `SPLIT_MEDIA_RECT`), the questions on
+  // the right, answered on the students' devices.
+  'listen-questions': {
+    id: 'listen-questions',
+    label: 'Song + questions',
+    kinds: ['interaction'],
+    bandFree: true,
+    liveRect: 'halfRight',
+    zones: {
+      hideTitle: true,
+      visuals: 'off',
+      subtitle: 'off',
+      body: 'off',
+      tiles: 'off',
+    },
   },
   'chord-chart': {
     id: 'chord-chart',

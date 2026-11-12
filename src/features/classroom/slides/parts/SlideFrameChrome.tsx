@@ -1,62 +1,71 @@
 /**
- * SlideFrameChrome — the decorative shell shared by every slide surface: the
- * soft radial accent glow, the optional left accent bar, and the bilingual
- * phase chip pinned top-left. The chip is non-interactive (pointer-events-none) so it never
- * blocks selecting/dragging blocks beneath it in the editor.
+ * SlideFrameChrome — the shell shared by every slide surface: the optional
+ * left accent bar, and on the room's screen (not Present) a quiet line of the
+ * lesson's six sections along the bottom edge, the current one lit.
+ *
+ * No words (owner, 2026-11-10: "no extra text at all"). The section chip that
+ * used to sit top-left is gone from every surface; the editor's filmstrip and
+ * the teacher's panel still name the sections.
  */
-import { STUDENT_PHASE_LABELS } from '../../phases';
-import { pickLocalized, secondaryLine } from '../../presentation/localized';
-import type { StudentLanguage } from '../../types';
-import { showsPhaseChip } from '../deck';
+import { SECTIONS, sectionOf } from '../sections';
 import { SLIDE_GRID } from '../slideGrid';
-import type { Slide } from '../types';
+import { stageKindOf } from '../stage';
+import type { Slide, SlideSurface } from '../types';
 
 interface SlideFrameChromeProps {
   slide: Slide;
-  language: StudentLanguage;
+  surface: SlideSurface;
 }
 
-export const SlideFrameChrome = ({
-  slide,
-  language,
-}: SlideFrameChromeProps) => {
-  const phaseLabel = STUDENT_PHASE_LABELS[slide.phase];
-  const label = pickLocalized(phaseLabel, language);
-  const labelAlt = secondaryLine(phaseLabel, language);
+/**
+ * The room's screen only: a student's own device needs no map of the room,
+ * and Present shows nothing but the slide (owner, 2026-11-10).
+ */
+const SHOWS_PROGRESS: ReadonlySet<SlideSurface> = new Set(['projector']);
 
+export const SectionProgress = ({ slide }: { slide: Slide }) => {
+  const current = sectionOf(slide);
   return (
-    <>
-      <div
-        aria-hidden
-        className="slide-frame__glow pointer-events-none absolute inset-0"
-      />
-      {slide.accentBar && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute"
-          style={{
-            left: SLIDE_GRID.accentBar.rect.x,
-            top: SLIDE_GRID.accentBar.rect.y,
-            width: SLIDE_GRID.accentBar.rect.w,
-            height: SLIDE_GRID.accentBar.rect.h,
-            background: 'var(--slide-accent, #7ecfcf)',
-          }}
+    <div
+      aria-hidden
+      data-section-progress=""
+      className="pointer-events-none absolute inset-x-[64px] bottom-[20px] z-10 flex gap-[6px]"
+    >
+      {SECTIONS.map((section) => (
+        <span
+          key={section}
+          className={`h-[3px] flex-1 rounded-full transition-colors duration-500 ${
+            section === current ? 'bg-white/80' : 'bg-white/[0.12]'
+          }`}
         />
-      )}
-      {showsPhaseChip(slide) && (
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center px-[4%] pt-[3%]">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
-            <span aria-hidden className="slide-frame__chip-dot" />
-            <span
-              className="font-semibold uppercase tracking-widest text-white/80"
-              style={{ fontSize: 'var(--slide-label-fz)' }}
-            >
-              {label}
-              {labelAlt && <span className="text-white/40"> · {labelAlt}</span>}
-            </span>
-          </span>
-        </div>
-      )}
-    </>
+      ))}
+    </div>
   );
 };
+
+/** Whether a surface shows the section line for a slide. */
+export const showsSectionProgress = (slide: Slide, surface: SlideSurface) =>
+  // A full-screen video or globe is left whole.
+  SHOWS_PROGRESS.has(surface) && stageKindOf(slide) !== 'bleed';
+
+/**
+ * The accent bar, on the canvas. The section line is the stage's own, along
+ * the bottom of whatever it fills (the window, on the room's screen).
+ */
+export const SlideFrameChrome = ({ slide }: SlideFrameChromeProps) => (
+  <>
+    {slide.accentBar && (
+      <div
+        aria-hidden
+        className="pointer-events-none absolute"
+        style={{
+          left: SLIDE_GRID.accentBar.rect.x,
+          top: SLIDE_GRID.accentBar.rect.y,
+          width: SLIDE_GRID.accentBar.rect.w,
+          height: SLIDE_GRID.accentBar.rect.h,
+          background: 'var(--slide-accent, #ffffff)',
+        }}
+      />
+    )}
+  </>
+);

@@ -245,8 +245,10 @@ export function tableForAppPage(
 ): TableTarget | null {
   const song = /^\/songs\/([^/]+)$/.exec(appPath);
   if (song && song[1] !== 'setlists') return { table: 'songs', row: song[1] };
-  if (/^\/learn\/keyboard\/genre\/[^/]/.test(appPath)) return null;
-  if (/^\/(learn|songs)(\/|$)/.test(appPath)) return { table: 'songs' };
+  // The song library: /songs, and Learn's Songs page on an instrument.
+  if (/^\/songs(\/|$)/.test(appPath)) return { table: 'songs' };
+  if (/^\/learn\/(keyboard|guitar|bass|ukulele)\/songs\/?$/.test(appPath))
+    return { table: 'songs' };
   if (!/^\/globe(\/|$)/.test(appPath)) return null;
 
   const params =

@@ -8,13 +8,13 @@ nearest ancestor flowing in its year. Edit the tree in
 `src/components/atlas/data/lineage.ts`, then rewrite this file with
 `npx vitest run src/components/atlas/data/lineage.calibration.test.ts --update`.
 
-Events: 1725. On an ancestor, being older than their own lane: 11.
+Events: 1749. On an ancestor, being older than their own lane: 11.
 
 ## Lanes, top to bottom
 
 | Lane | Born | From | Joined later by | Genres | Events | Top genres |
 | --- | ---: | --- | --- | --- | ---: | --- |
-| Pop | 1910 | Stage & Screen | Rock (1956), R&B & Soul (1960) | Pop | 231 | Pop (211), Rock (95), R&B (20), Dance Pop (9), Electronic (7) |
+| Pop | 1910 | Stage & Screen | Rock (1956), R&B & Soul (1960) | Pop | 239 | Pop (219), Rock (96), R&B (22), Dance Pop (9), Electronic (7) |
 | Stage & Screen | 1875 | Classical | — | Film Scoring, Musical Theatre, Jingles | 55 | Film Scoring (41), Classical (11), Jazz (11), Musical Theatre (9), Electronic (6) |
 | Electronic | 1950 | Classical | Funk (1977) | Electronic | 59 | Electronic (47), House (7), Techno (7), Pop (6), EDM (4) |
 | Classical | 560 | Roots & Folk | — | Classical | 101 | Classical (55), Opera (16), Sacred (10), Arabic Classical (9), Romantic (9) |
@@ -24,18 +24,18 @@ Events: 1725. On an ancestor, being older than their own lane: 11.
 | Jazz | 1910 | Blues | — | Jazz | 84 | Jazz (76), Post-Bop (9), Bebop (8), Hard Bop (7), Pop (7) |
 | Blues | 1895 | Roots & Folk | — | Blues | 53 | Blues (41), Chicago Blues (6), Blues Rock (5), Electric Blues (5), Desert Rock (4) |
 | Jam Band | 1965 | Rock + Jazz | — | Jam Band | 36 | Jam Band (36), Funk (14), Rock (6), Electronica (5), Progressive Rock (5) |
-| Rock | 1950 | Blues | Roots & Folk (1954) | Rock | 320 | Rock (221), Indie Rock (31), Alternative Rock (22), Punk (15), New Wave (12) |
+| Rock | 1950 | Blues | Roots & Folk (1954) | Rock | 321 | Rock (222), Indie Rock (31), Alternative Rock (22), Punk (15), New Wave (12) |
 | Metal | 1968 | Rock + Classical | — | any genre matching /metal/i | 14 | Heavy Metal (7), Metal (3), Alternative Rock (2), Thrash Metal (2), Alternative Metal (1) |
-| R&B & Soul | 1940 | Blues | — | R&B | 66 | R&B (58), Soul (14), Gospel (6), Disco (3), Folk (2) |
+| R&B & Soul | 1940 | Blues | — | R&B | 74 | R&B (66), Soul (14), Gospel (6), Disco (3), Folk (2) |
 | Neo Soul | 1994 | R&B & Soul + Hip Hop | — | Neo Soul | 40 | Neo Soul (40), R&B (25), Jazz (9), Funk (6), Electronic (5) |
-| Funk | 1962 | R&B & Soul | — | Funk | 153 | Funk (152), Pop (26), R&B (26), Soul (11), Rock (7) |
-| Hip Hop | 1973 | Funk + Reggae | — | Hip Hop | 93 | Hip Hop (89), Conscious Rap (9), Rap (9), Pop Rap (7), Electronic (6) |
+| Funk | 1962 | R&B & Soul | — | Funk | 154 | Funk (153), R&B (27), Pop (26), Soul (11), Rock (7) |
+| Hip Hop | 1973 | Funk + Reggae | — | Hip Hop | 99 | Hip Hop (95), Conscious Rap (9), Rap (9), Pop Rap (7), R&B (7) |
 
 ## Lanes by era
 
 | Lane | Ancient & Medieval | Renaissance & Baroque | Classical & Romantic | Early Modern | Postwar & Revolution | Electronic & Hip Hop | Global Digital |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Pop | 0 | 0 | 0 | 1 | 47 | 61 | 122 |
+| Pop | 0 | 0 | 0 | 1 | 47 | 61 | 130 |
 | Stage & Screen | 0 | 0 | 1 | 8 | 17 | 9 | 20 |
 | Electronic | 0 | 0 | 0 | 0 | 3 | 23 | 33 |
 | Classical | 12 | 20 | 27 | 14 | 15 | 4 | 9 |
@@ -45,12 +45,12 @@ Events: 1725. On an ancestor, being older than their own lane: 11.
 | Jazz | 0 | 0 | 0 | 19 | 49 | 6 | 10 |
 | Blues | 0 | 0 | 0 | 14 | 22 | 11 | 6 |
 | Jam Band | 0 | 0 | 0 | 0 | 4 | 17 | 15 |
-| Rock | 0 | 0 | 0 | 0 | 146 | 110 | 64 |
+| Rock | 0 | 0 | 0 | 0 | 146 | 110 | 65 |
 | Metal | 0 | 0 | 0 | 0 | 1 | 8 | 5 |
-| R&B & Soul | 0 | 0 | 0 | 1 | 51 | 4 | 10 |
+| R&B & Soul | 0 | 0 | 0 | 1 | 51 | 5 | 17 |
 | Neo Soul | 0 | 0 | 0 | 0 | 0 | 4 | 36 |
-| Funk | 0 | 0 | 0 | 0 | 105 | 32 | 16 |
-| Hip Hop | 0 | 0 | 0 | 0 | 2 | 38 | 53 |
+| Funk | 0 | 0 | 0 | 0 | 105 | 32 | 17 |
+| Hip Hop | 0 | 0 | 0 | 0 | 2 | 39 | 58 |
 
 ## Older than their lane
 

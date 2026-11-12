@@ -111,7 +111,13 @@ export interface Interaction {
   number?: { min?: number; max?: number };
   text?: { maxLen: number };
   draw?: { background?: 'blank' | 'staff' | 'keyboard' | 'grid' };
-  checkIn?: { style: 'emoji' | 'scale' | 'word' };
+  /**
+   * A check-in's answer tool. `feelings` is the emotional check-in
+   * (owner, 2026-11-09) at the teacher's chosen `level`: a 5-face scale, a
+   * 3×3 face grid, or Plutchik's wheel. `emoji` / `scale` / `word` are the
+   * older tools, still answered by lessons saved with them.
+   */
+  checkIn?: { style: CheckInStyle; level?: FeelingsLevel };
   atlas?: {
     module: 'globe' | 'learn' | 'studio' | 'arcade';
     activityRef: string;
@@ -122,6 +128,13 @@ export interface Interaction {
      * handed to the student's Globe. Ids, names and edge kinds only.
      */
     board?: MindMapBoard;
+    /**
+     * The class does this together, at the teacher's pace (owner,
+     * 2026-11-10): a Group Project's Studio tutorial, Globe tour or Learn
+     * lesson. Every student's tab follows the teacher's step and none runs
+     * ahead. Absent: each student goes at their own speed.
+     */
+    follow?: true;
   };
   /**
    * Echo played by the class, connected (docs/echo-classroom.md): where it
@@ -130,6 +143,11 @@ export interface Interaction {
    */
   echo?: EchoInteractionConfig;
 }
+
+export type CheckInStyle = 'emoji' | 'scale' | 'word' | 'feelings';
+
+/** How fine-grained the emotional check-in is (`feelings/feelings.ts`). */
+export type FeelingsLevel = 'simple' | 'advanced' | 'complex' | 'energy';
 
 export type InteractionType =
   | 'choice'
@@ -140,6 +158,28 @@ export type InteractionType =
   | 'atlas'
   | 'showcase'
   | 'echo';
+
+/** The places a student works in during a lesson's Individual Project. */
+export type WorkPlace = 'learn' | 'songs' | 'library' | 'studio' | 'globe';
+
+/**
+ * What a student shares at the end of class (owner, 2026-11-11): a piece of
+ * their work from this class, from any of the five places. `projectId` is the
+ * item's id whatever the place (a Studio project's, a lesson's, a song's).
+ * Additive to the Phase 3 offer of a Studio project: an offer without
+ * `place` is a Studio project, without `audience` it is for the class.
+ */
+export interface ShowcaseArtifact {
+  projectId: string;
+  /** Collab room to open on the projector to feature it live (Studio). */
+  roomId?: string;
+  name: string;
+  place?: WorkPlace;
+  /** Where the work opens in the app. */
+  deepLink?: string;
+  /** Shown to the class (the teacher may feature it), or for the teacher only. */
+  audience?: 'class' | 'teacher';
+}
 
 /**
  * Discriminated payload for a single student response. Persistence is on the
@@ -159,10 +199,10 @@ export type InteractionResponsePayload =
       result: Record<string, unknown>;
     }
   | {
-      // Phase 3 — a student's offer to share their Studio project. Teacher-only
+      // Phase 3 — a student's offer to share their work. Teacher-only
       // (Rule 2: hard-refused from the projector like check-ins).
       kind: 'showcase';
-      artifact: { projectId: string; roomId?: string; name: string };
+      artifact: ShowcaseArtifact;
     }
   /**
    * A student's Echo rounds on a slide, upserted once a round. Teacher-only

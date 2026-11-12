@@ -1,0 +1,2678 @@
+[
+  {
+    "id": "drum-kit-selector",
+    "area": "components/Controls"
+  },
+  {
+    "id": "drum-machine-view",
+    "area": "components/Controls"
+  },
+  {
+    "id": "instrument-picker",
+    "area": "components/Controls"
+  },
+  {
+    "id": "synth-controls",
+    "area": "components/Controls"
+  },
+  {
+    "id": "synth-preset-selector",
+    "area": "components/Controls"
+  },
+  {
+    "id": "ducker-key-select",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-amp",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-chorus",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-compressor",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-de-esser",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-delay",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-ducker",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-eq",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-flanger",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-gate",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-multiband",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-overdrive",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-phaser",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-presence",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-reverb",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-saturator",
+    "area": "components/Effects"
+  },
+  {
+    "id": "fx-slot-wah",
+    "area": "components/Effects"
+  },
+  {
+    "id": "leadsheet-chord-0-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-0-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-0-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-0-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-1-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-1-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-1-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-1-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-10-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-10-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-10-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-10-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-11-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-11-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-11-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-11-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-12-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-12-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-12-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-12-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-13-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-13-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-13-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-13-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-14-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-14-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-14-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-14-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-15-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-15-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-15-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-15-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-16-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-16-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-16-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-16-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-17-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-17-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-17-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-17-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-18-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-18-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-18-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-18-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-19-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-19-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-19-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-19-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-2-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-2-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-2-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-2-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-20-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-20-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-20-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-20-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-21-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-21-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-21-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-21-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-22-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-22-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-22-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-22-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-23-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-23-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-23-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-23-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-24-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-24-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-24-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-24-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-25-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-25-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-25-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-25-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-26-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-26-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-26-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-26-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-27-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-27-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-27-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-27-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-28-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-28-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-28-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-28-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-29-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-29-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-29-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-29-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-3-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-3-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-3-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-3-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-30-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-30-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-30-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-30-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-31-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-31-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-31-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-31-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-32-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-32-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-32-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-32-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-33-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-33-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-33-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-33-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-34-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-34-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-34-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-34-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-35-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-35-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-35-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-35-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-36-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-36-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-36-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-36-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-37-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-37-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-37-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-37-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-38-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-38-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-38-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-38-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-39-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-39-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-39-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-39-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-4-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-4-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-4-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-4-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-40-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-40-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-40-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-40-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-41-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-41-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-41-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-41-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-42-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-42-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-42-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-42-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-43-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-43-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-43-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-43-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-44-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-44-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-44-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-44-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-45-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-45-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-45-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-45-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-46-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-46-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-46-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-46-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-47-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-47-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-47-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-47-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-48-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-48-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-48-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-48-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-49-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-49-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-49-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-49-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-5-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-5-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-5-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-5-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-50-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-50-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-50-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-50-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-51-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-51-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-51-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-51-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-52-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-52-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-52-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-52-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-53-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-53-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-53-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-53-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-54-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-54-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-54-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-54-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-55-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-55-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-55-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-55-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-56-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-56-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-56-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-56-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-57-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-57-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-57-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-57-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-58-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-58-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-58-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-58-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-59-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-59-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-59-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-59-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-6-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-6-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-6-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-6-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-60-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-60-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-60-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-60-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-61-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-61-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-61-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-61-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-62-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-62-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-62-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-62-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-63-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-63-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-63-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-63-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-7-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-7-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-7-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-7-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-8-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-8-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-8-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-8-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-9-0",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-9-1",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-9-2",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-9-3",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-chord-input",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "leadsheet-sheet",
+    "area": "components/LeadSheet"
+  },
+  {
+    "id": "insight-chords",
+    "area": "components/Library"
+  },
+  {
+    "id": "piano-roll-bar",
+    "area": "components/PianoRoll"
+  },
+  {
+    "id": "piano-roll-grid",
+    "area": "components/PianoRoll"
+  },
+  {
+    "id": "piano-roll-quantize",
+    "area": "components/PianoRoll"
+  },
+  {
+    "id": "prism-chord-selection",
+    "area": "components/Prism"
+  },
+  {
+    "id": "prism-create",
+    "area": "components/Prism"
+  },
+  {
+    "id": "prism-harmony",
+    "area": "components/Prism"
+  },
+  {
+    "id": "prism-key",
+    "area": "components/Prism"
+  },
+  {
+    "id": "prism-panel",
+    "area": "components/Prism"
+  },
+  {
+    "id": "prism-rhythm",
+    "area": "components/Prism"
+  },
+  {
+    "id": "prism-style",
+    "area": "components/Prism"
+  },
+  {
+    "id": "score-note-input",
+    "area": "components/Score"
+  },
+  {
+    "id": "score-staves",
+    "area": "components/Score"
+  },
+  {
+    "id": "score-staves-none",
+    "area": "components/Score"
+  },
+  {
+    "id": "score-toolbar",
+    "area": "components/Score"
+  },
+  {
+    "id": "automation-lane",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "automation-param-select",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "loop-region",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-chord-lane",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-0",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-1",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-10",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-11",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-12",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-13",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-14",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-15",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-2",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-3",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-4",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-5",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-6",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-7",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-8",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-0-9",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-0",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-1",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-10",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-11",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-12",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-13",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-14",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-15",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-2",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-3",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-4",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-5",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-6",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-7",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-8",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-1-9",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-0",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-1",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-10",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-11",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-12",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-13",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-14",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-15",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-2",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-3",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-4",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-5",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-6",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-7",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-8",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-2-9",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-0",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-1",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-10",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-11",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-12",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-13",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-14",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-15",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-2",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-3",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-4",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-5",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-6",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-7",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-8",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-3-9",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-0",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-1",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-10",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-11",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-12",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-13",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-14",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-15",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-2",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-3",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-4",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-5",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-6",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-7",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-8",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-4-9",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-0",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-1",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-10",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-11",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-12",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-13",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-14",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-15",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-2",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-3",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-4",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-5",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-6",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-7",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-8",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-5-9",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-0",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-1",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-10",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-11",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-12",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-13",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-14",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-15",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-2",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-3",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-4",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-5",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-6",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-7",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-8",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-6-9",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-0",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-1",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-10",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-11",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-12",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-13",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-14",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-15",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-2",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-3",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-4",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-5",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-6",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-7",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-8",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-7-9",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-0",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-1",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-10",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-11",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-12",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-13",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-14",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-15",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-2",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-3",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-4",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-5",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-6",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-7",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-8",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-8-9",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-0",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-1",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-10",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-11",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-12",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-13",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-14",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-15",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-2",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-3",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-4",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-5",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-6",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-7",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-8",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-9-9",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-clip-selected",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-0",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-1",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-2",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-3",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-4",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-5",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-6",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-7",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-8",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-9",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-end-0",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-end-1",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-end-2",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-end-3",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-end-4",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-end-5",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-end-6",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-end-7",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-end-8",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-lane-end-9",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-loop-strip",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "timeline-ruler",
+    "area": "components/Timeline"
+  },
+  {
+    "id": "chanstrip-tab-controls",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "chanstrip-tab-fx",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "chanstrip-tab-piano-roll",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "count-in-choices",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "count-in-menu",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "dock-automation",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "key-popover",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "metronome-toggle",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "musical-typing",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "song-key",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "song-time-signature",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "transport-loop",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "transport-play",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "transport-record",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "transport-to-start",
+    "area": "shell/bottombar"
+  },
+  {
+    "id": "clip-edit-pill",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-addMarker",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-comment",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-copy",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-createClip",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-cut",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-delete",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-deleteChord",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-deleteMarker",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-deleteSection",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-duplicate",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-duplicateSection",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-editChord",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-fadeIn",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-fadeOut",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-insertChord",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-learnSections",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-loopSection",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-mute",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-paste",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-prism",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-prism:upgrade",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-prompt:section",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-quantize:grid",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-rename",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-renameMarker",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-renameSection",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "clip-menu-split",
+    "area": "shell/canvas/clipMenu"
+  },
+  {
+    "id": "add-section",
+    "area": "shell/canvas/sections"
+  },
+  {
+    "id": "sections-lane",
+    "area": "shell/canvas/sections"
+  },
+  {
+    "id": "dock-analyze-notes",
+    "area": "shell/dock"
+  },
+  {
+    "id": "dock-body",
+    "area": "shell/dock"
+  },
+  {
+    "id": "dock-master",
+    "area": "shell/dock"
+  },
+  {
+    "id": "dock-toggle",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-amp",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-chorus",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-compressor",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-de-esser",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-delay",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-ducker",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-eq",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-flanger",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-gate",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-multiband",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-overdrive",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-phaser",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-presence",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-reverb",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-saturator",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-slot",
+    "area": "shell/dock"
+  },
+  {
+    "id": "fx-add-wah",
+    "area": "shell/dock"
+  },
+  {
+    "id": "export-audio-dialog",
+    "area": "shell/export"
+  },
+  {
+    "id": "export-audio-run",
+    "area": "shell/export"
+  },
+  {
+    "id": "export-notation-leadsheet",
+    "area": "shell/export"
+  },
+  {
+    "id": "export-notation-midi",
+    "area": "shell/export"
+  },
+  {
+    "id": "export-notation-run",
+    "area": "shell/export"
+  },
+  {
+    "id": "export-notation-score",
+    "area": "shell/export"
+  },
+  {
+    "id": "rail-insight",
+    "area": "shell/inspector"
+  },
+  {
+    "id": "rail-lessons",
+    "area": "shell/inspector"
+  },
+  {
+    "id": "rail-library",
+    "area": "shell/inspector"
+  },
+  {
+    "id": "rail-people",
+    "area": "shell/inspector"
+  },
+  {
+    "id": "side-rail",
+    "area": "shell/inspector"
+  },
+  {
+    "id": "master-strip",
+    "area": "shell/mix"
+  },
+  {
+    "id": "mastering-chain",
+    "area": "shell/mix"
+  },
+  {
+    "id": "mastering-section",
+    "area": "shell/mix"
+  },
+  {
+    "id": "mixer-fader",
+    "area": "shell/mix"
+  },
+  {
+    "id": "mixer-section",
+    "area": "shell/mix"
+  },
+  {
+    "id": "mixer-sends-A",
+    "area": "shell/mix"
+  },
+  {
+    "id": "mixer-sends-B",
+    "area": "shell/mix"
+  },
+  {
+    "id": "return-fx-A",
+    "area": "shell/mix"
+  },
+  {
+    "id": "return-fx-B",
+    "area": "shell/mix"
+  },
+  {
+    "id": "return-strip-A",
+    "area": "shell/mix"
+  },
+  {
+    "id": "return-strip-B",
+    "area": "shell/mix"
+  },
+  {
+    "id": "prompt-box",
+    "area": "shell/prompt"
+  },
+  {
+    "id": "rail-prompt",
+    "area": "shell/prompt"
+  },
+  {
+    "id": "transport-bpm",
+    "area": "shell/song"
+  },
+  {
+    "id": "export-pill",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "file-analyze",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "file-export-audio",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "file-export-midi",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "file-export-notation",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "file-menu",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "file-save",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "file-save-as",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "redo-button",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "save-chip",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "undo-button",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "view-switch-arrange",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "view-switch-practice",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "view-switch-score",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "view-switch-studio",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "view-tabs",
+    "area": "shell/topbar"
+  },
+  {
+    "id": "add-track-audio",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "add-track-button",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "add-track-drum-machine",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "add-track-midi",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "add-track-soundfont",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "add-track-synth",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "add-track-upload",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "automation-toggle",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-arm-9",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-header-9",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-menu-button",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-mute-9",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-name-9",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-pan-9",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-solo-9",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-0",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-1",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-2",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-3",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-4",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-5",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-6",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-7",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-8",
+    "area": "shell/tracklist"
+  },
+  {
+    "id": "track-volume-9",
+    "area": "shell/tracklist"
+  }
+]

@@ -1,6 +1,5 @@
 import { LayoutGrid, Pause, Play } from 'lucide-react';
 import { prefetchRing } from '@/components/atlas/components/Ring/prefetchRing';
-import { prefetchRiver } from '@/components/atlas/components/River/prefetchRiver';
 import {
   ATLAS_PILL_ZONE,
   ATLAS_SEGMENT,
@@ -15,12 +14,14 @@ import {
 } from '@/components/atlas/navigation/atlasFrame';
 import {
   ATLAS_SECTIONS,
+  sectionFrame,
   sectionOf,
   type AtlasSectionId,
 } from '@/components/atlas/navigation/sections';
 import {
   useAtlasFrame,
   useAtlasNavigate,
+  useAtlasStopSelector,
 } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
   useAtlasDispatch,
@@ -29,33 +30,55 @@ import {
 import { cn } from '@/lib/utils';
 import { usePanelAvailability, useTogglePanel } from './usePanels';
 
+const loadTours = () =>
+  import('@/components/atlas/components/Panels/ToursPanel');
+const prefetchTours = () => void loadTours();
+
 /** The views' names on a phone, where the rail is narrow. */
-const SHORT: Record<AtlasSectionId, string> = {
+const SHORT: Partial<Record<AtlasSectionId, string>> = {
   explore: 'Map',
   ring: 'Ring',
-  eras: 'Eras',
-  regions: 'Places',
+  tours: 'Tours',
 };
 
 /**
- * The views, as the Studio's Create · Mix · Score: the map, the timeline of
- * the world's regions, and that timeline opened into regions and cities.
- * Switching keeps the stop and adds no step to Back.
+ * The views, as the Studio's Create · Mix · Score: the map, the ring of
+ * connections, and the map with its tours (pathways and guided tours, a
+ * running one included). Switching keeps the stop and adds no step to Back,
+ * but leaving Tours puts its panel away and ends a running journey.
  */
 function ViewTabs({ short }: { short: boolean }) {
-  const active = useAtlasFrame(sectionOf);
+  const shown = useAtlasFrame(sectionOf);
+  const choice = useAtlasFrame((frame) => frame.panel);
+  const inJourney = useAtlasStopSelector(
+    (stop) => stop.kind === 'pathway' || stop.kind === 'tour',
+  );
+  const active = inJourney && shown === 'explore' ? 'tours' : shown;
   const navigate = useAtlasNavigate();
+  const open = (id: AtlasSectionId) => {
+    if (id === 'tours' || id === active) {
+      navigate.toSection(id);
+    } else if (inJourney) {
+      navigate.go({ kind: 'home' }, { frame: sectionFrame(id) });
+    } else {
+      navigate.setFrame({
+        ...sectionFrame(id),
+        ...(choice === 'tours' && { panel: null }),
+      });
+    }
+  };
   return (
     <nav aria-label="Globe sections" className={ATLAS_PILL_ZONE}>
       {ATLAS_SECTIONS.map((section) => {
-        const label = short ? SHORT[section.id] : section.label;
-        const river = section.id === 'eras' || section.id === 'regions';
-        const ring = section.id === 'ring';
-        const prefetch = river
-          ? prefetchRiver
-          : ring
+        const label = short
+          ? (SHORT[section.id] ?? section.label)
+          : section.label;
+        const prefetch =
+          section.id === 'ring'
             ? prefetchRing
-            : undefined;
+            : section.id === 'tours'
+              ? prefetchTours
+              : undefined;
         return (
           <button
             key={section.id}
@@ -63,7 +86,7 @@ function ViewTabs({ short }: { short: boolean }) {
             aria-label={short ? section.label : undefined}
             className={cn(ATLAS_SEGMENT, short && 'px-3')}
             type="button"
-            onClick={() => navigate.toSection(section.id)}
+            onClick={() => open(section.id)}
             onFocus={prefetch}
             onPointerEnter={prefetch}
           >

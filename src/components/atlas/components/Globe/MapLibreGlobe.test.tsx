@@ -16,6 +16,7 @@ import {
   type AtlasStore,
 } from '@/components/atlas/state/atlasStore';
 import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
+import { LIFT_PITCH } from './liftLayers';
 import type { PickedFeature } from './mapPicking';
 import { LAYER } from './mapStyle';
 import { FLIGHT_EVENT } from './useMapPhase';
@@ -190,7 +191,11 @@ const mockReducedMotion = (reduce: boolean) => {
   })) as typeof window.matchMedia;
 };
 
-function setup(store: AtlasStore = createAtlasStore(), reduceMotion = false) {
+function setup(
+  store: AtlasStore = createAtlasStore(),
+  reduceMotion = false,
+  path = '/globe',
+) {
   mockReducedMotion(reduceMotion);
   let search = '';
   const Where = () => {
@@ -198,7 +203,7 @@ function setup(store: AtlasStore = createAtlasStore(), reduceMotion = false) {
     return null;
   };
   render(
-    <MemoryRouter initialEntries={['/globe']}>
+    <MemoryRouter initialEntries={[path]}>
       <AtlasStoreProvider store={store}>
         <AtlasNavigationProvider>
           <TimeCameraProvider>
@@ -265,11 +270,13 @@ describe('clicks on the MapLibre globe', () => {
     const flight = map.flyTo.mock.calls.at(-1)![0];
     expect(flight).toMatchObject({
       essential: false,
-      padding: expect.objectContaining({ left: 238, right: 0 }),
+      padding: expect.objectContaining({ left: 277, right: 0 }),
     });
     expect(flight.center[0]).toBeCloseTo(-54);
     expect(flight.center[1]).toBeLessThan(-14);
     expect(flight.zoom).toBeLessThanOrEqual(6);
+    // Chosen on the globe in view: it flies from there, with no cut first.
+    expect(map.jumpTo).not.toHaveBeenCalled();
   });
 
   it('open a state with its country', () => {
@@ -302,7 +309,7 @@ describe('the map’s corners', () => {
 });
 
 describe('the MapLibre camera', () => {
-  /** A page opened on a deep link to Lagos. */
+  /** A page opened on a deep link to an event in Lagos. */
   const deepLink = (reduce: boolean) =>
     setup(
       createAtlasStore({
@@ -310,6 +317,7 @@ describe('the MapLibre camera', () => {
         searchFlyTarget: { lat: 6.5, lng: 3.4, zoom: 8 },
       }),
       reduce,
+      '/globe?event=evt-lagos',
     );
 
   it('starts a deep link over its target, then flies in', async () => {
@@ -354,8 +362,29 @@ describe('the MapLibre camera', () => {
           center: [-90.07, 29.95],
           zoom: 7,
           // The Inspector is not measured yet: its width is assumed.
-          padding: expect.objectContaining({ left: 238, right: 0 }),
+          padding: expect.objectContaining({ left: 277, right: 0 }),
         }),
+        FLIGHT_EVENT,
+      ),
+    );
+  });
+
+  it('frames a tour’s or a pathway’s step on its lifted region, tilted', async () => {
+    const { map } = setup(
+      createAtlasStore({
+        ...initialAppState,
+        activeModule: { moduleId: 'blues-to-rock', currentStep: 0 },
+        searchFlyTarget: {
+          lat: 6.5,
+          lng: 3.4,
+          zoom: 10,
+          frame: { kind: 'city', zoom: 10, cityId: 'lagos' },
+        },
+      }),
+    );
+    await waitFor(() =>
+      expect(map.flyTo).toHaveBeenCalledWith(
+        expect.objectContaining({ pitch: LIFT_PITCH }),
         FLIGHT_EVENT,
       ),
     );

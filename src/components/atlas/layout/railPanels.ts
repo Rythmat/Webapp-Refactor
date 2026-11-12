@@ -1,4 +1,10 @@
-import { Layers, Network, PanelRight, type LucideIcon } from 'lucide-react';
+import {
+  Layers,
+  Network,
+  PanelRight,
+  Route,
+  type LucideIcon,
+} from 'lucide-react';
 import type { InspectorPanelId } from '@/components/atlas/navigation/atlasFrame';
 
 /**
@@ -36,5 +42,13 @@ export const RAIL_PANELS: readonly RailPanel[] = [
   },
 ];
 
+/** Tours: a view tab on the rail rather than an icon (navigation/sections.ts). */
+export const TOURS_PANEL: RailPanel = {
+  id: 'tours',
+  title: 'Tours',
+  hint: 'Tours: pathways and guided tours through music history',
+  icon: Route,
+};
+
 export const railPanel = (id: InspectorPanelId): RailPanel =>
-  RAIL_PANELS.find((p) => p.id === id) ?? RAIL_PANELS[0];
+  [...RAIL_PANELS, TOURS_PANEL].find((p) => p.id === id) ?? RAIL_PANELS[0];

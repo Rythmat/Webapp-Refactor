@@ -24,14 +24,17 @@ export const WordCloudReveal = ({
   }
 
   const maxCount = words[0]?.count ?? 1;
-  const base = size === 'projector' ? 1.4 : 0.85; // rem
-  const span = size === 'projector' ? 3.2 : 1.6;
+  // The projector cloud draws on the 1280×720 canvas, so canvas px; the
+  // panel one sits in the teacher's page, so rem (the app's scale).
+  const unit = size === 'projector' ? 'px' : 'rem';
+  const base = size === 'projector' ? 22 : 0.85;
+  const span = size === 'projector' ? 52 : 1.6;
 
   return (
     <div className="flex flex-wrap items-baseline justify-center gap-x-4 gap-y-1">
       {words.map((w, i) => {
         const weight = maxCount <= 1 ? 1 : w.count / maxCount;
-        const fontSize = `${base + span * weight}rem`;
+        const fontSize = `${base + span * weight}${unit}`;
         const top = i < 3;
         return (
           <motion.span
@@ -42,7 +45,7 @@ export const WordCloudReveal = ({
             style={{ fontSize }}
             className={
               'font-semibold leading-none ' +
-              (top ? 'text-[#7ecfcf]' : 'text-white/70')
+              (top ? 'text-white' : 'text-white/55')
             }
             title={`${w.count}`}
           >

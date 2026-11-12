@@ -37,27 +37,35 @@ import { useWeekGridData } from './useWeekGridData';
 
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-type CalendarMode = 'month' | 'week';
-
 /** Diagonal-hatch fills for non-working days (no hatch utility exists). */
 const HATCH_WEEKEND =
   'repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 7px)';
 const HATCH_HOLIDAY =
   'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 7px)';
-/** App accent (teal) — used for the "today" cell. */
-const TODAY_ACCENT = '#7ecfcf';
+// Today is marked in white: the app keeps colour for meaning (owner,
+// 2026-11-09; the old teal accent is retired).
+const TODAY_ACCENT = '#ffffff';
+
+export type CalendarMode = 'month' | 'week';
 
 interface CalendarViewProps {
   classroomId: string;
   nonSchoolMap: Map<string, NonSchoolDay>;
   /** Open the classroom-settings dialog (button sits beside the semester chips). */
   onOpenSettings: () => void;
+  /**
+   * The view, when the page owns it (the Office's Plan puts its own
+   * List · Week · Month switch on the bottom rail). Without it the calendar
+   * keeps its own Month/Week switch.
+   */
+  mode?: CalendarMode;
 }
 
 export const CalendarView = ({
   classroomId,
   nonSchoolMap,
   onOpenSettings,
+  mode: controlledMode,
 }: CalendarViewProps) => {
   // Shared derivation for the week grid (also feeds the month grid). Single
   // source of truth with the Overview "This Week" card — see useWeekGridData.
@@ -75,7 +83,8 @@ export const CalendarView = ({
   const canEdit = useCanEditClassroom(classroomId);
   // Drag-to-schedule is a write; viewers get a read-only calendar.
   const saveDay = canEdit ? saveDayRaw : () => {};
-  const [mode, setMode] = useState<CalendarMode>('month');
+  const [ownMode, setMode] = useState<CalendarMode>('month');
+  const mode = controlledMode ?? ownMode;
   const [view, setView] = useState<ViewMonth>(() => resolveInitialMonth(today));
   const [weekAnchor, setWeekAnchor] = useState<Date>(() =>
     resolveInitialWeek(today),
@@ -165,6 +174,19 @@ export const CalendarView = ({
     setMode(next);
   };
 
+  // A page that owns the view switches it from outside: keep the cursors in
+  // step the same way `changeMode` does.
+  const [lastMode, setLastMode] = useState(mode);
+  if (controlledMode && controlledMode !== lastMode) {
+    setLastMode(controlledMode);
+    if (controlledMode === 'week') {
+      setWeekAnchor(firstWeekdayWeekAnchor(view.year, view.month));
+    } else {
+      const wed = weekCal.days[3];
+      setView({ year: wed.getFullYear(), month: wed.getMonth() + 1 });
+    }
+  }
+
   // Representative month for the active view (the week's Wednesday in week
   // mode, so a month-straddling week highlights the right semester chip).
   const activeMonth =
@@ -177,15 +199,17 @@ export const CalendarView = ({
     <section className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <SegmentedControl
-            label="Calendar view"
-            options={[
-              { value: 'month', label: 'Month' },
-              { value: 'week', label: 'Week' },
-            ]}
-            value={mode}
-            onChange={changeMode}
-          />
+          {controlledMode ? null : (
+            <SegmentedControl
+              label="Calendar view"
+              options={[
+                { value: 'month', label: 'Month' },
+                { value: 'week', label: 'Week' },
+              ]}
+              value={mode}
+              onChange={changeMode}
+            />
+          )}
           <button
             type="button"
             onClick={goPrev}
@@ -405,7 +429,7 @@ const WeekRow = ({
               dropIso === iso
                 ? 'bg-white/[0.06] ring-2 ring-white/40'
                 : isToday
-                  ? 'ring-1 ring-[#7ecfcf]/50'
+                  ? 'ring-1 ring-white/50'
                   : ''
             }`}
           >

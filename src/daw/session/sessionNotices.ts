@@ -12,6 +12,10 @@ import type {
   OpenOutcome,
   SessionUser,
 } from './types';
+import {
+  sessionDisplayName,
+  UNTITLED_SESSION,
+} from '@/lib/studio-projects/sessionName';
 
 // ── What an open tells the student (milestone 1.4) ─────────────────────────
 //
@@ -69,7 +73,7 @@ function restoreDraft(draftId: string): void {
 }
 
 const draftName = (meta: Pick<DraftMeta, 'name'>): string =>
-  meta.name?.trim() || 'Untitled Project';
+  sessionDisplayName(meta.name);
 
 /**
  * The work an open replaced was kept: Restore brings it back (not in a
@@ -162,7 +166,7 @@ function announceBootNotice(notice: BootNotice): void {
       return;
     case 'recovered':
       showNotice('Unsaved work was recovered', {
-        description: notice.name || 'Untitled Project',
+        description: sessionDisplayName(notice.name),
         action: { label: 'Open', onClick: () => restoreDraft(notice.draftId) },
         secondaryAction: {
           label: 'View',
@@ -232,7 +236,7 @@ function announceUnsavedElsewhere(notice: {
   if (readNoticed().has(notice.draftId)) return;
   markNoticed(notice.draftId);
   showNotice(`Unsaved work from ${whenLabel(notice.at)} is in Projects`, {
-    description: notice.name || 'Untitled Project',
+    description: sessionDisplayName(notice.name),
     action: {
       label: 'View',
       onClick: () => viewInProjects(notice.draftId),
@@ -292,7 +296,7 @@ export function announceLegacyKeptNotice(): void {
   } catch {
     return;
   }
-  let name = 'Untitled Project';
+  let name = UNTITLED_SESSION;
   try {
     const slot = JSON.parse(raw) as { projectName?: unknown };
     if (typeof slot.projectName === 'string' && slot.projectName.trim()) {

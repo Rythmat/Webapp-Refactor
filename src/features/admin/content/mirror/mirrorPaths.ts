@@ -117,6 +117,8 @@ export function segmentForKind(kind: string): string | null {
     case 'chord_progression':
     case 'music_literacy':
       return '/learn';
+    case 'studio_lesson':
+      return '/studio';
     case 'globe_event':
     case 'globe_city':
     case 'artist_location':
@@ -143,8 +145,10 @@ export function consoleAppPath(pathname: string): string | null {
   if (pathname.startsWith('/console/lessons/')) return '/learn';
   // Music Literacy is a Learn series; its editor belongs with it.
   if (pathname.startsWith('/console/music-literacy')) return '/learn';
-  // Instrument content is what the Studio's Grooves and Parts tabs play.
+  // Instrument content is what the Studio's Grooves and Parts tabs play,
+  // and its lessons are the Studio's Production lessons.
   if (
+    pathname.startsWith('/console/studio-lessons') ||
     pathname.startsWith('/console/grooves') ||
     pathname.startsWith('/console/bass-lines') ||
     pathname.startsWith('/console/parts')

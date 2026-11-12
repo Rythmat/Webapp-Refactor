@@ -10,6 +10,7 @@ export const ChoiceInput = ({
   disabled,
 }: InteractionInputProps) => {
   const multi = interaction.choice?.multi ?? false;
+  const es = language === 'es';
   const options = interaction.choice?.options ?? [];
 
   const initial = useMemo(() => {
@@ -75,7 +76,13 @@ export const ChoiceInput = ({
       </ul>
       <div className="flex items-center justify-between">
         <span className="text-xs text-white/50">
-          {multi ? 'Select one or more.' : 'Select the option that best fits.'}
+          {multi
+            ? es
+              ? 'Elige una o más.'
+              : 'Select one or more.'
+            : es
+              ? 'Elige la que mejor encaje.'
+              : 'Select the option that best fits.'}
         </span>
         <button
           type="button"
@@ -85,7 +92,7 @@ export const ChoiceInput = ({
           }
           className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Submit
+          {es ? 'Enviar' : 'Submit'}
         </button>
       </div>
     </div>

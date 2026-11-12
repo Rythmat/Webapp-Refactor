@@ -43,6 +43,7 @@ vi.mock('@/daw/components/Prism/CircleOfFifths', () => ({
 }));
 vi.mock('@/daw/hooks/useTransport', () => ({ seekTo: vi.fn() }));
 
+import { useAppRail } from '@/layouts/DashboardLayout/appRailStore';
 import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import {
   DEFAULT_EXPORT_CHOICES,
@@ -209,7 +210,7 @@ describe('the top bar', () => {
     expect(bar.style.gridTemplateColumns).toBe('auto auto auto');
   });
 
-  it('has Export, its icon only and bare, between Settings and the avatar', () => {
+  it('has Export, its icon only and bare, after Settings at the bar’s end', () => {
     renderBar();
     const share = screen.getByRole('group', { name: 'Song and account' });
     const pill = within(share).getByTestId('export-pill');
@@ -220,7 +221,8 @@ describe('the top bar', () => {
     const after = (a: Element, b: Element) =>
       Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
     expect(after(screen.getByTestId('top-bar-overflow'), pill)).toBe(true);
-    expect(after(pill, screen.getByTestId('avatar-menu'))).toBe(true);
+    // The avatar moved to the app rail (owner, 2026-11-10).
+    expect(screen.queryByTestId('avatar-menu')).toBeNull();
   });
 
   it('has no white button (Export lost its pill, 2026-10-21)', () => {
@@ -261,14 +263,16 @@ describe('the top bar', () => {
     expect(usePaletteStore.getState().isOpen).toBe(true);
   });
 
-  it('shows the student in the account menu', () => {
+  it('opens the app rail from its left end while the rail is shut', () => {
+    useAppRail.setState({ open: false });
     renderBar();
-    fireEvent.keyDown(screen.getByTestId('avatar-menu'), { key: 'Enter' });
-    expect(screen.getByTestId('avatar-menu-stats')).toHaveTextContent(
-      'Level 4 · 1,250 XP',
+    const project = screen.getByRole('group', { name: 'Project' });
+    const toggle = within(project).getByRole('button', {
+      name: 'Open sidebar',
+    });
+    fireEvent.click(toggle);
+    expect(useAppRail.getState().sheetOpen || useAppRail.getState().open).toBe(
+      true,
     );
-    expect(
-      screen.getByRole('menuitem', { name: /Back to Home/ }),
-    ).toBeInTheDocument();
   });
 });

@@ -114,7 +114,13 @@ export const GenreSectionPills = ({
  * pills (owner, 2026-10-25). They set the URL (?difficulty=, ?genre=,
  * ?saved=), which the song list below follows (SongLibraryBody's `clear`).
  */
-export const SongFilterPills = () => {
+export const SongFilterPills = ({
+  genre = true,
+}: {
+  /** The Genre pill: off on /songs, where Genre is a view (owner,
+   *  2026-11-11). */
+  genre?: boolean;
+} = {}) => {
   const [params, setParams] = useSearchParams();
   const set = (key: string, value: string) =>
     setParams(
@@ -138,12 +144,14 @@ export const SongFilterPills = () => {
         options={DIFFICULTY_OPTIONS}
         onChange={(v) => set('difficulty', v)}
       />
-      <PromptFilterPill
-        label="Genre"
-        value={params.get('genre') ?? 'all'}
-        options={GENRE_OPTIONS}
-        onChange={(v) => set('genre', v)}
-      />
+      {genre && (
+        <PromptFilterPill
+          label="Genre"
+          value={params.get('genre') ?? 'all'}
+          options={GENRE_OPTIONS}
+          onChange={(v) => set('genre', v)}
+        />
+      )}
       <PromptFilterPill
         label="Saved"
         value={params.get('saved') ?? 'all'}

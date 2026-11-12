@@ -1,4 +1,9 @@
 import { useState } from 'react';
+import { PassMoment, SectionMoment } from '@/curriculum/flow/PassMoment';
+import { StageRail } from '@/curriculum/flow/StageRail';
+import { StageTransition } from '@/curriculum/flow/StageTransition';
+import { XpRise } from '@/curriculum/flow/XpRise';
+import { useStepFlow } from '@/curriculum/flow/useStepFlow';
 import { GuitarAboutStepSheet, useAboutStepNews } from './GuitarAboutStepSheet';
 import { GuitarActionBar } from './GuitarActionBar';
 import { GuitarInputIndicator } from './GuitarInputIndicator';
@@ -62,6 +67,23 @@ export function GuitarLessonLayout({
 
   /** The container passes the setup dialog only while it is open. */
   const setupOpen = slots.setupModal != null && slots.setupModal !== false;
+
+  const flow = useStepFlow({
+    stepKey:
+      overview || offer
+        ? null
+        : `${nav.sections.find((s) => s.active)?.id}|${nav.index}`,
+    run,
+    paused: settingsOpen || aboutOpen || setupOpen,
+    takeEnded: result !== null,
+    xpScope: `${header.crumbs.at(-1)?.label}:${header.keyLabel}`,
+    pass: {
+      advance: result?.result.passed ? result.next : null,
+      nextLabel: nav.steps[nav.index + 1]?.title,
+      score: result ? `${Math.round(result.result.overallScore * 100)}%` : null,
+      detail: result?.feedback,
+    },
+  });
 
   useGuitarStepKeys({
     enabled:
@@ -181,14 +203,35 @@ export function GuitarLessonLayout({
         // is in About this step).
         variant="centered"
         state={barState}
-        run={run}
+        run={flow.run}
         tempo={tempo}
         practice={practice}
         input={input}
-        result={result}
+        result={
+          result && {
+            ...result,
+            retry: () => {
+              result.retry();
+              flow.performAgain();
+            },
+          }
+        }
         offer={offer}
-        custom={overview ? barCustom : undefined}
+        custom={overview ? barCustom : flow.zones(tempo)}
+        rail={
+          !flow.available || overview ? undefined : (
+            <StageRail flow={flow} accent={header.keyColor} />
+          )
+        }
       />
+      <StageTransition flow={flow} accent={header.keyColor} />
+      <PassMoment flow={flow} accent={header.keyColor} />
+      <SectionMoment
+        end={offer?.autoContinue ? offer : null}
+        flow={flow}
+        accent={header.keyColor}
+      />
+      <XpRise muted={flow.status === 'passed'} />
 
       <GuitarSettingsSheet
         open={settingsOpen}

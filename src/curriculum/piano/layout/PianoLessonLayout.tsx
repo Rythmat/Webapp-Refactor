@@ -1,4 +1,9 @@
 import { useContext, useState, type ReactNode, type RefObject } from 'react';
+import { PassMoment, SectionMoment } from '@/curriculum/flow/PassMoment';
+import { StageRail } from '@/curriculum/flow/StageRail';
+import { StageTransition } from '@/curriculum/flow/StageTransition';
+import { XpRise } from '@/curriculum/flow/XpRise';
+import { useStepFlow } from '@/curriculum/flow/useStepFlow';
 import {
   GuitarActionBar,
   type Zones,
@@ -50,7 +55,7 @@ import './pianoLayout.css';
 //             result or the section-complete offer take its place
 //   keyboard  the full-width lesson keyboard with the target notes
 //   bar       pinned at the bottom, centred under the keyboard
-//             (GuitarActionBar 'centered'): Demo / Practice / Play Now, big,
+//             (GuitarActionBar 'centered'): Demo / Practice / Perform, big,
 //             then Back / Perform, Stop, the result's Try Again / Next, the
 //             section's offer. The instruction is in About this step.
 
@@ -110,6 +115,23 @@ export function PianoLessonLayout({
     restartingPass: run.restartingPass,
     hasResult: result !== null,
     hasOffer: offer !== null,
+  });
+
+  const flow = useStepFlow({
+    stepKey:
+      overview || offer
+        ? null
+        : `${nav.sections.find((s) => s.active)?.id}|${nav.index}`,
+    run,
+    paused: settingsOpen || aboutOpen,
+    takeEnded: result !== null,
+    xpScope: `${header.crumbs.at(-1)?.label}:${header.keyLabel}`,
+    pass: {
+      advance: result?.result.passed ? result.next : null,
+      nextLabel: nav.steps[nav.index + 1]?.title,
+      score: result ? `${Math.round(result.result.overallScore * 100)}%` : null,
+      detail: result?.feedback,
+    },
   });
 
   useGuitarStepKeys({
@@ -229,13 +251,34 @@ export function PianoLessonLayout({
       <GuitarActionBar
         variant="centered"
         state={barState}
-        run={run}
+        run={flow.run}
         tempo={tempo}
         practice={{ presets: [] }}
-        result={result}
+        result={
+          result && {
+            ...result,
+            retry: () => {
+              result.retry();
+              flow.performAgain();
+            },
+          }
+        }
         offer={offer}
-        custom={barCustom}
+        custom={barCustom ?? flow.zones(tempo)}
+        rail={
+          !flow.available || overview ? undefined : (
+            <StageRail flow={flow} accent={header.keyColor} />
+          )
+        }
       />
+      <StageTransition flow={flow} accent={header.keyColor} />
+      <PassMoment flow={flow} accent={header.keyColor} />
+      <SectionMoment
+        end={offer?.autoContinue ? offer : null}
+        flow={flow}
+        accent={header.keyColor}
+      />
+      <XpRise muted={flow.status === 'passed'} />
 
       <PianoSettingsSheet
         open={settingsOpen}

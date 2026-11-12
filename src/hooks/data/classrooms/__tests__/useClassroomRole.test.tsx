@@ -14,6 +14,7 @@ import { http, HttpResponse } from 'msw';
 import type { ReactNode } from 'react';
 import SuperJSON from 'superjson';
 import { describe, expect, it, vi } from 'vitest';
+import { OFFICE_LESSONS_SCOPE } from '@/constants/officeScopes';
 import { MusicAtlasContext } from '@/contexts/MusicAtlasContext/MusicAtlasContext';
 import {
   Api,
@@ -182,5 +183,31 @@ describe('permission split: local edits fail OPEN, server writes fail CLOSED', (
     );
     const { result } = renderHook(() => useCanEditClassroom(CID), { wrapper });
     await waitFor(() => expect(result.current).toBe(false));
+  });
+
+  it('the Office’s own lessons are the teacher’s, with nothing asked', async () => {
+    let teachersCalled = false;
+    mockApi.use(
+      http.get(`${API_BASE}/classrooms`, () =>
+        HttpResponse.json({ message: 'nope' }, { status: 500 }),
+      ),
+      http.get(`${API_BASE}/classrooms/:id/teachers`, () => {
+        teachersCalled = true;
+        return superjson({ owner: {}, teachers: [] });
+      }),
+    );
+    const { result } = renderHook(
+      () => useClassroomRole(OFFICE_LESSONS_SCOPE),
+      { wrapper },
+    );
+    // Even with the class list failing: no guard bounce, no degraded banner.
+    expect(result.current).toMatchObject({
+      role: 'owner',
+      isResolved: true,
+      isDegraded: false,
+    });
+    await new Promise((r) => setTimeout(r, 100));
+    expect(result.current.isDegraded).toBe(false);
+    expect(teachersCalled).toBe(false);
   });
 });

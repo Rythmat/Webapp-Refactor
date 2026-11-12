@@ -17,6 +17,9 @@ import type { MindMapBoard } from '@/content/graph/mindMapBoard';
 import { stripLegacySongSlug } from '../legacySongSlug';
 import { PHASES, type PhaseKey } from '../phases';
 import { deckFromCells } from '../slides/deckFromCells';
+import { isStopRef } from '../slides/globe/slideGlobeStops';
+import { NEVER_PROJECTED } from '../slides/interactionPolicy';
+import { isSlideSection } from '../slides/sections';
 import { isZoneName } from '../slides/slideGrid';
 import {
   SLIDE_BLOCK_KEYS,
@@ -120,6 +123,7 @@ const projectAtlas = (
   activityRef: atlas.activityRef,
   expects: atlas.expects,
   ...(atlas.board ? { board: projectMindMapBoard(atlas.board) } : {}),
+  ...(atlas.follow === true ? { follow: true as const } : {}),
 });
 
 /** An Echo slide's setup, whitelist-copied field by field like the rest. */
@@ -150,22 +154,70 @@ const projectInteraction = (interaction: Interaction): Interaction => {
     id: interaction.id,
     type: interaction.type,
     question: interaction.question,
-    // Rule 2 belt: `check-in` and `echo` are hard-`false` regardless of the
-    // source value.
-    shareable:
-      interaction.type === 'check-in' || interaction.type === 'echo'
-        ? false
-        : interaction.shareable,
+    // Rule 2 belt: check-ins, offers and Echo runs are hard-`false`
+    // regardless of the source value.
+    shareable: NEVER_PROJECTED.has(interaction.type)
+      ? false
+      : interaction.shareable,
   };
   if (interaction.choice) out.choice = interaction.choice;
   if (interaction.number) out.number = interaction.number;
   if (interaction.text) out.text = interaction.text;
   if (interaction.draw) out.draw = interaction.draw;
-  if (interaction.checkIn) out.checkIn = interaction.checkIn;
+  if (interaction.checkIn) {
+    out.checkIn = {
+      style: interaction.checkIn.style,
+      ...(interaction.checkIn.level
+        ? { level: interaction.checkIn.level }
+        : {}),
+    };
+  }
   if (interaction.atlas) out.atlas = projectAtlas(interaction.atlas);
   if (interaction.echo) out.echo = projectEcho(interaction.echo);
   return out;
 };
+
+/** Two finite numbers, and nothing else, for a globe focus. */
+const isLatLng = (v: unknown): v is [number, number] =>
+  Array.isArray(v) &&
+  v.length === 2 &&
+  v.every((n) => typeof n === 'number' && Number.isFinite(n));
+
+type GlobeStopStory = NonNullable<
+  NonNullable<
+    Extract<SlideMedia, { type: 'globePreview' }>['stops']
+  >[number]['story']
+>;
+
+/** A YouTube video id, and nothing else. */
+const isVideoId = (v: unknown): v is string =>
+  typeof v === 'string' && /^[A-Za-z0-9_-]{6,20}$/.test(v);
+
+/** The most pages a story's card toggles between, its first included. */
+const STORY_PAGES_MAX = 4;
+
+/** A globe stop's story: its words, and a picture by id only. */
+const projectStopStory = (story: GlobeStopStory): GlobeStopStory => ({
+  title: projectLocalized(story.title),
+  ...(story.body ? { body: projectLocalized(story.body) } : {}),
+  ...(isVideoId(story.videoId) ? { videoId: story.videoId } : {}),
+  ...(story.tab ? { tab: projectLocalized(story.tab) } : {}),
+  ...(Array.isArray(story.pages) && story.pages.length > 0
+    ? {
+        pages: story.pages.slice(0, STORY_PAGES_MAX - 1).map((page) => ({
+          tab: projectLocalized(page.tab),
+          ...(page.label ? { label: projectLocalized(page.label) } : {}),
+          title: projectLocalized(page.title),
+          ...(page.body ? { body: projectLocalized(page.body) } : {}),
+          ...(isVideoId(page.videoId) ? { videoId: page.videoId } : {}),
+        })),
+      }
+    : {}),
+  ...(typeof story.songId === 'string' &&
+  /^[a-z0-9_-]{1,80}$/.test(story.songId)
+    ? { songId: story.songId }
+    : {}),
+});
 
 const projectSlideMedia = (media: SlideMedia): SlideMedia => {
   switch (media.type) {
@@ -191,6 +243,29 @@ const projectSlideMedia = (media: SlideMedia): SlideMedia => {
           : {}),
         ...(media.arcs !== undefined
           ? { arcs: media.arcs.map((a) => ({ from: a.from, to: a.to })) }
+          : {}),
+        ...(isLatLng(media.focus)
+          ? { focus: [media.focus[0], media.focus[1]] as [number, number] }
+          : {}),
+        ...(media.stops !== undefined
+          ? {
+              stops: media.stops
+                .filter((stop) => isLatLng(stop.location))
+                .map((stop) => ({
+                  location: [stop.location[0], stop.location[1]] as [
+                    number,
+                    number,
+                  ],
+                  ...(stop.label
+                    ? { label: projectLocalized(stop.label) }
+                    : {}),
+                  // A place or an event by id, or a position; nothing else.
+                  ...(isStopRef(stop.ref) ? { ref: stop.ref } : {}),
+                  ...(stop.story
+                    ? { story: projectStopStory(stop.story) }
+                    : {}),
+                })),
+            }
           : {}),
       };
     case 'globePathway':
@@ -350,6 +425,8 @@ const projectSlide = (slide: Slide): Slide => {
   const common = {
     id: slide.id,
     phase: slide.phase,
+    // An enum token, and only when it names a real section.
+    ...(isSlideSection(slide.section) ? { section: slide.section } : {}),
     // Through `projectLocalized`, not by reference. `projectElement` already
     // does this for element text; the slide-level fields did not, so a
     // `LocalizedText` carrying an extra key kept it — the object is a teacher's
@@ -371,6 +448,10 @@ const projectSlide = (slide: Slide): Slide => {
       ? { hidePhaseLabel: slide.hidePhaseLabel }
       : {}),
     ...(slide.accentBar !== undefined ? { accentBar: slide.accentBar } : {}),
+    // A YouTube id and nothing else.
+    ...(slide.recording && isVideoId(slide.recording.videoId)
+      ? { recording: { videoId: slide.recording.videoId } }
+      : {}),
     ...(slide.presetId !== undefined ? { presetId: slide.presetId } : {}),
     // P2: the zone-assigned element list. Absent on legacy slides, which is
     // fine — `resolveElements` derives them at render from the stored `layout`.
@@ -425,6 +506,9 @@ const projectSlide = (slide: Slide): Slide => {
         ...common,
         kind: 'interaction',
         interactionIds: [...slide.interactionIds],
+        ...(slide.body !== undefined
+          ? { body: projectLocalized(slide.body) }
+          : {}),
         ...(slide.media !== undefined
           ? { media: projectSlideMedia(slide.media) }
           : {}),

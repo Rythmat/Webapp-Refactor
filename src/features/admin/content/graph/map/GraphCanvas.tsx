@@ -33,6 +33,7 @@ import { NODE_FLAG_RING } from './render/GraphRenderer';
 import { GRAPH_THEME, readGraphBackground } from './render/graphTheme';
 import { createLabelLayer, type LabelLayer } from './render/labelLayer';
 import {
+  CORTEX_RENDER_THEME,
   createWebglRenderer,
   type WebglGraphRenderer,
   type WebglRendererOptions,
@@ -497,6 +498,7 @@ export const GraphCanvas = forwardRef<HTMLDivElement, GraphCanvasProps>(
       useGraphStage({
         createRenderer,
         createLabels,
+        theme: CORTEX_RENDER_THEME,
         positions: () => layout.positions(),
         onCamera: (camera) => {
           if (!sceneRef.current?.hasPositions()) return;

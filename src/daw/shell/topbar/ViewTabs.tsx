@@ -59,7 +59,11 @@ export const ViewTabs = memo(function ViewTabs() {
       onValueChange={(view) => setCurrentView(view as ViewType)}
       activationMode="manual"
     >
-      <TabList aria-label="Views" className="h-auto gap-0.5 bg-transparent p-0">
+      <TabList
+        aria-label="Views"
+        data-tutorial-id="view-tabs"
+        className="h-auto gap-0.5 bg-transparent p-0"
+      >
         {views.map((v) => (
           <Tab
             key={v.id}

@@ -7,8 +7,9 @@ import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
 // ── CourseEndCard ───────────────────────────────────────────────────────────
 // What a course lesson ends on: it's done, where it sits in the course, and
-// the way on. "Next: <title>" starts the next lesson on the same project,
-// right where the student is (no navigation, no reset); "Back to the course"
+// the way on. "Next: <title>" starts the next lesson on a project of its own,
+// as every lesson starts from a blank one (the song just made is kept, with a
+// Restore); "Back to the course"
 // goes to the course's listing on the Studio dashboard; Done closes the card
 // and leaves the student in the Studio. The course's last lesson ends the
 // course instead.
@@ -155,7 +156,7 @@ export function CourseEndCard({
           }}
         >
           {next
-            ? 'Up next, right here on this song:'
+            ? 'Up next, on a new project:'
             : `You finished every ${course.title} lesson. Nice work!`}
         </p>
       </div>

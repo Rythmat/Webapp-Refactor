@@ -1,11 +1,12 @@
 export {
   CORTEX_LESSON_TEMPLATE_ID,
   MIND_MAP_REF,
-  STUDIO_LIBRARY_REF,
   applyCortexLessonToDay,
   buildCortexLessonContent,
   buildCortexLessonSkeleton,
   cortexLessonTeacherNotes,
+  cortexSkeletonInteractions,
+  isStarterInteraction,
   isUngeneratedCortexDeck,
   roleAvailable,
 } from './buildDeck';

@@ -50,7 +50,7 @@ describe('buildBackingNotes lead-in', () => {
   const build = (countIn: number) =>
     buildBackingNotes(vamp, 62, 1, 'l1a', [], 'funk', countIn);
 
-  // Regression: Play Now started the backing at transport 0 while the student's
+  // Regression: Perform started the backing at transport 0 while the student's
   // bar 1 is two bars in, so the backing ran two bars ahead of the target notes.
   it('starts the bass on the student’s bar 1', () => {
     const bass = build(LEAD_IN).filter((n) => n.part === 'bass');

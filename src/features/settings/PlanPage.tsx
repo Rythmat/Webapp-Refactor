@@ -1,10 +1,8 @@
-/* eslint-disable react/jsx-sort-props */
-/* eslint-disable tailwindcss/classnames-order */
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Check, CheckCircle2, Sparkles } from 'lucide-react';
+import { AlertTriangle, Check, CheckCircle2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { cn } from '@/components/utilities';
 import {
   useBillingConfig,
   useCreditsBalance,
@@ -28,8 +26,21 @@ import {
   formatPeriodDate,
 } from './subscription/subscriptionUtils';
 import { FALLBACK_TIERS } from './subscription/tiers';
+import {
+  ACCOUNT_PILL,
+  ACCOUNT_PILL_PRIMARY,
+  AccountChip,
+  SettingsGroup,
+  SettingsRow,
+} from './ui/accountKit';
 
-export const PlanPage = () => {
+/**
+ * The plans and credits, in the Account area's look (owner, 2026-11-10,
+ * Samply's subscription layout in the app's own colours: no teal, no
+ * yellow). `embedded`: inside Account › Subscription, under that page's own
+ * title, so its header, width and status (the Billing section's) step aside.
+ */
+export const PlanPage = ({ embedded = false }: { embedded?: boolean }) => {
   const { data: billingConfig } = useBillingConfig();
   const { data: credits, isLoading: creditsLoading } = useCreditsBalance();
   const { data: subscription, isLoading: subLoading } = useMySubscription();
@@ -75,110 +86,73 @@ export const PlanPage = () => {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-3xl space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-muted" />
-        <div className="h-4 w-64 animate-pulse rounded bg-muted" />
-        <div className="grid gap-4 sm:grid-cols-2">
-          {[1, 2].map((i) => (
-            <div
-              key={i}
-              className="h-64 animate-pulse rounded-lg border bg-muted"
-            />
-          ))}
-        </div>
+      <div
+        className={cn(
+          'flex flex-col gap-[0.455rem]',
+          !embedded && 'mx-auto max-w-3xl',
+        )}
+      >
+        {[1, 2].map((i) => (
+          <div
+            key={i}
+            className="h-24 animate-pulse rounded-[0.455rem] border border-white/[0.08] bg-white/[0.05]"
+          />
+        ))}
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold">Subscription Plan</h1>
-        <p className="mt-1 text-muted-foreground">
-          Manage your subscription and credits.
-        </p>
-      </div>
-
-      {/* ── Subscription status banner ────────────────────────────────────── */}
-      {uiState !== 'unknown' && (
-        <div
-          className="flex items-start gap-3 rounded-lg border p-4"
-          style={
-            paymentIssue
-              ? {
-                  borderColor: 'rgba(245,158,11,0.35)',
-                  background: 'rgba(245,158,11,0.06)',
-                }
-              : uiState === 'active' || uiState === 'trialing'
-                ? {
-                    borderColor: 'rgba(34,197,94,0.25)',
-                    background: 'rgba(34,197,94,0.06)',
-                  }
-                : {}
-          }
-        >
-          {paymentIssue ? (
-            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-400" />
-          ) : uiState === 'active' || uiState === 'trialing' ? (
-            <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-green-400" />
-          ) : null}
-          <div className="flex-1 space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">
-                {BILLING_STATE_LABEL[uiState]}
-              </span>
-              {subscription?.cancelAtPeriodEnd && periodEndDate && (
-                <span className="text-xs text-muted-foreground">
-                  · Ends {periodEndDate}
-                </span>
-              )}
-              {!subscription?.cancelAtPeriodEnd &&
-                periodEndDate &&
-                isPaidUser && (
-                  <span className="text-xs text-muted-foreground">
-                    · Renews {periodEndDate}
-                  </span>
-                )}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {BILLING_STATE_MESSAGE[uiState]}
-            </p>
-          </div>
+    <div
+      className={cn(
+        'flex flex-col gap-[1.364rem]',
+        !embedded && 'mx-auto max-w-3xl',
+      )}
+    >
+      {!embedded && (
+        <div>
+          <h1 className="text-2xl font-semibold">Subscription Plan</h1>
+          <p className="mt-1 text-white/[0.48]">
+            Manage your subscription and credits.
+          </p>
         </div>
       )}
 
-      {/* ── Credit usage ─────────────────────────────────────────────────── */}
-      <div className="rounded-lg border p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="size-5 text-white/80" />
-            <span className="font-medium">Credits</span>
-          </div>
-          <span className="text-sm text-muted-foreground capitalize">
-            {currentTier} plan
-          </span>
-        </div>
-        <div className="mt-4">
-          <div className="flex justify-between text-sm">
-            <span>{balance} remaining</span>
-            <span className="text-muted-foreground">{allowance} total</span>
-          </div>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-primary transition-all"
-              style={{ width: `${usagePercent}%` }}
-            />
-          </div>
-        </div>
-        {credits?.lifetimeUsed !== undefined && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            {credits.lifetimeUsed} credits used all time
-          </p>
-        )}
-      </div>
+      {/* ── Subscription status (embedded, the Billing section has it) ──── */}
+      {!embedded && uiState !== 'unknown' && (
+        <SettingsGroup>
+          <SettingsRow
+            plain
+            title={
+              <span className="flex items-center gap-2">
+                {paymentIssue ? (
+                  <AlertTriangle
+                    aria-hidden
+                    className="size-4 text-amber-400"
+                  />
+                ) : uiState === 'active' || uiState === 'trialing' ? (
+                  <CheckCircle2 aria-hidden className="size-4" />
+                ) : null}
+                {BILLING_STATE_LABEL[uiState]}
+              </span>
+            }
+            description={BILLING_STATE_MESSAGE[uiState]}
+            action={
+              periodEndDate &&
+              (isPaidUser || subscription?.cancelAtPeriodEnd) ? (
+                <span className="text-[0.795rem] text-white/70">
+                  {subscription?.cancelAtPeriodEnd
+                    ? `Ends ${periodEndDate}`
+                    : `Renews ${periodEndDate}`}
+                </span>
+              ) : undefined
+            }
+          />
+        </SettingsGroup>
+      )}
 
-      {/* ── Tier cards ───────────────────────────────────────────────────── */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      {/* ── The plans, as Samply's: one card each, 8px apart ─────────────── */}
+      <div className="flex flex-col gap-[0.455rem]">
         {tiers.map((tier) => {
           const isCurrent = currentTier === tier.id;
           const canUpgrade =
@@ -190,99 +164,140 @@ export const PlanPage = () => {
           return (
             <div
               key={tier.id}
-              className={`flex flex-col rounded-lg border p-6 ${
-                isCurrent
-                  ? 'border-primary ring-1 ring-primary'
-                  : 'border-border'
-              }`}
+              data-plan={tier.id}
+              className="flex flex-col gap-[0.909rem] rounded-[0.455rem] border border-white/[0.08] bg-white/[0.05] p-[0.909rem] sm:flex-row"
             >
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold">{tier.name}</h3>
-                {isCurrent && (
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                    Current
-                  </span>
-                )}
-              </div>
-              <div className="mt-2">
-                <span className="text-3xl font-bold">{tier.price}</span>
-                <span className="text-sm text-muted-foreground">
-                  {tier.period}
-                </span>
-              </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {tier.credits}
-              </p>
-
-              <ul className="mt-4 flex-1 space-y-2">
-                {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm">
-                    <Check className="mt-0.5 size-4 shrink-0 text-primary" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-6">
+              <div className="flex min-w-0 flex-1 flex-col gap-[0.227rem]">
+                <div className="flex items-center gap-[0.455rem]">
+                  <h3 className="text-[0.909rem] font-semibold leading-[1.364rem] text-white">
+                    {tier.name}
+                  </h3>
+                  {isCurrent && <AccountChip>Current plan</AccountChip>}
+                </div>
+                <p className="text-[0.795rem] leading-[1.136rem] text-white/[0.48]">
+                  {tier.price === '$0'
+                    ? 'Free forever'
+                    : `${tier.price}${tier.period}`}{' '}
+                  ·{' '}
+                  {/^\d+$/.test(String(tier.credits))
+                    ? `${tier.credits} credits`
+                    : tier.credits}
+                </p>
                 {isCurrent && isPaidUser && periodEndDate && (
-                  <p className="mb-2 text-center text-xs text-muted-foreground">
+                  <p className="text-[0.682rem] leading-[0.909rem] text-white/[0.48]">
                     {subscription?.cancelAtPeriodEnd
                       ? `Access until ${periodEndDate}`
                       : `Next billing: ${periodEndDate}`}
                   </p>
                 )}
-                {isCurrent ? (
-                  <Button className="w-full" disabled variant="outline">
-                    Current plan
-                  </Button>
-                ) : canUpgrade ? (
-                  <Button
-                    className="w-full"
+                {canUpgrade && (
+                  <button
+                    type="button"
+                    className={cn(
+                      ACCOUNT_PILL,
+                      ACCOUNT_PILL_PRIMARY,
+                      'mt-[0.909rem] self-start',
+                    )}
                     disabled={checkout.isPending}
                     onClick={() => {
                       trackCheckoutStarted();
                       checkout.mutate();
                     }}
                   >
-                    {checkout.isPending
-                      ? 'Loading…'
-                      : `Upgrade to ${tier.name}`}
-                  </Button>
-                ) : (
-                  <Button className="w-full" disabled variant="outline">
-                    {tier.id === 'free' ? 'Free plan' : 'Current or lower'}
-                  </Button>
+                    {checkout.isPending ? 'Loading…' : 'Upgrade'}
+                  </button>
                 )}
               </div>
+              <ul className="flex min-w-0 flex-1 flex-col gap-[0.227rem]">
+                {tier.features.map((feature) => (
+                  <li
+                    key={feature}
+                    className="flex items-center gap-[0.682rem] text-[0.795rem] leading-[1.136rem] text-white"
+                  >
+                    <Check
+                      aria-hidden
+                      className="size-[0.909rem] shrink-0 text-white/60"
+                    />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
             </div>
           );
         })}
       </div>
 
+      {/* ── Credits, as Samply's storage: a ring and its figure ─────────── */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-[0.682rem]">
+          <svg
+            aria-hidden
+            viewBox="0 0 32 32"
+            className="size-[1.818rem] -rotate-90"
+          >
+            <circle
+              cx="16"
+              cy="16"
+              r="14"
+              fill="none"
+              stroke="rgb(255 255 255 / 0.25)"
+              strokeWidth="2"
+            />
+            <circle
+              cx="16"
+              cy="16"
+              r="14"
+              fill="none"
+              stroke="rgb(255 255 255 / 0.6)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              pathLength={100}
+              strokeDasharray={`${usagePercent} 100`}
+            />
+          </svg>
+          <div className="flex flex-col">
+            <span className="text-[0.682rem] leading-[0.909rem] text-white/[0.48]">
+              Credits left
+            </span>
+            <span className="text-[0.795rem] leading-[1.136rem] text-white">
+              {balance} of {allowance}
+            </span>
+          </div>
+        </div>
+        {credits?.lifetimeUsed !== undefined && (
+          <span className="text-[0.682rem] text-white/[0.48]">
+            {credits.lifetimeUsed} used all time
+          </span>
+        )}
+      </div>
+
       {/* ── Checkout/portal errors ────────────────────────────────────────── */}
       {(checkout.error ?? portal.error) && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <p className="text-[0.795rem] text-red-400">
           {checkout.error?.message ?? portal.error?.message}
-        </div>
+        </p>
       )}
 
-      {/* ── Manage billing ───────────────────────────────────────────────── */}
-      {isPaidUser && (
-        <div className="rounded-lg border p-6">
-          <h3 className="font-medium">Billing</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Manage your payment method, view invoices, or cancel your
-            subscription.
-          </p>
-          <Button
-            className="mt-4"
-            disabled={portal.isPending}
-            variant="outline"
-            onClick={() => portal.mutate()}
-          >
-            {portal.isPending ? 'Loading…' : 'Manage billing'}
-          </Button>
-        </div>
+      {/* ── Manage billing ─────────────────────────────────────────────────
+          Embedded, Account › Subscription's own Billing section has it. */}
+      {isPaidUser && !embedded && (
+        <SettingsGroup>
+          <SettingsRow
+            plain
+            title="Billing"
+            description="Manage your payment method, view invoices, or cancel your subscription."
+            action={
+              <button
+                type="button"
+                className={ACCOUNT_PILL}
+                disabled={portal.isPending}
+                onClick={() => portal.mutate()}
+              >
+                {portal.isPending ? 'Loading…' : 'Manage billing'}
+              </button>
+            }
+          />
+        </SettingsGroup>
       )}
     </div>
   );

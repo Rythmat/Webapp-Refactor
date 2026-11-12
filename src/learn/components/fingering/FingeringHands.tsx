@@ -34,7 +34,7 @@ import type { FingeringTimeline, Hand } from '@/lib/learn/pianoFingering';
 /**
  * The palm fades out at most this far below the keys (a share of their
  * height), and never past what shows of the lesson below them: the hands
- * stop short of the Demo / Practice / Play Now bar, and nothing moves to make
+ * stop short of the Demo / Practice / Perform bar, and nothing moves to make
  * room for them.
  */
 const HAND_ROOM = 0.45;
@@ -72,7 +72,7 @@ function clippingAncestor(el: HTMLElement): HTMLElement | null {
 }
 
 /**
- * The lesson's Demo / Practice / Play Now bar. Some layouts end the keys'
+ * The lesson's Demo / Practice / Perform bar. Some layouts end the keys'
  * scroller where it begins; others pin it to the scroller's bottom, over
  * what scrolls.
  */

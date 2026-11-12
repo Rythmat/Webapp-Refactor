@@ -9,13 +9,16 @@
  * response hooks, the response aggregator, or the enrollment roster.
  */
 import type { ReactNode } from 'react';
-import { PHASE_ACCENT_HEX } from '../presentation/phaseAccent';
 import type { Interaction, StudentLanguage } from '../types';
 import { interactionVariant, mayRevealOn } from './interactionPolicy';
 import { resolveElements } from './migrateDeckV1';
 import { InteractionBand } from './parts/InteractionBand';
 import { slideLiveLayer } from './parts/SlideLiveLayer';
 import { SlideStage } from './parts/SlideStage';
+import { SlideStudio } from './parts/SlideStudio';
+import type { ProjectPlace } from './projectPlaces';
+import { liveRectOf, projectsQuestion, stageKindOf } from './stage';
+import { studioTutorialOf, type StudioFollow } from './studio/slideStudio';
 import type { Slide, SlideSurface } from './types';
 
 export interface SlideSlots {
@@ -33,6 +36,19 @@ export interface SlideSlots {
   reveal?: (interaction: Interaction) => ReactNode;
   /** Small live status element (participation count etc.). */
   statusChip?: ReactNode;
+  /**
+   * The live session a Group Practice slide's Studio does its tutorial with
+   * (Present leads it, the room's screen watches). Absent outside a session:
+   * the Studio runs the tutorial on its own.
+   */
+  studioFollow?: StudioFollow;
+  /**
+   * Student-surface, in a live session: open one of the Individual
+   * Project's places inside the lesson (live/workspace), so the lesson keeps
+   * running around the student's work. Absent elsewhere: the places are
+   * links (Present, previews) or pictures (the room's screen).
+   */
+  openPlace?: (place: ProjectPlace) => void;
 }
 
 export interface SlideRendererProps {
@@ -48,6 +64,11 @@ export interface SlideRendererProps {
    * elements and the gating are identical either way.
    */
   layoutMode?: 'stage' | 'reflow';
+  /**
+   * A thumbnail or a small preview: stills only, so a filmstrip never mounts
+   * video players or live maps.
+   */
+  still?: boolean;
 }
 
 export const SlideRenderer = ({
@@ -57,6 +78,7 @@ export const SlideRenderer = ({
   interactions,
   slots,
   layoutMode,
+  still = false,
 }: SlideRendererProps): JSX.Element => {
   // ── P2 zone mode ────────────────────────────────────────────────────────
   // `content` and `media` are pure layout — no slide-level slots — so they are
@@ -110,17 +132,44 @@ export const SlideRenderer = ({
         ? interactions.slice(0, 1).map((i) => i.id)
         : [];
 
+  // A stage preset draws one thing big (`slides/stage.ts`); a full-screen
+  // interaction slide asks its question on the students' devices only.
+  const stage = stageKindOf(slide);
+  // The Group Practice slide is the Studio itself on the room's screen and
+  // Present (owner, 2026-11-10); a student's device keeps the tutorial's
+  // card and launch, and a still its cover.
+  const projected = surface === 'projector' || surface === 'present';
+  const studioTutorial =
+    projected && !still && layoutMode !== 'reflow'
+      ? studioTutorialOf(slide, interactions)
+      : null;
+  // A split slide keeps its questions listed beside the video: a revealed
+  // question's results take its own place in the list, not the whole band.
+  const split = stage === 'split';
   const band =
-    revealed.length > 0 ? null : variant !== null ? (
-      <InteractionBand
-        interactions={interactions}
-        surface={surface}
-        language={language}
-        slots={slots}
-        teacherOnly={variant === 'check-in'}
-      />
+    (revealed.length > 0 && !split) || studioTutorial ? null : variant !==
+      null ? (
+      projectsQuestion(slide, surface) ? (
+        <InteractionBand
+          interactions={interactions}
+          surface={surface}
+          language={language}
+          slots={slots}
+          teacherOnly={variant === 'check-in'}
+          hero={stage === 'hero' || stage === 'bleed'}
+          compact={Boolean(liveRectOf(slide))}
+          list={split}
+          {...(split && revealed.length > 0
+            ? {
+                reveals: Object.fromEntries(
+                  revealed.map(({ i, node }) => [i.id, node]),
+                ),
+              }
+            : {})}
+        />
+      ) : null
     ) : (
-      slideLiveLayer({ slide, surface, language, interactions, slots })
+      slideLiveLayer({ slide, surface, language, interactions, slots, stage })
     );
 
   return (
@@ -137,9 +186,9 @@ export const SlideRenderer = ({
       // canvas, and the projector, the student device and Present all showed
       // the default. "Editing == presenting" failing in the one direction this
       // phase existed to fix.
-      accent={slide.accent ?? PHASE_ACCENT_HEX[slide.phase]}
+      {...(slide.accent ? { accent: slide.accent } : {})}
       {...(layoutMode ? { layoutMode } : {})}
-      {...(revealed.length > 0
+      {...(revealed.length > 0 && !split
         ? {
             reveal: (
               <div className="flex h-full w-full min-h-0 flex-col gap-4">
@@ -155,7 +204,22 @@ export const SlideRenderer = ({
           ? { bandFallback: band }
           : {})}
       {...(bandCarries.length > 0 ? { bandInteractionIds: bandCarries } : {})}
-      playableMedia={surface === 'projector' || surface === 'present'}
+      {...(studioTutorial
+        ? {
+            backdrop: (
+              <SlideStudio
+                tutorialId={studioTutorial}
+                follow={slots?.studioFollow}
+                inert={surface === 'projector'}
+              />
+            ),
+          }
+        : {})}
+      liveBand={surface !== 'student'}
+      playableMedia={
+        !still && (surface === 'projector' || surface === 'present')
+      }
+      still={still}
       blocks={{}}
     />
   );

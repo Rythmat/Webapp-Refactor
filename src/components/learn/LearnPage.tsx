@@ -7,14 +7,12 @@ import {
   type ReactNode,
 } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ActivityRail } from '@/components/ClassroomLayout/home/ActivityRail';
 import { HomeGlow } from '@/components/ClassroomLayout/home/HomeGlow';
 import { HomePromptBar } from '@/components/ClassroomLayout/home/HomePromptBar';
 import {
   filterSongs,
   type SavedFilter,
 } from '@/components/songLibrary/SongLibraryPage';
-import { PerStudent } from '@/components/ui/PerStudent';
 import { cn } from '@/components/utilities';
 import { SongRoutes } from '@/constants/routes';
 import { getAllSongs } from '@/curriculum/data/songs';
@@ -27,6 +25,7 @@ import {
 } from '@/features/learn/learnPromptSuggestions';
 import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
 import { useSavedSongsStore } from '@/features/songs/useSavedSongsStore';
+import { LearnActivityRail } from './LearnActivityRail';
 import { LearnInlet } from './LearnInlet';
 import { LearnInstrumentPill } from './LearnInstrumentPill';
 import {
@@ -36,8 +35,12 @@ import {
 } from './LearnPromptPills';
 import { LearnTabBar } from './LearnTabBar';
 
-// The map and its catalogues load with this page's bare view, not with Learn.
-const CortexPanel = lazy(() => import('@/features/cortex/CortexPanel'));
+/** The student's dashboard, in its own chunk. */
+const LearnDashboard = lazy(() =>
+  import('./dashboard/LearnDashboard').then((m) => ({
+    default: m.LearnDashboard,
+  })),
+);
 
 /** The old Learn navigation's tabs the page keeps, after its heading. */
 const NAV_TABS = ['Songs', 'Genre', 'Theory', 'Technique'] as const;
@@ -70,7 +73,22 @@ const NAV_TABS = ['Songs', 'Genre', 'Theory', 'Technique'] as const;
  * in the switcher like an instrument, but with no tabs or pills of its own, and
  * its prompt bar suggests its lessons.
  */
-export const LearnPage = ({
+export const LearnPage = (props: {
+  tab?: LearnTab;
+  section?: 'Audio';
+  children?: ReactNode;
+}) =>
+  // Learn's own page is the student's dashboard (owner, 2026-11-04); the
+  // catalog it used to be is /learn/explore.
+  props.tab || props.section ? (
+    <LearnTabPage {...props} />
+  ) : (
+    <Suspense fallback={null}>
+      <LearnDashboard />
+    </Suspense>
+  );
+
+const LearnTabPage = ({
   tab,
   section,
   children,
@@ -123,7 +141,8 @@ export const LearnPage = ({
           }),
     [section, instrument, kind, shownSongs, genreSection, genreReady],
   );
-  const showCortex = !tab && !section;
+  // Learn's own page: its topics (owner, 2026-11-02).
+  const home = !tab && !section;
   return (
     // `isolate`, so the glow's -z-10 puts it behind everything here but
     // still in front of the panel's background (as on Home).
@@ -140,17 +159,15 @@ export const LearnPage = ({
           'relative flex w-full shrink-0 flex-col items-center p-2',
           // The Songs pages' column headers 20px under it (owner,
           // 2026-10-25), in rem as the app's 110% scale wants.
-          tab === 'Songs'
-            ? 'pb-5'
-            : tab || section || showCortex
-              ? 'pb-2'
-              : 'pb-10',
+          tab === 'Songs' ? 'pb-5' : tab || section || home ? 'pb-2' : 'pb-10',
         )}
       >
         {/* The instrument switcher, top right, where Home keeps its search. */}
-        <div className="absolute right-2 top-2 z-10">
-          <LearnInstrumentPill />
-        </div>
+        {!home && (
+          <div className="absolute right-2 top-2 z-10">
+            <LearnInstrumentPill stay={tab === 'Songs'} />
+          </div>
+        )}
         {/* On the Songs pages, Set Lists in the top left corner, in the
           switcher's look (owner, 2026-10-25). */}
         {tab === 'Songs' && (
@@ -164,11 +181,13 @@ export const LearnPage = ({
           </Link>
         )}
         {/* The old Learn navigation, centred at the top (owner, 2026-10-24). */}
-        <LearnTabBar
-          only={section ? [] : NAV_TABS}
-          extras={false}
-          instrumentHeading
-        />
+        {!home && tab !== 'Songs' && (
+          <LearnTabBar
+            only={section ? [] : NAV_TABS}
+            extras={false}
+            instrumentHeading
+          />
+        )}
         {/* The prompt bar under it, centred, on every Learn page (owner,
           2026-10-25: the tab pages too). */}
         <div className="mt-6 flex w-full justify-center">
@@ -204,32 +223,7 @@ export const LearnPage = ({
         </div>
       )}
       {section && <div className="relative min-h-0 flex-1">{children}</div>}
-      {/* Learn's own page: the student's Cortex, everything they've done in
-        Music Atlas and how it connects (owner, 2026-11-01). */}
-      {showCortex && (
-        <div className="relative min-h-72 flex-1">
-          <div className="absolute inset-0">
-            <PerStudent label="Your Cortex" className="h-full">
-              <Suspense fallback={null}>
-                <CortexPanel />
-              </Suspense>
-            </PerStudent>
-          </div>
-        </div>
-      )}
-      {/* Pinned to the bottom, as on Home: where you left off, cycling
-        through your recent activity. The negative margins and the -8px
-        stick take it to the panel's edges, past the scroll area's 8px
-        padding. */}
-      <div className="sticky -bottom-2 z-20 -mx-2 -mb-2 mt-auto shrink-0">
-        <PerStudent
-          label="Recent activity"
-          minHeight={72}
-          className="rounded-none bg-[#0c0c0e]"
-        >
-          <ActivityRail />
-        </PerStudent>
-      </div>
+      <LearnActivityRail />
     </div>
   );
 };

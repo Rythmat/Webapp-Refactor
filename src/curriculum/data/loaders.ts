@@ -34,7 +34,7 @@ export async function loadMelodyContours(): Promise<MelodyContourEntry[]> {
   return contourCache;
 }
 
-/** Load 589 chord progressions (lazy). */
+/** Load the chord progression library, 695 loops (lazy). */
 export async function loadChordProgressions(): Promise<
   ChordProgressionEntry[]
 > {

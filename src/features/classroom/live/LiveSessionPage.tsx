@@ -3,17 +3,21 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ClassroomRoutes } from '@/constants/routes';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
-import { useMe } from '@/hooks/data';
+import { useClassroom, useMe } from '@/hooks/data';
 import { useUpdateActivityProgress } from '@/hooks/data/progress/useUpdateActivityProgress';
 import { useEnrollments } from '../enrollments/useEnrollments';
+import { useFollowOutbox } from '../follow/classFollow';
+import { pickLocalized } from '../presentation/localized';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
 import {
   clampSlideIndex,
   deckFromSnapshot,
   findInteraction,
+  interactionsForSlide,
   slideAt,
 } from '../slides/deck';
+import type { ProjectPlace, ProjectPlaceId } from '../slides/projectPlaces';
 import type {
   Interaction,
   InteractionResponsePayload,
@@ -28,6 +32,7 @@ import { buildSlideProgressPatch } from './slideProgressMirror';
 import { StudentSlideView } from './slides/StudentSlideView';
 import { TimerCountdown } from './slides/TimerCountdown';
 import { useSessionSync } from './useSessionSync';
+import { LessonWorkspace, lessonSheetOpen } from './workspace/LessonWorkspace';
 
 const LANGUAGE_OPTIONS: { value: StudentLanguage; label: string }[] = [
   { value: 'en', label: 'EN' },
@@ -74,6 +79,7 @@ export const LiveSessionPage = () => {
     sessionId: string;
   }>();
   const cid = classroomId ?? '';
+  const { data: classroom } = useClassroom(cid);
   const sid = sessionId ?? '';
 
   const { myEnrollment, isSuccess: enrollmentsSuccess } = useEnrollments(cid);
@@ -86,8 +92,21 @@ export const LiveSessionPage = () => {
   // no accountId, so a later refetch-success could resurrect progressKey — and
   // gating on success lets that refetch restore the cache instead of stranding.
   const { isSuccess: meSuccess } = useMe();
-  const { state, connectionStatus, sendResponse, sendPosition, clock } =
-    useSessionSync(sid, 'student', cid, myEnrollment?.id);
+  const {
+    state,
+    connectionStatus,
+    sendResponse,
+    sendPosition,
+    sendActivityDone,
+    clock,
+  } = useSessionSync(sid, 'student', cid, myEnrollment?.id);
+  // The activity the class does together, open in its own tab: pass on that
+  // this student finished the class's step (owner, 2026-11-10).
+  useFollowOutbox(sid, (note) => {
+    const activity = state?.activity;
+    if (note.kind !== 'done' || !activity || note.ref !== activity.ref) return;
+    sendActivityDone(activity.slideId, note.step);
+  });
   const { getPublishedDay } = usePublishedDays(cid);
   const token = useAuthToken();
   const updateProgress = useUpdateActivityProgress();
@@ -98,6 +117,20 @@ export const LiveSessionPage = () => {
   >({});
   // Phase 4 — student-paced local slide position (null until seeded).
   const [localIndex, setLocalIndex] = useState<number | null>(null);
+  // The lesson's workspace (owner, 2026-11-11): the Individual Project's
+  // places opened inside the lesson, the one shown, and the teacher's slide
+  // over them (opened from the bar, or set aside from a slide that asks).
+  const [openedPlaces, setOpenedPlaces] = useState<ProjectPlaceId[]>([]);
+  const [shownPlace, setShownPlace] = useState<ProjectPlaceId | null>(null);
+  const [sheetPinned, setSheetPinned] = useState(false);
+  const [sheetSetAside, setSheetSetAside] = useState<string | null>(null);
+  // A new session starts with nothing open.
+  useEffect(() => {
+    setOpenedPlaces([]);
+    setShownPlace(null);
+    setSheetPinned(false);
+    setSheetSetAside(null);
+  }, [sid]);
   // Gate for the sessionStorage cache below — persist only AFTER rehydration so
   // the initial empty state can't clobber a refresh-recovered cache.
   const [progressHydrated, setProgressHydrated] = useState(false);
@@ -192,23 +225,25 @@ export const LiveSessionPage = () => {
 
   if (!state) {
     return (
-      <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-6 py-10 text-white">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 md:px-8 md:py-8 text-white">
         <p className="text-sm text-white/60">Session not found.</p>
         <Link
           to={ClassroomRoutes.home({ classroomId: cid })}
           className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to classroom
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to class
         </Link>
       </div>
     );
   }
 
-  if (state.locked) {
+  const workspaceOpen = shownPlace !== null;
+
+  if (state.locked && !workspaceOpen) {
     return (
       <LockScreen
-        classroom={{ id: cid, name: 'Classroom' }}
+        classroom={{ id: cid, name: classroom?.name ?? 'Your class' }}
         teacherLabel="your teacher"
       />
     );
@@ -252,6 +287,14 @@ export const LiveSessionPage = () => {
     );
   };
 
+  const openPlace = (place: ProjectPlace) => {
+    setOpenedPlaces((prev) =>
+      prev.includes(place.id) ? prev : [...prev, place.id],
+    );
+    setShownPlace(place.id);
+    setSheetPinned(false);
+  };
+
   // Interactive-slides sessions render the deck surface; legacy Days keep
   // the phase-interaction list below unchanged. Guard on slides.length so an
   // empty deck (should never persist — publishDay drops it — but defensive
@@ -261,6 +304,109 @@ export const LiveSessionPage = () => {
     publishedDay?.snapshot.deck &&
     publishedDay.snapshot.deck.slides.length > 0
   ) {
+    const slideView = (
+      <StudentSlideView
+        snapshot={publishedDay.snapshot}
+        state={state}
+        language={language}
+        submissions={submissions}
+        onSubmit={handleSubmit}
+        enrollmentId={myEnrollment?.id}
+        sessionId={sid}
+        classroomId={cid}
+        slideIndexOverride={isStudentPaced ? effectiveIndex : undefined}
+        onPrev={isStudentPaced ? goPrev : undefined}
+        onNext={isStudentPaced ? goNext : undefined}
+        canAdvance={canAdvance}
+        clock={clock}
+        onOpenPlace={openPlace}
+      />
+    );
+    const ended = (
+      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 text-center">
+        <span className="text-lg font-medium">
+          Session ended — nice work! 🎶
+        </span>
+        <span className="text-sm text-white/55">
+          Sesión terminada — ¡buen trabajo!
+        </span>
+      </div>
+    );
+    const timer =
+      state.timer && state.timer.slideId === pacedSlide?.id ? (
+        <TimerCountdown endsAt={state.timer.endsAt} />
+      ) : null;
+
+    if (workspaceOpen) {
+      // The teacher's slide comes over the work when it asks something
+      // (share your work, the closing questions), until it's set aside;
+      // the bar's Slides button brings any slide up.
+      const asks =
+        pacedSlide !== null &&
+        interactionsForSlide(publishedDay.snapshot, pacedSlide).length > 0;
+      const sheetOpen = lessonSheetOpen({
+        pinned: sheetPinned,
+        ended: state.status === 'ended',
+        asks,
+        slideId: pacedSlide?.id ?? null,
+        setAside: sheetSetAside,
+      });
+      const elsewhere =
+        pacedSlide && pacedSlide.section !== 'individualProject' && !sheetOpen;
+      return (
+        <>
+          <LessonWorkspace
+            opened={openedPlaces}
+            shown={shownPlace}
+            onShow={openPlace}
+            onSlides={() => setSheetPinned(true)}
+            onCloseSheet={() => {
+              setSheetPinned(false);
+              setSheetSetAside(pacedSlide?.id ?? null);
+            }}
+            title={
+              publishedDay.snapshot.deck.title
+                ? pickLocalized(publishedDay.snapshot.deck.title, language)
+                : (classroom?.name ?? 'Your lesson')
+            }
+            language={language}
+            status={
+              state.status === 'ended' ? (
+                <span className="truncate rounded-full bg-white/[0.06] px-2.5 py-1 text-[0.75rem] text-white/70">
+                  Class has ended
+                </span>
+              ) : elsewhere && pacedSlide ? (
+                <button
+                  type="button"
+                  onClick={() => setSheetPinned(true)}
+                  className="truncate rounded-full bg-white/[0.06] px-2.5 py-1 text-[0.75rem] text-white/70 hover:text-white"
+                >
+                  {`Your teacher is on: ${pickLocalized(pacedSlide.title, language)}`}
+                </button>
+              ) : null
+            }
+            meta={
+              <>
+                {timer}
+                <ConnectionBadge status={connectionStatus} size="sm" />
+              </>
+            }
+            sheet={
+              sheetOpen ? (state.status === 'ended' ? ended : slideView) : null
+            }
+          />
+          {state.locked ? (
+            <div className="fixed inset-0 z-[70] overflow-y-auto bg-daw-bg">
+              <LockScreen
+                classroom={{ id: cid, name: classroom?.name ?? 'Your class' }}
+                teacherLabel="your teacher"
+              />
+            </div>
+          ) : null}
+        </>
+      );
+    }
+
     return (
       // Wider than the legacy phase board's 1000px reading column, and with
       // less horizontal padding: the content here is a 16:9 canvas whose type
@@ -268,18 +414,16 @@ export const LiveSessionPage = () => {
       // scale pinned at 0.72 on a laptop and 0.51 on an iPad, which put a
       // question at 20px and a Submit button at 23px tall on a touch device.
       <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-4 py-4 text-white md:gap-8 md:px-6 md:py-6">
-        <header className="sticky top-0 z-10 -mx-4 flex flex-wrap items-center justify-between gap-3 bg-black/40 px-4 py-2 backdrop-blur md:mx-0 md:px-0">
+        <header className="sticky top-0 z-10 -mx-4 flex flex-wrap items-center justify-between gap-3 bg-daw-bg px-4 py-2 md:mx-0 md:px-0">
           <Link
             to={ClassroomRoutes.home({ classroomId: cid })}
-            className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
+            className="inline-flex items-center gap-1.5 text-[0.8125rem] text-daw-text-3 hover:text-daw-text"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-3.5 w-3.5" />
             Back
           </Link>
           <div className="flex items-center gap-2">
-            {state.timer && state.timer.slideId === pacedSlide?.id && (
-              <TimerCountdown endsAt={state.timer.endsAt} />
-            )}
+            {timer}
             <ConnectionBadge status={connectionStatus} size="sm" />
             <SegmentedToggle
               label="Language"
@@ -289,45 +433,20 @@ export const LiveSessionPage = () => {
             />
           </div>
         </header>
-        {state.status === 'ended' ? (
-          <div className="flex min-h-[40vh] flex-col items-center justify-center gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 text-center">
-            <span className="text-lg font-medium">
-              Session ended — nice work! 🎶
-            </span>
-            <span className="text-sm text-white/55">
-              Sesión terminada — ¡buen trabajo!
-            </span>
-          </div>
-        ) : (
-          <StudentSlideView
-            snapshot={publishedDay.snapshot}
-            state={state}
-            language={language}
-            submissions={submissions}
-            onSubmit={handleSubmit}
-            enrollmentId={myEnrollment?.id}
-            sessionId={sid}
-            classroomId={cid}
-            slideIndexOverride={isStudentPaced ? effectiveIndex : undefined}
-            onPrev={isStudentPaced ? goPrev : undefined}
-            onNext={isStudentPaced ? goNext : undefined}
-            canAdvance={canAdvance}
-            clock={clock}
-          />
-        )}
+        {state.status === 'ended' ? ended : slideView}
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10 text-white">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-6 md:px-8 md:py-8 text-white">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
           to={ClassroomRoutes.home({ classroomId: cid })}
-          className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
+          className="inline-flex items-center gap-1.5 text-[0.8125rem] text-daw-text-3 hover:text-daw-text"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to classroom
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to class
         </Link>
         <div className="flex items-center gap-2">
           <ConnectionBadge status={connectionStatus} size="sm" />
@@ -351,7 +470,7 @@ export const LiveSessionPage = () => {
           <span className="text-xs uppercase tracking-wide text-white/40">
             {state.currentPhase}
           </span>
-          <h1 className="text-2xl font-medium md:text-3xl">
+          <h1 className="text-[clamp(1.75rem,3.2vw,2.5rem)] font-normal leading-tight tracking-[-0.02em] text-daw-text">
             <LocalizedRender text={title} language={language} />
           </h1>
           {prompt && (

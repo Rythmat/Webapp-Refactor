@@ -70,7 +70,7 @@ const PianoVisual = ({
           height={20}
           fill={
             isActive(keyIdx)
-              ? '#7ecfcf'
+              ? '#8e8ea3'
               : dimOutside && !inRange(keyIdx)
                 ? '#3a3a3a'
                 : '#f5f5f5'
@@ -90,7 +90,7 @@ const PianoVisual = ({
           height={12}
           fill={
             isActive(midi)
-              ? '#5ab0b0'
+              ? '#8e8ea3'
               : dimOutside && !inRange(midi)
                 ? '#2a2a2a'
                 : '#222'
@@ -118,7 +118,7 @@ const StepDots = ({ current }: { current: number }) => {
           className="size-2 rounded-full"
           style={{
             backgroundColor:
-              i < current ? '#4aff4a' : i === current ? '#7ecfcf' : '#555',
+              i < current ? '#4aff4a' : i === current ? '#ffffff' : '#555',
           }}
         />
       ))}
@@ -215,9 +215,9 @@ export const MidiMappingModal = ({
                 <button
                   type="button"
                   onClick={() => onOpenChange(false)}
-                  className="flex items-center gap-2 text-[#7ecfcf] hover:text-[#6ab8b8] transition-colors"
+                  className="flex items-center gap-2 text-white/80 transition-colors hover:text-white"
                 >
-                  <div className="flex size-10 items-center justify-center rounded-full border-2 border-[#7ecfcf]">
+                  <div className="flex size-10 items-center justify-center rounded-full border-2 border-white/60">
                     <ArrowLeft className="size-5" />
                   </div>
                   <span className="text-xs font-bold uppercase tracking-wider">
@@ -233,9 +233,9 @@ export const MidiMappingModal = ({
                     <span className="text-white font-semibold">
                       {deviceName}
                     </span>
-                    <span className="text-[#7ecfcf]"> Connected.</span>
+                    <span className="text-white"> Connected.</span>
                   </p>
-                  <p className="text-[#7ecfcf]">
+                  <p className="text-white">
                     Play some notes to{' '}
                     <span className="text-white">
                       ensure you can hear audio.
@@ -252,9 +252,8 @@ export const MidiMappingModal = ({
                   </p>
                   <p>
                     your keyboard's{' '}
-                    <span className="text-[#7ecfcf]">Octave Up</span> &{' '}
-                    <span className="text-[#7ecfcf]">Octave Down</span>{' '}
-                    controls.
+                    <span className="text-white">Octave Up</span> &{' '}
+                    <span className="text-white">Octave Down</span> controls.
                   </p>
                 </div>
               </div>
@@ -262,12 +261,12 @@ export const MidiMappingModal = ({
               <div className="flex items-center gap-4">
                 <button
                   type="button"
-                  className="text-sm text-[#7ecfcf] hover:underline"
+                  className="text-sm text-white hover:underline"
                 >
                   Need help connecting your controller?
                 </button>
                 <Button
-                  className="bg-[#7ecfcf] hover:bg-[#6ab8b8] text-white font-bold uppercase text-xs tracking-wider px-10"
+                  className="bg-white px-10 text-xs font-bold uppercase tracking-wider text-[#101012] hover:bg-white/90"
                   onClick={() => setStep('first-key')}
                 >
                   Next
@@ -279,7 +278,7 @@ export const MidiMappingModal = ({
           {/* Step: First Key */}
           {step === 'first-key' && (
             <>
-              <h2 className="text-lg font-semibold text-[#7ecfcf] mt-8">
+              <h2 className="text-lg font-semibold text-white mt-8">
                 Mapping your device
               </h2>
 
@@ -287,9 +286,9 @@ export const MidiMappingModal = ({
                 <PianoVisual highlightRange={[0, 11]} dimOutside />
 
                 <p className="text-center text-lg">
-                  <span className="text-[#7ecfcf]">Hit the </span>
-                  <span className="text-[#7ecfcf] font-bold">first</span>
-                  <span className="text-[#7ecfcf]"> key on the device</span>
+                  <span className="text-white">Hit the </span>
+                  <span className="text-white font-bold">first</span>
+                  <span className="text-white"> key on the device</span>
                 </p>
               </div>
 
@@ -314,7 +313,7 @@ export const MidiMappingModal = ({
           {/* Step: Last Key */}
           {step === 'last-key' && (
             <>
-              <h2 className="text-lg font-semibold text-[#7ecfcf] mt-8">
+              <h2 className="text-lg font-semibold text-white mt-8">
                 Mapping your device
               </h2>
 
@@ -322,9 +321,9 @@ export const MidiMappingModal = ({
                 <PianoVisual highlightRange={[49, 60]} dimOutside />
 
                 <p className="text-center text-lg">
-                  <span className="text-[#7ecfcf]">Awesome. Now hit the </span>
-                  <span className="text-[#7ecfcf] font-bold">last</span>
-                  <span className="text-[#7ecfcf]"> key on the device.</span>
+                  <span className="text-white">Awesome. Now hit the </span>
+                  <span className="text-white font-bold">last</span>
+                  <span className="text-white"> key on the device.</span>
                 </p>
               </div>
 
@@ -349,7 +348,7 @@ export const MidiMappingModal = ({
           {/* Step: Confirm */}
           {step === 'confirm' && (
             <>
-              <h2 className="text-lg font-semibold text-[#7ecfcf] mt-8">
+              <h2 className="text-lg font-semibold text-white mt-8">
                 Mapping your device
               </h2>
 
@@ -364,22 +363,22 @@ export const MidiMappingModal = ({
                   <path
                     d="M 15 2 Q 50 8 85 2"
                     fill="none"
-                    stroke="#7ecfcf"
+                    stroke="#ffffff"
                     strokeWidth="0.4"
                   />
                 </svg>
 
                 <div className="text-center text-lg">
                   <p>
-                    <span className="text-[#7ecfcf]">
+                    <span className="text-white">
                       Sweet - looks like your device has{' '}
                     </span>
                     <span className="text-white font-bold">
                       {keyCount} keys
                     </span>
-                    <span className="text-[#7ecfcf]"> right.</span>
+                    <span className="text-white"> right.</span>
                   </p>
-                  <p className="text-[#7ecfcf]">We are good to go!</p>
+                  <p className="text-white">We are good to go!</p>
                   {firstNote !== null && lastNote !== null && (
                     <p className="text-xs text-muted-foreground mt-2">
                       Range: {midiNoteName(firstNote)} —{' '}
@@ -398,7 +397,7 @@ export const MidiMappingModal = ({
                   Cancel
                 </Button>
                 <Button
-                  className="bg-[#7ecfcf] hover:bg-[#6ab8b8] text-white font-bold uppercase text-xs tracking-wider px-10"
+                  className="bg-white px-10 text-xs font-bold uppercase tracking-wider text-[#101012] hover:bg-white/90"
                   onClick={handleSave}
                 >
                   Save

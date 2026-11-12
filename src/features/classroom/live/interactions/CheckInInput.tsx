@@ -1,6 +1,11 @@
+import { Lock } from 'lucide-react';
 import { useState } from 'react';
+import { WHITE_PILL } from '@/components/kit';
+import { cn } from '@/components/utilities';
+import { FeelingsPicker } from '../../feelings/FeelingsPicker';
 import type { InteractionInputProps } from './types';
 
+// The older check-in tools, still answered by lessons saved with them.
 const EMOJI_OPTIONS = ['😀', '🙂', '😐', '😕', '😔', '🤔', '⚡', '💤'];
 const SCALE_OPTIONS = ['1', '2', '3', '4', '5'];
 const WORD_OPTIONS = [
@@ -12,59 +17,95 @@ const WORD_OPTIONS = [
   'Excited',
 ];
 
-export const CheckInInput = ({
-  interaction,
-  onSubmit,
-  submittedPayload,
+const OlderOptions = ({
+  style,
+  selected,
+  onSelect,
   disabled,
-}: InteractionInputProps) => {
-  const style = interaction.checkIn?.style ?? 'emoji';
+}: {
+  style: 'emoji' | 'scale' | 'word';
+  selected: string | null;
+  onSelect: (value: string) => void;
+  disabled?: boolean;
+}) => {
   const options =
     style === 'emoji'
       ? EMOJI_OPTIONS
       : style === 'scale'
         ? SCALE_OPTIONS
         : WORD_OPTIONS;
+  return (
+    <div className="flex flex-wrap justify-center gap-2">
+      {options.map((option) => {
+        const isActive = option === selected;
+        return (
+          <button
+            key={option}
+            type="button"
+            onClick={() => !disabled && onSelect(option)}
+            disabled={disabled}
+            aria-pressed={isActive}
+            className={cn(
+              'inline-flex items-center justify-center rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-60',
+              style === 'emoji'
+                ? 'size-12 text-2xl'
+                : 'h-10 px-4 text-[0.875rem] text-daw-text',
+              isActive
+                ? 'border-white bg-white/[0.12]'
+                : 'border-daw-outline hover:bg-daw-hover',
+            )}
+          >
+            {option}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
 
+export const CheckInInput = ({
+  interaction,
+  language,
+  onSubmit,
+  submittedPayload,
+  disabled,
+}: InteractionInputProps) => {
+  const style = interaction.checkIn?.style ?? 'emoji';
   const initial =
     submittedPayload?.kind === 'check-in' ? submittedPayload.value : null;
   const [selected, setSelected] = useState<string | null>(initial);
-
-  const canSubmit = !disabled && selected !== null;
+  const canSubmit = !disabled && selected !== null && selected !== initial;
+  const es = language === 'es';
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-        <p className="mb-3 text-xs uppercase tracking-wide text-white/50">
-          Teacher-only — your answer isn&apos;t shown to the class.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {options.map((option) => {
-            const isActive = option === selected;
-            return (
-              <button
-                key={option}
-                type="button"
-                onClick={() => !disabled && setSelected(option)}
-                disabled={disabled}
-                aria-pressed={isActive}
-                className={`inline-flex items-center justify-center rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-                  style === 'emoji'
-                    ? 'h-12 w-12 text-2xl'
-                    : 'px-4 py-2 text-sm text-white/85'
-                } ${
-                  isActive
-                    ? 'border-white/60 bg-white/[0.12]'
-                    : 'border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.04]'
-                }`}
-              >
-                {option}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-      <div className="flex justify-end">
+    <div className="flex flex-col gap-4">
+      {style === 'feelings' ? (
+        <FeelingsPicker
+          level={interaction.checkIn?.level ?? 'simple'}
+          value={selected}
+          onChange={setSelected}
+          disabled={disabled}
+          language={language}
+        />
+      ) : (
+        <OlderOptions
+          style={style}
+          selected={selected}
+          onSelect={setSelected}
+          disabled={disabled}
+        />
+      )}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Private to the teacher: said with a lock, not a sentence. */}
+        <Lock
+          role="img"
+          aria-label={
+            es
+              ? 'Solo tu maestro ve tu respuesta'
+              : 'Only your teacher sees this'
+          }
+          className="size-4 text-daw-text-3"
+        />
         <button
           type="button"
           disabled={!canSubmit}
@@ -73,9 +114,18 @@ export const CheckInInput = ({
             selected !== null &&
             onSubmit({ kind: 'check-in', value: selected })
           }
-          className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85 disabled:cursor-not-allowed disabled:opacity-50"
+          className={cn(
+            WHITE_PILL,
+            'disabled:cursor-not-allowed disabled:opacity-50',
+          )}
         >
-          Submit
+          {initial && selected === initial
+            ? es
+              ? 'Enviado'
+              : 'Sent'
+            : es
+              ? 'Enviar'
+              : 'Send'}
         </button>
       </div>
     </div>

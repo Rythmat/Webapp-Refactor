@@ -9,6 +9,8 @@ const Slider = React.forwardRef<
     trackStyle?: React.CSSProperties;
     rangeClassName?: string;
     rangeStyle?: React.CSSProperties;
+    /** Extra classes for the thumb (its colours, say). */
+    thumbClassName?: string;
   }
 >(
   (
@@ -18,6 +20,7 @@ const Slider = React.forwardRef<
       rangeClassName,
       trackStyle,
       rangeStyle,
+      thumbClassName,
       ...props
     },
     ref,
@@ -42,7 +45,12 @@ const Slider = React.forwardRef<
           style={rangeStyle}
         />
       </SliderPrimitive.Track>
-      <SliderPrimitive.Thumb className="block size-4 rounded-full border border-primary/50 bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" />
+      <SliderPrimitive.Thumb
+        className={cn(
+          'block size-4 rounded-full border border-primary/50 bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
+          thumbClassName,
+        )}
+      />
     </SliderPrimitive.Root>
   ),
 );

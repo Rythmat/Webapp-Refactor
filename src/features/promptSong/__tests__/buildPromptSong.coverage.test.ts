@@ -77,7 +77,13 @@ describe('a song for every genre and level', () => {
         expect(song, `${genre} L${level}`).not.toBeNull();
         expect(song!.genre).toBe(genre);
         expect(song!.track.timeSignature).toEqual([4, 4]);
-        expect(song!.track.chordRegions).toHaveLength(16);
+        // The lane covers the loop's sixteen bars, a region a change.
+        const regions = song!.track.chordRegions;
+        expect(regions[0].startTick).toBe(0);
+        expect(regions.at(-1)!.endTick).toBe(song!.track.loopTicks);
+        regions
+          .slice(1)
+          .forEach((r, i) => expect(r.startTick).toBe(regions[i].endTick));
         expect(plays(song!, 'drums')).toBe(true);
         expect(plays(song!, 'bass')).toBe(true);
         expect(plays(song!, 'chords')).toBe(true);

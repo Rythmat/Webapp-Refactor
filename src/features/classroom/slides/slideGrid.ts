@@ -91,6 +91,9 @@ export type ZoneFamily =
   | 'rows'
   | 'cta'
   | 'centreStack'
+  | 'showcase'
+  | 'portrait'
+  | 'portraitCheckIn'
   | 'chrome';
 
 /** Vertical gap between stacked elements in a `column` zone. */
@@ -245,16 +248,16 @@ export const SLIDE_GRID = {
   },
 
   /**
-   * The call-to-action band. Widened from a single 448x128 slot to a row of up
-   * to four: the preset it exists for is the teacher's "Project Menu", which
-   * offers three or four routes, and a one-slot CTA could not express it. The
-   * rect grows to the safe-area width so four cards fit without crowding.
+   * The call-to-action band: the Individual Project's menu (owner,
+   * 2026-11-11), a row of up to five tall cards, Learn · Songs · Library ·
+   * Studio · Globe, from under the title to above the footer. It was a
+   * 928x128 strip of four pills; the cards need the height.
    */
   ctaCenter: {
-    rect: { x: 176, y: 352, w: 928, h: 128 },
+    rect: { x: 64, y: 224, w: 1152, h: 380 },
     role: 'content',
     flow: 'row',
-    max: 4,
+    max: 5,
     family: 'cta',
   },
 
@@ -269,6 +272,75 @@ export const SLIDE_GRID = {
     role: 'content',
     flow: 'single',
     family: 'centreStack',
+  },
+
+  // ── The Showcase (owner, 2026-11-10) ────────────────────────────────────
+  // The globe fills the left half and the subject's photo the right, edge to
+  // edge. They are painted by the stage from the slide's two visuals, as the
+  // accent bar is from its flag, so they are chrome: no teacher moves them,
+  // and the footer band stays free for the surface. The name and the facts
+  // sit over the bottom of the photo, inside the safe area.
+  halfLeft: {
+    rect: { x: 0, y: 0, w: 640, h: 720 },
+    role: 'chrome',
+    flow: 'single',
+    family: 'chrome',
+  },
+  halfRight: {
+    rect: { x: 640, y: 0, w: 640, h: 720 },
+    role: 'chrome',
+    flow: 'single',
+    family: 'chrome',
+  },
+  captionTitle: {
+    rect: { x: 688, y: 344, w: 528, h: 80 },
+    role: 'content',
+    flow: 'single',
+    family: 'showcase',
+  },
+  captionBody: {
+    rect: { x: 688, y: 432, w: 528, h: 172 },
+    role: 'content',
+    flow: 'column',
+    family: 'showcase',
+  },
+
+  // ── The portrait (owner, 2026-11-10) ────────────────────────────────────
+  // The subject's photo fills the slide (painted by the stage); the name and
+  // a two-line bio sit low on the left, over its darkened side.
+  portraitTitle: {
+    rect: { x: 64, y: 344, w: 760, h: 128 },
+    role: 'content',
+    flow: 'single',
+    family: 'portrait',
+  },
+  portraitBody: {
+    rect: { x: 64, y: 480, w: 640, h: 124 },
+    role: 'content',
+    flow: 'column',
+    family: 'portrait',
+  },
+
+  // ── The portrait with the class's check-in (owner, 2026-11-10) ──────────
+  // The name and bio higher, and the energy slider at the bottom left: a
+  // place for the live layer of its own (chrome, so no element sits there).
+  checkInTitle: {
+    rect: { x: 64, y: 152, w: 760, h: 128 },
+    role: 'content',
+    flow: 'single',
+    family: 'portraitCheckIn',
+  },
+  checkInBody: {
+    rect: { x: 64, y: 288, w: 640, h: 96 },
+    role: 'content',
+    flow: 'column',
+    family: 'portraitCheckIn',
+  },
+  checkInLive: {
+    rect: { x: 64, y: 400, w: 680, h: 240 },
+    role: 'chrome',
+    flow: 'single',
+    family: 'chrome',
   },
 } as const satisfies Record<string, ZoneSpec>;
 
@@ -296,6 +368,9 @@ export const ZONE_FAMILIES: Record<
   rows: ['rowA', 'rowB', 'rowC'],
   cta: ['ctaCenter'],
   centreStack: ['centerStackTop', 'centerStackBottom'],
+  showcase: ['captionTitle', 'captionBody'],
+  portrait: ['portraitTitle', 'portraitBody'],
+  portraitCheckIn: ['checkInTitle', 'checkInBody'],
 };
 
 /**
@@ -305,15 +380,6 @@ export const ZONE_FAMILIES: Record<
  * a separate prompt line.
  */
 export const SUBTITLE_COMPATIBLE: ZoneFamily[] = ['body', 'bodyShort', 'split'];
-
-/**
- * NOTE on `cta`: the spec's rule justifies excluding a family from `subtitle`
- * by that family "beginning inside its band". `ctaCenter` starts at y=352, well
- * clear of the subtitle band which ends at 280 — so cta's exclusion is a DESIGN
- * choice (a call-to-action slide is title + CTA), not a geometric necessity.
- * Recorded here because the stated reason and the stated list disagree, and a
- * future reader should change this deliberately rather than as a "fix".
- */
 
 /** `centreStack` is a full takeover: no title, no utility link. */
 export const CENTRESTACK_EXCLUDES: ZoneName[] = ['title', 'utilityTopRight'];
@@ -688,6 +754,9 @@ export const REFLOW_ORDER: readonly ZoneName[] = [
   'phaseChip',
   'utilityTopRight', // + not in the spec's list
   'title',
+  'captionTitle', // + the Showcase's name, over its photo
+  'portraitTitle', // + the portrait's name
+  'checkInTitle', // + the portrait's name, with the check-in
   'subtitle',
   'rowA',
   'rowB',
@@ -698,6 +767,9 @@ export const REFLOW_ORDER: readonly ZoneName[] = [
   'right',
   'mediaRight',
   'body',
+  'captionBody', // + the Showcase's facts
+  'portraitBody', // + the portrait's bio
+  'checkInBody', // + its bio, with the check-in
   'bodyShort', // + not in the spec's list
   'centerStackTop', // + not in the spec's list
   'centerStackBottom', // + not in the spec's list

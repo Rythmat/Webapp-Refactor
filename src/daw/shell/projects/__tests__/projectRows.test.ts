@@ -387,7 +387,7 @@ describe('buildProjectRows: search and sort', () => {
       }),
     );
     const t = rows.device.find((r) => r.draft?.draftId === 't');
-    expect(t?.name).toBe('Untitled Project');
+    expect(t?.name).toBe('Untitled Session');
     expect(t?.subtitle).toBe('From a template · Edited 5 min ago');
     const l = rows.device.find((r) => r.draft?.draftId === 'l');
     expect(l?.subtitle).toBe('Lesson · Edited 2 min ago');

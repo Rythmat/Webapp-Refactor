@@ -1,5 +1,10 @@
 /* eslint-disable import/order, no-duplicate-imports, react-hooks/exhaustive-deps, react-hooks/rules-of-hooks, sonarjs/no-collapsible-if, react/jsx-sort-props, tailwindcss/classnames-order */
+import { createPortal } from 'react-dom';
+import { ClassFollowBar } from '@/features/classroom/follow/ClassFollowBar';
+import { useStepFollow } from '@/features/classroom/follow/useStepFollow';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { familyOfMode } from '@/features/learn/paths/theoryFamilies';
+import { theoryBackRoute } from '@/features/learn/paths/theoryPath';
 import * as Tone from 'tone';
 import { usePrismStartContours } from '@/hooks/data/prism/usePrismStartContours';
 import { NoteHold } from './NoteHold';
@@ -35,6 +40,15 @@ import { LessonOverview } from '@/components/learn/LessonOverview';
 import { PrismModeSlug, usePrismModeChordsData } from '@/hooks/data';
 import { useNavigate } from 'react-router';
 import { LearnRoutes, SettingsRoutes, StudioRoutes } from '@/constants/routes';
+import { discRatio } from '@/components/learn/path/pathGeometry';
+import { useLearnXp } from '@/hooks/data/experience/useLearnXp';
+import { GuidedTheoryLayout } from '@/curriculum/guided/GuidedLayouts';
+import type { GuidedBinding } from '@/curriculum/guided/GuidedPlayer';
+import { ionianKey } from '@/curriculum/guided/lessons';
+import { ionianKeyboardChapters } from '@/curriculum/guided/lessons/ionian';
+import { reportOfHold, reportOfRun } from '@/curriculum/guided/takeFeedback';
+import { resolveChapter } from '@/curriculum/guided/types';
+import { modeFigure } from '@/features/learn/paths/theoryPath';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import { useMidiInput } from '@/hooks/music/useMidiInput';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
@@ -98,6 +112,7 @@ import {
   useAwardLessonActivityExperience,
   useAwardLessonCompletionExperience,
 } from '@/hooks/data/experience/useAwardExperience';
+import { announceXpGain } from '@/lib/experience/learnXp';
 import {
   trackActivityCompleted,
   trackActivityStarted,
@@ -123,7 +138,7 @@ type FlowActivityProps = {
   chordSymbols?: readonly LessonChordSymbol[];
   /**
    * Sound the target notes as the playhead reaches them (Practice mode). Off in
-   * Play Now, where the student proves the notes unaided.
+   * Perform, where the student proves the notes unaided.
    */
   playTargetNotes?: boolean;
   /** On the one-page lesson screen: just the roll and the keys. */
@@ -612,7 +627,7 @@ export const ActivityFlow = ({
     }
     // ── Chords chapter ──────────────────────────────────────────────────
     // Every chord activity is in time: Demo and Practice let the student
-    // prepare, Play Now is graded in time. Rules (no diminished chord in a
+    // prepare, Perform is graded in time. Rules (no diminished chord in a
     // progression, one chord per bar, nothing shorter than a quarter) live in
     // lib/learn/theoryChordProgressions.ts.
     const progressions = theoryProgressionsFor(mode as string);
@@ -836,7 +851,7 @@ export const ActivityFlow = ({
   ] = useState(false);
   const pendingSectionAdvanceIndexRef = useRef<number | null>(null);
   // Practice runs give live feedback but don't count toward completion —
-  // only a Play Now (graded) pass marks the step done. See handleStartAttempt
+  // only a Perform (graded) pass marks the step done. See handleStartAttempt
   // / handleActivityCompleteChange / the two progress-reporting effects below,
   // all of which check attemptMode before writing backend progress or XP.
   const [attemptMode, setAttemptMode] = useState<'practice' | 'graded' | null>(
@@ -878,6 +893,51 @@ export const ActivityFlow = ({
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const currentSectionIdx = sectionIds.indexOf(currentSectionId);
+
+  // Ionian is guided: its chapters are Melody and Chords, and the Overview is a
+  // screen of Melody's.
+  const isGuided = (mode as string) === 'ionian';
+  const guidedChapters = useMemo(() => {
+    if (!isGuided) return null;
+    const prefix = `${rootKey} ${getChordScales(mode as string)?.modeName ?? modeLabel} `;
+    const titled = flowDefinitions.map((def) => ({
+      ...def,
+      title: def.label.startsWith(prefix)
+        ? def.label.slice(prefix.length)
+        : def.label,
+    }));
+    return ionianKeyboardChapters(
+      ionianKey(rootKey),
+      titled.map((def) => ({ ref: def.activityDefId, title: def.title })),
+    ).map((chapter) =>
+      resolveChapter(
+        chapter,
+        titled
+          .filter((def) => def.section === chapter.id)
+          .map((def) => ({
+            ref: def.activityDefId,
+            title: def.title,
+            direction: def.direction,
+          })),
+      ),
+    );
+  }, [flowDefinitions, isGuided, mode, modeLabel, rootKey]);
+  const [guidedChapterId, setGuidedChapterId] = useState<string | null>(
+    startAtSection === 'A' || startAtSection === 'B' ? startAtSection : null,
+  );
+  // The skill check: nothing shows what to play.
+  const [hintsOff, setHintsOff] = useState(false);
+  // The last practice to finish by itself, for what comes after it.
+  const [lastPractice, setLastPractice] = useState<{
+    id: number;
+    heard: boolean;
+  } | null>(null);
+  const [lastTake, setLastTake] = useState<{
+    id: number;
+    passed: boolean;
+    heard: boolean;
+  } | null>(null);
+  const awardXp = useLearnXp();
 
   // Map currentIndex to section-relative index
   const currentStepInSection = useMemo(() => {
@@ -945,6 +1005,29 @@ export const ActivityFlow = ({
     },
     [flowDefinitions],
   );
+
+  // ── The class does the lesson together (owner, 2026-11-10) ───────────────
+  // Opened from a Group Project slide to follow the teacher, the lesson keeps
+  // the class's step: one place in its activities, the same on every screen.
+  const classFollow = useStepFollow({
+    position: currentIndex,
+    total: flowDefinitions.length,
+    ...(currentActivity
+      ? {
+          title: `${SECTION_LABELS[currentActivity.section] ?? ''} · ${currentActivity.label}`,
+        }
+      : {}),
+    goTo: (index) => {
+      const activity = flowDefinitions[index];
+      if (!activity) return;
+      setCurrentSectionId(activity.section);
+      goToStepInSection(activity);
+    },
+    active: flowDefinitions.length > 0,
+  });
+  // Read by the advance below, without re-creating it every render.
+  const classFollowRef = useRef(classFollow);
+  classFollowRef.current = classFollow;
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -1125,7 +1208,7 @@ export const ActivityFlow = ({
     if (!currentActivity || lessonComplete) return;
     if (activityState !== 'active') return;
     if (!isTrackableActivity) return;
-    // Practice attempts don't report real backend progress — only Play Now
+    // Practice attempts don't report real backend progress — only Perform
     // (graded) attempts do. See attemptMode in handleStartAttempt.
     if (attemptMode === 'practice') return;
 
@@ -1293,6 +1376,11 @@ export const ActivityFlow = ({
           currentActivityInstanceId: null,
         });
       }
+      // With the class: at its step, tell the teacher and wait for them.
+      if (classFollowRef.current.holding) {
+        classFollowRef.current.finishStep();
+        return;
+      }
       setCurrentIndex((idx) => {
         const nextIdx = idx + 1;
         if (nextIdx < flowDefinitions.length) {
@@ -1365,7 +1453,19 @@ export const ActivityFlow = ({
   const handleRunGraded = useCallback(
     (result: PlayAlongResult) => {
       setPlayAlongResult(result);
-      // Practice never gates: its "try Play Now" prompt shows either way.
+      if (attemptMode === 'practice') {
+        setLastPractice((prev) => ({
+          id: (prev?.id ?? 0) + 1,
+          heard: result.hits > 0 || result.wrongNotes > 0,
+        }));
+      } else if (attemptMode === 'graded') {
+        setLastTake((prev) => ({
+          id: (prev?.id ?? 0) + 1,
+          passed: result.passed,
+          heard: result.hits > 0 || result.wrongNotes > 0,
+        }));
+      }
+      // Practice never gates: its "try Perform" prompt shows either way.
       if (!result.passed && attemptMode === 'practice') {
         setPracticeComplete(true);
       }
@@ -1401,7 +1501,7 @@ export const ActivityFlow = ({
 
   // A note on the lesson-complete screen moves on. On a step it never starts
   // a run or skips ahead: the one-page screen lets the student play freely
-  // before Practice or Play Now, as the guitar and Genre screens do.
+  // before Practice or Perform, as the guitar and Genre screens do.
   const handleMidiActivity = useCallback(() => {
     if (lessonComplete) {
       if (midiTriggeredRef.current) return;
@@ -1431,11 +1531,26 @@ export const ActivityFlow = ({
       const isCompletionOverlayActivity =
         currentComponent === PlayAlong || currentComponent === NoteHold;
       if (!isComplete || !isCompletionOverlayActivity) return;
-      // A Practice pass gives the "nice work, try Play Now" prompt but never
-      // counts as done — only a graded (Play Now) pass reaches the code below.
+      // A Practice pass gives the "nice work, try Perform" prompt but never
+      // counts as done — only a graded (Perform) pass reaches the code below.
       if (attemptMode === 'practice') {
         setPracticeComplete(true);
+        // A play-along's run has already said; this one can only finish by playing.
+        if (currentComponent === NoteHold) {
+          setLastPractice((prev) => ({
+            id: (prev?.id ?? 0) + 1,
+            heard: true,
+          }));
+        }
         return;
+      }
+      // A play-along's run has already said.
+      if (currentComponent === NoteHold) {
+        setLastTake((prev) => ({
+          id: (prev?.id ?? 0) + 1,
+          passed: true,
+          heard: true,
+        }));
       }
       setActivityState('completed');
       if (!currentActivity) return;
@@ -1463,6 +1578,11 @@ export const ActivityFlow = ({
       // Award activity experience (best-effort, backend dedup protects duplicates)
       void awardLessonActivity
         .mutateAsync(currentActivity.activityInstanceId)
+        .then((response) => {
+          if (response.awarded && response.awardedExperience > 0) {
+            announceXpGain(response.awardedExperience);
+          }
+        })
         .catch(() => {});
       updateLessonState.mutate({
         lessonId,
@@ -1614,6 +1734,62 @@ export const ActivityFlow = ({
     activityState === 'active' &&
     playAlongResult != null &&
     !playAlongResult.passed;
+  // The last run, in the words the guided screen uses for it.
+  const guidedTakeId = useRef(0);
+  const guidedTake = useMemo(() => {
+    if (!isGuided) return null;
+    const noteName = (midi: number) =>
+      spelledMidiNoteName(midi, pcSpellingMap).replace(/-?\d+$/, '');
+    if (showPlayAlongRetry && playAlongResult) {
+      guidedTakeId.current += 1;
+      const { detail } = playAlongResult;
+      return reportOfRun({
+        id: guidedTakeId.current,
+        step: currentActivity.activityDefId,
+        hits: playAlongResult.hits,
+        total: playAlongResult.total,
+        required: playAlongResult.required,
+        passed: false,
+        passMarkPct: Math.round(PLAY_ALONG_PASS_RATIO * 100),
+        noteName,
+        successMessage: '',
+        detail: detail && {
+          missedMidis: detail.missedMidis,
+          wrongMidis: detail.wrongMidis,
+          timing: {
+            meanDevTicks: detail.meanDevTicks,
+            spreadTicks: detail.spreadTicks,
+            meanDurationRatio: null,
+          },
+        },
+      });
+    }
+    if (showActivityCompletionOverlay) {
+      guidedTakeId.current += 1;
+      const message = payoff?.headline ?? 'That’s it.';
+      return playAlongResult
+        ? reportOfRun({
+            id: guidedTakeId.current,
+            step: currentActivity.activityDefId,
+            hits: playAlongResult.hits,
+            total: playAlongResult.total,
+            required: playAlongResult.required,
+            passed: true,
+            passMarkPct: Math.round(PLAY_ALONG_PASS_RATIO * 100),
+            noteName,
+            successMessage: message,
+          })
+        : reportOfHold({
+            id: guidedTakeId.current,
+            step: currentActivity.activityDefId,
+            message,
+          });
+    }
+    return null;
+    // A take's words are fixed when it ends.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGuided, showActivityCompletionOverlay, showPlayAlongRetry]);
+
   const startOverlaySequence = useMemo(
     () =>
       [...events]
@@ -1708,7 +1884,7 @@ export const ActivityFlow = ({
 
   // Fingering: the book's hands over the keys and finger numbers. The hands
   // follow the demo, rest on the first notes before a run, and follow what
-  // each activity lights as due in practice. Off in Play Now: no fingers on
+  // each activity lights as due in practice. Off in Perform: no fingers on
   // a graded take.
   const fingeringDisplay = useFingeringDisplay();
   const showFingering =
@@ -1834,7 +2010,7 @@ export const ActivityFlow = ({
     demoTimeoutsRef.current.push(endTimeout);
   };
 
-  // Practice gives live feedback but doesn't count; only Play Now (graded)
+  // Practice gives live feedback but doesn't count; only Perform (graded)
   // marks the step done. See attemptMode / handleActivityCompleteChange /
   // the two progress-reporting effects above.
   const handleStartAttempt = (mode: 'practice' | 'graded') => {
@@ -2030,7 +2206,7 @@ export const ActivityFlow = ({
 
   // ── The one-page screen (TheoryLessonLayout) ──────────────────────────────
   // No start card: a step waits ('pending') with its notes lit on the
-  // keyboard, and Demo / Practice / Play Now sit in the bar at the bottom. A
+  // keyboard, and Demo / Practice / Perform sit in the bar at the bottom. A
   // result, the practice prompt, the retry and the end of Melody take the
   // activity's place, their buttons in the bar.
 
@@ -2123,6 +2299,7 @@ export const ActivityFlow = ({
           enterPracticeTrack: openMelodyPracticeTrack,
           continueLabel: 'Continue to Chords',
           onContinue: handleContinueToChordsSection,
+          autoContinue: true,
         }
       : null;
 
@@ -2144,7 +2321,7 @@ export const ActivityFlow = ({
               Practice Again
             </Secondary>
             <Primary onClick={() => beginFreshAttempt('graded')}>
-              Play Now
+              Perform
             </Primary>
           </>
         ),
@@ -2206,7 +2383,7 @@ export const ActivityFlow = ({
         status: null,
         lines: [
           ...(playedLine ? [playedLine] : []),
-          'Try it in Play Now to complete this step.',
+          'Perform it to complete this step.',
         ],
       }
     : showPlayAlongRetry && playAlongResult
@@ -2405,135 +2582,270 @@ export const ActivityFlow = ({
 
   const effectiveBpm = resolveTempo(THEORY_ACTIVITY_BPM);
 
-  return (
-    <TheoryLessonLayout
-      header={{
-        crumbs: [
-          {
-            label: 'Theory',
-            onClick: () =>
-              navigate(LearnRoutes.root(undefined, { tab: 'Theory' })),
+  // ── The guided screen ─────────────────────────────────────────────────────
+  // Waits for what it opens on: the record of what's done, and the chords.
+  const progressKnown = !lessonProgressQuery.isLoading;
+  const melodyDone =
+    flowDefinitions.some((d) => d.section === 'A') &&
+    flowDefinitions.filter((d) => d.section === 'A').every(isDone);
+  const openChapterId = guidedChapterId ?? (melodyDone ? 'B' : 'A');
+  const guidedChapter =
+    guidedChapters?.find((chapter) => chapter.id === openChapterId) ?? null;
+  if (
+    guidedChapters &&
+    (!progressKnown || (chordsPending && openChapterId === 'B'))
+  ) {
+    return <div className="h-full bg-[#101012]" data-guided-waiting />;
+  }
+  const guidedIndex =
+    guidedChapters?.findIndex((c) => c.id === openChapterId) ?? 0;
+  const guidedNext = guidedChapters?.[guidedIndex + 1] ?? null;
+  const guided: GuidedBinding | null = guidedChapter && {
+    chapter: guidedChapter,
+    xpScope: `${modeLabel}:${rootKey}`,
+    accent: activityColor,
+    ratio: discRatio(guidedIndex),
+    figure: modeFigure(modeLabel, rootKey),
+    currentStep: currentActivity.activityDefId,
+    status: (ref) => {
+      const activity = flowDefinitions.find((d) => d.activityDefId === ref);
+      return activity && isDone(activity) ? 'passed' : 'todo';
+    },
+    goToStep: (ref) => {
+      const activity = flowDefinitions.find((d) => d.activityDefId === ref);
+      if (activity) openStep(activity);
+    },
+    credit: (refs) => {
+      // Passing the harder step proved these. No XP: they weren't played.
+      const credited = flowDefinitions.filter((d) =>
+        refs.includes(d.activityDefId),
+      );
+      setCompletedActivityKeys(
+        (prev) => new Set([...prev, ...credited.map((d) => d.key)]),
+      );
+      credited.forEach((activity) => {
+        if (completionReportedRef.current.has(activity.activityInstanceId)) {
+          return;
+        }
+        completionReportedRef.current.add(activity.activityInstanceId);
+        updateActivityProgress.mutate({
+          activityInstanceId: activity.activityInstanceId,
+          lessonId,
+          lessonVersion,
+          activityDefId: activity.activityDefId,
+          mode: modeLabel,
+          root: rootKey,
+          status: 'COMPLETED',
+          resumePayloadJson: {
+            activityIndex: flowDefinitions.indexOf(activity),
+            activityDefId: activity.activityDefId,
+            completedVia: 'credit',
           },
-          {
-            label: modeTitle,
-            onClick: () =>
-              navigate(LearnRoutes.keyboardOverview({ mode: modeLabel })),
-          },
-        ],
-        keyLabel: `${rootKey} ${modeTitle}`,
-        keyColor: activityColor,
-        subsection: SECTION_LABELS[currentSectionId] ?? '',
-        // The Overview's tab ("Overview: Scale"), else the step's name.
-        activity: isOverview
-          ? OVERVIEW_TAB_LABELS[overviewTab]
-          : stepTitle(currentActivity.label),
-        chordNames:
-          !isOverview && (currentActivity.chordSymbols?.length ?? 0) > 0,
-      }}
-      nav={{
-        sections: sectionIds.map((sId) => {
-          const defs = flowDefinitions.filter((d) => d.section === sId);
-          return {
-            // Theory's sections are O / A / B; the nav only shows the name.
-            id: sId as unknown as ActivitySectionId,
-            name: SECTION_LABELS[sId] ?? sId,
-            active: sId === currentSectionId,
-            done: defs.length > 0 && defs.every(isDone),
-          };
-        }),
-        onSection: (id) => goToSection(id as unknown as SectionId),
-        outline,
-        steps: navSteps,
-        index: Math.max(0, currentStepInSection),
-        goToStep: (i) => {
-          const activity = sectionActivities[i];
-          if (activity) goToStepInSection(activity);
-        },
-        // The Overview's Practice Track is one of its tabs.
-        // Every section's Practice Track is the last of its tabs, and the
-        // tabs page the steps: no pager.
-        practiceTrack: null,
-        pager: false,
-        // Roll / Notation / Falling and the hands, on the tool rail, on every
-        // step, the Overview's too (owner, 2026-10-26).
-        noteViews: { hands: true },
-      }}
-      subNav={overviewTabs ?? sectionTabs}
-      content={
-        <Component
-          key={`${currentActivity.key}-${activityInstanceId}`}
-          bare
-          previewNotes={previewNotes}
-          fingering={fingering}
-          activityColor={activityColor}
-          events={events}
-          isActive={activityState === 'active'}
-          onContinue={handleContinue}
-          onActivityCompleteChange={handleActivityCompleteChange}
-          onRunGraded={handleRunGraded}
-          showTargetKeys={attemptMode === 'practice'}
-          playTargetNotes={attemptMode === 'practice'}
-          chordSymbols={currentActivity.chordSymbols}
-          startSignal={startSignal}
-          startMessage={direction}
-          noteSpelling={pcSpellingMap}
-        />
+        });
+      });
+    },
+    take: guidedTake,
+    clearTake: () => {
+      if (guidedTake) handleRestartActivity();
+    },
+    onLeave: () => navigate(theoryBackRoute('piano', modeLabel, rootKey)),
+    finish: async () => {
+      if (guidedNext) {
+        return awardXp('finish', `${modeLabel}:${rootKey}:${openChapterId}`);
       }
-      panel={panel}
-      bar={{
-        state: barState,
-        run: {
-          state:
-            barState === 'practice' || barState === 'performance'
-              ? barState
-              : 'preview',
-          restartingPass: false,
-          instruction: direction,
-          listen: {
-            mode: isPlayAlongStep ? 'keepTime' : 'waitForMe',
-            passMarkPct: isPlayAlongStep ? passMarkPct : 100,
-          },
-          loading: false,
-          demo: {
-            playing: isPlayingDemo,
-            play:
-              activityState === 'pending'
-                ? () => void playDemo()
-                : handleReplayDemo,
-            stop: stopDemo,
-          },
-          practise: () => handleStartAttempt('practice'),
-          playNow: () =>
-            activityState === 'pending'
-              ? handleStartAttempt('graded')
-              : beginFreshAttempt('graded'),
-          back: handleRestartActivity,
-          stopTake: handleRestartActivity,
-          hint: null,
-        },
-        tempo: isPlayAlongStep
-          ? {
-              bpm: effectiveBpm,
-              onChange: (bpm: number) => setTempoBpm(bpm),
-              effectiveBpm,
+      trackLessonCompleted(lessonId);
+      onComplete?.();
+      // The finish doesn't wait long on the server.
+      const timeout = new Promise<null>((resolve) => {
+        setTimeout(() => resolve(null), 1500);
+      });
+      const award = awardLessonCompletion.mutateAsync(lessonId).then(
+        (response) =>
+          response.awarded && response.awardedExperience > 0
+            ? response.awardedExperience
+            : null,
+        () => null,
+      );
+      return Promise.race([award, timeout]);
+    },
+    next: guidedNext
+      ? {
+          id: guidedNext.id,
+          name: guidedNext.name,
+          open: () => setGuidedChapterId(guidedNext.id),
+        }
+      : null,
+    practiceTrack: !hasPracticeTrack
+      ? null
+      : openChapterId === 'B'
+        ? openChordsPracticeTrack
+        : openMelodyPracticeTrack,
+    onFromMemoryChange: setHintsOff,
+    hearNote: (midi) => {
+      void startPianoSampler().then(() =>
+        triggerPianoAttackRelease(Tone.Frequency(midi, 'midi').toNote(), 0.7),
+      );
+    },
+  };
+  const TheoryLayout = (
+    guided ? GuidedTheoryLayout : TheoryLessonLayout
+  ) as typeof GuidedTheoryLayout;
+
+  return (
+    <>
+      {classFollow.following &&
+        createPortal(
+          <ClassFollowBar
+            leading={classFollow.leading}
+            step={
+              classFollow.leading
+                ? currentIndex
+                : (classFollow.classStep ?? currentIndex)
             }
-          : null,
-        practice: { presets: [] },
-        result: null,
-        offer,
-        custom: barCustom,
-      }}
-      about={{
-        activity: isOverview ? 'Overview' : stepTitle(currentActivity.label),
-        instruction: direction,
-        chords: (currentActivity.chordSymbols ?? []).map((c) => c.text),
-        key: describeKey(rootKey, mode as string),
-      }}
-      audio={{
-        outputLatencyMs,
-        openAudioTiming: () => navigate(`${SettingsRoutes.root()}/audio`),
-      }}
-      announcement={announcement}
-    />
+            total={flowDefinitions.length}
+            waiting={classFollow.waiting}
+            doneCount={classFollow.doneCount}
+          />,
+          document.body,
+        )}
+      <TheoryLayout
+        guided={guided as GuidedBinding}
+        header={{
+          crumbs: [
+            {
+              label: familyOfMode(modeLabel)?.title ?? 'Theory',
+              onClick: () =>
+                navigate(theoryBackRoute('piano', modeLabel, rootKey)),
+            },
+            {
+              label: modeTitle,
+              onClick: () =>
+                navigate(theoryBackRoute('piano', modeLabel, rootKey)),
+            },
+          ],
+          keyLabel: `${rootKey} ${modeTitle}`,
+          keyColor: activityColor,
+          subsection: SECTION_LABELS[currentSectionId] ?? '',
+          // The Overview's tab ("Overview: Scale"), else the step's name.
+          activity: isOverview
+            ? OVERVIEW_TAB_LABELS[overviewTab]
+            : stepTitle(currentActivity.label),
+          chordNames:
+            !isOverview && (currentActivity.chordSymbols?.length ?? 0) > 0,
+        }}
+        nav={{
+          sections: sectionIds.map((sId) => {
+            const defs = flowDefinitions.filter((d) => d.section === sId);
+            return {
+              // Theory's sections are O / A / B; the nav only shows the name.
+              id: sId as unknown as ActivitySectionId,
+              name: SECTION_LABELS[sId] ?? sId,
+              active: sId === currentSectionId,
+              done: defs.length > 0 && defs.every(isDone),
+            };
+          }),
+          onSection: (id) => goToSection(id as unknown as SectionId),
+          outline,
+          steps: navSteps,
+          index: Math.max(0, currentStepInSection),
+          goToStep: (i) => {
+            const activity = sectionActivities[i];
+            if (activity) goToStepInSection(activity);
+          },
+          // The Overview's Practice Track is one of its tabs.
+          // Every section's Practice Track is the last of its tabs, and the
+          // tabs page the steps: no pager.
+          practiceTrack: null,
+          pager: false,
+          // Roll / Notation / Falling and the hands, on the tool rail, on every
+          // step, the Overview's too (owner, 2026-10-26).
+          noteViews: { hands: true },
+        }}
+        subNav={overviewTabs ?? sectionTabs}
+        content={
+          <Component
+            key={`${currentActivity.key}-${activityInstanceId}`}
+            bare
+            previewNotes={hintsOff ? undefined : previewNotes}
+            fingering={fingering}
+            activityColor={activityColor}
+            events={events}
+            isActive={activityState === 'active'}
+            onContinue={handleContinue}
+            onActivityCompleteChange={handleActivityCompleteChange}
+            onRunGraded={handleRunGraded}
+            showTargetKeys={attemptMode === 'practice' && !hintsOff}
+            playTargetNotes={attemptMode === 'practice'}
+            chordSymbols={currentActivity.chordSymbols}
+            startSignal={startSignal}
+            startMessage={direction}
+            noteSpelling={pcSpellingMap}
+          />
+        }
+        panel={panel}
+        bar={{
+          state: barState,
+          run: {
+            state:
+              barState === 'practice' || barState === 'performance'
+                ? barState
+                : 'preview',
+            restartingPass: false,
+            instruction: direction,
+            listen: {
+              mode: isPlayAlongStep ? 'keepTime' : 'waitForMe',
+              passMarkPct: isPlayAlongStep ? passMarkPct : 100,
+            },
+            loading: false,
+            demo: {
+              playing: isPlayingDemo,
+              play:
+                activityState === 'pending'
+                  ? () => void playDemo()
+                  : handleReplayDemo,
+              stop: stopDemo,
+            },
+            practise: () => handleStartAttempt('practice'),
+            playNow: () =>
+              activityState === 'pending'
+                ? handleStartAttempt('graded')
+                : beginFreshAttempt('graded'),
+            back: handleRestartActivity,
+            stopTake: handleRestartActivity,
+            hint: null,
+            lastPractice,
+            lastTake,
+          },
+          tempo: isPlayAlongStep
+            ? {
+                bpm: effectiveBpm,
+                onChange: (bpm: number) => setTempoBpm(bpm),
+                effectiveBpm,
+              }
+            : null,
+          practice: { presets: [] },
+          result: null,
+          offer,
+          custom: barCustom,
+        }}
+        about={{
+          activity: isOverview ? 'Overview' : stepTitle(currentActivity.label),
+          instruction: direction,
+          chords: (currentActivity.chordSymbols ?? []).map((c) => c.text),
+          key: describeKey(rootKey, mode as string),
+        }}
+        audio={{
+          outputLatencyMs,
+          openAudioTiming: () => navigate(`${SettingsRoutes.root()}/audio`),
+        }}
+        announcement={announcement}
+        pass={{
+          advance: handleContinue,
+          score:
+            result && /^\d+%$/.test(result.heading) ? result.heading : null,
+          detail: payoff?.headline,
+        }}
+      />
+    </>
   );
 };

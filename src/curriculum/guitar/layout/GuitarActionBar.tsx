@@ -32,7 +32,7 @@ import type {
 // then the one white pill. What shows comes from deriveBarState, one state
 // at a time:
 //
-//   preview          instruction │ tempo · mode · Demo · Practice · Play Now
+//   preview          instruction │ tempo · mode · Demo · Practice · Perform
 //   practice         loop, speed trainer, notes │ tempo · Back · Demo · Perform
 //   performance      meter + "Listening", or the silence offer │ bpm · Stop
 //   result           Count it myself │ Try Again + Next (the primary is Next
@@ -269,6 +269,8 @@ export interface GuitarActionBarProps {
    * buttons bigger, and no instruction — it's in About this step.
    */
   variant?: 'default' | 'centered';
+  /** Where the activity is up to: Demo, Practice, Perform. */
+  rail?: ReactNode;
 }
 
 export interface Zones {
@@ -301,7 +303,7 @@ function previewZones({
         <DemoButton demo={run.demo} />
         <PracticeButton practise={run.practise} presets={practice.presets} />
         <Primary onClick={run.playNow} disabled={run.loading}>
-          {run.loading ? 'Loading instruments...' : 'Play Now'}
+          {run.loading ? 'Loading instruments...' : 'Perform'}
         </Primary>
       </>
     ),
@@ -475,7 +477,7 @@ function sectionCompleteZones(offer: SectionCompleteModel): Zones {
   };
 }
 
-function zonesFor(props: GuitarActionBarProps): Zones {
+export function zonesFor(props: GuitarActionBarProps): Zones {
   const { state, result, offer } = props;
   if (state === 'sectionComplete' && offer) return sectionCompleteZones(offer);
   if (state === 'result' && result) return resultZones(result);
@@ -486,7 +488,7 @@ function zonesFor(props: GuitarActionBarProps): Zones {
 
 /**
  * Keyboard focus survives a change of state. The button pressed usually
- * leaves with the state it belonged to (Play Now becomes Stop, Stop becomes
+ * leaves with the state it belonged to (Perform becomes Stop, Stop becomes
  * Next), which would drop focus to the page; when focus was in the bar and
  * nothing has it now, it moves to the new state's main button.
  */
@@ -529,7 +531,7 @@ function useBarFocus(state: BarState) {
  * The lesson's keyboard, docked on the bar over its buttons (LessonKeyboard
  * renders into it), the same place in every lesson. Empty, it takes no room.
  */
-function KeyboardSlot() {
+export function KeyboardSlot() {
   const slot = useLessonKeyboardSlot();
   if (!slot) return null;
   return (
@@ -560,6 +562,11 @@ export function GuitarActionBar(props: GuitarActionBarProps) {
         className="sticky bottom-0 z-10 shrink-0 border-t border-white/[0.06] bg-[#0c0c0e] pb-[env(safe-area-inset-bottom)]"
       >
         <KeyboardSlot />
+        {props.rail && (
+          <div className="mx-auto flex w-full max-w-[1184px] justify-center px-6 pt-3 max-[639px]:px-4">
+            {props.rail}
+          </div>
+        )}
         <div className="relative mx-auto flex min-h-[80px] w-full max-w-[1184px] flex-wrap items-center justify-center gap-x-4 gap-y-2 px-6 py-4 max-[639px]:px-4">
           {lead && (
             <div data-bar-lead className="min-w-0 text-center">

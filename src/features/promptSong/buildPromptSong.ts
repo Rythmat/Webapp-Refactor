@@ -30,6 +30,7 @@ import {
   type GrooveLoader,
 } from './promptGroove';
 import { recipeFor, type PromptRecipe } from './promptRecipes';
+import { voicePromptChords } from './voicePromptChords';
 
 export { FLAVOR_LABELS, GENRE_LABELS } from './parseMusicPrompt';
 
@@ -168,15 +169,21 @@ export async function buildPromptSong(
   let built: GenrePracticeTrackResult | null = null;
   let picked: PickedProgression | null = null;
   for (let attempt = 0; attempt < MAX_TRIES && !built; attempt++) {
-    picked = pickProgression(library, plan, rng, tried);
-    if (picked.id !== null) tried.add(picked.id);
-    const chords = picked.chords;
+    const pick = pickProgression(library, plan, rng, tried, {
+      harmony: recipe.kind === 'band' ? recipe.style.harmony : undefined,
+    });
+    picked = pick;
+    if (pick.id !== null) tried.add(pick.id);
+    const chords = pick.chords;
     built = withSeededRandom(seed ^ 0x9e3779b9, () =>
       buildGenrePracticeTrack(flow, BAND_SECTION, {
         chords,
         key: { tonicPc: plan.tonicPc, mode: plan.mode, label: plan.tonicLabel },
         bpm,
         followChords: true,
+        studio: true,
+        // The phrase as picked: eight bars, some chords held or turning.
+        timedChords: pick.timed,
         ...(recipe.kind === 'band'
           ? {
               styleId: recipe.style.styleId,
@@ -190,6 +197,8 @@ export async function buildPromptSong(
     if (picked.id === null) break;
   }
   if (!built || !picked) return null;
+  // Its chords voiced from their symbols, for the Studio (voicePromptChords).
+  built = { ...built, ...voicePromptChords(built, picked.timed) };
 
   // The drums: a groove of the style from the Grooves library, over the
   // whole loop, in place of the band's (promptGroove.ts).

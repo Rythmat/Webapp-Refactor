@@ -58,8 +58,7 @@ const isCurriculum = (appPath: string) =>
   /^\/curriculum(\/|$)/.test(appPath) || GENRE_COURSE_PAGE.test(appPath);
 
 /** The app page an app section opens on, as a console path. */
-const mirrorPathFor = (segment: string) =>
-  `${MIRROR_BASE}${segment === '/learn' ? '/learn?tab=Songs' : segment}`;
+const mirrorPathFor = (segment: string) => `${MIRROR_BASE}${segment}`;
 
 type Action = { label: string; to: string };
 
@@ -90,12 +89,14 @@ const MUSIC_LITERACY_PAGE =
   /^\/curriculum\/music-literacy(?:\/([a-z0-9-]+))?(?:\/|$)/;
 
 /**
- * Learn → Start Here, the Music Literacy path. The tab's slug is spelled
- * here rather than imported (musicLiteracy/literacyPath.ts): this bar is
- * eager console chrome, and that module reads the lessons.
+ * Learn → Start Here, the Music Literacy path, on any instrument
+ * (/learn/keyboard/start-here). Its segment is spelled here rather than
+ * imported (features/learn/learnPaths.ts): this bar is eager console chrome,
+ * and that module reads the lessons.
  */
-const isStartHere = (appPath: string, search: URLSearchParams) =>
-  appPath === '/learn' && search.get('tab') === 'StartHere';
+const START_HERE_PAGE =
+  /^\/learn\/(?:keyboard|guitar|bass|ukulele)\/start-here\/?$/;
+const isStartHere = (appPath: string) => START_HERE_PAGE.test(appPath);
 
 /**
  * What the page showing can be edited as, where it has no in-place editor
@@ -104,7 +105,20 @@ const isStartHere = (appPath: string, search: URLSearchParams) =>
  * song's globe event opens the song's page in Edit.
  */
 function contextActions(appPath: string, search: URLSearchParams): Action[] {
-  if (isStartHere(appPath, search)) {
+  // The Studio's Production lessons, and one running as a preview.
+  if (appPath === '/studio/production') {
+    return [{ label: 'Edit lessons', to: AdminRoutes.studioLessons() }];
+  }
+  const lesson = appPath === '/studio' ? search.get('tutorial') : null;
+  if (lesson) {
+    return [
+      {
+        label: 'Edit this lesson',
+        to: AdminRoutes.studioLesson({ id: lesson }),
+      },
+    ];
+  }
+  if (isStartHere(appPath)) {
     return [{ label: 'Edit Music Literacy', to: AdminRoutes.musicLiteracy() }];
   }
   // Part 3 is no lesson: its bands are the back office's.
@@ -227,7 +241,7 @@ export const MirrorBar = () => {
 
   const params = new URLSearchParams(search);
   // Start Here is Music Literacy's, which is in no table: not Learn's songs.
-  const startHere = appPath !== null && isStartHere(appPath, params);
+  const startHere = appPath !== null && isStartHere(appPath);
   // Where the page showing is in the Table: its row when the page is about
   // one thing (a song page, the globe with an event, an artist or a city
   // open), its table otherwise.

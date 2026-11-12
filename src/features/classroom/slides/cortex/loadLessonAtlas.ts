@@ -12,6 +12,9 @@ import {
  * and records, so only the generator's page asks for it, and only once per
  * page load.
  */
+/** The react-query key every caller loads the Atlas under, so it loads once. */
+export const LESSON_ATLAS_KEY = ['classroom', 'lesson-atlas'] as const;
+
 export interface LessonAtlas {
   graph: Graph;
   catalog: LessonCatalog;
@@ -24,11 +27,14 @@ export const loadLessonAtlas = (): Promise<LessonAtlas> =>
     import('@/content/graph/repoGraph'),
     import('@/daw/components/Tutorial/tutorials'),
   ])
-    .then(async ([{ loadRepoGraph }, { TUTORIALS }]) => {
+    .then(async ([{ loadRepoGraph }, { listTutorials }]) => {
       const { graph, snapshot } = await loadRepoGraph();
       return {
         graph,
-        catalog: buildLessonCatalog(snapshot, TUTORIALS.map(tutorialInfo)),
+        catalog: buildLessonCatalog(
+          snapshot,
+          listTutorials().map(tutorialInfo),
+        ),
       };
     })
     .catch((error: unknown) => {

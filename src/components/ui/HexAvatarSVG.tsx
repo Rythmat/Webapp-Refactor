@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useId, useMemo } from 'react';
 import { generateAvatarPolygons, type AvatarConfig } from '@/lib/avatarHexGrid';
 
 interface HexAvatarSVGProps {
@@ -21,7 +21,9 @@ export const HexAvatarSVG: React.FC<HexAvatarSVGProps> = ({
     [JSON.stringify(config), size],
   );
 
-  const clipId = `avatar-clip-${size}`;
+  // Each avatar its own clip: a shared id clips every avatar on the page by
+  // the first one's, so hiding that one (a shut rail) blanked the rest.
+  const clipId = `avatar-clip-${useId().replace(/:/g, '')}`;
 
   return (
     <svg

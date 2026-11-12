@@ -5,7 +5,7 @@ import {
 } from '@/components/atlas/components/UI/primitives/styles';
 import { cn } from '@/lib/utils';
 
-// Home's genre pills (HomeGlobeCard): a hairline, a breath of white.
+// Home's genre pills (HomeGlobeArc): a hairline, a breath of white.
 const BASE =
   'inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[0.8125rem] leading-5 text-atlas-text-2';
 

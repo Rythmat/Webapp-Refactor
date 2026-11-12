@@ -5,7 +5,7 @@
  *
  * It fits a fixed 1280×720 design canvas into its container with one uniform
  * transform (so rem type and px positions scale together, no drift), paints the
- * shared frame chrome (glow, optional accent bar, phase chip), then
+ * shared frame chrome (optional accent bar, section chip), then
  * absolutely-positions each ELEMENT at the rect its zone derives from
  * `SLIDE_GRID`. Hidden elements are skipped everywhere — that is how a removed
  * title disappears on every surface at once.
@@ -32,8 +32,6 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
-import { STUDENT_PHASE_LABELS } from '../../phases';
-import { pickLocalized } from '../../presentation/localized';
 import type { Interaction, StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
 import { blockKeyForElement, resolveElements } from '../migrateDeckV1';
@@ -42,6 +40,8 @@ import {
   resolveElementRects,
   hasBandContent,
   revealBandRect,
+  zoneRect,
+  type ZoneRect,
 } from '../slideGrid';
 import {
   applyMove,
@@ -55,6 +55,8 @@ import {
   withBlock,
   type ResizeEdge,
 } from '../slideLayout';
+import { LessonSongPill } from '../song/LessonSongPill';
+import { FULL_CANVAS, STAGE_BAND, liveRectOf, stageKindOf } from '../stage';
 import type {
   Slide,
   SlideBlockKey,
@@ -63,9 +65,18 @@ import type {
   SlideLayout,
   SlideSurface,
 } from '../types';
+import { PlaceMenu, placeMenuOf } from './PlaceMenu';
+import { sectionLabelOf } from './SectionChip';
+import { ShowcaseBackdrop, isShowcaseSlide } from './ShowcaseBackdrop';
 import { SlideElementView } from './SlideElementView';
-import { SlideFrameChrome } from './SlideFrameChrome';
+import {
+  SectionProgress,
+  SlideFrameChrome,
+  showsSectionProgress,
+} from './SlideFrameChrome';
+import { StageFillContext, StageScaleContext } from './SlideGlobe';
 import { SlideReflow } from './SlideReflow';
+import { SplitMedia, StageBackdrop } from './StageBackdrop';
 import { useAutofit } from './useAutofit';
 import { useStageScale } from './useStageScale';
 import '../slides.css';
@@ -106,6 +117,19 @@ export interface SlideStageProps {
    * elements render nothing, so the question is never on screen twice.
    */
   bandInteractionIds?: readonly string[];
+  /**
+   * A live surface whose band carries the slide's activity (`SlideRenderer`
+   * on the room's screen, Present, the teacher's preview): the footer stands
+   * down even when the band draws nothing.
+   */
+  liveBand?: boolean;
+  /** A thumbnail: stills only (no video players, no live map). */
+  still?: boolean;
+  /**
+   * Something live the slide is, edge to edge under its elements (the Group
+   * Practice slide's Studio), painted where a stage preset's backdrop is.
+   */
+  backdrop?: ReactNode;
   /**
    * ZONE MODE. When given, the stage lays this slide out from the grid instead
    * of from the legacy block rects — one absolutely-positioned box per zone,
@@ -161,6 +185,9 @@ export const SlideStage = ({
   reveal,
   bandFallback,
   bandInteractionIds,
+  liveBand = false,
+  still = false,
+  backdrop,
   elements,
   interactionsById,
   slots,
@@ -175,8 +202,28 @@ export const SlideStage = ({
   onSelectBlock,
   onLayoutChange,
 }: SlideStageProps) => {
-  const { scale, offsetX, offsetY, ref: stageRef } = useStageScale();
+  const {
+    scale,
+    offsetX,
+    offsetY,
+    width,
+    height,
+    ref: stageRef,
+  } = useStageScale();
   const resolved = resolveLayout(slide);
+  // A stage preset's live layer takes the whole safe area (`slides/stage.ts`).
+  const stageKind = stageKindOf(slide);
+  // A full-screen slide's reveal covers it edge to edge.
+  // A preset's own place for the live layer (the portrait's check-in) comes
+  // first: it sits beside the slide's content, not over it.
+  const liveRect = liveRectOf(slide);
+  const stageBand =
+    liveRect ??
+    (stageKind === 'hero'
+      ? STAGE_BAND
+      : stageKind === 'bleed'
+        ? FULL_CANVAS
+        : undefined);
   // Derive ONCE. `elements` is the caller's list when it has one (the editor
   // will pass an unsaved draft); otherwise fall back to the slide's own. Before
   // this the stage resolved the slide three times per render — here, in the
@@ -207,6 +254,15 @@ export const SlideStage = ({
     return owner;
   }, [zoneOverrides, zoneElements, slide.id]);
 
+  // The Individual Project's places draw as one menu, so a card can open
+  // wide while the others narrow: unless the editor's row control owns them.
+  const placeMenu = useMemo(() => {
+    const menu = placeMenuOf(zoneElements);
+    if (!menu) return null;
+    for (const id of overrideOwner.values()) if (menu.ids.has(id)) return null;
+    return menu;
+  }, [zoneElements, overrideOwner]);
+
   // Whether the band actually paints the QUESTION decides whether the footer
   // element must stand down — and only the stage knows that. The caller used
   // to decide, which meant a slide with a picture in its body suppressed the
@@ -216,7 +272,18 @@ export const SlideStage = ({
   // A reveal is not the question — it is the aggregate — so the footer keeps
   // showing what was asked while the results are up.
   const bandShowsQuestion =
-    Boolean(bandFallback) && !hasBandContent(zoneElements);
+    Boolean(bandFallback) &&
+    (Boolean(liveRect) || !hasBandContent(zoneElements));
+  // On a live surface an EMPTY band owns the slide's activity even when it
+  // draws nothing (a full-screen video asks on the devices; a share slide
+  // waits for a featured project): the footer does not repeat it there. A
+  // band the slide's own content fills is suppressed instead, and then the
+  // footer is the only place the question is (Rule 2).
+  // A full-screen slide is its visual alone, reveal or not.
+  const footerStandsDown =
+    Boolean(liveBand) &&
+    (stageKind === 'bleed' ||
+      (!reveal && (Boolean(liveRect) || !hasBandContent(zoneElements))));
 
   const keys = (Object.keys(blocks) as SlideBlockKey[])
     .filter((k) => blocks[k] != null && resolved[k] && !resolved[k]?.hidden)
@@ -225,10 +292,26 @@ export const SlideStage = ({
         (resolved[a]?.z ?? defaultZ(a)) - (resolved[b]?.z ?? defaultZ(b)),
     );
 
+  // The room's screen and Present fill the window (owner, 2026-11-10: no
+  // margins at the sides): the slide's background and its full-screen visual
+  // reach the edges, and its words stay in the canvas, centred.
+  const fills =
+    (surface === 'projector' || surface === 'present') &&
+    !editable &&
+    scale > 0;
+  const padX = fills ? Math.max(0, (width / scale - SLIDE_CANVAS.w) / 2) : 0;
+  const padY = fills ? Math.max(0, (height / scale - SLIDE_CANVAS.h) / 2) : 0;
+  const area = useMemo(
+    () => ({ w: SLIDE_CANVAS.w + 2 * padX, h: SLIDE_CANVAS.h + 2 * padY }),
+    [padX, padY],
+  );
+
   const frameStyle: CSSProperties = {
-    width: SLIDE_CANVAS.w,
-    height: SLIDE_CANVAS.h,
-    transform: `translate(${offsetX}px, ${offsetY}px) scale(${scale})`,
+    width: area.w,
+    height: area.h,
+    transform: fills
+      ? `scale(${scale})`
+      : `translate(${offsetX}px, ${offsetY}px) scale(${scale})`,
     transformOrigin: 'top left',
     ...(accent ? ({ '--slide-accent': accent } as CSSProperties) : {}),
   };
@@ -253,113 +336,205 @@ export const SlideStage = ({
   }
 
   return (
-    <div
-      ref={stageRef}
-      className={`relative h-full w-full overflow-hidden ${className ?? ''}`}
-    >
-      <div
-        data-surface={surface}
-        // `variant` is a PUBLISHED field on a content slide, and the type-scale
-        // rules keyed on `.slide-frame--welcome` in slides.css (5.5rem title on
-        // a projector) are the only thing that reads it. The deleted SlideFrame
-        // applied this class; the stage has to keep doing so or every welcome
-        // slide silently drops to the ordinary title size.
-        className={`slide-frame absolute left-0 top-0 ${
-          slide.kind === 'content' && slide.variant && slide.variant !== 'plain'
-            ? `slide-frame--${slide.variant}`
-            : ''
-        }`}
-        style={frameStyle}
-        onPointerDown={editable ? () => onSelectBlock?.(null) : undefined}
-      >
-        <SlideFrameChrome slide={slide} language={language} />
-        {reveal ? (
-          <RevealBand elements={zoneElements} scrim>
-            {reveal}
-          </RevealBand>
-        ) : bandShowsQuestion ? (
-          <RevealBand elements={zoneElements}>{bandFallback}</RevealBand>
-        ) : null}
-        {elements
-          ? resolveElementRects(zoneElements).map(({ element, rect }) => (
-              <ZoneBox
-                key={element.id}
-                element={element}
-                rect={rect}
-                selected={
-                  editable &&
-                  selectedBlock !== null &&
-                  blockKeyForElement(element, slide.id) === selectedBlock
-                }
-                onSelect={
-                  editable && onSelectBlock
-                    ? () => {
-                        const key = blockKeyForElement(element, slide.id);
-                        if (key) onSelectBlock(key);
-                      }
-                    : undefined
-                }
-                onHide={
-                  editable && onHideBlock
-                    ? () => {
-                        const key = blockKeyForElement(element, slide.id);
-                        // `title` is required on every slide and some presets
-                        // hide it themselves; everything else is the teacher's
-                        // to remove.
-                        if (key) onHideBlock(key);
-                      }
-                    : undefined
-                }
-              >
-                <SlideElementView
-                  element={element}
-                  surface={surface}
+    <StageScaleContext.Provider value={scale || null}>
+      <StageFillContext.Provider value={area}>
+        <div
+          ref={stageRef}
+          className={`relative h-full w-full overflow-hidden ${className ?? ''}`}
+        >
+          <div
+            data-surface={surface}
+            // `variant` is a PUBLISHED field on a content slide, and the type-scale
+            // rules keyed on `.slide-frame--welcome` in slides.css (5.5rem title on
+            // a projector) are the only thing that reads it. The deleted SlideFrame
+            // applied this class; the stage has to keep doing so or every welcome
+            // slide silently drops to the ordinary title size.
+            className={`slide-frame absolute left-0 top-0 ${
+              slide.kind === 'content' &&
+              slide.variant &&
+              slide.variant !== 'plain'
+                ? `slide-frame--${slide.variant}`
+                : ''
+            } ${stageKind ? `slide-frame--stage-${stageKind}` : ''}`}
+            style={frameStyle}
+            onPointerDown={editable ? () => onSelectBlock?.(null) : undefined}
+          >
+            <StageBackdrop
+              slide={slide}
+              surface={surface}
+              live={playableMedia}
+              still={still}
+              inert={editable}
+              language={language}
+              {...(slots?.mediaCommand ? { command: slots.mediaCommand } : {})}
+            />
+            {backdrop}
+            {showsSectionProgress(slide, surface) && (
+              <SectionProgress slide={slide} />
+            )}
+            {/* The canvas: what the slide says, where it was laid out. Only
+              its own boxes take the pointer, so a full-screen Studio or map
+              under it still does. */}
+            <div
+              className="pointer-events-none absolute [&>*]:pointer-events-auto"
+              style={{
+                left: padX,
+                top: padY,
+                width: SLIDE_CANVAS.w,
+                height: SLIDE_CANVAS.h,
+              }}
+            >
+              {isShowcaseSlide(slide) && (
+                <ShowcaseBackdrop slide={slide} fly={playableMedia} />
+              )}
+              {stageKind === 'split' && (
+                <SplitMedia
+                  slide={slide}
+                  live={Boolean(playableMedia) && !still}
                   language={language}
-                  interactionsById={interactionsById ?? {}}
-                  hiddenInteractionIds={
-                    bandShowsQuestion ? bandInteractionIds : undefined
-                  }
-                  override={resolveOverride(
-                    element,
-                    slide.id,
-                    zoneOverrides,
-                    overrideOwner,
-                  )}
-                  slots={slots}
-                  playableMedia={playableMedia}
-                  phaseLabel={pickLocalized(
-                    STUDENT_PHASE_LABELS[slide.phase],
-                    language,
-                  )}
+                  {...(slots?.mediaCommand
+                    ? { command: slots.mediaCommand }
+                    : {})}
                 />
-              </ZoneBox>
-            ))
-          : null}
-        {elements
-          ? null
-          : keys.map((key) => (
-              <BlockBox
-                key={key}
-                blockKey={key}
-                rect={resolved[key] as SlideBlockRect}
-                box={BOX_KEYS.has(key)}
-                z={resolved[key]?.z ?? defaultZ(key)}
-                editable={editable}
-                selected={selectedBlock === key}
-                scale={scale || 1}
-                onSelect={() => onSelectBlock?.(key)}
-                onCommit={(rect) =>
-                  onLayoutChange?.(withBlock(slide.layout, key, rect))
-                }
-                onHide={() => onLayoutChange?.(hideBlock(slide, key))}
-                onFront={() => onLayoutChange?.(bringToFront(slide, key))}
-                onBack={() => onLayoutChange?.(sendToBack(slide, key))}
-              >
-                {blocks[key]}
-              </BlockBox>
-            ))}
-      </div>
-    </div>
+              )}
+              <SlideFrameChrome slide={slide} surface={surface} />
+              {reveal ? (
+                <RevealBand elements={zoneElements} rect={stageBand} scrim>
+                  {reveal}
+                </RevealBand>
+              ) : bandShowsQuestion ? (
+                <RevealBand elements={zoneElements} rect={stageBand}>
+                  {bandFallback}
+                </RevealBand>
+              ) : null}
+              {placeMenu && (
+                <div
+                  data-zone="ctaCenter"
+                  data-place-menu=""
+                  className="absolute"
+                  style={{
+                    left: zoneRect('ctaCenter').x,
+                    top: zoneRect('ctaCenter').y,
+                    width: zoneRect('ctaCenter').w,
+                    height: zoneRect('ctaCenter').h,
+                  }}
+                >
+                  <PlaceMenu
+                    places={placeMenu.places}
+                    surface={surface}
+                    language={language}
+                    sectionLabel={sectionLabelOf(slide, language)}
+                    still={still}
+                    onOpen={slots?.openPlace}
+                  />
+                </div>
+              )}
+              {elements
+                ? resolveElementRects(zoneElements)
+                    .filter(({ element }) => !placeMenu?.ids.has(element.id))
+                    .map(({ element, rect }) => (
+                      <ZoneBox
+                        key={element.id}
+                        element={element}
+                        rect={rect}
+                        selected={
+                          editable &&
+                          selectedBlock !== null &&
+                          blockKeyForElement(element, slide.id) ===
+                            selectedBlock
+                        }
+                        onSelect={
+                          editable && onSelectBlock
+                            ? () => {
+                                const key = blockKeyForElement(
+                                  element,
+                                  slide.id,
+                                );
+                                if (key) onSelectBlock(key);
+                              }
+                            : undefined
+                        }
+                        onHide={
+                          editable && onHideBlock
+                            ? () => {
+                                const key = blockKeyForElement(
+                                  element,
+                                  slide.id,
+                                );
+                                // `title` is required on every slide and some presets
+                                // hide it themselves; everything else is the teacher's
+                                // to remove.
+                                if (key) onHideBlock(key);
+                              }
+                            : undefined
+                        }
+                      >
+                        <SlideElementView
+                          element={element}
+                          surface={surface}
+                          language={language}
+                          interactionsById={interactionsById ?? {}}
+                          hiddenInteractionIds={
+                            bandShowsQuestion || footerStandsDown
+                              ? bandInteractionIds
+                              : undefined
+                          }
+                          questionOnly={Boolean(liveBand)}
+                          override={resolveOverride(
+                            element,
+                            slide.id,
+                            zoneOverrides,
+                            overrideOwner,
+                          )}
+                          slots={slots}
+                          playableMedia={playableMedia}
+                          phaseLabel={sectionLabelOf(slide, language)}
+                        />
+                      </ZoneBox>
+                    ))
+                : null}
+              {elements
+                ? null
+                : keys.map((key) => (
+                    <BlockBox
+                      key={key}
+                      blockKey={key}
+                      rect={resolved[key] as SlideBlockRect}
+                      box={BOX_KEYS.has(key)}
+                      z={resolved[key]?.z ?? defaultZ(key)}
+                      editable={editable}
+                      selected={selectedBlock === key}
+                      scale={scale || 1}
+                      onSelect={() => onSelectBlock?.(key)}
+                      onCommit={(rect) =>
+                        onLayoutChange?.(withBlock(slide.layout, key, rect))
+                      }
+                      onHide={() => onLayoutChange?.(hideBlock(slide, key))}
+                      onFront={() => onLayoutChange?.(bringToFront(slide, key))}
+                      onBack={() => onLayoutChange?.(sendToBack(slide, key))}
+                    >
+                      {blocks[key]}
+                    </BlockBox>
+                  ))}
+              {/* The slide's song, top left (owner, 2026-11-10): the
+                  Set list's collapsed "Recording", played without opening.
+                  The editor shows it without playing it. */}
+              {slide.recording &&
+                !still &&
+                (surface === 'projector' || surface === 'present') && (
+                  <div
+                    className={`absolute left-[48px] top-[40px] z-30 ${
+                      editable ? 'pointer-events-none' : ''
+                    }`}
+                  >
+                    <LessonSongPill videoId={slide.recording.videoId} />
+                  </div>
+                )}
+            </div>
+          </div>
+        </div>
+      </StageFillContext.Provider>
+    </StageScaleContext.Provider>
   );
 };
 
@@ -505,7 +680,7 @@ const BlockBox = ({
       }
       className={
         editable
-          ? `outline-dashed outline-offset-2 ${selected ? 'outline-2 outline-[#7ecfcf]' : 'outline-1 outline-white/15 hover:outline-white/40'}`
+          ? `outline-dashed outline-offset-2 ${selected ? 'outline-2 outline-white' : 'outline-1 outline-white/15 hover:outline-white/40'}`
           : undefined
       }
     >
@@ -515,7 +690,7 @@ const BlockBox = ({
         <>
           {/* Move bar + actions, floated above the block. */}
           <div
-            className="absolute left-0 flex items-center gap-1 rounded-md bg-[#7ecfcf] text-black"
+            className="absolute left-0 flex items-center gap-1 rounded-md bg-white text-black"
             style={{
               top: -px(30),
               height: px(26),
@@ -567,7 +742,7 @@ const BlockBox = ({
             <span
               key={h.edges.join('')}
               onPointerDown={begin(h.edges)}
-              className={`absolute rounded-full border border-[#7ecfcf] bg-white ${h.cls}`}
+              className={`absolute rounded-full border border-black/60 bg-white ${h.cls}`}
               style={{
                 width: px(12),
                 height: px(12),
@@ -640,7 +815,7 @@ const ZoneBox = ({
         onSelect
           ? 'cursor-text rounded-lg ring-offset-2 ring-offset-transparent'
           : ''
-      } ${selected ? 'ring-2 ring-[var(--slide-accent,#7ecfcf)]' : ''}`}
+      } ${selected ? 'ring-2 ring-white' : ''}`}
       style={{
         left: rect.x,
         top: rect.y,
@@ -703,8 +878,11 @@ const ZoneBox = ({
 const RevealBand = ({
   elements,
   children,
+  rect: rectOverride,
   scrim = false,
 }: {
+  /** A stage preset's band (the whole safe area), instead of the derived one. */
+  rect?: ZoneRect | undefined;
   /**
    * The SAME resolved element list the stage laid out, not `slide.elements`.
    * Re-deriving here would let the band's geometry come from the stored slide
@@ -717,13 +895,13 @@ const RevealBand = ({
    *  pre-reveal live layer only ever paints an empty band, so it does not. */
   scrim?: boolean;
 }) => {
-  const rect = revealBandRect(elements);
+  const rect = rectOverride ?? revealBandRect(elements);
   return (
     <div
       data-reveal-band
-      className={`absolute flex items-center justify-center overflow-hidden rounded-2xl ${
-        scrim ? 'bg-black/70 backdrop-blur-sm' : ''
-      }`}
+      className={`absolute flex items-center justify-center overflow-hidden ${
+        rect.w >= 1280 ? '' : 'rounded-2xl'
+      } ${scrim ? 'bg-[rgba(16,16,18,0.94)]' : ''}`}
       style={{
         left: rect.x,
         top: rect.y,

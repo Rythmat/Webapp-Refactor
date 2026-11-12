@@ -11,8 +11,9 @@ const INTERACTIVE_SELECTOR =
 
 // Full-canvas experiences that own their pointer/contextual cursors, and the
 // auth pages, whose Google sign-in iframe swallows the pointer (the hexagon
-// would freeze at its edge).
-const EXCLUDED_PREFIXES = ['/globe', '/arcade', '/auth'];
+// would freeze at its edge). The editor framed in a lesson slide is the
+// editor too (`/studio/slide`).
+const EXCLUDED_PREFIXES = ['/globe', '/arcade', '/auth', '/studio/slide'];
 const isExcluded = (path: string) =>
   isEditorPath(path) || EXCLUDED_PREFIXES.some((p) => path.startsWith(p));
 

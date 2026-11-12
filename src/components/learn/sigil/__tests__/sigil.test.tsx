@@ -1,13 +1,27 @@
 // @vitest-environment jsdom
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import {
+  allCourses,
+  buildLearnCatalog,
+} from '@/features/learn/catalog/learnCatalog';
+import { genreReadinessFrom } from '@/features/learn/genreReadiness';
+import { genreSpectrumIndex, genreTruchetCover } from '@/lib/cover';
+import { hueOf, truchetPair } from '@/lib/cover/color';
 import { GENRE_GROOVES } from '@/lib/learn/genreGrooves';
 import { GENRE_INTERVALS } from '@/lib/learn/genreIntervals';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { GENRE_COURSES } from '../../genreCourses';
+import { SigilCard } from '../SigilCard';
 import { WheelStar } from '../WheelStar';
 import { fifthsIndex, shortestAngle } from '../sigilGeometry';
-import { lissajousPath, rotaryPath, sigilFor } from '../sigilSpec';
+import {
+  lissajousPath,
+  rotaryPath,
+  sigilColors,
+  sigilFor,
+  type SigilSpec,
+} from '../sigilSpec';
 import { ScaleSigil } from '../sigils';
 
 describe('genre grooves (kept for the Drum lessons)', () => {
@@ -76,6 +90,67 @@ describe('sigilFor', () => {
       stats: '2:3 · fifth',
     });
     expect(sigilFor({})).toBeNull();
+  });
+});
+
+describe("sigilColors: the Truchet covers' two colours, from the music", () => {
+  it("gives an interval its upper note's pair above C: a fifth G's", () => {
+    expect(sigilColors(sigilFor({ ratio: [2, 3] })!)).toEqual(truchetPair('G'));
+    expect(sigilColors(sigilFor({ ratio: [3, 4] })!)).toEqual(truchetPair('F'));
+  });
+
+  it("gives a genre's course its Best Of tile's colours, by its place in the row", () => {
+    const row = ['pop', 'rock', 'funk', 'latin', 'reggae'];
+    for (const course of GENRE_COURSES) {
+      const spec = sigilFor({ expandId: course.expandId });
+      if (!spec) continue;
+      const tile = genreTruchetCover(
+        'x',
+        course.slug,
+        genreSpectrumIndex(course.slug, row),
+      );
+      expect(sigilColors(spec, row), course.slug).toEqual(tile.colors);
+    }
+    const latin = sigilFor({ expandId: 'course:latin' })!;
+    expect(sigilColors(latin, row)).toEqual(
+      genreTruchetCover('x', 'latin', 3).colors,
+    );
+  });
+
+  it('keeps a mode its own colour, and never paints the brand yellow', () => {
+    const lydian = sigilFor({ mode: 'lydian' })!;
+    expect(sigilColors(lydian)[0]).toBe(colorForKeyMode('C', 'lydian'));
+    const catalog = buildLearnCatalog({
+      enabled: () => true,
+      isPremium: true,
+      lessons: [],
+      completedAt: {},
+      genreReady: genreReadinessFrom(new Set()),
+    });
+    const specs = allCourses(catalog)
+      .map((c) => c.sigil)
+      .filter((s): s is SigilSpec => Boolean(s));
+    expect(specs.length).toBeGreaterThan(20);
+    for (const spec of specs) {
+      for (const color of sigilColors(spec)) {
+        const hue = hueOf(color);
+        expect(hue < 40 || hue > 65, `${spec.kind} ${color}`).toBe(true);
+      }
+    }
+  });
+});
+
+describe('SigilCard', () => {
+  it("draws its figure in the covers' gradient, in bold lines", () => {
+    const { container } = render(
+      <SigilCard spec={sigilFor({ mode: 'dorian' })!} label="Dorian" />,
+    );
+    const svg = container.querySelector('svg.sigil')!;
+    expect(svg.classList.contains('sigil--lines')).toBe(true);
+    const stops = [...svg.querySelectorAll('linearGradient stop')];
+    expect(stops.map((s) => s.getAttribute('stop-color'))).toEqual(
+      sigilColors(sigilFor({ mode: 'dorian' })!),
+    );
   });
 });
 

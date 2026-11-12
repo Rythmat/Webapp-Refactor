@@ -19,7 +19,8 @@ export interface ParticipationPulseProps {
   language?: StudentLanguage;
 }
 
-const TEAL = '#7ecfcf';
+/** The lead: white over neutral greys (no accent colour on results). */
+const LEAD = '#ffffff';
 /** Dot-slot cap — beyond this the ring fills proportionally. */
 const MAX_DOTS = 48;
 
@@ -63,7 +64,7 @@ export const ParticipationPulse = ({
                 animate={{ scale: 1 }}
                 transition={reduce ? { duration: 0 } : DOT_SPRING}
                 className="block h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full"
-                style={{ backgroundColor: TEAL }}
+                style={{ backgroundColor: LEAD }}
               />
             ) : (
               <span className="block h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/15" />

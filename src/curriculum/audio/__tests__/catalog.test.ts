@@ -44,11 +44,21 @@ describe('the Audio catalog', () => {
     expect(Object.keys(LAB_TOPIC_PAGES).sort()).toEqual([...topics].sort());
   });
 
-  it('puts each course’s lab first, for whatever opens it', () => {
+  it('puts a course’s lab first where it has one, for whatever opens it', () => {
     const course = audioShelves().find((shelf) => shelf.title === 'Course');
-    expect(course?.modules.map((m) => m.lessons[0].kind)).toEqual(
-      course?.modules.map(() => 'lab'),
-    );
+    for (const module of course?.modules ?? []) {
+      if (module.lessons.some((l) => l.kind === 'lab')) {
+        expect(module.lessons[0].kind, module.id).toBe('lab');
+      }
+    }
+  });
+
+  it('teaches Sound Basics entirely in guided lessons', () => {
+    expect(audioModule('sound-basics')?.lessons.map((l) => l.kind)).toEqual([
+      'guided',
+      'guided',
+      'guided',
+    ]);
   });
 
   it('hands a replaced topic to a guided lesson in its own course', () => {
@@ -68,26 +78,35 @@ describe('the Audio catalog', () => {
 
   it('lays out a course’s path in teaching order', () => {
     const stops = (id: string) =>
-      courseRows(audioModule(id)!).map((row) => row.lesson.id);
+      courseRows(audioModule(id)!).map((row) =>
+        row.kind === 'lab' ? row.topic.id : row.lesson.id,
+      );
     expect(stops('sound-basics')).toEqual([
       'physics-of-sound',
       'hear-the-kit',
       'decibels-and-faders',
     ]);
-    expect(stops('signal-path')).toEqual(['gain-staging', 'mic-to-speaker']);
-    expect(stops('sound-color')).toEqual(['tone-and-timbre']);
-  });
-
-  it('leaves replaced topics out of what’s left of the lab', () => {
-    const lab = courseRows(audioModule('sound-basics')!)[0];
-    expect(lab.kind === 'lab' && lab.topics.map((t) => t.id)).toEqual([
-      'waves',
-      'compression',
+    expect(stops('signal-path')).toEqual(['mic-to-speaker', 'gain-staging']);
+    expect(stops('sound-color')).toEqual([
+      'strings-and-pipes',
+      'timbre',
+      'envelope',
     ]);
   });
 
+  it('tells every course what it teaches', () => {
+    for (const shelf of audioShelves()) {
+      if (shelf.title !== 'Course') continue;
+      for (const module of shelf.modules) {
+        expect(module.blurb, module.id).toBeTruthy();
+        expect(module.unit, module.id).toBeTruthy();
+        expect(module.goals?.length, module.id).toBeGreaterThan(0);
+      }
+    }
+  });
+
   it('hangs Microphone Anatomy from the lesson that uses it', () => {
-    const [gain] = courseRows(audioModule('signal-path')!);
+    const [, gain] = courseRows(audioModule('signal-path')!);
     expect(gain.kind === 'guided' && gain.side?.id).toBe('microphone');
     expect(gain.kind === 'guided' && gain.side?.route).toBe(
       '/learn/audio/anatomy/microphone',

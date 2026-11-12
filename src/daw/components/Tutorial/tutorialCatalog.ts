@@ -5,15 +5,24 @@
 // carries (audit practice-tutorial-25); tutorials.ts adds the steps to these
 // entries by id.
 //
-// Pure data and functions on purpose: no imports, so the dashboard chunk can
-// take it as is. That includes the courses: a course (Studio Basics) is a
-// run of lessons taken in order, and Start Here, Teach and the dashboard read
-// its order and its progress from here too.
+// Data and functions on purpose, with no Studio imports, so the dashboard
+// chunk can take it as is. That includes the courses: a course (Studio
+// Basics) is a run of lessons taken in order, and Start Here, Teach and the
+// dashboard read its order and its progress from here too.
+//
+// The lessons written in the console (curriculum/engine/studioLessons) join
+// these: one with a code lesson's id replaces its entry, any other is a new
+// lesson. `listTutorialCatalog` is the merged list; TUTORIAL_CATALOG is the
+// code's own.
+
+import { lessonNeedsPremium } from '@/content/studioLessons/premium';
+import type { StudioLesson } from '@/content/studioLessons/schemas';
+import { listStudioLessons } from '@/curriculum/engine/studioLessons/registry';
 
 export type TutorialDifficulty = 'Beginner' | 'Intermediate' | 'Advanced';
 
 /** A course of lessons taken in order (TUTORIAL_COURSES). */
-export type TutorialCourseId = 'studio-basics';
+export type TutorialCourseId = 'studio-production';
 
 export interface TutorialCatalogEntry {
   id: string;
@@ -22,10 +31,11 @@ export interface TutorialCatalogEntry {
   difficulty: TutorialDifficulty;
   estMinutes: number;
   /**
-   * The lesson has steps in Prism, which is part of Premium, so a free
-   * student gets the upgrade prompt instead of the lesson (owner decision 8:
-   * Prism is not unlocked during lessons). tutorialCatalog.test.ts derives
-   * this from the steps, so it can't drift from them.
+   * The lesson has steps in the old Prism panel, which is part of Premium,
+   * so a free student gets the upgrade prompt instead of the lesson (owner
+   * decision 8). tutorialCatalog.test.ts derives this from the steps, so it
+   * can't drift from them. The lessons rebuilt on 2026-11-09 teach Prism as
+   * the prompt bar and are all free.
    */
   requiresPremium: boolean;
   /** The course the lesson belongs to, if any, and its place in it (1 on). */
@@ -33,186 +43,170 @@ export interface TutorialCatalogEntry {
   courseOrder?: number;
   /**
    * The demo song (demoProjects.ts) a cold start opens the lesson on, when
-   * it isn't its course's. A lesson with no seed of either kind opens on a
-   * blank project, as the Production lessons always have.
+   * it isn't its course's. Every lesson today starts from a blank project
+   * (owner, 2026-11-09), so none has one.
    */
   seed?: string;
 }
 
 /**
- * Every Production lesson. The dashboard lists the courses' lessons first,
- * each course in its own order (TUTORIAL_COURSES), then the rest in this
- * order.
+ * Every Production lesson, the Studio Production course's in its order.
+ * Each starts from a blank project and builds something from nothing
+ * (owner, 2026-11-09): Studio Basics is a first song, start to finish; the
+ * others each go deeper into one craft, in a genre.
  */
 export const TUTORIAL_CATALOG = [
   {
-    id: 'make-first-track',
-    title: 'Make your first track',
+    id: 'studio-basics',
+    title: 'Studio Basics: make your first song',
     subtitle:
-      'Add an instrument, build a progression, shape the feel, and hear it play.',
+      'From an empty project to a finished song: drums, chords, a melody and a bass line, arranged, saved and exported.',
     difficulty: 'Beginner',
-    estMinutes: 5,
-    requiresPremium: true,
+    estMinutes: 25,
+    requiresPremium: false,
+    course: 'studio-production',
+    courseOrder: 1,
   },
 
-  // ── Genre pack: one lesson per genre, each a different craft area ──────
-  {
-    id: 'jazz-color-your-chords',
-    title: 'Jazz — Color your chords',
-    subtitle: 'Modes, seventh chords, and swing — harmony with flavor.',
-    difficulty: 'Beginner',
-    estMinutes: 4,
-    requiresPremium: true,
-  },
+  // ── The skills: one craft each, in a genre (skills/) ──────────────────
   {
     id: 'hiphop-build-the-beat',
     title: 'Hip Hop — Build the beat',
-    subtitle: 'Program drums, slow the tempo, and find the pocket.',
+    subtitle:
+      'Beats: an 808 kit, a backbeat with ghost notes, and a deep synth bass.',
     difficulty: 'Beginner',
-    estMinutes: 4,
+    estMinutes: 12,
     requiresPremium: false,
-  },
-  {
-    id: 'edm-design-the-drop',
-    title: 'EDM — Design the drop',
-    subtitle: 'Wobble bass, minor keys, and saturation — our take on dubstep.',
-    difficulty: 'Intermediate',
-    estMinutes: 5,
-    requiresPremium: true,
+    course: 'studio-production',
+    courseOrder: 2,
   },
   {
     id: 'house-make-it-pump',
     title: 'House — Make it pump',
-    subtitle: 'Sidechain the bass to the kick — the classic pumping groove.',
+    subtitle:
+      'Sidechain: four on the floor, and a bass that breathes with the kick.',
     difficulty: 'Intermediate',
-    estMinutes: 4,
+    estMinutes: 12,
     requiresPremium: false,
+    course: 'studio-production',
+    courseOrder: 3,
+  },
+  {
+    id: 'edm-design-the-drop',
+    title: 'EDM — Design the drop',
+    subtitle:
+      'Sound design: shape a synth, wobble the bass, add weight, build to the drop.',
+    difficulty: 'Intermediate',
+    estMinutes: 15,
+    requiresPremium: false,
+    course: 'studio-production',
+    courseOrder: 4,
+  },
+  {
+    id: 'jazz-color-your-chords',
+    title: 'Jazz — Color your chords',
+    subtitle:
+      'Harmony: seventh chords, the ii–V–I, a walking bass and an electric piano.',
+    difficulty: 'Beginner',
+    estMinutes: 12,
+    requiresPremium: false,
+    course: 'studio-production',
+    courseOrder: 5,
   },
   {
     id: 'rnb-mix-and-polish',
     title: 'R&B — Mix & polish',
-    subtitle: 'Reverb, balance, and a mastering touch — make it smooth.',
+    subtitle:
+      'Mixing: EQ, compression, faders, a shared reverb and the master, then bounce it.',
     difficulty: 'Intermediate',
-    estMinutes: 4,
-    requiresPremium: true,
+    estMinutes: 15,
+    requiresPremium: false,
+    course: 'studio-production',
+    courseOrder: 6,
   },
   {
     id: 'indie-movement-and-dynamics',
     title: 'Indie — Movement & dynamics',
-    subtitle: 'Automate volume, pan and sends so your mix breathes.',
-    difficulty: 'Intermediate',
-    estMinutes: 3,
-    requiresPremium: false,
-  },
-
-  // ── Studio Basics: the beginner's tour, stop 4 of Start Here ───────────
-  // Free, like everything on the Start Here path. The steps are in
-  // studioBasics/studioBasicsLessons.ts.
-  {
-    id: 'studio-basics-your-tracks',
-    title: 'Your Tracks',
     subtitle:
-      'Pick a track, change its sound, and use mute, solo, arm and monitor.',
-    difficulty: 'Beginner',
-    estMinutes: 3,
+      'Arrangement: a verse and a chorus, then volume and pan automation that moves.',
+    difficulty: 'Intermediate',
+    estMinutes: 12,
     requiresPremium: false,
-    course: 'studio-basics',
-    courseOrder: 1,
-  },
-  {
-    id: 'studio-basics-add-a-track',
-    title: 'Add a Track',
-    subtitle: 'Pick an instrument and give your song a new part.',
-    difficulty: 'Beginner',
-    estMinutes: 3,
-    requiresPremium: false,
-    course: 'studio-basics',
-    courseOrder: 2,
-  },
-  {
-    id: 'studio-basics-record',
-    title: 'Record',
-    subtitle: 'Play along with your song and keep your own take.',
-    difficulty: 'Beginner',
-    estMinutes: 4,
-    requiresPremium: false,
-    course: 'studio-basics',
-    courseOrder: 3,
-  },
-  {
-    id: 'studio-basics-piano-roll',
-    title: 'The Piano Roll',
-    subtitle: 'Open a clip, then add, move, stretch and delete its notes.',
-    difficulty: 'Beginner',
-    estMinutes: 4,
-    requiresPremium: false,
-    course: 'studio-basics',
-    courseOrder: 4,
-  },
-  {
-    id: 'studio-basics-insight',
-    title: 'Insight',
-    subtitle: 'See the key and the chords your song is using.',
-    difficulty: 'Beginner',
-    estMinutes: 3,
-    requiresPremium: false,
-    course: 'studio-basics',
-    courseOrder: 5,
-  },
-  {
-    id: 'studio-basics-score',
-    title: 'The Score',
-    subtitle: 'Your song as sheet music, ready to read and print.',
-    difficulty: 'Beginner',
-    estMinutes: 4,
-    requiresPremium: false,
-    course: 'studio-basics',
-    courseOrder: 6,
-  },
-  {
-    id: 'studio-basics-lead-sheet',
-    title: 'The Lead Sheet',
-    subtitle: 'The chords over the melody, the way a band reads a song.',
-    difficulty: 'Beginner',
-    estMinutes: 4,
-    requiresPremium: false,
-    course: 'studio-basics',
+    course: 'studio-production',
     courseOrder: 7,
-  },
-  {
-    id: 'studio-basics-loop-and-repeat',
-    title: 'Loop and Repeat',
-    subtitle: 'Loop a part to practice it, and repeat your best ideas.',
-    difficulty: 'Beginner',
-    estMinutes: 4,
-    requiresPremium: false,
-    course: 'studio-basics',
-    courseOrder: 8,
-  },
-  {
-    id: 'studio-basics-save-and-export',
-    title: 'Save and Export',
-    subtitle: 'Keep your song, then share it as MIDI, MusicXML or audio.',
-    difficulty: 'Beginner',
-    estMinutes: 3,
-    requiresPremium: false,
-    course: 'studio-basics',
-    courseOrder: 9,
   },
 ] as const satisfies readonly TutorialCatalogEntry[];
 
+/**
+ * Lessons that went, by id → the lesson that took their place, so a link,
+ * a Teach slide or Start Here that still names one opens its successor.
+ * The nine short Studio Basics lessons and Make your first track became the
+ * one Studio Basics lesson (owner, 2026-11-09).
+ */
+export const LEGACY_LESSON_IDS: Readonly<Record<string, TutorialId>> = {
+  'make-first-track': 'studio-basics',
+  'studio-basics-your-tracks': 'studio-basics',
+  'studio-basics-add-a-track': 'studio-basics',
+  'studio-basics-record': 'studio-basics',
+  'studio-basics-piano-roll': 'studio-basics',
+  'studio-basics-insight': 'studio-basics',
+  'studio-basics-score': 'studio-basics',
+  'studio-basics-lead-sheet': 'studio-basics',
+  'studio-basics-loop-and-repeat': 'studio-basics',
+  'studio-basics-save-and-export': 'studio-basics',
+};
+
+/** The id a lesson goes by today, following LEGACY_LESSON_IDS. */
+export function currentLessonId(id: string): string {
+  return Object.prototype.hasOwnProperty.call(LEGACY_LESSON_IDS, id)
+    ? LEGACY_LESSON_IDS[id]
+    : id;
+}
+
 /** A lesson's id: tutorials.ts must give steps to exactly these. */
 export type TutorialId = (typeof TUTORIAL_CATALOG)[number]['id'];
+
+/** A console lesson's tile: its catalog fields, Premium by its steps. */
+export function fileCatalogEntry(lesson: StudioLesson): TutorialCatalogEntry {
+  return {
+    id: lesson.id,
+    title: lesson.title,
+    subtitle: lesson.subtitle,
+    difficulty: lesson.difficulty,
+    estMinutes: lesson.estMinutes,
+    requiresPremium: lessonNeedsPremium(lesson.steps),
+    ...(lesson.course
+      ? { course: lesson.course, courseOrder: lesson.courseOrder }
+      : {}),
+    ...(lesson.seed ? { seed: lesson.seed } : {}),
+  };
+}
+
+/**
+ * Every Production lesson: the code's, each replaced by a console lesson of
+ * the same id, then the console's new lessons by title.
+ */
+export function listTutorialCatalog(): readonly TutorialCatalogEntry[] {
+  const files = new Map(listStudioLessons().map((l) => [l.id, l]));
+  const code = (TUTORIAL_CATALOG as readonly TutorialCatalogEntry[]).map(
+    (entry) => {
+      const file = files.get(entry.id);
+      return file ? fileCatalogEntry(file) : entry;
+    },
+  );
+  const added = [...files.values()]
+    .filter((l) => !code.some((e) => e.id === l.id))
+    .sort((a, b) => a.title.localeCompare(b.title))
+    .map(fileCatalogEntry);
+  return [...code, ...added];
+}
 
 export function getTutorialEntry(
   id: string | null,
 ): TutorialCatalogEntry | null {
   if (!id) return null;
-  return (
-    (TUTORIAL_CATALOG as readonly TutorialCatalogEntry[]).find(
-      (t) => t.id === id,
-    ) ?? null
-  );
+  const current = currentLessonId(id);
+  return listTutorialCatalog().find((t) => t.id === current) ?? null;
 }
 
 // ── Courses ────────────────────────────────────────────────────────────────
@@ -225,33 +219,30 @@ export interface TutorialCourse {
   /** Its lessons, in the order they are taken. */
   lessonIds: readonly TutorialId[];
   /**
-   * The demo song (demoProjects.ts) a cold start opens its lessons on: from
-   * the Production tab, a Teach slide or Start Here. A lesson started from
-   * inside the editor runs on the open project instead (startTutorial is
-   * that "in place" start). Until the demo exists, the boot opens
+   * The demo song (demoProjects.ts) a cold start opens its lessons on, if
+   * any: from the Production tab, a Teach slide or Start Here. Left out, they
+   * start from a blank project, as every lesson does today (owner,
+   * 2026-11-09). Until a named demo exists, the boot opens
    * FALLBACK_LESSON_SEED (demoSeed.ts) without a word.
    */
-  seed: string;
+  seed?: string;
 }
 
 export const TUTORIAL_COURSES: readonly TutorialCourse[] = [
   {
-    id: 'studio-basics',
-    title: 'Studio Basics',
+    id: 'studio-production',
+    title: 'Studio Production',
     description:
-      'Nine short tutorials around the Studio: watch each tool in action, then try it on a real song.',
+      'Start with your first song, then go deeper: beats, sidechain, sound design, harmony, mixing and arrangement. Every lesson starts from an empty project.',
     lessonIds: [
-      'studio-basics-your-tracks',
-      'studio-basics-add-a-track',
-      'studio-basics-record',
-      'studio-basics-piano-roll',
-      'studio-basics-insight',
-      'studio-basics-score',
-      'studio-basics-lead-sheet',
-      'studio-basics-loop-and-repeat',
-      'studio-basics-save-and-export',
+      'studio-basics',
+      'hiphop-build-the-beat',
+      'house-make-it-pump',
+      'edm-design-the-drop',
+      'jazz-color-your-chords',
+      'rnb-mix-and-polish',
+      'indie-movement-and-dynamics',
     ],
-    seed: 'demo-studio-basics',
   },
 ];
 
@@ -267,14 +258,24 @@ export function courseOfLesson(id: string | null): TutorialCourse | null {
   return getTutorialCourse(getTutorialEntry(id)?.course);
 }
 
-/** A course's lessons, in order, as catalog entries. */
+/**
+ * A course's lessons, in order, as catalog entries: every lesson naming the
+ * course, by its place in it (a console lesson may join one).
+ */
 export function courseLessons(
   course: TutorialCourse,
 ): readonly TutorialCatalogEntry[] {
-  return course.lessonIds.flatMap((id) => {
-    const entry = getTutorialEntry(id);
-    return entry ? [entry] : [];
-  });
+  const declared = (id: string) => {
+    const i = (course.lessonIds as readonly string[]).indexOf(id);
+    return i === -1 ? Infinity : i;
+  };
+  return listTutorialCatalog()
+    .filter((t) => t.course === course.id)
+    .sort(
+      (a, b) =>
+        (a.courseOrder ?? Infinity) - (b.courseOrder ?? Infinity) ||
+        declared(a.id) - declared(b.id),
+    );
 }
 
 /** Where lesson `id` sits in its course: "Lesson 3 of 9". */
@@ -283,9 +284,10 @@ export function lessonPlace(
 ): { course: TutorialCourse; number: number; total: number } | null {
   const course = courseOfLesson(id);
   if (!course || !id) return null;
-  const index = course.lessonIds.indexOf(id as TutorialId);
+  const ids = courseLessons(course).map((t) => t.id);
+  const index = ids.indexOf(id);
   if (index === -1) return null;
-  return { course, number: index + 1, total: course.lessonIds.length };
+  return { course, number: index + 1, total: ids.length };
 }
 
 /** The lesson after `id` in its course, or null after the last one. */
@@ -294,7 +296,7 @@ export function nextCourseLesson(
 ): TutorialCatalogEntry | null {
   const place = lessonPlace(id);
   if (!place) return null;
-  return getTutorialEntry(place.course.lessonIds[place.number] ?? null);
+  return courseLessons(place.course)[place.number] ?? null;
 }
 
 /** Completion times by lesson id, as useTutorialProgressStore keeps them. */

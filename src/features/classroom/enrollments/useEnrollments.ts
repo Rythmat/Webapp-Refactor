@@ -6,7 +6,7 @@
  *  `PATCH .../enrollments/:eid`). The four callbacks (approve / deny / kick /
  * reactivate) all collapse to a single PATCH with
  * `{ status: 'active' | 'removed' }` — the verb names survive because
- * `RosterTabs` still calls them, but they resolve to the same mutation.
+ * The Office's Students page still calls them, but they resolve to the same mutation.
  * Timestamps returned: `joinedAt`, `approvedAt`, `removedAt` (three mutable
  * stamps; the Sprint 3 `deniedAt`/`reactivatedAt` fields were retired).
  *

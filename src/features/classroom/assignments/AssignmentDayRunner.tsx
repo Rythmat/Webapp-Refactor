@@ -1,10 +1,13 @@
 import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { MicroLabel } from '@/components/kit';
 import { ClassroomRoutes } from '@/constants/routes';
 import { InteractionInput } from '../live/interactions';
+import { PHASES, type PhaseKey } from '../phases';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
+import { phaseSectionsLabel } from '../slides/sections';
 import type {
   Interaction,
   InteractionResponsePayload,
@@ -16,6 +19,9 @@ import {
   useStudentEnrollmentId,
 } from './useAssignmentProgress';
 import { useAssignments } from './useAssignments';
+
+const isPhaseKey = (key: string): key is PhaseKey =>
+  (PHASES as readonly string[]).includes(key);
 
 const LANGUAGE_OPTIONS: { value: StudentLanguage; label: string }[] = [
   { value: 'en', label: 'EN' },
@@ -58,16 +64,14 @@ export const AssignmentDayRunner = () => {
 
   if (!assignment || !publishedDay) {
     return (
-      <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-6 py-10">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 md:px-8 md:py-8">
         <p className="text-sm text-white/60">Assignment not available.</p>
         <button
           type="button"
-          onClick={() =>
-            navigate(ClassroomRoutes.assignments({ classroomId: cid }))
-          }
+          onClick={() => navigate(ClassroomRoutes.home({ classroomId: cid }))}
           className="w-fit rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
         >
-          Back to Assignments
+          Back to class
         </button>
       </div>
     );
@@ -75,7 +79,7 @@ export const AssignmentDayRunner = () => {
 
   if (enrollmentId === undefined) {
     return (
-      <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-6 py-10">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 md:px-8 md:py-8">
         <p className="text-sm text-white/60" role="status">
           Loading your assignment…
         </p>
@@ -103,14 +107,14 @@ export const AssignmentDayRunner = () => {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
-          to={ClassroomRoutes.assignments({ classroomId: cid })}
-          className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
+          to={ClassroomRoutes.home({ classroomId: cid })}
+          className="inline-flex items-center gap-1.5 text-[0.8125rem] text-daw-text-3 hover:text-daw-text"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Assignments
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to class
         </Link>
         <div className="flex items-center gap-2">
           <SegmentedToggle
@@ -145,7 +149,7 @@ export const AssignmentDayRunner = () => {
         <span className="text-xs uppercase tracking-wide text-white/40">
           Assignment
         </span>
-        <h1 className="text-2xl font-medium text-white md:text-3xl">
+        <h1 className="text-[clamp(1.75rem,3.2vw,2.5rem)] font-normal leading-tight tracking-[-0.02em] text-daw-text">
           {assignment.title}
         </h1>
       </div>
@@ -195,14 +199,16 @@ const PhaseBlock = ({
   enrollmentId,
   assignmentId,
 }: PhaseBlockProps) => (
-  <section
-    className="flex flex-col gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 md:p-6"
-    style={{
-      borderLeftColor: `var(--pres-accent-${phaseKey}, transparent)`,
-      borderLeftWidth: 4,
-    }}
-  >
+  <section className="flex flex-col gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 md:p-6">
     <div className="flex flex-col gap-1">
+      {isPhaseKey(phaseKey) && (
+        <MicroLabel>
+          <LocalizedRender
+            text={phaseSectionsLabel(phaseKey)}
+            language={language}
+          />
+        </MicroLabel>
+      )}
       <h2 className="text-lg font-medium text-white md:text-xl">
         <LocalizedRender text={title} language={language} />
       </h2>

@@ -36,11 +36,19 @@ export type PlayerAction =
   | { type: 'verdict'; screenId: string; ok: true }
   | { type: 'verdict'; screenId: string; ok: false; mistake: string }
   | { type: 'tryAgain' }
+  /** The next part of the same screen, after a right answer. */
+  | { type: 'nextPart' }
   | { type: 'seeAnswer'; screenId: string; answer?: string }
   | { type: 'continue'; count: number; practiceFrom: number }
   | { type: 'startPractice' }
   | { type: 'back' }
-  | { type: 'jump'; index: number };
+  | { type: 'jump'; index: number }
+  /**
+   * The class's screen, set by the teacher (owner, 2026-11-10): taken
+   * whether or not this student has reached it, as the class moves on
+   * together.
+   */
+  | { type: 'follow'; index: number; count: number };
 
 export const initialPlayer = (index = 0): PlayerState => ({
   index,
@@ -106,6 +114,8 @@ export function playerReducer(
       return state.phase === 'wrong'
         ? { ...state, phase: 'acting', mistake: null, picked: null }
         : state;
+    case 'nextPart':
+      return { ...state, phase: 'acting', mistake: null, attempts: 0 };
     case 'seeAnswer':
       return state.phase === 'wrong'
         ? {
@@ -131,6 +141,12 @@ export function playerReducer(
       return action.index <= state.furthest
         ? onScreen(state, action.index)
         : state;
+    case 'follow': {
+      const index = Math.min(Math.max(0, action.index), action.count - 1);
+      return index === state.index
+        ? state
+        : { ...onScreen(state, index), view: 'lesson' };
+    }
     default:
       return state;
   }

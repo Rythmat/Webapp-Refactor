@@ -87,3 +87,30 @@ describe('the player', () => {
     expect(playerReducer(initialPlayer(), { type: 'back' }).index).toBe(0);
   });
 });
+
+describe('following the class (owner, 2026-11-10)', () => {
+  it("takes the class's screen even past where the student has been", () => {
+    const at = playerReducer(initialPlayer(0), {
+      type: 'follow',
+      index: 4,
+      count: 10,
+    });
+    expect(at.index).toBe(4);
+    expect(at.furthest).toBe(4);
+    expect(at.phase).toBe('acting');
+    // A plain jump still can't go there.
+    expect(
+      playerReducer(initialPlayer(0), { type: 'jump', index: 4 }).index,
+    ).toBe(0);
+  });
+
+  it('stays inside the lesson and does nothing for the screen it is on', () => {
+    const state = initialPlayer(2);
+    expect(
+      playerReducer(state, { type: 'follow', index: 99, count: 10 }).index,
+    ).toBe(9);
+    expect(playerReducer(state, { type: 'follow', index: 2, count: 10 })).toBe(
+      state,
+    );
+  });
+});

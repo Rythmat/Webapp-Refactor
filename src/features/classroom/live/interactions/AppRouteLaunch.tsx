@@ -16,7 +16,10 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { CheckCircle2, ExternalLink, Rocket } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { WHITE_PILL_LG } from '@/components/kit';
+import { cn } from '@/components/utilities';
 import { getSong } from '@/curriculum/data/songs';
+import { appendFollowParams } from '../../follow/classFollow';
 import { writeMindMapHandoff } from '../../msp/mindMapHandoff';
 import { appendMspLaunchParams } from '../../msp/mspLaunchParams';
 import type { MspResultPayload } from '../../msp/mspResponseInbox';
@@ -31,11 +34,6 @@ const LOCAL_ENROLLMENT_ID = 'local-preview';
 
 const COPY = {
   launch: { en: 'Launch', es: 'Iniciar' },
-  comeBack: {
-    en: "Come back here when you're done.",
-    es: 'Vuelve aquí cuando termines.',
-  },
-  working: { en: 'Working in the module…', es: 'Trabajando en el módulo…' },
   done: { en: "I'm done", es: '¡Terminé!' },
   relaunch: { en: 'Launch again', es: 'Abrir de nuevo' },
   openHere: { en: 'open here instead', es: 'abrir aquí' },
@@ -130,7 +128,7 @@ export const AppRouteLaunch = ({
       // the fallback inbox token.
       token = undefined;
     }
-    return appendMspLaunchParams(href, {
+    const launched = appendMspLaunchParams(href, {
       ...(token ? { token } : {}),
       interactionId: interaction.id,
       enrollmentId: effectiveEnrollment,
@@ -138,6 +136,10 @@ export const AppRouteLaunch = ({
       activityRef: atlas.activityRef,
       expects: atlas.expects,
     });
+    // Done together: the tab follows the class's step (owner, 2026-11-10).
+    return atlas.follow && sessionId
+      ? appendFollowParams(launched, sessionId)
+      : launched;
   }, [atlas, href, mintToken, interaction.id, effectiveEnrollment, sessionId]);
 
   const handleLaunch = useCallback(async () => {
@@ -201,7 +203,10 @@ export const AppRouteLaunch = ({
         type="button"
         onClick={handleLaunch}
         disabled={disabled}
-        className="inline-flex w-fit items-center gap-2.5 rounded-2xl border border-[#7ecfcf]/40 bg-[#7ecfcf]/[0.08] px-6 py-4 text-base font-semibold text-[#7ecfcf] transition-colors hover:border-[#7ecfcf]/70 hover:bg-[#7ecfcf]/[0.14] disabled:cursor-not-allowed disabled:opacity-50"
+        className={cn(
+          WHITE_PILL_LG,
+          'w-fit disabled:cursor-not-allowed disabled:opacity-50',
+        )}
       >
         <Rocket className="h-5 w-5" />
         {launched ? (
@@ -213,9 +218,6 @@ export const AppRouteLaunch = ({
 
       {launched ? (
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-white/60">
-            <Bi text={COPY.working} language={language} />
-          </p>
           <button
             type="button"
             onClick={() =>
@@ -228,16 +230,12 @@ export const AppRouteLaunch = ({
             <Bi text={COPY.done} language={language} />
           </button>
         </div>
-      ) : (
-        <p className="text-sm text-white/55">
-          <Bi text={COPY.comeBack} language={language} />
-        </p>
-      )}
+      ) : null}
 
       {popupBlocked && (
         <a
           href={launchUrl ?? href}
-          className="inline-flex w-fit items-center gap-1.5 text-xs text-[#7ecfcf]/80 underline hover:text-[#7ecfcf]"
+          className="inline-flex w-fit items-center gap-1.5 text-[0.8125rem] text-white/70 underline hover:text-white"
         >
           <ExternalLink className="h-3.5 w-3.5" />
           <Bi text={COPY.openHere} language={language} />

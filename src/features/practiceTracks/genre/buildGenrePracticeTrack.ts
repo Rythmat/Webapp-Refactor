@@ -274,6 +274,14 @@ export interface GenrePracticeTrackOptions {
    * (its chord cycle and progression). Left out, nothing changes.
    */
   timedChords?: TimedChords;
+  /**
+   * Parts for the Studio (a Prism prompt, Home's prompt song), not for a
+   * student playing along: the chords keep the register the engine voices
+   * them in, rather than dropping an octave under a melody nobody plays
+   * (chordOctaveShift), and the chord lane reads from the tonic's own
+   * octave.
+   */
+  studio?: true;
 }
 
 /** A Practice Track's own key (`GenrePracticeTrackOptions.key`). */
@@ -601,6 +609,7 @@ function buildChordRegions(
   keyRootMidi: number,
   mode: string,
   barLength = BAR_TICKS,
+  octave = -12,
 ): ChordRegion[] {
   const regions: ChordRegion[] = [];
   for (let bar = 0; bar < LOOP_BARS; bar++) {
@@ -608,9 +617,10 @@ function buildChordRegions(
     const tones = chordSymbolTones(symbol);
     if (!tones) continue;
     // Voiced from the octave below the tonic, so the lane reads where the
-    // engine's own chord part sits rather than an octave clear of it.
+    // engine's own chord part sits rather than an octave clear of it (the
+    // tonic's own octave for Studio parts, which aren't dropped).
     const rootMidi =
-      keyRootMidi - 12 + ((tones.rootPc - (keyRootMidi % 12) + 12) % 12);
+      keyRootMidi + octave + ((tones.rootPc - (keyRootMidi % 12) + 12) % 12);
     const midis = tones.intervals.map((interval) => rootMidi + interval);
     regions.push({
       id: nextChordId(),
@@ -635,12 +645,13 @@ function timedChordRegions(
   keyRootMidi: number,
   mode: string,
   barLength = BAR_TICKS,
+  octave = -12,
 ): ChordRegion[] | null {
   const timeline = timedChordTimeline(timed, LOOP_BARS, barLength);
   if (!timeline.length) return null;
   return timeline.map((chord, i) => {
     const rootMidi =
-      keyRootMidi - 12 + ((chord.rootPc - (keyRootMidi % 12) + 12) % 12);
+      keyRootMidi + octave + ((chord.rootPc - (keyRootMidi % 12) + 12) % 12);
     const midis = chord.intervals.map((interval) => rootMidi + interval);
     return {
       id: nextChordId(),
@@ -1098,7 +1109,8 @@ export function buildGenrePracticeTrack(
     bass: 'Bass',
     chords: 'Chords',
   };
-  const chordShift = chordOctaveShift(measured, student);
+  const chordShift = options.studio ? 0 : chordOctaveShift(measured, student);
+  const laneOctave = options.studio ? 0 : -12;
   for (const part of engine) {
     const clip = toClip(
       notes,
@@ -1157,9 +1169,15 @@ export function buildGenrePracticeTrack(
     timeSignature,
     chordCycle: chords,
     chordRegions: options.timedChords
-      ? (timedChordRegions(options.timedChords, keyRootMidi, mode, barLength) ??
-        buildChordRegions(chords, keyRootMidi, mode, barLength))
-      : buildChordRegions(chords, keyRootMidi, mode, barLength),
+      ? (timedChordRegions(
+          options.timedChords,
+          keyRootMidi,
+          mode,
+          barLength,
+          laneOctave,
+        ) ??
+        buildChordRegions(chords, keyRootMidi, mode, barLength, laneOctave))
+      : buildChordRegions(chords, keyRootMidi, mode, barLength, laneOctave),
     clips,
     layerClips,
     studentParts: student,

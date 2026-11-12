@@ -13,6 +13,7 @@
  * The Activity Bank is injected (`resolveActivityId`) so this stays pure/testable.
  */
 import { PHASE_RATIONALE_DEFAULTS, PHASES, type PhaseKey } from '../phases';
+import { isStarterInteraction } from '../slides/cortex/buildDeck';
 import type { Cell, CellRationale, Day, LaunchTile } from '../types';
 import type {
   Activity,
@@ -51,13 +52,17 @@ const uniq = (...lists: Array<string[] | undefined>): string[] => [
 const dedupeLines = (lines: string[]): string =>
   [...new Set(lines.map((s) => s.trim()).filter(Boolean))].join('\n');
 
-/** A cell counts as populated if it carries any student-facing content. */
+/**
+ * A cell counts as populated if it carries any student-facing content. A new
+ * Day's starter check-in and exit question don't count: they are the lesson's
+ * frame, not its content.
+ */
 export const isCellPopulated = (cell: Cell): boolean =>
   Boolean(
     cell.presentation.title.en.trim() ||
       cell.presentation.prompt.en.trim() ||
       cell.presentation.launchTiles.length ||
-      cell.presentation.interactions?.length,
+      cell.presentation.interactions?.some((i) => !isStarterInteraction(i)),
   );
 
 export const isDayPopulated = (day: Day): boolean =>

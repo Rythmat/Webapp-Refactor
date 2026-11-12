@@ -17,6 +17,7 @@
  */
 import type { PhaseKey } from '../phases';
 import type { LaunchTile, LocalizedText } from '../types';
+import type { SlideSection } from './sections';
 import type { ZoneName } from './slideGrid';
 
 /** Visual media block usable on content / media / interaction slides. */
@@ -29,6 +30,54 @@ export type SlideMedia =
       type: 'globePreview';
       markers?: Array<{ location: [number, number]; size?: number }>;
       arcs?: Array<{ from: [number, number]; to: [number, number] }>;
+      /**
+       * Where the globe flies when the slide is shown: the Showcase
+       * subject's place, `[lat, lng]`. Without it the globe spins.
+       */
+      focus?: [number, number];
+      /**
+       * The subject's places, in the order the globe visits them on a
+       * full-screen globe slide (owner, 2026-11-10): born in Gary, then each
+       * place its story happened. `label` is the place's short name
+       * ("Gary · 1958"), the one text the slide shows.
+       */
+      stops?: Array<{
+        location: [number, number];
+        label?: LocalizedText;
+        /**
+         * Where the Globe section's own map opens for this stop: `place:…`,
+         * `event:<id>` or `at:<lat>,<lng>` (`slides/globe/slideGlobeStops.ts`).
+         */
+        ref?: string;
+        /**
+         * Why the place matters to the subject (owner, 2026-11-10: "the
+         * locations are meaningless without … how the location is relevant to
+         * the artist's story"): shown on the slide's card at this stop.
+         */
+        story?: {
+          title: LocalizedText;
+          body?: LocalizedText;
+          /** The event's video, for the card's picture. */
+          videoId?: string;
+          /** A song whose artist photo is the card's picture. */
+          songId?: string;
+          /**
+           * The card's further pages, turned to with its chevron (owner,
+           * 2026-11-10): what became of the music there, a song that
+           * sampled or covered it, with its own clip. `tab` names each page
+           * (the chevron's label), the first page's included.
+           */
+          tab?: LocalizedText;
+          pages?: Array<{
+            tab: LocalizedText;
+            /** The page's own line over its title ("Thriller · 1982"). */
+            label?: LocalizedText;
+            title: LocalizedText;
+            body?: LocalizedText;
+            videoId?: string;
+          }>;
+        };
+      }>;
     }
   /**
    * A specific globe *pathway* embedded as the dashboard-style preview: the
@@ -204,8 +253,15 @@ export type SlideElementKind = SlideElement['kind'];
 
 interface SlideCommon {
   id: string;
-  /** IMPACT anchor — drives derived currentPhase, phase chip, report grouping. */
+  /** IMPACT anchor — drives derived currentPhase, report grouping, and where
+   *  the slide's interactions are stored. */
   phase: PhaseKey;
+  /**
+   * The lesson section the slide sits in (Connect … Reflect). Must agree with
+   * `phase` (`SECTION_PHASE`); absent on slides saved before sections, which
+   * `sectionOf` places from the phase. Student-safe: an enum token.
+   */
+  section?: SlideSection;
   title: LocalizedText;
   prompt?: LocalizedText;
   /** Teacher-set countdown seconds (Phase 4 UI; parameterized by templates now). */
@@ -229,8 +285,8 @@ interface SlideCommon {
   /** The layout preset this slide was built from; "Reset to standard" re-applies it. */
   presetId?: string;
   /**
-   * Per-slide accent override (a `#RRGGBB` hex) driving the radial glow + phase
-   * chip dot. Undefined ⇒ the phase default (`PHASE_ACCENT_HEX`). Student-safe:
+   * Per-slide accent override (a `#RRGGBB` hex): the accent bar's colour.
+   * Undefined ⇒ the neutral white every slide shares. Student-safe:
    * a hex string only (the UI never emits free text).
    */
   accent?: string;
@@ -251,6 +307,18 @@ interface SlideCommon {
    * (slideGrid.ts) — this is the flag that sentence refers to.
    */
   accentBar?: boolean;
+  /**
+   * A song to play from the slide (owner, 2026-11-10: the Set list's
+   * collapsed "Recording" pill, top left of the MJ portrait): a YouTube
+   * video id only. Shown on the room's screen and Present, where the
+   * teacher can start it without opening the video.
+   */
+  recording?: SlideRecording;
+}
+
+export interface SlideRecording {
+  /** An 11-character YouTube video id. */
+  videoId: string;
 }
 
 /** Title card / section header / closing frame. */
@@ -295,6 +363,11 @@ export interface InteractionSlide extends SlideCommon {
   kind: 'interaction';
   interactionIds: string[];
   media?: SlideMedia;
+  /**
+   * Words beside the question: the portrait's bio, when the class checks in
+   * on it (owner, 2026-11-10).
+   */
+  body?: LocalizedText;
   /**
    * Projector aggregate style on reveal: choice → bars, text → wall or 'words'
    * (word cloud), number → scale. The word-cloud token is 'words' (a value token,
@@ -361,7 +434,7 @@ export interface SlideDeckTemplateRef {
 export interface SlideDeck {
   id: string;
   title: LocalizedText;
-  /** Ordered. Template-guaranteed soft invariant: `slide.phase` is non-decreasing in PHASES order. */
+  /** Ordered. Soft invariant: slides run in section order (`slidesAreSectionOrdered`). */
   slides: Slide[];
   templateRef?: SlideDeckTemplateRef;
   /**

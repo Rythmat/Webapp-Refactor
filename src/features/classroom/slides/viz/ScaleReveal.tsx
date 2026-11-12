@@ -51,8 +51,7 @@ export const ScaleReveal = ({
                   animate={{ height: `${h}%` }}
                   transition={{ delay: reduced ? 0 : i * 0.05 }}
                   className={
-                    'w-full rounded-t-lg ' +
-                    (lead ? 'bg-[#7ecfcf]' : 'bg-white/20')
+                    'w-full rounded-t-lg ' + (lead ? 'bg-white' : 'bg-white/20')
                   }
                 />
               </div>

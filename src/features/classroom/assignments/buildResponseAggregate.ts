@@ -4,9 +4,11 @@
  * live here; the dashboard component is a dumb switch on aggregate.kind.
  */
 import type {
+  FeelingsLevel,
   Interaction,
   InteractionResponsePayload,
   LocalizedText,
+  ShowcaseArtifact,
 } from '../types';
 
 export interface DisplayNameLookup {
@@ -67,6 +69,8 @@ export interface DrawAggregate extends AggregateBase {
 
 export interface CheckInAggregate extends AggregateBase {
   kind: 'check-in';
+  /** The feelings tool's level; null for an older check-in (emoji, 1–5, word). */
+  level: FeelingsLevel | null;
   rows: Array<{ enrollmentId: string; displayName: string; value: string }>;
 }
 
@@ -84,7 +88,7 @@ export interface ShowcaseAggregate extends AggregateBase {
   offers: Array<{
     enrollmentId: string;
     displayName: string;
-    artifact: { projectId: string; roomId?: string; name: string };
+    artifact: ShowcaseArtifact;
   }>;
 }
 
@@ -284,7 +288,11 @@ export const buildResponseAggregate = (
               value: string;
             } => Boolean(r),
           );
-        return { ...base, kind: 'check-in', rows };
+        const level =
+          interaction.checkIn?.style === 'feelings'
+            ? (interaction.checkIn.level ?? 'simple')
+            : null;
+        return { ...base, kind: 'check-in', level, rows };
       }
 
       case 'atlas': {
@@ -327,7 +335,7 @@ export const buildResponseAggregate = (
             ): r is {
               enrollmentId: string;
               displayName: string;
-              artifact: { projectId: string; roomId?: string; name: string };
+              artifact: ShowcaseArtifact;
             } => Boolean(r),
           );
         return { ...base, kind: 'showcase', offers };

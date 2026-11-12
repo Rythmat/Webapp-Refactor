@@ -2,9 +2,10 @@
  * Presentation Mode — the projected deck for a classroom.
  *
  * Present renders the DECK slide-by-slide (single source of truth, so "what you
- * edit is what you present"): one full-bleed slide via `Focus`, with a prev/next
- * pager and the shared chrome (Exit / language / fullscreen). Launch tiles on a
- * slide open Atlas modules in a new tab. The legacy 5-phase board is gone — Present
+ * edit is what you present"): one slide via `Focus`, filling the window, with
+ * only a small step and page selector at its bottom right (owner, 2026-11-10;
+ * the arrow keys move it too, Esc exits; the slides speak the class's language setting). Launch tiles
+ * on a slide open Atlas modules in a new tab. The legacy 5-phase board is gone — Present
  * opens straight on the slides.
  *
  * Data path: `buildStudentView(day, config)` is the ONLY source. The
@@ -13,8 +14,7 @@
  * is the read-path backstop: if a projection ever regresses, the offending key
  * is stripped and reported rather than blanking the lesson mid-class.
  */
-import { Maximize2, Minimize2, X } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { useCanEditClassroom } from '@/hooks/data';
@@ -24,26 +24,14 @@ import { PHASES } from './phases';
 import { newBlankDay } from './plan/newBlankDay';
 import { useLocalPlan } from './plan/useLocalPlan';
 import { Focus } from './presentation/Focus';
-import { SegmentedControl } from './presentation/SegmentedControl';
 import { SnapshotRepairBadge } from './publish/SnapshotRepairBadge';
 import { publishDay } from './publish/publishDay';
 import { useSanitizedStudentView } from './publish/useRuleOneReadGuard';
 import { useTeacherConfig } from './settings/useTeacherConfig';
 import { slideAt, slideInteractionIds } from './slides/deck';
 import { emptyDeck } from './slides/deckEdit';
-import type {
-  AgePreset,
-  Interaction,
-  StudentLanguage,
-  StudentViewConfig,
-} from './types';
+import type { AgePreset, Interaction, StudentViewConfig } from './types';
 import './presentation.css';
-
-const LANGUAGE_OPTIONS: { value: StudentLanguage; label: string }[] = [
-  { value: 'en', label: 'EN' },
-  { value: 'es', label: 'ES' },
-  { value: 'both', label: 'EN / ES' },
-];
 
 export const PresentationMode = () => {
   const { classroomId, dayId } = useParams<{
@@ -69,15 +57,14 @@ export const PresentationMode = () => {
   const [placeholderDay] = useState(() => newBlankDay());
   const day = storedDay ?? placeholderDay;
 
-  const [language, setLanguage] = useState<StudentLanguage>('en');
   // Per-section age preset. This used to be hard-coded 'high' while
   // `agePresetDefault` sat in settings with ZERO readers — a picker teachers
   // could set that changed nothing. It now resolves per classroom.
   const { config: teacherConfig } = useTeacherConfig(cid);
   const agePreset: AgePreset = teacherConfig.agePresetDefault;
+  // One language per class (owner, 2026-11-10).
+  const language = teacherConfig.language;
   const [focusIndex, setFocusIndex] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const rootRef = useRef<HTMLDivElement | null>(null);
 
   const config: StudentViewConfig = useMemo(
     () => ({ language, agePreset }),
@@ -142,7 +129,7 @@ export const PresentationMode = () => {
       setFocusIndex(clamped);
       const phase = presentDeck.slides[clamped]?.phase ?? PHASES[0];
       // Rule: only someone who can edit this classroom may drive the class
-      // screen. PresentationMode sits OUTSIDE ClassroomDeepPageLayout, so it
+      // screen. PresentationMode sits OUTSIDE the Office's class guard, so it
       // inherited no ownership guard — a viewer (or anyone with the URL) could
       // navigate every connected student device.
       if (sessionId && sessionState && canEdit) sendNav(phase);
@@ -159,16 +146,6 @@ export const PresentationMode = () => {
     [goToSlide, focusIndex],
   );
 
-  const toggleFullscreen = useCallback(() => {
-    const el = rootRef.current;
-    if (!el) return;
-    if (document.fullscreenElement) {
-      void document.exitFullscreen();
-    } else {
-      void el.requestFullscreen();
-    }
-  }, []);
-
   const exitToClassroom = useCallback(() => {
     if (document.fullscreenElement) {
       void document.exitFullscreen();
@@ -179,14 +156,6 @@ export const PresentationMode = () => {
       navigate(TeacherRoutes.root());
     }
   }, [classroomId, navigate]);
-
-  // Track native fullscreen state so the icon toggles even if the user hits
-  // Esc (which the browser handles without going through our button).
-  useEffect(() => {
-    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
-    document.addEventListener('fullscreenchange', onChange);
-    return () => document.removeEventListener('fullscreenchange', onChange);
-  }, []);
 
   if (!storedDay) {
     return (
@@ -213,20 +182,13 @@ export const PresentationMode = () => {
 
   return (
     <div
-      ref={rootRef}
-      className="presentation-root flex h-full min-h-0 w-full flex-col"
+      className="presentation-root relative flex h-full min-h-0 w-full flex-col"
       data-age={agePreset}
     >
-      <PresentationChrome
-        language={language}
-        onLanguageChange={setLanguage}
-        isFullscreen={isFullscreen}
-        onToggleFullscreen={toggleFullscreen}
-        onExit={exitToClassroom}
-        dayLabel={day.label}
-        repairedPaths={repairedPaths}
-      />
-
+      {/* Rule 1: a repaired snapshot still tells the teacher (only then). */}
+      <div className="absolute left-4 top-4 z-20">
+        <SnapshotRepairBadge stripped={repairedPaths} />
+      </div>
       {currentSlide && (
         <Focus
           slide={currentSlide}
@@ -237,72 +199,11 @@ export const PresentationMode = () => {
           onNext={goNextSlide}
           hasPrev={focusIndex > 0}
           hasNext={focusIndex < presentDeck.slides.length - 1}
-          position={`${focusIndex + 1} / ${presentDeck.slides.length}`}
+          index={focusIndex}
+          count={presentDeck.slides.length}
+          onGoTo={goToSlide}
         />
       )}
     </div>
-  );
-};
-
-interface PresentationChromeProps {
-  language: StudentLanguage;
-  onLanguageChange: (v: StudentLanguage) => void;
-  isFullscreen: boolean;
-  onToggleFullscreen: () => void;
-  onExit: () => void;
-  dayLabel: string;
-  /** Rule 1 read-path repairs; renders the amber badge when non-empty. */
-  repairedPaths: string[];
-}
-
-const PresentationChrome = ({
-  language,
-  onLanguageChange,
-  isFullscreen,
-  onToggleFullscreen,
-  onExit,
-  dayLabel,
-  repairedPaths,
-}: PresentationChromeProps) => {
-  return (
-    <header
-      className="flex items-center justify-between border-b border-white/[0.06] px-8 py-4"
-      style={{ background: 'var(--pres-bg-inset)' }}
-    >
-      <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={onExit}
-          aria-label="Exit Presentation Mode"
-          className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-transparent px-3 py-1.5 text-sm font-medium text-white/80 transition-colors hover:border-white/25 hover:text-white"
-        >
-          <X className="h-4 w-4" />
-          Exit
-        </button>
-        <span className="text-sm text-white/60">{dayLabel}</span>
-        <SnapshotRepairBadge stripped={repairedPaths} />
-      </div>
-
-      <div className="flex items-center gap-4 text-white/80">
-        <SegmentedControl
-          label="Language"
-          options={LANGUAGE_OPTIONS}
-          value={language}
-          onChange={onLanguageChange}
-        />
-        <button
-          type="button"
-          onClick={onToggleFullscreen}
-          aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-          className="inline-flex size-8 items-center justify-center rounded-full border border-white/10 bg-transparent text-white/80 transition-colors hover:border-white/25 hover:text-white"
-        >
-          {isFullscreen ? (
-            <Minimize2 className="h-4 w-4" />
-          ) : (
-            <Maximize2 className="h-4 w-4" />
-          )}
-        </button>
-      </div>
-    </header>
   );
 };

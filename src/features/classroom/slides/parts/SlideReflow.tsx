@@ -19,14 +19,21 @@
  *     The band is injected at `REFLOW_BAND_AFTER` instead.
  */
 import type { CSSProperties, ReactNode } from 'react';
-import { STUDENT_PHASE_LABELS } from '../../phases';
-import { pickLocalized, secondaryLine } from '../../presentation/localized';
 import type { Interaction, StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
-import { showsPhaseChip } from '../deck';
 import { REFLOW_BAND_AFTER, REFLOW_ORDER } from '../slideGrid';
+import { paintsBleed, stageMedia } from '../stage';
 import type { Slide, SlideElement, SlideSurface } from '../types';
+import { PlaceMenu, placeMenuOf } from './PlaceMenu';
+import { sectionLabelOf } from './SectionChip';
+import {
+  ShowcaseGlobe,
+  ShowcasePhoto,
+  isShowcaseSlide,
+  showcaseVisuals,
+} from './ShowcaseBackdrop';
 import { SlideElementView } from './SlideElementView';
+import { SlideGlobe } from './SlideGlobe';
 
 interface SlideReflowProps {
   slide: Slide;
@@ -54,10 +61,6 @@ export const SlideReflow = ({
   band,
   bandInteractionIds,
 }: SlideReflowProps) => {
-  const phaseLabel = STUDENT_PHASE_LABELS[slide.phase];
-  const label = pickLocalized(phaseLabel, language);
-  const labelAlt = secondaryLine(phaseLabel, language);
-
   // An interaction the band already carries renders nothing, and an empty
   // wrapper still takes a `gap-4` of dead space in a column. In the stage that
   // div is absolutely positioned and costs nothing; here it is visible.
@@ -66,6 +69,8 @@ export const SlideReflow = ({
     Boolean(bandInteractionIds?.includes(e.interactionId));
 
   const visible = elements.filter((e) => !e.hidden && !carriedByBand(e));
+  // The Individual Project's places stack as one menu.
+  const placeMenu = placeMenuOf(visible);
   const byZone = new Map<string, SlideElement[]>();
   for (const el of visible) {
     const bucket = byZone.get(el.zone);
@@ -87,20 +92,26 @@ export const SlideReflow = ({
       className="slide-frame flex w-full flex-col gap-4 p-4"
       style={style}
     >
-      {showsPhaseChip(slide) && (
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
-          <span aria-hidden className="slide-frame__chip-dot" />
-          <span
-            className="font-semibold uppercase tracking-widest text-white/80"
-            style={{ fontSize: 'var(--slide-label-fz)' }}
-          >
-            {label}
-            {labelAlt && <span className="text-white/40"> · {labelAlt}</span>}
-          </span>
-        </span>
+      {isShowcaseSlide(slide) && <ReflowShowcase slide={slide} />}
+      {paintsBleed(slide, surface) && (
+        <ReflowStage slide={slide} language={language} />
       )}
 
-      {REFLOW_ORDER.flatMap((zone) => {
+      {REFLOW_ORDER.flatMap((zone): ReactNode[] => {
+        if (zone === 'ctaCenter' && placeMenu) {
+          return [
+            <div key="__places" data-zone="ctaCenter" data-place-menu="">
+              <PlaceMenu
+                places={placeMenu.places}
+                surface={surface}
+                language={language}
+                sectionLabel={sectionLabelOf(slide, language)}
+                stacked
+                onOpen={slots?.openPlace}
+              />
+            </div>,
+          ];
+        }
         const nodes: ReactNode[] = (byZone.get(zone) ?? []).map((element) => (
           <div
             key={element.id}
@@ -115,7 +126,7 @@ export const SlideReflow = ({
               hiddenInteractionIds={bandInteractionIds}
               slots={slots}
               playableMedia={playableMedia}
-              phaseLabel={label}
+              phaseLabel={sectionLabelOf(slide, language)}
             />
           </div>
         ));
@@ -129,6 +140,58 @@ export const SlideReflow = ({
         }
         return nodes;
       })}
+    </div>
+  );
+};
+
+/**
+ * A stage slide's visual on a phone (`slides/stage.ts`): the portrait's photo
+ * or the globe as a square above the words, a video as its still.
+ */
+const ReflowStage = ({
+  slide,
+  language,
+}: {
+  slide: Slide;
+  language: StudentLanguage;
+}) => {
+  const media = stageMedia(slide);
+  if (!media) return null;
+  // The globe lays itself out: the map, then the place's story, then the
+  // arrow.
+  if (media.type === 'globePreview')
+    return <SlideGlobe globe={media} language={language} />;
+  return (
+    <div
+      className={`relative w-full overflow-hidden rounded-xl bg-[#0b0b0d] ${
+        media.type === 'youtube' ? 'aspect-video' : 'aspect-square'
+      }`}
+    >
+      {media.type === 'artistImage' ? (
+        <ShowcasePhoto songId={media.songId} />
+      ) : media.type === 'youtube' ? (
+        <img
+          src={`https://i.ytimg.com/vi/${media.videoId}/hqdefault.jpg`}
+          alt=""
+          draggable={false}
+          className="absolute inset-0 size-full object-cover"
+        />
+      ) : null}
+    </div>
+  );
+};
+
+/** The Showcase on a phone: the photo and the globe side by side, square. */
+const ReflowShowcase = ({ slide }: { slide: Slide }) => {
+  const { globe, photo } = showcaseVisuals(slide);
+  return (
+    <div className="grid grid-cols-2 gap-2" aria-hidden>
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#0b0b0d]">
+        <ShowcaseGlobe globe={globe} fly={false} />
+      </div>
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-white/[0.03]">
+        <ShowcasePhoto songId={photo?.songId} />
+      </div>
     </div>
   );
 };

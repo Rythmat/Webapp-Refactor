@@ -181,9 +181,9 @@ export const genreItems = (): PickableItem[] =>
     };
   });
 
-// ── Studio: the courses' lessons (Studio Basics) ───────────────────────────
+// ── Studio: the courses' lessons (Studio Production) ───────────────────────
 // A course's lessons in order, each a `studio:tutorial:<id>` that opens the
-// editor on the course's demo song with the lesson running, and reports the
+// editor on a blank project with the lesson running, and reports the
 // lesson's completion back to the slide.
 export const studioLessonItems = (): PickableItem[] =>
   TUTORIAL_COURSES.flatMap((course) =>
@@ -191,7 +191,7 @@ export const studioLessonItems = (): PickableItem[] =>
       key: `studio:tutorial:${t.id}`,
       module: 'studio' as const,
       ref: studioTutorialRef(t.id),
-      title: `${course.title} ${i + 1}: ${t.title}`,
+      title: `${course.title} ${i + 1} · ${t.title}`,
       subtitle: `${t.subtitle} · ${t.estMinutes} min`,
       thumb: { emoji: '🎓' },
       keywords: [

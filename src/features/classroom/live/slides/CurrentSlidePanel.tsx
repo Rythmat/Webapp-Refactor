@@ -2,6 +2,10 @@ import { Eye, EyeOff } from 'lucide-react';
 import type { MindMapSubmission } from '@/content/graph/mindMapBoard';
 import { InteractionResponseDashboard } from '../../assignments/InteractionResponseDashboard';
 import type { ResponseAggregate } from '../../assignments/buildResponseAggregate';
+import {
+  isProjectionRefused,
+  projectionRefusedReason,
+} from '../../slides/interactionPolicy';
 import type { Slide } from '../../slides/types';
 import { ResponseRateRing } from '../../slides/viz/ResponseRateRing';
 import { RevealViz } from '../../slides/viz/RevealViz';
@@ -77,9 +81,7 @@ export const CurrentSlidePanel = ({
         <div className="flex flex-col gap-3">
           {interactions.map((interaction) => {
             const shared = sharedInteractionIds.includes(interaction.id);
-            const canShare =
-              interaction.type !== 'check-in' &&
-              interaction.shareable !== false;
+            const canShare = !isProjectionRefused(interaction);
             return (
               <div
                 key={interaction.id}
@@ -97,16 +99,14 @@ export const CurrentSlidePanel = ({
                   title={
                     canShare
                       ? undefined
-                      : interaction.type === 'check-in'
-                        ? 'Check-ins are structurally teacher-only.'
-                        : 'This interaction is not shareable.'
+                      : (projectionRefusedReason(interaction) ?? undefined)
                   }
                   className={
                     'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-colors ' +
                     (!canShare
                       ? 'cursor-not-allowed border border-white/[0.06] text-white/30'
                       : shared
-                        ? 'bg-[#7ecfcf] text-black hover:bg-[#7ecfcf]/85'
+                        ? 'bg-white text-black hover:bg-white/85'
                         : 'border border-white/10 text-white/80 hover:border-white/25 hover:text-white')
                   }
                 >

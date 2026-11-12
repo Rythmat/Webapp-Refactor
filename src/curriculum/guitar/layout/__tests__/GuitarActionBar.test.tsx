@@ -55,7 +55,7 @@ function setup(overrides: Partial<GuitarActionBarProps> = {}) {
 }
 
 describe('GuitarActionBar — preview', () => {
-  it('the instruction, the pass mark, Demo · Practice · Play Now', () => {
+  it('the instruction, the pass mark, Demo · Practice · Perform', () => {
     const { props, buttons, primary, container } = setup();
     expect(
       screen.getByText(/Play the notes of the scale from lowest to highest/),
@@ -66,8 +66,8 @@ describe('GuitarActionBar — preview', () => {
     expect(pass.textContent).toBe('Pass = 75%');
     expect(pass.className).not.toMatch(/(^| )(border|rounded-full)( |$)/);
     expect(container.querySelector('[data-guitar-mode]')).toBeNull();
-    expect(buttons()).toEqual(['Demo', 'Practice', 'Play Now']);
-    expect(primary()).toEqual(['Play Now']);
+    expect(buttons()).toEqual(['Demo', 'Practice', 'Perform']);
+    expect(primary()).toEqual(['Perform']);
     // Free-time steps have no tempo.
     expect(screen.queryByRole('group', { name: 'Tempo' })).toBeNull();
 
@@ -75,7 +75,7 @@ describe('GuitarActionBar — preview', () => {
     expect(props.run.demo.play).toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Practice' }));
     expect(props.run.practise).toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Perform' }));
     expect(props.run.playNow).toHaveBeenCalled();
   });
 
@@ -98,18 +98,18 @@ describe('GuitarActionBar — preview', () => {
       demo: { playing: true, play: vi.fn(), stop: vi.fn() },
     });
     const { buttons } = setup({ run });
-    expect(buttons()).toEqual(['Stop demo', 'Practice', 'Play Now']);
+    expect(buttons()).toEqual(['Stop demo', 'Practice', 'Perform']);
     fireEvent.click(screen.getByRole('button', { name: 'Stop demo' }));
     expect(run.demo.stop).toHaveBeenCalled();
     expect(run.demo.play).not.toHaveBeenCalled();
   });
 
-  it('Play Now waits for the instruments', () => {
+  it('Perform waits for the instruments', () => {
     setup({ run: makeRun({ loading: true }) });
     expect(
       screen.getByRole('button', { name: 'Loading instruments...' }),
     ).toBeDisabled();
-    expect(screen.queryByRole('button', { name: 'Play Now' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Perform' })).toBeNull();
   });
 
   it('on a Music Map, Practice is a menu: the whole step or a part', () => {
@@ -182,7 +182,6 @@ describe('GuitarActionBar — practice', () => {
     expect(run.playNow).toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Demo' }));
     expect(run.demo.play).toHaveBeenCalled();
-    expect(screen.queryByRole('button', { name: 'Play Now' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Practice' })).toBeNull();
   });
 
@@ -226,7 +225,7 @@ describe('GuitarActionBar — centred (the lesson screens)', () => {
     expect(
       screen.queryByText(/Play the notes of the scale from lowest to highest/),
     ).toBeNull();
-    expect(buttons()).toEqual(['Demo', 'Practice', 'Play Now']);
+    expect(buttons()).toEqual(['Demo', 'Practice', 'Perform']);
     const corner = container.querySelector('[data-bar-corner]')!;
     expect(corner.textContent).toBe('Pass = 75%');
     expect(corner.className).toMatch(/(^| )absolute( |$)/);
@@ -396,8 +395,8 @@ describe('GuitarActionBar — keyboard focus across states', () => {
 
   it('follows the button pressed to the next state’s main button', () => {
     const { rerender } = render(bar({}));
-    screen.getByRole('button', { name: 'Play Now' }).focus();
-    // Play Now → the take: Play Now is gone, Stop takes focus.
+    screen.getByRole('button', { name: 'Perform' }).focus();
+    // Perform → the take: Perform is gone, Stop takes focus.
     rerender(
       bar({ state: 'performance', run: makeRun({ state: 'performance' }) }),
     );
@@ -440,7 +439,7 @@ describe('GuitarActionBar — keyboard focus across states', () => {
         {bar({})}
       </>,
     );
-    screen.getByRole('button', { name: 'Play Now' }).focus();
+    screen.getByRole('button', { name: 'Perform' }).focus();
     screen.getByRole('button', { name: 'Elsewhere' }).focus();
     rerender(
       <>
@@ -458,7 +457,7 @@ describe('GuitarActionBar — keyboard focus across states', () => {
         {bar({})}
       </>,
     );
-    const playNow = screen.getByRole('button', { name: 'Play Now' });
+    const playNow = screen.getByRole('button', { name: 'Perform' });
     playNow.focus();
     playNow.blur(); // a click on the TAB: focus goes to the page
     screen.getByRole('button', { name: 'Elsewhere' }).focus(); // then Tab

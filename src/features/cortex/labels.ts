@@ -1,44 +1,38 @@
 import type { WebNode } from './buildWeb';
+import { dotRadius, labelPx } from './graphStyle';
 import type { Positions, View } from './layout';
 
 /**
- * Which names fit. They're drawn in screen space, always at 12px, under their
- * dot or else beside it; the most important go first, and a name that would
- * touch one already placed, or another dot, is left out until a zoom makes
- * room. Pure.
+ * Which names fit. They're drawn in screen space, in the console's type (a
+ * size that grows with the dot and the zoom), under their dot or else beside
+ * it; the most important go first, and a name that would touch one already
+ * placed, or another dot, is left out until a zoom makes room. Pure.
  */
 
-const CHAR_PX = 6.6;
+/** Glacial's average glyph, as a share of the type size. */
+const CHAR_EM = 0.55;
+const LINE_EM = 1.3;
 const LABEL_MAX = 24;
-const LABEL_HEIGHT = 16;
-const LABEL_GAP = 4;
+/** The console's gap between a dot and its name. */
+const LABEL_GAP = 5;
 const EDGE = 4;
 
 export interface PlacedLabel {
   id: string;
   text: string;
   x: number;
+  /** The text's baseline. */
   y: number;
+  /** The type size, in CSS pixels. */
+  size: number;
 }
 
 export const truncateLabel = (text: string, max = LABEL_MAX): string =>
   text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
 
-/** Dots shrink as a big web zooms out, or they'd hide its lines. */
-const dotScale = (k: number) => Math.max(0.4, Math.min(1, Math.sqrt(k)));
-
-/** A node's radius on screen, at zoom `k`. */
-export const nodeRadius = (node: WebNode, degree: number, k = 1): number => {
-  const full =
-    node.role === 'concept'
-      ? node.hollow
-        ? 8
-        : Math.min(16, 9 + degree)
-      : node.done
-        ? 7
-        : 6;
-  return full * dotScale(k);
-};
+/** A node's radius on screen, at zoom `k`: the console's, by its links. */
+export const nodeRadius = (degree: number, k = 1, dpr = 1): number =>
+  dotRadius(degree, k, dpr);
 
 /** Lower goes first: concepts name the clusters, then what's finished. */
 const rank = (node: WebNode, degree: number): number => {
@@ -62,11 +56,12 @@ export const placeLabels = (
   degrees: ReadonlyMap<string, number>,
   view: View,
   width: number,
-  height: number,
+  boxHeight: number,
   /** Named first: what's hovered and its neighbours. */
   first: ReadonlySet<string> = new Set(),
   /** Named whatever else is there: what's hovered itself. */
   forced: string | null = null,
+  dpr = 1,
 ): PlacedLabel[] => {
   const screen = (id: string) => {
     const p = positions[id];
@@ -76,7 +71,7 @@ export const placeLabels = (
   for (const node of nodes) {
     const s = screen(node.id);
     if (!s) continue;
-    const r = nodeRadius(node, degrees.get(node.id) ?? 0, view.k);
+    const r = nodeRadius(degrees.get(node.id) ?? 0, view.k, dpr);
     dots.push({ x0: s.x - r, y0: s.y - r, x1: s.x + r, y1: s.y + r });
   }
   const order = [...nodes].sort((a, b) => {
@@ -96,28 +91,31 @@ export const placeLabels = (
   for (const node of order) {
     const s = screen(node.id);
     if (!s) continue;
-    if (s.x < 0 || s.x > width || s.y < 0 || s.y > height) continue;
+    if (s.x < 0 || s.x > width || s.y < 0 || s.y > boxHeight) continue;
     const text = truncateLabel(node.label);
-    const half = (text.length * CHAR_PX) / 2;
-    const r = nodeRadius(node, degrees.get(node.id) ?? 0, view.k);
+    const degree = degrees.get(node.id) ?? 0;
+    const size = labelPx(degree, view.k, dpr);
+    const height = size * LINE_EM;
+    const half = (text.length * size * CHAR_EM) / 2;
+    const r = nodeRadius(degree, view.k, dpr);
     const clampX = (x: number) =>
       Math.min(width - half - EDGE, Math.max(half + EDGE, x));
-    const beside = s.y - LABEL_HEIGHT / 2;
+    const beside = s.y - height / 2;
     const under = { x: clampX(s.x), y: s.y + r + LABEL_GAP };
     // Under the dot, over it, then either side, as long as it stays in the box.
     const spots = [
       under,
-      { x: clampX(s.x), y: s.y - r - LABEL_GAP - LABEL_HEIGHT },
+      { x: clampX(s.x), y: s.y - r - LABEL_GAP - height },
       { x: s.x + r + LABEL_GAP + half, y: beside },
       { x: s.x - r - LABEL_GAP - half, y: beside },
     ]
       .filter(({ x }) => x - half >= EDGE && x + half <= width - EDGE)
-      .filter(({ y }) => y >= 0 && y + LABEL_HEIGHT <= height);
+      .filter(({ y }) => y >= 0 && y + height <= boxHeight);
     const boxOf = ({ x, y }: { x: number; y: number }): Box => ({
       x0: x - half,
       y0: y,
       x1: x + half,
-      y1: y + LABEL_HEIGHT,
+      y1: y + height,
     });
     const free = spots.find((spot) => {
       const box = boxOf(spot);
@@ -129,7 +127,7 @@ export const placeLabels = (
     const spot = free ?? (node.id === forced ? under : undefined);
     if (!spot) continue;
     taken.push(boxOf(spot));
-    placed.push({ id: node.id, text, x: spot.x, y: spot.y + 12 });
+    placed.push({ id: node.id, text, x: spot.x, y: spot.y + size, size });
   }
   return placed;
 };

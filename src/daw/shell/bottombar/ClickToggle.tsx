@@ -99,14 +99,16 @@ function ClickSettings() {
         label="Count-in"
         description={CLICK_COPY.countIn}
       >
-        <Segmented
-          label="Count-in"
-          options={COUNT_IN_CHOICES}
-          value={
-            String(countInBars) as (typeof COUNT_IN_CHOICES)[number]['value']
-          }
-          onValueChange={(next) => setCountInBars(Number(next))}
-        />
+        <div data-tutorial-id="count-in-choices">
+          <Segmented
+            label="Count-in"
+            options={COUNT_IN_CHOICES}
+            value={
+              String(countInBars) as (typeof COUNT_IN_CHOICES)[number]['value']
+            }
+            onValueChange={(next) => setCountInBars(Number(next))}
+          />
+        </div>
       </SettingRow>
     </div>
   );
@@ -240,6 +242,7 @@ export const ClickToggle = memo(function ClickToggle() {
         <span
           className="inline-flex shrink-0"
           data-testid="count-in-menu"
+          data-tutorial-id="count-in-menu"
           data-count-in={countInBars}
           onContextMenu={(e) => {
             e.preventDefault();
@@ -256,6 +259,7 @@ export const ClickToggle = memo(function ClickToggle() {
             shortcut={METRONOME_KEYS.label}
             aria-keyshortcuts={METRONOME_KEYS.aria}
             data-testid="click-toggle"
+            data-tutorial-id="metronome-toggle"
             className={PILL_TOGGLE}
           />
         </span>

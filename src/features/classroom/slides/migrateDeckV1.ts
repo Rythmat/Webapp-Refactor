@@ -273,7 +273,7 @@ export const migrateSlideV1 = (slide: Slide): SlideElement[] => {
   // ── title ───────────────────────────────────────────────────────────────
   out.push({
     id: eid(slide.id, 'title'),
-    zone: 'title',
+    zone: preset?.zones.title ?? 'title',
     kind: 'text',
     role: 'title',
     text: slide.title,

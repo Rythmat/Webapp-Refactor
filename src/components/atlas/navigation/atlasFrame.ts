@@ -34,13 +34,15 @@ export type AtlasLens = 'places' | 'pathways' | 'instruments';
 
 /**
  * The Inspector's panels, one per icon on the bottom rail (owner, 2026-10-29:
- * the Globe in the Studio's frame): the stop's details, the pathways, the
- * world's instruments, the map's layers, a lesson's mind map. (The legend
- * is a floating card now; an old `panel=legend` link opens it: CardsLayer.)
+ * the Globe in the Studio's frame): the stop's details, the tours (pathways
+ * and guided tours, one section since 2026-11-09), the world's instruments,
+ * the map's layers, a lesson's mind map. (The legend is a floating card now;
+ * an old `panel=legend` link opens it: CardsLayer. An old `panel=pathways`
+ * opens the tours: frameFromSearchParams.)
  */
 export const INSPECTOR_PANELS = [
   'details',
-  'pathways',
+  'tours',
   'instruments',
   'layers',
   'mindmap',
@@ -158,10 +160,14 @@ export function frameFromSearchParams(params: URLSearchParams): AtlasFrame {
     open: list(params.get('open'), isPlaceId),
     window: windowFromSearchParams(params),
     genres: list(params.get('genres'), isGenreChipId),
-    panel: isPanelChoice(params.get('panel'))
-      ? (params.get('panel') as InspectorPanelId | 'none')
-      : null,
+    panel: panelChoice(params.get('panel')),
   };
+}
+
+/** The panel a URL names; the pathways' old panel is the tours'. */
+function panelChoice(raw: string | null): InspectorPanelId | 'none' | null {
+  const value = raw === 'pathways' ? 'tours' : raw;
+  return isPanelChoice(value) ? value : null;
 }
 
 /**

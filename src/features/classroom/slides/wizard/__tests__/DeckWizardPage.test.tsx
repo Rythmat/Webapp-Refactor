@@ -5,6 +5,7 @@
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -12,7 +13,15 @@ import {
   within,
 } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { newBlankDay } from '../../../plan/newBlankDay';
 import type { Day } from '../../../types';
 import { fixture, fixtureCatalog } from '../../cortex/__tests__/fixture';
@@ -23,6 +32,7 @@ const saved: Day[] = [];
 let days: Day[] = [];
 
 vi.mock('../../cortex/loadLessonAtlas', () => ({
+  LESSON_ATLAS_KEY: ['classroom', 'lesson-atlas'],
   loadLessonAtlas: async () => ({
     graph: fixture(),
     catalog: fixtureCatalog(),
@@ -80,6 +90,11 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
+// jsdom has no scrollIntoView; the Studio's Select scrolls its list.
+beforeAll(() => {
+  Element.prototype.scrollIntoView = () => {};
+});
+
 describe('the lesson generator', () => {
   it('suggests a focus, shuffles to another, and finds one by name', async () => {
     renderWizard();
@@ -124,13 +139,19 @@ describe('the lesson generator', () => {
 
     const roles = screen.getByRole('radiogroup', { name: 'Group Project' });
     fireEvent.click(within(roles).getByRole('radio', { name: /Producer/ }));
-    fireEvent.change(
-      screen.getByRole('combobox', { name: 'Studio tutorial' }),
-      {
-        target: { value: 'hiphop-build-the-beat' },
-      },
+    // The Studio's Select: open it from the keyboard, choose with Enter.
+    const tutorialField = screen.getByRole('combobox', {
+      name: 'Studio tutorial',
+    });
+    act(() => tutorialField.focus());
+    fireEvent.keyDown(tutorialField, { key: 'Enter' });
+    fireEvent.keyDown(
+      await screen.findByRole('option', { name: 'Hip Hop — Build the beat' }),
+      { key: 'Enter' },
     );
-    fireEvent.click(screen.getByRole('button', { name: /Next: Preview/ }));
+    fireEvent.click(
+      screen.getByRole('button', { name: /Next: Check-in & Preview/ }),
+    );
 
     const preview = screen.getByRole('list', { name: 'Preview' });
     expect(preview).toHaveTextContent('Group Project: Producer');

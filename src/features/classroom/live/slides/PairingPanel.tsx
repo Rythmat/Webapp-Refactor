@@ -61,7 +61,7 @@ export const PairingPanel = ({
     <div className="flex flex-col gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="inline-flex items-center gap-2 text-sm font-medium text-white/90">
-          <Users className="h-4 w-4 text-[#7ecfcf]" />
+          <Users className="h-4 w-4 text-white/60" />
           Studio pairs
         </span>
         <div className="flex items-center gap-2">
@@ -69,7 +69,7 @@ export const PairingPanel = ({
             type="button"
             disabled={roster.length < 2}
             onClick={() => onSetPairs(shuffleIntoPairs(roster))}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#7ecfcf] px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-[#7ecfcf]/85 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-white/85 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Shuffle className="h-3.5 w-3.5" />
             {pairs && pairs.length > 0 ? 'Re-shuffle' : 'Shuffle into pairs'}
@@ -106,7 +106,7 @@ export const PairingPanel = ({
                   className="inline-flex items-center gap-1.5 text-sm text-white/80"
                 >
                   {id === pair.hostEnrollmentId && (
-                    <span className="rounded-full bg-[#7ecfcf]/20 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-[#7ecfcf]">
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-white/70">
                       host
                     </span>
                   )}

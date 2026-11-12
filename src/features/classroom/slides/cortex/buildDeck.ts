@@ -1,20 +1,37 @@
 import { PHASES, type PhaseKey } from '../../phases';
-import type { Day, DayCells, Interaction, LocalizedText } from '../../types';
+import type {
+  Day,
+  DayCells,
+  FeelingsLevel,
+  Interaction,
+  LocalizedText,
+} from '../../types';
+import { projectPlaceTiles } from '../projectPlaces';
 import type { Slide, SlideDeck, SlideDeckTemplateRef } from '../types';
+import {
+  ARTIST_LISTEN,
+  ARTIST_RECORDINGS,
+  ARTIST_TAGLINES,
+  type ListenQuestion,
+} from './artistStories';
 import {
   CHECK_IN_QUESTION,
   COPY,
   PREP_CHECKLIST,
+  RESET_CHECKLIST,
   deckTitle,
   groupTitle,
+  LISTEN_QUESTIONS,
   listenTitle,
   performerTask,
   producerTask,
   promoterHeadline,
   promoterTask,
-  todayWith,
+  tourTask,
 } from './copy';
-import { showcaseBody } from './showcase';
+import { slugOf } from './graphQueries';
+import { lessonRationale, withPartRationale } from './lessonRationale';
+import { showcaseBio } from './showcase';
 import type { CortexLessonChoices, CortexLessonPlan, GroupRole } from './types';
 
 /**
@@ -27,22 +44,29 @@ import type { CortexLessonChoices, CortexLessonPlan, GroupRole } from './types';
  * new slide kinds and no new interaction types: the server's `Interaction.type`
  * is an enum.
  *
- *   Connection          `interaction`  check-in (+ mood poll)   connectRegulate
- *   Showcase            `content`      facts + portrait/globe   connectRegulate
- *                       `media`        a video, when there is one
- *   Group Project       `app-route`    Globe / Studio / Learn   groupPractice
- *   Individual Project  `app-route`    the Studio library       creativeProjects
- *   Present             `interaction`  progress, to the teacher presentPerform
- *                       `showcase`     a project to offer
+ * The six sections, in order (`slides/sections.ts`). One idea a slide, and
+ * no words a slide doesn't need (owner, 2026-11-10); the stage presets
+ * (`slides/stage.ts`) draw each one big:
+ *
+ *   Connect             hero      feelings check-in (+ mood poll)    connectRegulate
+ *   Showcase            portrait  the photo, the name, a short bio   connectRegulate
+ *                       bleed     the song's video; "what do you hear?" on devices
+ *                       bleed     the globe, flying through their places
+ *   Group Project       hero      the activity the class does together  groupPractice
+ *   Individual Project  menu      Learn · Songs · Library · Studio · Globe  creativeProjects
+ *   Present             hero      progress, to the teacher           presentPerform
+ *                       hero      "Show the class", then the featured project
+ *   Reflect             hero      the exit ticket, projectable       respondReflectReset
+ *                       content   the room-reset checklist
+ *
+ * The teacher's side (activity, CLOs, standards, assessment) goes into the
+ * cells' rationale (`lessonRationale.ts`); the facts into their notes.
  */
 
 export const CORTEX_LESSON_TEMPLATE_ID = 'cortex-lesson-v1';
 
 /** The Promoter's mind-map launch; the board rides on the interaction. */
 export const MIND_MAP_REF = 'globe:mindmap';
-/** "Continue your project": the Studio's project library. */
-export const STUDIO_LIBRARY_REF = 'studio:library';
-
 /** What the deck builder adds to each phase's cell. */
 export type InteractionsByPhase = Partial<Record<PhaseKey, Interaction[]>>;
 
@@ -59,31 +83,83 @@ const ixIds = (prefix: string) => ({
   checkIn: `${prefix}-ix-checkin`,
   vibe: `${prefix}-ix-vibe`,
   group: `${prefix}-ix-group`,
-  project: `${prefix}-ix-project`,
   progress: `${prefix}-ix-progress`,
   share: `${prefix}-ix-share`,
+  exit: `${prefix}-ix-exit`,
 });
+
+/** The emotional check-in, at a level. Teacher-eyes-only (Rule 2). */
+const feelingsCheckIn = (
+  id: string,
+  level: FeelingsLevel,
+  question: LocalizedText = CHECK_IN_QUESTION[level],
+): Interaction => ({
+  id,
+  type: 'check-in',
+  question,
+  // Rule 2: check-ins never reach the projector.
+  shareable: false,
+  checkIn: { style: 'feelings', level },
+});
+
+/** Reflect's exit question: answered anonymously on the projector if shared. */
+const exitQuestion = (id: string): Interaction => ({
+  id,
+  type: 'text',
+  question: COPY.exitQuestion,
+  shareable: true,
+  text: { maxLen: 140 },
+});
+
+/** Reflect's two slides: the exit question, then the room reset. */
+const reflectSlides = (prefix: string, exitId: string): Slide[] => [
+  {
+    id: `${prefix}-slide-exit`,
+    kind: 'interaction',
+    phase: 'respondReflectReset',
+    section: 'reflect',
+    presetId: 'hero',
+    title: COPY.exitTitle,
+    interactionIds: [exitId],
+    reveal: 'wall',
+  },
+  {
+    id: `${prefix}-slide-reset`,
+    kind: 'content',
+    phase: 'respondReflectReset',
+    section: 'reflect',
+    variant: 'plain',
+    title: COPY.resetTitle,
+    resetChecklist: [...RESET_CHECKLIST],
+  },
+];
 
 const withTimer = (minutes: number): { timerSec?: number } =>
   minutes > 0 ? { timerSec: Math.round(minutes * 60) } : {};
 
-/** The parts every Cortex deck shares: Individual Project and Present. */
+/**
+ * The Individual Project (owner, 2026-11-11): each student picks where to
+ * work, from five places on one slide (`projectPlaces.ts`). Every lesson has
+ * this slide, new or generated.
+ */
+export const projectMenuSlide = (prefix: string, minutes = 0): Slide => ({
+  id: `${prefix}-slide-project`,
+  kind: 'content',
+  phase: 'creativeProjects',
+  section: 'individualProject',
+  presetId: 'project-menu',
+  title: COPY.projectMenuTitle,
+  prompt: COPY.projectPrompt,
+  launchTiles: projectPlaceTiles(prefix),
+  ...withTimer(minutes),
+});
+
+/** The parts every Cortex deck shares: Individual Project, Present, Reflect. */
 const projectAndPresent = (
   prefix: string,
   projectMinutes: number,
 ): Pick<CortexLessonContent, 'interactionsByPhase' | 'slides' | 'cellCopy'> => {
   const ids = ixIds(prefix);
-  const project: Interaction = {
-    id: ids.project,
-    type: 'atlas',
-    question: COPY.projectTask,
-    shareable: false,
-    atlas: {
-      module: 'studio',
-      activityRef: STUDIO_LIBRARY_REF,
-      expects: 'artifact',
-    },
-  };
   const progress: Interaction = {
     id: ids.progress,
     type: 'text',
@@ -98,40 +174,33 @@ const projectAndPresent = (
     question: COPY.shareQuestion,
     shareable: false,
   };
+  const exit = exitQuestion(ids.exit);
   return {
     interactionsByPhase: {
-      creativeProjects: [project],
       presentPerform: [progress, share],
+      respondReflectReset: [exit],
     },
     slides: [
-      {
-        id: `${prefix}-slide-project`,
-        kind: 'app-route',
-        phase: 'creativeProjects',
-        presetId: 'personal-project-time',
-        title: COPY.projectTitle,
-        prompt: COPY.projectPrompt,
-        interactionId: project.id,
-        ...withTimer(projectMinutes),
-      },
+      projectMenuSlide(prefix, projectMinutes),
       {
         id: `${prefix}-slide-progress`,
         kind: 'interaction',
         phase: 'presentPerform',
-        presetId: 'question',
+        section: 'present',
+        presetId: 'hero',
         title: COPY.presentTitle,
-        prompt: COPY.presentPrompt,
         interactionIds: [progress.id],
       },
       {
         id: `${prefix}-slide-share`,
         kind: 'showcase',
         phase: 'presentPerform',
-        presetId: 'share-day',
+        section: 'present',
+        presetId: 'hero',
         title: COPY.shareTitle,
-        prompt: COPY.sharePrompt,
         interactionId: share.id,
       },
+      ...reflectSlides(prefix, exit.id),
     ],
     cellCopy: {
       creativeProjects: {
@@ -142,6 +211,10 @@ const projectAndPresent = (
         title: COPY.presentCell,
         prompt: COPY.progressQuestion,
       },
+      respondReflectReset: {
+        title: COPY.exitTitle,
+        prompt: COPY.exitQuestion,
+      },
     },
   };
 };
@@ -150,7 +223,7 @@ const projectAndPresent = (
 const groupInteraction = (
   id: string,
   plan: CortexLessonPlan,
-  choices: CortexLessonChoices,
+  choices: Pick<CortexLessonChoices, 'role' | 'tutorialId' | 'performerRef'>,
 ): { interaction: Interaction; prompt: LocalizedText } | null => {
   switch (choices.role) {
     case 'promoter': {
@@ -174,6 +247,7 @@ const groupInteraction = (
       };
     }
     case 'producer': {
+      // Every Group Project activity but the mind map is done together.
       const option =
         plan.producer.find((o) => o.tutorial.id === choices.tutorialId) ??
         plan.producer[0];
@@ -191,6 +265,7 @@ const groupInteraction = (
             activityRef: `studio:tutorial:${option.tutorial.id}`,
             // The tutorial reports completion when its last step is done.
             expects: 'completion',
+            follow: true,
           },
         },
       };
@@ -212,6 +287,7 @@ const groupInteraction = (
             module: 'learn',
             activityRef: option.activityRef,
             expects: 'completion',
+            follow: true,
           },
         },
       };
@@ -240,17 +316,13 @@ export const buildCortexLessonContent = (
   choices: CortexLessonChoices,
 ): CortexLessonContent => {
   const ids = ixIds(prefix);
-  const { focus, showcase } = plan;
+  const { focus } = plan;
 
-  const checkIn: Interaction = {
-    id: ids.checkIn,
-    type: 'check-in',
-    question:
-      choices.checkInQuestion ?? CHECK_IN_QUESTION[choices.checkInStyle],
-    // Rule 2: check-ins never reach the projector.
-    shareable: false,
-    checkIn: { style: choices.checkInStyle },
-  };
+  const checkIn = feelingsCheckIn(
+    ids.checkIn,
+    choices.checkInLevel,
+    choices.checkInQuestion,
+  );
   const vibe: Interaction | null =
     choices.vibePoll && plan.vibes.length >= 2
       ? {
@@ -268,67 +340,63 @@ export const buildCortexLessonContent = (
       `The ${choices.role} role has nothing to run for ${focus.label}`,
     );
 
-  const showcaseSlides: Slide[] = [
-    {
-      id: `${prefix}-slide-showcase`,
-      kind: 'content',
-      phase: 'connectRegulate',
-      presetId: 'artist-spotlight',
-      title: { en: focus.label, es: focus.label },
-      prompt:
-        focus.kind === 'artist' ? COPY.showcaseArtist : COPY.showcasePlace,
-      ...(showcase.facts.length > 0
-        ? { body: showcaseBody(showcase.facts) }
-        : {}),
-      ...(showcase.visual ? { media: showcase.visual } : {}),
-      accent: showcase.accent,
-    },
-  ];
-  if (showcase.listen) {
-    const { listen } = showcase;
-    showcaseSlides.push({
-      id: `${prefix}-slide-listen`,
-      kind: 'media',
-      phase: 'connectRegulate',
-      title: listenTitle(listen.title),
-      prompt: {
-        en: `${listen.caption} — ${COPY.listenPrompt.en}`,
-        es: `${listen.caption} — ${COPY.listenPrompt.es}`,
-      },
-      media: {
-        type: 'youtube',
-        videoId: listen.videoId,
-        ...(listen.startSec !== undefined ? { startSec: listen.startSec } : {}),
-      },
-      ...(showcase.visual ? { sideMedia: showcase.visual } : {}),
-      accent: showcase.accent,
-    });
-  }
+  // The energy check-in is asked on the portrait (no page of its own); the
+  // faces and the wheel keep their own Connect slide, at full size.
+  const onPortrait = choices.checkInLevel === 'energy';
+  const showcase_ = showcaseParts(
+    prefix,
+    plan,
+    onPortrait ? checkIn.id : undefined,
+  );
 
   const shared = projectAndPresent(prefix, choices.projectMinutes);
 
   return {
     interactionsByPhase: {
-      connectRegulate: vibe ? [checkIn, vibe] : [checkIn],
+      connectRegulate: [
+        checkIn,
+        ...(vibe ? [vibe] : []),
+        ...showcase_.interactions,
+      ],
       groupPractice: [group.interaction],
       ...shared.interactionsByPhase,
     },
     slides: [
-      {
-        id: `${prefix}-slide-connection`,
-        kind: 'interaction',
-        phase: 'connectRegulate',
-        presetId: 'greeting-check-in',
-        title: COPY.connectionTitle,
-        prompt: todayWith(focus),
-        interactionIds: vibe ? [checkIn.id, vibe.id] : [checkIn.id],
-        ...(vibe ? { reveal: 'bars' as const } : {}),
-      },
-      ...showcaseSlides,
+      ...(onPortrait
+        ? []
+        : [
+            {
+              id: `${prefix}-slide-connection`,
+              kind: 'interaction' as const,
+              phase: 'connectRegulate' as const,
+              section: 'connect' as const,
+              presetId: 'hero',
+              title: COPY.connectionTitle,
+              interactionIds: [checkIn.id],
+            },
+          ]),
+      // The mood poll, when there is one, is a slide of its own.
+      ...(vibe
+        ? [
+            {
+              id: `${prefix}-slide-vibe`,
+              kind: 'interaction' as const,
+              phase: 'connectRegulate' as const,
+              section: 'connect' as const,
+              presetId: 'hero',
+              title: COPY.vibeQuestion,
+              interactionIds: [vibe.id],
+              reveal: 'bars' as const,
+            },
+          ]
+        : []),
+      ...showcase_.slides,
       {
         id: `${prefix}-slide-group`,
         kind: 'app-route',
         phase: 'groupPractice',
+        section: 'groupProject',
+        presetId: 'hero',
         title: groupTitle(choices.role),
         prompt: group.prompt,
         interactionId: group.interaction.id,
@@ -343,6 +411,211 @@ export const buildCortexLessonContent = (
   };
 };
 
+/**
+ * The Showcase's first slide for a plan's subject (owner, 2026-11-10): the
+ * photo edge to edge with the name and a short bio over it. Without a photo,
+ * the globe of their place takes its place. The generator and the editor's
+ * Showcase pick share it.
+ */
+export const showcaseSlideFields = (
+  plan: CortexLessonPlan,
+): Pick<
+  Extract<Slide, { kind: 'content' }>,
+  'title' | 'body' | 'presetId' | 'media' | 'accent' | 'recording'
+> => {
+  const { focus, showcase } = plan;
+  const artist = focus.kind === 'artist' ? slugOf(focus.id) : null;
+  // The owner's own line for the artist, else the bio from their facts.
+  const bio =
+    (artist ? ARTIST_TAGLINES[artist] : undefined) ??
+    showcaseBio(showcase.facts);
+  // The song the owner chose, to play from the portrait's corner.
+  const recording = artist ? ARTIST_RECORDINGS[artist] : undefined;
+  const visual = showcase.portrait ?? showcase.globe ?? showcase.visual;
+  return {
+    title: { en: focus.label, es: focus.label },
+    ...(bio.en ? { body: bio } : {}),
+    presetId: 'portrait',
+    ...(visual ? { media: visual } : {}),
+    accent: showcase.accent,
+    ...(recording ? { recording: { videoId: recording } } : {}),
+  };
+};
+
+/** The listening slide's questions, in order: feel, lyric, instruments, tempo. */
+export const listenQuestions = (
+  lyric: ListenQuestion = LISTEN_QUESTIONS.lyric,
+): ListenQuestion[] => [
+  LISTEN_QUESTIONS.feel,
+  lyric,
+  LISTEN_QUESTIONS.instruments,
+  LISTEN_QUESTIONS.tempo,
+];
+
+const listenIxId = (prefix: string, index: number) =>
+  `${prefix}-ix-listen-${index + 1}`;
+
+/** The Showcase slides' ids under a deck's prefix. */
+export const showcaseSlideIds = (prefix: string) => ({
+  portrait: `${prefix}-slide-showcase`,
+  listen: `${prefix}-slide-listen`,
+  places: `${prefix}-slide-places`,
+});
+
+/**
+ * The whole Showcase (owner, 2026-11-10): three slides, one idea each.
+ *
+ *   1. the subject's photo, name and short bio            (portrait)
+ *   2. their song's video, full screen; the class says     (bleed)
+ *      what they hear on their devices, revealed as words
+ *   3. the globe, full screen, flying through their places (bleed)
+ *
+ * The second and third are left out when there is no video, or no place.
+ */
+export const showcaseParts = (
+  prefix: string,
+  plan: CortexLessonPlan,
+  /**
+   * The class's energy check-in, asked on the portrait (owner, 2026-11-10:
+   * the check-in at the first page's bottom left, a slider): its
+   * interaction's id. Without it the portrait is a picture alone.
+   */
+  checkInId?: string,
+): { slides: Slide[]; interactions: Interaction[] } => {
+  const { focus, showcase } = plan;
+  const ids = showcaseSlideIds(prefix);
+  const fields = showcaseSlideFields(plan);
+  const slides: Slide[] = [
+    checkInId
+      ? {
+          id: ids.portrait,
+          kind: 'interaction',
+          phase: 'connectRegulate',
+          // With the class's check-in on it, the portrait is the lesson's
+          // Connect slide, its first (owner, 2026-11-12); the Showcase
+          // carries on from the song.
+          section: 'connect',
+          title: fields.title,
+          ...(fields.body ? { body: fields.body } : {}),
+          ...(fields.media ? { media: fields.media } : {}),
+          presetId: 'portrait-check-in',
+          interactionIds: [checkInId],
+          accent: fields.accent,
+          ...(fields.recording ? { recording: fields.recording } : {}),
+        }
+      : {
+          id: ids.portrait,
+          kind: 'content',
+          phase: 'connectRegulate',
+          section: 'showcase',
+          ...fields,
+        },
+  ];
+  const interactions: Interaction[] = [];
+  // The owner's song for the artist (the portrait's recording, so it plays
+  // on from the first slide), else the catalog's.
+  const artist = focus.kind === 'artist' ? slugOf(focus.id) : null;
+  const own = artist ? ARTIST_LISTEN[artist] : undefined;
+  const listen = own
+    ? { title: own.title, videoId: own.videoId, startSec: undefined }
+    : showcase.listen;
+  if (listen) {
+    // The video on the left, the class's questions on the right (owner,
+    // 2026-11-12): how it makes them feel and what it says, then what they
+    // hear in it. Multiple choice, answered on their devices.
+    const asked = listenQuestions(own?.lyric).map(
+      (q, i): Interaction => ({
+        id: listenIxId(prefix, i),
+        type: 'choice',
+        question: q.question,
+        shareable: true,
+        choice: { options: [...q.options], multi: Boolean(q.multi) },
+      }),
+    );
+    interactions.push(...asked);
+    slides.push({
+      id: ids.listen,
+      kind: 'interaction',
+      phase: 'connectRegulate',
+      section: 'showcase',
+      presetId: 'listen-questions',
+      title: listenTitle(listen.title),
+      media: {
+        type: 'youtube',
+        videoId: listen.videoId,
+        ...(listen.startSec !== undefined ? { startSec: listen.startSec } : {}),
+      },
+      interactionIds: asked.map((i) => i.id),
+      reveal: 'bars',
+      accent: showcase.accent,
+    });
+  }
+  const globe = showcase.globe;
+  if (globe?.type === 'globePreview' && (globe.stops?.length ?? 0) > 0) {
+    slides.push({
+      id: ids.places,
+      kind: 'content',
+      phase: 'connectRegulate',
+      section: 'showcase',
+      presetId: 'bleed',
+      title: { en: focus.label, es: focus.label },
+      media: globe,
+      accent: showcase.accent,
+    });
+  }
+  return { slides, interactions };
+};
+
+/**
+ * A Group Project activity for a role, from a plan: the one the Group
+ * Project slide runs. `ref` picks a particular Studio tutorial or Learn
+ * lesson; without it the plan's first. Null when the plan cannot run the
+ * role. The editor's "match the Showcase" uses it to replace an activity in
+ * place, keeping the interaction's id.
+ */
+export const cortexGroupActivity = (
+  id: string,
+  plan: CortexLessonPlan,
+  role: GroupRole,
+  ref?: string,
+  /** The activity's name, for a Globe tour ("North America tour"). */
+  label?: string,
+): {
+  interaction: Interaction;
+  title: LocalizedText;
+  prompt: LocalizedText;
+} | null => {
+  const tutorialId = ref?.startsWith('studio:tutorial:')
+    ? ref.slice('studio:tutorial:'.length)
+    : undefined;
+  // A Promoter's Globe tour: the class travels it together.
+  if (role === 'promoter' && ref?.startsWith('globe:tour:')) {
+    const task = tourTask(label ?? 'tour');
+    return {
+      title: groupTitle(role),
+      prompt: task,
+      interaction: {
+        id,
+        type: 'atlas',
+        question: task,
+        shareable: false,
+        atlas: {
+          module: 'globe',
+          activityRef: ref,
+          expects: 'completion',
+          follow: true,
+        },
+      },
+    };
+  }
+  const group = groupInteraction(id, plan, {
+    role,
+    ...(tutorialId ? { tutorialId } : {}),
+    ...(ref && role === 'performer' ? { performerRef: ref } : {}),
+  });
+  return group ? { ...group, title: groupTitle(role) } : null;
+};
+
 /** Random suffix, so regenerating a Day never reuses an interaction id. */
 const freshToken = (): string =>
   Math.floor(Math.random() * 36 ** 4)
@@ -354,10 +627,21 @@ const NOTES_HEADER = '— Cortex lesson —';
 /** The Connect cell's notes: the generator's block, then the teacher's own. */
 const notesWith = (existing: string, plan: CortexLessonPlan): string => {
   // Drop a block an earlier generation wrote, keep everything after it.
+  const paragraphs = existing.split('\n\n');
   const own = existing.startsWith(NOTES_HEADER)
-    ? existing.split('\n\n').slice(1).join('\n\n')
+    ? paragraphs
+        .slice(paragraphs[1]?.startsWith('Talking points:') ? 2 : 1)
+        .join('\n\n')
     : existing;
-  const block = [NOTES_HEADER, ...plan.notes].join('\n');
+  // What to say about the subject: the facts the slides leave off.
+  const artist = plan.focus.kind === 'artist' ? slugOf(plan.focus.id) : null;
+  const song = artist ? ARTIST_LISTEN[artist]?.note : undefined;
+  const talking = [
+    'Talking points:',
+    ...plan.showcase.facts.map((f) => `• ${f.text.en}`),
+    ...(song ? [`• ${song}`] : []),
+  ].join('\n');
+  const block = [NOTES_HEADER, ...plan.notes].join('\n') + '\n\n' + talking;
   const rest = own.trim() || PREP_CHECKLIST;
   return `${block}\n\n${rest}`;
 };
@@ -415,6 +699,7 @@ export const applyCortexLessonToDay = (
       ? deckInteractionIds(day.deck)
       : new Set<string>();
 
+  const parts = lessonRationale(choices.role);
   const cells = {} as DayCells;
   for (const phase of PHASES) {
     const cell = day.cells[phase];
@@ -438,14 +723,12 @@ export const applyCortexLessonToDay = (
           ? { interactions }
           : {}),
       },
-      ...(phase === 'connectRegulate'
-        ? {
-            rationale: {
-              ...cell.rationale,
-              notes: notesWith(cell.rationale.notes, plan),
-            },
-          }
-        : {}),
+      rationale: withPartRationale(
+        phase === 'connectRegulate'
+          ? { ...cell.rationale, notes: notesWith(cell.rationale.notes, plan) }
+          : cell.rationale,
+        parts[phase],
+      ),
     };
   }
 
@@ -461,20 +744,36 @@ export const applyCortexLessonToDay = (
   };
 };
 
+/** The starter interactions' ids: the new Day's own check-in and exit question. */
+const starterIds = (dayId: string) => ({
+  feelings: `${dayId}-cx-ix-feelings`,
+  exit: `${dayId}-cx-ix-exit`,
+});
+
 /**
- * The deck every new Day starts with, before a focus is chosen: the same five
- * parts, as content slides with general copy. No interactions, on purpose: a
- * cell with an interaction counts as filled in (`isCellPopulated`), so a
- * blank Day must not carry any, or seeding it would skip those cells. The
- * Individual Project's Studio library opens from a launch tile instead;
- * "Generate from Cortex" adds the check-in, the Group Project and the
- * Present slides' responses.
+ * Whether an interaction is one a new Day starts with (its feelings check-in
+ * or exit question) rather than one a teacher or a seed added. A cell holding
+ * only these still counts as empty, so seeding a new Day fills every cell.
+ */
+export const isStarterInteraction = (interaction: Pick<Interaction, 'id'>) =>
+  /-cx-ix-(feelings|exit)$/.test(interaction.id);
+
+/**
+ * The deck every new Day starts with, before a focus is chosen: the six
+ * sections with general copy. Connect asks the feelings check-in (Simple) and
+ * Reflect the exit question, so a new lesson taught as it stands still opens
+ * and closes properly; their interactions are `cortexSkeletonInteractions`,
+ * which `newBlankDay` puts in the cells. The Individual Project is the five
+ * places' menu, as in every lesson. "Generate from Cortex" replaces the lot,
+ * filling the Showcase and the Group Project in.
  */
 export const buildCortexLessonSkeleton = (dayId: string): SlideDeck => {
   const prefix = `${dayId}-cx`;
+  const ids = starterIds(dayId);
   const section = (
     key: string,
     phase: Slide['phase'],
+    sectionId: NonNullable<Slide['section']>,
     title: LocalizedText,
     prompt: LocalizedText,
     presetId = 'section',
@@ -482,6 +781,7 @@ export const buildCortexLessonSkeleton = (dayId: string): SlideDeck => {
     id: `${prefix}-slide-${key}`,
     kind: 'content',
     phase,
+    section: sectionId,
     presetId,
     title,
     prompt,
@@ -490,45 +790,52 @@ export const buildCortexLessonSkeleton = (dayId: string): SlideDeck => {
     id: `${dayId}-deck`,
     title: { en: 'Lesson', es: 'Lección' },
     slides: [
-      section(
-        'connection',
-        'connectRegulate',
-        COPY.connectionTitle,
-        CHECK_IN_QUESTION.emoji,
-      ),
+      {
+        id: `${prefix}-slide-connection`,
+        kind: 'interaction',
+        phase: 'connectRegulate',
+        section: 'connect',
+        presetId: 'greeting-check-in',
+        title: COPY.connectionTitle,
+        interactionIds: [ids.feelings],
+      },
       section(
         'showcase',
         'connectRegulate',
+        'showcase',
         COPY.showcaseTitle,
         COPY.showcaseOpen,
       ),
-      section('group', 'groupPractice', COPY.groupTitle, COPY.groupOpen),
-      {
-        ...section(
-          'project',
-          'creativeProjects',
-          COPY.projectTitle,
-          COPY.projectPrompt,
-          'project-menu',
-        ),
-        launchTiles: [
-          {
-            id: `${prefix}-tile-library`,
-            module: 'studio',
-            activityRef: STUDIO_LIBRARY_REF,
-            label: COPY.libraryTile,
-          },
-        ],
-      } as Slide,
+      section(
+        'group',
+        'groupPractice',
+        'groupProject',
+        COPY.groupTitle,
+        COPY.groupOpen,
+      ),
+      projectMenuSlide(prefix),
       section(
         'present',
         'presentPerform',
+        'present',
         COPY.presentTitle,
         COPY.presentPrompt,
         'share-day',
       ),
+      ...reflectSlides(prefix, ids.exit),
     ],
     templateRef: { templateId: CORTEX_LESSON_TEMPLATE_ID },
+  };
+};
+
+/** The new Day's starter interactions, by the phase cell they live in. */
+export const cortexSkeletonInteractions = (
+  dayId: string,
+): InteractionsByPhase => {
+  const ids = starterIds(dayId);
+  return {
+    connectRegulate: [feelingsCheckIn(ids.feelings, 'simple')],
+    respondReflectReset: [exitQuestion(ids.exit)],
   };
 };
 

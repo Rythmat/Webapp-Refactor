@@ -23,6 +23,7 @@ vi.mock('@/features/classroom/msp', async () => ({
 import { installDawCss, resolvedBackground } from '@/daw/__tests__/dawTokens';
 import { useStore } from '@/daw/store';
 import { TutorialLayer } from '../TutorialLayer';
+import { usePromptBarStore } from '@/daw/shell/prompt/promptBarStore';
 import { getTutorial } from '../tutorials';
 
 // ── The lesson overlay inherits the DAW tokens (practice-tutorial-24) ───────
@@ -51,7 +52,7 @@ describe('TutorialLayer', () => {
     dawRoot.className = 'daw-root';
     document.body.appendChild(dawRoot);
 
-    act(() => useStore.getState().startTutorial('make-first-track'));
+    act(() => useStore.getState().startTutorial('studio-basics'));
     const { unmount } = render(<TutorialLayer />, { container: dawRoot });
 
     const card = screen
@@ -79,9 +80,11 @@ describe('TutorialLayer', () => {
 // rewrote the restored view (the harness's R2, R5 and R12 channel strip
 // losses).
 
-const LESSON = 'make-first-track';
-/** make-first-track's free-form 'experiment' step: it opens the Prism tab. */
-const EXPERIMENT = 6;
+const LESSON = 'studio-basics';
+/** Studio Basics' 'pick-sound' step: it opens the Instrument tab. */
+const EXPERIMENT = getTutorial(LESSON)!.steps.findIndex(
+  (st) => st.id === 'pick-sound',
+);
 const s = () => useStore.getState();
 
 describe('TutorialLayer preconditions', () => {
@@ -92,7 +95,7 @@ describe('TutorialLayer preconditions', () => {
       s().setChannelStripTab(null);
     });
     const first = render(<TutorialLayer />);
-    expect(s().channelStripTab).toBe('prism');
+    expect(s().channelStripTab).toBe('controls');
     expect(s().tutorialStepPrepared).toBe(true);
 
     // The student opens another tab, leaves the editor and comes back.
@@ -121,7 +124,7 @@ describe('TutorialLayer preconditions', () => {
     render(<TutorialLayer />);
     expect(s().channelStripTab).toBe('fx');
     act(() => s().goToTutorialStep(EXPERIMENT));
-    expect(s().channelStripTab).toBe('prism');
+    expect(s().channelStripTab).toBe('controls');
   });
 
   it('opens a step’s track tab over the dock’s Master', () => {
@@ -131,7 +134,7 @@ describe('TutorialLayer preconditions', () => {
       s().goToTutorialStep(EXPERIMENT);
     });
     render(<TutorialLayer />);
-    expect(s().channelStripTab).toBe('prism');
+    expect(s().channelStripTab).toBe('controls');
     expect(s().dockMaster).toBe(false);
   });
 
@@ -166,6 +169,26 @@ describe('TutorialLayer preconditions', () => {
   });
 });
 
+describe('TutorialLayer: Prism and the Inspector', () => {
+  it('opens Prism for a step that types into it, and folds it for one that doesn’t', () => {
+    const ask = getTutorial(LESSON)!.steps.findIndex(
+      (st) => st.id === 'ask-chords',
+    );
+    const bass = getTutorial(LESSON)!.steps.findIndex(
+      (st) => st.id === 'open-bass',
+    );
+    usePromptBarStore.getState().collapse();
+    act(() => {
+      s().startTutorial(LESSON);
+      s().goToTutorialStep(ask);
+    });
+    render(<TutorialLayer />);
+    expect(usePromptBarStore.getState().collapsed).toBe(false);
+    act(() => s().goToTutorialStep(bass));
+    expect(usePromptBarStore.getState().collapsed).toBe(true);
+  });
+});
+
 describe('TutorialLayer completion', () => {
   it('reports completion for its own lesson only (practice-tutorial-09)', async () => {
     vi.useFakeTimers();
@@ -182,5 +205,7 @@ describe('TutorialLayer completion', () => {
       activityRef: `studio:tutorial:${LESSON}`,
     });
     expect(s().activeTutorialId).toBeNull();
+    // A course lesson: its end card follows.
+    expect(s().finishedTutorialId).toBe(LESSON);
   });
 });

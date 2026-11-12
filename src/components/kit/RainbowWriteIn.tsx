@@ -24,8 +24,11 @@ export function RainbowWriteIn({
       <motion.span
         key={text}
         data-write-in
+        // Clipped to the text, the sweep paints only inside the box: padded
+        // (and pulled back by as much) so descenders and accents under a
+        // tight line height still get it (the g of "morning").
         className={cn(
-          'inline-block bg-clip-text text-transparent [-webkit-background-clip:text]',
+          '-my-[0.18em] inline-block bg-clip-text py-[0.18em] text-transparent [-webkit-background-clip:text]',
           reduce && 'text-white',
           className,
         )}

@@ -12,8 +12,8 @@
  * `slots` the owning surface injects (`SlideRenderer`'s `SlideSlots`).
  */
 import type { ReactNode } from 'react';
+import { AppCard } from '../../presentation/AppCard';
 import { InteractionPreview } from '../../presentation/InteractionPreview';
-import { LaunchTile } from '../../presentation/LaunchTile';
 import { ResetChecklist } from '../../presentation/ResetChecklist';
 import type {
   Interaction,
@@ -37,8 +37,8 @@ const MEDIA_TYPES = new Set([
 ]);
 
 /**
- * The Atlas module an activityRef belongs to, from its namespace. `LaunchTile`
- * needs it for the eyebrow label and the fallback base; the resolver itself
+ * The Atlas module an activityRef belongs to, from its namespace. `AppCard`
+ * needs it for the module label and the fallback base; the resolver itself
  * keys off the namespace, not this tag.
  */
 const moduleForRef = (ref: string): LaunchTileRef['module'] =>
@@ -58,6 +58,12 @@ export interface SlideElementViewProps {
   interactionsById: Record<string, Interaction>;
   /** Interaction ids the owning stage already renders in the reveal band. */
   hiddenInteractionIds?: readonly string[];
+  /**
+   * A live surface (the room's screen, Present): under a reveal the footer
+   * keeps what was asked, but never the editor's sample of the answer shape
+   * ("Students type a response…").
+   */
+  questionOnly?: boolean;
   /**
    * The editor's substitute for THIS element, if it has one.
    *
@@ -79,6 +85,7 @@ export const SlideElementView = ({
   language,
   interactionsById,
   hiddenInteractionIds,
+  questionOnly = false,
   override,
   slots,
   playableMedia = false,
@@ -124,10 +131,10 @@ export const SlideElementView = ({
     case 'content': {
       const { embed } = element;
       if (embed === null) {
-        // P3 replaces this with the real link card; until then an Atlas ref
-        // still renders as a tile so nothing disappears from a slide.
+        // A link with no embed still renders as a card, so nothing
+        // disappears from a slide.
         return (
-          <LaunchTile
+          <AppCard
             tile={{
               id: element.id,
               module: moduleForRef(
@@ -138,13 +145,14 @@ export const SlideElementView = ({
               label: element.label,
             }}
             language={language}
-            phaseLabel={phaseLabel}
+            surface={surface}
+            sectionLabel={phaseLabel}
           />
         );
       }
       if (embed.type === 'atlasCard') {
         return (
-          <LaunchTile
+          <AppCard
             tile={{
               id: element.id,
               module: moduleForRef(embed.ref),
@@ -152,7 +160,8 @@ export const SlideElementView = ({
               label: element.label,
             }}
             language={language}
-            phaseLabel={phaseLabel}
+            surface={surface}
+            sectionLabel={phaseLabel}
           />
         );
       }
@@ -198,6 +207,15 @@ export const SlideElementView = ({
             <QuestionText question={interaction.question} language={language} />
             {slots?.input?.(interaction)}
           </div>
+        );
+      }
+      if (questionOnly) {
+        return (
+          <QuestionText
+            question={interaction.question}
+            language={language}
+            scale={0.6}
+          />
         );
       }
       return (

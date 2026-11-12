@@ -9,7 +9,7 @@
  */
 import type { SessionEcho } from '../echo/types';
 import type { PhaseKey } from '../phases';
-import type { InteractionResponsePayload } from '../types';
+import type { InteractionResponsePayload, ShowcaseArtifact } from '../types';
 
 export const STORAGE_KEY = 'ma-teacher:sessions:v1';
 export const SCHEMA_VERSION = 1;
@@ -27,12 +27,7 @@ export interface SessionPair {
   hostEnrollmentId: string;
 }
 
-export interface ShowcaseArtifact {
-  projectId: string;
-  /** Collab room to open on the projector to feature it live. */
-  roomId?: string;
-  name: string;
-}
+export type { ShowcaseArtifact } from '../types';
 
 /** Phase 3 — the currently-featured student project. */
 export interface SessionShowcase {
@@ -60,6 +55,31 @@ export interface SessionMediaCommand {
   action: 'play' | 'pause';
   atSec?: number;
   cmdId: number;
+}
+
+/**
+ * The class's step in a Group Project activity it does together (owner,
+ * 2026-11-10): a Studio tutorial, a Globe tour, a Learn lesson. The teacher
+ * sets it; every student's tab follows it and none runs ahead. No
+ * identifiers, so it reaches every role, the projector included.
+ */
+export interface SessionActivity {
+  /** The Group Project slide the activity runs on. */
+  slideId: string;
+  /** The activity's ref (`studio:tutorial:…`, `globe:tour:…`, …). */
+  ref: string;
+  /** The class's step, 0-based. */
+  step: number;
+  /** How many steps the activity has, once a tab running it has said. */
+  total?: number;
+  /** The step's title, for the projector and the teacher's control. */
+  title?: string;
+}
+
+/** A student's finished step: teacher-only (identified, Rule 2). */
+export interface ActivityDone {
+  slideId: string;
+  step: number;
 }
 
 export interface SessionState {
@@ -98,6 +118,8 @@ export interface SessionState {
    * (docs/echo-classroom.md, Messages §1). Absent/null = no Echo.
    */
   echo?: SessionEcho | null;
+  /** The class's step in a Group Project activity done together. */
+  activity?: SessionActivity | null;
   status: SessionStatus;
   startedAt: string;
   endedAt?: string;
@@ -149,6 +171,19 @@ export interface EchoBody {
   kind: 'echo';
   echo: SessionEcho | null;
 }
+/** The teacher sets the class's step in the activity done together. */
+export interface ActivityBody {
+  kind: 'activity';
+  activity: SessionActivity | null;
+}
+/** A student finished the class's current step. Written to the
+ *  `activityDone` side-map, never SessionState. */
+export interface ActivityDoneBody {
+  kind: 'activityDone';
+  enrollmentId: string;
+  slideId: string;
+  step: number;
+}
 export interface MediaBody {
   kind: 'media';
   slideId: string;
@@ -179,6 +214,8 @@ export type SessionMessageBody =
   | TimerBody
   | MediaBody
   | EchoBody
+  | ActivityBody
+  | ActivityDoneBody
   | PositionBody
   | StateSyncBody;
 
@@ -209,6 +246,12 @@ export interface SessionStore {
    */
   positions: Record<string, Record<string, number>>;
   /**
+   * Each student's last finished step in the activity the class does
+   * together, sessionId → enrollmentId → done. Teacher-only, like
+   * `positions`: identified, so it never reaches a projector.
+   */
+  activityDone: Record<string, Record<string, ActivityDone>>;
+  /**
    * Live presence, keyed sessionId → enrollmentId → state. TEACHER-ONLY, like
    * `positions`: the party restricts the identified presence stream to teacher
    * sockets and `sessionSocketController` drops it on any other role, so this
@@ -226,6 +269,7 @@ const EMPTY_STORE: SessionStore = {
   sessions: {},
   responses: {},
   positions: {},
+  activityDone: {},
   presence: {},
   seq: {},
 };
@@ -250,6 +294,7 @@ const readStore = (userId: string | null | undefined): SessionStore => {
       sessions: parsed.sessions ?? {},
       responses: parsed.responses ?? {},
       positions: parsed.positions ?? {},
+      activityDone: parsed.activityDone ?? {},
       // Absent on stores written before P0 — normalize rather than bumping
       // SCHEMA_VERSION, which would discard every teacher's live session.
       presence: parsed.presence ?? {},
@@ -471,6 +516,8 @@ export const applyBodyToState = (
       return { ...state, timer: body.timer, updatedAt: nowIso };
     case 'echo':
       return { ...state, echo: body.echo, updatedAt: nowIso };
+    case 'activity':
+      return { ...state, activity: body.activity, updatedAt: nowIso };
     case 'media':
       return {
         ...state,
@@ -495,6 +542,7 @@ export const applyBodyToState = (
       return { ...body.state, updatedAt: nowIso };
     case 'response':
     case 'position':
+    case 'activityDone':
       // Side-map writes (responses / positions) don't mutate SessionState.
       return { ...state, updatedAt: nowIso };
   }
@@ -507,8 +555,16 @@ export const roleCanSend = (
 ): boolean => {
   if (role === 'projector') return false;
   if (role === 'student')
-    return body.kind === 'response' || body.kind === 'position';
-  return body.kind !== 'response' && body.kind !== 'position';
+    return (
+      body.kind === 'response' ||
+      body.kind === 'position' ||
+      body.kind === 'activityDone'
+    );
+  return (
+    body.kind !== 'response' &&
+    body.kind !== 'position' &&
+    body.kind !== 'activityDone'
+  );
 };
 
 export interface ApplyMessageInput {
@@ -535,6 +591,7 @@ export const applyMessageForUser = (
   let nextSessions = current.sessions;
   let nextResponses = current.responses;
   let nextPositions = current.positions;
+  let nextDone = current.activityDone;
   if (input.body.kind === 'response') {
     const forSession: ResponsesForSession = {
       ...(current.responses[input.sessionId] ?? {}),
@@ -547,6 +604,13 @@ export const applyMessageForUser = (
     const forSession = { ...(current.positions[input.sessionId] ?? {}) };
     forSession[input.body.enrollmentId] = input.body.slideIndex;
     nextPositions = { ...current.positions, [input.sessionId]: forSession };
+  } else if (input.body.kind === 'activityDone') {
+    const forSession = { ...(current.activityDone[input.sessionId] ?? {}) };
+    forSession[input.body.enrollmentId] = {
+      slideId: input.body.slideId,
+      step: input.body.step,
+    };
+    nextDone = { ...current.activityDone, [input.sessionId]: forSession };
   } else {
     nextSessions = {
       ...current.sessions,
@@ -559,6 +623,7 @@ export const applyMessageForUser = (
     sessions: nextSessions,
     responses: nextResponses,
     positions: nextPositions,
+    activityDone: nextDone,
     seq: { ...current.seq, [input.sessionId]: seq },
   };
 
@@ -640,6 +705,17 @@ export type SessionSocketMessage =
   | { type: 'timer'; timer: SessionTimer | null }
   /** Echo in the classroom — the round (all roles, no identifiers). */
   | { type: 'echo'; echo: SessionEcho | null }
+  /** The class's step in the activity done together (all roles). */
+  | { type: 'activity'; activity: SessionActivity | null }
+  /** A student finished the class's step — teacher sockets only. */
+  | {
+      type: 'activityDone';
+      at: string;
+      sessionId: string;
+      enrollmentId: string;
+      slideId: string;
+      step: number;
+    }
   | {
       type: 'media';
       slideId: string;
@@ -727,6 +803,8 @@ export const applySessionSocketMessage = (
         timer: s.timer ?? null,
         media: s.media ?? null,
         echo: s.echo ?? null,
+        // Not in the server's state: the party sends it right after hello.
+        activity: state?.activity ?? null,
         status: snap.status,
         startedAt: snap.startedAt,
         endedAt: snap.endedAt ?? undefined,
@@ -766,6 +844,9 @@ export const applySessionSocketMessage = (
     case 'echo':
       if (!state) return state;
       return { ...state, echo: msg.echo, updatedAt: nowIso };
+    case 'activity':
+      if (!state) return state;
+      return { ...state, activity: msg.activity, updatedAt: nowIso };
     case 'media':
       if (!state) return state;
       return {
@@ -791,6 +872,7 @@ export const applySessionSocketMessage = (
     case 'response':
     case 'presence':
     case 'position':
+    case 'activityDone':
     case 'pong':
       // Response bag + positions map live in the store (handled by
       // applySocketMessageForUser). Presence + pong don't touch SessionState.
@@ -817,6 +899,7 @@ export const applySocketMessageForUser = (
 
   let nextResponses = current.responses;
   let nextPositions = current.positions;
+  let nextDone = current.activityDone;
   let nextPresence = current.presence;
   if (msg.type === 'response') {
     // Bucket by whichever participant key this socket's role is allowed to see:
@@ -838,6 +921,10 @@ export const applySocketMessageForUser = (
     const forSession = { ...(current.positions[sessionId] ?? {}) };
     forSession[msg.enrollmentId] = msg.slideIndex;
     nextPositions = { ...current.positions, [sessionId]: forSession };
+  } else if (msg.type === 'activityDone') {
+    const forSession = { ...(current.activityDone[sessionId] ?? {}) };
+    forSession[msg.enrollmentId] = { slideId: msg.slideId, step: msg.step };
+    nextDone = { ...current.activityDone, [sessionId]: forSession };
   } else if (msg.type === 'presence') {
     const forSession = { ...(current.presence[sessionId] ?? {}) };
     for (const { enrollmentId, state } of msg.delta) {
@@ -853,11 +940,13 @@ export const applySocketMessageForUser = (
   const responsesChanged = nextResponses !== current.responses;
   const positionsChanged = nextPositions !== current.positions;
   const presenceChanged = nextPresence !== current.presence;
+  const doneChanged = nextDone !== current.activityDone;
   if (
     !stateChanged &&
     !responsesChanged &&
     !positionsChanged &&
-    !presenceChanged
+    !presenceChanged &&
+    !doneChanged
   )
     return;
 
@@ -869,6 +958,7 @@ export const applySocketMessageForUser = (
     sessions: nextSessions,
     responses: nextResponses,
     positions: nextPositions,
+    activityDone: nextDone,
     presence: nextPresence,
   };
   writeStore(userId, nextStore);

@@ -10,6 +10,7 @@ import {
   edgeWidth,
   withAlpha,
 } from '@/components/atlas/theme/marks';
+import type { JourneyLeg } from './journeyLeg';
 import { greatCircle } from './mapGeometry';
 
 /**
@@ -219,6 +220,43 @@ export function arcLinkFeatures(arcs: readonly ArcDatum[]): LinkFeatures {
   });
   return {
     solid: { type: 'FeatureCollection', features: solid },
+    dotted: empty(),
+    pills: empty(),
+  };
+}
+
+/**
+ * A running tour's or pathway's one link: from the stop shown on to the next
+ * (owner, 2026-11-09), a solid line going out. A click opens nothing; the
+ * card steps the journey.
+ */
+export function legLinkFeatures(leg: JourneyLeg): LinkFeatures {
+  const id = `leg:${leg.key}`;
+  return {
+    solid: {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          id,
+          geometry: {
+            type: 'LineString',
+            coordinates: greatCircle(leg.from, leg.to),
+          },
+          properties: {
+            id,
+            side: 'out',
+            w: edgeWidth(4),
+            color: DOTTED.out,
+            weight: 1,
+            title: `${leg.from.label} → ${leg.to.label}`,
+            detail: `Next stop: ${leg.next}`,
+            place: '',
+            eventId: '',
+          },
+        },
+      ],
+    },
     dotted: empty(),
     pills: empty(),
   };

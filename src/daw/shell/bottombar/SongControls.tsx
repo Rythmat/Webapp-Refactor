@@ -61,6 +61,7 @@ function KeyButton({ short }: { short: boolean }) {
           <button
             type="button"
             data-testid="key-button"
+            data-tutorial-id="song-key"
             aria-label={`Key: ${full}${locked ? ', locked' : ''}`}
             data-hint={hintText(
               `Key: ${full}`,
@@ -91,6 +92,7 @@ function KeyButton({ short }: { short: boolean }) {
         align="end"
         sideOffset={8}
         data-testid="key-popover"
+        data-tutorial-id="key-popover"
         data-ds="v2"
         className="w-[260px]"
       >
@@ -111,6 +113,7 @@ function MetreButton() {
           <button
             type="button"
             data-testid="metre-button"
+            data-tutorial-id="song-time-signature"
             aria-label={`Time signature: ${numerator}/${denominator}`}
             data-hint={hintText(
               `Time signature: ${numerator}/${denominator}`,

@@ -36,7 +36,8 @@ export const SUBGENRE_TUTORIAL: Readonly<Record<string, string>> = {
   disco: 'house-make-it-pump',
 };
 
-export const DEFAULT_TUTORIAL = 'make-first-track';
+// Studio Basics took Make your first track's place (owner, 2026-11-09).
+export const DEFAULT_TUTORIAL = 'studio-basics';
 
 interface GenreVote {
   node: GraphNode;

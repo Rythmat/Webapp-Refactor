@@ -323,7 +323,8 @@ const ACTIVITY_CATALOG: ActivityEntry[] = [
   {
     label: 'Piano Fundamentals',
     description: 'Beginner Course',
-    route: CurriculumRoutes.root.definition,
+    // The course page (`/curriculum` itself has no page).
+    route: CurriculumRoutes.pianoFundamentals.definition,
     keywords: [
       'piano',
       'fundamentals',

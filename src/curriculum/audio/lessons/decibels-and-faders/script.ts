@@ -38,6 +38,8 @@ export const DECIBELS_SCRIPT: LessonScript<DeskScene> = {
     doScreen({
       id: 'half',
       view: 'snare',
+      // Whatever they did to the faders on the way in.
+      scene: { faders: UNITY, master: 0 },
       body: 'Watch the snare’s wave. Pull its fader down until the wave is **half as tall** as the outline.',
       right: 'That’s half the height. Look at the number on the fader.',
       feedback: {

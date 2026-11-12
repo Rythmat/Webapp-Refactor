@@ -1,8 +1,8 @@
 import { COURSES_GENRE_OPTIONS } from '@/components/learn/learnFilterOptions';
 import {
-  GlobeRoutes,
   ClassroomRoutes,
   GameRoutes,
+  GlobeRoutes,
   LearnRoutes,
   ProfileRoutes,
   SettingsRoutes,
@@ -86,7 +86,7 @@ function buildArtists(): IndexEntry[] {
       subtitle: 'Artist',
       // Learn's Songs tab filtered to this artist (it reads `?q=`). Not
       // /songs: that redirects to Learn and drops the query.
-      to: LearnRoutes.root(undefined, { tab: 'Songs', q: name }),
+      to: SongRoutes.root(undefined, { q: name }),
       icon,
       thumb: { src: image, avatarSeed: name, shape: 'circle' },
     },

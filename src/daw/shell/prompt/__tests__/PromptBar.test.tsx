@@ -268,6 +268,6 @@ describe('the prompt bar', () => {
         .getState()
         .askAt({ tick: 9 * BAR + 100, trackId: drums }),
     );
-    expect(chip()).toBe('Bars 10–13 · Drums');
+    expect(chip()).toBe('Bars 10–17 · Drums');
   });
 });

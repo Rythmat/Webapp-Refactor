@@ -104,6 +104,7 @@ export const InteractionInput = ({
           onSubmit={onSubmit}
           submittedPayload={submittedPayload}
           disabled={disabled}
+          live={live}
         />
       );
     case 'echo':

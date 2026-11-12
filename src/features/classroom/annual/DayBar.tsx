@@ -1,11 +1,11 @@
 /**
  * A single-day pill on the Annual Plan calendar — one Day scheduled to a
- * specific date. Deep-links to the DayEditor, and is a drag source: drop it on
+ * specific date. Opens the lesson in the Office Inspector, and is a drag source: drop it on
  * a calendar date-cell to reschedule the Day (see CalendarView).
  */
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { TeacherRoutes } from '@/constants/routes';
+import { Link, useLocation } from 'react-router-dom';
+import { withInspect } from '@/features/office/frame/useOfficeInspector';
 import type { Day } from '../types';
 import { setDragItem } from './calendarDnd';
 import { CAL_FONT } from './calendarSizing';
@@ -27,10 +27,15 @@ export const DayBar = ({
   gridRow,
 }: DayBarProps) => {
   const [dragging, setDragging] = useState(false);
+  const { pathname, search } = useLocation();
 
   return (
     <Link
-      to={TeacherRoutes.dayEditor({ classroomId, dayId: day.id })}
+      to={`${pathname}${withInspect(search, {
+        kind: 'lesson',
+        classroomId,
+        id: day.id,
+      })}`}
       draggable
       onDragStart={(e) => {
         setDragItem(e.dataTransfer, { kind: 'day', id: day.id });

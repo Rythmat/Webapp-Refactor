@@ -1,22 +1,40 @@
 /**
- * Filmstrip — the horizontal slide rail beneath the canvas. Pixel-faithful
- * thumbnails (via SlideThumbnail), select / duplicate / delete / reorder, an
- * add-slide affordance, and a non-blocking "Sort by phase" banner when the deck
- * drifts out of IMPACT order.
+ * Filmstrip — the slide rail beneath the canvas, in the lesson's six sections
+ * (Connect → Reflect). Each section is a labelled group of pixel-faithful
+ * thumbnails (SlideThumbnail) with its own "Add" menu offering what that
+ * section is for, so a new slide always lands in its place. Arrows reorder
+ * within a section; moving between sections is the Inspector's Section field.
+ * A quiet banner offers "Sort by section" if a deck drifts out of order.
  */
-import { ArrowLeftRight, ChevronLeft, ChevronRight } from 'lucide-react';
-import { PHASES } from '../../phases';
+import { ArrowLeftRight, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { MicroLabel } from '@/components/kit';
+import { cn } from '@/components/utilities';
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuLabel,
+  MenuTrigger,
+} from '@/daw/ui';
 import type { DaySnapshot } from '../../publish/publishDay';
 import {
   findDanglingInteractionIds,
   interactionsForSlide,
   slideInteractionIds,
 } from '../../slides/deck';
-import { slidesArePhaseOrdered } from '../../slides/deckEdit';
-import type { SlideTemplateId } from '../../slides/templates/slideTemplates';
+import {
+  SECTION_HINT,
+  SECTION_LABEL,
+  groupSlidesBySection,
+  sectionNumber,
+  sectionOf,
+  slidesAreSectionOrdered,
+  type SlideSection,
+} from '../../slides/sections';
 import type { Slide } from '../../slides/types';
-import { AddSlideMenu } from './AddSlideMenu';
 import { SlideThumbnail } from './SlideThumbnail';
+import { SECTION_ADD_OPTIONS, type SectionAddOption } from './sectionMenu';
 
 interface FilmstripProps {
   slides: Slide[];
@@ -24,12 +42,49 @@ interface FilmstripProps {
   /** Published snapshot for the current draft — used to flag dangling refs. */
   snapshot: DaySnapshot;
   onSelect: (index: number) => void;
-  onAdd: (templateId: SlideTemplateId) => void;
+  onAdd: (section: SlideSection, option: SectionAddOption) => void;
   onDuplicate: (index: number) => void;
   onDelete: (index: number) => void;
   onMove: (index: number, delta: number) => void;
-  onSortByPhase: () => void;
+  onSortBySection: () => void;
 }
+
+const sectionTitle = (section: SlideSection) =>
+  `${sectionNumber(section)} · ${SECTION_LABEL[section].en}`;
+
+const SectionAdd = ({
+  section,
+  empty,
+  onAdd,
+}: {
+  section: SlideSection;
+  empty: boolean;
+  onAdd: FilmstripProps['onAdd'];
+}) => (
+  <Menu>
+    <MenuTrigger asChild>
+      <button
+        type="button"
+        aria-label={`Add a slide to ${SECTION_LABEL[section].en}`}
+        className={cn(
+          'flex shrink-0 flex-col items-center justify-center gap-1 rounded-[0.75rem] border border-dashed border-white/15 text-daw-text-3 transition-colors hover:border-white/35 hover:text-daw-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white',
+          empty ? 'aspect-video w-40' : 'h-[5.625rem] w-10',
+        )}
+      >
+        <Plus className="size-4" />
+        {empty && <span className="text-[0.75rem]">Add a slide</span>}
+      </button>
+    </MenuTrigger>
+    <MenuContent align="start" side="top" sideOffset={6} className="w-56">
+      <MenuLabel>Add to {SECTION_LABEL[section].en}</MenuLabel>
+      {SECTION_ADD_OPTIONS[section].map((option) => (
+        <MenuItem key={option.label} onSelect={() => onAdd(section, option)}>
+          {option.label}
+        </MenuItem>
+      ))}
+    </MenuContent>
+  </Menu>
+);
 
 export const Filmstrip = ({
   slides,
@@ -40,66 +95,98 @@ export const Filmstrip = ({
   onDuplicate,
   onDelete,
   onMove,
-  onSortByPhase,
+  onSortBySection,
 }: FilmstripProps) => {
   const danglingIds = new Set(findDanglingInteractionIds(snapshot));
-  const ordered = slidesArePhaseOrdered(slides, PHASES);
+  const ordered = slidesAreSectionOrdered(slides);
+  const groups = groupSlidesBySection(slides);
+  const sameSection = (a: number, b: number) =>
+    slides[a] !== undefined &&
+    slides[b] !== undefined &&
+    sectionOf(slides[a]) === sectionOf(slides[b]);
 
   return (
     <div className="flex flex-col gap-2">
       {!ordered && (
-        <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-400/30 bg-amber-500/[0.06] px-3 py-1.5 text-sm text-amber-200/90">
-          <span>Slides are out of IMPACT phase order.</span>
-          <button
-            type="button"
-            onClick={onSortByPhase}
-            className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/30 px-2.5 py-1 text-xs font-medium text-amber-100 hover:bg-amber-400/10"
-          >
-            <ArrowLeftRight className="h-3.5 w-3.5" />
-            Sort by phase
-          </button>
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-[0.8125rem] text-daw-text-2">
+          <span>Some slides are out of section order.</span>
+          <Button variant="secondary" size="md" onClick={onSortBySection}>
+            <ArrowLeftRight />
+            Sort by section
+          </Button>
         </div>
       )}
 
-      <div className="flex items-start gap-3 overflow-x-auto pb-1">
-        {slides.map((slide, index) => (
-          <div key={slide.id} className="flex flex-col gap-1">
-            <SlideThumbnail
-              slide={slide}
-              index={index}
-              selected={index === selectedIndex}
-              interactions={interactionsForSlide(snapshot, slide)}
-              dangling={slideInteractionIds(slide).some((id) =>
-                danglingIds.has(id),
-              )}
-              canDelete={slides.length > 1}
-              onSelect={() => onSelect(index)}
-              onDuplicate={() => onDuplicate(index)}
-              onDelete={() => onDelete(index)}
-            />
-            <div className="flex items-center justify-center gap-1">
-              <button
-                type="button"
-                onClick={() => onMove(index, -1)}
-                disabled={index === 0}
-                aria-label="Move slide left"
-                className="rounded p-0.5 text-white/40 hover:text-white disabled:opacity-20"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => onMove(index, 1)}
-                disabled={index === slides.length - 1}
-                aria-label="Move slide right"
-                className="rounded p-0.5 text-white/40 hover:text-white disabled:opacity-20"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
+      <div className="flex items-start overflow-x-auto pb-1">
+        {groups.map(({ section, slides: inSection }, g) => (
+          <section
+            key={section}
+            aria-label={sectionTitle(section)}
+            data-section={section}
+            className={cn(
+              'flex shrink-0 flex-col gap-2 px-3',
+              g === 0 ? 'pl-0' : 'border-l border-white/[0.08]',
+            )}
+          >
+            <header
+              className="flex items-baseline gap-2"
+              title={SECTION_HINT[section]}
+            >
+              <MicroLabel className="text-daw-text-2">
+                {sectionTitle(section)}
+              </MicroLabel>
+              <span className="text-[0.6875rem] text-daw-text-3 max-2xl:hidden">
+                {inSection.length === 0 ? SECTION_HINT[section] : null}
+              </span>
+            </header>
+            <div className="flex items-start gap-2">
+              {inSection.map(({ slide, index }) => (
+                <div key={slide.id} className="flex flex-col gap-1">
+                  <SlideThumbnail
+                    slide={slide}
+                    index={index}
+                    selected={index === selectedIndex}
+                    interactions={interactionsForSlide(snapshot, slide)}
+                    dangling={slideInteractionIds(slide).some((id) =>
+                      danglingIds.has(id),
+                    )}
+                    canDelete={slides.length > 1}
+                    onSelect={() => onSelect(index)}
+                    onDuplicate={() => onDuplicate(index)}
+                    onDelete={() => onDelete(index)}
+                  />
+                  {inSection.length > 1 && (
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => onMove(index, -1)}
+                        disabled={!sameSection(index, index - 1)}
+                        aria-label="Move slide earlier"
+                        className="rounded p-0.5 text-daw-text-3 hover:text-daw-text disabled:opacity-20"
+                      >
+                        <ChevronLeft className="size-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onMove(index, 1)}
+                        disabled={!sameSection(index, index + 1)}
+                        aria-label="Move slide later"
+                        className="rounded p-0.5 text-daw-text-3 hover:text-daw-text disabled:opacity-20"
+                      >
+                        <ChevronRight className="size-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+              <SectionAdd
+                section={section}
+                empty={inSection.length === 0}
+                onAdd={onAdd}
+              />
             </div>
-          </div>
+          </section>
         ))}
-        <AddSlideMenu onAdd={onAdd} />
       </div>
     </div>
   );

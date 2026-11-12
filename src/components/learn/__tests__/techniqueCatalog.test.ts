@@ -6,21 +6,15 @@ import {
 
 describe('techniqueCatalog', () => {
   it('keeps the piano Technique tiles; Music Literacy is Start Here’s', () => {
+    // Piano Anatomy moved into Piano Fundamentals (owner, 2026-11-05).
     expect(PIANO_TECHNIQUE_DATA).toEqual([
-      {
-        title: 'Piano Anatomy',
-        route: '/learn/audio/anatomy/piano',
-        image: '/learn-tiles/beginner-hex.svg',
-        interactive: true,
-        ratio: [3, 4],
-        premium: true,
-      },
       {
         title: 'Piano Fundamentals',
         route: '/curriculum/piano-fundamentals',
         image: '/learn-tiles/beginner-hex.svg',
         interactive: true,
         ratio: [1, 2],
+        firstStep: true,
       },
       {
         title: 'Applied Theory Fundamentals',

@@ -20,6 +20,7 @@
 import { stripLegacySongSlug } from './legacySongSlug';
 import { PHASES, STUDENT_PHASE_LABELS, type PhaseKey } from './phases';
 import { projectDeck } from './publish/publishDay';
+import { NEVER_PROJECTED } from './slides/interactionPolicy';
 import type { SlideDeck } from './slides/types';
 import type {
   Day,
@@ -56,15 +57,24 @@ const projectInteractionForStudent = (
     id: interaction.id,
     type: interaction.type,
     question: interaction.question,
-    // Rule 2 belt: check-in responses are teacher-only, so the client emits
-    // shareable=false regardless of what the source Day claims.
-    shareable: interaction.type === 'check-in' ? false : interaction.shareable,
+    // Rule 2 belt, the same list `publishDay` uses: check-ins, offers and
+    // Echo runs are teacher-only whatever the source Day claims.
+    shareable: NEVER_PROJECTED.has(interaction.type)
+      ? false
+      : interaction.shareable,
   };
   if (interaction.choice) out.choice = interaction.choice;
   if (interaction.number) out.number = interaction.number;
   if (interaction.text) out.text = interaction.text;
   if (interaction.draw) out.draw = interaction.draw;
-  if (interaction.checkIn) out.checkIn = interaction.checkIn;
+  if (interaction.checkIn) {
+    out.checkIn = {
+      style: interaction.checkIn.style,
+      ...(interaction.checkIn.level
+        ? { level: interaction.checkIn.level }
+        : {}),
+    };
+  }
   if (interaction.atlas) out.atlas = interaction.atlas;
   return out;
 };

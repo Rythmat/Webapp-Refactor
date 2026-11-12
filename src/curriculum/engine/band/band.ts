@@ -29,6 +29,7 @@ import type { TimeSignature } from '../bassLines/harmony';
 import type { BackingNote } from '../genreGeneration/backingPatterns';
 import type { ChordSymbolTones } from '../genreGeneration/chordSymbolTones';
 import type { SwingUnit } from '../genreGeneration/swing';
+import type { StyleHarmony } from './harmonicRhythm';
 
 /** What a layer plays: the instrument a student would name. */
 export type BandInstrument =
@@ -109,6 +110,12 @@ export interface BandVariation {
    * drums on another kit. A member not named plays the band's sound.
    */
   sounds?: Record<string, string>;
+  /**
+   * How the style changes chords (owner, 2026-11-10): how long each holds
+   * and how early the changes are pushed (harmonicRhythm.ts). Prism lays its
+   * progressions in it; left out, a chord a bar on the beat.
+   */
+  harmony?: StyleHarmony;
 }
 
 export interface Band {

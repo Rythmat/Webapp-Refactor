@@ -1,8 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
+import { LearnRoutes } from '@/constants/routes';
 
 /** Why a path is not mirrored, by its first segment. */
 const OWNER: Record<string, string> = {
-  studio: 'A student’s own Studio project — made in the editor, not content.',
+  studio:
+    'A student’s own Studio project — made in the editor, not content. Its lessons are under Studio → Production.',
   arcade:
     'An Arcade game. Games are built in code today; their metadata arrives with the catalog phase.',
   songs: 'A student’s own set lists.',
@@ -32,7 +34,7 @@ export const NotMirroredYet = () => {
         {OWNER[segment] ?? 'This page has no content to edit here.'}
       </p>
       <Link
-        to="/learn?tab=Songs"
+        to={LearnRoutes.root()}
         className="mt-2 rounded-full border border-white/15 px-4 py-1.5 text-sm text-white/80 hover:border-white/30"
       >
         Back to Learn

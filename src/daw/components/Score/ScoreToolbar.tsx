@@ -159,6 +159,7 @@ export const ScoreToolbar = memo(function ScoreToolbar({
   return (
     <div
       data-testid="score-toolbar"
+      data-tutorial-id="score-toolbar"
       // Wraps rather than running under the side rail on a Chromebook.
       className="leadsheet-toolbar score-no-print flex flex-wrap items-center gap-1 border-b px-3 py-1.5"
       style={{
@@ -343,6 +344,7 @@ function StavesMenu() {
           className={BTN}
           style={BTN_STYLE}
           data-testid="score-staves"
+          data-tutorial-id="score-staves"
           title="Which tracks have a staff; with none, the chord chart"
           aria-label={`Staves: ${summary}`}
         >
@@ -380,6 +382,7 @@ function StavesMenu() {
           disabled={instruments.length === 0 || shownCount === 0}
           onSelect={() => setHidden(instruments.map((t) => t.id))}
           data-testid="score-staves-none"
+          data-tutorial-id="score-staves-none"
         >
           Chords only
         </MenuItem>

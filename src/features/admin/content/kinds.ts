@@ -525,6 +525,26 @@ export const CONTENT_KINDS: Record<ContentKind, KindSpec> = {
     ],
     formKeys: ['id', 'name', 'part', 'status'],
   },
+
+  // ── Studio lessons (docs/studio-lesson-content-kind.md) ──
+  // Edited on its own page (instrumentPages.ts), like Music Literacy.
+  studio_lesson: {
+    label: 'Studio lessons',
+    singular: 'Studio lesson',
+    blurb:
+      'The Studio’s Production lessons: steps that spotlight a part of the Studio and pass when the student does what they ask. Edited in the Studio lesson editor.',
+    fields: [
+      { path: 'id', label: 'Id', type: 'text' },
+      { path: 'title', label: 'Title', type: 'text' },
+      {
+        path: 'status',
+        label: 'Status',
+        type: 'select',
+        options: ['draft', 'live'],
+      },
+    ],
+    formKeys: ['id', 'title', 'status'],
+  },
 };
 
 /** Tab order in the console. */
@@ -547,6 +567,7 @@ export const KIND_ORDER: ContentKind[] = [
   'drum_groove',
   'instrument_part',
   'music_literacy',
+  'studio_lesson',
 ];
 
 // Own keys only: `in` also accepts inherited ones, so a URL of

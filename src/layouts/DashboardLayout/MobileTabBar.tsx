@@ -1,16 +1,9 @@
-import {
-  type LucideIcon,
-  CircleHelp,
-  Ellipsis,
-  GraduationCap,
-  Laptop,
-  Settings,
-  Trophy,
-} from 'lucide-react';
+import { Ellipsis } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTopRailStats } from '@/components/ClassroomLayout/useTopRailStats';
 import { Logo } from '@/components/Logo';
+import { type AppIconComponent, AppIcons } from '@/components/icons/appIcons';
 import { UserAvatarPattern } from '@/components/ui/UserAvatarPattern';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -22,9 +15,9 @@ import {
 } from '@/components/ui/sheet';
 import { cn } from '@/components/utilities';
 import {
-  GlobeRoutes,
   ClassroomRoutes,
   GameRoutes,
+  GlobeRoutes,
   LearnRoutes,
   OfficeRoutes,
   ProfileRoutes,
@@ -38,7 +31,7 @@ import { isRouteActive, NavGlyph } from './SidebarMainNavItem';
 interface Tab {
   to: string;
   label: string;
-  icon?: LucideIcon;
+  icon?: AppIconComponent;
   iconSrc?: string;
   /** Draw the Music Atlas logo in place of an icon. */
   logo?: boolean;
@@ -82,16 +75,20 @@ export const MobileTabBar = ({ className }: { className?: string }) => {
   const { totalXp, level, userName, avatarConfig } = useTopRailStats();
 
   const moreItems: (Tab & { external?: boolean })[] = [
-    { to: ClassroomRoutes.root(), label: 'Classroom', icon: Laptop },
+    {
+      to: ClassroomRoutes.root(),
+      label: 'Classroom',
+      icon: AppIcons.classroom,
+    },
     ...(role === 'teacher'
-      ? [{ to: OfficeRoutes.root(), label: 'Office', icon: GraduationCap }]
+      ? [{ to: OfficeRoutes.root(), label: 'Office', icon: AppIcons.office }]
       : []),
-    { to: ProfileRoutes.awards(), label: 'Awards', icon: Trophy },
-    { to: SettingsRoutes.root(), label: 'System', icon: Settings },
+    { to: ProfileRoutes.awards(), label: 'Awards', icon: AppIcons.awards },
+    { to: SettingsRoutes.root(), label: 'System', icon: AppIcons.preferences },
     {
       to: 'mailto:aaron@musicatlas.io',
       label: 'Support',
-      icon: CircleHelp,
+      icon: AppIcons.help,
       external: true,
     },
   ];

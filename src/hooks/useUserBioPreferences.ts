@@ -156,6 +156,13 @@ export function useUserBioPreferences(userId: string | undefined) {
     });
   }, [current, commit]);
 
+  /** Set several fields at once (onboarding's answers). */
+  const update = useCallback(
+    (patch: Partial<Omit<UserBioPreferences, 'visibility'>>) =>
+      commit({ ...current(), ...patch }),
+    [current, commit],
+  );
+
   return {
     instruments: useMemo(() => new Set(bio.instruments), [bio.instruments]),
     genres: useMemo(() => new Set(bio.genres), [bio.genres]),
@@ -165,5 +172,6 @@ export function useUserBioPreferences(userId: string | undefined) {
     toggleGenre,
     toggleFocus,
     toggleVisibility,
+    update,
   };
 }

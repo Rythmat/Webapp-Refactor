@@ -9,10 +9,18 @@ import {
 } from '../../slides/deck';
 import { resolveElements } from '../../slides/migrateDeckV1';
 import { revealContentHeight } from '../../slides/slideGrid';
+import { LessonSongProvider } from '../../slides/song/LessonSong';
+import { AnsweredCount } from '../../slides/viz/AnsweredCount';
 import { ParticipationPulse } from '../../slides/viz/ParticipationPulse';
-import type { Interaction, InteractionResponsePayload } from '../../types';
+import type {
+  Interaction,
+  InteractionResponsePayload,
+  StudentLanguage,
+} from '../../types';
+import { JoinCard } from '../JoinCard';
 import type { SessionState } from '../sessionsStore';
 import { LOCAL_SESSION_CLOCK, type SessionClock } from '../useServerClock';
+import { ClassStepChip } from './ClassStepChip';
 import { ShowcaseProjectorFrame } from './ShowcaseProjectorFrame';
 import { TimerCountdown } from './TimerCountdown';
 import { buildRevealNode } from './revealNode';
@@ -35,6 +43,10 @@ interface ProjectorDeckViewProps {
   >;
   /** The server's clock: Echo's rounds are drawn on it. */
   clock?: SessionClock;
+  /** The class's join code, shown while the class waits for the first slide. */
+  joinCode?: string;
+  /** The class's language: one on the room's screen, never both by default. */
+  language?: StudentLanguage;
 }
 
 /**
@@ -51,6 +63,8 @@ export const ProjectorDeckView = ({
   sessionId,
   responsesByEnrollment,
   clock = LOCAL_SESSION_CLOCK,
+  joinCode,
+  language = 'en',
 }: ProjectorDeckViewProps) => {
   const reducedMotion = useReducedMotion();
   const deck = deckFromSnapshot(snapshot);
@@ -69,10 +83,11 @@ export const ProjectorDeckView = ({
 
   if (!slide) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-[#141416]">
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-8 bg-[#141416]">
         <p className="max-w-lg px-8 text-center text-3xl font-medium text-white/70">
           Get ready… · Prepárate…
         </p>
+        {joinCode && <JoinCard code={joinCode} />}
       </div>
     );
   }
@@ -108,11 +123,29 @@ export const ProjectorDeckView = ({
     });
 
   const firstInteractionId = interactions[0]?.id;
-  const statusChip = firstInteractionId ? (
-    <ParticipationPulse
-      responded={countFor(firstInteractionId)}
-      language="both"
+  // The activity the class does together: the room sees the class's step,
+  // never who finished it (owner, 2026-11-10).
+  const classStep =
+    state.activity && state.activity.slideId === slide.id
+      ? state.activity
+      : null;
+  // A feelings check-in shares the band with its faces or wheel, so the room
+  // gets a one-line count rather than the pulse ring.
+  const statusChip = classStep ? (
+    <ClassStepChip
+      step={classStep.step}
+      total={classStep.total}
+      title={classStep.title}
     />
+  ) : firstInteractionId ? (
+    interactions[0].checkIn?.style === 'feelings' ? (
+      <AnsweredCount n={countFor(firstInteractionId)} />
+    ) : (
+      <ParticipationPulse
+        responded={countFor(firstInteractionId)}
+        language="both"
+      />
+    )
   ) : undefined;
 
   // Showcase: the projector shows ONLY the single teacher-featured project
@@ -144,29 +177,38 @@ export const ProjectorDeckView = ({
           <TimerCountdown endsAt={timer.endsAt} size="projector" />
         </div>
       )}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={slide.id}
-          className="h-full w-full"
-          initial={reducedMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={reducedMotion ? undefined : { opacity: 0 }}
-          transition={{ duration: 0.25 }}
-        >
-          <SlideRenderer
-            slide={slide}
-            surface="projector"
-            language="both"
-            interactions={interactions}
-            slots={{
-              reveal: revealSlot,
-              statusChip,
-              showcaseFrame,
-              mediaCommand,
-            }}
-          />
-        </motion.div>
-      </AnimatePresence>
+      {/* One song for the deck: it plays on from slide to slide. */}
+      <LessonSongProvider>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={slide.id}
+            className="h-full w-full"
+            initial={reducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reducedMotion ? undefined : { opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <SlideRenderer
+              slide={slide}
+              surface="projector"
+              language={language}
+              interactions={interactions}
+              slots={{
+                reveal: revealSlot,
+                statusChip,
+                showcaseFrame,
+                mediaCommand,
+                // The Group Practice slide's Studio, on the class's step.
+                studioFollow: {
+                  sessionId,
+                  lead: false,
+                  step: classStep?.step,
+                },
+              }}
+            />
+          </motion.div>
+        </AnimatePresence>
+      </LessonSongProvider>
     </div>
   );
 };

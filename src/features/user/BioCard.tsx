@@ -1,7 +1,10 @@
 /* eslint-disable react/jsx-sort-props */
-import { Activity, Mic2, Music, User } from 'lucide-react';
+import { Activity, Mic2, Music } from 'lucide-react';
 import type { ElementType, FC } from 'react';
+import { Link } from 'react-router-dom';
+import { AppIcons } from '@/components/icons/appIcons';
 import { Switch } from '@/components/ui/switch';
+import { WelcomeRoutes } from '@/constants/routes';
 import { useMe } from '@/hooks/data';
 import { useUserBioPreferences } from '@/hooks/useUserBioPreferences';
 import { ALL_FOCUS, ALL_GENRES, ALL_INSTRUMENTS } from '@/types/userProfile';
@@ -50,8 +53,15 @@ export const BioCard = () => {
   return (
     <section className="flex flex-col gap-4">
       <div className="flex items-center gap-2 text-white">
-        <User size={20} />
+        <AppIcons.profile size={20} />
         <h2 className="text-2xl font-medium">Bio</h2>
+        {/* What Learn suggests comes from /welcome's answers too. */}
+        <Link
+          to={WelcomeRoutes.root(undefined, { edit: '1' })}
+          className="ml-auto rounded-full border border-white/10 px-3 py-1.5 text-sm text-white/70 outline-none transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:ring-2 focus-visible:ring-white/60"
+        >
+          Learning preferences
+        </Link>
       </div>
       <div
         className="glass-panel-sm relative rounded-3xl p-6"

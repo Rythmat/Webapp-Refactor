@@ -10,9 +10,9 @@ import type {
 } from '@/components/atlas/types';
 import { DEFAULT_CARD_PREFS } from './cardsStorage';
 
-/** Every layer on, the land lit by music. */
+/** Every layer on, the land in its continents' colours (owner, 2026-11-10). */
 export const DEFAULT_LAYERS: GlobeLayers = {
-  landColor: 'music',
+  landColor: 'continent',
   states: true,
   cities: true,
   artistPoints: true,

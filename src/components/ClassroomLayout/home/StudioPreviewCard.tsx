@@ -63,9 +63,9 @@ export const StudioPreviewCard = () => {
       to={NEW_PROJECT_HREF}
       aria-label="Open a new blank Studio project"
       // The prompt box's card (hairline edge, 20px corners, soft shadow,
-      // light wash), as the Projects card beside it. No set height: it is
-      // its header and the video, so it scales with the video, and the
-      // Projects card takes its height from it.
+      // light wash). No set height: it is its header and the video, so it
+      // scales with the video, and Progress beside it takes its height
+      // from it.
       className={cn(
         PROMPT_FRAME,
         PROMPT_WASH,

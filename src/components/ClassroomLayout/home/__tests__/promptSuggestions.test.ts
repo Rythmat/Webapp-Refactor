@@ -192,7 +192,7 @@ function problem(route: string): string | null {
             return `no tour ${value}`;
           break;
         case 'panel':
-          if (!['pathways', 'instruments', 'layers', 'legend'].includes(value))
+          if (!['tours', 'instruments', 'layers', 'legend'].includes(value))
             return `no panel ${value}`;
           break;
         case 'view':

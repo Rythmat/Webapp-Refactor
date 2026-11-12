@@ -1,8 +1,15 @@
 import { cortexColor } from '@/content/graph/cortexPalette';
 import type { EdgeKind, EntityId, GraphNode } from '@/content/graph/types';
 import type { LocalizedText } from '../../types';
+import { atRef } from '../globe/slideGlobeStops';
 import { getYouTubeVideoId } from '../songDeepLinks';
 import type { SlideMedia } from '../types';
+import {
+  ARTIST_STORIES,
+  STORY_PAGES,
+  STORY_VIDEOS,
+  type StoryPages,
+} from './artistStories';
 import type { LessonCatalog } from './catalog';
 import { linked, listOf, slugOf, type LessonGraph } from './graphQueries';
 import type {
@@ -317,11 +324,169 @@ const firstOf = <T>(
   return null;
 };
 
+/** How many places a globe slide visits. */
+const MAX_STOPS = 10;
+
+type GlobeStop = NonNullable<
+  Extract<SlideMedia, { type: 'globePreview' }>['stops']
+>[number];
+
+/** At most this many words in a stop's story. */
+export const STORY_MAX_WORDS = 32;
+
+/**
+ * The sentence of an event's description that says what it has to do with
+ * the subject (the first naming them), else its first; past
+ * `STORY_MAX_WORDS`, without its asides between dashes, then cut at a word.
+ */
+export const storySentence = (description: string, subject: string): string => {
+  const sentences = description
+    .split(/(?<=[.!?][”"'’]?)\s+(?=[A-Z"“'‘])/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const surname = subject.split(/\s+/).pop() ?? subject;
+  const about =
+    sentences.find((s) => s.includes(subject)) ??
+    sentences.find((s) => surname.length > 3 && s.includes(surname)) ??
+    sentences[0] ??
+    '';
+  // A long sentence loses its asides between dashes first.
+  const trimmed =
+    about.split(/\s+/).length > STORY_MAX_WORDS
+      ? about.replace(/\s+[—–]\s+[^—–]+?\s+[—–]\s+/g, ' ')
+      : about;
+  const words = trimmed.split(/\s+/);
+  return words.length <= STORY_MAX_WORDS
+    ? trimmed
+    : `${words
+        .slice(0, STORY_MAX_WORDS)
+        .join(' ')
+        .replace(/[,;:—–-]+$/, '')}…`;
+};
+
+/**
+ * The artist's places, in story order, for the full-screen globe (owner,
+ * 2026-11-10): where they were born or based, then each event about them
+ * that has a place and the lesson's own moments of it (artistStories.ts),
+ * earliest first. Each named "Gary · 1958", and each with
+ * its story: why the place matters to them (the event, the sentence of it
+ * that names them, its video), shown on the slide's card at that stop.
+ */
+const artistStops = (
+  graph: LessonGraph,
+  catalog: LessonCatalog,
+  focus: GraphNode,
+  home: GraphNode,
+  homeAt: [number, number],
+  portraitSongId: string | undefined,
+): GlobeStop[] => {
+  const year =
+    linked(graph, focus.id, 'born_year', 'out')[0] ??
+    linked(graph, focus.id, 'formed_year', 'out')[0];
+  const named = (place: string, when?: string | number): LocalizedText => {
+    const text = when ? `${place} · ${when}` : place;
+    return { en: text, es: text };
+  };
+  const spot = ([lat, lng]: [number, number]) =>
+    `${lat.toFixed(1)},${lng.toFixed(1)}`;
+  // The owner's clip for an event, else the event's own; its further pages.
+  const chosen = STORY_VIDEOS[slugOf(focus.id)] ?? {};
+  const morePages = STORY_PAGES[slugOf(focus.id)] ?? {};
+  const pagesOf = (more: StoryPages | undefined) =>
+    more ? { tab: more.tab, pages: more.pages } : {};
+  const storyVideo = (eventId: string, own: string | undefined) =>
+    chosen[eventId] ?? own;
+  // Events pinned on the home town are the songs' pins, not moments of the
+  // story; anywhere else, several moments may share a city (Los Angeles).
+  const home$ = spot(homeAt);
+  const later: { stop: GlobeStop; year: number }[] = [];
+  for (const node of linked(graph, focus.id, 'about', 'in')) {
+    const event = catalog.events.get(slugOf(node.id));
+    if (typeof event?.lat !== 'number' || typeof event.lng !== 'number')
+      continue;
+    const at: [number, number] = [event.lat, event.lng];
+    if (spot(at) === home$) continue;
+    const city =
+      linked(graph, node.id, 'took_place_in', 'out')[0]?.label ?? event.city;
+    const body = event.description
+      ? storySentence(event.description, focus.label)
+      : '';
+    later.push({
+      stop: {
+        location: at,
+        label: named(city ?? event.title, event.year),
+        ref: `event:${event.id}`,
+        story: {
+          title: { en: event.title, es: event.title },
+          ...(body ? { body: { en: body, es: body } } : {}),
+          ...(storyVideo(event.id, event.videoId)
+            ? { videoId: storyVideo(event.id, event.videoId) }
+            : {}),
+          ...pagesOf(morePages[event.id]),
+          // Their photo, when the event's video has no picture.
+          ...(portraitSongId ? { songId: portraitSongId } : {}),
+        },
+      },
+      year: event.year ?? Number.MAX_SAFE_INTEGER,
+    });
+  }
+  // The lesson's own moments of the story (artistStories.ts).
+  for (const moment of ARTIST_STORIES[slugOf(focus.id)] ?? []) {
+    later.push({
+      stop: {
+        location: moment.location,
+        label: named(moment.place, moment.year),
+        story: {
+          title: moment.title,
+          body: moment.body,
+          ...(moment.videoId ? { videoId: moment.videoId } : {}),
+          ...pagesOf(moment.more),
+          ...(portraitSongId ? { songId: portraitSongId } : {}),
+        },
+      },
+      year: moment.year,
+    });
+  }
+  later.sort((a, b) => a.year - b.year);
+  // The Globe pins the places it calls cities; a town it doesn't (Gary) is
+  // opened by position, as the state it lies in.
+  const homeRecord = catalog.places.get(slugOf(home.id));
+  const homeRef =
+    homeRecord && homeRecord.pin !== false
+      ? `place:city:${homeRecord.id}`
+      : atRef(homeAt);
+  // Where the story starts: born (or based) here, with their photo.
+  const born = linked(graph, focus.id, 'born_in', 'out')[0]?.id === home.id;
+  const when = year ? ` in ${year.label}` : '';
+  const whenEs = year ? ` en ${year.label}` : '';
+  const homeStory = {
+    title: born
+      ? {
+          en: `${focus.label} is born in ${home.label}${when}.`,
+          es: `${focus.label} nace en ${home.label}${whenEs}.`,
+        }
+      : {
+          en: `${focus.label} makes ${home.label} home.`,
+          es: `${focus.label} hace de ${home.label} su hogar.`,
+        },
+    ...(portraitSongId ? { songId: portraitSongId } : {}),
+  };
+  return [
+    {
+      location: homeAt,
+      label: named(home.label, year?.label),
+      ref: homeRef,
+      story: homeStory,
+    },
+    ...later.map((l) => l.stop),
+  ].slice(0, MAX_STOPS);
+};
+
 const artistMedia = (
   graph: LessonGraph,
   catalog: LessonCatalog,
   focus: GraphNode,
-): Pick<ShowcaseContent, 'visual' | 'listen'> => {
+): Pick<ShowcaseContent, 'visual' | 'listen' | 'globe' | 'portrait'> => {
   // Songs the artist performed, confirmed first: a portrait resolves through
   // a song, and only a song they performed carries their own portrait.
   const performed = [
@@ -345,6 +510,24 @@ const artistMedia = (
           markers: [{ location: coordinates, size: 0.09 }],
         }
       : undefined;
+  const stops = coordinates
+    ? artistStops(
+        graph,
+        catalog,
+        focus,
+        place!,
+        coordinates,
+        portrait ? slugOf(portrait.id) : undefined,
+      )
+    : [];
+  const globe: SlideMedia | undefined = coordinates
+    ? {
+        type: 'globePreview',
+        markers: [{ location: coordinates, size: 0.06 }],
+        focus: coordinates,
+        ...(stops.length > 0 ? { stops } : {}),
+      }
+    : undefined;
   const written = linked(graph, focus.id, 'written_by', 'in');
   const listen =
     firstOf(performed, (s) => songListen(catalog, s)) ??
@@ -354,6 +537,15 @@ const artistMedia = (
     firstOf(written, (s) => songListen(catalog, s));
   return {
     ...(visual ? { visual } : {}),
+    ...(globe ? { globe } : {}),
+    ...(portrait
+      ? {
+          portrait: {
+            type: 'artistImage',
+            songId: slugOf(portrait.id),
+          } satisfies SlideMedia,
+        }
+      : {}),
     ...(listen ? { listen } : {}),
   };
 };
@@ -362,7 +554,7 @@ const placeMedia = (
   graph: LessonGraph,
   catalog: LessonCatalog,
   focus: GraphNode,
-): Pick<ShowcaseContent, 'visual' | 'listen'> => {
+): Pick<ShowcaseContent, 'visual' | 'listen' | 'globe' | 'portrait'> => {
   const coordinates = catalog.places.get(slugOf(focus.id))?.coordinates;
   const events = linked(graph, focus.id, 'took_place_in', 'in');
   // Most events are pinned on the city itself: one marker per spot, and none
@@ -391,6 +583,12 @@ const placeMedia = (
     ...linked(graph, focus.id, 'born_in', 'in'),
     ...linked(graph, focus.id, 'based_in', 'in'),
   ];
+  // The city's face: the first of its own artists with a portrait.
+  const portraitSong = firstOf(homeArtists, (artist) =>
+    firstOf(linked(graph, artist.id, 'performed_by', 'in'), (s) =>
+      catalog.songs.get(slugOf(s.id))?.artistImageRef ? s : null,
+    ),
+  );
   const listen =
     firstOf(linked(graph, focus.id, 'recorded_in', 'in'), (s) =>
       songListen(catalog, s),
@@ -403,6 +601,17 @@ const placeMedia = (
     );
   return {
     ...(visual ? { visual } : {}),
+    ...(visual && coordinates
+      ? { globe: { ...visual, focus: coordinates } as SlideMedia }
+      : {}),
+    ...(portraitSong
+      ? {
+          portrait: {
+            type: 'artistImage',
+            songId: slugOf(portraitSong.id),
+          } satisfies SlideMedia,
+        }
+      : {}),
     ...(listen ? { listen } : {}),
   };
 };
@@ -448,5 +657,34 @@ export const showcaseBody = (facts: readonly ShowcaseFact[]): LocalizedText => {
   return {
     en: shown.map((f) => f.text.en).join('\n'),
     es: shown.map((f) => f.text.es ?? f.text.en).join('\n'),
+  };
+};
+
+/** At most this many words in a portrait's bio (owner, 2026-11-10). */
+export const BIO_MAX_WORDS = 25;
+
+const wordCount = (text: string): number =>
+  text.trim().split(/\s+/).filter(Boolean).length;
+
+/**
+ * The portrait's short bio: who and what, in two sentences at most. Facts
+ * about events stay off it (they are the globe's places and the teacher's
+ * talking points); a fact that would take the bio past its word budget is
+ * skipped.
+ */
+export const showcaseBio = (facts: readonly ShowcaseFact[]): LocalizedText => {
+  const picked: ShowcaseFact[] = [];
+  let words = 0;
+  for (const fact of facts) {
+    if (picked.length === 2) break;
+    if (fact.source === 'about' || fact.source === 'took_place_in') continue;
+    const n = wordCount(fact.text.en);
+    if (words + n > BIO_MAX_WORDS) continue;
+    picked.push(fact);
+    words += n;
+  }
+  return {
+    en: picked.map((f) => f.text.en).join(' '),
+    es: picked.map((f) => f.text.es ?? f.text.en).join(' '),
   };
 };

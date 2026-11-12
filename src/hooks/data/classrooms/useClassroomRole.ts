@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { OFFICE_LESSONS_SCOPE } from '@/constants/officeScopes';
 import { SERVER_CLASSROOM_TEACHERS_ENABLED } from '@/constants/serverEndpoints';
 import { useMe } from '../auth';
 import type { ClassroomRole } from './classroomTeachers.types';
@@ -52,12 +53,16 @@ export const useClassroomRole = (
   } = useClassrooms();
 
   const myId = me?.id ?? null;
+  // The Office's built-in lessons live in the teacher's own Lessons tab, not
+  // a class: theirs to edit, with nothing to ask the server.
+  const ownLessons = classroomId === OFFICE_LESSONS_SCOPE;
   const isOwner = useMemo(
     () =>
-      !!myId &&
-      !!classroomId &&
-      owned.some((c) => c.id === classroomId && c.teacherId === myId),
-    [owned, classroomId, myId],
+      ownLessons ||
+      (!!myId &&
+        !!classroomId &&
+        owned.some((c) => c.id === classroomId && c.teacherId === myId)),
+    [owned, classroomId, myId, ownLessons],
   );
 
   // Only ask about co-teaching when ownership did not already answer it.
@@ -70,29 +75,32 @@ export const useClassroomRole = (
   } = useClassroomTeachers(needTeachers ? classroomId : undefined);
 
   const role = useMemo<ClassroomRole | null>(() => {
+    if (ownLessons) return 'owner';
     if (!myId || !classroomId) return null;
     if (isOwner) return 'owner';
     if (!teachers) return null;
     if (teachers.owner?.teacherId === myId) return 'owner';
     const mine = teachers.teachers?.find((t) => t.teacherId === myId);
     return mine?.role ?? null;
-  }, [myId, classroomId, isOwner, teachers]);
+  }, [myId, classroomId, isOwner, teachers, ownLessons]);
 
   const isLoading =
-    meLoading || ownedLoading || (needTeachers && teachersLoading);
+    !ownLessons &&
+    (meLoading || ownedLoading || (needTeachers && teachersLoading));
 
   return {
     role,
     isLoading,
     // A failed teachers lookup means we genuinely do not know — say so rather
     // than silently reporting "not your classroom".
-    isDegraded: (needTeachers && teachersError) || ownedError,
+    isDegraded: !ownLessons && ((needTeachers && teachersError) || ownedError),
     isResolved:
-      !isLoading &&
-      !!me &&
-      ownedSuccess &&
-      // Either ownership already answered it, or the co-teacher lookup did.
-      (isOwner || !needTeachers || (!teachersLoading && !teachersError)),
+      ownLessons ||
+      (!isLoading &&
+        !!me &&
+        ownedSuccess &&
+        // Either ownership already answered it, or the co-teacher lookup did.
+        (isOwner || !needTeachers || (!teachersLoading && !teachersError))),
   };
 };
 

@@ -1,13 +1,15 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   TUTORIAL_CATALOG,
+  currentLessonId,
   getTutorialEntry,
   lessonAccess,
   lessonNeedsUpgrade,
 } from '../tutorialCatalog';
 import { TUTORIALS, type TutorialStep } from '../tutorials';
+import { addPremiumLesson, PREMIUM_LESSON } from './premiumLessonFixture';
 
 /**
  * The Production lessons' catalog (tutorialCatalog.ts): the tile copy and the
@@ -56,22 +58,14 @@ describe('the lesson catalog', () => {
     }
   });
 
-  it('makes the four Prism lessons Premium and leaves the other three free', () => {
-    const premium = (want: boolean) =>
-      TUTORIAL_CATALOG.filter(
-        (t) => !('course' in t) && t.requiresPremium === want,
-      ).map((t) => t.id);
-    expect(premium(true)).toEqual([
-      'make-first-track',
-      'jazz-color-your-chords',
-      'edm-design-the-drop',
-      'rnb-mix-and-polish',
-    ]);
-    expect(premium(false)).toEqual([
-      'hiphop-build-the-beat',
-      'house-make-it-pump',
-      'indie-movement-and-dynamics',
-    ]);
+  it('makes every lesson free: none has a step in the old Prism', () => {
+    expect(TUTORIAL_CATALOG.filter((t) => t.requiresPremium)).toEqual([]);
+  });
+
+  it('opens a lesson that went by the one that took its place', () => {
+    expect(getTutorialEntry('make-first-track')?.id).toBe('studio-basics');
+    expect(getTutorialEntry('studio-basics-record')?.id).toBe('studio-basics');
+    expect(currentLessonId('house-make-it-pump')).toBe('house-make-it-pump');
   });
 
   it('finds an entry by id, and nothing for an unknown or missing id', () => {
@@ -82,33 +76,50 @@ describe('the lesson catalog', () => {
     expect(getTutorialEntry(null)).toBeNull();
   });
 
-  it('imports nothing, so the dashboard never loads the steps or Prism', () => {
+  it('imports only the console lessons, so the dashboard never loads the steps or Prism', () => {
     const source = readFileSync(
       join(__dirname, '..', 'tutorialCatalog.ts'),
       'utf8',
     );
-    expect(source).not.toMatch(/^\s*import\s/m);
+    // The lessons written in the console: their files and their Premium
+    // rule, data with no Studio in it.
+    const allowed = [
+      '@/content/studioLessons/premium',
+      '@/content/studioLessons/schemas',
+      '@/curriculum/engine/studioLessons/registry',
+    ];
+    const imported = [
+      ...source.matchAll(/^import[\s\S]*?from '([^']+)';/gm),
+    ].map((m) => m[1]);
+    expect(imported.filter((from) => !allowed.includes(from))).toEqual([]);
     expect(source).not.toMatch(/\bimport\(/);
   });
 });
 
 describe('lesson access', () => {
+  let removePremiumLesson = () => {};
+  beforeEach(() => {
+    removePremiumLesson = addPremiumLesson();
+  });
+  afterEach(() => removePremiumLesson());
+
   const free = { isPremium: false, isLoading: false };
   const premium = { isPremium: true, isLoading: false };
   // useIsPremium reports isPremium false while the subscription loads.
   const loading = { isPremium: false, isLoading: true };
 
   it('turns a free student away from a Premium lesson only', () => {
-    expect(lessonNeedsUpgrade('make-first-track', false)).toBe(true);
-    expect(lessonNeedsUpgrade('make-first-track', true)).toBe(false);
+    expect(lessonNeedsUpgrade(PREMIUM_LESSON, false)).toBe(true);
+    expect(lessonNeedsUpgrade(PREMIUM_LESSON, true)).toBe(false);
+    expect(lessonNeedsUpgrade('studio-basics', false)).toBe(false);
     expect(lessonNeedsUpgrade('hiphop-build-the-beat', false)).toBe(false);
-    expect(lessonAccess('jazz-color-your-chords', free)).toBe('upgrade');
-    expect(lessonAccess('jazz-color-your-chords', premium)).toBe('open');
+    expect(lessonAccess(PREMIUM_LESSON, free)).toBe('upgrade');
+    expect(lessonAccess(PREMIUM_LESSON, premium)).toBe('open');
     expect(lessonAccess('house-make-it-pump', free)).toBe('open');
   });
 
   it('waits on a Premium lesson while the subscription loads, never on a free one', () => {
-    expect(lessonAccess('edm-design-the-drop', loading)).toBe('wait');
+    expect(lessonAccess(PREMIUM_LESSON, loading)).toBe('wait');
     expect(lessonAccess('house-make-it-pump', loading)).toBe('open');
   });
 

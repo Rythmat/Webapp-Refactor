@@ -39,7 +39,7 @@ export const SlideMediaEditor = ({
             <button
               type="button"
               onClick={() => setPicking(true)}
-              className="rounded-full bg-black/60 px-2.5 py-1 text-xs text-white backdrop-blur hover:bg-black/80"
+              className="rounded-full bg-black/80 px-2.5 py-1 text-xs text-white hover:bg-black/90"
             >
               Change
             </button>
@@ -47,7 +47,7 @@ export const SlideMediaEditor = ({
               type="button"
               onClick={() => onChange(undefined)}
               aria-label="Remove media"
-              className="rounded-full bg-black/60 p-1.5 text-white backdrop-blur hover:bg-black/80"
+              className="rounded-full bg-black/80 p-1.5 text-white hover:bg-black/90"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -59,7 +59,7 @@ export const SlideMediaEditor = ({
 
   return (
     <div className="w-full">
-      <div className="flex flex-col gap-2 rounded-3xl border border-dashed border-white/15 bg-white/[0.02] p-4">
+      <div className="flex flex-col gap-2 rounded-[1.25rem] border border-dashed border-white/15 bg-white/[0.02] p-4">
         <div className="flex items-center gap-2">
           <Youtube className="h-4 w-4 shrink-0 text-white/40" />
           <input

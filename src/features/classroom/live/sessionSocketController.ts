@@ -47,6 +47,7 @@ import {
   type SessionSocketMessage,
   type SessionState,
   type SessionTimer,
+  type SessionActivity,
 } from './sessionsStore';
 
 export type ConnectionStatus =
@@ -187,6 +188,15 @@ export interface SessionSocketController {
    */
   sendPosition(slideIndex: number): void;
   /**
+   * The class's step in the activity it does together (teacher). Sent over
+   * the socket, not a state PATCH: the party relays it to every role at once
+   * and replays the last one to anyone who connects, so a step lands on 30
+   * devices in one hop.
+   */
+  sendActivity(activity: SessionActivity | null): void;
+  /** This student finished the class's step (student; teacher-only fan-out). */
+  sendActivityDone(slideId: string, step: number): void;
+  /**
    * Optimistically ends the local cached session, then retries the PATCH
    * per `endRetryDelaysMs`. Returns a Promise callers can await for
    * success/error; fire-and-forget callers should install
@@ -292,6 +302,8 @@ export function createSessionSocketController(
     // student or projector socket rather than mirroring the roster into a
     // store the projected board can read.
     if (msg.type === 'presence' && role !== 'teacher') return;
+    // Who finished which step is identified: the teacher's alone (Rule 2).
+    if (msg.type === 'activityDone' && role !== 'teacher') return;
 
     // Localstorage-mirror + response bag.
     applySocketMessageForUser(userId, sessionId, msg);
@@ -461,6 +473,20 @@ export function createSessionSocketController(
     sendPosition(slideIndex) {
       try {
         socket?.send(JSON.stringify({ type: 'position', slideIndex }));
+      } catch {
+        // Socket may be mid-close.
+      }
+    },
+    sendActivity(activity) {
+      try {
+        socket?.send(JSON.stringify({ type: 'activity', activity }));
+      } catch {
+        // Socket may be mid-close.
+      }
+    },
+    sendActivityDone(slideId, step) {
+      try {
+        socket?.send(JSON.stringify({ type: 'activityDone', slideId, step }));
       } catch {
         // Socket may be mid-close.
       }

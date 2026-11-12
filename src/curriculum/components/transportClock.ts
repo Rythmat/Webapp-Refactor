@@ -100,8 +100,8 @@ export function createTransportClock(): TransportClock {
     return startedAt;
   };
 
-  // `leadSeconds` is the same for every path on purpose: practice, Play Now
-  // with a backing track and Play Now with only a metronome used to start
+  // `leadSeconds` is the same for every path on purpose: practice, Perform
+  // with a backing track and Perform with only a metronome used to start
   // with three different lead times, so the margin the playhead got
   // depended on which button was pressed.
   const start = (leadSeconds = TRANSPORT_LEAD_SEC) => {

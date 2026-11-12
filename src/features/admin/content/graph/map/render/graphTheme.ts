@@ -1,4 +1,4 @@
-import { DEFAULT_NODE_COLOR } from '../model/colorGroups';
+import { KEY_CENTRE_RAINBOW } from '@/daw/prism-engine/data/keyColour';
 
 /**
  * Cortex's colours, type and hover timing, in one place so the look can be
@@ -15,25 +15,26 @@ import { DEFAULT_NODE_COLOR } from '../model/colorGroups';
  *   holds the colour itself. Where code needs it as a value (a canvas
  *   colour, a contrast check), `readGraphBackground` reads the token from
  *   the page.
- * - The dots take the colour groups' colours, the owner's palette B
- *   (`model/cortexPalette.ts`, through `model/colorGroups.ts`), and a dot
- *   no group claims is a mid neutral grey. No dot is ever white.
- * - Lines are a thin, translucent lavender grey, so thousands of them read
- *   as a haze rather than a tangle.
+ * - The dots are white, and only what has a key wears a colour: the key's
+ *   own, as the rest of the app gives it (owner, 2026-11-04;
+ *   `content/graph/keyColour.ts`). A colour group the owner adds in the
+ *   settings still wins; there are no preset groups any more.
+ * - Lines flow through the key centres' rainbow (owner, 2026-11-04): every
+ *   line's colour shifts round the twelve over time, set apart by where it
+ *   sits, so the web shimmers rather than strobes. Under reduced motion the
+ *   rainbow holds still. Tesseract keeps its own lines.
  * - Labels are Obsidian's light grey, set in Glacial Indifference like the
  *   rest of the app.
  * - The highlight is white, as the owner asked on 1 October 2026 ("use
  *   white as the highlight connections color instead of purple").
- *   Hovering a dot draws its connections white and rings it in white,
+ *   Hovering a dot draws its connections white (out of the rainbow) and
+ *   rings it in white,
  *   while the dot itself keeps its own colour; its neighbours stay at full
  *   strength and everything else fades to a fifth of its strength over 150
  *   milliseconds. The keyboard's current dot, the open row's dot and the
  *   local graph's focus wear the same white ring, each in its own colour.
  * - Missing items (Obsidian's "unresolved") are a dim grey at half
  *   strength, whatever the colour groups say.
- *
- * The graph's own colours here keep away from yellow; the one yellow in
- * Cortex is the key palette's, which the Year group wears.
  *
  * The module is pure: plain values and small helpers. Only
  * `readGraphBackground` looks at the page, and only when it is called.
@@ -62,21 +63,30 @@ export const GRAPH_THEME = Object.freeze({
    * colour value is needed.
    */
   background: GRAPH_BACKGROUND,
-  /** Every line not lit by a hover. */
+  /** Every line not lit by a hover, where the rainbow is off (Tesseract). */
   line: 'rgba(148,153,196,0.30)',
+  /** Cortex's lines: the twelve key centres, round the circle of fifths. */
+  rainbow: KEY_CENTRE_RAINBOW,
+  /** How strongly a rainbow line shows. */
+  rainbowAlpha: 0.55,
+  /** CSS px on screen for the rainbow to go once round: about the view. */
+  rainbowPeriod: 1400,
+  /** Milliseconds for a line's colour to go once round the twelve. */
+  rainbowCycleMs: 12000,
   /** Labels. */
   text: '#dadada',
   /**
    * The highlight: the hovered dot's connections, and the ring round the
    * hovered dot, the keyboard's current dot, the open row's dot and the
-   * local graph's focus. White, never a dot's fill.
+   * local graph's focus. White, as the dots are: a ring stands clear of its
+   * dot, so it still shows.
    */
   highlight: '#ffffff',
   /** Missing items, drawn at `missingAlpha`. */
   missing: '#666666',
   missingAlpha: 0.5,
-  /** A dot no colour group claims: the groups' neutral grey. */
-  defaultNode: DEFAULT_NODE_COLOR,
+  /** A dot with no key and no group: white. */
+  defaultNode: '#ffffff',
   /** How strong everything not next to the hovered dot stays. */
   dimAlpha: 0.2,
   /** How long the hover fade takes, in milliseconds (none under reduced motion). */

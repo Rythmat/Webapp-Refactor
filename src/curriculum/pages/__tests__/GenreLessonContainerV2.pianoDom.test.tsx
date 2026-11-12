@@ -191,7 +191,7 @@ describe('piano lesson DOM (pinned on its own screen)', () => {
     );
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Perform' }));
     });
     await expect(html(container)).toMatchFileSnapshot(
       `${SNAP_DIR}/atf-performance.html`,
@@ -247,7 +247,7 @@ describe('piano lesson DOM (pinned on its own screen)', () => {
     );
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Perform' }));
       await settle();
     });
     await act(async () => {

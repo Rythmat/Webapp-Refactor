@@ -1,14 +1,20 @@
 import { useCallback } from 'react';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
+import type { StudioLesson } from '@/content/studioLessons/schemas';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import type { DrumGroove } from '@/curriculum/engine/drumGrooves/drumGroove';
 import type { FeelProfile } from '@/curriculum/engine/parts/feel';
 import type { InstrumentPart } from '@/curriculum/engine/parts/part';
 import {
+  rememberStudioLessonDeleted,
+  rememberStudioLessonSaved,
+} from '@/curriculum/engine/studioLessons/registry';
+import {
   contentRequest,
   type ContentListItem,
   type InstrumentContentKind,
   type MusicLiteracyContentKind,
+  type StudioLessonContentKind,
   useDeleteContentItem,
   useSaveContentItem,
 } from '@/hooks/data/admin/useAdminContent';
@@ -36,8 +42,11 @@ import { rememberDeleted, rememberSaved } from './grooveSession';
  * kinds. A deployed console with neither can only export.
  */
 
-/** The kinds saved here: the instrument kinds and Music Literacy. */
-export type StoredKind = InstrumentContentKind | MusicLiteracyContentKind;
+/** The kinds saved here: the instrument kinds, Music Literacy and Studio lessons. */
+export type StoredKind =
+  | InstrumentContentKind
+  | MusicLiteracyContentKind
+  | StudioLessonContentKind;
 
 /** Each kind's body, as its editor holds it. */
 interface BodyOf {
@@ -45,6 +54,7 @@ interface BodyOf {
   instrument_part: InstrumentPart;
   feel_profile: FeelProfile;
   music_literacy: MusicLiteracyLesson;
+  studio_lesson: StudioLesson;
 }
 
 type AnyBody = BodyOf[StoredKind];
@@ -55,6 +65,7 @@ const DEV_PATH: Record<StoredKind, string> = {
   instrument_part: '/__dev/parts',
   feel_profile: '/__dev/feels',
   music_literacy: '/__dev/music-literacy',
+  studio_lesson: '/__dev/studio-lessons',
 };
 
 async function devCall(url: string, init: RequestInit) {
@@ -79,6 +90,9 @@ function remember(kind: StoredKind, body: AnyBody | null, id: string) {
   } else if (kind === 'music_literacy') {
     if (body) rememberLessonSaved(body as MusicLiteracyLesson);
     else rememberLessonDeleted(id);
+  } else if (kind === 'studio_lesson') {
+    if (body) rememberStudioLessonSaved(body as StudioLesson);
+    else rememberStudioLessonDeleted(id);
   }
 }
 

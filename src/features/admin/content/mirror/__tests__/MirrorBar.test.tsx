@@ -80,7 +80,7 @@ describe('the bar’s way into the Table', () => {
     ['/console/content/songs/africa', '/console/table/songs/africa'],
     ['/console/content/songs/africa?edit=1', '/console/table/songs/africa'],
     ['/console/content/songs', '/console/table/songs'],
-    ['/console/content/learn?tab=Songs', '/console/table/songs'],
+    ['/console/content/learn/keyboard/songs', '/console/table/songs'],
     [
       '/console/content/globe?event=evt-woodstock',
       '/console/table/events/evt-woodstock',
@@ -104,7 +104,8 @@ describe('the bar’s way into the Table', () => {
       '/console/music-literacy',
     ],
     // Learn → Start Here is the Music Literacy path, not Learn's songs.
-    ['/console/content/learn?tab=StartHere', '/console/music-literacy'],
+    ['/console/content/learn/keyboard/start-here', '/console/music-literacy'],
+    ['/console/content/learn/guitar/start-here', '/console/music-literacy'],
   ])('%s → %s', (path, table) => {
     renderAt(path);
     expect(tableToggle()).toBe(table);
@@ -188,7 +189,7 @@ describe('the bar’s way into the Table', () => {
   });
 
   it('edits Music Literacy from Learn → Start Here, its path', () => {
-    renderAt('/console/content/learn?tab=StartHere');
+    renderAt('/console/content/learn/keyboard/start-here');
     expect(
       screen
         .getByRole('link', { name: 'Edit Music Literacy' })
@@ -200,8 +201,8 @@ describe('the bar’s way into the Table', () => {
       '/console/table/artists',
     ]);
     cleanup();
-    // The other Learn tabs offer no editor of their own.
-    renderAt('/console/content/learn?tab=Songs');
+    // The other Learn pages offer no editor of their own.
+    renderAt('/console/content/learn');
     expect(screen.queryByRole('link', { name: /^Edit/ })).toBeNull();
   });
 });

@@ -121,6 +121,25 @@ function fetchAsset(asset: AudioAsset, token: string): Promise<void> {
  */
 export async function loadPendingAudio(token: string | null): Promise<void> {
   if (token) lastToken = token;
+  await loadAudioForTracks(useStore.getState().tracks, token);
+}
+
+/** What the loader reads of a track: its clips and its Chops sample. */
+type TrackAudio = Pick<
+  ReturnType<typeof useStore.getState>['tracks'][number],
+  'audioClips' | 'samplerSample'
+>;
+
+/**
+ * loadPendingAudio for `tracks` rather than the editor's: a project decoded
+ * apart from the store (the Library's previews). Links and fetches the
+ * same way, into the same asset store; resolves once each fetch it started
+ * has settled.
+ */
+export async function loadAudioForTracks(
+  tracks: readonly TrackAudio[],
+  token: string | null,
+): Promise<void> {
   const jobs: Array<Promise<void>> = [];
   const started = new Set<AudioAsset>();
   const fetchOnce = (asset: AudioAsset, start: () => Promise<void>) => {
@@ -129,7 +148,7 @@ export async function loadPendingAudio(token: string | null): Promise<void> {
     jobs.push(start());
   };
 
-  for (const track of useStore.getState().tracks) {
+  for (const track of tracks) {
     for (const clip of track.audioClips) {
       if (!clip.assetId) continue;
       const asset = linkToAssetId(clip.id, clip.assetId);

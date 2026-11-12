@@ -2,8 +2,9 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Flame } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { WHITE_PILL_LG } from '@/components/kit/pills';
+import { LessonDisc } from '@/components/learn/path/LessonDisc';
+import type { PathFigure } from '@/components/learn/path/types';
 import { useStreak } from '@/hooks/data/useStreak';
-import { LessonDisc } from '../LessonDisc';
 
 // ── A lesson's finish ──────────────────────────────────────────────────────
 // The lesson clears to black and leaves only its disc from the course path. The
@@ -60,9 +61,15 @@ export function FinishSequence({
   firstTry,
   questions,
   onContinue,
+  figure,
+  continueLabel,
 }: {
   accent: string;
   ratio: readonly [number, number];
+  /** A key's star on the disc, as its path draws it. */
+  figure?: PathFigure;
+  /** What Continue does, when it's more than carrying on. */
+  continueLabel?: string;
   /** XP really awarded; null if none; 'waiting' until the server's said. */
   xp: number | null | 'waiting';
   firstTry: number;
@@ -231,6 +238,7 @@ export function FinishSequence({
               state={coin ? 'done' : 'next'}
               drawn={instant}
               size={9}
+              figure={figure}
             />
           </motion.div>
         </motion.div>
@@ -293,7 +301,7 @@ export function FinishSequence({
             className={WHITE_PILL_LG}
             onClick={proceed}
           >
-            Continue
+            {continueLabel ?? 'Continue'}
           </button>
         )}
       </div>

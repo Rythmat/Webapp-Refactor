@@ -299,7 +299,7 @@ function expectNothingOpen() {
 /** The book's C major position, A1.1 (out of time). */
 async function playTheScale() {
   await act(async () => {
-    fireEvent.click(button('Play Now'));
+    fireEvent.click(button('Perform'));
   });
   for (const midi of [48, 50, 52, 53, 55, 57, 59, 60]) {
     act(() => emitNote('on', midi));
@@ -308,10 +308,10 @@ async function playTheScale() {
   }
 }
 
-/** Play Now on an in-time step, play nothing, let the take run out. */
+/** Perform on an in-time step, play nothing, let the take run out. */
 async function missATake() {
   await act(async () => {
-    fireEvent.click(button('Play Now'));
+    fireEvent.click(button('Perform'));
     await settle();
   });
   await act(async () => {
@@ -401,9 +401,9 @@ describe('the guitar layout, guitar only', () => {
     // The visuals, without their own chip row, in their slot under it.
     const slot = container.querySelector('[data-guitar-visuals-slot]')!;
     expect(slot.querySelector('[data-guitar-visuals]')).not.toBeNull();
-    // Demo · Practice · Play Now are in the action bar.
+    // Demo · Practice · Perform are in the action bar.
     const bar = screen.getByRole('region', { name: 'Lesson controls' });
-    expect(within(bar).getByRole('button', { name: 'Play Now' })).toBeTruthy();
+    expect(within(bar).getByRole('button', { name: 'Perform' })).toBeTruthy();
     expect(within(bar).getByRole('button', { name: 'Practice' })).toBeTruthy();
     expect(within(bar).getByRole('button', { name: 'Demo' })).toBeTruthy();
   });
@@ -416,7 +416,7 @@ describe('the guitar layout, guitar only', () => {
     // One page: the buttons are in the bar, not on a card over the roll.
     expect(screen.queryByText('Ready to start?')).toBeNull();
     const bar = screen.getByRole('region', { name: 'Lesson controls' });
-    expect(within(bar).getByRole('button', { name: 'Play Now' })).toBeTruthy();
+    expect(within(bar).getByRole('button', { name: 'Perform' })).toBeTruthy();
     expect(within(bar).getByRole('button', { name: 'Practice' })).toBeTruthy();
     expect(within(bar).getByRole('button', { name: 'Demo' })).toBeTruthy();
     expect(roll.props.at(-1)).toMatchObject({ instrument: 'piano' });
@@ -501,7 +501,7 @@ describe('the action bar follows the take', () => {
     });
     expect(barState()).toBe('performance');
     expect(button('Stop')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Play Now' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Perform' })).toBeNull();
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(60_000);
@@ -525,7 +525,7 @@ describe('the action bar follows the take', () => {
     const before = savedProgress();
 
     await act(async () => {
-      fireEvent.click(button('Play Now'));
+      fireEvent.click(button('Perform'));
       await settle();
     });
     expect(barState()).toBe('performance');
@@ -548,7 +548,7 @@ describe('the action bar follows the take', () => {
     input.stable.guitar = handle;
     renderLesson(guitarC());
     await act(async () => {
-      fireEvent.click(button('Play Now'));
+      fireEvent.click(button('Perform'));
     });
     expect(barState()).toBe('performance');
     expect(screen.queryByText('Not hearing your guitar?')).toBeNull();
@@ -623,7 +623,7 @@ describe('the action bar follows the take', () => {
     expect(value).toHaveAttribute('aria-valuenow', '61');
   });
 
-  it('Practice checks the guitar setup first, as Play Now does', async () => {
+  it('Practice checks the guitar setup first, as Perform does', async () => {
     // Real timers: the setup dialog is a lazy import.
     vi.useRealTimers();
     const handle = fakeGuitarHandle('needs-setup');
@@ -815,7 +815,7 @@ describe('arrow keys', () => {
 
     arrow('ArrowRight'); // A1.2, in time
     await act(async () => {
-      fireEvent.click(button('Play Now'));
+      fireEvent.click(button('Perform'));
       await settle();
     });
     arrow('ArrowRight');

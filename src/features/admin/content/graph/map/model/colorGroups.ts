@@ -45,9 +45,12 @@ import {
  * is in Location. Whether tag kinds (genres, times, keys, instruments,
  * regions) are drawn at all is still up to the Filters' Tags switches.
  *
- * No dot is ever white or near white: white is the graph's highlight
- * (`render/graphTheme.ts`). A node no group claims is a mid neutral grey,
- * which has no hue to be mistaken for a group's.
+ * Since 2026-11-04 Cortex starts with no groups: the presets below still
+ * name the kinds' colours elsewhere in the console (`graphVocabulary.ts`),
+ * but on the map a dot with no group takes its own colour (a key's, through
+ * `ownColor`) or else the page's default, white (`render/graphTheme.ts`).
+ * This module's own default, for callers that give none, is a mid neutral
+ * grey.
  *
  * Colour alone cannot tell twelve hues apart for every viewer, so the kind
  * is always said in words as well (the hover label, the preview card, the
@@ -184,6 +187,12 @@ export interface ColorNodesInput {
   readonly groups: readonly ColorGroup[];
   /** Whether the node at an index has no visible links (for `is:orphan`). */
   readonly isOrphan?: (index: number) => boolean;
+  /**
+   * A node's own colour where no group claims it, or null: Cortex's key
+   * colours (owner, 2026-11-04), so a key, or a song in one, wears the key's
+   * colour and everything else the default.
+   */
+  readonly ownColor?: (id: string) => string | null;
   /** Overrides `DEFAULT_NODE_COLOR`. */
   readonly defaultColor?: string;
   /** Overrides `MISSING_NODE_COLOR`. */
@@ -193,7 +202,8 @@ export interface ColorNodesInput {
 const noOrphans = () => false;
 
 /**
- * Colour every node: the first group whose query matches, else the default.
+ * Colour every node: the first group whose query matches, else its own colour
+ * (`ownColor`), else the default.
  * A group with a blank query, a query error or a colour that cannot be read
  * colours nothing, and the nodes fall through to the next group.
  */
@@ -231,10 +241,14 @@ export function colorNodes(input: ColorNodesInput): NodeColoring {
     } else {
       const orphan = f ? isOrphan(i) : false;
       const hit = f ? live.find((g) => g.match(f, orphan)) : undefined;
+      const own = !hit && f ? input.ownColor?.(ids[i]) : null;
+      const ownRgba = own ? parseHexColor(own) : null;
       if (hit) {
         color = hit.rgba;
         groupOf[i] = hit.index;
         counts[hit.index]++;
+      } else if (ownRgba) {
+        color = ownRgba;
       } else {
         defaultCount++;
       }

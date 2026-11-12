@@ -16,6 +16,10 @@ export interface EventInfo {
   videoId?: string;
   lat?: number;
   lng?: number;
+  /** What happened, from the event record (English). */
+  description?: string;
+  city?: string;
+  country?: string;
 }
 
 export type PlaceInfo = Pick<PlaceRecord, 'id' | 'name' | 'coordinates'> & {
@@ -65,12 +69,33 @@ export const buildLessonCatalog = (
           typeof e.location?.lng === 'number'
             ? { lat: e.location.lat, lng: e.location.lng }
             : {}),
+          ...eventText(e),
         },
       ];
     }),
   ),
   tutorials,
 });
+
+/** An event's words and place, read off the full record when it has them. */
+const eventText = (
+  e: unknown,
+): Pick<EventInfo, 'description' | 'city' | 'country'> => {
+  const record = e as {
+    description?: unknown;
+    location?: { city?: unknown; country?: unknown };
+  };
+  const text = (v: unknown) =>
+    typeof v === 'string' && v.trim() ? v.trim() : undefined;
+  const description = text(record.description);
+  const city = text(record.location?.city);
+  const country = text(record.location?.country);
+  return {
+    ...(description ? { description } : {}),
+    ...(city ? { city } : {}),
+    ...(country ? { country } : {}),
+  };
+};
 
 /** A Studio tutorial's catalog entry: Prism steps mean Premium. */
 export const tutorialInfo = (tutorial: {

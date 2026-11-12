@@ -8,11 +8,9 @@ import {
   useState,
 } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ActivityRail } from '@/components/ClassroomLayout/home/ActivityRail';
 import { HomeGlow } from '@/components/ClassroomLayout/home/HomeGlow';
 import { HomePromptBar } from '@/components/ClassroomLayout/home/HomePromptBar';
 import { ChoicePills } from '@/components/learn/LearnPromptPills';
-import { PerStudent } from '@/components/ui/PerStudent';
 import { cn } from '@/components/utilities';
 import { GameRoutes, ProfileRoutes } from '@/constants/routes';
 import { useArcadeActivityStore } from '@/features/arcade/useArcadeActivityStore';
@@ -345,18 +343,8 @@ export const ArcadeInlet: FC = () => {
         )}
       </div>
 
-      {/* Pinned to the bottom, as on Home and Learn: where you left off.
-          The negative margins and the -8px stick take it to the panel's
-          edges, past the scroll area's 8px padding. */}
-      <div className="sticky -bottom-2 z-20 -mx-2 -mb-2 mt-auto shrink-0">
-        <PerStudent
-          label="Recent activity"
-          minHeight={72}
-          className="rounded-none bg-[#0c0c0e]"
-        >
-          <ActivityRail />
-        </PerStudent>
-      </div>
+      {/* Recent activity is the play bar under the rail and this page
+          (owner, 2026-11-10): ActivityPlayBar, in the dashboard. */}
     </div>
   );
 };

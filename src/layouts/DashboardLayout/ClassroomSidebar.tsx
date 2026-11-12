@@ -1,18 +1,12 @@
-import {
-  CircleHelp,
-  GraduationCap,
-  Home,
-  Laptop,
-  Settings,
-} from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
+import { AppIcons } from '@/components/icons/appIcons';
 import { cn } from '@/components/utilities';
 import {
-  GlobeRoutes,
   ClassroomRoutes,
   GameRoutes,
+  GlobeRoutes,
   LearnRoutes,
   OfficeRoutes,
   ProfileRoutes,
@@ -20,7 +14,6 @@ import {
   StudioRoutes,
 } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import { useLearnPageRoute } from '@/features/learn/useInstrumentStore';
 import { isRouteActive, SidebarMainNavItem } from './SidebarMainNavItem';
 
 interface SidebarProps {
@@ -63,9 +56,6 @@ export const ClassroomSidebar = ({
   // bounce. There is no dual admin+teacher account: `UserRole` is scalar.
   // The console shows it to everyone: there Office is the curriculum.
   const canManage = role === 'teacher' || !!showAllSections;
-  // Learn opens on the instrument chosen on Home (owner, 2026-10-24), and
-  // stays current anywhere under /learn. The console's copy keeps /learn.
-  const learnPage = useLearnPageRoute();
   const { pathname } = useLocation();
   /** An item's link: the app path as it is, or the console's copy of it. */
   const nav = (appTo: string, activePaths?: string[]) =>
@@ -103,7 +93,7 @@ export const ClassroomSidebar = ({
         {/* 2. Primary nav */}
         <ul className="flex flex-col gap-px px-3">
           <SidebarMainNavItem
-            icon={Home}
+            icon={AppIcons.home}
             label="Home"
             {...nav(ProfileRoutes.root())}
           />
@@ -113,7 +103,7 @@ export const ClassroomSidebar = ({
             {...(lens
               ? nav(LearnRoutes.root())
               : {
-                  to: learnPage,
+                  to: LearnRoutes.root(),
                   active: isRouteActive(pathname, LearnRoutes.root()),
                 })}
           />
@@ -139,13 +129,13 @@ export const ClassroomSidebar = ({
           {/* Classroom and Office in the same list, at the same spacing
             (owner, 2026-10-26). */}
           <SidebarMainNavItem
-            icon={Laptop}
+            icon={AppIcons.classroom}
             label="Classroom"
             {...nav(ClassroomRoutes.root())}
           />
           {canManage && (
             <SidebarMainNavItem
-              icon={GraduationCap}
+              icon={AppIcons.office}
               label="Office"
               {...nav(OfficeRoutes.root(), [OfficeRoutes.root()])}
             />
@@ -158,13 +148,13 @@ export const ClassroomSidebar = ({
         <ul className="mt-auto flex flex-col gap-px px-3 pt-6 pb-3">
           <SidebarMainNavItem
             external
-            icon={CircleHelp}
+            icon={AppIcons.help}
             label="Support"
             to="mailto:aaron@musicatlas.io"
             variant="dim"
           />
           <SidebarMainNavItem
-            icon={Settings}
+            icon={AppIcons.preferences}
             label="System"
             {...nav(SettingsRoutes.root())}
             variant="dim"

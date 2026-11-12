@@ -10,23 +10,32 @@
  * the firewall is preserved). Autosave + publish/session gating are lifted
  * verbatim from DayEditor.
  */
-import { Waypoints } from 'lucide-react';
+import { Check, Play, Plus, Radio } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { TeacherRoutes } from '@/constants/routes';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { OFFICE_LESSONS_SCOPE } from '@/constants/officeScopes';
+import { OfficeRoutes, TeacherRoutes } from '@/constants/routes';
+import { Button } from '@/daw/ui/Button';
+import {
+  OfficeRailSlot,
+  OfficeTopActions,
+} from '@/features/office/frame/railSlot';
 import { useCanEditClassroom } from '@/hooks/data';
 import { insertActivityIntoCell } from '../../content/applySeed';
 import type { Activity } from '../../content/types';
-import { PHASE_FULL_NAMES, PHASES } from '../../phases';
+import { useGoLive } from '../../live/useGoLive';
 import { publishDay } from '../../publish/publishDay';
 import { useTeacherConfig } from '../../settings/useTeacherConfig';
-import { isUngeneratedCortexDeck } from '../../slides/cortex/buildDeck';
+import { CORTEX_LESSON_TEMPLATE_ID } from '../../slides/cortex/buildDeck';
+import { COPY, RESET_CHECKLIST } from '../../slides/cortex/copy';
+import type { CortexLessonPlan, GroupRole } from '../../slides/cortex/types';
 import { slideInteractionIds } from '../../slides/deck';
 import {
   deleteSlideAt,
   duplicateSlideAt,
   insertSlideAt,
   moveSlide,
+  moveSlideToSection,
   newSlide,
   setSlideInteractions,
   updateSlideAt,
@@ -35,6 +44,21 @@ import {
   deckFromCells,
   revealForInteraction,
 } from '../../slides/deckFromCells';
+import { groupActivityOf } from '../../slides/focus/lessonFocus';
+import {
+  applyGroupPick,
+  applyShowcasePick,
+  isShowcasePortrait,
+  isSubjectSlide,
+} from '../../slides/focus/lessonPicks';
+import {
+  SECTION_PHASE,
+  phaseSectionsLabel,
+  sectionInsertIndex,
+  sectionOf,
+  sortSlidesBySection,
+  type SlideSection,
+} from '../../slides/sections';
 import {
   SLIDE_TEMPLATES,
   buildTemplateSlide,
@@ -52,14 +76,16 @@ import type {
 } from '../../types';
 import { emptyInteraction } from '../InteractionEditor';
 import { useLocalPlan } from '../useLocalPlan';
-import { ChooseContentButton } from './ChooseContentButton';
 import { EditorTopBar } from './EditorTopBar';
 import { Filmstrip } from './Filmstrip';
+import { GroupFocusBanner, type GroupMatch } from './GroupFocusBanner';
 import { RationaleSidePanel } from './RationaleSidePanel';
 import { SlideCanvas } from './SlideCanvas';
 import { TextFormatMenu } from './TextFormatMenu';
 import { ContentPickerDialog } from './contentPicker/ContentPickerDialog';
 import type { PickedTile, SlideMediaEmbed } from './contentPicker/catalog';
+import { LessonContentPicker } from './lessonPicker/LessonContentPicker';
+import type { SectionAddOption } from './sectionMenu';
 import '../../presentation.css';
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
@@ -70,6 +96,10 @@ const withDeck = (day: Day): Day =>
     ? day
     : { ...day, deck: deckFromCells(day) };
 
+/** A launch tile's id: unique within the slide. */
+const tileUid = (): string =>
+  `lt-${Math.random().toString(36).slice(2, 8)}-${Date.now().toString(36).slice(-4)}`;
+
 export const SlideDeckEditor = () => {
   const { classroomId, dayId } = useParams<{
     classroomId: string;
@@ -78,6 +108,10 @@ export const SlideDeckEditor = () => {
   const navigate = useNavigate();
   const cid = classroomId ?? '';
   const { getDay, saveDay } = useLocalPlan(cid);
+  const goLive = useGoLive(cid);
+  // A lesson from the Office's Lessons tab belongs to no class: it goes live
+  // once it's taught to one.
+  const ownLesson = cid === OFFICE_LESSONS_SCOPE;
   // Viewers may READ a deck but never write one. Gating the save path rather
   // than each control means a new button cannot silently become writable.
   const canEdit = useCanEditClassroom(cid);
@@ -97,17 +131,25 @@ export const SlideDeckEditor = () => {
   const { config: teacherConfig } = useTeacherConfig(cid);
   const agePreset: AgePreset = teacherConfig.agePresetDefault;
   const [rationaleCollapsed, setRationaleCollapsed] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
-  // The Add-slide template awaiting a content pick (opens a scoped picker).
-  const [pendingTemplate, setPendingTemplate] =
-    useState<SlideTemplateId | null>(null);
+  // The Add-slide template awaiting a content pick (opens a scoped picker),
+  // and the section the new slide goes into.
+  const [pendingTemplate, setPendingTemplate] = useState<{
+    templateId: SlideTemplateId;
+    section: SlideSection;
+  } | null>(null);
 
   // Bounce back to the plan list if the dayId isn't in the plan.
   useEffect(() => {
     if (dayId && getDay(dayId) === undefined) {
-      navigate(TeacherRoutes.plan({ classroomId: cid }));
+      navigate(
+        ownLesson
+          ? OfficeRoutes.lessons()
+          : TeacherRoutes.plan({ classroomId: cid }),
+      );
     }
-  }, [dayId, getDay, navigate, cid]);
+  }, [dayId, getDay, navigate, cid, ownLesson]);
 
   // Autosave the draft (debounced) — persists the backfilled deck too.
   useEffect(() => {
@@ -153,23 +195,158 @@ export const SlideDeckEditor = () => {
     [clampedIndex],
   );
 
-  // Add-slide opens the template's content picker; the slide is seeded on pick.
-  const addSlide = useCallback((templateId: SlideTemplateId) => {
-    setPendingTemplate(templateId);
-  }, []);
+  /**
+   * Put a new slide at the end of its section (and its interactions in that
+   * section's phase cell, in the same transaction), then select it.
+   */
+  const insertIntoSection = useCallback(
+    (slide: Slide, interactions: Interaction[] = []) => {
+      const index = sectionInsertIndex(slides, sectionOf(slide));
+      setDraft((prev) => {
+        if (!prev?.deck) return prev;
+        const withSlide = {
+          ...prev,
+          deck: {
+            ...prev.deck,
+            slides: insertSlideAt(
+              prev.deck.slides,
+              slide,
+              sectionInsertIndex(prev.deck.slides, sectionOf(slide)),
+            ),
+          },
+        };
+        return interactions.length
+          ? setSlideInteractions(withSlide, slide.id, interactions)
+          : withSlide;
+      });
+      setSelectedIndex(index);
+    },
+    [slides],
+  );
 
-  // Seed a template slide from the picked content and insert it after the
-  // current slide (inheriting its phase). Cancelling the picker inserts nothing.
+  // A section's "Add" menu: what that section is for.
+  const addToSection = useCallback(
+    (section: SlideSection, option: SectionAddOption) => {
+      const phase = SECTION_PHASE[section];
+      const stamp = <T extends Slide>(slide: T): T => ({ ...slide, section });
+      switch (option.kind) {
+        case 'template':
+          setPendingTemplate({ templateId: option.templateId, section });
+          return;
+        case 'lesson': {
+          // Onto the section's first slide, or a new one, then the picker.
+          const at = slides.findIndex((s) => sectionOf(s) === section);
+          if (at >= 0) setSelectedIndex(at);
+          else insertIntoSection(stamp(newSlide('content', phase)));
+          setPickerOpen(true);
+          return;
+        }
+        case 'blank':
+          insertIntoSection(stamp(newSlide('content', phase)));
+          return;
+        case 'reset':
+          insertIntoSection(
+            stamp({
+              ...newSlide('content', phase),
+              title: COPY.resetTitle,
+              resetChecklist: [...RESET_CHECKLIST],
+            } as Slide),
+          );
+          return;
+        case 'studio':
+          insertIntoSection(
+            stamp({
+              ...newSlide('studio-collab', phase),
+              grouping: option.grouping,
+              presetId: 'personal-project-time',
+              title:
+                option.grouping === 'pairs'
+                  ? { en: 'Studio in pairs', es: 'Studio en parejas' }
+                  : COPY.projectTitle,
+            } as Slide),
+          );
+          return;
+        case 'share': {
+          const offer: Interaction = {
+            ...emptyInteraction('showcase'),
+            question: COPY.shareQuestion,
+          };
+          insertIntoSection(
+            stamp({
+              ...newSlide('showcase', phase),
+              presetId: 'share-day',
+              title: COPY.shareTitle,
+              prompt: COPY.sharePrompt,
+            } as Slide),
+            [offer],
+          );
+          return;
+        }
+        case 'response': {
+          const base = emptyInteraction(option.type);
+          const interaction: Interaction = {
+            ...base,
+            ...(option.shareable !== undefined
+              ? { shareable: option.shareable }
+              : {}),
+            ...(option.level
+              ? {
+                  checkIn: { style: 'feelings', level: option.level },
+                  question:
+                    section === 'reflect'
+                      ? {
+                          en: 'How are you leaving today?',
+                          es: '¿Cómo te vas hoy?',
+                        }
+                      : base.question,
+                }
+              : {}),
+            ...(section === 'reflect' && option.type === 'text'
+              ? { question: COPY.exitQuestion }
+              : {}),
+          };
+          const reveal = revealForInteraction(interaction);
+          const slide = stamp(newSlide('interaction', phase));
+          insertIntoSection(
+            {
+              ...slide,
+              ...(option.level ? { presetId: 'greeting-check-in' } : {}),
+              ...(reveal && interaction.shareable ? { reveal } : {}),
+            } as Slide,
+            [interaction],
+          );
+          return;
+        }
+      }
+    },
+    [insertIntoSection, slides],
+  );
+
+  // Seed a template slide from the picked content and put it in the section
+  // it was added to. Cancelling the picker inserts nothing.
   const seedFromTemplate = useCallback(
     (tile: PickedTile, embed?: SlideMediaEmbed) => {
       if (!pendingTemplate) return;
-      const phase = slides[clampedIndex]?.phase ?? PHASES[0];
-      const slide = buildTemplateSlide(pendingTemplate, phase, { tile, embed });
-      updateSlides(insertSlideAt(slides, slide, clampedIndex + 1));
-      setSelectedIndex(clampedIndex + 1);
+      const { templateId, section } = pendingTemplate;
+      const slide = buildTemplateSlide(templateId, SECTION_PHASE[section], {
+        tile,
+        embed,
+      });
+      insertIntoSection({ ...slide, section } as Slide);
       setPendingTemplate(null);
     },
-    [pendingTemplate, slides, clampedIndex, updateSlides],
+    [pendingTemplate, insertIntoSection],
+  );
+
+  // Move the selected slide to another section; it stays selected.
+  const changeSection = useCallback(
+    (section: SlideSection) => {
+      if (!draft || !selected) return;
+      const { day, index } = moveSlideToSection(draft, selected.id, section);
+      setDraft(day);
+      if (index >= 0) setSelectedIndex(index);
+    },
+    [draft, selected],
   );
 
   // Adding a student-response component inserts a NEW question slide (interaction
@@ -179,10 +356,14 @@ export const SlideDeckEditor = () => {
   // a dedicated slide (one transaction: insert slide + write the interaction).
   const insertResponseSlide = useCallback(
     (type: InteractionType) => {
-      const phase = slides[clampedIndex]?.phase ?? PHASES[0];
+      const current = slides[clampedIndex];
+      const section = current ? sectionOf(current) : 'connect';
       const interaction = emptyInteraction(type);
       const reveal = revealForInteraction(interaction);
-      const base = newSlide('interaction', phase);
+      const base = {
+        ...newSlide('interaction', SECTION_PHASE[section]),
+        section,
+      };
       const slide = reveal ? ({ ...base, reveal } as typeof base) : base;
       setDraft((prev) => {
         if (!prev?.deck) return prev;
@@ -231,11 +412,9 @@ export const SlideDeckEditor = () => {
     [slides, updateSlides],
   );
 
-  const sortByPhase = useCallback(() => {
+  const sortBySection = useCallback(() => {
     const selId = slides[clampedIndex]?.id;
-    const sorted = [...slides].sort(
-      (a, b) => PHASES.indexOf(a.phase) - PHASES.indexOf(b.phase),
-    );
+    const sorted = sortSlidesBySection(slides);
     updateSlides(sorted);
     setSelectedIndex(
       Math.max(
@@ -297,6 +476,71 @@ export const SlideDeckEditor = () => {
     .map((id) => cellInteractions.find((i) => i.id === id))
     .filter((i): i is Interaction => i !== undefined);
 
+  // The lesson's subject: the Group Project keeps to it (owner, 2026-11-10).
+  const focusId = draft.deck?.templateRef?.focusId;
+  // The picker's two lesson picks. Choosing the Showcase redraws the
+  // Showcase slide (the selected one, or the lesson's first) and sets the
+  // subject; choosing the Group Project makes the selected slide (or the
+  // lesson's first Group Project slide) run it.
+  const firstIn = (section: SlideSection) =>
+    sectionOf(selected) === section
+      ? selected
+      : draft.deck?.slides.find((s) => sectionOf(s) === section);
+  const chooseShowcase = (plan: CortexLessonPlan) => {
+    // The subject's portrait when the lesson has one (it may sit in Connect,
+    // carrying the check-in), never its song or globe slide.
+    const target =
+      sectionOf(selected) === 'showcase' && !isSubjectSlide(selected)
+        ? selected
+        : (draft.deck?.slides.find(isShowcasePortrait) ?? firstIn('showcase'));
+    setDraft((prev) =>
+      prev
+        ? target
+          ? applyShowcasePick(prev, target.id, plan)
+          : {
+              ...prev,
+              deck: prev.deck && {
+                ...prev.deck,
+                templateRef: {
+                  ...(prev.deck.templateRef ?? {
+                    templateId: CORTEX_LESSON_TEMPLATE_ID,
+                  }),
+                  focusId: plan.focus.id,
+                },
+              },
+            }
+        : prev,
+    );
+  };
+  const chooseGroup = (
+    plan: CortexLessonPlan,
+    role: GroupRole,
+    ref: string,
+    label: string,
+  ) => {
+    const target = firstIn('groupProject');
+    if (!target) return;
+    setDraft((prev) =>
+      prev ? applyGroupPick(prev, target.id, plan, role, ref, label) : prev,
+    );
+  };
+
+  const matchShowcase = (match: GroupMatch) => {
+    setSelectedInteractions([match.interaction]);
+    patchSelected({ title: match.title, prompt: match.prompt });
+    setDraft((prev) =>
+      prev?.deck?.templateRef
+        ? {
+            ...prev,
+            deck: {
+              ...prev.deck,
+              templateRef: { ...prev.deck.templateRef, role: match.role },
+            },
+          }
+        : prev,
+    );
+  };
+
   // The text-format tool only targets text blocks (title / prompt / body).
   const textBlock: SlideBlockKey | null =
     selectedBlock === 'title' ||
@@ -311,57 +555,84 @@ export const SlideDeckEditor = () => {
   const contentTiles =
     selected.kind === 'content' ? (selected.launchTiles ?? []) : [];
 
-  // Open the lesson generator on this Day. Saved first, so no edit waits on
-  // the autosave; a generated lesson's slides are replaced only when the
-  // teacher saves the new one, but they are told before they go.
-  const openGenerator = () => {
-    if (
-      !isUngeneratedCortexDeck(draft.deck) &&
-      !window.confirm(
-        "Generating a lesson replaces this lesson's slides when you save it. Continue?",
-      )
-    )
-      return;
-    saveDay(draft);
-    navigate(
-      `${TeacherRoutes.deckWizard({ classroomId: cid })}?day=${encodeURIComponent(draft.id)}`,
-    );
-  };
-
   return (
     <div className="flex w-full flex-col">
+      {pickerOpen && (
+        <LessonContentPicker
+          open
+          onOpenChange={setPickerOpen}
+          // The portrait offers the subject, even when it is the Connect
+          // slide (it carries the check-in).
+          section={
+            isShowcasePortrait(selected) ? 'showcase' : sectionOf(selected)
+          }
+          focusId={focusId}
+          currentGroupRef={groupActivityOf(slideInteractions[0])?.ref}
+          onShowcase={chooseShowcase}
+          onGroup={chooseGroup}
+          onLink={(tile, embed) => {
+            patchSelected({
+              launchTiles: [...contentTiles, { id: tileUid(), ...tile }],
+              ...(embed ?? {}),
+            });
+          }}
+          onAddResponse={insertResponseSlide}
+        />
+      )}
+      {/* The lesson's verbs on the Office's top rail, in place of the class's
+          Go Live menu: saved state, then Present, Go Live (saved
+          first, so the class gets what's on screen). */}
+      <OfficeTopActions>
+        {savedLabel && (
+          <span className="inline-flex items-center gap-1 text-[0.75rem] text-daw-text-3 max-lg:sr-only">
+            <Check aria-hidden className="size-3.5" />
+            {savedLabel}
+          </span>
+        )}
+        <Button asChild size="pill" variant="pill" className="max-md:hidden">
+          <Link
+            to={TeacherRoutes.present({ classroomId: cid, dayId: draft.id })}
+          >
+            <Play aria-hidden />
+            Present
+          </Link>
+        </Button>
+        {!ownLesson && (
+          <Button
+            size="pill"
+            variant="primary"
+            disabled={!canEdit}
+            title={canEdit ? undefined : 'Viewers cannot start a live session'}
+            onClick={() => {
+              saveDay(draft);
+              void goLive(draft);
+            }}
+          >
+            <Radio aria-hidden />
+            <span className="max-sm:sr-only">Go Live</span>
+          </Button>
+        )}
+      </OfficeTopActions>
+      <OfficeRailSlot>
+        <span className="text-[0.8125rem] tabular-nums text-daw-text-3">
+          Slide {clampedIndex + 1} of {slides.length}
+        </span>
+      </OfficeRailSlot>
       <EditorTopBar
         classroomId={cid}
         label={draft.label}
         onLabelChange={updateLabel}
-        generate={
-          canEdit ? (
-            <button
-              type="button"
-              onClick={openGenerator}
-              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-4 text-sm text-[#e8e8f0] transition-colors hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-            >
-              <Waypoints className="h-4 w-4" />
-              {draft.deck?.templateRef?.focusId
-                ? 'Regenerate'
-                : 'Generate from Cortex'}
-            </button>
-          ) : undefined
-        }
-        savedLabel={savedLabel}
         language={language}
         onLanguageChange={setLanguage}
         chooseContent={
-          <ChooseContentButton
-            tiles={contentTiles}
-            onChange={(tiles) =>
-              patchSelected({
-                launchTiles: tiles.length ? tiles : undefined,
-              })
-            }
-            onEmbedMedia={(embed) => patchSelected(embed)}
-            onAddResponse={insertResponseSlide}
-          />
+          <Button
+            variant="pill"
+            size="pill"
+            onClick={() => setPickerOpen(true)}
+          >
+            <Plus aria-hidden />
+            Content
+          </Button>
         }
         textTool={
           <TextFormatMenu
@@ -379,7 +650,16 @@ export const SlideDeckEditor = () => {
       />
 
       <div className="flex min-h-0 flex-1 gap-4 p-4">
-        <div className="flex min-w-0 flex-1 flex-col gap-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto [scrollbar-width:thin] [&>*]:shrink-0">
+          {focusId &&
+            selected.kind === 'app-route' &&
+            sectionOf(selected) === 'groupProject' && (
+              <GroupFocusBanner
+                focusId={focusId}
+                interaction={slideInteractions[0]}
+                onMatch={matchShowcase}
+              />
+            )}
           <div className="flex h-[58vh] min-h-[420px]">
             <SlideCanvas
               key={selected.id}
@@ -397,17 +677,18 @@ export const SlideDeckEditor = () => {
             selectedIndex={clampedIndex}
             snapshot={snapshot}
             onSelect={setSelectedIndex}
-            onAdd={addSlide}
+            onAdd={addToSection}
             onDuplicate={duplicateSlide}
             onDelete={deleteSlide}
             onMove={moveSlideBy}
-            onSortByPhase={sortByPhase}
+            onSortBySection={sortBySection}
           />
         </div>
 
         <RationaleSidePanel
           slide={selected}
-          phaseFullName={PHASE_FULL_NAMES[selected.phase]}
+          phaseFullName={phaseSectionsLabel(selected.phase).en}
+          onSectionChange={canEdit ? changeSection : undefined}
           rationale={cell.rationale}
           onRationaleChange={(r) => updateRationale(selected.phase, r)}
           slideInteractions={slideInteractions}
@@ -424,7 +705,7 @@ export const SlideDeckEditor = () => {
       {pendingTemplate &&
         (() => {
           const domain = SLIDE_TEMPLATES.find(
-            (t) => t.id === pendingTemplate,
+            (t) => t.id === pendingTemplate.templateId,
           )?.pickerDomain;
           return domain ? (
             <ContentPickerDialog

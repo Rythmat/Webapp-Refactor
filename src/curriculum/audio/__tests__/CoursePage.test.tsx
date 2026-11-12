@@ -5,9 +5,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
 import { CoursePage } from '../CoursePage';
 
-vi.mock('@/components/ui/RequirePremium', () => ({
-  RequirePremium: ({ children }: { children: React.ReactNode }) => children,
+let isPremium = true;
+vi.mock('@/hooks/useIsPremium', () => ({
+  useIsPremium: () => ({ isPremium, isLoading: false }),
 }));
+vi.mock('@/hooks/useMediaQuery', () => ({ useMediaQuery: () => true }));
 
 const Where = () => <output data-testid="at">{useLocation().pathname}</output>;
 
@@ -29,17 +31,11 @@ const states = () =>
 
 afterEach(() => {
   cleanup();
+  isPremium = true;
   useTutorialProgressStore.setState({ completedAt: {} });
 });
 
-const FINISHED_LAB = Object.fromEntries(
-  ['waves', 'compression'].flatMap((topic) =>
-    ['hear', 'predict', 'reveal', 'try'].map((step) => [
-      `audio:sound-basics:physics-of-sound:${topic}:${step}`,
-      1,
-    ]),
-  ),
-);
+const PHYSICS_DONE = { 'audio:sound-basics:physics-of-sound:done': 1 };
 
 describe('a course’s page', () => {
   it('marks the first lesson next for someone new', () => {
@@ -52,20 +48,27 @@ describe('a course’s page', () => {
     expect(screen.getByRole('button', { name: 'Start' })).toBeTruthy();
   });
 
-  it('counts the lab done once what’s left of it is', () => {
-    useTutorialProgressStore.setState({ completedAt: FINISHED_LAB });
-    open('/learn/audio/sound-basics');
+  it('gives a lab one stop per topic, each with its own progress', () => {
+    useTutorialProgressStore.setState({
+      completedAt: Object.fromEntries(
+        ['hear', 'predict', 'reveal', 'try'].map((step) => [
+          `audio:sound-to-electricity:air-to-signal:electromagnetism:${step}`,
+          1,
+        ]),
+      ),
+    });
+    open('/learn/audio/sound-to-electricity');
     expect(states()).toEqual([
-      'physics-of-sound:done',
-      'hear-the-kit:next',
-      'decibels-and-faders:todo',
+      'electricity:next',
+      'electromagnetism:done',
+      'transducers:todo',
     ]);
   });
 
   it('moves on past a finished lesson, and says Continue on a started one', () => {
     useTutorialProgressStore.setState({
       completedAt: {
-        ...FINISHED_LAB,
+        ...PHYSICS_DONE,
         'audio:sound-basics:hear-the-kit:done': 1,
         'audio:sound-basics:decibels-and-faders:hook': 1,
       },
@@ -79,22 +82,106 @@ describe('a course’s page', () => {
     expect(screen.getByRole('button', { name: 'Continue' })).toBeTruthy();
   });
 
-  it('keeps every lesson open, even one still to come', () => {
+  it('doesn’t count steps from when a lesson was a lab', () => {
+    useTutorialProgressStore.setState({
+      completedAt: { 'audio:sound-basics:physics-of-sound:waves:hear': 1 },
+    });
     open('/learn/audio/sound-basics');
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Decibels and Faders' }),
+    expect(screen.getByRole('button', { name: 'Start' })).toBeTruthy();
+  });
+
+  it('selects a row on the first press and opens it on the second', async () => {
+    open('/learn/audio/sound-basics');
+    const row = screen.getByRole('button', { name: 'Decibels and Faders' });
+    fireEvent.click(row);
+    expect(screen.getByTestId('at').textContent).toBe(
+      '/learn/audio/sound-basics',
     );
+    expect(row.getAttribute('aria-pressed')).toBe('true');
+    expect(
+      await screen.findByRole('heading', { name: 'Decibels and Faders' }),
+    ).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Jump here' })).toBeTruthy();
+    fireEvent.click(row);
     expect(screen.getByTestId('at').textContent).toBe(
       '/learn/audio/sound-basics/decibels-and-faders',
     );
   });
 
-  it('hangs the mic off Gain Staging, on the URL it’s always had', () => {
+  it('opens the selected lesson from the card', () => {
+    open('/learn/audio/sound-basics');
+    fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+    expect(screen.getByTestId('at').textContent).toBe(
+      '/learn/audio/sound-basics/physics-of-sound',
+    );
+  });
+
+  it('walks the list with Up and Down', () => {
+    open('/learn/audio/sound-basics');
+    const first = screen.getByRole('button', { name: /Physics of Sound/ });
+    fireEvent.keyDown(first, { key: 'ArrowDown' });
+    expect(
+      screen
+        .getByRole('button', { name: 'Hear the Kit' })
+        .getAttribute('aria-pressed'),
+    ).toBe('true');
+  });
+
+  it('opens a lab’s topic from its row', () => {
+    open('/learn/audio/sound-color');
+    fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+    expect(screen.getByTestId('at').textContent).toBe(
+      '/learn/audio/sound-color/tone-and-timbre',
+    );
+  });
+
+  it('offers the mic from the lesson that uses it', () => {
     open('/learn/audio/signal-path');
-    fireEvent.click(screen.getByRole('button', { name: /Take the mic apart/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Gain Staging/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Take the mic apart' }));
     expect(screen.getByTestId('at').textContent).toBe(
       '/learn/audio/anatomy/microphone',
     );
+  });
+
+  it('shows a locked course, and sends the press to the plan', () => {
+    isPremium = false;
+    open('/learn/audio/sound-color');
+    expect(
+      screen.getByRole('button', { name: /Strings & Pipes, next, locked/ }),
+    ).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Subscribe to unlock' }),
+    );
+    expect(screen.getByTestId('at').textContent).not.toContain(
+      'tone-and-timbre',
+    );
+  });
+
+  it('leads on to the next course', () => {
+    open('/learn/audio/sound-basics');
+    expect(document.querySelector('[data-up-next]')?.textContent).toContain(
+      'Sound Color',
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Jump ahead' }));
+    expect(screen.getByTestId('at').textContent).toBe(
+      '/learn/audio/sound-color',
+    );
+  });
+
+  it('opens what a level teaches', () => {
+    open('/learn/audio/sound-basics');
+    fireEvent.click(screen.getByRole('button', { name: /Level 1/ }));
+    expect(screen.getByText(/Read faders and meters/)).toBeTruthy();
+  });
+
+  it('selects the disc a link names', () => {
+    open('/learn/audio/sound-basics?select=hear-the-kit');
+    expect(
+      screen
+        .getByRole('button', { name: 'Hear the Kit' })
+        .getAttribute('aria-pressed'),
+    ).toBe('true');
   });
 
   it('sends anything that isn’t a course back to the section', () => {

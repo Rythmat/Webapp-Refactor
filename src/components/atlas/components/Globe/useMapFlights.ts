@@ -3,6 +3,7 @@ import { useEffect, useRef, type MutableRefObject } from 'react';
 import type { useGeoData } from '@/components/atlas/hooks/useGeoData';
 import { useIsPhone } from '@/components/atlas/hooks/useMediaQuery';
 import { INSPECTOR_REM } from '@/components/atlas/layout/frameGeometry';
+import { useAtlasStop } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
   useAtlasDispatch,
   useAtlasSelector,
@@ -25,6 +26,12 @@ import { FLIGHT_EVENT } from './useMapPhase';
 const LIFT_MARGIN_PX = 72;
 /** A phone's stage above its sheet is short: 72 px would take 40% of it. */
 const LIFT_MARGIN_PHONE_PX = 36;
+/**
+ * How far a lifted region's flight lands short of its fit, in zoom levels
+ * (owner, 2026-11-09: it came in slightly too close): 0.4 is about a quarter
+ * further out, small regions at their zoom cap included.
+ */
+export const LIFT_PULL_BACK_ZOOM = 0.4;
 /** How long a framed flight waits for the panel it opens to be measured. */
 const SETTLE_MS = 80;
 /** How long a country or state flight waits for its outlines before going anyway. */
@@ -51,11 +58,10 @@ export function useMapFlights(
   const isPhone = useIsPhone();
   const isPhoneRef = useRef(isPhone);
   isPhoneRef.current = isPhone;
-  const journey = useAtlasSelector(
-    (s) => s.activeModule !== null || s.activeTour !== null,
-  );
-  const journeyRef = useRef(journey);
-  journeyRef.current = journey;
+  // Whether the page opened on a stop (a link into the Globe), not the bare
+  // globe: as the page first had it.
+  const stop = useAtlasStop();
+  const openedOnStop = useRef(stop.kind !== 'home');
   const flownBefore = useRef(false);
   const flightTimer = useRef<number | undefined>(undefined);
   const waitingSince = useRef<{ target: object; at: number } | null>(null);
@@ -67,10 +73,10 @@ export function useMapFlights(
       countries: countries?.features ?? null,
       states: adminRegions?.features ?? null,
     };
-    // A journey keeps its own camera; otherwise a city frames the region it
-    // lifts, tilted, which sells the height.
-    const frame = journeyRef.current ? target.frame : liftFrame(target.frame);
-    const lifting = !journeyRef.current && frame?.kind === 'region';
+    // A city frames the region it lifts, tilted, which sells the height; a
+    // tour's or a pathway's step as much as Explore's (owner, 2026-11-09).
+    const frame = liftFrame(target.frame);
+    const lifting = frame?.kind === 'region';
     const loading =
       frame?.kind === 'region' &&
       findRegion(frame.place, outlines) === 'loading';
@@ -105,9 +111,10 @@ export function useMapFlights(
           ),
         view.height,
       );
-      // The first flight is a deep link's: start over the target, zoomed
-      // out, so the default view never shows, then fly in.
-      if (!flownBefore.current) {
+      // A deep link's first flight starts over the target, zoomed out, so the
+      // default view never shows, then flies in. A flight the viewer starts
+      // from the globe they are looking at flies from where it is.
+      if (!flownBefore.current && openedOnStop.current) {
         map.jumpTo({
           center: camera.center,
           zoom: altitudeToMapZoom(
@@ -122,7 +129,9 @@ export function useMapFlights(
       map.flyTo(
         {
           center: camera.center,
-          zoom: camera.zoom,
+          zoom: lifting
+            ? Math.max(0, camera.zoom - LIFT_PULL_BACK_ZOOM)
+            : camera.zoom,
           pitch: lifting ? LIFT_PITCH : 0,
           padding,
           duration: flightDuration(reducedMotionRef.current),

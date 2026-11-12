@@ -79,6 +79,11 @@ export interface AudioModule {
   /** The key whose colour is this module's one accent (not A or D: yellow and
    *  amber, too near the brand yellow the app no longer uses). */
   accentKey: string;
+  /** For a course: what its description card says. */
+  blurb?: string;
+  /** Its level's name, and what the level's popup says it teaches. */
+  unit?: string;
+  goals?: readonly string[];
   lessons: readonly AudioLesson[];
 }
 
@@ -89,43 +94,25 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
   {
     id: 'sound-basics',
     title: 'Sound Basics',
+    blurb:
+      'What sound really is, how it reaches a mic, and how to read its frequency and level on any session.',
+    unit: 'What Sound Is',
+    goals: [
+      'Hear why a mic’s distance and polarity change a recording',
+      'Find each part of a kit in the spectrum',
+      'Read faders and meters, and leave headroom',
+    ],
     shelf: COURSE,
     access: 'free',
     accentKey: 'F#',
     lessons: [
       {
-        kind: 'lab',
+        kind: 'guided',
         id: 'physics-of-sound',
         title: 'Physics of Sound',
+        blurb: 'What really travels from the kit to the mic',
         ratio: [2, 3],
-        topics: [
-          {
-            id: 'waves',
-            title: 'Waves & Mediums',
-            tab: 'Waves',
-            sub: 'How sound travels',
-          },
-          {
-            id: 'compression',
-            title: 'Compression & Rarefaction',
-            tab: 'Compression',
-            sub: 'Pressure in the air',
-          },
-          {
-            id: 'frequency',
-            title: 'Frequency & Pitch',
-            tab: 'Frequency',
-            sub: 'What we hear as pitch',
-            replacedBy: 'hear-the-kit',
-          },
-          {
-            id: 'amplitude',
-            title: 'Amplitude & Volume',
-            tab: 'Amplitude',
-            sub: 'What we hear as volume',
-            replacedBy: 'decibels-and-faders',
-          },
-        ],
+        screens: 16,
       },
       {
         kind: 'guided',
@@ -148,6 +135,14 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
   {
     id: 'sound-color',
     title: 'Sound Color',
+    blurb:
+      'Why the same note sounds different on every instrument, and how to shape it.',
+    unit: 'Tone and Timbre',
+    goals: [
+      'See how strings and pipes make harmonics',
+      'Build a timbre from its harmonics',
+      'Shape a note with attack, decay, sustain and release',
+    ],
     shelf: COURSE,
     access: 'premium',
     accentKey: 'E',
@@ -183,6 +178,14 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
   {
     id: 'waves-together',
     title: 'Waves Together',
+    blurb:
+      'What happens when sounds meet: in the air, in your mix and between two notes.',
+    unit: 'How Waves Combine',
+    goals: [
+      'Hear waves add and cancel, and what phase does',
+      'Read a sound’s frequency spectrum',
+      'See why some intervals blend',
+    ],
     shelf: COURSE,
     access: 'premium',
     accentKey: 'E',
@@ -218,6 +221,14 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
   {
     id: 'hearing',
     title: 'Hearing',
+    blurb:
+      'How your ears and brain turn changing air pressure into music you can feel.',
+    unit: 'How We Hear',
+    goals: [
+      'Follow a sound from the eardrum to the nerve',
+      'Hear what your brain fills in and hides',
+      'Explore how music moves the body',
+    ],
     shelf: COURSE,
     access: 'premium',
     accentKey: 'E',
@@ -253,6 +264,13 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
   {
     id: 'sound-to-electricity',
     title: 'Sound to Electricity',
+    blurb: 'How a movement in the air becomes a signal you can record.',
+    unit: 'From Air to Signal',
+    goals: [
+      'Understand voltage and current',
+      'See how movement makes voltage',
+      'Compare the transducers that turn sound into signal',
+    ],
     shelf: COURSE,
     access: 'premium',
     accentKey: 'E',
@@ -288,48 +306,25 @@ export const AUDIO_MODULES: readonly AudioModule[] = [
   {
     id: 'signal-path',
     title: 'The Signal Path',
+    blurb:
+      'Follow a signal from the mic through the converter and the amp to the speaker.',
+    unit: 'From Mic to Speaker',
+    goals: [
+      'Set gain so a take can’t be ruined',
+      'Understand sampling and sample rate',
+      'Know what amps, loudspeakers and cables do to your sound',
+    ],
     shelf: COURSE,
     access: 'premium',
     accentKey: 'E',
     lessons: [
       {
-        kind: 'lab',
+        kind: 'guided',
         id: 'mic-to-speaker',
         title: 'From Mic to Speaker',
+        blurb: 'Follow one snare hit through the desk, the amp and the PA',
         ratio: [7, 10],
-        topics: [
-          {
-            id: 'preamps',
-            title: 'Preamps & Levels',
-            tab: 'Preamps',
-            sub: 'Up to line level',
-            replacedBy: 'gain-staging',
-          },
-          {
-            id: 'digital',
-            title: 'ADC, DAC & Sample Rate',
-            tab: 'Digital',
-            sub: 'Sound as numbers',
-          },
-          {
-            id: 'amps',
-            title: 'Amps & Speaker Level',
-            tab: 'Amps',
-            sub: 'Power and tone',
-          },
-          {
-            id: 'loudspeakers',
-            title: 'Loudspeakers',
-            tab: 'Speakers',
-            sub: 'Back into air',
-          },
-          {
-            id: 'cables',
-            title: 'Connectors & Cables',
-            tab: 'Cables',
-            sub: 'Getting it there',
-          },
-        ],
+        screens: 20,
       },
       {
         kind: 'guided',
@@ -468,16 +463,21 @@ export const audioLessonRoute = (module: AudioModule, lesson: AudioLesson) =>
 /** One stop on a course's path. */
 export type CourseRow =
   | { kind: 'guided'; lesson: GuidedLesson; side: AnatomyEntry | null }
-  | { kind: 'lab'; lesson: LabLesson; topics: readonly LabTopic[] }
+  | { kind: 'lab'; lesson: LabLesson; topic: LabTopic }
   | { kind: 'anatomy' | 'arcade'; lesson: AnatomyEntry | ArcadeEntry };
 
 /**
- * A course's path, in teaching order: its lab's topics in turn, each one that's
- * been replaced giving way to its guided lesson, and what's left of the lab as
- * one stop. Anatomy hangs off the lesson that uses it.
+ * A course's path, in teaching order: its lessons as listed, a lab as one stop per
+ * topic so that every course has a wave to walk, each topic that's been replaced
+ * giving way to its guided lesson. Anatomy hangs off the lesson that uses it.
  */
 export function courseRows(module: AudioModule): readonly CourseRow[] {
   const rows: CourseRow[] = [];
+  const replacing = new Set(
+    module.lessons.flatMap((l) =>
+      l.kind === 'lab' ? l.topics.flatMap((t) => t.replacedBy ?? []) : [],
+    ),
+  );
   const guided = (id: string): CourseRow | null => {
     const lesson = module.lessons.find(
       (l): l is GuidedLesson => l.kind === 'guided' && l.id === id,
@@ -490,16 +490,14 @@ export function courseRows(module: AudioModule): readonly CourseRow[] {
   };
   for (const lesson of module.lessons) {
     if (lesson.kind === 'lab') {
-      const left = lesson.topics.filter((topic) => !topic.replacedBy);
-      let placed = false;
       for (const topic of lesson.topics) {
         const row = topic.replacedBy ? guided(topic.replacedBy) : null;
-        if (row) rows.push(row);
-        else if (!placed) {
-          rows.push({ kind: 'lab', lesson, topics: left });
-          placed = true;
-        }
+        rows.push(row ?? { kind: 'lab', lesson, topic });
       }
+    } else if (lesson.kind === 'guided') {
+      // One that took a topic's place goes where that topic was.
+      const row = replacing.has(lesson.id) ? null : guided(lesson.id);
+      if (row) rows.push(row);
     } else if (lesson.kind === 'anatomy' || lesson.kind === 'arcade') {
       if (lesson.kind === 'arcade' || !lesson.sideOf) {
         rows.push({ kind: lesson.kind, lesson });

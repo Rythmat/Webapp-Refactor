@@ -233,6 +233,20 @@ describe('colorNodes', () => {
     ]);
     expect(defaultCount).toBe(2);
   });
+
+  it('gives a node no group claims its own colour, a key’s, before the default', () => {
+    const { rgba, defaultCount, groupOf } = colorNodes({
+      ids: ['song:africa', 'artist:toto'],
+      facets,
+      groups: [{ query: 'kind:artist', color: '#123456' }],
+      ownColor: (id) => (id.startsWith('song:') ? '#d2404a' : '#abcdef'),
+      defaultColor: '#ffffff',
+    });
+    // The song wears its key's colour; the artist's group still wins.
+    expect([...rgba]).toEqual([0xd2, 0x40, 0x4a, 0xff, 0x12, 0x34, 0x56, 0xff]);
+    expect([...groupOf]).toEqual([-1, 0]);
+    expect(defaultCount).toBe(0);
+  });
 });
 
 describe('newGroupColor', () => {

@@ -950,6 +950,7 @@ const CardItem: React.FC<CardItemProps> = ({
           spec={sigil}
           label={title}
           interactive={!unavailable}
+          footRoom
           className={cn(
             'relative',
             highlighted &&

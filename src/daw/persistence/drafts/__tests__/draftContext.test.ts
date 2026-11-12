@@ -180,7 +180,7 @@ const lessonNow = () => ({
   step: s().tutorialStepIndex,
 });
 
-const LESSON = 'make-first-track';
+const LESSON = 'studio-basics';
 const OTHER_LESSON = 'jazz-color-your-chords';
 
 const seedLesson = (id: string) => () => {
@@ -317,6 +317,11 @@ describe('a lesson travels with its draft', () => {
     reload();
     access = { [LESSON]: 'upgrade' };
     await openDraft(premium);
+    expect(lessonNow()).toEqual({ id: null, step: 0 });
+  });
+
+  it('opens a draft of a lesson that went without it', () => {
+    restoreDraftContext({ tutorial: { id: 'make-first-track', stepIndex: 3 } });
     expect(lessonNow()).toEqual({ id: null, step: 0 });
   });
 

@@ -21,6 +21,7 @@ import type {
 } from '../../live/buildProjectorView';
 import { pickLocalized } from '../../presentation/localized';
 import type { Interaction, StudentLanguage } from '../../types';
+import { isProjectionRefused } from '../interactionPolicy';
 
 export interface VizChoiceAggregate {
   kind: 'choice';
@@ -171,9 +172,9 @@ export const fromProjectorView = (
   view: ProjectorView,
   language: StudentLanguage,
 ): VizAggregate | null => {
-  // Belt on Rule 2b: check-in never visualizes on the projector, even if a
-  // buggy upstream handed us an emitting view with payloads.
-  if (interaction.type === 'check-in') return null;
+  // Belt on Rule 2b: a check-in, an offer or an Echo run never visualizes on
+  // the projector, even if a buggy upstream handed us an emitting view.
+  if (isProjectionRefused(interaction)) return null;
   if (!view.emit) return null;
   if (view.interactionId !== interaction.id) return null;
 

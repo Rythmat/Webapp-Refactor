@@ -14,7 +14,6 @@ import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { displayChordLabel } from '@/daw/utils/displayChordLabel';
 import { useChordNotation } from '@/lib/chordNotation';
-import { COLOR } from '@/daw/ui/tokens';
 
 interface ChordChartProps {
   /** One turn of the progression — the loop's regions, cut to the cycle. */
@@ -29,9 +28,9 @@ interface ChordChartProps {
   large: boolean;
   keyRootPc: number;
   mode: string;
+  /** The key's colour, on the chord sounding now. */
+  accent: string;
 }
-
-const ACCENT = COLOR.accent.value;
 
 export function ChordChart({
   regions,
@@ -40,6 +39,7 @@ export function ChordChart({
   large,
   keyRootPc,
   mode,
+  accent,
 }: ChordChartProps) {
   const notation = useChordNotation();
 
@@ -63,23 +63,24 @@ export function ChordChart({
           <div
             key={region.id}
             data-now={now || undefined}
-            className={`rounded-xl text-center transition-colors duration-100 ${large ? 'px-3 py-5' : 'px-2 py-1.5'}`}
-            style={{
-              background: now
-                ? 'rgba(255,255,255,0.18)'
-                : 'rgba(255,255,255,0.04)',
-              border: `1px solid ${now ? ACCENT : 'var(--daw-hairline)'}`,
-            }}
+            className={`rounded-xl border text-center transition-colors duration-100 ${now ? '' : 'border-daw-hairline bg-white/[0.04]'} ${large ? 'px-3 py-5' : 'px-2 py-1.5'}`}
+            style={
+              now
+                ? { background: `${accent}33`, borderColor: accent }
+                : undefined
+            }
           >
             <div
               className={
-                large ? 'text-3xl font-semibold' : 'text-lg font-semibold'
+                large
+                  ? 'text-[1.875rem] font-bold'
+                  : 'text-[1.125rem] font-bold'
               }
             >
               {symbol}
             </div>
             <div
-              className={large ? 'mt-1 text-sm' : 'text-xs'}
+              className={large ? 'mt-1 text-[0.875rem]' : 'text-[0.75rem]'}
               style={{ color: 'var(--daw-text-3)' }}
             >
               {displayChordLabel(region.name)}

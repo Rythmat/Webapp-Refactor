@@ -1,11 +1,14 @@
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { useClassroom } from '@/hooks/data';
 import { PHASES } from '../phases';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
+import { useTeacherConfig } from '../settings/useTeacherConfig';
 import type { Interaction, InteractionResponse } from '../types';
 import { AnonymousShareOverlay } from './AnonymousShareOverlay';
 import { ConnectionBadge } from './ConnectionBadge';
+import { JoinCard } from './JoinCard';
 import { buildProjectorView } from './buildProjectorView';
 import type { SessionState } from './sessionsStore';
 import { ProjectorDeckView } from './slides/ProjectorDeckView';
@@ -28,6 +31,9 @@ export const ProjectorPage = () => {
     'projector',
     cid,
   );
+  // The class's join code, for the waiting screens: it's what a student
+  // types to join the class, so it belongs on the wall (no student data).
+  const { data: classroom } = useClassroom(cid);
 
   return (
     <>
@@ -36,6 +42,7 @@ export const ProjectorPage = () => {
         sessionId={sid}
         state={state}
         clock={clock}
+        joinCode={classroom?.code}
       />
       {/* NO SILENT MOCKS. A healthy projected board stays chrome-free; a
           practice or dropped session is unmissable from the back of the room. */}
@@ -54,6 +61,7 @@ interface ProjectorSurfaceProps {
   state: SessionState | null;
   /** The server's clock: Echo's rounds are drawn on it. */
   clock: SessionClock;
+  joinCode?: string;
 }
 
 /**
@@ -65,9 +73,12 @@ const ProjectorSurface = ({
   sessionId: sid,
   state,
   clock,
+  joinCode,
 }: ProjectorSurfaceProps) => {
   const { responsesByEnrollment } = useLiveResponses(sid);
   const { getPublishedDay } = usePublishedDays(cid);
+  // The class's one language (owner, 2026-11-10); Present's switch writes it.
+  const classLanguage = useTeacherConfig(cid).config.language;
 
   const storedPublishedDay = state?.publishedDayId
     ? getPublishedDay(state.publishedDayId)
@@ -129,7 +140,7 @@ const ProjectorSurface = ({
   }
 
   // Deck sessions get the full-slide projected surface; legacy sessions
-  // keep the cream anonymous-share overlay below. Guard on slides.length so an
+  // keep the anonymous-share overlay below. Guard on slides.length so an
   // empty deck (publishDay drops it; defensive here) falls through to the
   // legacy overlay instead of stranding the projector on "Get ready…".
   if (
@@ -140,23 +151,25 @@ const ProjectorSurface = ({
     return (
       <ProjectorDeckView
         snapshot={publishedDay.snapshot}
+        language={classLanguage}
         state={state}
         sessionId={sid}
         responsesByEnrollment={responsesByEnrollment}
         clock={clock}
+        joinCode={joinCode}
       />
     );
   }
 
   if (!state || !sharedInteraction) {
     return (
-      <div
-        className="fixed inset-0 flex items-center justify-center"
-        style={{ backgroundColor: '#F7F1E3', color: '#1a1a1a' }}
-      >
-        <p className="max-w-lg px-8 text-center text-2xl font-medium">
-          Waiting for the teacher to share…
-        </p>
+      <div className="fixed inset-0 flex items-center justify-center bg-daw-bg text-white">
+        <div className="flex flex-col items-center gap-6">
+          <p className="max-w-lg px-8 text-center text-2xl font-medium">
+            Waiting for the teacher to share…
+          </p>
+          {joinCode && <JoinCard code={joinCode} />}
+        </div>
       </div>
     );
   }
@@ -165,13 +178,13 @@ const ProjectorSurface = ({
 
   if (!projectorView.emit) {
     return (
-      <div
-        className="fixed inset-0 flex items-center justify-center"
-        style={{ backgroundColor: '#F7F1E3', color: '#1a1a1a' }}
-      >
-        <p className="max-w-lg px-8 text-center text-2xl font-medium">
-          Waiting for the teacher to share…
-        </p>
+      <div className="fixed inset-0 flex items-center justify-center bg-daw-bg text-white">
+        <div className="flex flex-col items-center gap-6">
+          <p className="max-w-lg px-8 text-center text-2xl font-medium">
+            Waiting for the teacher to share…
+          </p>
+          {joinCode && <JoinCard code={joinCode} />}
+        </div>
       </div>
     );
   }

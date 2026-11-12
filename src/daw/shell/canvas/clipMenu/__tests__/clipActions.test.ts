@@ -398,11 +398,11 @@ describe('Prism: the prompt bar on bars of the track', () => {
     }),
   );
 
-  it('highlights four bars from the bar a lane or clip was right-clicked in', () => {
+  it('highlights eight bars from the bar a lane or clip was right-clicked in', () => {
     runCanvasMenuItem({ kind: 'lane', trackId: keys, tick: 4000 }, 'prism');
     expect(bar().selection).toEqual({
       startTick: 3840,
-      endTick: 3840 + 4 * 1920,
+      endTick: 3840 + 8 * 1920,
       trackId: keys,
     });
     expect(bar().collapsed).toBe(false);

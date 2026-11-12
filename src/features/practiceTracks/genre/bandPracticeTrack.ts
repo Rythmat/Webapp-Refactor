@@ -35,6 +35,7 @@ import {
   type Band,
   type BandVariation,
 } from '@/curriculum/engine/band/band';
+import type { StyleHarmony } from '@/curriculum/engine/band/harmonicRhythm';
 import { getLiveBand, listBands } from '@/curriculum/engine/band/registry';
 import { preloadStudioGroove } from '@/curriculum/engine/drumGrooves/registry';
 import type { TimedChords } from '@/curriculum/engine/genreGeneration/chordTimeline';
@@ -97,6 +98,8 @@ export interface BandStyleOption {
   genre: string;
   level: number;
   bpm: number;
+  /** How the style changes chords (BandVariation.harmony), if it says. */
+  harmony?: StyleHarmony;
 }
 
 /** A band and the styles it offers, for Part 3's choice. */
@@ -159,6 +162,7 @@ export async function bandStyles(
         genre: style.genre,
         level: style.level,
         bpm: bandStyleTempo(band, v, plan.bpm),
+        ...(v.harmony ? { harmony: v.harmony } : {}),
       };
     }),
   );

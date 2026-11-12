@@ -15,7 +15,7 @@
  */
 import { REGION_HINTS } from '@/components/ClassroomLayout/globe/data/regionHints';
 import { CITIES, MUSICAL_ERAS, REGIONS } from '@/components/atlas/data';
-import { HISTORICAL_MODULES } from '@/components/atlas/data/historicalModules';
+import { findModule } from '@/components/atlas/data/historicalModules';
 import { KEY_OF_COLORS } from '@/constants/theme';
 import { MUSIC_HISTORY } from '@/content/contentStore';
 import { getSong } from '@/content/songStore';
@@ -245,7 +245,7 @@ const deriveContent = (
       };
     }
     case 'pathways': {
-      const mod = HISTORICAL_MODULES.find((m) => m.id === idAfter(ref, 2));
+      const mod = findModule(idAfter(ref, 2));
       return { body: mod ? safeBody([mod.description]) : undefined };
     }
     case 'regionsCities': {

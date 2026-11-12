@@ -15,7 +15,8 @@ import type { CortexWeb } from './buildWeb';
  * always gives one picture, and it starts from where the nodes were last time:
  * old nodes are tethered there, so the map stays recognisable while new ones
  * find their place beside what they connect to and clusters can still form.
- * With nothing new, nothing moves at all.
+ * With nothing new, nothing moves at all. Since 2026-11-04 there's no core in
+ * the middle, as on the console's map: the web holds together on its own.
  */
 
 export interface Point {
@@ -96,7 +97,7 @@ const buildSimulation = (web: CortexWeb, saved: Positions, narrow: boolean) => {
           y: cy + Math.sin(angle) * LINK_DISTANCE,
         };
       }
-      const radius = 40 + 14 * Math.sqrt(index);
+      const radius = 14 * Math.sqrt(index);
       return {
         id: node.id,
         x: Math.cos(angle) * radius,
@@ -109,8 +110,9 @@ const buildSimulation = (web: CortexWeb, saved: Positions, narrow: boolean) => {
     .map((link) => ({ source: link.source, target: link.target }));
 
   const isHeld = (node: SimNode) => node.home !== undefined;
+  const seed = web.nodes.length;
   const simulation = forceSimulation(nodes)
-    .randomSource(seededRandom(nodes.length))
+    .randomSource(seededRandom(seed))
     .force(
       'link',
       forceLink<SimNode, SimulationLinkDatum<SimNode>>(links)
@@ -120,19 +122,20 @@ const buildSimulation = (web: CortexWeb, saved: Positions, narrow: boolean) => {
     )
     .force('charge', forceManyBody<SimNode>().strength(CHARGE))
     .force('collide', forceCollide<SimNode>(COLLIDE_RADIUS))
-    // Holds the web together, far wider than tall: under the prompt bar the
-    // panel is a wide strip, and a round web would only use its middle. On a
-    // phone the panel is about square, and a strip would shrink to a sliver.
+    // Holds the web together, wider than tall: the User page's card is about
+    // twice as wide as it is tall, and a round web would only use its middle.
+    // On a phone the card is about square, and a strip would shrink to a
+    // sliver.
     .force(
       'x',
       forceX<SimNode>((node) => node.home?.x ?? 0).strength((node) =>
-        isHeld(node) ? TETHER : narrow ? 0.07 : 0.02,
+        isHeld(node) ? TETHER : narrow ? 0.07 : 0.04,
       ),
     )
     .force(
       'y',
       forceY<SimNode>((node) => node.home?.y ?? 0).strength((node) =>
-        isHeld(node) ? TETHER : narrow ? 0.07 : 0.11,
+        isHeld(node) ? TETHER : narrow ? 0.07 : 0.1,
       ),
     )
     .stop();
@@ -219,7 +222,7 @@ export const MIN_ZOOM = 0.08;
 export const MAX_ZOOM = 2.5;
 /** A map of a few nodes isn't blown up to fill the panel. */
 const MAX_FIT_ZOOM = 1.15;
-/** Room round the edge for names: the panel's own header sits top left. */
+/** Room round the edge for names, and for the caption top left. */
 const FIT_MARGIN_X = 112;
 const FIT_MARGIN_X_NARROW = 24;
 /** Under this, the map is on a phone. */
@@ -227,16 +230,40 @@ export const NARROW_PX = 640;
 const FIT_MARGIN_BOTTOM = 24;
 const FIT_MARGIN_TOP = 48;
 
-/** The view that shows the whole web in a box this size. */
+/** Where the middle of a box this size sits, clear of the panel's header. */
+export const fitCentre = (width: number, height: number): Point => ({
+  x: width / 2,
+  y: (height + FIT_MARGIN_TOP - FIT_MARGIN_BOTTOM) / 2,
+});
+
+/**
+ * The view that shows the whole web in a box this size. With `around`, that
+ * point of the web sits at the box's middle, whichever way the web has grown.
+ */
 export const fitView = (
   positions: Positions,
   width: number,
   height: number,
+  around?: Point,
 ): View => {
   const bounds = boundsOf(positions);
   if (!bounds) return { x: width / 2, y: height / 2, k: 1 };
-  const w = Math.max(1, bounds.maxX - bounds.minX);
-  const h = Math.max(1, bounds.maxY - bounds.minY);
+  const middle = around ?? {
+    x: (bounds.minX + bounds.maxX) / 2,
+    y: (bounds.minY + bounds.maxY) / 2,
+  };
+  const w = Math.max(
+    1,
+    around
+      ? 2 * Math.max(bounds.maxX - around.x, around.x - bounds.minX)
+      : bounds.maxX - bounds.minX,
+  );
+  const h = Math.max(
+    1,
+    around
+      ? 2 * Math.max(bounds.maxY - around.y, around.y - bounds.minY)
+      : bounds.maxY - bounds.minY,
+  );
   const k = Math.max(
     MIN_ZOOM,
     Math.min(
@@ -246,11 +273,6 @@ export const fitView = (
       (height - FIT_MARGIN_TOP - FIT_MARGIN_BOTTOM) / h,
     ),
   );
-  return {
-    k,
-    x: width / 2 - ((bounds.minX + bounds.maxX) / 2) * k,
-    y:
-      (height + FIT_MARGIN_TOP - FIT_MARGIN_BOTTOM) / 2 -
-      ((bounds.minY + bounds.maxY) / 2) * k,
-  };
+  const centre = fitCentre(width, height);
+  return { k, x: centre.x - middle.x * k, y: centre.y - middle.y * k };
 };

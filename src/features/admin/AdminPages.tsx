@@ -122,6 +122,20 @@ const AdminMusicLiteracyPage = lazy(() =>
   ),
 );
 
+const AdminStudioLessonsPage = lazy(() =>
+  import('./studioLessons/AdminStudioLessonsPage').then(
+    ({ AdminStudioLessonsPage }) => ({ default: AdminStudioLessonsPage }),
+  ),
+);
+
+const AdminStudioLessonEditPage = lazy(() =>
+  import('./studioLessons/AdminStudioLessonEditPage').then(
+    ({ AdminStudioLessonEditPage }) => ({
+      default: AdminStudioLessonEditPage,
+    }),
+  ),
+);
+
 const AdminMusicLiteracyEditPage = lazy(() =>
   import('./musicLiteracy/AdminMusicLiteracyEditPage').then(
     ({ AdminMusicLiteracyEditPage }) => ({
@@ -592,6 +606,16 @@ export const adminPages = () => {
                   {
                     path: AdminRoutes.musicLiteracyLesson.definition,
                     element: <AdminMusicLiteracyEditPage />,
+                  },
+                  // Studio lessons, the Studio's Production lessons:
+                  // reached from Studio → Production and the Records menu.
+                  {
+                    path: AdminRoutes.studioLessons.definition,
+                    element: <AdminStudioLessonsPage />,
+                  },
+                  {
+                    path: AdminRoutes.studioLesson.definition,
+                    element: <AdminStudioLessonEditPage />,
                   },
                 ],
               },

@@ -226,3 +226,88 @@ describe('Echo’s round fan-out', () => {
     expect(messagesOf(projector, 'response')).toHaveLength(0);
   });
 });
+
+describe('the class follows the teacher (owner, 2026-11-10)', () => {
+  const say = (
+    party: Awaited<ReturnType<typeof bootParty>>,
+    conn: FakeConn,
+    body: unknown,
+  ) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    party.onMessage(conn as any, JSON.stringify(body));
+
+  const activity = {
+    slideId: 'slide-group',
+    ref: 'studio:tutorial:rnb-mix-and-polish',
+    step: 3,
+    total: 12,
+    title: 'Add a reverb',
+  };
+
+  it("relays the teacher's step to every role, the projector included", async () => {
+    const teacher = makeConn('c-teacher', 'teacher');
+    const student = makeConn('c-student', 'student');
+    const projector = makeConn('c-projector', 'projector');
+    const party = await bootParty([teacher, student, projector]);
+    say(party, teacher, { type: 'activity', activity });
+    for (const conn of [teacher, student, projector]) {
+      expect(messagesOf(conn, 'activity')).toEqual([
+        { type: 'activity', activity },
+      ]);
+    }
+  });
+
+  it('puts a late joiner straight onto the class step', async () => {
+    const teacher = makeConn('c-teacher', 'teacher');
+    const party = await bootParty([teacher]);
+    say(party, teacher, { type: 'activity', activity });
+    const late = makeConn('c-late', 'student');
+    authorizeClassroomConnection.mockResolvedValueOnce({
+      ok: true,
+      auth: {
+        userId: 'u-late',
+        role: 'student',
+        enrollmentId: 'enr-late',
+        session: SESSION,
+      },
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await party.onConnect(late as any, { request: { url: late.uri } } as any);
+    expect(messagesOf(late, 'activity')).toEqual([
+      { type: 'activity', activity },
+    ]);
+  });
+
+  it("refuses a student's step, and a malformed one, and drops extra fields", async () => {
+    const teacher = makeConn('c-teacher', 'teacher');
+    const student = makeConn('c-student', 'student');
+    const party = await bootParty([teacher, student]);
+    say(party, student, { type: 'activity', activity });
+    say(party, teacher, { type: 'activity', activity: { step: -1 } });
+    expect(messagesOf(student, 'activity')).toHaveLength(0);
+    say(party, teacher, {
+      type: 'activity',
+      activity: { ...activity, enrollmentId: 'enr-x', name: 'Ana' },
+    });
+    expect(messagesOf(student, 'activity')).toEqual([
+      { type: 'activity', activity },
+    ]);
+  });
+
+  it('keeps who finished a step to the teacher (Rule 2)', async () => {
+    const teacher = makeConn('c-teacher', 'teacher');
+    const student = makeConn('c-student', 'student');
+    const projector = makeConn('c-projector', 'projector');
+    const party = await bootParty([teacher, student, projector]);
+    say(party, student, {
+      type: 'activityDone',
+      slideId: 'slide-group',
+      step: 3,
+    });
+    expect(messagesOf(teacher, 'activityDone')).toMatchObject([
+      { enrollmentId: 'enr-c-student', slideId: 'slide-group', step: 3 },
+    ]);
+    expect(messagesOf(student, 'activityDone')).toHaveLength(0);
+    expect(messagesOf(projector, 'activityDone')).toHaveLength(0);
+  });
+});

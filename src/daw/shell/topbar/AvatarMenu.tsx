@@ -1,12 +1,4 @@
-import {
-  ArrowLeft,
-  Award,
-  Bell,
-  Flame,
-  Music2,
-  Settings2,
-  User,
-} from 'lucide-react';
+import { Flame } from 'lucide-react';
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTopRailStats } from '@/components/ClassroomLayout/useTopRailStats';
@@ -32,6 +24,7 @@ import {
 } from '@/daw/ui/Menu';
 import { FOCUS_RING, TYPE_CLASS } from '@/daw/ui/styles';
 import { Tooltip } from '@/daw/ui/Tooltip';
+import { AppIcons, AppListIcons } from '@/components/icons/appIcons';
 
 // ── The avatar menu (milestone 2.5, owner decision 7) ──────────────────────
 //
@@ -130,16 +123,19 @@ export const AvatarMenu = memo(function AvatarMenu({
           </div>
         </div>
         <MenuSeparator />
-        <MenuItem icon={<User />} onSelect={() => navigate(UserRoutes.root())}>
+        <MenuItem
+          icon={<AppIcons.profile />}
+          onSelect={() => navigate(UserRoutes.root())}
+        >
           Profile
         </MenuItem>
         <MenuItem
-          icon={<Award />}
+          icon={<AppIcons.awards />}
           onSelect={() => navigate(ProfileRoutes.awards())}
         >
           {unlockedCount > 0 ? `Awards (${unlockedCount})` : 'Awards'}
         </MenuItem>
-        <MenuItem icon={<Bell />} disabled>
+        <MenuItem icon={<AppListIcons.notifications />} disabled>
           {notificationCount > 0
             ? `Notifications (${notificationCount})`
             : 'No notifications'}
@@ -148,7 +144,9 @@ export const AvatarMenu = memo(function AvatarMenu({
             undone in the Studio too. */}
         {notation.chosen ? (
           <MenuSub>
-            <MenuSubTrigger icon={<Music2 />}>Chord notation</MenuSubTrigger>
+            <MenuSubTrigger icon={<AppListIcons.theory />}>
+              Chord notation
+            </MenuSubTrigger>
             <MenuSubContent>
               <MenuRadioGroup
                 aria-label="Chord notation"
@@ -171,14 +169,14 @@ export const AvatarMenu = memo(function AvatarMenu({
           </MenuSub>
         ) : null}
         <MenuItem
-          icon={<Settings2 />}
+          icon={<AppIcons.preferences />}
           onSelect={() => navigate(SettingsRoutes.root())}
         >
           App settings
         </MenuItem>
         <MenuSeparator />
         <MenuItem
-          icon={<ArrowLeft />}
+          icon={<AppIcons.home />}
           onSelect={() => navigate(ProfileRoutes.root())}
         >
           Back to Home

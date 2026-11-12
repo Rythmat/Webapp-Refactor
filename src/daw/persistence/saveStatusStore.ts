@@ -21,6 +21,7 @@ import {
   type FieldSpec,
   type StoreDataKey,
 } from './projectDocument/fields';
+import { isUntitledSessionName } from '@/lib/studio-projects/sessionName';
 
 // ── Save status: is the project as it was opened or last saved? ────────────
 //
@@ -777,7 +778,7 @@ const NOT_WORK_WITHOUT_TRACKS: readonly StoreDataKey[] = [
  * Whether `state` is an empty project: no track, and every content key at
  * its default but the few that make nothing without tracks
  * (NOT_WORK_WITHOUT_TRACKS). A chord lane, a progression, a marker, a tempo
- * or a name is a project.
+ * or a name of the student's own is a project.
  */
 export function isDocumentEmpty(
   state: AllSlices = useStore.getState(),
@@ -786,6 +787,11 @@ export function isDocumentEmpty(
   const content: Partial<Record<StoreDataKey, unknown>> = {};
   for (const key of DOC_CONTENT_KEYS) content[key] = state[key];
   for (const key of NOT_WORK_WITHOUT_TRACKS) content[key] = fieldDefault(key);
+  // Untitled is untitled, whichever default a build gave it: a session
+  // made before 2026-11-11 is 'Untitled Project' (sessionName.ts).
+  if (isUntitledSessionName(state.projectName)) {
+    content.projectName = fieldDefault('projectName');
+  }
   return (
     documentFingerprint(content as AllSlices, {}) === emptyDocumentFingerprint()
   );

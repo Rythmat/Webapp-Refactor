@@ -5,22 +5,25 @@ import { isMapView, isRingView, type AtlasFrame } from './atlasFrame';
  * atlasFrame.ts): Explore is the map; Connections the ring of places and
  * the links between them (owner, 2026-10-29); Eras the timeline of the world's four
  * great regions; Regions & Cities the same timeline opened into regions
- * (and, a click further, cities). They are the bottom rail's view tabs, as
- * the Studio's Create · Mix · Score (owner, 2026-10-29); Pathways and
- * Instruments are panels in the Inspector.
+ * (and, a click further, cities). Explore and Connections are the bottom
+ * rail's view tabs, as the Studio's Create · Mix · Score (owner, 2026-10-29);
+ * Eras and Regions & Cities lost their tabs (owner, 2026-11-09) and open
+ * only from links (`?view=timeline`). Tours took a tab of its own the same
+ * day: the map with the Tours panel in the Inspector (pathways and guided
+ * tours together), or a pathway or tour running. Instruments is a panel.
  */
-export type AtlasSectionId = 'explore' | 'ring' | 'eras' | 'regions';
+export type AtlasSectionId = 'explore' | 'ring' | 'tours' | 'eras' | 'regions';
 
 export interface AtlasSection {
   id: AtlasSectionId;
   label: string;
 }
 
+/** The views with a tab on the bottom rail. */
 export const ATLAS_SECTIONS: readonly AtlasSection[] = [
   { id: 'explore', label: 'Explore' },
   { id: 'ring', label: 'Connections' },
-  { id: 'eras', label: 'Eras' },
-  { id: 'regions', label: 'Regions & Cities' },
+  { id: 'tours', label: 'Tours' },
 ];
 
 /** Every continent, opened: the Regions & Cities view (placeTree.ts). */
@@ -37,12 +40,14 @@ export const getSection = (id: AtlasSectionId): AtlasSection =>
 /** The frame patch that opens a view. */
 export function sectionFrame(
   id: AtlasSectionId,
-): Partial<Pick<AtlasFrame, 'view' | 'lens' | 'open'>> {
+): Partial<Pick<AtlasFrame, 'view' | 'lens' | 'open' | 'panel'>> {
   switch (id) {
     case 'explore':
       return { view: 'map', lens: 'places' };
     case 'ring':
       return { view: 'ring', lens: 'places' };
+    case 'tours':
+      return { view: 'map', lens: 'places', panel: 'tours' };
     case 'eras':
       return { view: 'timeline', lens: 'places', open: [] };
     case 'regions':
@@ -51,13 +56,17 @@ export function sectionFrame(
 }
 
 /**
- * The view a frame shows: the map is Explore, and the timeline is Regions &
- * Cities once a place is opened, else Eras.
+ * The view a frame shows: the map is Explore, or Tours while its panel is
+ * chosen; the timeline is Regions & Cities once a place is opened, else
+ * Eras. (A running pathway or tour is Tours too, but that is the stop's:
+ * BottomRail.)
  */
 export function sectionOf(
-  frame: Pick<AtlasFrame, 'view' | 'open'>,
+  frame: Pick<AtlasFrame, 'view' | 'open'> & Partial<Pick<AtlasFrame, 'panel'>>,
 ): AtlasSectionId {
-  if (isMapView(frame)) return 'explore';
+  if (isMapView(frame)) {
+    return frame.panel === 'tours' ? 'tours' : 'explore';
+  }
   if (isRingView(frame)) return 'ring';
   return frame.open.length ? 'regions' : 'eras';
 }

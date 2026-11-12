@@ -2,6 +2,7 @@ import type { Feature, LineString } from 'geojson';
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import { useEffect, useMemo, useRef } from 'react';
 import type { ArcDatum } from '@/components/atlas/data';
+import { guidesData } from '@/components/atlas/data/loaders';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import { useAtlasStop } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
@@ -20,11 +21,13 @@ import {
   lineLength,
   sliceLine,
 } from './drawOn';
+import { journeyLeg } from './journeyLeg';
 import { DOTS_MS, RISE_MS } from './liftLayers';
 import { EMPTY, feed } from './mapFeed';
 import {
   NO_LINKS,
   arcLinkFeatures,
+  legLinkFeatures,
   scopeLinkFeatures,
   worldLinkFeatures,
   type LinkFeatures,
@@ -48,8 +51,9 @@ const WORLD_LINKS = 24;
  * The links on the map (networkLayers.ts): with nothing chosen, the
  * strongest links between regions; at a place or an artist, where the
  * music came from and went to in the years shown; at an event, its own
- * influences (the Layers switches and the event card's directions apply).
- * A new stop's links draw on outward from it once the map has flown there;
+ * influences (the Layers switches and the event card's directions apply);
+ * in a running tour or pathway, only its leg on to the next stop. A new
+ * stop's links draw on outward from it once the map has flown there;
  * dotted links flow; a card
  * pointing at a link (`linkFocus`) brightens it. Under reduced motion they
  * appear drawn and hold still.
@@ -68,9 +72,21 @@ export function useNetworkLayers(
   const linksOn = useAtlasSelector((s) => s.layers.arcs);
   const network = useNetwork(!!map);
   const ix = network.index;
-  const key = stopKey(stop);
+  // A running tour or pathway: its one leg on to the next stop. The guides
+  // have loaded by then (a journey starts only once they have).
+  const activeModule = useAtlasSelector((s) => s.activeModule);
+  const activeTour = useAtlasSelector((s) => s.activeTour);
+  const journey = stop.kind === 'pathway' || stop.kind === 'tour';
+  const leg = useMemo(
+    () =>
+      journey ? journeyLeg(guidesData.peek(), activeModule, activeTour) : null,
+    [journey, activeModule, activeTour],
+  );
+  // Each leg is a new stop for the links: it draws on afresh.
+  const key = leg ? leg.key : stopKey(stop);
 
   const links: LinkFeatures = useMemo(() => {
+    if (journey) return leg && linksOn ? legLinkFeatures(leg) : NO_LINKS;
     if (stop.kind === 'event') return arcLinkFeatures(influenceArcs);
     if (!ix || !linksOn) return NO_LINKS;
     if (stop.kind === 'home' || stop.kind === 'search') {
@@ -81,7 +97,7 @@ export function useNetworkLayers(
     return scopeLinkFeatures(ix, scopeLinks(ix, scope.eventIds, w));
     // The stop by its key: the same stop parsed again is no new links.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ix, key, w, influenceArcs, linksOn]);
+  }, [ix, key, w, influenceArcs, linksOn, journey, leg]);
 
   // A new stop's links draw on; new years or a layer switch just swap.
   const drawnFor = useRef<string | null>(null);

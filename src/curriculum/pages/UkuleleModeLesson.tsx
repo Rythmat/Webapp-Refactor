@@ -17,11 +17,13 @@ import { buildUkuleleTheoryFlow } from '@/curriculum/data/activityFlows/ukuleleT
 import { ukuleleTheoryEntry } from '@/curriculum/data/ukulele/theoryCatalog';
 import { GenreLessonContainerV2 } from '@/curriculum/pages/GenreLessonContainerV2';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
+import { exploreHref } from '@/features/learn/catalog/exploreState';
+import { familyOfMode } from '@/features/learn/paths/theoryFamilies';
+import { theoryBackRoute } from '@/features/learn/paths/theoryPath';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
 import { urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 
-const THEORY_TAB_ROUTE = LearnRoutes.root(undefined, { tab: 'Theory' });
-const ROOT_CRUMB = { label: 'Theory', route: THEORY_TAB_ROUTE };
+const THEORY_TAB_ROUTE = exploreHref('ukulele', 'theory');
 
 export default function UkuleleModeLesson() {
   const { mode, key = '' } = useParams<{ mode: string; key: string }>();
@@ -64,8 +66,15 @@ export default function UkuleleModeLesson() {
       level={1}
       initialSection={section}
       displayName={`Ukulele · ${entry.title}`}
-      overviewRoute={LearnRoutes.ukuleleOverview({ mode: ukuleleMode })}
-      rootCrumb={ROOT_CRUMB}
+      overviewRoute={theoryBackRoute(
+        'ukulele',
+        ukuleleMode,
+        urlParamToKeyLabel(key),
+      )}
+      rootCrumb={{
+        label: familyOfMode(ukuleleMode)?.title ?? 'Theory',
+        route: theoryBackRoute('ukulele', ukuleleMode, urlParamToKeyLabel(key)),
+      }}
       practiceReturnTo={practiceReturnTo}
     />
   );

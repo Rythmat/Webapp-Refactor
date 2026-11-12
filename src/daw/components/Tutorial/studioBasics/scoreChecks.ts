@@ -50,3 +50,16 @@ export const noteChanged: StepCheck = (s, armed) => {
   }
   return false;
 };
+
+/**
+ * A chord symbol says something new: a chord renamed in place (it keeps its
+ * id), or one written on an empty beat.
+ */
+export const chordChanged: StepCheck = (s, armed) => {
+  if (s.chordRegions === armed.chordRegions) return false;
+  const before = new Map(armed.chordRegions.map((r) => [r.id, r]));
+  return s.chordRegions.some((region) => {
+    const was = before.get(region.id);
+    return !was || was.name !== region.name || was.noteName !== region.noteName;
+  });
+};

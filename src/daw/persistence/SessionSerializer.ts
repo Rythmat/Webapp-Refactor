@@ -59,6 +59,7 @@ export {
   SESSION_SCHEMA_VERSION,
 } from './projectDocument/codec';
 export type {
+  DecodedSession,
   MidiClipColumnar,
   MidiClipEvents,
   SerializedTrackSettings,
@@ -369,17 +370,7 @@ export function deserializeCloudProject(
 ): CloudOpenReport {
   // First everything that can throw, with nothing changed yet: once the
   // generation moves, the open project's patches are gone from the cache.
-  const found = findCloudDocument(project);
-  const draft = cloudProjectDraft(project, found, () => crypto.randomUUID());
-  const migrated = migrateSession(draft.session);
-  if (!migrated.ok) {
-    throw new Error(
-      `cloud project ${project.id} can't be read (${migrated.reason}): ${migrated.detail}`,
-    );
-  }
-  const decoded = decodeSession(migrated.session, {
-    trackIds: draft.trackIds,
-  });
+  const { found, draft, decoded } = decodeCloud(project);
 
   bumpSessionGeneration('cloud-open');
   for (const [trackId, patch] of decoded.synthPatches) {
@@ -401,6 +392,49 @@ export function deserializeCloudProject(
     newer: found.newer,
     partsSkipped: draft.partsSkipped,
   };
+}
+
+/** The cloud project decoded as deserializeCloudProject reads it; throws,
+ *  changing nothing, when it can't be read. */
+function decodeCloud(project: CloudProjectDetail) {
+  const found = findCloudDocument(project);
+  const draft = cloudProjectDraft(project, found, () => crypto.randomUUID());
+  const migrated = migrateSession(draft.session);
+  if (!migrated.ok) {
+    throw new Error(
+      `cloud project ${project.id} can't be read (${migrated.reason}): ${migrated.detail}`,
+    );
+  }
+  const decoded = decodeSession(migrated.session, {
+    trackIds: draft.trackIds,
+  });
+  return { found, draft, decoded };
+}
+
+/**
+ * A cloud project as the editor would open it, without opening it: the
+ * store, the Oracle patch cache and the session are left alone (the
+ * Library plays projects with the editor shut). Throws when it can't be read.
+ */
+export function decodeCloudProject(
+  project: CloudProjectDetail,
+): DecodedSession {
+  return decodeCloud(project).decoded;
+}
+
+/**
+ * A draft as loadSession would load it, without loading it (the Library's
+ * previews); null when this build can't read it.
+ */
+export function decodeStoredSession(
+  stored: SessionData | string,
+): DecodedSession | null {
+  try {
+    const migrated = migrateSession(stored);
+    return migrated.ok ? decodeSession(migrated.session) : null;
+  } catch {
+    return null;
+  }
 }
 
 // ── Starting empty ─────────────────────────────────────────────────────────

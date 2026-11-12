@@ -16,6 +16,7 @@ describe('practiceSettingsStore', () => {
     expect(store.getPracticeSettings()).toEqual({
       metronomeEnabled: true,
       tempoBpm: null,
+      autoFlow: true,
     });
     // null means "whatever this activity says", not "80".
     expect(store.resolveTempo(80)).toBe(80);
@@ -77,6 +78,7 @@ describe('practiceSettingsStore', () => {
     expect(second.getPracticeSettings()).toEqual({
       metronomeEnabled: false,
       tempoBpm: 64,
+      autoFlow: true,
     });
   });
 
@@ -86,6 +88,7 @@ describe('practiceSettingsStore', () => {
     expect(store.getPracticeSettings()).toEqual({
       metronomeEnabled: true,
       tempoBpm: null,
+      autoFlow: true,
     });
   });
 });

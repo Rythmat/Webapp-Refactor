@@ -17,11 +17,13 @@ import { buildBassTheoryFlow } from '@/curriculum/data/activityFlows/bassTheoryF
 import { bassTheoryEntry } from '@/curriculum/data/bass/theoryCatalog';
 import { GenreLessonContainerV2 } from '@/curriculum/pages/GenreLessonContainerV2';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
+import { exploreHref } from '@/features/learn/catalog/exploreState';
+import { familyOfMode } from '@/features/learn/paths/theoryFamilies';
+import { theoryBackRoute } from '@/features/learn/paths/theoryPath';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
 import { urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 
-const THEORY_TAB_ROUTE = LearnRoutes.root(undefined, { tab: 'Theory' });
-const ROOT_CRUMB = { label: 'Theory', route: THEORY_TAB_ROUTE };
+const THEORY_TAB_ROUTE = exploreHref('bass', 'theory');
 
 export default function BassModeLesson() {
   const { mode, key = '' } = useParams<{ mode: string; key: string }>();
@@ -64,8 +66,11 @@ export default function BassModeLesson() {
       level={1}
       initialSection={section}
       displayName={`Bass · ${entry.title}`}
-      overviewRoute={LearnRoutes.bassOverview({ mode: bassMode })}
-      rootCrumb={ROOT_CRUMB}
+      overviewRoute={theoryBackRoute('bass', bassMode, urlParamToKeyLabel(key))}
+      rootCrumb={{
+        label: familyOfMode(bassMode)?.title ?? 'Theory',
+        route: theoryBackRoute('bass', bassMode, urlParamToKeyLabel(key)),
+      }}
       practiceReturnTo={practiceReturnTo}
     />
   );

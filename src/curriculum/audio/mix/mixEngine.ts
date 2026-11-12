@@ -11,7 +11,8 @@ import type { StemId } from './stems';
 // Stems looping in lock, each with its own input gain and converter, filters,
 // fader, mute, solo and pan, into a bus, a master and a master converter:
 //
-//   source → input gain → in-tap → clip → filters → fader → pan → out-tap ┐
+//   source → input gain → in-tap → clip → filters ─┬─ delay ──────┐
+//                                                  └─ copy ───────┴ fader → pan → out-tap ┐
 //                                                                          │
 //   bus ← ─────────────────────────────────────────────────────────────────┘
 //   bus → bus filters → master → pre-tap → clip → session-tap
@@ -29,6 +30,16 @@ export interface FilterSpec {
   gainDb?: number;
 }
 
+/** The same signal again, as a second mic on one source would hear it. */
+export interface ChannelCopy {
+  delayMs: number;
+  gainDb: number;
+  /** Upside down: a polarity flip. */
+  invert?: boolean;
+  /** Darker than the original. */
+  lowpassHz?: number;
+}
+
 export interface ChannelSettings {
   /** Before the channel's converter: a preamp's gain, or a stem's trim. */
   inputDb?: number;
@@ -37,6 +48,9 @@ export interface ChannelSettings {
   solo?: boolean;
   pan?: number;
   filters?: readonly FilterSpec[];
+  copy?: ChannelCopy;
+  /** Holds the channel itself back, so that a copy can sit ahead of it. */
+  dryDelayMs?: number;
 }
 
 export interface BusSettings {
@@ -74,11 +88,19 @@ interface Channel {
   clip: WaveShaperNode;
   filters: BiquadFilterNode[];
   filterEnd: GainNode;
+  dryDelay: DelayNode;
+  copyDelay: DelayNode;
+  copyTone: BiquadFilterNode;
+  copyGain: GainNode;
   fader: GainNode;
   pan: StereoPannerNode;
   outTap: Tap;
   settings: ChannelSettings;
 }
+
+const MAX_DELAY_SECONDS = 0.25;
+/** Open enough to leave a copy untouched. */
+const COPY_OPEN_HZ = 24000;
 
 const SPECTRUM_FFT = 8192;
 const METER_FFT = 2048;
@@ -159,7 +181,18 @@ export class MixEngine {
       input.connect(inTap.through);
       inTap.through.connect(clip);
       clip.connect(filterEnd);
-      filterEnd.connect(fader);
+      const dryDelay = context.createDelay(MAX_DELAY_SECONDS);
+      const copyDelay = context.createDelay(MAX_DELAY_SECONDS);
+      const copyTone = context.createBiquadFilter();
+      copyTone.type = 'lowpass';
+      const copyGain = context.createGain();
+      copyGain.gain.value = 0;
+      filterEnd.connect(dryDelay);
+      dryDelay.connect(fader);
+      filterEnd.connect(copyDelay);
+      copyDelay.connect(copyTone);
+      copyTone.connect(copyGain);
+      copyGain.connect(fader);
       fader.connect(pan);
       pan.connect(outTap.through);
       outTap.through.connect(this.bus);
@@ -171,6 +204,10 @@ export class MixEngine {
         clip,
         filters: [],
         filterEnd,
+        dryDelay,
+        copyDelay,
+        copyTone,
+        copyGain,
         fader,
         pan,
         outTap,
@@ -269,14 +306,26 @@ export class MixEngine {
     );
     for (const [id, channel] of this.channels) {
       const s = channel.settings;
-      channel.input.gain.setTargetAtTime(dbToGain(s.inputDb ?? 0), now, RAMP);
+      this.move(channel.input.gain, dbToGain(s.inputDb ?? 0), now);
       const on = effectiveOn(id, states);
-      channel.fader.gain.setTargetAtTime(
-        on ? dbToGain(s.faderDb ?? 0) : 0,
+      this.move(channel.fader.gain, on ? dbToGain(s.faderDb ?? 0) : 0, now);
+      this.move(channel.pan.pan, s.pan ?? 0, now);
+      this.move(channel.dryDelay.delayTime, (s.dryDelayMs ?? 0) / 1000, now);
+      this.move(
+        channel.copyDelay.delayTime,
+        (s.copy?.delayMs ?? 0) / 1000,
         now,
-        RAMP,
       );
-      channel.pan.pan.setTargetAtTime(s.pan ?? 0, now, RAMP);
+      this.move(
+        channel.copyTone.frequency,
+        s.copy?.lowpassHz ?? COPY_OPEN_HZ,
+        now,
+      );
+      this.move(
+        channel.copyGain.gain,
+        s.copy ? (s.copy.invert ? -1 : 1) * dbToGain(s.copy.gainDb) : 0,
+        now,
+      );
       channel.filters = this.applyFilters(
         channel.filters,
         s.filters ?? [],
@@ -289,15 +338,11 @@ export class MixEngine {
   setBus(settings: BusSettings): void {
     if (this.closed) return;
     const now = this.ctx.currentTime;
-    this.master.gain.setTargetAtTime(
-      dbToGain(settings.masterDb ?? 0),
-      now,
-      RAMP,
-    );
-    this.monitor.gain.setTargetAtTime(
+    this.move(this.master.gain, dbToGain(settings.masterDb ?? 0), now);
+    this.move(
+      this.monitor.gain,
       dbToGain(MONITOR_TRIM_DB + (settings.monitorDb ?? 0)),
       now,
-      RAMP,
     );
     this.busFilters = this.applyFilters(
       this.busFilters,
@@ -305,6 +350,20 @@ export class MixEngine {
       this.bus,
       this.busEnd,
     );
+  }
+
+  /**
+   * Glide while there's sound, so that a move doesn't click. With none it's set
+   * outright: a glide from where a new node starts would still be going when the
+   * first hit plays, which would come through at the wrong level.
+   */
+  private move(param: AudioParam, value: number, now: number, fresh = false) {
+    if (this.startedAt == null || fresh) {
+      param.cancelScheduledValues(now);
+      param.value = value;
+    } else {
+      param.setTargetAtTime(value, now, RAMP);
+    }
   }
 
   /** Move filters that are already there, or rewire if the set has changed. */
@@ -336,9 +395,9 @@ export class MixEngine {
       tail.connect(to);
     }
     specs.forEach((spec, i) => {
-      filters[i].frequency.setTargetAtTime(spec.hz, now, RAMP);
-      filters[i].Q.setTargetAtTime(spec.q ?? Math.SQRT1_2, now, RAMP);
-      filters[i].gain.setTargetAtTime(spec.gainDb ?? 0, now, RAMP);
+      this.move(filters[i].frequency, spec.hz, now, !same);
+      this.move(filters[i].Q, spec.q ?? Math.SQRT1_2, now, !same);
+      this.move(filters[i].gain, spec.gainDb ?? 0, now, !same);
     });
     return filters;
   }
@@ -385,6 +444,10 @@ export class MixEngine {
         channel.clip,
         ...channel.filters,
         channel.filterEnd,
+        channel.dryDelay,
+        channel.copyDelay,
+        channel.copyTone,
+        channel.copyGain,
         channel.fader,
         channel.pan,
       ]) {

@@ -25,6 +25,10 @@ import {
   MIGRATION_BACKUP_PREFIX,
   UNREADABLE_PREFIX,
 } from '../projectDocument/quarantine';
+import {
+  isUntitledSessionName,
+  UNTITLED_SESSION,
+} from '@/lib/studio-projects/sessionName';
 
 // ── Bringing pre-1.4 sessions into drafts (milestone 1.4, decision E6) ─────
 //
@@ -242,7 +246,6 @@ const nonEmpty = (value: unknown): boolean =>
       ? Object.keys(value).length > 0
       : false;
 
-const DEFAULT_NAME = 'Untitled Project';
 const DEFAULT_BPM = 120;
 
 /** A field that is set and differs from `fallback` (absent counts as unset). */
@@ -265,8 +268,7 @@ function dataHasContent(data: Record<string, unknown>): boolean {
     if (nonEmpty(data.masterAutomation)) return true;
     if (
       typeof data.projectName === 'string' &&
-      data.projectName.trim() !== '' &&
-      data.projectName !== DEFAULT_NAME
+      !isUntitledSessionName(data.projectName)
     ) {
       return true;
     }
@@ -368,7 +370,7 @@ function importedMeta(
     origin,
     createdAt: now,
     schema,
-    name: extra.name || projectName || 'Untitled Project',
+    name: extra.name || projectName || UNTITLED_SESSION,
     trackCount: Array.isArray(data.tracks) ? data.tracks.length : 0,
     chars: 0,
     docFingerprint: null,

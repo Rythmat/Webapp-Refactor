@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { STOCK_FORCES } from '../layout/forceLayout';
+import { PRESET_GROUPS } from '../model/colorGroups';
 import {
   centerForce,
   defaultGraphSettings,
@@ -361,6 +362,9 @@ describe('reading what was kept', () => {
     // Version 1's presets.
     raw.groups = RETIRED_PRESET_GROUPS_V1.map((g) => ({ ...g }));
     expect(parseGraphSettings({ ...raw, version: 1 }).groups).toBeNull();
+    // The palette presets Cortex opened with until 4 Nov 2026: now none.
+    raw.groups = PRESET_GROUPS.map((g) => ({ ...g }));
+    expect(parseGraphSettings(raw).groups).toBeNull();
     // One colour changed: the owner's own groups, kept as they are.
     const edited = RETIRED_PRESET_GROUPS_KEY_COLOURS.map((g) => ({ ...g }));
     edited[0] = { ...edited[0], color: '#123456' };

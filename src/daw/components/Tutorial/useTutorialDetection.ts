@@ -1,11 +1,16 @@
 import { useEffect } from 'react';
 import { useStore, type AllSlices } from '@/daw/store';
 import { useSynthStore, type SynthStore } from '@/daw/oracle-synth/store';
+import {
+  usePromptBarStore,
+  type PromptBarSnapshot,
+} from '@/daw/shell/prompt/promptBarStore';
 import type { TutorialStep } from './tutorials';
 
 // ── useTutorialDetection ────────────────────────────────────────────────────
 // Watches for the active step's `check` (main composed store) or `synthCheck`
-// (the Oracle Synth's separate store — per-track patch state like presetName).
+// (the Oracle Synth's separate store — per-track patch state like presetName)
+// or `promptCheck` (Prism's: the prompt bar open or folded).
 // When one passes, calls onComplete(celebrate). Uses each store's
 // subscribeWithSelector middleware (same mechanism as undoMiddleware) so
 // detection is control-agnostic — it fires whether the change came from a
@@ -23,11 +28,14 @@ export function useTutorialDetection(
   onComplete: (celebrate: boolean) => void,
 ) {
   useEffect(() => {
-    if (!active || (!step?.check && !step?.synthCheck)) return;
+    if (!active || (!step?.check && !step?.synthCheck && !step?.promptCheck))
+      return;
     const check = step.check;
     const synthCheck = step.synthCheck;
+    const promptCheck = step.promptCheck;
     const armed = useStore.getState();
     const armedSynth = useSynthStore.getState();
+    const armedBar = usePromptBarStore.getState();
     let fired = false;
 
     const complete = (celebrate: boolean) => {
@@ -41,16 +49,22 @@ export function useTutorialDetection(
     const evalSynth = (sy: SynthStore, celebrate: boolean) => {
       if (synthCheck?.(sy, armedSynth)) complete(celebrate);
     };
+    const evalPrompt = (bar: PromptBarSnapshot, celebrate: boolean) => {
+      if (promptCheck?.(bar, armedBar)) complete(celebrate);
+    };
 
     // Already satisfied on arrival → advance quietly.
     evalMain(useStore.getState(), false);
     if (!fired) evalSynth(useSynthStore.getState(), false);
+    if (!fired) evalPrompt(usePromptBarStore.getState(), false);
     if (fired) return;
 
     const unsubs: (() => void)[] = [];
     if (check) unsubs.push(useStore.subscribe((s) => evalMain(s, true)));
     if (synthCheck)
       unsubs.push(useSynthStore.subscribe((sy) => evalSynth(sy, true)));
+    if (promptCheck)
+      unsubs.push(usePromptBarStore.subscribe((bar) => evalPrompt(bar, true)));
     return () => unsubs.forEach((u) => u());
   }, [step, active, onComplete]);
 }

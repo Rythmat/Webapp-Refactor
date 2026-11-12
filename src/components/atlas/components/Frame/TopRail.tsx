@@ -1,11 +1,4 @@
-import {
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  House,
-  Search,
-  Share2,
-} from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Search, Share2 } from 'lucide-react';
 import {
   Suspense,
   lazy,
@@ -15,7 +8,6 @@ import {
   useState,
   type RefObject,
 } from 'react';
-import { Link } from 'react-router-dom';
 import { TrailPopover } from '@/components/atlas/components/UI/TrailPopover';
 import {
   ATLAS_FOCUS,
@@ -27,7 +19,7 @@ import {
 import { useIsPhone } from '@/components/atlas/hooks/useMediaQuery';
 import { useAtlasStopSelector } from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasTrail } from '@/components/atlas/navigation/useAtlasTrail';
-import { ProfileRoutes } from '@/constants/routes';
+import { RailToggle } from '@/layouts/DashboardLayout/RailToggle';
 import { cn } from '@/lib/utils';
 
 // The command palette, fetched the first time someone reaches for it (or
@@ -163,20 +155,8 @@ export function TopRail() {
       }}
     >
       <div className="flex min-w-0 items-center gap-2">
-        {/* Only where the app's sidebar is not (below `md`, its own
-            breakpoint): there it is the one way out of the Globe. */}
-        <Link
-          aria-label="Home"
-          className={cn(
-            'inline-flex h-9 shrink-0 items-center rounded-full bg-atlas-pill px-3 text-atlas-text hover:bg-white/[0.06] md:hidden',
-            ATLAS_TRANSITION,
-            ATLAS_FOCUS,
-          )}
-          title="Back to Home"
-          to={ProfileRoutes.root()}
-        >
-          <House aria-hidden className="size-4" />
-        </Link>
+        {/* The app rail's button (owner, 2026-11-10), while it's shut. */}
+        <RailToggle />
         {/* Walking the path opens panels; focus stays here while it does
             (layout/usePanelFocus). */}
         <div

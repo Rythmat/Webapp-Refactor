@@ -17,8 +17,8 @@ import { AtlasZoneContext, type AtlasZone } from './zoneContext';
 
 /**
  * The Inspector, as the Studio's (owner, 2026-10-29: the Globe in the
- * Studio's frame): a floating card of a fixed size in the stage's bottom-left
- * corner (owner, 2026-10-30), the panel
+ * Studio's frame): a floating card of a fixed size in the stage's top-left
+ * corner (owner, 2026-11-09), the panel
  * the rail or the stop asks for (layout/useInspector.tsx). Always mounted, so
  * its focus survives one panel giving way to another.
  *
@@ -79,12 +79,13 @@ export function InspectorView({ slot }: { slot: InspectorSlot | null }) {
       ref={ref}
       aria-label={slot?.title}
       className={cn(
-        // A floating card in the stage's corner, opaque for reading (owner,
-        // 2026-10-30). Its foot clears the event timeline's open height
-        // (UI/EraRail), whose era names rise over the map's bottom edge.
+        // A floating card in the stage's top-left corner, opaque for reading
+        // (owner, 2026-11-09). However short the stage, its foot clears the
+        // event timeline's open height (UI/EraRail), whose era names rise
+        // over the map's bottom edge.
         ATLAS_CARD,
         'bg-atlas-panel',
-        'absolute bottom-10 left-2 min-h-0 max-w-[calc(100%-1rem)] flex-col overflow-hidden',
+        'absolute left-2 top-2 min-h-0 max-w-[calc(100%-1rem)] flex-col overflow-hidden',
         ATLAS_Z.panels,
         slot ? 'flex' : 'hidden',
       )}
@@ -92,7 +93,7 @@ export function InspectorView({ slot }: { slot: InspectorSlot | null }) {
       id="atlas-inspector"
       style={
         board
-          ? { top: '0.5rem', width: `${MINDMAP_PX}px` }
+          ? { bottom: '2.5rem', width: `${MINDMAP_PX}px` }
           : {
               width: `${INSPECTOR_REM.width}rem`,
               height: `min(${INSPECTOR_REM.height}rem, calc(100% - 3rem))`,

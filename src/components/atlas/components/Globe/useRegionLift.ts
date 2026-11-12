@@ -56,14 +56,11 @@ const DOT_SPACING_PX = 8;
 const NAME_LAYERS = [LAYER.regionLabels, ...LAND_LAYER.countryLabels];
 
 /**
- * The place a selection lifts, its identity steady while the selection is. A
- * tour or a pathway keeps its own camera and doesn't lift.
+ * The place a selection lifts, its identity steady while the selection is: a
+ * tour's or a pathway's step lifts as Explore does (owner, 2026-11-09).
  */
 export function useLiftPlace(selected: SelectedLocation | null) {
-  const journey = useAtlasSelector(
-    (s) => s.activeModule !== null || s.activeTour !== null,
-  );
-  const place = journey ? null : liftPlaceOf(selected);
+  const place = liftPlaceOf(selected);
   const key = place ? JSON.stringify(place) : null;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return useMemo(() => place, [key]);

@@ -82,13 +82,6 @@
     "smallText": 1,
     "zIndex": 1
   },
-  "src/daw/components/Practice/ChordChart.tsx": {
-    "rgb": 2
-  },
-  "src/daw/components/Practice/PracticeTrackView.tsx": {
-    "hex": 5,
-    "rgb": 1
-  },
   "src/daw/components/Prism/ChordBuilder.tsx": {
     "smallText": 2
   },

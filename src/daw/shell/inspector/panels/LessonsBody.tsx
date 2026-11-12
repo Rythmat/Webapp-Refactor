@@ -2,7 +2,8 @@ import { ArrowRight, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/components/utilities';
 import { StudioRoutes } from '@/constants/routes';
-import { TUTORIAL_CATALOG } from '@/daw/components/Tutorial/tutorialCatalog';
+import { listTutorialCatalog } from '@/daw/components/Tutorial/tutorialCatalog';
+import { useStudioLessonsVersion } from '@/curriculum/engine/studioLessons/registry';
 import { useLessonAccess } from '@/daw/components/Tutorial/useLessonAccess';
 import { openSession } from '@/daw/session/openSession';
 import { useStore } from '@/daw/store';
@@ -27,6 +28,7 @@ export function LessonsBody() {
   const running = useStore((s) => s.activeTutorialId);
   const inRoom = useStore((s) => s.roomId !== null);
   const navigate = useNavigate();
+  useStudioLessonsVersion();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -40,7 +42,7 @@ export function LessonsBody() {
           </p>
         ) : null}
         <ul aria-label="Lessons">
-          {TUTORIAL_CATALOG.map((lesson) => {
+          {listTutorialCatalog().map((lesson) => {
             const locked = access(lesson.id) === 'upgrade';
             const done = completedAt[lesson.id] != null;
             const now = running === lesson.id;

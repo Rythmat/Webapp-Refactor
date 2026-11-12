@@ -1,0 +1,109 @@
+import { ChevronRight, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { AppIcons } from '@/components/icons/appIcons';
+import { cn } from '@/components/utilities';
+import { OfficeRoutes } from '@/constants/routes';
+import { FOCUS_RING, TRANSITION } from '@/daw/ui/styles';
+import { RailToggle } from '@/layouts/DashboardLayout/RailToggle';
+import { PracticeBadge } from '../ui/PracticeBadge';
+import { ClassSwitcher } from './ClassSwitcher';
+import { GoLiveMenu } from './GoLiveMenu';
+import type { OfficeNav } from './officeNav';
+
+const isMac =
+  typeof navigator !== 'undefined' &&
+  /Mac|iPhone|iPad/.test(navigator.platform);
+
+/**
+ * The top rail, as the Studio's and the Globe's: where the teacher is (the
+ * Office, then the class as a switcher) on the left; search in the middle,
+ * looking like a field so nobody needs the shortcut to find it; and on the
+ * right the device badge and the class's Go Live. The account is the app
+ * rail's (owner, 2026-11-10), opened from the left end.
+ */
+export const OfficeTopRail = ({
+  nav,
+  onSearch,
+  actionsRef,
+  pageHasActions,
+  className,
+  style,
+}: {
+  nav: OfficeNav;
+  onSearch: () => void;
+  /** Where a page's own actions portal in (`OfficeTopActions`). */
+  actionsRef: (el: HTMLElement | null) => void;
+  /** A page holds the slot: the class's Go Live steps aside. */
+  pageHasActions: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+}) => (
+  <header
+    className={cn(
+      // Crumb, then search centred in the space left, then the actions: a
+      // page with many actions (the editor, the live room) takes the room it
+      // needs and the search narrows, rather than the actions spilling over.
+      'flex min-w-0 items-center gap-2 px-2 max-sm:gap-1',
+      className,
+    )}
+    style={style}
+  >
+    <div className="flex min-w-0 shrink items-center gap-1">
+      {/* The app rail's button (owner, 2026-11-10), while it's shut. */}
+      <RailToggle />
+      <Link
+        to={OfficeRoutes.root()}
+        className={cn(
+          'inline-flex h-9 shrink-0 items-center gap-2 rounded-full px-3 text-[0.8125rem] font-bold text-daw-text hover:bg-daw-hover',
+          TRANSITION,
+          FOCUS_RING,
+        )}
+      >
+        <AppIcons.office aria-hidden className="size-4" />
+        <span
+          className={nav.scope === 'class' ? 'hidden sm:inline' : undefined}
+        >
+          Office
+        </span>
+      </Link>
+      {nav.scope === 'class' && (
+        <>
+          <ChevronRight
+            aria-hidden
+            className="size-3.5 shrink-0 text-daw-text-3"
+          />
+          <ClassSwitcher classroomId={nav.classroomId} />
+        </>
+      )}
+    </div>
+
+    <button
+      type="button"
+      aria-haspopup="dialog"
+      aria-keyshortcuts="Meta+K Control+K"
+      aria-label="Search the Office"
+      onClick={onSearch}
+      className={cn(
+        'mx-auto flex h-9 min-w-9 items-center gap-2.5 rounded-full border border-white/10 bg-daw-pill pl-3 pr-1.5 text-left text-[0.8125rem] text-daw-pill-text hover:border-white/20 sm:w-full sm:max-w-[26rem] sm:flex-1',
+        TRANSITION,
+        FOCUS_RING,
+      )}
+    >
+      <Search aria-hidden className="size-4 shrink-0 text-daw-text-2" />
+      <span className="hidden min-w-0 flex-1 truncate sm:inline">
+        Search classes, lessons, pages
+      </span>
+      <kbd className="hidden h-6 items-center rounded-full bg-white/[0.06] px-2 font-sans text-[0.6875rem] text-daw-text-3 sm:inline-flex">
+        {isMac ? '⌘K' : 'Ctrl K'}
+      </kbd>
+    </button>
+
+    <div className="flex shrink-0 items-center justify-end gap-2">
+      <PracticeBadge />
+      <div ref={actionsRef} className="flex min-w-0 items-center gap-1.5" />
+      {nav.scope === 'class' && !pageHasActions && (
+        <GoLiveMenu classroomId={nav.classroomId} />
+      )}
+    </div>
+  </header>
+);

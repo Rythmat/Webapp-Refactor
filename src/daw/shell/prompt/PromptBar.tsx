@@ -77,7 +77,7 @@ import {
 const BAR_WIDTH = 648;
 
 const TARGET_HINT =
-  'Where the part goes: bars you drag out on the timeline, else the loop while it’s on, else four bars from the playhead. Right-click a lane or a section to ask about it.';
+  'Where the part goes: bars you drag out on the timeline, else the loop while it’s on, else the section under the playhead (or eight bars from it). Right-click a lane or a section to ask about it.';
 
 export function PromptBar() {
   const reduce = !!useReducedMotion();
@@ -265,7 +265,7 @@ export function PromptBar() {
           <form
             onSubmit={submit}
             role="group"
-            aria-label="Ask for a part"
+            aria-label="Prism"
             data-testid="prompt-bar"
             data-tutorial-id="prompt-box"
             className={cn(PROMPT_FRAME, PROMPT_OPAQUE)}

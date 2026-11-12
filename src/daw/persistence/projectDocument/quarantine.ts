@@ -1,5 +1,6 @@
 import { ISO_LENGTH, userNamespace } from '../storageNamespace';
 import { migrateSession, type MigrationResult } from './migrations';
+import { sessionDisplayName } from '@/lib/studio-projects/sessionName';
 
 // ── Unreadable drafts, kept aside ──────────────────────────────────────────
 //
@@ -361,7 +362,7 @@ export function recoverableDrafts(userId?: string | null): RecoverableDraft[] {
     found.push({
       key: draft.key,
       quarantinedAt: draft.quarantinedAt,
-      projectName: result.session.data.projectName || 'Untitled Project',
+      projectName: sessionDisplayName(result.session.data.projectName),
       result,
     });
   }

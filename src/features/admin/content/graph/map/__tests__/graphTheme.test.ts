@@ -1,7 +1,8 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_NODE_COLOR, MISSING_NODE_COLOR } from '../model/colorGroups';
+import { KEY_CENTRE_RAINBOW } from '@/daw/prism-engine/data/keyColour';
+import { MISSING_NODE_COLOR } from '../model/colorGroups';
 import {
   GRAPH_BACKGROUND,
   GRAPH_BACKGROUND_VAR,
@@ -16,9 +17,9 @@ import {
 
 /**
  * Cortex's look, as the plan sets it: the app's own background token,
- * translucent lavender lines, Obsidian's text grey and violet hover, the
- * missing grey at half strength, the pale default dot, Glacial labels, and
- * no yellow.
+ * lines flowing through the key centres' rainbow, Obsidian's text grey and
+ * white highlight, the missing grey at half strength, white dots (a key's
+ * colour where there is one), and Glacial labels.
  */
 
 /** The app theme's stylesheet, where the background token is set. */
@@ -47,15 +48,16 @@ describe('graph theme', () => {
       highlight: '#ffffff',
       missing: '#666666',
       missingAlpha: 0.5,
-      defaultNode: DEFAULT_NODE_COLOR,
+      // Every dot is white unless it has a key (owner, 4 Nov 2026).
+      defaultNode: '#ffffff',
+      rainbow: KEY_CENTRE_RAINBOW,
       dimAlpha: 0.2,
       hoverFadeMs: 150,
     });
     expect(Object.isFrozen(GRAPH_THEME)).toBe(true);
   });
 
-  it('agrees with the colour groups on the default and missing dots', () => {
-    expect(GRAPH_THEME.defaultNode).toBe(DEFAULT_NODE_COLOR);
+  it('agrees with the colour groups on the missing dots', () => {
     const missing = rgbaBytes(GRAPH_THEME.missing, GRAPH_THEME.missingAlpha);
     expect(missing).toEqual(rgbaBytes(MISSING_NODE_COLOR));
   });
@@ -140,10 +142,10 @@ describe('graph theme', () => {
     expect(hslTripletToHex('not a colour')).toBeNull();
   });
 
-  it('draws no node in white, which is the highlight', () => {
-    const bytes = rgbaBytes(GRAPH_THEME.defaultNode) ?? [255, 255, 255, 255];
-    expect(bytes.slice(0, 3).every((v) => v > 0xe6)).toBe(false);
-    expect(GRAPH_THEME.highlight).toBe('#ffffff');
+  it('flows the lines through the twelve key centres, C red first', () => {
+    expect(GRAPH_THEME.rainbow).toHaveLength(12);
+    expect(GRAPH_THEME.rainbow[0]).toBe('#d2404a');
+    expect(GRAPH_THEME.rainbowCycleMs).toBeGreaterThan(0);
   });
 
   it('sets labels in Glacial Indifference first', () => {

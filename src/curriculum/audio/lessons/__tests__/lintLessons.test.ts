@@ -4,12 +4,17 @@ import { DECIBELS_SCRIPT } from '../decibels-and-faders/script';
 import { GAIN_SCRIPT } from '../gain-staging/script';
 import { KIT_SCRIPT } from '../hear-the-kit/script';
 import { lintLesson } from '../lintLesson';
+import { PATH_SCRIPT } from '../mic-to-speaker/script';
+import { lateMs, offsetMs, PHYSICS_SCRIPT } from '../physics-of-sound/script';
+import { faderGainDb, scalePosition } from '../stage/ChannelStrip';
 import { allScreens, doScreenFor, sceneAt, type LessonScript } from '../types';
 
 const SCRIPTS = [
+  PHYSICS_SCRIPT,
   KIT_SCRIPT,
   DECIBELS_SCRIPT,
   GAIN_SCRIPT,
+  PATH_SCRIPT,
 ] as unknown as readonly LessonScript<never>[];
 
 describe('every guided lesson', () => {
@@ -30,6 +35,40 @@ describe('every guided lesson', () => {
         expect(entry.screens).toBe(allScreens(script).length);
       }
     }
+  });
+});
+
+describe('Physics of Sound', () => {
+  it('takes about 3 ms a metre, as it says', () => {
+    expect(lateMs(1)).toBeGreaterThan(2.8);
+    expect(lateMs(1)).toBeLessThan(3);
+    expect(lateMs(3.4)).toBeCloseTo(9.9, 1);
+    expect(lateMs(6)).toBeCloseTo(17.5, 1);
+  });
+
+  it('lands a nudged track by its distance and its nudge', () => {
+    expect(offsetMs({ metres: 3.4, nudgeMs: -9.9 })).toBeCloseTo(0, 1);
+    expect(offsetMs({ metres: 1, nudgeMs: -5 })).toBeLessThan(0);
+  });
+});
+
+describe('Decibels and Faders', () => {
+  it('starts its first exercise level, whatever was done on the hook', () => {
+    const half = DECIBELS_SCRIPT.screens[0];
+    expect(half.scene?.master).toBe(0);
+    expect(Object.values(half.scene?.faders ?? {})).toEqual([0, 0, 0, 0]);
+  });
+
+  it('turns a fader off at the bottom of its travel', () => {
+    expect(faderGainDb(-48)).toBe(-Infinity);
+    expect(faderGainDb(-47.5)).toBe(-47.5);
+    expect(faderGainDb(0)).toBe(0);
+  });
+
+  it('marks every fader and meter on one scale, with 0 near the top', () => {
+    expect(scalePosition(6)).toBe(1);
+    expect(scalePosition(-48)).toBe(0);
+    expect(scalePosition(0)).toBeCloseTo(48 / 54, 9);
   });
 });
 

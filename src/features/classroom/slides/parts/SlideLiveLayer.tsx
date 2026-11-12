@@ -14,6 +14,9 @@
  * "Offers appear in the teacher panel" where the featured project should have
  * been, and the module destination href instead of "open it on your device".
  *
+ * No instructions on the band (owner, 2026-11-10): the room's screen carries
+ * the class's status only, and a student's device the launch or input itself.
+ *
  * Firewall unchanged: `showcaseFrame` is the single teacher-featured project
  * from `state.showcase` (raw offers are refused by `buildProjectorView` at any
  * depth), and the pairing action never reaches a projected surface because
@@ -24,27 +27,13 @@ import { pickLocalized, secondaryLine } from '../../presentation/localized';
 import type { Interaction, LocalizedText, StudentLanguage } from '../../types';
 import type { SlideSlots } from '../SlideRenderer';
 import { resolveActivityRefHref } from '../resolveContentHref';
+import type { SlideStageKind } from '../stage';
 import type { Slide, SlideSurface, StudioCollabSlide } from '../types';
+import { ActivityHero } from './ActivityHero';
 
-const ON_YOUR_DEVICE: LocalizedText = {
-  en: 'Open the activity on your own device.',
-  es: 'Abre la actividad en tu propio dispositivo.',
-};
-const COME_BACK: LocalizedText = {
-  en: "Come back here when you're done.",
-  es: 'Vuelve aquí cuando termines.',
-};
 const NOT_READY: LocalizedText = {
   en: 'Ask your teacher — this activity is not ready.',
   es: 'Pregunta a tu maestro — esta actividad no está lista.',
-};
-const STUDIO_INSTRUCTION: LocalizedText = {
-  en: 'Open the Studio on your device and build together.',
-  es: 'Abre el Studio en tu dispositivo y creen juntos.',
-};
-const WAITING: LocalizedText = {
-  en: 'Waiting for the teacher to feature a project…',
-  es: 'Esperando a que el maestro muestre un proyecto…',
 };
 
 const BiLine = ({
@@ -91,7 +80,27 @@ const appRouteLayer = (
   language: StudentLanguage,
   interaction: Interaction | undefined,
   slots: SlideSlots | undefined,
+  hero: boolean,
 ) => {
+  const activityRef = interaction?.atlas?.activityRef;
+  // A hero slide is its activity, big: the cover and the name, then the
+  // launch (a student) or the class's status (the room).
+  if (hero && activityRef) {
+    if (surface === 'student') {
+      return (
+        <Centred>
+          <ActivityHero activityRef={activityRef} compact />
+          {interaction && slots?.launch?.(interaction)}
+        </Centred>
+      );
+    }
+    return (
+      <Centred>
+        <ActivityHero activityRef={activityRef} />
+        {slots?.statusChip}
+      </Centred>
+    );
+  }
   if (surface === 'student') {
     return (
       <Stacked>
@@ -117,14 +126,9 @@ const appRouteLayer = (
       : null;
     return (
       <Stacked>
-        <BiLine
-          text={COME_BACK}
-          language={language}
-          className="text-white/55"
-        />
         {interaction?.atlas && (
           <Chip>
-            <span className="text-[#7ecfcf]">{interaction.atlas.module}</span>
+            <span className="text-white/60">{interaction.atlas.module}</span>
             <span className="text-white/40">
               {href ?? interaction.atlas.activityRef}
             </span>
@@ -133,76 +137,58 @@ const appRouteLayer = (
       </Stacked>
     );
   }
-  return (
-    <Centred>
-      <BiLine
-        text={ON_YOUR_DEVICE}
-        language={language}
-        className="text-white/60"
-      />
-      {slots?.statusChip}
-    </Centred>
-  );
+  return <Centred>{slots?.statusChip}</Centred>;
 };
 
 const studioCollabLayer = (
   grouping: StudioCollabSlide['grouping'],
   surface: SlideSurface,
-  language: StudentLanguage,
   slots: SlideSlots | undefined,
 ) => {
   if (surface === 'student') return <Stacked>{slots?.pairAction}</Stacked>;
   if (surface === 'teacher') {
     return (
       <Stacked>
-        <Chip>
-          {grouping === 'pairs'
-            ? 'Students pair up in the Studio'
-            : 'Students each open the Studio'}
-        </Chip>
+        <Chip>{grouping === 'pairs' ? 'In pairs' : 'On their own'}</Chip>
       </Stacked>
     );
   }
-  return (
-    <Centred>
-      <BiLine
-        text={STUDIO_INSTRUCTION}
-        language={language}
-        className="text-white/60"
-      />
-    </Centred>
-  );
+  return null;
 };
 
 const showcaseLayer = (
+  slide: Slide,
   surface: SlideSurface,
   language: StudentLanguage,
   interaction: Interaction | undefined,
   slots: SlideSlots | undefined,
+  hero: boolean,
 ) => {
+  // A hero share slide says what it is for, big, until a project is shown.
+  const heading = hero ? (
+    <p
+      className="font-semibold leading-tight text-white"
+      style={{ fontSize: 'calc(var(--slide-question-fz) * 1.1)' }}
+    >
+      {pickLocalized(slide.title, language)}
+    </p>
+  ) : null;
   if (surface === 'student') {
     return (
-      <Stacked>{interaction ? slots?.input?.(interaction) : null}</Stacked>
+      <Centred>
+        {heading}
+        {interaction ? slots?.input?.(interaction) : null}
+      </Centred>
     );
   }
-  if (surface === 'teacher') {
-    return (
-      <Stacked>
-        <Chip>Offers appear in the teacher panel</Chip>
-      </Stacked>
-    );
-  }
-  return (
-    <Centred>
-      {slots?.showcaseFrame ?? (
-        <BiLine text={WAITING} language={language} className="text-white/50" />
-      )}
-    </Centred>
-  );
+  if (slots?.showcaseFrame) return <Centred>{slots.showcaseFrame}</Centred>;
+  return heading ? <Centred>{heading}</Centred> : null;
 };
 
 export interface SlideLiveLayerInput {
   slide: Slide;
+  /** The slide's stage preset, when it has one (`slides/stage.ts`). */
+  stage?: SlideStageKind | undefined;
   surface: SlideSurface;
   language: StudentLanguage;
   interactions: Interaction[];
@@ -221,6 +207,7 @@ export const slideLiveLayer = ({
   language,
   interactions,
   slots,
+  stage,
 }: SlideLiveLayerInput): React.ReactNode => {
   switch (slide.kind) {
     // Pure layout, and `interaction` is handled by `InteractionBand`.
@@ -229,10 +216,23 @@ export const slideLiveLayer = ({
     case 'interaction':
       return null;
     case 'app-route':
-      return appRouteLayer(surface, language, interactions[0], slots);
+      return appRouteLayer(
+        surface,
+        language,
+        interactions[0],
+        slots,
+        stage === 'hero',
+      );
     case 'studio-collab':
-      return studioCollabLayer(slide.grouping, surface, language, slots);
+      return studioCollabLayer(slide.grouping, surface, slots);
     case 'showcase':
-      return showcaseLayer(surface, language, interactions[0], slots);
+      return showcaseLayer(
+        slide,
+        surface,
+        language,
+        interactions[0],
+        slots,
+        stage === 'hero',
+      );
   }
 };

@@ -7,8 +7,14 @@
  * they said so the move is verifiable rather than asserted.
  */
 import { describe, expect, it } from 'vitest';
+import { buildProjectorView } from '../../live/buildProjectorView';
 import type { Interaction } from '../../types';
-import { interactionVariant, mayRevealOn } from '../interactionPolicy';
+import {
+  NEVER_PROJECTED,
+  interactionVariant,
+  isProjectionRefused,
+  mayRevealOn,
+} from '../interactionPolicy';
 import type { InteractionSlide, SlideSurface } from '../types';
 
 const interaction = (over: Partial<Interaction> = {}): Interaction => ({
@@ -163,6 +169,26 @@ describe('mayRevealOn', () => {
         expect(mayRevealOn(variant, 'present', i)).toBe(false);
       }
     }
+  });
+
+  it('keeps one list of what is never projected, the one buildProjectorView refuses', () => {
+    const types: Interaction['type'][] = [
+      'choice',
+      'text',
+      'number',
+      'draw',
+      'check-in',
+      'atlas',
+      'showcase',
+      'echo',
+    ];
+    for (const type of types) {
+      const ix = interaction({ type, shareable: true });
+      const emits = buildProjectorView(ix, [], 'salt').emit;
+      expect(isProjectionRefused(ix), type).toBe(!emits);
+      expect(NEVER_PROJECTED.has(type), type).toBe(!emits);
+    }
+    expect(isProjectionRefused(interaction({ shareable: false }))).toBe(true);
   });
 
   it('gives the teacher every variant, including the check-in aggregate', () => {

@@ -110,13 +110,38 @@ export interface FlyTarget {
   frame?: FlyFrame;
 }
 
-// --- Historical Pathway Modules ---
+// --- Genre tours (`?pathway=`; "pathways" in code, "Genre" on screen) ---
+/**
+ * A song in Learn's library that belongs to a tour's stop, named here so the
+ * Globe never loads the library to say what it is (its lead sheet loads on
+ * a click).
+ */
+export interface TourSong {
+  id: string;
+  title: string;
+  artist: string;
+}
+
+/** A genre tour's stop in its own words, beside its event. */
+export interface ModuleStep {
+  /** 2–3 sentences: what happens here, and the line on to the next stop. */
+  lead: string;
+  songs?: TourSong[];
+}
+
 export interface HistoricalModule {
   id: string;
   title: string;
   description: string;
   emoji: string;
   eventIds: string[]; // ordered event IDs forming the pathway
+  /**
+   * The Learn genre courses it leads to (genreCourses.ts slugs), its home
+   * group first; none for a tradition Learn doesn't teach.
+   */
+  learnGenres?: string[];
+  /** Each stop's words, index-aligned with `eventIds`. */
+  steps?: ModuleStep[];
 }
 
 export interface ModuleProgress {

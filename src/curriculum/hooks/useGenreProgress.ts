@@ -6,6 +6,7 @@
  */
 
 import { useState, useCallback } from 'react';
+import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { ActivitySectionId } from '../types/activity';
 import type { StyleSubProfile } from '../types/activity.v2';
 import type { AssessmentResult } from './useGenreAssessment';
@@ -19,6 +20,8 @@ interface StepResult {
   styleRef: string;
   timestamp: number;
   attempts: number;
+  /** Passed at some point, whatever its latest try scored. */
+  everPassed?: boolean;
 }
 
 interface SectionProgress {
@@ -114,6 +117,11 @@ export function useGenreProgress(
       },
     ) => {
       setProgress((prev) => {
+        // A step counts once: passing it again doesn't move its section on.
+        const before = prev.completedSteps[stepId];
+        const passedBefore = Boolean(
+          before?.everPassed || before?.score?.passed,
+        );
         const updated: GenreProgress = {
           ...prev,
           lastKeyUsed: context.key,
@@ -129,6 +137,7 @@ export function useGenreProgress(
               styleRef: context.styleRef,
               timestamp: Date.now(),
               attempts: (prev.completedSteps[stepId]?.attempts ?? 0) + 1,
+              everPassed: passedBefore || result.passed,
             },
           },
           sections: updateSectionProgress(
@@ -136,12 +145,23 @@ export function useGenreProgress(
             context.section,
             result,
             context.stepsTotal,
+            !passedBefore,
           ),
         };
 
         // Persist locally — never crash on storage failure
         try {
           localStorage.setItem(storageKey, JSON.stringify(updated));
+          if (result.passed) {
+            recordKeyPass(
+              genre,
+              level,
+              context.key,
+              context.section,
+              stepId,
+              context.stepsTotal,
+            );
+          }
         } catch {
           // Storage full or private browsing — progress lives in memory only
         }
@@ -266,6 +286,107 @@ export function readGenreProgress(
   };
 }
 
+/** A level's sections as saved, read once, for a path's discs. */
+export function readGenreSections(
+  genre: string,
+  level: number,
+): { started: boolean; sections: Partial<GenreProgress['sections']> } {
+  const progress = readStored(genre, level);
+  if (!progress) return { started: false, sections: {} };
+  return {
+    started: Object.keys(progress.completedSteps ?? {}).length > 0,
+    sections: progress.sections ?? {},
+  };
+}
+
+// ── Per key ──────────────────────────────────────────────────────────────────
+// A lesson's main record is the same across its 12 keys, so a path that shows
+// each key apart needs its own: the steps passed in that key, section by section.
+
+type KeyRecord = Record<
+  string,
+  Record<string, { steps: string[]; total: number }>
+>;
+
+/** A lesson's key is written "F# Dorian" or "C Major (Ionian)": its first word. */
+const keyParam = (key: string) =>
+  keyLabelToUrlParam(key.trim().split(/\s+/)[0]);
+
+const keyStorageKey = (genre: string, level: number) =>
+  `genre_keys_${genre}_${level}`;
+
+function readKeyRecord(genre: string, level: number): KeyRecord {
+  try {
+    const stored = localStorage.getItem(keyStorageKey(genre, level));
+    return stored ? (JSON.parse(stored) as KeyRecord) : {};
+  } catch {
+    return {};
+  }
+}
+
+function recordKeyPass(
+  genre: string,
+  level: number,
+  key: string,
+  section: string,
+  stepId: string,
+  total: number,
+) {
+  const record = readKeyRecord(genre, level);
+  const at = keyParam(key);
+  const inKey = (record[at] ??= {});
+  const inSection = (inKey[section] ??= { steps: [], total });
+  inSection.total = total;
+  if (!inSection.steps.includes(stepId)) inSection.steps.push(stepId);
+  localStorage.setItem(keyStorageKey(genre, level), JSON.stringify(record));
+}
+
+/** Every step passed in one key, whichever section it's in. */
+export function readGenreKeySteps(
+  genre: string,
+  level: number,
+  key: string,
+): readonly string[] {
+  const inKey = readKeyRecord(genre, level)[keyParam(key)] ?? {};
+  return Object.values(inKey).flatMap((section) => section.steps);
+}
+
+/** A lesson's progress in one key, with anything saved before keys were kept. */
+export function readGenreKeyProgress(
+  genre: string,
+  level: number,
+  key: string,
+): {
+  started: boolean;
+  sections: Readonly<Record<string, { passed: number; total: number }>>;
+} {
+  const at = keyParam(key);
+  const inKey = readKeyRecord(genre, level)[at] ?? {};
+  const sections = Object.fromEntries(
+    Object.entries(inKey).map(([id, s]) => [
+      id,
+      { passed: s.steps.length, total: s.total },
+    ]),
+  );
+  const earlier = Object.values(readStored(genre, level)?.completedSteps ?? {});
+  const started =
+    Object.keys(inKey).length > 0 ||
+    earlier.some(
+      (step) =>
+        step.score?.passed && step.keyUsed && keyParam(step.keyUsed) === at,
+    );
+  return { started, sections };
+}
+
+function readStored(genre: string, level: number): GenreProgress | null {
+  try {
+    const stored = localStorage.getItem(`genre_progress_${genre}_${level}`);
+    return stored ? (JSON.parse(stored) as GenreProgress) : null;
+  } catch {
+    return null;
+  }
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function initProgress(genre: string, level: number): GenreProgress {
@@ -311,9 +432,12 @@ function updateSectionProgress(
   section: ActivitySectionId,
   result: AssessmentResult,
   stepsTotal: number,
+  /** False if this step has passed before, so that it isn't counted twice. */
+  firstPass = true,
 ): GenreProgress['sections'] {
   const current = sections[section];
-  const stepsCompleted = current.stepsCompleted + (result.passed ? 1 : 0);
+  const stepsCompleted =
+    current.stepsCompleted + (result.passed && firstPass ? 1 : 0);
   return {
     ...sections,
     [section]: {

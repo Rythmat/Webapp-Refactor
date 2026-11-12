@@ -6,12 +6,12 @@ import {
   Mic2,
   Music,
   Pencil,
-  User,
   Users,
   X,
 } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { AppIcons } from '@/components/icons/appIcons';
 import { RealTimeAnalytics } from '@/components/ui/real-time-analytics';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import { AccountSettings } from '@/features/settings/sections/AccountSettings';
@@ -259,7 +259,7 @@ export const ProfilePage: React.FC = () => {
                       className="flex items-center gap-2"
                       style={{ color: 'var(--color-text)' }}
                     >
-                      <User size={20} />
+                      <AppIcons.profile size={20} />
                       <h2 className="text-lg">Bio</h2>
                     </div>
                     <div className="flex items-center gap-2">

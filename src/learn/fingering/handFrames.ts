@@ -13,7 +13,7 @@ const CHORD_WINDOW = 30;
  * Where a lesson is, told to the hands by what the keyboard is already
  * lighting: before anything plays (`start`), the notes sounding now (the
  * demo, the in-time guide), the notes due next (out of time), or nothing
- * (Play Now: no hands on a graded take).
+ * (Perform: no hands on a graded take).
  */
 export type FingeringCursor =
   | { kind: 'start' }

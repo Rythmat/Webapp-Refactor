@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import {
   getPracticeSettings,
+  setAutoFlow,
   setMetronomeEnabled,
   setTempoBpm,
   subscribePracticeSettings,
@@ -14,6 +15,7 @@ import {
  * was written for and get back the tempo it should actually run at.
  */
 export function usePracticeSettings(): PracticeSettings & {
+  setAutoFlow: (autoFlow: boolean) => void;
   setMetronomeEnabled: (enabled: boolean) => void;
   setTempoBpm: (bpm: number | null) => void;
   resolveTempo: (activityDefaultBpm: number) => number;
@@ -26,6 +28,7 @@ export function usePracticeSettings(): PracticeSettings & {
 
   return {
     ...settings,
+    setAutoFlow,
     setMetronomeEnabled,
     setTempoBpm,
     resolveTempo: (activityDefaultBpm: number) =>

@@ -1,7 +1,11 @@
 import type { PlayableBand } from '@/curriculum/engine/band/band';
 import { getLiveBand, LIVE_ITEMS } from '@/curriculum/engine/band/registry';
 import { preloadStudioGroove } from '@/curriculum/engine/drumGrooves/registry';
-import { pickOne, type EchoRandom } from '@/curriculum/engine/echo/random';
+import {
+  pickOne,
+  pickWeighted,
+  type EchoRandom,
+} from '@/curriculum/engine/echo/random';
 import { isCommonTime } from '@/curriculum/engine/meter';
 import {
   bandStyles,
@@ -21,10 +25,16 @@ import type { PromptPlan } from './planPrompt';
 //          Hip Hop, Latin L1) plays one of its styles, picked by the
 //          prompt's flavor, level or mood: trap, boom bap, the pocket…
 //   combo  any other genre plays a band put together from the libraries:
-//          the first live groove and bass line on its list, over the host
+//          a live groove and bass line from its lists, over the host
 //          lesson's chords (a genre with no lessons yet lends none of its
-//          own). A groove or bass line published in the console later takes
-//          its place at the front of its list with no code change.
+//          own). A groove or bass line published in the console later joins
+//          its list with no code change.
+//
+// Neither is the same every time (owner, 2026-11-10: "mostly very similar
+// material"): a band plays any of its styles, the ones the prompt's level
+// and mood point to as likely as all the others together, and a style the
+// prompt names (trap, boom bap, reggaeton) always; a combo a seeded pick of
+// its live grooves and bass lines.
 
 export type PromptRecipe =
   | {
@@ -49,6 +59,10 @@ const GENRE_BANDS: Partial<Record<PromptGenre, string>> = {
   funk: 'funk-band-1',
   'hip-hop': 'hip-hop-band-1',
   latin: 'latin-band-1',
+  // Real pianists, whose 7ths, 9ths and 13ths follow the prompt's chords
+  // (owner, 2026-11-10: the combos played them as triads).
+  jazz: 'jazz-band-1',
+  blues: 'blues-band-1',
 };
 
 /** Latin flavors no written lesson plays: they're combos. */
@@ -89,6 +103,13 @@ function preferredVariations(plan: PromptPlan): string[] {
     }
     case 'funk':
       return [['l1-pocket', 'l2-syncopation', 'l3-deep-groove'][level - 1]];
+    case 'jazz':
+      return [
+        ['l3-iivi-c', 'l3-i-vi-ii-v', 'l3-quartal'][level - 1],
+        'l3-iivi-f',
+      ];
+    case 'blues':
+      return [['l1-c7', 'l2-12bar-qc', 'l3-jazz-blues-f'][level - 1], 'l1-c7'];
     case 'latin': {
       if (flavor === 'reggaeton') return ['l1-reggaeton'];
       if (flavor === 'cumbia') return ['l1-cumbia'];
@@ -99,6 +120,28 @@ function preferredVariations(plan: PromptPlan): string[] {
     }
     default:
       return [];
+  }
+}
+
+/** The variation a style the prompt names plays, whatever else it says. */
+function namedVariation(plan: PromptPlan): string | null {
+  switch (plan.flavor) {
+    case 'trap':
+      return 'l1-trap';
+    case 'boom-bap':
+      return 'l2-boom-bap';
+    case 'lofi':
+      return plan.genre === 'hip-hop' ? 'l3-conscious' : null;
+    case 'ballad':
+      return plan.genre === 'pop' ? 'l1-singable' : null;
+    case 'dance':
+      return plan.genre === 'pop' ? 'l2-craft' : null;
+    case 'reggaeton':
+      return 'l1-reggaeton';
+    case 'cumbia':
+      return 'l1-cumbia';
+    default:
+      return null;
   }
 }
 
@@ -255,23 +298,22 @@ const COMBOS: Record<string, ComboSpec> = {
 const comboFor = (genre: PromptGenre, flavor: PromptFlavor | null) =>
   (flavor && COMBOS[`${genre}/${flavor}`]) ?? COMBOS[genre] ?? COMBOS.rock;
 
-/** The first item on the list the console has published, in 4/4. */
-async function firstLiveGroove(ids: readonly string[]) {
+/** The grooves on the list the console has published, in 4/4. */
+async function liveGrooves(ids: readonly string[]) {
+  const live: string[] = [];
   for (const id of ids) {
     await preloadStudioGroove(id);
     const groove = LIVE_ITEMS.groove(id);
-    if (groove && isCommonTime(groove.timeSignature ?? [4, 4])) return id;
+    if (groove && isCommonTime(groove.timeSignature ?? [4, 4])) live.push(id);
   }
-  return null;
+  return live;
 }
 
-function firstLiveBassLine(ids: readonly string[]) {
-  return (
-    ids.find((id) => {
-      const line = LIVE_ITEMS.bassLine(id);
-      return line && isCommonTime(line.timeSignature ?? [4, 4]);
-    }) ?? null
-  );
+function liveBassLines(ids: readonly string[]) {
+  return ids.filter((id) => {
+    const line = LIVE_ITEMS.bassLine(id);
+    return line && isCommonTime(line.timeSignature ?? [4, 4]);
+  });
 }
 
 /** A band of a groove and a bass line, as a lesson's band plays. */
@@ -302,11 +344,14 @@ function comboBand(spec: ComboSpec, drums: string, bass: string): PlayableBand {
 async function comboRecipe(
   genre: PromptGenre,
   flavor: PromptFlavor | null,
+  rng: EchoRandom,
 ): Promise<PromptRecipe | null> {
   const spec = comboFor(genre, flavor);
-  const drums = await firstLiveGroove(spec.drums);
-  const bass = firstLiveBassLine(spec.bass);
-  if (!drums || !bass) return null;
+  const grooves = await liveGrooves(spec.drums);
+  const lines = liveBassLines(spec.bass);
+  if (!grooves.length || !lines.length) return null;
+  const drums = pickOne(rng, grooves);
+  const bass = pickOne(rng, lines);
   return {
     kind: 'combo',
     host: { genre: spec.host, level: 1 },
@@ -327,20 +372,29 @@ export async function recipeFor(
     plan.genre === 'latin' &&
     plan.flavor !== null &&
     LATIN_COMBO_FLAVORS.has(plan.flavor);
-  const band = bandId && !latinCombo ? getLiveBand(bandId) : undefined;
+  // A jazz ballad keeps its brushes and two-feel bass (COMBOS).
+  const jazzBallad = plan.genre === 'jazz' && plan.flavor === 'ballad';
+  const band =
+    bandId && !latinCombo && !jazzBallad ? getLiveBand(bandId) : undefined;
   if (band) {
     const styles = await bandStyles(band, loadFlow);
     if (styles.length) {
-      const wanted = preferredVariations(plan);
+      const named = namedVariation(plan);
+      const wanted = new Set(preferredVariations(plan));
+      const preferred = styles.filter((s) => wanted.has(s.variation));
+      // The preferred styles as likely, together, as all the others.
+      const lean = Math.max(
+        1,
+        (styles.length - preferred.length) / Math.max(1, preferred.length),
+      );
       const style =
-        wanted
-          .map((id) => styles.find((s) => s.variation === id))
-          .find((s): s is BandStyleOption => !!s) ?? pickOne(rng, styles);
+        styles.find((s) => s.variation === named) ??
+        pickWeighted(rng, styles, (s) => (wanted.has(s.variation) ? lean : 1));
       return { kind: 'band', bandId: band.id, style, name: style.name };
     }
   }
   return (
-    (await comboRecipe(plan.genre, plan.flavor)) ??
-    (await comboRecipe('rock', null))
+    (await comboRecipe(plan.genre, plan.flavor, rng)) ??
+    (await comboRecipe('rock', null, rng))
   );
 }

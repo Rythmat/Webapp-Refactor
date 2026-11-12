@@ -32,7 +32,7 @@ export const TimerControl = ({
       <div className="inline-flex items-center gap-2">
         <TimerCountdown endsAt={timer.endsAt} />
         {timer.autoAdvance && (
-          <span className="text-[10px] uppercase tracking-wide text-[#7ecfcf]/80">
+          <span className="text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-white/60">
             auto
           </span>
         )}
@@ -70,7 +70,7 @@ export const TimerControl = ({
           type="checkbox"
           checked={autoAdvance}
           onChange={(e) => setAutoAdvance(e.target.checked)}
-          className="h-3.5 w-3.5 accent-[#7ecfcf]"
+          className="h-3.5 w-3.5 accent-white"
         />
         auto-advance
       </label>

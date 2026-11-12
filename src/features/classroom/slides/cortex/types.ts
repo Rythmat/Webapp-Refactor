@@ -1,6 +1,6 @@
 import type { MindMapBoard } from '@/content/graph/mindMapBoard';
 import type { EdgeKind, EntityId } from '@/content/graph/types';
-import type { LocalizedText } from '../../types';
+import type { FeelingsLevel, LocalizedText } from '../../types';
 import type { SlideMedia } from '../types';
 
 /**
@@ -68,6 +68,10 @@ export interface ShowcaseContent {
   facts: ShowcaseFact[];
   /** The artist's portrait, or a mini-globe of the city and its events. */
   visual?: SlideMedia;
+  /** The Showcase slide's left half: a globe focused on the subject's place. */
+  globe?: SlideMedia;
+  /** Its right half: the subject's photo (an artist, or a city's own artist). */
+  portrait?: SlideMedia;
   /** A video to listen to, on a slide of its own. */
   listen?: ShowcaseListen;
   /** The focus kind's Cortex colour, as the slide accent. */
@@ -112,15 +116,17 @@ export interface CortexLessonPlan {
   notes: string[];
 }
 
-export type CheckInStyle = 'emoji' | 'scale' | 'word';
-
 export interface CortexLessonChoices {
   role: GroupRole;
   /** A Producer's tutorial; the plan's first when absent. */
   tutorialId?: string;
   /** A Performer's lesson ref; the plan's first when absent. */
   performerRef?: string;
-  checkInStyle: CheckInStyle;
+  /**
+   * The Connect check-in's feelings tool: the energy slider (asked on the
+   * Showcase's portrait), 5 faces, 9 faces, or the wheel.
+   */
+  checkInLevel: FeelingsLevel;
   checkInQuestion?: LocalizedText;
   /** Add the "which sound matches your mood?" poll when there are vibes. */
   vibePoll: boolean;
@@ -131,8 +137,11 @@ export interface CortexLessonChoices {
 }
 
 export const DEFAULT_CORTEX_CHOICES: Omit<CortexLessonChoices, 'role'> = {
-  checkInStyle: 'emoji',
-  vibePoll: true,
+  // The energy slider, on the portrait (owner, 2026-11-10).
+  checkInLevel: 'energy',
+  // One idea a slide (owner, 2026-11-10): the poll is a slide of its own,
+  // so it is the teacher's to add.
+  vibePoll: false,
   projectMinutes: 20,
   seed: 0,
 };

@@ -11,7 +11,11 @@
  * shared with the auth token cache. The mirror keeps reads synchronous.
  */
 import { getIdbMirror } from '@/lib/local-store/idbMirror';
-import { migrateStoredValue } from '@/lib/local-store/migrations';
+import {
+  migrateStoredValue,
+  readSchemaVersion,
+  runMigrations,
+} from '@/lib/local-store/migrations';
 import type { ClassroomAnnualPlan } from '../annual/useAnnualPlan';
 import { PLAN_MIGRATIONS } from '../plan/migratePlan';
 import type { Day } from '../types';
@@ -25,7 +29,7 @@ import {
 } from './retiredCurriculum';
 
 export const PLAN_KEY = 'ma-teacher:plan:v1';
-export const PLAN_SCHEMA_VERSION = 2;
+export const PLAN_SCHEMA_VERSION = 3;
 export const SAVED_LESSONS_KEY = 'ma-teacher:saved-lessons:v1';
 export const SAVED_SCHEMA_VERSION = 1;
 export const LIBRARY_KEY = 'ma-teacher:library:v1';
@@ -82,9 +86,11 @@ const clearRaw = (key: string): void => {
 };
 
 /**
- * The plan mirror. `readLegacy` runs the v1→v2 migration, so a teacher whose
+ * The plan mirror. `readLegacy` runs the plan's migrations, so a teacher whose
  * Days predate classroom scoping is migrated on the way into IndexedDB rather
- * than being silently emptied.
+ * than being silently emptied; `upgrade` runs them on a plan already in
+ * IndexedDB (every teacher's, since that move), which nothing did before
+ * v2→v3. A step that fails leaves the plan as stored.
  *
  * `annualStoreForMigration` is injected to avoid an import cycle: the annual
  * store is itself a mirror defined in `useAnnualPlan`.
@@ -111,6 +117,23 @@ const planMirror = getIdbMirror<PlanBlob>({
   },
   writeLegacy: (value) => writeRaw(PLAN_KEY, value),
   clearLegacy: () => clearRaw(PLAN_KEY),
+  upgrade: (stored) => {
+    // A plan reached IndexedDB at v2 or later. One claiming less (no
+    // version) is not one v1→v2 should re-scope: leave it be.
+    const version = readSchemaVersion(stored);
+    if (version < 2 || version >= PLAN_SCHEMA_VERSION) return null;
+    const result = runMigrations<PlanBlob>({
+      raw: stored,
+      targetVersion: PLAN_SCHEMA_VERSION,
+      steps: PLAN_MIGRATIONS,
+      fallback: stored,
+    });
+    if (result.failed || result.applied.length === 0) return null;
+    return {
+      schemaVersion: PLAN_SCHEMA_VERSION,
+      days: result.value.days ?? {},
+    };
+  },
 });
 
 const savedMirror = getIdbMirror<{ schemaVersion: number; ids: string[] }>({

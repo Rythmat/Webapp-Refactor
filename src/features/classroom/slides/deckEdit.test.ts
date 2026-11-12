@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PHASES } from '../phases';
+import { bareDay } from '../plan/bareDay.testUtils';
 import { newBlankDay } from '../plan/newBlankDay';
 import {
   findForbiddenSubstring,
@@ -146,7 +147,7 @@ describe('slidesArePhaseOrdered', () => {
 
 /** A Day with one empty interaction slide in the Connect phase. */
 const dayWithInteractionSlide = (): { day: Day; slideId: string } => {
-  const day = newBlankDay('IX Day');
+  const day = bareDay('IX Day');
   day.deck = emptyDeck(day);
   const slide = newSlide('interaction', 'connectRegulate');
   day.deck.slides = [slide];

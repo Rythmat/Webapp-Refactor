@@ -24,6 +24,25 @@ describe('the Inspector’s panel', () => {
     ).toBe('mindmap');
   });
 
+  it('opens a running pathway or tour on its own card', () => {
+    expect(
+      resolveInspectorPanel({
+        panel: null,
+        journey: true,
+        mindmap: true,
+        hasDetails: true,
+      }),
+    ).toBe('tours');
+    expect(
+      resolveInspectorPanel({
+        panel: 'layers',
+        journey: true,
+        mindmap: false,
+        hasDetails: true,
+      }),
+    ).toBe('layers');
+  });
+
   it('opens on the stop’s details when it has any', () => {
     expect(
       resolveInspectorPanel({ panel: null, mindmap: false, hasDetails: true }),

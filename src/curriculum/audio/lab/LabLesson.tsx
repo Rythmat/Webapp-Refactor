@@ -135,7 +135,12 @@ export function LabLesson({
   );
 
   const header: HeaderModel = {
-    crumbs: [{ label: 'Audio', onClick: () => navigate(LearnRoutes.audio()) }],
+    crumbs: [
+      {
+        label: module.title,
+        onClick: () => navigate(LearnRoutes.audioCourse({ module: module.id })),
+      },
+    ],
     keyLabel: lesson.title,
     keyColor: accent,
     subsection: '',

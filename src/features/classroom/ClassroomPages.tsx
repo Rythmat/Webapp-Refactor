@@ -1,19 +1,19 @@
 /* eslint-disable import/order */
 /* eslint-disable no-duplicate-imports */
-import { lazy, useLayoutEffect } from 'react';
+import { Suspense, lazy, useLayoutEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import {
   ClassroomRoutes,
-  GameRoutes,
-  StudioRoutes,
-  ProfileRoutes,
-  LearnRoutes,
   ConnectRoutes,
-  LibraryRoutes,
+  GameRoutes,
   GlobeRoutes,
-  SongRoutes,
-  UserRoutes,
+  LearnRoutes,
+  LibraryRoutes,
+  ProfileRoutes,
   SettingsRoutes,
+  SongRoutes,
+  StudioRoutes,
+  UserRoutes,
 } from '@/constants/routes';
 import { ContentGate } from '@/content/ContentGate';
 import { AppContext } from '@/contexts/AppContext';
@@ -23,10 +23,16 @@ import { EditorRouteBoundary } from '@/daw/shell/errors/EditorRouteBoundary';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { GlobeSkeleton } from '@/layouts/DashboardLayout/GlobeSkeleton';
-import { LibraryInlet } from '@/components/Library/libraryInlet';
 import { LearnPage } from '@/components/learn/LearnPage';
+import { exploreHref } from '@/features/learn/catalog/exploreState';
+import { useWelcomeRedirect } from '@/features/welcome/useWelcomeGate';
+import { GenrePathPage } from '@/features/learn/paths/GenrePathPage';
+import { familyOfMode } from '@/features/learn/paths/theoryFamilies';
+import { theoryBackRoute } from '@/features/learn/paths/theoryPath';
+import { TheoryPathPage } from '@/features/learn/paths/TheoryPathPage';
 import {
   LEARN_TABS,
+  learnIndexRedirect,
   learnTabRedirect,
   learnTabRoute,
   type LearnTab,
@@ -37,24 +43,20 @@ import {
   useInstrumentStore,
   useLearnChoice,
   useLearnInstrument,
-  useLearnPageRoute,
   type LearnInstrument,
 } from '@/features/learn/useInstrumentStore';
 import { ANATOMY_MOVES } from '@/curriculum/audio/anatomyMoves';
 import { isBassTheorySlug } from '@/curriculum/data/bass/theoryCatalog';
 import { isUkuleleTheorySlug } from '@/curriculum/data/ukulele/theoryCatalog';
 import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
-import { GenreLessonRoute, GenreOverviewRoute } from '@/curriculum/routes';
+import { GenreLessonRoute } from '@/curriculum/routes';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
-import { PlanPage } from '@/features/settings/PlanPage';
 import { SettingsHub } from '@/features/settings/SettingsHub';
 import { AboutSection } from '@/features/settings/sections/hub/AboutSection';
-import { AccountSection } from '@/features/settings/sections/hub/AccountSection';
-import { AudioSection } from '@/features/settings/sections/hub/AudioSection';
-import { BillingSection } from '@/features/settings/sections/hub/BillingSection';
 import { HelpSection } from '@/features/settings/sections/hub/HelpSection';
-import { LookAndFeelSection } from '@/features/settings/sections/hub/LookAndFeelSection';
-import { MidiSection } from '@/features/settings/sections/hub/MidiSection';
+import { PreferencesPage } from '@/features/settings/sections/hub/PreferencesPage';
+import { ProfilePage } from '@/features/settings/sections/hub/ProfilePage';
+import { SubscriptionPage } from '@/features/settings/sections/hub/SubscriptionPage';
 import { UserPage } from '@/features/user/UserPage';
 import { RequirePremium } from '@/components/ui/RequirePremium';
 
@@ -64,6 +66,27 @@ import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
 // Lazy on purpose: a static import put the whole atlas chunk on the eager
 // boot graph for every user on every route.
 const Atlas = lazy(() => import('@/components/atlas/atlas'));
+const SlideGlobePage = lazy(() => import('./slides/globe/SlideGlobePage'));
+const ExplorePage = lazy(() =>
+  import('@/components/explore/ExplorePage').then((m) => ({
+    default: m.ExplorePage,
+  })),
+);
+const LibraryPage = lazy(() =>
+  import('@/features/library/LibraryPage').then((m) => ({
+    default: m.LibraryPage,
+  })),
+);
+const LibraryProjectPage = lazy(() =>
+  import('@/features/library/LibraryProjectPage').then((m) => ({
+    default: m.LibraryProjectPage,
+  })),
+);
+const ExploreSongsPage = lazy(() =>
+  import('@/components/explore/ExploreSongsPage').then((m) => ({
+    default: m.ExploreSongsPage,
+  })),
+);
 const SongDetailPage = lazy(() =>
   import('@/components/songLibrary/SongDetailPage').then((m) => ({
     default: m.SongDetailPage,
@@ -90,24 +113,12 @@ import { RelativeModesOverview } from '@/components/learn/RelativeModesOverview'
 import { ParallelModesOverview } from '@/components/learn/ParallelModesOverview';
 // Guitar's Theory pages load on demand: the book's data, the guitar views and
 // the lesson container stay out of the piano path's bundle.
-const GuitarModeOverview = lazy(
-  () => import('@/components/learn/GuitarModeOverview'),
-);
-const BassModeOverview = lazy(
-  () => import('@/components/learn/BassModeOverview'),
-);
 const BassModeLesson = lazy(() => import('@/curriculum/pages/BassModeLesson'));
-const UkuleleModeOverview = lazy(
-  () => import('@/components/learn/UkuleleModeOverview'),
-);
 const UkuleleModeLesson = lazy(
   () => import('@/curriculum/pages/UkuleleModeLesson'),
 );
 const GuitarModeLesson = lazy(
   () => import('@/curriculum/pages/GuitarModeLesson'),
-);
-const AudioHub = lazy(() =>
-  import('@/curriculum/audio/AudioHub').then((m) => ({ default: m.AudioHub })),
 );
 const AudioCoursePage = lazy(() =>
   import('@/curriculum/audio/CoursePage').then((m) => ({
@@ -157,15 +168,16 @@ const GuitarRelativeModesOverview = lazy(
   () => import('@/components/learn/GuitarRelativeModesOverview'),
 );
 
+// The student's Classroom in Learn's look (owner, 2026-11-09).
 const ClassroomPickerPage = lazy(() =>
-  import('./ClassroomPickerPage').then(({ ClassroomPickerPage }) => ({
-    default: ClassroomPickerPage,
+  import('./home/StudentClassesPage').then(({ StudentClassesPage }) => ({
+    default: StudentClassesPage,
   })),
 );
 
 const ClassroomHomePage = lazy(() =>
-  import('./ClassroomHomePage').then(({ ClassroomHomePage }) => ({
-    default: ClassroomHomePage,
+  import('./home/StudentClassPage').then(({ StudentClassPage }) => ({
+    default: StudentClassPage,
   })),
 );
 
@@ -547,6 +559,13 @@ export const studioPages = () => {
   };
 };
 
+/** A moved page: its new address, with whatever query the old one had (a
+ *  Stripe return's ?success=1). */
+const RedirectKeepingQuery = ({ to }: { to: string }) => {
+  const { search, hash } = useLocation();
+  return <Navigate to={`${to}${search}${hash}`} replace />;
+};
+
 export const studentPages = () => {
   return {
     path: ProfileRoutes.root.definition,
@@ -564,7 +583,12 @@ export const studentPages = () => {
         element: <Navigate to={UserRoutes.root()} replace />,
       },
       { path: ProfileRoutes.awards.definition, element: <AwardsInlet /> },
-      { path: ProfileRoutes.plan.definition, element: <PlanPage /> },
+      // Account › Subscription now (owner, 2026-11-10); a Stripe return
+      // keeps its query.
+      {
+        path: ProfileRoutes.plan.definition,
+        element: <RedirectKeepingQuery to="/settings/subscription" />,
+      },
       {
         path: ProfileRoutes.settings.definition,
         element: <Navigate to={SettingsRoutes.root()} replace />,
@@ -601,16 +625,34 @@ export const settingsPages = () => {
       {
         element: <SettingsHub />,
         children: [
-          { index: true, element: <Navigate to="account" replace /> },
+          // The Account area (owner, 2026-11-10: samply.app/profile's).
+          // The old Settings pages land on their new place.
+          { index: true, element: <Navigate to="profile" replace /> },
+          { path: 'profile', element: <ProfilePage /> },
           {
-            path: 'profile',
-            element: <Navigate to={UserRoutes.root()} replace />,
+            path: 'account',
+            element: <Navigate to="/settings/profile" replace />,
           },
-          { path: 'account', element: <AccountSection /> },
-          { path: 'billing', element: <BillingSection /> },
-          { path: 'audio', element: <AudioSection /> },
-          { path: 'look-and-feel', element: <LookAndFeelSection /> },
-          { path: 'midi', element: <MidiSection /> },
+          { path: 'subscription', element: <SubscriptionPage /> },
+          {
+            path: 'billing',
+            element: <RedirectKeepingQuery to="/settings/subscription" />,
+          },
+          { path: 'preferences', element: <PreferencesPage /> },
+          {
+            path: 'audio',
+            element: <Navigate to="/settings/preferences#audio" replace />,
+          },
+          {
+            path: 'look-and-feel',
+            element: (
+              <Navigate to="/settings/preferences#look-and-feel" replace />
+            ),
+          },
+          {
+            path: 'midi',
+            element: <Navigate to="/settings/preferences#midi" replace />,
+          },
           { path: 'help', element: <HelpSection /> },
           { path: 'about', element: <AboutSection /> },
         ],
@@ -647,11 +689,15 @@ const OverviewRoute = () => {
   }>();
 
   // Free users can access Ionian overview only
+  // A mode's page is its disc on its family's path now.
+  if (familyOfMode(mode ?? '')) {
+    return <Navigate replace to={theoryBackRoute('piano', mode ?? '')} />;
+  }
   const inner = <ModeOverview mode={mode ?? 'ionian'} />;
   return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
 };
 
-const THEORY_TAB_ROUTE = LearnRoutes.root(undefined, { tab: 'Theory' });
+const THEORY_TAB_ROUTE = LearnRoutes.root();
 
 // Guitar teaches the Theory families its catalog has live (the diatonic
 // modes, Ionian from The Guitar Atlas: Book One, first); the Theory tab marks
@@ -663,9 +709,7 @@ const GuitarOverviewRoute = () => {
   if (!isGuitarTheoryMode(mode)) {
     return <Navigate replace to={THEORY_TAB_ROUTE} />;
   }
-  // As on piano, free users can access the Ionian overview only
-  const inner = <GuitarModeOverview />;
-  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
+  return <Navigate replace to={theoryBackRoute('guitar', mode ?? '')} />;
 };
 
 const GuitarLessonRoute = () => {
@@ -686,8 +730,7 @@ const BassOverviewRoute = () => {
   if (!isBassTheorySlug(mode)) {
     return <Navigate replace to={THEORY_TAB_ROUTE} />;
   }
-  const inner = <BassModeOverview />;
-  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
+  return <Navigate replace to={theoryBackRoute('bass', mode ?? '')} />;
 };
 
 const BassLessonRoute = () => {
@@ -707,8 +750,7 @@ const UkuleleOverviewRoute = () => {
   if (!isUkuleleTheorySlug(mode)) {
     return <Navigate replace to={THEORY_TAB_ROUTE} />;
   }
-  const inner = <UkuleleModeOverview />;
-  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
+  return <Navigate replace to={theoryBackRoute('ukulele', mode ?? '')} />;
 };
 
 const UkuleleLessonRoute = () => {
@@ -722,19 +764,22 @@ const UkuleleLessonRoute = () => {
 };
 
 /**
- * Bare /learn: the Learn page for the chosen instrument; an old ?tab= link
- * its tab's page there (/learn?tab=Songs → /learn/keyboard/songs).
+ * Bare /learn: shelves of courses and songs in Suno's layout (owner,
+ * 2026-11-04; it took the place of the dashboard). A student never welcomed
+ * goes to /welcome first from bare /learn, as the dashboard sent them. An old ?tab= link
+ * opens its tab's page (/learn?tab=Songs → /songs), and an old one-page
+ * anchor (/learn#guitar-theory) its section.
  */
 const LearnIndexRoute = () => {
   const instrument = useLearnInstrument();
-  const to = useLearnPageRoute();
-  const { search } = useLocation();
-  return (
-    <Navigate
-      replace
-      to={learnTabRedirect(instrument, search) ?? `${to}${search}`}
-    />
-  );
+  const welcome = useWelcomeRedirect();
+  const { search, hash } = useLocation();
+  const to = learnIndexRedirect(instrument, search, hash);
+  if (to) return <Navigate replace to={to} />;
+  // Bare /learn only: a section, a search or a lesson's way back is a deep
+  // link, which the welcome never interrupts.
+  if (welcome && !search) return <Navigate replace to={welcome} />;
+  return <ExplorePage />;
 };
 
 /**
@@ -768,20 +813,19 @@ const LearnInstrumentRoute = ({
   }
   const tabLink = learnTabRedirect(instrument, search);
   if (tabLink) return <Navigate replace to={tabLink} />;
-  // With no tab, the Learn page shows the student's Cortex on every instrument.
-  if (!tab) return <LearnPage />;
-  // Bass teaches Theory and Technique so far: its page is the Theory tab.
-  if (instrument === 'bass' && tab !== 'Theory' && tab !== 'Technique') {
-    return <Navigate replace to={learnTabRoute('bass', 'Theory')} />;
+  // These used to be pages. Now they're places in Explore.
+  if (!tab) return <Navigate replace to={exploreHref(instrument)} />;
+  if (tab === 'Songs') {
+    return <Navigate replace to={{ pathname: SongRoutes.root(), search }} />;
   }
-  // Ukulele teaches Theory and Technique, and Songs show its chord boxes.
-  if (
-    instrument === 'ukulele' &&
-    tab !== 'Theory' &&
-    tab !== 'Songs' &&
-    tab !== 'Technique'
-  ) {
-    return <Navigate replace to={learnTabRoute('ukulele', 'Theory')} />;
+  if (tab === 'Theory') {
+    return <Navigate replace to={exploreHref(instrument, 'theory')} />;
+  }
+  if (tab === 'Technique') {
+    return <Navigate replace to={exploreHref(instrument, 'technique')} />;
+  }
+  if (tab === 'Genre') {
+    return <Navigate replace to={exploreHref('piano', 'genres')} />;
   }
   return <LearnPage tab={tab} />;
 };
@@ -793,14 +837,10 @@ const MovedTo = ({ to }: { to: string }) => {
   return <Navigate replace to={{ pathname: to, search, hash }} />;
 };
 
-/** /learn/audio: Audio's page, chosen by the address as an instrument's is. */
+/** /learn/audio: Audio's place in Explore. */
 const AudioRoute = () => {
   useChooseAudio();
-  return (
-    <LearnPage section="Audio">
-      <AudioHub />
-    </LearnPage>
-  );
+  return <Navigate replace to={exploreHref('audio')} />;
 };
 
 /** Each tab's page on each instrument. Static paths, so /learn/guitar/songs
@@ -836,6 +876,13 @@ export const learnPages = () => {
         element: <LearnInstrumentRoute instrument="piano" />,
       },
       ...learnTabPages,
+      // A Theory family's path. Static 'theory', so it outranks '/:mode/:key'.
+      ...(['piano', 'guitar', 'bass', 'ukulele'] as const).map(
+        (instrument) => ({
+          path: `${learnTabRoute(instrument, 'Theory')}/:family`,
+          element: <TheoryPathPage instrument={instrument} />,
+        }),
+      ),
       // Audio: one page whatever the instrument, and its labs.
       {
         path: LearnRoutes.audio.definition,
@@ -889,7 +936,7 @@ export const learnPages = () => {
       // '/:mode' and '/:mode/:key'.
       {
         path: LearnRoutes.genreCourse.definition,
-        element: <GenreOverviewRoute />,
+        element: <GenrePathPage />,
       },
       {
         path: LearnRoutes.genreLesson.definition,
@@ -1012,7 +1059,11 @@ export const libraryPages = () => {
     children: [
       {
         index: true,
-        element: <LibraryInlet />,
+        element: <LibraryPage />,
+      },
+      {
+        path: LibraryRoutes.project.definition,
+        element: <LibraryProjectPage />,
       },
     ],
   };
@@ -1045,6 +1096,26 @@ export const globePages = () => {
   };
 };
 
+/**
+ * The Globe's map alone, for a lesson slide's frame (owner, 2026-11-10): no
+ * sidebar, rails or Inspector. Its own route so the map's address is the
+ * frame's, never the lesson's.
+ */
+export const globeSlidePages = () => ({
+  path: GlobeRoutes.slide.definition,
+  element: (
+    <AppContext>
+      <ProtectedPage>
+        <ContentGate fallback={<div className="h-dvh w-screen bg-black" />}>
+          <Suspense fallback={<div className="h-dvh w-screen bg-black" />}>
+            <SlideGlobePage />
+          </Suspense>
+        </ContentGate>
+      </ProtectedPage>
+    </AppContext>
+  ),
+});
+
 export const songsPages = () => {
   return {
     path: SongRoutes.root.definition,
@@ -1056,9 +1127,14 @@ export const songsPages = () => {
       </AppContext>
     ),
     children: [
+      // The library, in Suno's layout (owner, 2026-11-04).
       {
         index: true,
-        element: <Navigate to={LearnRoutes.root()} replace />,
+        element: (
+          <ContentGate needs={['songs']}>
+            <ExploreSongsPage />
+          </ContentGate>
+        ),
       },
       {
         path: 'setlists',

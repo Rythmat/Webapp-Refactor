@@ -335,6 +335,26 @@
   border-radius: 3px;
 }
 
+/* Home's scrollbar shows only while the page is scrolling (owner,
+   2026-11-10): the scroller is marked idle (useScrollbarWhileScrolling) and
+   its thumb goes clear, keeping its room so nothing shifts. Firefox, which
+   has no ::-webkit-scrollbar, clears it with scrollbar-color instead. */
+.dashboard-root [data-scrollbar-idle]::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+@supports not selector(::-webkit-scrollbar) {
+  .dashboard-root [data-scrollbar-idle] {
+    scrollbar-color: transparent transparent;
+  }
+}
+
 /* Songs marquee animation moved to
    src/components/songLibrary/songs-marquee.css so it applies under both
    .dashboard-root (Home) and .learn-root (Learn). */
+
+/* A place opened inside a lesson (layouts/DashboardLayout/lessonFrame): the
+   lesson's bar is its frame, so the Studio's and the Globe's own way to the
+   app's rail goes (owner, 2026-11-11). */
+.lesson-frame [data-rail-toggle] {
+  display: none !important;
+}

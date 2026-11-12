@@ -40,6 +40,7 @@ import {
   type SessionShowcase,
   type SessionState,
   type SessionTimer,
+  type SessionActivity,
 } from './sessionsStore';
 import { useLocalSessionStore } from './useLocalSessionStore';
 import { useServerClock, type SessionClock } from './useServerClock';
@@ -90,6 +91,10 @@ export interface UseSessionSync {
   sendPosition: (slideIndex: number) => void;
   /** Echo in the classroom — publish the round (teacher only). */
   sendEcho: (echo: SessionEcho | null) => void;
+  /** The class's step in the activity done together (teacher only). */
+  sendActivity: (activity: SessionActivity | null) => void;
+  /** This student finished the class's step (student only). */
+  sendActivityDone: (slideId: string, step: number) => void;
   /**
    * The server's clock, by the clock check (serverClock.ts): what a round's
    * start time means on this device. Offset 0 for a practice session.
@@ -414,6 +419,37 @@ export const useSessionSync = (
     [local, userId, sessionId, enrollmentId],
   );
 
+  const sendActivity = useCallback(
+    (activity: SessionActivity | null) => {
+      if (local) {
+        dispatchLocal({ kind: 'activity', activity });
+        return;
+      }
+      controllerRef.current?.sendActivity(activity);
+    },
+    [local, dispatchLocal],
+  );
+  const sendActivityDone = useCallback(
+    (slideId: string, step: number) => {
+      if (local) {
+        applyMessageForUser(userId, {
+          sessionId,
+          from: 'student',
+          fromEnrollmentId: enrollmentId ?? 'local-student',
+          body: {
+            kind: 'activityDone',
+            enrollmentId: enrollmentId ?? 'local-student',
+            slideId,
+            step,
+          },
+        });
+        return;
+      }
+      controllerRef.current?.sendActivityDone(slideId, step);
+    },
+    [local, userId, sessionId, enrollmentId],
+  );
+
   const { offsetMs, synced, serverNow } = serverClock;
   const clock = useMemo<SessionClock>(
     () => ({ offsetMs, synced, serverNow }),
@@ -436,6 +472,8 @@ export const useSessionSync = (
       sendMedia,
       sendPosition,
       sendEcho,
+      sendActivity,
+      sendActivityDone,
       clock,
     }),
     [
@@ -453,6 +491,8 @@ export const useSessionSync = (
       sendMedia,
       sendPosition,
       sendEcho,
+      sendActivity,
+      sendActivityDone,
       clock,
     ],
   );

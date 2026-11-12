@@ -20,6 +20,7 @@ import {
   type InspectorPanelId,
   type ReadoutMode,
 } from '@/daw/shell/layout/layoutModel';
+import { UNTITLED_SESSION } from '@/lib/studio-projects/sessionName';
 
 // ── UI Slice ──────────────────────────────────────────────────────────────
 // Global UI state: active tool, selected clip, timeline zoom/scroll/grid.
@@ -747,7 +748,7 @@ export const createUiSlice: StateCreator<
   // ── Project ──
   projectId: null,
   setProjectId: (id) => set({ projectId: id }),
-  projectName: 'Untitled Project',
+  projectName: UNTITLED_SESSION,
   setProjectName: (name) => {
     // In a collab session only the host owns the (synced) project title. A
     // non-host's change is ignored here; remote title updates arrive via the

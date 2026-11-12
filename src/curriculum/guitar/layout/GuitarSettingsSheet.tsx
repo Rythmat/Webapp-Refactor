@@ -132,6 +132,7 @@ export function GuitarSettingsSheet({
             onMonitorChange={input.onMonitorChange}
             onPreview={input.onTonePreview}
           />
+          <AutoFlowRow />
           <MetronomeRow />
           <VolumeRow />
           <AudioTimingRow
@@ -286,6 +287,18 @@ export function MetronomeRow() {
       helper="The click on in-time steps."
       checked={metronomeEnabled}
       onCheckedChange={setMetronomeEnabled}
+    />
+  );
+}
+
+export function AutoFlowRow() {
+  const { autoFlow, setAutoFlow } = usePracticeSettings();
+  return (
+    <SettingsSwitchRow
+      label="Play through automatically"
+      helper="Each activity runs from Demo to Practice to Perform by itself."
+      checked={autoFlow}
+      onCheckedChange={setAutoFlow}
     />
   );
 }

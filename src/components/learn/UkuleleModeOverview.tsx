@@ -13,12 +13,13 @@ import {
   ukuleleTheoryEntry,
   type UkuleleTheoryEntry,
 } from '@/curriculum/data/ukulele/theoryCatalog';
+import { exploreHref } from '@/features/learn/catalog/exploreState';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
 import type { PrismModeSlug } from '@/hooks/data/prism';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import { ModeOverview, type ModeOverviewVariant } from './ModeOverview';
 
-const THEORY_TAB_ROUTE = LearnRoutes.root(undefined, { tab: 'Theory' });
+const THEORY_TAB_ROUTE = exploreHref('ukulele', 'theory');
 
 /** Under the title: where the lesson's boxes come from. */
 function subtitleOf(entry: UkuleleTheoryEntry): string {

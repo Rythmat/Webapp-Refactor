@@ -43,7 +43,8 @@ export function useMixEngine(needs: readonly StemId[]) {
 
   useEffect(() => {
     let cancelled = false;
-    const ids = needsKey.split(',') as StemId[];
+    // A lesson with nothing to play (a keyboard lesson) loads no stems.
+    const ids = needsKey ? (needsKey.split(',') as StemId[]) : [];
     Promise.all(
       ids.map(
         async (id) =>
@@ -74,7 +75,7 @@ export function useMixEngine(needs: readonly StemId[]) {
   }, [stop]);
 
   const play = useCallback(() => {
-    if (!buffers) return;
+    if (!buffers?.size) return;
     if (!engineRef.current) {
       channelRef.current = audioEngine.channel(
         'instruments',

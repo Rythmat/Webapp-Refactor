@@ -30,6 +30,12 @@
  *    as a ring with a dot inside it instead, still in its own colour, so it
  *    never reads as the white highlight ring.
  *
+ * Cortex's lines can flow through the key centres' rainbow instead of one
+ * colour (`u_rainbow`): the fragment shader picks each pixel's colour from
+ * where it sits on screen and a phase that turns with time, so every line
+ * shifts round the twelve, neighbouring lines sit a little apart, and about
+ * one rainbow spans the view at any zoom.
+ *
  * A line is lit in the highlight when it joins the hovered node to a node
  * the hover lights (in Cortex, every neighbour), or when both its ends are
  * on a lit path (`NODE_STATE_PATH`, Tesseract's way back to the root).
@@ -98,16 +104,16 @@ uniform float u_lineWidth;  // device px
 uniform float u_nodeSize;
 uniform float u_minRadius;  // device px: the smallest dot drawn
 uniform bool u_confidence;
-uniform vec4 u_lineColor;   // straight alpha
-uniform vec4 u_lineLit;     // the hovered node's lines
 uniform float u_dimAlpha;
 uniform float u_patternMin; // device px: shorter lines are always solid
 
 out float v_across;   // device px from the centreline
 out float v_along;    // device px from the first end
+out vec2 v_screen;    // CSS px from the canvas centre, for the rainbow
 flat out float v_halfWidth;
 flat out float v_coverage;
-flat out vec4 v_color;
+flat out float v_lit; // 0 … 1: how far into the highlight
+flat out float v_dim; // the hover's fade on a line it doesn't light
 flat out uint v_pattern; // 0 solid, 1 dotted, 2 dashed
 
 void main() {
@@ -128,9 +134,11 @@ void main() {
     gl_Position = vec4(2.0, 2.0, 2.0, 1.0); // outside the clip volume
     v_across = 0.0;
     v_along = 0.0;
+    v_screen = vec2(0.0);
     v_halfWidth = 0.0;
     v_coverage = 0.0;
-    v_color = vec4(0.0);
+    v_lit = 0.0;
+    v_dim = 0.0;
     v_pattern = 0u;
     return;
   }
@@ -144,6 +152,7 @@ void main() {
 
   v_across = a_corner.y * pad;
   v_along = a_corner.x * len;
+  v_screen = p / u_dpr;
   v_halfWidth = width * 0.5;
   v_coverage = min(u_lineWidth, 1.0);
 
@@ -154,10 +163,8 @@ void main() {
   uint sb = nodeState(a_ends.y);
   bool lit = sa != 0u && sb != 0u &&
     (sa == 2u || sb == 2u || (sa == 3u && sb == 3u));
-  vec4 c = u_lineColor;
-  if (lit) c = mix(c, u_lineLit, u_fade);
-  else c.a *= mix(1.0, u_dimAlpha, u_fade);
-  v_color = c;
+  v_lit = lit ? u_fade : 0.0;
+  v_dim = lit ? 1.0 : mix(1.0, u_dimAlpha, u_fade);
 
   v_pattern = 0u;
   if (u_confidence && len >= u_patternMin) {
@@ -172,15 +179,30 @@ precision highp float;
 precision highp int;
 
 uniform float u_dpr;
+uniform vec4 u_lineColor;   // straight alpha
+uniform vec4 u_lineLit;     // the hovered node's lines
+uniform bool u_rainbow;
+uniform vec3 u_rainbowColors[12];
+uniform float u_rainbowAlpha;
+uniform float u_rainbowPeriod; // CSS px once round
+uniform float u_rainbowPhase;  // 0 … 1, turning with time
 
 in float v_across;
 in float v_along;
+in vec2 v_screen;
 flat in float v_halfWidth;
 flat in float v_coverage;
-flat in vec4 v_color;
+flat in float v_lit;
+flat in float v_dim;
 flat in uint v_pattern;
 
 out vec4 outColor;
+
+vec3 rainbowAt(float t) {
+  float x = fract(t) * 12.0;
+  int i = int(floor(x));
+  return mix(u_rainbowColors[i], u_rainbowColors[(i + 1) % 12], x - floor(x));
+}
 
 void main() {
   float cover = clamp(v_halfWidth + 0.5 - abs(v_across), 0.0, 1.0) * v_coverage;
@@ -193,9 +215,15 @@ void main() {
     float m = mod(v_along, 10.0 * u_dpr);
     cover *= clamp(6.0 * u_dpr - m + 0.5, 0.0, 1.0);
   }
-  float a = v_color.a * cover;
+  vec4 c = u_lineColor;
+  if (u_rainbow) {
+    float t = dot(v_screen, vec2(1.0, 0.6)) / u_rainbowPeriod - u_rainbowPhase;
+    c = vec4(rainbowAt(t), u_rainbowAlpha);
+  }
+  c = mix(c, u_lineLit, v_lit);
+  float a = c.a * v_dim * cover;
   if (a <= 0.002) discard;
-  outColor = vec4(v_color.rgb * a, a);
+  outColor = vec4(c.rgb * a, a);
 }
 `;
 
@@ -273,12 +301,14 @@ uniform highp usampler2D u_nodeFlags;  // R8UI
 uniform int u_indexOffset; // draws one chosen node again, on top
 uniform float u_nodeSize;
 uniform vec4 u_ring;       // the highlight, round hovered and flagged nodes
+uniform float u_ringGap;   // the gap before the ring, in ring widths
 uniform float u_dimAlpha;
 uniform float u_minRadius; // device px
 
 out vec2 v_local;      // device px from the node's centre
 flat out float v_radius;
 flat out float v_ringWidth;
+flat out float v_ringGap;
 flat out float v_hole;  // an end's hollow: the gap's outer radius, 0 for a solid dot
 flat out float v_dot;   // an end's inner dot radius
 flat out vec4 v_color;
@@ -297,10 +327,12 @@ void main() {
   bool ringed = hovered || (flags & 1u) != 0u;
   // Obsidian's hairline, max(1, √scale) device px, kept to 1–2 CSS px.
   float ringWidth = ringed ? clamp(sqrt(deviceScale()), u_dpr, 2.0 * u_dpr) : 0.0;
-  float outer = r + ringWidth + 1.0;
+  float ringGap = ringWidth * u_ringGap;
+  float outer = r + ringGap + ringWidth + 1.0;
   v_local = a_corner * outer;
   v_radius = r;
   v_ringWidth = ringWidth;
+  v_ringGap = ringGap;
   // An end (flag 2, Tesseract's "a progression ends here"): a ring in the
   // node's own colour with a dot inside it. Too small for both, it stays solid.
   bool hollow = (flags & 2u) != 0u;
@@ -329,6 +361,7 @@ precision highp float;
 in vec2 v_local;
 flat in float v_radius;
 flat in float v_ringWidth;
+flat in float v_ringGap;
 flat in float v_hole;
 flat in float v_dot;
 flat in vec4 v_color;
@@ -349,8 +382,10 @@ void main() {
   float fill = v_color.a * body;
   float ring = 0.0;
   if (v_ringWidth > 0.0) {
-    float outer = clamp(v_radius + v_ringWidth - d + 0.5, 0.0, 1.0);
-    ring = v_ringColor.a * max(outer - inner, 0.0);
+    // A gap first where there is one, so a ring shows round a white dot.
+    float start = clamp(v_radius + v_ringGap - d + 0.5, 0.0, 1.0);
+    float outer = clamp(v_radius + v_ringGap + v_ringWidth - d + 0.5, 0.0, 1.0);
+    ring = v_ringColor.a * max(outer - start, 0.0);
   }
   float a = fill + ring;
   if (a <= 0.002) discard;

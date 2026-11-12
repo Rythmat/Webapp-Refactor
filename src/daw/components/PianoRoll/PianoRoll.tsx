@@ -2040,6 +2040,8 @@ export function PianoRoll({
             {/* Grid — scroll master */}
             <div
               ref={gridScrollRef}
+              // The lessons ring what is on screen, not the whole canvas.
+              data-tutorial-id="piano-roll-grid"
               className="relative flex-1 overflow-auto"
               onScroll={handleGridScroll}
               style={{ scrollbarWidth: 'thin' }}
@@ -2127,6 +2129,7 @@ export function PianoRoll({
           picked), and at the right the velocity lane's switch. */}
       <div
         data-testid="piano-roll-bar"
+        data-tutorial-id="piano-roll-bar"
         className="flex shrink-0 items-center gap-3 border-t border-daw-hairline px-3"
         style={{ height: BAR_H }}
       >
@@ -2151,6 +2154,7 @@ export function PianoRoll({
             focusRoll();
           }}
           data-hint="Quantize: move every note onto the grid"
+          data-tutorial-id="piano-roll-quantize"
           className={cn(
             TYPE_CLASS.label,
             'flex h-6 items-center rounded-full bg-daw-pill px-2.5 font-bold text-daw-text hover:bg-daw-hover',

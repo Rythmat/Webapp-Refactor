@@ -1,8 +1,14 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SlideRenderer, type SlideSlots } from '../slides/SlideRenderer';
+import { LessonSongProvider } from '../slides/song/LessonSong';
 import type { Slide } from '../slides/types';
 import type { Interaction, StudentLanguage } from '../types';
+import { PresentSelector } from './PresentSelector';
+import {
+  PresentStepsContext,
+  type SlideSteps,
+  type StepPosition,
+} from './presentControls';
 
 interface FocusProps {
   /** The current deck slide, whatever its kind. */
@@ -18,8 +24,11 @@ interface FocusProps {
   onNext: () => void;
   hasPrev: boolean;
   hasNext: boolean;
-  /** "3 / 12" — position within the deck. */
-  position: string;
+  /** The page, 0-based, of `count`, for the selector. */
+  index: number;
+  count: number;
+  /** Jump to a page from the selector's list. */
+  onGoTo?: (index: number) => void;
   /**
    * Pre-gated surface slots for a LIVE session — in practice just `reveal`,
    * built with the SAME anonymized gating the projector uses. Present is a
@@ -30,13 +39,22 @@ interface FocusProps {
   slots?: SlideSlots;
 }
 
+/** The keys that move the lesson on, and back (a clicker sends Page Down/Up). */
+const NEXT_KEYS = new Set(['ArrowRight', 'PageDown']);
+const PREV_KEYS = new Set(['ArrowLeft', 'PageUp']);
+
 /**
- * Focus — one deck slide, full-bleed, rendered through `SlideRenderer` at
- * `surface="present"` — the same single path the projector and the student
- * device use, so Present cannot drift from what the class sees.
+ * Focus — one deck slide, filling the window, rendered through
+ * `SlideRenderer` at `surface="present"` — the same single path the
+ * projector and the student device use, so Present cannot drift from what
+ * the class sees.
  *
- * A bottom bar walks the deck slide-by-slide; Esc exits the presentation,
- * ←/→ move between slides.
+ * Nothing on it but the slide (owner, 2026-11-10: no bar) and a small step
+ * and page selector at its bottom right, over it (`PresentSelector`). The
+ * teacher's keyboard drives it as the selector does: → / ← move through the
+ * slide's own steps (the globe's places, the Studio tutorial's steps;
+ * `usePresentSteps`), then on to the next or back to the previous slide; Esc
+ * exits.
  */
 export const Focus = ({
   slide,
@@ -47,55 +65,72 @@ export const Focus = ({
   onNext,
   hasPrev,
   hasNext,
-  position,
+  index,
+  count,
+  onGoTo,
   slots,
 }: FocusProps) => {
+  // The current slide's own steps, when it has any, and where they are.
+  const steps = useRef<SlideSteps | null>(null);
+  const [step, setStep] = useState<StepPosition | null>(null);
+  const register = useCallback((next: SlideSteps | null) => {
+    steps.current = next;
+  }, []);
+  const present = useMemo(() => ({ register, report: setStep }), [register]);
+
+  // The slide's step first, then the page: the arrow keys and the selector.
+  const forward = useCallback(() => {
+    if (steps.current?.next()) return;
+    if (hasNext) onNext();
+  }, [hasNext, onNext]);
+  const back = useCallback(() => {
+    if (steps.current?.prev()) return;
+    if (hasPrev) onPrev();
+  }, [hasPrev, onPrev]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onExit();
-      if (e.key === 'ArrowLeft' && hasPrev) onPrev();
-      if (e.key === 'ArrowRight' && hasNext) onNext();
+      if (e.key === 'Escape') {
+        onExit();
+        return;
+      }
+      if (NEXT_KEYS.has(e.key)) {
+        e.preventDefault();
+        forward();
+      } else if (PREV_KEYS.has(e.key)) {
+        e.preventDefault();
+        back();
+      }
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [onExit, onPrev, onNext, hasPrev, hasNext]);
+  }, [onExit, forward, back]);
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col">
-      <SlideRenderer
-        slide={slide}
-        surface="present"
-        language={language}
-        interactions={interactions}
-        slots={slots}
-      />
-
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center"
-        aria-hidden={false}
-      >
-        <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-white/[0.06] bg-[#141416]/90 px-3 py-2 backdrop-blur">
-          <button
-            type="button"
-            onClick={onPrev}
-            disabled={!hasPrev}
-            aria-label="Previous slide"
-            className="inline-flex size-9 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/[0.04] hover:text-white disabled:opacity-30"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <span className="text-sm text-white/50 tabular-nums">{position}</span>
-          <button
-            type="button"
-            onClick={onNext}
-            disabled={!hasNext}
-            aria-label="Next slide"
-            className="inline-flex size-9 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/[0.04] hover:text-white disabled:opacity-30"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
+    // One song for the deck: it plays on from slide to slide.
+    <LessonSongProvider>
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <PresentStepsContext.Provider value={present}>
+          <SlideRenderer
+            key={slide.id}
+            slide={slide}
+            surface="present"
+            language={language}
+            interactions={interactions}
+            slots={slots}
+          />
+        </PresentStepsContext.Provider>
+        <PresentSelector
+          index={index}
+          count={count}
+          step={step}
+          onPrev={back}
+          onNext={forward}
+          onGoTo={onGoTo}
+          canPrev={hasPrev || (step !== null && step.at > 0)}
+          canNext={hasNext || (step !== null && step.at < step.total - 1)}
+        />
       </div>
-    </div>
+    </LessonSongProvider>
   );
 };

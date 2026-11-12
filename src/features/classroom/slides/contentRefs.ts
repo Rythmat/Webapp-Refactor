@@ -95,6 +95,12 @@ export const globeCityRef = (cityId: string): string => `globe:city:${cityId}`;
 /** `globe:era:<id>` → filters the globe timeline to a musical era. */
 export const globeEraRef = (eraId: string): string => `globe:era:${eraId}`;
 
+/** A guided tour on the Globe, by its full id (`artist-…`, `city-…`, `region-…`). */
+export const globeTourRef = (tourId: string): string => `globe:tour:${tourId}`;
+
+/** An Arcade game, by its route key in `GameRoutes`. */
+export const arcadeRef = (route: string): string => `arcade:${route}`;
+
 /**
  * The `LaunchTile.module` a given picker kind maps to. Songs, Learn theory and
  * curriculum all live under the `'learn'` module tag — the resolver keys off the

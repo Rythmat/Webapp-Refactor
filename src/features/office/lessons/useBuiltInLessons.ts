@@ -8,7 +8,9 @@ import {
 import type { Day } from '@/features/classroom/types';
 import {
   BUILT_IN_LESSONS,
+  followBuiltInLesson,
   generateBuiltInLesson,
+  isBuiltInLessonId,
   lessonHash,
   syncBuiltInLesson,
 } from './builtInLessons';
@@ -40,6 +42,51 @@ const recordWritten = (dayId: string, hash: string) => {
   } catch {
     // Storage refused: the copy is then treated as the teacher's next time.
   }
+};
+
+// The classes' copies of built-in lessons that follow the code, by copy id:
+// which lesson each came from and what it looked like when last written. A
+// copy the teacher changes stops matching its hash, and is kept as theirs.
+const COPIES_KEY = 'ma-teacher:builtin-copies:v1';
+
+interface CopyRecord {
+  from: string;
+  hash: string;
+}
+
+const readCopies = (): Record<string, CopyRecord> => {
+  try {
+    const parsed: unknown = JSON.parse(
+      window.localStorage.getItem(COPIES_KEY) ?? '{}',
+    );
+    return parsed && typeof parsed === 'object'
+      ? (parsed as Record<string, CopyRecord>)
+      : {};
+  } catch {
+    return {};
+  }
+};
+
+const writeCopies = (copies: Record<string, CopyRecord>) => {
+  try {
+    window.localStorage.setItem(COPIES_KEY, JSON.stringify(copies));
+  } catch {
+    // Storage refused: the copy then stays as it is, like an edited one.
+  }
+};
+
+/**
+ * Remember a class's copy of a built-in lesson (Teach to a class), so it
+ * follows the code's lesson as the slides change. Only a copy of the code's
+ * own lesson follows: one of a copy the teacher edited is theirs already.
+ */
+export const rememberBuiltInCopy = (source: Day, copy: Day): void => {
+  if (!isBuiltInLessonId(source.id)) return;
+  if (readWritten()[source.id] !== lessonHash(source)) return;
+  writeCopies({
+    ...readCopies(),
+    [copy.id]: { from: source.id, hash: lessonHash(copy) },
+  });
 };
 
 export interface BuiltInLessonState {
@@ -90,7 +137,26 @@ export const useBuiltInLessons = () => {
       if (syncBuiltInLesson(getDay(day.id), written[day.id], day).write)
         write(day);
     }
-  }, [generated, isHydrated, getDay, write]);
+    // The classes' copies follow too, until the teacher changes one.
+    const copies = readCopies();
+    let changed = false;
+    for (const [id, record] of Object.entries(copies)) {
+      const code = generated.find((d) => d.id === record.from);
+      if (!code) continue;
+      const copy = getDay(id);
+      if (!copy) {
+        delete copies[id];
+        changed = true;
+        continue;
+      }
+      const followed = followBuiltInLesson(copy, record.hash, code);
+      if (!followed) continue;
+      saveDay(followed);
+      copies[id] = { ...record, hash: lessonHash(getDay(id) ?? followed) };
+      changed = true;
+    }
+    if (changed) writeCopies(copies);
+  }, [generated, isHydrated, getDay, saveDay, write]);
 
   const written = readWritten();
   const lessons: BuiltInLessonState[] = generated.flatMap((code) => {

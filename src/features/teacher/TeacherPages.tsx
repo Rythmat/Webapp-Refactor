@@ -29,6 +29,13 @@ const ClassAssignmentsPage = lazy(() =>
 
 // The Office's frame and pages (owner, 2026-11-09: the Office rebuilt as an
 // LMS in the Studio's frame).
+// Keeps the built-in lessons and their class copies in step with the code on
+// every Office page and Present (owner, 2026-11-13).
+const BuiltInLessonSync = lazy(() =>
+  import('@/features/office/lessons/BuiltInLessonSync').then(
+    ({ BuiltInLessonSync }) => ({ default: BuiltInLessonSync }),
+  ),
+);
 const OfficeFrame = lazy(() =>
   import('@/features/office/frame/OfficeFrame').then(({ OfficeFrame }) => ({
     default: OfficeFrame,
@@ -208,6 +215,9 @@ export const officePages = () => {
     element: (
       <AppContext>
         <ProtectedPage teacherOnly>
+          <Suspense>
+            <BuiltInLessonSync />
+          </Suspense>
           <Suspense>
             <Outlet />
           </Suspense>

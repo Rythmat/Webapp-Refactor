@@ -110,5 +110,33 @@ export const copyLessonToClass = (
   return { ...copy, id: newId, classroomId, scheduledDate: date };
 };
 
+/**
+ * A class's copy of a built-in lesson, rewritten to the code's lesson when it
+ * still is just as it was written (`writtenHash`) and the code's lesson has
+ * changed (owner, 2026-11-13: the lesson is the same wherever it's opened).
+ * Its id, class, day and anything else of its own are kept. Null when it
+ * stays as it is: edited by the teacher, or already the code's.
+ */
+export const followBuiltInLesson = (
+  copy: Day,
+  writtenHash: string,
+  generated: Day,
+): Day | null => {
+  if (lessonHash(copy) !== writtenHash) return null;
+  const next = copyLessonToClass(
+    generated,
+    copy.classroomId ?? '',
+    copy.scheduledDate ?? null,
+    copy.id,
+  );
+  const followed: Day = {
+    ...copy,
+    label: next.label,
+    cells: next.cells,
+    ...(next.deck ? { deck: next.deck } : {}),
+  };
+  return lessonHash(followed) === writtenHash ? null : followed;
+};
+
 export const isBuiltInLessonId = (dayId: string): boolean =>
   BUILT_IN_LESSONS.some((l) => l.dayId === dayId);

@@ -15,6 +15,8 @@ export interface LastGlobeStop {
   /** The stop's query string, `?event=…`: `/globe` plus this reopens it. */
   search: string;
   title: string;
+  /** Its picture, when it has one (an event's poster, an artist's photo). */
+  image?: string;
   /** When it was reached, epoch ms. */
   at: number;
 }
@@ -24,10 +26,19 @@ const keyFor = (userKey: string) => `${PREFIX}:${userKey}`;
 /** Same-tab readers hear a write through this event. */
 const CHANGED = 'ma:globe:last-changed';
 
-export const rememberGlobeStop = (search: string, title: string): void => {
+export const rememberGlobeStop = (
+  search: string,
+  title: string,
+  image?: string,
+): void => {
   const userKey = getLocalStoreUserKey();
   if (!userKey || !search || !title) return;
-  const entry: LastGlobeStop = { search, title, at: Date.now() };
+  const entry: LastGlobeStop = {
+    search,
+    title,
+    ...(image ? { image } : {}),
+    at: Date.now(),
+  };
   try {
     window.localStorage.setItem(keyFor(userKey), JSON.stringify(entry));
     window.dispatchEvent(new Event(CHANGED));
@@ -42,6 +53,7 @@ const isEntry = (v: unknown): v is LastGlobeStop =>
   typeof (v as LastGlobeStop).search === 'string' &&
   (v as LastGlobeStop).search.startsWith('?') &&
   typeof (v as LastGlobeStop).title === 'string' &&
+  ['string', 'undefined'].includes(typeof (v as LastGlobeStop).image) &&
   typeof (v as LastGlobeStop).at === 'number';
 
 export const readLastGlobeStop = (): LastGlobeStop | null => {

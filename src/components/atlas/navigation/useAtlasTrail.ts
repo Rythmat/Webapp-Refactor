@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
+import { eventImage } from '@/components/atlas/data/eventImage';
+import { getEventById } from '@/components/atlas/data/lookups';
 import { stopFromSearchParams, stopKey, type AtlasStop } from './atlasStop';
 import { describeStop } from './describeStop';
 import { rememberGlobeStop } from './lastGlobeStop';
@@ -112,10 +114,17 @@ export function useAtlasTrail() {
       return next;
     });
     // The last place or tour, kept for the person (a lesson's Independent
-    // Project offers to pick up there): not the Globe's home or a search.
+    // Project offers to pick up there, with its picture): not the Globe's
+    // home or a search. An event's picture at a size a card can show.
     const stop = stopFromSearchParams(new URLSearchParams(location.search));
-    if (stop.kind !== 'home' && stop.kind !== 'search')
-      rememberGlobeStop(location.search, describeStop(stop).title);
+    if (stop.kind !== 'home' && stop.kind !== 'search') {
+      const shown = describeStop(stop);
+      const image =
+        stop.kind === 'event'
+          ? (eventImage(getEventById(stop.eventId), 'lane') ?? shown.thumb)
+          : shown.thumb;
+      rememberGlobeStop(location.search, shown.title, image);
+    }
     // location.key changes on every navigation, including a re-visit of the
     // same URL, which is what lets Back to an identical stop register.
   }, [location.key, location.search]);

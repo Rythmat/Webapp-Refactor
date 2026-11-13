@@ -29,6 +29,14 @@ describe('the last Globe stop', () => {
     expect(readLastGlobeStop()?.title).toBe('Soul Makossa');
   });
 
+  it('keeps the stop’s picture, when it has one', () => {
+    setLocalStoreUser('ana');
+    rememberGlobeStop('?event=e1', 'Soul Makossa', '/poster.jpg');
+    expect(readLastGlobeStop()?.image).toBe('/poster.jpg');
+    rememberGlobeStop('?city=lagos', 'Lagos');
+    expect(readLastGlobeStop()).not.toHaveProperty('image');
+  });
+
   it('keeps nothing before it knows whose it is', () => {
     rememberGlobeStop('?event=e1', 'Soul Makossa');
     setLocalStoreUser('ana');

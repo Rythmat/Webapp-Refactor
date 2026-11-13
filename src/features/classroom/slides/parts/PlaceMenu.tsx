@@ -23,6 +23,7 @@ import {
 } from '../placeSummaries';
 import { projectPlaceFor, type ProjectPlace } from '../projectPlaces';
 import type { SlideElement, SlideSurface } from '../types';
+import { PlaceArtwork } from './PlaceArtwork';
 
 // ── The Individual Project's menu (owner, 2026-11-12) ──────────────────────
 // Where each student works today: the six places as cards, three down each
@@ -33,9 +34,10 @@ import type { SlideElement, SlideSurface } from '../types';
 // along its whole line, in place of its streak; the other streaks finish
 // their run into the logo and no new ones set out until it leaves.
 //
-// A card is the place's app icon and name, and where the person left off
-// there (owner, 2026-11-13: one card per place, the beams running from them,
-// in place of icons over a row of boxes that named every place twice).
+// A card is a picture of what the person left off at there, then the
+// place's app icon and name over it (owner, 2026-11-13: one card per place,
+// the beams running from them, in place of icons over a row of boxes that
+// named every place twice; the picture where the icon's tile was).
 //
 //   Present          each card opens where the teacher left off, in a new tab
 //   a student        each card opens theirs inside the lesson (`onOpen`)
@@ -75,7 +77,7 @@ export const placeMenuOf = (
 };
 
 /** A place's card and the logo's tile, in the box's px (canvas px on a slide). */
-export const CARD_W = 320;
+export const CARD_W = 344;
 export const CARD_H = 112;
 const HUB = 128;
 
@@ -509,7 +511,7 @@ const PlaceMenuView = ({
             sectionLabel={sectionLabel}
             onOpen={onOpen}
             onHand={hand(place.id)}
-            className={`absolute flex items-center gap-[16px] rounded-[20px] border bg-[#141418] px-[20px] text-left shadow-[0_10px_32px_rgba(0,0,0,0.4)] transition-[border-color,transform] duration-300 ${
+            className={`absolute flex items-stretch overflow-hidden rounded-[20px] border bg-[#141418] text-left shadow-[0_10px_32px_rgba(0,0,0,0.4)] transition-[border-color,transform] duration-300 ${
               on ? 'translate-y-[-2px] border-white/30' : 'border-white/10'
             }`}
             style={{
@@ -519,21 +521,33 @@ const PlaceMenuView = ({
               height: CARD_H,
             }}
           >
+            {/* The picture, square, the card's full height. */}
             <span
-              data-place={place.id}
-              className="flex size-[52px] shrink-0 items-center justify-center rounded-[14px] border border-white/10 bg-white/[0.04] text-white"
+              data-place-art={place.id}
+              className="relative block h-full shrink-0 overflow-hidden border-r border-white/10"
+              style={{ width: CARD_H }}
             >
-              <Icon className="size-[26px]" aria-hidden />
+              <PlaceArtwork place={place} art={left?.art} />
             </span>
             <span
               data-place-card={place.id}
-              className="flex min-w-0 flex-col gap-[6px]"
+              className="flex min-w-0 flex-1 flex-col justify-center gap-[6px] px-[18px]"
             >
+              {/* The place: its icon and name, top left. */}
+              <span
+                className={`flex items-center gap-[6px] leading-none ${
+                  summaries
+                    ? 'text-[0.6em] text-white/55'
+                    : 'text-[0.9em] text-white'
+                }`}
+              >
+                <span data-place={place.id} className="flex shrink-0">
+                  <Icon className="size-[1.1em]" aria-hidden />
+                </span>
+                {name}
+              </span>
               {summaries ? (
                 <>
-                  <span className="text-[0.6em] leading-none text-white/55">
-                    {name}
-                  </span>
                   <span className="line-clamp-2 text-[0.85em] leading-tight text-white">
                     {left?.title ?? PLACE_INVITATION[place.id]}
                   </span>
@@ -544,14 +558,9 @@ const PlaceMenuView = ({
                   )}
                 </>
               ) : (
-                <>
-                  <span className="text-[0.9em] leading-tight text-white">
-                    {name}
-                  </span>
-                  <span className="text-[0.62em] leading-tight text-white/50">
-                    {pickLocalized(place.blurb, language)}
-                  </span>
-                </>
+                <span className="text-[0.62em] leading-tight text-white/50">
+                  {pickLocalized(place.blurb, language)}
+                </span>
               )}
             </span>
           </PlaceControl>

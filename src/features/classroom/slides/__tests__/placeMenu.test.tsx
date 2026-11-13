@@ -24,7 +24,12 @@ vi.mock('../placeSummaries', async (actual) => ({
       detail: '3/8 activities',
       href: '/learn/pop/1',
     },
-    songs: { title: '1999', detail: 'Prince', href: '/songs/1999' },
+    songs: {
+      title: '1999',
+      detail: 'Prince',
+      href: '/songs/1999',
+      art: { kind: 'image', src: '/prince.webp' },
+    },
     library: null,
     studio: null,
     globe: {
@@ -246,6 +251,20 @@ describe('the Individual Project menu', () => {
     expect(boxes[0]!.target).toBe('_blank');
     // A place with nothing of theirs opens at its front page.
     expect(boxes[5]!.getAttribute('href')).toBe('/arcade');
+  });
+
+  it('features the thing’s picture, else the place’s own', () => {
+    const art = (root: HTMLElement, id: string) =>
+      root.querySelector(`[data-place-art="${id}"] img`)?.getAttribute('src');
+    const present = draw('present');
+    expect(art(present, 'songs')).toBe('/prince.webp');
+    // Nothing of theirs pictured: the place's still.
+    expect(art(present, 'learn')).toBe('/videos/places/learn.jpg');
+    cleanup();
+    // The room's screen: every place's own picture, the Arcade a game's cover.
+    const room = draw('projector');
+    expect(art(room, 'songs')).toBe('/videos/places/songs.jpg');
+    expect(room.querySelector('[data-place-art="arcade"] svg')).not.toBeNull();
   });
 
   it('lights a place’s line from its card', () => {

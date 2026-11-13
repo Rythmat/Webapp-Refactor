@@ -61,6 +61,22 @@ describe('a place’s summary', () => {
     expect(learnSummary([])).toBeNull();
   });
 
+  it('carries the thing’s picture: its photo or tile, else its colour', () => {
+    expect(
+      learnSummary([
+        activity('pop-1', 1, { image: '/pop.svg', accentColor: '#f00' }),
+      ])?.art,
+    ).toEqual({ kind: 'image', src: '/pop.svg', tint: '#f00' });
+    expect(
+      learnSummary([activity('audio', 1, { accentColor: '#0f0' })])?.art,
+    ).toEqual({ kind: 'tint', color: '#0f0' });
+    expect(
+      songsSummary([], [activity('1999', 1, { thumbnail: '/prince.webp' })])
+        ?.art,
+    ).toEqual({ kind: 'image', src: '/prince.webp' });
+    expect(learnSummary([activity('bare', 1)])).not.toHaveProperty('art');
+  });
+
   it('is the newest song, viewed or saved, with its artist', () => {
     expect(
       songsSummary(
@@ -83,11 +99,17 @@ describe('a place’s summary', () => {
       title: 'Beat tape',
       detail: '2 sessions',
       href: '/library/projects/p1',
+      // The project's own cover, or its sessions' (ProjectMosaic).
+      art: {
+        kind: 'project',
+        entry: expect.objectContaining({ name: 'Beat tape' }),
+      },
     });
     expect(librarySummary([], items)).toEqual({
       title: 'Session b',
       detail: 'Session',
       href: '/studio?draft=b',
+      art: { kind: 'cover', seed: 'draft:b' },
     });
     expect(librarySummary([], [])).toBeNull();
   });
@@ -97,11 +119,20 @@ describe('a place’s summary', () => {
       title: 'jam',
       detail: 'Last session',
       href: '/studio?x',
+      art: { kind: 'cover', seed: 'jam' },
     });
+    // The same cover the Library draws for that session.
+    expect(
+      studioSummary(activity('jam', 1, { route: '/studio?draft=d7' }))?.art,
+    ).toEqual({ kind: 'cover', seed: 'draft:d7' });
+    expect(
+      studioSummary(activity('jam', 1, { route: '/studio?project=p9' }))?.art,
+    ).toEqual({ kind: 'cover', seed: 'project:p9' });
     expect(studioSummary(null, [session('a', 1), session('b', 2)])).toEqual({
       title: 'Session b',
       detail: 'Last session',
       href: '/studio?draft=b',
+      art: { kind: 'cover', seed: 'draft:b' },
     });
     expect(studioSummary(null, [])).toBeNull();
   });
@@ -114,6 +145,14 @@ describe('a place’s summary', () => {
       detail: 'Last visited',
       href: '/globe?event=e1',
     });
+    expect(
+      globeSummary({
+        search: '?event=e1',
+        title: 'Soul Makossa',
+        image: '/poster.jpg',
+        at: 1,
+      })?.art,
+    ).toEqual({ kind: 'image', src: '/poster.jpg' });
     expect(globeSummary(null)).toBeNull();
   });
 
@@ -124,6 +163,7 @@ describe('a place’s summary', () => {
       title: 'Chroma',
       detail: 'Played 3 times',
       href: '/arcade/chroma',
+      art: { kind: 'game', game: expect.objectContaining({ title: 'Chroma' }) },
     });
     expect(arcadeSummary({ echo: 1 }, { echo: 1 })?.detail).toBe(
       'Played 1 time',

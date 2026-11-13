@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
 import { useStudioSession } from '@/components/ClassroomLayout/home/useStudioSession';
-import { getGameByRoute } from '@/components/Games/arcadeGames';
+import {
+  getGameByRoute,
+  type ArcadeGame,
+} from '@/components/Games/arcadeGames';
 import {
   lastGlobeStopHref,
   useLastGlobeStop,
@@ -15,7 +18,7 @@ import {
   type ProjectEntry,
 } from '@/features/library/libraryItems';
 import { useLibraryMeta } from '@/features/library/libraryLocalMeta';
-import { studioHrefOf } from '@/features/library/libraryTypes';
+import { artSeedOf, studioHrefOf } from '@/features/library/libraryTypes';
 import { useLibraryItems } from '@/features/library/useLibraryItems';
 import {
   useRecentLessons,
@@ -32,12 +35,27 @@ import type { ProjectPlaceId } from './projectPlaces';
 // account's); a place they haven't used yet has none, and its box invites
 // them in instead.
 
+/**
+ * The picture of the thing (owner, 2026-11-13: a card features its
+ * material): a picture by its URL (an artist, a lesson's tile, a Globe
+ * event), a session's generated cover by its seed, a Library project's own
+ * cover or mosaic, a game's cover, or only a colour.
+ */
+export type PlaceArt =
+  | { kind: 'image'; src: string; tint?: string }
+  | { kind: 'cover'; seed: string }
+  | { kind: 'project'; entry: ProjectEntry }
+  | { kind: 'game'; game: ArcadeGame }
+  | { kind: 'tint'; color: string };
+
 export interface PlaceSummary {
   title: string;
   /** The line under it: progress, the artist, how many sessions… */
   detail?: string;
   /** Where it opens: the very thing, not the place's front page. */
   href: string;
+  /** Its picture; none, the place's own. */
+  art?: PlaceArt;
 }
 
 export type PlaceSummaries = Readonly<
@@ -60,14 +78,30 @@ const newest = <T>(items: readonly T[], at: (item: T) => number): T | null =>
     null,
   );
 
-const fromActivity = (item: ActivityItem | null): PlaceSummary | null =>
-  item
-    ? {
-        title: item.title,
-        ...(item.subtitle ? { detail: item.subtitle } : {}),
-        href: item.route,
-      }
-    : null;
+/** An activity's picture: its photo or tile, else its colour. */
+const activityArt = (item: ActivityItem): PlaceArt | undefined => {
+  const src = item.thumbnail ?? item.image;
+  if (src)
+    return {
+      kind: 'image',
+      src,
+      ...(item.accentColor ? { tint: item.accentColor } : {}),
+    };
+  return item.accentColor
+    ? { kind: 'tint', color: item.accentColor }
+    : undefined;
+};
+
+const fromActivity = (item: ActivityItem | null): PlaceSummary | null => {
+  if (!item) return null;
+  const art = activityArt(item);
+  return {
+    title: item.title,
+    ...(item.subtitle ? { detail: item.subtitle } : {}),
+    href: item.route,
+    ...(art ? { art } : {}),
+  };
+};
 
 /** The lesson last worked on, with how far along it is. */
 export const learnSummary = (lessons: readonly ActivityItem[]) =>
@@ -92,13 +126,27 @@ export const librarySummary = (
       title: card.entry.name,
       detail: `${n} ${n === 1 ? 'session' : 'sessions'}`,
       href: LibraryRoutes.project({ projectId: card.entry.project.id }),
+      art: { kind: 'project', entry: card.entry },
     };
   }
   return {
     title: card.item.name,
     detail: 'Session',
     href: studioHrefOf(card.item.source),
+    art: { kind: 'cover', seed: artSeedOf(card.item.source) },
   };
+};
+
+/**
+ * A Studio link's cover seed, as the Library draws the session
+ * (`artSeedOf`), so it wears the same cover there and here.
+ */
+const seedOfStudioHref = (href: string, fallback: string): string => {
+  const query = new URLSearchParams(href.split('?')[1] ?? '');
+  const project = query.get('project');
+  if (project) return `project:${project}`;
+  const draft = query.get('draft');
+  return draft ? `draft:${draft}` : fallback;
 };
 
 /**
@@ -114,6 +162,7 @@ export const studioSummary = (
       title: session.title,
       detail: 'Last session',
       href: session.route,
+      art: { kind: 'cover', seed: seedOfStudioHref(session.route, session.id) },
     };
   const latest = newest(items, (i) => i.updatedAt);
   return latest
@@ -121,6 +170,7 @@ export const studioSummary = (
         title: latest.name,
         detail: 'Last session',
         href: studioHrefOf(latest.source),
+        art: { kind: 'cover', seed: artSeedOf(latest.source) },
       }
     : null;
 };
@@ -134,6 +184,7 @@ export const globeSummary = (
         title: stop.title,
         detail: 'Last visited',
         href: lastGlobeStopHref(stop),
+        ...(stop.image ? { art: { kind: 'image', src: stop.image } } : {}),
       }
     : null;
 
@@ -154,6 +205,7 @@ export const arcadeSummary = (
     title: played.game.title,
     detail: `Played ${n} ${n === 1 ? 'time' : 'times'}`,
     href: (build as () => string)(),
+    art: { kind: 'game', game: played.game },
   };
 };
 

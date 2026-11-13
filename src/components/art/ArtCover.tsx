@@ -223,9 +223,10 @@ export const ArtCover = memo(function ArtCover({
           <ArtGradientDefs id={gradientId} scene={baseScene} />
           {hoverScene && <ArtGradientDefs id={hoverId} scene={hoverScene} />}
           <g className="art-base">
-            {scene.layers.map((layer) => (
+            {/* Keyed by place: two toned layers can share an opacity. */}
+            {scene.layers.map((layer, i) => (
               <path
-                key={layer.glow ? 'glow' : layer.opacity}
+                key={i}
                 data-art-glow={layer.glow || undefined}
                 d={layer.d}
                 fill="none"
@@ -246,9 +247,9 @@ export const ArtCover = memo(function ArtCover({
           </g>
           {hoverScene && (
             <g className="art-hover" data-art-hover={hoverPalette}>
-              {scene.layers.map((layer) => (
+              {scene.layers.map((layer, i) => (
                 <path
-                  key={`h-${layer.glow ? 'glow' : layer.opacity}`}
+                  key={`h-${i}`}
                   d={layer.d}
                   fill="none"
                   stroke={`url(#${hoverId})`}

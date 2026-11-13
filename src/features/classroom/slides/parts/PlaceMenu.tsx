@@ -25,18 +25,21 @@ import { projectPlaceFor, type ProjectPlace } from '../projectPlaces';
 import type { SlideElement, SlideSurface } from '../types';
 
 // ── The Individual Project's menu (owner, 2026-11-12) ──────────────────────
-// Where each student works today: the six places as the app's own icons,
-// three on each side, each with its name, joined by a thin curved line to
-// the Music Atlas logo in the middle, a short glowing streak running along
-// each line into it in the app's key-colour rainbow (after the "Animated
-// Beam Integration" diagram the owner chose; drawn here from scratch). A
-// hand on an icon runs the rainbow along its whole line, in place of its
-// streak; the other streaks finish their run into the logo and no new ones
-// set out until it leaves.
+// Where each student works today: the six places as cards, three down each
+// side, each joined by a thin curved line to the Music Atlas logo in the
+// middle, a short glowing streak running along each line into it in the
+// app's key-colour rainbow (after the "Animated Beam Integration" diagram the
+// owner chose; drawn here from scratch). A hand on a card runs the rainbow
+// along its whole line, in place of its streak; the other streaks finish
+// their run into the logo and no new ones set out until it leaves.
 //
-//   Present          each icon opens its place in a new tab
-//   a student        each icon opens its place inside the lesson (`onOpen`)
-//   room's screen    the same picture, nothing to click
+// A card is the place's app icon and name, and where the person left off
+// there (owner, 2026-11-13: one card per place, the beams running from them,
+// in place of icons over a row of boxes that named every place twice).
+//
+//   Present          each card opens where the teacher left off, in a new tab
+//   a student        each card opens theirs inside the lesson (`onOpen`)
+//   room's screen    the places and what each is, nothing to click
 //   thumbnail, or    the lines without streaks
 //   reduced motion
 //   a phone          no lines: the places as a list, icon and name
@@ -71,29 +74,29 @@ export const placeMenuOf = (
   };
 };
 
-/** An icon's tile and the logo's, in the box's px (canvas px on a slide). */
-const TILE = 52;
-const HUB = 96;
-/** An icon's control: its tile, with room for its name under it. */
-const NODE_W = TILE + 48;
-/** How far in from each side the two columns stand, as a share of the width. */
-const COLUMN_IN = 0.2;
+/** A place's card and the logo's tile, in the box's px (canvas px on a slide). */
+export const CARD_W = 320;
+export const CARD_H = 112;
+const HUB = 128;
 
 export interface PlaceNode {
   place: ProjectPlace;
   side: 'left' | 'right';
-  /** The tile's centre. */
+  /** The card's centre. */
   x: number;
   y: number;
-  /** The curve from the tile to the logo. */
+  /** Where its line leaves the card: the card's inner edge. */
+  from: number;
+  /** The curve from the card to the logo. */
   path: string;
 }
 
 /**
  * Where each place sits in a box `w` × `h`: the first half (rounded up) down
- * the left, the rest down the right, each column spread over the height, and
- * each one's curve to the logo in the middle: level as it leaves the tile,
- * level as it reaches the logo.
+ * the left edge, the rest down the right, each column spread from the box's
+ * top to its foot, and each one's curve from the card's inner edge to the
+ * logo in the middle: level as it leaves the card, level as it reaches the
+ * logo.
  */
 export const layoutPlaces = (
   places: readonly ProjectPlace[],
@@ -104,22 +107,23 @@ export const layoutPlaces = (
   const cx = w / 2;
   const cy = h / 2;
   const rowsY = (count: number, i: number) =>
-    count === 1 ? cy : h * (0.17 + (0.66 * i) / (count - 1));
+    count === 1 ? cy : CARD_H / 2 + (i * (h - CARD_H)) / (count - 1);
   return places.map((place, index) => {
     const left = index < leftCount;
     const i = left ? index : index - leftCount;
     const count = left ? leftCount : places.length - leftCount;
-    const x = left ? w * COLUMN_IN : w * (1 - COLUMN_IN);
+    const x = left ? CARD_W / 2 : w - CARD_W / 2;
     const y = rowsY(count, i);
-    const sx = left ? x + TILE / 2 : x - TILE / 2;
-    const ex = left ? cx - HUB / 2 : cx + HUB / 2;
-    const mx = (sx + ex) / 2;
+    const from = left ? CARD_W : w - CARD_W;
+    const to = left ? cx - HUB / 2 : cx + HUB / 2;
+    const mx = (from + to) / 2;
     return {
       place,
       side: left ? 'left' : 'right',
       x,
       y,
-      path: `M ${sx} ${y} C ${mx} ${y}, ${mx} ${cy}, ${ex} ${cy}`,
+      from,
+      path: `M ${from} ${y} C ${mx} ${y}, ${mx} ${cy}, ${to} ${cy}`,
     };
   });
 };
@@ -135,22 +139,18 @@ interface PlaceMenuProps {
   /** A phone's column: the places as a list, no lines. */
   stacked?: boolean;
   /**
-   * A student's device in a live session: an icon opens its place inside
-   * the lesson instead of a new tab (the `openPlace` slot), a box the very
-   * thing they left off at (`href`).
+   * A student's device in a live session: a card opens the very thing they
+   * left off at (`href`), else its place, inside the lesson instead of a new
+   * tab (the `openPlace` slot).
    */
   onOpen?: (place: ProjectPlace, href?: string) => void;
   /**
-   * The screen is one person's (Present, a student's device): the boxes
+   * The screen is one person's (Present, a student's device): the cards
    * show where they left off in each place. Never on the room's screen, a
    * thumbnail or the editor, which show the places alone.
    */
   personal?: boolean;
 }
-
-/** The row of boxes along the menu's foot, and the gap above it. */
-const BOXES_H = 84;
-const BOXES_GAP = 16;
 
 /** A place's control: a button in a lesson, a link on Present, else none. */
 const PlaceControl = ({
@@ -334,9 +334,7 @@ const PlaceMenuView = ({
       </div>
     );
 
-  // The diagram above, the boxes along the foot.
-  const beamsH = size ? Math.max(0, size.h - BOXES_H - BOXES_GAP) : 0;
-  const nodes = size ? layoutPlaces(places, size.w, beamsH) : [];
+  const nodes = size ? layoutPlaces(places, size.w, size.h) : [];
   const hand = (id: string) =>
     projected
       ? undefined
@@ -354,8 +352,8 @@ const PlaceMenuView = ({
           aria-hidden
           className="pointer-events-none absolute left-0 top-0"
           width={size.w}
-          height={beamsH}
-          viewBox={`0 0 ${size.w} ${beamsH}`}
+          height={size.h}
+          viewBox={`0 0 ${size.w} ${size.h}`}
         >
           <defs>
             {nodes.map((node) => (
@@ -363,10 +361,10 @@ const PlaceMenuView = ({
                 key={node.place.id}
                 id={`${uid}-${node.place.id}`}
                 gradientUnits="userSpaceOnUse"
-                x1={node.x}
+                x1={node.from}
                 y1={node.y}
                 x2={size.w / 2}
-                y2={beamsH / 2}
+                y2={size.h / 2}
               >
                 {KEY_RAINBOW_COLORS.map((color, i) => (
                   <stop
@@ -383,8 +381,8 @@ const PlaceMenuView = ({
             {nodes
               .filter((node) => node.place.id === lit)
               .map((node) => {
-                const dx = size.w / 2 - node.x;
-                const dy = beamsH / 2 - node.y;
+                const dx = size.w / 2 - node.from;
+                const dy = size.h / 2 - node.y;
                 const ring = [...KEY_RAINBOW_COLORS, KEY_RAINBOW_COLORS[0]!];
                 return (
                   <linearGradient
@@ -392,10 +390,10 @@ const PlaceMenuView = ({
                     id={`${uid}-${node.place.id}-flow`}
                     gradientUnits="userSpaceOnUse"
                     spreadMethod="repeat"
-                    x1={node.x}
+                    x1={node.from}
                     y1={node.y}
                     x2={size.w / 2}
-                    y2={beamsH / 2}
+                    y2={size.h / 2}
                   >
                     {ring.map((color, i) => (
                       <stop
@@ -421,7 +419,7 @@ const PlaceMenuView = ({
           {nodes.map((node, index) => {
             const on = lit === node.place.id;
             const stroke = `url(#${uid}-${node.place.id})`;
-            // A hand on an icon: its whole line in the flowing rainbow and no
+            // A hand on a card: its whole line in the flowing rainbow and no
             // streak of its own; every other line's streak runs on into the
             // logo, and then no new one sets out (it stops at the end of its
             // loop, where nothing shows) until the hand leaves.
@@ -482,104 +480,83 @@ const PlaceMenuView = ({
 
       {size && (
         <div
-          className="absolute flex items-center justify-center rounded-[24px] border border-white/10 bg-[#141418] shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
+          className="absolute flex items-center justify-center rounded-[28px] border border-white/10 bg-[#141418] shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
           style={{
             left: size.w / 2 - HUB / 2,
-            top: beamsH / 2 - HUB / 2,
+            top: size.h / 2 - HUB / 2,
             width: HUB,
             height: HUB,
           }}
         >
-          <Logo className="size-[44px]" />
+          <Logo className="size-[60px]" />
         </div>
       )}
 
       {nodes.map((node) => {
-        const name = pickLocalized(node.place.label, language);
-        const Icon = AppIcons[node.place.id];
-        const on = lit === node.place.id;
+        const { place } = node;
+        const name = pickLocalized(place.label, language);
+        const Icon = AppIcons[place.id];
+        const on = lit === place.id;
+        // Where the person left off there; none on a screen that isn't theirs.
+        const left = summaries?.[place.id] ?? null;
         return (
           <PlaceControl
-            key={node.place.id}
-            place={node.place}
+            key={place.id}
+            place={place}
             name={name}
-            url={urlOf(node.place)}
+            url={left?.href ?? urlOf(place)}
+            href={left?.href}
             sectionLabel={sectionLabel}
             onOpen={onOpen}
-            onHand={hand(node.place.id)}
-            className="absolute flex flex-col items-center gap-[6px] rounded-[16px]"
+            onHand={hand(place.id)}
+            className={`absolute flex items-center gap-[16px] rounded-[20px] border bg-[#141418] px-[20px] text-left shadow-[0_10px_32px_rgba(0,0,0,0.4)] transition-[border-color,transform] duration-300 ${
+              on ? 'translate-y-[-2px] border-white/30' : 'border-white/10'
+            }`}
             style={{
-              left: node.x - NODE_W / 2,
-              top: node.y - TILE / 2,
-              width: NODE_W,
+              left: node.x - CARD_W / 2,
+              top: node.y - CARD_H / 2,
+              width: CARD_W,
+              height: CARD_H,
             }}
           >
             <span
-              data-place={node.place.id}
-              className={`flex items-center justify-center rounded-[16px] border bg-[#141418] text-white shadow-[0_6px_24px_rgba(0,0,0,0.4)] transition-[border-color,transform] duration-300 ${
-                on ? 'scale-105 border-white/30' : 'border-white/10'
-              }`}
-              style={{ width: TILE, height: TILE }}
+              data-place={place.id}
+              className="flex size-[52px] shrink-0 items-center justify-center rounded-[14px] border border-white/10 bg-white/[0.04] text-white"
             >
               <Icon className="size-[26px]" aria-hidden />
             </span>
-            <span className="whitespace-nowrap text-[0.7em] leading-none text-white/60">
-              {name}
-            </span>
-          </PlaceControl>
-        );
-      })}
-
-      {/* Where the person left off in each place (owner, 2026-11-12): six
-          boxes along the foot, each opening the very thing; the room's
-          screen and a thumbnail show the places alone. */}
-      <div
-        data-place-boxes=""
-        className="absolute inset-x-0 bottom-0 grid grid-cols-6 gap-[12px]"
-        style={{ height: BOXES_H }}
-      >
-        {places.map((place) => {
-          const name = pickLocalized(place.label, language);
-          const Icon = AppIcons[place.id];
-          const left = summaries?.[place.id] ?? null;
-          const on = lit === place.id;
-          return (
-            <PlaceControl
-              key={place.id}
-              place={place}
-              name={name}
-              url={left?.href ?? urlOf(place)}
-              href={left?.href}
-              sectionLabel={sectionLabel}
-              onOpen={onOpen}
-              onHand={hand(place.id)}
-              className={`flex min-w-0 flex-col justify-center gap-[6px] rounded-[16px] border bg-[#141418] px-[16px] text-left transition-colors duration-300 ${
-                on ? 'border-white/30' : 'border-white/10'
-              }`}
+            <span
+              data-place-card={place.id}
+              className="flex min-w-0 flex-col gap-[6px]"
             >
-              <span
-                data-place-box={place.id}
-                className="flex items-center gap-[6px] text-[0.6em] leading-none text-white/50"
-              >
-                <Icon className="size-[1.1em] shrink-0" aria-hidden />
-                {name}
-              </span>
-              {summaries && (
+              {summaries ? (
                 <>
-                  <span className="truncate text-[0.72em] leading-tight text-white">
+                  <span className="text-[0.6em] leading-none text-white/55">
+                    {name}
+                  </span>
+                  <span className="line-clamp-2 text-[0.85em] leading-tight text-white">
                     {left?.title ?? PLACE_INVITATION[place.id]}
                   </span>
                   {left?.detail && (
-                    <span className="truncate text-[0.58em] leading-none text-white/45">
+                    <span className="truncate text-[0.6em] leading-none text-white/45">
                       {left.detail}
                     </span>
                   )}
                 </>
+              ) : (
+                <>
+                  <span className="text-[0.9em] leading-tight text-white">
+                    {name}
+                  </span>
+                  <span className="text-[0.62em] leading-tight text-white/50">
+                    {pickLocalized(place.blurb, language)}
+                  </span>
+                </>
               )}
-            </PlaceControl>
-          );
-        })}
-      </div>
+            </span>
+          </PlaceControl>
+        );
+      })}
     </div>
   );
 };

@@ -16,6 +16,8 @@ export interface ProjectPlace {
   /** Resolved by `resolveActivityRefHref`. */
   ref: string;
   label: LocalizedText;
+  /** What it is, in a few words: its card on the room's screen. */
+  blurb: LocalizedText;
   /** The place, playing: a silent loop, and its first frame for stills. */
   clip?: { src: string; poster: string };
 }
@@ -32,6 +34,7 @@ export const PROJECT_PLACES: readonly ProjectPlace[] = [
     module: 'learn',
     ref: 'learn:home',
     label: { en: 'Learn', es: 'Aprende' },
+    blurb: { en: 'Lessons and courses', es: 'Lecciones y cursos' },
   },
   {
     id: 'songs',
@@ -39,6 +42,7 @@ export const PROJECT_PLACES: readonly ProjectPlace[] = [
     module: 'learn',
     ref: 'learn:songs',
     label: { en: 'Songs', es: 'Canciones' },
+    blurb: { en: 'Play along with songs', es: 'Toca con canciones' },
   },
   {
     id: 'library',
@@ -46,6 +50,7 @@ export const PROJECT_PLACES: readonly ProjectPlace[] = [
     module: 'studio',
     ref: 'studio:library',
     label: { en: 'Library', es: 'Biblioteca' },
+    blurb: { en: 'Your projects and sessions', es: 'Tus proyectos y sesiones' },
   },
   {
     id: 'studio',
@@ -53,6 +58,7 @@ export const PROJECT_PLACES: readonly ProjectPlace[] = [
     module: 'studio',
     ref: 'studio:editor',
     label: { en: 'Studio', es: 'Studio' },
+    blurb: { en: 'Make your own music', es: 'Haz tu propia música' },
   },
   {
     id: 'globe',
@@ -60,12 +66,14 @@ export const PROJECT_PLACES: readonly ProjectPlace[] = [
     module: 'globe',
     ref: 'globe:home',
     label: { en: 'Globe', es: 'Globo' },
+    blurb: { en: 'Music around the world', es: 'Música por el mundo' },
   },
   {
     id: 'arcade',
     module: 'arcade',
     ref: 'arcade:root',
     label: { en: 'Arcade', es: 'Arcade' },
+    blurb: { en: 'Music games', es: 'Juegos musicales' },
   },
 ];
 

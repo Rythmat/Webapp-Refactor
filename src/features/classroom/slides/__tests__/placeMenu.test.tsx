@@ -1,14 +1,15 @@
 // @vitest-environment jsdom
 /**
- * The Individual Project's menu (owner, 2026-11-12): the six places as the
- * app's icons, three each side, named, each joined by a line to the Music
- * Atlas logo with a streak running into it.
+ * The Individual Project's menu (owner, 2026-11-12): the six places as
+ * cards, three each side, each joined by a line to the Music Atlas logo with
+ * a streak running into it, and showing where the person left off there
+ * (2026-11-13: one card per place).
  */
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SlideRenderer } from '../SlideRenderer';
 import { buildCortexLessonSkeleton } from '../cortex/buildDeck';
-import { layoutPlaces } from '../parts/PlaceMenu';
+import { CARD_H, CARD_W, layoutPlaces } from '../parts/PlaceMenu';
 import { usePlaceSummaries } from '../placeSummaries';
 import { PROJECT_PLACES } from '../projectPlaces';
 import { resolveActivityRefHref } from '../resolveContentHref';
@@ -66,7 +67,7 @@ const NAMES = ['Learn', 'Songs', 'Library', 'Studio', 'Globe', 'Arcade'];
 
 describe('where the six places sit', () => {
   it('runs three down each side, the logo between them', () => {
-    const nodes = layoutPlaces(PROJECT_PLACES, 1152, 380);
+    const nodes = layoutPlaces(PROJECT_PLACES, 1152, 396);
     expect(nodes.map((n) => n.side)).toEqual([
       'left',
       'left',
@@ -77,18 +78,22 @@ describe('where the six places sit', () => {
     ]);
     const left = nodes.filter((n) => n.side === 'left');
     const right = nodes.filter((n) => n.side === 'right');
-    // Level across, spread down, the columns either side of the middle.
+    // Level across, the cards reaching from the box's top to its foot.
     expect(left.map((n) => n.y)).toEqual(right.map((n) => n.y));
-    expect(left[0]!.y).toBeLessThan(left[1]!.y);
-    expect(left[1]!.y).toBe(190);
-    expect(left[0]!.x).toBeLessThan(576);
-    expect(right[0]!.x).toBeGreaterThan(576);
-    // Each line ends at the logo's edge, level with its middle.
-    for (const n of nodes) expect(n.path).toMatch(/ 190$/);
+    expect(left.map((n) => n.y)).toEqual([CARD_H / 2, 198, 396 - CARD_H / 2]);
+    // The columns stand at the two edges.
+    for (const n of left) expect(n.x).toBe(CARD_W / 2);
+    for (const n of right) expect(n.x).toBe(1152 - CARD_W / 2);
+    // Each line leaves its card's inner edge and ends at the logo's edge,
+    // level with its middle.
+    for (const n of left) expect(n.path).toMatch(new RegExp(`^M ${CARD_W} `));
+    for (const n of right)
+      expect(n.path).toMatch(new RegExp(`^M ${1152 - CARD_W} `));
+    for (const n of nodes) expect(n.path).toMatch(/ 198$/);
   });
 
   it('lays an older five-place lesson out three and two', () => {
-    const nodes = layoutPlaces(PROJECT_PLACES.slice(0, 5), 1152, 380);
+    const nodes = layoutPlaces(PROJECT_PLACES.slice(0, 5), 1152, 396);
     expect(nodes.filter((n) => n.side === 'left')).toHaveLength(3);
     expect(nodes.filter((n) => n.side === 'right')).toHaveLength(2);
   });
@@ -102,16 +107,23 @@ describe('where the six places sit', () => {
 });
 
 describe('the Individual Project menu', () => {
-  it('offers the six places as named icons around the logo, with lines', () => {
+  it('offers the six places as cards around the logo, with lines', () => {
     const root = draw('student');
     const menus = root.querySelectorAll('[data-place-menu]');
     expect(menus).toHaveLength(1);
+    // One card per place, and nothing else to click.
     const links = [
       ...menus[0]!.querySelectorAll<HTMLAnchorElement>(
         '[data-place-beams] > a',
       ),
     ];
-    expect(links.map((a) => a.textContent)).toEqual(NAMES);
+    expect(links).toHaveLength(6);
+    expect(menus[0]!.querySelectorAll('a')).toHaveLength(6);
+    expect(
+      links.map(
+        (a) => a.querySelector('[data-place-card] > span')!.textContent,
+      ),
+    ).toEqual(NAMES);
     expect(links.every((a) => a.target === '_blank')).toBe(true);
     expect(menus[0]!.querySelectorAll('[data-place] svg')).toHaveLength(6);
     expect(menus[0]!.querySelectorAll('[data-beam]')).toHaveLength(6);
@@ -166,12 +178,11 @@ describe('the Individual Project menu', () => {
     expect(root.querySelectorAll('[data-place-menu] a')).toHaveLength(0);
     expect(root.querySelectorAll('[data-place-menu] button')).toHaveLength(0);
     expect(root.querySelectorAll('[data-place]')).toHaveLength(6);
-    // The boxes name the places, and no one's work: nothing of anyone's read.
+    // The cards name the places and say what each is, and no one's work:
+    // nothing of anyone's read.
     expect(
-      [...root.querySelectorAll('[data-place-boxes] > *')].map(
-        (b) => b.textContent,
-      ),
-    ).toEqual(NAMES);
+      [...root.querySelectorAll('[data-place-card]')].map((b) => b.textContent),
+    ).toEqual(PROJECT_PLACES.map((p) => `${p.label.en}${p.blurb.en}`));
     expect(usePlaceSummaries).not.toHaveBeenCalled();
   });
 
@@ -210,18 +221,18 @@ describe('the Individual Project menu', () => {
       />,
     ).container;
     expect(root.querySelectorAll('[data-place-menu] a')).toHaveLength(0);
-    const icons = root.querySelectorAll('[data-place-beams] > button');
-    expect(icons).toHaveLength(6);
-    fireEvent.click(icons[5]!);
+    const cards = root.querySelectorAll('[data-place-beams] > button');
+    expect(cards).toHaveLength(6);
+    fireEvent.click(cards[5]!);
     expect(openPlace).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'arcade' }),
     );
   });
 
-  it('shows where the person left off along the foot, each opening it', () => {
+  it('shows where the person left off on each card, each opening it', () => {
     const root = draw('present');
     const boxes = [
-      ...root.querySelectorAll<HTMLAnchorElement>('[data-place-boxes] > a'),
+      ...root.querySelectorAll<HTMLAnchorElement>('[data-place-beams] > a'),
     ];
     expect(boxes.map((b) => b.textContent)).toEqual([
       'LearnPop — Level 13/8 activities',
@@ -237,16 +248,16 @@ describe('the Individual Project menu', () => {
     expect(boxes[5]!.getAttribute('href')).toBe('/arcade');
   });
 
-  it('lights a place’s line from its box too', () => {
+  it('lights a place’s line from its card', () => {
     const root = draw('present');
-    const box = root.querySelectorAll('[data-place-boxes] > a')[1]!;
+    const box = root.querySelectorAll('[data-place-beams] > a')[1]!;
     fireEvent.pointerEnter(box);
     expect(
       root.querySelector('[data-beam="songs"] path')!.getAttribute('stroke'),
     ).toMatch(/-songs-flow\)$/);
   });
 
-  it('in a live lesson, a box opens the very thing inside the lesson', () => {
+  it('in a live lesson, a card opens the very thing inside the lesson', () => {
     const openPlace = vi.fn();
     const root = render(
       <SlideRenderer
@@ -257,7 +268,7 @@ describe('the Individual Project menu', () => {
         slots={{ openPlace }}
       />,
     ).container;
-    const boxes = root.querySelectorAll('[data-place-boxes] > button');
+    const boxes = root.querySelectorAll('[data-place-beams] > button');
     fireEvent.click(boxes[4]!);
     expect(openPlace).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'globe' }),

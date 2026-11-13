@@ -30,6 +30,11 @@ interface LessonWorkspaceProps {
   opened: readonly ProjectPlaceId[];
   shown: ProjectPlaceId;
   onShow: (place: ProjectPlace) => void;
+  /**
+   * Where a place opened: the very thing a student left off at (the
+   * Independent Project's boxes), else the place's front page.
+   */
+  hrefs?: Readonly<Partial<Record<ProjectPlaceId, string>>>;
   /** Show the teacher's slide over the work. */
   onSlides: () => void;
   /** The lesson's name. */
@@ -71,6 +76,7 @@ const placeOf = (id: ProjectPlaceId): ProjectPlace =>
 export const LessonWorkspace = ({
   opened,
   shown,
+  hrefs,
   onShow,
   onSlides,
   title,
@@ -82,10 +88,12 @@ export const LessonWorkspace = ({
 }: LessonWorkspaceProps) => {
   const { config } = useTeacherConfig();
   const srcOf = (place: ProjectPlace) =>
+    hrefs?.[place.id] ??
     resolveModuleUrl(
       { id: place.id, module: place.module, activityRef: place.ref },
       config.moduleUrls,
-    ) ?? '/';
+    ) ??
+    '/';
 
   return (
     <div

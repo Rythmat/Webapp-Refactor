@@ -44,7 +44,7 @@ interface StudentSlideViewProps {
   /** The server's clock (the clock check): what Echo's round starts follow. */
   clock?: SessionClock;
   /** Open an Individual Project place inside the lesson (live/workspace). */
-  onOpenPlace?: (place: ProjectPlace) => void;
+  onOpenPlace?: (place: ProjectPlace, href?: string) => void;
 }
 
 /**

@@ -255,7 +255,9 @@ export const SLIDE_GRID = {
    * pills.
    */
   ctaCenter: {
-    rect: { x: 64, y: 224, w: 1152, h: 380 },
+    // Just under the title to the safe area's foot: the diagram, then a
+    // row of where-you-left-off boxes (owner, 2026-11-12).
+    rect: { x: 64, y: 208, w: 1152, h: 396 },
     role: 'content',
     flow: 'row',
     // The six places (Arcade joined them, owner 2026-11-12).

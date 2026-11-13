@@ -48,7 +48,7 @@ export interface SlideSlots {
    * running around the student's work. Absent elsewhere: the places are
    * links (Present, previews) or pictures (the room's screen).
    */
-  openPlace?: (place: ProjectPlace) => void;
+  openPlace?: (place: ProjectPlace, href?: string) => void;
 }
 
 export interface SlideRendererProps {

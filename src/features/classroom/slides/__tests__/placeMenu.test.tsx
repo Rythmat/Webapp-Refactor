@@ -9,13 +9,35 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SlideRenderer } from '../SlideRenderer';
 import { buildCortexLessonSkeleton } from '../cortex/buildDeck';
 import { layoutPlaces } from '../parts/PlaceMenu';
+import { usePlaceSummaries } from '../placeSummaries';
 import { PROJECT_PLACES } from '../projectPlaces';
 import { resolveActivityRefHref } from '../resolveContentHref';
 import type { Slide } from '../types';
 
+// The person's own data, as their screen would read it.
+vi.mock('../placeSummaries', async (actual) => ({
+  ...(await actual<typeof import('../placeSummaries')>()),
+  usePlaceSummaries: vi.fn(() => ({
+    learn: {
+      title: 'Pop — Level 1',
+      detail: '3/8 activities',
+      href: '/learn/pop/1',
+    },
+    songs: { title: '1999', detail: 'Prince', href: '/songs/1999' },
+    library: null,
+    studio: null,
+    globe: {
+      title: 'Soul Makossa',
+      detail: 'Last visited',
+      href: '/globe?event=e1',
+    },
+    arcade: null,
+  })),
+}));
+
 afterEach(() => {
   cleanup();
-  vi.restoreAllMocks();
+  vi.mocked(usePlaceSummaries).mockClear();
 });
 
 const projectSlide = (): Slide => {
@@ -27,7 +49,7 @@ const projectSlide = (): Slide => {
 };
 
 const draw = (
-  surface: 'student' | 'projector',
+  surface: 'student' | 'projector' | 'present',
   more: { still?: boolean; layoutMode?: 'reflow' } = {},
 ) =>
   render(
@@ -84,7 +106,11 @@ describe('the Individual Project menu', () => {
     const root = draw('student');
     const menus = root.querySelectorAll('[data-place-menu]');
     expect(menus).toHaveLength(1);
-    const links = [...menus[0]!.querySelectorAll('a')];
+    const links = [
+      ...menus[0]!.querySelectorAll<HTMLAnchorElement>(
+        '[data-place-beams] > a',
+      ),
+    ];
     expect(links.map((a) => a.textContent)).toEqual(NAMES);
     expect(links.every((a) => a.target === '_blank')).toBe(true);
     expect(menus[0]!.querySelectorAll('[data-place] svg')).toHaveLength(6);
@@ -99,7 +125,7 @@ describe('the Individual Project menu', () => {
 
   it('draws the line under a hand in the rainbow; the others finish, then start no more', () => {
     const root = draw('student');
-    const studio = root.querySelectorAll('[data-place-menu] a')[3]!;
+    const studio = root.querySelectorAll('[data-place-beams] > a')[3]!;
     const line = (id: string) =>
       root.querySelector(`[data-beam="${id}"] path`)!.getAttribute('stroke');
     const streaks = (id: string) => [
@@ -140,21 +166,35 @@ describe('the Individual Project menu', () => {
     expect(root.querySelectorAll('[data-place-menu] a')).toHaveLength(0);
     expect(root.querySelectorAll('[data-place-menu] button')).toHaveLength(0);
     expect(root.querySelectorAll('[data-place]')).toHaveLength(6);
+    // The boxes name the places, and no one's work: nothing of anyone's read.
+    expect(
+      [...root.querySelectorAll('[data-place-boxes] > *')].map(
+        (b) => b.textContent,
+      ),
+    ).toEqual(NAMES);
+    expect(usePlaceSummaries).not.toHaveBeenCalled();
   });
 
   it('runs no streaks in a thumbnail', () => {
     const root = draw('projector', { still: true });
     expect(root.querySelectorAll('[data-beam]')).toHaveLength(6);
     expect(root.querySelectorAll('.place-beam')).toHaveLength(0);
+    expect(usePlaceSummaries).not.toHaveBeenCalled();
   });
 
   it('lists the six on a phone, without lines', () => {
     const root = draw('student', { layoutMode: 'reflow' });
-    expect(
-      [...root.querySelectorAll('[data-place-menu] a')].map(
-        (a) => a.textContent,
-      ),
-    ).toEqual(NAMES);
+    const rows = [...root.querySelectorAll('[data-place-menu] a')];
+    expect(rows.map((a) => a.textContent)).toEqual([
+      'LearnPop — Level 1',
+      'Songs1999',
+      'Library',
+      'Studio',
+      'GlobeSoul Makossa',
+      'Arcade',
+    ]);
+    // A row with their work opens it.
+    expect(rows[0]!.getAttribute('href')).toBe('/learn/pop/1');
     expect(root.querySelectorAll('[data-beam]')).toHaveLength(0);
   });
 
@@ -170,10 +210,62 @@ describe('the Individual Project menu', () => {
       />,
     ).container;
     expect(root.querySelectorAll('[data-place-menu] a')).toHaveLength(0);
-    const icons = root.querySelectorAll('[data-place-menu] button');
+    const icons = root.querySelectorAll('[data-place-beams] > button');
     expect(icons).toHaveLength(6);
     fireEvent.click(icons[5]!);
     expect(openPlace).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'arcade' }),
+    );
+  });
+
+  it('shows where the person left off along the foot, each opening it', () => {
+    const root = draw('present');
+    const boxes = [
+      ...root.querySelectorAll<HTMLAnchorElement>('[data-place-boxes] > a'),
+    ];
+    expect(boxes.map((b) => b.textContent)).toEqual([
+      'LearnPop — Level 13/8 activities',
+      'Songs1999Prince',
+      'LibraryStart a project',
+      'StudioStart a session',
+      'GlobeSoul MakossaLast visited',
+      'ArcadePlay a game',
+    ]);
+    expect(boxes[0]!.getAttribute('href')).toBe('/learn/pop/1');
+    expect(boxes[0]!.target).toBe('_blank');
+    // A place with nothing of theirs opens at its front page.
+    expect(boxes[5]!.getAttribute('href')).toBe('/arcade');
+  });
+
+  it('lights a place’s line from its box too', () => {
+    const root = draw('present');
+    const box = root.querySelectorAll('[data-place-boxes] > a')[1]!;
+    fireEvent.pointerEnter(box);
+    expect(
+      root.querySelector('[data-beam="songs"] path')!.getAttribute('stroke'),
+    ).toMatch(/-songs-flow\)$/);
+  });
+
+  it('in a live lesson, a box opens the very thing inside the lesson', () => {
+    const openPlace = vi.fn();
+    const root = render(
+      <SlideRenderer
+        slide={projectSlide()}
+        surface="student"
+        language="en"
+        interactions={[]}
+        slots={{ openPlace }}
+      />,
+    ).container;
+    const boxes = root.querySelectorAll('[data-place-boxes] > button');
+    fireEvent.click(boxes[4]!);
+    expect(openPlace).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'globe' }),
+      '/globe?event=e1',
+    );
+    // Nothing of theirs there: the place itself.
+    fireEvent.click(boxes[5]!);
+    expect(openPlace).toHaveBeenLastCalledWith(
       expect.objectContaining({ id: 'arcade' }),
     );
   });

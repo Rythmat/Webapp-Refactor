@@ -122,12 +122,17 @@ export const LiveSessionPage = () => {
   // over them (opened from the bar, or set aside from a slide that asks).
   const [openedPlaces, setOpenedPlaces] = useState<ProjectPlaceId[]>([]);
   const [shownPlace, setShownPlace] = useState<ProjectPlaceId | null>(null);
+  // Where each opened, when a student picked up where they left off.
+  const [placeHrefs, setPlaceHrefs] = useState<
+    Partial<Record<ProjectPlaceId, string>>
+  >({});
   const [sheetPinned, setSheetPinned] = useState(false);
   const [sheetSetAside, setSheetSetAside] = useState<string | null>(null);
   // A new session starts with nothing open.
   useEffect(() => {
     setOpenedPlaces([]);
     setShownPlace(null);
+    setPlaceHrefs({});
     setSheetPinned(false);
     setSheetSetAside(null);
   }, [sid]);
@@ -287,7 +292,10 @@ export const LiveSessionPage = () => {
     );
   };
 
-  const openPlace = (place: ProjectPlace) => {
+  const openPlace = (place: ProjectPlace, href?: string) => {
+    // An app path only: the very thing to pick up, in its place's frame.
+    if (href?.startsWith('/') && !href.startsWith('//'))
+      setPlaceHrefs((prev) => ({ ...prev, [place.id]: href }));
     setOpenedPlaces((prev) =>
       prev.includes(place.id) ? prev : [...prev, place.id],
     );
@@ -358,6 +366,7 @@ export const LiveSessionPage = () => {
           <LessonWorkspace
             opened={openedPlaces}
             shown={shownPlace}
+            hrefs={placeHrefs}
             onShow={openPlace}
             onSlides={() => setSheetPinned(true)}
             onCloseSheet={() => {

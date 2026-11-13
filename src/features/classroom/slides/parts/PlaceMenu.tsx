@@ -16,6 +16,11 @@ import { pickLocalized } from '../../presentation/localized';
 import { resolveModuleUrl } from '../../presentation/resolveModuleUrl';
 import { useTeacherConfig } from '../../settings/useTeacherConfig';
 import type { StudentLanguage } from '../../types';
+import {
+  PLACE_INVITATION,
+  usePlaceSummaries,
+  type PlaceSummaries,
+} from '../placeSummaries';
 import { projectPlaceFor, type ProjectPlace } from '../projectPlaces';
 import type { SlideElement, SlideSurface } from '../types';
 
@@ -67,8 +72,8 @@ export const placeMenuOf = (
 };
 
 /** An icon's tile and the logo's, in the box's px (canvas px on a slide). */
-const TILE = 64;
-const HUB = 112;
+const TILE = 52;
+const HUB = 96;
 /** An icon's control: its tile, with room for its name under it. */
 const NODE_W = TILE + 48;
 /** How far in from each side the two columns stand, as a share of the width. */
@@ -131,10 +136,21 @@ interface PlaceMenuProps {
   stacked?: boolean;
   /**
    * A student's device in a live session: an icon opens its place inside
-   * the lesson instead of a new tab (the `openPlace` slot).
+   * the lesson instead of a new tab (the `openPlace` slot), a box the very
+   * thing they left off at (`href`).
    */
-  onOpen?: (place: ProjectPlace) => void;
+  onOpen?: (place: ProjectPlace, href?: string) => void;
+  /**
+   * The screen is one person's (Present, a student's device): the boxes
+   * show where they left off in each place. Never on the room's screen, a
+   * thumbnail or the editor, which show the places alone.
+   */
+  personal?: boolean;
 }
+
+/** The row of boxes along the menu's foot, and the gap above it. */
+const BOXES_H = 84;
+const BOXES_GAP = 16;
 
 /** A place's control: a button in a lesson, a link on Present, else none. */
 const PlaceControl = ({
@@ -143,6 +159,7 @@ const PlaceControl = ({
   url,
   sectionLabel,
   onOpen,
+  href,
   className,
   style,
   onHand,
@@ -152,7 +169,9 @@ const PlaceControl = ({
   name: string;
   url: string | null;
   sectionLabel: string;
-  onOpen?: ((place: ProjectPlace) => void) | undefined;
+  onOpen?: ((place: ProjectPlace, href?: string) => void) | undefined;
+  /** What a lesson's button opens: the very thing, else the place. */
+  href?: string | undefined;
   className: string;
   style?: CSSProperties;
   onHand?: ((on: boolean) => void) | undefined;
@@ -172,7 +191,7 @@ const PlaceControl = ({
     return (
       <button
         type="button"
-        onClick={() => onOpen(place)}
+        onClick={() => (href ? onOpen(place, href) : onOpen(place))}
         aria-label={`${name}, opens inside the lesson (${sectionLabel})`}
         className={`${className} ${ring}`}
         style={style}
@@ -202,7 +221,20 @@ const PlaceControl = ({
   );
 };
 
-export const PlaceMenu = ({
+/** Where the person left off in each place: read only on their own screen. */
+const PersonalPlaceMenu = (props: PlaceMenuProps) => {
+  const summaries = usePlaceSummaries();
+  return <PlaceMenuView {...props} summaries={summaries} />;
+};
+
+export const PlaceMenu = (props: PlaceMenuProps) =>
+  props.personal ? (
+    <PersonalPlaceMenu {...props} />
+  ) : (
+    <PlaceMenuView {...props} summaries={null} />
+  );
+
+const PlaceMenuView = ({
   places,
   surface,
   language,
@@ -210,7 +242,8 @@ export const PlaceMenu = ({
   still = false,
   stacked = false,
   onOpen,
-}: PlaceMenuProps) => {
+  summaries,
+}: PlaceMenuProps & { summaries: PlaceSummaries | null }) => {
   const reduce = useReducedMotion() ?? false;
   const { config } = useTeacherConfig();
   // The room's screen can't be tapped.
@@ -274,25 +307,40 @@ export const PlaceMenu = ({
         {places.map((place) => {
           const name = pickLocalized(place.label, language);
           const Icon = AppIcons[place.id];
+          const left = summaries?.[place.id];
           return (
             <PlaceControl
               key={place.id}
               place={place}
               name={name}
-              url={urlOf(place)}
+              url={left?.href ?? urlOf(place)}
+              href={left?.href}
               sectionLabel={sectionLabel}
               onOpen={onOpen}
               className="flex h-14 w-full items-center gap-3 rounded-xl border border-white/10 bg-[#141418] px-4 text-left text-white"
             >
               <Icon className="size-5 shrink-0" aria-hidden />
-              <span className="text-[0.9em] text-white/80">{name}</span>
+              <span className="flex min-w-0 flex-col">
+                <span className="text-[0.9em] text-white/80">{name}</span>
+                {left && (
+                  <span className="truncate text-[0.75em] text-white/50">
+                    {left.title}
+                  </span>
+                )}
+              </span>
             </PlaceControl>
           );
         })}
       </div>
     );
 
-  const nodes = size ? layoutPlaces(places, size.w, size.h) : [];
+  // The diagram above, the boxes along the foot.
+  const beamsH = size ? Math.max(0, size.h - BOXES_H - BOXES_GAP) : 0;
+  const nodes = size ? layoutPlaces(places, size.w, beamsH) : [];
+  const hand = (id: string) =>
+    projected
+      ? undefined
+      : (on: boolean) => setLit((was) => (on ? id : was === id ? null : was));
 
   return (
     <div
@@ -304,10 +352,10 @@ export const PlaceMenu = ({
       {size && (
         <svg
           aria-hidden
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute left-0 top-0"
           width={size.w}
-          height={size.h}
-          viewBox={`0 0 ${size.w} ${size.h}`}
+          height={beamsH}
+          viewBox={`0 0 ${size.w} ${beamsH}`}
         >
           <defs>
             {nodes.map((node) => (
@@ -318,7 +366,7 @@ export const PlaceMenu = ({
                 x1={node.x}
                 y1={node.y}
                 x2={size.w / 2}
-                y2={size.h / 2}
+                y2={beamsH / 2}
               >
                 {KEY_RAINBOW_COLORS.map((color, i) => (
                   <stop
@@ -336,7 +384,7 @@ export const PlaceMenu = ({
               .filter((node) => node.place.id === lit)
               .map((node) => {
                 const dx = size.w / 2 - node.x;
-                const dy = size.h / 2 - node.y;
+                const dy = beamsH / 2 - node.y;
                 const ring = [...KEY_RAINBOW_COLORS, KEY_RAINBOW_COLORS[0]!];
                 return (
                   <linearGradient
@@ -347,7 +395,7 @@ export const PlaceMenu = ({
                     x1={node.x}
                     y1={node.y}
                     x2={size.w / 2}
-                    y2={size.h / 2}
+                    y2={beamsH / 2}
                   >
                     {ring.map((color, i) => (
                       <stop
@@ -434,15 +482,15 @@ export const PlaceMenu = ({
 
       {size && (
         <div
-          className="absolute flex items-center justify-center rounded-[28px] border border-white/10 bg-[#141418] shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
+          className="absolute flex items-center justify-center rounded-[24px] border border-white/10 bg-[#141418] shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
           style={{
             left: size.w / 2 - HUB / 2,
-            top: size.h / 2 - HUB / 2,
+            top: beamsH / 2 - HUB / 2,
             width: HUB,
             height: HUB,
           }}
         >
-          <Logo className="size-[52px]" />
+          <Logo className="size-[44px]" />
         </div>
       )}
 
@@ -458,15 +506,8 @@ export const PlaceMenu = ({
             url={urlOf(node.place)}
             sectionLabel={sectionLabel}
             onOpen={onOpen}
-            onHand={
-              projected
-                ? undefined
-                : (hand) =>
-                    setLit((was) =>
-                      hand ? node.place.id : was === node.place.id ? null : was,
-                    )
-            }
-            className="absolute flex flex-col items-center gap-[8px] rounded-[20px]"
+            onHand={hand(node.place.id)}
+            className="absolute flex flex-col items-center gap-[6px] rounded-[16px]"
             style={{
               left: node.x - NODE_W / 2,
               top: node.y - TILE / 2,
@@ -475,12 +516,12 @@ export const PlaceMenu = ({
           >
             <span
               data-place={node.place.id}
-              className={`flex items-center justify-center rounded-[20px] border bg-[#141418] text-white shadow-[0_6px_24px_rgba(0,0,0,0.4)] transition-[border-color,transform] duration-300 ${
+              className={`flex items-center justify-center rounded-[16px] border bg-[#141418] text-white shadow-[0_6px_24px_rgba(0,0,0,0.4)] transition-[border-color,transform] duration-300 ${
                 on ? 'scale-105 border-white/30' : 'border-white/10'
               }`}
               style={{ width: TILE, height: TILE }}
             >
-              <Icon className="size-[30px]" aria-hidden />
+              <Icon className="size-[26px]" aria-hidden />
             </span>
             <span className="whitespace-nowrap text-[0.7em] leading-none text-white/60">
               {name}
@@ -488,6 +529,57 @@ export const PlaceMenu = ({
           </PlaceControl>
         );
       })}
+
+      {/* Where the person left off in each place (owner, 2026-11-12): six
+          boxes along the foot, each opening the very thing; the room's
+          screen and a thumbnail show the places alone. */}
+      <div
+        data-place-boxes=""
+        className="absolute inset-x-0 bottom-0 grid grid-cols-6 gap-[12px]"
+        style={{ height: BOXES_H }}
+      >
+        {places.map((place) => {
+          const name = pickLocalized(place.label, language);
+          const Icon = AppIcons[place.id];
+          const left = summaries?.[place.id] ?? null;
+          const on = lit === place.id;
+          return (
+            <PlaceControl
+              key={place.id}
+              place={place}
+              name={name}
+              url={left?.href ?? urlOf(place)}
+              href={left?.href}
+              sectionLabel={sectionLabel}
+              onOpen={onOpen}
+              onHand={hand(place.id)}
+              className={`flex min-w-0 flex-col justify-center gap-[6px] rounded-[16px] border bg-[#141418] px-[16px] text-left transition-colors duration-300 ${
+                on ? 'border-white/30' : 'border-white/10'
+              }`}
+            >
+              <span
+                data-place-box={place.id}
+                className="flex items-center gap-[6px] text-[0.6em] leading-none text-white/50"
+              >
+                <Icon className="size-[1.1em] shrink-0" aria-hidden />
+                {name}
+              </span>
+              {summaries && (
+                <>
+                  <span className="truncate text-[0.72em] leading-tight text-white">
+                    {left?.title ?? PLACE_INVITATION[place.id]}
+                  </span>
+                  {left?.detail && (
+                    <span className="truncate text-[0.58em] leading-none text-white/45">
+                      {left.detail}
+                    </span>
+                  )}
+                </>
+              )}
+            </PlaceControl>
+          );
+        })}
+      </div>
     </div>
   );
 };

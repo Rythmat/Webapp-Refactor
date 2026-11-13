@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { stopFromSearchParams, stopKey, type AtlasStop } from './atlasStop';
+import { describeStop } from './describeStop';
+import { rememberGlobeStop } from './lastGlobeStop';
 
 /**
  * The visual history of a globe session: one entry per stop the user has
@@ -109,6 +111,11 @@ export function useAtlasTrail() {
       if (next !== prev) save(next);
       return next;
     });
+    // The last place or tour, kept for the person (a lesson's Independent
+    // Project offers to pick up there): not the Globe's home or a search.
+    const stop = stopFromSearchParams(new URLSearchParams(location.search));
+    if (stop.kind !== 'home' && stop.kind !== 'search')
+      rememberGlobeStop(location.search, describeStop(stop).title);
     // location.key changes on every navigation, including a re-visit of the
     // same URL, which is what lets Back to an identical stop register.
   }, [location.key, location.search]);

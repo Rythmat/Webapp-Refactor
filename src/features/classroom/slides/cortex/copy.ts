@@ -137,6 +137,11 @@ export const COPY = {
     en: 'What did you get done today?',
     es: '¿Qué lograste hoy?',
   },
+  // The work itself, handed in to the teacher (owner, 2026-11-13).
+  handInQuestion: {
+    en: 'Hand in what you’ve done so far',
+    es: 'Entrega lo que has hecho hasta ahora',
+  },
   shareTitle: { en: 'Show the class', es: 'Muestra a la clase' },
   sharePrompt: {
     en: 'Offer your project — your teacher may feature it.',

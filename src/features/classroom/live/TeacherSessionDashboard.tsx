@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  BellRing,
   ChevronLeft,
   ChevronRight,
   Copy,
@@ -10,7 +11,15 @@ import {
   StopCircle,
   Unlock,
 } from 'lucide-react';
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { TeacherRoutes } from '@/constants/routes';
@@ -54,9 +63,11 @@ import { PhaseNavigator } from './PhaseNavigator';
 import { RosterPanel } from './RosterPanel';
 import { SessionPresentView } from './SessionPresentView';
 import { buildSlideProgress, submittedMindMap } from './buildSlideProgress';
+import { findHandInSlide, handInRows } from './handIn';
 import type { SessionMode } from './sessionsStore';
 import { ClassStepPanel } from './slides/ClassStepPanel';
 import { CurrentSlidePanel } from './slides/CurrentSlidePanel';
+import { HandInChip, HandInPanel } from './slides/HandInPanel';
 import { MediaRemote } from './slides/MediaRemote';
 import { PairingPanel } from './slides/PairingPanel';
 import { ShowcasePanel } from './slides/ShowcasePanel';
@@ -104,6 +115,7 @@ export const TeacherSessionDashboard = () => {
     sendMedia,
     sendEcho,
     sendActivity,
+    sendNotice,
     clock,
   } = useSessionSync(sid, 'teacher', cid);
   const activityDone = useSessionActivityDone(sid);
@@ -158,6 +170,31 @@ export const TeacherSessionDashboard = () => {
         ? interactionsForSlide(snapshot, currentSlide)
         : [],
     [snapshot, currentSlide],
+  );
+
+  // Handing in (owner, 2026-11-13): the deck's hand-in slide, who has handed
+  // in, and the ask that puts a notice on every student's device.
+  const handIn = useMemo(() => findHandInSlide(snapshot), [snapshot]);
+  const handInList = useMemo(
+    () =>
+      handIn
+        ? handInRows(
+            activeEnrollments,
+            responsesByEnrollment,
+            handIn.interactions,
+          )
+        : [],
+    [handIn, activeEnrollments, responsesByEnrollment],
+  );
+  const handedIn = handInList.filter((r) => r.done).length;
+  const lastAsked = state?.notice?.kind === 'hand-in' ? state.notice.id : null;
+  const askToHandIn = useCallback(() => {
+    if (!handIn) return;
+    sendNotice({ kind: 'hand-in', slideId: handIn.slide.id });
+    toast.success('Asked the class to hand in their work');
+  }, [handIn, sendNotice]);
+  const onHandInSlide = Boolean(
+    handIn && currentSlide && currentSlide.id === handIn.slide.id,
   );
 
   // A Group Project the class does together: its activity, and the class's
@@ -330,16 +367,28 @@ export const TeacherSessionDashboard = () => {
             : undefined,
       },
       ...(presentRevealSlot ? { reveal: presentRevealSlot } : {}),
-      ...(firstId
+      // The hand-in slide: how many have handed in, and the ask.
+      ...(onHandInSlide
         ? {
             statusChip: (
-              <ParticipationPulse
-                responded={countFor(firstId)}
-                language="both"
+              <HandInChip
+                done={handedIn}
+                total={handInList.length}
+                onAsk={askToHandIn}
+                lastAsked={lastAsked}
               />
             ),
           }
-        : {}),
+        : firstId
+          ? {
+              statusChip: (
+                <ParticipationPulse
+                  responded={countFor(firstId)}
+                  language="both"
+                />
+              ),
+            }
+          : {}),
       ...(currentSlide.kind === 'showcase' && state?.showcase
         ? {
             showcaseFrame: <ShowcaseProjectorFrame showcase={state.showcase} />,
@@ -354,6 +403,11 @@ export const TeacherSessionDashboard = () => {
     state?.activity,
     sid,
     countFor,
+    onHandInSlide,
+    handedIn,
+    handInList.length,
+    askToHandIn,
+    lastAsked,
   ]);
 
   // App-route slides show live module progress instead of a response aggregate.
@@ -598,6 +652,12 @@ export const TeacherSessionDashboard = () => {
               onClear={() => sendTimer(null)}
             />
           )}
+          {handIn && (
+            <Button size="lg" onClick={askToHandIn}>
+              <BellRing aria-hidden />
+              Ask to hand in
+            </Button>
+          )}
           {currentSlide &&
             (currentSlide.kind === 'media' ||
               (currentSlide.kind === 'content' && !!currentSlide.media) ||
@@ -710,6 +770,12 @@ export const TeacherSessionDashboard = () => {
                   showcase={state.showcase}
                   onFeature={sendShowcase}
                   onClear={() => sendShowcase(null)}
+                />
+              ) : onHandInSlide ? (
+                <HandInPanel
+                  rows={handInList}
+                  onAsk={askToHandIn}
+                  lastAsked={lastAsked}
                 />
               ) : currentSlide && followInteraction ? (
                 <ClassStepPanel

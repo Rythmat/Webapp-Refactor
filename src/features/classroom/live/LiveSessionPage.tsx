@@ -25,7 +25,9 @@ import type {
   StudentLanguage,
 } from '../types';
 import { ConnectionBadge } from './ConnectionBadge';
+import { HandInBanner } from './HandInBanner';
 import { LockScreen } from './LockScreen';
+import { findHandInSlide } from './handIn';
 import { InteractionInput } from './interactions';
 import { isSlideComplete } from './slideGating';
 import { buildSlideProgressPatch } from './slideProgressMirror';
@@ -164,6 +166,11 @@ export const LiveSessionPage = () => {
   // prev/next; interaction slides lock until answered (Kajabi pattern). Their
   // position is broadcast to the teacher (never the projector — Rule 2).
   const deck = deckFromSnapshot(publishedDay?.snapshot);
+  // The deck's hand-in, which the teacher's ask opens (owner, 2026-11-13).
+  const handIn = useMemo(
+    () => findHandInSlide(publishedDay?.snapshot),
+    [publishedDay?.snapshot],
+  );
   const isStudentPaced = state?.mode === 'student_paced';
   const teacherIndex = state?.slideIndex ?? -1;
   const effectiveIndex =
@@ -344,6 +351,20 @@ export const LiveSessionPage = () => {
       state.timer && state.timer.slideId === pacedSlide?.id ? (
         <TimerCountdown endsAt={state.timer.endsAt} />
       ) : null;
+    // The teacher's ask to hand in, over whatever the student has open;
+    // not while the hand-in slide itself is in front of them.
+    const handInBanner = (slideShown: boolean) => (
+      <HandInBanner
+        sessionId={sid}
+        state={state}
+        handIn={handIn}
+        submissions={submissions}
+        onSubmit={handleSubmit}
+        language={language}
+        clock={clock}
+        hidden={slideShown && pacedSlide?.id === handIn?.slide.id}
+      />
+    );
 
     if (workspaceOpen) {
       // The teacher's slide comes over the work when it asks something
@@ -404,6 +425,7 @@ export const LiveSessionPage = () => {
               sheetOpen ? (state.status === 'ended' ? ended : slideView) : null
             }
           />
+          {handInBanner(sheetOpen)}
           {state.locked ? (
             <div className="fixed inset-0 z-[70] overflow-y-auto bg-daw-bg">
               <LockScreen
@@ -443,6 +465,7 @@ export const LiveSessionPage = () => {
           </div>
         </header>
         {state.status === 'ended' ? ended : slideView}
+        {handInBanner(true)}
       </div>
     );
   }

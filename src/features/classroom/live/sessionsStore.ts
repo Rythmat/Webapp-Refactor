@@ -76,6 +76,18 @@ export interface SessionActivity {
   title?: string;
 }
 
+/**
+ * The teacher's notice to the class (owner, 2026-11-13): hand in what
+ * you've done so far, on the slide that takes the hand-in. Each ask has a
+ * new `id`, so a student who dismissed one sees the next. No identifiers;
+ * never the projector's.
+ */
+export interface SessionNotice {
+  id: number;
+  kind: 'hand-in';
+  slideId: string;
+}
+
 /** A student's finished step: teacher-only (identified, Rule 2). */
 export interface ActivityDone {
   slideId: string;
@@ -120,6 +132,8 @@ export interface SessionState {
   echo?: SessionEcho | null;
   /** The class's step in a Group Project activity done together. */
   activity?: SessionActivity | null;
+  /** The teacher's last notice to the class. */
+  notice?: SessionNotice | null;
   status: SessionStatus;
   startedAt: string;
   endedAt?: string;
@@ -176,6 +190,11 @@ export interface ActivityBody {
   kind: 'activity';
   activity: SessionActivity | null;
 }
+/** The teacher asks the class (hand in your work). */
+export interface NoticeBody {
+  kind: 'notice';
+  notice: SessionNotice | null;
+}
 /** A student finished the class's current step. Written to the
  *  `activityDone` side-map, never SessionState. */
 export interface ActivityDoneBody {
@@ -215,6 +234,7 @@ export type SessionMessageBody =
   | MediaBody
   | EchoBody
   | ActivityBody
+  | NoticeBody
   | ActivityDoneBody
   | PositionBody
   | StateSyncBody;
@@ -518,6 +538,8 @@ export const applyBodyToState = (
       return { ...state, echo: body.echo, updatedAt: nowIso };
     case 'activity':
       return { ...state, activity: body.activity, updatedAt: nowIso };
+    case 'notice':
+      return { ...state, notice: body.notice, updatedAt: nowIso };
     case 'media':
       return {
         ...state,
@@ -707,6 +729,8 @@ export type SessionSocketMessage =
   | { type: 'echo'; echo: SessionEcho | null }
   /** The class's step in the activity done together (all roles). */
   | { type: 'activity'; activity: SessionActivity | null }
+  /** The teacher's notice to the class (teacher and students). */
+  | { type: 'notice'; notice: SessionNotice | null }
   /** A student finished the class's step — teacher sockets only. */
   | {
       type: 'activityDone';
@@ -805,6 +829,7 @@ export const applySessionSocketMessage = (
         echo: s.echo ?? null,
         // Not in the server's state: the party sends it right after hello.
         activity: state?.activity ?? null,
+        notice: state?.notice ?? null,
         status: snap.status,
         startedAt: snap.startedAt,
         endedAt: snap.endedAt ?? undefined,
@@ -847,6 +872,9 @@ export const applySessionSocketMessage = (
     case 'activity':
       if (!state) return state;
       return { ...state, activity: msg.activity, updatedAt: nowIso };
+    case 'notice':
+      if (!state) return state;
+      return { ...state, notice: msg.notice, updatedAt: nowIso };
     case 'media':
       if (!state) return state;
       return {

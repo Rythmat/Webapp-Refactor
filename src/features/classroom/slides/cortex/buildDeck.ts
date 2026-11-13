@@ -84,6 +84,7 @@ const ixIds = (prefix: string) => ({
   vibe: `${prefix}-ix-vibe`,
   group: `${prefix}-ix-group`,
   progress: `${prefix}-ix-progress`,
+  handIn: `${prefix}-ix-handin`,
   share: `${prefix}-ix-share`,
   exit: `${prefix}-ix-exit`,
 });
@@ -163,6 +164,16 @@ const projectAndPresent = (
   projectMinutes: number,
 ): Pick<CortexLessonContent, 'interactionsByPhase' | 'slides' | 'cellCopy'> => {
   const ids = ixIds(prefix);
+  // Present your progress (owner, 2026-11-13): each student hands in their
+  // work from this class to the teacher, with a note on what they got done.
+  // The teacher can ask the class to hand in from Present.
+  const handIn: Interaction = {
+    id: ids.handIn,
+    type: 'showcase',
+    question: COPY.handInQuestion,
+    shareable: false,
+    showcase: { audience: 'teacher' },
+  };
   const progress: Interaction = {
     id: ids.progress,
     type: 'text',
@@ -180,7 +191,7 @@ const projectAndPresent = (
   const exit = exitQuestion(ids.exit);
   return {
     interactionsByPhase: {
-      presentPerform: [progress, share],
+      presentPerform: [handIn, progress, share],
       respondReflectReset: [exit],
     },
     slides: [
@@ -192,7 +203,7 @@ const projectAndPresent = (
         section: 'present',
         presetId: 'hero',
         title: COPY.presentTitle,
-        interactionIds: [progress.id],
+        interactionIds: [handIn.id, progress.id],
       },
       {
         id: `${prefix}-slide-share`,

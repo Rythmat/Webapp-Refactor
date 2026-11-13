@@ -174,6 +174,8 @@ const projectInteraction = (interaction: Interaction): Interaction => {
   }
   if (interaction.atlas) out.atlas = projectAtlas(interaction.atlas);
   if (interaction.echo) out.echo = projectEcho(interaction.echo);
+  if (interaction.showcase?.audience === 'teacher')
+    out.showcase = { audience: 'teacher' };
   return out;
 };
 

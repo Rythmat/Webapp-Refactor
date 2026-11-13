@@ -48,6 +48,7 @@ import {
   type SessionState,
   type SessionTimer,
   type SessionActivity,
+  type SessionNotice,
 } from './sessionsStore';
 
 export type ConnectionStatus =
@@ -197,6 +198,12 @@ export interface SessionSocketController {
   /** This student finished the class's step (student; teacher-only fan-out). */
   sendActivityDone(slideId: string, step: number): void;
   /**
+   * The teacher's notice to the class (hand in your work). Over the socket
+   * like the activity: the party relays it to the students and replays it to
+   * one who connects later; never to the projector.
+   */
+  sendNotice(notice: SessionNotice | null): void;
+  /**
    * Optimistically ends the local cached session, then retries the PATCH
    * per `endRetryDelaysMs`. Returns a Promise callers can await for
    * success/error; fire-and-forget callers should install
@@ -304,6 +311,8 @@ export function createSessionSocketController(
     if (msg.type === 'presence' && role !== 'teacher') return;
     // Who finished which step is identified: the teacher's alone (Rule 2).
     if (msg.type === 'activityDone' && role !== 'teacher') return;
+    // A notice is for the class to act on, not the room's screen.
+    if (msg.type === 'notice' && role === 'projector') return;
 
     // Localstorage-mirror + response bag.
     applySocketMessageForUser(userId, sessionId, msg);
@@ -480,6 +489,13 @@ export function createSessionSocketController(
     sendActivity(activity) {
       try {
         socket?.send(JSON.stringify({ type: 'activity', activity }));
+      } catch {
+        // Socket may be mid-close.
+      }
+    },
+    sendNotice(notice) {
+      try {
+        socket?.send(JSON.stringify({ type: 'notice', notice }));
       } catch {
         // Socket may be mid-close.
       }

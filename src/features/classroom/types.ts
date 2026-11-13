@@ -142,6 +142,12 @@ export interface Interaction {
    * an `echo` interaction is never shareable.
    */
   echo?: EchoInteractionConfig;
+  /**
+   * Who a `showcase` offer goes to (owner, 2026-11-13). `teacher`: a hand-in,
+   * the student's work sent to their teacher only, never shown the class.
+   * Absent: the student chooses (show the class, or send the teacher).
+   */
+  showcase?: { audience: 'teacher' };
 }
 
 export type CheckInStyle = 'emoji' | 'scale' | 'word' | 'feelings';

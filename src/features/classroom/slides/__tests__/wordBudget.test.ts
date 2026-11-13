@@ -50,8 +50,9 @@ const projectedTexts = (
   // The live layer: the question, or the class's activity by name.
   const ids = slideInteractionIds(slide);
   const own = interactions.filter((i) => ids.includes(i.id));
+  // A hero says its first question alone (one thing, big).
   if (slide.kind === 'interaction' && projectsQuestion(slide, 'projector'))
-    for (const i of own)
+    for (const i of stageKindOf(slide) === 'hero' ? own.slice(0, 1) : own)
       texts.push({ role: 'question', text: pickLocalized(i.question, 'en') });
   // A hero share slide says its own title until a project is featured.
   if (slide.kind === 'showcase' && stageKindOf(slide) === 'hero')

@@ -289,11 +289,25 @@ describe('a generated Cortex lesson', () => {
     );
   });
 
-  it('asks for progress for the teacher only, then offers the project', () => {
-    const [progress, share] = day.cells.presentPerform.presentation
+  it('takes each student’s work and a note for the teacher, then offers the project', () => {
+    const [handIn, progress, share] = day.cells.presentPerform.presentation
       .interactions as Interaction[];
+    // Handed in to the teacher only (owner, 2026-11-13).
+    expect(handIn).toMatchObject({
+      type: 'showcase',
+      shareable: false,
+      showcase: { audience: 'teacher' },
+    });
     expect(progress).toMatchObject({ type: 'text', shareable: false });
     expect(share).toMatchObject({ type: 'showcase', shareable: false });
+    expect(share!.showcase).toBeUndefined();
+    const slide = day.deck!.slides.find((s) =>
+      s.id.endsWith('-slide-progress'),
+    );
+    expect(slide?.kind === 'interaction' && slide.interactionIds).toEqual([
+      handIn!.id,
+      progress!.id,
+    ]);
   });
 
   it('records where it came from', () => {

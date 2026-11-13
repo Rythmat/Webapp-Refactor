@@ -201,6 +201,31 @@ describe('publishDay firewall (Rule 1)', () => {
     expect(ix.shareable).toBe(true);
   });
 
+  it('carries a hand-in’s audience, and nothing else on it (owner, 2026-11-13)', () => {
+    const day = makeDay();
+    day.cells.presentPerform.presentation.interactions = [
+      {
+        id: 'ix-handin',
+        type: 'showcase',
+        question: { en: 'Hand in what you’ve done so far' },
+        shareable: true,
+        showcase: { audience: 'teacher', stray: 'x' } as never,
+      },
+      {
+        id: 'ix-share',
+        type: 'showcase',
+        question: { en: 'Share your project' },
+        shareable: false,
+      },
+    ];
+    const [handIn, share] =
+      publishDay(day).cells.presentPerform.presentation.interactions!;
+    expect(handIn?.showcase).toEqual({ audience: 'teacher' });
+    // An offer is never projected (Rule 2), whatever it said.
+    expect(handIn?.shareable).toBe(false);
+    expect(share?.showcase).toBeUndefined();
+  });
+
   it('force-overrides shareable=false on any check-in interaction', () => {
     const snapshot = publishDay(makeDay());
     const reflect = snapshot.cells.respondReflectReset;

@@ -259,7 +259,9 @@ export const InteractionBand = ({
         hero ? 'items-center gap-10 text-center' : 'gap-4'
       }`}
     >
-      {interactions.map((interaction) => (
+      {/* A hero is one thing, big: its first question (the hand-in, over the
+          note that goes with it, owner 2026-11-13); a device asks them all. */}
+      {(hero ? interactions.slice(0, 1) : interactions).map((interaction) => (
         <QuestionText
           key={interaction.id}
           question={interaction.question}

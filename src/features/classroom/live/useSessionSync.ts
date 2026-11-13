@@ -41,6 +41,7 @@ import {
   type SessionState,
   type SessionTimer,
   type SessionActivity,
+  type SessionNotice,
 } from './sessionsStore';
 import { useLocalSessionStore } from './useLocalSessionStore';
 import { useServerClock, type SessionClock } from './useServerClock';
@@ -95,6 +96,12 @@ export interface UseSessionSync {
   sendActivity: (activity: SessionActivity | null) => void;
   /** This student finished the class's step (student only). */
   sendActivityDone: (slideId: string, step: number) => void;
+  /**
+   * Ask the class (teacher only): hand in what you've done so far, on that
+   * slide. Each ask is new (a fresh id), so students who dismissed the last
+   * one see it again.
+   */
+  sendNotice: (notice: Omit<SessionNotice, 'id'>) => void;
   /**
    * The server's clock, by the clock check (serverClock.ts): what a round's
    * start time means on this device. Offset 0 for a practice session.
@@ -429,6 +436,17 @@ export const useSessionSync = (
     },
     [local, dispatchLocal],
   );
+  const sendNotice = useCallback(
+    (ask: Omit<SessionNotice, 'id'>) => {
+      const notice: SessionNotice = { ...ask, id: Date.now() };
+      if (local) {
+        dispatchLocal({ kind: 'notice', notice });
+        return;
+      }
+      controllerRef.current?.sendNotice(notice);
+    },
+    [local, dispatchLocal],
+  );
   const sendActivityDone = useCallback(
     (slideId: string, step: number) => {
       if (local) {
@@ -474,6 +492,7 @@ export const useSessionSync = (
       sendEcho,
       sendActivity,
       sendActivityDone,
+      sendNotice,
       clock,
     }),
     [
@@ -493,6 +512,7 @@ export const useSessionSync = (
       sendEcho,
       sendActivity,
       sendActivityDone,
+      sendNotice,
       clock,
     ],
   );

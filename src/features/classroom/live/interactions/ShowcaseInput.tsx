@@ -59,6 +59,8 @@ const COPY = {
     en: 'Sent to your teacher:',
     es: 'Enviado a tu maestro:',
   },
+  handIn: { en: 'Hand in', es: 'Entregar' },
+  handedIn: { en: 'Handed in:', es: 'Entregado:' },
 } satisfies Record<string, LocalizedText>;
 
 const Bi = ({
@@ -92,10 +94,15 @@ const ClassWorkPicker = ({
   submittedPayload,
   disabled,
   startedAt,
+  handIn,
 }: Pick<
   InteractionInputProps,
   'language' | 'onSubmit' | 'submittedPayload' | 'disabled'
-> & { startedAt: string }) => {
+> & {
+  startedAt: string;
+  /** A hand-in (owner, 2026-11-13): for the teacher only, one button. */
+  handIn: boolean;
+}) => {
   const { data: me } = useMe();
   const { work, loading } = useClassWork(startedAt);
   const note = readStudioCurrentProject(me?.id ?? null);
@@ -145,9 +152,11 @@ const ClassWorkPicker = ({
         <span className="text-sm">
           <Bi
             text={
-              artifact.audience === 'teacher'
-                ? COPY.sentTeacher
-                : COPY.shownClass
+              handIn
+                ? COPY.handedIn
+                : artifact.audience === 'teacher'
+                  ? COPY.sentTeacher
+                  : COPY.shownClass
             }
             language={language}
           />{' '}
@@ -204,33 +213,51 @@ const ClassWorkPicker = ({
         })}
       </ul>
       <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          disabled={disabled || !chosen}
-          onClick={() => send('class')}
-          className={cn(
-            WHITE_PILL_LG,
-            'w-fit disabled:cursor-not-allowed disabled:opacity-50',
-          )}
-        >
-          <Share2 className="h-5 w-5" />
-          <Bi text={COPY.showClass} language={language} />
-        </button>
-        <button
-          type="button"
-          disabled={disabled || !chosen}
-          onClick={() => send('teacher')}
-          className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 px-5 py-2.5 text-sm text-white/85 hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <Send className="h-4 w-4" />
-          <Bi text={COPY.sendTeacher} language={language} />
-        </button>
+        {handIn ? (
+          <button
+            type="button"
+            disabled={disabled || !chosen}
+            onClick={() => send('teacher')}
+            className={cn(
+              WHITE_PILL_LG,
+              'w-fit disabled:cursor-not-allowed disabled:opacity-50',
+            )}
+          >
+            <Send className="h-5 w-5" />
+            <Bi text={COPY.handIn} language={language} />
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              disabled={disabled || !chosen}
+              onClick={() => send('class')}
+              className={cn(
+                WHITE_PILL_LG,
+                'w-fit disabled:cursor-not-allowed disabled:opacity-50',
+              )}
+            >
+              <Share2 className="h-5 w-5" />
+              <Bi text={COPY.showClass} language={language} />
+            </button>
+            <button
+              type="button"
+              disabled={disabled || !chosen}
+              onClick={() => send('teacher')}
+              className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 px-5 py-2.5 text-sm text-white/85 hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Send className="h-4 w-4" />
+              <Bi text={COPY.sendTeacher} language={language} />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
 };
 
 export const ShowcaseInput = ({
+  interaction,
   language,
   onSubmit,
   submittedPayload,
@@ -240,6 +267,8 @@ export const ShowcaseInput = ({
   const [busy, setBusy] = useState(false);
   const { data: me } = useMe();
   const offered = submittedPayload?.kind === 'showcase';
+  const handIn = interaction.showcase?.audience === 'teacher';
+  const audience = handIn ? { audience: 'teacher' as const } : {};
 
   if (live?.state.startedAt) {
     return (
@@ -249,6 +278,7 @@ export const ShowcaseInput = ({
         submittedPayload={submittedPayload}
         disabled={disabled}
         startedAt={live.state.startedAt}
+        handIn={handIn}
       />
     );
   }
@@ -264,6 +294,7 @@ export const ShowcaseInput = ({
             projectId: note.projectId ?? note.roomId ?? 'local',
             ...(note.roomId ? { roomId: note.roomId } : {}),
             name: note.name || 'My Project',
+            ...audience,
           },
         });
         return;
@@ -276,6 +307,7 @@ export const ShowcaseInput = ({
           projectId: s.projectId ?? s.roomId ?? 'local',
           ...(s.roomId ? { roomId: s.roomId } : {}),
           name: s.projectName || 'My Project',
+          ...audience,
         },
       });
     } finally {

@@ -114,9 +114,13 @@ describe('the console sidebar', () => {
   });
 
   it('highlights the app section a table belongs to', () => {
+    // Songs is its own section, as on the app's rail (2026-11-12).
     expect(renderAt('/console/content/records/song', 'admin').current).toEqual([
-      '/console/content/learn',
+      '/console/content/songs',
     ]);
+    expect(
+      renderAt('/console/content/records/activity_flow', 'admin').current,
+    ).toEqual(['/console/content/learn']);
   });
 
   it('highlights Users on the Users page and nothing in the app', () => {

@@ -235,9 +235,12 @@ export function sectionTypeOfLabel(label: string): SectionType {
   const lower = label.trim().toLowerCase();
   const named = LABEL_TYPES[lower.replace(/[^a-z0-9]/g, '')];
   if (named) return named;
-  // Without its number, whole first ('Middle 8 2' is a Middle 8), then
-  // letters only ('Verse 2a').
-  const unnumbered = lower.replace(/\s*\d+$/, '');
+  // An instrumental pass of a named section is that section: a song
+  // chart's 'Instrumental Verse' is a verse ('Instrumental' alone is above).
+  const kind = lower.replace(/^instrumental\s+/, '');
+  // Without its number (or the passes it names, 'Verse 1 & 2'), whole
+  // first ('Middle 8 2' is a Middle 8), then letters only ('Verse 2a').
+  const unnumbered = kind.replace(/\s*\d+(?:\s*(?:&|,|and)\s*\d+)*$/, '');
   return (
     LABEL_TYPES[unnumbered.replace(/[^a-z0-9]/g, '')] ??
     LABEL_TYPES[unnumbered.replace(/[^a-z]/g, '')] ??

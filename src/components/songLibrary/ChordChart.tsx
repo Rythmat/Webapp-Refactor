@@ -1,5 +1,6 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import {
+  Fragment,
   Suspense,
   lazy,
   useEffect,
@@ -153,6 +154,33 @@ export const MEASURES_PER_ROW = 4;
 const METER_WIDTH = 22;
 /** Room a start-repeat sign takes when it follows a time signature. */
 const REPEAT_SIGN_WIDTH = 14;
+/** A chord symbol's size, and how far it stands clear of its beat's start
+ *  (the barline, on beat 1) (owner, 2026-11-15: bigger, and off the line). */
+const CHORD_FONT_SIZE = 18;
+const CHORD_CLEARANCE = 10;
+
+/**
+ * A chord symbol's text, its slash thin: B/F♯ reads as a bold B and F♯
+ * with a plain slash between, as a chart writes it, not a bold stroke.
+ */
+const ChordLabelText: FC<{ label: string }> = ({ label }) => {
+  const parts = label.split('/');
+  if (parts.length === 1) return <>{label}</>;
+  return (
+    <>
+      {parts.map((part, i) => (
+        <Fragment key={i}>
+          {i > 0 && (
+            <tspan data-chord-slash="" fontWeight="normal" dx={1}>
+              /
+            </tspan>
+          )}
+          {i > 0 ? <tspan dx={1}>{part}</tspan> : part}
+        </Fragment>
+      ))}
+    </>
+  );
+};
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
@@ -365,7 +393,8 @@ export const StaffMeasure: FC<{
       {!isMultiBarRest &&
         bar.chords.map((hit, i) => {
           const beatPos = hit.beat - 1;
-          const cx = inset + (beatPos / beatsPerBar) * (width - inset) + 4;
+          const cx =
+            inset + (beatPos / beatsPerBar) * (width - inset) + CHORD_CLEARANCE;
           const symbol = notation
             ? chordSymbol(hit, notation, chordContext ?? {})
             : null;
@@ -416,7 +445,7 @@ export const StaffMeasure: FC<{
               x={cx}
               y={staffTop - 4}
               fill={isSelected ? '#7ecfcf' : 'currentColor'}
-              fontSize={14}
+              fontSize={CHORD_FONT_SIZE}
               fontWeight="bold"
               fontFamily="serif"
               opacity={isSelected ? 1 : 0.85}
@@ -426,7 +455,7 @@ export const StaffMeasure: FC<{
               style={{ cursor: editable ? 'grab' : 'pointer' }}
               {...pointerProps}
             >
-              {label}
+              <ChordLabelText label={label} />
             </text>
           );
         })}

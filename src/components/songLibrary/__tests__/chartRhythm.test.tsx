@@ -122,3 +122,22 @@ describe('a beat as a player counts it', () => {
     expect(beatName(2.75)).toBe('2a');
   });
 });
+
+describe('a chord symbol (owner, 2026-11-15)', () => {
+  it('sets a slash chord’s slash thin, between bold letters', () => {
+    const html = renderToStaticMarkup(
+      <ChordChart
+        song={song([
+          {
+            chords: [
+              { degree: '5 maj/7', chordName: 'B/F♯', beat: 1, duration: 4 },
+            ],
+          },
+        ])}
+      />,
+    );
+    expect(html).toMatch(
+      /font-weight="bold"[^>]*>B<tspan data-chord-slash="" font-weight="normal"[^>]*>\/<\/tspan><tspan[^>]*>F♯<\/tspan>/,
+    );
+  });
+});

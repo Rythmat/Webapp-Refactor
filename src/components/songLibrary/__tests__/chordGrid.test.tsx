@@ -121,7 +121,12 @@ describe('ChordGrid', () => {
         Object.keys(jazz).map((n) => bar(n)),
       ),
     ]);
-    const staff = renderToStaticMarkup(<ChordChart song={s} />);
+    // The staff's text, its tags gone: a slash chord's slash is set apart,
+    // thin (owner, 2026-11-15), so E♭/G is three pieces of markup.
+    const staff = renderToStaticMarkup(<ChordChart song={s} />).replace(
+      /<[^>]+>/g,
+      '',
+    );
     const grid = renderToStaticMarkup(<ChordGrid song={s} />);
     for (const [written, shorthand] of Object.entries(jazz)) {
       // The symbol is set in pieces, so the letters are matched one by one.

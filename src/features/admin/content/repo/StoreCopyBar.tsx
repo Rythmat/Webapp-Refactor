@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
   ContentApiError,
@@ -77,6 +78,34 @@ const when = (value: unknown) => {
     : null;
 };
 
+/**
+ * Which store copies this browser has dealt with, by song: the copy's
+ * save time. Loaded, or kept away from the file, the offer is done with,
+ * so it never stands over newer work tempting a click that would undo it
+ * (owner, 2026-11-15). A per-browser convenience: lost, it only asks again.
+ */
+const HANDLED_KEY = 'console:store-copy-handled';
+
+const readHandled = (): Record<string, string> => {
+  try {
+    const raw = localStorage.getItem(HANDLED_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
+};
+
+const markHandled = (slug: string, savedAt: string) => {
+  try {
+    localStorage.setItem(
+      HANDLED_KEY,
+      JSON.stringify({ ...readHandled(), [slug]: savedAt }),
+    );
+  } catch {
+    // No storage: the offer simply comes back next time.
+  }
+};
+
 export const StoreCopyBar = ({
   slug,
   body,
@@ -90,6 +119,7 @@ export const StoreCopyBar = ({
   onLoad: (next: Body) => void;
 }) => {
   const { token } = useAuthContext();
+  const [handled, setHandled] = useState(() => readHandled()[slug] ?? null);
   const store = useQuery({
     queryKey: ['content-store-copy', 'song', slug],
     queryFn: () => findStoreSong(slug, token!),
@@ -106,9 +136,16 @@ export const StoreCopyBar = ({
     );
   const theirs = store.data?.body;
   if (!theirs || !body) return null;
+  const savedAt = String(store.data?.updatedAt ?? '');
+  // This copy was loaded, or kept out, already: the file is the newer work.
+  if (handled === savedAt) return null;
   const differ = differingKeys(body, theirs);
   if (differ.length === 0) return null;
   const saved = when(store.data?.updatedAt);
+  const done = () => {
+    markHandled(slug, savedAt);
+    setHandled(savedAt);
+  };
   const revisions = store.data?.Revisions?.length ?? 0;
 
   return (
@@ -130,11 +167,21 @@ export const StoreCopyBar = ({
             )
               return;
             onLoad(storeOverFile(body, theirs));
+            done();
           }}
         >
           Load the content store’s copy
         </button>
-        , check it, then Save to write it into the repo’s file.
+        , check it, then Save to write it into the repo’s file. Already brought
+        your edits in, or made them here?{' '}
+        <button
+          type="button"
+          className="font-semibold underline underline-offset-2 hover:text-white"
+          onClick={done}
+        >
+          Keep this file’s version
+        </button>
+        , and this offer goes away.
       </span>
     </ConsoleCallout>
   );

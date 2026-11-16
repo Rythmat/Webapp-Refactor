@@ -16,6 +16,7 @@ import { interactionVariant, mayRevealOn } from './interactionPolicy';
 import { resolveElements } from './migrateDeckV1';
 import { GroupVoteMenu, type VoteSlot } from './parts/GroupVoteMenu';
 import { InteractionBand } from './parts/InteractionBand';
+import { placeMenuOf } from './parts/PlaceMenu';
 import { slideLiveLayer } from './parts/SlideLiveLayer';
 import { SlideStage } from './parts/SlideStage';
 import { SlideStudio } from './parts/SlideStudio';
@@ -232,9 +233,10 @@ export const SlideRenderer = ({
           ? { bandFallback: band }
           : {})}
       {...(bandCarries.length > 0 ? { bandInteractionIds: bandCarries } : {})}
-      {...(voteMenu && !still
+      {...((voteMenu || placeMenuOf(resolveElements(slide))) && !still
         ? {
-            // Home's glow across the top (owner, 2026-11-16): two key
+            // Home's glow across the top of the class's vote and the
+            // Independent Project's places (owner, 2026-11-16): two key
             // colours, one in each top corner, slowly shifting.
             backdrop: <HomeGlow className="inset-x-0 top-0 z-0 h-[78%]" />,
           }

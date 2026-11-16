@@ -34,6 +34,9 @@ import { PlaceArtwork } from './PlaceArtwork';
 // along its whole line, in place of its streak; the other streaks finish
 // their run into the logo and no new ones set out until it leaves.
 //
+// The cards and the logo's tile are the glass of Home's prompt box, over
+// Home's glow (owner, 2026-11-16: `PROMPT_SURFACE`'s edge, shadow and wash).
+//
 // A card is a picture of what the person left off at there, then the
 // place's app icon and name over it (owner, 2026-11-13: one card per place,
 // the beams running from them, in place of icons over a row of boxes that
@@ -319,7 +322,7 @@ const PlaceMenuView = ({
               href={left?.href}
               sectionLabel={sectionLabel}
               onOpen={onOpen}
-              className="flex h-14 w-full items-center gap-3 rounded-xl border border-white/10 bg-[#141418] px-4 text-left text-white"
+              className="flex h-14 w-full items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 text-left text-white shadow-[0_8px_28px_rgba(0,0,0,0.36)]"
             >
               <Icon className="size-5 shrink-0" aria-hidden />
               <span className="flex min-w-0 flex-col">
@@ -482,7 +485,7 @@ const PlaceMenuView = ({
 
       {size && (
         <div
-          className="absolute flex items-center justify-center rounded-[28px] border border-white/10 bg-[#141418] shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
+          className="absolute flex items-center justify-center rounded-[28px] border border-white/10 bg-white/[0.04] shadow-[0_8px_28px_rgba(0,0,0,0.36)]"
           style={{
             left: size.w / 2 - HUB / 2,
             top: size.h / 2 - HUB / 2,
@@ -511,7 +514,7 @@ const PlaceMenuView = ({
             sectionLabel={sectionLabel}
             onOpen={onOpen}
             onHand={hand(place.id)}
-            className={`absolute flex items-stretch overflow-hidden rounded-[20px] border bg-[#141418] text-left shadow-[0_10px_32px_rgba(0,0,0,0.4)] transition-[border-color,transform] duration-300 ${
+            className={`absolute flex items-stretch overflow-hidden rounded-[20px] border bg-white/[0.04] text-left shadow-[0_8px_28px_rgba(0,0,0,0.36)] transition-[border-color,transform] duration-300 ${
               on ? 'translate-y-[-2px] border-white/30' : 'border-white/10'
             }`}
             style={{

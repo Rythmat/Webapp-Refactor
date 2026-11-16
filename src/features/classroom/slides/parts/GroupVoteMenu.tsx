@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import type { ReactNode } from 'react';
 import {
   AppIcons,
@@ -142,53 +142,84 @@ interface GroupVoteMenuProps {
   statusChip?: ReactNode;
 }
 
-/** What a card says under its name: the votes, the student's own, the go. */
-const CardFoot = ({
+const votesText = (n: number, language: StudentLanguage) =>
+  `${n} ${
+    language === 'es'
+      ? n === 1
+        ? 'voto'
+        : 'votos'
+      : n === 1
+        ? 'vote'
+        : 'votes'
+  }`;
+
+// Home's card (owner, 2026-11-16: "reference the Home page"): the Studio
+// card's hairline frame, 20px corners, soft shadow and light wash, its
+// header (icon, name, a pill on the right) over a 16:9 picture inset.
+const FRAME =
+  'rounded-[20px] border bg-white/[0.04] text-white shadow-[0_8px_28px_rgba(0,0,0,0.36)] transition-[background-color,border-color] duration-150';
+const PILL =
+  'inline-flex h-[32px] shrink-0 items-center gap-[6px] rounded-full border px-[14px] text-[0.64em] leading-none transition-colors duration-75';
+
+/**
+ * A card's pill, Home's "New project": the votes once shown (the leader's
+ * filled), else a student's vote, else the teacher's Go.
+ */
+const CardPill = ({
   card,
   vote,
-  total,
+  leader,
+  canPick,
   language,
 }: {
   card: VoteCard;
   vote: VoteSlot | undefined;
-  total: number;
+  leader: number | null;
+  canPick: boolean;
   language: StudentLanguage;
 }) => {
   const counts = vote?.counts;
   if (counts) {
-    const n = counts[card.option] ?? 0;
+    const leads = leader === card.option;
     return (
-      <span className="flex w-full items-center gap-[8px]">
-        <span className="relative h-[6px] flex-1 overflow-hidden rounded-full bg-white/10">
-          <span
-            className="absolute inset-y-0 left-0 rounded-full bg-white transition-[width] duration-500"
-            style={{ width: `${total > 0 ? (n / total) * 100 : 0}%` }}
-          />
-        </span>
-        <span
-          data-vote-count={card.option}
-          className="shrink-0 text-[0.62em] tabular-nums text-white/70"
-        >
-          {n}{' '}
-          {language === 'es'
-            ? n === 1
-              ? 'voto'
-              : 'votos'
-            : n === 1
-              ? 'vote'
-              : 'votes'}
+      <span
+        className={`${PILL} ${
+          leads
+            ? 'border-white bg-white text-black'
+            : 'border-white/10 text-white/80'
+        }`}
+      >
+        {leads && <span>{language === 'es' ? 'Adelante' : 'Leading'} ·</span>}
+        <span data-vote-count={card.option} className="tabular-nums">
+          {votesText(counts[card.option] ?? 0, language)}
         </span>
       </span>
     );
   }
   if (vote?.mine === card.option)
     return (
-      <span className="inline-flex items-center gap-[4px] text-[0.62em] text-white">
+      <span className={`${PILL} border-white bg-white text-black`}>
         <Check className="size-[1.1em]" aria-hidden />
         {language === 'es' ? 'Tu voto' : 'Your vote'}
       </span>
     );
-  return null;
+  if (!canPick) return null;
+  return (
+    <span
+      className={`${PILL} border-white/10 text-[#FCFBF9] group-hover:bg-white/[0.04] group-active:bg-white/[0.08]`}
+    >
+      {vote?.pickAction === 'go' ? (
+        <>
+          {language === 'es' ? 'Ir' : 'Go'}
+          <ArrowRight className="size-[1.1em]" aria-hidden />
+        </>
+      ) : language === 'es' ? (
+        'Votar'
+      ) : (
+        'Vote'
+      )}
+    </span>
+  );
 };
 
 export const GroupVoteMenu = ({
@@ -200,7 +231,7 @@ export const GroupVoteMenu = ({
   still = false,
   stacked = false,
   width = 1152,
-  height = 308,
+  height = 340,
   statusChip,
 }: GroupVoteMenuProps) => {
   const cards = cardsOf(slide, options, vote?.activities, language);
@@ -212,65 +243,49 @@ export const GroupVoteMenu = ({
       ? `Go to the ${card.name} Group Project`
       : `Vote for ${card.name}`;
 
-  const control = (card: VoteCard, className: string) => {
-    const chosen = vote?.mine === card.option || leader === card.option;
-    const body = (
-      <>
-        <span
-          data-vote-art={card.option}
-          className={`relative block shrink-0 overflow-hidden border-white/10 bg-[#1b1b20] ${
-            stacked ? 'size-14 rounded-lg' : 'min-h-0 w-full flex-1 border-b'
-          }`}
-        >
-          {card.image && (
-            <img
-              src={card.image}
-              alt=""
-              draggable={false}
-              className="size-full object-cover"
-            />
-          )}
-        </span>
-        <span
-          data-vote-card={card.option}
-          className={`flex min-w-0 flex-col justify-center gap-[6px] ${
-            stacked ? 'flex-1' : 'shrink-0 px-[18px] py-[14px]'
-          }`}
-        >
-          <span className="flex items-center gap-[6px] text-[0.9em] leading-none text-white">
-            {card.role &&
-              (() => {
-                const Icon = ROLE_ICON[card.role];
-                return (
-                  <span data-vote-role={card.role} className="flex shrink-0">
-                    <Icon className="size-[1.1em]" aria-hidden />
-                  </span>
-                );
-              })()}
-            {card.name}
-            {leader === card.option && (
-              <span className="ml-auto rounded-full bg-white px-[8px] py-[3px] text-[0.55em] text-black">
-                {language === 'es' ? 'Adelante' : 'Leading'}
-              </span>
-            )}
-          </span>
-          <span className="truncate text-[0.62em] leading-tight text-white/55">
-            {card.detail}
-          </span>
-          {/* The same room on every column, so their pictures line up. */}
-          <span className="flex min-h-[1em] items-center">
-            <CardFoot
-              card={card}
-              vote={vote}
-              total={total}
-              language={language}
-            />
-          </span>
-        </span>
-      </>
+  const roleIcon = (card: VoteCard) => {
+    if (!card.role) return null;
+    const Icon = ROLE_ICON[card.role];
+    return (
+      <span data-vote-role={card.role} className="flex shrink-0">
+        <Icon className="size-[24px]" aria-hidden />
+      </span>
     );
+  };
+
+  /** The picture, with the card's share of the votes along its foot. */
+  const picture = (card: VoteCard, className: string) => {
+    const share =
+      vote?.counts && total > 0 ? (vote.counts[card.option] ?? 0) / total : 0;
+    return (
+      <span
+        data-vote-art={card.option}
+        className={`relative block overflow-hidden border border-white/[0.08] bg-[#101012] ${className}`}
+      >
+        {card.image && (
+          <img
+            src={card.image}
+            alt=""
+            draggable={false}
+            className="absolute inset-0 size-full object-cover"
+          />
+        )}
+        {vote?.counts && (
+          <span className="absolute inset-x-0 bottom-0 h-[5px] bg-black/50">
+            <span
+              className="block h-full bg-white transition-[width] duration-500"
+              style={{ width: `${share * 100}%` }}
+            />
+          </span>
+        )}
+      </span>
+    );
+  };
+
+  const control = (card: VoteCard, className: string, inner: ReactNode) => {
+    const chosen = vote?.mine === card.option || leader === card.option;
     const classes = `${className} ${
-      chosen ? 'border-white/60' : 'border-white/10'
+      chosen ? 'border-white/40 bg-white/[0.07]' : 'border-white/10'
     }`;
     if (pick)
       return (
@@ -282,17 +297,39 @@ export const GroupVoteMenu = ({
           // Present's arrow keys move the slides; a card keeps its own.
           onKeyDown={(e) => e.stopPropagation()}
           onClick={() => pick(card.option)}
-          className={`${classes} text-left transition-[border-color] duration-300 hover:border-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
+          className={`group ${classes} text-left outline-none hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/50`}
         >
-          {body}
+          {inner}
         </button>
       );
     return (
       <div key={card.option} className={classes}>
-        {body}
+        {inner}
       </div>
     );
   };
+
+  /** The card's name and what the class would do, under its icon's line. */
+  const heading = (card: VoteCard) => (
+    <span className="flex min-w-0 flex-col gap-[4px]">
+      <span className="text-[0.82em] leading-tight text-white">
+        {card.name}
+      </span>
+      <span className="truncate text-[0.62em] leading-tight text-white/55">
+        {card.detail}
+      </span>
+    </span>
+  );
+
+  const pill = (card: VoteCard) => (
+    <CardPill
+      card={card}
+      vote={vote}
+      leader={leader}
+      canPick={Boolean(pick)}
+      language={language}
+    />
+  );
 
   if (stacked)
     return (
@@ -304,24 +341,34 @@ export const GroupVoteMenu = ({
         {cards.map((card) =>
           control(
             card,
-            'flex w-full items-center gap-3 rounded-xl border bg-[#141418] p-2 pr-4 text-white',
+            `${FRAME} flex w-full items-center gap-3 p-2 pr-3`,
+            <>
+              {picture(card, 'size-14 shrink-0 rounded-xl')}
+              <span
+                data-vote-card={card.option}
+                className="flex min-w-0 flex-1 items-center gap-3"
+              >
+                {/* The picture says the role: no icon beside it on a phone. */}
+                <span className="min-w-0 flex-1">{heading(card)}</span>
+                {pill(card)}
+              </span>
+            </>,
           ),
         )}
         {statusChip && <div className="self-center">{statusChip}</div>}
       </div>
     );
 
-  // Three columns side by side (owner, 2026-11-16): each its picture on
-  // top, then its role, its activity and the votes; the screen's own status
-  // under them.
+  // Three of Home's cards side by side (owner, 2026-11-16), its 24px gap
+  // between them; the screen's own status under them.
   return (
     <div
       data-vote-menu=""
-      className="flex flex-col gap-[14px]"
+      className="flex flex-col gap-[16px]"
       style={{ width, height, fontSize: 'var(--slide-body-fz)' }}
     >
       <div
-        className="grid min-h-0 flex-1 gap-[32px]"
+        className="grid min-h-0 flex-1 items-start gap-[24px]"
         style={{
           gridTemplateColumns: `repeat(${cards.length}, minmax(0, 1fr))`,
         }}
@@ -329,7 +376,23 @@ export const GroupVoteMenu = ({
         {cards.map((card) =>
           control(
             card,
-            'flex min-h-0 flex-col overflow-hidden rounded-[20px] border bg-[#141418] text-white shadow-[0_10px_32px_rgba(0,0,0,0.4)]',
+            `${FRAME} flex flex-col gap-[16px] p-[20px]`,
+            <>
+              <span
+                data-vote-card={card.option}
+                className="flex min-h-[44px] items-center justify-between gap-[12px]"
+              >
+                <span className="flex min-w-0 items-center gap-[12px]">
+                  {roleIcon(card)}
+                  {heading(card)}
+                </span>
+                {pill(card)}
+              </span>
+              {picture(
+                card,
+                'aspect-video w-full rounded-[12px] transition-[border-color,transform] duration-200 ease-out group-hover:border-white/15 motion-safe:group-hover:scale-[1.01]',
+              )}
+            </>,
           ),
         )}
       </div>

@@ -351,7 +351,8 @@ export const SLIDE_GRID = {
   // The vote's cards, under the title and its line: the live layer's own
   // place (chrome), its padding inside the safe area.
   voteCards: {
-    rect: { x: 48, y: 272, w: 1184, h: 340 },
+    // To the canvas's foot, for three of Home's cards and a status line.
+    rect: { x: 48, y: 268, w: 1184, h: 372 },
     role: 'chrome',
     flow: 'single',
     family: 'chrome',

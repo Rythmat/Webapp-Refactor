@@ -1,5 +1,5 @@
 import { ArrowRight, Check } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import {
   AppIcons,
   AppListIcons,
@@ -153,13 +153,22 @@ const votesText = (n: number, language: StudentLanguage) =>
         : 'votes'
   }`;
 
-// Home's card (owner, 2026-11-16: "reference the Home page"): the Studio
-// card's hairline frame, 20px corners, soft shadow and light wash, its
-// header (icon, name, a pill on the right) over a 16:9 picture inset.
+// Home's Progress column (owner, 2026-11-16: "use the size of the Progress
+// column"): 358.5 × 500 px with a 26.4px gap on Home, so 319 × 444 and 24
+// on the canvas, which Present draws at 1.125×. Its card, too: solid
+// #1c1c1f, no edge, 20px corners, 20px in; its full-width "See more" pill
+// at the foot.
+export const VOTE_CARD_W = 319;
+export const VOTE_CARD_H = 444;
+const VOTE_GAP = 24;
+
 const FRAME =
-  'rounded-[20px] border bg-white/[0.04] text-white shadow-[0_8px_28px_rgba(0,0,0,0.36)] transition-[background-color,border-color] duration-150';
+  'rounded-[20px] border bg-[#1c1c1f] text-white transition-[background-color,border-color] duration-150';
 const PILL =
   'inline-flex h-[32px] shrink-0 items-center gap-[6px] rounded-full border px-[14px] text-[0.64em] leading-none transition-colors duration-75';
+/** The pill across the card's foot, as Progress's "See more". */
+const WIDE_PILL =
+  'flex h-[44px] w-full items-center justify-center gap-[6px] rounded-full border text-[0.7em] leading-none transition-colors duration-75';
 
 /**
  * A card's pill, Home's "New project": the votes once shown (the leader's
@@ -171,22 +180,26 @@ const CardPill = ({
   leader,
   canPick,
   language,
+  wide = false,
 }: {
   card: VoteCard;
   vote: VoteSlot | undefined;
   leader: number | null;
   canPick: boolean;
   language: StudentLanguage;
+  /** Across the card's foot. */
+  wide?: boolean;
 }) => {
+  const PILL_ = wide ? WIDE_PILL : PILL;
   const counts = vote?.counts;
   if (counts) {
     const leads = leader === card.option;
     return (
       <span
-        className={`${PILL} ${
+        className={`${PILL_} ${
           leads
             ? 'border-white bg-white text-black'
-            : 'border-white/10 text-white/80'
+            : 'border-white/15 text-white/80'
         }`}
       >
         {leads && <span>{language === 'es' ? 'Adelante' : 'Leading'} ·</span>}
@@ -198,7 +211,7 @@ const CardPill = ({
   }
   if (vote?.mine === card.option)
     return (
-      <span className={`${PILL} border-white bg-white text-black`}>
+      <span className={`${PILL_} border-white bg-white text-black`}>
         <Check className="size-[1.1em]" aria-hidden />
         {language === 'es' ? 'Tu voto' : 'Your vote'}
       </span>
@@ -206,7 +219,7 @@ const CardPill = ({
   if (!canPick) return null;
   return (
     <span
-      className={`${PILL} border-white/10 text-[#FCFBF9] group-hover:bg-white/[0.04] group-active:bg-white/[0.08]`}
+      className={`${PILL_} border-white/15 text-[#FCFBF9] group-hover:bg-white/[0.04] group-active:bg-white/[0.08]`}
     >
       {vote?.pickAction === 'go' ? (
         <>
@@ -231,7 +244,7 @@ export const GroupVoteMenu = ({
   still = false,
   stacked = false,
   width = 1152,
-  height = 340,
+  height = 492,
   statusChip,
 }: GroupVoteMenuProps) => {
   const cards = cardsOf(slide, options, vote?.activities, language);
@@ -282,10 +295,15 @@ export const GroupVoteMenu = ({
     );
   };
 
-  const control = (card: VoteCard, className: string, inner: ReactNode) => {
+  const control = (
+    card: VoteCard,
+    className: string,
+    inner: ReactNode,
+    style?: CSSProperties,
+  ) => {
     const chosen = vote?.mine === card.option || leader === card.option;
     const classes = `${className} ${
-      chosen ? 'border-white/40 bg-white/[0.07]' : 'border-white/10'
+      chosen ? 'border-white/40 bg-[#232326]' : 'border-transparent'
     }`;
     if (pick)
       return (
@@ -297,13 +315,14 @@ export const GroupVoteMenu = ({
           // Present's arrow keys move the slides; a card keeps its own.
           onKeyDown={(e) => e.stopPropagation()}
           onClick={() => pick(card.option)}
-          className={`group ${classes} text-left outline-none hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/50`}
+          style={style}
+          className={`group ${classes} text-left outline-none hover:bg-[#222225] focus-visible:ring-2 focus-visible:ring-white/50`}
         >
           {inner}
         </button>
       );
     return (
-      <div key={card.option} className={classes}>
+      <div key={card.option} className={classes} style={style}>
         {inner}
       </div>
     );
@@ -321,13 +340,14 @@ export const GroupVoteMenu = ({
     </span>
   );
 
-  const pill = (card: VoteCard) => (
+  const pill = (card: VoteCard, wide = false) => (
     <CardPill
       card={card}
       vote={vote}
       leader={leader}
       canPick={Boolean(pick)}
       language={language}
+      wide={wide}
     />
   );
 
@@ -359,40 +379,37 @@ export const GroupVoteMenu = ({
       </div>
     );
 
-  // Three of Home's cards side by side (owner, 2026-11-16), its 24px gap
-  // between them; the screen's own status under them.
+  // Three of Home's Progress columns side by side (owner, 2026-11-16): the
+  // picture, the role and what the class would do, the pill across the
+  // foot; the screen's own status under them.
   return (
     <div
       data-vote-menu=""
-      className="flex flex-col gap-[16px]"
+      className="flex flex-col items-center gap-[12px]"
       style={{ width, height, fontSize: 'var(--slide-body-fz)' }}
     >
-      <div
-        className="grid min-h-0 flex-1 items-start gap-[24px]"
-        style={{
-          gridTemplateColumns: `repeat(${cards.length}, minmax(0, 1fr))`,
-        }}
-      >
+      <div className="flex shrink-0 justify-center" style={{ gap: VOTE_GAP }}>
         {cards.map((card) =>
           control(
             card,
             `${FRAME} flex flex-col gap-[16px] p-[20px]`,
             <>
+              {picture(
+                card,
+                'min-h-0 w-full flex-1 rounded-[12px] transition-[border-color,transform] duration-200 ease-out group-hover:border-white/15 motion-safe:group-hover:scale-[1.01]',
+              )}
               <span
                 data-vote-card={card.option}
-                className="flex min-h-[44px] items-center justify-between gap-[12px]"
+                className="flex shrink-0 flex-col gap-[16px]"
               >
                 <span className="flex min-w-0 items-center gap-[12px]">
                   {roleIcon(card)}
                   {heading(card)}
                 </span>
-                {pill(card)}
+                {pill(card, true)}
               </span>
-              {picture(
-                card,
-                'aspect-video w-full rounded-[12px] transition-[border-color,transform] duration-200 ease-out group-hover:border-white/15 motion-safe:group-hover:scale-[1.01]',
-              )}
             </>,
+            { width: VOTE_CARD_W, height: VOTE_CARD_H },
           ),
         )}
       </div>

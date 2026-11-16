@@ -348,11 +348,23 @@ export const SLIDE_GRID = {
   },
 
   // ── The class's vote for its Group Project (owner, 2026-11-16) ──────────
-  // The vote's cards, under the title and its line: the live layer's own
-  // place (chrome), its padding inside the safe area.
+  // Its title and line high and close together ("Group Project", "Select to
+  // vote"), then the cards at Home's Progress column's size: the live
+  // layer's own place (chrome), its padding inside the canvas.
+  voteTitle: {
+    rect: { x: 64, y: 96, w: 1152, h: 64 },
+    role: 'content',
+    flow: 'single',
+    family: 'any',
+  },
+  voteSubtitle: {
+    rect: { x: 64, y: 160, w: 1152, h: 36 },
+    role: 'content',
+    flow: 'single',
+    family: 'any',
+  },
   voteCards: {
-    // To the canvas's foot, for three of Home's cards and a status line.
-    rect: { x: 48, y: 268, w: 1184, h: 372 },
+    rect: { x: 48, y: 196, w: 1184, h: 524 },
     role: 'chrome',
     flow: 'single',
     family: 'chrome',
@@ -772,6 +784,8 @@ export const REFLOW_ORDER: readonly ZoneName[] = [
   'captionTitle', // + the Showcase's name, over its photo
   'portraitTitle', // + the portrait's name
   'checkInTitle', // + the portrait's name, with the check-in
+  'voteTitle', // + the class vote's title
+  'voteSubtitle', // + its line (before the band, as `subtitle` is)
   'subtitle',
   'rowA',
   'rowB',

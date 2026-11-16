@@ -57,8 +57,11 @@ export interface PresetZones {
   body?: ZonePlacement<ZoneName>;
   /** Where launch tiles go. */
   tiles?: ZonePlacement<ZoneName>;
-  /** `'off'` hides the prompt rather than dropping it. */
-  subtitle?: 'off';
+  /**
+   * `'off'` hides the prompt rather than dropping it; a zone puts it there
+   * (the class vote's line, close under its title).
+   */
+  subtitle?: 'off' | ZoneName;
   /**
    * Hide the title element. `SlideCommon.title` is REQUIRED and
    * `migrateSlideV1` always emits it, but `CENTRESTACK_EXCLUDES` forbids a
@@ -381,6 +384,10 @@ export const PRESETS = {
     bandFree: true,
     liveRect: 'voteCards',
     zones: {
+      // High and close together, leaving the cards Home's Progress
+      // column's height (owner, 2026-11-16).
+      title: 'voteTitle',
+      subtitle: 'voteSubtitle',
       body: 'off',
       tiles: 'off',
       visuals: 'off',

@@ -128,7 +128,7 @@ export const SlideRenderer = ({
         stacked={layoutMode === 'reflow'}
         statusChip={slots?.statusChip}
         width={1152}
-        height={340}
+        height={492}
       />
     ) : null;
 

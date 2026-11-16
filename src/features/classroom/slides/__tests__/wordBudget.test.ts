@@ -202,8 +202,19 @@ describe('the first lesson, Michael Jackson', () => {
       const textBlocks = texts.filter(
         (t) => t.role !== 'item' && !(split && t.role === 'question'),
       );
-      expect(textBlocks.length, slide.id).toBeLessThanOrEqual(portrait ? 3 : 1);
+      // The class's vote is titled with its section, "Select to vote"
+      // under it (owner, 2026-11-16).
+      const vote = slide.kind === 'interaction' && Boolean(slide.branches);
+      expect(textBlocks.length, slide.id).toBeLessThanOrEqual(
+        portrait ? 3 : vote ? 2 : 1,
+      );
+      if (vote)
+        expect(textBlocks.map((t) => t.text)).toEqual([
+          'Group Project',
+          'Select to vote',
+        ]);
       for (const { role, text } of texts) {
+        if (vote && role === 'title') continue;
         expect(labels.has(text.toLowerCase()), `${slide.id}: "${text}"`).toBe(
           false,
         );

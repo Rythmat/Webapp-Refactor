@@ -414,9 +414,14 @@ const groupProjectParts = (
           phase: 'groupPractice',
           section: 'groupProject',
           presetId: 'group-vote',
-          title: COPY.voteQuestion,
-          // Centred over the cards, as slide 5's title is over its places.
-          textStyle: { title: { align: 'center', fontScale: 0.65 } },
+          // "Group Project", "Select to vote" under it (owner, 2026-11-16),
+          // centred over the cards as slide 5's title is over its places.
+          title: COPY.groupTitle,
+          prompt: COPY.votePrompt,
+          textStyle: {
+            title: { align: 'center', fontScale: 0.65 },
+            prompt: { align: 'center', fontScale: 0.7 },
+          },
           interactionIds: [vote.id],
           reveal: 'bars',
           branches: roles.map(ids.groupSlide),

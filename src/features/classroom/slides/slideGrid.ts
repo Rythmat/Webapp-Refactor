@@ -348,10 +348,10 @@ export const SLIDE_GRID = {
   },
 
   // ── The class's vote for its Group Project (owner, 2026-11-16) ──────────
-  // The vote's cards, where slide 5's places sit: the live layer's own
+  // The vote's cards, under the title and its line: the live layer's own
   // place (chrome), its padding inside the safe area.
   voteCards: {
-    rect: { x: 48, y: 192, w: 1184, h: 420 },
+    rect: { x: 48, y: 272, w: 1184, h: 340 },
     role: 'chrome',
     flow: 'single',
     family: 'chrome',

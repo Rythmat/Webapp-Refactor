@@ -133,7 +133,7 @@ const cardsOf = (
 /** A card's size, in canvas px; the logo's tile above them. */
 export const VOTE_CARD_W = 344;
 export const VOTE_CARD_H = 132;
-const HUB = 112;
+const HUB = 96;
 const GAP = 60;
 
 interface GroupVoteMenuProps {
@@ -212,7 +212,7 @@ export const GroupVoteMenu = ({
   still = false,
   stacked = false,
   width = 1152,
-  height = 396,
+  height = 308,
   statusChip,
 }: GroupVoteMenuProps) => {
   const reduce = useReducedMotion() ?? false;
@@ -434,7 +434,7 @@ export const GroupVoteMenu = ({
         className="absolute flex items-center justify-center rounded-[28px] border border-white/10 bg-[#141418] shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
         style={{ left: hubX - HUB / 2, top: 0, width: HUB, height: HUB }}
       >
-        <Logo className="size-[52px]" />
+        <Logo className="size-[46px]" />
       </div>
 
       {/* Present's count and Show results; the room's participation. */}

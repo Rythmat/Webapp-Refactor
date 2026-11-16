@@ -115,11 +115,13 @@ export const COPY = {
     en: 'Today we work together as Promoters, Producers or Performers.',
     es: 'Hoy trabajamos juntos como promotores, productores o intérpretes.',
   },
-  // The class votes for its Group Project (owner, 2026-11-16).
+  // The class votes for its Group Project (owner, 2026-11-16): the
+  // slide says "Group Project", "Select to vote" under it.
   voteQuestion: {
     en: 'Vote: which project today?',
     es: 'Vota: ¿qué proyecto hoy?',
   },
+  votePrompt: { en: 'Select to vote', es: 'Selecciona para votar' },
   projectTitle: { en: 'Individual Project', es: 'Proyecto individual' },
   // The menu slide's own line: a question, not the section's label.
   // The Individual Project's heading, centred over the six places (owner,

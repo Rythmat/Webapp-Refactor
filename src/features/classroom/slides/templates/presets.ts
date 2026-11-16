@@ -372,8 +372,8 @@ export const PRESETS = {
     },
   },
   // The class's vote for its Group Project (owner, 2026-11-16): slide 5's
-  // look, a card for each role beaming into the logo (`GroupVoteMenu`), the
-  // question as the title over them.
+  // look, a card for each role beaming into the logo (`GroupVoteMenu`),
+  // under the title and its line ("Group Project", "Select to vote").
   'group-vote': {
     id: 'group-vote',
     label: 'Class vote',
@@ -381,7 +381,6 @@ export const PRESETS = {
     bandFree: true,
     liveRect: 'voteCards',
     zones: {
-      subtitle: 'off',
       body: 'off',
       tiles: 'off',
       visuals: 'off',

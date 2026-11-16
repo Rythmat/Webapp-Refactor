@@ -14,6 +14,8 @@ import { useCapabilities } from '@/hooks/data/admin/useCapabilities';
 import { ConsoleCallout } from '../../../ui/ConsoleCallout';
 import { ContentItemEditor } from '../../itemEditor/ContentItemEditor';
 import { useContentItemEditor } from '../../itemEditor/useContentItemEditor';
+import { StoreCopyBar } from '../../repo/StoreCopyBar';
+import { useRepoMode } from '../../repo/useRepoMode';
 import { makeEmptySong } from '../../songEditor/songDefaults';
 
 /**
@@ -112,6 +114,7 @@ const SongItemEditor = ({
   itemId: string | null;
 }) => {
   const appCopy = getSong(slug);
+  const repoMode = useRepoMode();
   const editor = useContentItemEditor({
     kind: 'song',
     itemId: itemId ?? 'new',
@@ -122,8 +125,22 @@ const SongItemEditor = ({
           unknown
         >),
   });
+  // Repo mode reads the repo's file; the content store may hold a copy
+  // edited while the console saved there. The literal DEV gate lets the
+  // build drop it (useRepoMode.ts).
+  const repo = import.meta.env.DEV && repoMode;
   return (
     <div className="min-w-0">
+      {repo && itemId && (
+        <div className="px-6 pt-3 md:px-10">
+          <StoreCopyBar
+            slug={slug}
+            body={editor.body}
+            dirty={editor.dirty}
+            onLoad={editor.applyBody}
+          />
+        </div>
+      )}
       {!itemId && (
         <div className="px-6 pt-3 md:px-10">
           <ConsoleCallout tone="info">

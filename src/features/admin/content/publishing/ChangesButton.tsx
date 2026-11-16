@@ -12,10 +12,14 @@ import {
   usePendingEdits,
 } from '@/hooks/data/admin/useAdminContent';
 import { CONSOLE_LABEL, consoleTabClass } from '../../ui/styles';
-import { segmentForKind } from '../mirror/mirrorPaths';
 import { useRepoMode } from '../repo/useRepoMode';
 import { kindLabel } from './kindLabels';
-import { kindsToPublish, usePublishActions, usePublishRun } from './publishRun';
+import {
+  kindsForSection,
+  kindsToPublish,
+  usePublishActions,
+  usePublishRun,
+} from './publishRun';
 
 // Read only when the popover is open, and loaded then: the bar is eager
 // console code, the suggestions client is not (eagerBoundary.test.ts).
@@ -54,10 +58,7 @@ export const ChangesButton = ({ section }: { section: string | null }) => {
   const rows = overview.data ?? [];
   const waiting = repo ? 0 : (pending.data?.length ?? 0);
   const changed = rows.reduce((n, row) => n + row.changedSincePublish, 0);
-  const here =
-    section && !repo
-      ? kindsToPublish(rows).filter((kind) => segmentForKind(kind) === section)
-      : [];
+  const here = repo ? [] : kindsForSection(kindsToPublish(rows), section);
   const count = waiting + changed;
 
   return (

@@ -13,7 +13,13 @@ import { CONSOLE_LABEL, CONSOLE_TABLE_HEAD } from '../../ui/styles';
 import { RunSummary } from '../publishing/PublishKindsSection';
 import { usePublishActions, usePublishRun } from '../publishing/publishRun';
 import { rememberImport } from './importMemory';
-import { planImport, tally, toWrite, type SongDiff } from './songImportPlan';
+import {
+  mergeForImport,
+  planImport,
+  tally,
+  toWrite,
+  type SongDiff,
+} from './songImportPlan';
 
 /**
  * Bringing the repo's chord charts into the content store, once.
@@ -27,8 +33,11 @@ import { planImport, tally, toWrite, type SongDiff } from './songImportPlan';
  * It is deliberately a page and not a script, because a script needs an admin
  * token and this needs nothing but the session the admin already has.
  *
- * Three rules it keeps:
+ * Four rules it keeps:
  *  - it never deletes. A song only the store has is someone's work.
+ *  - it writes the repo's chart and keeps the store's links (STORE_OWNED):
+ *    the lead acts and credits linked in Cortex and the Table live only in
+ *    the store.
  *  - it compares before it writes, and shows the comparison.
  *  - writing can be stopped, and says what it managed.
  *
@@ -81,6 +90,8 @@ export const AdminSongImportPage = () => {
   const [failures, setFailures] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const stop = useRef(false);
+  /** What the last compare read, so a write keeps the store's links. */
+  const storedRef = useRef<Map<string, Song>>(new Map());
   const queryClient = useQueryClient();
   const run = usePublishRun();
   const { publish } = usePublishActions();
@@ -133,6 +144,7 @@ export const AdminSongImportPage = () => {
       // song data on the eager bundle for every reader of the app.
       const { BUNDLED_SONGS } = await import('@/curriculum/data/songs/bundled');
       const stored = await readStore();
+      storedRef.current = stored;
       const next = planImport(Object.values(BUNDLED_SONGS), stored);
       setPlan(next);
       // A stopped read compared part of the store; it proves nothing.
@@ -159,7 +171,10 @@ export const AdminSongImportPage = () => {
     // One at a time. A bulk endpoint would be faster and this runs once.
     for (const row of work) {
       if (stop.current) break;
-      const body = (BUNDLED_SONGS as Record<string, Song>)[row.slug];
+      const body = mergeForImport(
+        (BUNDLED_SONGS as Record<string, Song>)[row.slug],
+        storedRef.current.get(row.slug),
+      );
       try {
         await contentRequest('/items', token!, {
           method: 'PUT',
@@ -204,9 +219,10 @@ export const AdminSongImportPage = () => {
         <h2 className={CONSOLE_LABEL}>Import songs from the repo</h2>
         <p className="max-w-3xl text-sm text-white/55">
           Compares every chart in the repo against the one the store holds and
-          writes the differences. It never deletes: a song only the store has is
-          left alone and listed. Publishing is separate — this fills the
-          authoring store, and publishing moves the CDN bundle.
+          writes the differences. It writes the repo’s chart and keeps the
+          store’s links (lead act, credits, records). It never deletes: a song
+          only the store has is left alone and listed. Publishing is separate —
+          this fills the authoring store, and publishing moves the CDN bundle.
         </p>
       </div>
 

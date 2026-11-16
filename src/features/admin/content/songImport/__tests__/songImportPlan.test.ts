@@ -3,6 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 import {
   canonical,
   describeChanges,
+  mergeForImport,
   planImport,
   tally,
   toWrite,
@@ -162,5 +163,72 @@ describe('describeChanges', () => {
     // worst thing this could do.
     const changes = describeChanges(song({ difficulty: 3 }), song());
     expect(changes).toEqual(['other fields']);
+  });
+});
+
+describe('the store’s links', () => {
+  // The repo's files have no links; the store linked them in Cortex and the
+  // Table. Writing the repo's song whole would unlink them (16 Nov 2026).
+  const linked = (over: Partial<Song> = {}) =>
+    song({
+      origin: { artistGlobeId: 'carole-king' },
+      credits: [
+        { name: 'Carole King', role: 'vocals', artistGlobeId: 'carole-king' },
+      ],
+      ...over,
+    } as Partial<Song>);
+  const unlinked = (over: Partial<Song> = {}) =>
+    song({
+      credits: [{ name: 'Carole King', role: 'vocals' }],
+      ...over,
+    } as Partial<Song>);
+
+  it('are no difference on their own', () => {
+    const plan = planImport([unlinked()], stored(linked()));
+    expect(plan[0].state).toBe('same');
+  });
+
+  it('are kept when the chart is written', () => {
+    const written = mergeForImport(unlinked({ tempo: 90 }), linked());
+    expect(written.tempo).toBe(90);
+    expect(written.origin).toEqual({ artistGlobeId: 'carole-king' });
+    expect(written.credits?.[0]).toMatchObject({
+      artistGlobeId: 'carole-king',
+    });
+    const plan = planImport([unlinked({ tempo: 90 })], stored(linked()));
+    expect(plan[0].changes).toEqual(['tempo 83 → 90']);
+  });
+
+  it('come from the repo for a song the store has never seen', () => {
+    expect(mergeForImport(linked(), undefined)).toEqual(linked());
+  });
+});
+
+describe('the light and the rhythms', () => {
+  it('say which way the light turns', () => {
+    expect(describeChanges(song({ comingSoon: true }), song())).toEqual([
+      'light green → red',
+    ]);
+    expect(describeChanges(song(), song({ comingSoon: true }))).toEqual([
+      'light red → green',
+    ]);
+  });
+
+  it('count the bars with rhythm', () => {
+    const rhythmic = song({
+      sections: [
+        {
+          id: 'v1',
+          label: 'Verse 1',
+          bars: [
+            { chords: [], rhythm: [{ value: '2' }, { value: '2' }] },
+            { chords: [] },
+          ],
+        },
+      ],
+    });
+    expect(describeChanges(rhythmic, song())).toEqual([
+      'bars with rhythm 0 → 1',
+    ]);
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { SongSection } from '@/curriculum/types/songLibrary';
-import { addChordOnBeat } from '../../songChart/chartOps';
+import { addChordOnBeat, removeChordHealing } from '../../songChart/chartOps';
 import { applyPaletteMark, CHART_PALETTE_ACTIONS } from '../paletteMarks';
 
 /**
@@ -65,6 +65,28 @@ describe('a chord on a slash', () => {
     expect(out[0].bars[0].chords.map((c) => [c.beat, c.duration])).toEqual([
       [1, 1.5],
       [2.5, 0.5],
+      [3, 2],
+    ]);
+  });
+
+  it('takes a chord away and lets the one before it ring on', () => {
+    // Added on 4 and never named: gone, and C lasts the bar again.
+    const added = addChordOnBeat(chart(), 0, 0, 4, 4);
+    const out = removeChordHealing(added, 0, 0, 1, 4);
+    expect(out[0].bars[0].chords.map((c) => [c.beat, c.duration])).toEqual([
+      [1, 4],
+    ]);
+    // Between two chords, the one before rings up to the next.
+    const three = addChordOnBeat(
+      addChordOnBeat(chart(), 0, 0, 3, 4),
+      0,
+      0,
+      2,
+      4,
+    );
+    const middle = removeChordHealing(three, 0, 0, 1, 4);
+    expect(middle[0].bars[0].chords.map((c) => [c.beat, c.duration])).toEqual([
+      [1, 2],
       [3, 2],
     ]);
   });

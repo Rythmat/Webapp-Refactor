@@ -38,7 +38,7 @@ import {
   insertSection,
   moveSection,
   removeBar,
-  removeChord,
+  removeChordHealing,
   removeSection,
   updateChord,
   updateSection,
@@ -420,6 +420,17 @@ const ChartEditor = ({
   // the palettes' chord symbol: the one there, or a new one lasting to the
   // next chord or the barline. Either way its popup opens.
   const meters = useMemo(() => sectionMeters(song), [song]);
+  // The selected chord taken away, the one before it ringing on.
+  const removeSelectedChord = (label: string) => {
+    if (!selection) return;
+    const { sectionIdx: si, barIdx: bi, chordIdx } = selection;
+    const beatsInBar = meters[si]?.[bi]?.[0] ?? song.timeSignature?.[0] ?? 4;
+    editing.apply(
+      removeChordHealing(sections, si, bi, chordIdx, beatsInBar),
+      label,
+    );
+    setSelection(null);
+  };
   const onChordAt = (si: number, bi: number, beat: number) => {
     const beatsInBar = meters[si]?.[bi]?.[0] ?? song.timeSignature?.[0] ?? 4;
     const next = addChordOnBeat(sections, si, bi, beat, beatsInBar);
@@ -640,17 +651,15 @@ const ChartEditor = ({
             )
           }
           onRemove={() => {
-            setSections(
-              removeChord(
-                sections,
-                selection.sectionIdx,
-                selection.barIdx,
-                selection.chordIdx,
-              ),
-            );
-            setSelection(null);
+            removeSelectedChord('Remove chord');
           }}
-          onClose={() => setSelection(null)}
+          // A chord added and never named is a click that changed its mind:
+          // closing leaves no empty chord behind (owner, 2026-11-15).
+          onClose={() => {
+            if (!selectedChord.chordName.trim())
+              removeSelectedChord('Remove empty chord');
+            else setSelection(null);
+          }}
         />
       )}
     </div>

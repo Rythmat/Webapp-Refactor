@@ -242,6 +242,33 @@ export const addChordOnBeat = (
   });
 };
 
+/**
+ * Take a chord away and let the one before it ring on: a chord that
+ * stopped where this one began (`addChordOnBeat` stops it there) now lasts
+ * to the next chord, or the barline, so no beat is left silent.
+ */
+export const removeChordHealing = (
+  sections: SongSection[],
+  sectionIdx: number,
+  barIdx: number,
+  chordIdx: number,
+  beatsInBar: number,
+): SongSection[] =>
+  updateBarChords(sections, sectionIdx, barIdx, (chords) => {
+    const gone = chords[chordIdx];
+    if (!gone) return chords;
+    const rest = chords.filter((_, i) => i !== chordIdx);
+    const next = rest
+      .map((c) => c.beat)
+      .filter((b) => b > gone.beat)
+      .sort((a, b) => a - b)[0];
+    return rest.map((c) =>
+      c.beat < gone.beat && Math.abs(c.beat + c.duration - gone.beat) < 1e-6
+        ? { ...c, duration: (next ?? beatsInBar + 1) - c.beat }
+        : c,
+    );
+  });
+
 export const removeChord = (
   sections: SongSection[],
   sectionIdx: number,

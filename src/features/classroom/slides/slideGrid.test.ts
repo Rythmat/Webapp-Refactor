@@ -221,9 +221,10 @@ describe('zone name guard', () => {
         'tileRow',
         'title',
         'utilityTopRight',
+        'voteCards',
       ].sort(),
     );
-    expect(ZONE_NAMES).toHaveLength(31);
+    expect(ZONE_NAMES).toHaveLength(32);
   });
 });
 

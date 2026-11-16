@@ -11,6 +11,11 @@ import { pickLocalized } from '../presentation/localized';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
 import {
+  nextSlideIndex,
+  prevSlideIndex,
+  type PickOption,
+} from '../slides/branches';
+import {
   clampSlideIndex,
   deckFromSnapshot,
   findInteraction,
@@ -290,12 +295,28 @@ export const LiveSessionPage = () => {
       }
     };
 
-  const goPrev = () =>
-    setLocalIndex((i) => Math.max(0, (i ?? Math.max(0, teacherIndex)) - 1));
+  // Around the class's vote, a student at their own pace goes to the Group
+  // Project they voted for, and from there past the others.
+  const ownVote: PickOption = (b) => {
+    const mine = submissions[b.interactionId];
+    return mine?.kind === 'choice' ? (mine.choices[0] ?? null) : null;
+  };
+  const goPrev = () => {
+    if (!deck) return;
+    setLocalIndex((i) =>
+      Math.max(
+        0,
+        prevSlideIndex(deck, i ?? Math.max(0, teacherIndex), ownVote),
+      ),
+    );
+  };
   const goNext = () => {
     if (!canAdvance || !deck) return;
     setLocalIndex((i) =>
-      clampSlideIndex(deck, (i ?? Math.max(0, teacherIndex)) + 1),
+      clampSlideIndex(
+        deck,
+        nextSlideIndex(deck, i ?? Math.max(0, teacherIndex), ownVote),
+      ),
     );
   };
 

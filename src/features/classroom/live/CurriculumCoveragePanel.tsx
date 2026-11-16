@@ -14,6 +14,7 @@
 import { GraduationCap } from 'lucide-react';
 import { useProgressSummary } from '@/hooks/data/progress/useProgressSummary';
 import type { DaySnapshot } from '../publish/publishDay';
+import type { InteractionResponsePayload } from '../types';
 import {
   buildCurriculumCoverage,
   collectDeckLessonRefs,
@@ -21,13 +22,18 @@ import {
 
 export interface CurriculumCoveragePanelProps {
   snapshot: DaySnapshot | undefined;
+  /** The class's answers, so a vote's untaken Group Projects drop out. */
+  responsesByEnrollment?: Readonly<
+    Record<string, Readonly<Record<string, InteractionResponsePayload>>>
+  >;
 }
 
 export const CurriculumCoveragePanel = ({
   snapshot,
+  responsesByEnrollment,
 }: CurriculumCoveragePanelProps) => {
   const { data: summary } = useProgressSummary();
-  const refs = collectDeckLessonRefs(snapshot);
+  const refs = collectDeckLessonRefs(snapshot, responsesByEnrollment);
   if (refs.length === 0) return null;
   const rows = buildCurriculumCoverage(refs, summary?.lessons ?? []);
 

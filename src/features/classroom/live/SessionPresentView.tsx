@@ -32,6 +32,13 @@ interface SessionPresentViewProps {
   interactions: Interaction[];
   slideIndex: number;
   slideCount: number;
+  /**
+   * Where Prev and Next go: a step, except around the class's vote, which
+   * leads to one Group Project and past the others (`slides/branches.ts`).
+   * Itself when there is none.
+   */
+  prevIndex?: number;
+  nextIndex?: number;
   /** Move the live session to a slide (students/projector follow). */
   onNavigate: (index: number) => void;
   onExit: () => void;
@@ -43,6 +50,8 @@ export const SessionPresentView = ({
   interactions,
   slideIndex,
   slideCount,
+  prevIndex = slideIndex - 1,
+  nextIndex = slideIndex + 1,
   onNavigate,
   onExit,
   slots,
@@ -60,10 +69,10 @@ export const SessionPresentView = ({
         interactions={interactions}
         language={config.language}
         onExit={onExit}
-        onPrev={() => onNavigate(slideIndex - 1)}
-        onNext={() => onNavigate(slideIndex + 1)}
-        hasPrev={slideIndex > 0}
-        hasNext={slideIndex < slideCount - 1}
+        onPrev={() => onNavigate(prevIndex)}
+        onNext={() => onNavigate(nextIndex)}
+        hasPrev={prevIndex >= 0 && prevIndex !== slideIndex}
+        hasNext={nextIndex < slideCount && nextIndex !== slideIndex}
         index={slideIndex}
         count={slideCount}
         onGoTo={onNavigate}

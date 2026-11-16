@@ -161,8 +161,42 @@ export const applyGroupPick = (
           ...(slide.timerSec !== undefined ? { timerSec: slide.timerSec } : {}),
         };
   const placed = replaceSlide(day, slideId, routed);
-  return withTemplateRef(
-    setSlideInteractions(placed, slideId, [activity.interaction]),
-    { role },
+  const set = setSlideInteractions(placed, slideId, [activity.interaction]);
+  // A lesson the class votes on runs every role: none is its own.
+  return hasClassVote(day) ? set : withTemplateRef(set, { role });
+};
+
+/** Whether a lesson's class votes for its Group Project (owner, 2026-11-16). */
+export const hasClassVote = (day: Pick<Day, 'deck'>): boolean =>
+  Boolean(
+    day.deck?.slides.some(
+      (s) => s.kind === 'interaction' && Boolean(s.branches?.length),
+    ),
   );
+
+/**
+ * The slide a Group Project pick lands on. When the class votes, the
+ * role's own Group Project (its card names the role); else the selected
+ * Group Project slide, or the lesson's first. Never the vote itself.
+ */
+export const groupPickTarget = (
+  day: Pick<Day, 'deck'>,
+  selected: Slide | null | undefined,
+  role: GroupRole,
+  inGroup: (slide: Slide) => boolean,
+): Slide | undefined => {
+  const slides = day.deck?.slides ?? [];
+  const isVote = (s: Slide) =>
+    s.kind === 'interaction' && Boolean(s.branches?.length);
+  const branchIds = new Set(
+    slides.flatMap((s) => (s.kind === 'interaction' ? (s.branches ?? []) : [])),
+  );
+  if (branchIds.size > 0) {
+    const own = slides.find(
+      (s) => branchIds.has(s.id) && s.id.endsWith(`-group-${role}`),
+    );
+    if (own) return own;
+  }
+  if (selected && inGroup(selected) && !isVote(selected)) return selected;
+  return slides.find((s) => inGroup(s) && !isVote(s));
 };

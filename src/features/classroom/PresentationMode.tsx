@@ -28,6 +28,7 @@ import { SnapshotRepairBadge } from './publish/SnapshotRepairBadge';
 import { publishDay } from './publish/publishDay';
 import { useSanitizedStudentView } from './publish/useRuleOneReadGuard';
 import { useTeacherConfig } from './settings/useTeacherConfig';
+import { branchesOf, nextSlideIndex, prevSlideIndex } from './slides/branches';
 import { slideAt, slideInteractionIds } from './slides/deck';
 import { emptyDeck } from './slides/deckEdit';
 import type { AgePreset, Interaction, StudentViewConfig } from './types';
@@ -137,14 +138,36 @@ export const PresentationMode = () => {
     [presentDeck, sessionId, sessionState, sendNav, canEdit],
   );
 
+  // Around the class's vote (owner, 2026-11-16): with no class voting here,
+  // Next goes to its first Group Project, and the teacher's card to theirs.
+  const noPick = useCallback(() => null, []);
+  const prevIndex = prevSlideIndex(presentDeck, focusIndex, noPick);
+  const nextIndex = nextSlideIndex(presentDeck, focusIndex, noPick);
   const goPrevSlide = useCallback(
-    () => goToSlide(focusIndex - 1),
-    [goToSlide, focusIndex],
+    () => goToSlide(prevIndex),
+    [goToSlide, prevIndex],
   );
   const goNextSlide = useCallback(
-    () => goToSlide(focusIndex + 1),
-    [goToSlide, focusIndex],
+    () => goToSlide(nextIndex),
+    [goToSlide, nextIndex],
   );
+  const vote = useMemo(() => {
+    const branches = branchesOf(presentDeck, focusIndex);
+    if (!branches) return undefined;
+    const available = view.phases.flatMap((phase) => phase.interactions ?? []);
+    return {
+      activities: branches.optionIndices.map((i) => {
+        const slide = presentDeck.slides[i];
+        const id = slide ? slideInteractionIds(slide)[0] : undefined;
+        return available.find((ix) => ix.id === id) ?? null;
+      }),
+      pickAction: 'go' as const,
+      onPick: (option: number) => {
+        const index = branches.optionIndices[option];
+        if (index !== undefined && index >= 0) goToSlide(index);
+      },
+    };
+  }, [presentDeck, focusIndex, view, goToSlide]);
 
   const exitToClassroom = useCallback(() => {
     if (document.fullscreenElement) {
@@ -197,11 +220,12 @@ export const PresentationMode = () => {
           onExit={exitToClassroom}
           onPrev={goPrevSlide}
           onNext={goNextSlide}
-          hasPrev={focusIndex > 0}
-          hasNext={focusIndex < presentDeck.slides.length - 1}
+          hasPrev={prevIndex !== focusIndex}
+          hasNext={nextIndex !== focusIndex}
           index={focusIndex}
           count={presentDeck.slides.length}
           onGoTo={goToSlide}
+          {...(vote ? { slots: { vote } } : {})}
         />
       )}
     </div>

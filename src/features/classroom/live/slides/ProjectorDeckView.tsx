@@ -24,6 +24,7 @@ import { ClassStepChip } from './ClassStepChip';
 import { ShowcaseProjectorFrame } from './ShowcaseProjectorFrame';
 import { TimerCountdown } from './TimerCountdown';
 import { buildRevealNode } from './revealNode';
+import { buildVoteSlot } from './voteSlot';
 
 // Echo (class) on the projector: its circle, the class's counts, the Boss.
 // Its engine and screens load only when an Echo slide is shown.
@@ -196,6 +197,13 @@ export const ProjectorDeckView = ({
               slots={{
                 reveal: revealSlot,
                 statusChip,
+                // The class's vote: its cards, the counts once shared.
+                vote: buildVoteSlot({
+                  snapshot,
+                  slide,
+                  responsesByEnrollment,
+                  sharedInteractionIds: state.sharedInteractionIds,
+                }),
                 showcaseFrame,
                 mediaCommand,
                 // The Group Practice slide's Studio, on the class's step.

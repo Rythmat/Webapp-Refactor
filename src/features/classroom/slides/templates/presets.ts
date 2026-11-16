@@ -371,6 +371,22 @@ export const PRESETS = {
       visuals: 'off',
     },
   },
+  // The class's vote for its Group Project (owner, 2026-11-16): slide 5's
+  // look, a card for each role beaming into the logo (`GroupVoteMenu`), the
+  // question as the title over them.
+  'group-vote': {
+    id: 'group-vote',
+    label: 'Class vote',
+    kinds: ['interaction'],
+    bandFree: true,
+    liveRect: 'voteCards',
+    zones: {
+      subtitle: 'off',
+      body: 'off',
+      tiles: 'off',
+      visuals: 'off',
+    },
+  },
   // pptx slide 10 — "Last 5". Centre stack, which excludes the title zone.
   'last-5': {
     id: 'last-5',

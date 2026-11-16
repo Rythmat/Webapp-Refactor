@@ -171,6 +171,13 @@ export default class ClassroomSessionServer extends Server {
   private activity: ClassActivity | null = null;
   /** The teacher's last notice, for a student who connects after it. */
   private notice: ClassNotice | null = null;
+  /**
+   * Each student's latest response, by interaction (2026-11-16): sharing a
+   * question later still shows the room every answer that came in before
+   * (a class vote whose results the teacher shows when they choose). Held
+   * in memory only, identified, and never sent anywhere but stripped.
+   */
+  private latest = new Map<string, Map<string, ResponseBroadcast>>();
   private ended = false;
   private presenceTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -205,6 +212,7 @@ export default class ClassroomSessionServer extends Server {
       case 'share':
         this.currentShare = { interactionId: msg.interactionId, on: msg.on };
         this.broadcastTo(msg, ['teacher', 'student', 'projector']);
+        if (msg.on) await this.replayToProjectors(msg.interactionId);
         break;
       case 'nav':
       case 'lock':
@@ -240,6 +248,13 @@ export default class ClassroomSessionServer extends Server {
     // Teachers get the full, identified event.
     this.broadcastTo(msg, ['teacher']);
 
+    let bag = this.latest.get(msg.interactionId);
+    if (!bag) {
+      bag = new Map();
+      this.latest.set(msg.interactionId, bag);
+    }
+    bag.set(msg.enrollmentId, msg);
+
     // Projectors get an identifier-stripped copy, but only while this exact
     // interaction is actively shared.
     const shared =
@@ -253,6 +268,22 @@ export default class ClassroomSessionServer extends Server {
     // Students never receive peer responses — nothing sent here.
   }
 
+  /** The answers already in, stripped, for a question just shared. */
+  private async replayToProjectors(
+    interactionId: string,
+    only?: Connection,
+  ): Promise<void> {
+    const bag = this.latest.get(interactionId);
+    if (!bag || (!only && !this.hasRole('projector'))) return;
+    for (const msg of bag.values()) {
+      const stripped = JSON.stringify(await stripForProjector(msg));
+      if (only) only.send(stripped);
+      else
+        for (const conn of this.getConnections())
+          if (this.meta.get(conn.id)?.role === 'projector') conn.send(stripped);
+    }
+  }
+
   private handleEnd(): void {
     this.ended = true;
     this.broadcastTo({ type: 'end' }, ['teacher', 'student', 'projector']);
@@ -260,6 +291,7 @@ export default class ClassroomSessionServer extends Server {
       conn.close(4002, 'session ended');
     }
     this.meta.clear();
+    this.latest.clear();
     this.stopPresence();
   }
 
@@ -309,6 +341,10 @@ export default class ClassroomSessionServer extends Server {
     // doesn't show it). Never the room's screen.
     if (this.notice && auth.role !== 'projector') {
       conn.send(JSON.stringify({ type: 'notice', notice: this.notice }));
+    }
+    // A room's screen that joins while a question is shared: its answers.
+    if (auth.role === 'projector' && this.currentShare?.on) {
+      await this.replayToProjectors(this.currentShare.interactionId, conn);
     }
 
     // Size the roster immediately for a non-teacher too. Presence otherwise

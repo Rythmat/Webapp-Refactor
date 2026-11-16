@@ -515,6 +515,15 @@ const projectSlide = (slide: Slide): Slide => {
           ? { media: projectSlideMedia(slide.media) }
           : {}),
         ...(slide.reveal !== undefined ? { reveal: slide.reveal } : {}),
+        // A class vote's routes (owner, 2026-11-16): slide ids, strings
+        // only, in option order (one the deck lost leads nowhere).
+        ...(Array.isArray(slide.branches)
+          ? {
+              branches: slide.branches.filter(
+                (id): id is string => typeof id === 'string',
+              ),
+            }
+          : {}),
       };
     case 'app-route':
       return {

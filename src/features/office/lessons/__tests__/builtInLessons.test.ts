@@ -21,18 +21,21 @@ const generate = async (): Promise<Day> => {
 };
 
 describe('the built-in lessons', () => {
-  it('writes Michael Jackson · Producer, with the same id everywhere', async () => {
+  it('writes Michael Jackson, with the same id everywhere', async () => {
     const day = await generate();
+    // The id it had as "· Producer", so its copies keep following it.
     expect(day.id).toBe('builtin-mj-producer');
-    expect(day.label).toBe('Michael Jackson · Producer');
+    expect(day.label).toBe('Michael Jackson');
+    expect(day.deck?.title.en).toBe('Michael Jackson');
     expect(day.classroomId).toBe(OFFICE_LESSONS_SCOPE);
+    // The class votes for its Group Project: no role is the lesson's own.
     expect(day.deck?.templateRef).toMatchObject({
       focusId: 'artist:michael-jackson',
-      role: 'producer',
     });
-    // The nine slides of the lesson being perfected (see wordBudget.test),
+    expect(day.deck?.templateRef?.role).toBeUndefined();
+    // The twelve slides of the lesson being perfected (see wordBudget.test),
     // through to Reflect.
-    expect(day.deck!.slides).toHaveLength(9);
+    expect(day.deck!.slides).toHaveLength(12);
     expect(sectionOf(day.deck!.slides.at(-1)!)).toBe('reflect');
     // Every generated id carries the lesson's id, so a copy can rename them.
     for (const slide of day.deck!.slides)

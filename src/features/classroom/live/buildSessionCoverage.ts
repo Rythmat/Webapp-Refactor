@@ -6,6 +6,7 @@
  * e.g. "Covered: Unit nov-jazz · JAZZ:L1 §A Melody (4/6) · Theory dorian / G (3/6)"
  */
 import { getSong } from '@/curriculum/data/songs';
+import { untakenBranchIds } from '../slides/branches';
 import { describeRef } from '../slides/describeRef';
 import type { SlideDeck } from '../slides/types';
 import type { Interaction, InteractionResponsePayload } from '../types';
@@ -90,8 +91,10 @@ export const buildSessionCoverage = (input: {
 
   if (deck) {
     const byId = new Map(interactions.map((i) => [i.id, i]));
+    // The Group Projects the class voted past (owner, 2026-11-16).
+    const untaken = untakenBranchIds(deck, responsesByEnrollment);
     for (const slide of deck.slides) {
-      if (slide.kind !== 'app-route') continue;
+      if (slide.kind !== 'app-route' || untaken.has(slide.id)) continue;
       const ix = byId.get(slide.interactionId);
       if (!ix?.atlas) continue;
       const ref = ix.atlas.activityRef;

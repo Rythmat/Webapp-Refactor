@@ -50,6 +50,14 @@ const projectedTexts = (
   // The live layer: the question, or the class's activity by name.
   const ids = slideInteractionIds(slide);
   const own = interactions.filter((i) => ids.includes(i.id));
+  // The class's vote is its cards (owner, 2026-11-16): each its role and
+  // its activity's name, under the question as the title.
+  if (slide.kind === 'interaction' && slide.branches) {
+    for (const i of own)
+      for (const option of i.choice?.options ?? [])
+        texts.push({ role: 'item', text: option.en });
+    return texts;
+  }
   // A hero says its first question alone (one thing, big).
   if (slide.kind === 'interaction' && projectsQuestion(slide, 'projector'))
     for (const i of stageKindOf(slide) === 'hero' ? own.slice(0, 1) : own)
@@ -67,7 +75,7 @@ const projectedTexts = (
   return texts;
 };
 
-describe('the first lesson, Michael Jackson · Producer', () => {
+describe('the first lesson, Michael Jackson', () => {
   it('puts few words on the room’s screen, and no labels', async () => {
     const { graph, catalog } = await loadLessonAtlas();
     const [mj] = searchFocus(graph, catalog, 'Michael Jackson');
@@ -76,7 +84,7 @@ describe('the first lesson, Michael Jackson · Producer', () => {
     const day = applyCortexLessonToDay(
       newBlankDay('Michael Jackson'),
       plan,
-      { ...DEFAULT_CORTEX_CHOICES, role: 'producer' },
+      { ...DEFAULT_CORTEX_CHOICES, role: 'vote' },
       'budget',
     );
     const slides = day.deck!.slides;
@@ -84,9 +92,16 @@ describe('the first lesson, Michael Jackson · Producer', () => {
       (c) => c.presentation.interactions ?? [],
     );
 
-    // Nine slides: the portrait with the check-in, song, places; the class's
-    // tutorial; own project; progress, show the class; exit ticket, reset.
-    expect(slides).toHaveLength(9);
+    // Twelve slides: the portrait with the check-in, song, places; the
+    // class's vote and the three Group Projects it chooses between; own
+    // project; progress, show the class; exit ticket, reset.
+    expect(slides).toHaveLength(12);
+    expect(slides.map((s) => s.presetId).slice(3, 7)).toEqual([
+      'group-vote',
+      'hero',
+      'hero',
+      'hero',
+    ]);
 
     // The portrait says what the owner wrote for him, not the facts.
     const portrait = slides.find((s) => stageKindOf(s) === 'portrait') as

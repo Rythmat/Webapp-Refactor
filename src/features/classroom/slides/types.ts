@@ -376,6 +376,13 @@ export interface InteractionSlide extends SlideCommon {
    * longer trips it — the token stays 'words' for its own sake, not the firewall.
    */
   reveal?: 'bars' | 'wall' | 'words' | 'scale';
+  /**
+   * A class vote that picks where the lesson goes (owner, 2026-11-16): the
+   * slide each option of its first interaction leads to, in option order.
+   * Next goes to the picked one, and from there past the rest
+   * (`slides/branches.ts`).
+   */
+  branches?: string[];
 }
 
 /** Step 5 (Phase 2) — routes students into a real module via an atlas-type Interaction. */

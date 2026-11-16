@@ -16,8 +16,10 @@ import {
 } from '@/curriculum/bridge/genreIdMap';
 import type { ProgressSummaryLesson } from '@/lib/progress/types';
 import type { DaySnapshot } from '../publish/publishDay';
+import { untakenBranchIds } from '../slides/branches';
 import { interactionsForSlide } from '../slides/deck';
 import { canonicalLessonKeyParam } from '../slides/resolveContentHref';
+import type { InteractionResponsePayload } from '../types';
 
 const LESSON_VERSION = 1;
 
@@ -79,6 +81,13 @@ export const gcmKeyToLessonRef = (gcmKey: string): LessonRef | null =>
 /** Collect the (de-duped) lesson refs a published deck covers. */
 export const collectDeckLessonRefs = (
   snapshot: DaySnapshot | null | undefined,
+  /**
+   * The class's answers: with them, the Group Projects a class voted past
+   * are left out (owner, 2026-11-16).
+   */
+  responsesByEnrollment?: Readonly<
+    Record<string, Readonly<Record<string, InteractionResponsePayload>>>
+  >,
 ): LessonRef[] => {
   const deck = snapshot?.deck;
   if (!snapshot || !deck) return [];
@@ -87,8 +96,11 @@ export const collectDeckLessonRefs = (
     const r = gcmKeyToLessonRef(deck.templateRef.gcmKey);
     if (r) refs.push(r);
   }
+  const untaken = responsesByEnrollment
+    ? untakenBranchIds(deck, responsesByEnrollment)
+    : new Set<string>();
   for (const slide of deck.slides) {
-    if (slide.kind !== 'app-route') continue;
+    if (slide.kind !== 'app-route' || untaken.has(slide.id)) continue;
     const ix = interactionsForSlide(snapshot, slide)[0];
     const ref = ix?.atlas?.activityRef;
     if (!ref) continue;

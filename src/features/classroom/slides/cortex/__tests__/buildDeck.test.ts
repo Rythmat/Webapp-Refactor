@@ -20,7 +20,7 @@ import { searchFocus } from '../suggestFocus';
 import {
   DEFAULT_CORTEX_CHOICES,
   type CortexLessonChoices,
-  type GroupRole,
+  type GroupChoice,
 } from '../types';
 import { fixture, fixtureCatalog } from './fixture';
 
@@ -40,7 +40,7 @@ const SIX_PLACES = [
 ];
 
 const choices = (
-  role: GroupRole,
+  role: GroupChoice,
   over: Partial<CortexLessonChoices> = {},
 ): CortexLessonChoices => ({ ...DEFAULT_CORTEX_CHOICES, role, ...over });
 
@@ -567,5 +567,132 @@ describe('the default deck of a new Day', () => {
       presetId: 'project-menu',
       launchTiles: SIX_PLACES,
     });
+  });
+});
+
+describe('a lesson whose class votes for its Group Project', () => {
+  // Owner, 2026-11-16: the class picks Promoter, Producer or Performer.
+  const day = applyCortexLessonToDay(
+    newBlankDay('Ana Lux'),
+    plan,
+    choices('vote'),
+    'vote',
+  );
+  const slides = day.deck!.slides;
+  const prefix = `${day.id}-cx-vote`;
+
+  it('asks the class before the Group Projects, then runs each role’s', () => {
+    expect(slides.map((s) => [s.section, s.kind, s.presetId])).toEqual([
+      ['connect', 'interaction', 'portrait-check-in'],
+      ['showcase', 'interaction', 'listen-questions'],
+      ['showcase', 'content', 'bleed'],
+      ['groupProject', 'interaction', 'group-vote'],
+      ['groupProject', 'app-route', 'hero'],
+      ['groupProject', 'app-route', 'hero'],
+      ['groupProject', 'app-route', 'hero'],
+      ['individualProject', 'content', 'project-menu'],
+      ['present', 'interaction', 'hero'],
+      ['present', 'showcase', 'hero'],
+      ['reflect', 'interaction', 'hero'],
+      ['reflect', 'content', undefined],
+    ]);
+    expect(slidesAreSectionOrdered(slides)).toBe(true);
+    expectWired(day);
+    for (const slide of slides)
+      if (slide.presetId)
+        expect(presetFor(slide.presetId)?.kinds, slide.id).toContain(
+          slide.kind,
+        );
+  });
+
+  it('leads each option to its role’s Group Project', () => {
+    const vote = slides[3];
+    expect(vote).toMatchObject({
+      id: `${prefix}-slide-vote`,
+      interactionIds: [`${prefix}-ix-vote`],
+      branches: [
+        `${prefix}-slide-group-promoter`,
+        `${prefix}-slide-group-producer`,
+        `${prefix}-slide-group-performer`,
+      ],
+    });
+    const [ask] = day.cells.groupPractice.presentation.interactions ?? [];
+    expect(ask).toMatchObject({
+      type: 'choice',
+      shareable: true,
+      question: { en: 'Vote: which project today?' },
+      choice: {
+        multi: false,
+        options: [{ en: 'Promoter' }, { en: 'Producer' }, { en: 'Performer' }],
+      },
+    });
+    const modules = slides
+      .slice(4, 7)
+      .map((s) =>
+        s.kind === 'app-route'
+          ? day.cells.groupPractice.presentation.interactions?.find(
+              (i) => i.id === s.interactionId,
+            )?.atlas?.module
+          : undefined,
+      );
+    expect(modules).toEqual(['globe', 'studio', 'learn']);
+  });
+
+  it('is named for its subject alone, and no role is its own', () => {
+    expect(day.deck?.title.en).toBe('Ana Lux');
+    expect(day.deck?.templateRef?.role).toBeUndefined();
+    expect(day.cells.groupPractice.presentation.title?.en).toBe(
+      'Group Project',
+    );
+  });
+
+  it('keeps its routes through publishing, slide ids only', () => {
+    const vote = slides[3] as Slide & { branches: string[] };
+    expect(publishDay(day).deck!.slides[3]).toMatchObject({
+      branches: vote.branches,
+    });
+    const forged = {
+      ...day,
+      deck: {
+        ...day.deck!,
+        slides: slides.map((s, i) =>
+          i === 3 ? { ...s, branches: [...vote.branches, { evil: 1 }] } : s,
+        ),
+      },
+    } as Day;
+    expect(
+      (publishDay(forged).deck!.slides[3] as { branches?: unknown[] }).branches,
+    ).toEqual(vote.branches);
+  });
+
+  it('offers the roles that can run; with one, it is that role alone', () => {
+    const noMap = buildCortexLessonContent(
+      'p',
+      { ...plan, promoter: null },
+      choices('vote'),
+    );
+    expect(noMap.role).toBe('vote');
+    expect(noMap.slides.find((s) => s.presetId === 'group-vote')).toMatchObject(
+      {
+        branches: ['p-slide-group-producer', 'p-slide-group-performer'],
+      },
+    );
+    const one = buildCortexLessonContent(
+      'p',
+      { ...plan, promoter: null, performer: [] },
+      choices('vote'),
+    );
+    expect(one.role).toBe('producer');
+    expect(one.slides.some((s) => s.presetId === 'group-vote')).toBe(false);
+    expect(one.slides.map((s) => s.id)).toContain('p-slide-group');
+  });
+
+  it('replaces every generated Group Project when regenerated', () => {
+    const again = applyCortexLessonToDay(day, plan, choices('producer'), 'two');
+    const ids = (again.cells.groupPractice.presentation.interactions ?? []).map(
+      (i) => i.id,
+    );
+    expect(ids).toEqual([`${day.id}-cx-two-ix-group`]);
+    expect(again.deck?.title.en).toBe('Ana Lux · Producer');
   });
 });

@@ -44,6 +44,16 @@ import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
 import { useTeacherConfig } from '../settings/useTeacherConfig';
 import { SlideRenderer } from '../slides/SlideRenderer';
 import {
+  isVoteSlide,
+  leadingOption,
+  nextSlideIndex,
+  optionAt,
+  prevSlideIndex,
+  voteBranches,
+  voteCounts,
+  type PickOption,
+} from '../slides/branches';
+import {
   deckFromSnapshot,
   interactionsForSlide,
   slideAt,
@@ -74,7 +84,9 @@ import { ShowcasePanel } from './slides/ShowcasePanel';
 import { ShowcaseProjectorFrame } from './slides/ShowcaseProjectorFrame';
 import { SlideStrip } from './slides/SlideStrip';
 import { TimerControl } from './slides/TimerControl';
+import { VoteChip, VoteGoRow } from './slides/VoteControls';
 import { buildRevealNode } from './slides/revealNode';
+import { buildVoteSlot } from './slides/voteSlot';
 import { useActivityOutline } from './useActivityOutline';
 import { useLiveResponses } from './useLiveResponses';
 import { useSessionActivityDone } from './useSessionActivityDone';
@@ -195,6 +207,66 @@ export const TeacherSessionDashboard = () => {
   }, [handIn, sendNotice]);
   const onHandInSlide = Boolean(
     handIn && currentSlide && currentSlide.id === handIn.slide.id,
+  );
+
+  // The class's vote for its Group Project (owner, 2026-11-16). Next on the
+  // vote goes to its leader (ties to the first), or where the teacher sends
+  // the class; from there past the other Group Projects. Prev retraces the
+  // Group Project the class went to.
+  const [wentTo, setWentTo] = useState<Readonly<Record<string, number>>>({});
+  const leaderOf = useCallback(
+    (b: Parameters<PickOption>[0]) =>
+      leadingOption(
+        voteCounts(
+          responsesByEnrollment,
+          b.interactionId,
+          b.optionIndices.length,
+        ),
+      ),
+    [responsesByEnrollment],
+  );
+  const pickForward = useCallback<PickOption>(
+    (b) => leaderOf(b) ?? wentTo[b.slide.id] ?? null,
+    [leaderOf, wentTo],
+  );
+  const pickBack = useCallback<PickOption>(
+    (b) => wentTo[b.slide.id] ?? leaderOf(b),
+    [leaderOf, wentTo],
+  );
+  const nextIndex = deck
+    ? nextSlideIndex(deck, slideIndex, pickForward)
+    : slideIndex;
+  const prevIndex = deck
+    ? prevSlideIndex(deck, slideIndex, pickBack)
+    : slideIndex;
+  /** Move the class to a slide, remembering a vote's Group Project. */
+  const navTo = useCallback(
+    (index: number) => {
+      const target = deck?.slides[index];
+      if (!deck || !target) return;
+      for (const b of voteBranches(deck)) {
+        const option = optionAt(b, index);
+        if (option !== null)
+          setWentTo((was) => ({ ...was, [b.slide.id]: option }));
+      }
+      sendNav(target.phase, index);
+    },
+    [deck, sendNav],
+  );
+  const onVoteSlide = isVoteSlide(currentSlide);
+  const voteId = onVoteSlide ? currentSlideInteractions[0]?.id : undefined;
+  const voteShown = Boolean(
+    voteId && state?.sharedInteractionIds.includes(voteId),
+  );
+  /** The teacher sends the class to one of the vote's Group Projects. */
+  const goToOption = useCallback(
+    (option: number) => {
+      if (!deck) return;
+      const b = voteBranches(deck).find((v) => v.voteIndex === slideIndex);
+      const index = b?.optionIndices[option];
+      if (index !== undefined && index >= 0) navTo(index);
+    },
+    [deck, slideIndex, navTo],
   );
 
   // A Group Project the class does together: its activity, and the class's
@@ -367,28 +439,53 @@ export const TeacherSessionDashboard = () => {
             : undefined,
       },
       ...(presentRevealSlot ? { reveal: presentRevealSlot } : {}),
+      // The class's vote: a card goes to its Group Project; the counts
+      // only once the teacher shows them (Present may be the room's screen).
+      ...(snapshot && onVoteSlide
+        ? {
+            vote: buildVoteSlot({
+              snapshot,
+              slide: currentSlide,
+              responsesByEnrollment,
+              sharedInteractionIds: state?.sharedInteractionIds ?? [],
+              onPick: goToOption,
+              pickAction: 'go' as const,
+            }),
+          }
+        : {}),
       // The hand-in slide: how many have handed in, and the ask.
-      ...(onHandInSlide
+      ...(onVoteSlide && voteId
         ? {
             statusChip: (
-              <HandInChip
-                done={handedIn}
-                total={handInList.length}
-                onAsk={askToHandIn}
-                lastAsked={lastAsked}
+              <VoteChip
+                voted={countFor(voteId)}
+                total={activeEnrollments.length}
+                shown={voteShown}
+                onToggle={(on) => sendShare(voteId, on)}
               />
             ),
           }
-        : firstId
+        : onHandInSlide
           ? {
               statusChip: (
-                <ParticipationPulse
-                  responded={countFor(firstId)}
-                  language="both"
+                <HandInChip
+                  done={handedIn}
+                  total={handInList.length}
+                  onAsk={askToHandIn}
+                  lastAsked={lastAsked}
                 />
               ),
             }
-          : {}),
+          : firstId
+            ? {
+                statusChip: (
+                  <ParticipationPulse
+                    responded={countFor(firstId)}
+                    language="both"
+                  />
+                ),
+              }
+            : {}),
       ...(currentSlide.kind === 'showcase' && state?.showcase
         ? {
             showcaseFrame: <ShowcaseProjectorFrame showcase={state.showcase} />,
@@ -408,6 +505,15 @@ export const TeacherSessionDashboard = () => {
     handInList.length,
     askToHandIn,
     lastAsked,
+    snapshot,
+    onVoteSlide,
+    voteId,
+    voteShown,
+    responsesByEnrollment,
+    state?.sharedInteractionIds,
+    goToOption,
+    activeEnrollments.length,
+    sendShare,
   ]);
 
   // App-route slides show live module progress instead of a response aggregate.
@@ -466,12 +572,8 @@ export const TeacherSessionDashboard = () => {
     if (!timer || !timer.autoAdvance || !deck || !currentSlide) return;
     const advance = () => {
       if (Date.now() < timer.endsAt) return;
-      if (timer.slideId === currentSlide.id) {
-        const nextIndex = slideIndex + 1;
-        if (nextIndex < deck.slides.length) {
-          sendNav(deck.slides[nextIndex].phase, nextIndex);
-        }
-      }
+      if (timer.slideId === currentSlide.id && nextIndex !== slideIndex)
+        navTo(nextIndex);
       sendTimer(null);
     };
     const remaining = timer.endsAt - Date.now();
@@ -481,7 +583,7 @@ export const TeacherSessionDashboard = () => {
     }
     const id = setTimeout(advance, remaining + 60);
     return () => clearTimeout(id);
-  }, [timer, deck, currentSlide, slideIndex, sendNav, sendTimer]);
+  }, [timer, deck, currentSlide, slideIndex, nextIndex, navTo, sendTimer]);
 
   if (!state) {
     return (
@@ -522,10 +624,9 @@ export const TeacherSessionDashboard = () => {
           interactions={currentSlideInteractions}
           slideIndex={slideIndex}
           slideCount={deck.slides.length}
-          onNavigate={(i) => {
-            const s = deck.slides[i];
-            if (s) sendNav(s.phase, i);
-          }}
+          prevIndex={prevIndex}
+          nextIndex={nextIndex}
+          onNavigate={navTo}
           onExit={() => setPresenting(false)}
           slots={presentSlots}
         />
@@ -542,13 +643,8 @@ export const TeacherSessionDashboard = () => {
     setPresenting(true);
   };
   const step = (delta: -1 | 1) => {
-    if (!deck) return;
-    const next = Math.min(
-      deck.slides.length - 1,
-      Math.max(0, slideIndex + delta),
-    );
-    const target = deck.slides[next];
-    if (target && next !== slideIndex) sendNav(target.phase, next);
+    const next = delta > 0 ? nextIndex : prevIndex;
+    if (next !== slideIndex) navTo(next);
   };
 
   // The control room (owner, 2026-11-09), Pear Deck's teacher dashboard in
@@ -582,7 +678,7 @@ export const TeacherSessionDashboard = () => {
             <IconButton
               label="Previous slide"
               icon={<ChevronLeft />}
-              disabled={slideIndex <= 0}
+              disabled={prevIndex === slideIndex}
               onClick={() => step(-1)}
             />
             <span className="min-w-[6.5rem] text-center text-[0.8125rem] tabular-nums text-daw-text-2">
@@ -593,7 +689,7 @@ export const TeacherSessionDashboard = () => {
             <IconButton
               label="Next slide"
               icon={<ChevronRight />}
-              disabled={slideIndex >= deck.slides.length - 1}
+              disabled={nextIndex === slideIndex}
               onClick={() => step(1)}
             />
           </div>
@@ -634,7 +730,13 @@ export const TeacherSessionDashboard = () => {
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <RosterPanel
             classroomId={cid}
-            currentInteractions={currentInteractions}
+            // An interaction slide's own questions: the class's vote shares
+            // its phase with the three Group Projects it chooses between.
+            currentInteractions={
+              currentSlide?.kind === 'interaction'
+                ? currentSlideInteractions
+                : currentInteractions
+            }
             responsesByEnrollment={responsesByEnrollment}
             progressOverride={slideProgress?.perStudent}
             positionByEnrollment={
@@ -720,7 +822,9 @@ export const TeacherSessionDashboard = () => {
               }
               return count;
             }}
-            onNavigate={(index, phase) => sendNav(phase, index)}
+            onNavigate={(index) => navTo(index)}
+            prevIndex={prevIndex}
+            nextIndex={nextIndex}
           />
           <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
             {currentSlide ? (
@@ -730,6 +834,22 @@ export const TeacherSessionDashboard = () => {
                   surface="teacher"
                   language={classLanguage}
                   interactions={currentSlideInteractions}
+                  // The teacher's own screen: the votes as they come in.
+                  {...(snapshot && onVoteSlide
+                    ? {
+                        slots: {
+                          vote: buildVoteSlot({
+                            snapshot,
+                            slide: currentSlide,
+                            responsesByEnrollment,
+                            sharedInteractionIds: state.sharedInteractionIds,
+                            always: true,
+                            onPick: goToOption,
+                            pickAction: 'go',
+                          }),
+                        },
+                      }
+                    : {})}
                 />
               </div>
             ) : (
@@ -796,29 +916,53 @@ export const TeacherSessionDashboard = () => {
                   }
                 />
               ) : currentSlide ? (
-                <CurrentSlidePanel
-                  slide={currentSlide}
-                  interactions={currentSlideInteractions}
-                  aggregateRows={aggregateRows.filter((row) =>
-                    currentSlideInteractions.some(
-                      (i) => i.id === row.interactionId,
-                    ),
+                <>
+                  {onVoteSlide && voteId && (
+                    <VoteGoRow
+                      names={(
+                        currentSlideInteractions[0]?.choice?.options ?? []
+                      ).map((o) => o.en)}
+                      counts={voteCounts(
+                        responsesByEnrollment,
+                        voteId,
+                        currentSlideInteractions[0]?.choice?.options.length ??
+                          0,
+                      )}
+                      leader={leadingOption(
+                        voteCounts(
+                          responsesByEnrollment,
+                          voteId,
+                          currentSlideInteractions[0]?.choice?.options.length ??
+                            0,
+                        ),
+                      )}
+                      onGo={goToOption}
+                    />
                   )}
-                  sharedInteractionIds={state.sharedInteractionIds}
-                  onToggleShare={(interactionId, on) =>
-                    sendShare(interactionId, on)
-                  }
-                  respondedCount={
-                    Object.values(responsesByEnrollment).filter((bag) =>
-                      currentSlideInteractions.some((i) => bag[i.id]),
-                    ).length
-                  }
-                  rosterCount={Math.max(
-                    activeEnrollments.length,
-                    Object.keys(responsesByEnrollment).length,
-                  )}
-                  appRouteProgress={appRouteProgress}
-                />
+                  <CurrentSlidePanel
+                    slide={currentSlide}
+                    interactions={currentSlideInteractions}
+                    aggregateRows={aggregateRows.filter((row) =>
+                      currentSlideInteractions.some(
+                        (i) => i.id === row.interactionId,
+                      ),
+                    )}
+                    sharedInteractionIds={state.sharedInteractionIds}
+                    onToggleShare={(interactionId, on) =>
+                      sendShare(interactionId, on)
+                    }
+                    respondedCount={
+                      Object.values(responsesByEnrollment).filter((bag) =>
+                        currentSlideInteractions.some((i) => bag[i.id]),
+                      ).length
+                    }
+                    rosterCount={Math.max(
+                      activeEnrollments.length,
+                      Object.keys(responsesByEnrollment).length,
+                    )}
+                    appRouteProgress={appRouteProgress}
+                  />
+                </>
               ) : (
                 <p className="text-[0.875rem] text-daw-text-3">
                   Pick a slide in the strip, or use the arrows on the bottom
@@ -836,7 +980,10 @@ export const TeacherSessionDashboard = () => {
             </div>
           </details>
 
-          <CurriculumCoveragePanel snapshot={snapshot} />
+          <CurriculumCoveragePanel
+            snapshot={snapshot}
+            responsesByEnrollment={responsesByEnrollment}
+          />
         </>
       ) : (
         <>

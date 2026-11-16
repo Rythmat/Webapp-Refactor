@@ -2,6 +2,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useMemo } from 'react';
 import type { DaySnapshot } from '../../publish/publishDay';
 import { SlideRenderer } from '../../slides/SlideRenderer';
+import { isVoteSlide } from '../../slides/branches';
 import {
   deckFromSnapshot,
   interactionsForSlide,
@@ -139,7 +140,9 @@ export const ProjectorDeckView = ({
       title={classStep.title}
     />
   ) : firstInteractionId ? (
-    interactions[0].checkIn?.style === 'feelings' ? (
+    // The class's vote, like a feelings check-in, keeps to one line under
+    // its columns.
+    interactions[0].checkIn?.style === 'feelings' || isVoteSlide(slide) ? (
       <AnsweredCount n={countFor(firstInteractionId)} />
     ) : (
       <ParticipationPulse

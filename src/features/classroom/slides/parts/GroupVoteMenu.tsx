@@ -1,14 +1,11 @@
-import { useReducedMotion } from 'framer-motion';
 import { Check } from 'lucide-react';
-import { Fragment, useId, useState, type ReactNode } from 'react';
-import { Logo } from '@/components/Logo';
+import type { ReactNode } from 'react';
 import {
   AppIcons,
   AppListIcons,
   type AppIconComponent,
 } from '@/components/icons/appIcons';
 import { getSong } from '@/curriculum/data/songs';
-import { KEY_RAINBOW_COLORS } from '@/features/landing/rainbow';
 import { pickLocalized } from '../../presentation/localized';
 import type { Interaction, LocalizedText, StudentLanguage } from '../../types';
 import { ROLE_NAME } from '../cortex/copy';
@@ -17,17 +14,14 @@ import { describeRef } from '../describeRef';
 import type { InteractionSlide, SlideSurface } from '../types';
 
 // ── The class's vote for its Group Project (owner, 2026-11-16) ─────────────
-// Slide 5's look for the slide before the Group Project: a card for each
-// role, Promoter · Producer · Performer, a thin line from each into the
-// Music Atlas logo above them with a short rainbow streak running along it.
-// Each card is its role, the activity the class would do and its picture.
+// The slide before the Group Project: a column for each role, Promoter ·
+// Producer · Performer, side by side (owner, 2026-11-16: no logo, no
+// lines). Each is its picture, its role and the activity the class would do.
 //
-//   a student        a card is their vote; theirs reads "Your vote"
-//   Present          a card goes to that Group Project; the leader is marked
-//   room's screen    the cards alone; the counts once the teacher shows them
-//   thumbnail, or    the lines without streaks
-//   reduced motion
-//   a phone          no lines: the cards as a list
+//   a student        a column is their vote; theirs reads "Your vote"
+//   Present          a column goes to that Group Project; the leader is marked
+//   room's screen    the columns alone; the counts once the teacher shows them
+//   a phone          the columns as a list
 
 /** What a surface hands the cards: each one's activity, the votes, a pick. */
 export interface VoteSlot {
@@ -130,12 +124,6 @@ const cardsOf = (
     };
   });
 
-/** A card's size, in canvas px; the logo's tile above them. */
-export const VOTE_CARD_W = 344;
-export const VOTE_CARD_H = 132;
-const HUB = 96;
-const GAP = 60;
-
 interface GroupVoteMenuProps {
   slide: InteractionSlide;
   /** The vote's options (its interaction's `choice.options`). */
@@ -143,9 +131,9 @@ interface GroupVoteMenuProps {
   surface: SlideSurface;
   language: StudentLanguage;
   vote?: VoteSlot;
-  /** A thumbnail: no streaks. */
+  /** A thumbnail: nothing to tap. */
   still?: boolean;
-  /** A phone's column: the cards as a list, no lines. */
+  /** A phone's column: the cards as a list. */
   stacked?: boolean;
   /** The box's size, in canvas px. */
   width?: number;
@@ -170,7 +158,7 @@ const CardFoot = ({
   if (counts) {
     const n = counts[card.option] ?? 0;
     return (
-      <span className="flex items-center gap-[8px]">
+      <span className="flex w-full items-center gap-[8px]">
         <span className="relative h-[6px] flex-1 overflow-hidden rounded-full bg-white/10">
           <span
             className="absolute inset-y-0 left-0 rounded-full bg-white transition-[width] duration-500"
@@ -215,10 +203,6 @@ export const GroupVoteMenu = ({
   height = 308,
   statusChip,
 }: GroupVoteMenuProps) => {
-  const reduce = useReducedMotion() ?? false;
-  const streaks = !still && !reduce;
-  const uid = useId().replace(/:/g, '');
-  const [lit, setLit] = useState<number | null>(null);
   const cards = cardsOf(slide, options, vote?.activities, language);
   const total = vote?.counts?.reduce((a, b) => a + b, 0) ?? 0;
   const leader = vote?.leader ?? null;
@@ -228,16 +212,15 @@ export const GroupVoteMenu = ({
       ? `Go to the ${card.name} Group Project`
       : `Vote for ${card.name}`;
 
-  const control = (card: VoteCard, className: string, style?: object) => {
+  const control = (card: VoteCard, className: string) => {
     const chosen = vote?.mine === card.option || leader === card.option;
     const body = (
       <>
         <span
           data-vote-art={card.option}
           className={`relative block shrink-0 overflow-hidden border-white/10 bg-[#1b1b20] ${
-            stacked ? 'size-14 rounded-lg' : 'h-full border-r'
+            stacked ? 'size-14 rounded-lg' : 'min-h-0 w-full flex-1 border-b'
           }`}
-          style={stacked ? undefined : { width: VOTE_CARD_H }}
         >
           {card.image && (
             <img
@@ -250,8 +233,8 @@ export const GroupVoteMenu = ({
         </span>
         <span
           data-vote-card={card.option}
-          className={`flex min-w-0 flex-1 flex-col justify-center gap-[6px] ${
-            stacked ? '' : 'px-[18px]'
+          className={`flex min-w-0 flex-col justify-center gap-[6px] ${
+            stacked ? 'flex-1' : 'shrink-0 px-[18px] py-[14px]'
           }`}
         >
           <span className="flex items-center gap-[6px] text-[0.9em] leading-none text-white">
@@ -271,22 +254,24 @@ export const GroupVoteMenu = ({
               </span>
             )}
           </span>
-          <span className="line-clamp-2 text-[0.62em] leading-tight text-white/55">
+          <span className="truncate text-[0.62em] leading-tight text-white/55">
             {card.detail}
           </span>
-          <CardFoot card={card} vote={vote} total={total} language={language} />
+          {/* The same room on every column, so their pictures line up. */}
+          <span className="flex min-h-[1em] items-center">
+            <CardFoot
+              card={card}
+              vote={vote}
+              total={total}
+              language={language}
+            />
+          </span>
         </span>
       </>
     );
     const classes = `${className} ${
       chosen ? 'border-white/60' : 'border-white/10'
     }`;
-    const hand = {
-      onPointerEnter: () => setLit(card.option),
-      onPointerLeave: () => setLit((was) => (was === card.option ? null : was)),
-      onFocus: () => setLit(card.option),
-      onBlur: () => setLit((was) => (was === card.option ? null : was)),
-    };
     if (pick)
       return (
         <button
@@ -297,15 +282,13 @@ export const GroupVoteMenu = ({
           // Present's arrow keys move the slides; a card keeps its own.
           onKeyDown={(e) => e.stopPropagation()}
           onClick={() => pick(card.option)}
-          className={`${classes} text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
-          style={style}
-          {...hand}
+          className={`${classes} text-left transition-[border-color] duration-300 hover:border-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white`}
         >
           {body}
         </button>
       );
     return (
-      <div key={card.option} className={classes} style={style}>
+      <div key={card.option} className={classes}>
         {body}
       </div>
     );
@@ -328,136 +311,32 @@ export const GroupVoteMenu = ({
       </div>
     );
 
-  // A row of cards along the foot, the logo centred above them, a line from
-  // the top of each card up into the logo.
-  const n = cards.length;
-  const rowW = n * VOTE_CARD_W + (n - 1) * GAP;
-  const left0 = (width - rowW) / 2;
-  const cardTop = height - VOTE_CARD_H;
-  const hubX = width / 2;
-  const hubBottom = HUB;
-  const nodes = cards.map((card, i) => {
-    const x = left0 + i * (VOTE_CARD_W + GAP) + VOTE_CARD_W / 2;
-    const my = (cardTop + hubBottom) / 2;
-    return {
-      card,
-      x,
-      path: `M ${x} ${cardTop} C ${x} ${my}, ${hubX} ${my}, ${hubX} ${hubBottom}`,
-    };
-  });
-
+  // Three columns side by side (owner, 2026-11-16): each its picture on
+  // top, then its role, its activity and the votes; the screen's own status
+  // under them.
   return (
     <div
       data-vote-menu=""
-      className="relative"
+      className="flex flex-col gap-[14px]"
       style={{ width, height, fontSize: 'var(--slide-body-fz)' }}
     >
-      <svg
-        aria-hidden
-        className="pointer-events-none absolute left-0 top-0"
-        width={width}
-        height={height}
-        viewBox={`0 0 ${width} ${height}`}
-      >
-        <defs>
-          {nodes.map((node) => (
-            <linearGradient
-              key={node.card.option}
-              id={`${uid}-${node.card.option}`}
-              gradientUnits="userSpaceOnUse"
-              x1={node.x}
-              y1={cardTop}
-              x2={hubX}
-              y2={hubBottom}
-            >
-              {KEY_RAINBOW_COLORS.map((color, i) => (
-                <stop
-                  key={color}
-                  offset={`${((i / (KEY_RAINBOW_COLORS.length - 1)) * 100).toFixed(1)}%`}
-                  stopColor={color}
-                />
-              ))}
-            </linearGradient>
-          ))}
-        </defs>
-        {nodes.map((node, index) => {
-          const stroke = `url(#${uid}-${node.card.option})`;
-          // A hand on a card, the student's vote, or the leader: its whole
-          // line in the rainbow.
-          const on =
-            lit === node.card.option ||
-            vote?.mine === node.card.option ||
-            leader === node.card.option;
-          return (
-            <g key={node.card.option} data-vote-beam={node.card.option}>
-              <path
-                d={node.path}
-                fill="none"
-                stroke={on ? stroke : 'rgba(255,255,255,0.1)'}
-                strokeWidth={on ? 2 : 1.5}
-                className="transition-[stroke] duration-300"
-              />
-              {streaks && (
-                <Fragment>
-                  <path
-                    d={node.path}
-                    fill="none"
-                    stroke={stroke}
-                    strokeWidth={7}
-                    strokeLinecap="round"
-                    pathLength={1}
-                    strokeDasharray="0.26 1.3"
-                    opacity={on ? 0 : 0.18}
-                    className="place-beam"
-                    style={{ animationDelay: `${(index * 0.55).toFixed(2)}s` }}
-                  />
-                  <path
-                    d={node.path}
-                    fill="none"
-                    stroke={stroke}
-                    strokeWidth={2.5}
-                    strokeLinecap="round"
-                    pathLength={1}
-                    strokeDasharray="0.26 1.3"
-                    opacity={on ? 0 : 0.85}
-                    className="place-beam"
-                    style={{ animationDelay: `${(index * 0.55).toFixed(2)}s` }}
-                  />
-                </Fragment>
-              )}
-            </g>
-          );
-        })}
-      </svg>
-
       <div
-        className="absolute flex items-center justify-center rounded-[28px] border border-white/10 bg-[#141418] shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
-        style={{ left: hubX - HUB / 2, top: 0, width: HUB, height: HUB }}
+        className="grid min-h-0 flex-1 gap-[32px]"
+        style={{
+          gridTemplateColumns: `repeat(${cards.length}, minmax(0, 1fr))`,
+        }}
       >
-        <Logo className="size-[46px]" />
+        {cards.map((card) =>
+          control(
+            card,
+            'flex min-h-0 flex-col overflow-hidden rounded-[20px] border bg-[#141418] text-white shadow-[0_10px_32px_rgba(0,0,0,0.4)]',
+          ),
+        )}
       </div>
-
-      {/* Present's count and Show results; the room's participation. */}
       {statusChip && (
-        <div
-          data-vote-status=""
-          className="absolute right-0 top-0 flex justify-end"
-        >
+        <div data-vote-status="" className="flex shrink-0 justify-center">
           {statusChip}
         </div>
-      )}
-
-      {nodes.map((node) =>
-        control(
-          node.card,
-          'absolute flex items-stretch overflow-hidden rounded-[20px] border bg-[#141418] text-white shadow-[0_10px_32px_rgba(0,0,0,0.4)] transition-[border-color,transform] duration-300',
-          {
-            left: node.x - VOTE_CARD_W / 2,
-            top: cardTop,
-            width: VOTE_CARD_W,
-            height: VOTE_CARD_H,
-          },
-        ),
       )}
     </div>
   );

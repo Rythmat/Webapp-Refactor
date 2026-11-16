@@ -390,6 +390,7 @@ export function createRepoMiddleware(
 function handleLoader(
   server: ViteDevServer,
   log: (message: string) => void,
+  apiBase: string | undefined,
 ): {
   get: () => Promise<RepoContentHandle>;
   current: () => RepoContentHandle | null;
@@ -402,11 +403,13 @@ function handleLoader(
         createRepoContentHandle: (options: {
           root?: string;
           log?: (message: string) => void;
+          apiBase?: string;
         }) => RepoContentHandle;
       };
       const handle = module.createRepoContentHandle({
         root: process.env.REPO_CONTENT_ROOT,
         log,
+        apiBase,
       });
       await handle.ready();
       loaded = handle;
@@ -423,6 +426,7 @@ function handleLoader(
 export function repoContentPlugin(): Plugin {
   let active = false;
   let loader: ReturnType<typeof handleLoader> | null = null;
+  let apiBase: string | undefined;
 
   return {
     name: 'music-atlas:repo-content',
@@ -430,6 +434,8 @@ export function repoContentPlugin(): Plugin {
 
     configResolved(config: ResolvedConfig) {
       active = repoContentActive(config.env as Env, process.env);
+      // Where a real sign-in's role is read: the app's own API.
+      apiBase = (config.env as Env).VITE_MUSIC_ATLAS_API_URL || undefined;
     },
 
     configureServer(server) {
@@ -437,7 +443,7 @@ export function repoContentPlugin(): Plugin {
       const logger = server.config.logger;
       const log = (message: string) =>
         logger.warn(message, { timestamp: true });
-      const current = handleLoader(server, log);
+      const current = handleLoader(server, log, apiBase);
       loader = current;
 
       const middleware = createRepoMiddleware({

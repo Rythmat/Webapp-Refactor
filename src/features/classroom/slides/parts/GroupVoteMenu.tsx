@@ -5,6 +5,8 @@ import {
   AppListIcons,
   type AppIconComponent,
 } from '@/components/icons/appIcons';
+import { PROMPT_SURFACE } from '@/components/promptBox/PromptBoxParts';
+import { cn } from '@/components/utilities';
 import { getSong } from '@/curriculum/data/songs';
 import { pickLocalized } from '../../presentation/localized';
 import type { Interaction, LocalizedText, StudentLanguage } from '../../types';
@@ -153,17 +155,19 @@ const votesText = (n: number, language: StudentLanguage) =>
         : 'votes'
   }`;
 
-// Home's Progress column (owner, 2026-11-16: "use the size of the Progress
-// column"): 358.5 × 500 px with a 26.4px gap on Home, so 319 × 444 and 24
-// on the canvas, which Present draws at 1.125×. Its card, too: solid
-// #1c1c1f, no edge, 20px corners, 20px in; its full-width "See more" pill
-// at the foot.
+// Home's Progress column's size (owner, 2026-11-16): 358.5 × 500 px with a
+// 26.4px gap on Home, so 319 × 444 and 24 on the canvas, which Present
+// draws at 1.125×; 20px in, its full-width "See more" pill at the foot.
+// The glass of Home's prompt box (`PROMPT_SURFACE`): 20px corners, a
+// hairline edge, a soft shadow and a light wash over the page's glow.
 export const VOTE_CARD_W = 319;
 export const VOTE_CARD_H = 444;
 const VOTE_GAP = 24;
 
-const FRAME =
-  'rounded-[20px] border bg-[#1c1c1f] text-white transition-[background-color,border-color] duration-150';
+const FRAME = cn(
+  PROMPT_SURFACE,
+  'text-white transition-[background-color,border-color] duration-150',
+);
 const PILL =
   'inline-flex h-[32px] shrink-0 items-center gap-[6px] rounded-full border px-[14px] text-[0.64em] leading-none transition-colors duration-75';
 /** The pill across the card's foot, as Progress's "See more". */
@@ -302,9 +306,8 @@ export const GroupVoteMenu = ({
     style?: CSSProperties,
   ) => {
     const chosen = vote?.mine === card.option || leader === card.option;
-    const classes = `${className} ${
-      chosen ? 'border-white/40 bg-[#232326]' : 'border-transparent'
-    }`;
+    // Chosen, the box's focus look, brighter.
+    const classes = cn(className, chosen && 'border-white/40 bg-white/[0.08]');
     if (pick)
       return (
         <button
@@ -316,7 +319,10 @@ export const GroupVoteMenu = ({
           onKeyDown={(e) => e.stopPropagation()}
           onClick={() => pick(card.option)}
           style={style}
-          className={`group ${classes} text-left outline-none hover:bg-[#222225] focus-visible:ring-2 focus-visible:ring-white/50`}
+          className={cn(
+            'group text-left outline-none hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-white/50',
+            classes,
+          )}
         >
           {inner}
         </button>

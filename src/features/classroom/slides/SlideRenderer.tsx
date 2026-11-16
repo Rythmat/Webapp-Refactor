@@ -9,6 +9,7 @@
  * response hooks, the response aggregator, or the enrollment roster.
  */
 import type { ReactNode } from 'react';
+import { HomeGlow } from '@/components/ClassroomLayout/home/HomeGlow';
 import type { Interaction, StudentLanguage } from '../types';
 import { isVoteSlide } from './branches';
 import { interactionVariant, mayRevealOn } from './interactionPolicy';
@@ -231,6 +232,13 @@ export const SlideRenderer = ({
           ? { bandFallback: band }
           : {})}
       {...(bandCarries.length > 0 ? { bandInteractionIds: bandCarries } : {})}
+      {...(voteMenu && !still
+        ? {
+            // Home's glow across the top (owner, 2026-11-16): two key
+            // colours, one in each top corner, slowly shifting.
+            backdrop: <HomeGlow className="inset-x-0 top-0 z-0 h-[78%]" />,
+          }
+        : {})}
       {...(studioTutorial
         ? {
             backdrop: (

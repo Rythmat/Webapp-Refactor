@@ -305,12 +305,14 @@ function performedSections(
   runs: Array<{ sectionIdx: number; measureIdx: number; startTick: number }>,
   endTick: number,
 ): Array<{ label: string; startTick: number; endTick: number }> {
-  // An instrumental pass is a name of its own: it is not numbered among
-  // the sung ones ('Verse 1 & 2', 'Instrumental Verse', 'Verse 3').
+  // An instrumental or a rap pass is a name of its own: it is not numbered
+  // among the sung ones ('Verse 1 & 2', 'Instrumental Verse', 'Verse 3').
   const nameOf = (label: string) => {
     const parsed = parseSectionLabel(label);
     if (!parsed) return label;
-    return parsed.instrumental ? `Instrumental ${parsed.name}` : parsed.name;
+    return parsed.qualifier
+      ? `${parsed.qualifier} ${parsed.name}`
+      : parsed.name;
   };
   const total = new Map<string, number>();
   for (const run of runs) {

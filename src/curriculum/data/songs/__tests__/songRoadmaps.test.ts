@@ -44,7 +44,7 @@ describe('song chart form', () => {
     expect(bad).toEqual([]);
   });
 
-  it('names every section Intro, Verse, Pre-Chorus, Chorus, Bridge, Interlude, Tag or Outro', () => {
+  it('names every section Intro, Verse, Pre-Chorus, Chorus, Bridge, Interlude, Tag, Outro or Coda', () => {
     const bad = songs.flatMap((song) =>
       song.sections
         .filter((section) => !isSectionLabel(section.label))

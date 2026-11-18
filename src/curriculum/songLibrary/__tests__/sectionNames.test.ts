@@ -20,6 +20,7 @@ describe('a section’s label', () => {
       name: 'Verse',
       number: 2,
       numbers: [2],
+      qualifier: null,
       instrumental: false,
     });
     expect(parseSectionLabel('Chorus')?.number).toBeNull();
@@ -41,8 +42,24 @@ describe('a section’s label', () => {
     });
   });
 
+  it('takes Rap before the name, and Coda as a name', () => {
+    // California Gurls' Rap Verse; La Vie en Rose's Coda (owner, 2026-11-17).
+    expect(parseSectionLabel('Rap Verse')).toMatchObject({
+      name: 'Verse',
+      qualifier: 'Rap',
+      instrumental: false,
+    });
+    expect(parseSectionLabel('Coda')?.name).toBe('Coda');
+  });
+
   it('still refuses what no chart writes', () => {
-    for (const label of ['Section J', 'Verse &', 'Chorus Instrumental', 'A'])
+    for (const label of [
+      'Section J',
+      'Verse &',
+      'Chorus Instrumental',
+      'Verse Rap',
+      'A',
+    ])
       expect(isSectionLabel(label)).toBe(false);
   });
 });
@@ -53,6 +70,8 @@ describe('in the Studio', () => {
     expect(sectionTypeOfLabel('Instrumental Verse')).toBe('verse');
     expect(sectionTypeOfLabel('Instrumental Chorus')).toBe('chorus');
     expect(sectionTypeOfLabel('Instrumental')).toBe('interlude');
+    expect(sectionTypeOfLabel('Rap Verse')).toBe('verse');
+    expect(sectionTypeOfLabel('Coda')).toBe('coda');
   });
 
   it('numbers the sung verses in order, leaving the instrumental one its name', () => {
@@ -85,6 +104,7 @@ describe('in the Studio', () => {
         ]),
         section('Instrumental Verse', [bar(), bar()]),
         section('Verse 3', [bar(), bar()]),
+        section('Rap Verse', [bar(), bar()]),
       ],
       audioSources: [],
       artistImageSource: 'none',
@@ -98,6 +118,7 @@ describe('in the Studio', () => {
       'Verse 2',
       'Instrumental Verse',
       'Verse 3',
+      'Rap Verse',
     ]);
   });
 });

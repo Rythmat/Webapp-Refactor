@@ -228,16 +228,18 @@ const LABEL_TYPES: Readonly<Record<string, SectionType>> = {
  * The kind a label names: 'Verse 2' is a verse, 'Pre Chorus' a pre-chorus,
  * 'Build Up' a build-up. Anything else (a rehearsal letter, a name of the
  * student's own) is 'custom'. The song charts' names (Intro, Verse,
- * Pre-Chorus, Chorus, Bridge, Interlude, Tag, Outro, each perhaps numbered)
+ * Pre-Chorus, Chorus, Bridge, Interlude, Tag, Outro, Coda, each perhaps
+ * numbered)
  * all map to their kind.
  */
 export function sectionTypeOfLabel(label: string): SectionType {
   const lower = label.trim().toLowerCase();
   const named = LABEL_TYPES[lower.replace(/[^a-z0-9]/g, '')];
   if (named) return named;
-  // An instrumental pass of a named section is that section: a song
-  // chart's 'Instrumental Verse' is a verse ('Instrumental' alone is above).
-  const kind = lower.replace(/^instrumental\s+/, '');
+  // An instrumental or a rap pass of a named section is that section: a
+  // song chart's 'Instrumental Verse' and 'Rap Verse' are verses
+  // ('Instrumental' alone is above).
+  const kind = lower.replace(/^(?:instrumental|rap)\s+/, '');
   // Without its number (or the passes it names, 'Verse 1 & 2'), whole
   // first ('Middle 8 2' is a Middle 8), then letters only ('Verse 2a').
   const unnumbered = kind.replace(/\s*\d+(?:\s*(?:&|,|and)\s*\d+)*$/, '');

@@ -3,7 +3,8 @@
  * almost every popular song; a section that is only played, not sung, keeps
  * its name and is marked `instrumental`, or says so in its label
  * ("Instrumental Verse"). A label may name the passes it covers ("Verse 1 &
- * 2"), as a chart writes it (owner, 2026-11-15). Rehearsal letters
+ * 2"), as a chart writes it (owner, 2026-11-15), and may say how a section
+ * is delivered ("Rap Verse", owner, 2026-11-17). Rehearsal letters
  * ("Section J") are never used.
  */
 export const SECTION_NAMES = [
@@ -15,15 +16,21 @@ export const SECTION_NAMES = [
   'Interlude',
   'Tag',
   'Outro',
+  'Coda',
 ] as const;
 
 export type SectionName = (typeof SECTION_NAMES)[number];
+
+/** How a section is delivered, before its name: 'Instrumental Verse'. */
+export const SECTION_QUALIFIERS = ['Instrumental', 'Rap'] as const;
+
+export type SectionQualifier = (typeof SECTION_QUALIFIERS)[number];
 
 /** One pass or several: '2', '1 & 2', '4, 5 and 6'. */
 const PASSES = String.raw`\d+(?:\s*(?:&|,|and)\s*\d+)*`;
 
 const LABEL = new RegExp(
-  `^(Instrumental )?(${SECTION_NAMES.join('|')})(?: (${PASSES}))?$`,
+  `^(?:(${SECTION_QUALIFIERS.join('|')}) )?(${SECTION_NAMES.join('|')})(?: (${PASSES}))?$`,
 );
 
 export interface SectionLabel {
@@ -32,6 +39,8 @@ export interface SectionLabel {
   number: number | null;
   /** Every pass it names: 'Verse 1 & 2' is [1, 2]. */
   numbers: number[];
+  /** How the label says it is delivered: 'Rap Verse' is 'Rap'. */
+  qualifier: SectionQualifier | null;
   /** The label says it is played without vocals: 'Instrumental Verse'. */
   instrumental: boolean;
 }
@@ -49,7 +58,8 @@ export function parseSectionLabel(label: string): SectionLabel | null {
     name: match[2] as SectionName,
     number: numbers[0] ?? null,
     numbers,
-    instrumental: !!match[1],
+    qualifier: (match[1] as SectionQualifier | undefined) ?? null,
+    instrumental: match[1] === 'Instrumental',
   };
 }
 

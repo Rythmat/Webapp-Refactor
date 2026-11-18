@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { putSavedSong } from '@/content/songStore';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import type { Song } from '@/curriculum/types/songLibrary';
 import {
   ContentApiError,
   type ContentItemDetail,
@@ -443,6 +445,10 @@ export function useItemSession({
       from = baseRef.current;
       result = await send(draft);
     }
+    // Repo mode wrote the song's file without a reload: show the saved
+    // chart on the app's own pages too, as a reload would.
+    if (repo && kind === 'song')
+      putSavedSong(draft as unknown as Song, status === 'published');
     // Before the caller navigates: the guard must not stop a saved page.
     markClean();
     // What was sent is what the next version is laid onto: typing on while

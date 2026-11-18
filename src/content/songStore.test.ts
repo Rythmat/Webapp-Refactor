@@ -3,9 +3,11 @@ import { getAllSongs, getSong } from '@/curriculum/data/songs';
 import {
   ensureSongContent,
   isSongContentReady,
+  putSavedSong,
   resetSongContent,
   SONGS,
   songContentSource,
+  songGeneration,
 } from './songStore';
 
 /**
@@ -99,6 +101,29 @@ describe('songStore hydration contract', () => {
       ]);
 
       expect(Object.keys(SONGS)).toHaveLength(getAllSongs().length);
+    },
+    HYDRATION_TIMEOUT,
+  );
+});
+
+describe('a song saved in repo mode', () => {
+  beforeEach(() => {
+    resetSongContent();
+  });
+
+  it(
+    'shows on the app’s pages at once, as a reload would',
+    async () => {
+      await ensureSongContent();
+      const before = songGeneration;
+      const saved = { ...getSong('africa')!, tempo: 1 };
+      putSavedSong(saved, true);
+      // The same library object, the saved chart in it, every cache stale.
+      expect(getSong('africa')?.tempo).toBe(1);
+      expect(songGeneration).toBeGreaterThan(before);
+      // Saved as a draft, it leaves the library, as bundled.ts drops it.
+      putSavedSong(saved, false);
+      expect(getSong('africa')).toBeNull();
     },
     HYDRATION_TIMEOUT,
   );

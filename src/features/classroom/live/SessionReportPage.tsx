@@ -6,6 +6,8 @@ import { InteractionResponseDashboard } from '../assignments/InteractionResponse
 import { useEnrollments } from '../enrollments';
 import { PHASES } from '../phases';
 import { usePublishedDays } from '../publish/usePublishedDays';
+import { untakenBranchIds } from '../slides/branches';
+import { slideInteractionIds } from '../slides/deck';
 import type { Interaction, InteractionResponsePayload } from '../types';
 import { buildSessionCoverage } from './buildSessionCoverage';
 import { buildSessionCsv, downloadCsv } from './exportCsv';
@@ -41,14 +43,23 @@ export const SessionReportPage = () => {
 
   const interactions = useMemo<Interaction[]>(() => {
     if (!publishedDay) return [];
+    // The Group Projects the class voted past have no column (owner,
+    // 2026-11-16).
+    const deck = publishedDay.snapshot.deck;
+    const untaken = new Set(
+      [...untakenBranchIds(deck, responsesByEnrollment)].flatMap((id) => {
+        const slide = deck?.slides.find((s) => s.id === id);
+        return slide ? slideInteractionIds(slide) : [];
+      }),
+    );
     const flat: Interaction[] = [];
     for (const p of PHASES) {
       const cell = publishedDay.snapshot.cells[p];
       const ix = cell?.presentation?.interactions;
-      if (Array.isArray(ix)) flat.push(...ix);
+      if (Array.isArray(ix)) flat.push(...ix.filter((i) => !untaken.has(i.id)));
     }
     return flat;
-  }, [publishedDay]);
+  }, [publishedDay, responsesByEnrollment]);
 
   const aggregateRows = useMemo(
     () => aggregate(interactions, (id) => getEnrollment(id)?.displayName),

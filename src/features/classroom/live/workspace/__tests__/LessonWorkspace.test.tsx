@@ -41,6 +41,16 @@ describe('LessonWorkspace', () => {
     expect(frames[1].className).not.toContain('invisible');
   });
 
+  it('opens a place at the very thing a student picked up, else its front', () => {
+    const root = draw({
+      opened: ['studio', 'learn', 'arcade'],
+      hrefs: { studio: '/studio?draft=d1', arcade: '/arcade/chroma' },
+    });
+    expect(
+      [...root.querySelectorAll('iframe')].map((f) => f.getAttribute('src')),
+    ).toEqual(['/studio?draft=d1', '/learn', '/arcade/chroma']);
+  });
+
   it('switches place from the bar, and brings the slide up from Slides', () => {
     const onShow = vi.fn();
     const onSlides = vi.fn();

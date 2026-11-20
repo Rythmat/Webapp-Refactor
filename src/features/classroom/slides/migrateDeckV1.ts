@@ -287,7 +287,10 @@ export const migrateSlideV1 = (slide: Slide): SlideElement[] => {
   if (slide.prompt) {
     out.push({
       id: eid(slide.id, 'prompt'),
-      zone: 'subtitle',
+      zone:
+        preset?.zones.subtitle && preset.zones.subtitle !== 'off'
+          ? preset.zones.subtitle
+          : 'subtitle',
       kind: 'text',
       role: 'subtitle',
       text: slide.prompt,

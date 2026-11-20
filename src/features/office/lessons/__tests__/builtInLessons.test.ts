@@ -6,6 +6,7 @@ import type { Day } from '@/features/classroom/types';
 import {
   BUILT_IN_LESSONS,
   copyLessonToClass,
+  followBuiltInLesson,
   generateBuiltInLesson,
   lessonHash,
   syncBuiltInLesson,
@@ -20,18 +21,21 @@ const generate = async (): Promise<Day> => {
 };
 
 describe('the built-in lessons', () => {
-  it('writes Michael Jackson · Producer, with the same id everywhere', async () => {
+  it('writes Michael Jackson, with the same id everywhere', async () => {
     const day = await generate();
+    // The id it had as "· Producer", so its copies keep following it.
     expect(day.id).toBe('builtin-mj-producer');
-    expect(day.label).toBe('Michael Jackson · Producer');
+    expect(day.label).toBe('Michael Jackson');
+    expect(day.deck?.title.en).toBe('Michael Jackson');
     expect(day.classroomId).toBe(OFFICE_LESSONS_SCOPE);
+    // The class votes for its Group Project: no role is the lesson's own.
     expect(day.deck?.templateRef).toMatchObject({
       focusId: 'artist:michael-jackson',
-      role: 'producer',
     });
-    // The nine slides of the lesson being perfected (see wordBudget.test),
+    expect(day.deck?.templateRef?.role).toBeUndefined();
+    // The twelve slides of the lesson being perfected (see wordBudget.test),
     // through to Reflect.
-    expect(day.deck!.slides).toHaveLength(9);
+    expect(day.deck!.slides).toHaveLength(12);
     expect(sectionOf(day.deck!.slides.at(-1)!)).toBe('reflect');
     // Every generated id carries the lesson's id, so a copy can rename them.
     for (const slide of day.deck!.slides)
@@ -101,5 +105,39 @@ describe('keeping this device’s copy in step', () => {
       write: false,
       edited: false,
     });
+  });
+});
+
+describe('a class’s copy following the code', () => {
+  const code = {
+    id: 'builtin-x',
+    label: 'X',
+    classroomId: 'lessons',
+    scheduledDate: null,
+    cells: { note: 'builtin-x-cell' },
+  } as unknown as Day;
+  const copy = copyLessonToClass(code, 'c1', '2026-11-17', 'day-copy');
+  const newer = {
+    ...code,
+    cells: { note: 'builtin-x-cell, rewritten' },
+  } as unknown as Day;
+
+  it('takes the code’s new lesson, keeping its own id, class and day', () => {
+    const followed = followBuiltInLesson(copy, lessonHash(copy), newer);
+    expect(followed).toMatchObject({
+      id: 'day-copy',
+      classroomId: 'c1',
+      scheduledDate: '2026-11-17',
+      cells: { note: 'day-copy-cell, rewritten' },
+    });
+  });
+
+  it('stays as it is while the code’s lesson is unchanged', () => {
+    expect(followBuiltInLesson(copy, lessonHash(copy), code)).toBeNull();
+  });
+
+  it('keeps a copy the teacher changed', () => {
+    const edited = { ...copy, label: 'X, the teacher’s' };
+    expect(followBuiltInLesson(edited, lessonHash(copy), newer)).toBeNull();
   });
 });

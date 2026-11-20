@@ -1,5 +1,5 @@
 import type { FeelingsLevel, LocalizedText } from '../../types';
-import type { GroupRole, LessonFocus } from './types';
+import type { GroupChoice, GroupRole, LessonFocus } from './types';
 
 /**
  * The Cortex lesson's student-facing copy, English and Spanish. Every string
@@ -115,11 +115,20 @@ export const COPY = {
     en: 'Today we work together as Promoters, Producers or Performers.',
     es: 'Hoy trabajamos juntos como promotores, productores o intérpretes.',
   },
+  // The class votes for its Group Project (owner, 2026-11-16): the
+  // slide says "Group Project", "Select to vote" under it.
+  voteQuestion: {
+    en: 'Vote: which project today?',
+    es: 'Vota: ¿qué proyecto hoy?',
+  },
+  votePrompt: { en: 'Select to vote', es: 'Selecciona para votar' },
   projectTitle: { en: 'Individual Project', es: 'Proyecto individual' },
   // The menu slide's own line: a question, not the section's label.
+  // The Individual Project's heading, centred over the six places (owner,
+  // 2026-11-12).
   projectMenuTitle: {
-    en: 'Where will you work today?',
-    es: '¿Dónde vas a trabajar hoy?',
+    en: 'Independent Project',
+    es: 'Proyecto independiente',
   },
   projectPrompt: {
     en: 'Choose where to work today: Learn, Songs, Library, Studio or Globe.',
@@ -134,6 +143,11 @@ export const COPY = {
   progressQuestion: {
     en: 'What did you get done today?',
     es: '¿Qué lograste hoy?',
+  },
+  // The work itself, handed in to the teacher (owner, 2026-11-13).
+  handInQuestion: {
+    en: 'Hand in what you’ve done so far',
+    es: 'Entrega lo que has hecho hasta ahora',
   },
   shareTitle: { en: 'Show the class', es: 'Muestra a la clase' },
   sharePrompt: {
@@ -196,13 +210,17 @@ export const listenTitle = (title: string): LocalizedText => ({
   es: `Escucha: “${title}”`,
 });
 
+/** The lesson's name: the subject and its role, or the subject alone when the class votes. */
 export const deckTitle = (
   focus: Pick<LessonFocus, 'label'>,
-  role: GroupRole,
-): LocalizedText => ({
-  en: `${focus.label} · ${ROLE_NAME[role].en}`,
-  es: `${focus.label} · ${ROLE_NAME[role].es}`,
-});
+  role: GroupChoice,
+): LocalizedText =>
+  role === 'vote'
+    ? { en: focus.label, es: focus.label }
+    : {
+        en: `${focus.label} · ${ROLE_NAME[role].en}`,
+        es: `${focus.label} · ${ROLE_NAME[role].es}`,
+      };
 
 /**
  * The teacher's own prep checklist (the first slide of their "Template

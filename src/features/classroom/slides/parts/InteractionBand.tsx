@@ -77,6 +77,8 @@ export interface InteractionBandProps {
    */
   list?: boolean;
   reveals?: Readonly<Record<string, ReactNode>>;
+  /** A thumbnail: pictures only, nothing to touch (it sits in a button). */
+  still?: boolean;
 }
 
 export const InteractionBand = ({
@@ -89,6 +91,7 @@ export const InteractionBand = ({
   compact = false,
   list = false,
   reveals,
+  still = false,
 }: InteractionBandProps) => {
   if (interactions.length === 0) return null;
 
@@ -150,7 +153,7 @@ export const InteractionBand = ({
             <div className="ml-auto shrink-0">{slots.statusChip}</div>
           )}
         </div>
-        {surface === 'present' ? (
+        {surface === 'present' && !still ? (
           <TeacherEnergy language={language} />
         ) : (
           <FeelingsPreview level="energy" language={language} />
@@ -256,7 +259,9 @@ export const InteractionBand = ({
         hero ? 'items-center gap-10 text-center' : 'gap-4'
       }`}
     >
-      {interactions.map((interaction) => (
+      {/* A hero is one thing, big: its first question (the hand-in, over the
+          note that goes with it, owner 2026-11-13); a device asks them all. */}
+      {(hero ? interactions.slice(0, 1) : interactions).map((interaction) => (
         <QuestionText
           key={interaction.id}
           question={interaction.question}

@@ -1058,3 +1058,61 @@ describe('Echo in the classroom — the round (state.echo)', () => {
     expect(next?.echo?.run).toBe(3);
   });
 });
+
+describe('the teacher asks the class to hand in (state.notice)', () => {
+  const notice = {
+    id: 1_700_000_000_000,
+    kind: 'hand-in' as const,
+    slideId: 'sl-6',
+  };
+
+  it('a practice session takes the teacher’s notice, and only theirs', () => {
+    const s = startFixture();
+    for (const from of ['student', 'projector'] as const) {
+      expect(
+        applyMessageForUser(USER_ID, {
+          sessionId: s.sessionId,
+          from,
+          fromEnrollmentId: 'enr-1',
+          body: { kind: 'notice', notice },
+        }),
+      ).toBeNull();
+    }
+    applyMessageForUser(USER_ID, {
+      sessionId: s.sessionId,
+      from: 'teacher',
+      body: { kind: 'notice', notice },
+    });
+    expect(
+      readSessionsStoreForUser(USER_ID).sessions[s.sessionId]?.notice,
+    ).toEqual(notice);
+  });
+
+  it('the socket’s notice lands, and a hello keeps it', () => {
+    const snapshot: ServerSessionSnapshot = {
+      id: 'sess-1',
+      classroomId: 'c1',
+      teacherId: 't1',
+      publishedDayId: 'pd1',
+      code: 'ABCD',
+      status: 'live',
+      state: { phase: 'presentPerform' },
+      startedAt: '2026-01-01T00:00:00.000Z',
+      endedAt: null,
+    };
+    const hello = applySessionSocketMessage(null, {
+      type: 'hello',
+      session: snapshot,
+      role: 'student',
+    });
+    const asked = applySessionSocketMessage(hello, { type: 'notice', notice });
+    expect(asked?.notice).toEqual(notice);
+    // The server's snapshot doesn't hold it: a reconnect's hello keeps it.
+    const again = applySessionSocketMessage(asked, {
+      type: 'hello',
+      session: snapshot,
+      role: 'student',
+    });
+    expect(again?.notice).toEqual(notice);
+  });
+});

@@ -1,26 +1,19 @@
-import type { Feature, LineString } from 'geojson';
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import { useEffect, useMemo, useRef } from 'react';
 import type { ArcDatum } from '@/components/atlas/data';
 import { guidesData } from '@/components/atlas/data/loaders';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import { useAtlasStop } from '@/components/atlas/navigation/useAtlasNavigate';
-import {
-  scopeLinks,
-  worldLinks,
-} from '@/components/atlas/network/placeNetwork';
+import { scopeLinks } from '@/components/atlas/network/placeNetwork';
 import { useNetwork } from '@/components/atlas/network/useNetwork';
 import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
 import type { StageSignals } from '@/components/atlas/state/stageSignals';
 import { stopScope } from '@/components/atlas/stats/stopScope';
+import { ROOTS_RAMP, ROUTES_RAMP } from '@/components/atlas/theme/marks';
 import { afterFlight } from './afterFlight';
-import {
-  DRAW_MS,
-  drawOnPlan,
-  drawProgress,
-  lineLength,
-  sliceLine,
-} from './drawOn';
+import { arcLines, parseColor } from './arcGeometry';
+import { ARC_LAYER_ID, ArcLayer, setArcLayer, type ArcRamps } from './arcLayer';
+import { DRAW_MS, drawOnPlan } from './drawOn';
 import { journeyLeg } from './journeyLeg';
 import { DOTS_MS, RISE_MS } from './liftLayers';
 import { EMPTY, feed } from './mapFeed';
@@ -29,34 +22,39 @@ import {
   arcLinkFeatures,
   legLinkFeatures,
   scopeLinkFeatures,
-  worldLinkFeatures,
   type LinkFeatures,
-  type LinkProps,
 } from './networkFeatures';
 import {
-  FLOW_PHASES,
-  FLOW_STEP_MS,
   NETWORK_LAYER,
   NETWORK_SOURCE,
+  PULSE,
+  pulsePaint,
 } from './networkLayers';
 import type { MotionGate } from './useMotionGate';
 
 /** A lifted region's links draw on once its lid has risen and its dots come. */
 const LINKS_AFTER_LIFT_MS = RISE_MS + DOTS_MS;
 
-/** How many links between regions the world shows. */
-const WORLD_LINKS = 24;
+/** The arcs' colours along their length: came from cool, went to warm. */
+const ARC_RAMPS: ArcRamps = {
+  in: ROOTS_RAMP.map(parseColor),
+  out: ROUTES_RAMP.map(parseColor),
+};
+
+/** How often the comets and the rings move on, ms (about 30 a second). */
+const FRAME_MS = 33;
 
 /**
- * The links on the map (networkLayers.ts): with nothing chosen, the
- * strongest links between regions; at a place or an artist, where the
- * music came from and went to in the years shown; at an event, its own
- * influences (the Layers switches and the event card's directions apply);
- * in a running tour or pathway, only its leg on to the next stop. A new
- * stop's links draw on outward from it once the map has flown there;
- * dotted links flow; a card
- * pointing at a link (`linkFocus`) brightens it. Under reduced motion they
- * appear drawn and hold still.
+ * The links on the map: with nothing chosen, none (the lines between whole
+ * regions crossed the globe: owner, 2026-11-16); at a place or an artist,
+ * where the music came from and went to in the years shown; at an event,
+ * its own influences (the Layers switches and the event card's directions
+ * apply); in a running tour or pathway, only its leg on to the next stop.
+ * Each is a flight path off the globe (arcLayer.ts) with a comet flying
+ * along it, and its far end pulses (a ring leaving a dot: networkLayers.ts).
+ * A new stop's links draw on outward from it once the map has flown there;
+ * weak ties' dashes flow; a card pointing at a link (`linkFocus`) brightens
+ * it. Under reduced motion they appear drawn and hold still.
  */
 export function useNetworkLayers(
   map: MapLibreMap | null,
@@ -89,9 +87,7 @@ export function useNetworkLayers(
     if (journey) return leg && linksOn ? legLinkFeatures(leg) : NO_LINKS;
     if (stop.kind === 'event') return arcLinkFeatures(influenceArcs);
     if (!ix || !linksOn) return NO_LINKS;
-    if (stop.kind === 'home' || stop.kind === 'search') {
-      return worldLinkFeatures(ix, worldLinks(ix, w, { limit: WORLD_LINKS }));
-    }
+    if (stop.kind === 'home' || stop.kind === 'search') return NO_LINKS;
     const scope = stopScope(stop);
     if (!scope) return NO_LINKS;
     return scopeLinkFeatures(ix, scopeLinks(ix, scope.eventIds, w));
@@ -99,66 +95,69 @@ export function useNetworkLayers(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ix, key, w, influenceArcs, linksOn, journey, leg]);
 
+  // The arc layer: one per map, over the land and under the far ends' dots.
+  const arcs = useMemo(() => new ArcLayer(ARC_RAMPS), []);
+  useEffect(() => {
+    if (!map) return;
+    arcs.lift = () => signals.lift.get();
+    const add = () => {
+      if (!map.getLayer(ARC_LAYER_ID) && map.getLayer(NETWORK_LAYER.endRing)) {
+        map.addLayer(arcs, NETWORK_LAYER.endRing);
+      }
+    };
+    add();
+    map.on('styledata', add);
+    setArcLayer(map, arcs);
+    return () => {
+      map.off('styledata', add);
+      setArcLayer(map, null);
+      try {
+        if (map.getLayer(ARC_LAYER_ID)) map.removeLayer(ARC_LAYER_ID);
+      } catch {
+        // The map went first.
+      }
+    };
+  }, [map, arcs, signals]);
+
+  useEffect(() => {
+    arcs.motion = !reducedMotion;
+  }, [arcs, reducedMotion]);
+
+  const lines = useMemo(
+    () => arcLines(links.solid.features, links.dotted.features, drawOnPlan),
+    [links],
+  );
+
   // A new stop's links draw on; new years or a layer switch just swap.
   const drawnFor = useRef<string | null>(null);
   useEffect(() => {
     if (!map) return;
     const showAll = () => {
-      feed(map, NETWORK_SOURCE.solid, links.solid);
-      feed(map, NETWORK_SOURCE.dotted, links.dotted);
-      feed(map, NETWORK_SOURCE.pills, links.pills);
-      feed(map, NETWORK_SOURCE.draw, EMPTY);
+      arcs.showAll();
+      feed(map, NETWORK_SOURCE.ends, links.ends);
     };
     const fresh = drawnFor.current !== key;
-    const any = links.solid.features.length + links.dotted.features.length > 0;
+    const any = lines.length > 0;
     if (any) drawnFor.current = key;
     if (!fresh || reducedMotion || !any) {
-      showAll();
+      arcs.setLines(lines, 'now');
+      feed(map, NETWORK_SOURCE.ends, links.ends);
       return;
     }
-    feed(map, NETWORK_SOURCE.solid, EMPTY);
-    feed(map, NETWORK_SOURCE.dotted, EMPTY);
-    feed(map, NETWORK_SOURCE.pills, EMPTY);
-    const lines = links.solid.features;
-    const lengths = lines.map((f) => lineLength(f.geometry.coordinates));
-    const delays = drawOnPlan(lengths);
-    let start = 0;
-    let frame = 0;
-    const step = (now: number) => {
-      const t = now - start;
-      if (t >= DRAW_MS.total) {
-        showAll();
-        return;
-      }
-      const drawn: Feature<LineString, LinkProps>[] = [];
-      lines.forEach((f, i) => {
-        const p = drawProgress(t, delays[i]);
-        if (p <= 0) return;
-        drawn.push({
-          ...f,
-          geometry: {
-            type: 'LineString',
-            // Into the stop: drawn from the stop's end, so all grow out of it.
-            coordinates: sliceLine(
-              f.geometry.coordinates,
-              p,
-              f.properties.side === 'in',
-            ),
-          },
-        });
-      });
-      feed(map, NETWORK_SOURCE.draw, {
-        type: 'FeatureCollection',
-        features: drawn,
-      });
-      frame = requestAnimationFrame(step);
-    };
+    // Held back until the map has flown there; the far ends land once their
+    // arcs have reached them.
+    arcs.setLines(lines, 'wait');
+    feed(map, NETWORK_SOURCE.ends, EMPTY);
     let delay = 0;
+    let ends = 0;
     const cancel = afterFlight(signals.mapPhase, () => {
       delay = window.setTimeout(
         () => {
-          start = performance.now();
-          frame = requestAnimationFrame(step);
+          arcs.drawOn(performance.now());
+          ends = window.setTimeout(
+            () => feed(map, NETWORK_SOURCE.ends, links.ends),
+            DRAW_MS.total,
+          );
         },
         lifting ? LINKS_AFTER_LIFT_MS : 0,
       );
@@ -166,61 +165,46 @@ export function useNetworkLayers(
     return () => {
       cancel();
       window.clearTimeout(delay);
-      cancelAnimationFrame(frame);
+      window.clearTimeout(ends);
       showAll();
     };
-  }, [map, links, key, reducedMotion, signals, lifting]);
+  }, [map, arcs, lines, links, key, reducedMotion, signals, lifting]);
 
-  // The flow: one dotted phase shown at a time, the next every step.
-  const flowing = links.dotted.features.length > 0;
+  // The motion: the comets fly and the weak ties' dashes flow (a repaint of
+  // the arc layer, which reads the clock), and each far end's ring leaves
+  // its dot, grows and fades at its own phase. About 30 times a second, and
+  // not while the map is out of sight.
+  const moving = lines.length > 0 || links.ends.features.length > 0;
   useEffect(() => {
-    if (!map || !flowing || reducedMotion) return;
-    let phase = 0;
-    let last = performance.now();
+    if (!map || !moving || reducedMotion) return;
     let frame = 0;
-    const show = (k: number, on: boolean) => {
-      const id = NETWORK_LAYER.flow[k];
-      if (map.getLayer(id))
-        map.setPaintProperty(id, 'line-opacity', on ? 1 : 0);
-    };
+    let last = 0;
     const tick = (now: number) => {
       frame = requestAnimationFrame(tick);
-      if (now - last < FLOW_STEP_MS || !gate.moving()) return;
+      if (now - last < FRAME_MS || !gate.moving()) return;
       last = now;
-      show(phase, false);
-      phase = (phase + 1) % FLOW_PHASES;
-      show(phase, true);
+      if (arcs.hasLines()) map.triggerRepaint();
+      if (!map.getLayer(NETWORK_LAYER.endRing)) return;
+      const { radius, opacity } = pulsePaint((now / PULSE.periodMs) % 1);
+      map.setPaintProperty(NETWORK_LAYER.endRing, 'circle-radius', radius);
+      map.setPaintProperty(
+        NETWORK_LAYER.endRing,
+        'circle-stroke-opacity',
+        opacity,
+      );
     };
     frame = requestAnimationFrame(tick);
-    return () => {
-      cancelAnimationFrame(frame);
-      show(phase, false);
-      show(0, true);
-    };
-  }, [map, flowing, reducedMotion, gate]);
+    return () => cancelAnimationFrame(frame);
+  }, [map, arcs, moving, reducedMotion, gate]);
 
   // A card's row (or the ring) pointing at a link brightens it.
   useEffect(() => {
-    if (!map) return;
-    let lit: string | null = null;
-    const set = (id: string, on: boolean) => {
-      for (const source of [NETWORK_SOURCE.solid, NETWORK_SOURCE.dotted]) {
-        if (map.getSource(source))
-          map.setFeatureState({ source, id }, { focus: on });
-      }
-    };
-    const sync = () => {
-      const next = signals.linkFocus.get();
-      if (next === lit) return;
-      if (lit) set(lit, false);
-      if (next) set(next, true);
-      lit = next;
-    };
+    const sync = () => arcs.setFocus(signals.linkFocus.get());
     sync();
     const off = signals.linkFocus.subscribe(sync);
     return () => {
       off();
-      if (lit) set(lit, false);
+      arcs.setFocus(null);
     };
-  }, [map, signals]);
+  }, [arcs, signals, lines]);
 }

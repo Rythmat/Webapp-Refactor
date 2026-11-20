@@ -148,6 +148,39 @@ describe('ShowcaseInput', () => {
     });
   });
 
+  it('a hand-in goes to the teacher only, with one button (owner, 2026-11-13)', () => {
+    const onSubmit = vi.fn();
+    const handIn = { ...SHOWCASE, showcase: { audience: 'teacher' as const } };
+    const { rerender } = render(
+      <ShowcaseInput
+        interaction={handIn}
+        language="en"
+        onSubmit={onSubmit}
+        live={LIVE}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: /Show the class/ })).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: /Send to my teacher/ }),
+    ).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Hand in' }));
+    const payload = onSubmit.mock.calls[0][0];
+    expect(payload.artifact).toMatchObject({
+      place: 'learn',
+      audience: 'teacher',
+    });
+    rerender(
+      <ShowcaseInput
+        interaction={handIn}
+        language="en"
+        onSubmit={onSubmit}
+        live={LIVE}
+        submittedPayload={payload}
+      />,
+    );
+    expect(screen.getByText(/Handed in:/)).toBeTruthy();
+  });
+
   it('shows the class what they picked, and says so', () => {
     const onSubmit = vi.fn();
     const { rerender } = render(

@@ -30,6 +30,9 @@ interface SlideStripProps {
   /** Total responses per slide id (for the count badge). */
   responseCountFor: (slide: Slide) => number;
   onNavigate: (index: number, phase: PhaseKey) => void;
+  /** Where the arrow keys go (around the class's vote, not a step). */
+  prevIndex?: number;
+  nextIndex?: number;
 }
 
 const iconFor = (slide: Slide, snapshot: DaySnapshot): LucideIcon => {
@@ -70,22 +73,25 @@ export const SlideStrip = ({
   currentIndex,
   responseCountFor,
   onNavigate,
+  prevIndex = currentIndex - 1,
+  nextIndex = currentIndex + 1,
 }: SlideStripProps) => {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
-      if (e.key === 'ArrowRight' && currentIndex < deck.slides.length - 1) {
-        const next = currentIndex + 1;
-        onNavigate(next, deck.slides[next].phase);
-      } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
-        const prev = currentIndex - 1;
-        onNavigate(prev, deck.slides[prev].phase);
-      }
+      const to =
+        e.key === 'ArrowRight'
+          ? nextIndex
+          : e.key === 'ArrowLeft'
+            ? prevIndex
+            : null;
+      const slide = to !== null && to !== currentIndex ? deck.slides[to] : null;
+      if (to !== null && slide) onNavigate(to, slide.phase);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [currentIndex, deck.slides, onNavigate]);
+  }, [currentIndex, prevIndex, nextIndex, deck.slides, onNavigate]);
 
   // Consecutive slides of one section sit under that section's name.
   const runs: {

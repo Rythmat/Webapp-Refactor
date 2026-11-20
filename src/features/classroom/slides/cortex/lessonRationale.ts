@@ -1,6 +1,6 @@
 import type { PhaseKey } from '../../phases';
 import type { CellRationale, LocalizedText } from '../../types';
-import type { GroupRole } from './types';
+import { GROUP_ROLES, type GroupChoice, type GroupRole } from './types';
 
 /**
  * The teacher's side of a Cortex lesson: for each part, the Activity Bank
@@ -63,9 +63,22 @@ const GROUP: Readonly<Record<GroupRole, PartRationale>> = {
   },
 };
 
+/**
+ * The class's vote (owner, 2026-11-16): the three roles' activities and
+ * standards, since any of them may run.
+ */
+const VOTE: PartRationale = {
+  activityRefs: [...new Set(GROUP_ROLES.flatMap((r) => GROUP[r].activityRefs))],
+  standards: [...new Set(GROUP_ROLES.flatMap((r) => GROUP[r].standards))],
+  assessment: {
+    en: 'The class’s vote; the skill rubric for the Group Project it chose.',
+    es: 'El voto de la clase; la rúbrica de habilidades del proyecto grupal elegido.',
+  },
+};
+
 /** Each part's rationale, by the phase cell it lives in. */
 export const lessonRationale = (
-  role: GroupRole,
+  role: GroupChoice,
 ): Readonly<Record<PhaseKey, PartRationale>> => ({
   // Connect and the Showcase share the first phase.
   connectRegulate: {
@@ -80,7 +93,7 @@ export const lessonRationale = (
       es: 'Notas de observación del registro de emociones; las palabras que los estudiantes escucharon en la canción.',
     },
   },
-  groupPractice: GROUP[role],
+  groupPractice: role === 'vote' ? VOTE : GROUP[role],
   creativeProjects: {
     activityRefs: ['producing'],
     standards: ['MU:Cr2.1.E.8a', 'MU:Cn11.0.E.8a'],

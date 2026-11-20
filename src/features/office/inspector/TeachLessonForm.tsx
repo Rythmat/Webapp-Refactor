@@ -13,6 +13,7 @@ import type { Day } from '@/features/classroom/types';
 import { useCanEditClassroom, useMyClassrooms } from '@/hooks/data';
 import { inspectSearch } from '../frame/useOfficeInspector';
 import { copyLessonToClass } from '../lessons/builtInLessons';
+import { rememberBuiltInCopy } from '../lessons/useBuiltInLessons';
 
 const FIELD =
   'h-8 w-full rounded-[var(--daw-radius-md)] border border-white/10 bg-white/[0.03] px-3 text-[0.8125rem] text-daw-text [color-scheme:dark] focus:border-white/25 focus:outline-none';
@@ -61,6 +62,7 @@ export const TeachLessonForm = ({ day }: { day: Day }) => {
   const teach = () => {
     const lesson = copyLessonToClass(day, cid, when || null);
     saveDay(lesson);
+    rememberBuiltInCopy(day, lesson);
     navigate(
       `${TeacherRoutes.plan({ classroomId: cid })}${inspectSearch({
         kind: 'lesson',

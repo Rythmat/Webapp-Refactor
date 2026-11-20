@@ -111,6 +111,23 @@ beforeEach(() => {
   authorizeClassroomConnection.mockReset();
 });
 
+/** The API's POST to the party, as it relays a persisted state change. */
+const relay = async (
+  party: Awaited<ReturnType<typeof bootParty>>,
+  body: unknown,
+) => {
+  (party as unknown as { env: Record<string, string> }).env = {
+    PARTYKIT_WEBHOOK_SECRET: 'secret',
+  };
+  return party.onRequest(
+    new Request('https://party/parties/classroom_session/sess-1', {
+      method: 'POST',
+      headers: { authorization: 'Bearer secret' },
+      body: JSON.stringify(body),
+    }),
+  );
+};
+
 describe('presence fan-out (Rule 2)', () => {
   it('never sends an identified presence body to a projector or a student', async () => {
     const teacher = makeConn('c-teacher', 'teacher');
@@ -177,23 +194,6 @@ describe('presence fan-out (Rule 2)', () => {
 });
 
 describe('Echo’s round fan-out', () => {
-  /** The API's POST to the party, as it relays a persisted state change. */
-  const relay = async (
-    party: Awaited<ReturnType<typeof bootParty>>,
-    body: unknown,
-  ) => {
-    (party as unknown as { env: Record<string, string> }).env = {
-      PARTYKIT_WEBHOOK_SECRET: 'secret',
-    };
-    return party.onRequest(
-      new Request('https://party/parties/classroom_session/sess-1', {
-        method: 'POST',
-        headers: { authorization: 'Bearer secret' },
-        body: JSON.stringify(body),
-      }),
-    );
-  };
-
   it('relays the round to every role, the projector included', async () => {
     const teacher = makeConn('c-teacher', 'teacher');
     const student = makeConn('c-student', 'student');
@@ -309,5 +309,128 @@ describe('the class follows the teacher (owner, 2026-11-10)', () => {
     ]);
     expect(messagesOf(student, 'activityDone')).toHaveLength(0);
     expect(messagesOf(projector, 'activityDone')).toHaveLength(0);
+  });
+});
+
+describe('the teacher asks the class to hand in (owner, 2026-11-13)', () => {
+  const say = (
+    party: Awaited<ReturnType<typeof bootParty>>,
+    conn: FakeConn,
+    body: unknown,
+  ) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    party.onMessage(conn as any, JSON.stringify(body));
+
+  const notice = { id: 1, kind: 'hand-in', slideId: 'slide-progress' };
+
+  it('reaches the students and the teacher, never the room’s screen', async () => {
+    const teacher = makeConn('c-teacher', 'teacher');
+    const student = makeConn('c-student', 'student');
+    const projector = makeConn('c-projector', 'projector');
+    const party = await bootParty([teacher, student, projector]);
+    say(party, teacher, { type: 'notice', notice });
+    for (const conn of [teacher, student]) {
+      expect(messagesOf(conn, 'notice')).toEqual([{ type: 'notice', notice }]);
+    }
+    expect(messagesOf(projector, 'notice')).toHaveLength(0);
+  });
+
+  it('refuses a student’s, and a malformed one, and drops extra fields', async () => {
+    const teacher = makeConn('c-teacher', 'teacher');
+    const student = makeConn('c-student', 'student');
+    const party = await bootParty([teacher, student]);
+    say(party, student, { type: 'notice', notice });
+    say(party, teacher, { type: 'notice', notice: { ...notice, id: -1 } });
+    say(party, teacher, { type: 'notice', notice: { ...notice, kind: 'x' } });
+    expect(messagesOf(student, 'notice')).toHaveLength(0);
+    say(party, teacher, {
+      type: 'notice',
+      notice: { ...notice, text: 'Hurry, Ana', enrollmentId: 'enr-x' },
+    });
+    expect(messagesOf(student, 'notice')).toEqual([{ type: 'notice', notice }]);
+  });
+
+  it('tells a student who joins after it', async () => {
+    const teacher = makeConn('c-teacher', 'teacher');
+    const party = await bootParty([teacher]);
+    say(party, teacher, { type: 'notice', notice });
+    const late = makeConn('c-late', 'student');
+    authorizeClassroomConnection.mockResolvedValueOnce({
+      ok: true,
+      auth: {
+        userId: 'u-late',
+        role: 'student',
+        enrollmentId: 'enr-late',
+        session: SESSION,
+      },
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await party.onConnect(late as any, { request: { url: late.uri } } as any);
+    expect(messagesOf(late, 'notice')).toEqual([{ type: 'notice', notice }]);
+  });
+});
+
+describe('a question shared after the class answered (2026-11-16)', () => {
+  const vote = (enrollmentId: string, choice: number) => ({
+    type: 'response',
+    at: '2026-01-01T00:00:00.000Z',
+    interactionId: 'ix-vote',
+    sessionId: 'sess-1',
+    enrollmentId,
+    displayName: 'Ana P.',
+    payload: { kind: 'choice', choices: [choice] },
+  });
+  const share = (on: boolean) => ({
+    type: 'share',
+    at: '2026-01-01T00:00:00.000Z',
+    interactionId: 'ix-vote',
+    on,
+  });
+
+  it('shows the room every vote that came in before, each one’s latest, unnamed', async () => {
+    const teacher = makeConn('c-teacher', 'teacher');
+    const student = makeConn('c-student', 'student');
+    const projector = makeConn('c-projector', 'projector');
+    const party = await bootParty([teacher, student, projector]);
+    await relay(party, vote('enr-a', 0));
+    await relay(party, vote('enr-b', 2));
+    await relay(party, vote('enr-a', 1));
+    expect(messagesOf(projector, 'response')).toHaveLength(0);
+
+    await relay(party, share(true));
+    const shown = messagesOf(projector, 'response');
+    expect(shown.map((m) => m.payload)).toEqual([
+      { kind: 'choice', choices: [1] },
+      { kind: 'choice', choices: [2] },
+    ]);
+    for (const m of shown) {
+      expect(m).not.toHaveProperty('enrollmentId');
+      expect(m).not.toHaveProperty('displayName');
+    }
+    // Never to the students.
+    expect(messagesOf(student, 'response')).toHaveLength(0);
+  });
+
+  it('shows a room’s screen that joins while it is shared', async () => {
+    const teacher = makeConn('c-teacher', 'teacher');
+    const party = await bootParty([teacher]);
+    await relay(party, vote('enr-a', 2));
+    await relay(party, share(true));
+    const late = makeConn('c-late', 'projector');
+    connected = [teacher, late];
+    authorizeClassroomConnection.mockResolvedValueOnce({
+      ok: true,
+      auth: {
+        userId: 'u-late',
+        role: 'projector',
+        enrollmentId: null,
+        session: SESSION,
+      },
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await party.onConnect(late as any, { request: { url: late.uri } } as any);
+    expect(messagesOf(late, 'response').map((m) => m.payload)).toEqual([
+      { kind: 'choice', choices: [2] },
+    ]);
   });
 });

@@ -19,7 +19,6 @@ import {
   NETWORK_LAYER,
   NETWORK_SOURCE,
   networkLineLayers,
-  networkPillLayer,
   networkSources,
 } from './networkLayers';
 import { PLACE_LAYER, SUN_SOURCE, placeLayers } from './placeLayers';
@@ -51,12 +50,11 @@ export const LAYER = {
   statesGlow: LAND_LAYER.statesGlow,
   statesLine: LAND_LAYER.statesLine,
   regionLabels: LAND_LAYER.regionLabels,
-  linksGlow: NETWORK_LAYER.glow,
-  linksRoots: NETWORK_LAYER.roots,
-  linksRoutes: NETWORK_LAYER.routes,
+  linkEndRing: NETWORK_LAYER.endRing,
+  linkEndDot: NETWORK_LAYER.endDot,
+  // The arcs, as the pointer picks them (not map layers: arcLayer.ts).
   linksHit: NETWORK_LAYER.solidHit,
   linksDottedHit: NETWORK_LAYER.dottedHit,
-  linkPills: NETWORK_LAYER.pills,
   liftLid: LIFT_LAYER.lid,
   liftDotsHit: LIFT_LAYER.dotsHit,
   placeHalo: PLACE_LAYER.halo,
@@ -157,7 +155,6 @@ function raisedLayers(textScale: number): LayerSpecification[] {
   return [
     ...liftLayerSpecs().filter((l) => l.id !== LIFT_LAYER.ground),
     ...overlayLayersBelowLabels(),
-    networkPillLayer(textScale),
     ...placeLayers(SOURCE.cityPoints, textScale),
   ];
 }
@@ -170,8 +167,6 @@ function raisedLayers(textScale: number): LayerSpecification[] {
  */
 export const RAISED_HITS: readonly string[] = [
   LAYER.liftDotsHit,
-  LAYER.linksHit,
-  LAYER.linksDottedHit,
   LAYER.placeHit,
 ];
 
@@ -226,7 +221,6 @@ export function buildStyle({
       ...landLabelLayers(textScale),
       ...liftLayerSpecs().map(anchored),
       ...overlayLayersBelowLabels().map(anchored),
-      anchored(networkPillLayer(textScale)),
       ...placeLayers(SOURCE.cityPoints, textScale).map(anchored),
     ],
   };

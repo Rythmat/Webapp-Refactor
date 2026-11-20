@@ -48,6 +48,8 @@ import { groupActivityOf } from '../../slides/focus/lessonFocus';
 import {
   applyGroupPick,
   applyShowcasePick,
+  groupPickTarget,
+  hasClassVote,
   isShowcasePortrait,
   isSubjectSlide,
 } from '../../slides/focus/lessonPicks';
@@ -518,7 +520,12 @@ export const SlideDeckEditor = () => {
     ref: string,
     label: string,
   ) => {
-    const target = firstIn('groupProject');
+    const target = groupPickTarget(
+      draft,
+      selected,
+      role,
+      (s) => sectionOf(s) === 'groupProject',
+    );
     if (!target) return;
     setDraft((prev) =>
       prev ? applyGroupPick(prev, target.id, plan, role, ref, label) : prev,
@@ -529,7 +536,7 @@ export const SlideDeckEditor = () => {
     setSelectedInteractions([match.interaction]);
     patchSelected({ title: match.title, prompt: match.prompt });
     setDraft((prev) =>
-      prev?.deck?.templateRef
+      prev?.deck?.templateRef && !hasClassVote(prev)
         ? {
             ...prev,
             deck: {

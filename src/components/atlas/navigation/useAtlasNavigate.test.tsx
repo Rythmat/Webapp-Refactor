@@ -122,6 +122,14 @@ describe('useAtlasNavigate', () => {
     expect(search()).toBe('?view=timeline&event=evt-1');
   });
 
+  it('keeps Story mode from stop to stop, and ends it in place', () => {
+    const { navigate, search } = setup('/globe?story=1&view=ring');
+    act(() => navigate().toEvent('evt-1'));
+    expect(search()).toBe('?story=1&view=ring&event=evt-1');
+    act(() => navigate().setStoryMode(false, { view: 'map' }));
+    expect(search()).toBe('?event=evt-1');
+  });
+
   it('follows a Globe link, keeping a lesson’s mind map', () => {
     const { navigate, search } = setup(
       '/globe?mindmap=1&event=evt-1&view=timeline',

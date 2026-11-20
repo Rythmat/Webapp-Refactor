@@ -108,6 +108,8 @@ export const SlideReflow = ({
                 sectionLabel={sectionLabelOf(slide, language)}
                 stacked
                 onOpen={slots?.openPlace}
+                // A phone is a student's own: where they left off.
+                personal={surface === 'student'}
               />
             </div>,
           ];

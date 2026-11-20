@@ -7,7 +7,7 @@ import {
   DEFAULT_CORTEX_CHOICES,
   applyCortexLessonToDay,
   planCortexLesson,
-  type GroupRole,
+  type GroupChoice,
 } from '@/features/classroom/slides/cortex';
 import type { LessonAtlas } from '@/features/classroom/slides/cortex/loadLessonAtlas';
 import { focusById } from '@/features/classroom/slides/cortex/suggestFocus';
@@ -16,8 +16,9 @@ import type { Day } from '@/features/classroom/types';
 // ── The Office's built-in lessons (owner, 2026-11-12) ──────────────────────
 // The Lessons tab's lessons are written by the Cortex generator from code,
 // not saved by hand, so every teacher has them on every device and they
-// follow the slides as the slides change. One for now: Michael Jackson ·
-// Producer, the lesson being perfected as the template for every lesson.
+// follow the slides as the slides change. One for now: Michael Jackson
+// (the class votes for its Group Project), the lesson being perfected as
+// the template for every lesson.
 //
 // Present and the editor read lessons from this device's plan, so each one is
 // kept there under OFFICE_LESSONS_SCOPE (see `syncBuiltInLesson`). Teaching
@@ -28,7 +29,7 @@ export interface BuiltInLesson {
   dayId: string;
   /** The Atlas focus the Cortex builds it around. */
   focusId: string;
-  role: GroupRole;
+  role: GroupChoice;
   label: string;
 }
 
@@ -36,8 +37,10 @@ export const BUILT_IN_LESSONS: readonly BuiltInLesson[] = [
   {
     dayId: 'builtin-mj-producer',
     focusId: 'artist:michael-jackson',
-    role: 'producer',
-    label: 'Michael Jackson · Producer',
+    // The class votes for its Group Project (owner, 2026-11-16). The id
+    // stays, so the copies made under the old name keep following it.
+    role: 'vote',
+    label: 'Michael Jackson',
   },
 ];
 
@@ -108,6 +111,34 @@ export const copyLessonToClass = (
 ): Day => {
   const copy = JSON.parse(JSON.stringify(day).split(day.id).join(newId)) as Day;
   return { ...copy, id: newId, classroomId, scheduledDate: date };
+};
+
+/**
+ * A class's copy of a built-in lesson, rewritten to the code's lesson when it
+ * still is just as it was written (`writtenHash`) and the code's lesson has
+ * changed (owner, 2026-11-13: the lesson is the same wherever it's opened).
+ * Its id, class, day and anything else of its own are kept. Null when it
+ * stays as it is: edited by the teacher, or already the code's.
+ */
+export const followBuiltInLesson = (
+  copy: Day,
+  writtenHash: string,
+  generated: Day,
+): Day | null => {
+  if (lessonHash(copy) !== writtenHash) return null;
+  const next = copyLessonToClass(
+    generated,
+    copy.classroomId ?? '',
+    copy.scheduledDate ?? null,
+    copy.id,
+  );
+  const followed: Day = {
+    ...copy,
+    label: next.label,
+    cells: next.cells,
+    ...(next.deck ? { deck: next.deck } : {}),
+  };
+  return lessonHash(followed) === writtenHash ? null : followed;
 };
 
 export const isBuiltInLessonId = (dayId: string): boolean =>

@@ -44,22 +44,20 @@ describe('the style', () => {
     for (const url of urls) expect(url.startsWith(`${ORIGIN}/`)).toBe(true);
   });
 
-  it('keeps the outlines, links and points under the names', () => {
+  it('keeps the outlines, links’ far ends and points under the names', () => {
     const order = ids(style.layers);
     const at = (id: string) => order.indexOf(id);
     for (const id of [
       LAYER.statesLine,
       LAYER.countriesLine,
-      LAYER.linksRoots,
+      LAYER.linkEndDot,
     ]) {
       expect(at(id)).toBeGreaterThan(at(LAYER.countriesFill));
     }
-    // A link's glow under it; its count over it, under the places' names.
-    expect(at(LAYER.linksGlow)).toBeLessThan(at(LAYER.linksRoots));
-    expect(at(LAYER.linkPills)).toBeGreaterThan(at(LAYER.linksRoutes));
-    expect(at(LAYER.linkPills)).toBeLessThan(at(LAYER.cityLabels));
+    // A far end's ring leaves from under its dot.
+    expect(at(LAYER.linkEndRing)).toBeLessThan(at(LAYER.linkEndDot));
     // An artist's points too: a name reads over a point, not under it.
-    expect(at(LAYER.artistPoints)).toBeGreaterThan(at(LAYER.linksRoutes));
+    expect(at(LAYER.artistPoints)).toBeGreaterThan(at(LAYER.linkEndDot));
     // The cities' names are over everything.
     expect(at(LAYER.cityLabels)).toBe(order.length - 1);
   });
@@ -99,9 +97,14 @@ describe('the style', () => {
   });
 
   it('has every Globe layer, and every layer a click can land on', () => {
+    // The arcs are a custom layer (arcLayer.ts): the pointer picks them by
+    // these names, but they are not in the style.
+    const picked: string[] = [LAYER.linksHit, LAYER.linksDottedHit];
     for (const id of Object.values(LAYER)) {
-      expect(ids(style.layers)).toContain(id);
+      if (!picked.includes(id)) expect(ids(style.layers)).toContain(id);
     }
-    for (const id of CLICK_LAYERS) expect(ids(style.layers)).toContain(id);
+    for (const id of CLICK_LAYERS) {
+      if (!picked.includes(id)) expect(ids(style.layers)).toContain(id);
+    }
   });
 });

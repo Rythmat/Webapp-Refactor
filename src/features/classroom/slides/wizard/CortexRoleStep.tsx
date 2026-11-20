@@ -3,24 +3,25 @@ import { AppIcons, AppListIcons } from '@/components/icons/appIcons';
 import { MICRO_LABEL } from '@/components/kit';
 import { Select } from '@/daw/ui/Select';
 import { OFFICE_CARD } from '@/features/office/ui/styles';
-import { roleAvailable } from '../cortex/buildDeck';
-import type { CortexLessonPlan, GroupRole } from '../cortex/types';
+import { groupRolesFor, roleAvailable } from '../cortex/buildDeck';
+import type { CortexLessonPlan, GroupChoice } from '../cortex/types';
 
 /**
- * Step 2 — the Group Project. The teacher picks one role and the whole class
- * does it together. Each card says what this focus gives the role, and a role
- * the focus cannot support is shown with the reason, not hidden.
+ * Step 2 — the Group Project. The class votes for one of the roles on their
+ * devices (owner, 2026-11-16), or the teacher picks one; either way the whole
+ * class does it together. Each card says what this focus gives the role, and
+ * a role the focus cannot support is shown with the reason, not hidden.
  */
 
 interface RoleCardProps {
-  role: GroupRole;
+  role: GroupChoice;
   selected: boolean;
   disabled: boolean;
   icon: ReactNode;
   title: string;
   summary: string;
-  detail: ReactNode;
-  onSelect: (role: GroupRole) => void;
+  detail?: ReactNode;
+  onSelect: (role: GroupChoice) => void;
 }
 
 const RoleCard = ({
@@ -52,16 +53,16 @@ const RoleCard = ({
       </span>
       <span className="text-sm text-white/55">{summary}</span>
     </button>
-    <div className="text-sm">{detail}</div>
+    {detail && <div className="text-sm">{detail}</div>}
   </div>
 );
 
 export interface CortexRoleStepProps {
   plan: CortexLessonPlan;
-  role: GroupRole | null;
+  role: GroupChoice | null;
   tutorialId: string | undefined;
   performerRef: string | undefined;
-  onRole: (role: GroupRole) => void;
+  onRole: (role: GroupChoice) => void;
   onTutorial: (id: string) => void;
   onPerformer: (ref: string) => void;
 }
@@ -89,6 +90,17 @@ export const CortexRoleStep = ({
         aria-label="Group Project"
         className="grid gap-3 md:grid-cols-3"
       >
+        <div className="md:col-span-3">
+          <RoleCard
+            role="vote"
+            selected={role === 'vote'}
+            disabled={groupRolesFor(plan, 'vote').length < 2}
+            icon={<AppIcons.classroom className="h-4 w-4" />}
+            title="Class votes"
+            summary="The class votes on their devices for the Group Project below they want; you go to the one they pick."
+            onSelect={onRole}
+          />
+        </div>
         <RoleCard
           role="promoter"
           selected={role === 'promoter'}

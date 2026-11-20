@@ -23,6 +23,7 @@ export {
   GROUP_ROLES,
   type CortexLessonChoices,
   type CortexLessonPlan,
+  type GroupChoice,
   type GroupRole,
   type LessonFocus,
 } from './types';

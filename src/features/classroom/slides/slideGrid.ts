@@ -249,15 +249,19 @@ export const SLIDE_GRID = {
 
   /**
    * The call-to-action band: the Individual Project's menu (owner,
-   * 2026-11-11), a row of up to five tall cards, Learn · Songs · Library ·
-   * Studio · Globe, from under the title to above the footer. It was a
-   * 928x128 strip of four pills; the cards need the height.
+   * 2026-11-11), up to six places, Learn · Songs · Library · Studio · Globe
+   * · Arcade, from under the title to above the footer, drawn as icons
+   * beaming into the logo (`PlaceMenu`). It was a 928x128 strip of four
+   * pills.
    */
   ctaCenter: {
-    rect: { x: 64, y: 224, w: 1152, h: 380 },
+    // Just under the title to the safe area's foot: the diagram, then a
+    // row of where-you-left-off boxes (owner, 2026-11-12).
+    rect: { x: 64, y: 208, w: 1152, h: 396 },
     role: 'content',
     flow: 'row',
-    max: 5,
+    // The six places (Arcade joined them, owner 2026-11-12).
+    max: 6,
     family: 'cta',
   },
 
@@ -338,6 +342,29 @@ export const SLIDE_GRID = {
   },
   checkInLive: {
     rect: { x: 64, y: 400, w: 680, h: 240 },
+    role: 'chrome',
+    flow: 'single',
+    family: 'chrome',
+  },
+
+  // ── The class's vote for its Group Project (owner, 2026-11-16) ──────────
+  // Its title and line high and close together ("Group Project", "Select to
+  // vote"), then the cards at Home's Progress column's size: the live
+  // layer's own place (chrome), its padding inside the canvas.
+  voteTitle: {
+    rect: { x: 64, y: 96, w: 1152, h: 64 },
+    role: 'content',
+    flow: 'single',
+    family: 'any',
+  },
+  voteSubtitle: {
+    rect: { x: 64, y: 160, w: 1152, h: 36 },
+    role: 'content',
+    flow: 'single',
+    family: 'any',
+  },
+  voteCards: {
+    rect: { x: 48, y: 196, w: 1184, h: 524 },
     role: 'chrome',
     flow: 'single',
     family: 'chrome',
@@ -757,6 +784,8 @@ export const REFLOW_ORDER: readonly ZoneName[] = [
   'captionTitle', // + the Showcase's name, over its photo
   'portraitTitle', // + the portrait's name
   'checkInTitle', // + the portrait's name, with the check-in
+  'voteTitle', // + the class vote's title
+  'voteSubtitle', // + its line (before the band, as `subtitle` is)
   'subtitle',
   'rowA',
   'rowB',

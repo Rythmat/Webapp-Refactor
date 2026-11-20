@@ -27,6 +27,12 @@ export const GROUP_ROLES: readonly GroupRole[] = [
   'performer',
 ];
 
+/**
+ * The Group Project a lesson runs: one role, or the class votes between
+ * every role that can run (owner, 2026-11-16).
+ */
+export type GroupChoice = GroupRole | 'vote';
+
 export type FocusKind = 'artist' | 'place';
 
 /** Why the generator offered a focus, for the teacher's card. */
@@ -117,7 +123,7 @@ export interface CortexLessonPlan {
 }
 
 export interface CortexLessonChoices {
-  role: GroupRole;
+  role: GroupChoice;
   /** A Producer's tutorial; the plan's first when absent. */
   tutorialId?: string;
   /** A Performer's lesson ref; the plan's first when absent. */

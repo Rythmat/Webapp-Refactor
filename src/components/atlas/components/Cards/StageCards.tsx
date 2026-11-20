@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { ATLAS_SEGMENT } from '@/components/atlas/components/UI/primitives';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import {
   useAtlasNavigate,
   useAtlasStop,
 } from '@/components/atlas/navigation/useAtlasNavigate';
+import type { NetworkIndex } from '@/components/atlas/network/networkIndex';
 import {
   farTotals,
   scopeLinks,
@@ -15,6 +16,9 @@ import { useNetwork } from '@/components/atlas/network/useNetwork';
 import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
 import { useStageSignals } from '@/components/atlas/state/stageSignals';
 import { stopScope, type StopScope } from '@/components/atlas/stats/stopScope';
+import { AddToStoryButton } from '@/components/atlas/story/AddToStoryButton';
+import { useStoryMode } from '@/components/atlas/story/storyMode';
+import { linkTarget, linkTitle } from '@/components/atlas/story/storyTargets';
 import { ROOTS_RAMP, ROUTES_RAMP } from '@/components/atlas/theme/marks';
 import { windowLabel } from '@/components/atlas/timeline/timeWindow';
 import type { SelectedLocation } from '@/components/atlas/types';
@@ -29,12 +33,39 @@ const FLOW_SIDE = 4;
 /** How many rows a list shows. */
 const ROWS = 5;
 
+/** A link's Add to Story at a row's end. */
+function StoryRowAdd({
+  ix,
+  link,
+}: {
+  ix: NetworkIndex;
+  link: PlaceLink | undefined;
+}) {
+  const target = link ? linkTarget(ix, link) : null;
+  if (!target) return null;
+  return (
+    <AddToStoryButton
+      target={target}
+      title={linkTitle(target.from.label, target.to.label)}
+    />
+  );
+}
+
 /**
- * The one card over the map besides the events (owner, 2026-10-30: the region
- * is the hero, only the most important information): where the music went.
- * With nothing chosen, the strongest links between regions; at a stop, where
- * its music came from and went to. A tour or a pathway has its own card.
+ * In Story mode, a row's link can go on the student's Story
+ * (owner, 2026-11-16): a plus at its end. Elsewhere, none.
  */
+function useStoryRowAction(
+  ix: NetworkIndex | null,
+  links: readonly PlaceLink[],
+): ((key: string) => ReactNode) | undefined {
+  const building = useStoryMode();
+  if (!building || !ix) return undefined;
+  return function rowAction(key) {
+    return <StoryRowAdd ix={ix} link={links.find((l) => l.id === key)} />;
+  };
+}
+
 export default function StageCards() {
   const stop = useAtlasStop();
   const key = stopKey(stop);
@@ -49,17 +80,22 @@ function WorldLinks() {
   const signals = useStageSignals();
   const network = useNetwork();
   const ix = network.index;
+  const links = useMemo(
+    () => (ix ? worldLinks(ix, w, { limit: ROWS }) : []),
+    [ix, w],
+  );
   const rows = useMemo(
     () =>
       ix
-        ? worldLinks(ix, w, { limit: ROWS }).map((link) => ({
+        ? links.map((link) => ({
             key: link.id,
             label: `${ix.node(link.from)?.label ?? ''} → ${ix.node(link.to)?.label ?? ''}`,
             value: link.weight,
           }))
         : [],
-    [ix, w],
+    [ix, links],
   );
+  const rowAction = useStoryRowAction(ix, links);
   return (
     <CardShell order={0} title="Strongest connections">
       <LinksReady network={network}>
@@ -68,6 +104,7 @@ function WorldLinks() {
         ) : (
           <BarList
             label="The strongest links between regions"
+            rowAction={rowAction}
             rows={rows}
             onHover={(key) => signals.linkFocus.set(key)}
           />
@@ -96,6 +133,7 @@ function StopLinks({ scope }: { scope: StopScope }) {
       <LinksReady network={network}>
         {links && ix && (
           <Connections
+            ix={ix}
             label={(id) => ix.node(id)?.label ?? id}
             links={links}
             place={(id) => ix.node(id)?.place ?? null}
@@ -114,12 +152,14 @@ function StopLinks({ scope }: { scope: StopScope }) {
  * the far place.
  */
 function Connections({
+  ix,
   links,
   title,
   years,
   label,
   place,
 }: {
+  ix: NetworkIndex;
   links: ScopeLinks;
   title: string;
   /** The years shown, or null for all. */
@@ -131,6 +171,10 @@ function Connections({
   const signals = useStageSignals();
   const [side, setSide] = useState<'in' | 'out'>(
     links.roots.length >= links.routes.length ? 'in' : 'out',
+  );
+  const rowAction = useStoryRowAction(
+    ix,
+    side === 'in' ? links.roots : links.routes,
   );
   if (links.roots.length === 0 && links.routes.length === 0) {
     return (
@@ -195,6 +239,7 @@ function Connections({
           // The map's colours: cool came in, warm went out.
           color: side === 'in' ? ROOTS_RAMP[1] : ROUTES_RAMP[2],
         }))}
+        rowAction={rowAction}
         onHover={(key) => signals.linkFocus.set(key)}
         onSelect={(key) => {
           const row = shown.find((r) => r.key === key);

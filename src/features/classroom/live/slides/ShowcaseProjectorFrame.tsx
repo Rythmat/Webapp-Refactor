@@ -35,12 +35,14 @@ export const ShowcaseProjectorFrame = ({
         <span className="text-6xl font-semibold text-white">
           {firstName(showcase.displayName)}
         </span>
-        <div className="relative h-48 w-80 overflow-hidden rounded-2xl">
-          <img
-            src={place.clip.poster}
-            alt=""
-            className="absolute inset-0 size-full object-cover opacity-80"
-          />
+        <div className="relative h-48 w-80 overflow-hidden rounded-2xl bg-[#141418]">
+          {place.clip && (
+            <img
+              src={place.clip.poster}
+              alt=""
+              className="absolute inset-0 size-full object-cover opacity-80"
+            />
+          )}
           <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-10 text-left text-xl text-white">
             {place.label.en}
           </span>

@@ -51,8 +51,9 @@ describe('Cortex lessons on the real Atlas', () => {
       for (const { focus } of top) {
         const plan = planCortexLesson(graph, catalog, focus);
         expect(plan.showcase.facts.length, focus.label).toBeGreaterThan(0);
-        for (const role of GROUP_ROLES) {
-          if (!roleAvailable(plan, role)) continue;
+        // Each role it supports, and the class's vote between them.
+        for (const role of [...GROUP_ROLES, 'vote' as const]) {
+          if (role !== 'vote' && !roleAvailable(plan, role)) continue;
           const day = applyCortexLessonToDay(newBlankDay(focus.label), plan, {
             ...DEFAULT_CORTEX_CHOICES,
             role,

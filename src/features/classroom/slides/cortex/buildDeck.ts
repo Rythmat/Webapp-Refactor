@@ -27,12 +27,19 @@ import {
   producerTask,
   promoterHeadline,
   promoterTask,
+  ROLE_NAME,
   tourTask,
 } from './copy';
 import { slugOf } from './graphQueries';
 import { lessonRationale, withPartRationale } from './lessonRationale';
 import { showcaseBio } from './showcase';
-import type { CortexLessonChoices, CortexLessonPlan, GroupRole } from './types';
+import {
+  GROUP_ROLES,
+  type CortexLessonChoices,
+  type CortexLessonPlan,
+  type GroupChoice,
+  type GroupRole,
+} from './types';
 
 /**
  * A Cortex lesson as slides: the plan (from the graph) and the teacher's
@@ -53,6 +60,8 @@ import type { CortexLessonChoices, CortexLessonPlan, GroupRole } from './types';
  *                       bleed     the song's video; "what do you hear?" on devices
  *                       bleed     the globe, flying through their places
  *   Group Project       hero      the activity the class does together  groupPractice
+ *                       (or, when the class votes: the vote's cards, then one
+ *                       hero per role; the lesson goes to the one voted for)
  *   Individual Project  menu      Learn · Songs · Library · Studio · Globe  creativeProjects
  *   Present             hero      progress, to the teacher           presentPerform
  *                       hero      "Show the class", then the featured project
@@ -77,13 +86,15 @@ export interface CortexLessonContent {
   cellCopy: Partial<
     Record<PhaseKey, { title: LocalizedText; prompt: LocalizedText }>
   >;
+  /** The Group Project it runs: the vote, or the one role that can. */
+  role: GroupChoice;
 }
 
 const ixIds = (prefix: string) => ({
   checkIn: `${prefix}-ix-checkin`,
   vibe: `${prefix}-ix-vibe`,
-  group: `${prefix}-ix-group`,
   progress: `${prefix}-ix-progress`,
+  handIn: `${prefix}-ix-handin`,
   share: `${prefix}-ix-share`,
   exit: `${prefix}-ix-exit`,
 });
@@ -149,6 +160,9 @@ export const projectMenuSlide = (prefix: string, minutes = 0): Slide => ({
   section: 'individualProject',
   presetId: 'project-menu',
   title: COPY.projectMenuTitle,
+  // Centred over the places, at the size of Home's "Play. Create. Explore."
+  // (owner, 2026-11-12); the teacher may change either.
+  textStyle: { title: { align: 'center', fontScale: 0.65 } },
   prompt: COPY.projectPrompt,
   launchTiles: projectPlaceTiles(prefix),
   ...withTimer(minutes),
@@ -160,6 +174,16 @@ const projectAndPresent = (
   projectMinutes: number,
 ): Pick<CortexLessonContent, 'interactionsByPhase' | 'slides' | 'cellCopy'> => {
   const ids = ixIds(prefix);
+  // Present your progress (owner, 2026-11-13): each student hands in their
+  // work from this class to the teacher, with a note on what they got done.
+  // The teacher can ask the class to hand in from Present.
+  const handIn: Interaction = {
+    id: ids.handIn,
+    type: 'showcase',
+    question: COPY.handInQuestion,
+    shareable: false,
+    showcase: { audience: 'teacher' },
+  };
   const progress: Interaction = {
     id: ids.progress,
     type: 'text',
@@ -177,7 +201,7 @@ const projectAndPresent = (
   const exit = exitQuestion(ids.exit);
   return {
     interactionsByPhase: {
-      presentPerform: [progress, share],
+      presentPerform: [handIn, progress, share],
       respondReflectReset: [exit],
     },
     slides: [
@@ -189,7 +213,7 @@ const projectAndPresent = (
         section: 'present',
         presetId: 'hero',
         title: COPY.presentTitle,
-        interactionIds: [progress.id],
+        interactionIds: [handIn.id, progress.id],
       },
       {
         id: `${prefix}-slide-share`,
@@ -223,7 +247,9 @@ const projectAndPresent = (
 const groupInteraction = (
   id: string,
   plan: CortexLessonPlan,
-  choices: Pick<CortexLessonChoices, 'role' | 'tutorialId' | 'performerRef'>,
+  choices: Pick<CortexLessonChoices, 'tutorialId' | 'performerRef'> & {
+    role: GroupRole;
+  },
 ): { interaction: Interaction; prompt: LocalizedText } | null => {
   switch (choices.role) {
     case 'promoter': {
@@ -307,6 +333,123 @@ export const roleAvailable = (
       : plan.performer.length > 0;
 
 /**
+ * The roles a lesson's Group Project runs: the chosen one, or, when the class
+ * votes, every one that can run, in order. A vote with one runnable role is
+ * that role alone.
+ */
+export const groupRolesFor = (
+  plan: CortexLessonPlan,
+  choice: GroupChoice,
+): GroupRole[] =>
+  choice === 'vote'
+    ? GROUP_ROLES.filter((role) => roleAvailable(plan, role))
+    : [choice];
+
+/** A Group Project slide: the activity's hero. */
+const groupSlide = (
+  id: string,
+  role: GroupRole,
+  group: { interaction: Interaction; prompt: LocalizedText },
+): Slide => ({
+  id,
+  kind: 'app-route',
+  phase: 'groupPractice',
+  section: 'groupProject',
+  presetId: 'hero',
+  title: groupTitle(role),
+  prompt: group.prompt,
+  interactionId: group.interaction.id,
+});
+
+/** The Group Project's ids when the class votes: the vote's, and each role's. */
+export const groupVoteIds = (prefix: string) => ({
+  slide: `${prefix}-slide-vote`,
+  interaction: `${prefix}-ix-vote`,
+  groupSlide: (role: GroupRole) => `${prefix}-slide-group-${role}`,
+  groupInteraction: (role: GroupRole) => `${prefix}-ix-group-${role}`,
+});
+
+/**
+ * The Group Project's interactions, slides and cell copy. One role: its
+ * activity's slide, as always. The class's vote (owner, 2026-11-16): the
+ * vote, its cards one per role, then each role's slide; the vote's
+ * `branches` take the lesson to the one the class picks.
+ */
+const groupProjectParts = (
+  prefix: string,
+  plan: CortexLessonPlan,
+  choices: CortexLessonChoices,
+): {
+  role: GroupChoice;
+  interactions: Interaction[];
+  slides: Slide[];
+  cellCopy: { title: LocalizedText; prompt: LocalizedText };
+} => {
+  const roles = groupRolesFor(plan, choices.role);
+  if (roles.length > 1) {
+    const ids = groupVoteIds(prefix);
+    const groups = roles.map((role) => {
+      const group = groupInteraction(ids.groupInteraction(role), plan, {
+        ...choices,
+        role,
+      });
+      if (!group) throw new Error(`The ${role} role has nothing to run`);
+      return { role, group };
+    });
+    const vote: Interaction = {
+      id: ids.interaction,
+      type: 'choice',
+      question: COPY.voteQuestion,
+      // The counts go on the room's screen when the teacher shows them.
+      shareable: true,
+      choice: { options: roles.map((r) => ROLE_NAME[r]), multi: false },
+    };
+    return {
+      role: 'vote',
+      interactions: [vote, ...groups.map((g) => g.group.interaction)],
+      slides: [
+        {
+          id: ids.slide,
+          kind: 'interaction',
+          phase: 'groupPractice',
+          section: 'groupProject',
+          presetId: 'group-vote',
+          // "Group Project", "Select to vote" under it (owner, 2026-11-16),
+          // centred over the cards as slide 5's title is over its places.
+          title: COPY.groupTitle,
+          prompt: COPY.votePrompt,
+          textStyle: {
+            title: { align: 'center', fontScale: 0.65 },
+            prompt: { align: 'center', fontScale: 0.7 },
+          },
+          interactionIds: [vote.id],
+          reveal: 'bars',
+          branches: roles.map(ids.groupSlide),
+        },
+        ...groups.map(({ role, group }) =>
+          groupSlide(ids.groupSlide(role), role, group),
+        ),
+      ],
+      cellCopy: { title: COPY.groupTitle, prompt: COPY.voteQuestion },
+    };
+  }
+  const role = roles[0];
+  const group = role
+    ? groupInteraction(`${prefix}-ix-group`, plan, { ...choices, role })
+    : null;
+  if (!role || !group)
+    throw new Error(
+      `The ${choices.role} role has nothing to run for ${plan.focus.label}`,
+    );
+  return {
+    role,
+    interactions: [group.interaction],
+    slides: [groupSlide(`${prefix}-slide-group`, role, group)],
+    cellCopy: { title: groupTitle(role), prompt: group.prompt },
+  };
+};
+
+/**
  * The lesson's interactions, slides and cell copy, every id under `prefix`.
  * Throws when the chosen role cannot run for this plan (`roleAvailable`).
  */
@@ -316,7 +459,6 @@ export const buildCortexLessonContent = (
   choices: CortexLessonChoices,
 ): CortexLessonContent => {
   const ids = ixIds(prefix);
-  const { focus } = plan;
 
   const checkIn = feelingsCheckIn(
     ids.checkIn,
@@ -334,11 +476,7 @@ export const buildCortexLessonContent = (
         }
       : null;
 
-  const group = groupInteraction(ids.group, plan, choices);
-  if (!group)
-    throw new Error(
-      `The ${choices.role} role has nothing to run for ${focus.label}`,
-    );
+  const group = groupProjectParts(prefix, plan, choices);
 
   // The energy check-in is asked on the portrait (no page of its own); the
   // faces and the wheel keep their own Connect slide, at full size.
@@ -358,7 +496,7 @@ export const buildCortexLessonContent = (
         ...(vibe ? [vibe] : []),
         ...showcase_.interactions,
       ],
-      groupPractice: [group.interaction],
+      groupPractice: group.interactions,
       ...shared.interactionsByPhase,
     },
     slides: [
@@ -391,23 +529,15 @@ export const buildCortexLessonContent = (
           ]
         : []),
       ...showcase_.slides,
-      {
-        id: `${prefix}-slide-group`,
-        kind: 'app-route',
-        phase: 'groupPractice',
-        section: 'groupProject',
-        presetId: 'hero',
-        title: groupTitle(choices.role),
-        prompt: group.prompt,
-        interactionId: group.interaction.id,
-      },
+      ...group.slides,
       ...shared.slides,
     ],
     cellCopy: {
       connectRegulate: { title: COPY.connectionCell, prompt: checkIn.question },
-      groupPractice: { title: groupTitle(choices.role), prompt: group.prompt },
+      groupPractice: group.cellCopy,
       ...shared.cellCopy,
     },
+    role: group.role,
   };
 };
 
@@ -663,7 +793,7 @@ const deckInteractionIds = (deck: SlideDeck | undefined): Set<string> => {
 
 export const cortexTemplateRef = (
   plan: CortexLessonPlan,
-  choices: CortexLessonChoices,
+  choices: Pick<CortexLessonChoices, 'role' | 'seed'>,
 ): SlideDeckTemplateRef => {
   const songId =
     plan.showcase.listen?.songId ??
@@ -671,7 +801,8 @@ export const cortexTemplateRef = (
   return {
     templateId: CORTEX_LESSON_TEMPLATE_ID,
     focusId: plan.focus.id,
-    role: choices.role,
+    // A deck the class votes on runs every role: none is its own.
+    ...(choices.role !== 'vote' ? { role: choices.role } : {}),
     seed: choices.seed,
     ...(songId ? { songId } : {}),
   };
@@ -699,7 +830,7 @@ export const applyCortexLessonToDay = (
       ? deckInteractionIds(day.deck)
       : new Set<string>();
 
-  const parts = lessonRationale(choices.role);
+  const parts = lessonRationale(content.role);
   const cells = {} as DayCells;
   for (const phase of PHASES) {
     const cell = day.cells[phase];
@@ -737,9 +868,9 @@ export const applyCortexLessonToDay = (
     cells,
     deck: {
       id: `${prefix}-deck`,
-      title: deckTitle(plan.focus, choices.role),
+      title: deckTitle(plan.focus, content.role),
       slides: content.slides,
-      templateRef: cortexTemplateRef(plan, choices),
+      templateRef: cortexTemplateRef(plan, { ...choices, role: content.role }),
     },
   };
 };

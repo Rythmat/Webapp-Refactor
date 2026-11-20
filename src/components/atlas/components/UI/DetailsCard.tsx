@@ -55,6 +55,7 @@ import {
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
 import { eraSplit } from '@/components/atlas/stats/eraSplit';
+import { AddToStoryButton } from '@/components/atlas/story/AddToStoryButton';
 import { ERA_BG } from '@/components/atlas/theme/eraClasses';
 import { inWindow } from '@/components/atlas/timeline/timeWindow';
 import type { HistoricalEvent } from '@/components/atlas/types';
@@ -304,6 +305,11 @@ export function EventList({
                       />
                     </h4>
                     <div className="relative z-10 -mr-1 -mt-0.5 flex shrink-0 items-center gap-0.5">
+                      <AddToStoryButton
+                        target={{ kind: 'event', eventId: event.id }}
+                        title={event.title}
+                        variant="pill"
+                      />
                       <LeadSheetButton event={event} />
                       {canEnlarge && (
                         <AtlasIconButton
@@ -519,9 +525,16 @@ export function DetailsCard() {
     <AtlasPanel
       ref={cardRef}
       actions={
-        <AtlasIconButton aria-label="Close details" size="sm" onClick={close}>
-          <X aria-hidden className="size-4" />
-        </AtlasIconButton>
+        <>
+          <AddToStoryButton
+            target={{ kind: 'place', place: selectedLocation }}
+            title={heading.title}
+            variant="pill"
+          />
+          <AtlasIconButton aria-label="Close details" size="sm" onClick={close}>
+            <X aria-hidden className="size-4" />
+          </AtlasIconButton>
+        </>
       }
       as="div"
       // The region's colours, explained: its events by era, in the years shown.

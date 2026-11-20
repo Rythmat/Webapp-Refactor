@@ -2,6 +2,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useMemo } from 'react';
 import type { DaySnapshot } from '../../publish/publishDay';
 import { SlideRenderer } from '../../slides/SlideRenderer';
+import { isVoteSlide } from '../../slides/branches';
 import {
   deckFromSnapshot,
   interactionsForSlide,
@@ -24,6 +25,7 @@ import { ClassStepChip } from './ClassStepChip';
 import { ShowcaseProjectorFrame } from './ShowcaseProjectorFrame';
 import { TimerCountdown } from './TimerCountdown';
 import { buildRevealNode } from './revealNode';
+import { buildVoteSlot } from './voteSlot';
 
 // Echo (class) on the projector: its circle, the class's counts, the Boss.
 // Its engine and screens load only when an Echo slide is shown.
@@ -138,7 +140,9 @@ export const ProjectorDeckView = ({
       title={classStep.title}
     />
   ) : firstInteractionId ? (
-    interactions[0].checkIn?.style === 'feelings' ? (
+    // The class's vote, like a feelings check-in, keeps to one line under
+    // its columns.
+    interactions[0].checkIn?.style === 'feelings' || isVoteSlide(slide) ? (
       <AnsweredCount n={countFor(firstInteractionId)} />
     ) : (
       <ParticipationPulse
@@ -196,6 +200,13 @@ export const ProjectorDeckView = ({
               slots={{
                 reveal: revealSlot,
                 statusChip,
+                // The class's vote: its cards, the counts once shared.
+                vote: buildVoteSlot({
+                  snapshot,
+                  slide,
+                  responsesByEnrollment,
+                  sharedInteractionIds: state.sharedInteractionIds,
+                }),
                 showcaseFrame,
                 mediaCommand,
                 // The Group Practice slide's Studio, on the class's step.

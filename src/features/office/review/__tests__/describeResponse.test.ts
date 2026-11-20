@@ -61,5 +61,11 @@ describe('describeResponse', () => {
         },
       }),
     ).toBe('Offered their Learn work “Pop — Level 1”');
+    expect(
+      describeResponse({
+        kind: 'showcase',
+        artifact: { projectId: 'chroma', name: 'Chroma', place: 'arcade' },
+      }),
+    ).toBe('Offered their Arcade work “Chroma”');
   });
 });

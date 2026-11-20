@@ -120,6 +120,38 @@ export const parseClassActivity = (
   };
 };
 
+/**
+ * The teacher's notice to the class (owner, 2026-11-13): "hand in what
+ * you've done so far", with the slide that takes the hand-in. A new `id`
+ * asks again. No identifiers.
+ */
+export interface ClassNotice {
+  id: number;
+  kind: 'hand-in';
+  slideId: string;
+}
+
+const NOTICE_KINDS = new Set<ClassNotice['kind']>(['hand-in']);
+
+/** A teacher's notice, field by field; malformed is refused (undefined). */
+export const parseClassNotice = (
+  v: unknown,
+): ClassNotice | null | undefined => {
+  if (v === null) return null;
+  if (!v || typeof v !== 'object') return undefined;
+  const n = v as Record<string, unknown>;
+  const id =
+    typeof n.id === 'number' && Number.isSafeInteger(n.id) && n.id >= 0
+      ? n.id
+      : null;
+  const kind = NOTICE_KINDS.has(n.kind as ClassNotice['kind'])
+    ? (n.kind as ClassNotice['kind'])
+    : null;
+  const slideId = text(n.slideId);
+  if (id === null || !kind || !slideId) return undefined;
+  return { id, kind, slideId };
+};
+
 const PRESENCE_TICK_MS = 5_000;
 const ACTIVE_WINDOW_MS = 15_000;
 const IDLE_TIMEOUT_MS = 60_000;
@@ -137,6 +169,15 @@ export default class ClassroomSessionServer extends Server {
    * (a late student, a reload) lands on the class's step at once.
    */
   private activity: ClassActivity | null = null;
+  /** The teacher's last notice, for a student who connects after it. */
+  private notice: ClassNotice | null = null;
+  /**
+   * Each student's latest response, by interaction (2026-11-16): sharing a
+   * question later still shows the room every answer that came in before
+   * (a class vote whose results the teacher shows when they choose). Held
+   * in memory only, identified, and never sent anywhere but stripped.
+   */
+  private latest = new Map<string, Map<string, ResponseBroadcast>>();
   private ended = false;
   private presenceTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -171,6 +212,7 @@ export default class ClassroomSessionServer extends Server {
       case 'share':
         this.currentShare = { interactionId: msg.interactionId, on: msg.on };
         this.broadcastTo(msg, ['teacher', 'student', 'projector']);
+        if (msg.on) await this.replayToProjectors(msg.interactionId);
         break;
       case 'nav':
       case 'lock':
@@ -206,6 +248,13 @@ export default class ClassroomSessionServer extends Server {
     // Teachers get the full, identified event.
     this.broadcastTo(msg, ['teacher']);
 
+    let bag = this.latest.get(msg.interactionId);
+    if (!bag) {
+      bag = new Map();
+      this.latest.set(msg.interactionId, bag);
+    }
+    bag.set(msg.enrollmentId, msg);
+
     // Projectors get an identifier-stripped copy, but only while this exact
     // interaction is actively shared.
     const shared =
@@ -219,6 +268,22 @@ export default class ClassroomSessionServer extends Server {
     // Students never receive peer responses — nothing sent here.
   }
 
+  /** The answers already in, stripped, for a question just shared. */
+  private async replayToProjectors(
+    interactionId: string,
+    only?: Connection,
+  ): Promise<void> {
+    const bag = this.latest.get(interactionId);
+    if (!bag || (!only && !this.hasRole('projector'))) return;
+    for (const msg of bag.values()) {
+      const stripped = JSON.stringify(await stripForProjector(msg));
+      if (only) only.send(stripped);
+      else
+        for (const conn of this.getConnections())
+          if (this.meta.get(conn.id)?.role === 'projector') conn.send(stripped);
+    }
+  }
+
   private handleEnd(): void {
     this.ended = true;
     this.broadcastTo({ type: 'end' }, ['teacher', 'student', 'projector']);
@@ -226,6 +291,7 @@ export default class ClassroomSessionServer extends Server {
       conn.close(4002, 'session ended');
     }
     this.meta.clear();
+    this.latest.clear();
     this.stopPresence();
   }
 
@@ -271,6 +337,15 @@ export default class ClassroomSessionServer extends Server {
     if (this.activity) {
       conn.send(JSON.stringify({ type: 'activity', activity: this.activity }));
     }
+    // The teacher's notice still stands (a student who has handed in already
+    // doesn't show it). Never the room's screen.
+    if (this.notice && auth.role !== 'projector') {
+      conn.send(JSON.stringify({ type: 'notice', notice: this.notice }));
+    }
+    // A room's screen that joins while a question is shared: its answers.
+    if (auth.role === 'projector' && this.currentShare?.on) {
+      await this.replayToProjectors(this.currentShare.interactionId, conn);
+    }
 
     // Size the roster immediately for a non-teacher too. Presence otherwise
     // only emits on CHANGE, so a projector or student connecting after the
@@ -311,6 +386,7 @@ export default class ClassroomSessionServer extends Server {
         t?: number;
         slideIndex?: number;
         activity?: unknown;
+        notice?: unknown;
         slideId?: unknown;
         step?: unknown;
       };
@@ -336,6 +412,13 @@ export default class ClassroomSessionServer extends Server {
           'student',
           'projector',
         ]);
+      } else if (data.type === 'notice' && meta.role === 'teacher') {
+        // The teacher asks the class (hand in your work): the students and
+        // the teacher's other screens, never the room's (nothing to act on).
+        const notice = parseClassNotice(data.notice);
+        if (notice === undefined) return;
+        this.notice = notice;
+        this.broadcastTo({ type: 'notice', notice }, ['teacher', 'student']);
       } else if (
         data.type === 'activityDone' &&
         meta.role === 'student' &&

@@ -426,6 +426,12 @@ export const SlideStage = ({
                     sectionLabel={sectionLabelOf(slide, language)}
                     still={still}
                     onOpen={slots?.openPlace}
+                    // Where this person left off: their own screen only.
+                    personal={
+                      (surface === 'present' || surface === 'student') &&
+                      !still &&
+                      !editable
+                    }
                   />
                 </div>
               )}

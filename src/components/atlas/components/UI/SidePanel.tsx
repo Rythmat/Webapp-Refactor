@@ -19,12 +19,15 @@ import type { StopPresentation } from '@/components/atlas/navigation/describeSto
 export function SidePanel({
   title,
   subtitle,
+  actions,
   onClose,
   children,
   bodyRef,
 }: {
   title: ReactNode;
   subtitle?: ReactNode;
+  /** Before Close: an artist's Add to Story. */
+  actions?: ReactNode;
   onClose: () => void;
   children: ReactNode;
   /** The scrolling body, for lists that virtualize inside it. */
@@ -33,9 +36,12 @@ export function SidePanel({
   return (
     <AtlasPanel
       actions={
-        <AtlasIconButton aria-label="Close" size="sm" onClick={onClose}>
-          <X aria-hidden className="size-4" />
-        </AtlasIconButton>
+        <>
+          {actions}
+          <AtlasIconButton aria-label="Close" size="sm" onClick={onClose}>
+            <X aria-hidden className="size-4" />
+          </AtlasIconButton>
+        </>
       }
       className="w-[440px]"
       subtitle={subtitle}

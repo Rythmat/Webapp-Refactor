@@ -10,9 +10,18 @@ import { isMapView, isRingView, type AtlasFrame } from './atlasFrame';
  * Eras and Regions & Cities lost their tabs (owner, 2026-11-09) and open
  * only from links (`?view=timeline`). Tours took a tab of its own the same
  * day: the map with the Tours panel in the Inspector (pathways and guided
- * tours together), or a pathway or tour running. Instruments is a panel.
+ * tours together), or a pathway or tour running. Story, right of Tours
+ * (owner, 2026-11-16), is the map in Story mode (story/storyMode.ts): the
+ * student's Story docked at its foot, on Connections too, so they explore
+ * and add as they go. Instruments is a panel.
  */
-export type AtlasSectionId = 'explore' | 'ring' | 'tours' | 'eras' | 'regions';
+export type AtlasSectionId =
+  | 'explore'
+  | 'ring'
+  | 'tours'
+  | 'story'
+  | 'eras'
+  | 'regions';
 
 export interface AtlasSection {
   id: AtlasSectionId;
@@ -24,6 +33,7 @@ export const ATLAS_SECTIONS: readonly AtlasSection[] = [
   { id: 'explore', label: 'Explore' },
   { id: 'ring', label: 'Connections' },
   { id: 'tours', label: 'Tours' },
+  { id: 'story', label: 'Story' },
 ];
 
 /** Every continent, opened: the Regions & Cities view (placeTree.ts). */
@@ -48,6 +58,8 @@ export function sectionFrame(
       return { view: 'ring', lens: 'places' };
     case 'tours':
       return { view: 'map', lens: 'places', panel: 'tours' };
+    case 'story':
+      return { view: 'map', lens: 'places' };
     case 'eras':
       return { view: 'timeline', lens: 'places', open: [] };
     case 'regions':
@@ -57,7 +69,7 @@ export function sectionFrame(
 
 /**
  * The view a frame shows: the map is Explore, or Tours while its panel is
- * chosen; the timeline is Regions & Cities once a place is opened, else
+ * chosen (Story is the map in Story mode: BottomRail); the timeline is Regions & Cities once a place is opened, else
  * Eras. (A running pathway or tour is Tours too, but that is the stop's:
  * BottomRail.)
  */

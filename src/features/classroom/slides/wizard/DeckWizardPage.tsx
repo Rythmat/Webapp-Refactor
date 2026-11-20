@@ -22,7 +22,11 @@ import { newBlankDay } from '../../plan/newBlankDay';
 import { useLocalPlan } from '../../plan/useLocalPlan';
 import { usePublishedDays } from '../../publish/usePublishedDays';
 import type { Day } from '../../types';
-import { applyCortexLessonToDay, roleAvailable } from '../cortex/buildDeck';
+import {
+  applyCortexLessonToDay,
+  groupRolesFor,
+  roleAvailable,
+} from '../cortex/buildDeck';
 import { LESSON_ATLAS_KEY, loadLessonAtlas } from '../cortex/loadLessonAtlas';
 import { planCortexLesson } from '../cortex/planLesson';
 import { suggestFocus } from '../cortex/suggestFocus';
@@ -30,7 +34,7 @@ import {
   DEFAULT_CORTEX_CHOICES,
   GROUP_ROLES,
   type CortexLessonChoices,
-  type GroupRole,
+  type GroupChoice,
   type LessonFocus,
 } from '../cortex/types';
 import { CortexFocusStep } from './CortexFocusStep';
@@ -94,7 +98,7 @@ export const DeckWizardPage = () => {
   const [step, setStep] = useState(0);
   const [seed, setSeed] = useState(0);
   const [picked, setPicked] = useState<LessonFocus | null>(null);
-  const [role, setRole] = useState<GroupRole | null>(null);
+  const [role, setRole] = useState<GroupChoice | null>(null);
   const [tutorialId, setTutorialId] = useState<string>();
   const [performerRef, setPerformerRef] = useState<string>();
   const [options, setOptions] = useState<CortexOptionValues>({
@@ -127,11 +131,16 @@ export const DeckWizardPage = () => {
         : null,
     [lessonAtlas, focus],
   );
-  // The chosen role while the focus supports it, else the first it does.
-  const activeRole: GroupRole | null = plan
-    ? role && roleAvailable(plan, role)
-      ? role
-      : (GROUP_ROLES.find((r) => roleAvailable(plan, r)) ?? null)
+  // The chosen role while the focus supports it. Else the class votes when
+  // every role can run (owner, 2026-11-16), or the first role that can.
+  const activeRole: GroupChoice | null = plan
+    ? role === 'vote' && groupRolesFor(plan, 'vote').length > 1
+      ? 'vote'
+      : role && role !== 'vote' && roleAvailable(plan, role)
+        ? role
+        : GROUP_ROLES.every((r) => roleAvailable(plan, r))
+          ? 'vote'
+          : (GROUP_ROLES.find((r) => roleAvailable(plan, r)) ?? null)
     : null;
 
   const builtDay = useMemo<Day | null>(() => {

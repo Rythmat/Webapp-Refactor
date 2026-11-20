@@ -26,6 +26,8 @@ import {
   useAtlasStopSelector,
 } from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
+import { isStoryMode } from '@/components/atlas/story/storyParam';
+import { useStoryShelf } from '@/components/atlas/story/storyStorage';
 import { resolveInspectorPanel } from './inspectorModel';
 import { railPanel } from './railPanels';
 import type { PanelZoneSlot } from './usePanelZone';
@@ -36,6 +38,9 @@ const LayersPanel = lazy(
 );
 const ToursPanel = lazy(
   () => import('@/components/atlas/components/Panels/ToursPanel'),
+);
+const StoryPanel = lazy(
+  () => import('@/components/atlas/components/Panels/StoryPanel'),
 );
 // A Cortex lesson's Promoter mind map (`?mindmap=1`), loaded only when asked.
 const MindMapPanel = lazy(
@@ -119,11 +124,14 @@ function useInspector(): InspectorState {
     };
   }, [journeyKey]);
   const details = useDetails();
+  const storyMode = useAtlasParams(isStoryMode);
+  const storyOpen = useStoryShelf().openId !== null;
   const panel = resolveInspectorPanel({
     panel: choice,
     journey: journey !== null,
     mindmap,
     hasDetails: details !== null,
+    story: storyMode ? (storyOpen ? 'build' : 'choose') : null,
   });
   const hasDetails = details !== null;
   const slot = useMemo((): InspectorSlot | null => {
@@ -164,6 +172,19 @@ function useInspector(): InspectorState {
           onClose: close,
         };
       }
+      case 'story': {
+        // Opened from the Story bar, it closes to the details under it;
+        // shown by Story mode itself, closing it ends Story mode.
+        const close =
+          choice === 'story' ? back : () => navigate.setStoryMode(false);
+        return {
+          panel,
+          title,
+          key: panel,
+          node: lazyPanel(title, <StoryPanel onClose={close} />),
+          onClose: close,
+        };
+      }
       case 'mindmap': {
         if (!mindmap) return null;
         const hide = () => navigate.setFrame({ panel: 'none' });
@@ -178,7 +199,7 @@ function useInspector(): InspectorState {
       default:
         return null;
     }
-  }, [panel, details, mindmap, journey, journeyKey, navigate]);
+  }, [panel, choice, details, mindmap, journey, journeyKey, navigate]);
   return useMemo(() => ({ slot, hasDetails }), [slot, hasDetails]);
 }
 

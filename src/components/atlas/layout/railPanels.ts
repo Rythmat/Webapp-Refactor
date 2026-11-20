@@ -1,4 +1,5 @@
 import {
+  BookOpen,
   Layers,
   Network,
   PanelRight,
@@ -50,5 +51,14 @@ export const TOURS_PANEL: RailPanel = {
   icon: Route,
 };
 
+/** Story, the student's own tours: a view tab too (owner, 2026-11-16). */
+export const STORY_PANEL: RailPanel = {
+  id: 'story',
+  title: 'Story',
+  hint: 'Story: build your own tour of the Globe',
+  icon: BookOpen,
+};
+
 export const railPanel = (id: InspectorPanelId): RailPanel =>
-  [...RAIL_PANELS, TOURS_PANEL].find((p) => p.id === id) ?? RAIL_PANELS[0];
+  [...RAIL_PANELS, TOURS_PANEL, STORY_PANEL].find((p) => p.id === id) ??
+  RAIL_PANELS[0];

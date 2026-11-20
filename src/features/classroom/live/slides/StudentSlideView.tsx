@@ -22,6 +22,7 @@ import { InteractionInput } from '../interactions';
 import { AppRouteLaunch } from '../interactions/AppRouteLaunch';
 import type { SessionState } from '../sessionsStore';
 import { LOCAL_SESSION_CLOCK, type SessionClock } from '../useServerClock';
+import { buildVoteSlot } from './voteSlot';
 
 interface StudentSlideViewProps {
   snapshot: DaySnapshot;
@@ -44,7 +45,7 @@ interface StudentSlideViewProps {
   /** The server's clock (the clock check): what Echo's round starts follow. */
   clock?: SessionClock;
   /** Open an Individual Project place inside the lesson (live/workspace). */
-  onOpenPlace?: (place: ProjectPlace) => void;
+  onOpenPlace?: (place: ProjectPlace, href?: string) => void;
 }
 
 /**
@@ -95,6 +96,12 @@ export const StudentSlideView = ({
 
   const interactions = interactionsForSlide(snapshot, slide);
   const live = { state, clock, slideId: slide.id };
+  const voteId =
+    slide.kind === 'interaction' && slide.branches?.length
+      ? interactions[0]?.id
+      : undefined;
+  const voted = voteId ? submissions[voteId] : undefined;
+  const ownVote = voted?.kind === 'choice' ? (voted.choices[0] ?? null) : null;
 
   const inputSlot = (interaction: Interaction) => (
     <InteractionInput
@@ -190,6 +197,22 @@ export const StudentSlideView = ({
               launch: launchSlot,
               pairAction: pairActionSlot,
               openPlace: onOpenPlace,
+              // The class's vote: a card is theirs to vote for, never the
+              // class's counts (owner, 2026-11-16).
+              vote: buildVoteSlot({
+                snapshot,
+                slide,
+                responsesByEnrollment: {},
+                sharedInteractionIds: [],
+                mine: ownVote,
+                pickAction: 'vote',
+                ...(voteId && state.status !== 'ended'
+                  ? {
+                      onPick: (option: number) =>
+                        onSubmit(voteId)({ kind: 'choice', choices: [option] }),
+                    }
+                  : {}),
+              }),
             }}
           />
         </motion.div>

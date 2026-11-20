@@ -9,10 +9,14 @@
  * response hooks, the response aggregator, or the enrollment roster.
  */
 import type { ReactNode } from 'react';
+import { HomeGlow } from '@/components/ClassroomLayout/home/HomeGlow';
 import type { Interaction, StudentLanguage } from '../types';
+import { isVoteSlide } from './branches';
 import { interactionVariant, mayRevealOn } from './interactionPolicy';
 import { resolveElements } from './migrateDeckV1';
+import { GroupVoteMenu, type VoteSlot } from './parts/GroupVoteMenu';
 import { InteractionBand } from './parts/InteractionBand';
+import { placeMenuOf } from './parts/PlaceMenu';
 import { slideLiveLayer } from './parts/SlideLiveLayer';
 import { SlideStage } from './parts/SlideStage';
 import { SlideStudio } from './parts/SlideStudio';
@@ -48,7 +52,13 @@ export interface SlideSlots {
    * running around the student's work. Absent elsewhere: the places are
    * links (Present, previews) or pictures (the room's screen).
    */
-  openPlace?: (place: ProjectPlace) => void;
+  openPlace?: (place: ProjectPlace, href?: string) => void;
+  /**
+   * The class's vote for its Group Project (owner, 2026-11-16): each card's
+   * activity, the votes where this screen may show them, and what a card
+   * does (a student's vote, the teacher's go). Absent: the cards alone.
+   */
+  vote?: VoteSlot;
 }
 
 export interface SlideRendererProps {
@@ -107,8 +117,25 @@ export const SlideRenderer = ({
       ? interactionVariant(slide, interactions)
       : null;
 
+  // The class's vote is its cards: the counts go on them, not in a chart.
+  const voteMenu =
+    slide.kind === 'interaction' && isVoteSlide(slide) && interactions[0] ? (
+      <GroupVoteMenu
+        slide={slide}
+        options={interactions[0].choice?.options ?? []}
+        surface={surface}
+        language={language}
+        {...(slots?.vote ? { vote: slots.vote } : {})}
+        still={still}
+        stacked={layoutMode === 'reflow'}
+        statusChip={slots?.statusChip}
+        width={1152}
+        height={492}
+      />
+    ) : null;
+
   const revealed =
-    variant === null
+    variant === null || voteMenu
       ? []
       : interactions
           .filter((i) => mayRevealOn(variant, surface, i))
@@ -146,31 +173,33 @@ export const SlideRenderer = ({
   // A split slide keeps its questions listed beside the video: a revealed
   // question's results take its own place in the list, not the whole band.
   const split = stage === 'split';
-  const band =
-    (revealed.length > 0 && !split) || studioTutorial ? null : variant !==
-      null ? (
-      projectsQuestion(slide, surface) ? (
-        <InteractionBand
-          interactions={interactions}
-          surface={surface}
-          language={language}
-          slots={slots}
-          teacherOnly={variant === 'check-in'}
-          hero={stage === 'hero' || stage === 'bleed'}
-          compact={Boolean(liveRectOf(slide))}
-          list={split}
-          {...(split && revealed.length > 0
-            ? {
-                reveals: Object.fromEntries(
-                  revealed.map(({ i, node }) => [i.id, node]),
-                ),
-              }
-            : {})}
-        />
-      ) : null
-    ) : (
-      slideLiveLayer({ slide, surface, language, interactions, slots, stage })
-    );
+  const band = voteMenu ? (
+    voteMenu
+  ) : (revealed.length > 0 && !split) || studioTutorial ? null : variant !==
+    null ? (
+    projectsQuestion(slide, surface) ? (
+      <InteractionBand
+        interactions={interactions}
+        surface={surface}
+        language={language}
+        slots={slots}
+        teacherOnly={variant === 'check-in'}
+        hero={stage === 'hero' || stage === 'bleed'}
+        compact={Boolean(liveRectOf(slide))}
+        list={split}
+        still={still}
+        {...(split && revealed.length > 0
+          ? {
+              reveals: Object.fromEntries(
+                revealed.map(({ i, node }) => [i.id, node]),
+              ),
+            }
+          : {})}
+      />
+    ) : null
+  ) : (
+    slideLiveLayer({ slide, surface, language, interactions, slots, stage })
+  );
 
   return (
     <SlideStage
@@ -204,6 +233,14 @@ export const SlideRenderer = ({
           ? { bandFallback: band }
           : {})}
       {...(bandCarries.length > 0 ? { bandInteractionIds: bandCarries } : {})}
+      {...((voteMenu || placeMenuOf(resolveElements(slide))) && !still
+        ? {
+            // Home's glow across the top of the class's vote and the
+            // Independent Project's places (owner, 2026-11-16): two key
+            // colours, one in each top corner, slowly shifting.
+            backdrop: <HomeGlow className="inset-x-0 top-0 z-0 h-[78%]" />,
+          }
+        : {})}
       {...(studioTutorial
         ? {
             backdrop: (

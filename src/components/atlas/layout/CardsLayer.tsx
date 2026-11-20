@@ -25,6 +25,7 @@ import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
+import { useStoryMode } from '@/components/atlas/story/storyMode';
 import { ATLAS_Z } from '@/components/atlas/theme/layers';
 import type { MapInsets } from '@/components/atlas/types';
 import { cn } from '@/lib/utils';
@@ -63,6 +64,7 @@ export function CardsLayer() {
     columnRef.current?.scrollTo?.({ top: 0 });
   }, [stopId]);
   const hidden = useAtlasSelector((s) => s.cards.hidden);
+  const storyMode = useStoryMode();
   const eventsOpen = useAtlasSelector(
     (s) => (s.zoneInsets.inspector?.left ?? 0) > 0,
   );
@@ -155,7 +157,9 @@ export function CardsLayer() {
           ref={columnRef}
           aria-label="At a glance"
           className={cn(
-            'atlas-cards pointer-events-auto absolute right-2 top-2 flex max-h-[calc(100%-3rem)] flex-col gap-2 overflow-y-auto overscroll-contain pb-6',
+            'atlas-cards pointer-events-auto absolute right-2 top-2 flex flex-col gap-2 overflow-y-auto overscroll-contain pb-6',
+            // Story mode's bar takes the stage's foot (story/StoryStrip).
+            storyMode ? 'max-h-[calc(100%-8rem)]' : 'max-h-[calc(100%-3rem)]',
             ATLAS_Z.mapControls,
           )}
           data-atlas-cards

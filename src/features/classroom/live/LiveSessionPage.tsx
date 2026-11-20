@@ -11,6 +11,11 @@ import { pickLocalized } from '../presentation/localized';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
 import {
+  nextSlideIndex,
+  prevSlideIndex,
+  type PickOption,
+} from '../slides/branches';
+import {
   clampSlideIndex,
   deckFromSnapshot,
   findInteraction,
@@ -25,7 +30,9 @@ import type {
   StudentLanguage,
 } from '../types';
 import { ConnectionBadge } from './ConnectionBadge';
+import { HandInBanner } from './HandInBanner';
 import { LockScreen } from './LockScreen';
+import { findHandInSlide } from './handIn';
 import { InteractionInput } from './interactions';
 import { isSlideComplete } from './slideGating';
 import { buildSlideProgressPatch } from './slideProgressMirror';
@@ -122,12 +129,17 @@ export const LiveSessionPage = () => {
   // over them (opened from the bar, or set aside from a slide that asks).
   const [openedPlaces, setOpenedPlaces] = useState<ProjectPlaceId[]>([]);
   const [shownPlace, setShownPlace] = useState<ProjectPlaceId | null>(null);
+  // Where each opened, when a student picked up where they left off.
+  const [placeHrefs, setPlaceHrefs] = useState<
+    Partial<Record<ProjectPlaceId, string>>
+  >({});
   const [sheetPinned, setSheetPinned] = useState(false);
   const [sheetSetAside, setSheetSetAside] = useState<string | null>(null);
   // A new session starts with nothing open.
   useEffect(() => {
     setOpenedPlaces([]);
     setShownPlace(null);
+    setPlaceHrefs({});
     setSheetPinned(false);
     setSheetSetAside(null);
   }, [sid]);
@@ -159,6 +171,11 @@ export const LiveSessionPage = () => {
   // prev/next; interaction slides lock until answered (Kajabi pattern). Their
   // position is broadcast to the teacher (never the projector — Rule 2).
   const deck = deckFromSnapshot(publishedDay?.snapshot);
+  // The deck's hand-in, which the teacher's ask opens (owner, 2026-11-13).
+  const handIn = useMemo(
+    () => findHandInSlide(publishedDay?.snapshot),
+    [publishedDay?.snapshot],
+  );
   const isStudentPaced = state?.mode === 'student_paced';
   const teacherIndex = state?.slideIndex ?? -1;
   const effectiveIndex =
@@ -278,16 +295,35 @@ export const LiveSessionPage = () => {
       }
     };
 
-  const goPrev = () =>
-    setLocalIndex((i) => Math.max(0, (i ?? Math.max(0, teacherIndex)) - 1));
+  // Around the class's vote, a student at their own pace goes to the Group
+  // Project they voted for, and from there past the others.
+  const ownVote: PickOption = (b) => {
+    const mine = submissions[b.interactionId];
+    return mine?.kind === 'choice' ? (mine.choices[0] ?? null) : null;
+  };
+  const goPrev = () => {
+    if (!deck) return;
+    setLocalIndex((i) =>
+      Math.max(
+        0,
+        prevSlideIndex(deck, i ?? Math.max(0, teacherIndex), ownVote),
+      ),
+    );
+  };
   const goNext = () => {
     if (!canAdvance || !deck) return;
     setLocalIndex((i) =>
-      clampSlideIndex(deck, (i ?? Math.max(0, teacherIndex)) + 1),
+      clampSlideIndex(
+        deck,
+        nextSlideIndex(deck, i ?? Math.max(0, teacherIndex), ownVote),
+      ),
     );
   };
 
-  const openPlace = (place: ProjectPlace) => {
+  const openPlace = (place: ProjectPlace, href?: string) => {
+    // An app path only: the very thing to pick up, in its place's frame.
+    if (href?.startsWith('/') && !href.startsWith('//'))
+      setPlaceHrefs((prev) => ({ ...prev, [place.id]: href }));
     setOpenedPlaces((prev) =>
       prev.includes(place.id) ? prev : [...prev, place.id],
     );
@@ -336,6 +372,20 @@ export const LiveSessionPage = () => {
       state.timer && state.timer.slideId === pacedSlide?.id ? (
         <TimerCountdown endsAt={state.timer.endsAt} />
       ) : null;
+    // The teacher's ask to hand in, over whatever the student has open;
+    // not while the hand-in slide itself is in front of them.
+    const handInBanner = (slideShown: boolean) => (
+      <HandInBanner
+        sessionId={sid}
+        state={state}
+        handIn={handIn}
+        submissions={submissions}
+        onSubmit={handleSubmit}
+        language={language}
+        clock={clock}
+        hidden={slideShown && pacedSlide?.id === handIn?.slide.id}
+      />
+    );
 
     if (workspaceOpen) {
       // The teacher's slide comes over the work when it asks something
@@ -358,6 +408,7 @@ export const LiveSessionPage = () => {
           <LessonWorkspace
             opened={openedPlaces}
             shown={shownPlace}
+            hrefs={placeHrefs}
             onShow={openPlace}
             onSlides={() => setSheetPinned(true)}
             onCloseSheet={() => {
@@ -395,6 +446,7 @@ export const LiveSessionPage = () => {
               sheetOpen ? (state.status === 'ended' ? ended : slideView) : null
             }
           />
+          {handInBanner(sheetOpen)}
           {state.locked ? (
             <div className="fixed inset-0 z-[70] overflow-y-auto bg-daw-bg">
               <LockScreen
@@ -434,6 +486,7 @@ export const LiveSessionPage = () => {
           </div>
         </header>
         {state.status === 'ended' ? ended : slideView}
+        {handInBanner(true)}
       </div>
     );
   }

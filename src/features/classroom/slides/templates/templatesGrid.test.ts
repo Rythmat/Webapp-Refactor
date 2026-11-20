@@ -24,9 +24,11 @@ import type { Slide } from '../types';
 
 const graph = fixture();
 const catalog = fixtureCatalog();
+/** Each role, and the class's vote between them (owner, 2026-11-16). */
+const CHOICES = [...GROUP_ROLES, 'vote'] as const;
 
 /** The lesson for a focus in a role, on a fresh Day. */
-const lesson = (name: string, role: (typeof GROUP_ROLES)[number]) => {
+const lesson = (name: string, role: (typeof CHOICES)[number]) => {
   const focus = searchFocus(graph, catalog, name)[0];
   return applyCortexLessonToDay(
     newBlankDay(name),
@@ -50,7 +52,7 @@ const checkDeck = (label: string, slides: Slide[]) => {
 };
 
 describe('shipping decks migrate to a LEGAL grid layout', () => {
-  for (const role of GROUP_ROLES) {
+  for (const role of CHOICES) {
     it(`a Cortex lesson about an artist, ${role}`, () => {
       checkDeck(`artist/${role}`, lesson('Ana Lux', role).deck?.slides ?? []);
     });
@@ -98,7 +100,7 @@ describe('the two-interaction slide specifically', () => {
 
 describe('no shipped slide places content in the footer band', () => {
   it('every migrated element sits above y=620 unless it is an interaction', () => {
-    for (const role of GROUP_ROLES)
+    for (const role of CHOICES)
       for (const slide of lesson('Ana Lux', role).deck?.slides ?? []) {
         for (const el of migrateSlideV1(slide)) {
           if (el.kind === 'interaction') continue;

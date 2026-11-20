@@ -17,6 +17,7 @@ import { useCanEditClassroom, useMyClassrooms } from '@/hooks/data';
 import { inspectSearch } from '../frame/useOfficeInspector';
 import { isoDay, relativeDay } from '../today/todayModel';
 import { copyLessonToClass } from './builtInLessons';
+import { rememberBuiltInCopy } from './useBuiltInLessons';
 
 /**
  * "Assign to a class" under a lesson on the Lessons page (owner,
@@ -85,6 +86,7 @@ const ClassChoice = ({
   const assign = () => {
     const lesson = copyLessonToClass(day, classroomId, date);
     saveDay(lesson);
+    rememberBuiltInCopy(day, lesson);
     const open = `${TeacherRoutes.plan({ classroomId })}${inspectSearch({
       kind: 'lesson',
       classroomId,

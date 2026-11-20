@@ -268,4 +268,5 @@ export const redneck_woman: Song = {
 
   artistImageRef: '/artists/svg/gretchen-wilson.webp',
   popularity: 50,
+  comingSoon: true,
 };

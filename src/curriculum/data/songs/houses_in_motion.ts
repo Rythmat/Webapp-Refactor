@@ -112,4 +112,5 @@ export const houses_in_motion: Song = {
 
   artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
+  comingSoon: true,
 };

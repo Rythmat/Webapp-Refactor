@@ -522,4 +522,5 @@ export const shut_up_and_dance: Song = {
 
   artistImageRef: '/artists/svg/walk-the-moon.webp',
   popularity: 50,
+  comingSoon: true,
 };

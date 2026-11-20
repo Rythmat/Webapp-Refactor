@@ -331,4 +331,5 @@ export const with_a_little_help_from_my_friends: Song = {
 
   artistImageRef: '/artists/svg/joe-cocker.webp',
   popularity: 50,
+  comingSoon: true,
 };

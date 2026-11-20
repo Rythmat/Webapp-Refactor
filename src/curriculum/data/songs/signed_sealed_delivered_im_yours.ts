@@ -173,4 +173,5 @@ export const signed_sealed_delivered_im_yours: Song = {
 
   artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
+  comingSoon: true,
 };

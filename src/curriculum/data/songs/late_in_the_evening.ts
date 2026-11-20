@@ -289,4 +289,5 @@ export const late_in_the_evening: Song = {
 
   artistImageRef: '/artists/svg/paul-simon.webp',
   popularity: 50,
+  comingSoon: true,
 };

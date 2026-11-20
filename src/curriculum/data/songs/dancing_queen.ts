@@ -260,4 +260,5 @@ export const dancing_queen: Song = {
 
   artistImageRef: '/artists/svg/abba.webp',
   popularity: 50,
+  comingSoon: true,
 };

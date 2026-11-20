@@ -362,4 +362,5 @@ export const love_never_felt_so_good: Song = {
 
   artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -81,49 +81,225 @@ export const california_gurls: Song = {
       id: 'intro',
       label: 'Intro',
       instrumental: true,
-      bars: [{ chords: [], restBars: 4 }],
-    },
-    {
-      id: 'verse_1',
-      label: 'Verse',
       bars: [
         {
           chords: [
-            { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
           ],
-          repeatStart: true,
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          cue: 'Chords Only',
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
           ],
         },
         {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '4', rest: true },
           ],
         },
       ],
     },
     {
-      id: 'chorus_1',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          repeatStart: true,
+          cue: 'Drums Enter',
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1 },
+            { degree: '6 min', chordName: 'Dm', beat: 4.5, duration: 0.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '8', rest: true },
+            { value: '8' },
+          ],
+          repeatEnd: true,
+        },
+      ],
+      repeatCount: 2,
+    },
+    {
+      id: 'verse_5',
+      label: 'Verse 2',
+      bars: [
+        {
+          chords: [
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          cue: 'Bass Enter',
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+          repeatStart: true,
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1 },
+            { degree: '6 min', chordName: 'Dm', beat: 4.5, duration: 0.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '8', rest: true },
+            { value: '8' },
+          ],
+          repeatEnd: true,
+        },
+      ],
+      repeatCount: 2,
+    },
+    {
+      id: 'chorus_1',
+      label: 'Pre-Chorus',
+      bars: [
+        {
+          chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
+        {
+          chords: [
+            { degree: '6 min', chordName: 'Dmin', beat: 1, duration: 4 },
           ],
         },
         {
@@ -134,38 +310,386 @@ export const california_gurls: Song = {
           repeatEnd: true,
         },
       ],
+      repeatCount: 2,
     },
     {
-      id: 'outro',
-      label: 'Outro',
+      id: 'verse_7',
+      label: 'Chorus',
       bars: [
         {
           chords: [
-            { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
           ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+          repeatStart: true,
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '4', rest: true },
           ],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
           ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1 },
+            { degree: '6 min', chordName: 'Dm', beat: 4.5, duration: 0.5 },
           ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '8', rest: true },
+            { value: '8' },
+          ],
+          repeatEnd: true,
         },
       ],
+      repeatCount: 4,
+    },
+    {
+      id: 'verse_9',
+      label: 'Verse 3',
+      bars: [
+        {
+          chords: [
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          cue: 'Bass Enter',
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+          repeatStart: true,
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1 },
+            { degree: '6 min', chordName: 'Dm', beat: 4.5, duration: 0.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '8', rest: true },
+            { value: '8' },
+          ],
+          repeatEnd: true,
+        },
+      ],
+      repeatCount: 2,
+    },
+    {
+      id: 'chorus_8',
+      label: 'Pre-Chorus',
+      bars: [
+        {
+          chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
+        {
+          chords: [
+            { degree: '6 min', chordName: 'Dmin', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          repeatEnd: true,
+        },
+      ],
+      repeatCount: 2,
+    },
+    {
+      id: 'verse_10',
+      label: 'Chorus',
+      bars: [
+        {
+          chords: [
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+          repeatStart: true,
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1 },
+            { degree: '6 min', chordName: 'Dm', beat: 4.5, duration: 0.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '8', rest: true },
+            { value: '8' },
+          ],
+          repeatEnd: true,
+        },
+      ],
+      repeatCount: 4,
+    },
+    {
+      id: 'verse_11',
+      label: 'Rap Verse',
+      bars: [
+        {
+          chords: [
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+          repeatStart: true,
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1 },
+            { degree: '6 min', chordName: 'Dm', beat: 4.5, duration: 0.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '8', rest: true },
+            { value: '8' },
+          ],
+          repeatEnd: true,
+        },
+      ],
+      repeatCount: 8,
+    },
+    {
+      id: 'verse_12',
+      label: 'Chorus',
+      bars: [
+        {
+          chords: [
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+          repeatStart: true,
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min', chordName: 'Am', beat: 1, duration: 1.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 2.75, duration: 0.75 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3.5, duration: 1.5 },
+          ],
+          rhythm: [
+            { value: '4' },
+            { value: '8', rest: true, dot: true },
+            { value: '16', tie: true },
+            { value: '8' },
+            { value: '8' },
+            { value: '4', rest: true },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 2.75, duration: 0.75 },
+            { degree: '6 min', chordName: 'Dm', beat: 3.5, duration: 1 },
+            { degree: '6 min', chordName: 'Dm', beat: 4.5, duration: 0.5 },
+          ],
+          rhythm: [
+            { value: '4', rest: true },
+            { value: '8', dot: true },
+            { value: '16' },
+            { value: '8', rest: true },
+            { value: '8' },
+            { value: '8', rest: true },
+            { value: '8' },
+          ],
+          repeatEnd: true,
+        },
+      ],
+      repeatCount: 8,
     },
   ],
   audioSources: [

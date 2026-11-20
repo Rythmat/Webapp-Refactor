@@ -247,4 +247,5 @@ export const only_the_good_die_young: Song = {
 
   artistImageRef: '/artists/svg/billy-joel.webp',
   popularity: 50,
+  comingSoon: true,
 };

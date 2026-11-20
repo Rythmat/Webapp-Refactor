@@ -75,4 +75,5 @@ export const what_i_got: Song = {
 
   artistImageRef: '/artists/svg/sublime.webp',
   popularity: 50,
+  comingSoon: true,
 };

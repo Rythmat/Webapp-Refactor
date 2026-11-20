@@ -351,4 +351,5 @@ export const mony_mony: Song = {
 
   artistImageRef: '/artists/svg/billy-idol.webp',
   popularity: 50,
+  comingSoon: true,
 };

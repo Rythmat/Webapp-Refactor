@@ -341,4 +341,5 @@ export const just_like_a_woman: Song = {
 
   artistImageRef: '/artists/svg/bob-dylan.webp',
   popularity: 50,
+  comingSoon: true,
 };

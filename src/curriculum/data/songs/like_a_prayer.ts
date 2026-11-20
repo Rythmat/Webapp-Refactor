@@ -269,4 +269,5 @@ export const like_a_prayer: Song = {
 
   artistImageRef: '/artists/svg/madonna.webp',
   popularity: 50,
+  comingSoon: true,
 };

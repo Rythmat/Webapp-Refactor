@@ -292,4 +292,5 @@ export const jolene: Song = {
 
   artistImageRef: '/artists/svg/dolly-parton.webp',
   popularity: 50,
+  comingSoon: true,
 };

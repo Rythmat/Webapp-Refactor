@@ -171,4 +171,5 @@ export const respect: Song = {
 
   artistImageRef: '/artists/svg/aretha-franklin.webp',
   popularity: 50,
+  comingSoon: true,
 };

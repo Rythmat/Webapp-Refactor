@@ -105,4 +105,5 @@ export const tequila: Song = {
 
   artistImageRef: '/artists/svg/the-champs.webp',
   popularity: 50,
+  comingSoon: true,
 };

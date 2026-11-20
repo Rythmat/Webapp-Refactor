@@ -282,4 +282,5 @@ export const creep: Song = {
 
   artistImageRef: '/artists/svg/radiohead.webp',
   popularity: 50,
+  comingSoon: true,
 };

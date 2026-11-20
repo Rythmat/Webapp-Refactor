@@ -578,4 +578,5 @@ export const dear_prudence: Song = {
 
   artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
+  comingSoon: true,
 };

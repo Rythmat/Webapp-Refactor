@@ -302,4 +302,5 @@ export const santeria: Song = {
 
   artistImageRef: '/artists/svg/sublime.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -330,4 +330,5 @@ export const friends_in_low_places: Song = {
 
   artistImageRef: '/artists/svg/garth-brooks.webp',
   popularity: 50,
+  comingSoon: true,
 };

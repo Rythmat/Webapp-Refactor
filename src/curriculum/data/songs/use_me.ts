@@ -171,4 +171,5 @@ export const use_me: Song = {
 
   artistImageRef: '/artists/svg/bill-withers.webp',
   popularity: 50,
+  comingSoon: true,
 };

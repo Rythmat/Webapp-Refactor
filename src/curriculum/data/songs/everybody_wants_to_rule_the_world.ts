@@ -397,4 +397,5 @@ export const everybody_wants_to_rule_the_world: Song = {
 
   artistImageRef: '/artists/svg/tears-for-fears.webp',
   popularity: 50,
+  comingSoon: true,
 };

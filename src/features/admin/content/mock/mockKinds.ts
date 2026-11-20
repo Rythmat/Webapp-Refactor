@@ -212,13 +212,13 @@ export const authoritativeIn = (kind: MockKind, mode: ContentMockMode) =>
 /**
  * The body level each kind validates at (contract, priority 2): today's API
  * in `legacy` mode; the contract's latest otherwise (repo mode included),
- * which is song v2
+ * which is song v3 (v2 and the chart's light, `comingSoon`)
  * (`songBodySchema.ts`), the `globe_city` v2 body, the `globe_event` v2 body
  * and the artist body with `born` (`recordBodySchemas.ts`). Legacy mode
  * serves no artist, so the artist's level is only ever the latest.
  */
 export const schemaVersionOf = (kind: MockKind, mode: ContentMockMode) => {
-  if (kind === 'song') return mode === 'legacy' ? 0 : 2;
+  if (kind === 'song') return mode === 'legacy' ? 0 : 3;
   if (kind === 'globe_city' || kind === 'globe_event')
     return mode === 'legacy' ? 1 : 2;
   if (kind === 'artist') return 2;

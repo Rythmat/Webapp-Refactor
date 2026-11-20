@@ -367,4 +367,5 @@ export const psycho_killer: Song = {
 
   artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -352,4 +352,5 @@ export const always_be_my_baby: Song = {
 
   artistImageRef: '/artists/svg/mariah-carey.webp',
   popularity: 50,
+  comingSoon: true,
 };

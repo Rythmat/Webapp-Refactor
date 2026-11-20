@@ -94,4 +94,5 @@ export const solsbury_hill: Song = {
 
   artistImageRef: '/artists/svg/peter-gabriel.webp',
   popularity: 50,
+  comingSoon: true,
 };

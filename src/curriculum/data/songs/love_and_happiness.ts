@@ -300,4 +300,5 @@ export const love_and_happiness: Song = {
 
   artistImageRef: '/artists/svg/al-green.webp',
   popularity: 50,
+  comingSoon: true,
 };

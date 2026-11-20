@@ -375,4 +375,5 @@ export const it_takes_two: Song = {
 
   artistImageRef: '/artists/svg/rob-base-and-e-z-rock.webp',
   popularity: 50,
+  comingSoon: true,
 };

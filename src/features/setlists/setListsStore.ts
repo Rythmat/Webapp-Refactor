@@ -46,6 +46,7 @@ const BAR_MARKS = [
   'repeatEnd',
   'repeatTimes',
   'ending',
+  'endingLabel',
   'segno',
   'coda',
   'toCoda',
@@ -79,7 +80,28 @@ interface FingerprintChord {
  *  this file having to hear about it. */
 interface FingerprintBar extends Partial<Record<BarMark, unknown>> {
   chords: readonly FingerprintChord[];
+  /** The bar's rhythm in slashes (owner, 2026-11-12), when it has one. */
+  rhythm?: readonly {
+    value: string;
+    plain?: boolean;
+    stem?: string;
+    dot?: boolean;
+    rest?: boolean;
+    tie?: boolean;
+  }[];
 }
+
+/** A bar's own rhythm, compactly: '4 4 4 8 8~'. Nothing for a slash a beat,
+ *  so every chart written before rhythms hashes as it did. */
+const barRhythmText = (bar: FingerprintBar): string =>
+  bar.rhythm?.length
+    ? `{rhythm ${bar.rhythm
+        .map(
+          (e) =>
+            `${e.value}${e.plain ? 'p' : ''}${e.dot ? '.' : ''}${e.rest ? 'r' : ''}${e.tie ? '~' : ''}${e.stem === 'down' ? 'v' : ''}`,
+        )
+        .join(' ')}}`
+    : '';
 
 interface FingerprintSection extends Partial<Record<SectionMark, unknown>> {
   label: string;
@@ -202,7 +224,9 @@ export function chartFingerprint(song: FingerprintChart): string {
                     (c, i) =>
                       c.chordName + rhythmText(c, i, b.chords.length, beats),
                   )
-                  .join(' ') + marksText(b, BAR_MARKS)
+                  .join(' ') +
+                marksText(b, BAR_MARKS) +
+                barRhythmText(b)
               );
             })
             .join('|'),

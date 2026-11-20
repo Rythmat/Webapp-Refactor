@@ -50,6 +50,36 @@ export function canonical(value: unknown): unknown {
 const same = (a: unknown, b: unknown) =>
   JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
 
+/**
+ * The store's own fields: the links the graph made (Cortex, the Table, the
+ * song page's Connections), which the repo's files never got. On 16 November
+ * 2026 the store linked 632 songs' lead acts and 50 songs' credits that the
+ * repo has without links, so writing the repo's song whole would have
+ * unlinked them all.
+ */
+export const STORE_OWNED = [
+  'origin',
+  'credits',
+  'session',
+  'releases',
+  'relatedRecordings',
+  'contentRefs',
+  'artistImageRef',
+] as const satisfies readonly (keyof Song)[];
+
+/**
+ * What an import writes: the repo's chart, with the store's links kept.
+ * A link the store has never made keeps the repo's value.
+ */
+export function mergeForImport(repo: Song, stored: Song | undefined): Song {
+  if (!stored) return repo;
+  const out = { ...repo } as Record<string, unknown>;
+  const kept = stored as unknown as Record<string, unknown>;
+  for (const key of STORE_OWNED)
+    if (kept[key] !== undefined) out[key] = kept[key];
+  return out as unknown as Song;
+}
+
 const ROADMAP = [
   'repeatStart',
   'repeatEnd',
@@ -127,6 +157,14 @@ export function describeChanges(repo: Song, stored: Song): string[] {
     countLine('sections with a row width', layout(repo), layout(stored)),
   );
 
+  const rhythmBars = (s: Song) =>
+    s.sections.reduce((n, x) => n + x.bars.filter((b) => b.rhythm).length, 0);
+  out.push(countLine('bars with rhythm', rhythmBars(repo), rhythmBars(stored)));
+
+  // The light: no `comingSoon` is green (songGate.ts).
+  if (Boolean(repo.comingSoon) !== Boolean(stored.comingSoon))
+    out.push(repo.comingSoon ? 'light green → red' : 'light red → green');
+
   if (!same(repo.audioSources, stored.audioSources))
     out.push('recording links');
   if (repo.title !== stored.title)
@@ -139,7 +177,11 @@ export function describeChanges(repo: Song, stored: Song): string[] {
   return found.length > 0 ? found : ['other fields'];
 }
 
-/** One row per song, repo and store lined up by slug. */
+/**
+ * One row per song, repo and store lined up by slug. A song is compared as
+ * the import would write it (mergeForImport), so a link only the store has
+ * is no difference.
+ */
 export function planImport(
   repoSongs: readonly Song[],
   stored: ReadonlyMap<string, Song>,
@@ -153,7 +195,8 @@ export function planImport(
         state: 'missing' as const,
         changes: [],
       };
-    if (same(repo, other))
+    const written = mergeForImport(repo, other);
+    if (same(written, other))
       return {
         slug: repo.id,
         title: repo.title,
@@ -164,7 +207,7 @@ export function planImport(
       slug: repo.id,
       title: repo.title,
       state: 'differs' as const,
-      changes: describeChanges(repo, other),
+      changes: describeChanges(written, other),
     };
   });
 

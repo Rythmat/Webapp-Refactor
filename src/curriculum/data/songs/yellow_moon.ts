@@ -236,4 +236,5 @@ export const yellow_moon: Song = {
 
   artistImageRef: '/artists/svg/the-neville-brothers.webp',
   popularity: 50,
+  comingSoon: true,
 };

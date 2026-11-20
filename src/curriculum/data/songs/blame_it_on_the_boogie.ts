@@ -347,4 +347,5 @@ export const blame_it_on_the_boogie: Song = {
 
   artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
+  comingSoon: true,
 };

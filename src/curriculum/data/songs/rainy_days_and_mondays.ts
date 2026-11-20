@@ -682,4 +682,5 @@ export const rainy_days_and_mondays: Song = {
 
   artistImageRef: '/artists/svg/the-carpenters.webp',
   popularity: 50,
+  comingSoon: true,
 };

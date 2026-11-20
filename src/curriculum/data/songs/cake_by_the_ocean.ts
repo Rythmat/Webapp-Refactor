@@ -88,4 +88,5 @@ export const cake_by_the_ocean: Song = {
 
   artistImageRef: '/artists/svg/dnce.webp',
   popularity: 50,
+  comingSoon: true,
 };

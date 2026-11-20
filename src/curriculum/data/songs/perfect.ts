@@ -430,4 +430,5 @@ export const perfect: Song = {
 
   artistImageRef: '/artists/svg/ed-sheeran.webp',
   popularity: 50,
+  comingSoon: true,
 };

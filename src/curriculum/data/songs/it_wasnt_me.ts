@@ -120,4 +120,5 @@ export const it_wasnt_me: Song = {
 
   artistImageRef: '/artists/svg/shaggy.webp',
   popularity: 50,
+  comingSoon: true,
 };

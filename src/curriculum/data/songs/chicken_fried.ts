@@ -313,4 +313,5 @@ export const chicken_fried: Song = {
 
   artistImageRef: '/artists/svg/zac-brown-band.webp',
   popularity: 50,
+  comingSoon: true,
 };

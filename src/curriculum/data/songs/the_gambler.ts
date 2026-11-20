@@ -348,4 +348,5 @@ export const the_gambler: Song = {
 
   artistImageRef: '/artists/svg/kenny-rogers.webp',
   popularity: 50,
+  comingSoon: true,
 };

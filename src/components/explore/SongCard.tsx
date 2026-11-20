@@ -9,6 +9,7 @@ import {
   CARD_TITLE,
 } from '@/components/kit/libraryLook';
 import { GENRE_LABELS } from '@/components/songLibrary/SongLibraryPage';
+import { ComingSoonBadge, LightDot } from '@/components/songLibrary/SongLight';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,11 @@ import { cn } from '@/components/utilities';
 import { SongRoutes } from '@/constants/routes';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { FOCUS_RING, TRANSITION } from '@/daw/ui/styles';
+import {
+  isSongOpen,
+  songLight,
+  useSongLights,
+} from '@/features/songs/songGate';
 import { useSongActions } from '@/features/songs/useSongActions';
 import { SongThumb } from './songArt';
 
@@ -56,6 +62,46 @@ export function SongCard({
   className?: string;
 }) {
   const { toggleSaved, isSaved } = useSongActions(song);
+  // The console shows every song's light and opens them all.
+  const lights = useSongLights();
+
+  // A red song, to a student: there, greyed out, marked Coming soon, and
+  // not opened (songGate.ts).
+  if (!lights && !isSongOpen(song)) {
+    return (
+      <div
+        className={cn('relative min-w-0', className)}
+        data-explore-song={song.id}
+        data-coming-soon=""
+      >
+        <div
+          role="img"
+          aria-label={`${song.title} by ${song.artist}: coming soon`}
+        >
+          <span className="relative block aspect-square w-full overflow-hidden rounded-xl">
+            <span className="block size-full opacity-50 grayscale">
+              <SongThumb song={song} />
+            </span>
+            <ComingSoonBadge className="absolute left-2.5 top-2.5" />
+          </span>
+          <span className={cn(CARD_GAP, 'flex flex-col px-0.5')}>
+            <span className="flex min-w-0 items-baseline gap-1.5">
+              <span className={cn(CARD_TITLE, 'text-white/45')}>
+                {song.title}
+              </span>
+              <span className={cn(CARD_META, 'shrink-0 text-white/30')}>
+                Lvl {song.difficulty}
+              </span>
+            </span>
+            <span className={cn(CARD_SUB, 'text-white/35')}>{song.artist}</span>
+            <span className={cn(CARD_META, 'truncate text-white/30')}>
+              Coming soon
+            </span>
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -69,6 +115,12 @@ export function SongCard({
       >
         <span className="relative block aspect-square w-full overflow-hidden rounded-xl">
           <SongThumb song={song} />
+          {lights && (
+            <LightDot
+              light={songLight(song)}
+              className="absolute left-2.5 top-2.5 size-3.5"
+            />
+          )}
         </span>
         <span className={cn(CARD_GAP, 'flex flex-col px-0.5')}>
           <span className="flex min-w-0 items-baseline gap-1.5">

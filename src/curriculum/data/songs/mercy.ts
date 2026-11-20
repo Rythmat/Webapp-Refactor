@@ -145,4 +145,5 @@ export const mercy: Song = {
 
   artistImageRef: '/artists/svg/duffy.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -250,4 +250,5 @@ export const firework: Song = {
 
   artistImageRef: '/artists/svg/katy-perry.webp',
   popularity: 50,
+  comingSoon: true,
 };

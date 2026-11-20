@@ -196,4 +196,5 @@ export const valerie: Song = {
 
   artistImageRef: '/artists/svg/amy-winehouse.webp',
   popularity: 50,
+  comingSoon: true,
 };

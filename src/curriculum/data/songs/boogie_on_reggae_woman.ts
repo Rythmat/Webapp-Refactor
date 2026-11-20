@@ -209,4 +209,5 @@ export const boogie_on_reggae_woman: Song = {
 
   artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
+  comingSoon: true,
 };

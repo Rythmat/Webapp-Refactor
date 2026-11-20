@@ -494,4 +494,5 @@ export const saving_all_my_love_for_you: Song = {
 
   artistImageRef: '/artists/svg/whitney-houston.webp',
   popularity: 50,
+  comingSoon: true,
 };

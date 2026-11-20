@@ -189,4 +189,5 @@ export const s_o_b: Song = {
 
   artistImageRef: '/artists/svg/nathaniel-rateliff.webp',
   popularity: 50,
+  comingSoon: true,
 };

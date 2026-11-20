@@ -112,4 +112,5 @@ export const thats_the_way_i_like_it: Song = {
 
   artistImageRef: '/artists/svg/kc-and-the-sunshine-band.webp',
   popularity: 50,
+  comingSoon: true,
 };

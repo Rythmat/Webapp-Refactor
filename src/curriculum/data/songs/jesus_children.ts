@@ -394,4 +394,5 @@ export const jesus_children: Song = {
 
   artistImageRef: '/artists/svg/soulive.webp',
   popularity: 50,
+  comingSoon: true,
 };

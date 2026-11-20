@@ -280,4 +280,5 @@ export const i_choose_you: Song = {
 
   artistImageRef: '/artists/svg/sara-bareilles.webp',
   popularity: 50,
+  comingSoon: true,
 };

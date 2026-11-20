@@ -345,4 +345,5 @@ export const sex_on_fire: Song = {
 
   artistImageRef: '/artists/svg/kings-of-leon.webp',
   popularity: 50,
+  comingSoon: true,
 };

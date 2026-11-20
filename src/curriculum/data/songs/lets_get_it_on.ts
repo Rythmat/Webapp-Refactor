@@ -137,4 +137,5 @@ export const lets_get_it_on: Song = {
 
   artistImageRef: '/artists/svg/marvin-gaye.webp',
   popularity: 50,
+  comingSoon: true,
 };

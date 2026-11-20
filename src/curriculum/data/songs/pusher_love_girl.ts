@@ -356,4 +356,5 @@ export const pusher_love_girl: Song = {
 
   artistImageRef: '/artists/svg/justin-timberlake.webp',
   popularity: 50,
+  comingSoon: true,
 };

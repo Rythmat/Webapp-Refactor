@@ -221,4 +221,5 @@ export const jump_jive_an_wail: Song = {
 
   artistImageRef: '/artists/svg/brian-setzer.webp',
   popularity: 50,
+  comingSoon: true,
 };

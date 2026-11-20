@@ -392,4 +392,5 @@ export const god_only_knows: Song = {
 
   artistImageRef: '/artists/svg/the-beach-boys.webp',
   popularity: 50,
+  comingSoon: true,
 };

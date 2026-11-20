@@ -147,4 +147,5 @@ export const mary_janes_last_dance: Song = {
 
   artistImageRef: '/artists/svg/tom-petty.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -199,4 +199,5 @@ export const cardova: Song = {
 
   artistImageRef: '/artists/svg/the-meters.webp',
   popularity: 50,
+  comingSoon: true,
 };

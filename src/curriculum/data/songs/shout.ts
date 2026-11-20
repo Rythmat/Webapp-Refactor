@@ -247,4 +247,5 @@ export const shout: Song = {
 
   artistImageRef: '/artists/svg/isley-brothers.webp',
   popularity: 50,
+  comingSoon: true,
 };

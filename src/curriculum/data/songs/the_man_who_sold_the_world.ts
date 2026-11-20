@@ -341,4 +341,5 @@ export const the_man_who_sold_the_world: Song = {
 
   artistImageRef: '/artists/svg/david-bowie.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -148,4 +148,5 @@ export const angel_from_montgomery: Song = {
 
   artistImageRef: '/artists/svg/john-prine.webp',
   popularity: 50,
+  comingSoon: true,
 };

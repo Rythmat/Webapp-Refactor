@@ -569,4 +569,5 @@ export const tightrope: Song = {
 
   artistImageRef: '/artists/svg/janelle-monae.webp',
   popularity: 50,
+  comingSoon: true,
 };

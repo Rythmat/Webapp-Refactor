@@ -219,4 +219,5 @@ export const the_chain: Song = {
 
   artistImageRef: '/artists/svg/fleetwood-mac.webp',
   popularity: 50,
+  comingSoon: true,
 };

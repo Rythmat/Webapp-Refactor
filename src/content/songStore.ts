@@ -93,6 +93,19 @@ export const refreshSongContent = (): Promise<void> => {
   return hydration;
 };
 
+/**
+ * One saved song, swapped into the library in place: repo mode's Save
+ * (DEV). That save writes the song's file without reloading the page, so
+ * the page would keep showing the copy it loaded; this shows what a reload
+ * would. Published is in the library, a draft is not (it is not in
+ * bundled.ts). The generation rises, so every derived cache rebuilds.
+ */
+export const putSavedSong = (song: Song, published: boolean): void => {
+  if (published) SONGS[song.id] = song;
+  else delete SONGS[song.id];
+  songGeneration += 1;
+};
+
 export const isSongContentReady = (): boolean => songGeneration > 0;
 
 /** Test seam — resets to the pre-hydration state. */

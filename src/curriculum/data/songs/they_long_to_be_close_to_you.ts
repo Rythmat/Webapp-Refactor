@@ -468,4 +468,5 @@ export const they_long_to_be_close_to_you: Song = {
 
   artistImageRef: '/artists/svg/the-carpenters.webp',
   popularity: 50,
+  comingSoon: true,
 };

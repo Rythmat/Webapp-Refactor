@@ -644,4 +644,5 @@ export const paranoid_android: Song = {
 
   artistImageRef: '/artists/svg/radiohead.webp',
   popularity: 50,
+  comingSoon: true,
 };

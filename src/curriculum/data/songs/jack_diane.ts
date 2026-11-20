@@ -213,4 +213,5 @@ export const jack_diane: Song = {
 
   artistImageRef: '/artists/svg/john-cougar-mellencamp.webp',
   popularity: 50,
+  comingSoon: true,
 };

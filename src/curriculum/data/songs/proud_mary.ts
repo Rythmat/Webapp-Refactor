@@ -176,4 +176,5 @@ export const proud_mary: Song = {
 
   artistImageRef: '/artists/svg/ike-and-tina-turner.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -166,4 +166,5 @@ export const loving_cup: Song = {
 
   artistImageRef: '/artists/svg/the-rolling-stones.webp',
   popularity: 50,
+  comingSoon: true,
 };

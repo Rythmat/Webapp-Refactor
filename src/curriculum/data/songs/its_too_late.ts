@@ -479,4 +479,5 @@ export const its_too_late: Song = {
 
   artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
+  comingSoon: true,
 };

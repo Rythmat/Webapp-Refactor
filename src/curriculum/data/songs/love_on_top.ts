@@ -326,4 +326,5 @@ export const love_on_top: Song = {
 
   artistImageRef: '/artists/svg/beyonce.webp',
   popularity: 50,
+  comingSoon: true,
 };

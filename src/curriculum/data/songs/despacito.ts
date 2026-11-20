@@ -98,4 +98,5 @@ export const despacito: Song = {
 
   artistImageRef: '/artists/svg/luis-fonsi.webp',
   popularity: 50,
+  comingSoon: true,
 };

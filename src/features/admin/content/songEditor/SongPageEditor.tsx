@@ -1,5 +1,5 @@
 import { Clock, Gauge, Signal } from 'lucide-react';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { GENRE_DISPLAY_LABELS } from '@/components/common/CircleOfFifthsSvg';
 import {
   ChordChart,
@@ -7,6 +7,7 @@ import {
   type ChordChartLoc,
 } from '@/components/songLibrary/ChordChart';
 import { SongDetailView } from '@/components/songLibrary/SongDetailView';
+import { LightDot } from '@/components/songLibrary/SongLight';
 import {
   Select,
   SelectContent,
@@ -14,17 +15,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { cn } from '@/components/utilities';
 import { songTonic } from '@/curriculum/songLibrary/hybridDegree';
+import { sectionMeters } from '@/curriculum/songLibrary/performance';
 import type { Song } from '@/curriculum/types/songLibrary';
-import type { StructuredEditorProps } from '../editorTypes';
 import {
-  addChordAt,
+  ScorePalettes,
+  type PaletteAction,
+} from '@/daw/components/Score/ScorePalettes';
+import type { NotePaletteOptions } from '@/daw/components/Score/notePalettes';
+import type { SongLight } from '@/features/songs/songGate';
+import { useCapabilities } from '@/hooks/data/admin/useCapabilities';
+import type { BarRef } from '@/lib/chartEditor/selection';
+import type { StructuredEditorProps } from '../editorTypes';
+import { useRepoMode } from '../repo/useRepoMode';
+import {
+  addChordOnBeat,
   addSection,
   coerceSongDraft,
+  duplicateSection,
   insertBar,
+  insertSection,
   moveSection,
   removeBar,
-  removeChord,
+  removeChordHealing,
   removeSection,
   updateChord,
   updateSection,
@@ -36,8 +50,17 @@ import { ChordEditorPopup } from './ChordEditorPopup';
 import { ConnectionsPanel } from './ConnectionsPanel';
 import { KeyPicker } from './KeyPicker';
 import { YouTubeField } from './YouTubeField';
+import { CHART_PALETTE_ACTIONS, applyPaletteMark } from './paletteMarks';
 import { slugify } from './songDefaults';
 import { useChartEditing } from './useChartEditing';
+import { useChartRhythm } from './useChartRhythm';
+
+/** A chart's rhythm is slashes and rests, tied or not: no pitches. */
+const CHART_NOTE_OPTIONS: NotePaletteOptions = {
+  layers: ['slashes', 'rests'],
+  articulations: 'tie',
+  accidentals: false,
+};
 
 /**
  * The song editor: the song page itself (`SongDetailView`), with its fields
@@ -137,7 +160,11 @@ export const SongPageEditor = ({ body, onChange }: StructuredEditorProps) => {
             <div className="min-w-0 px-6 pt-4 md:px-10">
               <ConnectionsPanel song={song} onPatch={patch} />
             </div>
-            <ChartEditor song={song} onPatch={patch} />
+            <ChartEditor
+              song={song}
+              onPatch={patch}
+              light={<ChartLight body={body} onChange={onChange} />}
+            />
             <div className="min-w-0 px-6 pb-8 md:px-10">
               <AdvancedFields song={song} onPatch={patchWithId} />
             </div>
@@ -278,13 +305,81 @@ const Stats = ({ song, onPatch }: FieldProps) => {
   );
 };
 
+const LIGHT_BUTTON: Record<SongLight, string> = {
+  green:
+    'border-emerald-400/40 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/20',
+  red: 'border-red-500/40 bg-red-500/10 text-red-200 hover:bg-red-500/20',
+};
+
+/**
+ * The chart's light (songGate.ts), the gate it passes before students use
+ * it: green, ready and open to them; red, not ready, and Coming soon in the
+ * app. One click turns it. It is the song's `comingSoon`, saved with the
+ * song like any other edit, so it goes out with the next publish (or, in
+ * repo mode, the next commit and deploy). A new song starts red.
+ */
+export const ChartLight = ({ body, onChange }: StructuredEditorProps) => {
+  const caps = useCapabilities();
+  // The literal DEV gate lets the build drop the repo branch (useRepoMode.ts).
+  const repoMode = useRepoMode();
+  const repo = import.meta.env.DEV && repoMode;
+  const ready = body.comingSoon !== true;
+  const light: SongLight = ready ? 'green' : 'red';
+  const turn = () => {
+    if (ready) {
+      onChange({ ...body, comingSoon: true });
+      return;
+    }
+    // Green is the light's absence, so a ready song's file says nothing.
+    const green = { ...body };
+    delete green.comingSoon;
+    onChange(green);
+  };
+  // `comingSoon` came with song schema v3: a content API below it refuses
+  // a red song outright, as it refuses any field it does not know.
+  const refused =
+    !ready && !repo && !!caps.capabilities && caps.songSchemaLevel < 3;
+  return (
+    <span className="flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        onClick={turn}
+        aria-pressed={ready}
+        aria-label={`Chart light: ${ready ? 'green, ready for students' : 'red, not ready'}. Turn it ${ready ? 'red' : 'green'}.`}
+        title={
+          ready
+            ? 'Green: ready, and students can open it. Click to turn it red.'
+            : 'Red: not ready. Students see it greyed out as Coming soon. Click when it is ready.'
+        }
+        data-chart-light={light}
+        className={cn(
+          'inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+          LIGHT_BUTTON[light],
+        )}
+      >
+        <LightDot light={light} className="size-2.5 ring-0" />
+        {ready ? 'Ready for students' : 'Not ready · Coming soon'}
+      </button>
+      {refused && (
+        <span role="status" className="text-xs text-amber-300/80">
+          This content API is on song schema v{caps.songSchemaLevel}, and a red
+          light needs v3: it won’t save here until the API runs it.
+        </span>
+      )}
+    </span>
+  );
+};
+
 /** The chart, as a direct-manipulation editor, with its tools stuck above it. */
 const ChartEditor = ({
   song,
   onPatch,
+  light,
 }: {
   song: Song;
   onPatch(p: Partial<Song>): void;
+  /** The chart's light, first in its tools. */
+  light?: React.ReactNode;
 }) => {
   const [selection, setSelection] = useState<ChordChartLoc | null>(null);
   const sections = song.sections;
@@ -307,15 +402,76 @@ const ChartEditor = ({
       ] ?? null)
     : null;
 
-  const editable: ChordChartEditable = {
-    onAddChordAtBeat: (si, bi, beat) => {
-      const next = addChordAt(sections, si, bi, beat);
-      setSections(next);
-      const chordIdx = next[si].bars[bi].chords.findIndex(
-        (c) => c.beat === beat,
+  // The tools' height, which grows when the bar inspector opens: the
+  // palettes stick just under it.
+  const toolsRef = useRef<HTMLDivElement>(null);
+  const [toolsHeight, setToolsHeight] = useState(56);
+  useEffect(() => {
+    const el = toolsRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() =>
+      setToolsHeight(el.getBoundingClientRect().height),
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // A chord on a beat, from the chord lane, a double-click on a slash or
+  // the palettes' chord symbol: the one there, or a new one lasting to the
+  // next chord or the barline. Either way its popup opens.
+  const meters = useMemo(() => sectionMeters(song), [song]);
+  // The selected chord taken away, the one before it ringing on.
+  const removeSelectedChord = (label: string) => {
+    if (!selection) return;
+    const { sectionIdx: si, barIdx: bi, chordIdx } = selection;
+    const beatsInBar = meters[si]?.[bi]?.[0] ?? song.timeSignature?.[0] ?? 4;
+    editing.apply(
+      removeChordHealing(sections, si, bi, chordIdx, beatsInBar),
+      label,
+    );
+    setSelection(null);
+  };
+  const onChordAt = (si: number, bi: number, beat: number) => {
+    const beatsInBar = meters[si]?.[bi]?.[0] ?? song.timeSignature?.[0] ?? 4;
+    const next = addChordOnBeat(sections, si, bi, beat, beatsInBar);
+    if (next !== sections) editing.apply(next, 'Add chord');
+    const chordIdx = (next[si]?.bars[bi]?.chords ?? []).findIndex(
+      (c) => Math.abs(c.beat - beat) < 1e-6,
+    );
+    if (chordIdx >= 0) setSelection({ sectionIdx: si, barIdx: bi, chordIdx });
+  };
+  // The rhythm in slashes, with the Score's palettes.
+  const rhythm = useChartRhythm({
+    song,
+    sections,
+    apply: editing.apply,
+    onChordAt,
+  });
+  // A mark from the palettes goes on the picked bars, or else on the bar of
+  // the picked slash.
+  const markTargets: BarRef[] =
+    editing.selectedBars.length > 0
+      ? editing.selectedBars
+      : rhythm.slash
+        ? [{ section: rhythm.slash.section, bar: rhythm.slash.bar }]
+        : [];
+  const onPaletteMark = (action: PaletteAction) => {
+    if (markTargets.length === 0) return;
+    if (action === 'text.staffText') {
+      // Staff text is typed: pick the bar so the inspector opens on it.
+      if (editing.selectedBars.length === 0)
+        editing.pickBar(markTargets[0], { shift: false, toggle: false });
+      requestAnimationFrame(() =>
+        document.querySelector<HTMLInputElement>('[data-staff-text]')?.focus(),
       );
-      setSelection({ sectionIdx: si, barIdx: bi, chordIdx });
-    },
+      return;
+    }
+    const mark = applyPaletteMark(sections, markTargets, action);
+    if (mark) editing.apply(mark.sections, mark.label);
+  };
+
+  const editable: ChordChartEditable = {
+    onAddChordAtBeat: onChordAt,
     onMoveChord: (loc, toBeat) =>
       setSections(
         updateChord(sections, loc.sectionIdx, loc.barIdx, loc.chordIdx, {
@@ -340,6 +496,8 @@ const ChartEditor = ({
     onMoveSection: (si, dir) =>
       setSections(moveSection(sections, si, si + dir)),
     onAddSection: () => setSections(addSection(sections)),
+    onDuplicateSection: (si) => setSections(duplicateSection(sections, si)),
+    onInsertSectionAfter: (si) => setSections(insertSection(sections, si + 1)),
     sectionCount: sections.length,
   };
 
@@ -350,12 +508,19 @@ const ChartEditor = ({
           below the bar you were editing — you had to scroll away from your
           own selection to act on it. Sticky, so the chart scrolls under
           them and the selection and the controls are never apart. */}
-      <div className="sticky top-[var(--full-editor-bar-h,0px)] z-20 -mx-6 mb-3 border-b border-white/10 bg-[#101012]/95 px-6 py-2 backdrop-blur md:-mx-10 md:px-10">
+      <div
+        ref={toolsRef}
+        className="sticky top-[var(--full-editor-bar-h,0px)] z-20 -mx-6 mb-3 border-b border-white/10 bg-[#101012]/95 px-6 py-2 backdrop-blur md:-mx-10 md:px-10"
+      >
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs text-muted-foreground">
-            Click a beat to add a chord · drag a chord to move it · click the
-            rail under a bar to select it, shift-click for a run
-          </p>
+          <div className="flex min-w-0 flex-wrap items-center gap-3">
+            {light}
+            <p className="text-xs text-muted-foreground">
+              Click a slash for its rhythm, above it for a chord · drag a chord
+              to move it · click the rail under a bar to select it, shift-click
+              for a run
+            </p>
+          </div>
           <div className="flex items-center gap-1">
             <button
               type="button"
@@ -418,22 +583,54 @@ const ChartEditor = ({
       </div>
 
       {/* The keys belong to the chart, not to the window: a person typing
-          in a field upstairs is not addressing the bars. */}
+          in a field upstairs is not addressing the bars. The palettes are
+          inside the same group, so a key still reaches the chart after a
+          click on a cell. */}
       <div
         role="group"
         aria-label="Chord chart"
         tabIndex={-1}
-        onKeyDown={editing.onKeyDown}
-        className="outline-none"
+        onKeyDown={(e) => {
+          if (!rhythm.onKey(e)) editing.onKeyDown(e);
+        }}
+        className="flex items-start gap-4 outline-none"
       >
-        <ChordChart
-          song={song}
-          onSelectChord={setSelection}
-          selection={selection}
-          editable={editable}
-          barSelection={editing.selection}
-          onPickBar={editing.pickBar}
-        />
+        <div className="min-w-0 flex-1">
+          <ChordChart
+            song={song}
+            onSelectChord={setSelection}
+            selection={selection}
+            editable={editable}
+            barSelection={editing.selection}
+            onPickBar={editing.pickBar}
+            slashSelection={rhythm.slash}
+            onPickSlash={(ref, index) => rhythm.pick(ref, index)}
+          />
+        </div>
+        {/* The Studio Score's palettes (owner, 2026-11-12): Rhythmic and
+            Rests for the slashes, the tie, the chord symbol, and the marks.
+            Beside the chart, under the tools, as the Score has them. */}
+        <aside
+          aria-label="Palettes"
+          className="sticky hidden w-56 shrink-0 flex-col overflow-hidden rounded-lg border border-white/10 bg-[#141417] lg:flex"
+          style={{
+            top: `calc(var(--full-editor-bar-h, 0px) + ${toolsHeight + 12}px)`,
+            height: `calc(100vh - var(--full-editor-bar-h, 0px) - ${toolsHeight + 28}px)`,
+          }}
+        >
+          <ScorePalettes
+            hasSelection={markTargets.length > 0}
+            onApply={onPaletteMark}
+            notes={rhythm.tools}
+            noteOptions={CHART_NOTE_OPTIONS}
+            actions={CHART_PALETTE_ACTIONS}
+            hint={
+              rhythm.slash
+                ? '2–7 lengths · . dot · T tie · X stem · / standard slash · K chord · 0 rest · ←→'
+                : 'Pick a slash on the staff for its rhythm, or a bar’s rail for marks, then click a cell.'
+            }
+          />
+        </aside>
       </div>
 
       {selectedChord && selection && (
@@ -454,17 +651,15 @@ const ChartEditor = ({
             )
           }
           onRemove={() => {
-            setSections(
-              removeChord(
-                sections,
-                selection.sectionIdx,
-                selection.barIdx,
-                selection.chordIdx,
-              ),
-            );
-            setSelection(null);
+            removeSelectedChord('Remove chord');
           }}
-          onClose={() => setSelection(null)}
+          // A chord added and never named is a click that changed its mind:
+          // closing leaves no empty chord behind (owner, 2026-11-15).
+          onClose={() => {
+            if (!selectedChord.chordName.trim())
+              removeSelectedChord('Remove empty chord');
+            else setSelection(null);
+          }}
         />
       )}
     </div>

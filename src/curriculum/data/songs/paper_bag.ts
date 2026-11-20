@@ -438,4 +438,5 @@ export const paper_bag: Song = {
 
   artistImageRef: '/artists/svg/fiona-apple.webp',
   popularity: 50,
+  comingSoon: true,
 };

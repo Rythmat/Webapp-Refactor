@@ -379,4 +379,5 @@ export const sunday_morning: Song = {
 
   artistImageRef: '/artists/svg/maroon-5.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -486,4 +486,5 @@ export const i_believe_in_a_thing_called_love: Song = {
 
   artistImageRef: '/artists/svg/the-darkness.webp',
   popularity: 50,
+  comingSoon: true,
 };

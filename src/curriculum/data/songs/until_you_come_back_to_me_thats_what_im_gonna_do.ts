@@ -299,4 +299,5 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
 
   artistImageRef: '/artists/svg/aretha-franklin.webp',
   popularity: 50,
+  comingSoon: true,
 };

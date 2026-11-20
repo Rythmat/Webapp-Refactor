@@ -103,4 +103,5 @@ export const once_in_a_lifetime: Song = {
 
   artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
+  comingSoon: true,
 };

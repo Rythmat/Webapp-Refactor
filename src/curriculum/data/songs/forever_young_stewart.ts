@@ -252,4 +252,5 @@ export const forever_young_stewart: Song = {
 
   artistImageRef: '/artists/svg/rod-stewart.webp',
   popularity: 50,
+  comingSoon: true,
 };

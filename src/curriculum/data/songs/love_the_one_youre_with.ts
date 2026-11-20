@@ -344,4 +344,5 @@ export const love_the_one_youre_with: Song = {
 
   artistImageRef: '/artists/svg/stephen-stills.webp',
   popularity: 50,
+  comingSoon: true,
 };

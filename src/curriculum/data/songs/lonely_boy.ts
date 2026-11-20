@@ -232,4 +232,5 @@ export const lonely_boy: Song = {
 
   artistImageRef: '/artists/svg/the-black-keys.webp',
   popularity: 50,
+  comingSoon: true,
 };

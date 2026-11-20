@@ -224,4 +224,5 @@ export const ring_of_fire: Song = {
 
   artistImageRef: '/artists/svg/johnny-cash.webp',
   popularity: 50,
+  comingSoon: true,
 };

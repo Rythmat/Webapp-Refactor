@@ -178,4 +178,5 @@ export const ramble_on: Song = {
 
   artistImageRef: '/artists/svg/led-zeppelin.webp',
   popularity: 50,
+  comingSoon: true,
 };

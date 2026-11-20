@@ -141,4 +141,5 @@ export const dance_with_my_daughter: Song = {
 
   artistImageRef: '/artists/svg/jason-blaine.webp',
   popularity: 50,
+  comingSoon: true,
 };

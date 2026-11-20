@@ -119,6 +119,8 @@ export const SONG_KEY_ORDER = [
   'artistImageSource',
   'artistImageRef',
   'popularity',
+  // The chart's light, last, as the `Song` interface declares it.
+  'comingSoon',
 ] as const;
 
 /**

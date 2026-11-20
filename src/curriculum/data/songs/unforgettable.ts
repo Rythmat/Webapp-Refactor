@@ -407,4 +407,5 @@ export const unforgettable: Song = {
 
   artistImageRef: '/artists/svg/nat-king-cole.webp',
   popularity: 50,
+  comingSoon: true,
 };

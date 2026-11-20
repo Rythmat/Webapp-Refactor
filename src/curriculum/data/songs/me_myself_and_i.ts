@@ -100,4 +100,5 @@ export const me_myself_and_i: Song = {
 
   artistImageRef: '/artists/svg/beyonce.webp',
   popularity: 50,
+  comingSoon: true,
 };

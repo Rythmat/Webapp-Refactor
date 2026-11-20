@@ -187,4 +187,5 @@ export const feel_it_still: Song = {
 
   artistImageRef: '/artists/svg/portugal-the-man.webp',
   popularity: 50,
+  comingSoon: true,
 };

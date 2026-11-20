@@ -207,4 +207,5 @@ export const in_spite_of_all_the_danger: Song = {
 
   artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
+  comingSoon: true,
 };

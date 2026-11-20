@@ -71,4 +71,5 @@ export const id_rather_go_blind: Song = {
 
   artistImageRef: '/artists/svg/etta-james.webp',
   popularity: 50,
+  comingSoon: true,
 };

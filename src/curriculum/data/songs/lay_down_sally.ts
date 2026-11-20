@@ -305,4 +305,5 @@ export const lay_down_sally: Song = {
 
   artistImageRef: '/artists/svg/eric-clapton.webp',
   popularity: 50,
+  comingSoon: true,
 };

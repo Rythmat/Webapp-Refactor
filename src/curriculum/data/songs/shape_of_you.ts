@@ -110,4 +110,5 @@ export const shape_of_you: Song = {
 
   artistImageRef: '/artists/svg/ed-sheeran.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -1,5 +1,6 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import {
+  Fragment,
   Suspense,
   lazy,
   useEffect,
@@ -12,6 +13,7 @@ import {
 import {
   ChevronDown,
   ChevronUp,
+  CopyPlus,
   Minus,
   Plus,
   Repeat,
@@ -55,6 +57,9 @@ import type {
   ChartSelection,
   ClickMods,
 } from '@/lib/chartEditor/selection';
+import { endingLabelOf } from '@/lib/chartEditor/roadmapOps';
+import { beatAt, eventStarts, rhythmOf } from '@/lib/chartEditor/rhythm';
+import { beatName, eventSpans, RhythmSlashes } from './RhythmSlashes';
 import {
   chordAriaLabel,
   chordSymbol,
@@ -93,6 +98,10 @@ export interface ChordChartEditable {
   onRemoveSection: (sectionIdx: number) => void;
   onMoveSection: (sectionIdx: number, dir: -1 | 1) => void;
   onAddSection: () => void;
+  /** A copy of the section, right after it. */
+  onDuplicateSection?: (sectionIdx: number) => void;
+  /** A new, empty section right after this one. */
+  onInsertSectionAfter?: (sectionIdx: number) => void;
   sectionCount: number;
 }
 
@@ -117,6 +126,10 @@ interface ChordChartProps {
   barSelection?: ChartSelection;
   /** A click on a bar's staff, with the modifiers that were held. */
   onPickBar?: (ref: BarRef, mods: ClickMods) => void;
+  /** The editor's picked slash (owner, 2026-11-12): its bar and index. */
+  slashSelection?: (BarRef & { index: number }) | null;
+  /** A click on a slash; the editor's Rhythmic palette then edits it. */
+  onPickSlash?: (ref: BarRef, index: number, mods: { shift: boolean }) => void;
   /**
    * Break the chart into pages of this many systems, for a music stand and
    * for print. The chart marks where each page begins — `data-page-start` for
@@ -141,6 +154,33 @@ export const MEASURES_PER_ROW = 4;
 const METER_WIDTH = 22;
 /** Room a start-repeat sign takes when it follows a time signature. */
 const REPEAT_SIGN_WIDTH = 14;
+/** A chord symbol's size, and how far it stands clear of its beat's start
+ *  (the barline, on beat 1) (owner, 2026-11-15: bigger, and off the line). */
+const CHORD_FONT_SIZE = 18;
+const CHORD_CLEARANCE = 10;
+
+/**
+ * A chord symbol's text, its slash thin: B/F♯ reads as a bold B and F♯
+ * with a plain slash between, as a chart writes it, not a bold stroke.
+ */
+const ChordLabelText: FC<{ label: string }> = ({ label }) => {
+  const parts = label.split('/');
+  if (parts.length === 1) return <>{label}</>;
+  return (
+    <>
+      {parts.map((part, i) => (
+        <Fragment key={i}>
+          {i > 0 && (
+            <tspan data-chord-slash="" fontWeight="normal" dx={1}>
+              /
+            </tspan>
+          )}
+          {i > 0 ? <tspan dx={1}>{part}</tspan> : part}
+        </Fragment>
+      ))}
+    </>
+  );
+};
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
@@ -173,6 +213,18 @@ export const StaffMeasure: FC<{
   signsInHeader?: boolean;
   hasRepeatStart?: boolean;
   hasRepeatEnd?: boolean;
+  /**
+   * How this bar's right barline closes when it ends more than a bar: a
+   * double barline before a new section, a final barline at the end of the
+   * song (owner, 2026-11-12). An end-repeat keeps its own.
+   */
+  closing?: 'double' | 'final';
+  /** The bar's metre, whole: the rhythm counts in its beat. */
+  meter?: Meter;
+  /** The bar before ties into this one from the line above. */
+  tiedIn?: boolean;
+  /** This bar ends its line: a tie out of it stops at the barline. */
+  tieOutHalf?: boolean;
   onChordClick?: (hit: ChordHit) => void;
   sectionIdx: number;
   onSelectChord?: (loc: ChordChartLoc) => void;
@@ -182,6 +234,13 @@ export const StaffMeasure: FC<{
   barSelected?: boolean;
   /** Clicking the staff picks the bar; clicking above it picks a chord. */
   onPickBar?: (mods: { shift: boolean; toggle: boolean }) => void;
+  /** The editor's selected slash in this bar, by its index in the rhythm. */
+  slashSelected?: number | null;
+  /**
+   * A click on a slash picks it, for the Rhythmic palette; the chord lane
+   * above it then adds a chord on it (editor only).
+   */
+  onPickSlash?: (index: number, mods: { shift: boolean }) => void;
 }> = ({
   bar,
   barIndex,
@@ -196,6 +255,10 @@ export const StaffMeasure: FC<{
   signsInHeader,
   hasRepeatStart,
   hasRepeatEnd,
+  closing,
+  meter: barMeter,
+  tiedIn,
+  tieOutHalf,
   onChordClick,
   sectionIdx,
   onSelectChord,
@@ -203,6 +266,8 @@ export const StaffMeasure: FC<{
   editable,
   barSelected,
   onPickBar,
+  slashSelected,
+  onPickSlash,
 }) => {
   const staffTop = CHORD_AREA_HEIGHT;
   // A metre is engraved on the staff, stacked like a fraction, and the bars
@@ -235,6 +300,24 @@ export const StaffMeasure: FC<{
 
   const occupied = new Set(bar.chords.map((h) => Math.floor(h.beat)));
 
+  // The bar's rhythm: its own slashes, or one a beat. In the editor each
+  // slash can be picked, and the chord lane over it takes a chord on it.
+  const rhythmMeter: Meter = barMeter ?? [beatsPerBar, 4];
+  const hasRhythm = !!bar.rhythm?.length;
+  const events = rhythmOf(bar, rhythmMeter);
+  const rhythmLayout = {
+    x0: inset,
+    span: width - inset,
+    staffTop,
+    lineSpacing: LINE_SPACING,
+  };
+  const spans = onPickSlash
+    ? eventSpans(events, rhythmMeter, rhythmLayout)
+    : [];
+  const starts = onPickSlash ? eventStarts(events) : [];
+  const chordOnBeat = (beat: number) =>
+    bar.chords.some((h) => Math.abs(h.beat - beat) < 1e-6);
+
   return (
     <g transform={`translate(${x}, 0)`}>
       {/* The editor's bar selection, washed behind the staff rather than
@@ -260,7 +343,32 @@ export const StaffMeasure: FC<{
           They cover the STAFF as well as the chord space above it, because
           the staff is where a beat visibly is — the slashes mark them — and
           a target only in the empty space above reads as no target at all. */}
+      {/* With slashes to pick, the staff is for picking them, and the chord
+          lane above each slash adds a chord on it: on 4+ as well as on 4. */}
       {editable &&
+        onPickSlash &&
+        !isMultiBarRest &&
+        spans.map((s, i) => {
+          const beat = beatAt(starts[i], rhythmMeter);
+          return chordOnBeat(beat) ? null : (
+            <rect
+              key={`add-${i}`}
+              x={s.x}
+              y={16}
+              width={s.w}
+              height={staffTop - 18}
+              fill="transparent"
+              style={{ cursor: 'pointer' }}
+              onClick={() =>
+                editable.onAddChordAtBeat(sectionIdx, barIndex, beat)
+              }
+            >
+              <title>Add chord on {beatName(beat)}</title>
+            </rect>
+          );
+        })}
+      {editable &&
+        !onPickSlash &&
         !isMultiBarRest &&
         Array.from({ length: beatsPerBar }, (_, c) =>
           occupied.has(c + 1) ? null : (
@@ -285,7 +393,8 @@ export const StaffMeasure: FC<{
       {!isMultiBarRest &&
         bar.chords.map((hit, i) => {
           const beatPos = hit.beat - 1;
-          const cx = inset + (beatPos / beatsPerBar) * (width - inset) + 4;
+          const cx =
+            inset + (beatPos / beatsPerBar) * (width - inset) + CHORD_CLEARANCE;
           const symbol = notation
             ? chordSymbol(hit, notation, chordContext ?? {})
             : null;
@@ -336,7 +445,7 @@ export const StaffMeasure: FC<{
               x={cx}
               y={staffTop - 4}
               fill={isSelected ? '#7ecfcf' : 'currentColor'}
-              fontSize={14}
+              fontSize={CHORD_FONT_SIZE}
               fontWeight="bold"
               fontFamily="serif"
               opacity={isSelected ? 1 : 0.85}
@@ -346,7 +455,7 @@ export const StaffMeasure: FC<{
               style={{ cursor: editable ? 'grab' : 'pointer' }}
               {...pointerProps}
             >
-              {label}
+              <ChordLabelText label={label} />
             </text>
           );
         })}
@@ -461,6 +570,16 @@ export const StaffMeasure: FC<{
             opacity={0.7}
           />
         </g>
+      ) : hasRhythm ? (
+        /* The bar's own rhythm: hits, pushes, rests and ties. */
+        <RhythmSlashes
+          events={events}
+          meter={rhythmMeter}
+          layout={rhythmLayout}
+          width={width}
+          tiedIn={tiedIn}
+          tieOutHalf={tieOutHalf}
+        />
       ) : (
         /* Beat slashes (4 per measure) — only for normal bars */
         Array.from({ length: beatsPerBar }, (_, beat) => {
@@ -480,6 +599,43 @@ export const StaffMeasure: FC<{
           );
         })
       )}
+
+      {/* Picking a slash (editor): each one's time on the staff. A click
+          picks it for the Rhythmic palette; a double-click puts a chord on
+          it. A bar with no rhythm of its own picks its beats. */}
+      {onPickSlash &&
+        !isMultiBarRest &&
+        spans.map((s, i) => {
+          const beat = beatAt(starts[i], rhythmMeter);
+          const picked = slashSelected === i;
+          return (
+            <rect
+              key={`slash-pick-${i}`}
+              data-slash={i}
+              data-slash-picked={picked ? '' : undefined}
+              x={s.x}
+              y={staffTop - 4}
+              width={s.w}
+              height={STAFF_HEIGHT + 4}
+              fill="#7ecfcf"
+              fillOpacity={picked ? 0.22 : 0}
+              style={{ cursor: 'pointer' }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                onPickSlash(i, { shift: e.shiftKey });
+              }}
+              onDoubleClick={() => {
+                if (!chordOnBeat(beat))
+                  editable?.onAddChordAtBeat(sectionIdx, barIndex, beat);
+              }}
+            >
+              <title>
+                {events[i].rest ? 'Rest' : 'Slash'} on {beatName(beat)}: click
+                to pick it, double-click for a chord
+              </title>
+            </rect>
+          );
+        })}
 
       {/* Picking the bar, on its own rail under the staff. It used to be the
           staff itself, which took the beats with it: a click where a slash is
@@ -572,16 +728,52 @@ export const StaffMeasure: FC<{
         </g>
       )}
 
-      {/* Right bar line */}
-      <line
-        x1={width}
-        y1={staffTop}
-        x2={width}
-        y2={staffTop + STAFF_HEIGHT}
-        stroke="currentColor"
-        strokeWidth={1}
-        opacity={0.5}
-      />
+      {/* Right bar line: a double barline before a new section, a final
+          barline (thin, then thick) at the song's end. An end-repeat draws
+          its own thick line below, so it keeps the plain one here. */}
+      {(hasRepeatEnd || closing !== 'final') && (
+        <line
+          x1={width}
+          y1={staffTop}
+          x2={width}
+          y2={staffTop + STAFF_HEIGHT}
+          stroke="currentColor"
+          strokeWidth={1}
+          opacity={0.5}
+        />
+      )}
+      {!hasRepeatEnd && closing === 'double' && (
+        <line
+          data-barline="double"
+          x1={width - 4}
+          y1={staffTop}
+          x2={width - 4}
+          y2={staffTop + STAFF_HEIGHT}
+          stroke="currentColor"
+          strokeWidth={1}
+          opacity={0.5}
+        />
+      )}
+      {!hasRepeatEnd && closing === 'final' && (
+        <g data-barline="final" stroke="currentColor">
+          <line
+            x1={width - 6}
+            y1={staffTop}
+            x2={width - 6}
+            y2={staffTop + STAFF_HEIGHT}
+            strokeWidth={1}
+            opacity={0.6}
+          />
+          <line
+            x1={width - 1.75}
+            y1={staffTop}
+            x2={width - 1.75}
+            y2={staffTop + STAFF_HEIGHT}
+            strokeWidth={3.5}
+            opacity={0.85}
+          />
+        </g>
+      )}
 
       {/* Repeat end sign */}
       {hasRepeatEnd && (
@@ -678,6 +870,10 @@ const ROADMAP_BAND = 16;
 
 /** Only the volta brackets need room above the row; the rest sit by the staff. */
 const hasRoadmapMarks = (bar: ChordBar): boolean => !!bar.ending;
+
+/** Neighbouring bars share a bracket when it says the same thing. */
+const sameBracket = (a?: ChordBar, b?: ChordBar): boolean =>
+  sameEnding(a?.ending, b?.ending) && a?.endingLabel === b?.endingLabel;
 
 const sameEnding = (a?: number[], b?: number[]): boolean =>
   !!a && !!b && a.join() === b.join();
@@ -851,8 +1047,8 @@ const RoadmapBand: FC<{
       const w = barWidth;
       const before = bi === 0 ? prevBar : row[bi - 1];
       const after = row[bi + 1];
-      const opensEnding = !sameEnding(bar.ending, before?.ending);
-      const closesEnding = !sameEnding(bar.ending, after?.ending);
+      const opensEnding = !sameBracket(bar, before);
+      const closesEnding = !sameBracket(bar, after);
       return (
         <g key={bi}>
           <g stroke="currentColor" strokeWidth={1.2} fill="none">
@@ -884,7 +1080,7 @@ const RoadmapBand: FC<{
               fontWeight="bold"
               stroke="none"
             >
-              {bar.ending.join(', ')}.
+              {endingLabelOf(bar)}
             </text>
           )}
         </g>
@@ -921,9 +1117,25 @@ const SectionStaff: FC<{
   /** How many systems the sections above this one used. */
   systemOffset: number;
   systemsPerPage?: number;
+  /** How the section's last bar closes: a double barline before the next
+   *  section, a final barline at the song's end. */
+  closing: 'double' | 'final';
+  /** The bar before this section's first, for a tie across into it. */
+  prevBar?: ChordBar;
+  /** The editor's picked slash in this section: its bar and index. */
+  slashSelection?: { barIdx: number; index: number } | null;
+  onPickSlash?: (
+    barIdx: number,
+    index: number,
+    mods: { shift: boolean },
+  ) => void;
 }> = ({
   section,
   sectionIdx,
+  closing,
+  prevBar,
+  slashSelection,
+  onPickSlash,
   barMeters,
   openingMeter,
   displayMode,
@@ -1064,6 +1276,28 @@ const SectionStaff: FC<{
           >
             <ChevronDown size={14} />
           </button>
+          {editable.onDuplicateSection && (
+            <button
+              type="button"
+              aria-label="Duplicate section"
+              title="Duplicate: a copy of this section right after it, chords, rhythms and marks"
+              className="rounded px-1 text-white/40 hover:bg-white/10 hover:text-white/80"
+              onClick={() => editable.onDuplicateSection?.(sectionIdx)}
+            >
+              <CopyPlus size={14} />
+            </button>
+          )}
+          {editable.onInsertSectionAfter && (
+            <button
+              type="button"
+              aria-label="New section after this one"
+              title="New section: an empty one right after this"
+              className="inline-flex items-center gap-0.5 rounded px-1 text-xs text-white/40 hover:bg-white/10 hover:text-white/80"
+              onClick={() => editable.onInsertSectionAfter?.(sectionIdx)}
+            >
+              <Plus size={12} /> Section
+            </button>
+          )}
           <button
             type="button"
             aria-label="Delete section"
@@ -1190,6 +1424,30 @@ const SectionStaff: FC<{
                       signsInHeader={globalBi === 0 && signsInHeader}
                       hasRepeatStart={!!bar.repeatStart}
                       hasRepeatEnd={!!bar.repeatEnd}
+                      closing={
+                        globalBi === bars.length - 1 ? closing : undefined
+                      }
+                      meter={barMeters[globalBi]}
+                      // A tie into this bar from a bar not beside it on the
+                      // line (the line above, or the section before) is
+                      // drawn here.
+                      tiedIn={
+                        bi === 0 &&
+                        !!(
+                          globalBi === 0 ? prevBar : bars[globalBi - 1]
+                        )?.rhythm?.at(-1)?.tie
+                      }
+                      tieOutHalf={bi === row.length - 1}
+                      slashSelected={
+                        slashSelection?.barIdx === globalBi
+                          ? slashSelection.index
+                          : null
+                      }
+                      onPickSlash={
+                        onPickSlash
+                          ? (index, mods) => onPickSlash(globalBi, index, mods)
+                          : undefined
+                      }
                       onChordClick={onChordClick}
                       sectionIdx={sectionIdx}
                       onSelectChord={onSelectChord}
@@ -1217,6 +1475,8 @@ export const ChordChart: FC<ChordChartProps> = ({
   editable,
   barSelection,
   onPickBar,
+  slashSelection,
+  onPickSlash,
   systemsPerPage,
   leading,
 }) => {
@@ -1338,6 +1598,19 @@ export const ChordChart: FC<ChordChartProps> = ({
             onSelectChord={onSelectChord}
             selection={selection}
             editable={editable}
+            closing={si === song.sections.length - 1 ? 'final' : 'double'}
+            prevBar={song.sections[si - 1]?.bars.at(-1)}
+            slashSelection={
+              slashSelection?.section === si
+                ? { barIdx: slashSelection.bar, index: slashSelection.index }
+                : null
+            }
+            onPickSlash={
+              onPickSlash
+                ? (barIdx, index, mods) =>
+                    onPickSlash({ section: si, bar: barIdx }, index, mods)
+                : undefined
+            }
           />
         ))}
 

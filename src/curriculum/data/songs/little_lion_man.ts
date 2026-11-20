@@ -272,4 +272,5 @@ export const little_lion_man: Song = {
 
   artistImageRef: '/artists/svg/mumford-and-sons.webp',
   popularity: 50,
+  comingSoon: true,
 };

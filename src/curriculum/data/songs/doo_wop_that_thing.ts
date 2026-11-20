@@ -406,4 +406,5 @@ export const doo_wop_that_thing: Song = {
 
   artistImageRef: '/artists/svg/lauryn-hill.webp',
   popularity: 50,
+  comingSoon: true,
 };

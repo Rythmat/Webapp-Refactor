@@ -65,4 +65,5 @@ export const pony: Song = {
 
   artistImageRef: '/artists/svg/ginuwine.webp',
   popularity: 50,
+  comingSoon: true,
 };

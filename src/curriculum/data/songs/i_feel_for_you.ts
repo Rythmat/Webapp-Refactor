@@ -391,4 +391,5 @@ export const i_feel_for_you: Song = {
 
   artistImageRef: '/artists/svg/prince.webp',
   popularity: 50,
+  comingSoon: true,
 };

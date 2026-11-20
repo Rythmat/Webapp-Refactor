@@ -320,4 +320,5 @@ export const you_make_my_dreams: Song = {
 
   artistImageRef: '/artists/svg/hall-and-oates.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -330,4 +330,5 @@ export const cant_take_my_eyes_off_you_valli: Song = {
 
   artistImageRef: '/artists/svg/lauryn-hill.webp',
   popularity: 50,
+  comingSoon: true,
 };

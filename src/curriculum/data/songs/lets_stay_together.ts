@@ -322,4 +322,5 @@ export const lets_stay_together: Song = {
 
   artistImageRef: '/artists/svg/al-green.webp',
   popularity: 50,
+  comingSoon: true,
 };

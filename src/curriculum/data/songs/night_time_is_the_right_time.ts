@@ -119,4 +119,5 @@ export const night_time_is_the_right_time: Song = {
 
   artistImageRef: '/artists/svg/ray-charles.webp',
   popularity: 50,
+  comingSoon: true,
 };

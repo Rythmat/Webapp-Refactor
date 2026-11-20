@@ -122,4 +122,5 @@ export const just_one_kiss: Song = {
 
   artistImageRef: '/artists/svg/raphael-saadiq.webp',
   popularity: 50,
+  comingSoon: true,
 };

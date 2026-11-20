@@ -141,4 +141,5 @@ export const steal_my_kisses: Song = {
 
   artistImageRef: '/artists/svg/ben-harper.webp',
   popularity: 50,
+  comingSoon: true,
 };

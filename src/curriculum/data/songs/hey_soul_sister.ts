@@ -382,4 +382,5 @@ export const hey_soul_sister: Song = {
 
   artistImageRef: '/artists/svg/train.webp',
   popularity: 50,
+  comingSoon: true,
 };

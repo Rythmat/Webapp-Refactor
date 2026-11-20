@@ -392,4 +392,5 @@ export const subterranean_homesick_alien: Song = {
 
   artistImageRef: '/artists/svg/radiohead.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -515,4 +515,5 @@ export const jessies_girl: Song = {
 
   artistImageRef: '/artists/svg/rick-springfield.webp',
   popularity: 50,
+  comingSoon: true,
 };

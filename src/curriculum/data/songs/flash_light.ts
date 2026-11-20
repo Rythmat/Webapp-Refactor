@@ -521,4 +521,5 @@ export const flash_light: Song = {
 
   artistImageRef: '/artists/svg/parliament.webp',
   popularity: 50,
+  comingSoon: true,
 };

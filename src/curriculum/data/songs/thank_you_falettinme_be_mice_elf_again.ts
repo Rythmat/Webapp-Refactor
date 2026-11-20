@@ -51,4 +51,5 @@ export const thank_you_falettinme_be_mice_elf_again: Song = {
 
   artistImageRef: '/artists/svg/sly-and-the-family-stone.webp',
   popularity: 50,
+  comingSoon: true,
 };

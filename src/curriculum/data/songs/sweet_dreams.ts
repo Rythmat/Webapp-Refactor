@@ -220,4 +220,5 @@ export const sweet_dreams: Song = {
 
   artistImageRef: '/artists/svg/eurythmics.webp',
   popularity: 50,
+  comingSoon: true,
 };

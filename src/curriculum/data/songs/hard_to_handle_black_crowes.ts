@@ -245,4 +245,5 @@ export const hard_to_handle_black_crowes: Song = {
 
   artistImageRef: '/artists/svg/the-black-crowes.webp',
   popularity: 50,
+  comingSoon: true,
 };

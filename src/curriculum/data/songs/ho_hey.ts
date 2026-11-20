@@ -254,4 +254,5 @@ export const ho_hey: Song = {
 
   artistImageRef: '/artists/svg/the-lumineers.webp',
   popularity: 50,
+  comingSoon: true,
 };

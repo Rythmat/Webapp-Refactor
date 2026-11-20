@@ -173,4 +173,5 @@ export const how_sweet_it_is_to_be_loved_by_you: Song = {
 
   artistImageRef: '/artists/svg/james-taylor.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -111,7 +111,9 @@ export function toAppLocation(outer: LocationLike): LocationLike {
  */
 export function segmentForKind(kind: string): string | null {
   switch (kind) {
+    // Songs is its own module in the app (AppRail), no longer Learn's.
     case 'song':
+      return '/songs';
     case 'activity_flow':
     case 'fundamentals_flow':
     case 'chord_progression':

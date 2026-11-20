@@ -483,4 +483,5 @@ export const september: Song = {
 
   artistImageRef: '/artists/svg/earth-wind-and-fire.webp',
   popularity: 50,
+  comingSoon: true,
 };

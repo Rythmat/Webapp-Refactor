@@ -321,4 +321,5 @@ export const i_think_were_alone_now: Song = {
 
   artistImageRef: '/artists/svg/tiffany.webp',
   popularity: 50,
+  comingSoon: true,
 };

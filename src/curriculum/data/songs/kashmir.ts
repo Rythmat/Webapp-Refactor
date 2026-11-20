@@ -126,4 +126,5 @@ export const kashmir: Song = {
 
   artistImageRef: '/artists/svg/led-zeppelin.webp',
   popularity: 50,
+  comingSoon: true,
 };

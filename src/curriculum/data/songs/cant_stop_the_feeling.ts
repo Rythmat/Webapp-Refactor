@@ -353,4 +353,5 @@ export const cant_stop_the_feeling: Song = {
 
   artistImageRef: '/artists/svg/justin-timberlake.webp',
   popularity: 50,
+  comingSoon: true,
 };

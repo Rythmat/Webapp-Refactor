@@ -269,4 +269,5 @@ export const wish_you_were_here: Song = {
 
   artistImageRef: '/artists/svg/pink-floyd.webp',
   popularity: 50,
+  comingSoon: true,
 };

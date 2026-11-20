@@ -188,4 +188,5 @@ export const you_gotta_be: Song = {
 
   artistImageRef: '/artists/svg/des-ree.webp',
   popularity: 50,
+  comingSoon: true,
 };

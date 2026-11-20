@@ -74,6 +74,40 @@ export const addSection = (sections: SongSection[]): SongSection[] => [
   },
 ];
 
+/** A new, empty four-bar section at `atIdx` (before the section there). */
+export const insertSection = (
+  sections: SongSection[],
+  atIdx: number,
+): SongSection[] => {
+  const next = [...sections];
+  next.splice(Math.max(0, Math.min(atIdx, sections.length)), 0, {
+    id: uniqueSectionId(sections),
+    label: '',
+    bars: Array.from({ length: 4 }, () => ({ ...EMPTY_BAR })),
+  });
+  return next;
+};
+
+/**
+ * A copy of a section, right after it: its label, its bars, their chords
+ * and every mark on them, under a fresh id. A deep copy, so editing either
+ * leaves the other alone.
+ */
+export const duplicateSection = (
+  sections: SongSection[],
+  sectionIdx: number,
+): SongSection[] => {
+  const source = sections[sectionIdx];
+  if (!source) return sections;
+  const copy: SongSection = {
+    ...structuredClone(source),
+    id: uniqueSectionId(sections, source.id.replace(/_\d+$/, '') || 'section'),
+  };
+  const next = [...sections];
+  next.splice(sectionIdx + 1, 0, copy);
+  return next;
+};
+
 export const removeSection = (
   sections: SongSection[],
   sectionIdx: number,
@@ -169,6 +203,71 @@ export const addChordAt = (
   updateBarChords(sections, sectionIdx, barIdx, (chords) =>
     [...chords, { ...DEFAULT_CHORD, beat }].sort((a, b) => a.beat - b.beat),
   );
+
+/**
+ * A chord on a beat, as a chart writes one over a slash (4+ included): it
+ * lasts until the next chord in the bar or the barline, and a chord before
+ * it now stops where it starts, so the two never sound at once. A beat that
+ * has a chord already is left alone.
+ */
+export const addChordOnBeat = (
+  sections: SongSection[],
+  sectionIdx: number,
+  barIdx: number,
+  beat: number,
+  beatsInBar: number,
+): SongSection[] => {
+  const bar = sections[sectionIdx]?.bars[barIdx];
+  // Nothing to add: the same chart, so no undo step is spent on it.
+  if (!bar || bar.chords.some((c) => Math.abs(c.beat - beat) < 1e-6))
+    return sections;
+  return updateBarChords(sections, sectionIdx, barIdx, (chords) => {
+    const following = chords
+      .map((c) => c.beat)
+      .filter((b) => b > beat)
+      .sort((a, b) => a - b)[0];
+    const added: ChordHit = {
+      ...DEFAULT_CHORD,
+      beat,
+      duration: (following ?? beatsInBar + 1) - beat,
+    };
+    return [
+      ...chords.map((c) =>
+        c.beat < beat && c.beat + c.duration > beat
+          ? { ...c, duration: beat - c.beat }
+          : c,
+      ),
+      added,
+    ].sort((a, b) => a.beat - b.beat);
+  });
+};
+
+/**
+ * Take a chord away and let the one before it ring on: a chord that
+ * stopped where this one began (`addChordOnBeat` stops it there) now lasts
+ * to the next chord, or the barline, so no beat is left silent.
+ */
+export const removeChordHealing = (
+  sections: SongSection[],
+  sectionIdx: number,
+  barIdx: number,
+  chordIdx: number,
+  beatsInBar: number,
+): SongSection[] =>
+  updateBarChords(sections, sectionIdx, barIdx, (chords) => {
+    const gone = chords[chordIdx];
+    if (!gone) return chords;
+    const rest = chords.filter((_, i) => i !== chordIdx);
+    const next = rest
+      .map((c) => c.beat)
+      .filter((b) => b > gone.beat)
+      .sort((a, b) => a - b)[0];
+    return rest.map((c) =>
+      c.beat < gone.beat && Math.abs(c.beat + c.duration - gone.beat) < 1e-6
+        ? { ...c, duration: (next ?? beatsInBar + 1) - c.beat }
+        : c,
+    );
+  });
 
 export const removeChord = (
   sections: SongSection[],

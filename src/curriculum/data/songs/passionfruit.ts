@@ -79,4 +79,5 @@ export const passionfruit: Song = {
 
   artistImageRef: '/artists/svg/scary-pockets.webp',
   popularity: 50,
+  comingSoon: true,
 };

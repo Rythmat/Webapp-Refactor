@@ -341,4 +341,5 @@ export const pretty_woman: Song = {
 
   artistImageRef: '/artists/svg/roy-orbison.webp',
   popularity: 50,
+  comingSoon: true,
 };

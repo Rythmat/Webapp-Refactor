@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AdminRoutes, CurriculumRoutes } from '@/constants/routes';
+import { AdminRoutes, CurriculumRoutes, SongRoutes } from '@/constants/routes';
 import { artistSlug } from '@/content/graph/slugs';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
@@ -102,9 +102,18 @@ const isStartHere = (appPath: string) => START_HERE_PAGE.test(appPath);
  * What the page showing can be edited as, where it has no in-place editor
  * yet. A song page has one (Preview | Edit); a course, a Music Literacy
  * lesson (and Start Here, its path) and a globe event open their editors; a
- * song's globe event opens the song's page in Edit.
+ * song's globe event opens the song's page in Edit. The song library, the
+ * Songs module's page, starts a new song in the song page editor.
  */
 function contextActions(appPath: string, search: URLSearchParams): Action[] {
+  if (appPath === SongRoutes.root()) {
+    return [
+      {
+        label: 'New song',
+        to: AdminRoutes.contentItem({ kind: 'song', id: 'new' }),
+      },
+    ];
+  }
   // The Studio's Production lessons, and one running as a preview.
   if (appPath === '/studio/production') {
     return [{ label: 'Edit lessons', to: AdminRoutes.studioLessons() }];

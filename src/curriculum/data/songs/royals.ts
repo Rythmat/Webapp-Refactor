@@ -73,4 +73,5 @@ export const royals: Song = {
 
   artistImageRef: '/artists/svg/lorde.webp',
   popularity: 50,
+  comingSoon: true,
 };

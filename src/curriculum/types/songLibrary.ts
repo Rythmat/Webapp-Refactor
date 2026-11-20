@@ -65,9 +65,38 @@ export interface ChordHit {
   voicingHint?: string;
 }
 
+/** A written note value: '1' a whole note, '4' a quarter, '8' an eighth. */
+export type NoteValue = '1' | '2' | '4' | '8' | '16' | '32';
+
+/**
+ * One rhythmic slash (or rest) of a bar's rhythm, as a chart writes hits,
+ * pushes and stops: its note value, dotted or not. (v3)
+ */
+export interface RhythmEvent {
+  value: NoteValue;
+  /** A standard slash, a beat's worth with no stem ("play time"), where
+   *  the bar's other beats are written in rhythm notation. */
+  plain?: boolean;
+  dot?: boolean;
+  /** A rest of this value, not a slash. */
+  rest?: boolean;
+  /** Tied to the slash after it, the next bar's first one at a bar's end. */
+  tie?: boolean;
+  /** Which way its stem goes, as written. Unset: up, as a chart writes
+   *  slashes. A beamed group goes the way its first slash does. */
+  stem?: 'up' | 'down';
+}
+
 export interface ChordBar {
   /** Typically 1–2 chords per bar, max 4 (one per beat). */
   chords: ChordHit[];
+  /**
+   * The bar's rhythm, written in slashes: what the band plays, hits and
+   * pushes and ties included. The values fill the bar. Unset: one plain
+   * slash a beat, as a chart writes "play time". A chord symbol stands over
+   * the slash its `beat` falls on. (v3)
+   */
+  rhythm?: RhythmEvent[];
   /** If true, draw a fermata (hold) symbol above this bar. */
   fermata?: boolean;
   /** If set, this bar represents a multi-bar rest. Renders as a thick
@@ -89,6 +118,10 @@ export interface ChordBar {
   /** Volta bracket over this bar: the passes that play it (`[1]`, `[2]`,
    *  `[1, 2]`). Neighbouring bars with the same passes share one bracket. */
   ending?: number[];
+  /** The bracket's words, when the chart writes them its own way: '1.–3.',
+   *  '4.'. Display only; `ending` says which passes play the bars. Unset:
+   *  the passes, '1, 2.'. (v3) */
+  endingLabel?: string;
   /** The segno a D.S. jumps back to. */
   segno?: boolean;
   /** The coda sign: where "To Coda" lands on the pass after an al Coda jump. */
@@ -99,8 +132,8 @@ export interface ChordBar {
   jump?: RoadmapJump;
   /** Fine: the song ends here on the pass after an al Fine jump. */
   fine?: boolean;
-  /** Performance cue above the bar: 'Riff', 'Drum Fill', 'Piano Solo',
-   *  'Break', 'Repeat and Fade'. Never lyrics. */
+  /** Staff text above the bar, a performance cue: 'Drum Fill', 'Piano
+   *  Only', 'Riff', 'Break', 'Repeat and Fade'. Never lyrics. */
   cue?: string;
   /** The key changes at this bar, e.g. 'A♭ major'. Degrees from here on
    *  count from the new tonic. The song's own `key` stays the home key. */
@@ -383,4 +416,13 @@ export interface Song {
   // ── Browse/sort ──
   /** 0-100, optional. Manually set per song. Higher = more prominent in browse. */
   popularity?: number;
+
+  // ── Access ──
+  /**
+   * The chart's red light in the back office: not ready for students yet.
+   * The app still lists the song, greyed out and marked Coming soon, but
+   * does not open it. Absent (or false) is the green light: ready and open.
+   * A new song starts red. (v3)
+   */
+  comingSoon?: boolean;
 }

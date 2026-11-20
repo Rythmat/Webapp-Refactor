@@ -326,4 +326,5 @@ export const ordinary_pain: Song = {
 
   artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
+  comingSoon: true,
 };

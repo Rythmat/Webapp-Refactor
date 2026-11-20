@@ -375,4 +375,5 @@ export const jesus_etc: Song = {
 
   artistImageRef: '/artists/svg/wilco.webp',
   popularity: 50,
+  comingSoon: true,
 };

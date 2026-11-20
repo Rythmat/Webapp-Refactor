@@ -113,21 +113,68 @@ export function setBarValue<K extends keyof BarValues>(
  * Bracket the selected bars as an ending.
  *
  * `[1]` is the first-time bars, `[2]` the second, `[1, 2]` a bracket over both
- * passes. Passing nothing takes the bracket off.
+ * passes. Passing nothing takes the bracket off. `label` is the bracket's own
+ * words ('1.–3.'), kept only when they differ from what the passes print.
  */
 export function setEnding(
   sections: readonly SongSection[],
   refs: readonly BarRef[],
   passes: readonly number[] | undefined,
+  label?: string,
 ): SongSection[] {
   if (refs.length === 0) return [...sections];
-  const wanted = passes?.filter((p) => Number.isInteger(p) && p > 0) ?? [];
+  const wanted = [
+    ...new Set(passes?.filter((p) => Number.isInteger(p) && p > 0) ?? []),
+  ].sort((a, b) => a - b);
+  const words = label?.trim();
   return editBars(sections, refs, (bar) => {
     const next: ChordBar = { ...bar };
+    delete next.endingLabel;
     if (wanted.length === 0) delete next.ending;
-    else next.ending = [...new Set(wanted)].sort((a, b) => a - b);
+    else {
+      next.ending = wanted;
+      if (words && words !== defaultEndingLabel(wanted))
+        next.endingLabel = words;
+    }
     return next;
   });
+}
+
+/** What an ending's bracket prints when the chart gives it no words. */
+export const defaultEndingLabel = (passes: readonly number[]): string =>
+  `${passes.join(', ')}.`;
+
+/** The words over an ending's bracket. */
+export const endingLabelOf = (bar: Pick<ChordBar, 'ending' | 'endingLabel'>) =>
+  bar.endingLabel ?? (bar.ending ? defaultEndingLabel(bar.ending) : '');
+
+/**
+ * An ending as it is typed: the bracket's words, and the passes they name.
+ * '2' and '2.' are the second time; '1, 2' or '1 & 2' both; '1-3', '1.–3.'
+ * and '1 to 3' the first three; '4.' the fourth. A bare number gets its
+ * full stop, as a bracket prints it. Words with no pass in them ('Last
+ * time') name nothing to play, so they are null.
+ */
+export function parseEnding(
+  text: string,
+): { passes: number[]; label: string } | null {
+  const words = text.trim();
+  if (!words) return null;
+  const passes = new Set<number>();
+  const range = /(\d+)\s*\.?\s*(?:-|–|—|to)\s*(\d+)/g;
+  let rest = words;
+  for (const [whole, from, to] of words.matchAll(range)) {
+    const [a, b] = [Number(from), Number(to)].sort((x, y) => x - y);
+    // A range of passes, not a typo for a thousand of them.
+    if (b - a > 20) return null;
+    for (let p = a; p <= b; p++) passes.add(p);
+    rest = rest.replace(whole, ' ');
+  }
+  for (const [n] of rest.matchAll(/\d+/g)) passes.add(Number(n));
+  const valid = [...passes].filter((p) => p > 0 && p <= 99);
+  if (valid.length === 0) return null;
+  const label = /^\d+$/.test(words) ? `${words}.` : words;
+  return { passes: valid.sort((a, b) => a - b), label };
 }
 
 /**

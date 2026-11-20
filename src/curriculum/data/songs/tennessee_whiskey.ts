@@ -41,4 +41,5 @@ export const tennessee_whiskey: Song = {
 
   artistImageRef: '/artists/svg/chris-stapleton.webp',
   popularity: 50,
+  comingSoon: true,
 };

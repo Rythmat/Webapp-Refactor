@@ -571,4 +571,5 @@ export const poses: Song = {
 
   artistImageRef: '/artists/svg/rufus-wainwright.webp',
   popularity: 50,
+  comingSoon: true,
 };

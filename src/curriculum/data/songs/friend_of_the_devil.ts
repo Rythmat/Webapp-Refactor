@@ -239,4 +239,5 @@ export const friend_of_the_devil: Song = {
 
   artistImageRef: '/artists/svg/grateful-dead.webp',
   popularity: 50,
+  comingSoon: true,
 };

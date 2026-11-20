@@ -12,10 +12,14 @@ import {
   usePendingEdits,
 } from '@/hooks/data/admin/useAdminContent';
 import { CONSOLE_LABEL, consoleTabClass } from '../../ui/styles';
-import { segmentForKind } from '../mirror/mirrorPaths';
 import { useRepoMode } from '../repo/useRepoMode';
 import { kindLabel } from './kindLabels';
-import { kindsToPublish, usePublishActions, usePublishRun } from './publishRun';
+import {
+  kindsForSection,
+  kindsToPublish,
+  usePublishActions,
+  usePublishRun,
+} from './publishRun';
 
 // Read only when the popover is open, and loaded then: the bar is eager
 // console code, the suggestions client is not (eagerBoundary.test.ts).
@@ -32,7 +36,7 @@ const BulkUnreviewedLines = lazy(() =>
  * last publish; the popover also names the facts accepted in bulk that
  * nobody has reviewed (C29), read only while it is open. It offers Publish
  * for the kinds of the section
- * showing (Songs on a Learn page, the globe's kinds on the Globe) and the way
+ * showing (Songs on a Songs page, the globe's kinds on the Globe) and the way
  * to Publishing for everything else. Admin only; the bar decides.
  *
  * In repo mode (a save goes straight into the repo's files) it counts the
@@ -54,10 +58,7 @@ export const ChangesButton = ({ section }: { section: string | null }) => {
   const rows = overview.data ?? [];
   const waiting = repo ? 0 : (pending.data?.length ?? 0);
   const changed = rows.reduce((n, row) => n + row.changedSincePublish, 0);
-  const here =
-    section && !repo
-      ? kindsToPublish(rows).filter((kind) => segmentForKind(kind) === section)
-      : [];
+  const here = repo ? [] : kindsForSection(kindsToPublish(rows), section);
   const count = waiting + changed;
 
   return (

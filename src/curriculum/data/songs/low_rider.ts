@@ -97,4 +97,5 @@ export const low_rider: Song = {
 
   artistImageRef: '/artists/svg/war.webp',
   popularity: 50,
+  comingSoon: true,
 };

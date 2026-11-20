@@ -616,4 +616,5 @@ export const dont_stop_me_now: Song = {
 
   artistImageRef: '/artists/svg/queen.webp',
   popularity: 50,
+  comingSoon: true,
 };

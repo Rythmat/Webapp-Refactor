@@ -4,6 +4,7 @@ import {
   type ContentOverviewRow,
   usePublishContent,
 } from '@/hooks/data/admin/useAdminContent';
+import { segmentForKind } from '../mirror/mirrorPaths';
 
 /**
  * The console's one publish, wherever it was started.
@@ -94,6 +95,19 @@ export function kindsToPublish(
     .sort((a, b) => rank(a.kind) - rank(b.kind) || a.i - b.i)
     .map(({ kind }) => kind);
 }
+
+/**
+ * The kinds a page's own Publish offers: the kinds of the app section the
+ * page is in. A song's own page (`/songs/:id`) is in Songs as much as the
+ * library is, so the section is the path's first segment.
+ */
+export const kindsForSection = (
+  kinds: readonly ContentKind[],
+  section: string | null,
+): ContentKind[] => {
+  const root = section?.match(/^\/[^/?#]+/)?.[0];
+  return root ? kinds.filter((kind) => segmentForKind(kind) === root) : [];
+};
 
 /**
  * Publish `kinds` one after another. Resolves when the run ends, however it

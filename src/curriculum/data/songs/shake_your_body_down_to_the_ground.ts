@@ -79,4 +79,5 @@ export const shake_your_body_down_to_the_ground: Song = {
 
   artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
+  comingSoon: true,
 };

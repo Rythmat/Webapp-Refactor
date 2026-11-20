@@ -377,4 +377,5 @@ export const dont_let_me_be_lonely_tonight: Song = {
 
   artistImageRef: '/artists/svg/james-taylor.webp',
   popularity: 50,
+  comingSoon: true,
 };

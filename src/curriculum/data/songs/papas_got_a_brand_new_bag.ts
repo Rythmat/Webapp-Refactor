@@ -177,4 +177,5 @@ export const papas_got_a_brand_new_bag: Song = {
 
   artistImageRef: '/artists/svg/james-brown.webp',
   popularity: 50,
+  comingSoon: true,
 };

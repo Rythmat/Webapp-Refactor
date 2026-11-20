@@ -45,4 +45,5 @@ export const wagon_wheel: Song = {
 
   artistImageRef: '/artists/svg/old-crow-medicine-show.webp',
   popularity: 50,
+  comingSoon: true,
 };

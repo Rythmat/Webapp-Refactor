@@ -406,4 +406,5 @@ export const modern_love: Song = {
 
   artistImageRef: '/artists/svg/david-bowie.webp',
   popularity: 50,
+  comingSoon: true,
 };

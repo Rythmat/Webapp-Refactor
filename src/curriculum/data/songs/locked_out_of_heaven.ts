@@ -406,4 +406,5 @@ export const locked_out_of_heaven: Song = {
 
   artistImageRef: '/artists/svg/bruno-mars.webp',
   popularity: 50,
+  comingSoon: true,
 };

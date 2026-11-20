@@ -306,4 +306,5 @@ export const road_to_nowhere: Song = {
 
   artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
+  comingSoon: true,
 };

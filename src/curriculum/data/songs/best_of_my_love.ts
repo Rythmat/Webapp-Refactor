@@ -91,4 +91,5 @@ export const best_of_my_love: Song = {
 
   artistImageRef: '/artists/svg/the-emotions.webp',
   popularity: 50,
+  comingSoon: true,
 };

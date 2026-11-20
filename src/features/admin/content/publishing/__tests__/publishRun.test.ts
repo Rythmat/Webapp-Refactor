@@ -12,6 +12,7 @@ import {
 } from '../../songImport/importMemory';
 import {
   dismissPublishRun,
+  kindsForSection,
   kindsToPublish,
   resetPublishRunForTests,
   runPublish,
@@ -55,6 +56,27 @@ describe('what "publish everything" publishes', () => {
     expect(kindsToPublish([row('label', 4, 0), row('song', 1)])).toEqual([
       'song',
     ]);
+  });
+});
+
+describe('the edit bar’s own Publish', () => {
+  const changed: ContentKind[] = ['artist', 'song', 'globe_event'];
+
+  it('offers Songs on the library and on a song’s own page', () => {
+    // A song's page is where a chart is edited; Publish belongs there.
+    expect(kindsForSection(changed, '/songs')).toEqual(['song']);
+    expect(kindsForSection(changed, '/songs/dont_stop_believin')).toEqual([
+      'song',
+    ]);
+  });
+
+  it('offers the globe’s kinds on the Globe, and nothing off any section', () => {
+    expect(kindsForSection(changed, '/globe?event=x')).toEqual([
+      'artist',
+      'globe_event',
+    ]);
+    expect(kindsForSection(changed, null)).toEqual([]);
+    expect(kindsForSection(changed, '/songsheet')).toEqual([]);
   });
 });
 

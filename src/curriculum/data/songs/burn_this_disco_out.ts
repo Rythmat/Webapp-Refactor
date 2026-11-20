@@ -661,4 +661,5 @@ export const burn_this_disco_out: Song = {
 
   artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -351,4 +351,5 @@ export const i_heard_it_through_the_grapevine: Song = {
 
   artistImageRef: '/artists/svg/marvin-gaye.webp',
   popularity: 50,
+  comingSoon: true,
 };

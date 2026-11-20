@@ -415,4 +415,5 @@ export const man_i_feel_like_a_woman: Song = {
 
   artistImageRef: '/artists/svg/shania-twain.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -216,4 +216,5 @@ export const sweet_caroline: Song = {
 
   artistImageRef: '/artists/svg/neil-diamond.webp',
   popularity: 50,
+  comingSoon: true,
 };

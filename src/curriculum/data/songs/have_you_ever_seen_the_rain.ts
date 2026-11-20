@@ -152,4 +152,5 @@ export const have_you_ever_seen_the_rain: Song = {
 
   artistImageRef: '/artists/svg/creedence-clearwater-revival.webp',
   popularity: 50,
+  comingSoon: true,
 };

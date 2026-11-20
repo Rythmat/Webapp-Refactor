@@ -370,4 +370,5 @@ export const get_lucky: Song = {
 
   artistImageRef: '/artists/svg/daft-punk.webp',
   popularity: 50,
+  comingSoon: true,
 };

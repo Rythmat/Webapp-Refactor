@@ -236,4 +236,5 @@ export const ill_be_there: Song = {
 
   artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
+  comingSoon: true,
 };

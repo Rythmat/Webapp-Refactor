@@ -155,4 +155,5 @@ export const high_and_dry: Song = {
 
   artistImageRef: '/artists/svg/radiohead.webp',
   popularity: 50,
+  comingSoon: true,
 };

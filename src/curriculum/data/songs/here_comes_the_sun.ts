@@ -396,4 +396,5 @@ export const here_comes_the_sun: Song = {
 
   artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
+  comingSoon: true,
 };

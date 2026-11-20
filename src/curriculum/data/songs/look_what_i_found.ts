@@ -588,4 +588,5 @@ export const look_what_i_found: Song = {
 
   artistImageRef: '/artists/svg/lady-gaga.webp',
   popularity: 50,
+  comingSoon: true,
 };

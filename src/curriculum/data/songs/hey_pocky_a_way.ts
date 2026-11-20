@@ -277,4 +277,5 @@ export const hey_pocky_a_way: Song = {
 
   artistImageRef: '/artists/svg/the-meters.webp',
   popularity: 50,
+  comingSoon: true,
 };

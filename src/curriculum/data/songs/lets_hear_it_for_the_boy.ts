@@ -306,4 +306,5 @@ export const lets_hear_it_for_the_boy: Song = {
 
   artistImageRef: '/artists/svg/deniece-williams.webp',
   popularity: 50,
+  comingSoon: true,
 };

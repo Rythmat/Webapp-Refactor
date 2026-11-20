@@ -341,4 +341,5 @@ export const lady_marmalade_aguilera: Song = {
 
   artistImageRef: '/artists/svg/christina-aguilera.webp',
   popularity: 50,
+  comingSoon: true,
 };

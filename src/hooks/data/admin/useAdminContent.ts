@@ -351,6 +351,31 @@ async function fetchWithAuth<T = unknown>(
 }
 
 /**
+ * DEV, repo mode: a read from the content API itself, the shared store,
+ * past the repo server the console saves to. For the song editor's "Load
+ * the content store's copy": edits saved there while the console saved to
+ * the store, before it was switched to repo mode (owner, 2026-11-15).
+ * Sends no artifacts header: that is the repo server's word, not this API's.
+ */
+export async function contentStoreRead<T = unknown>(
+  path: string,
+  token: string,
+): Promise<T> {
+  const base = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
+  const appSessionId = getCurrentAppSessionId();
+  const res = await fetch(`${base}/api/admin/content${path}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
+    },
+  });
+  if (!res.ok) throw await contentApiErrorFrom(res);
+  const text = await res.text();
+  return text ? (SuperJSON.parse(text) as T) : (undefined as T);
+}
+
+/**
  * Every content query lives under this key, the exports the Table, the mind
  * map and Integrity build their working graph from included
  * (`useContentExport.ts`). So every write here — save, delete, approve,

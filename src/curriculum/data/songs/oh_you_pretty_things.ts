@@ -459,4 +459,5 @@ export const oh_you_pretty_things: Song = {
 
   artistImageRef: '/artists/svg/david-bowie.webp',
   popularity: 50,
+  comingSoon: true,
 };

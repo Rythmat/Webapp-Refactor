@@ -133,4 +133,5 @@ export const cruisin: Song = {
 
   artistImageRef: '/artists/svg/smokey-robinson.webp',
   popularity: 50,
+  comingSoon: true,
 };

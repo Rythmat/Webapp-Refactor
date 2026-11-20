@@ -85,4 +85,5 @@ export const wicked_game: Song = {
 
   artistImageRef: '/artists/svg/chris-isaak.webp',
   popularity: 50,
+  comingSoon: true,
 };

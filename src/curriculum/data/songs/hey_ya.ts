@@ -200,4 +200,5 @@ export const hey_ya: Song = {
 
   artistImageRef: '/artists/svg/outkast.webp',
   popularity: 50,
+  comingSoon: true,
 };

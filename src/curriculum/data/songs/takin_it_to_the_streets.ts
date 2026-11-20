@@ -614,4 +614,5 @@ export const takin_it_to_the_streets: Song = {
 
   artistImageRef: '/artists/svg/the-doobie-brothers.webp',
   popularity: 50,
+  comingSoon: true,
 };

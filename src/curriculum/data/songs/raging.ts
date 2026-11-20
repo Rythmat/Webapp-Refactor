@@ -234,4 +234,5 @@ export const raging: Song = {
 
   artistImageRef: '/artists/svg/kygo.webp',
   popularity: 50,
+  comingSoon: true,
 };

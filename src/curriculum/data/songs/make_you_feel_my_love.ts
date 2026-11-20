@@ -178,4 +178,5 @@ export const make_you_feel_my_love: Song = {
 
   artistImageRef: '/artists/svg/adele.webp',
   popularity: 50,
+  comingSoon: true,
 };

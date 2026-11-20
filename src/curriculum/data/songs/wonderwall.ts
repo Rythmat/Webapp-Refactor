@@ -490,4 +490,5 @@ export const wonderwall: Song = {
 
   artistImageRef: '/artists/svg/oasis.webp',
   popularity: 50,
+  comingSoon: true,
 };

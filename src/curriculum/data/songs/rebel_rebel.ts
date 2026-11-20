@@ -250,4 +250,5 @@ export const rebel_rebel: Song = {
 
   artistImageRef: '/artists/svg/david-bowie.webp',
   popularity: 50,
+  comingSoon: true,
 };

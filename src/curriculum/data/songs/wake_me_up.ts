@@ -134,4 +134,5 @@ export const wake_me_up: Song = {
 
   artistImageRef: '/artists/svg/avicii.webp',
   popularity: 50,
+  comingSoon: true,
 };

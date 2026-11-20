@@ -272,4 +272,5 @@ export const and_i_love_her: Song = {
 
   artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
+  comingSoon: true,
 };

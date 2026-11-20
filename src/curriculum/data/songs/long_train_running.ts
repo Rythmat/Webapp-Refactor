@@ -247,4 +247,5 @@ export const long_train_running: Song = {
 
   artistImageRef: '/artists/svg/the-doobie-brothers.webp',
   popularity: 50,
+  comingSoon: true,
 };

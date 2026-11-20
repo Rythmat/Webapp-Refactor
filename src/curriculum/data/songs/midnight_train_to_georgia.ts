@@ -510,4 +510,5 @@ export const midnight_train_to_georgia: Song = {
 
   artistImageRef: '/artists/svg/gladys-knight-and-the-pips.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -48,6 +48,26 @@ describe('copying', () => {
     });
   });
 
+  it('takes a bar’s rhythm with it, a copy of its own (owner, 2026-11-12)', () => {
+    const sections = chart();
+    sections[0].bars[1] = bar('F', {
+      rhythm: [
+        { value: '4', plain: true },
+        { value: '4', plain: true },
+        { value: '4', plain: true },
+        { value: '8' },
+        { value: '8', tie: true },
+      ],
+    });
+    const s = clickBar({ sections }, NO_SELECTION, { section: 0, bar: 1 });
+    const clip = copySelection(sections, s);
+    const copied = clip?.kind === 'bars' ? clip.bars[0] : null;
+    expect(copied?.rhythm).toEqual(sections[0].bars[1].rhythm);
+    expect(copied?.rhythm).not.toBe(sections[0].bars[1].rhythm);
+    const out = pasteBars(sections, { section: 1, bar: 0 }, [copied!]);
+    expect(out[1].bars[0].rhythm?.at(-1)).toEqual({ value: '8', tie: true });
+  });
+
   it('takes a run across a section boundary', () => {
     const sections = chart();
     let s = clickBar({ sections }, NO_SELECTION, { section: 0, bar: 3 });

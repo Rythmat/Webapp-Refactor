@@ -110,4 +110,5 @@ export const im_yours: Song = {
 
   artistImageRef: '/artists/svg/jason-mraz.webp',
   popularity: 50,
+  comingSoon: true,
 };

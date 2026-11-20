@@ -101,4 +101,5 @@ export const pride_and_joy: Song = {
 
   artistImageRef: '/artists/svg/stevie-ray-vaughan.webp',
   popularity: 50,
+  comingSoon: true,
 };

@@ -14,6 +14,7 @@ import { loadVexFlow } from '@/components/notation/StaffView';
 import {
   chordSymbolCell,
   notePalettes,
+  type NotePaletteOptions,
   type NoteTools,
   type PaletteCell,
   type ToolPalette,
@@ -186,6 +187,15 @@ export interface ScorePalettesProps {
    * lead sheet's melody, not the chord chart.
    */
   notes?: NoteTools;
+  /**
+   * Only these mark cells, where a page has no use for the rest (the song
+   * chart's editor: no rehearsal marks, no page breaks). Unset: all.
+   */
+  actions?: ReadonlySet<PaletteAction>;
+  /** Which note palettes to offer (notePalettes.tsx). Unset: all. */
+  noteOptions?: NotePaletteOptions;
+  /** The footer's words, for a page the Score's own would mislead. */
+  hint?: string;
 }
 
 /** The mark palettes as cells: a click applies the action to the barline. */
@@ -194,9 +204,13 @@ function markPalettes(
   onApply: (action: PaletteAction) => void,
   fontReady: boolean,
   notes: NoteTools | undefined,
+  actions: ReadonlySet<PaletteAction> | undefined,
 ): ToolPalette[] {
   return SCORE_PALETTES.map((palette) => {
-    const cells: PaletteCell[] = palette.items.map((item) => ({
+    const items = actions
+      ? palette.items.filter((item) => actions.has(item.action))
+      : palette.items;
+    const cells: PaletteCell[] = items.map((item) => ({
       key: item.action,
       name: item.name,
       title: item.name,
@@ -206,7 +220,7 @@ function markPalettes(
     }));
     if (palette.id === 'text' && notes) cells.push(chordSymbolCell(notes));
     return { id: palette.id, name: palette.name, staff: palette.staff, cells };
-  });
+  }).filter((palette) => palette.cells.length > 0);
 }
 
 /** A mark's face: a glyph, words, a boxed mark or an icon. */
@@ -265,6 +279,9 @@ export function ScorePalettes({
   hasSelection,
   onApply,
   notes,
+  actions,
+  noteOptions,
+  hint,
 }: ScorePalettesProps) {
   const [searching, setSearching] = useState(false);
   const [query, setQuery] = useState('');
@@ -294,10 +311,10 @@ export function ScorePalettes({
 
   const all = useMemo(
     () => [
-      ...(notes ? notePalettes(notes, fontReady) : []),
-      ...markPalettes(hasSelection, onApply, fontReady, notes),
+      ...(notes ? notePalettes(notes, fontReady, noteOptions) : []),
+      ...markPalettes(hasSelection, onApply, fontReady, notes, actions),
     ],
-    [notes, fontReady, hasSelection, onApply],
+    [notes, fontReady, hasSelection, onApply, noteOptions, actions],
   );
   const palettes = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -526,15 +543,17 @@ export function ScorePalettes({
           color: 'var(--daw-text-3)',
         }}
       >
-        {noteInput
-          ? `Click a staff, or type A–G, to add ${inputLength}. Shift adds to a chord.`
-          : hasNotes
-            ? 'Numbers write into the live palette · . > - _ mark · S slurs'
-            : hasSelection
-              ? 'Click a cell to apply it. ↵ system break · ⌘M rehearsal mark · ⌫ clear'
-              : notes
-                ? 'Select a note or a barline in the score, then click a cell, or press Add notes.'
-                : 'Select a barline in the score, then click a palette cell.'}
+        {hint
+          ? hint
+          : noteInput
+            ? `Click a staff, or type A–G, to add ${inputLength}. Shift adds to a chord.`
+            : hasNotes
+              ? 'Numbers write into the live palette · . > - _ mark · S slurs'
+              : hasSelection
+                ? 'Click a cell to apply it. ↵ system break · ⌘M rehearsal mark · ⌫ clear'
+                : notes
+                  ? 'Select a note or a barline in the score, then click a cell, or press Add notes.'
+                  : 'Select a barline in the score, then click a palette cell.'}
       </div>
     </div>
   );

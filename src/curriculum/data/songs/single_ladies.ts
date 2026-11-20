@@ -232,4 +232,5 @@ export const single_ladies: Song = {
 
   artistImageRef: '/artists/svg/sara-bareilles.webp',
   popularity: 50,
+  comingSoon: true,
 };

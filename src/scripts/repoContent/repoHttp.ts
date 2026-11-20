@@ -120,6 +120,77 @@ export interface RepoContentHandleOptions
   extends Omit<LiveRepoOptions, 'root' | 'dryRun'> {
   /** `REPO_CONTENT_ROOT`, or the repo when it is unset. */
   root?: string;
+  /**
+   * The app's API (`VITE_MUSIC_ATLAS_API_URL`), where a real sign-in's role
+   * is read: its token is Auth0's, which names no role (`viewerFromApi`).
+   */
+  apiBase?: string;
+}
+
+type ApiViewer = { role: string; userId: string; name: string };
+
+/** A role read from the API lasts this long for one token. */
+const API_ROLE_TTL_MS = 10 * 60_000;
+
+/**
+ * Who a real sign-in is, as the app itself learns it (owner, 2026-11-15).
+ *
+ * The console's session token is Auth0's access token, which carries no
+ * `role` claim: the app reads the role from the API's `/auth/me`. So repo
+ * mode refused every real sign-in and worked only with the dev bypass. When
+ * the token names no role, this asks `/auth/me` with the same headers the
+ * app sends, and remembers the answer for that token a while. Null when the
+ * API will not say.
+ */
+export function apiViewerLookup(
+  apiBase: string,
+  fetcher: typeof fetch = fetch,
+) {
+  const cache = new Map<string, { at: number; viewer: ApiViewer }>();
+  return async (
+    authorization: string,
+    appSession: string | undefined,
+  ): Promise<ApiViewer | null> => {
+    const hit = cache.get(authorization);
+    if (hit && Date.now() - hit.at < API_ROLE_TTL_MS) return hit.viewer;
+    try {
+      const res = await fetcher(`${apiBase.replace(/\/$/, '')}/auth/me`, {
+        headers: {
+          Authorization: authorization,
+          ...(appSession ? { 'X-App-Session': appSession } : {}),
+        },
+      });
+      if (!res.ok) return null;
+      const raw = (await res.json()) as Record<string, unknown>;
+      // The API answers in SuperJSON's envelope, or plain.
+      const me = (
+        raw &&
+        typeof raw.json === 'object' &&
+        raw.json !== null &&
+        'meta' in raw
+          ? raw.json
+          : raw
+      ) as {
+        id?: unknown;
+        role?: unknown;
+        fullName?: unknown;
+        nickname?: unknown;
+      };
+      if (typeof me.role !== 'string' || typeof me.id !== 'string') return null;
+      const viewer: ApiViewer = {
+        role: me.role,
+        userId: me.id,
+        name:
+          (typeof me.fullName === 'string' && me.fullName) ||
+          (typeof me.nickname === 'string' && me.nickname) ||
+          me.id,
+      };
+      cache.set(authorization, { at: Date.now(), viewer });
+      return viewer;
+    } catch {
+      return null;
+    }
+  };
 }
 
 /**
@@ -136,6 +207,9 @@ export function createRepoContentHandle(
   );
   let loading: Promise<LiveRepoStore> | null = null;
   let live: LiveRepoStore | null = null;
+  const lookupApiViewer = options.apiBase
+    ? apiViewerLookup(options.apiBase)
+    : null;
   const open = (): Promise<LiveRepoStore> => {
     loading ??= LiveRepoStore.open({ ...options, root }).then(
       (store) => {
@@ -214,9 +288,24 @@ export function createRepoContentHandle(
     const method = request.method.toUpperCase();
 
     const authorization = headerOf(request.headers, 'authorization');
-    const who = viewerFromHeaders(
+    let who = viewerFromHeaders(
       authorization ? { Authorization: authorization } : {},
     );
+    // A real sign-in's token names no role: ask the app's API who it is.
+    if (
+      'status' in who &&
+      who.status === 403 &&
+      authorization &&
+      lookupApiViewer
+    ) {
+      const fromApi = await lookupApiViewer(
+        authorization,
+        headerOf(request.headers, 'x-app-session'),
+      );
+      const role = fromApi?.role;
+      if (fromApi && (role === 'admin' || role === 'editor'))
+        who = { role, userId: fromApi.userId, name: fromApi.name };
+    }
     if ('status' in who) {
       // The mock's own words name the offline mock; this is the repo.
       return who.status === 401

@@ -209,4 +209,5 @@ export const all_night_long: Song = {
 
   artistImageRef: '/artists/svg/lionel-richie.webp',
   popularity: 50,
+  comingSoon: true,
 };

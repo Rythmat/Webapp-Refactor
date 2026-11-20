@@ -334,4 +334,5 @@ export const the_sign: Song = {
 
   artistImageRef: '/artists/svg/ace-of-base.webp',
   popularity: 50,
+  comingSoon: true,
 };

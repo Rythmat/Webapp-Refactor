@@ -73,4 +73,5 @@ export const fresh_eyes: Song = {
 
   artistImageRef: '/artists/svg/andy-grammer.webp',
   popularity: 50,
+  comingSoon: true,
 };

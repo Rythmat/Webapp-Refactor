@@ -190,4 +190,5 @@ export const shake_it_off: Song = {
 
   artistImageRef: '/artists/svg/taylor-swift.webp',
   popularity: 50,
+  comingSoon: true,
 };

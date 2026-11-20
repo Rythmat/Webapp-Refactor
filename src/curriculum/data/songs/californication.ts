@@ -469,4 +469,5 @@ export const californication: Song = {
 
   artistImageRef: '/artists/svg/the-red-hot-chili-peppers.webp',
   popularity: 50,
+  comingSoon: true,
 };

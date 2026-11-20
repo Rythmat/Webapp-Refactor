@@ -84,4 +84,5 @@ export const your_love_keeps_lifting_me_higher_and_higher: Song = {
 
   artistImageRef: '/artists/svg/jackie-wilson.webp',
   popularity: 50,
+  comingSoon: true,
 };

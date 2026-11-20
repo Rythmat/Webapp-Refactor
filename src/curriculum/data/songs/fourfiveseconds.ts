@@ -485,4 +485,5 @@ export const fourfiveseconds: Song = {
 
   artistImageRef: '/artists/svg/rihanna.webp',
   popularity: 50,
+  comingSoon: true,
 };

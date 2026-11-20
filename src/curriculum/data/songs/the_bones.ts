@@ -479,4 +479,5 @@ export const the_bones: Song = {
 
   artistImageRef: '/artists/svg/maren-morris.webp',
   popularity: 50,
+  comingSoon: true,
 };

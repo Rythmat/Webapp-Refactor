@@ -415,4 +415,5 @@ export const ob_la_di_ob_la_da: Song = {
 
   artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
+  comingSoon: true,
 };

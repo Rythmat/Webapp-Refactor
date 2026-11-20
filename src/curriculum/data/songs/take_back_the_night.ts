@@ -173,4 +173,5 @@ export const take_back_the_night: Song = {
 
   artistImageRef: '/artists/svg/justin-timberlake.webp',
   popularity: 50,
+  comingSoon: true,
 };

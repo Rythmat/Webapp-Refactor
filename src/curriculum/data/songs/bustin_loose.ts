@@ -392,4 +392,5 @@ export const bustin_loose: Song = {
 
   artistImageRef: '/artists/svg/chuck-brown.webp',
   popularity: 50,
+  comingSoon: true,
 };

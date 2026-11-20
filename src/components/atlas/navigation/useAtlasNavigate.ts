@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { STORY_PARAM } from '@/components/atlas/story/storyParam';
 import type {
   HistoricalEvent,
   SelectedLocation,
@@ -72,9 +73,25 @@ function buildNavigate(setSearchParams: SetSearchParams) {
       replace: true,
     });
 
+  /**
+   * Start or end Story mode (story/storyMode.ts), with a frame patch, in
+   * place.
+   */
+  const setStoryMode = (on: boolean, patch: Partial<AtlasFrame> = {}) =>
+    setSearchParams(
+      (prev) => {
+        const next = applyFrameToSearchParams(prev, patch);
+        if (on) next.set(STORY_PARAM, '1');
+        else next.delete(STORY_PARAM);
+        return next;
+      },
+      { replace: true },
+    );
+
   return {
     go,
     setFrame,
+    setStoryMode,
     toLink,
     /** Open one of the three views (navigation/sections.ts). */
     toSection: (id: AtlasSectionId) => setFrame(sectionFrame(id)),

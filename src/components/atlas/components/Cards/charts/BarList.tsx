@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   ATLAS_FOCUS_INSET,
   ATLAS_TRANSITION,
@@ -18,18 +19,20 @@ export interface BarRow {
  * Rows of text with a bar under each for its share of the largest: a real
  * list, so readers get the words; the bars are only drawn. A row opens what
  * it names when `onSelect` is given, and points it out on the map while
- * hovered (`onHover`).
+ * hovered (`onHover`). `rowAction` puts a control at a row's end.
  */
 export function BarList({
   rows,
   label,
   onSelect,
   onHover,
+  rowAction,
 }: {
   rows: BarRow[];
   label: string;
   onSelect?: (key: string) => void;
   onHover?: (key: string | null) => void;
+  rowAction?: (key: string) => ReactNode;
 }) {
   const max = Math.max(1, ...rows.map((r) => r.value));
   return (
@@ -67,12 +70,16 @@ export function BarList({
             </span>
           </>
         );
+        const action = rowAction?.(row.key);
         return (
-          <li key={row.key}>
+          <li
+            key={row.key}
+            className={action ? 'flex items-center gap-1' : undefined}
+          >
             {onSelect ? (
               <button
                 className={cn(
-                  'block w-full rounded-lg px-2 py-1.5 text-left hover:bg-white/[0.06]',
+                  'block w-full min-w-0 flex-1 rounded-lg px-2 py-1.5 text-left hover:bg-white/[0.06]',
                   ATLAS_TRANSITION,
                   ATLAS_FOCUS_INSET,
                 )}
@@ -86,8 +93,9 @@ export function BarList({
                 {body}
               </button>
             ) : (
-              <div className="px-2 py-1.5">{body}</div>
+              <div className="min-w-0 flex-1 px-2 py-1.5">{body}</div>
             )}
+            {action && <span className="shrink-0">{action}</span>}
           </li>
         );
       })}

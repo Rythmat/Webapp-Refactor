@@ -15,16 +15,17 @@ import { greatCircle } from './mapGeometry';
 
 /**
  * The links on the map as GeoJSON, pure: what the stop's music came from
- * and went to, or with nothing chosen the strongest links between regions;
- * a pinned event's own influences. Strong links are solid lines that take
+ * and went to; a pinned event's own influences. Each is its great circle
+ * here; the arc layer (arcLayer.ts) lifts it into a flight path. Its far
+ * end has a pulsing dot. Strong links are solid lines that take
  * the roots' or routes' gradient (their own source, for line-progress);
- * weak ties and the world's links are dotted and flow (another source: a
+ * weak ties are dotted and flow (another source: a
  * dashed line can't take a gradient). Each carries what its hover card
  * says and what a click opens.
  */
 
-/** Came from (into the stop), went to (out of it), or the world's. */
-export type LinkSide = 'in' | 'out' | 'world';
+/** Came from (into the stop), or went to (out of it). */
+export type LinkSide = 'in' | 'out';
 
 export interface LinkProps {
   /** The link's id (PlaceLink.id, or the arc's event's), for feature-state. */
@@ -43,36 +44,66 @@ export interface LinkProps {
   eventId: string;
 }
 
-export interface PillProps {
+/** A link's far end: the place or event it came from or went to. */
+export interface EndProps {
   id: string;
-  /** The count, short: 14, 2.1K. */
-  count: string;
-  /** Lower is placed first where pills crowd. */
-  rank: number;
+  side: LinkSide;
+  color: string;
+  /** Where in the pulse it starts (0–1), so the rings don't beat as one. */
+  phase: number;
 }
 
 export interface LinkFeatures {
   solid: FeatureCollection<LineString, LinkProps>;
   dotted: FeatureCollection<LineString, LinkProps>;
-  pills: FeatureCollection<Point, PillProps>;
+  /** The far ends' pulsing dots (networkLayers.ts). */
+  ends: FeatureCollection<Point, EndProps>;
 }
 
 /** How many of each side's links a stop draws, strongest first. */
 export const LINKS_PER_SIDE = 40;
-/** How many links carry a count pill, strongest first (weak ties none). */
-export const PILLS_MAX = 8;
-
 const DOTTED: Record<LinkSide, string> = {
   in: withAlpha(ROOTS_RAMP[1], 0.85),
   out: withAlpha(ROUTES_RAMP[2], 0.85),
-  world: withAlpha(ROUTES_RAMP[0], 0.4),
 };
 
-/** A count in at most four characters: 14, 999, 2.1K, 12K. */
-export function compactCount(n: number): string {
-  if (n < 1000) return String(n);
-  if (n < 10_000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}K`;
-  return `${Math.round(n / 1000)}K`;
+/** A far end's dot: its side's colour, full. */
+const END: Record<LinkSide, string> = {
+  in: ROOTS_RAMP[1],
+  out: ROUTES_RAMP[2],
+};
+
+/** The golden ratio's fraction: phases spread evenly, however many. */
+const PHASE_STEP = 0.618;
+
+/**
+ * Each line's far end once (two links may meet at one place): the start of
+ * a line coming in, the end of one going out.
+ */
+export function endsOf(
+  lines: readonly Feature<LineString, LinkProps>[],
+): FeatureCollection<Point, EndProps> {
+  const seen = new Set<string>();
+  const features: Feature<Point, EndProps>[] = [];
+  for (const line of lines) {
+    const c = line.geometry.coordinates;
+    const [lng, lat] = line.properties.side === 'in' ? c[0] : c[c.length - 1];
+    const key = `${lng.toFixed(3)},${lat.toFixed(3)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const side = line.properties.side;
+    features.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [lng, lat] },
+      properties: {
+        id: key,
+        side,
+        color: END[side],
+        phase: (features.length * PHASE_STEP) % 1,
+      },
+    });
+  }
+  return { type: 'FeatureCollection', features };
 }
 
 const influences = (n: number) => (n === 1 ? '1 influence' : `${n} influences`);
@@ -100,10 +131,7 @@ function linkFeature(
     properties: {
       id: link.id,
       side,
-      w:
-        side === 'world'
-          ? Math.min(3, edgeWidth(link.weight) / 2)
-          : edgeWidth(link.weight),
+      w: edgeWidth(link.weight),
       color: DOTTED[side],
       weight: link.weight,
       title: `${from.label} → ${to.label}`,
@@ -114,51 +142,13 @@ function linkFeature(
   };
 }
 
-/** The point halfway along a line, where its pill sits. */
-function midpoint(line: Feature<LineString, LinkProps>): [number, number] {
-  const c = line.geometry.coordinates;
-  return c[Math.floor(c.length / 2)] as [number, number];
-}
-
-function pillsFor(
-  lines: readonly Feature<LineString, LinkProps>[],
-  max: number,
-): FeatureCollection<Point, PillProps> {
-  // A weak tie's "1" would only be noise.
-  const top = lines
-    .filter((l) => l.properties.weight > WEAK_LINK_MAX)
-    .sort(
-      (a, b) =>
-        b.properties.weight - a.properties.weight ||
-        a.properties.id.localeCompare(b.properties.id),
-    )
-    .slice(0, max);
-  return {
-    type: 'FeatureCollection',
-    features: top.map((line, rank) => ({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: midpoint(line) },
-      properties: {
-        id: line.properties.id,
-        count: compactCount(line.properties.weight),
-        rank,
-      },
-    })),
-  };
-}
-
 function split(lines: Feature<LineString, LinkProps>[]): LinkFeatures {
-  const solid = lines.filter(
-    (l) => l.properties.side !== 'world' && l.properties.weight > WEAK_LINK_MAX,
-  );
-  const dotted = lines.filter(
-    (l) =>
-      l.properties.side === 'world' || l.properties.weight <= WEAK_LINK_MAX,
-  );
+  const solid = lines.filter((l) => l.properties.weight > WEAK_LINK_MAX);
+  const dotted = lines.filter((l) => l.properties.weight <= WEAK_LINK_MAX);
   return {
     solid: { type: 'FeatureCollection', features: solid },
     dotted: { type: 'FeatureCollection', features: dotted },
-    pills: pillsFor(lines, PILLS_MAX),
+    ends: endsOf(lines),
   };
 }
 
@@ -172,17 +162,6 @@ export function scopeLinkFeatures(
     ...scope.roots.slice(0, perSide).map((l) => linkFeature(ix, l, 'in')),
     ...scope.routes.slice(0, perSide).map((l) => linkFeature(ix, l, 'out')),
   ].filter((f): f is Feature<LineString, LinkProps> => !!f);
-  return split(lines);
-}
-
-/** With nothing chosen: the strongest links between regions, dotted. */
-export function worldLinkFeatures(
-  ix: NetworkIndex,
-  links: readonly PlaceLink[],
-): LinkFeatures {
-  const lines = links
-    .map((l) => linkFeature(ix, l, 'world'))
-    .filter((f): f is Feature<LineString, LinkProps> => !!f);
   return split(lines);
 }
 
@@ -221,7 +200,7 @@ export function arcLinkFeatures(arcs: readonly ArcDatum[]): LinkFeatures {
   return {
     solid: { type: 'FeatureCollection', features: solid },
     dotted: empty(),
-    pills: empty(),
+    ends: endsOf(solid),
   };
 }
 
@@ -232,38 +211,34 @@ export function arcLinkFeatures(arcs: readonly ArcDatum[]): LinkFeatures {
  */
 export function legLinkFeatures(leg: JourneyLeg): LinkFeatures {
   const id = `leg:${leg.key}`;
-  return {
-    solid: {
-      type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          id,
-          geometry: {
-            type: 'LineString',
-            coordinates: greatCircle(leg.from, leg.to),
-          },
-          properties: {
-            id,
-            side: 'out',
-            w: edgeWidth(4),
-            color: DOTTED.out,
-            weight: 1,
-            title: `${leg.from.label} → ${leg.to.label}`,
-            detail: `Next stop: ${leg.next}`,
-            place: '',
-            eventId: '',
-          },
-        },
-      ],
+  const line: Feature<LineString, LinkProps> = {
+    type: 'Feature',
+    id,
+    geometry: {
+      type: 'LineString',
+      coordinates: greatCircle(leg.from, leg.to),
     },
+    properties: {
+      id,
+      side: 'out',
+      w: edgeWidth(4),
+      color: DOTTED.out,
+      weight: 1,
+      title: `${leg.from.label} → ${leg.to.label}`,
+      detail: `Next stop: ${leg.next}`,
+      place: '',
+      eventId: '',
+    },
+  };
+  return {
+    solid: { type: 'FeatureCollection', features: [line] },
     dotted: empty(),
-    pills: empty(),
+    ends: endsOf([line]),
   };
 }
 
 export const NO_LINKS: LinkFeatures = {
   solid: empty(),
   dotted: empty(),
-  pills: empty(),
+  ends: empty(),
 };

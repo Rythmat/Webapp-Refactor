@@ -12,6 +12,7 @@ import {
 import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import { describeStop } from '@/components/atlas/navigation/describeStop';
 import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate';
+import { AddToStoryButton } from '@/components/atlas/story/AddToStoryButton';
 import { atlasVar } from '@/components/atlas/theme/tokens';
 import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 
@@ -80,6 +81,13 @@ export function ArtistPanel({ name }: { name: string }) {
           )}
           {places.length > 0 && <> · {places.join(' → ')}</>}
         </>
+      }
+      actions={
+        <AddToStoryButton
+          target={{ kind: 'artist', artist: artist.name }}
+          title={artist.name}
+          variant="pill"
+        />
       }
       title={artist.name}
       onClose={navigate.home}

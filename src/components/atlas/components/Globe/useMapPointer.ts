@@ -4,6 +4,7 @@ import type {
   HoverTarget,
   StageSignals,
 } from '@/components/atlas/state/stageSignals';
+import { arcLayerOf } from './arcLayer';
 import { LIFT_SOURCE } from './liftLayers';
 import {
   nearestDot,
@@ -40,8 +41,20 @@ export function useMapPointer(
       const raised = nearestDot(ask(ground.x, ground.y, true), ground, (at) =>
         map.project(at),
       );
-      return topFeature([...raised, ...ask(point.x, point.y, false)]);
+      // The arcs are drawn off the ground, by WebGL: picked where drawn.
+      const arc = arcLayerOf(map)?.pick(point);
+      const arcs: PickedFeature[] = arc
+        ? [
+            {
+              id: arc.id,
+              layer: { id: arc.dotted ? LAYER.linksDottedHit : LAYER.linksHit },
+              properties: arc.props as unknown as Record<string, unknown>,
+            },
+          ]
+        : [];
+      return topFeature([...raised, ...arcs, ...ask(point.x, point.y, false)]);
     };
+    const hoverArc = (id: string | null) => arcLayerOf(map)?.setHover(id);
     type Lit = { source: string; id: string | number } | null;
     let lit: Lit = null;
     const light = (next: Lit) => {
@@ -82,10 +95,7 @@ export function useMapPointer(
       } else if (target?.kind === 'link') {
         const { id, title, detail } = target;
         hover = { kind: 'link', id, title, detail };
-        light({
-          source: layer === LAYER.linksHit ? SOURCE.solid : SOURCE.dotted,
-          id,
-        });
+        light(null);
       } else if (target?.kind === 'event') {
         hover = { kind: 'event', eventId: target.eventId };
         light(
@@ -96,6 +106,12 @@ export function useMapPointer(
       } else {
         light(null);
       }
+      // An arc under the pointer, brighter; an event's influence too.
+      hoverArc(
+        layer === LAYER.linksHit || layer === LAYER.linksDottedHit
+          ? ((feature?.id as string | undefined) ?? null)
+          : null,
+      );
       signals.placeHover.set(hover ? { target: hover, anchor } : null);
     };
     const onMove = (e: { point: { x: number; y: number } }) => {
@@ -107,6 +123,7 @@ export function useMapPointer(
       cancelAnimationFrame(frame);
       frame = 0;
       light(null);
+      hoverArc(null);
       signals.placeHover.set(null);
       map.getCanvas().style.cursor = '';
     };

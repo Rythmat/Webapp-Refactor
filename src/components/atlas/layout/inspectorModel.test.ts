@@ -51,4 +51,17 @@ describe('the Inspector’s panel', () => {
       resolveInspectorPanel({ panel: null, mindmap: false, hasDetails: false }),
     ).toBeNull();
   });
+
+  it('in Story mode, shows the Stories until one is open, then the details', () => {
+    const base = { panel: null, mindmap: false } as const;
+    expect(
+      resolveInspectorPanel({ ...base, hasDetails: true, story: 'choose' }),
+    ).toBe('story');
+    expect(
+      resolveInspectorPanel({ ...base, hasDetails: true, story: 'build' }),
+    ).toBe('details');
+    expect(
+      resolveInspectorPanel({ ...base, hasDetails: false, story: 'build' }),
+    ).toBe('story');
+  });
 });

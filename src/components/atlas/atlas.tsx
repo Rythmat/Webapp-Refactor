@@ -48,6 +48,11 @@ import {
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
 import { StageSignalsProvider } from '@/components/atlas/state/stageSignals';
+import {
+  StoryBar,
+  StoryStrip,
+  useStoryInMode,
+} from '@/components/atlas/story/StoryStrip';
 import { ATLAS_MS } from '@/components/atlas/theme/motion';
 import { RIVER } from '@/components/atlas/theme/river';
 import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
@@ -157,12 +162,17 @@ function PhoneOverlays() {
     (stop) => stop.kind === 'tour' || stop.kind === 'pathway',
   );
   const intro = useIntro();
-  const strip =
-    timeline || hidden || journey || intro === 'wait' ? null : (
-      <Suspense fallback={null}>
-        <PhoneStrip />
-      </Suspense>
-    );
+  // In Story mode, the student's Story in its place.
+  const story = useStoryInMode();
+  const strip = story ? (
+    <div className="@container pointer-events-auto flex w-full flex-col items-center gap-2">
+      <StoryBar story={story} />
+    </div>
+  ) : timeline || hidden || journey || intro === 'wait' ? null : (
+    <Suspense fallback={null}>
+      <PhoneStrip />
+    </Suspense>
+  );
   return (
     <div className="pointer-events-none absolute inset-0">
       <PhoneZones inspector={slot} strip={strip} onInsets={onInsets} />
@@ -320,6 +330,7 @@ function AppLayout() {
               <RiverView />
               {!isPhone && <CardsLayer />}
               {isPhone ? <PhoneOverlays /> : <InspectorRegion />}
+              {!isPhone && <StoryStrip />}
               <HoverLayer />
             </div>
             <StageFoot />

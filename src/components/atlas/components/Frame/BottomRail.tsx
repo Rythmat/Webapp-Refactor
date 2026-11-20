@@ -27,36 +27,63 @@ import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
+import { useStoryMode } from '@/components/atlas/story/storyMode';
 import { cn } from '@/lib/utils';
 import { usePanelAvailability, useTogglePanel } from './usePanels';
 
 const loadTours = () =>
   import('@/components/atlas/components/Panels/ToursPanel');
 const prefetchTours = () => void loadTours();
+const loadStory = () =>
+  import('@/components/atlas/components/Panels/StoryPanel');
+const prefetchStory = () => void loadStory();
 
 /** The views' names on a phone, where the rail is narrow. */
 const SHORT: Partial<Record<AtlasSectionId, string>> = {
   explore: 'Map',
   ring: 'Ring',
   tours: 'Tours',
+  story: 'Story',
 };
 
 /**
  * The views, as the Studio's Create · Mix · Score: the map, the ring of
- * connections, and the map with its tours (pathways and guided tours, a
- * running one included). Switching keeps the stop and adds no step to Back,
- * but leaving Tours puts its panel away and ends a running journey.
+ * connections, the map with its tours (pathways and guided tours, a
+ * running one included), and the map in Story mode, the student's own
+ * Story docked at its foot (story/storyMode.ts). Switching keeps the stop
+ * and adds no step to Back, but leaving Tours puts its panel away and ends a
+ * running journey. Story mode stays on Connections, so the student can add
+ * what they find there; Explore and Tours end it.
  */
 function ViewTabs({ short }: { short: boolean }) {
   const shown = useAtlasFrame(sectionOf);
   const choice = useAtlasFrame((frame) => frame.panel);
+  const storyMode = useStoryMode();
   const inJourney = useAtlasStopSelector(
     (stop) => stop.kind === 'pathway' || stop.kind === 'tour',
   );
-  const active = inJourney && shown === 'explore' ? 'tours' : shown;
+  const active =
+    shown !== 'explore'
+      ? shown
+      : inJourney
+        ? 'tours'
+        : storyMode
+          ? 'story'
+          : shown;
   const navigate = useAtlasNavigate();
   const open = (id: AtlasSectionId) => {
-    if (id === 'tours' || id === active) {
+    // The Tours list and the Story panel go with their tabs.
+    const putAway =
+      choice === 'tours' || choice === 'story' ? { panel: null } : {};
+    if (id === 'story') {
+      if (inJourney) navigate.go({ kind: 'home' });
+      navigate.setStoryMode(true, {
+        ...(choice === 'tours' && { panel: null }),
+        ...sectionFrame(id),
+      });
+    } else if (storyMode && id !== 'ring') {
+      navigate.setStoryMode(false, { ...putAway, ...sectionFrame(id) });
+    } else if (id === 'tours' || id === active) {
       navigate.toSection(id);
     } else if (inJourney) {
       navigate.go({ kind: 'home' }, { frame: sectionFrame(id) });
@@ -78,7 +105,9 @@ function ViewTabs({ short }: { short: boolean }) {
             ? prefetchRing
             : section.id === 'tours'
               ? prefetchTours
-              : undefined;
+              : section.id === 'story'
+                ? prefetchStory
+                : undefined;
         return (
           <button
             key={section.id}

@@ -75,7 +75,7 @@ describe('the bottom rail', () => {
       within(nav)
         .getAllByRole('button')
         .map((b) => b.textContent),
-    ).toEqual(['Explore', 'Connections', 'Tours']);
+    ).toEqual(['Explore', 'Connections', 'Tours', 'Story']);
     fireEvent.click(tab('Connections'));
     expect(where.search).toBe('?place=city%3Alondon&view=ring');
     // The map's own controls stand down; the cards' switch stays.
@@ -91,6 +91,29 @@ describe('the bottom rail', () => {
     fireEvent.click(tab('Explore'));
     expect(where.search).toBe('');
     expect(tab('Explore')).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('opens Story mode on the map, keeps it on Connections, ends it on Explore', () => {
+    const { where } = setup('/globe?place=city:london');
+    fireEvent.click(tab('Story'));
+    expect(where.search).toBe('?place=city%3Alondon&story=1');
+    expect(tab('Story')).toHaveAttribute('aria-current', 'page');
+    fireEvent.click(tab('Connections'));
+    expect(where.search).toBe('?place=city%3Alondon&story=1&view=ring');
+    expect(tab('Connections')).toHaveAttribute('aria-current', 'page');
+    fireEvent.click(tab('Story'));
+    expect(where.search).toBe('?place=city%3Alondon&story=1');
+    fireEvent.click(tab('Explore'));
+    expect(where.search).toBe('?place=city%3Alondon');
+    expect(tab('Explore')).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('opens Story from Tours, putting the tours away, and back', () => {
+    const { where } = setup('/globe?panel=tours');
+    fireEvent.click(tab('Story'));
+    expect(where.search).toBe('?story=1');
+    fireEvent.click(tab('Tours'));
+    expect(where.search).toBe('?panel=tours');
   });
 
   it('names a running pathway or tour Tours, and ends it on leaving', () => {

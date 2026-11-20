@@ -18,13 +18,14 @@ import {
   arcLinkFeatures,
   compactCount,
   scopeLinkFeatures,
-  worldLinkFeatures,
 } from './networkFeatures';
 import {
   FLOW_PHASES,
   NETWORK_LAYER,
+  PULSE,
   networkLineLayers,
   phaseDash,
+  pulsePaint,
 } from './networkLayers';
 
 const node = (
@@ -132,19 +133,7 @@ describe('a stop’s links', () => {
   });
 });
 
-describe('the world’s links and an event’s', () => {
-  it('draws the links between regions dotted, opening nothing', () => {
-    const world = worldLinkFeatures(ix, [
-      link('region:west-africa', 'region:north-america', 40),
-    ]);
-    expect(world.solid.features).toHaveLength(0);
-    expect(world.dotted.features[0].properties).toMatchObject({
-      side: 'world',
-      place: '',
-    });
-    expect(world.dotted.features[0].properties.w).toBeLessThanOrEqual(3);
-  });
-
+describe('an event’s links', () => {
   it('draws a pinned event’s influences solid, each opening its event', () => {
     const arcs = arcLinkFeatures([
       {
@@ -263,5 +252,51 @@ describe('drawing on', () => {
     expect(drawProgress(0, 165)).toBe(0);
     expect(drawProgress(165 + 520, 165)).toBe(1);
     expect(drawOnPlan([7])).toEqual([0]);
+  });
+});
+
+describe('the far ends', () => {
+  const links = scopeLinkFeatures(ix, {
+    roots: [
+      link('city:new-orleans', 'city:chicago', 14),
+      link('city:memphis', 'city:chicago', 3),
+    ],
+    routes: [
+      link('city:chicago', 'city:london', 9),
+      link('city:chicago', 'city:new-orleans', 1),
+    ],
+    local: 0,
+    total: 27,
+  });
+
+  it('puts a dot where each line came from or went to, each place once', () => {
+    const ends = links.ends.features.map((f) => ({
+      at: f.geometry.coordinates,
+      side: f.properties.side,
+    }));
+    // New Orleans both gave and took: one dot.
+    expect(ends).toHaveLength(3);
+    expect(ends[0].at[0]).toBeCloseTo(-90.07);
+    expect(ends[0].side).toBe('in');
+    expect(ends.some((e) => e.side === 'out' && e.at[1] > 51)).toBe(true);
+  });
+
+  it('starts each ring at its own phase', () => {
+    const phases = links.ends.features.map((f) => f.properties.phase);
+    expect(new Set(phases).size).toBe(phases.length);
+    for (const p of phases) {
+      expect(p).toBeGreaterThanOrEqual(0);
+      expect(p).toBeLessThan(1);
+    }
+  });
+
+  it('grows the ring from the dot and fades it out', () => {
+    const { radius, opacity } = pulsePaint(0.25);
+    expect(JSON.stringify(radius)).toContain(String(PULSE.from));
+    expect(JSON.stringify(opacity)).toContain('phase');
+    const layers = networkLineLayers().map((l) => l.id);
+    expect(layers.indexOf(NETWORK_LAYER.endRing)).toBeLessThan(
+      layers.indexOf(NETWORK_LAYER.endDot),
+    );
   });
 });

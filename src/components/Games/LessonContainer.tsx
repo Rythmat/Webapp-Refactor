@@ -8,6 +8,7 @@ import {
   useLearnInputStable,
 } from '@/learn/context/LearnInputContext';
 import { readLessonOrigin } from '@/lib/learn/lessonOrigin';
+import { theoryScaleMidis, theoryTonicMidi } from '@/lib/learn/theoryRegister';
 import { getLocalModeSteps } from '@/lib/modeStepsFallback';
 import { keyLabelToSemitone, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { ActivityFlow } from './ActivityFlow';
@@ -23,36 +24,21 @@ type LessonContainerProps = {
 type KeyOption = { label: string; midi: number };
 
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
-const BASE_C4 = 60;
 
 const normalizeKeyLabel = (input?: string) => {
   return urlParamToKeyLabel(input);
 };
 
+/** The key and its tonic, C3–B3: the scale and chords start there and climb
+ *  (lib/learn/theoryRegister). */
 const resolveKeyOption = (input?: string): KeyOption => {
   const normalized = normalizeKeyLabel(input);
   const semitone = keyLabelToSemitone(normalized);
   return {
     label: normalized,
-    midi: BASE_C4 + semitone,
+    midi: theoryTonicMidi(semitone),
   };
 };
-
-const normalizeSteps = (steps?: number[]) => {
-  if (!steps || steps.length === 0) return DEFAULT_INTERVALS;
-  const unique = new Set<number>();
-  steps.forEach((s) => {
-    if (typeof s === 'number' && Number.isFinite(s)) {
-      unique.add(Math.round(s));
-    }
-  });
-  if (!unique.has(0)) unique.add(0);
-  if (!Array.from(unique).some((n) => n >= 12)) unique.add(12);
-  return Array.from(unique).sort((a, b) => a - b);
-};
-
-const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
-  normalizeSteps(steps).map((interval) => rootMidi + interval);
 
 export const LessonContainer = (props: LessonContainerProps) => {
   return (
@@ -86,7 +72,7 @@ const LessonContainerInner = ({
   const scaleSteps =
     getLocalModeSteps(modeSlug) ?? modeDetail?.steps ?? DEFAULT_INTERVALS;
   const scaleMidis = useMemo(
-    () => buildScaleMidis(keyOption.midi, scaleSteps),
+    () => theoryScaleMidis(keyOption.midi, scaleSteps),
     [keyOption.midi, scaleSteps],
   );
 

@@ -32,7 +32,7 @@ export function ParallelModesOverview() {
     return MODE_STEPS[activeMode.modeSlug] ?? [0, 2, 4, 5, 7, 9, 11];
   }, [activeMode]);
 
-  const rootMidi = activeMode ? rootToMidi(activeMode.root) : 60;
+  const rootMidi = rootToMidi(activeMode?.root ?? 'C');
   const scaleMidis = useMemo(
     () => [...buildScaleMidis(rootMidi, steps), rootMidi + 12],
     [rootMidi, steps],

@@ -4,7 +4,12 @@ import { HeaderBar } from '@/components/ClassroomLayout/HeaderBar';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { KEY_OF_COLORS } from '@/constants/theme';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
-import { rootToMidi, buildScaleMidis, MODE_STEPS } from './modeHelpers';
+import {
+  buildScaleMidis,
+  MODE_STEPS,
+  relativeRootMidi,
+  rootToMidi,
+} from './modeHelpers';
 import { findByUrlParam, getRelativeMode } from './relativeModeContent';
 import './learn.css';
 
@@ -44,7 +49,12 @@ export function RelativeModesOverview() {
     [activeModeIndex],
   );
 
-  const rootMidi = activeMode ? rootToMidi(activeMode.root) : 60;
+  // The seven modes climb the key's scale: each starts on the next scale
+  // note up from the last, never back down an octave (lib/learn/theoryRegister).
+  const tonicMidi = entry ? rootToMidi(entry.scaleNotes[0]) : rootToMidi('C');
+  const rootMidi = activeMode
+    ? relativeRootMidi(tonicMidi, activeMode.root)
+    : tonicMidi;
   const scaleMidis = useMemo(
     () => [...buildScaleMidis(rootMidi, steps), rootMidi + 12],
     [rootMidi, steps],

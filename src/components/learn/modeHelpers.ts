@@ -1,4 +1,5 @@
 import type { PlaybackEvent } from '@/contexts/PlaybackContext';
+import { theoryTonicMidi } from '@/lib/learn/theoryRegister';
 
 export interface ModeKeyEntry {
   root: string;
@@ -72,12 +73,16 @@ export const NOTE_TO_PITCH_CLASS: Record<string, number> = {
   Bbb: 9,
 };
 
-const BASE_C4 = 60;
+/** A Theory scale's root, C3–B3 (lib/learn/theoryRegister). */
+export const rootToMidi = (root: string): number =>
+  theoryTonicMidi(NOTE_TO_PITCH_CLASS[root] ?? 0);
 
-export const rootToMidi = (root: string): number => {
-  const pc = NOTE_TO_PITCH_CLASS[root];
-  return pc !== undefined ? BASE_C4 + pc : BASE_C4;
-};
+/**
+ * A relative mode's root: the parent key's scale note it starts on, at or
+ * above the parent's tonic, so that the seven modes climb the scale.
+ */
+export const relativeRootMidi = (tonicMidi: number, root: string): number =>
+  tonicMidi + ((((rootToMidi(root) - tonicMidi) % 12) + 12) % 12);
 
 export const buildScaleMidis = (rootMidi: number, steps: number[]): number[] =>
   steps.map((s) => rootMidi + s);

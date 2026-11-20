@@ -78,6 +78,7 @@ describe('a journey’s leg', () => {
       title: 'Clarksdale → Memphis',
     });
     expect(links.dotted.features).toHaveLength(0);
-    expect(links.pills.features).toHaveLength(0);
+    // Its far end: one dot, where it goes.
+    expect(links.ends.features).toHaveLength(1);
   });
 });

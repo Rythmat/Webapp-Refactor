@@ -84,6 +84,13 @@ import {
   transposeBluesPhrase,
 } from '@/lib/learn/bluesPhrases';
 import { getScaleLesson, spellScaleChord } from '@/lib/learn/scaleLessons';
+import {
+  diatonicChordLadder,
+  inChordRegister,
+  THEORY_MELODY_OCTAVE,
+  THEORY_TONIC_LOW,
+  theoryScaleMidis,
+} from '@/lib/learn/theoryRegister';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import {
   selectMelodyPhrases,
@@ -162,7 +169,7 @@ type ActivityFlowProps = {
 };
 type ActivityState = 'pending' | 'active' | 'completed';
 
-const DEFAULT_SCALE: number[] = [60, 62, 64, 65, 67, 69, 71, 72];
+const DEFAULT_SCALE: number[] = theoryScaleMidis(THEORY_TONIC_LOW);
 const NOTE_DURATION_TICKS = 480;
 const CHROMATIC_KEYS = [
   'C',
@@ -251,17 +258,6 @@ const ChordLoadingStep: (props: FlowActivityProps) => JSX.Element = ({
     </div>
   </div>
 );
-
-/**
- * A chord figure moves as one unit, down an octave while its top note is
- * above C6 — the 5–7 chords of a high key would otherwise climb past it
- * (chord-bass register rule).
- */
-const inChordRegister = (figure: number[][]): number[][] => {
-  const top = Math.max(...figure.flat());
-  const shift = top > 84 ? -12 * Math.ceil((top - 84) / 12) : 0;
-  return shift ? figure.map((chord) => chord.map((m) => m + shift)) : figure;
-};
 
 const isNumberArray = (value: unknown): value is number[] =>
   Array.isArray(value) &&
@@ -374,38 +370,36 @@ export const ActivityFlow = ({
   const chordsPending = !scaleLesson && chordsQuery.isPending;
   const chordResponse = chordsQuery.data;
   // const modeChords: PrismModeChordDataMap | undefined = chordResponse?.chords;
-  // The scale's own chords, stacked in thirds from each degree: Chords
-  // shows from these while the API's are loading, or if it never sends any
-  // (owner, 2026-10-26: Chords must always be there). Not for a scale
-  // lesson, which teaches no chords.
-  const localChords = useMemo(() => {
-    const seven = (scaleMidis ?? []).slice(0, 7);
-    if (scaleLesson || seven.length < 7) return { triads: [], tetrads: [] };
-    const stack = (size: number) =>
-      seven.map((_, degree) =>
-        Array.from({ length: size }, (_, k) => {
-          const step = degree + 2 * k;
-          return seven[step % 7] + 12 * Math.floor(step / 7);
-        }),
-      );
-    return { triads: stack(3), tetrads: stack(4) };
-  }, [scaleMidis, scaleLesson]);
-
-  const triads = useMemo(() => {
-    const raw = chordResponse?.chords?.triads;
-    if (!raw || !Array.isArray(raw) || raw.length === 0) {
-      return localChords.triads;
-    }
-    return raw.map((arr) => arr.map((i) => i + rootMidi));
-  }, [chordResponse, rootMidi, localChords]);
-
-  const tetrads = useMemo(() => {
-    const raw = chordResponse?.chords?.tetrads;
-    if (!raw || !Array.isArray(raw) || raw.length === 0) {
-      return localChords.tetrads;
-    }
-    return raw.map((arr) => arr.map((i) => i + rootMidi));
-  }, [chordResponse, rootMidi, localChords]);
+  // The scale's chords, one on every degree, each in root position on its own
+  // scale note so that 1 to 7 climb with the scale (lib/learn/theoryRegister).
+  // The API's chords, when they come, decide each chord's notes and the ladder
+  // decides where they sit: they used to be placed one by one, and a chord
+  // that went over C6 dropped an octave in the middle of the run (A Ionian at
+  // F♯ min). Chords shows the scale's own while the API's load, or if it never
+  // sends any (owner, 2026-10-26: Chords must always be there). Not for a
+  // scale lesson, which teaches no chords.
+  const { triads, tetrads } = useMemo(() => {
+    if (scaleLesson) return { triads: [], tetrads: [] };
+    const given = (raw: unknown) =>
+      Array.isArray(raw)
+        ? raw.map((arr) =>
+            isNumberArray(arr) ? arr.map((i) => i + rootMidi) : undefined,
+          )
+        : [];
+    const scale = scaleMidis ?? [];
+    return {
+      triads: diatonicChordLadder(
+        scale,
+        3,
+        given(chordResponse?.chords?.triads),
+      ),
+      tetrads: diatonicChordLadder(
+        scale,
+        4,
+        given(chordResponse?.chords?.tetrads),
+      ),
+    };
+  }, [chordResponse, rootMidi, scaleMidis, scaleLesson]);
 
   // Chord symbols for the staff. The mode's chord-scale table already names
   // every degree the way the formatter reads it ("1 maj", "6 min"), so the
@@ -544,7 +538,11 @@ export const ActivityFlow = ({
       touch: 'as-written' | 'staccato' | 'mixed' = 'as-written',
     ): NoteEvent[] => {
       if (writtenPhrases) {
-        const written = transposeBluesPhrase(writtenPhrases[slot], rootMidi);
+        // Melodies keep their register, an octave over the scale.
+        const written = transposeBluesPhrase(
+          writtenPhrases[slot],
+          rootMidi + THEORY_MELODY_OCTAVE,
+        );
         if (touch === 'staccato')
           return timedSequenceToStoccatoEvents(written, prefix);
         if (touch === 'mixed')
@@ -668,9 +666,7 @@ export const ActivityFlow = ({
           key,
           label: `${rootKey} ${modeTitle} ${name} ${noun} • Arpeggio & Hold`,
           Component: PlayAlong,
-          seq: applyActivityColor(
-            chordArpeggioThenHold(inChordRegister([chord])[0], key),
-          ),
+          seq: applyActivityColor(chordArpeggioThenHold(chord, key)),
           direction: `In a steady tempo, play the ${tones} of the ${name} chord one at a time going up, then play the chord and hold it for the bar.`,
           section: 'B' as SectionId,
           chordSymbols: symbolsAtBars(kind, [degree, degree]),
@@ -687,9 +683,7 @@ export const ActivityFlow = ({
           key,
           label: `${rootKey} ${modeTitle} ${noun} Progression ${progressionChart(degrees)} • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(
-            midiSequenceToWholeNotes(inChordRegister(figure), key),
-          ),
+          seq: applyActivityColor(midiSequenceToWholeNotes(figure, key)),
           direction: `In a steady tempo, play ${progressionChart(degrees)}, one ${noun.toLowerCase()} per bar.`,
           section: 'B' as SectionId,
           chordSymbols: symbolsAtBars(kind, degrees),
@@ -790,9 +784,11 @@ export const ActivityFlow = ({
     }
     const scale =
       scaleMidis && scaleMidis.length > 0 ? scaleMidis : DEFAULT_SCALE;
+    // Melodies keep their register, an octave over the scale and chords
+    // (lib/learn/theoryRegister).
     return selectMelodyPhrases(
       availableContours,
-      scale,
+      scale.map((midi) => midi + THEORY_MELODY_OCTAVE),
       1,
       scaleLesson?.chordTones,
     );
